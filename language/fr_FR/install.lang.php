@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -65,4 +66,5 @@ $lang['Just another Piwigo gallery'] = 'Une galerie Piwigo de plus';
 $lang['Welcome to my photo gallery'] = 'Bienvenue sur ma galerie photo';
 $lang['Welcome to your new installation of Piwigo!'] = 'Bienvenue sur votre nouvelle installation de Piwigo !';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'N\'hésitez pas à consulter nos forums si vous avez le moindre problème : %s';
-?>
+
+$lang['Database type'] = "Type de base de données";

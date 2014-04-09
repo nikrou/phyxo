@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,10 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
+define('LOG_FILENAME', 'phyxo');
+include_once('/var/projets/common/Log.php');
+
 
 //----------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
@@ -127,23 +132,25 @@ if (!empty($_GET['dl']) && file_exists(PHPWG_ROOT_PATH.$conf['data_location'].'p
   exit();
 } 
 
+// all available engines
+include(PHPWG_ROOT_PATH . 'admin/include/functions_install.inc.php');
+$dbengines = available_engines();
+
 // Obtain various vars
 $dbhost = (!empty($_POST['dbhost'])) ? $_POST['dbhost'] : 'localhost';
 $dbuser = (!empty($_POST['dbuser'])) ? $_POST['dbuser'] : '';
 $dbpasswd = (!empty($_POST['dbpasswd'])) ? $_POST['dbpasswd'] : '';
 $dbname = (!empty($_POST['dbname'])) ? $_POST['dbname'] : '';
-$dblayer = extension_loaded('mysqli') ? 'mysqli' : 'mysql';
+$dblayer = (!empty($_POST['dblayer']) && !empty($dbengines[$_POST['dblayer']]))?$_POST['dblayer']:'mysql';
+
+if ($dblayer=='mysql' && extension_loaded('mysqli')) {
+    $dblayer = 'mysqli';
+}
 
 $admin_name = (!empty($_POST['admin_name'])) ? $_POST['admin_name'] : '';
 $admin_pass1 = (!empty($_POST['admin_pass1'])) ? $_POST['admin_pass1'] : '';
 $admin_pass2 = (!empty($_POST['admin_pass2'])) ? $_POST['admin_pass2'] : '';
 $admin_mail = (!empty($_POST['admin_mail'])) ? $_POST['admin_mail'] : '';
-
-$is_newsletter_subscribe = true;
-if (isset($_POST['install']))
-{
-  $is_newsletter_subscribe = isset($_POST['newsletter_subscribe']);
-}
 
 $infos = array();
 $errors = array();
@@ -188,47 +195,6 @@ else
   }
 }
 
-if ('fr_FR' == $language) {
-  define('PHPWG_DOMAIN', 'fr.piwigo.org');
-}
-else if ('it_IT' == $language) {
-  define('PHPWG_DOMAIN', 'it.piwigo.org');
-}
-else if ('de_DE' == $language) {
-  define('PHPWG_DOMAIN', 'de.piwigo.org');
-}
-else if ('es_ES' == $language) {
-  define('PHPWG_DOMAIN', 'es.piwigo.org');
-}
-else if ('pl_PL' == $language) {
-  define('PHPWG_DOMAIN', 'pl.piwigo.org');
-}
-else if ('zh_CN' == $language) {
-  define('PHPWG_DOMAIN', 'cn.piwigo.org');
-}
-else if ('hu_HU' == $language) {
-  define('PHPWG_DOMAIN', 'hu.piwigo.org');
-}
-else if ('ru_RU' == $language) {
-  define('PHPWG_DOMAIN', 'ru.piwigo.org');
-}
-else if ('nl_NL' == $language) {
-  define('PHPWG_DOMAIN', 'nl.piwigo.org');
-}
-else if ('tr_TR' == $language) {
-  define('PHPWG_DOMAIN', 'tr.piwigo.org');
-}
-else if ('da_DK' == $language) {
-  define('PHPWG_DOMAIN', 'da.piwigo.org');
-}
-else if ('pt_BR' == $language) {
-  define('PHPWG_DOMAIN', 'br.piwigo.org');
-}
-else {
-  define('PHPWG_DOMAIN', 'piwigo.org');
-}
-define('PHPWG_URL', 'http://'.PHPWG_DOMAIN);
-
 load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8'));
 load_language('admin.lang', '', array('language' => $language, 'target_charset'=>'utf-8'));
 load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8'));
@@ -247,46 +213,49 @@ if (!isset($step))
 {
   $step = 1;
 }
+
 //---------------------------------------------------------------- form analyze
 include(PHPWG_ROOT_PATH .'include/dblayer/functions_'.$dblayer.'.inc.php');
-include(PHPWG_ROOT_PATH . 'admin/include/functions_install.inc.php');
 include(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
-if (isset($_POST['install']))
-{
-  install_db_connect($infos, $errors);
-  pwg_db_check_charset();
-
-  $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
-  if (empty($webmaster))
-  {
-    $errors[] = l10n('enter a login for webmaster');
-  }
-  else if (preg_match( '/[\'"]/', $webmaster))
-  {
-    $errors[] = l10n('webmaster login can\'t contain characters \' or "');
-  }
-  if ($admin_pass1 != $admin_pass2 || empty($admin_pass1))
-  {
-    $errors[] = l10n('please enter your password again');
-  }
-  if (empty($admin_mail))
-  {
-    $errors[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
-  }
-  else
-  {
-    $error_mail_address = validate_mail_address(null, $admin_mail);
-    if (!empty($error_mail_address))
-    {
-      $errors[] = $error_mail_address;
+if (isset($_POST['install'])) {
+    if ($dblayer != 'sqlite') {
+        if (empty($dbuser)) {
+            $errors[] = l10n('Database user is mandatory');
+        }
+        if (empty($dbpasswd)) {
+            $errors[] = l10n('Database password is mandatory');
+        }
+        if (empty($dbname)) {
+            $errors[] = l10n('Database name is mandatory');
+        }
     }
-  }
+    if (empty($errors)) {
+        install_db_connect($infos, $errors);
+        pwg_db_check_charset();
+    }
 
-  if ( count( $errors ) == 0 )
-  {
-    $step = 2;
-    $file_content = '<?php
+    $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
+    if (empty($webmaster)) {
+        $errors[] = l10n('enter a login for webmaster');
+    } elseif (preg_match( '/[\'"]/', $webmaster)) {
+        $errors[] = l10n('webmaster login can\'t contain characters \' or "');
+    }
+    if ($admin_pass1 != $admin_pass2 || empty($admin_pass1)) {
+        $errors[] = l10n('please enter your password again');
+    }
+    if (empty($admin_mail)) {
+        $errors[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+    } else {
+        $error_mail_address = validate_mail_address(null, $admin_mail);
+        if (!empty($error_mail_address)) {
+            $errors[] = $error_mail_address;
+        }
+    }
+
+    if ( count( $errors ) == 0 ) {
+        $step = 2;
+        $file_content = '<?php
 $conf[\'dblayer\'] = \''.$dblayer.'\';
 $conf[\'db_base\'] = \''.$dbname.'\';
 $conf[\'db_user\'] = \''.$dbuser.'\';
@@ -298,128 +267,112 @@ $prefixeTable = \''.$prefixeTable.'\';
 define(\'PHPWG_INSTALLED\', true);
 define(\'PWG_CHARSET\', \'utf-8\');
 define(\'DB_CHARSET\', \'utf8\');
-define(\'DB_COLLATE\', \'\');
+define(\'DB_COLLATE\', \'\');';
 
-?'.'>';
+        @umask(0111);
+        // writing the configuration file
+        if ( !($fp = @fopen( $config_file, 'w' ))) {
+            // make sure nobody can list files of _data directory
+            secure_directory(PHPWG_ROOT_PATH.$conf['data_location']);
+            
+            $tmp_filename = md5(uniqid(time()));
+            $fh = @fopen( PHPWG_ROOT_PATH.$conf['data_location'] . 'pwg_' . $tmp_filename, 'w' );
+            @fputs($fh, $file_content, strlen($file_content));
+            @fclose($fh);
 
-    @umask(0111);
-    // writing the configuration file
-    if ( !($fp = @fopen( $config_file, 'w' )))
-    {
-      // make sure nobody can list files of _data directory
-      secure_directory(PHPWG_ROOT_PATH.$conf['data_location']);
-      
-      $tmp_filename = md5(uniqid(time()));
-      $fh = @fopen( PHPWG_ROOT_PATH.$conf['data_location'] . 'pwg_' . $tmp_filename, 'w' );
-      @fputs($fh, $file_content, strlen($file_content));
-      @fclose($fh);
+            $template->assign(
+                array(
+                    'config_creation_failed' => true,
+                    'config_url' => 'install.php?dl='.$tmp_filename,
+                    'config_file_content' => $file_content,
+                )
+            );
+        }
+        @fputs($fp, $file_content, strlen($file_content));
+        @fclose($fp);
 
-      $template->assign(
-        array(
-          'config_creation_failed' => true,
-          'config_url' => 'install.php?dl='.$tmp_filename,
-          'config_file_content' => $file_content,
-          )
+        // tables creation, based on piwigo_structure.sql
+        execute_sqlfile(
+            PHPWG_ROOT_PATH.'install/piwigo_structure-'.$dblayer.'.sql',
+            DEFAULT_PREFIX_TABLE,
+            $prefixeTable,
+            $dblayer
         );
-    }
-    @fputs($fp, $file_content, strlen($file_content));
-    @fclose($fp);
+        // We fill the tables with basic informations
+        execute_sqlfile(
+            PHPWG_ROOT_PATH.'install/config.sql',
+            DEFAULT_PREFIX_TABLE,
+            $prefixeTable,
+            $dblayer
+        );
 
-    // tables creation, based on piwigo_structure.sql
-    execute_sqlfile(
-      PHPWG_ROOT_PATH.'install/piwigo_structure-mysql.sql',
-      DEFAULT_PREFIX_TABLE,
-      $prefixeTable,
-      'mysql'
-      );
-    // We fill the tables with basic informations
-    execute_sqlfile(
-      PHPWG_ROOT_PATH.'install/config.sql',
-      DEFAULT_PREFIX_TABLE,
-      $prefixeTable,
-      'mysql'
-      );
-
-    $query = '
+        $query = '
 INSERT INTO '.$prefixeTable.'config (param,value,comment) 
    VALUES (\'secret_key\',md5('.pwg_db_cast_to_text(DB_RANDOM_FUNCTION.'()').'),
    \'a secret key specific to the gallery for internal use\');';
-    pwg_query($query);
+        pwg_query($query);
+    
+        conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
+        conf_update_param('gallery_title', l10n('Just another Piwigo gallery'));
+        conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
+        
+        // fill languages table
+        foreach ($languages->fs_languages as $language_code => $fs_language) {
+            $languages->perform_action('activate', $language_code);
+        }
 
-    conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
-    conf_update_param('gallery_title', l10n('Just another Piwigo gallery'));
-    conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
+        // fill $conf global array
+        load_conf_from_db();
 
-    // fill languages table
-    foreach ($languages->fs_languages as $language_code => $fs_language)
-    {
-      $languages->perform_action('activate', $language_code);
-    }
+        // PWG_CHARSET is required for building the fs_themes array in the
+        // themes class
+        if (!defined('PWG_CHARSET')) {
+            define('PWG_CHARSET', 'utf-8');
+        }
+        activate_core_themes();
+        
+        $insert = array(
+            'id' => 1,
+            'galleries_url' => PHPWG_ROOT_PATH.'galleries/',
+        );
+        mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
 
-    // fill $conf global array
-    load_conf_from_db();
-
-    // PWG_CHARSET is required for building the fs_themes array in the
-    // themes class
-    if (!defined('PWG_CHARSET'))
-    {
-      define('PWG_CHARSET', 'utf-8');
-    }
-    activate_core_themes();
-
-    $insert = array(
-      'id' => 1,
-      'galleries_url' => PHPWG_ROOT_PATH.'galleries/',
-      );
-    mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
-
-    // webmaster admin user
-    $inserts = array(
-      array(
-        'id'           => 1,
-        'username'     => $admin_name,
-        'password'     => md5($admin_pass1),
-        'mail_address' => $admin_mail,
-        ),
-      array(
-        'id'           => 2,
-        'username'     => 'guest',
-        ),
-      );
-    mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
-
-    create_user_infos(array(1,2), array('language' => $language));
-
-    // Available upgrades must be ignored after a fresh installation. To
-    // make PWG avoid upgrading, we must tell it upgrades have already been
-    // made.
-    list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
-    define('CURRENT_DATE', $dbnow);
-    $datas = array();
-    foreach (get_available_upgrade_ids() as $upgrade_id)
-    {
-      $datas[] = array(
-        'id'          => $upgrade_id,
-        'applied'     => CURRENT_DATE,
-        'description' => 'upgrade included in installation',
+        // webmaster admin user
+        $inserts = array(
+            array(
+                'id'           => 1,
+                'username'     => $admin_name,
+                'password'     => md5($admin_pass1),
+                'mail_address' => $admin_mail,
+            ),
+            array(
+                'id'           => 2,
+                'username'     => 'guest',
+            ),
+        );
+        mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
+        
+        create_user_infos(array(1,2), array('language' => $language));
+        
+        // Available upgrades must be ignored after a fresh installation. To
+        // make PWG avoid upgrading, we must tell it upgrades have already been
+        // made.
+        list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+        define('CURRENT_DATE', $dbnow);
+        $datas = array();
+        foreach (get_available_upgrade_ids() as $upgrade_id) {
+            $datas[] = array(
+                'id'          => $upgrade_id,
+                'applied'     => CURRENT_DATE,
+                'description' => 'upgrade included in installation',
+            );
+        }
+        mass_inserts(
+            UPGRADE_TABLE,
+            array_keys($datas[0]),
+            $datas
         );
     }
-    mass_inserts(
-      UPGRADE_TABLE,
-      array_keys($datas[0]),
-      $datas
-      );
-
-    if ($is_newsletter_subscribe)
-    {
-      fetchRemote(
-        get_newsletter_subscribe_base_url($language).$admin_mail,
-        $result,
-        array(),
-        array('origin' => 'installation')
-        );
-    }
-  }
 }
 
 //------------------------------------------------------ start template output
@@ -438,15 +391,15 @@ $template->assign(
     'T_CONTENT_ENCODING' => 'utf-8',
     'RELEASE' => PHPWG_VERSION,
     'F_ACTION' => 'install.php?language=' . $language,
+    'F_DB_ENGINES' => $dbengines,
+    'F_DB_LAYER' => $dblayer,
     'F_DB_HOST' => $dbhost,
     'F_DB_USER' => $dbuser,
     'F_DB_NAME' => $dbname,
     'F_DB_PREFIX' => $prefixeTable,
     'F_ADMIN' => $admin_name,
     'F_ADMIN_EMAIL' => $admin_mail,
-    'EMAIL' => '<span class="adminEmail">'.$admin_mail.'</span>',
-    'F_NEWSLETTER_SUBSCRIBE' => $is_newsletter_subscribe,
-    'L_INSTALL_HELP' => l10n('Need help ? Ask your question on <a href="%s">Piwigo message board</a>.', PHPWG_URL.'/forum'),
+    'EMAIL' => '<span class="adminEmail">'.$admin_mail.'</span>'
     ));
 
 //------------------------------------------------------ errors & infos display
@@ -525,4 +478,3 @@ if (count($infos) != 0 )
 
 //----------------------------------------------------------- html code display
 $template->pparse('install');
-?>

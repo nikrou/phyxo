@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -107,4 +108,29 @@ function install_db_connect(&$infos, &$errors)
   }
 }
 
-?>
+/**
+ * Search for database engines available
+ *
+ * We search for functions_DATABASE_ENGINE.inc.php 
+ * and we check if the connect function for that database exists 
+ *
+ * @return array
+ */
+function available_engines() {
+    $engines = array();
+
+    $pattern = PHPWG_ROOT_PATH. 'include/dblayer/functions_%s.inc.php';
+    include_once PHPWG_ROOT_PATH. 'include/dblayer/dblayers.inc.php';
+    
+    foreach ($dblayers as $engine_name => $engine) {
+        if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])
+        && function_exists($engine['function_available'])) {
+            $engines[$engine_name] = $engine['engine'];
+        } elseif (file_exists(sprintf($pattern, $engine_name)) && isset($engine['class_available'])
+	    && class_exists($engine['class_available'])) {
+            $engines[$engine_name] = $engine['engine'];
+        }
+    }
+  
+    return $engines;
+}

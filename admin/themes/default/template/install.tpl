@@ -22,6 +22,7 @@
 <!-- END get_combined_scripts -->
 
 {combine_script id='jquery' path='themes/default/js/jquery.min.js'}
+{combine_script id='jquery-install' path='admin/themes/default/js/install.js'}
 {literal}
 <script type="text/javascript">
 $(document).ready(function() {
@@ -52,8 +53,6 @@ body {
 
 #theHeader {
   display: block;
-  background:url("admin/themes/clear/images/piwigo_logo_big.png") no-repeat scroll center 20px transparent;
-  height:100px;
 }
 
 fieldset {
@@ -148,7 +147,7 @@ jQuery().ready(function(){ldelim}
 {/footer_script}
 
 
-<title>Piwigo {$RELEASE} - {'Installation'|@translate}</title>
+<title>Phyxo {$RELEASE} - {'Installation'|@translate}</title>
 </head>
 
 <body>
@@ -156,7 +155,7 @@ jQuery().ready(function(){ldelim}
 <div id="theHeader"></div>
 <div id="content" class="content">
 
-<h2>{'Version'|@translate} {$RELEASE} - {'Installation'|@translate}</h2>
+<h2>Phyxo {'Version'|@translate} {$RELEASE} - {'Installation'|@translate}</h2>
 
 {if isset($config_creation_failed)}
 <div class="errors">
@@ -220,6 +219,21 @@ jQuery().ready(function(){ldelim}
   <legend>{'Database configuration'|@translate}</legend>
 
   <table class="table2">
+    {if count($F_DB_ENGINES)>1}
+    <tr>
+      <td style="width: 30%;">{'Database type'|@translate}</td>
+      <td>
+	<select name="dblayer" id="dblayer">
+	  {html_options options=$F_DB_ENGINES selected=$F_DB_LAYER}
+	</select>    
+      </td>
+      <td>{'Database type'|@translate}</td>
+    {else}
+    <td colspan="3">
+    <input type="hidden" name="dbengine" value="{$F_DB_LAYER}">
+    </td>
+    </tr>
+    {/if}
     <tr>
       <td style="width: 30%;" class="fieldname">{'Host'|@translate}</td>
       <td><input type="text" name="dbhost" value="{$F_DB_HOST}"></td>
@@ -276,12 +290,7 @@ jQuery().ready(function(){ldelim}
       <td>{'Options'|@translate}</options>
       <td colspan="2">
         <label>
-          <input type="checkbox" name="newsletter_subscribe"{if $F_NEWSLETTER_SUBSCRIBE} checked="checked"{/if}>
-          <span class="cluetip" title="{'Piwigo Announcements Newsletter'|@translate}|{'Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will receive emails when a new release is available (sometimes including a security bug fix, it\'s important to know and upgrade) and when major events happen to the project. Only a few emails a year.'|@translate|@htmlspecialchars|@nl2br}">{'Subscribe %s to Piwigo Announcements Newsletter'|@translate:$EMAIL}</span>
-        </label>
-        <br>
-        <label>
-          <input type="checkbox" name="send_password_by_mail" checked="checked">
+          <input type="checkbox" name="send_password_by_mail">
           {'Send my connection settings by email'|@translate}
         </label>
       </td>
@@ -300,7 +309,6 @@ jQuery().ready(function(){ldelim}
 </p>
 {/if}
 </div> {* content *}
-<div style="text-align: center">{$L_INSTALL_HELP}</div>
 </div> {* the_page *}
 
 <!-- BEGIN get_combined_scripts -->

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -479,6 +480,8 @@ DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.'
       // Due to concurrency issues, we ask MySQL to ignore errors on
       // insert. This may happen when cache needs refresh and that Piwigo is
       // called "very simultaneously".
+
+      // TODO : update cache in a transaction
       mass_inserts(
         USER_CACHE_CATEGORIES_TABLE,
         array(
@@ -486,7 +489,7 @@ DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.'
           'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
           ),
         $user_cache_cats,
-        array('ignore' => true)
+        array('ignore' => false)
       );
 
 
@@ -498,8 +501,11 @@ DELETE FROM '.USER_CACHE_TABLE.'
 
       // for the same reason as user_cache_categories, we ignore error on
       // this insert
+
+      // TODO : update cache in a transaction
+
       $query = '
-INSERT IGNORE INTO '.USER_CACHE_TABLE.'
+INSERT INTO '.USER_CACHE_TABLE.'
   (user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,
     last_photo_date,
     image_access_type, image_access_list)

@@ -1,0 +1,7 @@
+;; data
+/_data/*
+/upload/*
+
+;; conf
+/local/config/config.php
+local/config/database.inc.php
