@@ -1,7 +1,14 @@
 ;; data
 /_data/*
 /upload/*
+/galleries/*
 
 ;; conf
 /local/config/config.php
 local/config/database.inc.php
+
+;; external libraries
+/vendor/*
+
+/bin/*
+

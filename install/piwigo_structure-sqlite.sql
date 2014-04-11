@@ -471,7 +471,7 @@ CREATE TABLE "piwigo_users"
 (
   "id" INTEGER  NOT NULL,
   "username" VARCHAR(100) default '' NOT NULL,
-  "password" VARCHAR(32),
+  "password" VARCHAR(255),
   "mail_address" VARCHAR(255),
   PRIMARY KEY ("id"),
   CONSTRAINT "users_ui1" UNIQUE ("username")

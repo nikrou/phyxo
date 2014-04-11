@@ -94,9 +94,9 @@ UPDATE '.$matches[1].'
 INSERT INTO '.$matches[1].'
   '.$matches[2].' VALUES('.$matches[3].','.$matches[4].')';
         }
-        ( $result = pg_query($pwg_db_link, $query)) or die($query."\n<br>".pg_last_error());      
+        $result = pg_query($pwg_db_link, $query) or die($query."\n<br>".pg_last_error());
     } else  {
-        ($result = pg_query($pwg_db_link, $query)) or die($query."\n<br>".pg_last_error());
+        $result = pg_query($pwg_db_link, $query) or die($query."\n<br>".pg_last_error());
     }
 
     $time = microtime(true) - $start;
@@ -158,6 +158,10 @@ function pwg_db_num_rows($result) {
 
 function pwg_db_fetch_assoc($result) {
     return pg_fetch_assoc($result);
+}
+
+function pwg_db_fetch_array($result) {
+    return pg_fetch_array($result);
 }
 
 function pwg_db_fetch_row($result) {
@@ -444,6 +448,10 @@ function pwg_db_get_recent_period($period, $date='CURRENT_DATE') {
     return $d;
 }
 
+function pwg_db_date_to_ts($date) {
+    return 'EXTRACT(EPOCH FROM '.$date.')';
+}
+
 function pwg_db_get_date_YYYYMM($date) {
     return 'TO_CHAR('.$date.', \'YYYYMM\')';
 }
@@ -661,4 +669,10 @@ UPDATE '.$tablename.'
 
     pwg_query($query);
   }
+}
+
+function pwg_db_close() {
+    global $pwg_db_link;
+    
+    return pg_close($pwg_db_link);
 }

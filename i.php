@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // +-----------------------------------------------------------------------+
@@ -627,4 +628,42 @@ ilog('perf',
   function_exists('memory_get_peak_usage') ? round( memory_get_peak_usage()/(1024*1024), 1) : '',
   time_step($begin),
   '|', $timing);
-?>
+
+
+// TODO : find a better way to make i.php do his job; avoid duplication
+
+/**
+ * Add or update a config parameter
+ *
+ * @param string $param
+ * @param string $value
+ */
+function conf_update_param($param, $value)
+{
+  $query = '
+SELECT param
+  FROM '.CONFIG_TABLE.'
+  WHERE param = \''.$param.'\'
+;';
+  $params = query2array($query, null, 'param');
+
+  if (count($params) == 0)
+  {
+    $query = '
+INSERT
+  INTO '.CONFIG_TABLE.'
+  (param, value)
+  VALUES(\''.$param.'\', \''.$value.'\')
+;';
+    pwg_query($query);
+  }
+  else
+  {
+    $query = '
+UPDATE '.CONFIG_TABLE.'
+  SET value = \''.$value.'\'
+  WHERE param = \''.$param.'\'
+;';
+    pwg_query($query);
+  }
+}

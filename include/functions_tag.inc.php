@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -262,15 +263,10 @@ SELECT t.*, count(*) AS counter
   }
   $query .='
   GROUP BY t.id
-  ORDER BY ';
-  if ($max_tags>0)
-  { // TODO : why ORDER field is in the if ?
-    $query .= 'counter DESC
+   ';
+  if ($max_tags>0) {
+    $query .= 'ORDER BY counter DESC
   LIMIT '.$max_tags;
-  }
-  else
-  {
-    $query .= 'NULL';
   }
 
   $result = pwg_query($query);
@@ -322,5 +318,3 @@ SELECT *
 
   return query2array($query);
 }
-
-?>
