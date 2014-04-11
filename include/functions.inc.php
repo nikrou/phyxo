@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 /**
- * @package functions\___
+ * @package functions\
  */
 
 include_once( PHPWG_ROOT_PATH .'include/functions_plugins.inc.php' );
@@ -2016,4 +2017,6 @@ function safe_version_compare($a, $b, $op=null)
   }
 }
 
-?>
+function addOrderByFields($order_by_string) {
+    return str_ireplace(array('order by', ' asc', ' desc'), array('', '', ''), $order_by_string);
+}

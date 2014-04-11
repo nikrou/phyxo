@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -316,7 +317,7 @@ SELECT id
 
     // main query
     $query = '
-SELECT DISTINCT(image_id)
+SELECT DISTINCT(image_id),'.addOrderByFields($conf['order_by']).'
   FROM '.IMAGE_CATEGORY_TABLE.'
     INNER JOIN '.IMAGES_TABLE.' ON id = image_id
   WHERE
@@ -449,7 +450,7 @@ SELECT image_id
     }
 
     $query = '
-SELECT DISTINCT(id)
+SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).'
   FROM '.IMAGES_TABLE.'
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id
   WHERE '
@@ -488,7 +489,7 @@ SELECT DISTINCT(id)
     $conf['order_by'] = ' ORDER BY hit DESC, id DESC';
 
     $query = '
-SELECT DISTINCT(id)
+SELECT DISTINCT(id), '.addOrderByFields($conf['order_by']).'
   FROM '.IMAGES_TABLE.'
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id
   WHERE hit > 0
@@ -515,7 +516,7 @@ SELECT DISTINCT(id)
     $conf['order_by'] = ' ORDER BY rating_score DESC, id DESC';
 
     $query ='
-SELECT DISTINCT(id)
+SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).'
   FROM '.IMAGES_TABLE.'
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id
   WHERE rating_score IS NOT NULL
@@ -538,7 +539,7 @@ SELECT DISTINCT(id)
   else if ($page['section'] == 'list')
   {
     $query ='
-SELECT DISTINCT(id)
+SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).'
   FROM '.IMAGES_TABLE.'
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id
   WHERE image_id IN ('.implode(',', $page['list']).')
@@ -644,4 +645,3 @@ if ( 'categories'==$page['section'] and isset($page['category']) )
 }
 
 trigger_action('loc_end_section_init');
-?>

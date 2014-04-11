@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // +-----------------------------------------------------------------------+
@@ -209,7 +210,7 @@ final class ImageStdParams
       'w' => self::$watermark,
       'c' => self::$custom,
       ) );
-    conf_update_param('derivatives', addslashes($ser) );
+    conf_update_param('derivatives', pwg_db_real_escape_string($ser));
   }
 
   /**
@@ -280,4 +281,3 @@ final class ImageStdParams
   }
 }
 
-?>
