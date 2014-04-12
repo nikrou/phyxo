@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -96,8 +97,7 @@ SELECT permalink
   $query = '
 UPDATE '.CATEGORIES_TABLE.'
   SET permalink=NULL
-  WHERE id='.$cat_id.'
-  LIMIT 1';
+  WHERE id='.$cat_id;
   pwg_query($query);
   
   unset( $cache['cat_names'] ); //force regeneration
@@ -200,5 +200,3 @@ UPDATE '.CATEGORIES_TABLE.'
   
   return true;
 }
-
-?>

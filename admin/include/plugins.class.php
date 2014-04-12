@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -63,7 +64,7 @@ class plugins
   var $fs_plugins = array();
   var $db_plugins_by_id = array();
   var $server_plugins = array();
-  var $default_plugins = array('LocalFilesEditor', 'language_switch', 'c13y_upgrade', 'admin_multi_view');
+  var $default_plugins = array('LocalFilesEditor', 'language_switch');
 
   /**
    * Initialize $fs_plugins and $db_plugins_by_id
@@ -669,4 +670,3 @@ DELETE FROM '. PLUGINS_TABLE .'
     $this->fs_plugins = $active_plugins + $inactive_plugins + $not_installed;
   }
 }
-?>

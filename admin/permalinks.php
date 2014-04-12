@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -94,8 +95,7 @@ if ( isset($_POST['set_permalink']) and $_POST['cat_id']>0 )
 }
 elseif ( isset($_GET['delete_permanent']) )
 {
-  $query = '
-DELETE FROM '.OLD_PERMALINKS_TABLE.'
+  $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.'
   WHERE permalink=\''.$_GET['delete_permanent'].'\'
   LIMIT 1';
   $result = pwg_query($query);
@@ -116,10 +116,7 @@ $page['tab'] = 'permalinks';
 include(PHPWG_ROOT_PATH.'admin/include/albums_tab.inc.php');
 
 
-$query = '
-SELECT
-  id, permalink,
-  CONCAT(id, " - ", name, IF(permalink IS NULL, "", " &radic;") ) AS name,
+$query = 'SELECT id, permalink, name,
   uppercats, global_rank
 FROM '.CATEGORIES_TABLE;
 
@@ -186,4 +183,3 @@ $template->assign('deleted_permalinks', $deleted_permalinks);
 $template->assign('U_HELP', get_root_url().'admin/popuphelp.php?page=permalinks');
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'permalinks');
-?>

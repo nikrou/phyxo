@@ -23,7 +23,6 @@
 
 <ul>
 	<li><a href="{$U_MAINT_DATABASE}">{'Repair and optimize database'|@translate}</a></li>
-	<li><a href="{$U_MAINT_C13Y}">{'Reinitialize check integrity'|@translate}</a></li>
 </ul>
 
 <ul>

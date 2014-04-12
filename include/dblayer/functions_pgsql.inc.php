@@ -460,6 +460,10 @@ function pwg_db_get_date_MMDD($date) {
     return 'TO_CHAR('.$date.', \'MMDD\')';
 }
 
+function pwg_db_get_hour($date) {
+  return 'EXTRACT(HOUR FROM '.$date.')';
+}
+
 function pwg_db_get_year($date) {
     return 'EXTRACT(YEAR FROM '.$date.')';
 }

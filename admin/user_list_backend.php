@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -62,10 +63,12 @@ $sTable = USERS_TABLE.' INNER JOIN '.USER_INFOS_TABLE.' AS ui ON '.$conf['user_f
  * Paging
  */
 $sLimit = "";
-if ( isset( $_REQUEST['iDisplayStart'] ) && $_REQUEST['iDisplayLength'] != '-1' )
-{
-  $sLimit = "LIMIT ".pwg_db_real_escape_string( $_REQUEST['iDisplayStart'] ).", ".
-    pwg_db_real_escape_string( $_REQUEST['iDisplayLength'] );
+if ( isset( $_REQUEST['iDisplayStart'] ) && $_REQUEST['iDisplayLength'] != '-1' ) {
+    $sLimit = sprintf('LIMIT %d OFFSET %d', 
+    pwg_db_real_escape_string( $_REQUEST['iDisplayLength'] ),
+    pwg_db_real_escape_string( $_REQUEST['iDisplayStart'] )
+    );
+    
 }
 	
 	
@@ -135,7 +138,7 @@ for ( $i=0 ; $i<count($aColumns) ; $i++ )
  * Get data to display
  */
 $sQuery = "
-		SELECT SQL_CALC_FOUND_ROWS ".str_replace(" , ", " ", implode(", ", $aColumns))."
+		SELECT ".str_replace(" , ", " ", implode(", ", $aColumns))."
 		FROM   $sTable
 		$sWhere
 		$sOrder
@@ -144,14 +147,10 @@ $sQuery = "
 $rResult = pwg_query($sQuery);
 	
 /* Data set length after filtering */
-$rResultFilterTotal = pwg_query('SELECT FOUND_ROWS();');
-list($iFilteredTotal) = pwg_db_fetch_row($rResultFilterTotal);
+$iFilteredTotal = 0;
 	
 /* Total data set length */
-$sQuery = "
-		SELECT COUNT(".$sIndexColumn.")
-		FROM   $sTable
-	";
+$sQuery = "SELECT COUNT(".$sIndexColumn.") FROM   $sTable";
 $rResultTotal = pwg_query($sQuery);
 $aResultTotal = pwg_db_fetch_array($rResultTotal);
 $iTotal = $aResultTotal[0];
@@ -204,36 +203,31 @@ while ( $aRow = pwg_db_fetch_array( $rResult ) )
 }
 
 // replace "recent_period" by the list of groups
-if (count($user_ids) > 0)
-{
-  $groups_of_user = array();
+if (count($user_ids) > 0) {
+    $groups_of_user = array();
   
-  $query = '
-SELECT
-    user_id,
-    GROUP_CONCAT(name ORDER BY name SEPARATOR ", ") AS groups
-  FROM '.USER_GROUP_TABLE.'
-    JOIN '.GROUPS_TABLE.' ON id = group_id
-  WHERE user_id IN ('.implode(',', $user_ids).')
-  GROUP BY user_id
-;';
-  $result = pwg_query($query);
-  while ($row = pwg_db_fetch_assoc($result))
-  {
-    $groups_of_user[ $row['user_id'] ] = $row['groups'];
-  }
+    $query = 'SELECT user_id, name FROM '.USER_GROUP_TABLE.'
+      JOIN '.GROUPS_TABLE.' ON id = group_id
+      WHERE user_id IN ('.implode(',', $user_ids).');';
 
-  $key_replace = array_search('recent_period', $aColumns);
-  
-  // replacement
-  foreach (array_keys($output['aaData']) as $idx)
-  {
-    $user_id = $output['aaData'][$idx][0];
-    $output['aaData'][$idx][$key_replace] = isset($groups_of_user[$user_id]) ? $groups_of_user[$user_id] : '';
-  }
+    $result = pwg_query($query);
+    while ($row = pwg_db_fetch_assoc($result)) {
+        if (empty($groups_of_user[ $row['user_id'] ])) {
+            $groups_of_user[ $row['user_id'] ] = $row['name'];
+        } else {
+            $groups_of_user[ $row['user_id'] ] .= ',' . $row['name'];
+        }
+    }
+
+    $key_replace = array_search('recent_period', $aColumns);
+    
+    // replacement
+    foreach (array_keys($output['aaData']) as $idx) {
+        $user_id = $output['aaData'][$idx][0];
+        $output['aaData'][$idx][$key_replace] = isset($groups_of_user[$user_id]) ? $groups_of_user[$user_id] : '';
+    }
 }
 
 $output = trigger_change('after_render_user_list', $output);
 	
 echo json_encode( $output );
-?>

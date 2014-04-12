@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -126,13 +127,6 @@ DELETE
     do_maintenance_all_tables();
     break;
   }
-  case 'c13y' :
-  {
-    include_once(PHPWG_ROOT_PATH.'admin/include/check_integrity.class.php');
-    $c13y = new check_integrity();
-    $c13y->maintenance();
-    break;
-  }
   case 'search' :
   {
     $query = '
@@ -185,7 +179,6 @@ $template->assign(
     'U_MAINT_SESSIONS' => sprintf($url_format, 'sessions'),
     'U_MAINT_FEEDS' => sprintf($url_format, 'feeds'),
     'U_MAINT_DATABASE' => sprintf($url_format, 'database'),
-    'U_MAINT_C13Y' => sprintf($url_format, 'c13y'),
     'U_MAINT_SEARCH' => sprintf($url_format, 'search'),
     'U_MAINT_COMPILED_TEMPLATES' => sprintf($url_format, 'compiled-templates'),
     'U_MAINT_DERIVATIVES' => sprintf($url_format, 'derivatives'),
@@ -231,4 +224,3 @@ $template->assign('advanced_features', $advanced_features);
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'maintenance');
-?>

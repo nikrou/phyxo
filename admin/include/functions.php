@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 /**
- * @package functions\admin\___
+ * @package functions\admin\
  */
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_metadata.php');
@@ -1574,7 +1575,7 @@ SELECT id
     $query = '
 SELECT id
   FROM '.TAGS_TABLE.'
-  WHERE CONVERT(name, CHAR) = \''.$tag_name.'\'
+  WHERE lower(name) = \''.strtolower($tag_name).'\'
 ;';
     if (count($existing_tags = array_from_query($query, 'id')) == 0)
     {
@@ -1750,37 +1751,24 @@ SELECT
  * @param int[] $images
  * @param int[] $categories
  */
-function move_images_to_categories($images, $categories)
-{
-  if (count($images) == 0)
-  {
-    return false;
-  }
+function move_images_to_categories($images, $categories) {
+    if (count($images) == 0) {
+        return false;
+    }
 
-  // let's first break links with all old albums but their "storage album"
-  $query = '
-DELETE '.IMAGE_CATEGORY_TABLE.'.*
-  FROM '.IMAGE_CATEGORY_TABLE.'
-    JOIN '.IMAGES_TABLE.' ON image_id=id
-  WHERE id IN ('.implode(',', $images).')
-';
+    // let's first break links with all old albums but their "storage album"
+    $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
+    $query .= ' WHERE category_id in (';
+    $query .= ' SELECT id FROM '.IMAGES_TABLE;
+    $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT IN ('.implode(',', $categories).'))';
+    $query .= ')';
+    $query .= ' AND image_id IN ('.implode(',', $images).')';
+      
+    pwg_query($query);
 
-  if (is_array($categories) and count($categories) > 0)
-  {
-    $query.= '
-    AND category_id NOT IN ('.implode(',', $categories).')
-';
-  }
-
-  $query.= '
-    AND (storage_category_id IS NULL OR storage_category_id != category_id)
-;';
-  pwg_query($query);
-
-  if (is_array($categories) and count($categories) > 0)
-  {
-    associate_images_to_categories($images, $categories);
-  }
+    if (is_array($categories) and count($categories) > 0) {
+        associate_images_to_categories($images, $categories);
+    }
 }
 
 /**
@@ -2732,5 +2720,3 @@ function deltree($path, $trash_path=null)
     }
   }
 }
-
-?>

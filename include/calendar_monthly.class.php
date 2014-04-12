@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -243,7 +244,7 @@ class Calendar extends CalendarBase
     $query.= $this->inner_sql;
     $query.= $this->get_date_where();
     $query.= '
-    GROUP BY period
+    GROUP BY period, '.$this->date_field.'
     ORDER BY '.pwg_db_get_year($this->date_field).' DESC, '.pwg_db_get_month($this->date_field).' ASC';
 
     $result = pwg_query($query);
@@ -494,4 +495,3 @@ class Calendar extends CalendarBase
   }
 }
 
-?>

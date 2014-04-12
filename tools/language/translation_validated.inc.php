@@ -260,7 +260,6 @@ $validated_keys = array(
     'section',
     'tags',
     'high',
-    'c13y_Correction',
     'Level 1',
     'Level 8',
     'FORUM',
@@ -650,4 +649,3 @@ $validated_keys = array(
 	'localhost, sql.multimania.com, toto.freesurf.fr',
 	),	
   );
-?>

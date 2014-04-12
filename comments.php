@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -381,7 +382,7 @@ $element_ids = array();
 $category_ids = array();
 
 $query = '
-SELECT SQL_CALC_FOUND_ROWS com.id AS comment_id,
+SELECT com.id AS comment_id,
        com.image_id,
        ic.category_id,
        com.author,
@@ -399,7 +400,7 @@ SELECT SQL_CALC_FOUND_ROWS com.id AS comment_id,
     ON u.'.$conf['user_fields']['id'].' = com.author_id
   WHERE '.implode('
     AND ', $page['where_clauses']).'
-  GROUP BY comment_id
+  GROUP BY comment_id, ic.category_id, u.mail_address
   ORDER BY '.$page['sort_by'].' '.$page['sort_order'];
 if ('all' != $page['items_number'])
 {
@@ -415,7 +416,7 @@ while ($row = pwg_db_fetch_assoc($result))
   $element_ids[] = $row['image_id'];
   $category_ids[] = $row['category_id'];
 }
-list($counter) = pwg_db_fetch_row(pwg_query('SELECT FOUND_ROWS()'));
+list($counter) = 0; //pwg_db_fetch_row(pwg_query('SELECT FOUND_ROWS()'));
 
 $url = PHPWG_ROOT_PATH.'comments.php'
   .get_query_string_diff(array('start','edit','delete','validate','pwg_token'));
@@ -561,4 +562,3 @@ trigger_action('loc_end_comments');
 flush_page_messages();
 $template->pparse('comments');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

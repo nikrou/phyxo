@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -175,8 +176,8 @@ SELECT
       ON u.'.$conf['user_fields']['id'].' = c.author_id
   WHERE '.implode(' AND ', $where_clauses).'
   ORDER BY c.date DESC
-  LIMIT '.$page['start'].', '.$conf['comments_page_nb_comments'].'
-;';
+  LIMIT '.$conf['comments_page_nb_comments'].' OFFSET '.$page['start'];
+
 $result = pwg_query($query);
 while ($row = pwg_db_fetch_assoc($result))
 {
@@ -228,5 +229,3 @@ $template->assign('navbar', $navbar);
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'comments');
-
-?>

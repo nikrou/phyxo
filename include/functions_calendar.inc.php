@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -267,38 +268,30 @@ WHERE id IN (' . implode(',',$page['items']) .')';
       );
   } // end category calling
 
-  if ($must_show_list)
-  {
-    $query = 'SELECT DISTINCT id ';
-    $query .= ','.$calendar->date_field;
-    $query .= $calendar->inner_sql.'
-  '.$calendar->get_date_where();
-    if ( isset($page['super_order_by']) )
-    {
-      $query .= '
-  '.$conf['order_by'];
-    }
-    else
-    {
-      if ( count($page['chronology_date'])==0
-           or in_array('any', $page['chronology_date']) )
-      {// selected period is very big so we show newest first
-        $order = ' DESC, ';
+  if ($must_show_list) {
+      if (isset($page['super_order_by'])) {
+          $order_by = $conf['order_by'];
+      } else {
+          if (count($page['chronology_date'])==0
+          or in_array('any', $page['chronology_date']) ) {// selected period is very big so we show newest first
+              $order = ' DESC, ';
+          } else { // selected period is small (month,week) so we show oldest first
+              $order = ' ASC, ';
+          }
+
+          $order_by = str_replace(
+              'ORDER BY ',
+              'ORDER BY '.$calendar->date_field.$order, $conf['order_by']
+          );
       }
-      else
-      {// selected period is small (month,week) so we show oldest first
-        $order = ' ASC, ';
-      }
-      $order_by = str_replace(
-        'ORDER BY ',
-        'ORDER BY '.$calendar->date_field.$order, $conf['order_by']
-        );
-      $query .= '
-  '.$order_by;
-    }
-    $page['items'] = array_from_query($query, 'id');
+
+      $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
+      $query .= ','.$calendar->date_field;
+      $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
+      $query .= $order_by;
+      
+      $page['items'] = array_from_query($query, 'id');
   }
   pwg_debug('end initialize_calendar');
 }
 
-?>
