@@ -283,7 +283,6 @@ INPUT[type="text"].large  { width: 317px; }
 
 #pwgHead A, #footer A {color:#444;}
 #pwgHead A:hover, #footer A:hover {color:black;}
-#footer { background-image: url(images/piwigo_logo_small.png);}
 
 .pluginBox, .pluginMiniBox, .groups li {background-color:#ddd;color:#353535;border-color:#ddd;}
 .pluginBoxNameCell, .pluginMiniBoxNameCell {color:#111;}

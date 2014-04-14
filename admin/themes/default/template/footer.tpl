@@ -16,27 +16,27 @@
 
 <div id="footer">
   <div id="piwigoInfos">
- {* Please, do not remove this copyright. If you really want to,
-      contact us on http://www.nikrou.net/phyxo/ to find a solution on how
-      to show the origin of the script...
-  *}
+    {* Please, do not remove this copyright. If you really want to,
+    contact us on http://phyxo.nikrou.net/ to find a solution on how
+    to show the origin of the script...
+    *}
 
-  {'Powered by'|@translate}
-  <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|@translate}">
-  <span class="Piwigo">Phyxo</span></a>
-  {$VERSION}
+    {'Powered by'|@translate}
+    <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|@translate}">
+      <span class="Piwigo">Phyxo</span></a>
+    {$VERSION}
   </div>
-
+  
   <div id="pageInfos">
- {if isset($debug.TIME) }
- {'Page generated in'|@translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|@translate} {$debug.SQL_TIME}) -
- {/if}
+    {if isset($debug.TIME) }
+    {'Page generated in'|@translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|@translate} {$debug.SQL_TIME}) -
+    {/if}
 
 
-  {'Contact'|@translate}
-  <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|@translate|@escape:url}">{'Webmaster'|@translate}</a>
+    {'Contact'|@translate}
+    <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|@translate|@escape:url}">{'Webmaster'|@translate}</a>
   </div> <!-- pageInfos -->
-
+  
 </div> <!-- footer -->
 </div> <!-- the_page -->
 
