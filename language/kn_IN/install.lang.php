@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,7 +36,7 @@ $lang['Default gallery language'] = 'ಚಿತ್ರಶಾಲೆ (ಗ್ಯಾ�
 $lang['Host'] = 'ಹೋಸ್ಟ್';
 $lang['Installation'] = 'ಸ್ಥಾಪನೆ';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'ಸಹಾಯ ಬೇಕೆ? ನಿಮ್ಮ ಪ್ರಶ್ನೆಗಳನ್ನು  <a href="%s">Piwigo message board</a> ನಲ್ಲಿ ಕೇಳಿ.';
-$lang['Just another Piwigo gallery'] = 'ಇದು ನಿಮ್ಮದೇ  Piwigo ಚಿತ್ರಶಾಲೆ (ಗ್ಯಾಲರಿ)';
+$lang['Just another Phyxo gallery'] = 'ಇದು ನಿಮ್ಮದೇ  Phyxo ಚಿತ್ರಶಾಲೆ (ಗ್ಯಾಲರಿ)';
 $lang['Database name'] = 'ಡೇಟಾಬೇಸಿನ ಹೆಸರು';
 $lang['Can\'t connect to server'] = 'ಸರ್ವರ್ ನೊಂದಿಗೆ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ.';
 $lang['Congratulations, Piwigo installation is completed'] = 'ಅಭಿನಂದನೆಗಳು, ನಿಮ್ಮ Piwigo ದ ಸ್ಥಾಪನೆ ಇದೀಗ ಯಶಸ್ವಿಯಾಗಿ ಮುಗಿದಿದೆ.';
@@ -65,4 +66,3 @@ $lang['You may referer to your hosting provider\'s support and see how you could
 $lang['also given by your host provider'] = 'ಹಾಗೂ ನಿಮ್ಮ ಹೋಸ್ಟಿಂಗ್ ಪ್ರೊವೈಡರ್ ಅವರಿಂದ ಪೂರೈಸಿದೆ';
 $lang['webmaster login can\'t contain characters \' or "'] = 'ವೆಬ್ ಮಾಸ್ಟರ್ ಲಾಗಿನ್ \' ಅಥವಾ " ಸಂಕೇತಾಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬಾರದು';
 $lang['localhost or other, supplied by your host provider'] = 'ನಿಮ್ಮ ಹೋಸ್ಟ್ ಪ್ರೊವೈಡರ್ ಒದಗಿಸಿರುವ ಲೋಕಲ್ ಹೋಸ್ಟ್ ಅಥವಾ ಇತರೆ';
-?>

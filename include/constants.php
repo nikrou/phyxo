@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 // Default settings
-define('PHPWG_VERSION', '2.7.0beta1');
+define('PHPWG_VERSION', '1.0.0-beta1');
 define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
 define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
 
@@ -31,7 +32,7 @@ defined('PWG_COMBINED_DIR') or define('PWG_COMBINED_DIR', $conf['data_location']
 defined('PWG_DERIVATIVE_DIR') or define('PWG_DERIVATIVE_DIR', $conf['data_location'].'i/');
 
 // Required versions
-define('REQUIRED_PHP_VERSION', '5.2.0');
+define('REQUIRED_PHP_VERSION', '5.3.0');
 
 // Access codes
 define('ACCESS_FREE', 0);
@@ -106,4 +107,3 @@ if (!defined('THEMES_TABLE'))
 if (!defined('LANGUAGES_TABLE'))
   define('LANGUAGES_TABLE', $prefixeTable.'languages');
 
-?>

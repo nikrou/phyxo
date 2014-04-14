@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -60,9 +61,8 @@ $lang['Congratulations, Piwigo installation is completed'] = 'Parabéns, a insta
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Criação do arquivo de configuração local/config/database.inc.php falhou.';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Não hesite em consultar os nossos fóruns para qualquer ajuda: %s';
 $lang['Download the config file'] = 'Baixar o arquivo de configuração.';
-$lang['Just another Piwigo gallery'] = 'Apenas outra galeria Piwigo.';
+$lang['Just another Phyxo gallery'] = 'Apenas outra galeria Phyxo.';
 $lang['Welcome to my photo gallery'] = 'Bem-Vindo a minha galeria de fotos.';
 $lang['Welcome to your new installation of Piwigo!'] = 'Bem-Vindo a sua nova instalação do Piwigo.';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Você pode baixar o arquivo de configuração e colocá-lo na pasta local/config de sua instalação.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost ou outro, fornecido pelo seu provedor de hospedagem';
-?>

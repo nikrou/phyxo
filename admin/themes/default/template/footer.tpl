@@ -17,17 +17,15 @@
 <div id="footer">
   <div id="piwigoInfos">
  {* Please, do not remove this copyright. If you really want to,
-      contact us on http://piwigo.org to find a solution on how
+      contact us on http://www.nikrou.net/phyxo/ to find a solution on how
       to show the origin of the script...
   *}
 
   {'Powered by'|@translate}
-  <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Piwigo project website'|@translate}">
-  <span class="Piwigo">Piwigo</span></a>
+  <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|@translate}">
+  <span class="Piwigo">Phyxo</span></a>
   {$VERSION}
-  | <a class="externalLink" href="{$pwgmenu.WIKI}" title="{'Read Piwigo Documentation'|@translate}">{'Documentation'|@translate}</a>
-  | <a class="externalLink" href="{$pwgmenu.FORUM}" title="{'Get Support on Piwigo Forum'|@translate}">{'Support'|@translate}</a>
-  </div> <!-- piwigoInfos -->
+  </div>
 
   <div id="pageInfos">
  {if isset($debug.TIME) }

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,7 +32,7 @@ $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Не се к
 $lang['Download the config file'] = 'Изтегляне на конфигурационния файл';
 $lang['enter a login for webmaster'] = 'въведете потребителско име за уебмастер';
 $lang['Installation'] = 'Инсталиране';
-$lang['Just another Piwigo gallery'] = 'Още една  Piwigo фотогалерия';
+$lang['Just another Phyxo gallery'] = 'Още една Phyxo фотогалерия';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Пазете я в тайна, тя Ви дава достъп до административния панел';
 $lang['Password [confirm]'] = 'Парола [потвърждаване]';
 $lang['please enter your password again'] = 'моля, въведете паролата още веднъж';
@@ -65,4 +66,3 @@ $lang['It appears your webhost is currently running PHP %s.'] = 'Изглежд�
 $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modifying a .htaccess file.'] = 'Piwigo може да се опита да превключите вашата конфигурация на PHP 5 като създаде или промени .htaccess файла.';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Обърнете се към вашия хостинг доставчик и вижте как можете да преминете към PHP 5 самостоятелно.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost или друг, предоставен от вашият хост провайдер';
-?>

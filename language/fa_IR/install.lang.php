@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,9 +62,8 @@ $lang['Creation of config file local/config/database.inc.php failed.'] = 'ایج
 $lang['Download the config file'] = 'دانلود فایل پیکربندی (Config)';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'شما می توانید فایل پیکربندی را دانلود کنید و آن را در مسیر local/config در محلی که گالری را نصب کردید آپلود کنید.';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'هر مشکلی که داشتید را در انجمن مطرح کنید: %s';
-$lang['Just another Piwigo gallery'] = 'یک گالری دیگر با Piwigo';
+$lang['Just another Phyxo gallery'] = 'یک گالری دیگر با Phyxo';
 $lang['Password ']['confirm'] = 'تأیید گذرواژه';
 $lang['Welcome to my photo gallery'] = 'به گالری عکس من خوش آمدید';
 $lang['Welcome to your new installation of Piwigo!'] = 'به گالری Piwigo ی خود خوش آمدید!';
 $lang['localhost or other, supplied by your host provider'] = 'localhost یا ادرس دیگر ، این را باید از هاست دریافت نمایید(در حالت معمول localhost میباشد)';
-?>

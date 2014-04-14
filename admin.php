@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -181,7 +182,6 @@ $template->assign(
     'U_NOTIFICATION_BY_MAIL'=> $link_start.'notification_by_mail',
     'U_CONFIG_GENERAL'=> $link_start.'configuration',
     'U_CONFIG_DISPLAY'=> $conf_link.'default',
-    'U_CONFIG_EXTENTS'=> $link_start.'extend_for_templates',
     'U_CONFIG_MENUBAR'=> $link_start.'menubar',
     'U_CONFIG_LANGUAGES' => $link_start.'languages',
     'U_CONFIG_THEMES'=> $link_start.'themes',
@@ -306,4 +306,3 @@ flush_page_messages();
 $template->pparse('admin');
 
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

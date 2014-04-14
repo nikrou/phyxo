@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -157,7 +158,7 @@ elseif ('pt_BR' == $user['language']) {
 else {
   define('PHPWG_DOMAIN', 'piwigo.org');
 }
-define('PHPWG_URL', 'http://'.PHPWG_DOMAIN);
+define('PHPWG_URL', 'http://phyxo.nikrou.net');
 
 if(isset($conf['alternative_pem_url']) and $conf['alternative_pem_url']!='')
 {
@@ -272,4 +273,3 @@ if ( !empty($conf['original_url_protection']) )
   add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler', EVENT_HANDLER_PRIORITY_NEUTRAL, 2 );
 }
 trigger_action('init');
-?>

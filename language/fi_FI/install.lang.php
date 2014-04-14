@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -55,7 +56,7 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Konfigurointitiedoston local/config/database.inc.php luominen epäonnistui.';
 $lang['Download the config file'] = 'Lataa konfigurointitiedosto';
 $lang['Hope to see you back soon.'] = 'Toivottavasti näemme pian';
-$lang['Just another Piwigo gallery'] = 'Yksi Piwigo -galleria lisää';
+$lang['Just another Phyxo gallery'] = 'Yksi Phyxo -galleria lisää';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Pidä salassa, se mahdollistaa pääsyn pääkäyttäjän paneeliin';
 $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modifying a .htaccess file.'] = 'Piwigo voi yrittää vaihtaa konfiguraation PHP 5 :seen luomalla tai muuttamalla .htaccess -tiedostoa.';
 $lang['Piwigo was not able to configure PHP 5.'] = 'Piwigo ei pystynyt konfiguroimaan PHP5 :sta.';
@@ -65,4 +66,3 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Sinun tulee kääntyä hosting -palveluntarjoajasi puoleen ja kysyä kuinka voit vaihtaa PHP 5:seen itse.';
 $lang['database tables names will be prefixed with it (enables you to manage better your tables)'] = 'se tulee tietokannan taulun nimen etuliitteeksi (mahdollistaa taulujen helpomman hallinnan)';
 $lang['verification'] = 'vahvistus';
-?>

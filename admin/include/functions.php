@@ -2289,7 +2289,6 @@ function get_active_menu($menu_page)
 
     case 'configuration':
     case 'derivatives':
-    case 'extend_for_templates':
     case 'menubar':
     case 'themes':
     case 'theme':

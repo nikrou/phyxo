@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -44,7 +45,7 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Η δημιουργία του αρχείου local/config/database.inc.php απέτυχε.';
 $lang['Download the config file'] = 'Κατέβασμα του αρχείου διαμόρωσης';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Μπορείς να κατεβάσεις το αρχείο διαμόρφωσης και να το ανεβάσεις στο local/config κατάλογο της εγκατάστασης σου.';
-$lang['Just another Piwigo gallery'] = 'Ακόμα μια γκαλερί Piwigo';
+$lang['Just another Phyxo gallery'] = 'Ακόμα μια γκαλερί Phyxo';
 $lang['Welcome to my photo gallery'] = 'Καλώς ήλθατε στη φωτογραφική μου γκαλερί'; 
 $lang['Admin configuration'] = 'Ρυθμίσεις Διαχειριστή της ιστοσελίδας';
 $lang['Basic configuration'] = 'Βασικές διαμόρφωση';
@@ -65,4 +66,3 @@ $lang['also given by your host provider'] = 'Επίσης, δίνεται από
 $lang['user login given by your host provider'] = 'Όνομα χρήστη που έχει λάβει από το φορέα υποδοχής σας';
 $lang['user password given by your host provider'] = 'Κωδικός προσβασης χρήστη που έχει λάβει από το φορέα υποδοχής σας';
 $lang['localhost or other, supplied by your host provider'] = 'localhost ή άλλο, που σας παρέχεται από τον πάροχο φιλοξενίας σας';
-?>

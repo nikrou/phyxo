@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +28,7 @@ $lang['Congratulations, Piwigo installation is completed'] = 'Танд баяр 
 $lang['Connection to server succeed, but it was impossible to connect to database'] = 'Сервертэй амжилттай холбогдсон боловч мэдээллийн сантай холбогдох үед алдаа гарлаа.';
 $lang['Try to configure PHP 5'] = 'PHP 5 тохиргоогоо өөрчилж үзнэ үү';
 $lang['User'] = 'Хэрэглэгч';
-$lang['Just another Piwigo gallery'] = 'Piwigo-н галерей нэгээр нэмэгдлээ';
+$lang['Just another Phyxo gallery'] = 'Phyxo-н галерей нэгээр нэмэгдлээ';
 $lang['Database configuration'] = 'Мэдээллийн сангийн тохиргоо';
 $lang['Welcome to my photo gallery'] = 'Миний зургийн цомогт тавтай морилно уу';
 $lang['please enter your password again'] = 'нууц үгээ дахин оруулна уу';
@@ -60,4 +61,3 @@ $lang['Note you can change your configuration by yourself and restart Piwigo aft
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Тусламж хэрэгтэй бол манай онлайн форумд хандаарай: %s';
 $lang['Host'] = 'Байршуулах компьютер';
 $lang['Installation'] = 'Суулгац';
-?>

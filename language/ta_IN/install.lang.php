@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +30,7 @@ $lang['Host'] = 'host';
 $lang['Installation'] = 'நிறுவல்';
 $lang['It appears your webhost is currently running PHP %s.'] = 'இது உங்களது webhost தற்போது PHP% கள் இயக்கத்தில் தோன்றுகின்றது.';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'இது பார்வையாளர்களுக்கு காண்பிக்கப்படும். இது இணைய நிர்வாகத்தில் அவசியம்';
-$lang['Just another Piwigo gallery'] = 'மற்றொரு Piwigo கேலரி';
+$lang['Just another Phyxo gallery'] = 'மற்றொரு Phyxo கேலரி';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'இதை ரகசியமாக வைத்து, இதை நீங்கள் நிர்வாகத்தில் பலகத்தை அணுகுவதற்கு உதவுகிறது';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'உதவி வேண்டுமா? <a உங்கள் கேள்வி கேட்க href="%s"> Piwigo செய்தி பலகை </ a>';
 $lang['Database configuration'] = 'தரவுத்தள உள்ளமைவை';
@@ -69,4 +70,3 @@ $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modif
 ஒரு. htaccess கோப்பு உருவாக்குவதில் அல்லது மாற்றியமைப்பதன் மூலம் PHP 5 உங்கள் கட்டமைப்பு மாற';
 $lang['PHP 5 is required'] = 'PHP 5 தேவைப்படுகிறது';
 $lang['Note you can change your configuration by yourself and restart Piwigo after that.'] = 'குறிப்பு நீங்களே உங்கள் கட்டமைப்பை மாற்ற செய்யலாம், மேலும் Piwigo மீண்டும் துவக்கவும்';
-?>

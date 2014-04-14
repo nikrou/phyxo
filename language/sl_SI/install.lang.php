@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -50,7 +51,7 @@ $lang['Host'] = 'Gostitelj';
 $lang['Installation'] = 'Namestitev';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Zdi se, da  je na spletnem strežniku trenutno nameščen PHP %s';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Vidno bo obiskovalcem. To je potrebno za upravljanje spletne strani';
-$lang['Just another Piwigo gallery'] = 'To je zgolj še ena Piwigo galerija';
+$lang['Just another Phyxo gallery'] = 'To je zgolj še ena Phyxo galerija';
 $lang['enter a login for webmaster'] = 'vnesite prijavno ime skrbnika';
 $lang['please enter your password again'] = 'prosimo ponovno vnesite vaše geslo';
 $lang['user login given by your host provider'] = 'prijavno ime uporabnika pridobljeno od vašega ponudnika gostovanja';
@@ -65,4 +66,3 @@ $lang['Note you can change your configuration by yourself and restart Piwigo aft
 $lang['An alternate solution is to copy the text in the box above and paste it into the file "local/config/database.inc.php" (Warning : database.inc.php must only contain what is in the textarea, no line return or space character)'] = 'Druga rešitev je, da kopirate besedilo v polje zgoraj in ga prilepite v datoteko "local/config/database.inc.php" (Opozorilo: database.inc.php mora vsebovati le to kar je v besedilnem polju, brez znakov prehoda v novo vrstico(line return)ali znakov za presledke)';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Varno shranite, omogoča vam dostop do administratorske nadzorne plošče!';
 $lang['localhost or other, supplied by your host provider'] = 'localhost ali drug naslov ki ga imate pri svojem ponudniku gostovanja';
-?>

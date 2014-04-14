@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -42,7 +43,7 @@ $lang['Host'] = 'Хост';
 $lang['Installation'] = 'Встановлення';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Схоже, ваш хостинг в даний час працює з PHP %s.';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Він буде показаний відвідувачам. Це необхідно для адміністрації сайту';
-$lang['Just another Piwigo gallery'] = 'Ще одна галерея Piwigo';
+$lang['Just another Phyxo gallery'] = 'Ще одна галерея Phyxo';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Тримайте його конфіденційність, він дозволяє отримати доступ до адміністративної панелі';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Потрібна допомога? Задайте питання на <a href="%s">форумі Piwigo</a>.';
 $lang['Note you can change your configuration by yourself and restart Piwigo after that.'] = 'Зверніть увагу, ви можете змінити свою конфігурацію і перезавантажити собі Piwigo після цього.';
@@ -65,4 +66,3 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Ви повинні звернутися в службу підтримки вашого хостинг-провайдера і подивитися, як ви можете переключитися на PHP 5 самостійно.';
 $lang['User'] = 'Користувач';
 $lang['localhost or other, supplied by your host provider'] = 'локальний хост або будь-який інший, наданий вашим провайдером';
-?>

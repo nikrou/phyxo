@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -60,10 +61,9 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Die Erstellung der Datei local/config/database.inc.php ist fehlgeschlagen.';
 $lang['Download the config file'] = 'Lade die Konfigurationsdatei herunter';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Sie können die Konfigurationsdatei herunterladen und in das Verzeichnis local/config ihrer Installation hochladen.';
-$lang['Just another Piwigo gallery'] = 'Meine Piwigo-Fotogalerie';
+$lang['Just another Phyxo gallery'] = 'Meine Phyxo-Fotogalerie';
 $lang['Welcome to my photo gallery'] = 'Willkommen!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Besuchen Sie unser Forum, wenn Sie Hilfe benötigen: %s';
 $lang['Welcome to your new installation of Piwigo!'] = 'Ihre neue Piwigo-Installation heißt sie willkommen!';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Sie können Kontakt mit Ihrem Provider aufnehmen und um Unterstützung bei der Umstellung auf PHP5 bitten.';
 $lang['localhost or other, supplied by your host provider'] = 'Local Host oder andere, bereit gestellt von deinem Provider.';
-?>

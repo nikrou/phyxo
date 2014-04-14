@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -53,7 +54,7 @@ $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.']
 $lang['verification'] = 'gwiriadur';
 $lang['Sorry!'] = 'Digarezit !';
 $lang['PHP 5 is required'] = 'Ret eo kaout PHP 5';
-$lang['Just another Piwigo gallery'] = 'Ur palier-luc\'hskeudennoù Piwigo all';
+$lang['Just another Phyxo gallery'] = 'Ur palier-luc\'hskeudennoù Phyxo all';
 $lang['Hope to see you back soon.'] = 'Ken ar wech all !';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Lennit hor foromoù evit kaout sikour: %s';
 $lang['enter a login for webmaster'] = 'Lakait anv implijer ar mestr-gwiad';
@@ -64,4 +65,3 @@ $lang['Database table prefix'] = 'Rakger taolennoù an diaz roadennoù';
 $lang['database tables names will be prefixed with it (enables you to manage better your tables)'] = 'Ar rakger-mañ a vo ouzhpennet da anvioù taolennoù an diaz roadennoù (Gwelloc\'h e vo mererezh ho taolennoù)';
 $lang['Database name'] = 'Anv an diaz roadennoù';
 $lang['Connection to server succeed, but it was impossible to connect to database'] = 'Kevreet mat ouzh ar servijer omp, met ne oa ket posubl kevreañ ouzh an diaz roadennoù.';
-?>

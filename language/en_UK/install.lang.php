@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,8 +62,7 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Creation of config file local/config/database.inc.php failed.';
 $lang['Download the config file'] = 'Download the config file';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'You can download the config file and upload it to the local/config directory in your installation.';
-$lang['Just another Piwigo gallery'] = 'Just another Piwigo gallery';
+$lang['Just another Phyxo gallery'] = 'Just another Phyxo gallery';
 $lang['Welcome to my photo gallery'] = 'Welcome to my photo gallery';
 $lang['Welcome to your new installation of Piwigo!'] = 'Welcome to your new installation of Piwigo!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Don\'t hesitate to consult our forums for any help: %s';
-?>

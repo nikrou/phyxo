@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -46,7 +47,7 @@ $lang['Note you can change your configuration by yourself and restart Piwigo aft
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Precisas axuda? Pregunta as túas dúbidas no <a href="%s">panel de mensaxes Piwigo</a>. ';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Mantéñaa ben gardada, é ela a que lle permite acceder ó panel da administración';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Será amosado ós visitantes. É preciso para a administración do sito web';
-$lang['Just another Piwigo gallery'] = 'Só outra galería Piwigo';
+$lang['Just another Phyxo gallery'] = 'Só outra galería Phyxo';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Parece que o teu servidor web ten a versión PHP %s.';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Non dubides en escribir nos nosos foros para calquera dúbida: %s';
 $lang['An alternate solution is to copy the text in the box above and paste it into the file "local/config/database.inc.php" (Warning : database.inc.php must only contain what is in the textarea, no line return or space character)'] = 'Unha solución alternativa será copiar o texto da caixa de abaixo e pegalo no ficheiro "local/config/database.inc.php" (Atención: database.inc.php só deberá conter o texto que está na caixa, non insiras ningunha liña nova ou espazo en branco)';
@@ -65,4 +66,3 @@ $lang['Host'] = 'Servidor';
 $lang['Installation'] = 'Instalación';
 $lang['Admin configuration'] = 'Configuración da adminstración';
 $lang['localhost or other, supplied by your host provider'] = 'aloxamento local ou outro, fornecido polo seu aloxador';
-?>

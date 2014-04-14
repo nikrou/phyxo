@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,7 +39,7 @@ $lang['Host'] = 'Host';
 $lang['Installation'] = 'Paigaldamine';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Paistab, et su serveris jooksutatakse PHP versiooni %s.';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Seda näidetakse külastajatele ning on vajalik veebilehe haldamiseks';
-$lang['Just another Piwigo gallery'] = 'Lihtsalt veel üks järjekordne Piwigo gallerii';
+$lang['Just another Phyxo gallery'] = 'Lihtsalt veel üks järjekordne Phyxo gallerii';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Hoia seda salaja, sellega saad lehekülje haldurisse sisse';
 $lang['PHP 5 is required'] = 'Vajatakse PHP versiooni 5';
 $lang['Password ']['confirm'] = 'Kinnita parooli';
@@ -65,4 +66,3 @@ $lang['user password given by your host provider'] = 'veebimajutuse parool';
 $lang['verification'] = 'kinnitamine';
 $lang['webmaster login can\'t contain characters \' or "'] = 'veebimeistri kasutajanimi ei saa sisaldada jutumärke';
 $lang['localhost or other, supplied by your host provider'] = 'localhost või teised, antud teenusepakkuja poolt';
-?>

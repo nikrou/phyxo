@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,8 +62,7 @@ $lang['Host'] = 'Tenar';
 $lang['Installation'] = 'Installasjon';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Det verkar som nettenaren køyrer PHP %s.';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Den vil bli vist til dei som vitjar galleriet. Den er naudsynt for administrasjon av nettsida';
-$lang['Just another Piwigo gallery'] = 'Enda eit Piwigo galleri';
+$lang['Just another Phyxo gallery'] = 'Enda eit Phyxo galleri';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Hald dette hemmeleg, det gjev deg tilgang til administrasjonspanelet';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Treng du hjelp? Still spørsmålet ditt på <a href="%s"> Piwigo sitt forum</a>.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost eller servernamn gjeve av administrator for server';
-?>

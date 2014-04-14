@@ -22,10 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-define('LOG_FILENAME', 'phyxo');
-include_once('/var/projets/common/Log.php');
-
-
 //----------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
 
@@ -313,7 +309,7 @@ INSERT INTO '.$prefixeTable.'config (param,value,comment)
         pwg_query($query);
     
         conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
-        conf_update_param('gallery_title', l10n('Just another Piwigo gallery'));
+        conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
         conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
         
         // fill languages table
@@ -458,7 +454,7 @@ else
       pwg_mail(
         $admin_mail,
         array(
-          'subject' => l10n('Just another Piwigo gallery'),
+          'subject' => l10n('Just another Phyxo gallery'),
           'content' => l10n_args($keyargs_content),
           'content_format' => 'text/plain',
           )

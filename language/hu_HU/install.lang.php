@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -60,9 +61,8 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'A local/config/database.inc.php konfigurációs fájl létrehozása sikertelen.';
 $lang['Download the config file'] = 'Konfigurációs fájl letöltése';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Letöltheti a konfigurációs fájlt és töltse fel a telepítésének local/config könyvtárába.';
-$lang['Just another Piwigo gallery'] = 'Csak egy újabb Piwigo galéria';
+$lang['Just another Phyxo gallery'] = 'Csak egy újabb Phyxo galéria';
 $lang['Welcome to my photo gallery'] = 'Üdvözöljük a képgalériában';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Kérdése van? Keresse fel fórumunkat: %s';
 $lang['Welcome to your new installation of Piwigo!'] = 'Köszönt a frissen telepített Piwigo galéria!';
 $lang['localhost or other, supplied by your host provider'] = 'localhost vagy egyéb, a fogadó szolgáltató által megadott';
-?>

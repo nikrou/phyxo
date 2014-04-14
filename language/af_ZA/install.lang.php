@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -23,11 +24,11 @@
 
 $lang['Admin configuration'] = 'Admin konfigurasie';
 $lang['Basic configuration'] = 'Basiese konfigurasie';
-$lang['Congratulations, Piwigo installation is completed'] = 'Baie geluk, Piwigo installasie is voltooi';
+$lang['Congratulations, Phyxo installation is completed'] = 'Baie geluk, Phyxo installasie is voltooi';
 $lang['Database configuration'] = 'Databasis konfigurasie';
 $lang['Download the config file'] = 'Laai die konfigurasie lêer af';
 $lang['Installation'] = 'Installasie';
-$lang['Just another Piwigo gallery'] = 'Net nog \'n Piwigo gallery';
+$lang['Just another Phyxo gallery'] = 'Net nog \'n Phyxo gallery';
 $lang['Password [confirm]'] = 'Wagwoord [bevestig]';
 $lang['PHP 5 is required'] = 'PHP 5 word vereis';
 $lang['Sorry!'] = 'Jammer!';
@@ -65,4 +66,3 @@ $lang['user login given by your host provider'] = 'gebruikersnaam deur diensvers
 $lang['user password given by your host provider'] = 'wagwoord deur diensverskaffer voorsien';
 $lang['webmaster login can\'t contain characters \' or "'] = 'gebruikersnaam kan nie die karakter \' en " bevat nie';
 $lang['localhost or other, supplied by your host provider'] = 'localhost of ander, voorsien deur jou diensverskaffer';
-?>

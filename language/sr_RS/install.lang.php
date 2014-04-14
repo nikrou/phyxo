@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,7 +62,7 @@ $lang['Creation of config file local/config/database.inc.php failed.'] = 'Фор
 $lang['Download the config file'] = 'Сними на рачунар конфигурациону датотеку';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Можете снимити на рачунар конфигурациону датотеку и послати је на local/config директоријум Ваше инсталације.';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Не устручавајте се да посетите наш форум за помоћ: %s';
-$lang['Just another Piwigo gallery'] = 'ПиВиГо фото галерија';
+$lang['Just another Phyxo gallery'] = 'ПиВиГо фото галерија';
 $lang['Welcome to my photo gallery'] = 'Добродошли у фото галерију';
 $lang['Welcome to your new installation of Piwigo!'] = 'Добродошли у нову инсталацију ПиВиГо!';
 $lang['localhost or other, supplied by your host provider'] = 'localhost или други назив који сте добили од провајдера';

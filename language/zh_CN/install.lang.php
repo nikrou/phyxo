@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,9 +62,8 @@ $lang['Creation of config file local/config/database.inc.php failed.'] = '创建
 $lang['Download the config file'] = '下载配置文件';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = '您可以下载配置文件，并上传到 local/config 目录以完成您的安装。';
 $lang['Welcome to my photo gallery'] = '欢迎来到我的相册';
-$lang['Just another Piwigo gallery'] = '另一个崭新的Piwigo图库';
+$lang['Just another Phyxo gallery'] = '另一个崭新的Phyxo图库';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = '欢迎来我们的论坛咨询任何Piwigo相关问题：%s';
 $lang['Welcome to your new installation of Piwigo!'] = '欢迎安装Piwigo！';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = '您需要联系您的主机供应商的技术支持，向其咨询如何自行转换为PHP 5。';
 $lang['localhost or other, supplied by your host provider'] = '由你的服务器提供商提供本地服务器或者其他的';
-?>

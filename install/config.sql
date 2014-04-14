@@ -1,4 +1,4 @@
--- initial configuration for Piwigo
+-- initial configuration for Phyxo
 
 INSERT INTO piwigo_config (param,value,comment) VALUES ('activate_comments','true','Global parameter for usage of comments system');
 INSERT INTO piwigo_config (param,value,comment) VALUES ('nb_comment_page','10','number of comments to display on each page');

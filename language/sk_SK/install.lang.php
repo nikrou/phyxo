@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
-// | Czech language localization                                           |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
@@ -64,9 +64,8 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Vytvorenie súboru local/config/database.inc.php sa nepodarilo.';
 $lang['Download the config file'] = 'Stiahnuť konfiguračný súbor';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Môžete stiahnuť konfiguračný súbor a nahrať ho do adresára local/config Vašej inštalácie.';
-$lang['Just another Piwigo gallery'] = 'Len iná Piwigo galéria';
+$lang['Just another Phyxo gallery'] = 'Len iná Phyxo galéria';
 $lang['Welcome to my photo gallery'] = 'Vitajte v mojej foto galérii';
 $lang['Welcome to your new installation of Piwigo!'] = 'Vitajte vo Vašej novej inštalácii Piwigo!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Neváhajte konzultovať na našom fóre každú pomoc: %s'; 
 $lang['localhost or other, supplied by your host provider'] = 'localhost alebo iné, obdržíte od poskytovateľa hostu';
-?>

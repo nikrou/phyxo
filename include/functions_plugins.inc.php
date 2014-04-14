@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -71,33 +72,23 @@ class PluginMaintain
    * @param string $on_update name of a method to call when an update is needed
    *          it receives the previous version as first parameter
    */
-  function autoUpdate($version, $on_update=null)
-  {
-    global $pwg_loaded_plugins;
+  function autoUpdate($version, $on_update=null) {
+      global $pwg_loaded_plugins;
     
-    $current_version = $pwg_loaded_plugins[$this->plugin_id]['version'];
-    
-    if ( $version == 'auto' or $current_version == 'auto'
-        or safe_version_compare($current_version, $version, '<')
-      )
-    {
-      if (!empty($on_update))
-      {
-        call_user_func(array(&$this, $on_update), $current_version);
-      }
+      $current_version = $pwg_loaded_plugins[$this->plugin_id]['version'];
       
-      if ($version != 'auto')
-      {
-        $query = '
-UPDATE '. PLUGINS_TABLE .'
-  SET version = "'. $version .'"
-  WHERE id = "'. $this->plugin_id .'"
-;';
-        pwg_query($query);
-        
-        $pwg_loaded_plugins[$this->plugin_id]['version'] = $version;
+      if ( $version == 'auto' or $current_version == 'auto' or safe_version_compare($current_version, $version, '<')) {
+          if (!empty($on_update)) {
+              call_user_func(array(&$this, $on_update), $current_version);
+          }
+      
+          if ($version != 'auto') {
+              $query = 'UPDATE '. PLUGINS_TABLE .' SET version = \''. $version .'\'  WHERE id = \''. $this->plugin_id .'\';';
+              pwg_query($query);
+              
+              $pwg_loaded_plugins[$this->plugin_id]['version'] = $version;
+          }
       }
-    }
   }
 }
 
@@ -134,34 +125,20 @@ class ThemeMaintain
    * @param string $on_update name of a method to call when an update is needed
    *          it receives the previous version as first parameter
    */
-  function autoUpdate($version, $on_update=null)
-  {
-    $query = '
-SELECT version
-  FROM '. THEMES_TABLE .'
-  WHERE id = "'. $this->theme_id .'"
-;';
-    list($current_version) = pwg_db_fetch_row(pwg_query($query));
+  function autoUpdate($version, $on_update=null) {
+      $query = 'SELECT version FROM '. THEMES_TABLE .' WHERE id = \''. $this->theme_id .'\';';
+      list($current_version) = pwg_db_fetch_row(pwg_query($query));
     
-    if ( $version == 'auto' or $current_version == 'auto'
-        or safe_version_compare($current_version, $version, '<')
-      )
-    {
-      if (!empty($on_update))
-      {
-        call_user_func(array(&$this, $on_update), $current_version);
+      if ( $version == 'auto' or $current_version == 'auto' or safe_version_compare($current_version, $version, '<')) {
+          if (!empty($on_update)) {
+              call_user_func(array(&$this, $on_update), $current_version);
+          }
+          
+          if ($version != 'auto') {
+              $query = 'UPDATE '. THEMES_TABLE .' SET version = \''. $version .'\' WHERE id = \''. $this->theme_id .'\';';
+              pwg_query($query);
+          }
       }
-      
-      if ($version != 'auto')
-      {
-        $query = '
-UPDATE '. THEMES_TABLE .'
-  SET version = "'. $version .'"
-  WHERE id = "'. $this->theme_id .'"
-;';
-        pwg_query($query);
-      }
-    }
   }
 }
 
@@ -403,26 +380,23 @@ function &get_plugin_data($plugin_id)
  * @param string $id returns only data about given plugin
  * @return array
  */
-function get_db_plugins($state='', $id='')
-{
-  $query = '
-SELECT * FROM '.PLUGINS_TABLE;
-  $clauses = array();
-  if (!empty($state))
-  {
-    $clauses[] = 'state=\''.$state.'\'';
-  }
-  if (!empty($id))
-  {
-    $clauses[] = 'id="'.$id.'"';
-  }
-  if (count($clauses))
-  {
-    $query .= '
-  WHERE '. implode(' AND ', $clauses);
-  }
+function get_db_plugins($state='', $id='') {
+    $query = 'SELECT * FROM '.PLUGINS_TABLE;
+    $clauses = array();
+
+    if (!empty($state)) {
+        $clauses[] = 'state=\''.$state.'\'';
+    }
+
+    if (!empty($id)) {
+        $clauses[] = 'id = \''.$id.'\'';
+    }
+    
+    if (count($clauses)) {
+        $query .= '  WHERE '. implode(' AND ', $clauses);
+    }
   
-  return query2array($query);
+    return query2array($query);
 }
 
 /**
@@ -444,19 +418,16 @@ function load_plugin($plugin)
 /**
  * Loads all the registered plugins.
  */
-function load_plugins()
-{
-  global $conf, $pwg_loaded_plugins;
-  $pwg_loaded_plugins = array();
-  if ($conf['enable_plugins'])
-  {
-    $plugins = get_db_plugins('active');
-    foreach( $plugins as $plugin)
-    {// include main from a function to avoid using same function context
-      load_plugin($plugin);
-    }
-    trigger_action('plugins_loaded');
-  }
-}
+function load_plugins() {
+    global $conf, $pwg_loaded_plugins;
 
-?>
+    $pwg_loaded_plugins = array();
+
+    if ($conf['enable_plugins']) {
+        $plugins = get_db_plugins('active');
+        foreach( $plugins as $plugin) { // include main from a function to avoid using same function context
+            load_plugin($plugin);
+        }
+        trigger_action('plugins_loaded');
+    }
+}

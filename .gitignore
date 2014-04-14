@@ -3,6 +3,20 @@
 /upload/*
 /galleries/*
 
+;; plugins
+!/plugins/language_switch
+!/plugins/LocalFilesEditor/
+/plugins/*
+
+;; themes
+!/themes/Sylvia
+!/themes/clear/
+!/themes/dark/
+!/themes/default/
+!/themes/elegant/
+/themes/*
+
+
 ;; conf
 /local/config/config.php
 local/config/database.inc.php

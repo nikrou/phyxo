@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -60,9 +61,8 @@ $lang['An alternate solution is to copy the text in the box above and paste it i
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Konfigurācijas faila local/config/database.inc.php izveide ir nesekmīga.';
 $lang['Download the config file'] = 'Lejupladet config failu';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Jums jalejupielade configuracijas fails un jaielade tas Jusu instalacijas local/config mape.';
-$lang['Just another Piwigo gallery'] = 'Vēl viena Piwigo galerija';
+$lang['Just another Phyxo gallery'] = 'Vēl viena Phyxo galerija';
 $lang['Welcome to my photo gallery'] = 'Laipni lūgti manā foto galerijā';
 $lang['Welcome to your new installation of Piwigo!'] = 'Laipni lūgti Jūsu Piwigo jaunajā instalācijā!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Nevilcinieties izmantot mūsu forumu palīdzību: %s';
 $lang['localhost or other, supplied by your host provider'] = 'vietējais pakalpojuma sniedzējs vai cits, tas ko atbalsta vietējais pakalpojuma sniedzējs';
-?>

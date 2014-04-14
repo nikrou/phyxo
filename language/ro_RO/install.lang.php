@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -42,7 +43,7 @@ $lang['Host'] = 'Host';
 $lang['Installation'] = 'Instalare';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Se pare ca webhostul tau ruleaza PHP %s.';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Va fi afisata vizitatorilor. Este necesara pentru administrarea site-ului.';
-$lang['Just another Piwigo gallery'] = 'Doar o alta galerie Piwigo';
+$lang['Just another Phyxo gallery'] = 'Doar o alta galerie Phyxo';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Tine-o secreta, iti permite accesul la panoul de administrare';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Ai nevoie de ajutor? Intreaba pe <a href="%s">Forumul Piwigo</a>.';
 $lang['Note you can change your configuration by yourself and restart Piwigo after that.'] = 'Poti sa schimbi configuratia manual si sa restartezi Piwigo dupa aceea.';
@@ -65,4 +66,3 @@ $lang['Welcome to your new installation of Piwigo!'] = 'Bine ai venit la noua in
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Poti sa descarci fila de configurare si sa o uploadezi in folderul local/config al instalarii.';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Ar trebui sa te adresezi hostului si sa intrebi cum poti sa treci la PHP5';
 $lang['localhost or other, supplied by your host provider'] = 'localhost sau alta, furnizat de furnizorul de găzduire';
-?>

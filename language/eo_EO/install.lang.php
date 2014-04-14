@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +30,7 @@ $lang['enter a login for webmaster'] = 'entajpu retestran salutnomon';
 $lang['database tables names will be prefixed with it (enables you to manage better your tables)'] = 'per ĝi, prefiksoj aldoniĝos sur la nomojn de la datumtabelo (ebligas al vi pli bone mastrumi viajn tabelojn)';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Vi devus vin direkti al la subtenoservo de via provizanto de gastigo, kaj serĉi kiel vi mem povas interŝanĝi al PHP 5.';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Vi povas elŝuti la agordan dosieron kaj alŝuti ĝin al la dosierujo "local/config" dum via instalado.';
-$lang['Just another Piwigo gallery'] = 'Nur alia bildogalerio ĉe Piwigo';
+$lang['Just another Phyxo gallery'] = 'Nur alia bildogalerio ĉe Phyxo';
 $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modifying a .htaccess file.'] = 'Eblas, ke Piwigo provos interŝanĝi vian agordon al PHP 5 kreante aŭ modifiante iun .htaccess-dosieron.';
 $lang['Note you can change your configuration by yourself and restart Piwigo after that.'] = 'Notu, ke eblas ŝanĝi vian agordon mem kaj poste restartigi Piwigo.';
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Gardu ĝin sekreta, ĝi ebligas al vi aliri la administran panelon';
@@ -65,4 +66,3 @@ $lang['Can\'t connect to server'] = 'Ne eblas konekti kun la servilo';
 $lang['Basic configuration'] = 'Baza agordo';
 $lang['Admin configuration'] = 'Administra agordo';
 $lang['localhost or other, supplied by your host provider'] = 'loka gasto (localhost) aŭ alia, provizita de via provizanto de gastigo';
-?>
