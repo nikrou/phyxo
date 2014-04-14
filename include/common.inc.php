@@ -24,6 +24,8 @@
 
 defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
+require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
+
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
 

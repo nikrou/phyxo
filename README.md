@@ -17,6 +17,17 @@ Clone this repository :
 $ git clone git@github.com:nikrou/phyxo.git
 ```
 
+Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable or use the installer.
+
+```
+$ curl -sS https://getcomposer.org/installer | php
+```
+
+Update dependencies via composer :
+```
+$ composer.phar install --dev
+```
+
 Install Phyxo through web interface.
 
 Contributing
