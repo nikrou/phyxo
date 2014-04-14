@@ -150,8 +150,8 @@ SELECT DISTINCT ';
   }
   if (isset($params['display']['groups']))
   {
-    if (!$first) $query.= ', ';
-    $query.= '"" AS groups';
+    /* if (!$first) $query.= ', '; */
+    /* $query.= '"" AS groups'; */
   }
 
   $query.= '

@@ -195,7 +195,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
       );
 
     single_insert(USERS_TABLE, $insert);
-    $user_id = pwg_db_insert_id();
+    $user_id = pwg_db_insert_id(USERS_TABLE);
 
     // Assign by default groups
     $query = '

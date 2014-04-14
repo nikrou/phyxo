@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -174,9 +175,8 @@ function pwg_db_real_escape_string($s)
   return mysql_real_escape_string($s);
 }
 
-function pwg_db_insert_id()
-{
-  return mysql_insert_id();
+function pwg_db_insert_id($table=null, $column='id') {
+    return mysql_insert_id();
 }
 
 function pwg_db_errno()
@@ -829,5 +829,3 @@ function query2array($query, $key_name=null, $value_name=null)
 
   return $data;
 }
-
-?>

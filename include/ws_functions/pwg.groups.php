@@ -99,7 +99,7 @@ SELECT COUNT(*)
       )
     );
 
-  return $service->invoke('pwg.groups.getList', array('group_id' => pwg_db_insert_id()));
+  return $service->invoke('pwg.groups.getList', array('group_id' => pwg_db_insert_id(GROUPS_TABLE)));
 }
 
 /**

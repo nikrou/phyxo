@@ -75,6 +75,8 @@ function pwg_db_check_version() {
 function pwg_query($query) {
     global $conf,$page,$debug,$t2,$pwg_db_link;
 
+    \Log::getInstance()->debug($query);
+
     $replace_pattern = '`REPLACE INTO\s(\S*)\s*([^)]*\))\s*VALUES\(([^,]*),(.*)\)\s*`mi';  
 
     $start = microtime(true);
@@ -182,8 +184,7 @@ function pwg_db_real_escape_string($s) {
 
 function pwg_db_insert_id($table=null, $column='id') {
     $sequence = sprintf('%s_%s_seq', strtolower($table), $column);
-    $query = '
-SELECT CURRVAL(\''.$sequence.'\');';
+    $query = 'SELECT CURRVAL(\''.$sequence.'\');';
 
     list($id) = pwg_db_fetch_row(pwg_query($query));
     

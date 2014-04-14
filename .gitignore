@@ -26,3 +26,6 @@ local/config/database.inc.php
 
 /bin/*
 
+
+;; src ; not used yet
+/src
