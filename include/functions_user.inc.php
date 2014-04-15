@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -73,23 +73,20 @@ WHERE upper('.$conf['user_fields']['email'].') = upper(\''.$mail_address.'\')
  * @param string $login
  * @return string|void error message or nothing
  */
-function validate_login_case($login)
-{
-  global $conf;
+function validate_login_case($login) {
+    global $conf;
 
-  if (defined("PHPWG_INSTALLED"))
-  {
+    if (defined("PHPWG_INSTALLED")) {
     $query = "
 SELECT ".$conf['user_fields']['username']."
 FROM ".USERS_TABLE."
-WHERE LOWER(".stripslashes($conf['user_fields']['username']).") = '".strtolower($login)."'
+WHERE LOWER(".pwg_db_real_escape_string($conf['user_fields']['username']).") = '".strtolower($login)."'
 ;";
 
     $count = pwg_db_num_rows(pwg_query($query));
 
-    if ($count > 0)
-    {
-      return l10n('this login is already used');
+    if ($count > 0) {
+        return l10n('this login is already used');
     }
   }
 }
@@ -1493,5 +1490,3 @@ SELECT COUNT(*)
     }
   }
 }
-
-?>

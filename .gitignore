@@ -18,7 +18,7 @@
 
 
 ;; conf
-/local/config/config.php
+/local/config/config.inc.php
 local/config/database.inc.php
 
 ;; external libraries
