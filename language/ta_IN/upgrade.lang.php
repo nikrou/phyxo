@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Only administrator can run upgrade: please sign in below.'] = 'ஒரு நிர்வாகி மட்டும் தான் ஒரு மேம்படுத்தலை இயக்க முடியும்: கீழே நுழையுங்கள்.';
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'ஒரே சிறுபடங்களை முன்னொட்டு மற்றும் வலை மேலாளரின் மின்னஞ்சல் முகவரி முந்தைய கட்டமைப்பு இருந்து சேமிக்கப்பட்டது';
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'ஒரு பராமரிப்பு சரிபார்ப்பு செய்யவும் [நிர்வாக> கருவிகள்> பராமரிப்பு] இல் உங்களுக்கு எந்த சிக்கல்களை தீர்க்க';
@@ -40,4 +42,3 @@ $lang['As a precaution, following plugins have been deactivated. You must check 
 ';
 $lang['All sub-albums of private albums become private'] = 'அனைத்து துணை ஆல்பங்களின்
 தனியார் ஆல்பங்கள் தனியார் ஆக இருந்து';
-?>

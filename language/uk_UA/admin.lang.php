@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,7 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
 
 $lang[' and %d virtual'] = ' і %d віртуальних';
 $lang['%d album including'] = 'включає %d альбом';
@@ -555,7 +555,7 @@ $lang['test this remote site'] = 'перевірити цев віддалени
 $lang['test'] = 'тест';
 $lang['The %d following tags were deleted'] = 'Наступні %d теґи видалено';
 $lang['The anomaly will be ignored until next application version'] = 'Аномалію буде проігноровано до виходу наступної версії програми';
-$lang['The file or directory cannot be accessed (either it does not exist or the access is denied)'] = 'Файл або тека недоступні (або вони не існують або доступ заборонено)'; 
+$lang['The file or directory cannot be accessed (either it does not exist or the access is denied)'] = 'Файл або тека недоступні (або вони не існують або доступ заборонено)';
 $lang['%s has been successfully updated.'] = '%s було успішно оновлено.';
 $lang['%s photos can not be regenerated'] = '%s зображення не можуть бути відновлені';
 $lang['%s photos have been regenerated'] = '%s зображення були відновлені';
@@ -611,7 +611,7 @@ $lang['Level 0'] = '---';
 $lang['Level 1'] = 'Контакти';
 $lang['Level 2'] = 'Друзі';
 $lang['Level 4'] = 'Родина';
-$lang['Level 8'] = 'Адміністратори'; 
+$lang['Level 8'] = 'Адміністратори';
 $lang['Activate comments'] = 'Активувати коментарі';
 $lang['Default comments order'] = 'Порядок коментарів за замовчуванням';
 $lang['Images manual order was saved'] = 'Ручний порядок зображень збережено';
@@ -634,7 +634,7 @@ $lang['Install on your computer,'] = 'Встановити на Ваш комп�
 $lang['Install'] = 'Встановити';
 $lang['Installed Languages'] = 'Встановлені мови';
 $lang['Installed Themes'] = 'Встановлені теми';
-$lang['Instructions to use Piwigo'] = 'Інсрукції по використанню Piwigo';
+$lang['Instructions to use Phyxo'] = 'Інсрукції по використанню Phyxo';
 $lang['Invert'] = 'Інвертувати';
 $lang['IP'] = 'IP';
 $lang['Link all album photos to a new album'] = 'Зв`язати всі світлини альбому з новим альбомом';
@@ -646,7 +646,7 @@ $lang['Lock gallery'] = 'Зачинити галерею';
 $lang['Lock'] = 'Замок';
 $lang['Locked'] = 'Зачинено';
 $lang['Mail address is obligatory for all users'] = 'електронная пошта обов`язкова для всіх користувачів';
-$lang['Mail content'] = 'Зміст листа'; 
+$lang['Mail content'] = 'Зміст листа';
 $lang['Mail sent to %s [%s].'] = 'Поштові повідомлення на %s [%s].';
 $lang['Main "guest" user does not exist'] = 'Основний "гість" користувача не існує';
 $lang['Main "guest" user status is incorrect'] = 'Основний "гість" статус користувача невірно';
@@ -971,4 +971,3 @@ $lang['close'] = 'Закрити';
 $lang['Close user details'] = 'Закрити деталі користувача';
 $lang['Open user details'] = 'Відкрити деталі користувача';
 $lang['Activate it now'] = 'Активувати його зараз';
-?>

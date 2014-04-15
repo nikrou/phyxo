@@ -8,7 +8,7 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset={$CONTENT_ENCODING}">
-<meta name="generator" content="Piwigo (aka PWG), see piwigo.org">
+<meta name="generator" content="Phyxo, see phyxo.nikrou.net">
 <title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 <link rel="shortcut icon" type="image/x-icon" href="{$ROOT_URL}{$themeconf.icon_dir}/favicon.ico">
 
@@ -63,7 +63,7 @@
     {'Hello'|@translate} {$USERNAME} |
     <a class="icon-eye" href="{$U_RETURN}">{'Visit Gallery'|@translate}</a> |
     <a class="icon-brush" href="{$U_CHANGE_THEME}" title="{'Switch to clear or dark colors for administration'|@translate}">{'Change Admin Colors'|@translate}</a> |
-    <a class="icon-help-circled" href="{$U_FAQ}" title="{'Instructions to use Piwigo'|@translate}">{'Help Me'|@translate}</a> |
+    <a class="icon-help-circled" href="{$U_FAQ}" title="{'Instructions to use Phyxo'|@translate}">{'Help Me'|@translate}</a> |
     <a class="icon-logout" href="{$U_LOGOUT}">{'Logout'|@translate}</a>
   </div>
 </div>

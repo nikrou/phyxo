@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = "Uzlabošana";
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Šī lapa piedāvā uzlabot Jūsu Piwigo veco datu bāzi uz jaunāko versiju. Uzlabošanas asistents domā, ka Jūs patlaban lietojat <strong>release %s</strong> ( vai ekvivalentu).";
 $lang['Upgrade from version %s to %s'] = "Uzlabojums no  %s versijas uz %s";
@@ -40,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = "Lietotāju u
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = "No iepriekšējās konfigurācijas ir saglabāti tikai sīkbilžu prefiksi un webmāstera e-pasta adreses";
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'Iekš <i>%s</i>, pirms <b>?></b>,ievietot:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Piesardzības pasākumu dēļ, sekojošas tēmas ir deaktivētas. Pirms atkal tās aktivēt, jums jāpārbauda, vai nav pieejami šo tēmu jauninājumi:';
-?>

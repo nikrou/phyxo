@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['%d associations'] = '
 ';
 $lang['%d guests'] = '% d விருந்தினர்';
@@ -196,4 +198,3 @@ $lang['Associated'] = '
 $lang['Authorized'] = 'அங்கீகரிக்கப்பட்ட';
 $lang['Automatic correction'] = 'தானியக்க திருத்தம்';
 $lang['Automatic sort order'] = 'தானியக்க வரிசை ஒழுங்கை';
-?>

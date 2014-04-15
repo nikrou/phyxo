@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -205,7 +206,7 @@ $lang['group "%s" added'] = 'הקבוצה "%s"" נוספה';
 $lang['group "%s" deleted'] = 'הקבוצה "%s"" נמחקה';
 $lang['group "%s" updated'] = 'הקבוצה "%s"" הועלתה';
 $lang['The name of a group must not contain " or \' or be empty.'] = "שם של קבוצה לא יכול להכיל מרחאות או ' או להיות ריק";
-$lang['This name is already used by another group.'] = 'שם זה נמצא כבר בשימוש על ידי קבוצה אחרת.'; 
+$lang['This name is already used by another group.'] = 'שם זה נמצא כבר בשימוש על ידי קבוצה אחרת.';
 
 $lang['High definition'] = 'בחדות גבוהה';
 $lang['jump to album'] = 'לקפוץ לקטגוריה';
@@ -296,7 +297,7 @@ $lang['registration date'] = 'תאריך רישום';
 $lang['clean'] = 'לנקות';
 $lang['Create this site'] = 'צור את האתר הזה';
 $lang['test'] = 'מבחן';
-$lang['test this remote site'] = 'מבחן זה באתר מרוחק'; 
+$lang['test this remote site'] = 'מבחן זה באתר מרוחק';
 $lang['remove tags'] = 'להסיר את תגי';
 $lang['Repair and optimize database'] = 'תיקון מסד אופטימיזציה';
 $lang['selection'] = 'הבחירה';
@@ -539,11 +540,11 @@ $lang['Allow users to delete their own comments'] = 'אפשר למשתמשים �
 $lang['Email administrators when a comment is modified'] = 'שלח מייל למנהלים כאשר תגובה שונתה';
 $lang['Email administrators when a comment is deleted'] = 'שלח מייל למנהלים כאשר תגובה נמחקה';
 $lang['Cannot delete the old permalink !'] = 'אל תמחק את הPermalink הישן';
-$lang['Hit'] = 'לחיצה'; 
+$lang['Hit'] = 'לחיצה';
 $lang['Tools'] = 'כלים';
 $lang['Photos'] = 'תמונות';
 $lang['Themes'] = 'ערכות נושא';
-$lang['Instructions to use Piwigo'] = 'הוראות שימוש Piwigo';
+$lang['Instructions to use Phyxo'] = 'הוראות שימוש Phyxo';
 $lang['Installed Themes'] = 'ערכות נושא מותקנות';
 $lang['Add New Theme'] = 'הוסף נושא חדש';
 $lang['Forbid this theme to users'] = 'לאסור על הנושא הזה למשתמשים';
@@ -975,4 +976,3 @@ $lang['Activate it now'] = 'הפעל כעת';
 $lang['<em>Piwigo for iOS</em> application empowers you to connect to your Piwigo gallery from your iPhone, iPad or iPod Touch, create some albums and upload several photos at once.'] = '<em> אפליקציית Piwigo עבור iOS</em>  מאפשרת לך להתחבר ממכשירי iPhone, iPad או Ipod Touch שלך לגלריית Piwigo, ליצור אלבומים ולהעלות מספר תמונות בו זמנית ';
 $lang['(filtered from %s total users)'] = 'מסונן מתוך  %s סך הכל משתמשים';
 $lang['%d of %d users selected'] = '%d מתוך %d מתשמשים נבחרו';
-?>

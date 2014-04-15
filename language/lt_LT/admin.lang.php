@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['%d users were not updated.'] = '%d vartotojų neatnaujinta.';
 $lang['%d users were updated.'] = '%d vartotojų atnaujinta.';
 $lang['%d waiting for validation'] = '%d laukia patvirtinimo';
@@ -223,7 +225,7 @@ $lang['Informations'] = 'Informacija';
 $lang['Install'] = 'Instaliuoti';
 $lang['Installed Languages'] = 'Instaliuotos kalbos';
 $lang['Installed Themes'] = 'Instaliuotos temos';
-$lang['Instructions to use Piwigo'] = 'Instrukcijos, kaip naudoti Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instrukcijos, kaip naudoti Phyxo';
 $lang['High definition enabled'] = 'Didelė raiška įjungta';
 $lang['History'] = 'Istorija';
 $lang['Hit'] = 'Paspaudimai';

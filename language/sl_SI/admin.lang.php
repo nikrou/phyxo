@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,7 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
 
 $lang['%d album including'] = '%d album vsebuje';
 $lang['%d album moved'] = '%d album je bil premaknjen';
@@ -116,7 +116,7 @@ $lang['Add Photos'] = 'Dodaj slike';
 $lang['Add write access to the "%s" directory'] = 'Dodaj pravico pisanja "%s" imeniku';
 $lang['Add'] = 'Dodaj';
 $lang['Add/delete a permalink'] = 'Dodaj/odstrani stalno povezavo';
-$lang['added'] = 'dodano'; 
+$lang['added'] = 'dodano';
 $lang['%d tag'] = '%d oznaka';
 $lang['%d tags'] = '%d oznake';
 $lang['%d user comment rejected'] = '%d komentar zavrnjen';
@@ -321,7 +321,7 @@ $lang['Last hit'] = 'Zadnji zadetek';
 $lang['Languages'] = 'Jeziki';
 $lang['Language has been successfully installed'] = 'Jezik je bil uspešno posodobljen';
 $lang['Landscape'] = 'Pokrajina';
-$lang['Instructions to use Piwigo'] = 'Navodila za uporabo Piwigo';
+$lang['Instructions to use Phyxo'] = 'Navodila za uporabo Phyxo';
 $lang['Installed Themes'] = 'Nameščene teme';
 $lang['Inactive Languages'] = 'Neaktivni jeziki.';
 $lang['Inactive Plugins'] = 'Neaktivni vtičniki.';

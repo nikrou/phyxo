@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -535,7 +536,7 @@ $lang['Hit'] = 'Accés';
 $lang['Tools'] = 'Eines';
 $lang['Photos'] = 'Fotos';
 $lang['Themes'] = 'Temes';
-$lang['Instructions to use Piwigo'] = 'Instruccions d\'ús de Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruccions d\'ús de Phyxo';
 $lang['Installed Themes'] = 'Temes instal·lats';
 $lang['Add New Theme'] = 'Afegeix un nou tema';
 $lang['Forbid this theme to users'] = 'Prohibeix aquest tema als usuaris';

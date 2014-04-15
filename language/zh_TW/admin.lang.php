@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -541,7 +542,7 @@ $lang['Hit'] = '點擊';
 $lang['Tools'] = '工具';
 $lang['Photos'] = '相片';
 $lang['Themes'] = '主題';
-$lang['Instructions to use Piwigo'] = 'Piwigo 使用指南';
+$lang['Instructions to use Phyxo'] = 'Phyxo 使用指南';
 $lang['Installed Themes'] = '安裝主題';
 $lang['Add New Theme'] = '增加一個新的主題';
 $lang['Forbid this theme to users'] = '禁用此主題';
@@ -716,7 +717,7 @@ $lang['WARNING! This plugin does not seem to be compatible with this version of 
 $lang['Do you want to activate anyway?'] = '你無論如何都要啟動嗎?';
 $lang['THIS PLUGIN IS NOW PART OF PIWIGO CORE! DELETE IT NOW.'] = '這個插件目前是Piwigo核心一部份! 請立即移除它!';
 $lang['ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'] = '錯誤：這個插件雖已安裝但並不存在! 請立即移除它!';
-$lang['display'] = '顯示'; 
+$lang['display'] = '顯示';
 $lang['Learn more'] = '瞭解更多';
 $lang['Rate'] = '評分';
 $lang['Average rate'] = '評分';
@@ -784,7 +785,7 @@ $lang['show details'] = '顯示細節';
 $lang['Some themes and plugins may be not available yet.'] = '一些主題和插件可能尚無法使用';
 $lang['Some upgrades are available for extensions.'] = '一些可升級用於擴展。';
 $lang['Start Upload'] = '開始上傳';
-$lang['Tags <em>%s</em> merged into tag <em>%s</em>'] = '標籤 <em>%s</em> 已合併成標籤 <em>%s</em>'; 
+$lang['Tags <em>%s</em> merged into tag <em>%s</em>'] = '標籤 <em>%s</em> 已合併成標籤 <em>%s</em>';
 $lang['The original image quality must be a number between %d and %d'] = '原始圖品質必須在 %d 和 %d 之間';
 $lang['The original maximum height must be a number between %d and %d'] = '原始高度上限必須在 %d 和 %d 之間';
 $lang['The original maximum width must be a number between %d and %d'] = '原始寬度上限必須在 %d 和 %d 之間 ';
@@ -928,20 +929,20 @@ $lang['Landscape'] = '橫向';
 $lang['Manage photos'] = '管理照片';
 $lang['Manage the members'] = '會員管理';
 $lang['Merge selected groups'] = '合併選擇群組';
-$lang['Minimum width'] = '最小寬度'; 
-$lang['Minimum height'] = '最小高度'; 
+$lang['Minimum width'] = '最小寬度';
+$lang['Minimum height'] = '最小高度';
 $lang['No group selected, no action possible.'] = '尚未選取群組別，無法動作';
-$lang['No members to manage'] = '沒有會員可以管理'; 
-$lang['Number of albums per page'] = '每頁相本數量'; 
-$lang['Panorama'] = '全景'; 
+$lang['No members to manage'] = '沒有會員可以管理';
+$lang['Number of albums per page'] = '每頁相本數量';
+$lang['Panorama'] = '全景';
 $lang['Please select at least two groups'] = '請最少選擇二個群組別';
-$lang['Portrait'] = '人像'; 
-$lang['Ratio'] = '比例'; 
-$lang['Rename'] = '重新命名'; 
+$lang['Portrait'] = '人像';
+$lang['Ratio'] = '比例';
+$lang['Rename'] = '重新命名';
 $lang['This group will be set to default'] = '該群組別將被設定為預設';
 $lang['This group will be unset to default'] = '該群組別不再被使用為預設';
 $lang['Type here the name of the new group'] = '在這輸入新的群組別名稱';
-$lang['View in gallery'] = '以畫廊模式瀏覽'; 
+$lang['View in gallery'] = '以畫廊模式瀏覽';
 $lang['Purge user cache'] = '清除用戶快取';
 $lang['The picture dimensions will be reduced to %dx%d pixels.'] = '圖片的尺寸將減少到 %dx%d 像素。';
 $lang['Resize after upload disabled due to the use of GD as graphic library'] = '由於使用了GD圖形程式，上傳後調整尺寸的功能已關閉。';
@@ -971,4 +972,3 @@ $lang['on the %d selected users'] = '%d的選定用戶';
 $lang['Close user details'] = '關閉用戶詳細信息';
 $lang['Open user details'] = '打開用戶詳細信息';
 $lang['close'] = '關閉';
-?>

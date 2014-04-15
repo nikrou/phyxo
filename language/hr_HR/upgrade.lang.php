@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,5 +39,3 @@ $lang['This page proposes to upgrade your database corresponding to your old ver
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Kao mjera predostrožnosti, slijedeći dodaci su isključeni. Provjerite dostupne nadogradnje dodataka prije njihovog ponovnog uključenja:';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'U <i>%s</i>, prije <b>?></b>, ubaci:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Sljedeće teme su preventivno deaktivirane. Prije ponovnog aktiviranja morate provjeriti postoje li nadogradnje:';
-
-?>

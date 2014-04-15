@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = "Mise à jour";
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Cette page vous propose de mettre à jour la base de données de votre ancienne version de piwigo vers la nouvelle version.
 L'assistant de mise à jour pense que vous disposez actuellement de la <strong>version %s</strong> (ou équivalente).";
@@ -41,5 +40,3 @@ $lang['User permissions and group permissions have been erased'] = "Les permissi
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = "Seuls le préfixe des miniatures et l'adresse de courriel du webmestre ont étés conservés de la précédente configuration";
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'Dans le fichier <i>%s</i>, avant <b>?></b>, insérez:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Par précaution, les thèmes suivants ont été désactivés. Vérifiez s\'il existe des mises à jour avant de les réactiver:';
-
-?>

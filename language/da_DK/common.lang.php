@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -387,16 +388,16 @@ $lang['File name, A &rarr; Z'] = 'Filnavn, A &rarr; Å';
 $lang['File name, Z &rarr; A'] = 'Filnavn, Å &rarr; A';
 $lang['Photo title, A &rarr; Z'] = 'Fototitel, A &rarr; Z';
 $lang['Photo title, Z &rarr; A'] = 'Fototitel, Z &rarr; A';
-$lang['Date created, new &rarr; old'] = 'Dato oprettet, ny &rarr; gammel'; 
-$lang['Date created, old &rarr; new'] = 'Dato oprettet, gammel &rarr; ny'; 
+$lang['Date created, new &rarr; old'] = 'Dato oprettet, ny &rarr; gammel';
+$lang['Date created, old &rarr; new'] = 'Dato oprettet, gammel &rarr; ny';
 $lang['Date posted, new &rarr; old'] = 'Dato tilføjet, ny &rarr; gammel';
 $lang['Date posted, old &rarr; new'] = 'Dato tilføjet, gammel &rarr; ny';
 $lang['Rating score, high &rarr; low'] = 'bedømmelsesscore, høj &rarr; lav';
 $lang['Rating score, low &rarr; high'] = 'bedømmelsesscore, lav &rarr; høj';
-$lang['Visits, high &rarr; low'] = 'Besøgende, høj &rarr; lav'; 
-$lang['Visits, low &rarr; high'] = 'Besøgende, lav &rarr; høj'; 
-$lang['Numeric identifier, 1 &rarr; 9'] = 'Numerisk identifikation, 1 &rarr; 9'; 
-$lang['Numeric identifier, 9 &rarr; 1'] = 'Numerisk identifikation, 9 &rarr; 1'; 
+$lang['Visits, high &rarr; low'] = 'Besøgende, høj &rarr; lav';
+$lang['Visits, low &rarr; high'] = 'Besøgende, lav &rarr; høj';
+$lang['Numeric identifier, 1 &rarr; 9'] = 'Numerisk identifikation, 1 &rarr; 9';
+$lang['Numeric identifier, 9 &rarr; 1'] = 'Numerisk identifikation, 9 &rarr; 1';
 $lang['Manual sort order'] = 'Manuel sorteringsrækkefølge';
 
 $lang['%d rate'] = '%d bedømmelse';

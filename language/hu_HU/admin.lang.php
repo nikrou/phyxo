@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -571,7 +572,7 @@ $lang['Please wait...'] = 'Kérem várjon...';
 $lang['Tools'] = 'Eszközök';
 $lang['Photos'] = 'Képek';
 $lang['Themes'] = 'Témák';
-$lang['Instructions to use Piwigo'] = 'A Piwigo használata';
+$lang['Instructions to use Phyxo'] = 'A Phyxo használata';
 $lang['Installed Themes'] = 'Telepített témák';
 $lang['Add New Theme'] = 'Új téma hozzáadása';
 $lang['Forbid this theme to users'] = 'A téma tiltása felhasználók részére';
@@ -978,4 +979,3 @@ $lang['Open user details'] = 'Felhasználó adatainak megnyitása';
 $lang['Registered on %s, %s.'] = 'Regisztrálva: %s, %s.';
 $lang['Showing %s to %s of %s users'] = '%s - %s felhasználó látható a %s közül';
 $lang['close'] = 'bezárás';
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -546,7 +547,7 @@ $lang['Hit'] = 'Wejść';
 $lang['Tools'] = 'Narzędzia';
 $lang['Photos'] = 'Zdjęcia';
 $lang['Themes'] = 'Szablony wyglądu ';
-$lang['Instructions to use Piwigo'] = 'Instrukcje używania Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instrukcje używania Phyxo';
 $lang['Installed Themes'] = 'Zainstalowane szablony wyglądu ';
 $lang['Add New Theme'] = 'Dodaj nowy szablon wyglądu';
 $lang['Forbid this theme to users'] = 'Zabroń używania tego szablonu wyglądu przez użytkowników';
@@ -784,7 +785,7 @@ $lang['Tags <em>%s</em> merged into tag <em>%s</em>'] = 'Tagi <em>%s</em> połą
 $lang['Select at least two tags for merging'] = 'Wybierz co najmniej dwa tagi do łączenia';
 $lang['Select an album'] = 'Wybierz album';
 $lang['By default, Piwigo will create a new websize from the HD (high definition) version of your photo.'] = 'Piwigo stworzy domyślnie nową stronę z twoich zdjęć w jakości HD.';
-$lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Jeśli wersja HD jest niedostępna a bieżący rozmiar jest większy niż rozmiar zmiany, Piwigo przesunie zdjęcia jako HD i stworzy z nich pomniejszone wersje.'; 
+$lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Jeśli wersja HD jest niedostępna a bieżący rozmiar jest większy niż rozmiar zmiany, Piwigo przesunie zdjęcia jako HD i stworzy z nich pomniejszone wersje.';
 $lang['An error has occured during upgrade.'] = 'Wystąpił błąd podczas aktualizacji.';
 $lang['An error has occured during extract. Please check files permissions of your piwigo installation.<br><a href="%s">Click here to show log error</a>.'] = 'Wystąpił błąd podczas rozpokowywania. Sprawdź uprawnienia do plików w katalogu gdize jest zainstalowane piwigo.<br><a href="%s">Kliknij aby zobaczyć błędy</a>.';
 $lang['Piwigo cannot retrieve upgrade file from server'] = 'Piwigo nie może ściągnąć pliku aktualizacji z serwera';
@@ -973,4 +974,3 @@ $lang['Show %s users'] = 'Pokaż %s użytkowników';
 $lang['Close user details'] = 'Zamknij szczegóły użytkownika';
 $lang['Open user details'] = 'Otwórz szczegóły użytkownika';
 $lang['close'] = 'zamknij';
-?>

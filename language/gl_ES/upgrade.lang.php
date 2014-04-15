@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['You do not have access rights to run upgrade'] = 'Non tes dereitos de acceso para actualizar';
 $lang['Upgrade informations'] = 'Actualizar información';
 $lang['User permissions and group permissions have been erased'] = 'Borráronse os permisos dos usuarios e grupos';
@@ -37,4 +39,3 @@ $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'En <i>%s</i>, antes de <b>?>
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Por precaución, os seguintes engadidos foron desactivados. Tes que comprobar se teñen actualización antes de reactivalos:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Por precaución, os seguintes temas foron desactivados. Tes que comprobar se teñen actualización antes de reactivalos:';
 $lang['All sub-albums of private albums become private'] = 'Tódolos sub-álbums de álbums privados tórnanse privados';
-?>

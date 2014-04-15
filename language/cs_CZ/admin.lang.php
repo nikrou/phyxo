@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
-// | Czech language localization                                           |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
@@ -566,7 +566,7 @@ $lang['Hit'] = 'Zobrazení';
 $lang['Tools'] = 'Nástroje';
 $lang['Photos'] = 'Fotografie';
 $lang['Themes'] = 'Témata';
-$lang['Instructions to use Piwigo'] = 'Informace jak používat Piwigo';
+$lang['Instructions to use Phyxo'] = 'Informace jak používat Phyxo';
 $lang['Installed Themes'] = 'Instalovaná témata';
 $lang['Add New Theme'] = 'Přidat nové téma';
 $lang['Forbid this theme to users'] = 'Zakázat použití tohoto tématu uživatelům';
@@ -574,7 +574,7 @@ $lang['Set as default theme for unregistered and new users'] = 'Nastavit výchoz
 $lang['unknown'] = 'neznámý';
 $lang['Everybody'] = 'Každý';
 $lang['Who can see these photos?'] = 'Kdo může vidět tyto fotografie?';
-$lang['Who can see this photo?'] = 'Kdo může vidět tuto fotografii?'; 
+$lang['Who can see this photo?'] = 'Kdo může vidět tuto fotografii?';
 $lang['Pending Comments'] = 'Nevyřízené komentáře';
 $lang['Settings'] = 'Nastavení';
 $lang['Resize'] = 'Změnit velikost';
@@ -979,4 +979,3 @@ $lang['on the %d selected users'] = 'na %d vybraných uživatelích';
 $lang['Close user details'] = 'Zavřít detajly uživatele';
 $lang['Open user details'] = 'Otevřít detajly uživatele';
 $lang['close'] = 'Zavřít';
-?>

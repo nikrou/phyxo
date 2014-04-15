@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -416,4 +417,3 @@ $lang['Go back to the album'] = 'Gaan terug na die album';
 $lang['Last Page'] = 'Laaste blad';
 $lang['Password is missing. Please enter the password.'] = 'Wagwoord nie ingevul nie. Vul asseblief die wagwoord in.';
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Wagwoord bevestiging nie gedoen. Bevestig asseblief die gekose wagwoord.';
-?>

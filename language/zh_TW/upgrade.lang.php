@@ -21,7 +21,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
 $lang['Upgrade'] = "升級";
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "此頁面將把您的 Piwigo 舊版本的數據庫升級為新版本。
 升級助手將會認為您正在運行 <strong>版本 %s</strong> (或者相同的版本).";
@@ -40,5 +39,3 @@ $lang['User permissions and group permissions have been erased'] = "用戶和組
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = "在前一個配置操作中，只有縮略圖的前綴和網站管理員的郵件地址被保存了。";
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = '在 <i>%s</i>, 之前 <b>?></b>, 插入:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = '為小心起見，以下主題已停用。假如要重新啟用它們，你必須先檢查有沒有可更新的主題:';
-
-?>

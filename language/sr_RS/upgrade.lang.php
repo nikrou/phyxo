@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = "Надоградња";
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Ова страница предлаже надоградњу базе са Piwigo старе верзије на нову.
 Асистент надоградње процењује да тренутно користите <strong>издање %s</strong> (или еквивалентну).";
@@ -40,5 +39,4 @@ $lang['All sub-albums of private albums become private'] = "Све подкат�
 $lang['User permissions and group permissions have been erased'] = "Корисничке и групне дозволе су обрисане";
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = "Само префиx за повезне сличице и адреса електронске поште уредника интернет страница су сачуване из претходне конфигурације";
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'У <i>%s</i>, испред <b>?></b>, уметни:';
-$lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Као мера предострожности, следеће теме су деактивиране. Ви треба да проверите да ли теме имају унапређење пре него што их поново активирате:'; 
-?>
+$lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Као мера предострожности, следеће теме су деактивиране. Ви треба да проверите да ли теме имају унапређење пре него што их поново активирате:';

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -239,7 +240,7 @@ $lang['Random photos'] = 'Fotos aleatórias';
 $lang['display a set of random photos'] = 'Exibir um conjunto aleatório de fotos';
 $lang['Recent albums'] = 'Albuns recentes';
 $lang['display recently updated albums'] = 'Exibir albums actualizados recentemente.';
-$lang['Recent period'] = 'Período recente';  
+$lang['Recent period'] = 'Período recente';
 $lang['Recent photos'] = 'Fotos recentes';
 $lang['display most recent photos'] = 'Mostrar as fotos mais recentes';
 $lang['Redirection...'] = 'A redireccionar...';
@@ -383,7 +384,7 @@ $lang['Show oldest comments first'] = 'Mostrar comentários mais antigos primeir
 $lang['Show latest comments first'] = 'Mostrar comentários mais recentes primeiro';
 $lang['View in'] = 'Visualizar em';
 $lang['Mobile'] = 'Móvel';
-$lang['Desktop'] = 'Área de Trabalho'; 
+$lang['Desktop'] = 'Área de Trabalho';
 
 $lang['2small'] = 'XXS - Pequenissimo';
 $lang['Date created, new &rarr; old'] = 'Data de abertura, recente &rarr; antiga';

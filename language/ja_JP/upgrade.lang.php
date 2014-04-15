@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = 'アップグレード';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'このページであなたのデータベースをアップグレードするように推薦しています（旧Piwigoのデータベースから、現在版）。
 アップグレード・アシスタントはあなたが現在<strong>release %s</strong> (またはそれと同等)を使っています。';
@@ -41,4 +40,3 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = '予防措置として、次のプラグインは無効になりました。プラグインを有効にする前に、プラグインのアップグレードを確認してください。:';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = '<i>%s</i>に、 <b>?></b>の前に入力:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = '予防措置として、次のテーマが無効になりました。テーマを有効にする前に、アップグレードを確認してください。：';
-?>

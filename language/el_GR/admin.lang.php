@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -94,7 +95,7 @@ $lang['Action'] = 'Ενέργεια';
 $lang['Actions'] = 'Ενέργειες';
 $lang['Activate icon "%s"'] = 'Εικονίδιο ενεργοποίησης "%s"';
 $lang['Activate Navigation Bar'] = 'Ενεργοποίηση μπάρας πλοήγησης';
-$lang['Activate Navigation Thumbnails'] = 'Ενεργοποίηση εικονιδίων πλοήγησης'; 
+$lang['Activate Navigation Thumbnails'] = 'Ενεργοποίηση εικονιδίων πλοήγησης';
 $lang['Activate'] = 'Eνεργοποίηση';
 $lang['Activate icon "new" next to albums and pictures'] = 'Ενεργοποίηση του εικονιδίου "νέο" μετά από τα άλμπουμς και εικόνες';
 $lang['Active Languages'] = 'Ενεργοποίηση Γλώσσων';
@@ -418,7 +419,7 @@ $lang['Install on your computer,'] = 'Εγκαταστήστε στον υπολ
 $lang['Installed Languages'] = 'Εγκατεστημένες γλώσσες';
 $lang['Installed Themes'] = 'Εγκατεστημένα θέματα';
 $lang['Install'] = 'Εγκατάσταση';
-$lang['Instructions to use Piwigo'] = 'Οδηγίες χρήσης Piwigo';
+$lang['Instructions to use Phyxo'] = 'Οδηγίες χρήσης Phyxo';
 $lang['Invert'] = 'Αντιστροφή';
 $lang['Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will receive emails when a new release is available (sometimes including a security bug fix, it\'s important to know and upgrade) and when major events happen to the project. Only a few emails a year.'] = 'Μείνετε σε επαφή με το έργο του Piwigo, εγγραφείτε στο Newsletter Ανακοινώσεων του Piwigo. Θα σας αποστέλετε e-mail όταν μια νέα έκδοση είναι διαθέσιμη (μερικές φορές περιλαμβανομένων μια διώρθοση ασφαλείας, είναι σημαντικό να γνωρίζετε και να αναβαθμίσετε) και όταν συμβαίνουν σημαντικά γεγονότα για το έργο. Μόνο μερικά emails το χρόνο';
 $lang['Language has been successfully installed'] = 'Η Γλώσσα έχει εγκατασταθεί με επιτυχία';
@@ -977,4 +978,3 @@ $lang['close'] = 'κλείσιμο ';
 $lang['Open user details'] = 'Άνοιγμα Λεπτομεριών χρήστη';
 $lang['Close user details'] = 'Κλείστε τα στοιχεία χρήστη';
 $lang['Activate it now'] = 'Ενεργοποιήστε τώρα';
-?>

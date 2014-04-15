@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['All sub-albums of private albums become private'] = 'Kaikki yksityisten albumeiden ala-albumit ovat nyt yksityisiä';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Seuraavat pluginit ovat varotoimenpiteenä otettu pois käytöstä. Sinun tulee tarkistaa teeman päivitykset ennen kuin aktivoit ne uudelleen:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Seuraavat teemat ovat varotoimenpiteenä otettu pois käytöstä. Sinun tulee tarkistaa teeman päivitykset ennen kuin aktivoit ne uudelleen:';
@@ -37,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = 'Käyttäjien
 $lang['You do not have access rights to run upgrade'] = 'Sinulla ei ole oikeutta ajaa päivitystä';
 $lang['total SQL time'] = 'Totaali SQL-aika';
 $lang['total upgrade time'] = 'Totaali päivitysaika';
-?>

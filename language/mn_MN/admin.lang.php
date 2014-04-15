@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Zoom'] = 'Томруулах';
 $lang['add a new watermark'] = 'шинээр усан хээ нэмэх';
 $lang['average time'] = 'дундаж хугацаа';
@@ -699,7 +701,7 @@ $lang['Grant selected users'] = 'Сонгосон хэрэглэгчдэд зө�
 $lang['Errors caption'] = 'Алдааны бүртгэл';
 $lang['Linked albums'] = 'Холбоотой цомог';
 $lang['Last hit'] = 'Сүүлд үзсэн';
-$lang['Instructions to use Piwigo'] = 'Piwigo-г ашиглах заавар';
+$lang['Instructions to use Phyxo'] = 'Phyxo-г ашиглах заавар';
 $lang['Showing %s to %s of %s users'] = '%s-с %s хэрэглэгчийг харуулж байна. Нийт %s хэрэглэгч';
 $lang['Manage authorizations for selected albums'] = 'Цомогын төлөв байдлыг сонгох';
 $lang['Authorize users to add comments on selected albums'] = 'Хэрэглэгчид сэтгэгдэл бичэх эрхийг зохицуулах';
@@ -739,4 +741,3 @@ $lang['Minimum width'] = 'Өргөний доод хэмжээ';
 $lang['Lock gallery'] = 'Галерейг түгжих';
 $lang['Last send'] = 'Сүүлд илгээсэн';
 $lang['Learn more'] = 'Цааш нь үзэх';
-?>

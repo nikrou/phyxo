@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['SQL queries'] = 'SQL petoj';
 $lang['Upgrade informations'] = 'Informoj pri la ĝisdatigo';
 $lang['User permissions and group permissions have been erased'] = 'La permesoj de uzantoj kaj de grupoj viŝiĝis';
@@ -37,4 +39,3 @@ $lang['Statistics'] = 'Statistikoj';
 $lang['Only administrator can run upgrade: please sign in below.'] = 'Nur administranto povas lanĉi ĝisdatigadon: bonvolu ensaluti ĉisube.';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'En <i>%s</i>, antaŭ <b>?></b>, enmetu:';
 $lang['All sub-albums of private albums become private'] = 'Ĉiuj sub-fotaroj el privataj fotaroj iĝas privataj';
-?>

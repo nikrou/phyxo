@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -611,7 +612,7 @@ $lang['include child albums'] = 'Incluír albuns filhos';
 $lang['Install on your computer,'] = 'Instalar no seu computador,';
 $lang['Installed Languages'] = 'Idiomas Instalados';
 $lang['Installed Themes'] = 'Temas Instalados';
-$lang['Instructions to use Piwigo'] = 'Instruções para usar Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruções para usar Phyxo';
 $lang['Invert'] = 'Inverter';
 $lang['Language has been successfully installed'] = 'Idioma instalado com sucesso';
 $lang['Languages'] = 'Idiomas';
@@ -831,7 +832,7 @@ $lang['cancel manual order'] = 'Cancelar ordem manual';
 $lang['Cancel'] = 'Cancelar';
 $lang['List'] = 'Lista';
 $lang['Web Form'] = 'Formulário web';
-$lang['Applications'] = 'Aplicações'; 
+$lang['Applications'] = 'Aplicações';
 $lang['<em>Piwigo for Android</em> application empowers you to connect your Android phone or table to your Piwigo gallery, create some albums and upload several photos at once.'] = 'A aplicação <em>Piwigo for Android</em> permite-lhe ligar do seu telefone Android ou Tablet à galeria Piwigo, criar albuns e carregar diversas fotos simultâneamente.';
 $lang['<em>Piwigo for iOS</em> application empowers you to connect to your Piwigo gallery from your iPhone, iPad or iPod Touch, create some albums and upload several photos at once.'] = 'A aplicação <em>Piwigo for iOS</em> permite-lhe, ligação à sua galeria Piwigo a partir do seu IPhone,IPad ou IPod táctil, criar albuns e carregar fotos simultâneamente.';
 $lang['Adobe Photoshop Lightroom is a photography software designed to manage large quantities of digital images and doing post production work.'] = 'Adobe Photoshop Lightroom é um software para fotografia desenhado para manusear larga quantidade de fotos digitais e para transferência depois de produzidas.';

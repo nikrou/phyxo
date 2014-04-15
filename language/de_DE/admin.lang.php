@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -549,7 +550,7 @@ $lang['Hit'] = 'Treffer';
 $lang['Tools'] = 'Werkzeuge';
 $lang['Photos'] = 'Fotos';
 $lang['Themes'] = 'Themen';
-$lang['Instructions to use Piwigo'] = 'Hinweise zur Benutzung von Piwigo';
+$lang['Instructions to use Phyxo'] = 'Hinweise zur Benutzung von Phyxo';
 $lang['Installed Themes'] = 'Installierte Themen';
 $lang['Add New Theme'] = 'Füge ein neues Thema hinzu';
 $lang['Forbid this theme to users'] = 'Verbieten Sie dieses Thema den Benutzern';
@@ -713,7 +714,7 @@ $lang['Visit theme site'] = 'Besuchen Sie die Themenseite';
 $lang['Visit language site'] = 'Besuchen Sie die Sprachenseite';
 $lang['New Version'] = 'Neue Version';
 $lang['display'] = 'Zeige';
-$lang['Obsolete Plugins'] = 'Veraltete Plugins'; 
+$lang['Obsolete Plugins'] = 'Veraltete Plugins';
 $lang['WARNING! This plugin does not seem to be compatible with this version of Piwigo.'] = 'WARNUNG! Dieses Plugin ist nicht kompatibel mit dieser Version von Piwigo.';
 $lang['Do you want to activate anyway?'] = 'Wollen Sie es wirklich wieder aktivieren?';
 $lang['THIS PLUGIN IS NOW PART OF PIWIGO CORE! DELETE IT NOW.'] = 'DIESES PLUGIN IST JETZT IN DEN KERN VON PIWIGO INTEGRIERT! BITTE UNBEDINGT DEINSTALLIEREN!';
@@ -762,7 +763,7 @@ $lang['Width'] = 'Breite';
 $lang['Height'] = 'Höhe';
 $lang['Follow Orientation'] = 'Folgen Sie der Orientierung';
 $lang['Graphics Library'] = 'Grafikbibliothek';
-$lang['Add a criteria'] = 'Ein Kriterium hinzufügen'; 
+$lang['Add a criteria'] = 'Ein Kriterium hinzufügen';
 $lang['You can\'t define a default photo order because you have a custom setting in your local configuration.'] = 'Sie können keine Standardsortierung festlegen, da Sie eine benutzerdefinierte Einstellung in Ihrer lokalen Konfiguration vorgenommen haben.';
 $lang['You have specified <i>$conf[\'order_by\']</i> in your local configuration file, this parameter in deprecated, please remove it or rename it into <i>$conf[\'order_by_custom\']</i> !'] = 'Sie haben <i>$conf[\'order_by\']</i> in ihrer lokalen Konfigurationsdatei festgelegt. Dieser Parameter ist überholt. Bitte entfernen Sie ihn oder benennen Sie ihn um in <i>$conf[\'order_by_custom\']</i>!';
 $lang['Average rate'] = 'Durchschnittliche Bewertung';
@@ -977,4 +978,3 @@ $lang['close'] = 'schließen';
 $lang['Close user details'] = 'Schließe Benutzerdetails';
 $lang['Open user details'] = 'Öffne Benutzerdetails';
 $lang['Activate it now'] = 'Jetzt aktivieren';
-?>

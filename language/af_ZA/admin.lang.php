@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -151,7 +152,7 @@ $lang['Install'] = 'Installeer';
 $lang['Install on your computer,'] = 'Installeer op jou rekenaar,';
 $lang['Installed Languages'] = 'Geïnstalleerde Tale';
 $lang['Installed Themes'] = 'Geïnstalleerde Temas';
-$lang['Instructions to use Piwigo'] = 'Instruksies in die gebruik van Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruksies in die gebruik van Phyxo';
 $lang['IP'] = 'IP';
 $lang['jump to album'] = 'spring na album';
 $lang['jump to photo'] = 'spring na foto';
@@ -946,4 +947,3 @@ $lang['between %.2f and %.2f'] = 'tussen %.2f en %.2f';
 $lang['Purge user cache'] = 'Maak pakstoor leeg';
 $lang['Select at least one tag'] = 'Kies ten minste een etiket';
 $lang['The picture dimensions will be reduced to %dx%d pixels.'] = 'Die beeld se grootte sal verminder word tot %dx%d piksels.';
-?>

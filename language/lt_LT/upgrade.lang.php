@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Saugumo sumetimais toliau išvardinti priedai buvo išjungti. Prieš įjungiant priedus vėl, patikrinkite, ar nėra jų atnaujinimų:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Saugumo sumetimais toliau išvardintos temos buvo išjungtos. Prieš įjungiant temas vėl, patikrinkite, ar nėra jų atnaujinimų:';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Šis puslapis siųlo atnaujinti duomenų bazę iš senosios Piwigo versijos į naująją. Atnaujinimo asistentas mano, kad Jūs dabar naudojate <strong>leidimą %s</strong> (arba analogišką).';
@@ -37,4 +39,3 @@ $lang['Upgrade from version %s to %s'] = 'Atnaujinti iš %s versijos į %s';
 $lang['Upgrade'] = 'Atnaujinimas';
 $lang['Statistics'] = 'Statistika';
 $lang['SQL queries'] = 'SQL Užklausos';
-?>

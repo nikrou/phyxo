@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2010 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -396,7 +397,7 @@ $lang['Visits, high &rarr; low'] = 'Επισκέψεις, περισσότερε
 $lang['Visits, low &rarr; high'] = 'Επισκέψεις, λιγότερες &rarr; περισσότερες';
 $lang['Numeric identifier, 1 &rarr; 9'] = 'Αριθμητικό αναγνωριστικό, 1 &rarr; 9';
 $lang['Numeric identifier, 9 &rarr; 1'] = 'Αριθμητικό αναγνωριστικό, 9 &rarr; 1';
-$lang['Manual sort order'] = 'Χειροκίνητη ταξινόμηση'; 
+$lang['Manual sort order'] = 'Χειροκίνητη ταξινόμηση';
 
 $lang['%d rate'] = '%d βαθμολόγηση';
 $lang['Bad request'] = 'Ατυχές αίτημα';

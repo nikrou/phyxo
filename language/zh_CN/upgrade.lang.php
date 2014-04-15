@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,7 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
 $lang['Upgrade'] = '更新';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = '这个页面试图更新你的与Piwigo相关的数据库。 更新助手发现您现在正在运行的<strong>版本为 %s</strong> （或同等的版本）。';
 $lang['Upgrade from version %s to %s'] = '从 %s 版本更新到 %s 版本';
@@ -39,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = "用户权限
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = '之前的设置只有缩略图前缀和站长电子邮件地址被保存';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = '在<i>%s</i>中，<b>?></b>之前，插入：';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = '保险起见，以下主题已被停用。您在重新启用它们之前，必须先检查主题的更新版本：';
-?>

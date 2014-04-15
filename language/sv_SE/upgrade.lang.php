@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = 'Uppgradera';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Denna sida föreslår att du ska uppgradera databasen från din gamla versionen till den nya versionen. Uppgraderingen assistenten tycker att du för närvarande kör en <strong>versionen %s </strong> (eller motsvarande).';
 $lang['Upgrade from version %s to %s'] = 'Uppgradera från version %s till %s';
@@ -40,5 +39,3 @@ $lang['User permissions and group permissions have been erased'] = 'Användare o
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'miniatyrbilder Endast prefix och webmaster postadress har sparats från tidigare konfiguration';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'I <i>%s</i>, innan <b>?></b>, infoga:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Som en försiktighetsåtgärd, har följande teman har avaktiverats. Du måste kolla tema uppgraderingar innan du aktivera dem:';
-
-?>

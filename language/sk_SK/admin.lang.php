@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
-// | Czech language localization                                           |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
@@ -560,7 +560,7 @@ $lang['Hit'] = 'Zobrazenie';
 $lang['Tools'] = 'Nástroje';
 $lang['Photos'] = 'Fotografie';
 $lang['Themes'] = 'Témy';
-$lang['Instructions to use Piwigo'] = 'Informácie ako používať Piwigo';
+$lang['Instructions to use Phyxo'] = 'Informácie ako používať Phyxo';
 $lang['Installed Themes'] = 'Inštalované témy';
 $lang['Add New Theme'] = 'Pridať novú tému';
 $lang['Forbid this theme to users'] = 'Zakázať použitie tojto témy používateľom';
@@ -568,7 +568,7 @@ $lang['Set as default theme for unregistered and new users'] = 'Nastaviť výcho
 $lang['unknown'] = 'neznámy';
 $lang['Everybody'] = 'Každý';
 $lang['Who can see these photos?'] = 'Kto môže vidieť tieto fotografie?';
-$lang['Who can see this photo?'] = 'Kto môže vidieť túto fotografiu?'; 
+$lang['Who can see this photo?'] = 'Kto môže vidieť túto fotografiu?';
 $lang['Pending Comments'] = 'Nevybavené komentáre';
 $lang['Settings'] = 'Nastavenia';
 $lang['Resize'] = 'Zmeniť veľkosť';
@@ -700,13 +700,13 @@ $lang['Orphan tags deleted'] = 'Nepriradené kľúčové slová boli vymazané';
 $lang['Week starts on'] = 'Týždenné spustenie';
 $lang['You have %d orphan tags: %s.'] = 'Máte %d nepriradených kľúčových slov: %s.';
 $lang['Remove from caddie'] = 'Vymazať z krabičky';
-$lang['Themes which need upgrade'] = 'Témy potrebujúce aktualizáciu'; 
-$lang['Languages which need upgrade'] = 'Jazyky potrebujúce aktualizáciu '; 
-$lang['All themes are up to date.'] = 'Všetky témy sú aktuálne.'; 
-$lang['All plugins are up to date.'] = 'Všetky doplnky sú aktuálne.'; 
-$lang['All languages are up to date.'] = 'Všetky jazyky sú aktuálne.'; 
-$lang['Visit theme site'] = 'Navštívte stránku tém'; 
-$lang['Visit language site'] = 'Navštívte stránku jazykov'; 
+$lang['Themes which need upgrade'] = 'Témy potrebujúce aktualizáciu';
+$lang['Languages which need upgrade'] = 'Jazyky potrebujúce aktualizáciu ';
+$lang['All themes are up to date.'] = 'Všetky témy sú aktuálne.';
+$lang['All plugins are up to date.'] = 'Všetky doplnky sú aktuálne.';
+$lang['All languages are up to date.'] = 'Všetky jazyky sú aktuálne.';
+$lang['Visit theme site'] = 'Navštívte stránku tém';
+$lang['Visit language site'] = 'Navštívte stránku jazykov';
 $lang['New Version'] = 'Nová verzia';
 $lang['Obsolete Plugins'] = 'Zastaralé doplnky';
 $lang['WARNING! This plugin does not seem to be compatible with this version of Piwigo.'] = 'UPOZORNENIE! Tento doplnok nemusí byť kompatibilný s touto verziou Piwigo.';
@@ -756,7 +756,7 @@ $lang['Width'] = 'Šírka';
 $lang['Height'] = 'Výška';
 $lang['Follow Orientation'] = 'Nasledovať orientáciu';
 $lang['Graphics Library'] = 'Grafická knižnica';
-$lang['Activate icon "new" next to albums and pictures'] = 'Aktivovať ikonu "new" pre ďalšie albumy a fotky'; 
+$lang['Activate icon "new" next to albums and pictures'] = 'Aktivovať ikonu "new" pre ďalšie albumy a fotky';
 $lang['Default photos order'] = 'Predvolené zoradenie fotiek';
 $lang['Average rate'] = 'Priemerné hodnotenie';
 $lang['Rate'] = 'Hodnotenie';
@@ -792,12 +792,12 @@ $lang['An error has occured during extract. Please check files permissions of yo
 $lang['Piwigo cannot retrieve upgrade file from server'] = 'Piwigo nemôže získať upgradovací súbor zo servra';
 $lang['Zoom'] = 'Zväčšenie';
 $lang['Add to caddie'] = 'Pridať do košíku';
-$lang['%s has been successfully updated.'] = '%s bol úspešne aktualizovaný.'; 
-$lang['Add tags'] = 'Pridať kľúčové slová'; 
-$lang['Last import'] = 'Ostatný import'; 
-$lang['Predefined filter'] = 'Predefinovaný filter'; 
-$lang['With no album'] = 'Bez albumu'; 
-$lang['With no tag'] = 'Bez kľúčového slova'; 
+$lang['%s has been successfully updated.'] = '%s bol úspešne aktualizovaný.';
+$lang['Add tags'] = 'Pridať kľúčové slová';
+$lang['Last import'] = 'Ostatný import';
+$lang['Predefined filter'] = 'Predefinovaný filter';
+$lang['With no album'] = 'Bez albumu';
+$lang['With no tag'] = 'Bez kľúčového slova';
 $lang['With no virtual album'] = 'Bez virtuálneho albumu';
 $lang['Activate comments'] = 'Aktívne komentáre';
 $lang['Default comments order'] = 'Predvolené zoradenie komentárov';
@@ -809,18 +809,18 @@ $lang['The original maximum height must be a number between %d and %d'] = 'Origi
 $lang['The original maximum width must be a number between %d and %d'] = 'Originálna maximálna šírka musí byť číslo medzi %d a %d';
 $lang['Resize after upload'] = 'Zmeniť rozmer po nahratí';
 $lang['Original Size'] = 'Originálna veľkosť';
-$lang['A locked gallery is only visible to administrators'] = 'Uzamknutý album je viditeľný len administrátorom'; 
-$lang['Unlock gallery'] = 'Odomknúť album'; 
-$lang['Gallery unlocked'] = 'Album odomknutý'; 
-$lang['Notify administrators when a comment is'] = 'Upozorniť administrátorov, keď je komentár'; 
-$lang['modified'] = 'upravené'; 
-$lang['pending validation'] = 'čakajúce na potvrdenie'; 
-$lang['Save visits in history for'] = 'Uložiť návštevy do histórie'; 
-$lang['simple visitors'] = 'obyčajní návštevníci'; 
-$lang['registered users'] = 'registrovaní používatelia'; 
-$lang['administrators'] = 'administrátori'; 
-$lang['This album contains %d photos, added on %s.'] = 'Tento album obsahuje %d fotiek, pridaných %s.'; 
-$lang['This album contains %d photos, added between %s and %s.'] = 'Tento album obsahuje %d fotiek, pridaných medzi %s a %s.'; 
+$lang['A locked gallery is only visible to administrators'] = 'Uzamknutý album je viditeľný len administrátorom';
+$lang['Unlock gallery'] = 'Odomknúť album';
+$lang['Gallery unlocked'] = 'Album odomknutý';
+$lang['Notify administrators when a comment is'] = 'Upozorniť administrátorov, keď je komentár';
+$lang['modified'] = 'upravené';
+$lang['pending validation'] = 'čakajúce na potvrdenie';
+$lang['Save visits in history for'] = 'Uložiť návštevy do histórie';
+$lang['simple visitors'] = 'obyčajní návštevníci';
+$lang['registered users'] = 'registrovaní používatelia';
+$lang['administrators'] = 'administrátori';
+$lang['This album contains %d photos, added on %s.'] = 'Tento album obsahuje %d fotiek, pridaných %s.';
+$lang['This album contains %d photos, added between %s and %s.'] = 'Tento album obsahuje %d fotiek, pridaných medzi %s a %s.';
 $lang['This album contains no photo.'] = 'Tento album neobsahuje fotky.';
 $lang['Not cropped correctly?'] = 'Nesprávne orezanie?';
 $lang['Center of interest'] = 'Stred záujmu';
@@ -976,4 +976,3 @@ $lang['Close user details'] = 'Uzavrieť detaily používateľa';
 $lang['Open user details'] = 'Otvoriť detaily používateľa';
 $lang['close'] = 'zavrieť';
 $lang['Activate it now'] = 'Aktivovať teraz';
-?>

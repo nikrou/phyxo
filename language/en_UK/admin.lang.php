@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang[' and %d virtual'] = " and %d virtual";
 $lang[' and %d virtuals'] = " and %d virtual";
@@ -432,7 +431,7 @@ $lang['Install on your computer,'] = 'Install on your computer,';
 $lang['Install'] = "Install";
 $lang['Installed Languages'] = 'Installed Languages';
 $lang['Installed Themes'] = "Installed Themes";
-$lang['Instructions to use Piwigo'] = "Instructions to use Piwigo";
+$lang['Instructions to use Phyxo'] = "Instructions to use Phyxo";
 $lang['Invert'] = 'Invert';
 $lang['IP'] = "IP";
 $lang['iPhoto is the default photo manager on MacOSX. The Piwigo export plugin let you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.'] = 'iPhoto is the default photo manager on MacOSX. The Piwigo export plugin let you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.';
@@ -974,4 +973,3 @@ $lang['Users modified'] = 'Users modified';
 $lang['close'] = 'close';
 $lang['Open user details'] = 'Open user details';
 $lang['Close user details'] = 'Close user details';
-?>

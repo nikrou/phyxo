@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -421,4 +422,3 @@ $lang['Password is missing. Please enter the password.'] = '密码未输入，�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = '密码确认未完成，请确认所选定的密码。';
 $lang['%d photos per page'] = '每页 %d 张相片 ';
 $lang['Theme'] = '主题';
-?>

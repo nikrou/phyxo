@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -64,7 +65,7 @@ $lang['month'][5] = 'Mae';
 $lang['month'][6] = 'Mezheven';
 $lang['month'][7] = 'Gouere';
 $lang['month'][8] = 'Eost';
-$lang['month'][9] = 'Gwengolo'; 
+$lang['month'][9] = 'Gwengolo';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... pe ziweredekait ar c\'hemenn-mañ, va-unan e tibabin';
 $lang['2small'] = 'XXS - bihan';
 $lang['... or browse your empty gallery'] = '... pe verdeit d\'ho palier goullo';

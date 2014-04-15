@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,5 +39,3 @@ $lang['All sub-albums of private albums become private'] = 'Todos os sub-albuns 
 $lang['User permissions and group permissions have been erased'] = 'Permissões de utilizador e de grupo foram apagadas.';
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Apenas o prefixo das miniaturas e o endereço de email do webmaster foram salvos da configuração anterior.';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Como precau&ccedil;&atilde;o os seguintes temas foram desactivados. Dever&aacute; verificar por actualiza&ccedil;&otilde;es para os temas antes de os reactivar:';
-
-?>

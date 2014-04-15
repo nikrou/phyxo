@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -546,7 +547,7 @@ $lang['Hit'] = 'Treff';
 $lang['Tools'] = 'Verktøy';
 $lang['Photos'] = 'Foto';
 $lang['Themes'] = 'Temaer';
-$lang['Instructions to use Piwigo'] = 'Instruksjoner i bruk av Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruksjoner i bruk av Phyxo';
 $lang['Installed Themes'] = 'Installerte temaer';
 $lang['Add New Theme'] = 'Legg til et nytt tema';
 $lang['Forbid this theme to users'] = 'Nekt dette tema for brukere';
@@ -702,13 +703,13 @@ $lang['Orphan tags deleted'] = 'Foreldreløse  tagger slettet';
 $lang['Week starts on'] = 'Uke starter på';
 $lang['You have %d orphan tags: %s.'] = 'Du har %d foreldreløse tagger: %s.';
 $lang['Remove from caddie'] = 'Fjern fra kurv';
-$lang['Themes which need upgrade'] = 'Temaer som trenger oppgradering'; 
-$lang['Languages which need upgrade'] = 'Språk som trenger oppgradering'; 
-$lang['All themes are up to date.'] = 'Alle temaer er oppdaterte.'; 
-$lang['All plugins are up to date.'] = 'Alle plugginene er oppdaterte.'; 
-$lang['All languages are up to date.'] = 'Alle språk er oppdaterte.'; 
-$lang['Visit theme site'] = 'Besøk tema side'; 
-$lang['Visit language site'] = 'Besøk språk side'; 
+$lang['Themes which need upgrade'] = 'Temaer som trenger oppgradering';
+$lang['Languages which need upgrade'] = 'Språk som trenger oppgradering';
+$lang['All themes are up to date.'] = 'Alle temaer er oppdaterte.';
+$lang['All plugins are up to date.'] = 'Alle plugginene er oppdaterte.';
+$lang['All languages are up to date.'] = 'Alle språk er oppdaterte.';
+$lang['Visit theme site'] = 'Besøk tema side';
+$lang['Visit language site'] = 'Besøk språk side';
 $lang['New Version'] = 'Ny versjon';
 $lang['Learn more'] = 'Lær mer';
 $lang['Rate'] = 'Rangere';
@@ -971,4 +972,3 @@ $lang['on the %d selected users'] = 'av de %d valgte brukere';
 $lang['Close user details'] = 'Lukk brukeropplysninger';
 $lang['Open user details'] = 'Åpne brukeropplysninger';
 $lang['close'] = 'lukk';
-?>

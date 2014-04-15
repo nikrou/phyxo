@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['All sub-albums of private albums become private'] = '所有私有子相簿,設定為只允許私有觀看';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = '作為預防措施，以下插件已被停用。請檢查有沒有插件更新版本,然後再啟用它：';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = '作為預防措施，以下主題已被停用。請檢查有沒有主題更新版本,然後再啟用它：';
@@ -37,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = '使用者和
 $lang['You do not have access rights to run upgrade'] = '您沒有權限執行升級';
 $lang['total SQL time'] = '總SQL執行時間';
 $lang['total upgrade time'] = '總升級時間';
-?>

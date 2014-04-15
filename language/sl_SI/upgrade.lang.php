@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Kot previdnostni ukrep so sledeči vtičniki onemogočeni. Preveriti morate posodobitve za te vtičnike in jih nato ponovno omogočiti:';
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Od predhodnje nastavitve so shranjene le predpone sličic in e-poštni naslov skrbnika spletne strani';
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'V primeru težav naredite vzdrževalno preverjanje preko [Administracija>Orodja>Vzdrževanje]';
@@ -37,4 +39,3 @@ $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'V <i>%s</i>, pred <b>?></b>,
 $lang['Only administrator can run upgrade: please sign in below.'] = 'Nadgradnjo lahko opravi le Administrator. Prosimo prijavite se spodaj:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Kot previdnostni ukrep so sledeče preobleke onemogočene. Preveriti morate posodobitve za te preobleke in jih nato ponovno omogočiti:';
 $lang['All sub-albums of private albums become private'] = 'Vsi pod-albumi zasebnega albuma postanejo zasebni';
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -30,7 +31,7 @@ Author URI: http://piwigo.org
 
 // Langage informations
 $lang_info['language_name'] = 'Română';
-$lang_info['country'] = 'România';  
+$lang_info['country'] = 'România';
 $lang_info['charset'] = 'utf-8';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'ro';
@@ -420,4 +421,3 @@ $lang['Password is missing. Please enter the password.'] = 'Parola lipseşte. Te
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Lipseşte confirmarea parolei. Te rog să confirmi parola aleasă.';
 $lang['%d photos per page'] = '%d fotografii per pagină';
 $lang['Theme'] = 'Temă';
-?>

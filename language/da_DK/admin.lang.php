@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['%d association'] = '%d tilknytning';
 $lang['%d associations'] = '%d tilknytninger';
@@ -545,7 +544,7 @@ $lang['Hit']  =  'Hit';
 $lang['Tools'] = 'Værktøjer';
 $lang['Photos'] = 'Fotografier';
 $lang['Themes']  =  'Temaer';
-$lang['Instructions to use Piwigo'] = 'Vejledning i at anvende Piwigo';
+$lang['Instructions to use Phyxo'] = 'Vejledning i at anvende Phyxo';
 $lang['Installed Themes']  =  'Installerede temaer';
 $lang['Add New Theme']  =  'Tilføj et nyt tema';
 $lang['Forbid this theme to users']  =  'Forbyd dette tema til brugere';
@@ -764,7 +763,7 @@ $lang['Select an album'] = 'Vælg et album';
 $lang['Select at least two tags for merging'] = 'Vælg mindst to tags til sammenlægning';
 $lang['Select the destination tag'] = 'Vælg måltagget';
 $lang['Send connection settings by email'] = 'Send loginoplysninger pr. e-mail';
-$lang['show details'] = 'vis detaljer'; 
+$lang['show details'] = 'vis detaljer';
 $lang['Some themes and plugins may be not available yet.'] = 'Nogle temaer og plugins er måske endnu ikke tilgængelige.';
 $lang['Some upgrades are available for extensions.'] = 'Der er tilgængelige opgraderinger til nogle udvidelser.';
 $lang['Start Upload'] = 'Begynd Upload';
@@ -977,4 +976,3 @@ $lang['Close user details'] = 'Luk brugeroplysninger';
 $lang['Open user details'] = 'Åbn brugeroplysninger';
 $lang['close'] = 'luk';
 $lang['Activate it now'] = 'Aktiver nu';
-?>

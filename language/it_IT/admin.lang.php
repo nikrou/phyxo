@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['%d association'] = '%d associazione';
 $lang['%d associations'] = '%d associazioni';
@@ -549,7 +548,7 @@ $lang['Hit'] = 'Punteggio';
 $lang['Tools'] = 'Tools';
 $lang['Photos'] = 'Foto';
 $lang['Themes'] = 'Temi';
-$lang['Instructions to use Piwigo'] = 'Istruzioni per l\'uso di Piwigo';
+$lang['Instructions to use Phyxo'] = 'Istruzioni per l\'uso di Phyxo';
 $lang['Installed Themes'] = 'Temi installati';
 $lang['Add New Theme'] = 'Aggiungere un tema';
 $lang['Forbid this theme to users'] = 'Vietare questo tema agli utenti';
@@ -975,4 +974,3 @@ $lang['close'] = 'chiudere';
 $lang['Close user details'] = 'Chiudi dettagli utente';
 $lang['Open user details'] = 'Aprire dettagli utente';
 $lang['Activate it now'] = 'Attivalo ora';
-?>

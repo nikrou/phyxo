@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -546,7 +547,7 @@ $lang['Hit'] = 'Populāri';
 $lang['Tools'] = 'Rīki';
 $lang['Photos'] = 'Attēli';
 $lang['Themes'] = 'Tēmas';
-$lang['Instructions to use Piwigo'] = 'Piwigo lietošanas instrukcija';
+$lang['Instructions to use Phyxo'] = 'Phyxo lietošanas instrukcija';
 $lang['Installed Themes'] = 'Instalētās Tēmas';
 $lang['Add New Theme'] = 'Pievienot jaunu tēmu';
 $lang['Forbid this theme to users'] = 'Aizliegt lietotājiem izmantot šo tēmu';
@@ -836,7 +837,7 @@ $lang['Piwigo for iOS (iPhone, iPad, iPod Touch)'] = 'Piwigo priekš iOS (iPhone
 $lang['<em>Piwigo for iOS</em> application empowers you to connect to your Piwigo gallery from your iPhone, iPad or iPod Touch, create some albums and upload several photos at once.'] = '<em>Piwigo priekš iOS</em> aplikācijas, kas ļauj piekļūt jūsu  Piwigo galerijai no iPhone, iPad vai iPod Touch, un bez pūlēm  izveidot jaunus albūmus un ielādēt jaunas fotogrāfijas.';
 $lang['Piwigo for Android'] = 'Piwigo priekš Android';
 $lang['<em>Piwigo for Android</em> application empowers you to connect your Android phone or table to your Piwigo gallery, create some albums and upload several photos at once.'] = '<em>Piwigo priekš Android</em> aplikācija dod jums iespēju savienot savu Android telefonu vai iekārtu ar jūsu Piwigo galeriju, bez pūlēm izveidot jaunus albūmus un ielādēt jaunas fotogrāfijas.';
-$lang['Piwigo Publish plugin for Lightroom'] = 'Piwigo Publicēšanas spraudnis priekš Lightroom'; 
+$lang['Piwigo Publish plugin for Lightroom'] = 'Piwigo Publicēšanas spraudnis priekš Lightroom';
 $lang['Adobe Photoshop Lightroom is a photography software designed to manage large quantities of digital images and doing post production work.'] = 'Adobe Photoshop Lightroom ir fotoredaktora programmatūra, kas domāta liela apjoma digitālu attēlu pārvaldīšanai un  pirmsproducēšanas darbu veikšanai.';
 $lang['The Piwigo publish Plug-in allows you to export and synchronize photos from Lightroom directly to your Piwigo photo gallery.'] = 'Piwigo publicēšanas spraudnis ļauj jums eksportēt un sinhronizēt attēlus Lightroom aplikācijā ar jūsu  Piwigo foto galeriju.';
 $lang['Piwigo publish plugin for Shotwell'] = 'Piwigo publicēšanas spraudnis priekš Shotwell';
@@ -970,4 +971,3 @@ $lang['Open user details'] = 'Atvērt lietotāja informāciju';
 $lang['Close user details'] = 'Aizvērt lietotāja informāciju';
 $lang['close'] = 'aizvērt';
 $lang['Activate it now'] = 'Aktivēt to tagad';
-?>

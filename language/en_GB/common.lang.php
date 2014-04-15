@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -67,4 +68,3 @@ $lang['You are not authorized to access the requested page'] = 'You are not auth
 $lang['Successfully registered, you will soon receive an email with your connection settings. Welcome!'] = 'Successfully registered; you will soon receive an email with your connection settings. Welcome!';
 $lang['Please, enter a login'] = 'Please enter a login';
 $lang['Piwigo encountered a non recoverable error'] = 'Piwigo encountered an irrecoverable error';
-?>

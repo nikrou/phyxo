@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['Add to caddie'] = 'lisa korvi';
 $lang['Average rate'] = 'Keskmine hinne';
@@ -385,7 +384,7 @@ $lang['Install on your computer,'] = 'Paigalda su arvutisse,';
 $lang['Installed Languages'] = 'Paigaldatud keeled';
 $lang['Installed Themes'] = 'Paigaldatud teemad';
 $lang['Install'] = 'Paigalda';
-$lang['Instructions to use Piwigo'] = 'Piwigo kasutusjuhendeid';
+$lang['Instructions to use Phyxo'] = 'Phyxo kasutusjuhendeid';
 $lang['Invert'] = 'Inverteeri';
 $lang['Language has been successfully installed'] = 'Keel on paigaldatud';
 $lang['Languages which need upgrade'] = 'Uuendamist vajavad keeled';
@@ -975,4 +974,3 @@ $lang['Show %s users'] = 'Näita %s kasutajaid';
 $lang['Close user details'] = 'Peida kasutaja üksikasjad';
 $lang['Open user details'] = 'Ava kasutaja üksikasjad';
 $lang['close'] = 'sulge';
-?>

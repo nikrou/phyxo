@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['(this tag will be deleted)'] = '(this keyword will be deleted)';
 $lang['Add a criteria'] = 'Add a criterion';
@@ -52,7 +51,7 @@ $lang['FTP + Synchronization'] = 'FTP + Synchronisation';
 $lang['Group management'] = "Group management";
 $lang['I decide to update anyway'] = 'I choose to update anyway';
 $lang['Impossible to delete this theme. Other themes depends on it: %s'] = 'This theme cannot be deleted because other themes depend on it: %s';
-$lang['Instructions to use Piwigo'] = "How to use Piwigo";
+$lang['Instructions to use Phyxo'] = "How to use Phyxo";
 $lang['Last hit'] = "Latest hit";
 $lang['Last import'] = 'Latest import';
 $lang['Last revisions'] = "Latest revisions";
@@ -145,4 +144,3 @@ $lang['Active Themes'] = 'Active themes';
 $lang['Add New Language'] = 'Add a new language';
 $lang['Active Languages'] = 'Active languages';
 $lang['Active Plugins'] = 'Active plugins';
-?>

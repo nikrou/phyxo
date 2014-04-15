@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -396,7 +397,7 @@ $lang['Visits, high &rarr; low'] = 'Посете, најбројније &rarr; 
 $lang['Visits, low &rarr; high'] = 'Посете, најмање &rarr; најбројније';
 $lang['Numeric identifier, 1 &rarr; 9'] = 'Бројчана променљива, 1 &rarr; 9';
 $lang['Numeric identifier, 9 &rarr; 1'] = 'Бројчана променљива, 9 &rarr; 1';
-$lang['Manual sort order'] = 'Ручно уређени редослед'; 
+$lang['Manual sort order'] = 'Ручно уређени редослед';
 
 $lang['%d rate'] = '%d однос';
 $lang['Bad request'] = 'Лош захтев';

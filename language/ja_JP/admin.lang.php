@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -548,7 +549,7 @@ $lang['Hit'] = 'ヒット';
 $lang['Tools'] = 'ツール';
 $lang['Photos'] = '写真';
 $lang['Themes'] = 'テーマ';
-$lang['Instructions to use Piwigo'] = 'Piwigoの使い方';
+$lang['Instructions to use Phyxo'] = 'Phyxoの使い方';
 $lang['Installed Themes'] = 'インストールされたテーマ';
 $lang['Add New Theme'] = 'テーマを追加';
 $lang['Forbid this theme to users'] = 'このテーマをユーザーに禁止する';
@@ -904,4 +905,3 @@ $lang['Numeric identifier : %d'] = '割り当てる数値 : 整数 : %d';
 $lang['Loading...'] = 'ロード中 ...';
 $lang['Change password'] = 'パスワードを変える';
 $lang['Change username'] = 'ユーザー名を変える';
-?>

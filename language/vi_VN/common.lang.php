@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -419,4 +420,3 @@ $lang['Password is missing. Please enter the password.'] = 'Thiếu mật khẩu
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Xác nhận mật khẩu bị thiếu. Vui lòng xác nhận lại mật khẩu đã chọn.';
 $lang['%d photos per page'] = '%d ảnh mỗi trang';
 $lang['Theme'] = 'Chủ đề';
-?>

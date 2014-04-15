@@ -1,6 +1,8 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
+// +-----------------------------------------------------------------------+
 // | Czech language localization                                           |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |

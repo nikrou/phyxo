@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['All sub-albums of private albums become private'] = 'Всі вкладені альбоми приватних альбомів стали приватними';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'В якості запобіжного заходу, наступні плаґіни були відключені. Ви повинні перевіряти оновлення плагінів до їх відновлення:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'В якості запобіжного заходу, теми вони були відключені. Ви повинні перевірити оновлення перед тим як активуєте їх:';
@@ -37,4 +39,3 @@ $lang['Upgrade from version %s to %s'] = 'Оновлення з версії %s 
 $lang['Upgrade informations'] = 'Інформація оновлення';
 $lang['User permissions and group permissions have been erased'] = 'Користувачі та групи дозволів було видалено';
 $lang['You do not have access rights to run upgrade'] = 'У вас немає прав доступу для запуску оновлення';
-?>

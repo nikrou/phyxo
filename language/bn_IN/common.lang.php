@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -61,5 +62,3 @@ $lang['... or please deactivate this message, I will find my way by myself'] = '
 $lang['A comment on your site'] = 'আপনার সাইটে একটি মন্তব্য';
 $lang['About Piwigo'] = 'পিউইগো বিষয়ক';
 $lang['About'] = 'বিষয়ক';
-
-?>

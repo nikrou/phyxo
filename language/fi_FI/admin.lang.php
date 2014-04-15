@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['%s ago'] = '%s sitten';
 $lang['... or '] = '... tai';
 $lang['%d years'] = '%d vuodet';
@@ -412,7 +414,7 @@ $lang['Mail theme'] = 'Sähköpostiteema';
 $lang['Informations'] = 'Tietoa';
 $lang['Install'] = 'Asenna';
 $lang['Install on your computer,'] = 'Asenna tietokoneellesi,';
-$lang['Instructions to use Piwigo'] = 'Piwigo käyttöohjeet';
+$lang['Instructions to use Phyxo'] = 'Phyxo käyttöohjeet';
 $lang['Ignore All'] = 'Jätä kaikki huomiotta';
 $lang['Ignore this update'] = 'Älä huomioi tätä päivitystä';
 $lang['Image Quality'] = 'Kuvanlaatu';
@@ -466,4 +468,3 @@ $lang['guest'] = 'vieras';
 $lang['height must be a number superior to'] = 'korkeus on oltava suurempi lukui kuin';
 $lang['hide details'] = 'piilota lisätiedot';
 $lang['high'] = 'korkea';
-?>

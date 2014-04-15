@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,6 +22,7 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 // Vietnamese version is translated by Em Ku, Vietnam Piwigor!
+
 $lang['Upgrade'] = 'Nâng cấp';
 $lang['Upgrade from version %s to %s'] = 'Nâng cấp từ phiên bản %s lên phiên bản %s';
 $lang['Statistics'] = 'Thống kê';
@@ -38,5 +40,3 @@ $lang['This page proposes to upgrade your database corresponding to your old ver
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Nhằm đề phòng, những plugins sau đây đã bị vô hiệu hóa. Bạn phải kiểm tra bản nâng cấp của plugin trước khi kích hoạt lại chúng:';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'Trong <i>%s</i>, trước <b>?></b>, chèn vào:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Như một biện pháp dự phòng lỗi, giao diện sau đây đã bị vô hiệu hóa. Bạn phải kiểm tra bản nâng cấp giao diện trước khi kích hoạt lại:';
-
-?>

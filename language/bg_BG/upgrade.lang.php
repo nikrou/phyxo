@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Only administrator can run upgrade: please sign in below.'] = 'Само администратор може да стартира обновяване: моля, влезте в профила си.';
 $lang['SQL queries'] = 'SQL заявки';
 $lang['Statistics'] = 'Статистика';
@@ -37,4 +39,3 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'Направете проверка за подръжка в  [Administration>Tools>Maintenance] ако имате някакви проблеми.';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Тази страница предлага да актуализира базата данни от вашия Piwigo стара версия към поновата версия. Ъпгрейд асистента мисли, че в момента използвате <strong> релииз %s</ strong> (или подобна).';
 $lang['User permissions and group permissions have been erased'] = 'Разрешенията на потребителите и групите бяха изтрити';
-?>

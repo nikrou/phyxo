@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -572,7 +573,7 @@ $lang['Hit'] = 'Posjeta';
 $lang['Tools'] = 'Alati';
 $lang['Photos'] = 'Slike';
 $lang['Themes'] = 'Teme';
-$lang['Instructions to use Piwigo'] = 'Upute za korištenje Piwigo-a';
+$lang['Instructions to use Phyxo'] = 'Upute za korištenje Phyxo-a';
 $lang['Installed Themes'] = 'Ugrađene Teme';
 $lang['Add New Theme'] = 'Dodaj novu temu';
 $lang['Forbid this theme to users'] = 'Zabrani ovu temu korisnicima';
@@ -676,7 +677,7 @@ $lang['Manual order'] = 'Ručni poredak';
 $lang['Add another set of photos'] = 'Dodaj još jedan skup slika';
 $lang['Path'] = 'Putanja';
 $lang['Order of menubar items has been updated successfully.'] = 'Redoslijed  stavki izborne trake je uspješno obnovljen.';
-$lang['This theme was not designed to be directly activated'] = 'Ova tema nije zamišljena za neposrednu postavu'; 
+$lang['This theme was not designed to be directly activated'] = 'Ova tema nije zamišljena za neposrednu postavu';
 $lang['Menu Management'] = 'Izbornik';
 $lang['Action'] = 'Akcija';
 $lang['Add a filter'] = 'Dodaj filter';
@@ -793,4 +794,3 @@ $lang['%s in the future'] = '%s u budućnosti';
 $lang['%u users have automatic permission because they belong to a granted group.'] = '%u korisnici su u grupi koja ima pristup';
 $lang['<em>Piwigo for Android</em> application empowers you to connect your Android phone or table to your Piwigo gallery, create some albums and upload several photos at once.'] = '<em>Piwigo za Android</em> je aplikacija koja vam omogućava spajanje vašeg tableta ili mobilnog telefona na vašu Piwigo galeriju. Kreirajte albume i postavite fotografije.';
 $lang['<em>Piwigo for iOS</em> application empowers you to connect to your Piwigo gallery from your iPhone, iPad or iPod Touch, create some albums and upload several photos at once.'] = '<em>Piwigo za iOS</em> je aplikacija koja vam omogućava spajanje vašeg iPhone-a, iPada-a ili iPod Touch-a na vašu Piwigo galeriju. Kreirajte albume i postavite fotografije.';
-?>

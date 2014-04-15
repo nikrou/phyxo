@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,4 +38,3 @@ $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'E <i>%s</i>, a-raok <b>?></b
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Evit diwall, an tenoù-se a zo bet diweredekaet. Ret e vo deoc\'h sellout ma\'z eus temoù da hizivaat a-raok gweredekaat anezho en-dro.';
 $lang['All sub-albums of private albums become private'] = 'An holl iz-rummadoù e-barzh rummadoù prevez a vo prevez';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Evit diwall, al lugantoù-se a zo bet diweredekaet. Ret e vo deoc\'h sellout ma\'z eus lugantoù da hizivaat a-raok gweredekaat anezho en-dro.';
-?>

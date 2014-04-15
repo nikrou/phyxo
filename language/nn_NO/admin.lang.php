@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['... or '] = '... eller';
 $lang['ACCESS_0'] = 'Fri tilgang';
 $lang['ACCESS_5'] = 'Ingen tilgang';
@@ -284,7 +286,7 @@ $lang['Install'] = 'Installer';
 $lang['Install on your computer,'] = 'Installer på din datamaskin';
 $lang['Installed Languages'] = 'Installera språk';
 $lang['Installed Themes'] = 'Installera tema';
-$lang['Instructions to use Piwigo'] = 'Instruksjonar for å bruke Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruksjonar for å bruke Phyxo';
 $lang['Invert'] = 'Inverter';
 $lang['Landscape'] = 'Landskap';
 $lang['Language has been successfully installed'] = 'Språk er installera';
@@ -969,4 +971,3 @@ $lang['Close user details'] = 'Lukk brukardetaljar';
 $lang['Open user details'] = 'Opne brukardetaljar';
 $lang['close'] = 'lukk';
 $lang['Activate it now'] = 'Aktiver nå';
-?>

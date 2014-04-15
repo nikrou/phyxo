@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -550,7 +551,7 @@ $lang['Hit'] = 'Pogodak';
 $lang['Tools'] = 'Alati';
 $lang['Photos'] = 'Fotografije';
 $lang['Themes'] = 'Teme';
-$lang['Instructions to use Piwigo'] = 'Instrukcije kako da koristite Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instrukcije kako da koristite Phyxo';
 $lang['Installed Themes'] = 'Instalirane teme';
 $lang['Add New Theme'] = 'Dodaj novu temu';
 $lang['Forbid this theme to users'] = 'Zabrani ovu temu korisnicima';
@@ -898,4 +899,3 @@ $lang['bottom right corner'] = 'donji desni ugao';
 $lang['middle'] = 'sredina';
 $lang['top left corner'] = 'gornji lefi ugao';
 $lang['top right corner'] = 'gornji desni ugao';
-?>

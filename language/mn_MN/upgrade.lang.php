@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['You do not have access rights to run upgrade'] = 'Уучлаарай, Танд программыг шинэчлэх эрх байхгүй байна.';
 $lang['Only administrator can run upgrade: please sign in below.'] = 'Уучлаарай, зөвхөн админ шинэчлэх эрхтэй. Админы эрхээр системд нэвтэрнэ үү.';
 $lang['total upgrade time'] = 'Зарцуулсан хугацаа';
@@ -37,4 +39,3 @@ $lang['In <i>%s</i>, before <b>?></b>, insert:'] = '<i>%s</i> дотор, before
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Өмнөх тохиргооноос зөвхөн вэбмастерийн и-мэйл хаягыг л хадгалж үлдээлээ.';
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Энэхүү хуудас Танд Piwigo-н мэдээллийн сангаа шинэ хувилбараар сайжруулахад тань туслах болно. Та одоо <strong>%s</strong> (буюу түүнтэй адилтгах) хувилбарыг ашиглаж байна.';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Алдаа гарахаас сэргийлж дараахь загвар (theme)-г идэвхгүй болголоо. Дахин идэвхжүүлэхийн өмнө сайжруулсан хувилбар нь гарсан эсэхийг шалгана уу:';
-?>

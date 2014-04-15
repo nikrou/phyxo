@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = 'Atualização';
 $lang['Upgrade from version %s to %s'] = 'Atualizar da versão %s para a %s';
 $lang['Statistics'] = 'Estatísticas';
@@ -38,7 +37,5 @@ $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'Em <i>%s</i>, antes de <b>?>
 $lang['All sub-albums of private albums become private'] = 'Todas os sub-álbuns de álbuns privados tornam-se privados';
 $lang['User permissions and group permissions have been erased'] = 'Permissões de usuário e de grupo foram apagadas';
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Apenas o prefixo das miniaturas (thumbnails) e o endereço de email do webmaster foram salvos da configuração anterior.';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Esta página se propõe a atualizar o banco de dados do seu Piwigo de uma versão antiga para uma nova versão. O assistente de atualização detectou que você está rodando uma <strong>distribuição %s</strong> (ou equivalente).'; 
+$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Esta página se propõe a atualizar o banco de dados do seu Piwigo de uma versão antiga para uma nova versão. O assistente de atualização detectou que você está rodando uma <strong>distribuição %s</strong> (ou equivalente).';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Por precaução, os temas abaixo foram desativados. Você deve verificar por atualizações dos temas antes de reativá-los:';
-
-?>

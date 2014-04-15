@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['also given by your host provider'] = '호스팅 공급자가 제공';
 $lang['enter a login for webmaster'] = '웹마스터 사용자명을 입력하십시오';
 $lang['localhost or other, supplied by your host provider'] = 'localhost 혹은 호스팅 공급자가 제공한 값';
@@ -57,4 +59,3 @@ $lang['Download the config file'] = '설정파일 다운로드';
 $lang['Host'] = '트명호스트';
 $lang['Installation'] = '설치';
 $lang['It appears your webhost is currently running PHP %s.'] = '웹서버가 PHP %s를 사용중입니다';
-?>

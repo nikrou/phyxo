@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -392,4 +393,3 @@ $lang['Successfully registered, you will soon receive an email with your connect
 $lang['The number of photos per page must be a not null scalar'] = 'Броевите на фотографиите по страна треба да бидат nonzero integer';
 $lang['Username: %s'] = 'Корисничко име: %s';
 $lang['html tags are not allowed in login'] = 'со логирање не се дозволени html тагови';
-?>

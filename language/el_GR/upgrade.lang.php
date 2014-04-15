@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['All sub-albums of private albums become private'] = 'Όλα τα υπο-άλμπουμ των ιδιωτικών άλμπουμ γίνονται ιδιωτικά';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'Ως προληπτικό μέτρο, οι παρακάτω επεκτάσεις έχουν απενεργοποιηθεί. Θα πρέπει να ελέγξετε για αναβαθμίσεις επεκτάσεων πριν από την επανενεργοποίηση τους:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Ως προληπτικό μέτρο, τα ακόλουθα Θέματα έχουν απενεργοποιηθεί. Θα πρέπει να ελέγξετε για  αναβάθμιση Θεμάτων πριν από την επανενεργοποίηση τους:';
@@ -37,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = 'Τα δικ�
 $lang['You do not have access rights to run upgrade'] = 'Δεν έχετε δικαιώματα πρόσβασης για την εκτέλεση αναβάθμισης';
 $lang['total SQL time'] = 'Συνολικός χρόνος SQL';
 $lang['total upgrade time'] = 'Συνολικός χρόνος αναβάθμησης';
-?>

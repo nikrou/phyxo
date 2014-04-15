@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -235,7 +236,7 @@ $lang['Random photos'] = 'Imagens aleatórias';
 $lang['display a set of random photos'] = 'exibir um grupo aleatório de imagens';
 $lang['Recent albums'] = 'Álbuns recentes';
 $lang['display recently updated albums'] = 'exibir álbuns atualizados recentemente';
-$lang['Recent period'] = 'Período recente';  
+$lang['Recent period'] = 'Período recente';
 $lang['Recent photos'] = 'Imagens recentes';
 $lang['display most recent photos'] = 'Mostrar as imagens mais recentes';
 $lang['Redirection...'] = 'Redirecionamento...';

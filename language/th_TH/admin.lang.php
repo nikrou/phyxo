@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,9 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
-
 
 $lang[' and %d virtual'] = " และ %d";
 $lang[' and %d virtuals'] = " และ %d";
@@ -336,7 +334,7 @@ $lang['Install on your computer,'] = 'ติดตั้งลงบนเคร
 $lang['Install'] = "ติดตั้ง";
 $lang['Installed Languages'] = 'ภาษาที่ถูกติดตั้ง';
 $lang['Installed Themes'] = "ธีมที่ถูกติดตั้ง";
-$lang['Instructions to use Piwigo'] = "คำแนะนำในการใช้งาน Piwigo แกลลอรี่";
+$lang['Instructions to use Phyxo'] = "คำแนะนำในการใช้งาน Phyxo แกลลอรี่";
 $lang['Invert'] = 'สลับ';
 $lang['IP'] = "ไอพี";
 $lang['jump to album'] = "ไปยังอัลบั้ม";
@@ -960,4 +958,3 @@ $lang['Close user details'] = 'ปิดรายละเอียดผู้�
 $lang['General'] = 'ทั่วไป';
 $lang['Loading...'] = 'กำลังโหลด';
 $lang['Open user details'] = 'เปิดรายละเอียดผู้ใช้งาน';
-?>

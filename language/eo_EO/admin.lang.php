@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,7 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
 
 $lang['Add to caddie'] = 'Aldoni al la fot-stoko';
 $lang['Caddie'] = 'Fot-stoko';
@@ -305,7 +305,7 @@ $lang['Information data registered in database'] = 'Informo registriĝis en datu
 $lang['Install on your computer,'] = 'Instali sur la komputilon';
 $lang['Installed Languages'] = 'Instalitaj lingvoj';
 $lang['Installed Themes'] = 'Instalitaj temoj';
-$lang['Instructions to use Piwigo'] = 'Instrukcioj por uzi na Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instrukcioj por uzi na Phyxo';
 $lang['Invert'] = 'Inversigi';
 $lang['Language has been successfully installed'] = 'La lingvo sukcese instaliĝis.';
 $lang['Languages'] = 'Lingvoj';
@@ -973,4 +973,3 @@ $lang['close'] = 'fermi';
 $lang['Close user details'] = 'Fermi la detalojn de la uzanto';
 $lang['Open user details'] = 'Malfermi la detalojn de la uzanto';
 $lang['Activate it now'] = 'Ĝin aktivigi nun';
-?>

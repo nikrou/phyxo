@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2010 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -308,7 +309,7 @@ $lang['Invalid key'] = '잘못된 키';
 $lang['Invalid username or email'] = '잘못된 사용자 이름이나 이메일';
 $lang['IP: %s'] = 'IP: %s';
 $lang['IPTC Metadata'] = 'IPTC 메타데이터';
-$lang['Menu'] = '메뉴'; 
+$lang['Menu'] = '메뉴';
 $lang['Email address is mandatory'] = '이메일 주소는 필수항목입니다';
 $lang['First Page'] = '첫 페이지';
 $lang['Manual sort order'] = '사용자 정의 순서';
@@ -417,4 +418,3 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['Password is missing. Please enter the password.'] = '암호가 입력되지 않았습니다. 암호를 입력하십시오.';
 $lang['%d photos per page'] = '페이지당 %d 개의 사진';
 $lang['Theme'] = '테마';
-?>

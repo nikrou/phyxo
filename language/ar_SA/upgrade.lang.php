@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,5 +39,3 @@ $lang['User permissions and group permissions have been erased'] = 'تم مسح 
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'تم حفظ بدائة الصور المصغرة ، و عنواين مدير الموقع حفظت من التكوين السابق';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'في <i>%s</i>, قبل <b>?></b>, إدراج:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'للاحتياط,الثيمات التالية تم الغاء تفعيلها.يجب ان تقوم بعملية تحديث للثيمات قبل تفعيلها';
-
-?>

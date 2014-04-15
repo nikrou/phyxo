@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -658,7 +659,7 @@ $lang['Inactive Languages'] = 'Неактивни езици';
 $lang['Inactive Plugins'] = 'Неактивни плъини';
 $lang['Inactive Themes'] = 'Активни плъгини';
 $lang['Installed Themes'] = 'Инсталирани теми';
-$lang['Instructions to use Piwigo'] = 'Инструкций за ползване на Piwigo';
+$lang['Instructions to use Phyxo'] = 'Инструкций за ползване на Phyxo';
 $lang['Landscape'] = 'Пейзажи';
 $lang['Language has been successfully installed'] = 'Език е инсталиран успешно';
 $lang['Languages which need upgrade'] = 'Езици, които се нуждаят от ъпгрейд';
@@ -975,4 +976,3 @@ $lang['All %d users are selected'] = 'Всички %d потребители с�
 $lang['close'] = 'затвори';
 $lang['Close user details'] = 'Затваряне на потребителски детайли';
 $lang['Open user details'] = 'Отваряне на потребителски детайли';
-?>

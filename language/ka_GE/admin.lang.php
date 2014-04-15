@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -560,7 +561,7 @@ $lang['Hit'] = 'პოპულარული';
 $lang['Tools'] = 'ინსტრუმენტები';
 $lang['Photos'] = 'ფოტოები';
 $lang['Themes'] = 'თემები';
-$lang['Instructions to use Piwigo'] = 'Piwigo მოხმარების ინსტრუქცია';
+$lang['Instructions to use Phyxo'] = 'Phyxo მოხმარების ინსტრუქცია';
 $lang['Installed Themes'] = 'დაყენებული თემები';
 $lang['Add New Theme'] = 'დავამატოთ ახალი თემა';
 $lang['Forbid this theme to users'] = 'აუკრზალოთ მომხმარებელს ამ თემის გამოყენება';
@@ -822,4 +823,3 @@ $lang['Edit photo'] = 'ფოტოს რედაქტირება';
 $lang['Original file : %s'] = 'ორიგინალი ფაილი: %d';
 $lang['Posted %s on %s'] = 'გამოქვეყნებულია %s %s -ში';
 $lang['Sharpen'] = 'სიმკვეთრე';
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -347,7 +348,7 @@ $lang['the beginning'] = "ಆರಂಭ";
 $lang['The gallery is locked for maintenance. Please, come back later.'] = 'ಚಿತ್ರಶಾಲೆ (ಗ್ಯಾಲರಿ) ಯನ್ನು ನಿರ್ವಹಣೆಗಾಗಿ ತಾತ್ಕಾಲಿಕವಾಗಿ ತಡೆಹಿಡಿಯಲಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೊಮ್ಮೆ ಭೇಟಿ ಕೊಡಿ.';
 $lang['The number of photos per page must be a not null scalar'] = 'ಪ್ರತಿ ಪುಟದಲ್ಲಿನ  ಚಿತ್ರಗಳ ಸಂಖ್ಯೆ  ಶೂನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಇರಬೇಕು';
 $lang['The passwords do not match'] = 'ಪ್ರವೇಶಪದಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ';
-$lang['The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'] = "ಈ RSS feed ಈ ಜಾಲತಾಣದ ಆ ಎಲ್ಲಾ  ಹೊಸ ಸಂಗತಿಗಳ ತಿಳುವಳಿಕೆ ನೀಡುತ್ತದೆ : ಹೊಸ ಚಿತ್ರಗಳು, ಉನ್ನತೀಕರಿಸಿದ ಸಂಪುಟಗಳು,ಹೊಸ ಟಿಪ್ಪಣಿಗಳು. RSS feed reader ನ ಜೊತೆ ಉಪಯೋಗಿಸಿ. (The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.)"; 
+$lang['The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'] = "ಈ RSS feed ಈ ಜಾಲತಾಣದ ಆ ಎಲ್ಲಾ  ಹೊಸ ಸಂಗತಿಗಳ ತಿಳುವಳಿಕೆ ನೀಡುತ್ತದೆ : ಹೊಸ ಚಿತ್ರಗಳು, ಉನ್ನತೀಕರಿಸಿದ ಸಂಪುಟಗಳು,ಹೊಸ ಟಿಪ್ಪಣಿಗಳು. RSS feed reader ನ ಜೊತೆ ಉಪಯೋಗಿಸಿ. (The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.)";
 $lang['the username must be given'] = "ಬಳಕೆದಾರರ ಹೆಸರು ಕಡ್ಡಾಯ";
 $lang['This author modified following comment:'] = 'ಈ ಲೇಖಕರು ಈ ಕೆಳಗಿನ ಟಿಪ್ಪಣಿಯನ್ನು ತಿದ್ದುಪಡಿಮಾಡಿದ್ದಾರೆ:';
 $lang['This author removed the comment with id %d'] = 'ಈ ಲೇಖಕರು ಟಿಪ್ಪಣಿ ಯನ್ನು ತೆಗೆದಿದ್ದಾರೆ, ಟಿಪ್ಪಣಿ id : %d';
@@ -418,4 +419,3 @@ $lang['%d photos per page'] = '%d ಚಿತ್ರಗಳು ಪ್ರತಿ ಪ�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'ಪ್ರವೇಶಪದದ ಅನುಮೋದನೆ ಕಾಣೆಯಾಗಿದೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಆಯ್ಕೆಯ ಪ್ರವೇಶಪದವನ್ನು ಅನುಮೋದಿಸಿ.';
 $lang['Password is missing. Please enter the password.'] = 'ಪ್ರವೇಶಪದ ಕಾಣೆಯಾಗಿದೆ. ದಯವಿಟ್ಟು ಪ್ರವೇಶಪದವನ್ನು ನಮೂದಿಸಿ.';
 $lang['Theme'] = 'ಥೀಮ್';
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['%d photos uploaded'] = '%d 相片已被上傳';
 $lang['%d photos were deleted'] = '%d 相片已被上傳';
 $lang['%d physical'] = '%d 實體';
@@ -964,9 +966,8 @@ $lang['Install'] = '安裝';
 $lang['Install on your computer,'] = '安裝到您的電腦,';
 $lang['Installed Languages'] = '安裝語言';
 $lang['Installed Themes'] = '安裝主題';
-$lang['Instructions to use Piwigo'] = 'Piwigo 使用指南';
+$lang['Instructions to use Phyxo'] = 'Phyxo 使用指南';
 $lang['Invert'] = '反轉';
 $lang['Close user details'] = '關閉用戶詳細信息';
 $lang['Open user details'] = '打開用戶詳細信息';
 $lang['close'] = '關閉';
-?>

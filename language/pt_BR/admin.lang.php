@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -638,7 +639,7 @@ $lang['Inactive Themes'] = 'Temas inativos';
 $lang['Install on your computer,'] = 'Instalar em seu computador, ';
 $lang['Installed Languages'] = 'Idiomas instalados';
 $lang['Installed Themes'] = 'Temas Instalados';
-$lang['Instructions to use Piwigo'] = 'Introdução para usar o Piwigo';
+$lang['Instructions to use Phyxo'] = 'Introdução para usar o Phyxo';
 $lang['Invert'] = 'Inverter';
 $lang['Language has been successfully installed'] = 'Idioma instalado com sucesso';
 $lang['Languages which need upgrade'] = 'Línguas que precisam atualizar';
@@ -974,4 +975,3 @@ $lang['Close user details'] = 'Fechar detalhes de usuário';
 $lang['Open user details'] = 'Abrir detalhes de usuário';
 $lang['close'] = 'fechar';
 $lang['Activate it now'] = 'Ativar agora';
-?>

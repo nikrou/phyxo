@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -120,7 +121,7 @@ $lang['Best rated'] = 'Najbolje ocenjene';
 $lang['display best rated photos'] = 'prikaži najbolje ocenjene slike';
 $lang['Calendar'] = 'Koledar';
 $lang['All'] = 'Vse';
-$lang['display each day with photos, month per month'] = 'prikaži slike po dnevih in mesecih'; 
+$lang['display each day with photos, month per month'] = 'prikaži slike po dnevih in mesecih';
 $lang['View'] = 'Pogled';
 $lang['chronology_monthly_calendar'] = 'Mesečni koledar';
 $lang['chronology_monthly_list'] = 'Mesečni seznam';

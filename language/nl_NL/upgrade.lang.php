@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,5 +40,3 @@ $lang['User permissions and group permissions have been erased'] = 'Gebruikers- 
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Alleen het voorvoegsel (prefix) van de klikplaatjes en het email-adres van de webbeheerder zijn bewaard gebleven van de vorige configuratie';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'In <i>%s</i>, voor <b>?></b>, voeg tussen:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Als voorzorgsmaatregel zijn de volgende thema\'s gedeactiveerd. Controleer of er nieuwe versies van deze thema\'s bestaan, voordat u ze reactiveerd:';
-
-?>

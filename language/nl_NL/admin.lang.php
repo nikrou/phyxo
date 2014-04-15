@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -497,7 +498,7 @@ $lang['Last hit'] =  'Laaste hit';
 $lang['GD library is missing'] = 'GD library bestaat niet';
 $lang['Templates'] = 'Sjablonen';
 $lang['Extend for templates'] = 'Uitbreiding voor sjablonen';
-$lang['Replacement of original templates by customized templates from template-extension subfolder'] = 
+$lang['Replacement of original templates by customized templates from template-extension subfolder'] =
  'Vervanging van de originele sjablonen door aangepaste sjablonen van sjabloon-extensie submap';
 $lang['Replacers (customized templates)'] = 'Vervangers (eigenbouw sjabloon)';
 $lang['Original templates'] = 'Originele sjabloontemplates';
@@ -542,7 +543,7 @@ $lang['Hit'] = 'Hit';
 $lang['Tools'] = 'Hulpmiddelen';
 $lang['Photos'] = 'Foto\'s';
 $lang['Themes'] = 'Thema\'s';
-$lang['Instructions to use Piwigo'] = 'Piwigo Gebruiks-instructies';
+$lang['Instructions to use Phyxo'] = 'Phyxo Gebruiks-instructies';
 $lang['Installed Themes'] = 'Geïnstalleerde thema\'s';
 $lang['Add New Theme'] = 'Nog niet geïnstalleerde thema\'s';
 $lang['Forbid this theme to users'] = 'Dit thema mag niet door gebruikers gebruikt worden';
@@ -975,4 +976,3 @@ $lang['Close user details'] = 'Sluit gebruikersdetails';
 $lang['Open user details'] = 'Open gebruikersdetails';
 $lang['close'] = 'Sluit';
 $lang['Activate it now'] = 'Activeer het nu';
-?>

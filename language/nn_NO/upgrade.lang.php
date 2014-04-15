@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['All sub-albums of private albums become private'] = 'Alle underalbum av private album blir private';
 $lang['As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:'] = 'For å vera sikker så er fylgjande tilleggsmodular deaktivera. Du må sjekke for oppgraderingar for tilleggsmodular før du kan aktivere dei att.';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'For å vera sikker så er fylgjande tema deaktivera. Du må sjekke for oppgraderingar for tema før du kan aktivere dei att.';
@@ -37,4 +39,3 @@ $lang['Statistics'] = 'Statistikk';
 $lang['Upgrade'] = 'Oppgradering';
 $lang['Upgrade from version %s to %s'] = 'Oppgrader frå vesjon %s til %s';
 $lang['Upgrade informations'] = 'Oppgraderingsinformasjon';
-?>

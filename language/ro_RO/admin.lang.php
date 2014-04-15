@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,7 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
 
 $lang['%d association'] = '%d asociatie';
 $lang['%d associations'] = '%d asociatii';
@@ -540,7 +540,7 @@ $lang['Available versions for'] = 'Versiune disponibila pentru';
 $lang['Cancel'] = 'Anulare';
 $lang['Hit'] = 'Accesari';
 $lang['If you encounter problems or have any question, please send a message to'] = 'Daca intampini probleme sau au intrebari, trimite un mesaj la';
-$lang['Instructions to use Piwigo'] = 'Instructiuni pentru a folosi Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instructiuni pentru a folosi Phyxo';
 $lang['Last hit'] = 'Ultima accesare';
 $lang['Last send'] = 'Ultima trimitere';
 $lang['Learn more'] = 'Afla mai multe';
@@ -978,4 +978,3 @@ $lang['Close user details'] = 'Închide detalii utilizator';
 $lang['Open user details'] = 'Deschide detalii utilizator';
 $lang['close'] = 'închide';
 $lang['Activate it now'] = 'Aciveaza acum';
-?>

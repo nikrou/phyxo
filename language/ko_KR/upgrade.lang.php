@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Only administrator can run upgrade: please sign in below.'] = '관리자만 업그레이드를 수행 할 수 있습니다: 로그인하십시오.';
 $lang['SQL queries'] = 'SQL 쿼리';
 $lang['Statistics'] = '통계';
@@ -29,4 +31,3 @@ $lang['Upgrade informations'] = '업그레이드 정보';
 $lang['You do not have access rights to run upgrade'] = '업그레이드를 수행 할 권한이 없습니다';
 $lang['total SQL time'] = '총 SQL 수행시간';
 $lang['total upgrade time'] = '총 업그레이드 수행시간';
-?>

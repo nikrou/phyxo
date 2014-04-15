@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-
-
 $lang['Upgrade'] = "อัพเกรด";
 $lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "หน้านี้คือ หน้าการอัพเกรดฐานข้อมูลจาก Piwigo เวอร์ชั่นเก่าของคุณ ไปยังเวอร์ชั่นใหม่. ซึ่งการอัพเกรดจะทำให้ ระบบ Piwigo แกลลอรี่ ของคุณเป็นปัจจบัน หรือเป็นการใช้งานบนเวอร์ชั่นที่ถูก <strong>ปล่อย %s</strong> (หรือ เทียบเท่า).";
 $lang['Upgrade from version %s to %s'] = "อัพเกรดจากเวอร์ชั่น %s ไปยัง %s";
@@ -40,4 +39,3 @@ $lang['User permissions and group permissions have been erased'] = "การอ
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = "รูปภาพขนาดย่อ คำนำหน้าของรูปภาพขนาดย่อ และที่อยู่เมลของเว็บมาสเตอร์เท่านั้นที่จะได้ถูกบันทึกจากการตั้งค่าครั้งก่อน";
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'ใน <i>%s</i>, ก่อน <b>?></b>, ใส่:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'โปรดระมัดระวัง, ธีมที่คุณใช้งานอยู่ได้ถูกยกเลิกการใช้งานแล้ว. คุณจะต้องตรวจสอบก่อนการอัพเกรดธีม:';
-?>

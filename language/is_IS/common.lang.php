@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -132,7 +133,7 @@ $lang['Unknown feed identifier'] = 'Óþekkt flæði auðkenni';
 $lang['User comments'] = 'Athugasemdir notenda';
 $lang['Username'] = 'Notendanafn';
 $lang['Visits'] = 'Heimsóknir';
-$lang['Webmaster'] = 'Vefstjóri';                                             
+$lang['Webmaster'] = 'Vefstjóri';
 $lang['Week %d'] = 'Vika %d';
 $lang['About Piwigo'] = 'Um Piwigo';
 $lang['You are not authorized to access the requested page'] = 'Þú hefur ekki leyfi til að fá aðgang að umbeðini síðu';
@@ -340,4 +341,3 @@ $lang['Email address is missing. Please specify an email address.'] = 'Netfang v
 $lang['This author modified following comment:'] = 'Þessi höfundur breytti eftirfarandi athugasemd:';
 $lang['This author removed the comment with id %d'] = 'Þessi höfundur fjarlægði athugasemdina með id %d';
 $lang['html tags are not allowed in login'] = 'html merkingar eru ekki leyfilegt við ínnskráningu';
-?>

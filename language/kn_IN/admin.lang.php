@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Manage the members'] = 'ಸದಸ್ಯರನ್ನು ನಿರ್ವಹಿಸಿ';
 $lang['Manage this set of %d photos'] = ' ಈ %d ಚಿತ್ರಗಳ ಕಟ್ಟನ್ನು ನಿರ್ವಹಿಸಿ';
 $lang['Maximum file size: %sB.'] = 'ಗರಿಷ್ಠ ಕಡತದ ಗಾತ್ರ  : %sB.';
@@ -261,4 +263,3 @@ $lang['%d day'] = '%d ದಿನ';
 $lang['%d days'] = '%d ದಿನಗಳು';
 $lang['%d group'] = '%d ಗುಂಪು';
 $lang['%d groups'] = '%d ಗುಂಪುಗಳು';
-?>

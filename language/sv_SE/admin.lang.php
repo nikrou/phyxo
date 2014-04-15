@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['%d association'] = '%d association';
 $lang['%d associations'] = '%d associationer';
@@ -545,7 +544,7 @@ $lang['Hit'] = 'Träff';
 $lang['Tools'] = 'Verktyg';
 $lang['Photos'] = 'Foton';
 $lang['Themes'] = 'Teman';
-$lang['Instructions to use Piwigo'] = 'Instruktioner för användning av Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instruktioner för användning av Phyxo';
 $lang['Installed Themes'] = 'Installerade Teman';
 $lang['Add New Theme'] = 'Lägg till nytt tema';
 $lang['Forbid this theme to users'] = 'Förbjud detta tema för användare';
@@ -844,7 +843,7 @@ $lang['The Piwigo publish Plug-in allows you to export and synchronize photos fr
 $lang['Piwigo publish plugin for Shotwell'] = 'Insticksmodul för Piwigo publicering via Shotwell';
 $lang['Shotwell is an open source digital photo organizer that runs on Linux. It is the default photo manager in Ubuntu and Fedora.'] = 'Shotwell är en Open Source digital fotohanterare för Linux som används som standard av Ubuntu och Fedora.';
 $lang['On your Linux, simply install Shotwell with your package manager and the activate Piwigo publishing option.'] = 'I din Linux distribution, installera Shotwell via pakethanteraren och aktivera valmöjligheten Piwigo publicering.';
-$lang['Piwigo publish plugin for digiKam'] = 'Piwigo publicering via digiKam'; 
+$lang['Piwigo publish plugin for digiKam'] = 'Piwigo publicering via digiKam';
 $lang['digiKam is an advanced digital photo management free software for Linux, Windows, and MacOSX.'] = 'digiKam är ett avancerat program för digital mediahantering, framför allt bilder, för Linux, Windows och MacOSX.';
 $lang['digiKam is designed for photographers who want to view, manage, edit, enhance, organize, tag, and share photographs.'] = 'digiKam är designat för fotografer som vill se, hantera, förbättra, organisera, märka och distribuera bilder.';
 $lang['To export your photos from digiKam to Piwigo, simply install digiKam and the Kipi-plugins.'] = 'För att exportera bilder från digiKam till Piwigo, installera digiKam och Kipi-insticksmodul för export till Piwigo.';
@@ -974,4 +973,3 @@ $lang['User %s updated'] = 'Användare %s uppdaterad';
 $lang['close'] = 'stäng';
 $lang['Close user details'] = 'Stäng användar detaljer';
 $lang['Open user details'] = 'Öppna användar detaljer';
-?>

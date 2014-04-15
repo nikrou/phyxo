@@ -1,6 +1,8 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
+// +-----------------------------------------------------------------------+
 // | Czech language localization                                           |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
@@ -425,4 +427,3 @@ $lang['Password is missing. Please enter the password.'] = 'Chybí heslo. Prosí
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Chybí potvrzení hesla. Prosím potvrďte vybrané heslo.';
 $lang['%d photos per page'] = '%d fotek na stránce';
 $lang['Theme'] = 'Téma';
-?>

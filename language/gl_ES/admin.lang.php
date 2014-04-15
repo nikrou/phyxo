@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['%d albums including'] = '%d álbums incluídos';
 $lang['%d albums moved'] = '%d álbums movidos';
 $lang['%d anomalies have been detected corrected.'] = '%d anomalías foron detectadas e corrixidas.';
@@ -473,7 +475,7 @@ $lang['Install'] = 'Instalar';
 $lang['Install on your computer,'] = 'Instalar no teu computador,';
 $lang['Installed Languages'] = 'Idiomas instalados';
 $lang['Installed Themes'] = 'Temas instalados';
-$lang['Instructions to use Piwigo'] = 'Instrucións para usar Piwigo';
+$lang['Instructions to use Phyxo'] = 'Instrucións para usar Phyxo';
 $lang['Invert'] = 'Inverter';
 $lang['Landscape'] = 'Apaisado';
 $lang['Language has been successfully installed'] = 'O idioma instalouse correctamente';

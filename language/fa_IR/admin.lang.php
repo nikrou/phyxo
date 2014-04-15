@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -20,8 +21,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
 
 $lang['%d association'] = '%d پیوند';
 $lang['%d associations'] = '%d پیوند';
@@ -546,7 +545,7 @@ $lang['Hit'] = "نمایش";
 $lang['Tools'] = 'ابزار ها';
 $lang['Photos'] = 'عکس ها';
 $lang['Themes'] = 'قالب ها';
-$lang['Instructions to use Piwigo'] = 'راهنمای بکارگیری Piwigo';
+$lang['Instructions to use Phyxo'] = 'راهنمای بکارگیری Phyxo';
 $lang['Installed Themes'] = 'زمینه‌های نصب شده';
 $lang['Add New Theme'] = 'افزودن زمینه‌ی تازه';
 $lang['Forbid this theme to users'] = 'اجازه‌ی انتخاب این زمینه به کاربران داده نشود';
@@ -976,4 +975,3 @@ $lang['All %d users are selected'] = 'تمام %d كاربر انتخاب شده
 $lang['(filtered from %s total users)'] = '(فيلتر شده از بين %s كاربر)';
 $lang['%d of %d users selected'] = 'تعداد %d كاربر از %d كاربران انتخاب شده‌اند.';
 $lang['Activate it now'] = 'فعال درحال حاضر';
-?>

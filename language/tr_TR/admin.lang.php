@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -368,7 +369,7 @@ $lang['Install on your computer,'] = 'Bilgisayarınızda yükleyin,';
 $lang['Install'] = 'Kur';
 $lang['Installed Languages'] = 'Yüklü Diller';
 $lang['Installed Themes'] = 'Yüklü Temalar';
-$lang['Instructions to use Piwigo'] = 'Piwigo kullanma talimatları';
+$lang['Instructions to use Phyxo'] = 'Phyxo kullanma talimatları';
 $lang['Invert'] = 'Ters çevir';
 $lang['IP'] = 'IP';
 $lang['jump to album'] = 'albüme geç';
@@ -971,4 +972,3 @@ $lang['Close user details'] = 'Kullanıcı detaylarını kapat';
 $lang['Open user details'] = 'Kullanıcı detaylarını aç';
 $lang['close'] = 'kapat';
 $lang['Activate it now'] = 'Şimdi etkinleştir';
-?>
