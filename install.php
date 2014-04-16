@@ -25,6 +25,8 @@
 //----------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
 
+require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
+
 @set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
 //
 // addslashes to vars if magic_quotes_gpc is off this is a security

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire        http://www.nikrou.net/phyxo |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -26,27 +27,25 @@
 // | Uploaded photos                                                       |
 // +-----------------------------------------------------------------------+
 
-if (isset($page['thumbnails']))
-{
-  $template->assign(
-    array(
-      'thumbnails' => $page['thumbnails'],
-      )
+if (isset($page['thumbnails'])) {
+    $template->assign(
+        array(
+            'thumbnails' => $page['thumbnails'],
+        )
     );
 
-  // only display the batch link if we have more than 1 photo
-  if (count($page['thumbnails']) > 1)
-  {
-    $template->assign(
-      array(
-        'batch_link' => $page['batch_link'],
-        'batch_label' => sprintf(
-          l10n('Manage this set of %d photos'),
-          count($page['thumbnails'])
-          ),
-        )
-      );
-  }
+    // only display the batch link if we have more than 1 photo
+    if (count($page['thumbnails']) > 1) {
+        $template->assign(
+            array(
+                'batch_link' => $page['batch_link'],
+                'batch_label' => sprintf(
+                    l10n('Manage this set of %d photos'),
+                    count($page['thumbnails'])
+                ),
+            )
+        );
+    }
 }
 
 // +-----------------------------------------------------------------------+
@@ -60,13 +59,10 @@ $upload_max_filesize = min(
   get_ini_size('post_max_size')
   );
 
-if ($upload_max_filesize == get_ini_size('upload_max_filesize'))
-{
-  $upload_max_filesize_shorthand = get_ini_size('upload_max_filesize', false);
-}
-else
-{
-  $upload_max_filesize_shorthand = get_ini_size('post_max_filesize', false);
+if ($upload_max_filesize == get_ini_size('upload_max_filesize')) {
+    $upload_max_filesize_shorthand = get_ini_size('upload_max_filesize', false);
+} else {
+    $upload_max_filesize_shorthand = get_ini_size('post_max_filesize', false);
 }
 
 $template->assign(
@@ -79,40 +75,37 @@ $template->assign(
   );
 
 // what is the maximum number of pixels permitted by the memory_limit?
-if (pwg_image::get_library() == 'gd')
-{
-  $fudge_factor = 1.7;
-  $available_memory = get_ini_size('memory_limit') - memory_get_usage();
-  $max_upload_width = round(sqrt($available_memory/(2 * $fudge_factor)));
-  $max_upload_height = round(2 * $max_upload_width / 3);
-  
-  // we don't want dimensions like 2995x1992 but 3000x2000
-  $max_upload_width = round($max_upload_width/100)*100;
-  $max_upload_height = round($max_upload_height/100)*100;
-  
-  $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
-
-  // no need to display a limitation warning if the limitation is huge like 20MP
-  if ($max_upload_resolution < 25)
-  {
-    $template->assign(
-      array(
-        'max_upload_width' => $max_upload_width,
-        'max_upload_height' => $max_upload_height,
-        'max_upload_resolution' => $max_upload_resolution,
-        )
-      );
-  }
+if (pwg_image::get_library() == 'gd') {
+    $fudge_factor = 1.7;
+    $available_memory = get_ini_size('memory_limit') - memory_get_usage();
+    $max_upload_width = round(sqrt($available_memory/(2 * $fudge_factor)));
+    $max_upload_height = round(2 * $max_upload_width / 3);
+    
+    // we don't want dimensions like 2995x1992 but 3000x2000
+    $max_upload_width = round($max_upload_width/100)*100;
+    $max_upload_height = round($max_upload_height/100)*100;
+    
+    $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
+    
+    // no need to display a limitation warning if the limitation is huge like 20MP
+    if ($max_upload_resolution < 25) {
+        $template->assign(
+            array(
+                'max_upload_width' => $max_upload_width,
+                'max_upload_height' => $max_upload_height,
+                'max_upload_resolution' => $max_upload_resolution,
+            )
+        );
+    }
 }
 
 //warn the user if the picture will be resized after upload
-if ($conf['original_resize'])
-{
-  $template->assign(
-    array(
-        'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
-        'original_resize_maxheight' => $conf['original_resize_maxheight'],
-      )
+if ($conf['original_resize']) {
+    $template->assign(
+        array(
+            'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
+            'original_resize_maxheight' => $conf['original_resize_maxheight'],
+        )
     );
 }
 
@@ -120,10 +113,9 @@ if ($conf['original_resize'])
 $upload_modes = array('html', 'multiple');
 $upload_mode = isset($conf['upload_mode']) ? $conf['upload_mode'] : 'multiple';
 
-if (isset($_GET['upload_mode']) and $upload_mode != $_GET['upload_mode'] and in_array($_GET['upload_mode'], $upload_modes))
-{
-  $upload_mode = $_GET['upload_mode'];
-  conf_update_param('upload_mode', $upload_mode);
+if (isset($_GET['upload_mode']) and $upload_mode != $_GET['upload_mode'] and in_array($_GET['upload_mode'], $upload_modes)) {
+    $upload_mode = $_GET['upload_mode'];
+    conf_update_param('upload_mode', $upload_mode);
 }
 
 // what is the upload switch mode
@@ -145,21 +137,20 @@ $template->assign(
 
 $upload_file_types = 'jpeg, png, gif';
 
-if (pwg_image::get_library() == 'ext_imagick')
-{
-  $upload_file_types.= ', tiff';
-  $template->assign('tif_enabled', true);
+if (pwg_image::get_library() == 'ext_imagick') {
+    $upload_file_types.= ', tiff';
+    $template->assign('tif_enabled', true);
 }
 
-if ('html' == $upload_mode)
-{
-  $upload_file_types.= ', zip';
+if ('html' == $upload_mode) {
+    $upload_file_types.= ', zip';
 }
+
 $template->assign(
-  array(
-    'upload_file_types' => $upload_file_types,
+    array(
+        'upload_file_types' => $upload_file_types,
     )
-  );
+);
 
 // +-----------------------------------------------------------------------+
 // | Categories                                                            |
@@ -168,38 +159,30 @@ $template->assign(
 // we need to know the category in which the last photo was added
 $selected_category = array();
 
-if (isset($_GET['album']))
-{
-  // set the category from get url or ...
-  check_input_parameter('album', $_GET, false, PATTERN_ID);
+if (isset($_GET['album'])) {
+    // set the category from get url or ...
+    check_input_parameter('album', $_GET, false, PATTERN_ID);
   
-  // test if album really exists
-  $query = '
+    // test if album really exists
+    $query = '
 SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE id = '.$_GET['album'].'
 ;';
-  $result = pwg_query($query);
-  if (pwg_db_num_rows($result) == 1)
-  {
-    $selected_category = array($_GET['album']);
+    $result = pwg_query($query);
+    if (pwg_db_num_rows($result) == 1) {
+        $selected_category = array($_GET['album']);
     
-    // lets put in the session to persist in case of upload method switch
-    $_SESSION['selected_category'] = $selected_category;
-  }
-  else
-  {
-    fatal_error('[Hacking attempt] the album id = "'.$_GET['album'].'" is not valid');
-  }
-}
-else if (isset($_SESSION['selected_category']))
-{
-  $selected_category = $_SESSION['selected_category'];
-}
-else
-{
-  // we need to know the category in which the last photo was added
-  $query = '
+        // lets put in the session to persist in case of upload method switch
+        $_SESSION['selected_category'] = $selected_category;
+    } else {
+        fatal_error('[Hacking attempt] the album id = "'.$_GET['album'].'" is not valid');
+    }
+} elseif (isset($_SESSION['selected_category'])) {
+    $selected_category = $_SESSION['selected_category'];
+} else {
+    // we need to know the category in which the last photo was added
+    $query = '
 SELECT category_id
   FROM '.IMAGES_TABLE.' AS i
     JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = i.id
@@ -208,12 +191,11 @@ SELECT category_id
   LIMIT 1
 ;
 ';
-  $result = pwg_query($query);
-  if (pwg_db_num_rows($result) > 0)
-  {
-    $row = pwg_db_fetch_assoc($result);
-    $selected_category = array($row['category_id']);
-  }
+    $result = pwg_query($query);
+    if (pwg_db_num_rows($result) > 0) {
+        $row = pwg_db_fetch_assoc($result);
+        $selected_category = array($row['category_id']);
+    }
 }
 
 // existing album
@@ -263,34 +245,28 @@ $template->assign(
   );
 
 // Warnings
-if (isset($_GET['hide_warnings']))
-{
-  $_SESSION['upload_hide_warnings'] = true;
+if (isset($_GET['hide_warnings'])) {
+    $_SESSION['upload_hide_warnings'] = true;
 }
 
-if (!isset($_SESSION['upload_hide_warnings']))
-{
-  $setup_warnings = array();
+if (!isset($_SESSION['upload_hide_warnings'])) {
+    $setup_warnings = array();
   
-  if ($conf['use_exif'] and !function_exists('read_exif_data'))
-  {
-    $setup_warnings[] = l10n('Exif extension not available, admin should disable exif use');
-  }
+    if ($conf['use_exif'] and !function_exists('read_exif_data')) {
+        $setup_warnings[] = l10n('Exif extension not available, admin should disable exif use');
+    }
 
-  if (get_ini_size('upload_max_filesize') > get_ini_size('post_max_size'))
-  {
-    $setup_warnings[] = l10n(
-      'In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting',
-      get_ini_size('upload_max_filesize', false),
-      get_ini_size('post_max_size', false)
-      );
-  }
-  $template->assign(
-    array(
-      'setup_warnings' => $setup_warnings,
-      'hide_warnings_link' => PHOTOS_ADD_BASE_URL.'&amp;upload_mode='.$upload_mode.'&amp;hide_warnings=1'
-      )
+    if (get_ini_size('upload_max_filesize') > get_ini_size('post_max_size')) {
+        $setup_warnings[] = l10n(
+            'In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting',
+            get_ini_size('upload_max_filesize', false),
+            get_ini_size('post_max_size', false)
+        );
+    }
+    $template->assign(
+        array(
+            'setup_warnings' => $setup_warnings,
+            'hide_warnings_link' => PHOTOS_ADD_BASE_URL.'&amp;upload_mode='.$upload_mode.'&amp;hide_warnings=1'
+        )
     );
 }
-
-?>

@@ -19,7 +19,7 @@
 
 ;; conf
 /local/config/config.inc.php
-local/config/database.inc.php
+local/config/database.*.php
 
 ;; external libraries
 /vendor/*
