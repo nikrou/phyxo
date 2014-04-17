@@ -24,7 +24,7 @@
 
 $lang['Admin configuration'] = 'Администраторски поднесувања';
 $lang['Basic configuration'] = 'Основни поднесувања';
-$lang['Congratulations, Piwigo installation is completed'] = 'Браво, Piwago инсталацијата е завршена';
+$lang['Congratulations, Phyxo installation is completed'] = 'Браво, Piwago инсталацијата е завршена';
 $lang['Database configuration'] = 'Конфигурација на датабаза';
 $lang['Database name'] = 'Име на датабазата';
 $lang['Default gallery language'] = 'Основен јазик на галеријата';

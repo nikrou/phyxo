@@ -39,7 +39,7 @@ $lang['also given by your host provider'] = 'myöskin palveluntarjoajan määrit
 $lang['localhost or other, supplied by your host provider'] = 'paikallinen isäntäkone';
 $lang['user login given by your host provider'] = 'käyttäjänimi, jonka palveluntarjoaja on määrittänyt';
 $lang['user password given by your host provider'] = 'käyttäjän salasana, jonka palveluntarjoaja on määrittänyt';
-$lang['Congratulations, Piwigo installation is completed'] = 'Onnittelut, Piwigon asennus on onnistunut';
+$lang['Congratulations, Phyxo installation is completed'] = 'Onnittelut, Phyxon asennus on onnistunut';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Älä epäröi ottaa yhteyttä, kysy apua foorumiltamme: %s';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Näyttää että palveluntarjoajasi käyttää PHP %s.';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Tarvitsetko apua? Kysy asiasta <a href="%s">Piwigon keskustelupalstalla</a>';

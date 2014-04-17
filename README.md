@@ -1,7 +1,7 @@
 Phyxo
 ======
 
-This project aims to provide support for PostgreSQL engine in piwigo.
+This project is based on Piwigo. It aims to provide support for PostgreSQL and SQLite engines.
 
 Requirements
 ------------

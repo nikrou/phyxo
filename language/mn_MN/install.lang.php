@@ -24,7 +24,7 @@
 
 $lang['It appears your webhost is currently running PHP %s.'] = 'Таны вэбсервер PHP %s хувилбарыг ашиглаж байна';
 $lang['Piwigo was not able to configure PHP 5.'] = 'Piwigo PHP 5-г тохиргоог өөрчилж чадсангүй';
-$lang['Congratulations, Piwigo installation is completed'] = 'Танд баяр хүргэе, Piwigo амжилттай сууж дууслаа.';
+$lang['Congratulations, Phyxo installation is completed'] = 'Танд баяр хүргэе, Phyxo амжилттай сууж дууслаа.';
 $lang['Connection to server succeed, but it was impossible to connect to database'] = 'Сервертэй амжилттай холбогдсон боловч мэдээллийн сантай холбогдох үед алдаа гарлаа.';
 $lang['Try to configure PHP 5'] = 'PHP 5 тохиргоогоо өөрчилж үзнэ үү';
 $lang['User'] = 'Хэрэглэгч';

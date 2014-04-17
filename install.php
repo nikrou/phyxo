@@ -97,7 +97,7 @@ if( !@get_magic_quotes_gpc() )
 
 //----------------------------------------------------- variable initialization
 
-define('DEFAULT_PREFIX_TABLE', 'piwigo_');
+define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
 if (isset($_POST['install']))
 {
@@ -157,10 +157,10 @@ $config_file = PHPWG_ROOT_PATH.PWG_LOCAL_DIR .'config/database.inc.php';
 if (@file_exists($config_file))
 {
   include($config_file);
-  // Is Piwigo already installed ?
+  // Is Phyxo already installed ?
   if (defined("PHPWG_INSTALLED"))
   {
-    die('Piwigo is already installed');
+    die('Phyxo is already installed');
   }
 }
 
@@ -407,7 +407,7 @@ if ($step == 1)
 }
 else
 {
-  $infos[] = l10n('Congratulations, Piwigo installation is completed');
+  $infos[] = l10n('Congratulations, Phyxo installation is completed');
 
   if (isset($error_copy))
   {
@@ -443,7 +443,7 @@ else
             
       $keyargs_content = array(
         get_l10n_args('Hello %s,', $admin_name),
-        get_l10n_args('Welcome to your new installation of Piwigo!', ''),
+        get_l10n_args('Welcome to your new installation of Phyxo!', ''),
         get_l10n_args('', ''),
         get_l10n_args('Here are your connection settings', ''),
         get_l10n_args('Username: %s', $admin_name),

@@ -41,7 +41,7 @@ $lang['Welcome to my photo gallery'] = '사진 갤러리에 오신 것을 환영
 $lang['please enter your password again'] = '암호를 다시 입력하십시오';
 $lang['An alternate solution is to copy the text in the box above and paste it into the file "local/config/database.inc.php" (Warning : database.inc.php must only contain what is in the textarea, no line return or space character)'] = '또다른 방법으로는 위의 텍스트 상자에 있는 문장을 복사하여 "local/config/database.inc.php"에 복사하는 방법입니다.
 (경고: database.inc.php는 줄바꿈이나 스페이스 없이 위 텍스트 상자에 있는 내용만 포함해야 합니다. ';
-$lang['Congratulations, Piwigo installation is completed'] = '축하합니다, Piwigo설치가 끝났습니다';
+$lang['Congratulations, Phyxo installation is completed'] = '축하합니다, Phyxo설치가 끝났습니다';
 $lang['Default gallery language'] = '기본 언어';
 $lang['PHP 5 is required'] = 'PHP5가 필요합니다';
 $lang['Password ']['confirm'] = '암호 [확인]';

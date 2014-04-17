@@ -24,7 +24,7 @@
 
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Jei reikės pagalbos - drąsiai kreipkitės konsultacijų mūsų forumuose: %s';
 $lang['Installation'] = 'Diegimas';
-$lang['Congratulations, Piwigo installation is completed'] = 'Sveikiname, Piwigo diegimas baigtas';
+$lang['Congratulations, Phyxo installation is completed'] = 'Sveikiname, Phyxo diegimas baigtas';
 $lang['enter a login for webmaster'] = 'įveskite webmasterio vartotojo vardą';
 $lang['webmaster login can\'t contain characters \' or "'] = 'webmasterio vartotojo vardas negali turėti simbolių \' ar "';
 $lang['Start Install'] = 'Pradėti įdiegimą';

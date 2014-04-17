@@ -37,7 +37,7 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Admin configuration'] = 'Admin nastavitve';
 $lang['Basic configuration'] = 'Osnovne nastavitve';
 $lang['Can\'t connect to server'] = 'Ne morem se povezati s strežnikom';
-$lang['Congratulations, Piwigo installation is completed'] = 'Čestitamo! Namestitev Piwigo aplikacije je uspešno dokončana!';
+$lang['Congratulations, Phyxo installation is completed'] = 'Čestitamo! Namestitev Phyxo aplikacije je uspešno dokončana!';
 $lang['Connection to server succeed, but it was impossible to connect to database'] = 'Uspešno ste se povezali na strežnik vendar je povezava s podatkovno bazo spodletela.';
 $lang['Creation of config file local/config/database.inc.php failed.'] = 'Ustvarjanje nastavitvene datoteke local/config/database.inc.php je spodletelo.';
 $lang['Database configuration'] = 'Nastavitve podatkovne baze';

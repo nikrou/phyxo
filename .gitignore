@@ -29,3 +29,7 @@ local/config/database.*.php
 
 ;; src ; not used yet
 /src
+
+;; other stuff
+/target
+/.dist
