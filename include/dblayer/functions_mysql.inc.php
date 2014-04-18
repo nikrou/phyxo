@@ -829,3 +829,24 @@ function query2array($query, $key_name=null, $value_name=null)
 
   return $data;
 }
+
+/* transaction functions */
+function pwg_db_start_transaction() {
+    pwg_query('BEGIN');
+}
+
+function pwg_db_commit() {
+    pwg_query('COMMIT');
+}
+
+function pwg_db_rollback() {
+    pwg_query('ROLLBACK');
+}
+
+function pwg_db_write_lock($table) {
+    pwg_query('LOCK TABLES '.$table.' WRITE');
+}
+
+function pwg_db_unlock() {
+    pwg_query('UNLOCK TABLES');
+}

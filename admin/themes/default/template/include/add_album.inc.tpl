@@ -88,7 +88,7 @@ jQuery(document).ready(function(){
       <br><br><br>
       
       <input type="submit" value="{'Create'|@translate}">
-      <span id="albumCreationLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif"></span>
+      <span id="albumCreationLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
     </form>
   </div>
 </div>

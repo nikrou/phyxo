@@ -1,0 +1,1 @@
+Este plugin les permite a los visitadores de su galería añadir etiquetas a las imágenes.

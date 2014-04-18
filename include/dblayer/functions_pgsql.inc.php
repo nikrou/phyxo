@@ -77,28 +77,8 @@ function pwg_query($query) {
 
     $replace_pattern = '`REPLACE INTO\s(\S*)\s*([^)]*\))\s*VALUES\(([^,]*),(.*)\)\s*`mi';  
 
-    $start = microtime(true);
-    
-    if (preg_match($replace_pattern, $query, $matches) && $matches[1]==SESSIONS_TABLE) {
-        $select_query = '
-SELECT id FROM '.$matches[1].'
-  WHERE id='.$matches[3];
-        ( $result = pg_query($pwg_db_link, $select_query)) or die($query."\n<br>".pg_last_error());
-        if (pwg_db_num_rows($result)==1) {
-            $query = '
-UPDATE '.$matches[1].'
-  SET expiration=now()
-  WHERE id='.$matches[3];
-        } else {
-            $query = '
-INSERT INTO '.$matches[1].'
-  '.$matches[2].' VALUES('.$matches[3].','.$matches[4].')';
-        }
-        $result = pg_query($pwg_db_link, $query) or die($query."\n<br>".pg_last_error());
-    } else  {
-        $result = pg_query($pwg_db_link, $query) or die($query."\n<br>".pg_last_error());
-    }
-
+    $start = microtime(true);    
+    $result = pg_query($pwg_db_link, $query) or die($query."\n<br>".pg_last_error());
     $time = microtime(true) - $start;
 
     if (!isset($page['count_queries'])) {
@@ -678,4 +658,26 @@ function pwg_db_close() {
     global $pwg_db_link;
     
     return pg_close($pwg_db_link);
+}
+
+/* transaction functions */
+function pwg_db_start_transaction() {
+    pwg_query('BEGIN');
+}
+
+function pwg_db_commit() {
+    pwg_query('COMMIT');
+}
+
+function pwg_db_rollback() {
+    pwg_query('ROLLBACK');
+}
+
+function pwg_db_write_lock($table) {
+    pwg_query('BEGIN');
+    pwg_query('LOCK TABLE '.$table.' IN EXCLUSIVE MODE');
+}
+
+function pwg_db_unlock() {
+    pwg_query('END');
 }

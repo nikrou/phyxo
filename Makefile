@@ -30,7 +30,8 @@ config: clean
 		themes/Sylvia $(DIST)/$(APP_NAME)/themes/
 
 	cp -pr plugins/LocalFilesEditor \
-		plugins/language_switch $(DIST)/$(APP_NAME)/plugins/
+		plugins/language_switch \
+		plugins/user_tags $(DIST)/$(APP_NAME)/plugins/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum

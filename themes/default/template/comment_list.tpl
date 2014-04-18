@@ -9,7 +9,7 @@
 }
 {/html_style}{/strip}
 {footer_script}var error_icon = "{$ROOT_URL}{$themeconf.icon_dir}/errors_small.png";{/footer_script}
-<div class="loader"><img src="{$ROOT_URL}{$themeconf.img_dir}/ajax_loader.gif"></div>
+<div class="loader"><img src="{$ROOT_URL}{$themeconf.img_dir}/ajax_loader.gif" alt=""></div>
 {/if}
 <ul class="commentsList">
 {foreach from=$comments item=comment name=comment_loop}

@@ -57,28 +57,28 @@ if (isset($conf['session_save_handler']) and ($conf['session_save_handler'] == '
  * @return string
  */
 function generate_key($size) {
-  global $conf;
+    global $conf;
 
-  $md5 = md5(substr(microtime(), 2, 6));
-  $init = '';
-  for ($i=0;$i<strlen($md5);$i++) {
-      if (is_numeric($md5[$i])) $init.= $md5[$i];
-  }
-  $init = substr( $init, 0, 8 );
-  mt_srand( $init );
-  $key = '';
-  for ($i=0;$i<$size;$i++) {
-      $c = mt_rand( 0, 2 );
-      if ($c==0) {
-          $key .= chr(mt_rand(65, 90));
-      } elseif ($c == 1) {
-          $key .= chr(mt_rand(97, 122));
-      } else {
-          $key .= mt_rand(0, 9);
-      }
-  }
+    $md5 = md5(substr(microtime(), 2, 6));
+    $init = '';
+    for ($i=0;$i<strlen($md5);$i++) {
+        if (is_numeric($md5[$i])) $init.= $md5[$i];
+    }
+    $init = substr( $init, 0, 8 );
+    mt_srand( $init );
+    $key = '';
+    for ($i=0;$i<$size;$i++) {
+        $c = mt_rand( 0, 2 );
+        if ($c==0) {
+            $key .= chr(mt_rand(65, 90));
+        } elseif ($c == 1) {
+            $key .= chr(mt_rand(97, 122));
+        } else {
+            $key .= mt_rand(0, 9);
+        }
+    }
 
-  return $key;
+    return $key;
 }
 
 /**
@@ -89,7 +89,7 @@ function generate_key($size) {
  * @return true
  */
 function pwg_session_open($path, $name) {
-  return true;
+    return true;
 }
 
 /**
@@ -98,7 +98,9 @@ function pwg_session_open($path, $name) {
  * @return true
  */
 function pwg_session_close() {
-  return true;
+    pwg_session_gc();
+
+    return true;
 }
 
 /**
@@ -152,14 +154,17 @@ SELECT data
  * @return true
  */
 function pwg_session_write($session_id, $data) {
-    $query = 'SELECT id FROM '.SESSIONS_TABLE;
+    $query = 'SELECT count(1) FROM '.SESSIONS_TABLE;
     $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
     
-    $result = pwg_query($query);
-    if ($result) {
-        pwg_query('UPDATE '.SESSIONS_TABLE.' SET data = \''.pwg_db_real_escape_string($data).'\', expiration=now()');
+    list($counter) = pwg_db_fetch_row(pwg_query($query));
+
+    if ($counter==1) {
+        $query = 'UPDATE '.SESSIONS_TABLE.' SET data = \''.pwg_db_real_escape_string($data).'\', expiration=now()';
+        $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
+        pwg_query($query);
     } else {
-        $query = 'INSERT INTO'.SESSIONS_TABLE.' (id,data,expiration)';
+        $query = 'INSERT INTO '.SESSIONS_TABLE.' (id,data,expiration)';
         $query .= ' VALUES(\''.get_remote_addr_session_hash().$session_id.'\',\''.pwg_db_real_escape_string($data).'\',now())';
         pwg_query($query);
     }

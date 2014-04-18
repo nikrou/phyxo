@@ -5,22 +5,22 @@
 -- Server version	4.0.24_Debian-10-log
 
 --
--- Table structure for table `piwigo_caddie`
+-- Table structure for table `phyxo_caddie`
 --
 
-DROP TABLE IF EXISTS `piwigo_caddie`;
-CREATE TABLE `piwigo_caddie` (
+DROP TABLE IF EXISTS `phyxo_caddie`;
+CREATE TABLE `phyxo_caddie` (
   `user_id` smallint(5) NOT NULL default '0',
   `element_id` mediumint(8) NOT NULL default '0',
   PRIMARY KEY  (`user_id`,`element_id`)
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_categories`
+-- Table structure for table `phyxo_categories`
 --
 
-DROP TABLE IF EXISTS `piwigo_categories`;
-CREATE TABLE `piwigo_categories` (
+DROP TABLE IF EXISTS `phyxo_categories`;
+CREATE TABLE `phyxo_categories` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   `id_uppercat` smallint(5) unsigned default NULL,
@@ -42,11 +42,11 @@ CREATE TABLE `piwigo_categories` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_comments`
+-- Table structure for table `phyxo_comments`
 --
 
-DROP TABLE IF EXISTS `piwigo_comments`;
-CREATE TABLE `piwigo_comments` (
+DROP TABLE IF EXISTS `phyxo_comments`;
+CREATE TABLE `phyxo_comments` (
   `id` int(11) unsigned NOT NULL auto_increment,
   `image_id` mediumint(8) unsigned NOT NULL default '0',
   `date` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -64,11 +64,11 @@ CREATE TABLE `piwigo_comments` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_config`
+-- Table structure for table `phyxo_config`
 --
 
-DROP TABLE IF EXISTS `piwigo_config`;
-CREATE TABLE `piwigo_config` (
+DROP TABLE IF EXISTS `phyxo_config`;
+CREATE TABLE `phyxo_config` (
   `param` varchar(40) NOT NULL default '',
   `value` text,
   `comment` varchar(255) default NULL,
@@ -76,33 +76,33 @@ CREATE TABLE `piwigo_config` (
 ) ENGINE=MyISAM COMMENT='configuration table';
 
 --
--- Table structure for table `piwigo_favorites`
+-- Table structure for table `phyxo_favorites`
 --
 
-DROP TABLE IF EXISTS `piwigo_favorites`;
-CREATE TABLE `piwigo_favorites` (
+DROP TABLE IF EXISTS `phyxo_favorites`;
+CREATE TABLE `phyxo_favorites` (
   `user_id` smallint(5) NOT NULL default '0',
   `image_id` mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY  (`user_id`,`image_id`)
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_group_access`
+-- Table structure for table `phyxo_group_access`
 --
 
-DROP TABLE IF EXISTS `piwigo_group_access`;
-CREATE TABLE `piwigo_group_access` (
+DROP TABLE IF EXISTS `phyxo_group_access`;
+CREATE TABLE `phyxo_group_access` (
   `group_id` smallint(5) unsigned NOT NULL default '0',
   `cat_id` smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY  (`group_id`,`cat_id`)
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_groups`
+-- Table structure for table `phyxo_groups`
 --
 
-DROP TABLE IF EXISTS `piwigo_groups`;
-CREATE TABLE `piwigo_groups` (
+DROP TABLE IF EXISTS `phyxo_groups`;
+CREATE TABLE `phyxo_groups` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
   `is_default` enum('true','false') NOT NULL default 'false',
@@ -111,11 +111,11 @@ CREATE TABLE `piwigo_groups` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_history`
+-- Table structure for table `phyxo_history`
 --
 
-DROP TABLE IF EXISTS `piwigo_history`;
-CREATE TABLE `piwigo_history` (
+DROP TABLE IF EXISTS `phyxo_history`;
+CREATE TABLE `phyxo_history` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `date` date NOT NULL default '0000-00-00',
   `time` time NOT NULL default '00:00:00',
@@ -132,11 +132,11 @@ CREATE TABLE `piwigo_history` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_history_summary`
+-- Table structure for table `phyxo_history_summary`
 --
 
-DROP TABLE IF EXISTS `piwigo_history_summary`;
-CREATE TABLE `piwigo_history_summary` (
+DROP TABLE IF EXISTS `phyxo_history_summary`;
+CREATE TABLE `phyxo_history_summary` (
   `year` smallint(4) NOT NULL default '0',
   `month` tinyint(2) default NULL,
   `day` tinyint(2) default NULL,
@@ -146,11 +146,11 @@ CREATE TABLE `piwigo_history_summary` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_image_category`
+-- Table structure for table `phyxo_image_category`
 --
 
-DROP TABLE IF EXISTS `piwigo_image_category`;
-CREATE TABLE `piwigo_image_category` (
+DROP TABLE IF EXISTS `phyxo_image_category`;
+CREATE TABLE `phyxo_image_category` (
   `image_id` mediumint(8) unsigned NOT NULL default '0',
   `category_id` smallint(5) unsigned NOT NULL default '0',
   `rank` mediumint(8) unsigned default NULL,
@@ -159,11 +159,11 @@ CREATE TABLE `piwigo_image_category` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_image_tag`
+-- Table structure for table `phyxo_image_tag`
 --
 
-DROP TABLE IF EXISTS `piwigo_image_tag`;
-CREATE TABLE `piwigo_image_tag` (
+DROP TABLE IF EXISTS `phyxo_image_tag`;
+CREATE TABLE `phyxo_image_tag` (
   `image_id` mediumint(8) unsigned NOT NULL default '0',
   `tag_id` smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY  (`image_id`,`tag_id`),
@@ -171,11 +171,11 @@ CREATE TABLE `piwigo_image_tag` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_images`
+-- Table structure for table `phyxo_images`
 --
 
-DROP TABLE IF EXISTS `piwigo_images`;
-CREATE TABLE `piwigo_images` (
+DROP TABLE IF EXISTS `phyxo_images`;
+CREATE TABLE `phyxo_images` (
   `id` mediumint(8) unsigned NOT NULL auto_increment,
   `file` varchar(255) binary NOT NULL default '',
   `date_available` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -209,11 +209,11 @@ CREATE TABLE `piwigo_images` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_languages`
+-- Table structure for table `phyxo_languages`
 --
 
-DROP TABLE IF EXISTS `piwigo_languages`;
-CREATE TABLE `piwigo_languages` (
+DROP TABLE IF EXISTS `phyxo_languages`;
+CREATE TABLE `phyxo_languages` (
   `id` varchar(64) NOT NULL default '',
   `version` varchar(64) NOT NULL default '0',
   `name` varchar(64) default NULL,
@@ -221,11 +221,11 @@ CREATE TABLE `piwigo_languages` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_old_permalinks`
+-- Table structure for table `phyxo_old_permalinks`
 --
 
-DROP TABLE IF EXISTS `piwigo_old_permalinks`;
-CREATE TABLE `piwigo_old_permalinks` (
+DROP TABLE IF EXISTS `phyxo_old_permalinks`;
+CREATE TABLE `phyxo_old_permalinks` (
   `cat_id` smallint(5) unsigned NOT NULL default '0',
   `permalink` varchar(64) binary NOT NULL default '',
   `date_deleted` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -235,11 +235,11 @@ CREATE TABLE `piwigo_old_permalinks` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_plugins`
+-- Table structure for table `phyxo_plugins`
 --
 
-DROP TABLE IF EXISTS `piwigo_plugins`;
-CREATE TABLE `piwigo_plugins` (
+DROP TABLE IF EXISTS `phyxo_plugins`;
+CREATE TABLE `phyxo_plugins` (
   `id` varchar(64) binary NOT NULL default '',
   `state` enum('inactive','active') NOT NULL default 'inactive',
   `version` varchar(64) NOT NULL default '0',
@@ -247,11 +247,11 @@ CREATE TABLE `piwigo_plugins` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_rate`
+-- Table structure for table `phyxo_rate`
 --
 
-DROP TABLE IF EXISTS `piwigo_rate`;
-CREATE TABLE `piwigo_rate` (
+DROP TABLE IF EXISTS `phyxo_rate`;
+CREATE TABLE `phyxo_rate` (
   `user_id` smallint(5) NOT NULL default '0',
   `element_id` mediumint(8) unsigned NOT NULL default '0',
   `anonymous_id` varchar(45) NOT NULL default '',
@@ -261,11 +261,11 @@ CREATE TABLE `piwigo_rate` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_search`
+-- Table structure for table `phyxo_search`
 --
 
-DROP TABLE IF EXISTS `piwigo_search`;
-CREATE TABLE `piwigo_search` (
+DROP TABLE IF EXISTS `phyxo_search`;
+CREATE TABLE `phyxo_search` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `last_seen` date default NULL,
   `rules` text,
@@ -273,11 +273,11 @@ CREATE TABLE `piwigo_search` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_sessions`
+-- Table structure for table `phyxo_sessions`
 --
 
-DROP TABLE IF EXISTS `piwigo_sessions`;
-CREATE TABLE `piwigo_sessions` (
+DROP TABLE IF EXISTS `phyxo_sessions`;
+CREATE TABLE `phyxo_sessions` (
   `id` varchar(255) binary NOT NULL default '',
   `data` mediumtext NOT NULL,
   `expiration` datetime NOT NULL default '0000-00-00 00:00:00',
@@ -285,11 +285,11 @@ CREATE TABLE `piwigo_sessions` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_sites`
+-- Table structure for table `phyxo_sites`
 --
 
-DROP TABLE IF EXISTS `piwigo_sites`;
-CREATE TABLE `piwigo_sites` (
+DROP TABLE IF EXISTS `phyxo_sites`;
+CREATE TABLE `phyxo_sites` (
   `id` tinyint(4) NOT NULL auto_increment,
   `galleries_url` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
@@ -297,11 +297,11 @@ CREATE TABLE `piwigo_sites` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_tags`
+-- Table structure for table `phyxo_tags`
 --
 
-DROP TABLE IF EXISTS `piwigo_tags`;
-CREATE TABLE `piwigo_tags` (
+DROP TABLE IF EXISTS `phyxo_tags`;
+CREATE TABLE `phyxo_tags` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
   `name` varchar(255) binary NOT NULL default '',
   `url_name` varchar(255) binary NOT NULL default '',
@@ -310,11 +310,11 @@ CREATE TABLE `piwigo_tags` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_themes`
+-- Table structure for table `phyxo_themes`
 --
 
-DROP TABLE IF EXISTS `piwigo_themes`;
-CREATE TABLE `piwigo_themes` (
+DROP TABLE IF EXISTS `phyxo_themes`;
+CREATE TABLE `phyxo_themes` (
   `id` varchar(64) NOT NULL default '',
   `version` varchar(64) NOT NULL default '0',
   `name` varchar(64) default NULL,
@@ -322,11 +322,11 @@ CREATE TABLE `piwigo_themes` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_upgrade`
+-- Table structure for table `phyxo_upgrade`
 --
 
-DROP TABLE IF EXISTS `piwigo_upgrade`;
-CREATE TABLE `piwigo_upgrade` (
+DROP TABLE IF EXISTS `phyxo_upgrade`;
+CREATE TABLE `phyxo_upgrade` (
   `id` varchar(20) NOT NULL default '',
   `applied` datetime NOT NULL default '0000-00-00 00:00:00',
   `description` varchar(255) default NULL,
@@ -334,22 +334,22 @@ CREATE TABLE `piwigo_upgrade` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_access`
+-- Table structure for table `phyxo_user_access`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_access`;
-CREATE TABLE `piwigo_user_access` (
+DROP TABLE IF EXISTS `phyxo_user_access`;
+CREATE TABLE `phyxo_user_access` (
   `user_id` smallint(5) NOT NULL default '0',
   `cat_id` smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY  (`user_id`,`cat_id`)
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_cache`
+-- Table structure for table `phyxo_user_cache`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_cache`;
-CREATE TABLE `piwigo_user_cache` (
+DROP TABLE IF EXISTS `phyxo_user_cache`;
+CREATE TABLE `phyxo_user_cache` (
   `user_id` smallint(5) NOT NULL default '0',
   `need_update` enum('true','false') NOT NULL default 'true',
   `cache_update_time` integer unsigned NOT NULL default 0,
@@ -364,11 +364,11 @@ CREATE TABLE `piwigo_user_cache` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_cache_categories`
+-- Table structure for table `phyxo_user_cache_categories`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_cache_categories`;
-CREATE TABLE `piwigo_user_cache_categories` (
+DROP TABLE IF EXISTS `phyxo_user_cache_categories`;
+CREATE TABLE `phyxo_user_cache_categories` (
   `user_id` smallint(5) NOT NULL default '0',
   `cat_id` smallint(5) unsigned NOT NULL default '0',
   `date_last` datetime default NULL,
@@ -382,11 +382,11 @@ CREATE TABLE `piwigo_user_cache_categories` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_feed`
+-- Table structure for table `phyxo_user_feed`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_feed`;
-CREATE TABLE `piwigo_user_feed` (
+DROP TABLE IF EXISTS `phyxo_user_feed`;
+CREATE TABLE `phyxo_user_feed` (
   `id` varchar(50) binary NOT NULL default '',
   `user_id` smallint(5) NOT NULL default '0',
   `last_check` datetime default NULL,
@@ -394,22 +394,22 @@ CREATE TABLE `piwigo_user_feed` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_group`
+-- Table structure for table `phyxo_user_group`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_group`;
-CREATE TABLE `piwigo_user_group` (
+DROP TABLE IF EXISTS `phyxo_user_group`;
+CREATE TABLE `phyxo_user_group` (
   `user_id` smallint(5) NOT NULL default '0',
   `group_id` smallint(5) unsigned NOT NULL default '0',
   PRIMARY KEY  (`group_id`,`user_id`)
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_infos`
+-- Table structure for table `phyxo_user_infos`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_infos`;
-CREATE TABLE `piwigo_user_infos` (
+DROP TABLE IF EXISTS `phyxo_user_infos`;
+CREATE TABLE `phyxo_user_infos` (
   `user_id` smallint(5) NOT NULL default '0',
   `nb_image_page` smallint(3) unsigned NOT NULL default '15',
   `status` enum('webmaster','admin','normal','generic','guest') NOT NULL default 'guest',
@@ -427,11 +427,11 @@ CREATE TABLE `piwigo_user_infos` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_user_mail_notification`
+-- Table structure for table `phyxo_user_mail_notification`
 --
 
-DROP TABLE IF EXISTS `piwigo_user_mail_notification`;
-CREATE TABLE `piwigo_user_mail_notification` (
+DROP TABLE IF EXISTS `phyxo_user_mail_notification`;
+CREATE TABLE `phyxo_user_mail_notification` (
   `user_id` smallint(5) NOT NULL default '0',
   `check_key` varchar(16) binary NOT NULL default '',
   `enabled` enum('true','false') NOT NULL default 'false',
@@ -441,11 +441,11 @@ CREATE TABLE `piwigo_user_mail_notification` (
 ) ENGINE=MyISAM;
 
 --
--- Table structure for table `piwigo_users`
+-- Table structure for table `phyxo_users`
 --
 
-DROP TABLE IF EXISTS `piwigo_users`;
-CREATE TABLE `piwigo_users` (
+DROP TABLE IF EXISTS `phyxo_users`;
+CREATE TABLE `phyxo_users` (
   `id` smallint(5) NOT NULL auto_increment,
   `username` varchar(100) binary NOT NULL default '',
   `password` varchar(255) default NULL,

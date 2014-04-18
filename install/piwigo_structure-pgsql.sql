@@ -1,9 +1,9 @@
 -----------------------------------------------------------------------------
--- piwigo_caddie
+-- phyxo_caddie
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS piwigo_caddie;
-CREATE TABLE "piwigo_caddie"
+DROP TABLE IF EXISTS phyxo_caddie;
+CREATE TABLE "phyxo_caddie"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "element_id" INTEGER default 0 NOT NULL,
@@ -12,14 +12,14 @@ CREATE TABLE "piwigo_caddie"
 
 
 -----------------------------------------------------------------------------
--- piwigo_categories
+-- phyxo_categories
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_categories";
+DROP TABLE IF EXISTS "phyxo_categories";
 DROP TYPE IF EXISTS CATEGORIES_STATUS;
 
 CREATE TYPE CATEGORIES_STATUS AS ENUM('public', 'private');
-CREATE TABLE "piwigo_categories"
+CREATE TABLE "phyxo_categories"
 (
   "id" serial  NOT NULL,
   "name" VARCHAR(255) default '' NOT NULL,
@@ -41,10 +41,10 @@ CREATE TABLE "piwigo_categories"
 );
 
 -----------------------------------------------------------------------------
--- piwigo_config
+-- phyxo_config
 -----------------------------------------------------------------------------
-DROP TABLE IF EXISTS "piwigo_config";
-CREATE TABLE "piwigo_config"
+DROP TABLE IF EXISTS "phyxo_config";
+CREATE TABLE "phyxo_config"
 (
   "param" VARCHAR(40) default '' NOT NULL,
   "value" TEXT,
@@ -54,11 +54,11 @@ CREATE TABLE "piwigo_config"
 
 
 -----------------------------------------------------------------------------
--- piwigo_favorites
+-- phyxo_favorites
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_favorites";
-CREATE TABLE "piwigo_favorites"
+DROP TABLE IF EXISTS "phyxo_favorites";
+CREATE TABLE "phyxo_favorites"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "image_id" INTEGER default 0 NOT NULL,
@@ -66,11 +66,11 @@ CREATE TABLE "piwigo_favorites"
 );
 
 -----------------------------------------------------------------------------
--- piwigo_group_access
+-- phyxo_group_access
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_group_access";
-CREATE TABLE "piwigo_group_access"
+DROP TABLE IF EXISTS "phyxo_group_access";
+CREATE TABLE "phyxo_group_access"
 (
   "group_id" INTEGER default 0 NOT NULL,
   "cat_id" INTEGER default 0 NOT NULL,
@@ -79,11 +79,11 @@ CREATE TABLE "piwigo_group_access"
 
 
 -----------------------------------------------------------------------------
--- piwigo_groups
+-- phyxo_groups
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_groups";
-CREATE TABLE "piwigo_groups"
+DROP TABLE IF EXISTS "phyxo_groups";
+CREATE TABLE "phyxo_groups"
 (
   "id" serial  NOT NULL,
   "name" VARCHAR(255) default '' NOT NULL,
@@ -94,17 +94,17 @@ CREATE TABLE "piwigo_groups"
 
 
 -----------------------------------------------------------------------------
--- piwigo_history
+-- phyxo_history
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_history";
+DROP TABLE IF EXISTS "phyxo_history";
 
 DROP TYPE IF EXISTS HISTORY_SECTION;
 CREATE TYPE HISTORY_SECTION AS ENUM('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats');
 DROP TYPE IF EXISTS HISTORY_IMAGE_TYPE;
 CREATE TYPE HISTORY_IMAGE_TYPE AS ENUM('picture','high','other');
 
-CREATE TABLE "piwigo_history"
+CREATE TABLE "phyxo_history"
 (
   "id" serial  NOT NULL,
   "date" DATE NOT NULL,
@@ -122,11 +122,11 @@ CREATE TABLE "piwigo_history"
 
 
 -----------------------------------------------------------------------------
--- piwigo_history_summary
+-- phyxo_history_summary
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_history_summary";
-CREATE TABLE "piwigo_history_summary"
+DROP TABLE IF EXISTS "phyxo_history_summary";
+CREATE TABLE "phyxo_history_summary"
 (
   "year" INTEGER default 0 NOT NULL,
   "month" INTEGER,
@@ -141,11 +141,11 @@ CREATE TABLE "piwigo_history_summary"
 
 
 -----------------------------------------------------------------------------
--- piwigo_image_category
+-- phyxo_image_category
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_image_category";
-CREATE TABLE "piwigo_image_category"
+DROP TABLE IF EXISTS "phyxo_image_category";
+CREATE TABLE "phyxo_image_category"
 (
   "image_id" INTEGER default 0 NOT NULL,
   "category_id" INTEGER default 0 NOT NULL,
@@ -155,11 +155,11 @@ CREATE TABLE "piwigo_image_category"
 
 
 -----------------------------------------------------------------------------
--- piwigo_image_tag
+-- phyxo_image_tag
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_image_tag";
-CREATE TABLE "piwigo_image_tag"
+DROP TABLE IF EXISTS "phyxo_image_tag";
+CREATE TABLE "phyxo_image_tag"
 (
   "image_id" INTEGER default 0 NOT NULL,
   "tag_id" INTEGER default 0 NOT NULL,
@@ -168,11 +168,11 @@ CREATE TABLE "piwigo_image_tag"
 
 
 -----------------------------------------------------------------------------
--- piwigo_images
+-- phyxo_images
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_images";
-CREATE TABLE "piwigo_images"
+DROP TABLE IF EXISTS "phyxo_images";
+CREATE TABLE "phyxo_images"
 (
   "id" serial  NOT NULL,
   "file" VARCHAR(255) default '' NOT NULL,
@@ -204,11 +204,11 @@ CREATE TABLE "piwigo_images"
 
 
 -----------------------------------------------------------------------------
--- piwigo_languages
+-- phyxo_languages
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_languages";
-CREATE TABLE "piwigo_languages"
+DROP TABLE IF EXISTS "phyxo_languages";
+CREATE TABLE "phyxo_languages"
 (
   "id" VARCHAR(64) NOT NULL default '',
   "version" VARCHAR(64) NOT NULL default '0',
@@ -218,11 +218,11 @@ CREATE TABLE "piwigo_languages"
 
 
 -----------------------------------------------------------------------------
--- piwigo_old_permalinks
+-- phyxo_old_permalinks
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_old_permalinks";
-CREATE TABLE "piwigo_old_permalinks"
+DROP TABLE IF EXISTS "phyxo_old_permalinks";
+CREATE TABLE "phyxo_old_permalinks"
 (
   "cat_id" INTEGER default 0 NOT NULL,
   "permalink" VARCHAR(64) default '' NOT NULL,
@@ -234,14 +234,14 @@ CREATE TABLE "piwigo_old_permalinks"
 
 
 -----------------------------------------------------------------------------
--- piwigo_plugins
+-- phyxo_plugins
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_plugins";
+DROP TABLE IF EXISTS "phyxo_plugins";
 DROP TYPE IF EXISTS PLUGINS_STATE;
 
 CREATE TYPE PLUGINS_STATE AS ENUM('active', 'inactive');
-CREATE TABLE "piwigo_plugins"
+CREATE TABLE "phyxo_plugins"
 (
   "id" VARCHAR(64) default '' NOT NULL,
   "state" PLUGINS_STATE default 'inactive'::PLUGINS_STATE,
@@ -251,11 +251,11 @@ CREATE TABLE "piwigo_plugins"
 
 
 -----------------------------------------------------------------------------
--- piwigo_rate
+-- phyxo_rate
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_rate";
-CREATE TABLE "piwigo_rate"
+DROP TABLE IF EXISTS "phyxo_rate";
+CREATE TABLE "phyxo_rate"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "element_id" INTEGER default 0 NOT NULL,
@@ -267,11 +267,11 @@ CREATE TABLE "piwigo_rate"
 
 
 -----------------------------------------------------------------------------
--- piwigo_search
+-- phyxo_search
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_search";
-CREATE TABLE "piwigo_search"
+DROP TABLE IF EXISTS "phyxo_search";
+CREATE TABLE "phyxo_search"
 (
   "id" serial  NOT NULL,
   "last_seen" DATE,
@@ -281,11 +281,11 @@ CREATE TABLE "piwigo_search"
 
 
 -----------------------------------------------------------------------------
--- piwigo_sessions
+-- phyxo_sessions
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_sessions";
-CREATE TABLE "piwigo_sessions"
+DROP TABLE IF EXISTS "phyxo_sessions";
+CREATE TABLE "phyxo_sessions"
 (
   "id" VARCHAR(255) default '' NOT NULL,
   "data" TEXT  NOT NULL,
@@ -295,11 +295,11 @@ CREATE TABLE "piwigo_sessions"
 
 
 -----------------------------------------------------------------------------
--- piwigo_sites
+-- phyxo_sites
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_sites";
-CREATE TABLE "piwigo_sites"
+DROP TABLE IF EXISTS "phyxo_sites";
+CREATE TABLE "phyxo_sites"
 (
   "id" serial  NOT NULL,
   "galleries_url" VARCHAR(255) default '' NOT NULL,
@@ -309,11 +309,11 @@ CREATE TABLE "piwigo_sites"
 
 
 -----------------------------------------------------------------------------
--- piwigo_tags
+-- phyxo_tags
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_tags";
-CREATE TABLE "piwigo_tags"
+DROP TABLE IF EXISTS "phyxo_tags";
+CREATE TABLE "phyxo_tags"
 (
   "id" serial  NOT NULL,
   "name" VARCHAR(255) default '' NOT NULL,
@@ -323,11 +323,11 @@ CREATE TABLE "piwigo_tags"
 
 
 -----------------------------------------------------------------------------
--- piwigo_themes
+-- phyxo_themes
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_themes";
-CREATE TABLE "piwigo_themes" 
+DROP TABLE IF EXISTS "phyxo_themes";
+CREATE TABLE "phyxo_themes" 
 (
   "id" varchar(64) NOT NULL default '',
   "version" varchar(64) NOT NULL default '0',
@@ -337,11 +337,11 @@ CREATE TABLE "piwigo_themes"
 
 
 -----------------------------------------------------------------------------
--- piwigo_upgrade
+-- phyxo_upgrade
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_upgrade";
-CREATE TABLE "piwigo_upgrade"
+DROP TABLE IF EXISTS "phyxo_upgrade";
+CREATE TABLE "phyxo_upgrade"
 (
   "id" VARCHAR(20) default '' NOT NULL,
   "applied" TIMESTAMP NOT NULL,
@@ -351,11 +351,11 @@ CREATE TABLE "piwigo_upgrade"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_access
+-- phyxo_user_access
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_access";
-CREATE TABLE "piwigo_user_access"
+DROP TABLE IF EXISTS "phyxo_user_access";
+CREATE TABLE "phyxo_user_access"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "cat_id" INTEGER default 0 NOT NULL,
@@ -364,14 +364,14 @@ CREATE TABLE "piwigo_user_access"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_cache
+-- phyxo_user_cache
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_cache";
+DROP TABLE IF EXISTS "phyxo_user_cache";
 DROP TYPE IF EXISTS USER_CACHE_IMAGE_ACCESS_TYPE;
 
 CREATE TYPE USER_CACHE_IMAGE_ACCESS_TYPE AS ENUM('NOT IN','IN');
-CREATE TABLE "piwigo_user_cache"
+CREATE TABLE "phyxo_user_cache"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "need_update" BOOLEAN default true,
@@ -388,11 +388,11 @@ CREATE TABLE "piwigo_user_cache"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_cache_categories
+-- phyxo_user_cache_categories
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_cache_categories";
-CREATE TABLE "piwigo_user_cache_categories"
+DROP TABLE IF EXISTS "phyxo_user_cache_categories";
+CREATE TABLE "phyxo_user_cache_categories"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "cat_id" INTEGER default 0 NOT NULL,
@@ -408,11 +408,11 @@ CREATE TABLE "piwigo_user_cache_categories"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_feed
+-- phyxo_user_feed
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_feed";
-CREATE TABLE "piwigo_user_feed"
+DROP TABLE IF EXISTS "phyxo_user_feed";
+CREATE TABLE "phyxo_user_feed"
 (
   "id" VARCHAR(50) default '' NOT NULL,
   "user_id" INTEGER default 0 NOT NULL,
@@ -422,11 +422,11 @@ CREATE TABLE "piwigo_user_feed"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_group
+-- phyxo_user_group
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_group";
-CREATE TABLE "piwigo_user_group"
+DROP TABLE IF EXISTS "phyxo_user_group";
+CREATE TABLE "phyxo_user_group"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "group_id" INTEGER default 0 NOT NULL,
@@ -435,14 +435,14 @@ CREATE TABLE "piwigo_user_group"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_infos
+-- phyxo_user_infos
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_infos";
+DROP TABLE IF EXISTS "phyxo_user_infos";
 DROP TYPE IF EXISTS USER_INFOS_STATUS;
 
 CREATE TYPE USER_INFOS_STATUS AS ENUM('webmaster','admin','normal','generic','guest');
-CREATE TABLE "piwigo_user_infos"
+CREATE TABLE "phyxo_user_infos"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "nb_image_page" INTEGER default 15 NOT NULL,
@@ -463,11 +463,11 @@ CREATE TABLE "piwigo_user_infos"
 
 
 -----------------------------------------------------------------------------
--- piwigo_user_mail_notification
+-- phyxo_user_mail_notification
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS "piwigo_user_mail_notification";
-CREATE TABLE "piwigo_user_mail_notification"
+DROP TABLE IF EXISTS "phyxo_user_mail_notification";
+CREATE TABLE "phyxo_user_mail_notification"
 (
   "user_id" INTEGER default 0 NOT NULL,
   "check_key" VARCHAR(16) default '' NOT NULL,
@@ -480,12 +480,12 @@ CREATE TABLE "piwigo_user_mail_notification"
 
 
 -----------------------------------------------------------------------------
--- piwigo_users
+-- phyxo_users
 -----------------------------------------------------------------------------
-DROP TABLE IF EXISTS "piwigo_comments";
-DROP TABLE IF EXISTS "piwigo_users";
+DROP TABLE IF EXISTS "phyxo_comments";
+DROP TABLE IF EXISTS "phyxo_users";
 
-CREATE TABLE "piwigo_users"
+CREATE TABLE "phyxo_users"
 (
   "id" serial  NOT NULL,
   "username" VARCHAR(100) default '' NOT NULL,
@@ -497,10 +497,10 @@ CREATE TABLE "piwigo_users"
 
 
 -----------------------------------------------------------------------------
--- piwigo_comments
+-- phyxo_comments
 -----------------------------------------------------------------------------
 
-CREATE TABLE "piwigo_comments"
+CREATE TABLE "phyxo_comments"
 (
   "id" serial  NOT NULL,
   "image_id" INTEGER default 0 NOT NULL,
@@ -512,6 +512,6 @@ CREATE TABLE "piwigo_comments"
   "content" TEXT,
   "validated" BOOLEAN default false,
   "validation_date" TIMESTAMP,
-  "author_id" INTEGER REFERENCES "piwigo_users" (id),
+  "author_id" INTEGER REFERENCES "phyxo_users" (id),
   PRIMARY KEY ("id")
 );

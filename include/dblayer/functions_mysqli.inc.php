@@ -900,3 +900,30 @@ function query2array($query, $key_name=null, $value_name=null)
 
   return $data;
 }
+
+/* transaction functions */
+function pwg_db_start_transaction() {
+    global $mysqli;
+   
+    $mysqli->begin_transaction();
+}
+
+function pwg_db_commit() {
+    global $mysqli;
+
+    $mysqli->commit();
+}
+
+function pwg_db_rollback() {
+    global $mysqli;
+
+    $mysqli->rollback();
+}
+
+function pwg_db_write_lock($table) {
+    pwg_query('LOCK TABLES '.$table.' WRITE');
+}
+
+function pwg_db_unlock() {
+    pwg_query('UNLOCK TABLES');
+}

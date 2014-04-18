@@ -728,7 +728,7 @@ LEGEND {
 	color: inherit; /*for IE*/
 }
 
-#piwigoAbout {width:600px;margin:0 auto;}
+#piwigoAbout {width:600px;margin-left:10px;}
 #linkToPiwigo {text-align:center;}
 
 .message {

@@ -82,10 +82,11 @@ function pwg_query($query) {
     if (preg_match($truncate_pattern, $query, $matches)) {
         $query = str_replace('TRUNCATE TABLE', 'DELETE FROM', $query);
         $truncate_query = true;
-        ($result = $pwg_db_link->exec($query)) or die($query."\n<br>".print_r($pwg_db_link->errorInfo()));
+        if (($result = $pwg_db_link->exec($query))===false) {
+            die($query."\n<br>".print_r($pwg_db_link->errorInfo(), true));
+        }
     } else {
-        ($result = $pwg_db_link->query($query)) 
-            or die($query."\n<br>".print_r($pwg_db_link->errorInfo()));
+        $result = $pwg_db_link->query($query) or die($query."\n<br>".print_r($pwg_db_link->errorInfo(), true));
     }
 
     $time = microtime(true) - $start;
@@ -372,6 +373,10 @@ function boolean_to_string($var) {
     } else {
         return 'false';
     }
+}
+
+function pwg_db_date_to_ts($date) {
+  return 'strftime(\'%s\', \''.$date.'\')';
 }
 
 /**
@@ -665,4 +670,37 @@ UPDATE '.$tablename.'
 
     pwg_query($query);
   }
+}
+
+function pwg_db_close() {
+    global $pwg_db_link;
+    
+    $pwg_db_link = null;
+}
+
+/* transaction functions */
+function pwg_db_start_transaction() {
+    global $pwg_db_link;
+   
+    $pwg_db_link->beginTransaction();
+}
+
+function pwg_db_commit() {
+    global $pwg_db_link;
+
+    $pwg_db_link->commit();
+}
+
+function pwg_db_rollback() {
+    global $pwg_db_link;
+
+    $pwg_db_link->rollBack();
+}
+
+function pwg_db_write_lock($table) {
+    pwg_query('BEGIN EXCLUSIVE TRANSACTION');
+}
+
+function pwg_db_unlock() {
+    pwg_query('END');
 }
