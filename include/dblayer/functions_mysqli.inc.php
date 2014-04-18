@@ -905,7 +905,7 @@ function query2array($query, $key_name=null, $value_name=null)
 function pwg_db_start_transaction() {
     global $mysqli;
    
-    $mysqli->begin_transaction();
+    pwg_query('BEGIN');
 }
 
 function pwg_db_commit() {
