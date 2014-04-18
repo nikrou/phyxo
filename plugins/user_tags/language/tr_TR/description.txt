@@ -1,0 +1,1 @@
+Ziyaretçilerin resimlere etiket eklemesi için izin verir

@@ -1,0 +1,1 @@
+Ce plugin permet aux visiteurs de votre galerie d'ajouter des tags aux images.
