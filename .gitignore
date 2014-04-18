@@ -6,6 +6,7 @@
 ;; plugins
 !/plugins/language_switch
 !/plugins/LocalFilesEditor/
+!/plugins/user_tags/
 /plugins/*
 
 ;; themes

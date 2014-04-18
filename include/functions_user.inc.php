@@ -469,50 +469,38 @@ SELECT COUNT(DISTINCT(image_id)) as total
       }
 
       // delete user cache
-      $query = '
-DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.'
-  WHERE user_id = '.$userdata['id'];
+      pwg_db_write_lock(USER_CACHE_CATEGORIES_TABLE);
+      $query = 'DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.' WHERE user_id = '.$userdata['id'];
       pwg_query($query);
-
-      // Due to concurrency issues, we ask MySQL to ignore errors on
-      // insert. This may happen when cache needs refresh and that Piwigo is
-      // called "very simultaneously".
-
-      // TODO : update cache in a transaction
       mass_inserts(
-        USER_CACHE_CATEGORIES_TABLE,
-        array(
-          'user_id', 'cat_id',
-          'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
+          USER_CACHE_CATEGORIES_TABLE,
+          array(
+              'user_id', 'cat_id',
+              'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
           ),
-        $user_cache_cats,
-        array('ignore' => false)
+          $user_cache_cats,
+          array('ignore' => true)
       );
-
+      pwg_db_unlock();
 
       // update user cache
-      $query = '
-DELETE FROM '.USER_CACHE_TABLE.'
-  WHERE user_id = '.$userdata['id'];
-      pwg_query($query);
+      pwg_db_start_transaction();
+      try {
+          $query = 'DELETE FROM '.USER_CACHE_TABLE.' WHERE user_id = '.$userdata['id'];
+          pwg_query($query);
 
-      // for the same reason as user_cache_categories, we ignore error on
-      // this insert
-
-      // TODO : update cache in a transaction
-
-      $query = '
-INSERT INTO '.USER_CACHE_TABLE.'
-  (user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,
-    last_photo_date,
-    image_access_type, image_access_list)
-  VALUES
-  ('.$userdata['id'].',\''.boolean_to_string($userdata['need_update']).'\','
-  .$userdata['cache_update_time'].',\''
-  .$userdata['forbidden_categories'].'\','.$userdata['nb_total_images'].','.
-  (empty($userdata['last_photo_date']) ? 'NULL': '\''.$userdata['last_photo_date'].'\'').
-  ',\''.$userdata['image_access_type'].'\',\''.$userdata['image_access_list'].'\')';
-      pwg_query($query);
+          $query = 'INSERT INTO '.USER_CACHE_TABLE;
+          $query .= ' (user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,';
+          $query .= ' last_photo_date,image_access_type, image_access_list)';
+          $query .= ' VALUES('.$userdata['id'].',\''.boolean_to_string($userdata['need_update']).'\',';
+          $query .= $userdata['cache_update_time'].',\''.$userdata['forbidden_categories'].'\','.$userdata['nb_total_images'].',';
+          $query .= (empty($userdata['last_photo_date']) ? 'NULL': '\''.$userdata['last_photo_date'].'\'');
+          $query .= ',\''.$userdata['image_access_type'].'\',\''.$userdata['image_access_list'].'\')';
+          pwg_query($query);
+          pwg_db_commit();
+      } catch (Exception $e) {
+          pwg_db_rollback();
+      }
     }
   }
 
