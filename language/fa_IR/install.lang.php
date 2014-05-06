@@ -65,5 +65,5 @@ $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'هر مشک�
 $lang['Just another Phyxo gallery'] = 'یک گالری دیگر با Phyxo';
 $lang['Password ']['confirm'] = 'تأیید گذرواژه';
 $lang['Welcome to my photo gallery'] = 'به گالری عکس من خوش آمدید';
-$lang['Welcome to your new installation of Piwigo!'] = 'به گالری Piwigo ی خود خوش آمدید!';
+$lang['Welcome to your new installation of Phyxo!'] = 'به گالری Phyxo ی خود خوش آمدید!';
 $lang['localhost or other, supplied by your host provider'] = 'localhost یا ادرس دیگر ، این را باید از هاست دریافت نمایید(در حالت معمول localhost میباشد)';

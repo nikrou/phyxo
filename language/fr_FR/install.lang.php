@@ -64,7 +64,7 @@ $lang['Download the config file'] = 'Télécharger le fichier de configuration';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Vous pouvez télécharger le fichier de configuration et le transférer dans le répertoire local/config de votre installation Piwigo.';
 $lang['Just another Phyxo gallery'] = 'Une galerie Phyxo de plus';
 $lang['Welcome to my photo gallery'] = 'Bienvenue sur ma galerie photo';
-$lang['Welcome to your new installation of Piwigo!'] = 'Bienvenue sur votre nouvelle installation de Piwigo !';
+$lang['Welcome to your new installation of Phyxo!'] = 'Bienvenue sur votre nouvelle installation de Phyxo !';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'N\'hésitez pas à consulter nos forums si vous avez le moindre problème : %s';
 
 $lang['Database type'] = "Type de base de données";

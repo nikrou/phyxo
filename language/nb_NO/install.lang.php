@@ -64,5 +64,5 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Ikke nøl med å sjekke vårt forum for hjelp: %s';
 $lang['Just another Phyxo gallery'] = 'Enda et Phyxo bildegalleri';
 $lang['Welcome to my photo gallery'] = 'Velkommen til mitt bildegalleri';
-$lang['Welcome to your new installation of Piwigo!'] = 'Velkommen til din nye installasjon av Piwigo!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Velkommen til din nye installasjon av Phyxo!';
 $lang['localhost or other, supplied by your host provider'] = 'lokal tjener eller annen tjenesteleverandør';

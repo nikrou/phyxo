@@ -63,6 +63,6 @@ $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Não hesite 
 $lang['Download the config file'] = 'Baixar o arquivo de configuração.';
 $lang['Just another Phyxo gallery'] = 'Apenas outra galeria Phyxo.';
 $lang['Welcome to my photo gallery'] = 'Bem-Vindo a minha galeria de fotos.';
-$lang['Welcome to your new installation of Piwigo!'] = 'Bem-Vindo a sua nova instalação do Piwigo.';
+$lang['Welcome to your new installation of Phyxo!'] = 'Bem-Vindo a sua nova instalação do Phyxo.';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Você pode baixar o arquivo de configuração e colocá-lo na pasta local/config de sua instalação.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost ou outro, fornecido pelo seu provedor de hospedagem';

@@ -64,6 +64,6 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Just another Phyxo gallery'] = 'Meine Phyxo-Fotogalerie';
 $lang['Welcome to my photo gallery'] = 'Willkommen!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Besuchen Sie unser Forum, wenn Sie Hilfe benötigen: %s';
-$lang['Welcome to your new installation of Piwigo!'] = 'Ihre neue Piwigo-Installation heißt sie willkommen!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Ihre neue Phyxo-Installation heißt sie willkommen!';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Sie können Kontakt mit Ihrem Provider aufnehmen und um Unterstützung bei der Umstellung auf PHP5 bitten.';
 $lang['localhost or other, supplied by your host provider'] = 'Local Host oder andere, bereit gestellt von deinem Provider.';

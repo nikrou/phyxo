@@ -63,6 +63,6 @@ $lang['Download the config file'] = 'Tải tệp tin cấu hình xuống';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Bạn có thể tải tệp tin cấu hình và upload nó vào thư mục local/config của thư mục cài đặt Piwigo.';
 $lang['Just another Phyxo gallery'] = 'Lại thêm một thư viện Phyxo nữa';
 $lang['Welcome to my photo gallery'] = 'Chào mừng bạn đến với thư viện hình của tôi';
-$lang['Welcome to your new installation of Piwigo!'] = 'Chào mừng bạn đến với bản cài đặt mới của Piwigo!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Chào mừng bạn đến với bản cài đặt mới của Phyxo!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Đừng do dự  thảo luận tại diễn đàn của chúng tôi để được trợ giúp: %s';
 $lang['localhost or other, supplied by your host provider'] = 'localhost hoặc tên máy chủ cấp bởi nhà cung cấp host';

@@ -56,7 +56,7 @@ $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modif
 $lang['Piwigo was not able to configure PHP 5.'] = 'Piwigo kon nie PHP 5 opstel nie.';
 $lang['Try to configure PHP 5'] = 'Probeer PHP 5 op te stel';
 $lang['Visitors will be able to contact site administrator with this mail'] = 'Besoekers sal hierdie adres kan gebruik om die webmeester te kontak';
-$lang['Welcome to your new installation of Piwigo!'] = 'Welkom by jou nuwe Piwigo webtuiste!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Welkom by jou nuwe Phyxo webtuiste!';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Verwys na jou diensverskaffer om uit te vind hoe jy PHP 5 kan gebruik.';
 $lang['also given by your host provider'] = 'ook deur diensverskaffer voorsien';
 $lang['database tables names will be prefixed with it (enables you to manage better your tables)'] = 'dit sal vooraan tabelname geheg word om tabelle beter te bestuur';
