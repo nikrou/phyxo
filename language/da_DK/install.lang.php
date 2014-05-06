@@ -64,7 +64,7 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Just another Phyxo gallery'] = 'Bare endnu et Phyxo-galleri';
 $lang['Welcome to my photo gallery'] = 'Velkommen til mit fotogalleri';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Tøv ikke med at besøges vores forum for at få hjælp: %s';
-$lang['Welcome to your new installation of Piwigo!'] = 'Velkommen til din nye Piwigo-installation';
+$lang['Welcome to your new installation of Phyxo!'] = 'Velkommen til din nye Phyxo-installation';
 $lang['Password ']['confirm'] = 'Adgangskode [bekræft]';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Du henvises til din webhosts support for at finde ud af, om du selv kan skifte til PHP 5.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost eller andet, oplyst af din hostingleverandør';

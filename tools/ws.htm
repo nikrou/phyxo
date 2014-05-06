@@ -2,9 +2,9 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
-  <title>Piwigo web API (web-services) explorer</title>
+  <title>Phyxo web API (web-services) explorer</title>
 
-  <link rel="stylesheet" href="http://cdn.jsdelivr.net/tiptip/1.3/tipTip.css">
+  <!-- <link rel="stylesheet" href="http://cdn.jsdelivr.net/tiptip/1.3/tipTip.css"> -->
 
   <style>
   /* BEGIN CSS RESET
@@ -103,7 +103,7 @@
 <a name="top"></a>
 
 <div id="the_header">
-  <h1>Piwigo web API (web-services) explorer</h1>
+  <h1>Phyxo web API (web-services) explorer</h1>
 </div> <!-- the_header -->
 
 <div id="the_methods">
@@ -126,23 +126,20 @@
     <blockquote id="introMessage">
       <p>
         <b>API = Application Programming Interface.</b><br>
-        This is the way other applications can communicate with Piwigo. This feature is also know as Web Services.
+        This is the way other applications can communicate with Phyxo. This feature is also know as Web Services.
       </p>
 
       <p>Examples:</p>
       <ul>
-        <li>Wordpress (web blog software) can display random photos from a Piwigo gallery in its sidebar</li>
-        <li>Lightroom (photo management software for desktop) can create albums and upload photos to Piwigo</li>
+        <li>Wordpress (web blog software) can display random photos from a Phyxo gallery in its sidebar</li>
+        <li>Lightroom (photo management software for desktop) can create albums and upload photos to Phyxo</li>
       </ul>
 
       <p>
-        This page lists all API methods available on your Piwigo installation, part of the Piwigo core or added by third-party plugins.
+        This page lists all API methods available on your Phyxo installation, part of the Phyxo core or added by third-party plugins.
         For each method you can consult required and optional parameters, and even test them in direct live!
       </p>
 
-      <p>
-        For more information you can consult our Wiki <a href="http://piwigo.org/doc/doku.php?id=dev:webapi:start" target="_blank">Piwigo Web API</a> and <a href="http://piwigo.org/forum" target="_blank">our forums</a>.
-      </p>
     </blockquote> <!-- introMessage -->
 
 
@@ -234,11 +231,11 @@
 </div> <!-- the_page -->
 
 <div id="the_footer">
-  Copyright &copy; 2002-2013 <a href="http://piwigo.org">Piwigo Team</a>
+  Copyright &copy; 2014 <a href="http://phyxo.nikrou.net/">Phyxo</a>
 </div> <!-- the_footer -->
 
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/tiptip/1.3/jquery.tipTip.minified.js"></script>
+<script src="../themes/default/js/jquery.js"></script>
+<script src="../themes/default/js/plugins/jquery.tipTip.minified.js"></script>
 
 <script>
 // global vars
@@ -376,7 +373,7 @@ function getMethodList() {
 // select method
 function selectMethod(methodName) {
   $("#introMessage").hide();
-  $("#tiptip_holder").fadeOut(200);
+  /*$("#tiptip_holder").fadeOut(200);*/
 
   if (cachedMethods[ methodName ]) {
     fillNewMethod(methodName);
@@ -471,11 +468,13 @@ function fillNewMethod(methodName) {
   });
 
   // tiptip
+/*
   $(".methodInfo").tipTip({
     maxWidth:"300px",
     defaultPosition:"right",
     delay:0
   });
+*/
 }
 
 // invoke method

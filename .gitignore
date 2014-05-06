@@ -34,3 +34,6 @@ local/config/database.*.php
 ;; other stuff
 /target
 /.dist
+
+;; multisites
+/sites

@@ -55,7 +55,7 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['also given by your host provider'] = 'மேலும் வழங்கப்பட்டஉங்களுடைய புரவன் வழங்குநரிடம்';
 $lang['database tables names will be prefixed with it (enables you to manage better your tables)'] = 'தரவுத்தள அட்டவணையில் பெயரை முன்னொட்டாக (உங்களுடைய அட்டவணைகளை சிறப்பாக நிர்வகிக்க உதவும்)';
 $lang['enter a login for webmaster'] = 'தயவுசெய்து உள்ளிடவும் வலைமேலாளரின் பயனர்பெயர்';
-$lang['Welcome to your new installation of Piwigo!'] = 'வரவேற்கிறோம்
+$lang['Welcome to your new installation of Phyxo!'] = 'வரவேற்கிறோம்
 உங்களுடைய புதிய Piwigo நிறுவல்! செய்ய';
 $lang['Welcome to my photo gallery'] = 'வரவேற்கிறேன்
 என்னுடைய புகைப்படம் கேலரிக்கு';

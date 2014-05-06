@@ -66,6 +66,6 @@ $lang['Download the config file'] = 'Stáhnout konfigurační soubor';
 $lang['You can download the config file and upload it to local/config directory of your installation.'] = 'Můžete stáhnout konfigurační soubor a nahrát jej do adrešáře local/config Vaší instalace.';
 $lang['Just another Phyxo gallery'] = 'Jen další galerie Phyxo';
 $lang['Welcome to my photo gallery'] = 'Vítejte na mé fotogalerii';
-$lang['Welcome to your new installation of Piwigo!'] = 'Vítejte v nové instalaci Piwigo!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Vítejte v nové instalaci Phyxo!';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'Neváhejte navštívit naše fórum v případě jakýchkoliv dotazů: %s';
 $lang['localhost or other, supplied by your host provider'] = 'localhost, nebo jiný, dodaný poskytovatelem hostingu';

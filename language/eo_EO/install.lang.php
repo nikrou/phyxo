@@ -36,7 +36,7 @@ $lang['Note you can change your configuration by yourself and restart Piwigo aft
 $lang['Keep it confidential, it enables you to access administration panel'] = 'Gardu ĝin sekreta, ĝi ebligas al vi aliri la administran panelon';
 $lang['It will be shown to the visitors. It is necessary for website administration'] = 'Ĝi montriĝos al vizitantoj. Necesas por reteja administrado';
 $lang['It appears your webhost is currently running PHP %s.'] = 'Ŝajnas, ke via retejgastiganto nuntempe funkciigas PHP %s.';
-$lang['Welcome to your new installation of Piwigo!'] = 'Bonvenon al via nova instalado de Piwigo!';
+$lang['Welcome to your new installation of Phyxo!'] = 'Bonvenon al via nova instalado de Phyxo!';
 $lang['also given by your host provider'] = 'ankaŭ provizita de via provizanto de gastigo';
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = 'Ĉu vi bezonas helpon? Starigu demandon ĉe la <a href="%s">mesaĝtabulo de Piwigo</a>.';
 $lang['Try to configure PHP 5'] = 'Provu agordi PHP 5';

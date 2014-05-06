@@ -42,7 +42,7 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Congratulations, Phyxo installation is completed'] = 'Gourc\'hemennoù, echu eo staliadur Phyxo';
 $lang['Installation'] = 'Staliadur';
 $lang['Start Install'] = 'Kregiñ gant ar staliadur';
-$lang['Welcome to your new installation of Piwigo!'] = 'Degemer mat en ho staliadur nevez Piwigo !';
+$lang['Welcome to your new installation of Phyxo!'] = 'Degemer mat en ho staliadur nevez Phyxo !';
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = 'Goulennit da skor ho pourvezer ostiz penaos e c\'hellit implij PHP 5.';
 $lang['It appears your webhost is currently running PHP %s.'] = 'PHP %s a zo o labourat war hoc\'h ostiz.';
 $lang['localhost or other, supplied by your host provider'] = 'localhost pe anv all, roet gant ho pourvezer ostiz';
