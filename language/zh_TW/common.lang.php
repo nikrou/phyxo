@@ -323,7 +323,7 @@ $lang['Cookies are blocked or not supported by your browser. You must enable coo
 $lang['Edit a comment'] = '修改一個評論';
 $lang['(!) This comment requires validation'] = '(!) 此評論需要審核';
 $lang['Welcome'] = '歡迎';
-$lang['Welcome to your Piwigo photo gallery!'] = '歡迎來到您的 Piwigo 畫廊!';
+$lang['Welcome to your Phyxo photo gallery!'] = '歡迎來到您的 Phyxo 畫廊!';
 $lang['... or browse your empty gallery'] = '... 或者瀏覽您的空畫廊';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... 或者取消此信息，我會自己找到我的方法';
 $lang['Hello %s, your Piwigo photo gallery is empty!'] = '您好 %s, 您的 Piwigo 畫廊是空的!';

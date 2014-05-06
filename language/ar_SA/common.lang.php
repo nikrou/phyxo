@@ -328,7 +328,7 @@ $lang['Cookies are blocked or not supported by your browser. You must enable coo
 $lang['Edit a comment'] = 'حرر تعليق';
 $lang['(!) This comment requires validation'] = '(!) التعليق يحتاج تصريح';
 $lang['Welcome'] = 'أهلاً وسهلا ً';
-$lang['Welcome to your Piwigo photo gallery!'] = ' Piwigo مرحبا بك في  معرض الصور الخاص بك';
+$lang['Welcome to your Phyxo photo gallery!'] = ' Phyxo مرحبا بك في  معرض الصور الخاص بك';
 $lang['... or browse your empty gallery'] = '.. أو تصفح معرضك الفارغ';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... أو أخفي هذه الرسالة ، وسوف أجد طريقي بنفسي';
 $lang['Hello %s, your Piwigo photo gallery is empty!'] = 'مرحبا بك %s، معرض الصور Piwigo فارغ ';

@@ -331,7 +331,7 @@ $lang['Cookies are blocked or not supported by your browser. You must enable coo
 $lang['Edit a comment'] = 'Upraviť komentár';
 $lang['(!) This comment requires validation'] = '(!) Tento komentár vyžaduje kontrolu';
 $lang['Welcome'] = 'Vitajte';
-$lang['Welcome to your Piwigo photo gallery!'] = 'Vitajte vo Vašej Piwigo fotogalérii!';
+$lang['Welcome to your Phyxo photo gallery!'] = 'Vitajte vo Vašej Phyxo fotogalérii!';
 $lang['... or browse your empty gallery'] = '... alebo prezerajte Vašu prázdnu galériu';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... alebo prosím zrušte túto správu, program nájde spôsob sám';
 $lang['Hello %s, your Piwigo photo gallery is empty!'] = 'Vitajte %s, Vaša Piwigo fotogaléria je prázdna!';

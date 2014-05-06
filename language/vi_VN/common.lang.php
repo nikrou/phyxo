@@ -321,7 +321,7 @@ $lang['Cookies are blocked or not supported by your browser. You must enable coo
 $lang['Edit a comment'] = 'Biên tập một lời bình';
 $lang['(!) This comment requires validation'] = '(!) Lời bình này yêu cầu sự xác nhận';
 $lang['Welcome'] = 'Xin chào';
-$lang['Welcome to your Piwigo photo gallery!'] = 'Chào mừng bạn đến gallery Piwigo trực tuyến của mình!';
+$lang['Welcome to your Phyxo photo gallery!'] = 'Chào mừng bạn đến gallery Phyxo trực tuyến của mình!';
 $lang['... or browse your empty gallery'] = '... hoặc duyệt gallery chưa có hình của bạn';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... hoặc vui lòng vô hiệu hóa thông điệp này, tôi tự tìm cách giải quyết riêng';
 $lang['Hello %s, your Piwigo photo gallery is empty!'] = 'Xin chào %s, gallery Piwigo của bạn hiện tại vẫn chưa có tấm hình nào!';

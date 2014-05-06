@@ -329,7 +329,7 @@ $lang['Cookies are blocked or not supported by your browser. You must enable coo
 $lang['Edit a comment'] = 'Editar um comentário';
 $lang['(!) This comment requires validation'] = '(!) Este cometário requer validação';
 $lang['Welcome'] = 'Bem-vindo(a)!';
-$lang['Welcome to your Piwigo photo gallery!'] = 'Bem-vindo(a) à sua galeria Piwigo!';
+$lang['Welcome to your Phyxo photo gallery!'] = 'Bem-vindo(a) à sua galeria Phyxo!';
 $lang['... or browse your empty gallery'] = '... ou navegue a sua galeria vazia';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... ou, desactivar esta mensagem por favor, encontrarei o caminho por mim mesmo.';
 $lang['Hello %s, your Piwigo photo gallery is empty!'] = 'Olá %s, a sua galeria Piwigo está vazia!';
