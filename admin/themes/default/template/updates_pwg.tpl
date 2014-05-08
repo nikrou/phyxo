@@ -55,7 +55,7 @@ li { margin: 5px; }
 </p>
 <form action="" method="post">
 <p><input type="submit" name="submit" value="{'Update to Piwigo %s'|@translate:$UPGRADE_TO}"></p>
-<p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|@translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif"></p>
+<p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|@translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif" alt=""></p>
 <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>
 </form>
 {/if}

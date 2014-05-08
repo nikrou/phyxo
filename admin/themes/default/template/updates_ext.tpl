@@ -149,7 +149,7 @@ checkFieldsets();
 <input type="submit" id="reset_ignore" value="{'Reset ignored updates'|@translate}" onClick="resetIgnored(); return false;" {if !$SHOW_RESET}style="display:none;"{/if}>
 </div>
 <div class="autoupdate_bar" style="display:none;">
-{'Please wait...'|@translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif">
+{'Please wait...'|@translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif" alt="">
 </div>
 
 <p id="up_to_date" style="display:none; text-align:left; margin-left:20px;">{'All %s are up to date.'|@sprintf:$EXT_TYPE|@translate}</p>
