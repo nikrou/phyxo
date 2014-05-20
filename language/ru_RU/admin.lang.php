@@ -527,8 +527,9 @@ $lang['Please wait...'] = 'Пожалуйста, подождите...';
 $lang['Downloads'] = 'Загрузки';
 $lang['Released on'] = 'Выпуск';
 $lang['Number of downloads'] = 'Число скачиваний';
-$lang['Piwigo Announcements Newsletter'] = 'Piwigo информационная рассылка';
-$lang['Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will receive emails when a new release is available (sometimes including a security bug fix, it\'s important to know and upgrade) and when major events happen to the project. Only a few emails a year.'] = 'Оставайтесь на связи с проектом Piwigo, подпишитесь на информационную рассылку Piwigo. Вы получите письмо, как только будет доступен новый релиз (иногда письма будут содержать корректировку ошибок безопасности, о которых Вы должны знать и исправить), или когда произойдет какое-то важное событие с проектом. Это всего несколько электронных писем в год.';
+$lang['Piwigo Announcements Newsletter'] = 'Информационная рассылка Piwigo';
+$lang['Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will receive emails when a new release is available (sometimes including a security bug fix, it\'s important to know and upgrade) and when major events happen to the project. Only a few emails a year.'] = 'Оставайтесь на связи с проектом Piwigo. Для этого подпишитесь на информационную рассылку Piwigo. <br> 
+Вы получите письмо, как только будет доступен новый релиз (иногда письма будут содержать корректировку ошибок безопасности, о которых Вы должны знать и исправить), или когда произойдет какое-то важное событие с проектом. Это всего несколько электронных писем в год.';
 $lang['Subscribe %s'] = 'Подписка %s';
 $lang['Subscribe %s to Piwigo Announcements Newsletter'] = 'Подписать %s на информационную рассылку от Piwigo';
 $lang['Purge search history'] = 'Очистить историю поиска';

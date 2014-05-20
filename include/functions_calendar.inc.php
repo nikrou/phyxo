@@ -37,7 +37,7 @@ define('CAL_VIEW_CALENDAR', 'calendar');
  */
 function initialize_calendar()
 {
-  global $page, $conf, $user, $template, $filter;
+  global $page, $conf, $user, $template, $persistent_cache, $filter;
 
 //------------------ initialize the condition on items to take into account ---
   $inner_sql = ' FROM ' . IMAGES_TABLE;
@@ -285,13 +285,26 @@ WHERE id IN (' . implode(',',$page['items']) .')';
           );
       }
 
-      $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
-      $query .= ','.$calendar->date_field;
-      $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
-      $query .= $order_by;
-      
-      $page['items'] = array_from_query($query, 'id');
+      if ('categories'==$page['section'] && !isset($page['category']) && ( count($page['chronology_date'])==0
+            OR ($page['chronology_date'][0]=='any' && count($page['chronology_date'])==1))) {
+          $cache_key = $persistent_cache->make_key($user['id'].$user['cache_update_time']
+          .$calendar->date_field.$order_by);
+      }
+
+      if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
+
+          $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
+          $query .= ','.$calendar->date_field;
+          $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
+          $query .= $order_by;
+          
+          $page['items'] = array_from_query($query, 'id');
+          if (isset($cache_key)) {
+              $persistent_cache->set($cache_key, $page['items']);
+          }
+      }
   }
+
   pwg_debug('end initialize_calendar');
 }
 

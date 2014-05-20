@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,45 +22,16 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-/*
-This file contains now only code to ensure backward url compatibility with
-versions before 1.6
-*/
-
-define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
-
-$url_params=array();
-if ( isset($_GET['cat']) )
+if (!defined('PHPWG_ROOT_PATH'))
 {
-  if ( is_numeric($_GET['cat']) )
-  {
-    $url_params['section'] = 'categories';
-    $result = get_cat_info( $_GET['cat'] );
-    if ( !empty($result) )
-    {
-      $url_params['category'] = $result;
-    }
-  }
-  elseif ( in_array($_GET['cat'],
-              array('best_rated','most_visited','recent_pics','recent_cats')
-                  )
-         )
-  {
-    $url_params['section'] = $_GET['cat'];
-  }
-  else
-  {
-    page_not_found('');
-  }
+  die('Hacking attempt!');
 }
 
-$url = make_index_url($url_params);
-if (!headers_sent())
-{
-  set_status_header(301);
-  redirect_http( $url );
-}
-redirect ( $url );
+$upgrade_description = '#tags.name is not binary';
 
-?>
+// add fields
+$query = 'ALTER TABLE '.TAGS_TABLE.' CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL DEFAULT \'\'';
+pwg_query($query);
+
+echo "\n".$upgrade_description."\n";
+

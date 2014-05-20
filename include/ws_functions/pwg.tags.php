@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -125,7 +126,7 @@ function ws_tags_getImages($params, &$service)
   if (!empty($image_ids) and !$params['tag_mode_and'])
   {
     $query = '
-SELECT image_id, GROUP_CONCAT(tag_id) AS tag_ids
+SELECT image_id, '.pwg_db_group_concat('tag_id').' AS tag_ids
   FROM '. IMAGE_TAG_TABLE .'
   WHERE tag_id IN ('. implode(',', $tag_ids) .')
     AND image_id IN ('. implode(',', $image_ids) .')
@@ -240,5 +241,3 @@ function ws_tags_add($params, &$service)
 
   return $creation_output;
 }
-
-?>

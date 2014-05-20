@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -77,6 +78,7 @@ if (isset($_GET['action']) and isset($_GET['plugin']))
       if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate')
       {
         $template->delete_compiled_templates();
+        $persistent_cache->purge(true);
       }
       redirect($base_url);
     }
@@ -206,4 +208,3 @@ $template->assign(
   );
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'plugins');
-?>

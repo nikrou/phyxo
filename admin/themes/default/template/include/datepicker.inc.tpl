@@ -1,18 +1,16 @@
-{combine_script id='datepicker.js' load='footer' require='jquery.ui.datepicker' path='themes/default/js/datepicker.js'}
+{combine_script id='jquery.ui.timepicker-addon' load='footer' require='jquery.ui.datepicker,jquery.ui.slider' path="themes/default/js/ui/jquery.ui.timepicker-addon.js"}
+{combine_script id='datepicker.js' load='footer' require='jquery.ui.timepicker-addon' path='admin/themes/default/js/datepicker.js'}
 
 {assign var="datepicker_language" value="themes/default/js/ui/i18n/jquery.ui.datepicker-`$lang_info.code`.js"}
-
 {if "PHPWG_ROOT_PATH"|@constant|@cat:$datepicker_language|@file_exists}
-{combine_script id="jquery.ui.datepicker-$lang_info.code" load='footer' path=$datepicker_language}
+{combine_script id="jquery.ui.datepicker-$lang_info.code" load='footer' require='jquery.ui.datepicker' path=$datepicker_language}
 {/if}
 
-{combine_css path="themes/default/js/ui/theme/jquery.ui.datepicker.css"}
+{assign var="timepicker_language" value="themes/default/js/ui/i18n/jquery.ui.timepicker-`$lang_info.code`.js"}
+{if "PHPWG_ROOT_PATH"|@constant|@cat:$datepicker_language|@file_exists}
+{combine_script id="jquery.ui.timepicker-$lang_info.code" load='footer' require='jquery.ui.timepicker-addon' path=$timepicker_language}
+{/if}
 
-{footer_script require='jquery.ui.datepicker,datepicker.js'}
-function pwg_initialization_datepicker(day, month, year, linked_date, checked_on_change, min_linked_date, max_linked_date)
-{ldelim}
-  return pwg_common_initialization_datepicker(
-    "{$ROOT_URL}{$themeconf.admin_icon_dir}/datepicker.png",
-    day, month, year, linked_date, checked_on_change, min_linked_date, max_linked_date);
-};
-{/footer_script}
+{combine_css path="themes/default/js/ui/theme/jquery.ui.slider.css"}
+{combine_css path="themes/default/js/ui/theme/jquery.ui.datepicker.css"}
+{combine_css path="themes/default/js/ui/theme/jquery.ui.timepicker-addon.css"}

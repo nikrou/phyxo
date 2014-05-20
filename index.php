@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -84,11 +85,6 @@ if (count($page['items']) > $page['nb_image_page'])
 }
 
 $template->assign('thumb_navbar', $page['navigation_bar'] );
-
-if ( $page['section']=='search' and isset($page['qsearch_details']) )
-{
-  $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']) );
-}
 
 // caddie filling :-)
 if (isset($_GET['caddie']))
@@ -374,4 +370,3 @@ $template->pparse('index');
 //------------------------------------------------------------ log informations
 pwg_log();
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

@@ -681,3 +681,15 @@ function pwg_db_write_lock($table) {
 function pwg_db_unlock() {
     pwg_query('END');
 }
+
+function pwg_db_group_concat($field) {
+    return sprintf('ARRAY_TO_STRING(ARRAY_AGG(%s),\',\')', $field);
+}
+
+function pwg_db_full_text_search($fields, $values) {
+    return sprintf(
+        'to_tsvector(%s) @@ to_tsquery(\'%s\')', 
+        implode(' || \' \' || ', $fields), 
+        pwg_db_real_escape_string(implode(' | ', $values))
+    );
+}

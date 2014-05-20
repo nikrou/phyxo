@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -289,13 +290,15 @@ SELECT id
     break;
 
   case 'all_photos':
-    $query = '
+    if ( count($_SESSION['bulk_manager_filter']) == 1 )
+    {// make the query only if this is the only filter
+      $query = '
 SELECT id
   FROM '.IMAGES_TABLE.'
   '.$conf['order_by'];
 
-    $filter_sets[] = array_from_query($query, 'id');
-
+      $filter_sets[] = array_from_query($query, 'id');
+    }
     break;
   }
 
@@ -392,7 +395,7 @@ SELECT id
 if (isset($_SESSION['bulk_manager_filter']['search']))
 {
   include_once( PHPWG_ROOT_PATH .'include/functions_search.inc.php' );
-  $res = get_quick_search_results($_SESSION['bulk_manager_filter']['search']['q'], array('permissions'=>false));
+  $res = get_quick_search_results_no_cache($_SESSION['bulk_manager_filter']['search']['q'], array('permissions'=>false));
   $filter_sets[] = $res['items'];
 }
 
@@ -573,4 +576,3 @@ $template->assign('dimensions', $dimensions);
 // +-----------------------------------------------------------------------+
 
 include(PHPWG_ROOT_PATH.'admin/batch_manager_'.$page['tab'].'.php');
-?>

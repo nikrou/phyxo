@@ -704,3 +704,15 @@ function pwg_db_write_lock($table) {
 function pwg_db_unlock() {
     pwg_query('END');
 }
+
+function pwg_db_group_concat($field) {
+    return sprintf('GROUP_CONCAT(%s)', $field);
+}
+
+function pwg_db_full_text_search($fields, $values) {
+    return sprintf(
+        'MATCH(%s) AGAINST(\'%s\' IN BOOLEAN MODE)', 
+        implode(', ', $fields), 
+        pwg_db_real_escape_string(implode(' ', $values))
+    );
+}

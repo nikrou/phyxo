@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -94,7 +95,7 @@ SELECT id, name, permalink, image_order
     $order_by = empty($order_by) ? $conf['order_by'] : 'ORDER BY '.$order_by;
 
     $query = '
-SELECT i.*, GROUP_CONCAT(category_id) AS cat_ids
+SELECT i.*, '.pwg_db_group_concat('category_id').' AS cat_ids
   FROM '. IMAGES_TABLE .' i
     INNER JOIN '. IMAGE_CATEGORY_TABLE .' ON i.id=image_id
   WHERE '. implode("\n    AND ", $where_clauses) .'
@@ -486,7 +487,7 @@ SELECT category_id, COUNT(*) AS counter
   FROM '. IMAGE_CATEGORY_TABLE .'
   GROUP BY category_id
 ;';
-  $nb_images_of = simple_hash_from_query($query, 'category_id', 'counter');
+  $nb_images_of = query2array($query, 'category_id', 'counter');
 
   $query = '
 SELECT id, name, comment, uppercats, global_rank
@@ -505,6 +506,12 @@ SELECT id, name, comment, uppercats, global_rank
         'render_category_name',
         $row['name'],
         'ws_categories_getAdminList'
+        )
+      );
+    $row['fullname'] = strip_tags(
+      get_cat_display_name_cache(
+        $row['uppercats'],
+        null
         )
       );
     $row['comment'] = strip_tags(
@@ -834,5 +841,3 @@ SELECT id, name, dir
     return new PwgError(403, implode('; ', $page['errors']));
   }
 }
-
-?>

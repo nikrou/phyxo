@@ -64,4 +64,6 @@ $lang['You can download the config file and upload it to local/config directory 
 $lang['Just another Phyxo gallery'] = 'עוד גלריה מבית Phyxo';
 $lang['Welcome to my photo gallery'] = 'ברוכים הבאים לגלרית התמונות שלי';
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'אל תהסס להתייעץ בפורומים שלנו בכל נושא: %s';
-$lang['Welcome to your new installation of Phyxo!'] = 'ברוך הבא לגלרית piwigo החדשה שלך';
+$lang['Welcome to your new installation of Phyxo!'] = 'ברוך הבא לגלרית phyxo החדשה שלך';
+$lang['localhost or other, supplied by your host provider'] = 'מקומי(localhost)או אחר, המסופק על ידי הספק המארח שלך';
+

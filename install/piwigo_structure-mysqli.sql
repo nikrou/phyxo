@@ -303,7 +303,7 @@ CREATE TABLE `phyxo_sites` (
 DROP TABLE IF EXISTS `phyxo_tags`;
 CREATE TABLE `phyxo_tags` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
-  `name` varchar(255) binary NOT NULL default '',
+  `name` varchar(255) NOT NULL default '',
   `url_name` varchar(255) binary NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY `tags_i1` (`url_name`)

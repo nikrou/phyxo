@@ -91,19 +91,6 @@ $next_token = 0;
 // the first token must be the identifier for the picture
 if (script_basename() == 'picture')
 {
-  // url compatibility with versions below 1.6
-  if ( isset($_GET['image_id'])
-       and isset($_GET['cat'])
-       and is_numeric($_GET['cat']) )
-  {
-    $url = make_picture_url( array(
-        'section' => 'categories',
-        'category' => get_cat_info($_GET['cat']),
-        'image_id' => $_GET['image_id']
-      ) );
-    redirect($url);
-  }
-
   $token = $tokens[$next_token];
   $next_token++;
   if ( is_numeric($token) )
@@ -305,6 +292,7 @@ SELECT id
       }
       else
       {
+        $cache_key = $persistent_cache->make_key('all_iids'.$user['id'].$user['cache_update_time'].$conf['order_by']);
         unset($page['is_homepage']);
         $where_sql = '1=1';
       }
@@ -315,8 +303,9 @@ SELECT id
       $where_sql = 'category_id = '.$page['category']['id'];
     }
 
-    // main query
-    $query = '
+    if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
+        // main query
+        $query = '
 SELECT DISTINCT(image_id),'.addOrderByFields($conf['order_by']).'
   FROM '.IMAGE_CATEGORY_TABLE.'
     INNER JOIN '.IMAGES_TABLE.' ON id = image_id
@@ -326,7 +315,11 @@ SELECT DISTINCT(image_id),'.addOrderByFields($conf['order_by']).'
   '.$conf['order_by'].'
 ;';
 
-    $page['items'] = query2array($query,null, 'image_id');
+      $page['items'] = query2array($query,null, 'image_id');
+      
+      if ( isset($cache_key) )
+        $persistent_cache->set($cache_key, $page['items']);
+    }
   }
 }
 // special sections

@@ -38,6 +38,7 @@ include_once( PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/template.class.php');
+include_once( PHPWG_ROOT_PATH .'include/cache.class.php');
 
 
 /**
@@ -979,7 +980,7 @@ function l10n($key)
 {
   global $lang, $conf;
 
-  if ( ($val=@$lang[$key]) == null)
+  if ( ($val=@$lang[$key]) === null)
   {
     if ($conf['debug_l10n'] and !isset($lang[$key]) and !empty($key))
     {

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -86,6 +87,11 @@ if (isset($_POST['submit']))
   }
 
   $action = $_POST['selectAction'];
+
+  if (!in_array($action, array('remove_from_caddie','add_to_caddie','delete_derivatives','generate_derivatives')))
+  {
+    invalidate_user_cache();
+  }
 
   if ('remove_from_caddie' == $action)
   {
@@ -281,16 +287,13 @@ DELETE
   // date_creation
   if ('date_creation' == $action)
   {
-    $date_creation = sprintf(
-      '%u-%u-%u',
-      $_POST['date_creation_year'],
-      $_POST['date_creation_month'],
-      $_POST['date_creation_day']
-      );
-
-    if (isset($_POST['remove_date_creation']))
+    if (isset($_POST['remove_date_creation']) || empty($_POST['date_creation']))
     {
       $date_creation = null;
+    }
+    else
+    {
+      $date_creation = $_POST['date_creation'];
     }
 
     $datas = array();
@@ -376,7 +379,7 @@ DELETE
     $page['infos'][] = l10n('Metadata synchronized from file');
   }
 
-  if ('delete_derivatives' == $action)
+  if ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type']))
   {
     $query='SELECT path,representative_ext FROM '.IMAGES_TABLE.'
   WHERE id IN ('.implode(',', $collection).')';
@@ -493,7 +496,8 @@ $categories = array_from_query($query);
 usort($categories, 'global_rank_compare');
 display_select_categories($categories, array(), 'category_full_name_options', true);
 
-display_select_cat_wrapper($query, array(), 'category_parent_options');
+$template->assign('category_parent_options', $template->get_template_vars('category_full_name_options'));
+$template->assign('category_parent_options_selected', array());
 
 // in the filter box, which category to select by default
 $selected_category = array();
@@ -551,34 +555,12 @@ SELECT
 if (count($page['cat_elements_id']) > 0)
 {
   // remove tags
-  $tags = get_common_tags($page['cat_elements_id'], -1);
-
-  $template->assign(
-    array(
-      'DEL_TAG_SELECTION' => get_html_tag_selection($tags, 'del_tags'),
-      )
-    );
+  $template->assign('associated_tags', get_common_tags($page['cat_elements_id'], -1));
 }
 
 // creation date
-$day =
-empty($_POST['date_creation_day']) ? date('j') : $_POST['date_creation_day'];
-
-$month =
-empty($_POST['date_creation_month']) ? date('n') : $_POST['date_creation_month'];
-
-$year =
-empty($_POST['date_creation_year']) ? date('Y') : $_POST['date_creation_year'];
-
-$month_list = $lang['month'];
-$month_list[0]='------------';
-ksort($month_list);
-$template->assign( array(
-      'month_list'         => $month_list,
-      'DATE_CREATION_DAY'  => (int)$day,
-      'DATE_CREATION_MONTH'=> (int)$month,
-      'DATE_CREATION_YEAR' => (int)$year,
-    )
+$template->assign('DATE_CREATION',
+  empty($_POST['date_creation']) ? date('Y-m-d').' 00:00:00' : $_POST['date_creation']
   );
 
 // image level options
@@ -731,4 +713,3 @@ trigger_action('loc_end_element_set_global');
 
 //----------------------------------------------------------- sending html code
 $template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager_global');
-?>

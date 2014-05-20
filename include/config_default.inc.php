@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -439,7 +440,7 @@ $conf['debug_mail'] = false;
 $conf['die_on_sql_error'] = true;
 
 // if true, some language strings are replaced during template compilation
-// (insted of template output). this results in better performance. however
+// (instead of template output). this results in better performance. however
 // any change in the language file will not be propagated until you purge
 // the compiled templates from the admin / maintenance menu
 $conf['compiled_template_cache_language'] = false;
@@ -648,7 +649,7 @@ $conf['rss_feed_author'] = 'Piwigo notifier';
 $conf['admin_theme'] = 'clear';
 
 // should we load the active plugins ? true=Yes, false=No
-$conf['enable_plugins']=true;
+$conf['enable_plugins'] = true;
 
 // Web services are allowed (true) or completely forbidden (false)
 $conf['allow_web_services'] = true;
@@ -775,7 +776,7 @@ $conf['pem_languages_category'] = 8;
 $conf['upload_form_automatic_rotation'] = true;
 
 // 0-'auto', 1-'derivative' 2-'script'
-$conf['derivative_url_style']=0;
+$conf['derivative_url_style'] = 0;
 
 $conf['chmod_value']= substr_compare(PHP_SAPI, 'apa', 0, 3)==0 ? 0777 : 0755;
 
@@ -787,7 +788,7 @@ $conf['derivative_default_size'] = 'medium';
 $conf['derivatives_strip_metadata_threshold'] = 256000;
 
 //Maximum Ajax requests at once, for thumbnails on-the-fly generation
-$conf['max_requests']=3;
+$conf['max_requests'] = 3;
 
 // one of '', 'images', 'all'
 //TODO: Put this in admin and also manage .htaccess in #sites and upload folders
@@ -802,4 +803,3 @@ $conf['inheritance_by_default'] = false;
 // 'png' or 'jpg': your uploaded TIF photos will have a representative in
 // JPEG or PNG file format
 $conf['tiff_representative_ext'] = 'png';
-?>

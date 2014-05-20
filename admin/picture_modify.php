@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -42,7 +43,7 @@ SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE representative_picture_id = '.$_GET['image_id'].'
 ;';
-$represent_options_selected = array_from_query($query, 'id');
+$represent_options_selected = query2array($query, null, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |
@@ -108,50 +109,30 @@ if (isset($_GET['sync_metadata']))
 }
 
 //--------------------------------------------------------- update informations
-
-// first, we verify whether there is a mistake on the given creation date
-if (isset($_POST['date_creation_action'])
-    and 'set' == $_POST['date_creation_action'])
-{
-  if (!is_numeric($_POST['date_creation_year'])
-    or !checkdate(
-          $_POST['date_creation_month'],
-          $_POST['date_creation_day'],
-          $_POST['date_creation_year'])
-    )
-  {
-    $page['errors'][] = l10n('wrong date');
-  }
-}
-
-if (isset($_POST['submit']) and count($page['errors']) == 0)
+if (isset($_POST['submit']))
 {
   $data = array();
-  $data{'id'} = $_GET['image_id'];
-  $data{'name'} = $_POST['name'];
-  $data{'author'} = $_POST['author'];
+  $data['id'] = $_GET['image_id'];
+  $data['name'] = $_POST['name'];
+  $data['author'] = $_POST['author'];
   $data['level'] = $_POST['level'];
 
   if ($conf['allow_html_descriptions'])
   {
-    $data{'comment'} = @$_POST['description'];
+    $data['comment'] = @$_POST['description'];
   }
   else
   {
-    $data{'comment'} = strip_tags(@$_POST['description']);
+    $data['comment'] = strip_tags(@$_POST['description']);
   }
 
-  if (!empty($_POST['date_creation_year']))
+  if (!empty($_POST['date_creation']))
   {
-    $data{'date_creation'} =
-      $_POST['date_creation_year']
-      .'-'.$_POST['date_creation_month']
-      .'-'.$_POST['date_creation_day']
-      .' '.$_POST['date_creation_time'];
+    $data['date_creation'] = $_POST['date_creation'];
   }
   else
   {
-    $data{'date_creation'} = null;
+    $data['date_creation'] = null;
   }
 
   $data = trigger_change('picture_modify_before_update', $data);
@@ -218,14 +199,6 @@ SELECT
 ;';
 $tag_selection = get_taglist($query);
 
-$query = '
-SELECT
-    id,
-    name
-  FROM '.TAGS_TABLE.'
-;';
-$tags = get_taglist($query, false);
-
 // retrieving direct information about picture
 $query = '
 SELECT *
@@ -258,7 +231,6 @@ $admin_url_start.= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
 $template->assign(
   array(
     'tag_selection' => $tag_selection,
-    'tags' => $tags,
     'U_SYNC' => $admin_url_start.'&amp;sync_metadata=1',
     'U_DELETE' => $admin_url_start.'&amp;delete=1&amp;pwg_token='.get_pwg_token(),
 
@@ -283,6 +255,8 @@ $template->assign(
         ? stripslashes($_POST['author'])
         : @$row['author']
       ),
+
+    'DATE_CREATION' => $row['date_creation'],
 
     'DESCRIPTION' =>
       htmlspecialchars( isset($_POST['description']) ?
@@ -345,43 +319,7 @@ $template->assign(
     )
   );
 
-// creation date
-unset($day, $month, $year);
-
-if (isset($_POST['date_creation_action'])
-    and 'set' == $_POST['date_creation_action'])
-{
-  foreach (array('day', 'month', 'year', 'time') as $varname)
-  {
-    $$varname = $_POST['date_creation_'.$varname];
-  }
-}
-else if (isset($row['date_creation']) and !empty($row['date_creation']))
-{
-  list($year, $month, $day) = explode('-', substr($row['date_creation'],0,10));
-  $time = substr($row['date_creation'],11);
-}
-else
-{
-  list($year, $month, $day) = array('', 0, 0);
-  $time = '00:00:00';
-}
-
-
-$month_list = $lang['month'];
-$month_list[0]='------------';
-ksort($month_list);
-
-$template->assign(
-    array(
-      'DATE_CREATION_DAY_VALUE' => (int)$day,
-      'DATE_CREATION_MONTH_VALUE' => (int)$month,
-      'DATE_CREATION_YEAR_VALUE' => $year,
-      'DATE_CREATION_TIME_VALUE' => $time,
-      'month_list' => $month_list,
-      )
-    );
-
+// categories
 $query = '
 SELECT category_id, uppercats
   FROM '.IMAGE_CATEGORY_TABLE.' AS ic
@@ -469,18 +407,12 @@ SELECT id
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id
   WHERE image_id = '.$_GET['image_id'].'
 ;';
-$associate_options_selected = array_from_query($query, 'id');
+$associate_options_selected = query2array($query, null, 'id');
 
-$query = '
-SELECT id,name,uppercats,global_rank
-  FROM '.CATEGORIES_TABLE.'
-;';
-display_select_cat_wrapper($query, $associate_options_selected, 'associate_options');
-display_select_cat_wrapper($query, $represent_options_selected, 'represent_options');
+$template->assign(compact('associate_options_selected', 'represent_options_selected'));
 
 trigger_action('loc_end_picture_modify');
 
 //----------------------------------------------------------- sending html code
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'picture_modify');
-?>

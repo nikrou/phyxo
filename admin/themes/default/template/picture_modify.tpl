@@ -2,36 +2,84 @@
 {include file='include/dbselect.inc.tpl'}
 {include file='include/datepicker.inc.tpl'}
 
-{combine_script id='jquery.chosen' load='footer' path='themes/default/js/plugins/chosen.jquery.min.js'}
-{combine_css path="themes/default/js/plugins/chosen.css"}
+{combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{footer_script}{literal}
-jQuery(document).ready(function() {
-  jQuery(".chzn-select").chosen();
-});
-{/literal}{/footer_script}
-
-{combine_css path='themes/default/js/plugins/jquery.tokeninput.css'}
-{combine_script id='jquery.tokeninput' load='async' require='jquery' path='themes/default/js/plugins/jquery.tokeninput.js'}
-{footer_script require='jquery.tokeninput'}
-jQuery(document).ready(function() {ldelim}
-  jQuery("#tags").tokenInput(
-    [{foreach from=$tags item=tag name=tags}{ldelim}"name":"{$tag.name|@escape:'javascript'}","id":"{$tag.id}"{rdelim}{if !$smarty.foreach.tags.last},{/if}{/foreach}],
-    {ldelim}
-      hintText: '{'Type in a search term'|@translate}',
-      noResultsText: '{'No results'|@translate}',
-      searchingText: '{'Searching...'|@translate}',
-      newText: ' ({'new'|@translate})',
-      animateDropdown: false,
-      preventDuplicates: true,
-      allowFreeTagging: true
-    }
-  );
-});
-{/footer_script}
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.default.css"}
 
 {footer_script}
-pwg_initialization_datepicker("#date_creation_day", "#date_creation_month", "#date_creation_year", "#date_creation_linked_date", "#date_creation_action_set");
+(function(){
+{* <!-- CATEGORIES --> *}
+var categoriesCache = new LocalStorageCache('categoriesAdminList', 5*60, function(callback) {
+  jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.categories.getAdminList', function(data) {
+    callback(data.result.categories);
+  });
+});
+
+jQuery('[data-selectize=categories]').selectize({
+  valueField: 'id',
+  labelField: 'fullname',
+  searchField: ['fullname'],
+  plugins: ['remove_button']
+});
+
+categoriesCache.get(function(categories) {
+  jQuery('[data-selectize=categories]').each(function() {
+    this.selectize.load(function(callback) {
+      callback(categories);
+    });
+
+    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, id) {
+      this.selectize.addItem(id);
+    }, this));
+  });
+});
+
+{* <!-- TAGS --> *}
+var tagsCache = new LocalStorageCache('tagsAdminList', 5*60, function(callback) {
+  jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.tags.getAdminList', function(data) {
+    var tags = data.result.tags;
+    
+    for (var i=0, l=tags.length; i<l; i++) {
+      tags[i].id = '~~' + tags[i].id + '~~';
+    }
+    
+    callback(tags);
+  });
+});
+
+jQuery('[data-selectize=tags]').selectize({
+  valueField: 'id',
+  labelField: 'name',
+  searchField: ['name'],
+  plugins: ['remove_button'],
+  create: function(input, callback) {
+    tagsCache.clear();
+    
+    callback({
+      id: input,
+      name: input
+    });
+  }
+});
+
+tagsCache.get(function(tags) {
+  jQuery('[data-selectize=tags]').each(function() {
+    this.selectize.load(function(callback) {
+      callback(tags);
+    });
+
+    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, tag) {
+      this.selectize.addItem(tag.id);
+    }, this));
+  });
+});
+
+{* <!-- DATEPICKER --> *}
+jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
+  jQuery('[data-datepicker]').pwgDatepicker({ showTimepicker: true });
+});
+}());
 {/footer_script}
 
 <h2>{$TITLE} &#8250; {'Edit photo'|@translate} {$TABSHEET_TITLE}</h2>
@@ -92,47 +140,33 @@ pwg_initialization_datepicker("#date_creation_day", "#date_creation_month", "#da
     <p>
       <strong>{'Creation date'|@translate}</strong>
       <br>
-      <select id="date_creation_day" name="date_creation_day">
-        <option value="0">--</option>
-{section name=day start=1 loop=32}
-        <option value="{$smarty.section.day.index}" {if $smarty.section.day.index==$DATE_CREATION_DAY_VALUE}selected="selected"{/if}>{$smarty.section.day.index}</option>
-{/section}
-      </select>
-
-      <select id="date_creation_month" name="date_creation_month">
-        {html_options options=$month_list selected=$DATE_CREATION_MONTH_VALUE}
-      </select>
-
-      <input id="date_creation_year" name="date_creation_year" type="text" size="4" maxlength="4" value="{$DATE_CREATION_YEAR_VALUE}">
-      <input id="date_creation_linked_date" name="date_creation_linked_date" type="hidden" size="10" disabled="disabled">
-      <input name="date_creation_time" type="hidden" value="{$DATE_CREATION_TIME_VALUE}">
-      <a href="#" id="unset_date_creation" style="display:none">unset</a>
+      <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
+      <label>
+        <i class="icon-calendar"></i>
+        <input type="text" data-datepicker="date_creation" data-datepicker-unset="date_creation_unset" readonly>
+      </label>
+      <a href="#" class="icon-cancel-circled" id="date_creation_unset">{'unset'|translate}</a>
     </p>
 
     <p>
       <strong>{'Linked albums'|@translate}</strong>
       <br>
-      <select data-placeholder="Select albums..." class="chzn-select" multiple style="width:700px;" name="associate[]">
-        {html_options options=$associate_options selected=$associate_options_selected}
-      </select>
+      <select data-selectize="categories" data-value="{$associate_options_selected|@json_encode|escape:html}"
+        name="associate[]" multiple style="width:600px;" ></select>
     </p>
 
     <p>
       <strong>{'Representation of albums'|@translate}</strong>
       <br>
-      <select data-placeholder="Select albums..." class="chzn-select" multiple style="width:700px;" name="represent[]">
-        {html_options options=$represent_options selected=$represent_options_selected}
-      </select>
+      <select data-selectize="categories" data-value="{$represent_options_selected|@json_encode|escape:html}"
+        name="represent[]" multiple style="width:600px;" ></select>
     </p>
 
     <p>
       <strong>{'Tags'|@translate}</strong>
       <br>
-<select id="tags" name="tags">
-{foreach from=$tag_selection item=tag}
-  <option value="{$tag.id}" class="selected">{$tag.name}</option>
-{/foreach}
-</select>
+      <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
+        name="tags[]" multiple style="width:600px;" ></select>
     </p>
 
     <p>

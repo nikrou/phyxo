@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -76,23 +77,13 @@ SELECT id, date_creation
       $data['comment'] = strip_tags(@$_POST['description-'.$row['id']]);
     }
 
-    if (isset($_POST['date_creation_action-'.$row['id']]))
+    if (!empty($_POST['date_creation-'.$row['id']]))
     {
-      if ('set' == $_POST['date_creation_action-'.$row['id']])
-      {
-        $data['date_creation'] =
-          $_POST['date_creation_year-'.$row['id']]
-            .'-'.$_POST['date_creation_month-'.$row['id']]
-            .'-'.$_POST['date_creation_day-'.$row['id']];
-      }
-      else if ('unset' == $_POST['date_creation_action-'.$row['id']])
-      {
-        $data['date_creation'] = '';
-      }
+      $data['date_creation'] = $_POST['date_creation-'.$row['id']];
     }
     else
     {
-      $data['date_creation'] = $row['date_creation'];
+      $data['date_creation'] = null;
     }
 
     $datas[] = $data;
@@ -116,6 +107,7 @@ SELECT id, date_creation
     );
 
   $page['infos'][] = l10n('Photo informations updated');
+  invalidate_user_cache();
 }
 
 // +-----------------------------------------------------------------------+
@@ -127,15 +119,10 @@ $template->set_filenames(
 
 $base_url = PHPWG_ROOT_PATH.'admin.php';
 
-$month_list = $lang['month'];
-$month_list[0]='------------';
-ksort($month_list);
-
 $template->assign(
   array(
     'U_ELEMENTS_PAGE' => $base_url.get_query_string_diff(array('display','start')),
-    'F_ACTION'=>$base_url.get_query_string_diff(array()),    
-    'month_list' => $month_list,
+    'F_ACTION' => $base_url.get_query_string_diff(array()),
     'level_options' => get_privacy_level_options(),
     )
   );
@@ -192,11 +179,11 @@ if (count($page['cat_elements_id']) > 0)
   $query = '
 SELECT *
   FROM '.IMAGES_TABLE;
-  
+
   if ($is_category)
   {
     $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
-    
+
     $conf['order_by'] = $conf['order_by_inside_category'];
     if (!empty($category_info['image_order']))
     {
@@ -228,16 +215,6 @@ SELECT *
 
     $src_image = new SrcImage($row);
 
-    // creation date
-    if (!empty($row['date_creation']))
-    {
-      list($year,$month,$day) = explode('-', $row['date_creation']);
-    }
-    else
-    {
-      list($year,$month,$day) = array('',0,0);
-    }
-
     $query = '
 SELECT
     id,
@@ -266,9 +243,7 @@ SELECT
         'AUTHOR' => htmlspecialchars(@$row['author']),
         'LEVEL' => !empty($row['level'])?$row['level']:'0',
         'DESCRIPTION' => htmlspecialchars(@$row['comment']),
-        'DATE_CREATION_YEAR' => $year,
-        'DATE_CREATION_MONTH' => (int)$month,
-        'DATE_CREATION_DAY' => (int)$day,
+        'DATE_CREATION' => $row['date_creation'],
         'TAGS' => $tag_selection,
         )
       ));
@@ -284,4 +259,3 @@ trigger_action('loc_end_element_set_unit');
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager_unit');
-?>
