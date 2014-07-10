@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,7 +38,7 @@ if (!$conf['allow_user_registration'])
   page_forbidden('User registration closed');
 }
 
-trigger_action('loc_begin_register');
+trigger_notify('loc_begin_register');
 
 if (isset($_POST['submit']))
 {
@@ -117,8 +118,7 @@ if (!isset($themeconf['hide_menu_on']) OR !in_array('theRegisterPage', $themecon
 }
 
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_register');
+trigger_notify('loc_end_register');
 flush_page_messages();
 $template->parse('register');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

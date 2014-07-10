@@ -1,83 +1,40 @@
 {include file='include/autosize.inc.tpl'}
-{include file='include/dbselect.inc.tpl'}
 {include file='include/datepicker.inc.tpl'}
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
+{assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.default.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
 {footer_script}
 (function(){
 {* <!-- CATEGORIES --> *}
-var categoriesCache = new LocalStorageCache('categoriesAdminList', 5*60, function(callback) {
-  jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.categories.getAdminList', function(data) {
-    callback(data.result.categories);
-  });
+var categoriesCache = new CategoriesCache({
+  serverKey: '{$CACHE_KEYS.categories}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
 
-jQuery('[data-selectize=categories]').selectize({
-  valueField: 'id',
-  labelField: 'fullname',
-  searchField: ['fullname'],
-  plugins: ['remove_button']
-});
-
-categoriesCache.get(function(categories) {
-  jQuery('[data-selectize=categories]').each(function() {
-    this.selectize.load(function(callback) {
-      callback(categories);
-    });
-
-    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, id) {
-      this.selectize.addItem(id);
-    }, this));
-  });
-});
+categoriesCache.selectize(jQuery('[data-selectize=categories]'));
 
 {* <!-- TAGS --> *}
-var tagsCache = new LocalStorageCache('tagsAdminList', 5*60, function(callback) {
-  jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.tags.getAdminList', function(data) {
-    var tags = data.result.tags;
-    
-    for (var i=0, l=tags.length; i<l; i++) {
-      tags[i].id = '~~' + tags[i].id + '~~';
-    }
-    
-    callback(tags);
-  });
+var tagsCache = new TagsCache({
+  serverKey: '{$CACHE_KEYS.tags}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
 
-jQuery('[data-selectize=tags]').selectize({
-  valueField: 'id',
-  labelField: 'name',
-  searchField: ['name'],
-  plugins: ['remove_button'],
-  create: function(input, callback) {
-    tagsCache.clear();
-    
-    callback({
-      id: input,
-      name: input
-    });
-  }
-});
-
-tagsCache.get(function(tags) {
-  jQuery('[data-selectize=tags]').each(function() {
-    this.selectize.load(function(callback) {
-      callback(tags);
-    });
-
-    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, tag) {
-      this.selectize.addItem(tag.id);
-    }, this));
-  });
-});
+tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+  'Add': '{'Create'|translate}'
+}});
 
 {* <!-- DATEPICKER --> *}
 jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
-  jQuery('[data-datepicker]').pwgDatepicker({ showTimepicker: true });
+  jQuery('[data-datepicker]').pwgDatepicker({
+    showTimepicker: true,
+    cancelButton: '{'Cancel'|translate}'
+  });
 });
 }());
 {/footer_script}
@@ -151,22 +108,25 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     <p>
       <strong>{'Linked albums'|@translate}</strong>
       <br>
-      <select data-selectize="categories" data-value="{$associate_options_selected|@json_encode|escape:html}"
-        name="associate[]" multiple style="width:600px;" ></select>
+      <select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
+        placeholder="{'Type in a search term'|translate}"
+        data-default="{$STORAGE_ALBUM}" name="associate[]" multiple style="width:600px;"></select>
     </p>
 
     <p>
       <strong>{'Representation of albums'|@translate}</strong>
       <br>
-      <select data-selectize="categories" data-value="{$represent_options_selected|@json_encode|escape:html}"
-        name="represent[]" multiple style="width:600px;" ></select>
+      <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
+        placeholder="{'Type in a search term'|translate}"
+        name="represent[]" multiple style="width:600px;"></select>
     </p>
 
     <p>
       <strong>{'Tags'|@translate}</strong>
       <br>
       <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
-        name="tags[]" multiple style="width:600px;" ></select>
+        placeholder="{'Type in a search term'|translate}"
+        data-create="true" name="tags[]" multiple style="width:600px;"></select>
     </p>
 
     <p>

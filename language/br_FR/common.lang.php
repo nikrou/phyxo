@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Brezhoneg [FR]
-Version: 2.6.1
+Version: 2.6.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=698
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -31,7 +31,7 @@ Author URI: http://piwigo.org
 
 // Langage informations
 $lang_info['language_name'] = 'Brezhoneg';
-$lang_info['country'] = 'Fra�s';
+$lang_info['country'] = 'Frañs';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'br';
 $lang_info['zero_plural'] = true;
@@ -420,3 +420,8 @@ $lang['Password is missing. Please enter the password.'] = 'Mankout a ra ar ger-
 $lang['%d photos per page'] = '%d luc\'hskeudenn e pep pajenn';
 $lang['Theme'] = 'Tem';
 $lang['No results for'] = 'Disoc\'h ebet evit';
+$lang['Apply on properties'] = 'Arloañ war ar perzhioù';
+$lang['Photo description'] = 'Deskrivadur al luc\'hskeudenn';
+$lang['Photo title'] = 'Titl al luc\'hskeudenn';
+$lang['Album name, A &rarr; Z'] = 'Anv ar rummad, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Anv ar rummad, Z &rarr; A';

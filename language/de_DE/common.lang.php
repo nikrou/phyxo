@@ -421,3 +421,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['%d photos per page'] = '%d Bilder pro Seite';
 $lang['Theme'] = 'Thema';
 $lang['No results for'] = 'Keine Ergebnisse für';
+$lang['Photo description'] = 'Bildbeschreibung';
+$lang['Photo title'] = 'Bildtitel';
+$lang['Album name, A &rarr; Z'] = 'Albumname, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Albumname, Z &rarr; A';
+$lang['Apply on properties'] = 'Eigenschaften übernehmen';
+

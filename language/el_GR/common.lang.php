@@ -421,3 +421,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['Theme'] = 'Θέμα';
 $lang['%d photos per page'] = '%d φωτογραφίες ανά σελίδα';
 $lang['No results for'] = 'Κανένα αποτέλεσμα για';
+$lang['Photo title'] = 'Τίτλος Φωτογραφίας';
+$lang['Photo description'] = 'Περιγραφή Φωτογραφίας';
+$lang['Apply on properties'] = 'Εφαρμόστε σε ιδιότητες';
+$lang['Album name, Z &rarr; A'] = 'Όνομα Λευκώματος, Ω &rarr; Α';
+$lang['Album name, A &rarr; Z'] = 'Όνομα Λευκώματος, Α &rarr; Ω';
+

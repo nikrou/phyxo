@@ -232,7 +232,7 @@ if ('categories' == $page['section'])
     $page = array_merge(
       $page,
       array(
-        'comment' => trigger_event(
+        'comment' => trigger_change(
             'render_category_description',
             $page['category']['comment'],
             'main_page_category_description'
@@ -637,4 +637,4 @@ if ( 'categories'==$page['section'] and isset($page['category']) )
   unset( $need_redirect, $page['hit_by'] );
 }
 
-trigger_action('loc_end_section_init');
+trigger_notify('loc_end_section_init');

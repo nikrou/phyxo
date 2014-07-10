@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -33,7 +34,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions_notification_by_mail.inc.p
 // Translations are in admin file too
 load_language('admin.lang');
 // Need to update a second time
-trigger_action('loading_lang');
+trigger_notify('loading_lang');
 load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
 
 
@@ -78,4 +79,3 @@ include(PHPWG_ROOT_PATH.'include/page_header.php');
 flush_page_messages();
 $template->parse('nbm');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

@@ -90,7 +90,7 @@ SELECT *
     if ( $counter )
     {
       $row['counter'] = $counter;
-      $row['name'] = trigger_event('render_tag_name', $row['name'], $row);
+      $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
       $tags[] = $row;
     }
   }
@@ -112,7 +112,7 @@ SELECT *
   $tags = array();
   while ($row = pwg_db_fetch_assoc($result))
   {
-    $row['name'] = trigger_event('render_tag_name', $row['name'], $row);
+    $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
     $tags[] = $row;
   }
 
@@ -273,7 +273,7 @@ SELECT t.*, count(*) AS counter
   $tags = array();
   while($row = pwg_db_fetch_assoc($result))
   {
-    $row['name'] = trigger_event('render_tag_name', $row['name'], $row);
+    $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
     $tags[] = $row;
   }
   usort($tags, 'tag_alpha_compare');

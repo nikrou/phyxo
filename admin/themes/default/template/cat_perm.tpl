@@ -1,73 +1,51 @@
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
+{assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.default.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
 {footer_script}
 (function(){
 {* <!-- GROUPS --> *}
-var groupsCache = new LocalStorageCache('groupsAdminList', 5*60, function(callback) {
-  jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.groups.getList&per_page=99999', function(data) {
-    callback(data.result.groups);
-  });
+var groupsCache = new GroupsCache({
+  serverKey: '{$CACHE_KEYS.groups}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
 
-jQuery('[data-selectize=groups]').selectize({
-  valueField: 'id',
-  labelField: 'name',
-  searchField: ['name'],
-  plugins: ['remove_button']
-});
-
-groupsCache.get(function(groups) {
-  jQuery('[data-selectize=groups]').each(function() {
-    this.selectize.load(function(callback) {
-      callback(groups);
-    });
-
-    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, id) {
-      this.selectize.addItem(id);
-    }, this));
-  });
-});
+groupsCache.selectize(jQuery('[data-selectize=groups]'));
 
 {* <!-- USERS --> *}
-var usersCache = new LocalStorageCache('usersAdminList', 5*60, function(callback) {
-  var page = 0,
-      users = [];
-   
-  (function load(page){
-    jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.users.getList&display=username&per_page=99999&page='+ page, function(data) {
-      users = users.concat(data.result.users);
-      
-      if (data.result.paging.count == data.result.paging.per_page) {
-        load(++page);
-      }
-      else {
-        callback(users);
-      }
-    });
-  }(page));
+var usersCache = new UsersCache({
+  serverKey: '{$CACHE_KEYS.users}',
+  serverId: '{$CACHE_KEYS._hash}',
+  rootUrl: '{$ROOT_URL}'
 });
 
-jQuery('[data-selectize=users]').selectize({
-  valueField: 'id',
-  labelField: 'username',
-  searchField: ['username'],
-  plugins: ['remove_button']
+usersCache.selectize(jQuery('[data-selectize=users]'));
+
+{* <!-- TOGGLES --> *}
+function checkStatusOptions() {
+  if (jQuery("input[name=status]:checked").val() == "private") {
+    jQuery("#privateOptions, #applytoSubAction").show();
+  }
+  else {
+    jQuery("#privateOptions, #applytoSubAction").hide();
+  }
+}
+
+checkStatusOptions();
+jQuery("#selectStatus").change(function() {
+  checkStatusOptions();
 });
 
-usersCache.get(function(users) {
-  jQuery('[data-selectize=users]').each(function() {
-    this.selectize.load(function(callback) {
-      callback(users);
-    });
-
-    jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, id) {
-      this.selectize.addItem(id);
-    }, this));
+{if isset($nb_users_granted_indirect) && $nb_users_granted_indirect>0}
+  jQuery(".toggle-indirectPermissions").click(function(e){
+    jQuery(".toggle-indirectPermissions").toggle();
+    jQuery("#indirectPermissionsDetails").toggle();
+    e.preventDefault();
   });
-});
+{/if}
 }());
 {/footer_script}
 
@@ -95,7 +73,8 @@ usersCache.get(function(users) {
     <strong>{'Permission granted for groups'|@translate}</strong>
     <br>
     <select data-selectize="groups" data-value="{$groups_selected|@json_encode|escape:html}"
-        name="groups[]" multiple style="width:600px;" ></select>
+      placeholder="{'Type in a search term'|translate}"
+      name="groups[]" multiple style="width:600px;"></select>
 {else}
     {'There is no group in this gallery.'|@translate} <a href="admin.php?page=group_list" class="externalLink">{'Group management'|@translate}</a>
 {/if}
@@ -105,14 +84,15 @@ usersCache.get(function(users) {
     <strong>{'Permission granted for users'|@translate}</strong>
     <br>
     <select data-selectize="users" data-value="{$users_selected|@json_encode|escape:html}"
-        name="users[]" multiple style="width:600px;" ></select>
+      placeholder="{'Type in a search term'|translate}"
+      name="users[]" multiple style="width:600px;"></select>
   </p>
 
 {if isset($nb_users_granted_indirect) && $nb_users_granted_indirect>0}
   <p>
     {'%u users have automatic permission because they belong to a granted group.'|@translate:$nb_users_granted_indirect}
-    <a href="#" id="indirectPermissionsDetailsHide" style="display:none">{'hide details'|@translate}</a>
-    <a href="#" id="indirectPermissionsDetailsShow">{'show details'|@translate}</a>
+    <a href="#" class="toggle-indirectPermissions" style="display:none">{'hide details'|@translate}</a>
+    <a href="#" class="toggle-indirectPermissions">{'show details'|@translate}</a>
 
     <ul id="indirectPermissionsDetails" style="display:none">
   {foreach from=$user_granted_indirect_groups item=group_details}
@@ -184,7 +164,10 @@ usersCache.get(function(users) {
 
   <p style="margin:12px;text-align:left;">
     <input class="submit" type="submit" value="{'Save Settings'|@translate}" name="submit">
-    <label id="applytoSubAction" style="display:none;"><input type="checkbox" name="apply_on_sub" {if $INHERIT}checked="checked"{/if}>{'Apply to sub-albums'|@translate}</label>
+    <label id="applytoSubAction" style="display:none;">
+      <input type="checkbox" name="apply_on_sub" {if $INHERIT}checked="checked"{/if}>
+      {'Apply to sub-albums'|@translate}
+    </label>
   </p>
 
 <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">

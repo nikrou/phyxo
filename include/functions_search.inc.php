@@ -86,7 +86,13 @@ function get_sql_search_clause($search)
 
   if (isset($search['fields']['allwords']))
   {
-    $fields = array('file', 'name', 'comment', 'author');
+    $fields = array('file', 'name', 'comment');
+
+    if (isset($search['fields']['allwords']['fields']) and count($search['fields']['allwords']['fields']) > 0)
+    {
+      $fields = array_intersect($fields, $search['fields']['allwords']['fields']);
+    }
+    
     // in the OR mode, request bust be :
     // ((field1 LIKE '%word1%' OR field2 LIKE '%word1%')
     // OR (field1 LIKE '%word2%' OR field2 LIKE '%word2%'))
@@ -289,6 +295,11 @@ class QSearchScope
       return false;
     return true;
   }
+  
+  function process_char(&$ch, &$crt_token)
+  {
+    return false;
+  }
 }
 
 class QNumericRangeScope extends QSearchScope
@@ -303,12 +314,19 @@ class QNumericRangeScope extends QSearchScope
   function parse($token)
   {
     $str = $token->term;
+    $strict = array(0,0);
     if ( ($pos = strpos($str, '..')) !== false)
       $range = array( substr($str,0,$pos), substr($str, $pos+2));
     elseif ('>' == @$str[0])// ratio:>1
+    {
       $range = array( substr($str,1), '');
+      $strict[0] = 1;
+    }
     elseif ('<' == @$str[0]) // size:<5mp
+    {
       $range = array('', substr($str,1));
+      $strict[1] = 1;
+    }
     elseif( ($token->modifier & QST_WILDCARD_BEGIN) )
       $range = array('', $str);
     elseif( ($token->modifier & QST_WILDCARD_END) )
@@ -318,11 +336,11 @@ class QNumericRangeScope extends QSearchScope
 
     foreach ($range as $i =>&$val)
     {
-      if (preg_match('#^([0-9.]+)/([0-9.]+)$#i', $val, $matches))
+      if (preg_match('#^(-?[0-9.]+)/([0-9.]+)$#i', $val, $matches))
       {
         $val = floatval($matches[1]/$matches[2]);
       }
-      elseif (preg_match('/^([0-9.]+)([km])?/i', $val, $matches))
+      elseif (preg_match('/^(-?[0-9.]+)([km])?/i', $val, $matches))
       {
         $val = floatval($matches[1]);
         if (isset($matches[2]))
@@ -343,7 +361,7 @@ class QNumericRangeScope extends QSearchScope
         $val = '';
       if (is_numeric($val))
       {
-        if ($i)
+        if ($i ^ $strict[$i])
           $val += $this->epsilon;
         else
           $val -= $this->epsilon;
@@ -352,17 +370,17 @@ class QNumericRangeScope extends QSearchScope
 
     if (!$this->nullable && $range[0]=='' && $range[1] == '')
       return false;
-    $token->scope_data = $range;
+    $token->scope_data = array( 'range'=>$range, 'strict'=>$strict );
     return true;
   }
 
   function get_sql($field, $token)
   {
     $clauses = array();
-    if ($token->scope_data[0]!=='')
-      $clauses[] = $field.' >= ' .$token->scope_data[0].' ';
-    if ($token->scope_data[1]!=='')
-      $clauses[] = $field.' <= ' .$token->scope_data[1].' ';
+    if ($token->scope_data['range'][0]!=='')
+      $clauses[] = $field.' >'.($token->scope_data['strict'][0]?'':'=').$token->scope_data['range'][0].' ';
+    if ($token->scope_data['range'][1]!=='')
+      $clauses[] = $field.' <'.($token->scope_data['strict'][1]?'':'=').$token->scope_data['range'][1].' ';
 
     if (empty($clauses))
     {
@@ -386,12 +404,19 @@ class QDateRangeScope extends QSearchScope
   function parse($token)
   {
     $str = $token->term;
+    $strict = array(0,0);
     if ( ($pos = strpos($str, '..')) !== false)
       $range = array( substr($str,0,$pos), substr($str, $pos+2));
     elseif ('>' == @$str[0])
+    {
       $range = array( substr($str,1), '');
+      $strict[0] = 1;
+    }
     elseif ('<' == @$str[0])
+    {
       $range = array('', substr($str,1));
+      $strict[1] = 1;
+    }
     elseif( ($token->modifier & QST_WILDCARD_BEGIN) )
       $range = array('', $str);
     elseif( ($token->modifier & QST_WILDCARD_END) )
@@ -405,10 +430,12 @@ class QDateRangeScope extends QSearchScope
       {
         array_shift($matches);
         if (!isset($matches[1]))
-          $matches[1] = !$i ? 1 : 12;
+          $matches[1] = ($i ^ $strict[$i]) ? 12 : 1;
         if (!isset($matches[2]))
-          $matches[2] = !$i ? 1 : 31;
-        $val = $matches;
+          $matches[2] = ($i ^ $strict[$i]) ? 31 : 1;
+        $val = implode('-', $matches);
+        if ($i ^ $strict[$i])
+          $val .= ' 23:59:59';
       }
       elseif (strlen($val))
         return false;
@@ -425,9 +452,9 @@ class QDateRangeScope extends QSearchScope
   {
     $clauses = array();
     if ($token->scope_data[0]!=='')
-      $clauses[] = $field.' >= \'' . implode('-',$token->scope_data[0]).'\'';
+      $clauses[] = $field.' >= \'' . $token->scope_data[0].'\'';
     if ($token->scope_data[1]!=='')
-      $clauses[] = $field.' <= \'' . implode('-',$token->scope_data[1]).' 23:59:59\'';
+      $clauses[] = $field.' <= \'' . $token->scope_data[1].'\'';
 
     if (empty($clauses))
     {
@@ -572,7 +599,7 @@ class QMultiToken
               $stop = true;
             break;
           case ':':
-            $scope = @$root->scopes[$crt_token];
+            $scope = @$root->scopes[strtolower($crt_token)];
             if (!isset($scope) || isset($crt_scope))
             { // white space
               $this->push($crt_token, $crt_modifier, $crt_scope);
@@ -606,7 +633,7 @@ class QMultiToken
               $crt_token .= $ch;
               break;
             }
-            if (strlen($crt_token) && preg_match('/[0-9]/', substr($crt_token,-1)) 
+            if (strlen($crt_token) && preg_match('/[0-9]/', substr($crt_token,-1))
               && $qi+1<strlen($q) && preg_match('/[0-9]/', $q[$qi+1]))
             {// dot between digits is not a separator e.g. F2.8
               $crt_token .= $ch;
@@ -614,12 +641,15 @@ class QMultiToken
             }
             // else white space go on..
           default:
-            if (strpos(' ,.;!?', $ch)!==false)
-            { // white space
-              $this->push($crt_token, $crt_modifier, $crt_scope);
+            if (!$crt_scope || !$crt_scope->process_char($ch, $crt_token))
+            {
+              if (strpos(' ,.;!?', $ch)!==false)
+              { // white space
+                $this->push($crt_token, $crt_modifier, $crt_scope);
+              }
+              else
+                $crt_token .= $ch;
             }
-            else
-              $crt_token .= $ch;
             break;
         }
       }
@@ -707,7 +737,7 @@ class QMultiToken
   }
 
   /**
-  * Applies recursively a search scope to all sub single tokens. We allow 'tag:(John Bill)' but we cannot evaluate 
+  * Applies recursively a search scope to all sub single tokens. We allow 'tag:(John Bill)' but we cannot evaluate
   * scopes on expressions so we rewrite as '(tag:John tag:Bill)'
   */
   private function apply_scope(QSearchScope $scope)
@@ -843,8 +873,8 @@ function qsearch_get_text_token_search_sql($token, $fields)
 
     if ($use_ft)
     {
-      $max = max( array_map( 'mb_strlen', 
-        preg_split('/['.preg_quote('!"#$%&()*+,./:;<=>?@[\]^`{|}~','/').']+/', $variant, PREG_SPLIT_NO_EMPTY)
+      $max = max( array_map( 'mb_strlen',
+        preg_split('/['.preg_quote('-\'!"#$%&()*+,./:;<=>?@[\]^`{|}~','/').']+/', $variant)
         ) );
       if ($max<4)
         $use_ft = false;
@@ -854,8 +884,9 @@ function qsearch_get_text_token_search_sql($token, $fields)
     {// odd term or too short for full text search; fallback to regex but unfortunately this is diacritic/accent sensitive
       $pre = ($token->modifier & QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
       $post = ($token->modifier & QST_WILDCARD_END) ? '' : '[[:>:]]';
-      foreach( $fields as $field)
-        $clauses[] = $field.' '.DB_REGEX_OPERATOR.' \''.$pre.addslashes(preg_quote($variant)).$post.'\'';
+      foreach( $fields as $field) {
+        $clauses[] = $field.' '.DB_REGEX_OPERATOR.' \''.$pre.pwg_db_real_escape_string(preg_quote($variant)).$post.'\'';
+      }
     }
     else
     {
@@ -928,7 +959,7 @@ function qsearch_get_images(QExpression $expr, QResults $qsr)
         break;
       default:
         // allow plugins to have their own scope with columns added in db by themselves
-        $clauses = trigger_event('qsearch_get_images_sql_scopes', $clauses, $token, $expr);
+        $clauses = trigger_change('qsearch_get_images_sql_scopes', $clauses, $token, $expr);
         break;
     }
     if (!empty($clauses))
@@ -966,7 +997,7 @@ WHERE ('. implode("\n OR ",$clauses) .')';
   // check adjacent short words
   for ($i=0; $i<count($expr->stokens)-1; $i++)
   {
-    if ( (strlen($expr->stokens[$i])<=3 || strlen($expr->stokens[$i+1])<=3)
+    if ( (strlen($expr->stokens[$i]->term)<=3 || strlen($expr->stokens[$i+1]->term)<=3)
       && (($expr->stoken_modifiers[$i] & (QST_QUOTED|QST_WILDCARD)) == 0)
       && (($expr->stoken_modifiers[$i+1] & (QST_BREAK|QST_QUOTED|QST_WILDCARD)) == 0) )
     {
@@ -995,11 +1026,16 @@ SELECT image_id FROM '.IMAGE_TAG_TABLE.'
       if ($expr->stoken_modifiers[$i]&QST_NOT)
         $not_ids = array_merge($not_ids, $tag_ids);
       else
-        $positive_ids = array_merge($positive_ids, $tag_ids);
+      {
+        if (strlen($token->term)>2 || count($expr->stokens)==1 || isset($token->scope) || ($token->modifier&(QST_WILDCARD|QST_QUOTED)) )
+        {// add tag ids to list only if the word is not too short (such as de / la /les ...)
+          $positive_ids = array_merge($positive_ids, $tag_ids);
+        }
+      }
     }
     elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term)==0)
     {
-      if ($tokens[$i]->modifier & QST_WILDCARD)
+      if ($token->modifier & QST_WILDCARD)
       {// eg. 'tag:*' returns all tagged images
         $qsr->tag_iids[$i] = query2array('SELECT DISTINCT image_id FROM '.IMAGE_TAG_TABLE, null, 'image_id');
       }
@@ -1014,7 +1050,7 @@ SELECT image_id FROM '.IMAGE_TAG_TABLE.'
   usort($all_tags, 'tag_alpha_compare');
   foreach ( $all_tags as &$tag )
   {
-    $tag['name'] = trigger_event('render_tag_name', $tag['name'], $tag);
+    $tag['name'] = trigger_change('render_tag_name', $tag['name'], $tag);
   }
   $qsr->all_tags = $all_tags;
   $qsr->tag_ids = $token_tag_ids;
@@ -1095,7 +1131,7 @@ function get_quick_search_results($q, $options)
   $cache_key = $persistent_cache->make_key( array(
     strtolower($q),
     $conf['order_by'],
-    $user['id'],$user['cache_update_time'], 
+    $user['id'],$user['cache_update_time'],
     isset($options['permissions']) ? (boolean)$options['permissions'] : true,
     isset($options['images_where']) ? $options['images_where'] : '',
     ) );
@@ -1106,7 +1142,10 @@ function get_quick_search_results($q, $options)
 
   $res = get_quick_search_results_no_cache($q, $options);
 
-  $persistent_cache->set($cache_key, $res, 300);
+  if ( count($res['items']) )
+  {// cache the results only if not empty - otherwise it is useless
+    $persistent_cache->set($cache_key, $res, 300);
+  }
   return $res;
 }
 
@@ -1116,7 +1155,7 @@ function get_quick_search_results($q, $options)
 function get_quick_search_results_no_cache($q, $options)
 {
   global $conf;
-  //@TODO: maybe cache for 10 minutes the result set to avoid many expensive sql calls when navigating the pictures
+
   $q = trim(stripslashes($q));
   $search_results =
     array(
@@ -1146,7 +1185,7 @@ function get_quick_search_results_no_cache($q, $options)
   $scopes[] = new QDateRangeScope('posted', $postedDateAliases);
 
   // allow plugins to add their own scopes
-  $scopes = trigger_event('qsearch_get_scopes', $scopes);
+  $scopes = trigger_change('qsearch_get_scopes', $scopes);
   $expression = new QExpression($q, $scopes);
 
   // get inflections for terms
@@ -1171,7 +1210,7 @@ function get_quick_search_results_no_cache($q, $options)
   }
 
 
-  trigger_action('qsearch_expression_parsed', $expression);
+  trigger_notify('qsearch_expression_parsed', $expression);
 //var_export($expression);
 
   if (count($expression->stokens)==0)
@@ -1183,7 +1222,7 @@ function get_quick_search_results_no_cache($q, $options)
   qsearch_get_images($expression, $qsr);
 
   // allow plugins to evaluate their own scopes
-  trigger_action('qsearch_before_eval', $expression, $qsr);
+  trigger_notify('qsearch_before_eval', $expression, $qsr);
 
   $ids = qsearch_eval($expression, $qsr, $tmp, $search_results['qs']['unmatched_terms']);
 
@@ -1221,8 +1260,7 @@ function get_quick_search_results_no_cache($q, $options)
         array
           (
             'forbidden_categories' => 'category_id',
-            'visible_categories' => 'category_id',
-            'visible_images' => 'i.id'
+            'forbidden_images' => 'i.id'
           ),
         null,true
       );

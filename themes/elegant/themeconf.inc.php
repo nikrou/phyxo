@@ -1,7 +1,7 @@
 <?php
 /*
 Theme Name: elegant
-Version: 2.6.1
+Version: 2.6.2
 Description: Dark background, grayscale.
 Theme URI: http://piwigo.org/ext/extension_view.php?eid=685
 Author: Piwigo team
@@ -28,5 +28,3 @@ function set_config_values_elegant()
   $config = unserialize( $conf['elegant'] );
   $template->assign( 'elegant', $config );
 }
-
-?>

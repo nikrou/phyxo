@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -33,12 +34,21 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 // +-----------------------------------------------------------------------+
 check_status(ACCESS_ADMINISTRATOR);
 
-trigger_action('loc_begin_cat_list');
+trigger_notify('loc_begin_cat_list');
 
 if (!empty($_POST) or isset($_GET['delete']))
 {
   check_pwg_token();
 }
+
+$sort_orders = array(
+  'name ASC' => l10n('Album name, A &rarr; Z'),
+  'name DESC' => l10n('Album name, Z &rarr; A'),
+  'date_creation DESC' => l10n('Date created, new &rarr; old'),
+  'date_creation ASC' => l10n('Date created, old &rarr; new'),
+  'date_available DESC' => l10n('Date posted, new &rarr; old'),
+  'date_available ASC' => l10n('Date posted, old &rarr; new'),
+  );
 
 // +-----------------------------------------------------------------------+
 // |                               functions                               |
@@ -84,6 +94,77 @@ function save_categories_order($categories)
   mass_updates(CATEGORIES_TABLE, $fields, $datas);
 
   update_global_rank();
+}
+
+function get_categories_ref_date($ids, $field='date_available', $minmax='max')
+{
+  // we need to work on the whole tree under each category, even if we don't
+  // want to sort sub categories
+  $category_ids = get_subcat_ids($ids);
+  
+  // search for the reference date of each album
+  $query = '
+SELECT
+    category_id,
+    '.$minmax.'('.$field.') as ref_date
+  FROM '.IMAGE_CATEGORY_TABLE.'
+    JOIN '.IMAGES_TABLE.' ON image_id = id
+  WHERE category_id IN ('.implode(',', $category_ids).')
+  GROUP BY category_id
+;';
+  $ref_dates = query2array($query, 'category_id', 'ref_date');
+
+  // the iterate on all albums (having a ref_date or not) to find the
+  // reference_date, with a search on sub-albums
+  $query = '
+SELECT
+    id,
+    uppercats
+  FROM '.CATEGORIES_TABLE.'
+  WHERE id IN ('.implode(',', $category_ids).')
+;';
+  $uppercats_of = query2array($query, 'id', 'uppercats');
+
+  foreach (array_keys($uppercats_of) as $cat_id)
+  {
+    // find the subcats
+    $subcat_ids = array();
+    
+    foreach ($uppercats_of as $id => $uppercats)
+    {
+      if (preg_match('/(^|,)'.$cat_id.'(,|$)/', $uppercats))
+      {
+        $subcat_ids[] = $id;
+      }
+    }
+
+    $to_compare = array();
+    foreach ($subcat_ids as $id)
+    {
+      if (isset($ref_dates[$id]))
+      {
+        $to_compare[] = $ref_dates[$id];
+      }
+    }
+
+    if (count($to_compare) > 0)
+    {
+      $ref_dates[$cat_id] = 'max' == $minmax ? max($to_compare) : min($to_compare);
+    }
+    else
+    {
+      $ref_dates[$cat_id] = null;
+    }
+  }
+
+  // only return the list of $ids, not the sub-categories
+  $return = array();
+  foreach ($ids as $id)
+  {
+    $return[$id] = $ref_dates[$id];
+  }
+  
+  return $return;
 }
 
 // +-----------------------------------------------------------------------+
@@ -152,6 +233,11 @@ elseif (isset($_POST['submitManualOrder']))
 }
 elseif (isset($_POST['submitAutoOrder']))
 {
+  if (!isset($sort_orders[ $_POST['order_by'] ]))
+  {
+    die('Invalid sort order');
+  }
+
   $query = '
 SELECT id
   FROM '.CATEGORIES_TABLE.'
@@ -166,9 +252,22 @@ SELECT id
   }
   
   $categories = array();
-  $names = array();
-  $id_uppercats = array();
+  $sort = array();
+
+  list($order_by_field, $order_by_asc) = explode(' ', $_POST['order_by']);
   
+  $order_by_date = false;
+  if (strpos($order_by_field, 'date_') === 0)
+  {
+    $order_by_date = true;
+    
+    $ref_dates = get_categories_ref_date(
+      $category_ids,
+      $order_by_field,
+      'ASC' == $order_by_asc ? 'min' : 'max'
+      );
+  }
+
   $query = '
 SELECT id, name, id_uppercat
   FROM '.CATEGORIES_TABLE.'
@@ -177,19 +276,28 @@ SELECT id, name, id_uppercat
   $result = pwg_query($query);
   while ($row = pwg_db_fetch_assoc($result))
   {
+    if ($order_by_date)
+    {
+      $sort[] = $ref_dates[ $row['id'] ];
+    }
+    else
+    {
+      $sort[] = $row['name'];
+    }
+    
     $categories[] = array(
       'id' => $row['id'],
       'id_uppercat' => $row['id_uppercat'],
       );
-    $names[] = $row['name'];
   }
 
   array_multisort(
-    $names,
+    $sort,
     SORT_REGULAR,
-    'asc' == $_POST['ascdesc'] ? SORT_ASC : SORT_DESC,
+    'ASC' == $order_by_asc ? SORT_ASC : SORT_DESC,
     $categories
     );
+  
   save_categories_order($categories);
 
   $page['infos'][] = l10n('Albums automatically sorted');
@@ -218,11 +326,14 @@ if (isset($_GET['parent_id']))
 {
   $form_action.= '&amp;parent_id='.$_GET['parent_id'];
 }
+$sort_orders_checked = array_keys($sort_orders);
 
 $template->assign(array(
   'CATEGORIES_NAV'=>$navigation,
   'F_ACTION'=>$form_action,
   'PWG_TOKEN' => get_pwg_token(),
+  'sort_orders' => $sort_orders,
+  'sort_order_checked' => array_shift($sort_orders_checked),
  ));
 
 // +-----------------------------------------------------------------------+
@@ -324,7 +435,7 @@ foreach ($categories as $category)
   $tpl_cat =
     array(
       'NAME'       => 
-        trigger_event(
+        trigger_change(
           'render_category_name',
           $category['name'],
           'admin_cat_list'
@@ -363,10 +474,9 @@ foreach ($categories as $category)
   $template->append('categories', $tpl_cat);
 }
 
-trigger_action('loc_end_cat_list');
+trigger_notify('loc_end_cat_list');
 
 // +-----------------------------------------------------------------------+
 // |                          sending html code                            |
 // +-----------------------------------------------------------------------+
 $template->assign_var_from_handle('ADMIN_CONTENT', 'categories');
-?>

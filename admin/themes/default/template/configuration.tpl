@@ -138,7 +138,7 @@ updateFilters();
     <li>
       <label>
         <input type="checkbox" name="obligatory_user_mail_address" {if ($main.obligatory_user_mail_address)}checked="checked"{/if}>
-        {'Mail address is obligatory for all users'|@translate}
+        {'Mail address is mandatory for registration'|@translate}
       </label>
     </li>
   </ul>
@@ -269,6 +269,13 @@ jQuery("input[name='mail_theme']").change(function() {
       <label>
         <input type="checkbox" name="comments_email_mandatory" {if ($comments.comments_email_mandatory)}checked="checked"{/if}>
         {'Email address is mandatory'|@translate}
+      </label>
+    </li>
+
+    <li>
+      <label>
+        <input type="checkbox" name="comments_enable_website" {if ($comments.comments_enable_website)}checked="checked"{/if}>
+        {'Allow users to add a link to their website'|translate}
       </label>
     </li>
 

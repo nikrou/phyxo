@@ -419,3 +419,8 @@ $lang['Password is missing. Please enter the password.'] = 'Passord manglar. Skr
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Stadfesting av passord manglar. Skriv inn stadfesting av passord.';
 $lang['%d photos per page'] = '%d bilete på kvar side';
 $lang['Theme'] = 'Utsjånadsmal';
+$lang['No results for'] = 'Ikkje noko resultat for';
+$lang['Apply on properties'] = 'Gjer aktiv for eigneskapar';
+$lang['Photo description'] = 'Biletskildring';
+$lang['Photo title'] = 'Bilettittel';
+

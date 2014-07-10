@@ -289,9 +289,9 @@ define(\'DB_COLLATE\', \'\');';
         @fputs($fp, $file_content, strlen($file_content));
         @fclose($fp);
 
-        // tables creation, based on piwigo_structure.sql
+        // tables creation, based on phyxo_structure.sql
         execute_sqlfile(
-            PHPWG_ROOT_PATH.'install/piwigo_structure-'.$dblayer.'.sql',
+            PHPWG_ROOT_PATH.'install/phyxo_structure-'.$dblayer.'.sql',
             DEFAULT_PREFIX_TABLE,
             $prefixeTable,
             $dblayer

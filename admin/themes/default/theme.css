@@ -225,6 +225,12 @@ FIELDSET.elementEdit .thumb {
 	display: block;
 	float: right;
 	text-align: center;
+	opacity: 0.6;
+	-webkit-transition:opacity 400ms ease;
+	transition:opacity 400ms ease;
+}
+FIELDSET.elementEdit .thumb:hover {
+	opacity:1;
 }
 
 TABLE.doubleSelect {
@@ -572,11 +578,6 @@ img.ui-datepicker-trigger {
 
 #photosAddContent {
   text-align:left;
-}
-
-#photosAddContent FIELDSET {
-  width:650px;
-  margin:0 auto 20px auto;
 }
 
 #photosAddContent P {
@@ -987,6 +988,11 @@ LEGEND {
 #order_filters .order_by_is_custom {display:block;font-weight:normal;font-style:italic;margin-left:20px;}
 
 /* Upload Form */
+.plupload_header {display:none;}
+#uploadForm .plupload_container {padding:0}
+#uploadForm .plupload_scroll .plupload_filelist {height:250px;}
+#uploadForm li.plupload_droptext {line-height:230px;font-size:2em;}
+
 #uploadBoxes .file {margin-bottom:5px;text-align:left;}
 #uploadBoxes {margin-top:20px;}
 #addUploadBox {margin-bottom:2em;}
@@ -997,7 +1003,7 @@ p#uploadWarningsSummary .showInfo {margin-left:3px;}
 p#uploadWarnings {display:none;text-align:left;margin-bottom:1em;font-size:90%;color:#999;}
 p#uploadModeInfos {text-align:left;margin-top:1em;font-size:90%;color:#999;}
 
-#photosAddContent p.showFieldset {text-align:left;margin: 0 auto 10px auto;width: 650px;}
+#photosAddContent p.showFieldset {text-align:left;margin: 1em;}
 
 #uploadProgress {width:650px; margin:10px auto;font-size:90%;}
 #progressbar {border:1px solid #ccc; background-color:#eee;}
@@ -1042,6 +1048,13 @@ p#uploadModeInfos {text-align:left;margin-top:1em;font-size:90%;color:#999;}
 }
 
 /* Album Manager */
+#addAlbumForm {
+  text-align:left;
+  padding:1em;
+}
+#addAlbumForm .selectize-dropdown-content {
+  max-height:170px;
+}
 #addAlbumForm input[name="category_name"], #formCreateAlbum input[name="virtual_name"] {
   width:300px;
 }

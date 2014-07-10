@@ -1,7 +1,6 @@
-{include file='include/tag_selection.inc.tpl'}
-{include file='include/datepicker.inc.tpl'}
-{include file='include/colorbox.inc.tpl'}
-{include file='include/add_album.inc.tpl'}
+{include file='include/datepicker.inc.tpl' load_mode='async'}
+{include file='include/colorbox.inc.tpl' load_mode='async'}
+{include file='include/add_album.inc.tpl' load_mode='async'}
 
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 
@@ -10,106 +9,60 @@
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
+{assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.default.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
-{combine_script id='jquery.progressBar' load='footer' path='themes/default/js/plugins/jquery.progressbar.min.js'}
-{combine_script id='jquery.ajaxmanager' load='footer' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
+{combine_script id='jquery.progressBar' load='async' path='themes/default/js/plugins/jquery.progressbar.min.js'}
+{combine_script id='jquery.ajaxmanager' load='async' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
 
-{footer_script}{literal}
-/* Shift-click: select all photos between the click and the shift+click */
+{combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum' path='admin/themes/default/js/batchManagerGlobal.js'}
+
+{footer_script}
+var lang = {
+	Cancel: '{'Cancel'|translate|escape:'javascript'}',
+	AreYouSure: "{'Are you sure?'|translate|escape:'javascript'}"
+};
+
 jQuery(document).ready(function() {
-  var last_clicked=0;
-  var last_clickedstatus=true;
-  jQuery.fn.enableShiftClick = function() {
-    var inputs = [];
-    var count=0;
-    this.find('input[type=checkbox]').each(function() {
-      var pos=count;
-      inputs[count++]=this;
-      $(this).bind("shclick", function (dummy,event) {
-        if (event.shiftKey) {
-          var first = last_clicked;
-          var last = pos;
-          if (first > last) {
-            first=pos;
-            last=last_clicked;
-          }
 
-          for (var i=first; i<=last;i++) {
-            input = $(inputs[i]);
-            $(input).prop('checked', last_clickedstatus);
-            if (last_clickedstatus)
-            {
-              $(input).siblings("span.wrap2").addClass("thumbSelected");
-            }
-            else
-            {
-              $(input).siblings("span.wrap2").removeClass("thumbSelected");
-            }
-          }
-        }
-        else {
-          last_clicked = pos;
-          last_clickedstatus = this.checked;
-        }
-        return true;
-      });
-      $(this).click(function(event) { $(this).triggerHandler("shclick",event)});
-    });
-  }
-	$('ul.thumbnails').enableShiftClick();
-});
-{/literal}
-
-jQuery(document).ready(function() {ldelim}
-  jQuery('[data-datepicker]').pwgDatepicker({ showTimepicker: true });
-
-  jQuery("a.preview-box").colorbox();
-  
   {* <!-- TAGS --> *}
-  var tagsCache = new LocalStorageCache('tagsAdminList', 5*60, function(callback) {
-    jQuery.getJSON('{$ROOT_URL}ws.php?format=json&method=pwg.tags.getAdminList', function(data) {
-      var tags = data.result.tags;
-      
-      for (var i=0, l=tags.length; i<l; i++) {
-        tags[i].id = '~~' + tags[i].id + '~~';
+  var tagsCache = new TagsCache({
+    serverKey: '{$CACHE_KEYS.tags}',
+    serverId: '{$CACHE_KEYS._hash}',
+    rootUrl: '{$ROOT_URL}'
+  });
+
+  tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+    'Add': '{'Create'|translate}'
+  }});
+
+  {* <!-- CATEGORIES --> *}
+  window.categoriesCache = new CategoriesCache({
+    serverKey: '{$CACHE_KEYS.categories}',
+    serverId: '{$CACHE_KEYS._hash}',
+    rootUrl: '{$ROOT_URL}'
+  });
+
+  categoriesCache.selectize(jQuery('[data-selectize=categories]'), {
+    filter: function(categories, options) {
+      if (this.name == 'dissociate') {
+        var filtered = jQuery.grep(categories, function(cat) {
+          return !cat.dir;
+        });
+
+        if (filtered.length > 0) {
+          jQuery('.albumDissociate').show();
+          options.default = filtered[0].id;
+        }
+
+        return filtered;
       }
-      
-      callback(tags);
-    });
-  });
-  
-  jQuery('[data-selectize=tags]').selectize({
-    valueField: 'id',
-    labelField: 'name',
-    searchField: ['name'],
-    plugins: ['remove_button']
-  });
-  
-  jQuery('[data-selectize=tags-create]').selectize({
-    valueField: 'id',
-    labelField: 'name',
-    searchField: ['name'],
-    plugins: ['remove_button'],
-    create: function(input, callback) {
-      tagsCache.clear();
-      
-      callback({
-        id: input,
-        name: input
-      });
+      else {
+        return categories;
+      }
     }
   });
-  
-  tagsCache.get(function(tags) {
-    jQuery('[data-selectize^=tags]').each(function() {
-      this.selectize.load(function(callback) {
-        // one select is populated with <option>
-        if (jQuery.isEmptyObject(this.options)) {
-          callback(tags);
-        }
-      });
 
       if (jQuery(this).data('value')) {
         jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, tag) {
@@ -122,46 +75,12 @@ jQuery(document).ready(function() {ldelim}
 
 var nb_thumbs_page = {$nb_thumbs_page};
 var nb_thumbs_set = {$nb_thumbs_set};
-var are_you_sure = "{'Are you sure?'|@translate|@escape:'javascript'}";
 var applyOnDetails_pattern = "{'on the %d selected photos'|@translate}";
 var all_elements = [{if !empty($all_elements)}{','|@implode:$all_elements}{/if}];
-var derivatives = {ldelim}
-	elements: null,
-	done: 0,
-	total: 0,
-	
-	finished: function() {ldelim}
-		return derivatives.done == derivatives.total && derivatives.elements && derivatives.elements.length==0;
-	}
-};
 
 var selectedMessage_pattern = "{'%d of %d photos selected'|@translate}";
 var selectedMessage_none = "{'No photo selected, %d photos in current set'|@translate}";
 var selectedMessage_all = "{'All %d photos are selected'|@translate}";
-
-var width_str = '{'Width'|@translate}';
-var height_str = '{'Height'|@translate}';
-var max_width_str = '{'Maximum width'|@translate}';
-var max_height_str = '{'Maximum height'|@translate}';
-{literal}
-
-function progress(success) {
-  jQuery('#progressBar').progressBar(derivatives.done, {
-    max: derivatives.total,
-    textFormat: 'fraction',
-    boxImage: 'themes/default/images/progressbar.gif',
-    barImage: 'themes/default/images/progressbg_orange.gif'
-  });
-	if (success !== undefined) {
-		var type = success ? 'regenerateSuccess': 'regenerateError',
-			s = jQuery('[name="'+type+'"]').val();
-		jQuery('[name="'+type+'"]').val(++s);
-	}
-
-	if (derivatives.finished()) {
-		jQuery('#applyAction').click();
-	}
-}
 
 $(document).ready(function() {
   function checkPermitAction() {
@@ -217,24 +136,11 @@ $(document).ready(function() {
     }
   }
 
-  $('.thumbnails img').tipTip({
-    'delay' : 0,
-    'fadeIn' : 200,
-    'fadeOut' : 200
-  });
-
   $("[id^=action_]").hide();
 
   $("select[name=selectAction]").change(function () {
     $("[id^=action_]").hide();
     $("#action_"+$(this).prop("value")).show();
-
-    /* make sure the #albumSelect is on the right select box so that the */
-    /* "add new album" popup fills the right select box                  */
-    if ("associate" == $(this).prop("value") || "move" == $(this).prop("value")) {
-      jQuery("#albumSelect").removeAttr("id");
-      jQuery("#action_"+$(this).prop("value")+" select").attr("id", "albumSelect");
-    }
 
     if ($(this).val() != -1) {
       $("#applyActionBlock").show();
@@ -253,10 +159,10 @@ $(document).ready(function() {
     checkbox.triggerHandler("shclick",event);
 
     if ($(checkbox).is(':checked')) {
-      $(wrap2).addClass("thumbSelected"); 
+      $(wrap2).addClass("thumbSelected");
     }
     else {
-      $(wrap2).removeClass('thumbSelected'); 
+      $(wrap2).removeClass('thumbSelected');
     }
 
     checkPermitAction();
@@ -275,7 +181,7 @@ $(document).ready(function() {
       var checkbox = $(this).children("input[type=checkbox]");
 
       $(checkbox).prop('checked', true);
-      $(wrap2).addClass("thumbSelected"); 
+      $(wrap2).addClass("thumbSelected");
     });
   }
 
@@ -287,7 +193,7 @@ $(document).ready(function() {
       var checkbox = $(this).children("input[type=checkbox]");
 
       $(checkbox).prop('checked', false);
-      $(wrap2).removeClass("thumbSelected"); 
+      $(wrap2).removeClass("thumbSelected");
     });
     checkPermitAction();
     return false;
@@ -303,10 +209,10 @@ $(document).ready(function() {
       $(checkbox).prop('checked', !$(checkbox).is(':checked'));
 
       if ($(checkbox).is(':checked')) {
-        $(wrap2).addClass("thumbSelected"); 
+        $(wrap2).addClass("thumbSelected");
       }
       else {
-        $(wrap2).removeClass('thumbSelected'); 
+        $(wrap2).removeClass('thumbSelected');
       }
     });
     checkPermitAction();
@@ -320,75 +226,6 @@ $(document).ready(function() {
     return false;
   });
 
-  $("input[name=remove_author]").click(function () {
-    if ($(this).is(':checked')) {
-      $("input[name=author]").hide();
-    }
-    else {
-      $("input[name=author]").show();
-    }
-  });
-
-  $("input[name=remove_title]").click(function () {
-    if ($(this).is(':checked')) {
-      $("input[name=title]").hide();
-    }
-    else {
-      $("input[name=title]").show();
-    }
-  });
-
-  $("input[name=remove_date_creation]").click(function () {
-    if ($(this).is(':checked')) {
-      $("#set_date_creation").hide();
-    }
-    else {
-      $("#set_date_creation").show();
-    }
-  });
-
-  $(".removeFilter").click(function () {
-    var filter = $(this).parent('li').attr("id");
-    filter_disable(filter);
-
-    return false;
-  });
-
-  function filter_enable(filter) {
-    /* show the filter*/
-    $("#"+filter).show();
-
-    /* check the checkbox to declare we use this filter */
-    $("input[type=checkbox][name="+filter+"_use]").prop("checked", true);
-
-    /* forbid to select this filter in the addFilter list */
-    $("#addFilter").children("option[value="+filter+"]").attr("disabled", "disabled");
-  }
-
-  $("#addFilter").change(function () {
-    var filter = $(this).prop("value");
-    filter_enable(filter);
-    $(this).prop("value", -1);
-  });
-
-  function filter_disable(filter) {
-    /* hide the filter line */
-    $("#"+filter).hide();
-
-    /* uncheck the checkbox to declare we do not use this filter */
-    $("input[name="+filter+"_use]").prop("checked", false);
-
-    /* give the possibility to show it again */
-    $("#addFilter").children("option[value="+filter+"]").removeAttr("disabled");
-  }
-
-  $("#removeFilters").click(function() {
-    $("#filterList li").each(function() {
-      var filter = $(this).attr("id");
-      filter_disable(filter);
-    });
-    return false;
-  });
 
   jQuery('#applyAction').click(function() {
 		var action = jQuery('[name="selectAction"]').val();
@@ -396,9 +233,9 @@ $(document).ready(function() {
 			var d_count = $('#action_delete_derivatives input[type=checkbox]').filter(':checked').length
 				, e_count = $('input[name="setSelected"]').is(':checked') ? nb_thumbs_set : $('.thumbnails input[type=checkbox]').filter(':checked').length;
 			if (d_count*e_count > 500)
-				return confirm(are_you_sure);
+				return confirm(lang.AreYouSure);
 		}
-		
+
 		if (action != 'generate_derivatives'
 			|| derivatives.finished() )
 		{
@@ -407,8 +244,8 @@ $(document).ready(function() {
 
 		jQuery('.bulkAction').hide();
 
-		var queuedManager = jQuery.manageAjax.create('queued', { 
-			queue: true,  
+		var queuedManager = jQuery.manageAjax.create('queued', {
+			queue: true,
 			cacheResponse: false,
 			maxRequests: 1
 		});
@@ -426,70 +263,46 @@ $(document).ready(function() {
 		jQuery('#applyActionBlock').hide();
 		jQuery('select[name="selectAction"]').hide();
 		jQuery('#regenerationMsg').show();
-		
+
 		progress();
 		getDerivativeUrls();
 		return false;
   });
 
-	function getDerivativeUrls() {
-		var ids = derivatives.elements.splice(0, 500);
-		var params = {max_urls: 100000, ids: ids, types: []};
-		jQuery("#action_generate_derivatives input").each( function(i, t) {
-			if ($(t).is(":checked"))
-				params.types.push( t.value );
-		} );
-
-		jQuery.ajax( {
-			type: "POST",
-			url: 'ws.php?format=json&method=pwg.getMissingDerivatives',
-			data: params,
-			dataType: "json",
-			success: function(data) {
-				if (!data.stat || data.stat != "ok") {
-					return;
-				}
-				derivatives.total += data.result.urls.length;
-				progress();
-				for (var i=0; i < data.result.urls.length; i++) {
-					jQuery.manageAjax.add("queued", {
-						type: 'GET', 
-						url: data.result.urls[i] + "&ajaxload=true", 
-						dataType: 'json',
-						success: ( function(data) { derivatives.done++; progress(true) }),
-						error: ( function(data) { derivatives.done++; progress(false) })
-					});
-				}
-				if (derivatives.elements.length)
-					setTimeout( getDerivativeUrls, 25 * (derivatives.total-derivatives.done));
-			}
-		} );
-	}
-
   checkPermitAction();
-  
-  /* dimensions sliders */
-  /**
-   * find the key from a value in the startStopValues array
-   */
+
+	{* /* dimensions sliders */
+	/**
+	 * find the key from a value in the startStopValues array
+	 */ *}
   function getSliderKeyFromValue(value, values) {
     for (var key in values) {
       if (values[key] == value) {
         return key;
       }
     }
-  
+
     return 0;
   }
 
-{/literal}
-  var dimension_values = {ldelim}
-    'width':[{$dimensions.widths}],
-    'height':[{$dimensions.heights}],
-    'ratio':[{$dimensions.ratios}]
+  var dimension_values = {
+    width:[{$dimensions.widths}],
+    height:[{$dimensions.heights}],
+    ratio:[{$dimensions.ratios}]
   };
 
-  $("#filter_dimension_width_slider").slider({ldelim}
+	function onSliderChange(type, ui, pattern) {
+		$("input[name='filter_dimension_min_"+type+"']").val(dimension_values[type][ui.values[0]]);
+		$("input[name='filter_dimension_max_"+type+"']").val(dimension_values[type][ui.values[1]]);
+
+		$("#filter_dimension_"+type+"_info").html(sprintf(
+			pattern,
+			dimension_values[type][ui.values[0]],
+			dimension_values[type][ui.values[1]]
+		));
+	}
+	
+  $("#filter_dimension_width_slider").slider({
     range: true,
     min: 0,
     max: dimension_values['width'].length - 1,
@@ -497,29 +310,15 @@ $(document).ready(function() {
       getSliderKeyFromValue({$dimensions.selected.min_width}, dimension_values['width']),
       getSliderKeyFromValue({$dimensions.selected.max_width}, dimension_values['width'])
     ],
-    slide: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_width']").val(dimension_values['width'][ui.values[0]]);
-      $("input[name='filter_dimension_max_width']").val(dimension_values['width'][ui.values[1]]);
-
-      $("#filter_dimension_width_info").html(sprintf(
-        "{'between %d and %d pixels'|@translate}",
-        dimension_values['width'][ui.values[0]],
-        dimension_values['width'][ui.values[1]]
-      ));
-    },
-    change: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_width']").val(dimension_values['width'][ui.values[0]]);
-      $("input[name='filter_dimension_max_width']").val(dimension_values['width'][ui.values[1]]);
-
-      $("#filter_dimension_width_info").html(sprintf(
-        "{'between %d and %d pixels'|@translate}",
-        dimension_values['width'][ui.values[0]],
-        dimension_values['width'][ui.values[1]]
-      ));
-    }
+		slide: function(event, ui) {
+			onSliderChange('width', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
+		},
+		change: function(event, ui) {
+			onSliderChange('width', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
+		}
   });
 
-  $("#filter_dimension_height_slider").slider({ldelim}
+  $("#filter_dimension_height_slider").slider({
     range: true,
     min: 0,
     max: dimension_values['height'].length - 1,
@@ -527,29 +326,15 @@ $(document).ready(function() {
       getSliderKeyFromValue({$dimensions.selected.min_height}, dimension_values['height']),
       getSliderKeyFromValue({$dimensions.selected.max_height}, dimension_values['height'])
     ],
-    slide: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_height']").val(dimension_values['height'][ui.values[0]]);
-      $("input[name='filter_dimension_max_height']").val(dimension_values['height'][ui.values[1]]);
-
-      $("#filter_dimension_height_info").html(sprintf(
-        "{'between %d and %d pixels'|@translate}",
-        dimension_values['height'][ui.values[0]],
-        dimension_values['height'][ui.values[1]]
-      ));
-    },
-    change: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_height']").val(dimension_values['height'][ui.values[0]]);
-      $("input[name='filter_dimension_max_height']").val(dimension_values['height'][ui.values[1]]);
-
-      $("#filter_dimension_height_info").html(sprintf(
-        "{'between %d and %d pixels'|@translate}",
-        dimension_values['height'][ui.values[0]],
-        dimension_values['height'][ui.values[1]]
-      ));
-    }
+		slide: function(event, ui) {
+			onSliderChange('height', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
+		},
+		change: function(event, ui) {
+			onSliderChange('height', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
+		}
   });
 
-  $("#filter_dimension_ratio_slider").slider({ldelim}
+  $("#filter_dimension_ratio_slider").slider({
     range: true,
     min: 0,
     max: dimension_values['ratio'].length - 1,
@@ -557,40 +342,22 @@ $(document).ready(function() {
       getSliderKeyFromValue({$dimensions.selected.min_ratio}, dimension_values['ratio']),
       getSliderKeyFromValue({$dimensions.selected.max_ratio}, dimension_values['ratio'])
     ],
-    slide: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_ratio']").val(dimension_values['ratio'][ui.values[0]]);
-      $("input[name='filter_dimension_max_ratio']").val(dimension_values['ratio'][ui.values[1]]);
-
-      $("#filter_dimension_ratio_info").html(sprintf(
-        "{'between %.2f and %.2f'|@translate}",
-        dimension_values['ratio'][ui.values[0]],
-        dimension_values['ratio'][ui.values[1]]
-      ));
-    },
-    change: function(event, ui) {ldelim}
-      $("input[name='filter_dimension_min_ratio']").val(dimension_values['ratio'][ui.values[0]]);
-      $("input[name='filter_dimension_max_ratio']").val(dimension_values['ratio'][ui.values[1]]);
-
-      $("#filter_dimension_ratio_info").html(sprintf(
-        "{'between %.2f and %.2f'|@translate}",
-        dimension_values['ratio'][ui.values[0]],
-        dimension_values['ratio'][ui.values[1]]
-      ));
-    }
+		slide: function(event, ui) {
+			onSliderChange('ratio', ui, "{'between %.2f and %.2f'|translate|escape:'javascript'}");
+		},
+		change: function(event, ui) {
+			onSliderChange('ratio', ui, "{'between %.2f and %.2f'|translate|escape:'javascript'}");
+		}
   });
-  
-  $("a.dimensions-choice").click(function() {ldelim}
+
+  $("a.dimensions-choice").click(function() {
     var type = jQuery(this).data("type");
     var min = jQuery(this).data("min");
     var max = jQuery(this).data("max");
 
-    $("#filter_dimension_"+ type +"_slider").slider("values", 0,
-      getSliderKeyFromValue(min, dimension_values[type])
-    );
-
-    $("#filter_dimension_"+type+"_slider").slider("values", 1, 
-      getSliderKeyFromValue(max, dimension_values[type])
-    );
+		$("#filter_dimension_"+ type +"_slider")
+			.slider("values", 0, getSliderKeyFromValue(min, dimension_values[type]) )
+			.slider("values", 1, getSliderKeyFromValue(max, dimension_values[type]) );
   });
 });
 
@@ -617,27 +384,27 @@ $(document).ready(function() {
           {/foreach}
         </select>
       </li>
-      
+
       <li id="filter_category" {if !isset($filter.category)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {if isset($filter.category)}checked="checked"{/if}>
         {'Album'|@translate}
-        <select style="width:400px" name="filter_category" size="1">
-          {html_options options=$category_full_name_options selected=$filter_category_selected}
-        </select>
+        <select data-selectize="categories" data-value="{$filter_category_selected|@json_encode|escape:html}"
+          data-default="first" name="filter_category" style="width:400px"></select>
         <label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|@translate}</label>
       </li>
-      
+
       <li id="filter_tags" {if !isset($filter.tags)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {if isset($filter.tags)}checked="checked"{/if}>
         {'Tags'|@translate}
-        <select data-selectize="tags" data-value="{if isset($filter_tags)}{$filter_tags|@json_encode|escape:html}{else}[]{/if}"
-          name="filter_tags[]" multiple style="width:400px;" ></select>
+        <select data-selectize="tags" data-value="{$filter_tags|@json_encode|escape:html}"
+          placeholder="{'Type in a search term'|translate}"
+          name="filter_tags[]" multiple style="width:400px;"></select>
         <label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|@translate}</span></label>
         <label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|@translate}</span></label>
       </li>
-      
+
       <li id="filter_level" {if !isset($filter.level)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {if isset($filter.level)}checked="checked"{/if}>
@@ -647,21 +414,21 @@ $(document).ready(function() {
         </select>
         <label><input type="checkbox" name="filter_level_include_lower" {if isset($filter.level_include_lower)}checked="checked"{/if}> {'include photos with lower privacy level'|@translate}</label>
       </li>
-      
+
       <li id="filter_dimension" {if !isset($filter.dimension)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {if isset($filter.dimension)}checked="checked"{/if}>
         {'Dimensions'|@translate}
-        
+
         <blockquote>
           {'Width'|@translate} <span id="filter_dimension_width_info">{'between %d and %d pixels'|@translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
           | <a class="dimensions-choice" data-type="width" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|@translate}</a>
           <div id="filter_dimension_width_slider"></div>
-          
+
           {'Height'|@translate} <span id="filter_dimension_height_info">{'between %d and %d pixels'|@translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
           | <a class="dimensions-choice" data-type="height" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|@translate}</a>
           <div id="filter_dimension_height_slider"></div>
-          
+
           {'Ratio'|@translate} ({'Width'|@translate}/{'Height'|@translate}) <span id="filter_dimension_ratio_info">{'between %.2f and %.2f'|@translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
 {if isset($dimensions.ratio_portrait)}
           | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|@translate}</a>
@@ -678,7 +445,7 @@ $(document).ready(function() {
           | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.bounds.min_ratio}" data-max="{$dimensions.bounds.max_ratio}">{'Reset'|@translate}</a>
           <div id="filter_dimension_ratio_slider"></div>
         </blockquote>
-        
+
         <input type="hidden" name="filter_dimension_min_width" value="{$dimensions.selected.min_width}">
         <input type="hidden" name="filter_dimension_max_width" value="{$dimensions.selected.max_width}">
         <input type="hidden" name="filter_dimension_min_height" value="{$dimensions.selected.min_height}">
@@ -708,7 +475,7 @@ $(document).ready(function() {
         <option value="filter_dimension" {if isset($filter.dimension)}disabled="disabled"{/if}>{'Dimensions'|@translate}</option>
 				<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|@translate}</option>
       </select>
-      <a id="removeFilters" href="">{'Remove all filters'|@translate}</a>
+      <a id="removeFilters">{'Remove all filters'|@translate}</a>
     </p>
 
     <p class="actionButtons" id="applyFilterBlock">
@@ -801,9 +568,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
       <option value="delete" class="icon-trash">{'Delete selected photos'|@translate}</option>
       <option value="associate">{'Associate to album'|@translate}</option>
       <option value="move">{'Move to album'|@translate}</option>
-  {if !empty($dissociate_options)}
-      <option value="dissociate">{'Dissociate from album'|@translate}</option>
-  {/if}
+      <option value="dissociate" class="albumDissociate" style="display:none">{'Dissociate from album'|@translate}</option>
       <option value="add_tags">{'Add tags'|@translate}</option>
   {if !empty($associated_tags)}
       <option value="del_tags">{'remove tags'|@translate}</option>
@@ -834,38 +599,37 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- associate -->
     <div id="action_associate" class="bulkAction">
-          <select style="width:400px" name="associate" size="1">
-            {html_options options=$category_full_name_options}
-         </select>
-<br>{'... or '|@translate} <a href="#" class="addAlbumOpen" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
+      <select data-selectize="categories" data-default="first" name="associate" style="width:400px"></select>
+      <br>{'... or '|@translate}
+      <a href="#" data-add-album="associate" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
     </div>
 
     <!-- move -->
     <div id="action_move" class="bulkAction">
-          <select style="width:400px" name="move" size="1">
-            {html_options options=$category_full_name_options}
-         </select>
-<br>{'... or '|@translate} <a href="#" class="addAlbumOpen" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
+      <select data-selectize="categories" data-default="first" name="move" style="width:400px"></select>
+      <br>{'... or '|@translate}
+      <a href="#" data-add-album="move" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
     </div>
 
 
     <!-- dissociate -->
-    <div id="action_dissociate" class="bulkAction">
-          <select style="width:400px" name="dissociate" size="1">
-            {if !empty($dissociate_options)}{html_options options=$dissociate_options }{/if}
-          </select>
+    <div id="action_dissociate" class="bulkAction albumDissociate" style="display:none">
+      <select data-selectize="categories" placeholder="{'Type in a search term'|translate}"
+        name="dissociate" style="width:400px"></select>
     </div>
 
 
     <!-- add_tags -->
     <div id="action_add_tags" class="bulkAction">
-      <select data-selectize="tags-create" name="add_tags[]" multiple style="width:400px;"></select>
+      <select data-selectize="tags" data-create="true" placeholder="{'Type in a search term'|translate}"
+        name="add_tags[]" multiple style="width:400px;"></select>
     </div>
 
     <!-- del_tags -->
     <div id="action_del_tags" class="bulkAction">
 {if !empty($associated_tags)}
-      <select data-selectize="tags" name="del_tags[]" multiple style="width:400px;">
+      <select data-selectize="tags" name="del_tags[]" multiple style="width:400px;"
+        placeholder="{'Type in a search term'|translate}">
       {foreach from=$associated_tags item=tag}
         <option value="{$tag.id}">{$tag.name}</option>
       {/foreach}
@@ -878,7 +642,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     <label><input type="checkbox" name="remove_author"> {'remove author'|@translate}</label><br>
     {assign var='authorDefaultValue' value='Type here the author name'|@translate}
 <input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
-    </div>    
+    </div>
 
     <!-- title -->
     <div id="action_title" class="bulkAction">
@@ -918,14 +682,6 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 			{foreach from=$generate_derivatives_types key=type item=disp}
 				<label><input type="checkbox" name="generate_derivatives_type[]" value="{$type}"> {$disp}</label>
 			{/foreach}
-			{footer_script}
-			function selectGenerateDerivAll() {ldelim}
-				$("#action_generate_derivatives input[type=checkbox]").prop("checked", true);
-			}
-			function selectGenerateDerivNone() {ldelim}
-				$("#action_generate_derivatives input[type=checkbox]").prop("checked", false);
-			}
-			{/footer_script}
 		</div>
 
 		<!-- delete derivatives -->
@@ -936,16 +692,8 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 			{foreach from=$del_derivatives_types key=type item=disp}
 				<label><input type="checkbox" name="del_derivatives_type[]" value="{$type}"> {$disp}</label>
 			{/foreach}
-			{footer_script}
-			function selectDelDerivAll() {ldelim}
-				$("#action_delete_derivatives input[type=checkbox]").prop("checked", true);
-			}
-			function selectDelDerivNone() {ldelim}
-				$("#action_delete_derivatives input[type=checkbox]").prop("checked", false);
-			}
-			{/footer_script}
 		</div>
-		
+
     <!-- progress bar -->
     <div id="regenerationMsg" class="bulkAction" style="display:none">
       <p id="regenerationText" style="margin-bottom:10px;">{'Generate multiple size images'|@translate}</p>

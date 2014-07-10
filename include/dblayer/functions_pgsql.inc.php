@@ -693,3 +693,37 @@ function pwg_db_full_text_search($fields, $values) {
         pwg_db_real_escape_string(implode(' | ', $values))
     );
 }
+
+function pwg_db_get_tables($prefix) {
+    $query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema()';
+    $result = pwg_query($query);
+
+    while ($row = pwg_db_fetch_row($result)) {
+        if (preg_match('/^'.$prefix.'/', $row[0])) {
+            $tables[] = $row[0];
+        }
+    }
+
+    return $tables;
+}
+		
+function pwg_db_get_columns_of($tables) {
+    $columns_of = array();
+
+    $fmt_query =  'SELECT column_name, udt_name, character_maximum_length,';
+    $fmt_query .= ' is_nullable, column_default';
+    $fmt_query .= ' FROM information_schema.columns';
+    $fmt_query .= ' WHERE table_name = \'%s\'';
+
+    foreach ($tables as $table) {
+        $query = sprintf($fmt_query, pwg_db_real_escape_string($table));
+        $result = pwg_query($query);
+        $columns_of[$table] = array();
+        
+        while ($row = pwg_db_fetch_row($result)) {
+            $columns_of[$table][] = $row[0];
+        }
+    }
+    
+    return $columns_of;
+}

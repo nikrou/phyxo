@@ -36,110 +36,66 @@ define('EVENT_HANDLER_PRIORITY_NEUTRAL', 50);
 /**
  * Used to declare maintenance methods of a plugin.
  */
-class PluginMaintain 
+class PluginMaintain
 {
-  /** @var string $plugin_id */
-  protected $plugin_id;
+    /** @var string $plugin_id */
+    protected $plugin_id;
 
-  /**
-   * @param string $id
-   */
-  function __construct($id)
-  {
-    $this->plugin_id = $id;
-  }
-
-  /**
-   * @param string $plugin_version
-   * @param array &$errors - used to return error messages
-   */
-  function install($plugin_version, &$errors=array()) {}
-
-  /**
-   * @param string $plugin_version
-   * @param array &$errors - used to return error messages
-   */
-  function activate($plugin_version, &$errors=array()) {}
-
-  function deactivate() {}
-
-  function uninstall() {}
-
-  /**
-   * Tests if the plugin needs to be updated and call an update function
-   *
-   * @param string $version version exposed by the plugin (potentially new)
-   * @param string $on_update name of a method to call when an update is needed
-   *          it receives the previous version as first parameter
-   */
-  function autoUpdate($version, $on_update=null) {
-      global $pwg_loaded_plugins;
+    /**
+     * @param string $id
+     */
+    public function __construct($id) {
+        $this->plugin_id = $id;
+    }
     
-      $current_version = $pwg_loaded_plugins[$this->plugin_id]['version'];
-      
-      if ( $version == 'auto' or $current_version == 'auto' or safe_version_compare($current_version, $version, '<')) {
-          if (!empty($on_update)) {
-              call_user_func(array(&$this, $on_update), $current_version);
-          }
-      
-          if ($version != 'auto') {
-              $query = 'UPDATE '. PLUGINS_TABLE .' SET version = \''. $version .'\'  WHERE id = \''. $this->plugin_id .'\';';
-              pwg_query($query);
-              
-              $pwg_loaded_plugins[$this->plugin_id]['version'] = $version;
-          }
-      }
-  }
+    /**
+     * @param string $plugin_version
+     * @param array &$errors - used to return error messages
+     */
+    public function install($plugin_version, &$errors=array()) {}
+    
+    /**
+     * @param string $plugin_version
+     * @param array &$errors - used to return error messages
+     */
+    public function activate($plugin_version, &$errors=array()) {}
+    
+    public function deactivate() {}
+    
+    public function uninstall() {}
+    
+    /**
+     * @param string $old_version
+     * @param string $new_version
+     * @param array &$errors - used to return error messages
+     */
+    public function update($old_version, $new_version, &$errors=array()) {}
 }
 
 /**
  * Used to declare maintenance methods of a theme.
  */
-class ThemeMaintain 
+class ThemeMaintain
 {
-  /** @var string $theme_id */
-  protected $theme_id;
+    /** @var string $theme_id */
+    protected $theme_id;
 
-  /**
-   * @param string $id
-   */
-  function __construct($id)
-  {
-    $this->theme_id = $id;
-  }
+    /**
+     * @param string $id
+     */
+    public function __construct($id) {
+        $this->theme_id = $id;
+    }
 
-  /**
-   * @param string $theme_version
-   * @param array &$errors - used to return error messages
-   */
-  function activate($theme_version, &$errors=array()) {}
-
-  function deactivate() {}
-
-  function delete() {}
-  
-  /**
-   * Tests if the theme needs to be updated and call an update function
-   *
-   * @param string $version version exposed by the theme (potentially new)
-   * @param string $on_update name of a method to call when an update is needed
-   *          it receives the previous version as first parameter
-   */
-  function autoUpdate($version, $on_update=null) {
-      $query = 'SELECT version FROM '. THEMES_TABLE .' WHERE id = \''. $this->theme_id .'\';';
-      list($current_version) = pwg_db_fetch_row(pwg_query($query));
+    /**
+     * @param string $theme_version
+     * @param array &$errors - used to return error messages
+     */
+    function activate($theme_version, &$errors=array()) {}
     
-      if ( $version == 'auto' or $current_version == 'auto' or safe_version_compare($current_version, $version, '<')) {
-          if (!empty($on_update)) {
-              call_user_func(array(&$this, $on_update), $current_version);
-          }
-          
-          if ($version != 'auto') {
-              $query = 'UPDATE '. THEMES_TABLE .' SET version = \''. $version .'\' WHERE id = \''. $this->theme_id .'\';';
-              pwg_query($query);
-          }
-      }
-  }
+    function deactivate() {}
+    
+    function delete() {}
 }
 
 
@@ -152,29 +108,24 @@ class ThemeMaintain
  * @param string $include_path file to include before executing the callback
  * @return bool false is handler already exists
  */
-function add_event_handler($event, $func,
-    $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null)
-{
-  global $pwg_event_handlers;
-
-  if (isset($pwg_event_handlers[$event][$priority]))
-  {
-    foreach ($pwg_event_handlers[$event][$priority] as $handler)
-    {
-      if ($handler['function'] == $func)
-      {
-        return false;
-      }
+function add_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null) {
+    global $pwg_event_handlers;
+    
+    if (isset($pwg_event_handlers[$event][$priority])) {
+        foreach ($pwg_event_handlers[$event][$priority] as $handler) {
+            if ($handler['function'] == $func) {
+                return false;
+            }
+        }
     }
-  }
 
-  $pwg_event_handlers[$event][$priority][] = array(
-    'function' => $func,
-    'include_path' => is_string($include_path) ? $include_path : null,
+    $pwg_event_handlers[$event][$priority][] = array(
+        'function' => $func,
+        'include_path' => is_string($include_path) ? $include_path : null,
     );
 
-  ksort($pwg_event_handlers[$event]);
-  return true;
+    ksort($pwg_event_handlers[$event]);
+    return true;
 }
 
 /**
@@ -185,32 +136,25 @@ function add_event_handler($event, $func,
  * @param Callable $func
  * @param int $priority
  */
-function remove_event_handler($event, $func,
-   $priority=EVENT_HANDLER_PRIORITY_NEUTRAL)
-{
+function remove_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
   global $pwg_event_handlers;
 
-  if (!isset($pwg_event_handlers[$event][$priority]))
-  {
-    return false;
+  if (!isset($pwg_event_handlers[$event][$priority])) {
+      return false;
   }
-  for ($i=0; $i<count($pwg_event_handlers[$event][$priority]); $i++)
-  {
-    if ($pwg_event_handlers[$event][$priority][$i]['function']==$func)
-    {
-      unset($pwg_event_handlers[$event][$priority][$i]);
-      $pwg_event_handlers[$event][$priority] =
-        array_values($pwg_event_handlers[$event][$priority]);
 
-      if (empty($pwg_event_handlers[$event][$priority]))
-      {
-        unset($pwg_event_handlers[$event][$priority]);
-        if (empty($pwg_event_handlers[$event]))
-        {
-          unset($pwg_event_handlers[$event]);
+  for ($i=0; $i<count($pwg_event_handlers[$event][$priority]); $i++) {
+    if ($pwg_event_handlers[$event][$priority][$i]['function']==$func) {
+        unset($pwg_event_handlers[$event][$priority][$i]);
+        $pwg_event_handlers[$event][$priority] = array_values($pwg_event_handlers[$event][$priority]);
+        
+        if (empty($pwg_event_handlers[$event][$priority])) {
+            unset($pwg_event_handlers[$event][$priority]);
+            if (empty($pwg_event_handlers[$event])) {
+                unset($pwg_event_handlers[$event]);
+            }
         }
-      }
-      return true;
+        return true;
     }
   }
   return false;
@@ -223,64 +167,48 @@ function remove_event_handler($event, $func,
  * optional _$args_ are not transmitted.
  *
  * @since 2.6
- * @todo remove trigger_event()
  *
  * @param string $event
  * @param mixed $data data to transmit to all handlers
  * @param mixed $args,... optional arguments
- * @return mixed $data 
+ * @return mixed $data
  */
-function trigger_change($event, $data=null)
-{
-  $args = func_get_args();
-  return call_user_func_array('trigger_event', $args);
-}
+function trigger_change($event, $data=null) {
+    global $pwg_event_handlers;
 
-/**
- * @deprecated 2.6
- * @see trigger_change
- */
-function trigger_event($event, $data=null)
-{
-  global $pwg_event_handlers;
-
-  if (isset($pwg_event_handlers['trigger']))
-  {// debugging
-    trigger_action('trigger',
-      array('type'=>'event', 'event'=>$event, 'data'=>$data)
-      );
-  }
-
-  if (!isset($pwg_event_handlers[$event]))
-  {
-    return $data;
-  }
-  $args = func_get_args();
-  array_shift($args);
-
-  foreach ($pwg_event_handlers[$event] as $priority => $handlers)
-  {
-    foreach ($handlers as $handler)
-    {
-      $args[0] = $data;
-
-      if (!empty($handler['include_path']))
-      {
-        include_once($handler['include_path']);
-      }
-
-      $data = call_user_func_array($handler['function'], $args);
+    if (isset($pwg_event_handlers['trigger'])) {// debugging
+        trigger_notify(
+            'trigger',
+            array('type'=>'event', 'event'=>$event, 'data'=>$data)
+        );
     }
-  }
 
-  if (isset($pwg_event_handlers['trigger']))
-  {// debugging
-    trigger_action('trigger',
-      array('type'=>'post_event', 'event'=>$event, 'data'=>$data)
-      );
-  }
+    if (!isset($pwg_event_handlers[$event])) {
+        return $data;
+    }
+    $args = func_get_args();
+    array_shift($args);
 
-  return $data;
+    foreach ($pwg_event_handlers[$event] as $priority => $handlers) {
+        foreach ($handlers as $handler) {
+            $args[0] = $data;
+
+            if (!empty($handler['include_path'])) {
+                include_once($handler['include_path']);
+            }
+
+            $data = call_user_func_array($handler['function'], $args);
+        }
+    }
+
+    if (isset($pwg_event_handlers['trigger'])) { // debugging
+        trigger_notify(
+            'trigger',
+            array('type'=>'post_event', 'event'=>$event, 'data'=>$data)
+        );
+    }
+
+    return $data;
 }
 
 /**
@@ -288,51 +216,35 @@ function trigger_event($event, $data=null)
  * trigger_notify() is only used as a notifier, no modification of data is possible
  *
  * @since 2.6
- * @todo remove trigger_action()
  *
  * @param string $event
  * @param mixed $args,... optional arguments
  */
-function trigger_notify($event)
-{
-  $args = func_get_args();
-  return call_user_func_array('trigger_action', $args);
-}
+function trigger_notify($event) {
+    global $pwg_event_handlers;
 
-/**
- * @deprecated 2.6
- * @see trigger_notify
- */
-function trigger_action($event)
-{
-  global $pwg_event_handlers;
-
-  if (isset($pwg_event_handlers['trigger']) and $event!='trigger')
-  {// debugging - avoid recursive calls
-    trigger_action('trigger',
-      array('type'=>'action', 'event'=>$event, 'data'=>null)
-      );
-  }
-
-  if (!isset($pwg_event_handlers[$event]))
-  {
-    return;
-  }
-  $args = func_get_args();
-  array_shift($args);
-
-  foreach ($pwg_event_handlers[$event] as $priority => $handlers)
-  {
-    foreach ($handlers as $handler)
-    {
-      if (!empty($handler['include_path']))
-      {
-        include_once($handler['include_path']);
-      }
-
-      call_user_func_array($handler['function'], $args);
+    if (isset($pwg_event_handlers['trigger']) and $event!='trigger') { // debugging - avoid recursive calls
+        trigger_notify(
+            'trigger',
+            array('type'=>'action', 'event'=>$event, 'data'=>null)
+        );
     }
-  }
+
+    if (!isset($pwg_event_handlers[$event])) {
+        return;
+    }
+    $args = func_get_args();
+    array_shift($args);
+    
+    foreach ($pwg_event_handlers[$event] as $priority => $handlers) {
+        foreach ($handlers as $handler) {
+            if (!empty($handler['include_path'])) {
+                include_once($handler['include_path']);
+            }
+            
+            call_user_func_array($handler['function'], $args);
+        }
+    }
 }
 
 /**
@@ -344,15 +256,15 @@ function trigger_action($event)
  * @param mixed &$data
  * @return bool
  */
-function set_plugin_data($plugin_id, &$data)
-{
-  global $pwg_loaded_plugins;
-  if ( isset($pwg_loaded_plugins[$plugin_id]) )
-  {
-    $pwg_loaded_plugins[$plugin_id]['plugin_data'] = &$data;
-    return true;
-  }
-  return false;
+function set_plugin_data($plugin_id, &$data) {
+    global $pwg_loaded_plugins;
+
+    if ( isset($pwg_loaded_plugins[$plugin_id])) {
+        $pwg_loaded_plugins[$plugin_id]['plugin_data'] = &$data;
+        return true;
+    }
+    
+    return false;
 }
 
 /**
@@ -363,13 +275,13 @@ function set_plugin_data($plugin_id, &$data)
  * @param string $plugin_id
  * @return mixed
  */
-function &get_plugin_data($plugin_id)
-{
+function get_plugin_data($plugin_id) {
   global $pwg_loaded_plugins;
-  if ( isset($pwg_loaded_plugins[$plugin_id]['plugin_data']) )
-  {
-    return $pwg_loaded_plugins[$plugin_id]['plugin_data'];
+  
+  if (isset($pwg_loaded_plugins[$plugin_id]['plugin_data'])) {
+      return $pwg_loaded_plugins[$plugin_id]['plugin_data'];
   }
+  
   return null;
 }
 
@@ -381,38 +293,97 @@ function &get_plugin_data($plugin_id)
  * @return array
  */
 function get_db_plugins($state='', $id='') {
-    $query = 'SELECT * FROM '.PLUGINS_TABLE;
+    $query = '
+SELECT * FROM '.PLUGINS_TABLE;
     $clauses = array();
-
     if (!empty($state)) {
         $clauses[] = 'state=\''.$state.'\'';
     }
-
     if (!empty($id)) {
         $clauses[] = 'id = \''.$id.'\'';
     }
-    
     if (count($clauses)) {
-        $query .= '  WHERE '. implode(' AND ', $clauses);
+        $query .= '
+  WHERE '. implode(' AND ', $clauses);
     }
-  
+
     return query2array($query);
 }
 
 /**
- * Loads a plugin, it includes the main.inc.php file and updates _$pwg_loaded_plugins_.
+ * Loads a plugin in memory.
+ * It performs autoupdate, includes the main.inc.php file and updates *$pwg_loaded_plugins*.
  *
  * @param string $plugin
  */
-function load_plugin($plugin)
-{
-  $file_name = PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php';
-  if ( file_exists($file_name) )
-  {
-    global $pwg_loaded_plugins;
-    $pwg_loaded_plugins[ $plugin['id'] ] = $plugin;
-    include_once( $file_name );
-  }
+function load_plugin($plugin) {
+    $file_name = PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php';
+    if (file_exists($file_name)) {
+        autoupdate_plugin($plugin);
+        global $pwg_loaded_plugins;
+        $pwg_loaded_plugins[ $plugin['id'] ] = $plugin;
+        include_once($file_name);
+    }
+}
+
+/**
+ * Performs update task of a plugin.
+ * Autoupdate is only performed if the plugin has a maintain.class.php file.
+ *
+ * @since 2.7
+ *
+ * @param array &$plugin (id, version, state) will be updated if version changes
+ */
+function autoupdate_plugin(&$plugin) {
+    $maintain_file = PHPWG_PLUGINS_PATH.$plugin['id'].'/maintain.class.php';
+
+    // autoupdate is applicable only to plugins with 2.7 architecture
+    if (file_exists($maintain_file)) {
+        // try to find the filesystem version in lines 2 to 10 of main.inc.php
+        $fh = fopen(PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php', 'r');
+        $fs_version = null;
+        $i = -1;
+
+        while (($line = fgets($fh))!==false && $fs_version==null && $i<10) {
+            $i++;
+            if ($i < 2) continue; // first lines are typically "<?php" and "/*"
+
+            if (preg_match('/Version:\\s*([\\w.-]+)/', $line, $matches)) {
+                $fs_version = $matches[1];
+            }
+        }
+        
+        fclose($fh);
+
+        if ($fs_version != null) {
+            global $pwg_loaded_plugins, $page;
+            
+            // if version is auto (dev) or superior
+            if (
+                $fs_version == 'auto' or $plugin['version'] == 'auto'
+                or safe_version_compare($plugin['version'], $fs_version, '<')
+            ) {
+                // call update method
+                include_once($maintain_file);
+
+                $classname = $plugin['id'].'_maintain';
+                $plugin_maintain = new $classname($plugin['id']);
+                $plugin_maintain->update($plugin['version'], $fs_version, $page['errors']);
+                
+                $plugin['version'] = $fs_version;
+                
+                // update database (only on production)
+                if ($plugin['version'] != 'auto') {
+                    $query = '
+UPDATE '. PLUGINS_TABLE .'
+  SET version = "'. $plugin['version'] .'"
+  WHERE id = "'. $plugin['id'] .'"
+;';
+                    pwg_query($query);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -422,12 +393,12 @@ function load_plugins() {
     global $conf, $pwg_loaded_plugins;
 
     $pwg_loaded_plugins = array();
-
+    
     if ($conf['enable_plugins']) {
         $plugins = get_db_plugins('active');
         foreach( $plugins as $plugin) { // include main from a function to avoid using same function context
             load_plugin($plugin);
         }
-        trigger_action('plugins_loaded');
     }
+    trigger_notify('plugins_loaded');
 }

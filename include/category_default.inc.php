@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,7 +36,7 @@ $selection = array_slice(
   $page['nb_image_page']
   );
 
-$selection = trigger_event('loc_index_thumbnails_selection', $selection);
+$selection = trigger_change('loc_index_thumbnails_selection', $selection);
 
 if (count($selection) > 0)
 {
@@ -91,7 +92,7 @@ SELECT image_id, COUNT(*) AS nb_comments
 // template thumbnail initialization
 $template->set_filenames( array( 'index_thumbnails' => 'thumbnails.tpl',));
 
-trigger_action('loc_begin_index_thumbnails', $pictures);
+trigger_notify('loc_begin_index_thumbnails', $pictures);
 $tpl_thumbnails_var = array();
 
 foreach ($pictures as $row)
@@ -152,15 +153,14 @@ foreach ($pictures as $row)
 }
 
 $template->assign( array(
-  'derivative_params' => trigger_event('get_index_derivative_params', ImageStdParams::get_by_type( pwg_get_session_var('index_deriv', IMG_THUMB) ) ),
+  'derivative_params' => trigger_change('get_index_derivative_params', ImageStdParams::get_by_type( pwg_get_session_var('index_deriv', IMG_THUMB) ) ),
   'maxRequests' =>$conf['max_requests'],
   'SHOW_THUMBNAIL_CAPTION' =>$conf['show_thumbnail_caption'],
     ) );
-$tpl_thumbnails_var = trigger_event('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);
+$tpl_thumbnails_var = trigger_change('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);
 $template->assign('thumbnails', $tpl_thumbnails_var);
 
 $template->assign_var_from_handle('THUMBNAILS', 'index_thumbnails');
 unset($pictures, $selection, $tpl_thumbnails_var);
 $template->clear_assign( 'thumbnails' );
 pwg_debug('end include/category_default.inc.php');
-?>

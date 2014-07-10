@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: ខ្មែរ [KH]
-Version: 2.6.1
+Version: 2.6.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=579
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -420,3 +420,10 @@ $lang['mandatory'] = 'ត្រូវការចាំបាច់';
 $lang['Your website URL is invalid'] = 'វេបសាយ​របស់​អ្នក​មិនត្រឹមត្រូវទេ';
 $lang['Website'] = 'វេបសាយ';
 $lang['Username is mandatory'] = 'ត្រូវការ​ឈ្មោះ​អ្នក​ប្រើជាចាំបាច់';
+$lang['Apply on properties'] = 'ដាក់លើ properties';
+$lang['No results for'] = 'មិនមានលទ្ធផលសំរាប់';
+$lang['Photo description'] = 'ពិពណ៌នារូបថត';
+$lang['Photo title'] = 'ឈ្មោះរូបថត';
+$lang['Album name, A &rarr; Z'] = 'ឈ្មោះអាល់ប៊ុម A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'ឈ្មោះអាល់ប៊ុម Z &rarr; A';
+

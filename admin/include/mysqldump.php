@@ -418,4 +418,3 @@ class MySQLDump {
 			@fclose($file);
 	}
 }
-?>

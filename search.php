@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -30,7 +31,7 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 check_status(ACCESS_GUEST);
 
-trigger_action('loc_begin_search');
+trigger_notify('loc_begin_search');
 
 //------------------------------------------------------------------ form check
 $search = array();
@@ -48,6 +49,8 @@ if (isset($_POST['submit']))
       and !preg_match('/^\s*$/', $_POST['search_allwords']))
   {
     check_input_parameter('mode', $_POST, false, '/^(OR|AND)$/');
+
+    $fields = array_intersect($_POST['fields'], array('name', 'comment', 'file'));
     
     $drop_char_match = array(
       '-','^','$',';','#','&','(',')','<','>','`','\'','"','|',',','@','_',
@@ -69,6 +72,7 @@ if (isset($_POST['submit']))
           )
         ),
       'mode' => $_POST['mode'],
+      'fields' => $fields,
       );
   }
 
@@ -83,13 +87,17 @@ if (isset($_POST['submit']))
       );
   }
 
-  if ($_POST['search_author'])
+  if (isset($_POST['authors']) and is_array($_POST['authors']) and count($_POST['authors']) > 0)
   {
+    $authors = array();
+
+    foreach ($_POST['authors'] as $author)
+    {
+      $authors[] = strip_tags($author);
+    }
+    
     $search['fields']['author'] = array(
-      'words' => preg_split(
-        '/\s+/',
-        strip_tags($_POST['search_author'])
-        ),
+      'words' => $authors,
       'mode' => 'OR',
       );
   }
@@ -200,15 +208,31 @@ if (count($available_tags) > 0)
 {
   usort( $available_tags, 'tag_alpha_compare');
 
-  $template->assign(
-    'TAG_SELECTION',
-    get_html_tag_selection(
-        $available_tags,
-        'tags',
-        isset($_POST['tags']) ? $_POST['tags'] : array()
-        )
-    );
+  $template->assign('TAGS', $available_tags);
 }
+
+// authors
+$query = '
+SELECT
+    author,
+    COUNT(*) AS counter
+  FROM '.IMAGES_TABLE.' AS i
+    JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.image_id = i.id
+  '.get_sql_condition_FandF(
+    array(
+      'forbidden_categories' => 'category_id',
+      'visible_categories' => 'category_id',
+      'visible_images' => 'id'
+      ),
+    ' WHERE '
+    ).'
+    AND author IS NOT NULL
+  GROUP BY author
+  ORDER BY author
+;';
+$authors = query2array($query);
+
+$template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
 $query = '
@@ -224,8 +248,7 @@ SELECT id,name,global_rank,uppercats
     'WHERE'
   ).'
 ;';
-display_select_cat_wrapper($query, array(), 'category_options', false);
-
+display_select_cat_wrapper($query, array(), 'category_options', true);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
@@ -236,8 +259,7 @@ if (!isset($themeconf['hide_menu_on']) OR !in_array('theSearchPage', $themeconf[
 
 //------------------------------------------------------------ html code display
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_search');
+trigger_notify('loc_end_search');
 flush_page_messages();
 $template->pparse('search');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

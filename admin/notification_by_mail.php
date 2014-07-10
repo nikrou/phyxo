@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -253,7 +254,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
         }
 
         $customize_mail_content = 
-          trigger_event('nbm_render_global_customize_mail_content', $customize_mail_content);
+          trigger_change('nbm_render_global_customize_mail_content', $customize_mail_content);
 
 
         // Prepare message after change language
@@ -340,7 +341,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
               }
 
               $nbm_user_customize_mail_content = 
-                trigger_event('nbm_render_user_customize_mail_content',
+                trigger_change('nbm_render_user_customize_mail_content',
                   $customize_mail_content, $nbm_user);
               if (!empty($nbm_user_customize_mail_content))
               {
@@ -482,7 +483,7 @@ check_status(get_tab_status($page['mode']));
 // | Add event handler                                                     |
 // +-----------------------------------------------------------------------+
 add_event_handler('nbm_render_global_customize_mail_content', 'render_global_customize_mail_content');
-trigger_action('nbm_event_handler_added');
+trigger_notify('nbm_event_handler_added');
 
 
 // +-----------------------------------------------------------------------+
@@ -715,5 +716,3 @@ switch ($page['mode'])
 // | Sending html code                                                     |
 // +-----------------------------------------------------------------------+
 $template->assign_var_from_handle('ADMIN_CONTENT', 'notification_by_mail');
-
-?>

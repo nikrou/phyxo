@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,7 +39,7 @@ define('CDAY',  2);
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
  */
-class Calendar extends CalendarBase
+class CalendarWeekly extends CalendarBase
 {
   /**
    * Initialize the calendar
@@ -140,5 +141,3 @@ class Calendar extends CalendarBase
     return $res;
   }
 }
-
-?>

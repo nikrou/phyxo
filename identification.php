@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -30,7 +31,7 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 check_status(ACCESS_FREE);
 
-trigger_action('loc_begin_identification');
+trigger_notify('loc_begin_identification');
 
 //-------------------------------------------------------------- identification
 $redirect_to = '';
@@ -106,8 +107,7 @@ if (!$conf['gallery_locked'] && (!isset($themeconf['hide_menu_on']) OR !in_array
 
 //----------------------------------------------------------- html code display
 include(PHPWG_ROOT_PATH.'include/page_header.php');
-trigger_action('loc_end_identification');
+trigger_notify('loc_end_identification');
 flush_page_messages();
 $template->pparse('identification');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -291,7 +292,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
         array('methodName')
         );
 
-    trigger_action('ws_add_methods', array(&$this) );
+    trigger_notify('ws_add_methods', array(&$this) );
     uksort( $this->_methods, 'strnatcmp' );
     $this->_requestHandler->handleRequest($this);
   }
@@ -306,7 +307,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
 
     @header('Content-Type: '.$contentType.'; charset='.get_pwg_charset());
     print_r($encodedResponse);
-    trigger_action('sendResponse', $encodedResponse );
+    trigger_notify('sendResponse', $encodedResponse );
   }
 
   /**
@@ -598,7 +599,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
       return new PwgError(WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
     }
     
-    $result = trigger_event('ws_invoke_allowed', true, $methodName, $params);
+    $result = trigger_change('ws_invoke_allowed', true, $methodName, $params);
     if ( strtolower( @get_class($result) )!='pwgerror')
     {
       if ( !empty($method['include']) )
@@ -688,4 +689,3 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
     return $res;
   }
 }
-?>

@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -26,7 +27,7 @@
 //
 $template->set_filenames(array('header'=>'header.tpl'));
 
-trigger_action('loc_begin_page_header');
+trigger_notify('loc_begin_page_header');
 
 $template->assign(
   array(
@@ -35,7 +36,7 @@ $template->assign(
         $page['gallery_title'] : $conf['gallery_title'],
 
     'PAGE_BANNER' =>
-      trigger_event(
+      trigger_change(
         'render_page_banner',
         str_replace(
           '%gallery_title%',
@@ -96,10 +97,9 @@ if ( isset( $refresh ) and intval($refresh) >= 0
       ));
 }
 
-trigger_action('loc_end_page_header');
+trigger_notify('loc_end_page_header');
 
 header('Content-Type: text/html; charset='.get_pwg_charset());
 $template->parse('header');
 
-trigger_action('loc_after_page_header');
-?>
+trigger_notify('loc_after_page_header');

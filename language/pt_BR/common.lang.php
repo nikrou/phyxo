@@ -34,6 +34,7 @@ $lang_info['language_name'] = 'Português';
 $lang_info['country'] = 'Brasil';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'pt';
+$lang_info['jquery_code'] = 'pt-BR';
 $lang_info['zero_plural'] = false;
 
 $lang['%d Kb'] = '%d Kb';
@@ -421,3 +422,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['%d photos per page'] = '%d fotos por página';
 $lang['Theme'] = 'Tema';
 $lang['No results for'] = 'Nenhum resultado para';
+$lang['Apply on properties'] = 'Aplicar em propriedades';
+$lang['Photo description'] = 'Descrição da foto';
+$lang['Photo title'] = 'Título da foto';
+$lang['Album name, A &rarr; Z'] = 'Nome do álbum, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nome do álbum, Z &rarr; A';
+

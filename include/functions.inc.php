@@ -424,7 +424,7 @@ function pwg_log($image_id = null, $image_type = null)
     $do_log = $conf['history_guest'];
   }
 
-  $do_log = trigger_event('pwg_log_allowed', $do_log, $image_id, $image_type);
+  $do_log = trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
 
   if (!$do_log)
   {
@@ -550,6 +550,11 @@ function str2DateTime($original, $format=null)
   {
     return false;
   }
+  
+  if ($original instanceof DateTime)
+  {
+    return $original;
+  }
 
   if (!empty($format) && version_compare(PHP_VERSION, '5.3.0') >= 0)// from known date format
   {
@@ -589,12 +594,12 @@ function str2DateTime($original, $format=null)
  * returns a formatted and localized date for display
  *
  * @param int|string timestamp or datetime string
- * @param bool $show_time
- * @param bool $show_day_name
+ * @param array $show list of components displayed, default is ['day_name', 'day', 'month', 'year']
+ *    THIS PARAMETER IS PLANNED TO CHANGE
  * @param string $format input format respecting date() syntax
  * @return string
  */
-function format_date($original, $show_time=false, $show_day_name=true, $format=null)
+function format_date($original, $show=null, $format=null)
 {
   global $lang;
 
@@ -605,26 +610,72 @@ function format_date($original, $show_time=false, $show_day_name=true, $format=n
     return l10n('N/A');
   }
 
-  $print = '';
-  if ($show_day_name)
+  if ($show === null || $show === true)
   {
-    $print.= $lang['day'][ $date->format('w') ].' ';
+    $show = array('day_name', 'day', 'month', 'year');
   }
 
-  $print.= $date->format('j');
-  $print.= ' '.$lang['month'][ $date->format('n') ];
-  $print.= ' '.$date->format('Y');
+  // TODO use IntlDateFormatter for proper i18n
 
-  if ($show_time)
+  $print = '';
+  if (in_array('day_name', $show))
+    $print.= $lang['day'][ $date->format('w') ].' ';
+
+  if (in_array('day', $show))
+    $print.= $date->format('j').' ';
+
+  if (in_array('month', $show))
+    $print.= $lang['month'][ $date->format('n') ].' ';
+
+  if (in_array('year', $show))
+    $print.= $date->format('Y').' ';
+
+  if (in_array('time', $show))
   {
     $temp = $date->format('H:i');
     if ($temp != '00:00')
     {
-      $print.= ' '.$temp;
+      $print.= $temp.' ';
     }
   }
 
   return trim($print);
+}
+
+/**
+ * Format a "From ... to ..." string from two dates
+ * @param string $from
+ * @param string $to
+ * @param boolean $full
+ * @return string
+ */
+function format_fromto($from, $to, $full=false)
+{
+  $from = str2DateTime($from);
+  $to = str2DateTime($to);
+
+  if ($from->format('Y-m-d') == $to->format('Y-m-d'))
+  {
+    return format_date($from);
+  }
+  else
+  {
+    if ($full || $from->format('Y') != $to->format('Y'))
+    {
+      $from_str = format_date($from);
+    }
+    else if ($from->format('m') != $to->format('m'))
+    {
+      $from_str = format_date($from, array('day_name', 'day', 'month'));
+    }
+    else
+    {
+      $from_str = format_date($from, array('day_name', 'day'));
+    }
+    $to_str = format_date($to);
+
+    return l10n('from %s to %s', $from_str, $to_str);
+  }
 }
 
 /**
@@ -774,7 +825,7 @@ function redirect_html( $url , $msg = '', $refresh_time = 0)
   {
     $user = build_user( $conf['guest_id'], true);
     load_language('common.lang');
-    trigger_action('loading_lang');
+    trigger_notify('loading_lang');
     load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
     $template = new Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
   }
@@ -871,7 +922,7 @@ SELECT
   }
 
   // plugins want remove some themes based on user status maybe?
-  $themes = trigger_event('get_pwg_themes', $themes);
+  $themes = trigger_change('get_pwg_themes', $themes);
 
   return $themes;
 }
@@ -1113,7 +1164,7 @@ SELECT '.$conf['user_fields']['email'].'
 ;';
   list($email) = pwg_db_fetch_row(pwg_query($query));
 
-  $email = trigger_event('get_webmaster_mail_address', $email);
+  $email = trigger_change('get_webmaster_mail_address', $email);
 
   return $email;
 }
@@ -1155,7 +1206,7 @@ SELECT param, value
     $conf[ $row['param'] ] = $val;
   }
 
-  trigger_action('load_conf', $condition);
+  trigger_notify('load_conf', $condition);
 }
 
 /**
@@ -1163,18 +1214,27 @@ SELECT param, value
  *
  * @param string $param
  * @param string $value
+ * @param boolean $updateGlobal update global *$conf* variable
+ * @param callable $parser function to apply to the value before save in database
+      (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
  */
-function conf_update_param($param, $value)
-{
-  $query = '
+function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
+    if ($parser != null) {
+        $dbValue = call_user_func($parser, $value);
+    } elseif (is_array($value) || is_object($value)) {
+        $dbValue = addslashes(serialize($value));
+    } else {
+        $dbValue = boolean_to_string($value);
+    }
+
+    $query = '
 SELECT param
   FROM '.CONFIG_TABLE.'
   WHERE param = \''.$param.'\'
 ;';
   $params = query2array($query, null, 'param');
 
-  if (count($params) == 0)
-  {
+  if (count($params) == 0) {
     $query = '
 INSERT
   INTO '.CONFIG_TABLE.'
@@ -1182,15 +1242,18 @@ INSERT
   VALUES(\''.$param.'\', \''.$value.'\')
 ;';
     pwg_query($query);
-  }
-  else
-  {
+  } else {
     $query = '
 UPDATE '.CONFIG_TABLE.'
   SET value = \''.$value.'\'
   WHERE param = \''.$param.'\'
 ;';
     pwg_query($query);
+  }
+
+  if ($updateGlobal) {
+      global $conf;
+      $conf[$param] = $value;
   }
 }
 
@@ -1223,6 +1286,38 @@ DELETE FROM '.CONFIG_TABLE.'
   {
     unset($conf[$param]);
   }
+}
+
+/**
+ * Apply *unserialize* on a value only if it is a string
+ * @since 2.7
+ *
+ * @param array|string $value
+ * @return array
+ */
+function safe_unserialize($value)
+{
+  if (is_string($value))
+  {
+    return unserialize($value);
+  }
+  return $value;
+}
+
+/**
+ * Apply *json_decode* on a value only if it is a string
+ * @since 2.7
+ *
+ * @param array|string $value
+ * @return array
+ */
+function safe_json_decode($value)
+{
+  if (is_string($value))
+  {
+    return json_decode($value, true);
+  }
+  return $value;
 }
 
 /**
@@ -1337,7 +1432,7 @@ function get_filter_page_value($value_name)
   {
     return $conf['filter_pages'][$page_name][$value_name];
   }
-  else if (isset($conf['filter_pages']['default'][$value_name]))
+  elseif (isset($conf['filter_pages']['default'][$value_name]))
   {
     return $conf['filter_pages']['default'][$value_name];
   }
@@ -1400,6 +1495,8 @@ function get_parent_language($lang_id=null)
  *     @option string language - language to load
  *     @option bool return - if true the file content is returned
  *     @option bool no_fallback - if true do not load default language
+ *     @option bool|string force_fallback - force pre-loading of another language
+ *        default language if *true* or specified language
  *     @option bool local - if true load file from local directory
  * @return boolean|string
  */
@@ -1407,17 +1504,16 @@ function load_language($filename, $dirname = '', $options = array())
 {
   global $user, $language_files;
 
-  if ( !empty($dirname) and !empty($filename) )
+  // keep trace of plugins loaded files for switch_lang_to() function
+  if (!empty($dirname) && !empty($filename) && !@$options['return']
+    && !isset($language_files[$dirname][$filename]))
   {
-    if ( empty($language_files[$dirname]) or !in_array($filename,$language_files[$dirname]) )
-    {
-      $language_files[$dirname][] = $filename;
-    }
+    $language_files[$dirname][$filename] = $options;
   }
 
-  if (! @$options['return'] )
+  if (!@$options['return'])
   {
-    $filename .= '.php'; //MAYBE to do .. load .po and .mo localization files
+    $filename .= '.php';
   }
   if (empty($dirname))
   {
@@ -1425,40 +1521,41 @@ function load_language($filename, $dirname = '', $options = array())
   }
   $dirname .= 'language/';
 
+  $default_language = defined('PHPWG_INSTALLED') ?
+      get_default_language() : PHPWG_DEFAULT_LANGUAGE;
+
+  // construct list of potential languages
   $languages = array();
-  if ( !empty($options['language']) )
-  {
+  if (!empty($options['language']))
+  { // explicit language
     $languages[] = $options['language'];
   }
-  if ( !empty($user['language']) )
-  {
+  if (!empty($user['language']))
+  { // use language
     $languages[] = $user['language'];
   }
-  if ( ($parent = get_parent_language()) != null)
-  {
+  if (($parent = get_parent_language()) != null)
+  { // parent language
+    // this is only for when the "child" language is missing
     $languages[] = $parent;
   }
-  if ( ! @$options['no_fallback'] )
-  {
-    if ( defined('PHPWG_INSTALLED') )
+  if (isset($options['force_fallback']))
+  { // fallback language
+    // this is only for when the main language is missing
+    if ($options['force_fallback'] === true)
     {
-      $languages[] = get_default_language();
+      $options['force_fallback'] = $default_language;
     }
-    $languages[] = PHPWG_DEFAULT_LANGUAGE;
+    $languages[] = $options['force_fallback'];
+  }
+  if (!@$options['no_fallback'])
+  { // default language
+    $languages[] = $default_language;
   }
 
   $languages = array_unique($languages);
 
-  /*Note: target charset is always utf-8
-  if ( empty($options['target_charset']) )
-  {
-    $target_charset = get_pwg_charset();
-  }
-  else
-  {
-    $target_charset = $options['target_charset'];
-  }
-  $target_charset = strtolower($target_charset);*/
+  // find first existing
   $source_file       = '';
   $selected_language = '';
   foreach ($languages as $language)
@@ -1474,55 +1571,43 @@ function load_language($filename, $dirname = '', $options = array())
       break;
     }
   }
-
-  if ( !empty($source_file) )
+  
+  if (!empty($source_file))
   {
-    if (! @$options['return'] )
+    if (!@$options['return'])
     {
+      // load forced fallback
+      if (isset($options['force_fallback']) && $options['force_fallback'] != $selected_language)
+      {
+        @include(str_replace($selected_language, $options['force_fallback'], $source_file));
+      }
+
+      // load language content
       @include($source_file);
       $load_lang = @$lang;
       $load_lang_info = @$lang_info;
 
+      // access already existing values
       global $lang, $lang_info;
-      if ( !isset($lang) ) $lang=array();
-      if ( !isset($lang_info) ) $lang_info=array();
+      if (!isset($lang)) $lang = array();
+      if (!isset($lang_info)) $lang_info = array();
 
-      $parent_language = !empty($load_lang_info['parent']) ? $load_lang_info['parent'] : (
-                            !empty($lang_info['parent']) ? $lang_info['parent'] : null );
-      if (!empty($parent_language) and $parent_language != $selected_language)
+      // load parent language content directly in global
+      if (!empty($load_lang_info['parent']))
+        $parent_language = $load_lang_info['parent'];
+      else if (!empty($lang_info['parent']))
+        $parent_language = $lang_info['parent'];
+      else 
+        $parent_language = null;
+
+      if (!empty($parent_language) && $parent_language != $selected_language)
       {
         @include(str_replace($selected_language, $parent_language, $source_file));
       }
 
-      /* Note: target charset is always utf-8
-      if ( 'utf-8'!=$target_charset)
-      {
-        if ( is_array($load_lang) )
-        {
-          foreach ($load_lang as $k => $v)
-          {
-            if ( is_array($v) )
-            {
-              $func = create_function('$v', 'return convert_charset($v, "utf-8", "'.$target_charset.'");' );
-              $lang[$k] = array_map($func, $v);
-            }
-            else
-              $lang[$k] = convert_charset($v, 'utf-8', $target_charset);
-          }
-        }
-        if ( is_array($load_lang_info) )
-        {
-          foreach ($load_lang_info as $k => $v)
-          {
-            $lang_info[$k] = convert_charset($v, 'utf-8', $target_charset);
-          }
-        }
-      }
-      else
-      {*/
-        $lang = array_merge( $lang, (array)$load_lang );
-        $lang_info = array_merge( $lang_info, (array)$load_lang_info );
-      //}
+      // merge contents
+      $lang = array_merge($lang, (array)$load_lang);
+      $lang_info = array_merge($lang_info, (array)$load_lang_info);
       return true;
     }
     else
@@ -1532,6 +1617,7 @@ function load_language($filename, $dirname = '', $options = array())
       return $content;
     }
   }
+
   return false;
 }
 
@@ -1963,8 +2049,7 @@ function get_nb_available_comments()
         array
           (
             'forbidden_categories' => 'category_id',
-            'visible_categories' => 'category_id',
-            'visible_images' => 'ic.image_id'
+            'forbidden_images' => 'ic.image_id'
           ),
         '', true
       );

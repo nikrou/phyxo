@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -298,7 +299,10 @@ SELECT user_id, group_id
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
-$template->assign(array('PWG_TOKEN' => get_pwg_token(), 'INHERIT' => $conf['inheritance_by_default']));
+$template->assign(array(
+  'PWG_TOKEN' => get_pwg_token(),
+  'INHERIT' => $conf['inheritance_by_default'],
+  'CACHE_KEYS' => get_admin_client_cache_keys(array('groups', 'users')),
+  ));
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'cat_perm');
-?>

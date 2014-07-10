@@ -8,6 +8,7 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_forall','false'
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_order','ASC','comments order on picture page and cie');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_author_mandatory','false','Comment author is mandatory');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_email_mandatory','false','Comment email is mandatory');
+INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_enable_website','true','Enable "website" field on add comment form');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('user_can_delete_comment','false','administrators can allow user delete their own comments');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('user_can_edit_comment','false','administrators can allow user edit their own comments');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment_edition','false','Send an email to the administrators when a comment is modified');
@@ -31,6 +32,7 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_new_user'
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment','false','Send an email to the administrators when a valid comment is entered');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment_validation','true','Send an email to the administrators when a comment requires validation');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('obligatory_user_mail_address','false','Mail address is obligatory for users');
+INSERT INTO phyxo_config (param,value,comment) VALUES ('c13y_ignore',null,'List of ignored anomalies');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('extents_for_templates','a:0:{}','Actived template-extension(s)');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('blk_menubar','','Menubar options');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('menubar_filter_icon','false','Display filter icon');

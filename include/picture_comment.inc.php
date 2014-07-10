@@ -74,7 +74,7 @@ if ( $page['show_comments'] and isset( $_POST['content'] ) )
   }
 
   // allow plugins to notify what's going on
-  trigger_action( 'user_comment_insertion',
+  trigger_notify( 'user_comment_insertion',
       array_merge($comm, array('action'=>$comment_action) )
     );
 }
@@ -182,9 +182,9 @@ SELECT
       $tpl_comment =
         array(
           'ID' => $row['id'],
-          'AUTHOR' => trigger_event('render_comment_author', $row['author']),
-          'DATE' => format_date($row['date'], true),
-          'CONTENT' => trigger_event('render_comment_content',$row['content']),
+          'AUTHOR' => trigger_change('render_comment_author', $row['author']),
+          'DATE' => format_date($row['date'], array('day_name','day','month','year','time')),
+          'CONTENT' => trigger_change('render_comment_content',$row['content']),
           'WEBSITE_URL' => $row['website_url'],
         );
 
@@ -263,6 +263,7 @@ SELECT
         'SHOW_EMAIL' =>       !is_classic_user() or empty($user['email']),
         'EMAIL_MANDATORY' =>  $conf['comments_email_mandatory'],
         'EMAIL' =>            '',
+        'SHOW_WEBSITE' =>     $conf['comments_enable_website'],
       );
 
     if ('reject'==@$comment_action)

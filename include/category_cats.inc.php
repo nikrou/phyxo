@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -269,7 +270,7 @@ if (count($categories) > 0)
 
   $template->set_filename('index_category_thumbnails', 'mainpage_categories.tpl');
 
-  trigger_action('loc_begin_index_category_thumbnails', $categories);
+  trigger_notify('loc_begin_index_category_thumbnails', $categories);
 
   $tpl_thumbnails_var = array();
 
@@ -280,7 +281,7 @@ if (count($categories) > 0)
       continue;
     }
 
-    $category['name'] = trigger_event(
+    $category['name'] = trigger_change(
         'render_category_name',
         $category['name'],
         'subcatify_category_name'
@@ -316,8 +317,8 @@ if (count($categories) > 0)
                                     '<br>'
                                   ),
           'DESCRIPTION' =>
-            trigger_event('render_category_literal_description',
-              trigger_event('render_category_description',
+            trigger_change('render_category_literal_description',
+              trigger_change('render_category_description',
                 @$category['comment'],
                 'subcatify_category_description')),
           'NAME'  => $name,
@@ -336,24 +337,10 @@ if (count($categories) > 0)
 
         if (!empty($from))
         {
-          $info = '';
-
-          if (date('Y-m-d', strtotime($from)) == date('Y-m-d', strtotime($to)))
-          {
-            $info = format_date($from);
-          }
-          else
-          {
-            $info = l10n(
-              'from %s to %s',
-              format_date($from),
-              format_date($to)
-              );
-          }
-          $tpl_var['INFO_DATES'] = $info;
+          $tpl_var['INFO_DATES'] = format_fromto($from, $to);
         }
       }
-    }//fromto
+    }
 
     $tpl_thumbnails_var[] = $tpl_var;
   }
@@ -367,8 +354,8 @@ if (count($categories) > 0)
     $conf['nb_categories_page']
     );
 
-  $derivative_params = trigger_event('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
-  $tpl_thumbnails_var_selection = trigger_event('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+  $derivative_params = trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
+  $tpl_thumbnails_var_selection = trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
   $template->assign( array(
     'maxRequests' =>$conf['max_requests'],
     'category_thumbnails' => $tpl_thumbnails_var_selection,
@@ -394,4 +381,3 @@ if (count($categories) > 0)
 }
 
 pwg_debug('end include/category_cats.inc.php');
-?>

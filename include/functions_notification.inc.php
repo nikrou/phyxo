@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -441,8 +442,13 @@ function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false)
  */
 function get_recent_post_dates($max_dates, $max_elements, $max_cats)
 {
-  global $conf, $user;
+  global $conf, $user, $persistent_cache;
 
+  $cache_key = $persistent_cache->make_key('recent_posts'.$user['id'].$user['cache_update_time'].$max_dates.$max_elements.$max_cats);
+  if ($persistent_cache->get($cache_key, $cached))
+  {
+    return $cached;
+  }
   $where_sql = get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
   $query = '
@@ -493,6 +499,7 @@ SELECT
     }
   }
 
+  $persistent_cache->set($cache_key, $dates);
   return $dates;
 }
 
@@ -600,5 +607,3 @@ if (!function_exists('strptime'))
     return $res;
   }
 }
-
-?>

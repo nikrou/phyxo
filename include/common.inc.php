@@ -169,7 +169,7 @@ if ( is_admin() || (defined('IN_ADMIN') and IN_ADMIN) )
 {
   load_language('admin.lang');
 }
-trigger_action('loading_lang');
+trigger_notify('loading_lang');
 load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
 
 // only now we can set the localized username of the guest user (and not in
@@ -263,7 +263,7 @@ add_event_handler('render_tag_url', 'str2url');
 add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', EVENT_HANDLER_PRIORITY_NEUTRAL-1);
 if ( !empty($conf['original_url_protection']) )
 {
-  add_event_handler('get_element_url', 'get_element_url_protection_handler', EVENT_HANDLER_PRIORITY_NEUTRAL, 2 );
-  add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler', EVENT_HANDLER_PRIORITY_NEUTRAL, 2 );
+  add_event_handler('get_element_url', 'get_element_url_protection_handler');
+  add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler');
 }
-trigger_action('init');
+trigger_notify('init');

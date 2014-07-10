@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -176,7 +177,7 @@ while ($row = pwg_db_fetch_assoc($result))
   $plugin_links = array();
   //$plugin_links is array of array composed of U_HREF, U_HINT & U_CAPTION
   $plugin_links =
-    trigger_event('get_admins_site_links',
+    trigger_change('get_admins_site_links',
       $plugin_links, $row['id'], $is_remote);
   $tpl_var['plugin_links'] = $plugin_links;
 
@@ -184,4 +185,3 @@ while ($row = pwg_db_fetch_assoc($result))
 }
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'site_manager');
-?>

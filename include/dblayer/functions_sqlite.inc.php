@@ -716,3 +716,36 @@ function pwg_db_full_text_search($fields, $values) {
         pwg_db_real_escape_string(implode(' ', $values))
     );
 }
+
+function pwg_db_get_tables($prefix) {
+    $tables = array();
+
+    $query = "SELECT * FROM sqlite_master WHERE type = 'table'";
+    $result = pwg_query($query);
+    
+    while ($row = pwg_db_fetch_row($result)) {
+        if (preg_match('/^'.$prefix.'/', $row[0])) {
+            $tables[] = $row[0];
+        }
+    }
+
+    return $tables;
+}
+
+function pwg_db_get_columns_of($tables) {
+    $columns_of = array();
+
+    $fmt_query = 'PRAGMA table_info(%s)';
+
+    foreach ($tables as $table) {
+        $query = sprintf($fmt_query, pwg_db_real_escape_string($table));
+        $result = pwg_query($query);
+        $columns_of[$table] = array();
+        
+        while ($row = pwg_db_fetch_row($result)) {
+            $columns_of[$table][] = $row[0];
+        }
+    }
+    
+    return $columns_of;
+}

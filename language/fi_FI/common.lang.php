@@ -142,7 +142,7 @@ $lang['Browser: %s'] = 'Selain: %s';
 $lang['Calendar'] = 'Kalenteri';
 $lang['Change my password'] = 'Vaihda salasana';
 
-$lang['%d Kb'] = '%d Kb';
+$lang['%d Kb'] = '%d kB';
 $lang['%d photo'] = '%d kuva';
 $lang['%d photos'] = '%d kuvaa';
 $lang['Comment'] = 'Kommentti';
@@ -422,3 +422,9 @@ $lang['%d photos per page'] = '%d kuvaa sivua kohti';
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Salasanan vahvistus puuttuu. Ole hyvä ja vahvista salasanasi.';
 $lang['Password is missing. Please enter the password.'] = 'Salasana puuttuu. ';
 $lang['Theme'] = 'Teema';
+$lang['No results for'] = 'Ei tuloksia haulle';
+$lang['Photo description'] = 'Kuvan kuvaus';
+$lang['Photo title'] = 'Kuvan otsikko';
+$lang['Album name, A &rarr; Z'] = 'Albumin nimi, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Albumin nimi, Z &rarr; A';
+

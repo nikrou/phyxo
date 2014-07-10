@@ -172,7 +172,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
     }
   }
 
-  $errors = trigger_event(
+  $errors = trigger_change(
     'register_user_check',
     $errors,
     array(
@@ -248,7 +248,7 @@ SELECT id
     if ($notify_user and email_check_format($mail_address))
     {
       include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
-            
+
       $keyargs_content = array(
         get_l10n_args('Hello %s,', stripslashes($login)),
         get_l10n_args('Thank you for registering at %s!', $conf['gallery_title']),
@@ -260,7 +260,7 @@ SELECT id
         get_l10n_args('', ''),
         get_l10n_args('If you think you\'ve received this email in error, please contact us at %s', get_webmaster_mail_address()),
         );
-        
+
       pwg_mail(
         $mail_address,
         array(
@@ -271,7 +271,7 @@ SELECT id
         );
     }
 
-    trigger_action(
+    trigger_notify(
       'register_user',
       array(
         'id'=>$user_id,
@@ -279,7 +279,7 @@ SELECT id
         'email'=>$mail_address,
         )
       );
-      
+
     return $user_id;
   }
   else
@@ -950,7 +950,7 @@ function log_user($user_id, $remember_me)
   $_SESSION['pwg_uid'] = (int)$user_id;
 
   $user['id'] = $_SESSION['pwg_uid'];
-  trigger_action('user_login', $user['id']);
+  trigger_notify('user_login', $user['id']);
 }
 
 /**
@@ -975,7 +975,7 @@ function auto_login()
       if ($key!==false and $key===$cookie[2])
       {
         log_user($cookie[0], true);
-        trigger_action('login_success', stripslashes($username));
+        trigger_notify('login_success', stripslashes($username));
         return true;
       }
     }
@@ -1041,7 +1041,7 @@ function pwg_password_verify($password, $hash, $user_id=null)
       {
         return true;
       }
-      
+
       // Rehash using new hash.
       $hash = pwg_password_hash($password);
 
@@ -1076,10 +1076,10 @@ function pwg_password_verify($password, $hash, $user_id=null)
  */
 function try_log_user($username, $password, $remember_me)
 {
-  return trigger_event('try_log_user', false, $username, $password, $remember_me);
+  return trigger_change('try_log_user', false, $username, $password, $remember_me);
 }
 
-add_event_handler('try_log_user', 'pwg_login', EVENT_HANDLER_PRIORITY_NEUTRAL, 4);
+add_event_handler('try_log_user', 'pwg_login');
 
 /**
  * Default method for user login, can be overwritten with 'try_log_user' trigger.
@@ -1112,10 +1112,10 @@ SELECT '.$conf['user_fields']['id'].' AS id,
   if ($conf['password_verify']($password, $row['password'], $row['id']))
   {
     log_user($row['id'], $remember_me);
-    trigger_action('login_success', stripslashes($username));
+    trigger_notify('login_success', stripslashes($username));
     return true;
   }
-  trigger_action('login_failure', stripslashes($username));
+  trigger_notify('login_failure', stripslashes($username));
   return false;
 }
 
@@ -1126,7 +1126,7 @@ function logout_user()
 {
   global $conf;
 
-  trigger_action('user_logout', @$_SESSION['pwg_uid']);
+  trigger_notify('user_logout', @$_SESSION['pwg_uid']);
 
   $_SESSION = array();
   session_unset();
@@ -1438,7 +1438,7 @@ function get_sql_condition_FandF(
   return $sql;
 }
 
-/** 
+/**
  * Returns sql WHERE condition for recent photos/albums for current user.
  *
  * @param string $db_field

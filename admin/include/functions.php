@@ -163,7 +163,7 @@ DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.'
   WHERE cat_id IN ('.implode(',',$ids).')';
   pwg_query($query);
 
-  trigger_action('delete_categories', $ids);
+  trigger_notify('delete_categories', $ids);
 }
 
 /**
@@ -251,7 +251,7 @@ function delete_elements($ids, $physical_deletion=false)
   {
     return 0;
   }
-  trigger_action('begin_delete_elements', $ids);
+  trigger_notify('begin_delete_elements', $ids);
 
   if ($physical_deletion)
   {
@@ -326,7 +326,7 @@ SELECT
     update_category($category_ids);
   }
 
-  trigger_action('delete_elements', $ids);
+  trigger_notify('delete_elements', $ids);
   return count($ids);
 }
 
@@ -384,7 +384,7 @@ DELETE FROM '.USERS_TABLE.'
 ;';
   pwg_query($query);
 
-  trigger_action('delete_user', $user_id);
+  trigger_notify('delete_user', $user_id);
 }
 
 /**
@@ -401,13 +401,8 @@ function delete_orphan_tags()
     {
       $orphan_tag_ids[] = $tag['id'];
     }
-
-    $query = '
-DELETE
-  FROM '.TAGS_TABLE.'
-  WHERE id IN ('.implode(',', $orphan_tag_ids).')
-;';
-    pwg_query($query);
+    
+    delete_tags($orphan_tag_ids);
   }
 }
 
@@ -1579,7 +1574,7 @@ SELECT id
 ;';
     if (count($existing_tags = array_from_query($query, 'id')) == 0)
     {
-      $url_name = trigger_event('render_tag_url', $tag_name);
+      $url_name = trigger_change('render_tag_url', $tag_name);
       // search existing by url name
       $query = '
 SELECT id
@@ -1834,7 +1829,7 @@ UPDATE '.USER_CACHE_TABLE.'
   SET need_update = \'true\';';
     pwg_query($query);
   }
-  trigger_action('invalidate_user_cache', $full);
+  trigger_notify('invalidate_user_cache', $full);
 }
 
 /**
@@ -1969,7 +1964,7 @@ SELECT id
       TAGS_TABLE,
       array(
         'name' => $tag_name,
-        'url_name' => trigger_event('render_tag_url', $tag_name),
+        'url_name' => trigger_change('render_tag_url', $tag_name),
         )
       );
 
@@ -2053,7 +2048,8 @@ function fetchRemote($src, &$dest, $get_data=array(), $post_data=array(), $user_
   is_resource($dest) or $dest = '';
 
   // Try curl to read remote file
-  if (function_exists('curl_init'))
+  // TODO : remove all these @
+  if (function_exists('curl_init') && function_exists('curl_exec'))
   {
     $ch = @curl_init();
     @curl_setopt($ch, CURLOPT_URL, $src);
@@ -2317,7 +2313,7 @@ function get_taglist($query, $only_user_language=true)
   while ($row = pwg_db_fetch_assoc($result))
   {
     $raw_name = $row['name'];
-    $name = trigger_event('render_tag_name', $raw_name, $row);
+    $name = trigger_change('render_tag_name', $raw_name, $row);
 
     $taglist[] =  array(
         'name' => $name,
@@ -2326,7 +2322,7 @@ function get_taglist($query, $only_user_language=true)
 
     if (!$only_user_language)
     {
-      $alt_names = trigger_event('get_tag_alt_names', array(), $raw_name);
+      $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
 
       foreach( array_diff( array_unique($alt_names), array($name) ) as $alt)
       {
@@ -2718,4 +2714,48 @@ function deltree($path, $trash_path=null)
       return false;
     }
   }
+}
+
+
+/**
+ * Returns keys to identify the state of main tables. A key consists of the
+ * last modification timestamp and the total of items (separated by a _).
+ * Additionally returns the hash of root path.
+ * Used to invalidate LocalStorage cache on admin pages.
+ *
+ * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
+ * @return string[]
+ */
+function get_admin_client_cache_keys($requested=array()) {
+    $tables = array(
+        'categories' => CATEGORIES_TABLE,
+        'groups' => GROUPS_TABLE,
+        'images' => IMAGES_TABLE,
+        'tags' => TAGS_TABLE,
+        'users' => USER_INFOS_TABLE
+    );
+    
+    if (!is_array($requested)) {
+        $requested = array($requested);
+    }
+    if (empty($requested)) {
+        $requested = array_keys($tables);
+    } else {
+        $requested = array_intersect($requested, array_keys($tables));
+    }
+  
+    $keys = array(
+        '_hash' => md5(get_absolute_root_url()),
+    );
+
+    foreach ($requested as $item) {
+        $query = 'SELECT '.pwg_db_date_to_ts('MAX(lastmodified)').', COUNT(*)';
+        $query .= ' FROM '. $tables[$item] .';';
+        $result = pwg_query($query);
+        $row = pwg_db_fetch_row($result);
+        
+        $keys[$item] = sprintf('%s_%s', $row[0], $row[1]);
+    }
+  
+    return $keys;
 }

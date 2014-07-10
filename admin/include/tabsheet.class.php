@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -88,7 +89,7 @@ class tabsheet
   */
   function select($name)
   {
-    $this->sheets = trigger_event('tabsheet_before_select', $this->sheets, $this->uniqid);
+    $this->sheets = trigger_change('tabsheet_before_select', $this->sheets, $this->uniqid);
     if (!array_key_exists($name, $this->sheets))
     {
       $keys = array_keys($this->sheets);
@@ -155,5 +156,3 @@ class tabsheet
     $template->clear_assign('tabsheet');
   }
 }
-
-?>

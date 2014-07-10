@@ -431,3 +431,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['%d photos per page'] = '%d fotiek na stránku';
 $lang['Theme'] = 'Téma';
 $lang['No results for'] = 'Žiadne výsledky pre';
+$lang['Apply on properties'] = 'Pridať do vlastností';
+$lang['Photo description'] = 'Popis fotky';
+$lang['Photo title'] = 'Názov fotky';
+$lang['Album name, Z &rarr; A'] = 'Názov albumu, Z &rarr; A';
+$lang['Album name, A &rarr; Z'] = 'Názov albumu, A &rarr; Z';
+

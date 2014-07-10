@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -108,7 +109,7 @@ FROM '.CATEGORIES_TABLE.' INNER JOIN '.USER_CACHE_CATEGORIES_TABLE.'
     );
   }
 
-  $where = trigger_event('get_categories_menu_sql_where',
+  $where = trigger_change('get_categories_menu_sql_where',
     $where, $user['expand'], $filter['enabled'] );
 
   $query.= '
@@ -123,7 +124,7 @@ WHERE '.$where.'
     $child_date_last = @$row['max_date_last']> @$row['date_last'];
     $row = array_merge($row,
       array(
-        'NAME' => trigger_event(
+        'NAME' => trigger_change(
           'render_category_name',
           $row['name'],
           'get_categories_menu'
@@ -230,7 +231,7 @@ function get_category_preferred_image_orders()
 {
   global $conf, $page;
 
-  return trigger_event('get_category_preferred_image_orders', array(
+  return trigger_change('get_category_preferred_image_orders', array(
     array(l10n('Default'),                        '',                     true),
     array(l10n('Photo title, A &rarr; Z'),        'name ASC',             true),
     array(l10n('Photo title, Z &rarr; A'),        'name DESC',            true),
@@ -279,7 +280,7 @@ function display_select_categories($categories,
                            (3 * substr_count($category['global_rank'], '.')));
       $option.= '- ';
       $option.= strip_tags(
-        trigger_event(
+        trigger_change(
           'render_category_name',
           $category['name'],
           'display_select_categories'
@@ -610,5 +611,3 @@ function remove_computed_category(&$cats, $cat)
 
   unset($cats[$cat['cat_id']]);
 }
-
-?>

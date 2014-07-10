@@ -449,7 +449,7 @@ $lang['add new photos to caddie'] = "Ajouter les nouvelles photos au panier";
 $lang['No display'] = "Pas d'affichage";
 $lang['Classic display'] = "Affichage classique";
 $lang['Hoverbox display'] = "Affichage lors du survol";
-$lang['Mail address is obligatory for all users'] = "L'adresse mail est obligatoire pour tous les utilisateurs";
+$lang['Mail address is mandatory for registration'] = "L'adresse mail est obligatoire pour l'enregistrement";
 $lang['Minimum privacy level'] = "Niveau minimal de confidentialité";
 $lang['Privacy level'] = "Niveau de confidentialité";
 $lang['Level 0'] = "---";
@@ -973,3 +973,6 @@ $lang['Open user details'] = 'Ouvrir les détails de l\'utilisateur';
 $lang['Close user details'] = 'Fermer les détails de l\'utilisateur';
 $lang['close'] = 'fermer';
 $lang['Activate it now'] = 'Activate it now';
+$lang['Allow users to add a link to their website'] = 'Autoriser les utilisateurs à donner un lien vers leur site web';
+$lang['Impossible to deactivate the default theme.'] = 'Impossible de désactiver le thème par défaut.';
+

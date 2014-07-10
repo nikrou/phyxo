@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,7 +38,7 @@ check_status(ACCESS_GUEST);
 $title= l10n('About Piwigo');
 $page['body_id'] = 'theAboutPage';
 
-trigger_action('loc_begin_about');
+trigger_notify('loc_begin_about');
 
 $template->set_filename('about', 'about.tpl');
 
@@ -60,4 +61,3 @@ include(PHPWG_ROOT_PATH.'include/page_header.php');
 flush_page_messages();
 $template->pparse('about');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-?>

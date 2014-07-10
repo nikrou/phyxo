@@ -3,8 +3,9 @@
 {combine_script id='jquery.dataTables' load='footer' path='themes/default/js/plugins/jquery.dataTables.js'}
 {combine_css path="themes/default/js/plugins/datatables/css/jquery.dataTables.css"}
 
+{assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.default.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
 {combine_script id='jquery.underscore' load='footer' path='themes/default/js/plugins/underscore.js'}
 
@@ -1104,7 +1105,8 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
       <div class="userProperty"><label><input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>> <strong>{'High definition enabled'|translate}</strong></label></div>
 
       <div class="userProperty"><strong>{'Groups'|translate}</strong><br>
-        <select data-selectize="groups" name="group_id[]" multiple style="width:340px;"></select>
+        <select data-selectize="groups" placeholder="{'Type in a search term'|translate}" 
+          name="group_id[]" multiple style="width:340px;"></select>
       </div>
     </div>
 

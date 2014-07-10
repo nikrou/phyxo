@@ -58,7 +58,7 @@ if (!empty($_POST))
   {
     include_once( PHPWG_ROOT_PATH .'include/functions_comment.inc.php' );
     check_input_parameter('comments', $_POST, true, PATTERN_ID);
-    
+
     if (isset($_POST['validate']))
     {
       validate_user_comment($_POST['comments']);
@@ -187,7 +187,7 @@ while ($row = pwg_db_fetch_assoc($result))
         'path'=>$row['path'],
         )
      );
-  if (empty($row['author_id'])) 
+  if (empty($row['author_id']))
   {
     $author_name = $row['author'];
   }
@@ -201,9 +201,9 @@ while ($row = pwg_db_fetch_assoc($result))
       'U_PICTURE' => get_root_url().'admin.php?page=photo-'.$row['image_id'],
       'ID' => $row['id'],
       'TN_SRC' => $thumb,
-      'AUTHOR' => trigger_event('render_comment_author', $author_name),
-      'DATE' => format_date($row['date'], true),
-      'CONTENT' => trigger_event('render_comment_content',$row['content']),
+      'AUTHOR' => trigger_change('render_comment_author', $author_name),
+      'DATE' => format_date($row['date'], array('day_name','day','month','year','time')),
+      'CONTENT' => trigger_change('render_comment_content',$row['content']),
       'IS_PENDING' => ('false' == $row['validated']),
       )
     );

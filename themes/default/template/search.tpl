@@ -3,6 +3,18 @@
 {include file='include/resize.inc.tpl'}
 *}
 
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.dark.css"}
+
+{footer_script}
+jQuery(document).ready(function() {
+  jQuery("#authors, #tags, #categories").selectize({
+    plugins: ['remove_button']
+  });
+});
+{/footer_script}
+
+
 {if isset($MENUBAR)}{$MENUBAR}{/if}
 <div id="content" class="content{if isset($MENUBAR)} contentWithMenu{/if}">
 
@@ -20,29 +32,48 @@
 
 <form class="filter" method="post" name="search" action="{$F_SEARCH_ACTION}">
 <fieldset>
-  <legend>{'Filter'|@translate}</legend>
-  <label>{'Search for words'|@translate}
-    <input type="text" name="search_allwords" size="35">
-  </label>
-  <ul>
-    <li><label>
-      <input type="radio" name="mode" value="AND" checked="checked">{'Search for all terms'|@translate}
-    </label></li>
-    <li><label>
-      <input type="radio" name="mode" value="OR">{'Search for any term'|@translate}
-    </label></li>
-  </ul>
-  <label>{'Search for Author'|@translate}
-    <input type="text" name="search_author" size="35">
-  </label>
+  <legend>{'Search for words'|@translate}</legend>
+  <p>
+    <input type="text" name="search_allwords">
+    <br>
+    <label><input type="radio" name="mode" value="AND" checked="checked"> {'Search for all terms'|@translate}</label>
+    <label><input type="radio" name="mode" value="OR"> {'Search for any term'|@translate}</label>
+  </p>
+
+  <p>
+    <strong>{'Apply on properties'|translate}</strong><br>
+    <label><input type="checkbox" name="fields[]" value="name" checked="checked"> {'Photo title'|translate}</label>
+    <label><input type="checkbox" name="fields[]" value="comment" checked="checked"> {'Photo description'|translate}</label>
+    <label><input type="checkbox" name="fields[]" value="file" checked="checked"> {'File name'|translate}</label>
+  </p>
+
 </fieldset>
 
-{if isset($TAG_SELECTION)}
+{if count($AUTHORS)>1}
+<fieldset>
+  <legend>{'Search for Author'|@translate}</legend>
+  <p>
+    <select id="authors" placeholder="{'Type in a search term'|translate}" name="authors[]" multiple>
+{foreach from=$AUTHORS item=author}
+      <option value="{$author.author|strip_tags:false|escape:html}">{$author.author|strip_tags:false} ({$author.counter|translate_dec:'%d photo':'%d photos'})</option>
+{/foreach}
+    </select>
+  </p>
+</fieldset>
+{/if}
+
+{if isset($TAGS)}
 <fieldset>
   <legend>{'Search tags'|@translate}</legend>
-  {$TAG_SELECTION}
+  <p>
+  <select id="tags" placeholder="{'Type in a search term'|translate}" name="tags[]" multiple>
+{foreach from=$TAGS item=tag}
+    <option value="{$tag.id}">{$tag.name} ({$tag.counter|translate_dec:'%d photo':'%d photos'})</option>
+{/foreach}
+  </select>
   <label><span><input type="radio" name="tag_mode" value="AND" checked="checked"> {'All tags'|@translate}</span></label>
   <label><span><input type="radio" name="tag_mode" value="OR"> {'Any tag'|@translate}</span></label>
+  </p>
 </fieldset>
 {/if}
 
@@ -51,10 +82,10 @@
   <ul>
     <li><label>{'Kind of date'|@translate}</label></li>
     <li><label>
-      <input type="radio" name="date_type" value="date_creation" checked="checked">{'Creation date'|@translate}
+      <input type="radio" name="date_type" value="date_creation" checked="checked"> {'Creation date'|@translate}
     </label></li>
     <li><label>
-      <input type="radio" name="date_type" value="date_available">{'Post date'|@translate}
+      <input type="radio" name="date_type" value="date_available"> {'Post date'|@translate}
     </label></li>
   </ul>
   <ul>
@@ -99,24 +130,16 @@
 
 <fieldset>
   <legend>{'Search in albums'|@translate}</legend>
-  <label>{'Albums'|@translate}
-    <select class="categoryList" name="cat[]" multiple="multiple" size="15">
+  <p>
+    <select id="categories" name="cat[]" multiple>
       {html_options options=$category_options selected=$category_options_selected}
     </select>
-  </label>
-  <ul>
-    <li><label>{'Search in sub-albums'|@translate}</label></li>
-    <li><label>
-      <input type="radio" name="subcats-included" value="1" checked="checked">{'Yes'|@translate}
-    </label></li>
-    <li><label>
-      <input type="radio" name="subcats-included" value="0">{'No'|@translate}
-    </label></li>
-  </ul>
+    <label><input type="checkbox" name="subcats-included" value="1" checked="checked"> {'Search in sub-albums'|@translate}</label>
+  </p>
 </fieldset>
 <p>
-  <input class="submit" type="submit" name="submit" value="{'Submit'|@translate}">
-  <input class="submit" type="reset" value="{'Reset'|@translate}">
+  <input type="submit" name="submit" value="{'Submit'|@translate}">
+  <input type="reset" value="{'Reset'|@translate}">
 </p>
 </form>
 

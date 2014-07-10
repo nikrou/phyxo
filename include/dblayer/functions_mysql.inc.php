@@ -862,3 +862,39 @@ function pwg_db_full_text_search($fields, $values) {
         pwg_db_real_escape_string(implode(' ', $values))
     );
 }
+
+function pwg_db_get_tables($prefix) {
+    $tables = array();
+    
+    $query = '
+SHOW TABLES
+;';
+    $result = pwg_query($query);
+
+    while ($row = pwg_db_fetch_row($result)) {
+        if (preg_match('/^'.$prefix.'/', $row[0])) {
+            $tables[] = $row[0];
+        }
+    }
+
+    return $tables;
+}
+
+function pwg_db_get_columns_of($tables) {
+    $columns_of = array();
+
+    foreach ($tables as $table) {
+        $query = '
+DESC '.$table.'
+;';
+        $result = pwg_query($query);
+
+        $columns_of[$table] = array();
+        
+        while ($row = pwg_db_fetch_row($result)) {
+            $columns_of[$table][] = $row[0];
+        }
+    }
+    
+    return $columns_of;
+}

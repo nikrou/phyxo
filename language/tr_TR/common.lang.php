@@ -420,3 +420,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['%d photos per page'] = 'sayfa başına %d fotoğraf';
 $lang['Theme'] = 'Tema';
 $lang['No results for'] = 'Sonuç bulunamadı:';
+$lang['Photo description'] = 'Fotoğraf açıklamaları';
+$lang['Photo title'] = 'Fotoğraf başlığı';
+$lang['Apply on properties'] = 'Niteliklerine uygula';
+$lang['Album name, A &rarr; Z'] = 'Albüm adı, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Albüm adı, Z &rarr; A';
+

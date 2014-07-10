@@ -34,6 +34,7 @@ $lang_info['language_name'] = '中文';
 $lang_info['country'] = '中國';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'cn';
+$lang_info['jquery_code'] = 'zh-TW';
 $lang_info['zero_plural'] = false;
 
 $lang['%d Kb'] = '%d KB';
@@ -420,3 +421,8 @@ $lang['Password is missing. Please enter the password.'] = '密碼沒有輸入�
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = '密碼確認未完成，請確認所選定的密碼。';
 $lang['%d photos per page'] = '每頁 %d 相片';
 $lang['Theme'] = '主題';
+$lang['No results for'] = '沒有結果';
+$lang['Photo description'] = '圖片說明';
+$lang['Photo title'] = '圖片標題';
+$lang['Apply on properties'] = '適用於性能';
+

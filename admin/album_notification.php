@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -83,7 +84,7 @@ SELECT id, file, path, representative_ext
   pwg_mail_group(
     $_POST['group'],
     array(
-      'subject' => l10n('[%s] Visit album %s', $conf['gallery_title'], trigger_event('render_category_name', $category['name'], 'admin_cat_list')),
+      'subject' => l10n('[%s] Visit album %s', $conf['gallery_title'], trigger_change('render_category_name', $category['name'], 'admin_cat_list')),
       // TODO : change this language variable to 'Visit album %s'
       // TODO : 'language_selected' => ....
     ),
@@ -91,11 +92,11 @@ SELECT id, file, path, representative_ext
       'filename' => 'cat_group_info',
       'assign' => array(
         'IMG_URL' => $img_url,
-        'CAT_NAME' => trigger_event('render_category_name', $category['name'], 'admin_cat_list'),
+        'CAT_NAME' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
         'LINK' => make_index_url(array(
             'category' => array(
               'id' => $category['id'],
-              'name' => trigger_event('render_category_name', $category['name'], 'admin_cat_list'),
+              'name' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
               'permalink' => $category['permalink']
               )
             )),
@@ -194,4 +195,3 @@ SELECT
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'album_notification');
-?>

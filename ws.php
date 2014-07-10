@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -464,6 +465,30 @@ function ws_addDefaultMethods( $arr )
       array('admin_only'=>true, 'post_only'=>true)
     );
 
+  $service->addMethod(
+      'pwg.images.upload',
+      'ws_images_upload',
+      array(
+        'name' => array('default' => null),
+        'category' => array(
+          'default'=>null,
+          'flags'=>WS_PARAM_FORCE_ARRAY,
+          'type'=>WS_TYPE_ID
+          ),
+        'level' => array(
+          'default' => 0,
+          'maxValue' => max($conf['available_permission_levels']),
+          'type' => WS_TYPE_INT|WS_TYPE_POSITIVE
+          ),
+        'pwg_token' => array(),
+        ),
+      'Add an image.
+<br>Use the <b>$_FILES[image]</b> field for uploading file.
+<br>Set the form encoding to "form-data".',
+      $ws_functions_root . 'pwg.images.php',
+      array('admin_only'=>true, 'post_only'=>true)
+    );
+  
   $service->addMethod(
       'pwg.images.delete',
       'ws_images_delete',
@@ -965,5 +990,3 @@ enabled_high, registration_date, registration_date_string, registration_date_sin
       array('admin_only'=>true, 'post_only'=>true)
     );
 }
-
-?>

@@ -43,7 +43,7 @@ SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE representative_picture_id = '.$_GET['image_id'].'
 ;';
-$represent_options_selected = query2array($query, null, 'id');
+$represented_albums = query2array($query, null, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |
@@ -156,6 +156,7 @@ if (isset($_POST['submit']))
   {
     $_POST['associate'] = array();
   }
+  check_input_parameter('associate', $_POST, true, PATTERN_ID);
   move_images_to_categories(array($_GET['image_id']), $_POST['associate']);
 
   invalidate_user_cache();
@@ -165,14 +166,15 @@ if (isset($_POST['submit']))
   {
     $_POST['represent'] = array();
   }
+  check_input_parameter('represent', $_POST, true, PATTERN_ID);
 
-  $no_longer_thumbnail_for = array_diff($represent_options_selected, $_POST['represent']);
+  $no_longer_thumbnail_for = array_diff($represented_albums, $_POST['represent']);
   if (count($no_longer_thumbnail_for) > 0)
   {
     set_random_representant($no_longer_thumbnail_for);
   }
 
-  $new_thumbnail_for = array_diff($_POST['represent'], $represent_options_selected);
+  $new_thumbnail_for = array_diff($_POST['represent'], $represented_albums);
   if (count($new_thumbnail_for) > 0)
   {
     $query = '
@@ -183,7 +185,7 @@ UPDATE '.CATEGORIES_TABLE.'
     pwg_query($query);
   }
 
-  $represent_options_selected = $_POST['represent'];
+  $represented_albums = $_POST['represent'];
 
   $page['infos'][] = l10n('Photo informations updated');
 }
@@ -282,7 +284,7 @@ while ($user_row = pwg_db_fetch_assoc($result))
 
 $intro_vars = array(
   'file' => l10n('Original file : %s', $row['file']),
-  'add_date' => l10n('Posted %s on %s', time_since($row['date_available'], 'year'), format_date($row['date_available'], false, false)),
+  'add_date' => l10n('Posted %s on %s', time_since($row['date_available'], 'year'), format_date($row['date_available'], array('day', 'month', 'year'))),
   'added_by' => l10n('Added by %s', $row['added_by']),
   'size' => $row['width'].'&times;'.$row['height'].' pixels, '.sprintf('%.2f', $row['filesize']/1024).'MB',
   'stats' => l10n('Visited %d times', $row['hit']),
@@ -407,11 +409,16 @@ SELECT id
     INNER JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id
   WHERE image_id = '.$_GET['image_id'].'
 ;';
-$associate_options_selected = query2array($query, null, 'id');
+$associated_albums = query2array($query, null, 'id');
 
-$template->assign(compact('associate_options_selected', 'represent_options_selected'));
+$template->assign(array(
+    'associated_albums' => $associated_albums,
+    'represented_albums' => $represented_albums,
+    'STORAGE_ALBUM' => $storage_category_id,
+    'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
+));
 
-trigger_action('loc_end_picture_modify');
+trigger_notify('loc_end_picture_modify');
 
 //----------------------------------------------------------- sending html code
 

@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: English [GB]
-Version: 2.6.0
+Version: 2.6.1
 Language URI: http://piwigo.org/ext/extension_view.php?eid=716
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -68,4 +68,3 @@ $lang['Successfully registered, you will soon receive an email with your connect
 $lang['Please, enter a login'] = 'Please enter a login';
 $lang['Piwigo encountered a non recoverable error'] = 'Piwigo encountered an irrecoverable error';
 $lang['Forgot your password?'] = 'Forgotten your password?';
-

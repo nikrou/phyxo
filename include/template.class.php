@@ -120,6 +120,7 @@ class Template
     $this->smarty->registerPlugin('modifiercompiler', 'translate', array('Template', 'modcompiler_translate') );
     $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', array('Template', 'modcompiler_translate_dec') );
     $this->smarty->registerPlugin('modifier', 'explode', array('Template', 'mod_explode') );
+    $this->smarty->registerPlugin('modifier', 'ternary', array('Template', 'mod_ternary') );
     $this->smarty->registerPlugin('modifier', 'get_extent', array($this, 'get_extent') );
     $this->smarty->registerPlugin('block', 'html_head', array($this, 'block_html_head') );
     $this->smarty->registerPlugin('block', 'html_style', array($this, 'block_html_style') );
@@ -147,6 +148,16 @@ class Template
     else
       $this->set_template_dir($root);
 
+    if (isset($lang_info['code']) and !isset($lang_info['jquery_code']))
+    {
+      $lang_info['jquery_code'] = $lang_info['code'];
+    }
+
+    if (isset($lang_info['jquery_code']) and !isset($lang_info['plupload_code']))
+    {
+      $lang_info['plupload_code'] = str_replace('-', '_', $lang_info['jquery_code']);
+    }
+    
     $this->smarty->assign('lang_info', $lang_info);
 
     if (!defined('IN_ADMIN') and isset($conf['extents_for_templates']))
@@ -520,7 +531,7 @@ class Template
       if ($combi->version !== false)
         $href .= '?v' . ($combi->version ? $combi->version : PHPWG_VERSION);
       // trigger the event for eventual use of a cdn
-      $href = trigger_event('combined_css', $href, $combi);
+      $href = trigger_change('combined_css', $href, $combi);
       $content[] = '<link rel="stylesheet" type="text/css" href="'.$href.'">';
     }
     $this->output = str_replace(self::COMBINED_CSS_TAG,
@@ -591,7 +602,7 @@ class Template
 
   /**
    * "translate" variable modifier.
-   * Usage : 
+   * Usage :
    *    - {'Comment'|translate}
    *    - {'%d comments'|translate:$count}
    * @see l10n()
@@ -664,7 +675,7 @@ class Template
   /**
    * "explode" variable modifier.
    * Usage :
-   *    - {assign var=valueExploded value=$value|@explode:','}
+   *    - {assign var=valueExploded value=$value|explode:','}
    *
    * @param string $text
    * @param string $delimiter
@@ -673,6 +684,21 @@ class Template
   static function mod_explode($text, $delimiter=',')
   {
     return explode($delimiter, $text);
+  }
+  
+  /**
+   * ternary variable modifier.
+   * Usage :
+   *    - {$variable|ternary:'yes':'no'}
+   *
+   * @param mixed $param
+   * @param mixed $true
+   * @param mixed $false
+   * @return mixed
+   */
+  static function mod_ternary($param, $true, $false)
+  {
+    return $param ? $true : $false;
   }
 
   /**
@@ -877,7 +903,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
       }
     }
     // trigger the event for eventual use of a cdn
-    $ret = trigger_event('combined_script', $ret, $script);
+    $ret = trigger_change('combined_script', $ret, $script);
     return embellish_url($ret);
   }
 
@@ -1100,7 +1126,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
 
     if (!empty($css))
     {
-      $source = str_replace("\n{get_combined_css}", "\n".implode( "\n", $css )."\n{get_combined_css}", $source);
+      $source = str_replace("{get_combined_css}", implode( "\n", $css )."\n{get_combined_css}", $source);
     }
 
     return $source;
@@ -1163,7 +1189,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
         $buttons = array_merge($buttons, $row);
       }
       $this->assign('PLUGIN_PICTURE_BUTTONS', $buttons);
-      
+
       // only for PHP 5.3
       // $this->assign('PLUGIN_PICTURE_BUTTONS',
           // array_reduce(
@@ -1188,7 +1214,7 @@ var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTa
         $buttons = array_merge($buttons, $row);
       }
       $this->assign('PLUGIN_INDEX_BUTTONS', $buttons);
-      
+
       // only for PHP 5.3
       // $this->assign('PLUGIN_INDEX_BUTTONS',
           // array_reduce(
@@ -1358,18 +1384,18 @@ class CssLoader
   private $registered_css;
   /** @param int used to keep declaration order */
   private $counter;
-  
+
   function __construct()
   {
     $this->clear();
   }
-  
+
   function clear()
   {
     $this->registered_css = array();
     $this->counter = 0;
   }
-  
+
   /**
    * @return Combinable[] array of combined CSS.
    */
@@ -1379,7 +1405,7 @@ class CssLoader
     $combiner = new FileCombiner('css', $this->registered_css);
     return $combiner->combine();
   }
-  
+
   /**
    * Callback for CSS files sorting.
    */
@@ -1387,7 +1413,7 @@ class CssLoader
   {
     return $a->order - $b->order;
   }
-  
+
   /**
    * Adds a new file, if a file with the same $id already exsists, the one with
    * the higher $order or higher $version is kept.
@@ -1933,7 +1959,7 @@ final class FileCombiner
       global $template;
       $handle = $this->type. '.' .$combinable->id;
       $template->set_filename($handle, realpath(PHPWG_ROOT_PATH.$combinable->path));
-      trigger_action( 'combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
+      trigger_notify( 'combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
       $content = $template->parse($handle, true);
 
       if ($this->is_css)
@@ -1989,7 +2015,7 @@ final class FileCombiner
       require_once(PHPWG_ROOT_PATH.'include/cssmin.class.php');
       $css = CssMin::minify($css, array('Variables'=>false));
     }
-    $css = trigger_event('combined_css_postfilter', $css);
+    $css = trigger_change('combined_css_postfilter', $css);
     return $css;
   }
 

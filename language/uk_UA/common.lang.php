@@ -34,6 +34,8 @@ $lang_info['language_name'] = "Українська";
 $lang_info['country'] = "Україна";
 $lang_info['direction'] = "ltr";
 $lang_info['code'] = "ua";
+$lang_info['jquery_code'] = "uk";
+$lang_info['plupload_code'] = "uk_UA";
 $lang_info['zero_plural'] = true;
 
 $lang['%d album updated'] = '%d альбом оновлено';
@@ -420,3 +422,9 @@ $lang['Password confirmation is missing. Please confirm the chosen password.'] =
 $lang['%d photos per page'] = '%d зображень на сторінці';
 $lang['Theme'] = 'Тема';
 $lang['No results for'] = 'Нічого не знайдено для';
+$lang['Apply on properties'] = 'Застосувати на властивості';
+$lang['Photo description'] = 'Опис фотографії';
+$lang['Photo title'] = 'Назва фотографії';
+$lang['Album name, A &rarr; Z'] = 'Назва альбому, А &rarr; Я';
+$lang['Album name, Z &rarr; A'] = 'Назва альбому, Я &rarr; А';
+

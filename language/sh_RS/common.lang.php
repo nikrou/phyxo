@@ -34,6 +34,8 @@ $lang_info['language_name'] = 'Srpski';
 $lang_info['country'] = 'Srbija';
 $lang_info['direction'] = 'ltr';
 $lang_info['code'] = 'sh';
+$lang_info['jquery_code'] = 'sr-SR';
+$lang_info['plupload_code'] = 'sr';
 $lang_info['zero_plural'] = true;
 
 $lang['%d Kb'] = '%d Kb';
@@ -419,3 +421,8 @@ $lang['Username is mandatory'] = 'Korisničko ime je obavezno';
 $lang['Website'] = 'Veb sajt';
 $lang['Your website URL is invalid'] = 'URL Vašeg veb sajta je neispravan';
 $lang['mandatory'] = 'obavezno';
+$lang['Apply on properties'] = 'Примени на подешавања';
+$lang['No results for'] = 'Нема резултата за';
+$lang['Photo description'] = 'Опис фотографије';
+$lang['Photo title'] = 'Назив фотографије';
+
