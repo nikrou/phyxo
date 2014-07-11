@@ -103,8 +103,8 @@ jQuery(document).ready(function(){
 {/if}
 
 <form id="categoryOrdering" action="{$F_ACTION}" method="post">
-  <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
   <p id="manualOrder" style="display:none">
+    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
     <input class="submit" name="submitManualOrder" type="submit" value="{'Save manual order'|@translate}">
     {'... or '|@translate} <a href="#" id="cancelManualOrder">{'cancel manual order'|@translate}</a>
   </p>

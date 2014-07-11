@@ -291,7 +291,7 @@ WHERE id IN (' . implode(',',$page['items']) .')';
       $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
       $query .= ','.$calendar->date_field;
       $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
-      $query .= $order_by;
+      $query .= ' '.$order_by;
       
       $page['items'] = array_from_query($query, 'id');
   }
