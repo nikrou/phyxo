@@ -57,20 +57,17 @@ jQuery(document).ready(function() {
         }
 
         return filtered;
-      }
-      else {
+      } else {
         return categories;
       }
     }
   });
 
-      if (jQuery(this).data('value')) {
+  if (jQuery(this).data('value')) {
         jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, tag) {
           this.selectize.addItem(tag.id);
         }, this));
-      }
-    });
-  });
+  }
 });
 
 var nb_thumbs_page = {$nb_thumbs_page};

@@ -9,17 +9,22 @@
 
 <div style="display:none">
   <div id="addAlbumForm">
-    <form>
-      {'Parent album'|@translate}<br>
-      <select name="category_parent"></select>
-      <br><br>
+    <form action="">
+      <p>
+	<label>{'Parent album'|@translate}</label>
+	<select name="category_parent"><option></option></select>
+      </p>
       
-      {'Album name'|@translate}<br>
-      <input name="category_name" type="text" maxlength="255"> <span id="categoryNameError"></span>
-      <br><br><br>
+      <p>
+	<label>{'Album name'|@translate}</label>
+	<input name="category_name" type="text" maxlength="255">
+	<span id="categoryNameError"></span>
+      </p>
       
-      <input type="submit" value="{'Create'|@translate}">
-      <span id="albumCreationLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
+      <p>
+	<input type="submit" value="{'Create'|@translate}">
+	<span id="albumCreationLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
+      </p>
     </form>
   </div>
 </div>
