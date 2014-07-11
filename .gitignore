@@ -4,18 +4,19 @@
 /galleries/*
 
 ;; plugins
+/plugins/*
 !/plugins/language_switch
 !/plugins/LocalFilesEditor/
 !/plugins/user_tags/
-/plugins/*
 
 ;; themes
+/themes/*
 !/themes/Sylvia
 !/themes/clear/
 !/themes/dark/
 !/themes/default/
 !/themes/elegant/
-/themes/*
+
 
 
 ;; conf

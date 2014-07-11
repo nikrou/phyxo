@@ -29,6 +29,7 @@ if (!defined('PHPWG_ROOT_PATH'))
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
+include_once PHPWG_ROOT_PATH. 'include/dblayer/dblayers.inc.php';
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -184,7 +185,7 @@ $template->assign(
     'PWG_VERSION' => PHPWG_VERSION,
     'OS' => PHP_OS,
     'PHP_VERSION' => phpversion(),
-    'DB_ENGINE' => 'MySQL',
+    'DB_ENGINE' => $dblayers[$conf['dblayer']]['engine'],
     'DB_VERSION' => $db_version,
     'DB_ELEMENTS' => l10n_dec('%d photo', '%d photos', $nb_elements),
     'DB_CATEGORIES' =>

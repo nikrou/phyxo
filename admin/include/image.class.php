@@ -29,25 +29,25 @@
 // Define all needed methods for image class
 interface imageInterface
 {
-  function get_width();
+    public function get_width();
 
-  function get_height();
+    public function get_height();
 
-  function set_compression_quality($quality);
+    public function set_compression_quality($quality);
 
-  function crop($width, $height, $x, $y);
+    public function crop($width, $height, $x, $y);
 
-  function strip();
+    public function strip();
 
-  function rotate($rotation);
+    public function rotate($rotation);
 
-  function resize($width, $height);
+    public function resize($width, $height);
 
-  function sharpen($amount);
+    public function sharpen($amount);
 
-  function compose($overlay, $x, $y, $opacity);
+    public function compose($overlay, $x, $y, $opacity);
 
-  function write($destination_filepath);
+    public function write($destination_filepath);
 }
 
 // +-----------------------------------------------------------------------+
@@ -56,178 +56,153 @@ interface imageInterface
 
 class pwg_image
 {
-  var $image;
-  var $library = '';
-  var $source_filepath = '';
-  static $ext_imagick_version = '';
+    public $image, $library = '', $source_filepath = '';
+    public static $ext_imagick_version = '';
 
-  function __construct($source_filepath, $library=null)
-  {
-    $this->source_filepath = $source_filepath;
+    public function __construct($source_filepath, $library=null) {
+        $this->source_filepath = $source_filepath;
 
-    trigger_notify('load_image_library', array(&$this) );
+        trigger_notify('load_image_library', array(&$this) );
+        
+        if (is_object($this->image)) {
+            return; // A plugin may have load its own library
+        }
 
-    if (is_object($this->image))
-    {
-      return; // A plugin may have load its own library
+        $extension = strtolower(get_extension($source_filepath));
+
+        if (!in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+            die('[Image] unsupported file extension');
+        }
+
+        if (!($this->library = self::get_library($library, $extension))) {
+            die('No image library available on your server.');
+        }
+
+        $class = 'image_'.$this->library;
+        $this->image = new $class($source_filepath);
     }
 
-    $extension = strtolower(get_extension($source_filepath));
-
-    if (!in_array($extension, array('jpg', 'jpeg', 'png', 'gif')))
-    {
-      die('[Image] unsupported file extension');
+    // Unknow methods will be redirected to image object
+    function __call($method, $arguments) {
+        return call_user_func_array(array($this->image, $method), $arguments);
     }
 
-    if (!($this->library = self::get_library($library, $extension)))
-    {
-      die('No image library available on your server.');
+    // Piwigo resize function
+    function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation=true, $strip_metadata=false, $crop=false, $follow_orientation=true) {
+        $starttime = get_moment();
+
+        // width/height
+        $source_width  = $this->image->get_width();
+        $source_height = $this->image->get_height();
+        
+        $rotation = null;
+        if ($automatic_rotation) {
+            $rotation = self::get_rotation_angle($this->source_filepath);
+        }
+        $resize_dimensions = self::get_resize_dimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
+
+        // testing on height is useless in theory: if width is unchanged, there
+        // should be no resize, because width/height ratio is not modified.
+        if ($resize_dimensions['width'] == $source_width and $resize_dimensions['height'] == $source_height) {
+            // the image doesn't need any resize! We just copy it to the destination
+            copy($this->source_filepath, $destination_filepath);
+            return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
+        }
+
+        $this->image->set_compression_quality($quality);
+
+        if ($strip_metadata) {
+            // we save a few kilobytes. For example a thumbnail with metadata weights 25KB, without metadata 7KB.
+            $this->image->strip();
+        }
+
+        if (isset($resize_dimensions['crop'])) {
+            $this->image->crop($resize_dimensions['crop']['width'], $resize_dimensions['crop']['height'], $resize_dimensions['crop']['x'], $resize_dimensions['crop']['y']);
+        }
+
+        $this->image->resize($resize_dimensions['width'], $resize_dimensions['height']);
+
+        if (!empty($rotation)) {
+            $this->image->rotate($rotation);
+        }
+
+        $this->image->write($destination_filepath);
+
+        // everything should be OK if we are here!
+        return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
     }
 
-    $class = 'image_'.$this->library;
-    $this->image = new $class($source_filepath);
-  }
+    public static function get_resize_dimensions($width, $height, $max_width, $max_height, 
+    $rotation=null, $crop=false, $follow_orientation=true) {
+    
+        $rotate_for_dimensions = false;
+        if (isset($rotation) and in_array(abs($rotation), array(90, 270))) {
+            $rotate_for_dimensions = true;
+        }
 
-  // Unknow methods will be redirected to image object
-  function __call($method, $arguments)
-  {
-    return call_user_func_array(array($this->image, $method), $arguments);
-  }
+        if ($rotate_for_dimensions) {
+            list($width, $height) = array($height, $width);
+        }
+        
+        if ($crop) {
+            $x = 0;
+            $y = 0;
 
-  // Piwigo resize function
-  function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation=true, $strip_metadata=false, $crop=false, $follow_orientation=true)
-  {
-    $starttime = get_moment();
+            if ($width < $height and $follow_orientation) {
+                list($max_width, $max_height) = array($max_height, $max_width);
+            }
 
-    // width/height
-    $source_width  = $this->image->get_width();
-    $source_height = $this->image->get_height();
+            $img_ratio = $width / $height;
+            $dest_ratio = $max_width / $max_height;
+            
+            if($dest_ratio > $img_ratio) {
+                $destHeight = round($width * $max_height / $max_width);
+                $y = round(($height - $destHeight) / 2 );
+                $height = $destHeight;
+            } elseif ($dest_ratio < $img_ratio) {
+                $destWidth = round($height * $max_width / $max_height);
+                $x = round(($width - $destWidth) / 2 );
+                $width = $destWidth;
+            }
+        }
 
-    $rotation = null;
-    if ($automatic_rotation)
-    {
-      $rotation = self::get_rotation_angle($this->source_filepath);
-    }
-    $resize_dimensions = self::get_resize_dimensions($source_width, $source_height, $max_width, $max_height, $rotation, $crop, $follow_orientation);
+        $ratio_width  = $width / $max_width;
+        $ratio_height = $height / $max_height;
+        $destination_width = $width;
+        $destination_height = $height;
 
-    // testing on height is useless in theory: if width is unchanged, there
-    // should be no resize, because width/height ratio is not modified.
-    if ($resize_dimensions['width'] == $source_width and $resize_dimensions['height'] == $source_height)
-    {
-      // the image doesn't need any resize! We just copy it to the destination
-      copy($this->source_filepath, $destination_filepath);
-      return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
-    }
+        // maximal size exceeded ?
+        if ($ratio_width > 1 or $ratio_height > 1) {
+            if ($ratio_width < $ratio_height) {
+                $destination_width = round($width / $ratio_height);
+                $destination_height = $max_height;
+            } else {
+                $destination_width = $max_width;
+                $destination_height = round($height / $ratio_width);
+            }
+        }
+        
+        if ($rotate_for_dimensions) {
+            list($destination_width, $destination_height) = array($destination_height, $destination_width);
+        }
 
-    $this->image->set_compression_quality($quality);
-
-    if ($strip_metadata)
-    {
-      // we save a few kilobytes. For example a thumbnail with metadata weights 25KB, without metadata 7KB.
-      $this->image->strip();
-    }
-
-    if (isset($resize_dimensions['crop']))
-    {
-      $this->image->crop($resize_dimensions['crop']['width'], $resize_dimensions['crop']['height'], $resize_dimensions['crop']['x'], $resize_dimensions['crop']['y']);
-    }
-
-    $this->image->resize($resize_dimensions['width'], $resize_dimensions['height']);
-
-    if (!empty($rotation))
-    {
-      $this->image->rotate($rotation);
-    }
-
-    $this->image->write($destination_filepath);
-
-    // everything should be OK if we are here!
-    return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
-  }
-
-  static function get_resize_dimensions($width, $height, $max_width, $max_height, $rotation=null, $crop=false, $follow_orientation=true)
-  {
-    $rotate_for_dimensions = false;
-    if (isset($rotation) and in_array(abs($rotation), array(90, 270)))
-    {
-      $rotate_for_dimensions = true;
-    }
-
-    if ($rotate_for_dimensions)
-    {
-      list($width, $height) = array($height, $width);
-    }
-
-    if ($crop)
-    {
-      $x = 0;
-      $y = 0;
-
-      if ($width < $height and $follow_orientation)
-      {
-        list($max_width, $max_height) = array($max_height, $max_width);
-      }
-
-      $img_ratio = $width / $height;
-      $dest_ratio = $max_width / $max_height;
-
-      if($dest_ratio > $img_ratio)
-      {
-        $destHeight = round($width * $max_height / $max_width);
-        $y = round(($height - $destHeight) / 2 );
-        $height = $destHeight;
-      }
-      elseif ($dest_ratio < $img_ratio)
-      {
-        $destWidth = round($height * $max_width / $max_height);
-        $x = round(($width - $destWidth) / 2 );
-        $width = $destWidth;
-      }
-    }
-
-    $ratio_width  = $width / $max_width;
-    $ratio_height = $height / $max_height;
-    $destination_width = $width;
-    $destination_height = $height;
-
-    // maximal size exceeded ?
-    if ($ratio_width > 1 or $ratio_height > 1)
-    {
-      if ($ratio_width < $ratio_height)
-      {
-        $destination_width = round($width / $ratio_height);
-        $destination_height = $max_height;
-      }
-      else
-      {
-        $destination_width = $max_width;
-        $destination_height = round($height / $ratio_width);
-      }
-    }
-
-    if ($rotate_for_dimensions)
-    {
-      list($destination_width, $destination_height) = array($destination_height, $destination_width);
-    }
-
-    $result = array(
-      'width' => $destination_width,
-      'height'=> $destination_height,
-      );
-
-    if ($crop and ($x or $y))
-    {
-      $result['crop'] = array(
-        'width' => $width,
-        'height' => $height,
-        'x' => $x,
-        'y' => $y,
+        $result = array(
+            'width' => $destination_width,
+            'height'=> $destination_height,
         );
-    }
-    return $result;
-  }
 
-  static function get_rotation_angle($source_filepath)
+        if ($crop and ($x or $y)) {
+            $result['crop'] = array(
+                'width' => $width,
+                'height' => $height,
+                'x' => $x,
+                'y' => $y,
+            );
+        }
+        return $result;
+    }
+
+  public static function get_rotation_angle($source_filepath)
   {
     list($width, $height, $type) = getimagesize($source_filepath);
     if (IMAGETYPE_JPEG != $type)

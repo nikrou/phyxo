@@ -272,57 +272,29 @@ WHERE id IN (' . implode(',',$page['items']) .')';
   } // end category calling
 
   if ($must_show_list) {
-      if ( isset($page['super_order_by']) ) {
+      if (isset($page['super_order_by'])) {
           $order_by = $conf['order_by'];
       } else {
-          if ( count($page['chronology_date'])==0
-          or in_array('any', $page['chronology_date']) ) { // selected period is very big so we show newest first
+          if (count($page['chronology_date'])==0
+          or in_array('any', $page['chronology_date']) ) {// selected period is very big so we show newest first
               $order = ' DESC, ';
+          } else { // selected period is small (month,week) so we show oldest first
+              $order = ' ASC, ';
           }
 
-          if ('categories'==$page['section'] && !isset($page['category']) && ( count($page['chronology_date'])==0
-          OR ($page['chronology_date'][0]=='any' && count($page['chronology_date'])==1))) {
-              $cache_key = $persistent_cache->make_key($user['id'].$user['cache_update_time']
-              .$calendar->date_field.$order_by);
-          }
-
-          if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) { 
-              $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
-              $query .= ','.$calendar->date_field;
-              $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
-              $query .= $order_by;
-          
-              $page['items'] = array_from_query($query, 'id');
-              if (isset($cache_key)) {
-                  $persistent_cache->set($cache_key, $page['items']);
-              }
-          }
           $order_by = str_replace(
               'ORDER BY ',
               'ORDER BY '.$calendar->date_field.$order, $conf['order_by']
           );
       }
-    
-      if ('categories'==$page['section'] && !isset($page['category'])
-      && ( count($page['chronology_date'])==0
-      OR ($page['chronology_date'][0]=='any' && count($page['chronology_date'])==1) )
-      ) {
-          $cache_key = $persistent_cache->make_key($user['id'].$user['cache_update_time']
-          .$calendar->date_field.$order_by);
-      }
 
-      if ( !isset($cache_key) || !$persistent_cache->get($cache_key, $page['items']))
-          {
-              $query = 'SELECT DISTINCT id '
-                  .$calendar->inner_sql.'
-  '.$calendar->get_date_where().'
-  '.$order_by;
-              $page['items'] = array_from_query($query, 'id');
-              if ( isset($cache_key) )
-                  $persistent_cache->set($cache_key, $page['items']);
-          }
+      $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
+      $query .= ','.$calendar->date_field;
+      $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
+      $query .= $order_by;
+      
+      $page['items'] = array_from_query($query, 'id');
   }
-
   pwg_debug('end initialize_calendar');
 }
 
