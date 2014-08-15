@@ -27,7 +27,7 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'ஒரு பராமரிப்பு சரிபார்ப்பு செய்யவும் [நிர்வாக> கருவிகள்> பராமரிப்பு] இல் உங்களுக்கு எந்த சிக்கல்களை தீர்க்க';
 $lang['SQL queries'] = 'SQL வினவல்கள்';
 $lang['Statistics'] = 'புள்ளி விவரம்';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'இந்த பக்கம் உங்கள் பழைய Piwigo பதிப்பு புதிய பதிப்பு தகவல் மேம்படுத்த முன்மொழிகிறது.மேம்படுத்தல் உதவி நினைக்கிறது
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'இந்த பக்கம் உங்கள் பழைய Piwigo பதிப்பு புதிய பதிப்பு தகவல் மேம்படுத்த முன்மொழிகிறது.மேம்படுத்தல் உதவி நினைக்கிறது
 உங்களுக்கு தற்போது <strong> வெளியீடு %s </strong> (அல்லது அதற்கு சமமான) இயங்குகிறது.';
 $lang['Upgrade informations'] = 'தகவலை மேம்படுத்தல்';
 $lang['Upgrade from version %s to %s'] = 'பதிப்பு% s இலிருந்து% s மேம்படுத்தல்';

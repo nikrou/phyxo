@@ -1,26 +1,26 @@
-<h2>{'Phyxo Administration'|@translate}</h2>
+<h2>{'Phyxo Administration'|translate}</h2>
 <dl style="padding-top: 30px;">
-  <dt>{'Phyxo version'|@translate}</dt>
+  <dt>{'Phyxo version'|translate}</dt>
   <dd>
     <ul>
       <li><a href="{$PHPWG_URL}" class="externalLink">Phyxo</a> {$PWG_VERSION}</li>
-      <!-- <li><a href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|@translate}</a></li> -->
+      <!-- <li><a href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|translate}</a></li> -->
     </ul>
   </dd>
 
-  <dt>{'Environment'|@translate}</dt>
+  <dt>{'Environment'|translate}</dt>
   <dd>
     <ul>
-      <li>{'Operating system'|@translate}: {$OS}</li>
-      <li>PHP: {$PHP_VERSION} (<a href="{$U_PHPINFO}" class="externalLink">{'Show info'|@translate}</a>)  [{$PHP_DATATIME}]</li>
+      <li>{'Operating system'|translate}: {$OS}</li>
+      <li>PHP: {$PHP_VERSION} (<a href="{$U_PHPINFO}" class="externalLink">{'Show info'|translate}</a>)  [{$PHP_DATATIME}]</li>
       <li>{$DB_ENGINE}: {$DB_VERSION} [{$DB_DATATIME}]</li>
       {if isset($GRAPHICS_LIBRARY)}
-      <li>{'Graphics Library'|@translate}: {$GRAPHICS_LIBRARY}</li>
+      <li>{'Graphics Library'|translate}: {$GRAPHICS_LIBRARY}</li>
       {/if}
     </ul>
   </dd>
 
-  <dt>{'Database'|@translate}</dt>
+  <dt>{'Database'|translate}</dt>
   <dd>
     <ul>
       <li>
@@ -38,7 +38,7 @@
         {$DB_COMMENTS}{if $NB_PENDING_COMMENTS > 0} (<a href="{$U_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
       </li>
     {/if}
-			<li>{$DB_RATES}</li>
+      <li>{$DB_RATES}</li>
     </ul>
   </dd>
 </dl>
@@ -55,8 +55,8 @@
 <input type="hidden" name="subcats-included" value="1" checked="checked">
 </div>
 <div class="bigbutton">
-<span class="bigtext">{'Quick Local Synchronization'|@translate}</span>
-<input type="submit" value="{'Quick Local Synchronization'|@translate}" name="submit">
+<span class="bigtext">{'Quick Local Synchronization'|translate}</span>
+<input type="submit" value="{'Quick Local Synchronization'|translate}" name="submit">
 </div>
 </form>
 {/if}

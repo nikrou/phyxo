@@ -38,23 +38,17 @@ check_status(ACCESS_GUEST);
 // |                     generate random element list                      |
 // +-----------------------------------------------------------------------+
 
-$query = '
-SELECT id
-  FROM '.IMAGES_TABLE.'
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id
-'.get_sql_condition_FandF
-  (
-    array
-      (
-        'forbidden_categories' => 'category_id',
-        'visible_categories' => 'category_id',
-        'visible_images' => 'id'
-      ),
-    'WHERE'
-  ).'
-  ORDER BY '.DB_RANDOM_FUNCTION.'()
-  LIMIT '.min(50, $conf['top_number'],$user['nb_image_page']).'
-;';
+$query = 'SELECT id FROM '.IMAGES_TABLE;
+$query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
+$query .= ' '.get_sql_condition_FandF(array(
+    'forbidden_categories' => 'category_id',
+    'visible_categories' => 'category_id',
+    'visible_images' => 'id'
+),
+'WHERE'
+);
+$query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'()';
+$query .= ' LIMIT '.min(50, $conf['top_number'],$user['nb_image_page']).';';
 
 // +-----------------------------------------------------------------------+
 // |                                redirect                               |

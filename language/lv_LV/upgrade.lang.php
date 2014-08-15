@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 $lang['Upgrade'] = "Uzlabošana";
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Šī lapa piedāvā uzlabot Jūsu Piwigo veco datu bāzi uz jaunāko versiju. Uzlabošanas asistents domā, ka Jūs patlaban lietojat <strong>release %s</strong> ( vai ekvivalentu).";
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Šī lapa piedāvā uzlabot Jūsu Piwigo veco datu bāzi uz jaunāko versiju. Uzlabošanas asistents domā, ka Jūs patlaban lietojat <strong>release %s</strong> ( vai ekvivalentu).";
 $lang['Upgrade from version %s to %s'] = "Uzlabojums no  %s versijas uz %s";
 $lang['Statistics'] = "Statistika";
 $lang['total upgrade time'] = "kopējais uzlabošanas procesa laiks";

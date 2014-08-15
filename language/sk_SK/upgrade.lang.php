@@ -39,7 +39,7 @@ $lang['You do not have access rights to run upgrade'] = 'Nemáte prístupové pr
 $lang['All sub-albums of private albums become private'] = 'Všetky subalbumy súkromných albumov budú súkromné';
 $lang['User permissions and group permissions have been erased'] = 'Používateľské oprávnenia a oprávnenia skupín boli vymazané';
 $lang['Only thumbnails prefix and webmaster mail address have been saved from previous configuration'] = 'Z predchádzajúcej konfigurárie boli zachované len predpony náhľadov a mailová adresa webmastra.';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Navrhujeme aktualizovať databázu Vašej galérie Piwigo zo staršej na novú verziu.
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Navrhujeme aktualizovať databázu Vašej galérie Piwigo zo staršej na novú verziu.
 Asistent aktualizácie sa domnieva, že aktuálne používate <strong>verziu %s</strong> (alebo obdobnú).';
 $lang['In <i>%s</i>, before <b>?></b>, insert:'] = 'V <i>%s</i>, pred <b>?></b>, vložte:';
 $lang['As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:'] = 'Z opatrnosti boli nasledovné témy deaktivované. Musíte skontrolovať aktualizácie tém pred ich reaktiváciou:';

@@ -1,31 +1,31 @@
-<h2>{$NB_ELEMENTS} {'Photos'|@translate}</h2>
+<h2>{$NB_ELEMENTS} {'Photos'|translate}</h2>
 
 <form action="{$F_ACTION}" method="GET" class="filter">
   <fieldset>
-    <legend>{'Filter'|@translate}</legend>
+    <legend>{'Filter'|translate}</legend>
 
     <label>
-      {'Sort by'|@translate}
+      {'Sort by'|translate}
       <select name="order_by">
         {html_options options=$order_by_options selected=$order_by_options_selected}
       </select>
     </label>
 
     <label>
-      {'Users'|@translate}
+      {'Users'|translate}
       <select name="users">
         {html_options options=$user_options selected=$user_options_selected}
       </select>
     </label>
 
     <label>
-      {'Number of items'|@translate}
+      {'Number of items'|translate}
       <input type="text" name="display" size="2" value="{$DISPLAY}">
     </label>
 
     <label>
       &nbsp;
-    <input class="submit" type="submit" value="{'Submit'|@translate}">
+    <input class="submit" type="submit" value="{'Submit'|translate}">
     </label>
     <input type="hidden" name="page" value="rating">
   </fieldset>
@@ -35,12 +35,12 @@
 
 <table width="99%">
 <tr class="throw">
-  <td>{'File'|@translate}</td>
-  <td>{'Number of rates'|@translate}</td>
-	<td>{'Rating score'|@translate}</td>
-  <td>{'Average rate'|@translate}</td>
-  <td>{'Sum of rates'|@translate}</td>
-  <td>{'Rate'|@translate}/{'Username'|@translate}/{'Rate date'|@translate}</td>
+  <td>{'File'|translate}</td>
+  <td>{'Number of rates'|translate}</td>
+	<td>{'Rating score'|translate}</td>
+  <td>{'Average rate'|translate}</td>
+  <td>{'Sum of rates'|translate}</td>
+  <td>{'Rate'|translate}/{'Username'|translate}/{'Rate date'|translate}</td>
   <td></td>
 </tr>
 {foreach from=$images item=image name=image}
@@ -65,7 +65,7 @@
 </tr>
 {/foreach}{*images*}
 </table>
-{combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
+{combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
 {footer_script}
 function del(node,id,uid,aid){
 	var tr = jQuery(node).parents("tr").first().fadeTo(1000, 0.4),
@@ -84,8 +84,8 @@ function del(node,id,uid,aid){
 			onSuccess: function(result){
 				if (result)
 					tr.remove();
-				else 
-					alert(result); 
+				else
+					alert(result);
 			}
 		}
 	);

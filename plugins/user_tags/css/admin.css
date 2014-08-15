@@ -1,7 +1,0 @@
-form fieldset{text-align:left;}
-pre{margin-left:20px;background-color:#444;padding:1em;color:#FFF;}
-form p.field,form fieldset p,p{text-align:left;margin-left:20px;}
-label{display:block;}
-p.field{position:relative;}
-p.field label{display:block;width:14em;}
-p.field input{display:inline;position:absolute;left:15em;top:0;}

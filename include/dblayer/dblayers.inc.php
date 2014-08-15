@@ -22,7 +22,12 @@
 $dblayers = array();
 $dblayers['mysql'] = array(
     'engine' => 'MySQL',
-    'function_available' => extension_loaded('mysqli') ? 'mysqli_connect' : 'mysql_connect'
+    'function_available' => 'mysql_connect'
+);
+
+$dblayers['mysqli'] = array(
+    'engine' => 'MySQL (improved)',
+    'function_available' => 'mysqli_connect'
 );
 
 $dblayers['pgsql'] = array(

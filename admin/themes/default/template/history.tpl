@@ -7,13 +7,13 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
 });
 {/footer_script}
 
-<h2>{'History'|@translate} {$TABSHEET_TITLE}</h2>
+<h2>{'History'|translate} {$TABSHEET_TITLE}</h2>
 
 <form class="filter" method="post" name="filter" action="{$F_ACTION}">
 <fieldset>
-  <legend>{'Filter'|@translate}</legend>
+  <legend>{'Filter'|translate}</legend>
   <ul>
-    <li><label>{'Date'|@translate}</label></li>
+    <li><label>{'Date'|translate}</label></li>
     <li>
       <input type="hidden" name="start" value="{$START}">
       <label>
@@ -25,7 +25,7 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     </li>
   </ul>
   <ul>
-    <li><label>{'End-Date'|@translate}</label></li>
+    <li><label>{'End-Date'|translate}</label></li>
     <li>
       <input type="hidden" name="end" value="{$END}">
       <label>
@@ -38,14 +38,14 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
   </ul>
 
   <label>
-    {'Element type'|@translate}
+    {'Element type'|translate}
     <select name="types[]" multiple="multiple" size="4">
       {html_options values=$type_option_values output=$type_option_values|translate selected=$type_option_selected}
     </select>
   </label>
 
   <label>
-    {'User'|@translate}
+    {'User'|translate}
     <select name="user">
       <option value="-1">------------</option>
       {html_options options=$user_options selected=$user_options_selected}
@@ -53,34 +53,34 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
   </label>
 
   <label>
-    {'Image id'|@translate}
+    {'Image id'|translate}
     <input name="image_id" value="{$IMAGE_ID}" type="text" size="5">
   </label>
 
   <label>
-    {'File name'|@translate}
+    {'File name'|translate}
 		<input name="filename" value="{$FILENAME}" type="text" size="12">
   </label>
 
 	<label>
-		{'IP'|@translate}
+		{'IP'|translate}
 		<input name="ip" value="{$IP}" type="text" size="12">
 	</label>
 
   <label>
-    {'Thumbnails'|@translate}
+    {'Thumbnails'|translate}
     <select name="display_thumbnail">
       {html_options options=$display_thumbnails selected=$display_thumbnail_selected}
     </select>
   </label>
 
-  <input type="submit" name="submit" value="{'Submit'|@translate}">
+  <input type="submit" name="submit" value="{'Submit'|translate}">
 </fieldset>
 </form>
 
 {if isset($search_summary)}
 <fieldset>
-  <legend>{'Summary'|@translate}</legend>
+  <legend>{'Summary'|translate}</legend>
 
   <ul>
     <li>{$search_summary.NB_LINES}, {$search_summary.FILESIZE}</li>
@@ -100,14 +100,14 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
 <table class="table2" id="detailedStats">
 <thead>
 <tr class="throw">
-  <th>{'Date'|@translate}</th>
-  <th>{'Time'|@translate}</th>
-  <th>{'User'|@translate}</th>
-  <th>{'IP'|@translate}</th>
-  <th>{'Element'|@translate}</th>
-  <th>{'Element type'|@translate}</th>
-  <th>{'Section'|@translate}</th>
-	<th>{'Album'|@translate} / {'Tags'|@translate}</th>
+  <th>{'Date'|translate}</th>
+  <th>{'Time'|translate}</th>
+  <th>{'User'|translate}</th>
+  <th>{'IP'|translate}</th>
+  <th>{'Element'|translate}</th>
+  <th>{'Element type'|translate}</th>
+  <th>{'Section'|translate}</th>
+	<th>{'Album'|translate} / {'Tags'|translate}</th>
 </tr>
 </thead>
 {if !empty($search_results)}

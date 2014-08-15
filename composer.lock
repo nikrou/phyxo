@@ -1,10 +1,61 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "5ec7ccbb794773b681842ed291a59800",
+    "hash": "758cf4175bd26338cd8f3ff25a6558d0",
     "packages": [
+        {
+            "name": "jdorn/sql-formatter",
+            "version": "v1.2.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jdorn/sql-formatter.git",
+                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jdorn/sql-formatter/zipball/64990d96e0959dff8e059dfcdc1af130728d92bc",
+                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Dorn",
+                    "email": "jeremy@jeremydorn.com",
+                    "homepage": "http://jeremydorn.com/"
+                }
+            ],
+            "description": "a PHP SQL highlighting library",
+            "homepage": "https://github.com/jdorn/sql-formatter/",
+            "keywords": [
+                "highlight",
+                "sql"
+            ],
+            "time": "2014-01-12 16:20:24"
+        },
         {
             "name": "phpmailer/phpmailer",
             "version": "v5.2.7",
@@ -109,12 +160,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/atoum/atoum.git",
-                "reference": "fc140ab62c6e9abe4e11bdc8db3fe4dfb417ae0c"
+                "reference": "259202a7e917a201306d1029ccea6d24a6f1fb3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/atoum/atoum/zipball/fc140ab62c6e9abe4e11bdc8db3fe4dfb417ae0c",
-                "reference": "fc140ab62c6e9abe4e11bdc8db3fe4dfb417ae0c",
+                "url": "https://api.github.com/repos/atoum/atoum/zipball/259202a7e917a201306d1029ccea6d24a6f1fb3a",
+                "reference": "259202a7e917a201306d1029ccea6d24a6f1fb3a",
                 "shasum": ""
             },
             "require": {
@@ -175,20 +226,17 @@
                 "test",
                 "unit testing"
             ],
-            "time": "2014-07-08 15:46:23"
+            "time": "2014-07-30 11:55:47"
         }
     ],
-    "aliases": [
-
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "atoum/atoum": 20
     },
+    "prefer-stable": false,
     "platform": {
         "php": ">=5.3.0"
     },
-    "platform-dev": [
-
-    ]
+    "platform-dev": []
 }

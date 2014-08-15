@@ -1,6 +1,6 @@
 
 <div class="titrePage">
-  <h2>{'History'|@translate} {$TABSHEET_TITLE}</h2>
+  <h2>{'History'|translate} {$TABSHEET_TITLE}</h2>
 </div>
 
 <h3>{$L_STAT_TITLE}</h3>
@@ -8,7 +8,7 @@
 <table class="table2" id="dailyStats">
 	<tr class="throw">
 		<th>{$PERIOD_LABEL}</th>
-		<th>{'Pages seen'|@translate}</th>
+		<th>{'Pages seen'|translate}</th>
 		<th></th>
 	</tr>
 

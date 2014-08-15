@@ -5,8 +5,8 @@
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
 {assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
-{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
+{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
 {footer_script}
 (function(){
@@ -34,16 +34,16 @@ jQuery("a.preview-box").colorbox();
 }());
 {/footer_script}
 
-<h2>{'Batch Manager'|@translate}</h2>
+<h2>{'Batch Manager'|translate}</h2>
 
 <form action="{$F_ACTION}" method="POST">
 <fieldset>
-  <legend>{'Display options'|@translate}</legend>
-  <p>{'photos per page'|@translate} :
+  <legend>{'Display options'|translate}</legend>
+  <p>{'photos per page'|translate} :
       <a href="{$U_ELEMENTS_PAGE}&amp;display=5">5</a>
     | <a href="{$U_ELEMENTS_PAGE}&amp;display=10">10</a>
     | <a href="{$U_ELEMENTS_PAGE}&amp;display=50">50</a>
-    | <a href="{$U_ELEMENTS_PAGE}&amp;display=all">{'all'|@translate}</a>
+    | <a href="{$U_ELEMENTS_PAGE}&amp;display=all">{'all'|translate}</a>
   </p>
 
 </fieldset>
@@ -59,23 +59,23 @@ jQuery("a.preview-box").colorbox();
   <span class="thumb">
     <a href="{$element.FILE_SRC}" class="preview-box" title="{$element.LEGEND|@htmlspecialchars}"><img src="{$element.TN_SRC}" alt=""></a>
     <br/>
-    <a href="{$element.U_EDIT}">{'Edit'|@translate}</a>
+    <a href="{$element.U_EDIT}">{'Edit'|translate}</a>
   </span>
 
   <table>
 
     <tr>
-      <td><strong>{'Title'|@translate}</strong></td>
+      <td><strong>{'Title'|translate}</strong></td>
       <td><input type="text" class="large" name="name-{$element.id}" value="{$element.NAME}"></td>
     </tr>
 
     <tr>
-      <td><strong>{'Author'|@translate}</strong></td>
+      <td><strong>{'Author'|translate}</strong></td>
       <td><input type="text" class="large" name="author-{$element.id}" value="{$element.AUTHOR}"></td>
     </tr>
 
     <tr>
-      <td><strong>{'Creation date'|@translate}</strong></td>
+      <td><strong>{'Creation date'|translate}</strong></td>
       <td>
         <input type="hidden" name="date_creation-{$element.id}" value="{$element.DATE_CREATION}">
         <label>
@@ -86,7 +86,7 @@ jQuery("a.preview-box").colorbox();
       </td>
     </tr>
     <tr>
-      <td><strong>{'Who can see this photo?'|@translate}</strong></td>
+      <td><strong>{'Who can see this photo?'|translate}</strong></td>
       <td>
         <select name="level-{$element.id}">
           {html_options options=$level_options selected=$element.LEVEL}
@@ -95,7 +95,7 @@ jQuery("a.preview-box").colorbox();
     </tr>
 
     <tr>
-      <td><strong>{'Tags'|@translate}</strong></td>
+      <td><strong>{'Tags'|translate}</strong></td>
       <td>
         <select data-selectize="tags" data-value="{$element.TAGS|@json_encode|escape:html}"
           placeholder="{'Type in a search term'|translate}"
@@ -104,7 +104,7 @@ jQuery("a.preview-box").colorbox();
     </tr>
 
     <tr>
-      <td><strong>{'Description'|@translate}</strong></td>
+      <td><strong>{'Description'|translate}</strong></td>
       <td><textarea cols="50" rows="5" name="description-{$element.id}" id="description-{$element.id}" class="description">{$element.DESCRIPTION}</textarea></td>
     </tr>
 
@@ -116,8 +116,8 @@ jQuery("a.preview-box").colorbox();
 {if !empty($navbar)}{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
 
 <p>
-  <input type="submit" value="{'Submit'|@translate}" name="submit">
-  <input type="reset" value="{'Reset'|@translate}">
+  <input type="submit" value="{'Submit'|translate}" name="submit">
+  <input type="reset" value="{'Reset'|translate}">
 </p>
 {/if}
 

@@ -1,0 +1,45 @@
+<form method="POST" action="" name="install_form" id="install-form">
+  <fieldset>
+    <legend>Database configuration</legend>
+
+    <table class="table2">
+      <tr>
+	<td style="width: 30%;">Database type</td>
+	<td>
+	  <select name="dblayer" id="dblayer">
+	    <option value="mysql">MySQL</option>
+	    <option value="mysqli" selected="selected">MySQL (improved)</option>
+	    <option value="pgsql">PostgreSQL</option>
+	    <option value="sqlite">SQLite</option>
+	  </select>
+	</td>
+	<td>Database type</td>
+      <tr class="no-sqlite">
+	<td style="width: 30%;" class="fieldname">Host</td>
+	<td><input type="text" name="dbhost" value="localhost"></td>
+	<td class="fielddesc">localhost or other, supplied by your host provider</td>
+      </tr>
+      <tr class="no-sqlite">
+	<td class="fieldname">User</td>
+	<td><input type="text" name="dbuser" value=""></td>
+	<td class="fielddesc">user login supplied by your host provider</td>
+      </tr>
+      <tr class="no-sqlite">
+	<td class="fieldname">Password</td>
+	<td><input type="password" name="dbpasswd" value=""></td>
+	<td class="fielddesc">user password supplied by your host provider</td>
+      </tr>
+      <tr>
+	<td class="fieldname">Database name</td>
+	<td><input type="text" name="dbname" value=""></td>
+	<td class="fielddesc">also supplied by your hosting provider</td>
+      </tr>
+      <tr>
+	<td class="fieldname">Database tables prefix</td>
+	<td><input type="text" name="prefix" value="phyxo_"></td>
+	<td class="fielddesc">database table names will be prefixed with it (enables you to manage your tables better)</td>
+      </tr>
+    </table>
+
+  </fieldset>
+</form>

@@ -119,7 +119,7 @@ function add_core_tabs($sheets, $tab_id)
     case 'photos_add':
       global $conf;
       $sheets['direct'] = array('caption' => '<span class="icon-upload"></span>'.l10n('Web Form'), 'url' => PHOTOS_ADD_BASE_URL.'&amp;section=direct');
-      $sheets['applications'] = array('caption' => '<span class="icon-network"></span>'.l10n('Applications'), 'url' => PHOTOS_ADD_BASE_URL.'&amp;section=applications');
+      //$sheets['applications'] = array('caption' => '<span class="icon-network"></span>'.l10n('Applications'), 'url' => PHOTOS_ADD_BASE_URL.'&amp;section=applications');
       if ($conf['enable_synchronization'])
         $sheets['ftp'] = array('caption' => '<span class="icon-exchange"></span>'.l10n('FTP + Synchronization'), 'url' => PHOTOS_ADD_BASE_URL.'&amp;section=ftp');
       break;
@@ -145,7 +145,7 @@ function add_core_tabs($sheets, $tab_id)
 
     case 'updates':
       global $my_base_url;
-      $sheets['pwg'] = array('caption' => l10n('Piwigo Update'), 'url' => $my_base_url);
+      $sheets['pwg'] = array('caption' => l10n('Phyxo Update'), 'url' => $my_base_url);
       $sheets['ext'] = array('caption' => l10n('Extensions Update'), 'url' => $my_base_url.'&amp;tab=ext');
       break;
   }

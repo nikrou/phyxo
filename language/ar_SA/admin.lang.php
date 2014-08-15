@@ -319,7 +319,7 @@ $lang['target'] = 'الهـدف';
 $lang['Thumbnail'] = 'المــصغرة';
 $lang['Title'] = 'العنوان';
 $lang['Album list management'] = 'إدارة الألبومات';
-$lang['Piwigo configuration'] = 'تهيئة المعرض';
+$lang['Phyxo configuration'] = 'تهيئة المعرض';
 $lang['Edit album'] = 'تحرير الألبوم';
 $lang['Group management'] = 'ادارة المجموعات';
 $lang['User list'] = 'قائمة المستخدم';
@@ -490,10 +490,10 @@ $lang['ACCESS_4'] = 'لمدير الموقع';
 $lang['ACCESS_5'] = 'ليس لاحد';
 $lang['Support'] = 'الدعم الفني';
 $lang['Documentation'] = 'الوثائق';
-$lang['A new version of Piwigo is available.'] = 'هناك نسخة جديدة من Piwigo متاحة.';
-$lang['Piwigo Administration'] = 'Piwigo الإدارة';
-$lang['Piwigo version'] = 'Piwigo الاصدار';
-$lang['You are running the latest version of Piwigo.'] = 'انت تستعمل آخر نسخة من سكبرت المعرض .';
+$lang['A new version of Phyxo is available.'] = 'هناك نسخة جديدة من Phyxo متاحة.';
+$lang['Phyxo Administration'] = 'Phyxo الإدارة';
+$lang['Phyxo version'] = 'Phyxo الاصدار';
+$lang['You are running the latest version of Phyxo.'] = 'انت تستعمل آخر نسخة من سكبرت المعرض .';
 $lang['The version of %s [%s] installed is not compatible with the version required [%s]'] = 'اصدار الـ %s [%s] ليس متوافق من تنسيق الاصدار المطلوب[%s]';
 $lang['You need to upgrade your system to take full advantage of the application else the application will not work correctly, or not at all'] = 'انت بحاجة لتطوير النظام للتمع بكل امتيازات هذا البرنامج او انك لن تتمكن من تشغيل البرنامج على الاطلاق';
 $lang['Deleted on'] = 'محذزف';
@@ -601,7 +601,7 @@ $lang['Start pLoader and add your photos.'] = 'بدء pLoader وإضافة ال�
 $lang['Switch to clear or dark colors for administration'] = 'تغير لون لوحة التحكم أسود أو ابيض';
 $lang['Theme has been successfully installed'] = 'تم تثبيت واجهة المعرض بنجاح';
 $lang['Visit Gallery'] = 'معاينة المعرض';
-$lang['Visit Piwigo project website'] = 'زيارة الموقع الرئيسي لمشروع Piwigo ';
+$lang['Visit Phyxo project website'] = 'زيارة الموقع الرئيسي لمشروع Phyxo ';
 $lang['pLoader stands for <em>Piwigo Uploader</em>. From your computer, pLoader prepares your photos and transfer them to your Piwigo photo gallery.'] = 'pLoader اعتمد على <em>Piwigo Uploader</em>. من الكمبيوتر ، pLoader تستعد صورك وتحويلها الى معرض الصور الخاص بك Piwigo.';
 $lang['Guest Settings'] = 'اعدادت الضيوف';
 $lang['Main Page'] = 'صفحة رئيسية';
@@ -706,7 +706,7 @@ $lang['Visit theme site'] = 'زر موقع الثيمات';
 $lang['Visit language site'] = 'زر موقع اللغات';
 $lang['New Version'] = 'اصدار جديد';
 $lang['Obsolete Plugins'] = 'ادوات قديمة';
-$lang['WARNING! This plugin does not seem to be compatible with this version of Piwigo.'] = 'تحذير !! هذه الاضافة لا تبدو ناها متوافقة مع اصدار PIWIGO.';
+$lang['WARNING! This plugin does not seem to be compatible with this version of Phyxo.'] = 'تحذير !! هذه الاضافة لا تبدو ناها متوافقة مع اصدار PIWIGO.';
 $lang['Do you want to activate anyway?'] = 'هل تريد تفعيلها بأي شكل تفعيلها';
 $lang['THIS PLUGIN IS NOW PART OF PIWIGO CORE! DELETE IT NOW.'] = 'هذه الاداة اصبحت جزءا من PIWIGO نفسها يجب ان تزيلها الان';
 $lang['ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'] = 'خطأ : هذه الاداة مفقودة لكنها مثبتة, الغ تثبيتها الان';
@@ -722,7 +722,7 @@ $lang['Piwigo cannot retrieve upgrade file from server'] = 'لا يمكن Piwigo
 $lang['Rate'] = 'قيمة';
 $lang['Average rate'] = 'متوسط التصويت';
 $lang['Update Complete'] = 'اكتملت الترقية';
-$lang['Piwigo Update'] = 'ترقية Piwigo';
+$lang['Phyxo Update'] = 'ترقية Phyxo';
 $lang['Extensions Update'] = 'ترقية الاضافات';
 $lang['Update in progress... Please wait.'] = 'يتم معالجة التحديثات ،لحظات الانتظار .. املئها بالاستغفار';
 $lang['Ignore this update'] = 'اهمال هذا التحديث';
@@ -730,14 +730,14 @@ $lang['Reset ignored updates'] = 'اعادة تعييين التحديثات ا�
 $lang['Update All'] = 'تجديث الكل';
 $lang['ERROR'] = 'خطأ';
 $lang['All extensions are up to date.'] = 'كل الاضافة محدثة.';
-$lang['Following plugins may not be compatible with the new version of Piwigo:'] = 'الادوات التالية يمكن ان تكون غير متوافقة مع الاصدار الجديد ل Piwigo :';
-$lang['Following themes may not be compatible with the new version of Piwigo:'] = 'الثيمات التالية يمكن ان تكون غير مكتملة مع الاصدار الجديد ل Piwigo:';
+$lang['Following plugins may not be compatible with the new version of Phyxo:'] = 'الادوات التالية يمكن ان تكون غير متوافقة مع الاصدار الجديد ل Phyxo :';
+$lang['Following themes may not be compatible with the new version of Phyxo:'] = 'الثيمات التالية يمكن ان تكون غير مكتملة مع الاصدار الجديد ل Phyxo:';
 $lang['I decide to update anyway'] = 'أقر التحديث بأي شكل';
-$lang['Update to Piwigo %s'] = ' Piwigo %s الترقية إلى ';
+$lang['Update to Phyxo %s'] = ' Phyxo %s الترقية إلى ';
 $lang['Two updates are available'] = 'هناك ترقيتان متاحة';
 $lang['This is a minor update, with only bug corrections.'] = 'هذه ترقية ثانوية لتصحيح بعض الأخطاء.';
 $lang['This is a major update, with <a href="%s">new exciting features</a>.'] = 'هذه تحديثات رئيسية مع <a href="%s"> ملحقات جديدة و مميزة</a>.';
-$lang['You can update to Piwigo %s directly, without upgrading to Piwigo %s (recommended).'] = 'تستطيع ترقية Piwigo إلى %s مباشرة ، بدون  تحديث Piwigo إلى %s (مستحسن )';
+$lang['You can update to Phyxo %s directly, without upgrading to Phyxo %s (recommended).'] = 'تستطيع ترقية Phyxo إلى %s مباشرة ، بدون  تحديث Phyxo إلى %s (مستحسن )';
 $lang['Dump Database'] = 'تفريغ قاعدة البيانات';
 $lang['Save Template Directory'] = 'حفظ نماذج الدليل';
 $lang['Some themes and plugins may be not available yet.'] = 'بعض الواجهات مع بعض الإضافات قد لا يمكن تشغليها في الوقت الحالي';

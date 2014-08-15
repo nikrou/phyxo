@@ -414,6 +414,6 @@ $lang['... or please deactivate this message, I will find my way by myself'] = '
 $lang['2small'] = 'XXS - kecil';
 $lang['A comment on your site'] = 'Sebuah komentar di situs anda';
 $lang['About'] = 'Tentang';
-$lang['About Piwigo'] = 'Tentang Piwigo';
+$lang['About Phyxo'] = 'Tentang Phyxo';
 $lang['Accelerate diaporama speed'] = 'Tingkatkan kecepatan guliran gambar ';
 $lang['Add a comment'] = 'Tambahkan sebuah komentar';

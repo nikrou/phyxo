@@ -30,38 +30,23 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 check_status(ACCESS_GUEST);
 
-if (empty($_GET['q']))
-{
-  redirect( make_index_url() );
+if (empty($_GET['q'])) {
+    redirect(make_index_url());
 }
 
 $search = array();
-$search['q']=$_GET['q'];
+$search['q'] = $_GET['q'];
 
-$query = '
-SElECT id FROM '.SEARCH_TABLE.'
-  WHERE rules = \''.addslashes(serialize($search)).'\'
-;';
-$search_id = array_from_query( $query, 'id');
-if ( !empty($search_id) )
-{
-  $search_id = $search_id[0];
-  $query = '
-UPDATE '.SEARCH_TABLE.'
-  SET last_seen=NOW()
-  WHERE id='.$search_id;
-  pwg_query($query);
-}
-else
-{
-  $query ='
-INSERT INTO '.SEARCH_TABLE.'
-  (rules, last_seen)
-  VALUES
-  (\''.addslashes(serialize($search)).'\', NOW() )
-;';
-  pwg_query($query);
-  $search_id = pwg_db_insert_id(SEARCH_TABLE);
+$query = 'SElECT id FROM '.SEARCH_TABLE.' WHERE rules = \''.$conn->db_real_escape_string(serialize($search)).'\';';
+$search_id = $conn->query2array($query, 'id');
+if (!empty($search_id)) {
+    $search_id = $search_id[0];
+    $query = 'UPDATE '.SEARCH_TABLE.' SET last_seen=NOW() WHERE id='.$search_id;
+    $conn->db_query($query);
+} else {
+    $query ='INSERT INTO '.SEARCH_TABLE.' (rules, last_seen) VALUES (\''.$conn->db_real_escape_string(serialize($search)).'\', NOW() );';
+    $conn->db_query($query);
+    $search_id = $conn->db_insert_id(SEARCH_TABLE);
 }
 
 redirect(

@@ -1,26 +1,26 @@
 {html_head}
-<link rel="stylesheet" type="text/css" href="themes/default/js/plugins/jquery.Jcrop.css" />
+<link rel="stylesheet" type="text/css" href="admin/themes/default/js/plugins/jquery.Jcrop.css" />
 {/html_head}
-{combine_script id='jquery.jcrop' load='footer' require='jquery' path='themes/default/js/plugins/jquery.Jcrop.min.js'}
+{combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.Jcrop.min.js'}
 
-<h2>{$TITLE} &#8250; {'Edit photo'|@translate} {$TABSHEET_TITLE}</h2>
+<h2>{$TITLE} &#8250; {'Edit photo'|translate} {$TABSHEET_TITLE}</h2>
 
 <form method="post">
 
 <fieldset>
-<legend>{'Photo sizes with crop'|@translate}</legend>
+<legend>{'Photo sizes with crop'|translate}</legend>
 {foreach from=$cropped_derivatives item=deriv}
 <img src="{$deriv.U_IMG}" alt="{$ALT}" {$deriv.HTM_SIZE}>
 {/foreach}
 </fieldset>
 
 <fieldset>
-<legend>{'Center of interest'|@translate}</legend>
+<legend>{'Center of interest'|translate}</legend>
 <p style="margin:0 0 10px 0;padding:0;">
-{'The center of interest is the most meaningful zone in the photo.'|@translate}
-{'For photo sizes with crop, such as "Square", Piwigo will do its best to include the center of interest.'|@translate}
-{'By default, the center of interest is placed in the middle of the photo.'|@translate}
-{'Select a zone with your mouse to define a new center of interest.'|@translate}
+{'The center of interest is the most meaningful zone in the photo.'|translate}
+{'For photo sizes with crop, such as "Square", Phyxo will do its best to include the center of interest.'|translate}
+{'By default, the center of interest is placed in the middle of the photo.'|translate}
+{'Select a zone with your mouse to define a new center of interest.'|translate}
 </p>
 <input type="hidden" id="l" name="l" value="{if isset($coi)}{$coi.l}{/if}">
 <input type="hidden" id="t" name="t" value="{if isset($coi)}{$coi.t}{/if}">
@@ -30,7 +30,7 @@
 <img id="jcrop" src="{$U_IMG}" alt="{$ALT}">
 
 <p>
-<input type="submit" name="submit" value="{'Submit'|@translate}">
+<input type="submit" name="submit" value="{'Submit'|translate}">
 </p>
 </fieldset>
 </form>

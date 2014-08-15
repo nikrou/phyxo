@@ -60,7 +60,7 @@ $lang['(!) This comment requires validation'] = '(!)இந்தக் கரு
 $lang['... or browse your empty gallery'] = '... அல்லது உங்களுடைய காலியான ஆல்பத்தில் உலவு';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... அல்லது தயவு செய்து இந்த செய்தியை செயலிழக்க செய்யவும், நான் என் வழியில் கண்டுகொள்கிறேன்';
 $lang['A comment on your site'] = 'உங்கள் தளத்திற்கு ஒரு கருத்து வந்துள்ளது';
-$lang['About Piwigo'] = 'Piwigo பற்றி';
+$lang['About Phyxo'] = 'Phyxo பற்றி';
 $lang['About'] = 'பற்றி';
 
 

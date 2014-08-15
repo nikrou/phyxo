@@ -100,42 +100,40 @@ function ws_std_image_sql_filter( $params, $tbl_name='' )
 /**
  * returns a "standard" (for our web service) ORDER BY sql clause for images
  */
-function ws_std_image_sql_order( $params, $tbl_name='' )
-{
-  $ret = '';
-  if ( empty($params['order']) )
-  {
+function ws_std_image_sql_order($params, $tbl_name='') {
+    global $conn;
+
+    $ret = '';
+    if (empty($params['order'])) {
+        return $ret;
+    }
+    $matches = array();
+    preg_match_all('/([a-z_]+) *(?:(asc|desc)(?:ending)?)? *(?:, *|$)/i', $params['order'], $matches);
+    for ($i=0; $i<count($matches[1]); $i++) {
+        switch ($matches[1][$i])
+            {
+            case 'date_created':
+                $matches[1][$i] = 'date_creation'; break;
+            case 'date_posted':
+                $matches[1][$i] = 'date_available'; break;
+            case 'rand': case 'random':
+                $matches[1][$i] = $conn::RANDOM_FUNCTION.'()'; break;
+            }
+        $sortable_fields = array('id', 'file', 'name', 'hit', 'rating_score',
+        'date_creation', 'date_available', $conn::RANDOM_FUNCTION.'()' );
+        if (in_array($matches[1][$i], $sortable_fields)) {
+            if (!empty($ret)) {
+                $ret .= ', ';
+            }
+            if ($matches[1][$i] != $conn::RANDOM_FUNCTION.'()' ) {
+                $ret .= $tbl_name;
+            }
+            $ret .= $matches[1][$i];
+            $ret .= ' '.$matches[2][$i];
+        }
+    }
+
     return $ret;
-  }
-  $matches = array();
-  preg_match_all('/([a-z_]+) *(?:(asc|desc)(?:ending)?)? *(?:, *|$)/i',
-    $params['order'], $matches);
-  for ($i=0; $i<count($matches[1]); $i++)
-  {
-    switch ($matches[1][$i])
-    {
-      case 'date_created':
-        $matches[1][$i] = 'date_creation'; break;
-      case 'date_posted':
-        $matches[1][$i] = 'date_available'; break;
-      case 'rand': case 'random':
-        $matches[1][$i] = DB_RANDOM_FUNCTION.'()'; break;
-    }
-    $sortable_fields = array('id', 'file', 'name', 'hit', 'rating_score',
-      'date_creation', 'date_available', DB_RANDOM_FUNCTION.'()' );
-    if ( in_array($matches[1][$i], $sortable_fields) )
-    {
-      if (!empty($ret))
-        $ret .= ', ';
-      if ($matches[1][$i] != DB_RANDOM_FUNCTION.'()' )
-      {
-        $ret .= $tbl_name;
-      }
-      $ret .= $matches[1][$i];
-      $ret .= ' '.$matches[2][$i];
-    }
-  }
-  return $ret;
 }
 
 /**

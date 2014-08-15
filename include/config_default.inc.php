@@ -113,7 +113,7 @@ $conf['level_separator'] = ' / ';
 // display before and after the current page ?
 $conf['paginate_pages_around'] = 2;
 
-// show_version : shall the version of Piwigo be displayed at the
+// show_version : shall the version of Phyxo be displayed at the
 // bottom of each page ?
 $conf['show_version'] = true;
 
@@ -131,7 +131,7 @@ $conf['meta_ref'] = true;
 //    'http://piwigo.org/forum' => 'PWG forum',
 //    );
 //
-// Advenced use:
+// Advanced use:
 //  You can also used special options. Instead to pass a string like parameter value
 //  you can pass a array with different optional parameter values
 //  $conf['links'] = array(
@@ -194,7 +194,7 @@ $conf['show_thumbnail_caption'] = true;
 // category.
 $conf['display_fromto'] = false;
 
-// allow_random_representative : do you wish Piwigo to search among
+// allow_random_representative : do you wish Phyxo to search among
 // categories elements a new representative at each reload ?
 //
 // If false, an element is randomly or manually chosen to represent its
@@ -388,7 +388,7 @@ $conf['session_use_only_cookies'] = true;
 $conf['session_use_trans_sid'] = false;
 
 // session_name: specifies the name of the session which is used as cookie name
-$conf['session_name'] = 'pwg_id';
+$conf['session_name'] = 'phyxo_id';
 
 // session_save_handler: comment the line below
 // to use file handler for sessions.
@@ -399,7 +399,7 @@ $conf['session_save_handler'] = 'db';
 $conf['authorize_remembering'] = true;
 
 // remember_me_name: specifies the name of the cookie used to stay logged
-$conf['remember_me_name'] = 'pwg_remember';
+$conf['remember_me_name'] = 'phyxo_remember';
 
 // remember_me_length : time of validity for "remember me" cookies, in
 // seconds.
@@ -476,19 +476,19 @@ $conf['apache_authentication'] = false;
 // If you decide to use another table than the default one, you need to
 // prepare your database by deleting some datas :
 //
-// delete from piwigo_user_access;
-// delete from piwigo_user_cache;
-// delete from piwigo_user_feed;
-// delete from piwigo_user_group;
-// delete from piwigo_user_infos;
-// delete from piwigo_sessions;
-// delete from piwigo_rate;
-// update piwigo_images set rating_score = null, added_by = <webmaster_id>;
-// delete from piwigo_caddie;
-// delete from piwigo_favorites;
+// delete from phyxo_user_access;
+// delete from phyxo_user_cache;
+// delete from phyxo_user_feed;
+// delete from phyxo_user_group;
+// delete from phyxo_user_infos;
+// delete from phyxo_sessions;
+// delete from phyxo_rate;
+// update phyxo_images set rating_score = null, added_by = <webmaster_id>;
+// delete from phyxo_caddie;
+// delete from phyxo_favorites;
 //
 // All informations contained in these tables and column are related to
-// piwigo_users table.
+// phyxo_users table.
 $conf['users_table'] = null;
 
 // If you decide to use external authentication
@@ -654,7 +654,7 @@ $conf['allow_web_services'] = true;
 $conf['ws_enable_log'] = false;
 
 // web services log file path
-$conf['ws_log_filepath'] = '/tmp/piwigo_ws.log';
+$conf['ws_log_filepath'] = '/tmp/phyxo_ws.log';
 
 // Maximum number of images to be returned foreach call to the web service
 $conf['ws_max_images_per_page'] = 500;
@@ -662,7 +662,7 @@ $conf['ws_max_images_per_page'] = 500;
 // Maximum number of users to be returned foreach call to the web service
 $conf['ws_max_users_per_page'] = 1000;
 
-// Display a link to subscribe to Piwigo Announcements Newsletter
+// Display a link to subscribe to Phyxo Announcements Newsletter
 $conf['show_newsletter_subscription'] = true;
 
 // +-----------------------------------------------------------------------+
@@ -740,15 +740,6 @@ $conf['no_photo_yet_url'] = 'admin.php?page=photos_add';
 
 // directory with themes inside
 $conf['themes_dir'] = PHPWG_ROOT_PATH.'themes';
-
-// pLoader direct download url for windows
-$conf['ploader_download_windows'] = 'http://piwigo.org/ext/download.php?eid=270';
-
-// pLoader direct download url for mac
-$conf['ploader_download_mac'] = 'http://piwigo.org/ext/download.php?eid=353';
-
-// pLoader direct download url for linux
-$conf['ploader_download_linux'] = 'http://piwigo.org/ext/download.php?eid=269';
 
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = true;

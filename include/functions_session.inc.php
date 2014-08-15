@@ -42,7 +42,7 @@ if (isset($conf['session_save_handler']) and ($conf['session_save_handler'] == '
         ini_set('session.use_trans_sid', intval($conf['session_use_trans_sid']));
         ini_set('session.cookie_httponly', 1);
     }
-    
+
     session_name($conf['session_name']);
     session_set_cookie_params(0, cookie_path());
     register_shutdown_function('session_write_close');
@@ -119,7 +119,7 @@ function get_remote_addr_session_hash() {
     if (!$conf['session_use_ip_address']) {
         return '';
     }
-  
+
     if (strpos($_SERVER['REMOTE_ADDR'],':')===false) { //ipv4
         return vsprintf(
             "%02X%02X",
@@ -137,11 +137,8 @@ function get_remote_addr_session_hash() {
  * @return string
  */
 function pwg_session_read($session_id) {
-    $query = '
-SELECT data
-  FROM '.SESSIONS_TABLE.'
-  WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'
-;';
+    $query = 'SELECT data FROM '.SESSIONS_TABLE;
+    $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\';';
     $result = pwg_query($query);
     if ($result) {
         $row = pwg_db_fetch_assoc($result);
@@ -161,9 +158,8 @@ SELECT data
 function pwg_session_write($session_id, $data) {
     $query = 'SELECT count(1) FROM '.SESSIONS_TABLE;
     $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
-    
-    list($counter) = pwg_db_fetch_row(pwg_query($query));
 
+    list($counter) = pwg_db_fetch_row(pwg_query($query));
     if ($counter==1) {
         $query = 'UPDATE '.SESSIONS_TABLE.' SET data = \''.pwg_db_real_escape_string($data).'\', expiration=now()';
         $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
@@ -185,7 +181,7 @@ function pwg_session_write($session_id, $data) {
  */
 function pwg_session_destroy($session_id) {
     pwg_query('DELETE FROM '.SESSIONS_TABLE.' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'');
-    
+
     return true;
 }
 
@@ -196,13 +192,9 @@ function pwg_session_destroy($session_id) {
  */
 function pwg_session_gc() {
     global $conf;
-    
-    $query = '
-DELETE
-  FROM '.SESSIONS_TABLE.'
-  WHERE '.pwg_db_date_to_ts('NOW()').' - '.pwg_db_date_to_ts('expiration').' > '
-        .$conf['session_length'].'
-;';
+
+    $query = 'DELETE FROM '.SESSIONS_TABLE;
+    $query .= ' WHERE '.pwg_db_date_to_ts('NOW()').' - '.pwg_db_date_to_ts('expiration').' > '.$conf['session_length'].';';
     pwg_query($query);
 
     return true;
@@ -232,11 +224,11 @@ function pwg_set_session_var($var, $value) {
  * @return mixed
  */
 function pwg_get_session_var($var, $default = null) {
-  if (isset($_SESSION['pwg_'.$var])) {
-      return $_SESSION['pwg_'.$var];
-  }
+    if (isset($_SESSION['pwg_'.$var])) {
+        return $_SESSION['pwg_'.$var];
+    }
 
-  return $default;
+    return $default;
 }
 
 /**
@@ -250,6 +242,6 @@ function pwg_unset_session_var($var) {
         return false;
     }
     unset( $_SESSION['pwg_'.$var] );
-    
+
     return true;
 }

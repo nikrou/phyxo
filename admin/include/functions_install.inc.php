@@ -73,55 +73,19 @@ function execute_sqlfile($filepath, $replaced, $replacing, $dblayer)
 }
 
 /**
- * Automatically activate all core themes in the "themes" directory.
- */
-function activate_core_themes()
-{
-  include_once(PHPWG_ROOT_PATH.'admin/include/themes.class.php');
-  $themes = new themes();
-  foreach ($themes->fs_themes as $theme_id => $fs_theme)
-  {
-    if (in_array($theme_id, array('elegant', 'smartpocket')))
-    {
-      $themes->perform_action('activate', $theme_id);
-    }
-  }
-}
-
-/**
- * Connect to database during installation. Uses $_POST.
- *
- * @param array &$infos - populated with infos
- * @param array &$errors - populated with errors
- */
-function install_db_connect(&$infos, &$errors)
-{
-  try
-  {
-    pwg_db_connect($_POST['dbhost'], $_POST['dbuser'],
-                   $_POST['dbpasswd'], $_POST['dbname']);
-    pwg_db_check_version();
-  }
-  catch (Exception $e)
-  {
-    $errors[] = l10n($e->getMessage());
-  }
-}
-
-/**
  * Search for database engines available
  *
- * We search for functions_DATABASE_ENGINE.inc.php 
- * and we check if the connect function for that database exists 
+ * We search for functions_DATABASE_ENGINE.inc.php
+ * and we check if the connect function for that database exists
  *
  * @return array
  */
 function available_engines() {
     $engines = array();
 
-    $pattern = PHPWG_ROOT_PATH. 'include/dblayer/functions_%s.inc.php';
+    $pattern = PHPWG_ROOT_PATH. 'src/Phyxo/DBLayer/%sConnection.php';
     include_once PHPWG_ROOT_PATH. 'include/dblayer/dblayers.inc.php';
-    
+
     foreach ($dblayers as $engine_name => $engine) {
         if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])
         && function_exists($engine['function_available'])) {
@@ -131,6 +95,6 @@ function available_engines() {
             $engines[$engine_name] = $engine['engine'];
         }
     }
-  
+
     return $engines;
 }

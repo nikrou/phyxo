@@ -80,7 +80,7 @@ function deactivate_non_standard_plugins() {
 
     $query = 'SELECT id FROM '.PREFIX_TABLE.'plugins WHERE state = \'active\'';
     $query.= ' AND id NOT IN (\'' . implode('\',\'', $standard_plugins) . '\');';
-    
+
     $result = pwg_query($query);
     $plugins = array();
     while ($row = pwg_db_fetch_assoc($result)) {
@@ -91,7 +91,7 @@ function deactivate_non_standard_plugins() {
         $query = 'UPDATE '.PREFIX_TABLE.'plugins SET state=\'inactive\'';
         $query .= ' WHERE id IN (\'' . implode('\',\'', $plugins) . '\');';
         pwg_query($query);
-    
+
         $page['infos'][] = l10n('As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:').'<p><i>'.implode(', ', $plugins).'</i></p>';
     }
 }
@@ -118,7 +118,7 @@ function deactivate_non_standard_themes() {
         $theme_ids[] = $row['id'];
         $theme_names[] = $row['name'];
     }
-    
+
     if (!empty($theme_ids)) {
         $query = 'DELETE FROM '.PREFIX_TABLE.'themes WHERE id IN (\''.implode("','", $theme_ids).'\');';
         pwg_query($query);
@@ -128,7 +128,7 @@ function deactivate_non_standard_themes() {
         // what is the default theme?
         $query = 'SELECT theme FROM '.PREFIX_TABLE.'user_infos WHERE user_id = '.$conf['default_user_id'].';';
         list($default_theme) = pwg_db_fetch_row(pwg_query($query));
-        
+
         // if the default theme has just been deactivated, let's set another core theme as default
         if (in_array($default_theme, $theme_ids)) {
             $query = 'UPDATE '.PREFIX_TABLE.'user_infos SET theme = \'elegant\' WHERE user_id = '.$conf['default_user_id'].';';
@@ -151,7 +151,7 @@ function check_upgrade_access_rights() {
         if (!empty($_SESSION['pwg_uid'])) {
             $query = 'SELECT status FROM '.USER_INFOS_TABLE.' WHERE user_id = '.$_SESSION['pwg_uid'].';';
             pwg_query($query);
-      
+
             $row = pwg_db_fetch_assoc(pwg_query($query));
             if (isset($row['status']) and $row['status'] == 'webmaster') {
                 define('PHPWG_IN_UPGRADE', true);
@@ -159,31 +159,26 @@ function check_upgrade_access_rights() {
             }
         }
     }
-    
-    if (!isset($_POST['username']) or !isset($_POST['password'])) {
+
+    if (empty($_POST['username']) or empty($_POST['password'])) {
         return;
     }
 
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $query = '
-SELECT u.password, ui.status
-FROM '.USERS_TABLE.' AS u
-INNER JOIN '.USER_INFOS_TABLE.' AS ui
-ON u.'.$conf['user_fields']['id'].'=ui.user_id
-WHERE '.$conf['user_fields']['username'].'=\''.pwg_db_real_escape_string($username).'\'
-;';
-  
-  $row = pwg_db_fetch_assoc(pwg_query($query));
+    $query = 'SELECT u.password, ui.status FROM '.USERS_TABLE.' AS u';
+    $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON u.'.$conf['user_fields']['id'].'=ui.user_id';
+    $query .= ' WHERE '.$conf['user_fields']['username'].'=\''.pwg_db_real_escape_string($username).'\';';
 
-  if (!$conf['password_verify']($password, $row['password'])) {
-      $page['errors'][] = l10n('Invalid password!');
-  } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {
-      $page['errors'][] = l10n('You do not have access rights to run upgrade');
-  } else {
-      define('PHPWG_IN_UPGRADE', true);
-  }
+    $row = pwg_db_fetch_assoc(pwg_query($query));
+    if (!$conf['password_verify']($password, $row['password'])) {
+        $page['errors'][] = l10n('Invalid password!');
+    } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {
+        $page['errors'][] = l10n('You do not have access rights to run upgrade');
+    } else {
+        define('PHPWG_IN_UPGRADE', true);
+    }
 }
 
 /**
@@ -195,7 +190,7 @@ function get_available_upgrade_ids() {
     $upgrades_path = PHPWG_ROOT_PATH.'install/db';
 
     $available_upgrade_ids = array();
-    
+
     if ($contents = opendir($upgrades_path)) {
         while (($node = readdir($contents)) !== false) {
             if (is_file($upgrades_path.'/'.$node) and preg_match('/^(.*?)-database\.php$/', $node, $match)) {
@@ -204,7 +199,7 @@ function get_available_upgrade_ids() {
         }
     }
     natcasesort($available_upgrade_ids);
-    
+
     return $available_upgrade_ids;
 }
 
@@ -219,18 +214,7 @@ function check_upgrade_feed() {
 
     // retrieve existing upgrades
     $existing = get_available_upgrade_ids();
-    
+
     // which upgrades need to be applied?
     return (count(array_diff($existing, $applied)) > 0);
-}
-
-function upgrade_db_connect() {
-    global $conf;
-
-    try {
-        pwg_db_connect($conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-        pwg_db_check_version();
-    } catch (Exception $e) {
-        my_error(l10n($e->getMessage()), true); 
-    }
 }

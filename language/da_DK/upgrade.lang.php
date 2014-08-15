@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 $lang['Upgrade'] = 'Opgrader';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Denne side foreslår at opgradere databasen fra din gamle version af Piwigo til den nye version. Opgraderingsassistenten mener, at du pt. benytter en <strong>release %s</strong> (eller tilsvarende).';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Denne side foreslår at opgradere databasen fra din gamle version af Piwigo til den nye version. Opgraderingsassistenten mener, at du pt. benytter en <strong>release %s</strong> (eller tilsvarende).';
 $lang['Upgrade from version %s to %s'] = 'Opgrader fra version %s til %s';
 $lang['Statistics'] = 'Statistik';
 $lang['total upgrade time'] = 'total opgraderingstid';

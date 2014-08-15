@@ -22,8 +22,7 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH'))
-{
+if (!defined('PHPWG_ROOT_PATH')) {
   die ("Hacking attempt!");
 }
 
@@ -32,7 +31,7 @@ function abs_fn_cmp($a, $b) {
     return abs($a)-abs($b);
 }
 
-function make_consecutive( &$orders, $step=50 ) {
+function make_consecutive(&$orders, $step=50) {
     uasort( $orders, 'abs_fn_cmp' );
     $crt = 1;
     foreach( $orders as $id=>$pos) {
@@ -51,7 +50,7 @@ $menu->load_registered_blocks();
 $reg_blocks = $menu->get_registered_blocks();
 
 $mb_conf = $conf[ 'blk_'.$menu->get_id() ];
-if (is_string($mb_conf) ) {
+if (is_string($mb_conf)) {
     $mb_conf = json_decode($mb_conf);
 }
 
@@ -65,7 +64,7 @@ foreach ($mb_conf as $id => $pos) {
     }
 }
 
-if ( isset($_POST['reset'])) {
+if (isset($_POST['reset'])) {
     $mb_conf = array();
     $query = 'UPDATE '.CONFIG_TABLE.' SET value=\'\' WHERE param=\'blk_'.pwg_db_real_escape_string($menu->get_id()).'\'  LIMIT 1';
     pwg_query($query);
@@ -80,7 +79,7 @@ foreach ($reg_blocks as $id => $block) {
 }
 
 
-if ( isset($_POST['submit']) ) {
+if (isset($_POST['submit'])) {
     foreach ( $mb_conf as $id => $pos ) {
         $hide = isset($_POST['hide_'.$id]);
         $mb_conf[$id] = ($hide ? -1 : +1)*abs($pos);
@@ -100,15 +99,16 @@ if ( isset($_POST['submit']) ) {
     $page['infos'][] = l10n('Order of menubar items has been updated successfully.');
 }
 
-make_consecutive( $mb_conf );
+make_consecutive($mb_conf);
 
 foreach ($mb_conf as $id => $pos ) {
-    $template->append( 'blocks',
-      array(
-        'pos' => $pos/5,
-        'reg' => $reg_blocks[$id]
-      )
-     );
+    $template->append(
+        'blocks',
+        array(
+            'pos' => $pos/5,
+            'reg' => $reg_blocks[$id]
+        )
+    );
 }
 
 $action = get_root_url().'admin.php?page=menubar';
@@ -116,4 +116,3 @@ $template->assign(array('F_ACTION'=>$action));
 
 $template->set_filename( 'menubar_admin_content', 'menubar.tpl' );
 $template->assign_var_from_handle( 'ADMIN_CONTENT', 'menubar_admin_content');
-

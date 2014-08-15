@@ -261,7 +261,7 @@ function delete_elements($ids, $physical_deletion=false)
       return 0;
     }
   }
-  
+
   $ids_str = wordwrap(implode(', ', $ids), 80, "\n");
 
   // destruction of the comments on the image
@@ -401,7 +401,7 @@ function delete_orphan_tags()
     {
       $orphan_tag_ids[] = $tag['id'];
     }
-    
+
     delete_tags($orphan_tag_ids);
   }
 }
@@ -701,12 +701,12 @@ UPDATE '.CATEGORIES_TABLE.'
 ;';
     pwg_query($query);
   }
-  
+
   // make a category private => all its child categories become private
   if ($value == 'private')
   {
     $subcats = get_subcat_ids($categories);
-    
+
     $query = '
 UPDATE '.CATEGORIES_TABLE.'
   SET status = \'private\'
@@ -740,7 +740,7 @@ UPDATE '.CATEGORIES_TABLE.'
     // A5 permission removed to U2
     // A6 permission removed to U4
     // A7 no permission removed
-    // 
+    //
     // 1) we must extract "top albums": A2, A5 and A6
     // 2) for each top album, decide which album is the reference for permissions
     // 3) remove all inconsistant permissions from sub-albums of each top-album
@@ -749,7 +749,7 @@ UPDATE '.CATEGORIES_TABLE.'
     $all_categories = array();
     $top_categories = array();
     $parent_ids = array();
-    
+
     $query = '
 SELECT
     id,
@@ -765,13 +765,13 @@ SELECT
     {
       $all_categories[] = $row;
     }
-    
+
     usort($all_categories, 'global_rank_compare');
 
     foreach ($all_categories as $cat)
     {
       $is_top = true;
-      
+
       if (!empty($cat['id_uppercat']))
       {
         foreach (explode(',', $cat['uppercats']) as $id_uppercat)
@@ -796,7 +796,7 @@ SELECT
     }
 
     // step 2, search the reference album for permissions
-    // 
+    //
     // to find the reference of each top album, we will need the parent albums
     $parent_cats = array();
 
@@ -900,33 +900,29 @@ SELECT uppercats
  *
  * @param int[] $categories
  */
-function set_random_representant($categories)
-{
-  $datas = array();
-  foreach ($categories as $category_id)
-  {
-    $query = '
-SELECT image_id
-  FROM '.IMAGE_CATEGORY_TABLE.'
-  WHERE category_id = '.$category_id.'
-  ORDER BY '.DB_RANDOM_FUNCTION.'()
-  LIMIT 1
-;';
-    list($representative) = pwg_db_fetch_row(pwg_query($query));
+function set_random_representant($categories) {
+    global $conn;
 
-    $datas[] = array(
-      'id' => $category_id,
-      'representative_picture_id' => $representative,
-      );
-  }
+    $datas = array();
+    foreach ($categories as $category_id) {
+        $query = 'SELECT image_id FROM '.IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id = '.$category_id;
+        $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'()  LIMIT 1;';
+        list($representative) = pwg_db_fetch_row(pwg_query($query));
 
-  mass_updates(
-    CATEGORIES_TABLE,
-    array(
-      'primary' => array('id'),
-      'update' => array('representative_picture_id')
-      ),
-    $datas
+        $datas[] = array(
+            'id' => $category_id,
+            'representative_picture_id' => $representative,
+        );
+    }
+
+    mass_updates(
+        CATEGORIES_TABLE,
+        array(
+            'primary' => array('id'),
+            'update' => array('representative_picture_id')
+        ),
+        $datas
     );
 }
 
@@ -1758,7 +1754,7 @@ function move_images_to_categories($images, $categories) {
     $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT IN ('.implode(',', $categories).'))';
     $query .= ')';
     $query .= ' AND image_id IN ('.implode(',', $images).')';
-      
+
     pwg_query($query);
 
     if (is_array($categories) and count($categories) > 0) {
@@ -2443,7 +2439,7 @@ SELECT id
   {
     return;
   }
-  
+
   $inserts = array();
   foreach ($private_cats as $cat_id)
   {
@@ -2455,7 +2451,7 @@ SELECT id
         );
     }
   }
-  
+
   mass_inserts(
     USER_ACCESS_TABLE,
     array('user_id','cat_id'),
@@ -2689,7 +2685,7 @@ function deltree($path, $trash_path=null)
       }
     }
     closedir($fh);
-    
+
     if (@rmdir($path))
     {
       return true;
@@ -2734,7 +2730,7 @@ function get_admin_client_cache_keys($requested=array()) {
         'tags' => TAGS_TABLE,
         'users' => USER_INFOS_TABLE
     );
-    
+
     if (!is_array($requested)) {
         $requested = array($requested);
     }
@@ -2743,7 +2739,7 @@ function get_admin_client_cache_keys($requested=array()) {
     } else {
         $requested = array_intersect($requested, array_keys($tables));
     }
-  
+
     $keys = array(
         '_hash' => md5(get_absolute_root_url()),
     );
@@ -2753,9 +2749,9 @@ function get_admin_client_cache_keys($requested=array()) {
         $query .= ' FROM '. $tables[$item] .';';
         $result = pwg_query($query);
         $row = pwg_db_fetch_row($result);
-        
+
         $keys[$item] = sprintf('%s_%s', $row[0], $row[1]);
     }
-  
+
     return $keys;
 }

@@ -32,7 +32,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 // retrieve already applied upgrades
 $query = 'SELECT id  FROM '.PREFIX_TABLE.'upgrade;';
-$applied = array_from_query($query, 'id');
+$applied = $conn->query2array($query, null, 'id');
 
 // retrieve existing upgrades
 $existing = get_available_upgrade_ids();
@@ -41,26 +41,19 @@ $existing = get_available_upgrade_ids();
 $to_apply = array_diff($existing, $applied);
 $inserts = array();
 foreach ($to_apply as $upgrade_id) {
-    if ($upgrade_id >= 139) { // TODO change on each release  
+    if ($upgrade_id >= 139) { // TODO change on each release
         break;
     }
-  
-    array_push(
-        $inserts,
-        array(
-            'id' => $upgrade_id,
-            'applied' => CURRENT_DATE,
-            'description' => '[migration from 2.5.0 to '.PHPWG_VERSION.'] not applied', // TODO change on each release
-        )
+
+    $inserts[] = array(
+        'id' => $upgrade_id,
+        'applied' => CURRENT_DATE,
+        'description' => '[migration from 1.0.0 to '.PHPWG_VERSION.'] not applied', // TODO change on each release
     );
 }
 
 if (!empty($inserts)) {
-    mass_inserts(
-        '`'.UPGRADE_TABLE.'`',
-        array_keys($inserts[0]),
-        $inserts
-    );
+    $conn->mass_inserts(UPGRADE_TABLE, array_keys($inserts[0]), $inserts);
 }
 
 // +-----------------------------------------------------------------------+
@@ -80,7 +73,7 @@ for ($upgrade_id = 139; $upgrade_id <= 142; $upgrade_id++) { // TODO change on e
     if (in_array($upgrade_id, $applied)) {
         continue;
     }
-  
+
     unset($upgrade_description);
 
     echo "\n\n";
@@ -90,7 +83,7 @@ for ($upgrade_id = 139; $upgrade_id <= 142; $upgrade_id++) { // TODO change on e
     // $upgrade_description variable which describe briefly what the upgrade
     // script does.
     include(UPGRADES_PATH.'/'.$upgrade_id.'-database.php');
-    
+
     // notify upgrade (TODO change on each release)
     $query = 'INSERT INTO '.PREFIX_TABLE.'upgrade (id, applied, description)';
     $query .= ' VALUES';

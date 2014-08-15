@@ -1,14 +1,14 @@
-{combine_script id='jquery.dataTables' load='footer' path='themes/default/js/plugins/jquery.dataTables.js'}
+{combine_script id='jquery.dataTables' load='footer' path='admin/themes/default/js/plugins/jquery.dataTables.js'}
 {html_style}
-.sorting { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
-.sorting_asc { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
-.sorting_desc { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
+.sorting { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
+.sorting_asc { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
+.sorting_desc { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
 
-.sorting, .sorting_asc, .sorting_desc { 
+.sorting, .sorting_asc, .sorting_desc {
 	padding: 3px 18px 3px 10px;
 }
-.sorting_asc_disabled { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
-.sorting_desc_disabled { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
+.sorting_asc_disabled { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
+.sorting_desc_disabled { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
 
 .dtBar {
 	text-align:left;
@@ -16,34 +16,34 @@
 }
 {/html_style}
 
-<h2>{$ratings|@count} {'Users'|@translate}</h2>
+<h2>{$ratings|@count} {'Users'|translate}</h2>
 
 <form action="{$F_ACTION}" method="GET">
 <fieldset>
 <noscript>
-	<label>{'Sort by'|@translate}
+	<label>{'Sort by'|translate}
 		<select name="order_by">
 			{html_options options=$order_by_options selected=$order_by_options_selected}
 		</select>
 	</label>
 </noscript>
-	<label>{'Number of rates'|@translate}&gt;
+	<label>{'Number of rates'|translate}&gt;
 	<input type="text" size="5" name="f_min_rates" value="{$F_MIN_RATES}">
 	</label>
-	<label>{'Consensus deviation'|@translate}
+	<label>{'Consensus deviation'|translate}
 	<input type="text" size="5" name="consensus_top_number" value="{$CONSENSUS_TOP_NUMBER}">
-	{'Best rated'|@translate}
+	{'Best rated'|translate}
 	</label>
 
-	<input type="submit" value="{'Submit'|@translate}">
+	<input type="submit" value="{'Submit'|translate}">
 	</label>
 	<input type="hidden" name="page" value="rating_user">
 </fieldset>
 </form>
 
-{combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
+{combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
 {footer_script}
-var oTable = jQuery('#rateTable').dataTable({
+var oTable = $('#rateTable').dataTable({
 	sDom : '<"dtBar"f>rt',
 	bPaginate: false,
 	aaSorting: [[5,'desc']],
@@ -74,7 +74,7 @@ var oTable = jQuery('#rateTable').dataTable({
 });
 
 function del(elt,uid,aid){
-	if (!confirm('{'Are you sure?'|@translate|@escape:'javascript'}'))
+	if (!confirm('{'Are you sure?'|translate|@escape:'javascript'}'))
 		return false;
 	var tr = elt;
 	while ( tr.nodeName != "TR") tr = tr.parentNode;
@@ -88,25 +88,25 @@ function del(elt,uid,aid){
 			onSuccess: function(result){
 				if (result)
 					oTable.fnDeleteRow(tr[0]);
-				else 
-					alert(result); 
+				else
+					alert(result);
 			}
 		}
 	);
-	
+
 	return false;
 }
 {/footer_script}
 <table id="rateTable">
 <thead>
 <tr class="throw">
-	<td class="dtc_user">{'Username'|@translate}</td>
-	<td class="dtc_date">{'Last'|@translate}</td>
-	<td class="dtc_stat">{'Number of rates'|@translate}</td>
-	<td class="dtc_stat">{'Average rate'|@translate}</td>
-	<td class="dtc_stat">{'Variation'|@translate}</td>
-	<td class="dtc_stat">{'Consensus deviation'|@translate|@replace:' ':'<br>'}</td>
-	<td class="dtc_stat">{'Consensus deviation'|@translate|@replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</td>
+	<td class="dtc_user">{'Username'|translate}</td>
+	<td class="dtc_date">{'Last'|translate}</td>
+	<td class="dtc_stat">{'Number of rates'|translate}</td>
+	<td class="dtc_stat">{'Average rate'|translate}</td>
+	<td class="dtc_stat">{'Variation'|translate}</td>
+	<td class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'}</td>
+	<td class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</td>
 {foreach from=$available_rates item=rate}
 	<td class="dtc_rate">{$rate}</td>
 {/foreach}
@@ -134,10 +134,10 @@ function del(elt,uid,aid){
 {/foreach}
 </table>
 
-{combine_script id='jquery.cluetip' load='footer' require='jquery' path='themes/default/js/plugins/jquery.cluetip.js'}
+{combine_script id='jquery.cluetip' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.cluetip.js'}
 {footer_script require='jquery.cluetip'}
-jQuery(document).ready(function(){ldelim}
-	jQuery('.cluetip').cluetip({ldelim}
+$(function(){ldelim}
+	$('.cluetip').cluetip({ldelim}
 		width: {$TN_WIDTH}, showTitle:false, splitTitle: '|'
 	});
 })

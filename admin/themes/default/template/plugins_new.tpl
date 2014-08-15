@@ -1,4 +1,4 @@
-{combine_script id='jquery.sort' load='footer' path='themes/default/js/plugins/jquery.sort.js'}
+{combine_script id='jquery.sort' load='footer' path='admin/themes/default/js/plugins/jquery.sort.js'}
 
 {footer_script require='jquery.ui.effect-blind,jquery.sort'}{literal}
 var sortOrder = 'date';
@@ -36,10 +36,10 @@ jQuery(document).ready(function(){
 
 <div class="titrePage">
 <span class="sort">
-{'Sort order'|@translate} : 
+{'Sort order'|translate} :
 {html_options name="selectOrder" options=$order_options selected=$order_selected}
 </span>
-  <h2>{'Plugins'|@translate}</h2>
+  <h2>{'Plugins'|translate}</h2>
 </div>
 
 {if not empty($plugins)}
@@ -71,14 +71,14 @@ jQuery(document).ready(function(){
     </tr>
     <tr>
       <td>
-        <a href="{$plugin.URL_INSTALL}" onclick="return confirm('{'Are you sure you want to install this plugin?'|@translate|@escape:javascript}');">{'Install'|@translate}</a>
-        |  <a href="{$plugin.URL_DOWNLOAD}">{'Download'|@translate}</a>
+        <a href="{$plugin.URL_INSTALL}" onclick="return confirm('{'Are you sure you want to install this plugin?'|translate|@escape:javascript}');">{'Install'|translate}</a>
+        |  <a href="{$plugin.URL_DOWNLOAD}">{'Download'|translate}</a>
       </td>
       <td>
-        <em>{'Downloads'|@translate}: {$plugin.DOWNLOADS}</em>
-        {'Version'|@translate} {$plugin.VERSION}
-        | {'By %s'|@translate:$plugin.AUTHOR}
-        | <a class="externalLink" href="{$plugin.EXT_URL}">{'Visit plugin site'|@translate}</a>
+        <em>{'Downloads'|translate}: {$plugin.DOWNLOADS}</em>
+        {'Version'|translate} {$plugin.VERSION}
+        | {'By %s'|translate:$plugin.AUTHOR}
+        | <a class="externalLink" href="{$plugin.EXT_URL}">{'Visit plugin site'|translate}</a>
       </td>
     </tr>
   </table>
@@ -87,5 +87,5 @@ jQuery(document).ready(function(){
 </fieldset>
 </div>
 {else}
-<p>{'There is no other plugin available.'|@translate}</p>
+<p>{'There is no other plugin available.'|translate}</p>
 {/if}

@@ -1,20 +1,20 @@
-{combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
-{combine_script id='jquery.jgrowl' load='footer' require='jquery' path='themes/default/js/plugins/jquery.jgrowl_minimized.js'}
-{combine_css path="themes/default/js/plugins/jquery.jgrowl.css"}
+{combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.ajaxmanager.js'}
+{combine_script id='jquery.jgrowl' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.jgrowl_minimized.js'}
+{combine_css path="admin/themes/default/js/plugins/jquery.jgrowl.css"}
 
 {footer_script require='jquery.ui.effect-blind,jquery.ajaxmanager,jquery.jgrowl'}
 var pwg_token = '{$PWG_TOKEN}';
 var extType = '{$EXT_TYPE}';
-var confirmMsg  = '{'Are you sure?'|@translate|@escape:'javascript'}';
-var errorHead   = '{'ERROR'|@translate|@escape:'javascript'}';
-var successHead = '{'Update Complete'|@translate|@escape:'javascript'}';
-var errorMsg    = '{'an error happened'|@translate|@escape:'javascript'}';
-var restoreMsg  = '{'Reset ignored updates'|@translate|@escape:'javascript'}';
+var confirmMsg  = '{'Are you sure?'|translate|@escape:'javascript'}';
+var errorHead   = '{'ERROR'|translate|@escape:'javascript'}';
+var successHead = '{'Update Complete'|translate|@escape:'javascript'}';
+var errorMsg    = '{'an error happened'|translate|@escape:'javascript'}';
+var restoreMsg  = '{'Reset ignored updates'|translate|@escape:'javascript'}';
 
 {literal}
 var todo = 0;
-var queuedManager = $.manageAjax.create('queued', { 
-	queue: true,  
+var queuedManager = $.manageAjax.create('queued', {
+	queue: true,
 	maxRequests: 1,
   beforeSend: function() { autoupdate_bar_toggle(1); },
   complete: function() { autoupdate_bar_toggle(-1); }
@@ -140,24 +140,24 @@ checkFieldsets();
 {/footer_script}
 
 <div class="titrePage">
-  <h2>{'Updates'|@translate}</h2>
+  <h2>{'Updates'|translate}</h2>
 </div>
 
 <div class="autoupdate_bar">
-<input type="submit" id="update_all" value="{'Update All'|@translate}" onClick="updateAll(); return false;">
-<input type="submit" id="ignore_all" value="{'Ignore All'|@translate}" onClick="ignoreAll(); return false;">
-<input type="submit" id="reset_ignore" value="{'Reset ignored updates'|@translate}" onClick="resetIgnored(); return false;" {if !$SHOW_RESET}style="display:none;"{/if}>
+<input type="submit" id="update_all" value="{'Update All'|translate}" onClick="updateAll(); return false;">
+<input type="submit" id="ignore_all" value="{'Ignore All'|translate}" onClick="ignoreAll(); return false;">
+<input type="submit" id="reset_ignore" value="{'Reset ignored updates'|translate}" onClick="resetIgnored(); return false;" {if !$SHOW_RESET}style="display:none;"{/if}>
 </div>
 <div class="autoupdate_bar" style="display:none;">
-{'Please wait...'|@translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif" alt="">
+{'Please wait...'|translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif" alt="">
 </div>
 
-<p id="up_to_date" style="display:none; text-align:left; margin-left:20px;">{'All %s are up to date.'|@sprintf:$EXT_TYPE|@translate}</p>
+<p id="up_to_date" style="display:none; text-align:left; margin-left:20px;">{'All %s are up to date.'|@sprintf:$EXT_TYPE|translate}</p>
 
 {if not empty($update_plugins)}
 <div>
 <fieldset id="plugins">
-<legend>{'Plugins'|@translate}</legend>
+<legend>{'Plugins'|translate}</legend>
 {foreach from=$update_plugins item=plugin name=plugins_loop}
 <div class="pluginBox" id="plugins_{$plugin.EXT_ID}" {if $plugin.IGNORED}style="display:none;"{/if}>
   <table>
@@ -166,21 +166,21 @@ checkFieldsets();
         {$plugin.EXT_NAME}
       </td>
       <td>
-        <a href="#" onClick="updateExtension('plugins', '{$plugin.EXT_ID}', {$plugin.REVISION_ID});" class="updateExtension">{'Install'|@translate}</a>
-        | <a href="{$plugin.URL_DOWNLOAD}">{'Download'|@translate}</a>
-        | <a href="#" onClick="ignoreExtension('plugins', '{$plugin.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|@translate}</a>
+        <a href="#" onClick="updateExtension('plugins', '{$plugin.EXT_ID}', {$plugin.REVISION_ID});" class="updateExtension">{'Install'|translate}</a>
+        | <a href="{$plugin.URL_DOWNLOAD}">{'Download'|translate}</a>
+        | <a href="#" onClick="ignoreExtension('plugins', '{$plugin.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|translate}</a>
       </td>
     </tr>
     <tr>
       <td>
-        {'Version'|@translate} {$plugin.CURRENT_VERSION}
+        {'Version'|translate} {$plugin.CURRENT_VERSION}
       </td>
       <td class="pluginDesc" id="desc_{$plugin.ID}">
-        <em>{'Downloads'|@translate}: {$plugin.DOWNLOADS}</em>
+        <em>{'Downloads'|translate}: {$plugin.DOWNLOADS}</em>
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/plus.gif" alt="" class="button_{$plugin.ID}">
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/minus.gif" alt="" class="button_{$plugin.ID}" style="display:none;">
-        {'New Version'|@translate} : {$plugin.NEW_VERSION}
-        | {'By %s'|@translate:$plugin.AUTHOR}
+        {'New Version'|translate} : {$plugin.NEW_VERSION}
+        | {'By %s'|translate:$plugin.AUTHOR}
       </td>
     </tr>
     <tr>
@@ -199,7 +199,7 @@ checkFieldsets();
 {if not empty($update_themes)}
 <div>
 <fieldset id="themes">
-<legend>{'Themes'|@translate}</legend>
+<legend>{'Themes'|translate}</legend>
 {foreach from=$update_themes item=theme name=themes_loop}
 <div class="pluginBox" id="themes_{$theme.EXT_ID}" {if $theme.IGNORED}style="display:none;"{/if}>
   <table>
@@ -208,21 +208,21 @@ checkFieldsets();
         {$theme.EXT_NAME}
       </td>
       <td>
-        <a href="#" onClick="updateExtension('themes', '{$theme.EXT_ID}', {$theme.REVISION_ID});" class="updateExtension">{'Install'|@translate}</a>
-        | <a href="{$theme.URL_DOWNLOAD}">{'Download'|@translate}</a>
-        | <a href="#" onClick="ignoreExtension('themes', '{$theme.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|@translate}</a>
+        <a href="#" onClick="updateExtension('themes', '{$theme.EXT_ID}', {$theme.REVISION_ID});" class="updateExtension">{'Install'|translate}</a>
+        | <a href="{$theme.URL_DOWNLOAD}">{'Download'|translate}</a>
+        | <a href="#" onClick="ignoreExtension('themes', '{$theme.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|translate}</a>
       </td>
     </tr>
     <tr>
       <td>
-        {'Version'|@translate} {$theme.CURRENT_VERSION}
+        {'Version'|translate} {$theme.CURRENT_VERSION}
       </td>
       <td class="pluginDesc" id="desc_{$theme.ID}">
-        <em>{'Downloads'|@translate}: {$theme.DOWNLOADS}</em>
+        <em>{'Downloads'|translate}: {$theme.DOWNLOADS}</em>
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/plus.gif" alt="" class="button_{$theme.ID}">
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/minus.gif" alt="" class="button_{$theme.ID}" style="display:none;">
-        {'New Version'|@translate} : {$theme.NEW_VERSION}
-        | {'By %s'|@translate:$theme.AUTHOR}
+        {'New Version'|translate} : {$theme.NEW_VERSION}
+        | {'By %s'|translate:$theme.AUTHOR}
       </td>
     </tr>
     <tr>
@@ -241,7 +241,7 @@ checkFieldsets();
 {if not empty($update_languages)}
 <div>
 <fieldset id="languages">
-<legend>{'Languages'|@translate}</legend>
+<legend>{'Languages'|translate}</legend>
 {foreach from=$update_languages item=language name=languages_loop}
 <div class="pluginBox" id="languages_{$language.EXT_ID}" {if $language.IGNORED}style="display:none;"{/if}>
   <table>
@@ -250,21 +250,21 @@ checkFieldsets();
         {$language.EXT_NAME}
       </td>
       <td>
-        <a href="#" onClick="updateExtension('languages', '{$language.EXT_ID}', {$language.REVISION_ID});" class="updateExtension">{'Install'|@translate}</a>
-        | <a href="{$language.URL_DOWNLOAD}">{'Download'|@translate}</a>
-        | <a href="#" onClick="ignoreExtension('languages', '{$language.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|@translate}</a>
+        <a href="#" onClick="updateExtension('languages', '{$language.EXT_ID}', {$language.REVISION_ID});" class="updateExtension">{'Install'|translate}</a>
+        | <a href="{$language.URL_DOWNLOAD}">{'Download'|translate}</a>
+        | <a href="#" onClick="ignoreExtension('languages', '{$language.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|translate}</a>
       </td>
     </tr>
     <tr>
       <td>
-        {'Version'|@translate} {$language.CURRENT_VERSION}
+        {'Version'|translate} {$language.CURRENT_VERSION}
       </td>
       <td class="pluginDesc" id="desc_{$language.ID}">
-        <em>{'Downloads'|@translate}: {$language.DOWNLOADS}</em>
+        <em>{'Downloads'|translate}: {$language.DOWNLOADS}</em>
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/plus.gif" alt="" class="button_{$language.ID}">
         <img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/minus.gif" alt="" class="button_{$language.ID}" style="display:none;">
-        {'New Version'|@translate} : {$language.NEW_VERSION}
-        | {'By %s'|@translate:$language.AUTHOR}
+        {'New Version'|translate} : {$language.NEW_VERSION}
+        | {'By %s'|translate:$language.AUTHOR}
       </td>
     </tr>
     <tr>

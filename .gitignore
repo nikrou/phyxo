@@ -7,7 +7,6 @@
 /plugins/*
 !/plugins/language_switch
 !/plugins/LocalFilesEditor/
-!/plugins/user_tags/
 
 ;; themes
 /themes/*
@@ -28,9 +27,6 @@ local/config/database.*.php
 
 /bin/*
 
-
-;; src ; not used yet
-/src
 
 ;; other stuff
 /target

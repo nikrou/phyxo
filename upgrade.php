@@ -24,20 +24,23 @@
 
 define('PHPWG_ROOT_PATH', './');
 
-// load config file
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-@include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
-defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
-$config_file = PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'config/database.inc.php';
-$config_file_contents = @file_get_contents($config_file);
-if ($config_file_contents === false) {
-    die('Cannot load '.$config_file);
-}
+use Phyxo\DBLayer\DBLayer;
+use Phyxo\Language\Languages;
+use Phyxo\Update\Updates;
+use Phyxo\Template\Template;
 
-include($config_file);
+// load config file
+include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+if (is_readable(PHPWG_ROOT_PATH. 'local/config/config.inc.php')) {
+    include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
+}
+defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
+
+if (is_readable(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'config/database.inc.php')) {
+    include(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'config/database.inc.php');
+}
 
 // $conf is not used for users tables - define cannot be re-defined
 define('USERS_TABLE', $prefixeTable.'users');
@@ -49,57 +52,21 @@ include_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
-// |                              functions                                |
+// |                          database connection                          |
 // +-----------------------------------------------------------------------+
+include_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
+include(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
 
-/**
- * list all tables in an array
- *
- * @return array
- */
-function get_tables() {
-    return pwg_db_get_tables(PREFIX_TABLE);
+try {
+    $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
+} catch (Exception $e) {
+    $page['errors'][] = l10n($e->getMessage());
 }
-
-/**
- * list all columns of each given table
- *
- * @return array of array
- */
-function get_columns_of($tables) {
-    return pwg_db_get_columns_of($tables);
-}
-
-/**
- */
-function print_time($message) {
-    global $last_time;
-
-    $new_time = get_moment();
-    echo '<pre>['.get_elapsed_time($last_time, $new_time).']';
-    echo ' '.$message;
-    echo '</pre>';
-    flush();
-    $last_time = $new_time;
-}
-
-// +-----------------------------------------------------------------------+
-// |                             playing zone                              |
-// +-----------------------------------------------------------------------+
-
-// echo implode('<br>', get_tables());
-// echo '<pre>'; print_r(get_columns_of(get_tables())); echo '</pre>';
-
-// foreach (get_available_upgrade_ids() as $upgrade_id)
-// {
-//   echo $upgrade_id, '<br>';
-// }
 
 // +-----------------------------------------------------------------------+
 // |                             language                                  |
 // +-----------------------------------------------------------------------+
-include(PHPWG_ROOT_PATH . 'admin/include/languages.class.php');
-$languages = new languages('utf-8');
+$languages = new Languages($conn, 'utf-8');
 
 if (isset($_GET['language'])) {
     $language = strip_tags($_GET['language']);
@@ -120,18 +87,6 @@ if (isset($_GET['language'])) {
 
 define('PHPWG_URL', 'http://phyxo.nikrou.net');
 
-// +-----------------------------------------------------------------------+
-// |                          database connection                          |
-// +-----------------------------------------------------------------------+
-include_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
-include(PHPWG_ROOT_PATH .'include/dblayer/functions_'.$conf['dblayer'].'.inc.php');
-
-try {
-    pwg_db_connect($conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-} catch (Exception $e) {
-    my_error(l10n($e->getMessage()), true);
-}
-
 load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('admin.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
@@ -142,9 +97,6 @@ if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<')) {
     include(PHPWG_ROOT_PATH.'install/php5_apache_configuration.php');
 }
 
-upgrade_db_connect();
-pwg_db_check_charset();
-
 list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 
@@ -154,63 +106,25 @@ define('CURRENT_DATE', $dbnow);
 
 $template = new Template(PHPWG_ROOT_PATH.'admin/themes', 'clear');
 $template->set_filenames(array('upgrade' => 'upgrade.tpl'));
-$template->assign(
-    array(
-        'RELEASE' => PHPWG_VERSION,
-        'L_UPGRADE_HELP' => l10n('Need help ? Ask your question on <a href="%s">Piwigo message board</a>.', PHPWG_URL.'/forum'),
-    )
-);
-
-// +-----------------------------------------------------------------------+
-// | Remote sites are not compatible with Piwigo 2.4+                      |
-// +-----------------------------------------------------------------------+
-
-$has_remote_site = false;
-
-$query = 'SELECT galleries_url FROM '.SITES_TABLE.';';
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
-    if (url_is_remote($row['galleries_url'])) {
-        $has_remote_site = true;
-    }
-}
-
-if ($has_remote_site) {
-    include_once(PHPWG_ROOT_PATH.'admin/include/updates.class.php');
-    include_once(PHPWG_ROOT_PATH.'admin/include/pclzip.lib.php');
-    
-    $page['errors'] = array();
-    $step = 3;
-    updates::upgrade_to('2.3.4', $step, false);
-
-    if (!empty($page['errors'])) {
-        echo '<ul>';
-        foreach ($page['errors'] as $error) {
-            echo '<li>'.$error.'</li>';
-        }
-        echo '</ul>';
-    }
-
-    exit();
-}
+$template->assign(array('RELEASE' => PHPWG_VERSION));
 
 // +-----------------------------------------------------------------------+
 // |                            upgrade choice                             |
 // +-----------------------------------------------------------------------+
 
-$tables = get_tables();
-$columns_of = get_columns_of($tables);
+$tables = $conn->db_get_tables(PREFIX_TABLE);
+$columns_of = $conn->db_get_columns_of($tables);
 
 // find the current release
 $query = 'SELECT id FROM '.PREFIX_TABLE.'upgrade;';
-$applied_upgrades = array_from_query($query, 'id');
-    
+$applied_upgrades = $conn->query2array($query, null, 'id');
+
 if (!in_array(142, $applied_upgrades)) {
     $current_release = '1.0.0';
 } else {
     // confirm that the database is in the same version as source code files
-    conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
-    
+    conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
+
     header('Content-Type: text/html; charset='.get_pwg_charset());
     echo 'No upgrade required, the database structure is up to date';
     echo '<br><a href="index.php">← back to gallery</a>';
@@ -243,7 +157,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         deactivate_templates();
 
         $page['upgrade_end'] = get_moment();
-        
+
         $template->assign(
             'upgrade',
             array(
@@ -261,9 +175,9 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
                 'NB_QUERIES' => $page['count_queries']
             )
         );
-        
+
         $page['infos'][] = l10n('Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.');
-        
+
         // Save $page['infos'] in order to restore after maintenance actions
         $page['infos_sav'] = $page['infos'];
         $page['infos'] = array();
@@ -279,25 +193,24 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         // Delete cache data
         invalidate_user_cache(true);
         $template->delete_compiled_templates();
-        
+
         // Tables Maintenance
-        do_maintenance_all_tables();
-        
+        $conn->do_maintenance_all_tables();
+
         // Restore $page['infos'] in order to hide informations messages from functions calles
         // errors messages are not hide
-        $page['infos'] = $page['infos_sav'];       
+        $page['infos'] = $page['infos_sav'];
     }
 } else {
-// +-----------------------------------------------------------------------+
-// |                          start template output                        |
-// +-----------------------------------------------------------------------+
+    // +-----------------------------------------------------------------------+
+    // |                          start template output                        |
+    // +-----------------------------------------------------------------------+
     if (!defined('PWG_CHARSET')) {
         define('PWG_CHARSET', 'utf-8');
     }
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/languages.class.php');
-    $languages = new languages();
-    
+    $languages = new Languages($conn);
+
     foreach ($languages->fs_languages as $language_code => $fs_language) {
         if ($language == $language_code) {
             $template->assign('language_selection', $language_code);
@@ -305,12 +218,12 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         $languages_options[$language_code] = $fs_language['name'];
     }
     $template->assign('language_options', $languages_options);
-    
+
     $template->assign('introduction', array(
         'CURRENT_RELEASE' => $current_release,
         'F_ACTION' => 'upgrade.php?language=' . $language)
     );
-    
+
     if (!check_upgrade()) {
         $template->assign('login', true);
     }

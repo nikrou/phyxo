@@ -1,16 +1,16 @@
-{combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='themes/default/js/plugins/jquery.ajaxmanager.js' }
+{combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.ajaxmanager.js' }
 
 {footer_script require='jquery.ajaxmanager'}
 /* incompatible message */
-var incompatible_msg = '{'WARNING! This plugin does not seem to be compatible with this version of Piwigo.'|@translate|@escape:'javascript'}';
-var activate_msg = '\n{'Do you want to activate anyway?'|@translate|@escape:'javascript'}';
+var incompatible_msg = '{'WARNING! This plugin does not seem to be compatible with this version of Phyxo.'|translate|@escape:'javascript'}';
+var activate_msg = '\n{'Do you want to activate anyway?'|translate|@escape:'javascript'}';
 
 /* group action */
 var pwg_token = '{$PWG_TOKEN}';
-var confirmMsg  = '{'Are you sure?'|@translate|@escape:'javascript'}';
+var confirmMsg  = '{'Are you sure?'|translate|@escape:'javascript'}';
 {literal}
-var queuedManager = jQuery.manageAjax.create('queued', { 
-  queue: true,  
+var queuedManager = jQuery.manageAjax.create('queued', {
+  queue: true,
   maxRequests: 1
 });
 var nb_plugins = jQuery('div.active').size();
@@ -67,7 +67,7 @@ jQuery(document).ready(function() {
       }
     });
   });
-  
+
   /* TipTips */
   jQuery('.plugin-restore').tipTip({
     'delay' : 0,
@@ -87,14 +87,14 @@ jQuery(document).ready(function() {
 {/footer_script}
 
 <div class="titrePage">
-  <h2>{'Plugins'|@translate}</h2>
+  <h2>{'Plugins'|translate}</h2>
 </div>
 
 <div class="showDetails">
   {if $show_details}
-  <a href="{$base_url}&amp;show_details=0">{'hide details'|@translate}</a>
+  <a href="{$base_url}&amp;show_details=0">{'hide details'|translate}</a>
   {else}
-  <a href="{$base_url}&amp;show_details=1">{'show details'|@translate}</a>
+  <a href="{$base_url}&amp;show_details=1">{'show details'|translate}</a>
   {/if}
 </div>
 
@@ -103,27 +103,27 @@ jQuery(document).ready(function() {
 {assign var='field_name' value='null'} {* <!-- 'counter' for fieldset management --> *}
 {counter start=0 assign=i} {* <!-- counter for 'deactivate all' link --> *}
 {foreach from=$plugins item=plugin name=plugins_loop}
-    
+
 {if $field_name != $plugin.STATE}
   {if $field_name != 'null'}
   </fieldset>
   {/if}
-  
+
   <fieldset class="pluginBoxes">
     <legend>
     {if $plugin.STATE == 'active'}
-      {'Active Plugins'|@translate}
+      {'Active Plugins'|translate}
     {elseif $plugin.STATE == 'inactive'}
-      {'Inactive Plugins'|@translate}
+      {'Inactive Plugins'|translate}
     {elseif $plugin.STATE == 'missing'}
-      {'Missing Plugins'|@translate}
+      {'Missing Plugins'|translate}
     {elseif $plugin.STATE == 'merged'}
-      {'Obsolete Plugins'|@translate}
+      {'Obsolete Plugins'|translate}
     {/if}
     </legend>
   {assign var='field_name' value=$plugin.STATE}
 {/if}
-  
+
   {if not empty($plugin.AUTHOR)}
     {if not empty($plugin.AUTHOR_URL)}
       {assign var='author' value="<a href='%s'>%s</a>"|@sprintf:$plugin.AUTHOR_URL:$plugin.AUTHOR}
@@ -131,7 +131,7 @@ jQuery(document).ready(function() {
       {assign var='author' value='<u>'|cat:$plugin.AUTHOR|cat:'</u>'}
     {/if}
   {/if}
-   
+
   {if $show_details}
     <div id="{$plugin.ID}" class="pluginBox {$plugin.STATE}">
       <table>
@@ -144,77 +144,77 @@ jQuery(document).ready(function() {
         <tr class="pluginActions">
           <td>
           {if $plugin.STATE == 'active'}
-            <a href="{$plugin.U_ACTION}&amp;action=deactivate">{'Deactivate'|@translate}</a>
-            | <a href="{$plugin.U_ACTION}&amp;action=restore" class="plugin-restore" title="{'Restore default configuration. You will lose your plugin settings!'|@translate}" onclick="return confirm(confirmMsg);">{'Restore'|@translate}</a>
+            <a href="{$plugin.U_ACTION}&amp;action=deactivate">{'Deactivate'|translate}</a>
+            | <a href="{$plugin.U_ACTION}&amp;action=restore" class="plugin-restore" title="{'Restore default configuration. You will lose your plugin settings!'|translate}" onclick="return confirm(confirmMsg);">{'Restore'|translate}</a>
 
           {elseif $plugin.STATE == 'inactive'}
-            <a href="{$plugin.U_ACTION}&amp;action=activate" class="activate">{'Activate'|@translate}</a>
-            | <a href="{$plugin.U_ACTION}&amp;action=delete" onclick="return confirm(confirmMsg);">{'Delete'|@translate}</a>
+            <a href="{$plugin.U_ACTION}&amp;action=activate" class="activate">{'Activate'|translate}</a>
+            | <a href="{$plugin.U_ACTION}&amp;action=delete" onclick="return confirm(confirmMsg);">{'Delete'|translate}</a>
 
           {elseif $plugin.STATE == 'missing'}
-            <a href="{$plugin.U_ACTION}&amp;action=uninstall" onclick="return confirm(confirmMsg);">{'Uninstall'|@translate}</a>
+            <a href="{$plugin.U_ACTION}&amp;action=uninstall" onclick="return confirm(confirmMsg);">{'Uninstall'|translate}</a>
 
           {elseif $plugin.STATE == 'merged'}
-            <a href="{$plugin.U_ACTION}&amp;action=delete">{'Delete'|@translate}</a>
+            <a href="{$plugin.U_ACTION}&amp;action=delete">{'Delete'|translate}</a>
           {/if}
           </td>
           <td>
-            {'Version'|@translate} {$plugin.VERSION}
-            
+            {'Version'|translate} {$plugin.VERSION}
+
           {if not empty($author)}
-            | {'By %s'|@translate:$author}
+            | {'By %s'|translate:$author}
           {/if}
 
           {if not empty($plugin.VISIT_URL)}
-            | <a class="externalLink" href="{$plugin.VISIT_URL}">{'Visit plugin site'|@translate}</a>
+            | <a class="externalLink" href="{$plugin.VISIT_URL}">{'Visit plugin site'|translate}</a>
           {/if}
           </td>
         </tr>
       </table>
     </div> {*<!-- pluginBox -->*}
-    
+
   {else}
     {if not empty($plugin.VISIT_URL)}
       {assign var='version' value="<a class='externalLink' href='"|cat:$plugin.VISIT_URL|cat:"'>"|cat:$plugin.VERSION|cat:"</a>"}
     {else}
       {assign var='version' value=$plugin.VERSION}
     {/if}
-          
+
     <div id="{$plugin.ID}" class="pluginMiniBox {$plugin.STATE}">
       <div class="pluginMiniBoxNameCell">
         {$plugin.NAME}
-        <a class="icon-info-circled-1 showInfo" title="{if !empty($author)}{'By %s'|@translate:$author} | {/if}{'Version'|@translate} {$version}<br/>{$plugin.DESC|@escape:'html'}"></a>
+        <a class="icon-info-circled-1 showInfo" title="{if !empty($author)}{'By %s'|translate:$author} | {/if}{'Version'|translate} {$version}<br/>{$plugin.DESC|@escape:'html'}"></a>
       </div>
       <div class="pluginActions">
         <div>
         {if $plugin.STATE == 'active'}
-          <a href="{$plugin.U_ACTION}&amp;action=deactivate">{'Deactivate'|@translate}</a>
-          | <a href="{$plugin.U_ACTION}&amp;action=restore" class="plugin-restore" title="{'Restore default configuration. You will lose your plugin settings!'|@translate}" onclick="return confirm(confirmMsg);">{'Restore'|@translate}</a>
+          <a href="{$plugin.U_ACTION}&amp;action=deactivate">{'Deactivate'|translate}</a>
+          | <a href="{$plugin.U_ACTION}&amp;action=restore" class="plugin-restore" title="{'Restore default configuration. You will lose your plugin settings!'|translate}" onclick="return confirm(confirmMsg);">{'Restore'|translate}</a>
 
         {elseif $plugin.STATE == 'inactive'}
-          <a href="{$plugin.U_ACTION}&amp;action=activate" class="activate">{'Activate'|@translate}</a>
-          | <a href="{$plugin.U_ACTION}&amp;action=delete" onclick="return confirm(confirmMsg);">{'Delete'|@translate}</a>
+          <a href="{$plugin.U_ACTION}&amp;action=activate" class="activate">{'Activate'|translate}</a>
+          | <a href="{$plugin.U_ACTION}&amp;action=delete" onclick="return confirm(confirmMsg);">{'Delete'|translate}</a>
 
         {elseif $plugin.STATE == 'missing'}
-          <a href="{$plugin.U_ACTION}&amp;action=uninstall" onclick="return confirm(confirmMsg);">{'Uninstall'|@translate}</a>
+          <a href="{$plugin.U_ACTION}&amp;action=uninstall" onclick="return confirm(confirmMsg);">{'Uninstall'|translate}</a>
 
         {elseif $plugin.STATE == 'merged'}
-          <a href="{$plugin.U_ACTION}&amp;action=delete">{'Delete'|@translate}</a>
+          <a href="{$plugin.U_ACTION}&amp;action=delete">{'Delete'|translate}</a>
         {/if}
         </div>
       </div>
     </div> {*<!-- pluginMiniBox -->*}
-    
+
   {/if}
-  
+
 {if $plugin.STATE == 'active'}
   {counter}
   {if $active_plugins == $i}
-    <div class="deactivate_all"><a>{'Deactivate all'|@translate}</a></div>
+    <div class="deactivate_all"><a>{'Deactivate all'|translate}</a></div>
     {counter}
   {/if}
 {/if}
-  
+
 {/foreach}
   </fieldset>
 

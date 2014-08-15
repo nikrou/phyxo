@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -93,7 +94,7 @@ if (isset($_POST['submit']))
         @copy($edited_file, get_bak_file($edited_file));
         $page['infos'][] = l10n('locfiledit_saved_bak', substr(get_bak_file($edited_file), 2));
       }
-      
+
       if ($file = @fopen($edited_file , "w"))
       {
         @fwrite($file , $content_file);
@@ -148,4 +149,3 @@ $template->assign(array(
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'plugin_admin_content');
 
-?>

@@ -31,7 +31,7 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = '如果您遇到任何問題, 請執行維護檢查[管理>工具>維護]。';
 $lang['SQL queries'] = 'SQL查詢';
 $lang['Statistics'] = '統計';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = '本頁建議數據庫從舊的Piwigo版本升級到新版本。升級助手認為你正在運行的<strong>版本％s</strong>（或同等版本）。';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = '本頁建議數據庫從舊的Piwigo版本升級到新版本。升級助手認為你正在運行的<strong>版本％s</strong>（或同等版本）。';
 $lang['Upgrade'] = '升級';
 $lang['Upgrade from version %s to %s'] = '從版本%s升級到%s';
 $lang['Upgrade informations'] = '升級信息';

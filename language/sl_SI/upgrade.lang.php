@@ -27,7 +27,7 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'V primeru težav naredite vzdrževalno preverjanje preko [Administracija>Orodja>Vzdrževanje]';
 $lang['SQL queries'] = 'SQL poizvedbe';
 $lang['Statistics'] = 'Statistika';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Ta stran predlaga, da nadgradite podatkovno bazo vaše Piwigo različice na novejšo različico. Čarovnik nadgradnje je zaznal, da trenutno uporabljate <strong>različico %s</strong> (ali enakovredno).';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Ta stran predlaga, da nadgradite podatkovno bazo vaše Piwigo različice na novejšo različico. Čarovnik nadgradnje je zaznal, da trenutno uporabljate <strong>različico %s</strong> (ali enakovredno).';
 $lang['Upgrade'] = 'Nadgradi';
 $lang['Upgrade from version %s to %s'] = 'Nadgradi iz različice %s na različico %s';
 $lang['Upgrade informations'] = 'Informacije nadgradnje';

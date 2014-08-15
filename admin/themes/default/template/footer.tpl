@@ -1,5 +1,5 @@
-{* 
-          Warning : This is the admin pages footer only 
+{*
+          Warning : This is the admin pages footer only
           don't be confusing with the public page footer
 *}
 </div>{* <!-- pwgMain --> *}
@@ -12,7 +12,9 @@
 
 {if isset($debug.QUERIES_LIST)}
 <div id="debug">
-  {$debug.QUERIES_LIST}
+  {foreach from=$debug.QUERIES_LIST item=query}
+  {$query.sql}
+  {/foreach}
 </div>
 {/if}
 
@@ -23,12 +25,12 @@
     to show the origin of the script...
     *}
 
-    {'Powered by'|@translate}
-    <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|@translate}">
+    {'Powered by'|translate}
+    <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|translate}">
       <span class="Piwigo">Phyxo</span></a>
     {$VERSION}
   </div>
-  
+
   <div id="pageInfos">
     {if isset($debug.TIME) }
     {'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
@@ -41,7 +43,7 @@
 </div>{* <!-- footer --> *}
 </div>{* <!-- the_page --> *}
 
-{combine_script id='jquery.tipTip' load='footer' path='themes/default/js/plugins/jquery.tipTip.minified.js'}
+{combine_script id='jquery.tipTip' load='footer' path='admin/themes/default/js/plugins/jquery.tipTip.minified.js'}
 {footer_script require='jquery.tipTip'}
 jQuery('.tiptip').tipTip({
   delay: 0,

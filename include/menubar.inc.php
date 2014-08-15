@@ -32,7 +32,7 @@ initialize_menu();
 
 /**
  * Setups each block the main menubar.
- */ 
+ */
 function initialize_menu() {
     global $page, $conf, $user, $template, $filter;
 
@@ -43,7 +43,7 @@ function initialize_menu() {
     if (!empty($page['section']) && $page['section']=='search' && isset($page['qsearch_details'])) {
         $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']) );
     }
-    
+
     #--------------------------------------------------------------- external links
     if (($block=$menu->get_block('mbLinks')) && !empty($conf['links'])) {
         $block->data = array();
@@ -68,7 +68,7 @@ function initialize_menu() {
                 $block->data[] = $tpl_var;
             }
         }
-        
+
         if (!empty($block->data)) {
             $block->template = 'menubar_links.tpl';
         }
@@ -110,7 +110,7 @@ function initialize_menu() {
                 $page['tag_ids']
             );
             $tags = add_level_to_tags($tags);
-            
+
             foreach ($tags as $tag) {
                 $block->data[] = array_merge(
                     $tag,
@@ -162,7 +162,7 @@ function initialize_menu() {
                 'TITLE' => l10n('display most visited photos'),
                 'NAME' => l10n('Most visited')
             );
-        
+
         if ($conf['rate']) {
             $block->data['best_rated'] =
                 array(
@@ -171,21 +171,21 @@ function initialize_menu() {
                     'NAME' => l10n('Best rated')
                 );
         }
-        
+
         $block->data['recent_pics'] =
             array(
                 'URL' => make_index_url(array('section' => 'recent_pics')),
                 'TITLE' => l10n('display most recent photos'),
                 'NAME' => l10n('Recent photos'),
             );
-        
+
         $block->data['recent_cats'] =
             array(
                 'URL' => make_index_url(array('section' => 'recent_cats')),
                 'TITLE' => l10n('display recently updated albums'),
                 'NAME' => l10n('Recent albums'),
             );
-        
+
         $block->data['random'] =
             array(
                 'URL' => get_root_url().'random.php',
@@ -193,7 +193,7 @@ function initialize_menu() {
                 'NAME' => l10n('Random photos'),
                 'REL'=> 'rel="nofollow"'
             );
-        
+
         $block->data['calendar'] =
             array(
                 'URL' =>
@@ -211,7 +211,7 @@ function initialize_menu() {
             );
         $block->template = 'menubar_specials.tpl';
     }
-    
+
     #---------------------------------------------------------------------- summary
     if (($block=$menu->get_block('mbMenu')) != null) {
         // quick search block will be displayed only if data['qsearch'] is set
@@ -226,7 +226,7 @@ function initialize_menu() {
                 'URL'=> get_root_url().'tags.php',
                 'COUNTER' => get_nb_available_tags(),
             );
-        
+
         // search link
         $block->data['search'] =
             array(
@@ -235,7 +235,7 @@ function initialize_menu() {
                 'URL'=> get_root_url().'search.php',
                 'REL'=> 'rel="search"'
             );
-        
+
         if ($conf['activate_comments']) {
             // comments link
             $block->data['comments'] =
@@ -246,15 +246,15 @@ function initialize_menu() {
                     'COUNTER' => get_nb_available_comments(),
                 );
         }
-        
+
         // about link
         $block->data['about'] =
             array(
-                'TITLE'     => l10n('About Piwigo'),
+                'TITLE'     => l10n('About Phyxo'),
                 'NAME'      => l10n('About'),
                 'URL' => get_root_url().'about.php',
             );
-        
+
         // notification
         $block->data['rss'] =
             array(
@@ -284,7 +284,7 @@ function initialize_menu() {
         if (is_autorize_status(ACCESS_CLASSIC)) {
             $template->assign('U_PROFILE', get_root_url().'profile.php');
         }
-        
+
         // the logout link has no meaning with Apache authentication : it is not
         // possible to logout with this kind of authentication.
         if (!$conf['apache_authentication']) {
@@ -297,5 +297,5 @@ function initialize_menu() {
     if (($block=$menu->get_block('mbIdentification')) != null) {
         $block->template = 'menubar_identification.tpl';
     }
-    $menu->apply('MENUBAR',  'menubar.tpl' );
+    $menu->apply('MENUBAR',  'menubar.tpl');
 }

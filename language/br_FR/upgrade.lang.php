@@ -21,7 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Ar bajenn-mañ a ginnig hizivadur an diaz roadennoù eus ho stumm Piwigo kozh d\'ar stumm nevez. An ameiler hizivaat a soñj emañ <strong>stumm %s</strong> o labourat (pe gevatal).';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Ar bajenn-mañ a ginnig hizivadur an diaz roadennoù eus ho stumm Piwigo kozh d\'ar stumm nevez. An ameiler hizivaat a soñj emañ <strong>stumm %s</strong> o labourat (pe gevatal).';
 $lang['User permissions and group permissions have been erased'] = 'Implijerien ha strolladoù a zo bet dilemet';
 $lang['You do not have access rights to run upgrade'] = 'Difennet eo deoc\'h hizivaat';
 $lang['Statistics'] = 'Stadegoù';

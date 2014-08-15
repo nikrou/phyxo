@@ -31,7 +31,7 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'Soorita hoolduskontroll [vt Administreerimine>Tööriistad>Hooldus] juhul kui sa märkad probleemi.';
 $lang['SQL queries'] = 'SQL andmebaasi päring';
 $lang['Statistics'] = 'Statistika';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'On soovitatud uuendada andmebaas Piwigo uuele versioonile. Uuendamisprogrammi abiline arvab et praegu jooksutatakse <strong>versiooni %s</strong> (või sellele vastavat).';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'On soovitatud uuendada andmebaas Piwigo uuele versioonile. Uuendamisprogrammi abiline arvab et praegu jooksutatakse <strong>versiooni %s</strong> (või sellele vastavat).';
 $lang['Upgrade from version %s to %s'] = 'Ueenda versioonilt %s versioonile %s';
 $lang['Upgrade informations'] = 'Uuendusest lähemalt';
 $lang['Upgrade'] = 'Uuenda';

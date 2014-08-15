@@ -31,7 +31,7 @@ $lang['Only thumbnails prefix and webmaster mail address have been saved from pr
 $lang['Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.'] = 'Ruleaza o verificare de mentenanta in [Administration>Tools>Maintenance] daca intampini probleme';
 $lang['SQL queries'] = 'Interogari SQL';
 $lang['Statistics'] = 'Statistici';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Aceasta pagina upgradeaza baza de date de la o versiunea mai veche de Piwigo la cea noua.
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Aceasta pagina upgradeaza baza de date de la o versiunea mai veche de Piwigo la cea noua.
 In acest moment rulezi <strong>release %s</strong>';
 $lang['total SQL time'] = 'timpul total SQL';
 $lang['total upgrade time'] = 'Timpul total pentru upgrade';

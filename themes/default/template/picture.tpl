@@ -118,7 +118,7 @@ y.callService(
 {/if}
 {if isset($U_SLIDESHOW_STOP)}
 <p>
-	[ <a href="{$U_SLIDESHOW_STOP}">{'stop the slideshow'|@translate}</a> ]
+  [ <a href="{$U_SLIDESHOW_STOP}">{'stop the slideshow'|@translate}</a> ]
 </p>
 {/if}
 
@@ -294,7 +294,8 @@ function setPrivacyLevel(id, level){
 	);
 }
 (SwitchBox=window.SwitchBox||[]).push("#privacyLevelLink", "#privacyLevelBox");
-{/strip}{/footer_script}
+{/strip}
+{/footer_script}
 			<div id="privacyLevelBox" class="switchBox" style="display:none">
 				{foreach from=$available_permission_levels item=label key=level}
 					<span class="switchCheck"{if $level != $current.level} style="visibility:hidden"{/if}>&#x2714; </span>
@@ -309,64 +310,64 @@ function setPrivacyLevel(id, level){
 
 {if isset($metadata)}
 <dl id="Metadata" class="imageInfoTable">
-{foreach from=$metadata item=meta}
-	<h3>{$meta.TITLE}</h3>
-	{foreach from=$meta.lines item=value key=label}
-		<div class="imageInfo">
-			<dt>{$label}</dt>
-			<dd>{$value}</dd>
-		</div>
-	{/foreach}
-{/foreach}
+  {foreach from=$metadata item=meta}
+  <h3>{$meta.TITLE}</h3>
+  {foreach from=$meta.lines item=value key=label}
+  <div class="imageInfo">
+    <dt>{$label}</dt>
+    <dd>{$value}</dd>
+  </div>
+  {/foreach}
+  {/foreach}
 </dl>
 {/if}
 </div>
 </div>
 
 {if isset($COMMENT_COUNT)}
-<div id="comments" {if (!isset($comment_add) && ($COMMENT_COUNT == 0))}class="noCommentContent"{else}class="commentContent"{/if}><div id="commentsSwitcher"></div>
-	<h3>{$COMMENT_COUNT|@translate_dec:'%d comment':'%d comments'}</h3>
+<div id="comments" {if (!isset($comment_add) && ($COMMENT_COUNT == 0))}class="noCommentContent"{else}class="commentContent"{/if}>
+  <div id="commentsSwitcher"></div>
+  <h3>{$COMMENT_COUNT|@translate_dec:'%d comment':'%d comments'}</h3>
 
-	<div id="pictureComments">
-		{if isset($comment_add)}
-		<div id="commentAdd">
-			<h4>{'Add a comment'|@translate}</h4>
-			<form method="post" action="{$comment_add.F_ACTION}" id="addComment">
-				{if $comment_add.SHOW_AUTHOR}
-					<p><label for="author">{'Author'|@translate}{if $comment_add.AUTHOR_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
-					<p><input type="text" name="author" id="author" value="{$comment_add.AUTHOR}"></p>
-				{/if}
-				{if $comment_add.SHOW_EMAIL}
-					<p><label for="email">{'Email address'|@translate}{if $comment_add.EMAIL_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
-					<p><input type="text" name="email" id="email" value="{$comment_add.EMAIL}"></p>
-				{/if}
+  <div id="pictureComments">
+    {if isset($comment_add)}
+    <div id="commentAdd">
+      <h4>{'Add a comment'|@translate}</h4>
+      <form method="post" action="{$comment_add.F_ACTION}" id="addComment">
+	{if $comment_add.SHOW_AUTHOR}
+	<p><label for="author">{'Author'|@translate}{if $comment_add.AUTHOR_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
+	<p><input type="text" name="author" id="author" value="{$comment_add.AUTHOR}"></p>
+	{/if}
+	{if $comment_add.SHOW_EMAIL}
+	<p><label for="email">{'Email address'|@translate}{if $comment_add.EMAIL_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
+	<p><input type="text" name="email" id="email" value="{$comment_add.EMAIL}"></p>
+	{/if}
         {if $comment_add.SHOW_WEBSITE}
           <p><label for="website_url">{'Website'|@translate} :</label></p>
           <p><input type="text" name="website_url" id="website_url" value="{$comment_add.WEBSITE_URL}"></p>
         {/if}
-				<p><label for="contentid">{'Comment'|@translate} ({'mandatory'|@translate}) :</label></p>
-				<p><textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea></p>
-				<p><input type="hidden" name="key" value="{$comment_add.KEY}">
-					<input type="submit" value="{'Submit'|@translate}"></p>
-			</form>
-		</div>
-		{/if}
-		{if isset($comments)}
-		<div id="pictureCommentList">
-			{if (($COMMENT_COUNT > 2) || !empty($navbar))}
-				<div id="pictureCommentNavBar">
-					{if $COMMENT_COUNT > 2}
-						<a href="{$COMMENTS_ORDER_URL}#comments" rel="nofollow" class="commentsOrder">{$COMMENTS_ORDER_TITLE}</a>
-					{/if}
-					{if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
-				</div>
-			{/if}
-			{include file='comment_list.tpl'}
-		</div>
-		{/if}
-		<div style="clear:both"></div>
-	</div>
-
+	<p><label for="contentid">{'Comment'|@translate} ({'mandatory'|@translate}) :</label></p>
+	<p><textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea></p>
+	<p><input type="hidden" name="key" value="{$comment_add.KEY}">
+	  <input type="submit" value="{'Submit'|@translate}"></p>
+      </form>
+    </div>
+    {/if}
+    {if isset($comments)}
+    <div id="pictureCommentList">
+      {if (($COMMENT_COUNT > 2) || !empty($navbar))}
+      <div id="pictureCommentNavBar">
+	{if $COMMENT_COUNT > 2}
+	<a href="{$COMMENTS_ORDER_URL}#comments" rel="nofollow" class="commentsOrder">{$COMMENTS_ORDER_TITLE}</a>
+	{/if}
+	{if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+      </div>
+      {/if}
+      {include file='comment_list.tpl'}
+    </div>
+    {/if}
+    <div style="clear:both"></div>
+  </div>
 </div>
 {/if}{*comments*}
 

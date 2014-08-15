@@ -1,73 +1,51 @@
+{combine_script id='lightaccordion' load='footer' path='admin/themes/default/js/light.accordion.js'}
 {footer_script}
-jQuery.fn.lightAccordion = function(options) {
-  var settings = $.extend({
-    header: 'dt',
-    content: 'dd',
-    active: 0
-  }, options);
-  
-  return this.each(function() {
-    var self = jQuery(this);
-    
-    var contents = self.find(settings.content),
-        headers = self.find(settings.header);
-    
-    contents.not(contents[settings.active]).hide();
-  
-    self.on('click', settings.header, function() {
-        var content = jQuery(this).next(settings.content);
-        content.slideDown();
-        contents.not(content).slideUp();
-    });
-  });
-};
-
 $('#menubar').lightAccordion({
   active: {$ACTIVE_MENU}
 });
 {/footer_script}
 
 <div id="menubar">
-  <div id="adminHome"><a href="{$U_ADMIN}">{'Administration Home'|@translate}</a></div>
+  <div id="adminHome"><a href="{$U_ADMIN}">{'Administration Home'|translate}</a></div>
   <dl>
-    <dt><i class="icon-picture"> </i><span>{'Photos'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-picture"> </i><span>{'Photos'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-	<li><a href="{$U_ADD_PHOTOS}"><i class="icon-plus-circled"></i>{'Add'|@translate}</a></li>
-	<li><a href="{$U_RATING}"><i class="icon-star"></i>{'Rating'|@translate}</a></li>
-	<li><a href="{$U_TAGS}"><i class="icon-tags"></i>{'Tags'|@translate}</a></li>
-	<li><a href="{$U_RECENT_SET}"><i class="icon-clock"></i>{'Recent photos'|@translate}</a></li>
-	<li><a href="{$U_BATCH}"><i class="icon-pencil"></i>{'Batch Manager'|@translate}</a></li>
+	<li><a href="{$U_ADD_PHOTOS}"><i class="icon-plus-circled"></i>{'Add'|translate}</a></li>
+	<li><a href="{$U_RATING}"><i class="icon-star"></i>{'Rating'|translate}</a></li>
+	<li><a href="{$U_TAGS}"><i class="icon-tags"></i>{'Tags'|translate}</a></li>
+	<li><a href="{$U_RECENT_SET}"><i class="icon-clock"></i>{'Recent photos'|translate}</a></li>
+	<li><a href="{$U_BATCH}"><i class="icon-pencil"></i>{'Batch Manager'|translate}</a></li>
 	{if $NB_PHOTOS_IN_CADDIE > 0}
-	<li><a href="{$U_CADDIE}"><i class="icon-flag"></i>{'Caddie'|@translate}<span class="adminMenubarCounter">{$NB_PHOTOS_IN_CADDIE}</span></a></li>
+	<li><a href="{$U_CADDIE}"><i class="icon-flag"></i>{'Caddie'|translate}<span class="adminMenubarCounter">{$NB_PHOTOS_IN_CADDIE}</span></a></li>
 	{/if}
       </ul>
     </dd>
   </dl>
   <dl>
-    <dt><i class="icon-sitemap"> </i><span>{'Albums'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-sitemap"> </i><span>{'Albums'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-        <li><a href="{$U_CATEGORIES}"><i class="icon-folder-open"></i>{'Manage'|@translate}</a></li>
-        <li><a href="{$U_CAT_OPTIONS}"><i class="icon-pencil"></i>{'Properties'|@translate}</a></li>
+        <li><a href="{$U_CATEGORIES}"><i class="icon-folder-open"></i>{'Manage'|translate}</a></li>
+        <li><a href="{$U_CAT_OPTIONS}"><i class="icon-pencil"></i>{'Properties'|translate}</a></li>
       </ul>
     </dd>
   </dl>
   <dl>
-    <dt><i class="icon-users"> </i><span>{'Users'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-users"> </i><span>{'Users'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-        <li><a href="{$U_USERS}"><i class="icon-user-add"></i>{'Manage'|@translate}</a></li>
-        <li><a href="{$U_GROUPS}"><i class="icon-group"></i>{'Groups'|@translate}</a></li>
-	<li><a href="{$U_NOTIFICATION_BY_MAIL}"><i class="icon-mail-1"></i>{'Notification'|@translate}</a></li>
+        <li><a href="{$U_USERS}"><i class="icon-user-add"></i>{'Manage'|translate}</a></li>
+        <li><a href="{$U_GROUPS}"><i class="icon-group"></i>{'Groups'|translate}</a></li>
+	<li><a href="{$U_NOTIFICATION_BY_MAIL}"><i class="icon-mail-1"></i>{'Notification'|translate}</a></li>
       </ul>
     </dd>
   </dl>
   <dl>
-    <dt><i class="icon-puzzle"> </i><span>{'Plugins'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-puzzle"> </i><span>{'Plugins'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-        <li><a href="{$U_PLUGINS}"><i class="icon-equalizer"></i>{'Manage'|@translate}</a></li>
+        <li><a href="{$U_PLUGINS}"><i class="icon-equalizer"></i>{'Manage'|translate}</a></li>
       </ul>
       <div id="pluginsMenuSeparator"></div>
       {if !empty($plugin_menu_items)}
@@ -80,36 +58,49 @@ $('#menubar').lightAccordion({
     </dd>
   </dl>
   <dl>
-    <dt><i class="icon-wrench"> </i><span>{'Tools'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-wrench"> </i><span>{'Tools'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
 	{if $ENABLE_SYNCHRONIZATION}
-        <li><a href="{$U_CAT_UPDATE}"><i class="icon-exchange"></i>{'Synchronize'|@translate}</a></li>
-        <li><a href="{$U_SITE_MANAGER}"><i class="icon-flow-branch"></i>{'Site manager'|@translate}</a></li>
+        <li><a href="{$U_CAT_UPDATE}"><i class="icon-exchange"></i>{'Synchronize'|translate}</a></li>
+        <li><a href="{$U_SITE_MANAGER}"><i class="icon-flow-branch"></i>{'Site manager'|translate}</a></li>
 	{/if}
-	<li><a href="{$U_HISTORY_STAT}"><i class="icon-signal"></i>{'History'|@translate}</a></li>
-	<li><a href="{$U_MAINTENANCE}"><i class="icon-tools"></i>{'Maintenance'|@translate}</a></li>
+	<li><a href="{$U_HISTORY_STAT}"><i class="icon-signal"></i>{'History'|translate}</a></li>
+	<li><a href="{$U_MAINTENANCE}"><i class="icon-tools"></i>{'Maintenance'|translate}</a></li>
 	{if isset($U_COMMENTS)}
-	<li><a href="{$U_COMMENTS}"><i class="icon-chat"></i>{'Comments'|@translate}
+	<li><a href="{$U_COMMENTS}"><i class="icon-chat"></i>{'Comments'|translate}
             {if $NB_PENDING_COMMENTS > 0}
             <span class="adminMenubarCounter" title="{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}">{$NB_PENDING_COMMENTS}</span>
             {/if}</a></li>
 	{/if}
-        <li><a href="{$U_UPDATES}"><i class="icon-arrows-cw"></i>{'Updates'|@translate}</a></li>
+        <li><a href="{$U_UPDATES}"><i class="icon-arrows-cw"></i>{'Updates'|translate}</a></li>
       </ul>
     </dd>
   </dl>
   <dl>
-    <dt><i class="icon-cog"> </i><span>{'Configuration'|@translate}&nbsp;</span></dt>
+    <dt><i class="icon-cog"> </i><span>{'Configuration'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-        <li><a href="{$U_CONFIG_GENERAL}"><i class="icon-cog-alt"></i>{'Options'|@translate}</a></li>
-        <li><a href="{$U_CONFIG_MENUBAR}"><i class="icon-menu"></i>{'Menu Management'|@translate}</a></li>
-	<li><a href="{$U_CONFIG_LANGUAGES}"><i class="icon-language"></i>{'Languages'|@translate}</a></li>
-        <li><a href="{$U_CONFIG_THEMES}"><i class="icon-brush"></i>{'Themes'|@translate}</a></li>
+        <li><a href="{$U_CONFIG_GENERAL}"><i class="icon-cog-alt"></i>{'Options'|translate}</a></li>
+        <li><a href="{$U_CONFIG_MENUBAR}"><i class="icon-menu"></i>{'Menu Management'|translate}</a></li>
+	<li><a href="{$U_CONFIG_LANGUAGES}"><i class="icon-language"></i>{'Languages'|translate}</a></li>
+        <li><a href="{$U_CONFIG_THEMES}"><i class="icon-brush"></i>{'Themes'|translate}</a></li>
       </ul>
     </dd>
   </dl>
+  <!--
+  <dl>
+    <dt><span>{'Development'|translate}</span></dt>
+    <dd>
+      <ul>
+	{if $U_DEV_API}
+	<li><a href="{$U_DEV_API}">API</a></li>
+	{/if}
+	<li><a href="{$U_DEV_JS_TESTS}">{'Javascript tests'|translate}</a></li>
+      </ul>
+    </dd>
+  </dl>
+  -->
 </div> <!-- menubar -->
 
 <div id="content" class="content">
@@ -117,12 +108,12 @@ $('#menubar').lightAccordion({
   {$TABSHEET}
   {/if}
   {if isset($U_HELP)}
-  {combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
+  {combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
   <ul class="HelpActions">
-    <li><a href="{$U_HELP}" onclick="popuphelp(this.href); return false;" title="{'Help'|@translate}"><img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/help.png" alt="(?)"></a></li>
+    <li><a href="{$U_HELP}" onclick="popuphelp(this.href); return false;" title="{'Help'|translate}"><img src="{$ROOT_URL}{$themeconf.admin_icon_dir}/help.png" alt="(?)"></a></li>
   </ul>
   {/if}
-  
+
   {if isset($errors)}
   <div class="errors">
     <ul>

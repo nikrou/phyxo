@@ -35,25 +35,23 @@ check_status(ACCESS_GUEST);
 //
 // Start output of page
 //
-$title= l10n('About Piwigo');
+$title= l10n('About Phyxo');
 $page['body_id'] = 'theAboutPage';
 
 trigger_notify('loc_begin_about');
 
 $template->set_filename('about', 'about.tpl');
 
-$template->assign('ABOUT_MESSAGE', load_language('about.html','', array('return'=>true)) );
+$template->assign('ABOUT_MESSAGE', load_language('about.html','', array('return' => true)));
 
 $theme_about = load_language('about.html', PHPWG_THEMES_PATH.$user['theme'].'/', array('return' => true));
-if ( $theme_about !== false )
-{
-  $template->assign('THEME_ABOUT', $theme_about);
+if ($theme_about !== false) {
+    $template->assign('THEME_ABOUT', $theme_about);
 }
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('theAboutPage', $themeconf['hide_menu_on']))
-{
+if (!isset($themeconf['hide_menu_on']) OR !in_array('theAboutPage', $themeconf['hide_menu_on'])) {
   include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
 }
 

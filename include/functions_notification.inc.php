@@ -440,67 +440,45 @@ function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false)
  * @param int $max_cats maximum number of categories per date
  * @return array
  */
-function get_recent_post_dates($max_dates, $max_elements, $max_cats)
-{
-  global $conf, $user, $persistent_cache;
+function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
+    global $conf, $user, $persistent_cache, $conn;
 
-  $cache_key = $persistent_cache->make_key('recent_posts'.$user['id'].$user['cache_update_time'].$max_dates.$max_elements.$max_cats);
-  if ($persistent_cache->get($cache_key, $cached))
-  {
-    return $cached;
-  }
-  $where_sql = get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
+    $cache_key = $persistent_cache->make_key('recent_posts'.$user['id'].$user['cache_update_time'].$max_dates.$max_elements.$max_cats);
+    if ($persistent_cache->get($cache_key, $cached)) {
+        return $cached;
+    }
+    $where_sql = get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
-  $query = '
-SELECT
-    date_available,
-    COUNT(DISTINCT id) AS nb_elements,
-    COUNT(DISTINCT category_id) AS nb_cats
-  FROM '.IMAGES_TABLE.' i INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id=image_id
-  '.$where_sql.'
-  GROUP BY date_available
-  ORDER BY date_available DESC
-  LIMIT '.$max_dates.'
-;';
-  $dates = query2array($query);
+    $query = 'SELECT date_available, COUNT(DISTINCT id) AS nb_elements,';
+    $query .= ' COUNT(DISTINCT category_id) AS nb_cats FROM '.IMAGES_TABLE.' i';
+    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = image_id';
+    $query .= ' '.$where_sql;
+    $query .= ' GROUP BY date_available ORDER BY date_available DESC LIMIT '.$max_dates.';';
+    $dates = query2array($query);
 
-  for ($i=0; $i<count($dates); $i++)
-  {
-    if ($max_elements>0)
-    { // get some thumbnails ...
-      $query = '
-SELECT DISTINCT i.*
-  FROM '.IMAGES_TABLE.' i
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id=image_id
-  '.$where_sql.'
-    AND date_available=\''.$dates[$i]['date_available'].'\'
-  ORDER BY '.DB_RANDOM_FUNCTION.'()
-  LIMIT '.$max_elements.'
-;';
-      $dates[$i]['elements'] = query2array($query);
+    for ($i=0; $i<count($dates); $i++) {
+        if ($max_elements>0) { // get some thumbnails ...
+            $query = 'SELECT DISTINCT i.* FROM '.IMAGES_TABLE.' i';
+            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = image_id';
+            $query .= ' '.$where_sql;
+            $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
+            $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT '.$max_elements.';';
+            $dates[$i]['elements'] = query2array($query);
+        }
+
+        if ($max_cats>0) { // get some categories ...
+            $query = 'SELECT DISTINCT c.uppercats, COUNT(DISTINCT i.id) AS img_count FROM '.IMAGES_TABLE.' i';
+            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON i.id = image_id';
+            $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' c ON c.id = category_id';
+            $query .= ' '.$where_sql;
+            $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
+            $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT '.$max_cats.';';
+            $dates[$i]['categories'] = query2array($query);
+        }
     }
 
-    if ($max_cats>0)
-    {// get some categories ...
-      $query = '
-SELECT
-    DISTINCT c.uppercats,
-    COUNT(DISTINCT i.id) AS img_count
-  FROM '.IMAGES_TABLE.' i
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON i.id=image_id
-    INNER JOIN '.CATEGORIES_TABLE.' c ON c.id=category_id
-  '.$where_sql.'
-    AND date_available=\''.$dates[$i]['date_available'].'\'
-  GROUP BY category_id, c.uppercats
-  ORDER BY img_count DESC
-  LIMIT '.$max_cats.'
-;';
-      $dates[$i]['categories'] = query2array($query);
-    }
-  }
-
-  $persistent_cache->set($cache_key, $dates);
-  return $dates;
+    $persistent_cache->set($cache_key, $dates);
+    return $dates;
 }
 
 /**
@@ -511,12 +489,11 @@ SELECT
  * @param array $args
  * @return array
  */
-function get_recent_post_dates_array($args)
-{
-  return get_recent_post_dates(
-    (empty($args['max_dates']) ? 3 : $args['max_dates']),
-    (empty($args['max_elements']) ? 3 : $args['max_elements']),
-    (empty($args['max_cats']) ? 3 : $args['max_cats'])
+function get_recent_post_dates_array($args) {
+    return get_recent_post_dates(
+        (empty($args['max_dates']) ? 3 : $args['max_dates']),
+        (empty($args['max_elements']) ? 3 : $args['max_elements']),
+        (empty($args['max_cats']) ? 3 : $args['max_cats'])
     );
 }
 
@@ -528,13 +505,12 @@ function get_recent_post_dates_array($args)
  * @param array $date_detail returned value of get_recent_post_dates()
  * @return string
  */
-function get_html_description_recent_post_date($date_detail)
-{
-  global $conf;
+function get_html_description_recent_post_date($date_detail) {
+    global $conf;
 
-  $description = '<ul>';
+    $description = '<ul>';
 
-  $description .=
+    $description .=
         '<li>'
         .l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
         .' ('
@@ -543,38 +519,35 @@ function get_html_description_recent_post_date($date_detail)
         .')'
         .'</li><br>';
 
-  foreach($date_detail['elements'] as $element)
-  {
-    $tn_src = DerivativeImage::thumb_url($element);
-    $description .= '<a href="'.
-                    make_picture_url(array(
-                        'image_id' => $element['id'],
-                        'image_file' => $element['file'],
-                      ))
-                    .'"><img src="'.$tn_src.'"></a>';
-  }
-  $description .= '...<br>';
+    foreach($date_detail['elements'] as $element) {
+        $tn_src = DerivativeImage::thumb_url($element);
+        $description .= '<a href="'.
+            make_picture_url(array(
+                'image_id' => $element['id'],
+                'image_file' => $element['file'],
+            )).'"><img src="'.$tn_src.'"></a>';
+    }
+    $description .= '...<br>';
 
-  $description .=
+    $description .=
         '<li>'
         .l10n_dec('%d album updated', '%d albums updated', $date_detail['nb_cats'])
         .'</li>';
 
-  $description .= '<ul>';
-  foreach($date_detail['categories'] as $cat)
-  {
-    $description .=
-          '<li>'
-          .get_cat_display_name_cache($cat['uppercats'])
-          .' ('.
-          l10n_dec('%d new photo', '%d new photos', $cat['img_count']).')'
-          .'</li>';
-  }
-  $description .= '</ul>';
+    $description .= '<ul>';
+    foreach($date_detail['categories'] as $cat) {
+        $description .=
+            '<li>'
+            .get_cat_display_name_cache($cat['uppercats'])
+            .' ('.
+            l10n_dec('%d new photo', '%d new photos', $cat['img_count']).')'
+            .'</li>';
+    }
+    $description .= '</ul>';
 
-  $description .= '</ul>';
+    $description .= '</ul>';
 
-  return $description;
+    return $description;
 }
 
 /**

@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 $lang['Upgrade'] = 'Actualizar';
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Recomendamos que faça uma actualização à sua base de dados para a versão mais recente. O assistente de actualização reconhece a sua versão como <strong>versão %s</strong> (ou equivalente).';
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = 'Recomendamos que faça uma actualização à sua base de dados para a versão mais recente. O assistente de actualização reconhece a sua versão como <strong>versão %s</strong> (ou equivalente).';
 $lang['Upgrade from version %s to %s'] = 'Actualizar da versão %s para a versão %s';
 $lang['Statistics'] = 'Estatísticas';
 $lang['total upgrade time'] = 'Tempo total de actualização';

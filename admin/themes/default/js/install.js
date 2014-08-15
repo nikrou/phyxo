@@ -1,17 +1,15 @@
 $(function() {
-	var fields_to_show_hide = 'input[name="dbhost"],input[name="dbuser"],input[name="dbpasswd"]';
 	$option_selected = $('#dblayer option:selected').attr('value');
 
 	if ($option_selected=='sqlite') {
-		$(fields_to_show_hide).parent().parent().hide();
+		$('.no-sqlite').hide();
 	}
 
-	$('#dblayer').change(function() {
-		$db = this;
-		if ($db.value=='sqlite') {
-			$(fields_to_show_hide).parent().parent().hide();
+	$(document).on('change', '#dblayer', function() {
+		if (this.value=='sqlite') {
+			$('.no-sqlite').hide();
 		} else {
-			$(fields_to_show_hide).parent().parent().show();
+			$('.no-sqlite').show();
 		}
 	});
 });

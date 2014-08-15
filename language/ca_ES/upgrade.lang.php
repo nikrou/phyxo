@@ -25,7 +25,7 @@
 
 
 $lang['Upgrade'] = "Actualització";
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Aquesta pàgina actualitza la base de dades de la teva antiga galeria Piwigo a la nova versió. L'assistent d'actualització detecta que esteu executant la <strong>versió %s</strong> (o equivalent).";
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Aquesta pàgina actualitza la base de dades de la teva antiga galeria Phyxo a la nova versió. L'assistent d'actualització detecta que esteu executant la <strong>versió %s</strong> (o equivalent).";
 $lang['Upgrade from version %s to %s'] = "Actualitzar la versió %s a la %s";
 $lang['Statistics'] = "Estadístiques";
 $lang['total upgrade time'] = "temps total d'actualització";

@@ -42,19 +42,19 @@ array(
   'name' => 'combined_css',
   'type' => 'trigger_change',
   'vars' => array('string', 'href', 'Combinable', '$combinable'),
-  'files' => array('include\template.class.php (Template::flush)'),
+  'files' => array('src\Phyxo\Template\Template.php (Template::flush)'),
 ),
 array(
   'name' => 'combined_css_postfilter',
   'type' => 'trigger_change',
   'vars' => array('string', 'css'),
-  'files' => array('include\template.class.php (Template::process_css)'),
+  'files' => array('src\Phyxo\Template\Template.php (Template::process_css)'),
 ),
 array(
   'name' => 'combined_script',
   'type' => 'trigger_change',
   'vars' => array('string', 'ret', 'string', 'script'),
-  'files' => array('include\template.class.php (Template::make_script_src)'),
+  'files' => array('src\Phyxo\Template\Template.php (Template::make_script_src)'),
 ),
 array(
   'name' => 'delete_categories',
@@ -832,7 +832,7 @@ array(
   'name' => 'combinable_preparse',
   'type' => 'trigger_notify',
   'vars' => array('Template', 'template', 'Combinable', '$combinable', 'FileCombiner', '$combiner'),
-  'files' => array('include\template.class.php (FileCombiner::process_combinable)'),
+  'files' => array('src\Phyxo\Template\FileCombiner.php (FileCombiner::process_combinable)'),
   'infos' => 'New in 2.6.',
 ),
 array(
@@ -877,17 +877,17 @@ array(
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>Piwigo Core Triggers</title>
-  
+
   <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
   <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables_themeroller.css">
-  
+
   <style type="text/css">
   /* BEGIN CSS RESET
     http://meyerweb.com/eric/tools/css/reset
     v2.0 | 20110126 | License: none (public domain) */
   html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code,
   del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li,
-  fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, 
+  fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed,
   figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video
   {margin:0;padding:0;border:0;font-size:100%;vertical-align:baseline;}
 
@@ -897,7 +897,7 @@ array(
   blockquote:before, blockquote:after, q:before, q:after {content:'';content:none;}
   table {border-collapse:collapse;border-spacing:0;}
   /* END CSS RESET */
-  
+
   html {font-family:"Corbel","Lucida Grande","Verdana",sans-serif;color:#222;font-size:13px;}
 
   a {color:#247EBF;text-decoration:none;}
@@ -911,7 +911,7 @@ array(
   #the_footer {background:#EAEAEA;border-top:1px solid #cdcdcd;padding:10px;clear:both;}
 
   #the_page {padding:20px;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAH0lEQVQImSXHMQEAMAwCMOrfK0jIjuVL2gLBzyHJtgd7wBdU3Vt/7AAAAABJRU5ErkJggg==);}
-  
+
   tfoot input {width:80%;}
   tfoot .search_input {color:#999;}
   tfoot select.search_input option:not(:first-child) {color:#222;}
@@ -937,7 +937,7 @@ array(
   </thead>
   <tbody>
 
-  <?php  
+  <?php
     foreach ($core as $trigger)
     {
       echo '
@@ -992,7 +992,7 @@ array(
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-  
+
 <script type="text/javascript">
 var oTable = $('#list').dataTable({
   "bJQueryUI": true,
@@ -1020,14 +1020,14 @@ var asInitVals = new Array();
 $("tfoot input").each(function (i) {
   asInitVals[i] = $(this).val();
 });
- 
+
 $("tfoot input").focus(function () {
   if (this.className == "search_input") {
     $(this).removeClass("search_input");
     $(this).val("");
   }
 });
- 
+
 $("tfoot input").blur(function (i) {
   if ($(this).val() == "") {
     $(this).addClass("search_input");

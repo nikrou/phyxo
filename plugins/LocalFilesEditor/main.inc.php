@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery team    http://phpwebgallery.net |
@@ -39,14 +40,14 @@ function localfiles_admin_menu($menu)
     'NAME' => 'LocalFiles Editor',
     'URL' => get_root_url().'admin.php?page=plugin-'.basename(dirname(__FILE__))
     );
-  
+
   return $menu;
 }
 
 function localfiles_css_link()
 {
   global $template;
-  
+
   $template->set_prefilter('themes', 'localfiles_css_link_prefilter');
 }
 
@@ -67,4 +68,3 @@ function localfiles_css_link_prefilter($content, &$smarty)
 
 add_event_handler('get_admin_plugin_menu_links', 'localfiles_admin_menu');
 add_event_handler('loc_begin_admin', 'localfiles_css_link');
-?>

@@ -121,7 +121,7 @@ $lang['Sent by'] = 'Lähettäjä';
 
 //works
 $lang['A comment on your site'] = 'Palaute sivultasi';
-$lang['About Piwigo'] = 'Yleistä Piwigosta';
+$lang['About Phyxo'] = 'Yleistä Phyxosta';
 $lang['Accelerate diaporama speed'] = 'Kasvata diaesityksen nopeutta';
 $lang['Add a comment'] = 'Lisää kommentti';
 $lang['add this photo to your favorites'] = 'lisää tämä kuva suosikkeihisi';

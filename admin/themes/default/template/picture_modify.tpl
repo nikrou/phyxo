@@ -4,8 +4,8 @@
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
 {assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
-{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
+{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
 {footer_script}
 (function(){
@@ -39,18 +39,18 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
 }());
 {/footer_script}
 
-<h2>{$TITLE} &#8250; {'Edit photo'|@translate} {$TABSHEET_TITLE}</h2>
+<h2>{$TITLE} &#8250; {'Edit photo'|translate} {$TABSHEET_TITLE}</h2>
 
 <form action="{$F_ACTION}" method="post" id="catModify">
 
   <fieldset>
-    <legend>{'Informations'|@translate}</legend>
+    <legend>{'Informations'|translate}</legend>
 
     <table>
 
       <tr>
         <td id="albumThumbnail">
-          <img src="{$TN_SRC}" alt="{'Thumbnail'|@translate}" class="Thumbnail">
+          <img src="{$TN_SRC}" alt="{'Thumbnail'|translate}" class="Thumbnail">
         </td>
         <td id="albumLinks" style="width:400px;vertical-align:top;">
           <ul style="padding-left:15px;margin:0;">
@@ -65,12 +65,12 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
         <td class="photoLinks">
           <ul>
           {if isset($U_JUMPTO) }
-            <li><a class="icon-eye" href="{$U_JUMPTO}">{'jump to photo'|@translate} →</a></li>
+            <li><a class="icon-eye" href="{$U_JUMPTO}">{'jump to photo'|translate} →</a></li>
           {/if}
           {if !url_is_remote($PATH)}
-            <li><a class="icon-arrows-cw" href="{$U_SYNC}">{'Synchronize metadata'|@translate}</a></li>
+            <li><a class="icon-arrows-cw" href="{$U_SYNC}">{'Synchronize metadata'|translate}</a></li>
 
-            <li><a class="icon-trash" href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|@translate|@escape:javascript}');">{'delete photo'|@translate}</a></li>
+            <li><a class="icon-trash" href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'delete photo'|translate}</a></li>
           {/if}
           </ul>
         </td>
@@ -80,22 +80,22 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
   </fieldset>
 
   <fieldset>
-    <legend>{'Properties'|@translate}</legend>
+    <legend>{'Properties'|translate}</legend>
 
     <p>
-      <strong>{'Title'|@translate}</strong>
+      <strong>{'Title'|translate}</strong>
       <br>
       <input type="text" class="large" name="name" value="{$NAME|@escape}">
     </p>
 
     <p>
-      <strong>{'Author'|@translate}</strong>
+      <strong>{'Author'|translate}</strong>
       <br>
       <input type="text" class="large" name="author" value="{$AUTHOR}">
     </p>
 
     <p>
-      <strong>{'Creation date'|@translate}</strong>
+      <strong>{'Creation date'|translate}</strong>
       <br>
       <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
       <label>
@@ -106,7 +106,7 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     </p>
 
     <p>
-      <strong>{'Linked albums'|@translate}</strong>
+      <strong>{'Linked albums'|translate}</strong>
       <br>
       <select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
         placeholder="{'Type in a search term'|translate}"
@@ -114,7 +114,7 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     </p>
 
     <p>
-      <strong>{'Representation of albums'|@translate}</strong>
+      <strong>{'Representation of albums'|translate}</strong>
       <br>
       <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
         placeholder="{'Type in a search term'|translate}"
@@ -122,7 +122,7 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     </p>
 
     <p>
-      <strong>{'Tags'|@translate}</strong>
+      <strong>{'Tags'|translate}</strong>
       <br>
       <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
         placeholder="{'Type in a search term'|translate}"
@@ -130,13 +130,13 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
     </p>
 
     <p>
-      <strong>{'Description'|@translate}</strong>
+      <strong>{'Description'|translate}</strong>
       <br>
       <textarea name="description" id="description" class="description">{$DESCRIPTION}</textarea>
     </p>
 
     <p>
-      <strong>{'Who can see this photo?'|@translate}</strong>
+      <strong>{'Who can see this photo?'|translate}</strong>
       <br>
       <select name="level" size="1">
         {html_options options=$level_options selected=$level_options_selected}
@@ -144,7 +144,7 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
    </p>
 
   <p style="margin:40px 0 0 0">
-    <input class="submit" type="submit" value="{'Save Settings'|@translate}" name="submit">
+    <input class="submit" type="submit" value="{'Save Settings'|translate}" name="submit">
   </p>
 </fieldset>
 

@@ -60,7 +60,7 @@ $lang['(!) This comment requires validation'] = '(!) Komen ini memerlukan penges
 $lang['... or browse your empty gallery'] = '... atau melayari galeri kosong anda';
 $lang['... or please deactivate this message, I will find my way by myself'] = '... atau sila menyahaktifkan mesej ini, saya akan mencari jalan saya oleh diri saya sendiri';
 $lang['A comment on your site'] = 'Satu komen di laman anda';
-$lang['About Piwigo'] = 'Mengenai Piwigo';
+$lang['About Phyxo'] = 'Mengenai Phyxo';
 $lang['About'] = 'Mengenai';
 
 $lang['Invalid key'] = 'Kunci tidak cocok';

@@ -92,7 +92,7 @@ function get_sql_search_clause($search)
     {
       $fields = array_intersect($fields, $search['fields']['allwords']['fields']);
     }
-    
+
     // in the OR mode, request bust be :
     // ((field1 LIKE '%word1%' OR field2 LIKE '%word1%')
     // OR (field1 LIKE '%word2%' OR field2 LIKE '%word2%'))
@@ -295,7 +295,7 @@ class QSearchScope
       return false;
     return true;
   }
-  
+
   function process_char(&$ch, &$crt_token)
   {
     return false;
@@ -858,52 +858,55 @@ class QResults
   var $iids;
 }
 
-function qsearch_get_text_token_search_sql($token, $fields)
-{
-  $clauses = array();
-  $variants = array_merge(array($token->term), $token->variants);
-  $fts = array();
-  foreach ($variants as $variant)
-  {
-    $use_ft = mb_strlen($variant)>3;
-    if ($token->modifier & QST_WILDCARD_BEGIN)
-      $use_ft = false;
-    if ($token->modifier & (QST_QUOTED|QST_WILDCARD_END) == (QST_QUOTED|QST_WILDCARD_END))
-      $use_ft = false;
+function qsearch_get_text_token_search_sql($token, $fields) {
+    global $conn;
 
-    if ($use_ft)
-    {
-      $max = max( array_map( 'mb_strlen',
-        preg_split('/['.preg_quote('-\'!"#$%&()*+,./:;<=>?@[\]^`{|}~','/').']+/', $variant)
-        ) );
-      if ($max<4)
-        $use_ft = false;
+    $clauses = array();
+    $variants = array_merge(array($token->term), $token->variants);
+    $fts = array();
+    foreach ($variants as $variant) {
+        $use_ft = mb_strlen($variant)>3;
+        if ($token->modifier & QST_WILDCARD_BEGIN) {
+            $use_ft = false;
+        }
+        if ($token->modifier & (QST_QUOTED|QST_WILDCARD_END) == (QST_QUOTED|QST_WILDCARD_END)) {
+            $use_ft = false;
+        }
+
+        if ($use_ft) {
+            $max = max(array_map(
+                'mb_strlen',
+                preg_split('/['.preg_quote('-\'!"#$%&()*+,./:;<=>?@[\]^`{|}~','/').']+/', $variant))
+            );
+            if ($max<4) {
+                $use_ft = false;
+            }
+        }
+
+        // odd term or too short for full text search; fallback to regex but unfortunately this is diacritic/accent sensitive
+        if (!$use_ft) {
+            $pre = ($token->modifier & QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
+            $post = ($token->modifier & QST_WILDCARD_END) ? '' : '[[:>:]]';
+            foreach( $fields as $field) {
+                $clauses[] = $field.' '.$conn::REGEX_OPERATOR.' \''.$pre.pwg_db_real_escape_string(preg_quote($variant)).$post.'\'';
+            }
+        } else {
+            $ft = $variant;
+            if ($token->modifier & QST_QUOTED) {
+                $ft = '"'.$ft.'"';
+            }
+            if ($token->modifier & QST_WILDCARD_END) {
+                $ft .= '*';
+            }
+            $fts[] = $ft;
+        }
     }
 
-    if (!$use_ft)
-    {// odd term or too short for full text search; fallback to regex but unfortunately this is diacritic/accent sensitive
-      $pre = ($token->modifier & QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
-      $post = ($token->modifier & QST_WILDCARD_END) ? '' : '[[:>:]]';
-      foreach( $fields as $field) {
-        $clauses[] = $field.' '.DB_REGEX_OPERATOR.' \''.$pre.pwg_db_real_escape_string(preg_quote($variant)).$post.'\'';
-      }
+    if (count($fts)) {
+        $clauses[] = pwg_db_full_text_search($fields, $fts);
     }
-    else
-    {
-      $ft = $variant;
-      if ($token->modifier & QST_QUOTED)
-        $ft = '"'.$ft.'"';
-      if ($token->modifier & QST_WILDCARD_END)
-        $ft .= '*';
-      $fts[] = $ft;
-    }
-  }
 
-  if (count($fts)) {
-      $clauses[] = pwg_db_full_text_search($fields, $fts);
-  }
-  
-  return $clauses;
+    return $clauses;
 }
 
 function qsearch_get_images(QExpression $expr, QResults $qsr)

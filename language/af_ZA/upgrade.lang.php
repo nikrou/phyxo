@@ -24,7 +24,7 @@
 
 $lang['Upgrade'] = "Upgrade";
 $lang['Upgrade'] = "Opgradering";
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Hierdie blad se doel is om die Piwigo databasis van 'n ou na nuwer weergawe te opgradeer. Die opgraderingassistent dink jy gebruik tans <strong>weergawe %s</strong> (of ekwivalent).";
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "Hierdie blad se doel is om die Piwigo databasis van 'n ou na nuwer weergawe te opgradeer. Die opgraderingassistent dink jy gebruik tans <strong>weergawe %s</strong> (of ekwivalent).";
 $lang['Upgrade from version %s to %s'] = "Opgradeer van weergawe %s na %s";
 $lang['Statistics'] = "Statistiek";
 $lang['total upgrade time'] = "totale opgraderingstyd";

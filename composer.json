@@ -12,7 +12,8 @@
 	"require": {
 		"php": ">=5.3.0",
 		"smarty/smarty": "v3.1.13",
-		"phpmailer/phpmailer": "v5.2.7"
+		"phpmailer/phpmailer": "v5.2.7",
+		"jdorn/sql-formatter": "1.*"
 	},
 	"require-dev": {
 		"atoum/atoum": "dev-master"

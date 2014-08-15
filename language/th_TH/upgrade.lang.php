@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 $lang['Upgrade'] = "อัพเกรด";
-$lang['This page proposes to upgrade your database corresponding to your old version of Piwigo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "หน้านี้คือ หน้าการอัพเกรดฐานข้อมูลจาก Piwigo เวอร์ชั่นเก่าของคุณ ไปยังเวอร์ชั่นใหม่. ซึ่งการอัพเกรดจะทำให้ ระบบ Piwigo แกลลอรี่ ของคุณเป็นปัจจบัน หรือเป็นการใช้งานบนเวอร์ชั่นที่ถูก <strong>ปล่อย %s</strong> (หรือ เทียบเท่า).";
+$lang['This page proposes to upgrade your database corresponding to your old version of Phyxo to the current version. The upgrade assistant thinks you are currently running a <strong>release %s</strong> (or equivalent).'] = "หน้านี้คือ หน้าการอัพเกรดฐานข้อมูลจาก Piwigo เวอร์ชั่นเก่าของคุณ ไปยังเวอร์ชั่นใหม่. ซึ่งการอัพเกรดจะทำให้ ระบบ Piwigo แกลลอรี่ ของคุณเป็นปัจจบัน หรือเป็นการใช้งานบนเวอร์ชั่นที่ถูก <strong>ปล่อย %s</strong> (หรือ เทียบเท่า).";
 $lang['Upgrade from version %s to %s'] = "อัพเกรดจากเวอร์ชั่น %s ไปยัง %s";
 $lang['Statistics'] = "สถิติ";
 $lang['total upgrade time'] = "ระยะเวลาการอัพเกรดทั้งหมด";

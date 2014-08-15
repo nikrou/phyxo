@@ -27,7 +27,12 @@ define('PHPWG_ROOT_PATH','./');
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
-@set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
+use Phyxo\DBLayer\DBLayer;
+use Phyxo\Theme\Themes;
+use Phyxo\Language\Languages;
+use Phyxo\Template\Template;
+
+// @TODO: remove that ugly code
 //
 // addslashes to vars if magic_quotes_gpc is off this is a security
 // precaution to prevent someone trying to break out of a SQL statement.
@@ -99,17 +104,16 @@ if( !@get_magic_quotes_gpc() )
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
-if (isset($_POST['install']))
-{
-  $prefixeTable = $_POST['prefix'];
-}
-else
-{
-  $prefixeTable = DEFAULT_PREFIX_TABLE;
+if (isset($_POST['install'])) {
+    $prefixeTable = $_POST['prefix'];
+} else {
+    $prefixeTable = DEFAULT_PREFIX_TABLE;
 }
 
 include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-@include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
+if (is_readable(PHPWG_ROOT_PATH. 'local/config/config.inc.php')) {
+    include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
+}
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
 include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
@@ -117,18 +121,17 @@ include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 // download database config file if exists
 check_input_parameter('dl', $_GET, false, '/^[a-f0-9]{32}$/');
 
-if (!empty($_GET['dl']) && file_exists(PHPWG_ROOT_PATH.$conf['data_location'].'pwg_'.$_GET['dl']))
-{
-  $filename = PHPWG_ROOT_PATH.$conf['data_location'].'pwg_'.$_GET['dl'];
-  header('Cache-Control: no-cache, must-revalidate');
-  header('Pragma: no-cache');
-  header('Content-Disposition: attachment; filename="database.inc.php"');
-  header('Content-Transfer-Encoding: binary');
-  header('Content-Length: '.filesize($filename));
-  echo file_get_contents($filename);
-  unlink($filename);
-  exit();
-} 
+if (!empty($_GET['dl']) && file_exists(PHPWG_ROOT_PATH.$conf['data_location'].'pwg_'.$_GET['dl'])) {
+    $filename = PHPWG_ROOT_PATH.$conf['data_location'].'pwg_'.$_GET['dl'];
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Pragma: no-cache');
+    header('Content-Disposition: attachment; filename="database.inc.php"');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: '.filesize($filename));
+    echo file_get_contents($filename);
+    unlink($filename);
+    exit();
+}
 
 // all available engines
 include(PHPWG_ROOT_PATH . 'admin/include/functions_install.inc.php');
@@ -154,43 +157,34 @@ $infos = array();
 $errors = array();
 
 $config_file = PHPWG_ROOT_PATH.PWG_LOCAL_DIR .'config/database.inc.php';
-if (@file_exists($config_file))
-{
-  include($config_file);
-  // Is Phyxo already installed ?
-  if (defined("PHPWG_INSTALLED"))
-  {
-    die('Phyxo is already installed');
-  }
+if (is_readable($config_file)) {
+    include($config_file);
+    // Is Phyxo already installed ?
+    if (defined("PHPWG_INSTALLED")) {
+        die('Phyxo is already installed');
+    }
 }
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 include(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-include(PHPWG_ROOT_PATH . 'admin/include/languages.class.php');
-$languages = new languages('utf-8');
+$languages = new Languages(null, 'utf-8');
 
-if (isset($_GET['language']))
-{
-  $language = strip_tags($_GET['language']);
-  
-  if (!in_array($language, array_keys($languages->fs_languages)))
-  {
-    $language = PHPWG_DEFAULT_LANGUAGE;
-  }
-}
-else
-{
-  $language = 'en_UK';
-  // Try to get browser language
-  foreach ($languages->fs_languages as $language_code => $fs_language)
-  {
-    if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2))
-    {
-      $language = $language_code;
-      break;
+if (isset($_GET['language'])) {
+    $language = strip_tags($_GET['language']);
+
+    if (!in_array($language, array_keys($languages->fs_languages))) {
+        $language = PHPWG_DEFAULT_LANGUAGE;
     }
-  }
+} else {
+    $language = 'en_UK';
+    // Try to get browser language
+    foreach ($languages->fs_languages as $language_code => $fs_language) {
+        if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {
+            $language = $language_code;
+            break;
+        }
+    }
 }
 
 load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8'));
@@ -199,21 +193,19 @@ load_language('install.lang', '', array('language' => $language, 'target_charset
 
 header('Content-Type: text/html; charset=UTF-8');
 //------------------------------------------------- check php version
-if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<'))
-{
-  include(PHPWG_ROOT_PATH.'install/php5_apache_configuration.php');
+if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<')) {
+    include(PHPWG_ROOT_PATH.'install/php5_apache_configuration.php');
 }
 
 //----------------------------------------------------- template initialization
 $template = new Template(PHPWG_ROOT_PATH.'admin/themes', 'clear');
 $template->set_filenames( array('install' => 'install.tpl') );
-if (!isset($step))
-{
-  $step = 1;
+if (!isset($step)) {
+    $step = 1;
 }
 
 //---------------------------------------------------------------- form analyze
-include(PHPWG_ROOT_PATH .'include/dblayer/functions_'.$dblayer.'.inc.php');
+include(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
 include(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
 if (isset($_POST['install'])) {
@@ -229,8 +221,12 @@ if (isset($_POST['install'])) {
         }
     }
     if (empty($errors)) {
-        install_db_connect($infos, $errors);
-        pwg_db_check_charset();
+        try {
+            $conn = DBLayer::init($_POST['dblayer'], $_POST['dbhost'], $_POST['dbuser'], $_POST['dbpasswd'], $_POST['dbname']);
+            pwg_db_check_version();
+        } catch (Exception $e) {
+            $errors[] = l10n($e->getMessage());
+        }
     }
 
     $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
@@ -269,10 +265,10 @@ define(\'DB_COLLATE\', \'\');';
 
         @umask(0111);
         // writing the configuration file
-        if ( !($fp = @fopen( $config_file, 'w' ))) {
+        if (!($fp = @fopen( $config_file, 'w' ))) {
             // make sure nobody can list files of _data directory
             secure_directory(PHPWG_ROOT_PATH.$conf['data_location']);
-            
+
             $tmp_filename = md5(uniqid(time()));
             $fh = @fopen( PHPWG_ROOT_PATH.$conf['data_location'] . 'pwg_' . $tmp_filename, 'w' );
             @fputs($fh, $file_content, strlen($file_content));
@@ -304,16 +300,15 @@ define(\'DB_COLLATE\', \'\');';
             $dblayer
         );
 
-        $query = '
-INSERT INTO '.$prefixeTable.'config (param,value,comment) 
-   VALUES (\'secret_key\',md5('.pwg_db_cast_to_text(DB_RANDOM_FUNCTION.'()').'),
-   \'a secret key specific to the gallery for internal use\');';
-        pwg_query($query);
-    
-        conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
+        conf_update_param(
+            'secret_key',
+            'md5('.pwg_db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
+            'a secret key specific to the gallery for internal use'
+        );
+        conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
         conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
         conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
-        
+
         // fill languages table
         foreach ($languages->fs_languages as $language_code => $fs_language) {
             $languages->perform_action('activate', $language_code);
@@ -327,12 +322,18 @@ INSERT INTO '.$prefixeTable.'config (param,value,comment)
         if (!defined('PWG_CHARSET')) {
             define('PWG_CHARSET', 'utf-8');
         }
-        activate_core_themes();
-        
-        $insert = array(
-            'id' => 1,
-            'galleries_url' => PHPWG_ROOT_PATH.'galleries/',
-        );
+
+        /**
+         * Automatically activate all core themes in the "themes" directory.
+         */
+        $themes = new Themes();
+        foreach ($themes->fs_themes as $theme_id => $fs_theme) {
+            if (in_array($theme_id, array('elegant', 'smartpocket'))) {
+                $themes->perform_action('activate', $theme_id);
+            }
+        }
+
+        $insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH.'galleries/');
         mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
 
         // webmaster admin user
@@ -349,9 +350,9 @@ INSERT INTO '.$prefixeTable.'config (param,value,comment)
             ),
         );
         mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
-        
+
         create_user_infos(array(1,2), array('language' => $language));
-        
+
         // Available upgrades must be ignored after a fresh installation. To
         // make PWG avoid upgrading, we must tell it upgrades have already been
         // made.
@@ -374,104 +375,94 @@ INSERT INTO '.$prefixeTable.'config (param,value,comment)
 }
 
 //------------------------------------------------------ start template output
-foreach ($languages->fs_languages as $language_code => $fs_language)
-{
-  if ($language == $language_code)
-  {
-    $template->assign('language_selection', $language_code);
-  }
-  $languages_options[$language_code] = $fs_language['name'];
+foreach ($languages->fs_languages as $language_code => $fs_language) {
+    if ($language == $language_code) {
+        $template->assign('language_selection', $language_code);
+    }
+    $languages_options[$language_code] = $fs_language['name'];
 }
 $template->assign('language_options', $languages_options);
 
 $template->assign(
-  array(
-    'T_CONTENT_ENCODING' => 'utf-8',
-    'RELEASE' => PHPWG_VERSION,
-    'F_ACTION' => 'install.php?language=' . $language,
-    'F_DB_ENGINES' => $dbengines,
-    'F_DB_LAYER' => $dblayer,
-    'F_DB_HOST' => $dbhost,
-    'F_DB_USER' => $dbuser,
-    'F_DB_NAME' => $dbname,
-    'F_DB_PREFIX' => $prefixeTable,
-    'F_ADMIN' => $admin_name,
-    'F_ADMIN_EMAIL' => $admin_mail,
-    'EMAIL' => '<span class="adminEmail">'.$admin_mail.'</span>'
-    ));
+    array(
+        'T_CONTENT_ENCODING' => 'utf-8',
+        'RELEASE' => PHPWG_VERSION,
+        'F_ACTION' => 'install.php?language=' . $language,
+        'F_DB_ENGINES' => $dbengines,
+        'F_DB_LAYER' => $dblayer,
+        'F_DB_HOST' => $dbhost,
+        'F_DB_USER' => $dbuser,
+        'F_DB_NAME' => $dbname,
+        'F_DB_PREFIX' => $prefixeTable,
+        'F_ADMIN' => $admin_name,
+        'F_ADMIN_EMAIL' => $admin_mail,
+        'EMAIL' => '<span class="adminEmail">'.$admin_mail.'</span>'
+    )
+);
 
 //------------------------------------------------------ errors & infos display
-if ($step == 1)
-{
-  $template->assign('install', true);
-}
-else
-{
-  $infos[] = l10n('Congratulations, Phyxo installation is completed');
+if ($step == 1) {
+    $template->assign('install', true);
+} else {
+    $infos[] = l10n('Congratulations, Phyxo installation is completed');
 
-  if (isset($error_copy))
-  {
-    $errors[] = $error_copy;
-  }
-  else
-  {
-    session_set_save_handler('pwg_session_open',
-      'pwg_session_close',
-      'pwg_session_read',
-      'pwg_session_write',
-      'pwg_session_destroy',
-      'pwg_session_gc'
-    );
-    if ( function_exists('ini_set') )
-    {
-      ini_set('session.use_cookies', $conf['session_use_cookies']);
-      ini_set('session.use_only_cookies', $conf['session_use_only_cookies']);
-      ini_set('session.use_trans_sid', intval($conf['session_use_trans_sid']));
-      ini_set('session.cookie_httponly', 1);
-    }
-    session_name($conf['session_name']);
-    session_set_cookie_params(0, cookie_path());
-    register_shutdown_function('session_write_close');
-    
-    $user = build_user(1, true);
-    log_user($user['id'], false);
-    
-    // email notification
-    if (isset($_POST['send_password_by_mail']))
-    {
-      include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
-            
-      $keyargs_content = array(
-        get_l10n_args('Hello %s,', $admin_name),
-        get_l10n_args('Welcome to your new installation of Phyxo!', ''),
-        get_l10n_args('', ''),
-        get_l10n_args('Here are your connection settings', ''),
-        get_l10n_args('Username: %s', $admin_name),
-        get_l10n_args('Password: %s', $admin_pass1),
-        get_l10n_args('Email: %s', $admin_mail),
-        get_l10n_args('', ''),
-        get_l10n_args('Don\'t hesitate to consult our forums for any help: %s', PHPWG_URL),
+    if (isset($error_copy)) {
+        $errors[] = $error_copy;
+    } else {
+        session_set_save_handler('pwg_session_open',
+        'pwg_session_close',
+        'pwg_session_read',
+        'pwg_session_write',
+        'pwg_session_destroy',
+        'pwg_session_gc'
         );
-        
-      pwg_mail(
-        $admin_mail,
-        array(
-          'subject' => l10n('Just another Phyxo gallery'),
-          'content' => l10n_args($keyargs_content),
-          'content_format' => 'text/plain',
-          )
-        );
+        if (function_exists('ini_set')) {
+            ini_set('session.use_cookies', $conf['session_use_cookies']);
+            ini_set('session.use_only_cookies', $conf['session_use_only_cookies']);
+            ini_set('session.use_trans_sid', intval($conf['session_use_trans_sid']));
+            ini_set('session.cookie_httponly', 1);
+        }
+        session_name($conf['session_name']);
+        session_set_cookie_params(0, cookie_path());
+        register_shutdown_function('session_write_close');
+
+        $user = build_user(1, true);
+        log_user($user['id'], false);
+
+        // email notification
+        if (isset($_POST['send_password_by_mail'])) {
+            include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+
+            $keyargs_content = array(
+                get_l10n_args('Hello %s,', $admin_name),
+                get_l10n_args('Welcome to your new installation of Phyxo!', ''),
+                get_l10n_args('', ''),
+                get_l10n_args('Here are your connection settings', ''),
+                get_l10n_args('Username: %s', $admin_name),
+                get_l10n_args('Password: %s', $admin_pass1),
+                get_l10n_args('Email: %s', $admin_mail),
+                get_l10n_args('', ''),
+                get_l10n_args('Don\'t hesitate to consult our forums for any help: %s', PHPWG_URL),
+            );
+
+            pwg_mail(
+                $admin_mail,
+                array(
+                    'subject' => l10n('Just another Phyxo gallery'),
+                    'content' => l10n_args($keyargs_content),
+                    'content_format' => 'text/plain',
+                )
+            );
+        }
     }
-  }
-}
-if (count($errors) != 0)
-{
-  $template->assign('errors', $errors);
 }
 
-if (count($infos) != 0 )
-{
-  $template->assign('infos', $infos);
+if (count($errors) != 0) {
+    $template->assign('errors', $errors);
+}
+
+if (count($infos) != 0 ) {
+    $template->assign('infos', $infos);
 }
 
 //----------------------------------------------------------- html code display

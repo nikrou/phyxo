@@ -4,17 +4,17 @@
 
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 
-{combine_script id='jquery.ui.slider' require='jquery.ui' load='footer' path='themes/default/js/ui/minified/jquery.ui.slider.min.js'}
-{combine_css path="themes/default/js/ui/theme/jquery.ui.slider.css"}
+{combine_script id='jquery.ui.slider' require='jquery.ui' load='footer' path='admin/themes/default/js/ui/minified/jquery.ui.slider.min.js'}
+{combine_css path="admin/themes/default/js/ui/theme/jquery.ui.slider.css"}
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
 {assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
-{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
+{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
+{combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
 
-{combine_script id='jquery.progressBar' load='async' path='themes/default/js/plugins/jquery.progressbar.min.js'}
-{combine_script id='jquery.ajaxmanager' load='async' path='themes/default/js/plugins/jquery.ajaxmanager.js'}
+{combine_script id='jquery.progressBar' load='async' path='admin/themes/default/js/plugins/jquery.progressbar.min.js'}
+{combine_script id='jquery.ajaxmanager' load='async' path='admin/themes/default/js/plugins/jquery.ajaxmanager.js'}
 
 {combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum' path='admin/themes/default/js/batchManagerGlobal.js'}
 
@@ -72,12 +72,12 @@ jQuery(document).ready(function() {
 
 var nb_thumbs_page = {$nb_thumbs_page};
 var nb_thumbs_set = {$nb_thumbs_set};
-var applyOnDetails_pattern = "{'on the %d selected photos'|@translate}";
+var applyOnDetails_pattern = "{'on the %d selected photos'|translate}";
 var all_elements = [{if !empty($all_elements)}{','|@implode:$all_elements}{/if}];
 
-var selectedMessage_pattern = "{'%d of %d photos selected'|@translate}";
-var selectedMessage_none = "{'No photo selected, %d photos in current set'|@translate}";
-var selectedMessage_all = "{'All %d photos are selected'|@translate}";
+var selectedMessage_pattern = "{'%d of %d photos selected'|translate}";
+var selectedMessage_none = "{'No photo selected, %d photos in current set'|translate}";
+var selectedMessage_all = "{'All %d photos are selected'|translate}";
 
 $(document).ready(function() {
   function checkPermitAction() {
@@ -298,7 +298,7 @@ $(document).ready(function() {
 			dimension_values[type][ui.values[1]]
 		));
 	}
-	
+
   $("#filter_dimension_width_slider").slider({
     range: true,
     min: 0,
@@ -362,19 +362,19 @@ $(document).ready(function() {
 
 <div id="batchManagerGlobal">
 
-<h2>{'Batch Manager'|@translate}</h2>
+<h2>{'Batch Manager'|translate}</h2>
 
   <form action="{$F_ACTION}" method="post">
 	<input type="hidden" name="start" value="{$START}">
 
   <fieldset>
-    <legend>{'Filter'|@translate}</legend>
+    <legend>{'Filter'|translate}</legend>
 
     <ul id="filterList">
       <li id="filter_prefilter" {if !isset($filter.prefilter)}style="display:none"{/if}>
-        <a href="#" class="removeFilter" title="{'remove this filter'|@translate}"><span>[x]</span></a>
+        <a href="#" class="removeFilter" title="{'remove this filter'|translate}"><span>[x]</span></a>
         <input type="checkbox" name="filter_prefilter_use" class="useFilterCheckbox" {if isset($filter.prefilter)}checked="checked"{/if}>
-        {'Predefined filter'|@translate}
+        {'Predefined filter'|translate}
         <select name="filter_prefilter">
           {foreach from=$prefilters item=prefilter}
           <option value="{$prefilter.ID}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
@@ -385,61 +385,61 @@ $(document).ready(function() {
       <li id="filter_category" {if !isset($filter.category)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {if isset($filter.category)}checked="checked"{/if}>
-        {'Album'|@translate}
+        {'Album'|translate}
         <select data-selectize="categories" data-value="{$filter_category_selected|@json_encode|escape:html}"
           data-default="first" name="filter_category" style="width:400px"></select>
-        <label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|@translate}</label>
+        <label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|translate}</label>
       </li>
 
       <li id="filter_tags" {if !isset($filter.tags)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {if isset($filter.tags)}checked="checked"{/if}>
-        {'Tags'|@translate}
+        {'Tags'|translate}
         <select data-selectize="tags" data-value="{$filter_tags|@json_encode|escape:html}"
           placeholder="{'Type in a search term'|translate}"
           name="filter_tags[]" multiple style="width:400px;"></select>
-        <label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|@translate}</span></label>
-        <label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|@translate}</span></label>
+        <label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|translate}</span></label>
+        <label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|translate}</span></label>
       </li>
 
       <li id="filter_level" {if !isset($filter.level)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {if isset($filter.level)}checked="checked"{/if}>
-        {'Privacy level'|@translate}
+        {'Privacy level'|translate}
         <select name="filter_level" size="1">
           {html_options options=$filter_level_options selected=$filter_level_options_selected}
         </select>
-        <label><input type="checkbox" name="filter_level_include_lower" {if isset($filter.level_include_lower)}checked="checked"{/if}> {'include photos with lower privacy level'|@translate}</label>
+        <label><input type="checkbox" name="filter_level_include_lower" {if isset($filter.level_include_lower)}checked="checked"{/if}> {'include photos with lower privacy level'|translate}</label>
       </li>
 
       <li id="filter_dimension" {if !isset($filter.dimension)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
         <input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {if isset($filter.dimension)}checked="checked"{/if}>
-        {'Dimensions'|@translate}
+        {'Dimensions'|translate}
 
         <blockquote>
-          {'Width'|@translate} <span id="filter_dimension_width_info">{'between %d and %d pixels'|@translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
-          | <a class="dimensions-choice" data-type="width" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|@translate}</a>
+          {'Width'|translate} <span id="filter_dimension_width_info">{'between %d and %d pixels'|translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
+          | <a class="dimensions-choice" data-type="width" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|translate}</a>
           <div id="filter_dimension_width_slider"></div>
 
-          {'Height'|@translate} <span id="filter_dimension_height_info">{'between %d and %d pixels'|@translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
-          | <a class="dimensions-choice" data-type="height" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|@translate}</a>
+          {'Height'|translate} <span id="filter_dimension_height_info">{'between %d and %d pixels'|translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
+          | <a class="dimensions-choice" data-type="height" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|translate}</a>
           <div id="filter_dimension_height_slider"></div>
 
-          {'Ratio'|@translate} ({'Width'|@translate}/{'Height'|@translate}) <span id="filter_dimension_ratio_info">{'between %.2f and %.2f'|@translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
+          {'Ratio'|translate} ({'Width'|translate}/{'Height'|translate}) <span id="filter_dimension_ratio_info">{'between %.2f and %.2f'|translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
 {if isset($dimensions.ratio_portrait)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|@translate}</a>
+          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|translate}</a>
 {/if}
 {if isset($dimensions.ratio_square)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_square.min}" data-max="{$dimensions.ratio_square.max}">{'square'|@translate}</a>
+          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_square.min}" data-max="{$dimensions.ratio_square.max}">{'square'|translate}</a>
 {/if}
 {if isset($dimensions.ratio_landscape)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_landscape.min}" data-max="{$dimensions.ratio_landscape.max}">{'Landscape'|@translate}</a>
+          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_landscape.min}" data-max="{$dimensions.ratio_landscape.max}">{'Landscape'|translate}</a>
 {/if}
 {if isset($dimensions.ratio_panorama)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_panorama.min}" data-max="{$dimensions.ratio_panorama.max}">{'Panorama'|@translate}</a>
+          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_panorama.min}" data-max="{$dimensions.ratio_panorama.max}">{'Panorama'|translate}</a>
 {/if}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.bounds.min_ratio}" data-max="{$dimensions.bounds.max_ratio}">{'Reset'|@translate}</a>
+          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.bounds.min_ratio}" data-max="{$dimensions.bounds.max_ratio}">{'Reset'|translate}</a>
           <div id="filter_dimension_ratio_slider"></div>
         </blockquote>
 
@@ -454,48 +454,48 @@ $(document).ready(function() {
 			<li id="filter_search"{if !isset($filter.search)} style="display:none"{/if}>
 				<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
 				<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{if isset($filter.search)} checked="checked"{/if}>
-				{'Search'|@translate}
+				{'Search'|translate}
 				<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
-				{combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
-				<a href="admin/popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|@translate}"><span class="icon-help-circled"></span></a>
+				{combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
+				<a href="admin/popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
 			</li>
     </ul>
 
     <p class="actionButtons">
       <select id="addFilter">
-        <option value="-1">{'Add a filter'|@translate}</option>
+        <option value="-1">{'Add a filter'|translate}</option>
         <option disabled="disabled">------------------</option>
-        <option value="filter_prefilter" {if isset($filter.prefilter)}disabled="disabled"{/if}>{'Predefined filter'|@translate}</option>
-        <option value="filter_category" {if isset($filter.category)}disabled="disabled"{/if}>{'Album'|@translate}</option>
-        <option value="filter_tags" {if isset($filter.tags)}disabled="disabled"{/if}>{'Tags'|@translate}</option>
-        <option value="filter_level" {if isset($filter.level)}disabled="disabled"{/if}>{'Privacy level'|@translate}</option>
-        <option value="filter_dimension" {if isset($filter.dimension)}disabled="disabled"{/if}>{'Dimensions'|@translate}</option>
-				<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|@translate}</option>
+        <option value="filter_prefilter" {if isset($filter.prefilter)}disabled="disabled"{/if}>{'Predefined filter'|translate}</option>
+        <option value="filter_category" {if isset($filter.category)}disabled="disabled"{/if}>{'Album'|translate}</option>
+        <option value="filter_tags" {if isset($filter.tags)}disabled="disabled"{/if}>{'Tags'|translate}</option>
+        <option value="filter_level" {if isset($filter.level)}disabled="disabled"{/if}>{'Privacy level'|translate}</option>
+        <option value="filter_dimension" {if isset($filter.dimension)}disabled="disabled"{/if}>{'Dimensions'|translate}</option>
+				<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|translate}</option>
       </select>
-      <a id="removeFilters">{'Remove all filters'|@translate}</a>
+      <a id="removeFilters">{'Remove all filters'|translate}</a>
     </p>
 
     <p class="actionButtons" id="applyFilterBlock">
-      <input id="applyFilter" class="submit" type="submit" value="{'Refresh photo set'|@translate}" name="submitFilter">
+      <input id="applyFilter" class="submit" type="submit" value="{'Refresh photo set'|translate}" name="submitFilter">
     </p>
 
   </fieldset>
 
   <fieldset>
 
-    <legend>{'Selection'|@translate}</legend>
+    <legend>{'Selection'|translate}</legend>
 
   {if !empty($thumbnails)}
   <p id="checkActions">
-    {'Select:'|@translate}
+    {'Select:'|translate}
 {if $nb_thumbs_set > $nb_thumbs_page}
-    <a href="#" id="selectAll">{'The whole page'|@translate}</a>,
-    <a href="#" id="selectSet">{'The whole set'|@translate}</a>,
+    <a href="#" id="selectAll">{'The whole page'|translate}</a>,
+    <a href="#" id="selectSet">{'The whole set'|translate}</a>,
 {else}
-    <a href="#" id="selectAll">{'All'|@translate}</a>,
+    <a href="#" id="selectAll">{'All'|translate}</a>,
 {/if}
-    <a href="#" id="selectNone">{'None'|@translate}</a>,
-    <a href="#" id="selectInvert">{'Invert'|@translate}</a>
+    <a href="#" id="selectNone">{'None'|translate}</a>,
+    <a href="#" id="selectInvert">{'Invert'|translate}</a>
 
     <span id="selectedMessage"></span>
 
@@ -518,10 +518,10 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 				<label>
 					<input type="checkbox" name="selection[]" value="{$thumbnail.id}" {if $isSelected}checked="checked"{/if}>
 					<span class="wrap2{if $isSelected} thumbSelected{/if}">
-					<div class="actions"><a href="{$thumbnail.FILE_SRC}" class="preview-box">{'Zoom'|@translate}</a> &middot; <a href="{$thumbnail.U_EDIT}" target="_blank">{'Edit'|@translate}</a></div>
+					<div class="actions"><a href="{$thumbnail.FILE_SRC}" class="preview-box">{'Zoom'|translate}</a> &middot; <a href="{$thumbnail.U_EDIT}" target="_blank">{'Edit'|translate}</a></div>
 						{if $thumbnail.level > 0}
-						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
-						<em class="levelIndicatorF" title="{'Who can see these photos?'|@translate} : ">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
+						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
+						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
 						{/if}
 						<img src="{$thumbnail.thumb->get_url()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|@escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
 					</span>
@@ -538,50 +538,50 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     {include file='navigation_bar.tpl'|@get_extent:'navbar'}
     </div>
 
-    <div style="float:right;margin-top:10px;">{'display'|@translate}
+    <div style="float:right;margin-top:10px;">{'display'|translate}
       <a href="{$U_DISPLAY}&amp;display=20">20</a>
       &middot; <a href="{$U_DISPLAY}&amp;display=50">50</a>
       &middot; <a href="{$U_DISPLAY}&amp;display=100">100</a>
-      &middot; <a href="{$U_DISPLAY}&amp;display=all">{'all'|@translate}</a>
-      {'photos per page'|@translate}
+      &middot; <a href="{$U_DISPLAY}&amp;display=all">{'all'|translate}</a>
+      {'photos per page'|translate}
     </div>
   </div>
   {/if}
 
   {else}
-  <div>{'No photo in the current set.'|@translate}</div>
+  <div>{'No photo in the current set.'|translate}</div>
   {/if}
   </fieldset>
 
   <fieldset id="action">
 
-    <legend>{'Action'|@translate}</legend>
-      <div id="forbidAction"{if count($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|@translate}</div>
+    <legend>{'Action'|translate}</legend>
+      <div id="forbidAction"{if count($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
       <div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
 
     <select name="selectAction">
-      <option value="-1">{'Choose an action'|@translate}</option>
+      <option value="-1">{'Choose an action'|translate}</option>
       <option disabled="disabled">------------------</option>
-      <option value="delete" class="icon-trash">{'Delete selected photos'|@translate}</option>
-      <option value="associate">{'Associate to album'|@translate}</option>
-      <option value="move">{'Move to album'|@translate}</option>
-      <option value="dissociate" class="albumDissociate" style="display:none">{'Dissociate from album'|@translate}</option>
-      <option value="add_tags">{'Add tags'|@translate}</option>
+      <option value="delete" class="icon-trash">{'Delete selected photos'|translate}</option>
+      <option value="associate">{'Associate to album'|translate}</option>
+      <option value="move">{'Move to album'|translate}</option>
+      <option value="dissociate" class="albumDissociate" style="display:none">{'Dissociate from album'|translate}</option>
+      <option value="add_tags">{'Add tags'|translate}</option>
   {if !empty($associated_tags)}
-      <option value="del_tags">{'remove tags'|@translate}</option>
+      <option value="del_tags">{'remove tags'|translate}</option>
   {/if}
-      <option value="author">{'Set author'|@translate}</option>
-      <option value="title">{'Set title'|@translate}</option>
-      <option value="date_creation">{'Set creation date'|@translate}</option>
-      <option value="level" class="icon-lock">{'Who can see these photos?'|@translate}</option>
-      <option value="metadata">{'Synchronize metadata'|@translate}</option>
+      <option value="author">{'Set author'|translate}</option>
+      <option value="title">{'Set title'|translate}</option>
+      <option value="date_creation">{'Set creation date'|translate}</option>
+      <option value="level" class="icon-lock">{'Who can see these photos?'|translate}</option>
+      <option value="metadata">{'Synchronize metadata'|translate}</option>
   {if ($IN_CADDIE)}
-      <option value="remove_from_caddie">{'Remove from caddie'|@translate}</option>
+      <option value="remove_from_caddie">{'Remove from caddie'|translate}</option>
   {else}
-      <option value="add_to_caddie">{'Add to caddie'|@translate}</option>
+      <option value="add_to_caddie">{'Add to caddie'|translate}</option>
   {/if}
-		<option value="delete_derivatives">{'Delete multiple size images'|@translate}</option>
-		<option value="generate_derivatives">{'Generate multiple size images'|@translate}</option>
+		<option value="delete_derivatives">{'Delete multiple size images'|translate}</option>
+		<option value="generate_derivatives">{'Generate multiple size images'|translate}</option>
   {if !empty($element_set_global_plugins_actions)}
     {foreach from=$element_set_global_plugins_actions item=action}
       <option value="{$action.ID}">{$action.NAME}</option>
@@ -591,21 +591,21 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- delete -->
     <div id="action_delete" class="bulkAction">
-    <p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|@translate}</label></p>
+    <p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|translate}</label></p>
     </div>
 
     <!-- associate -->
     <div id="action_associate" class="bulkAction">
       <select data-selectize="categories" data-default="first" name="associate" style="width:400px"></select>
-      <br>{'... or '|@translate}
-      <a href="#" data-add-album="associate" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
+      <br>{'... or '|translate}
+      <a href="#" data-add-album="associate" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </div>
 
     <!-- move -->
     <div id="action_move" class="bulkAction">
       <select data-selectize="categories" data-default="first" name="move" style="width:400px"></select>
-      <br>{'... or '|@translate}
-      <a href="#" data-add-album="move" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
+      <br>{'... or '|translate}
+      <a href="#" data-add-album="move" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </div>
 
 
@@ -636,21 +636,21 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- author -->
     <div id="action_author" class="bulkAction">
-    <label><input type="checkbox" name="remove_author"> {'remove author'|@translate}</label><br>
-    {assign var='authorDefaultValue' value='Type here the author name'|@translate}
+    <label><input type="checkbox" name="remove_author"> {'remove author'|translate}</label><br>
+    {assign var='authorDefaultValue' value='Type here the author name'|translate}
 <input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
     </div>
 
     <!-- title -->
     <div id="action_title" class="bulkAction">
-    <label><input type="checkbox" name="remove_title"> {'remove title'|@translate}</label><br>
-    {assign var='titleDefaultValue' value='Type here the title'|@translate}
+    <label><input type="checkbox" name="remove_title"> {'remove title'|translate}</label><br>
+    {assign var='titleDefaultValue' value='Type here the title'|translate}
 <input type="text" class="large" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
     </div>
 
     <!-- date_creation -->
     <div id="action_date_creation" class="bulkAction">
-      <label><input type="checkbox" name="remove_date_creation"> {'remove creation date'|@translate}</label><br>
+      <label><input type="checkbox" name="remove_date_creation"> {'remove creation date'|translate}</label><br>
       <div id="set_date_creation">
         <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
         <label>
@@ -673,8 +673,8 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
 		<!-- generate derivatives -->
 		<div id="action_generate_derivatives" class="bulkAction">
-			<a href="javascript:selectGenerateDerivAll()">{'All'|@translate}</a>,
-			<a href="javascript:selectGenerateDerivNone()">{'None'|@translate}</a>
+			<a href="javascript:selectGenerateDerivAll()">{'All'|translate}</a>,
+			<a href="javascript:selectGenerateDerivNone()">{'None'|translate}</a>
 			<br>
 			{foreach from=$generate_derivatives_types key=type item=disp}
 				<label><input type="checkbox" name="generate_derivatives_type[]" value="{$type}"> {$disp}</label>
@@ -683,8 +683,8 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
 		<!-- delete derivatives -->
 		<div id="action_delete_derivatives" class="bulkAction">
-			<a href="javascript:selectDelDerivAll()">{'All'|@translate}</a>,
-			<a href="javascript:selectDelDerivNone()">{'None'|@translate}</a>
+			<a href="javascript:selectDelDerivAll()">{'All'|translate}</a>,
+			<a href="javascript:selectDelDerivNone()">{'None'|translate}</a>
 			<br>
 			{foreach from=$del_derivatives_types key=type item=disp}
 				<label><input type="checkbox" name="del_derivatives_type[]" value="{$type}"> {$disp}</label>
@@ -693,7 +693,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- progress bar -->
     <div id="regenerationMsg" class="bulkAction" style="display:none">
-      <p id="regenerationText" style="margin-bottom:10px;">{'Generate multiple size images'|@translate}</p>
+      <p id="regenerationText" style="margin-bottom:10px;">{'Generate multiple size images'|translate}</p>
       <span class="progressBar" id="progressBar"></span>
       <input type="hidden" name="regenerateSuccess" value="0">
       <input type="hidden" name="regenerateError" value="0">
@@ -709,7 +709,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 {/if}
 
     <p id="applyActionBlock" style="display:none" class="actionButtons">
-      <input id="applyAction" class="submit" type="submit" value="{'Apply action'|@translate}" name="submit"> <span id="applyOnDetails"></span></p>
+      <input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span></p>
 
     </div> <!-- #permitAction -->
   </fieldset>

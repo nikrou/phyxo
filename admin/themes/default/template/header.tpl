@@ -21,7 +21,8 @@
   {/if}
 {/foreach}
 
-{combine_script id='jquery' path='themes/default/js/jquery.min.js'}
+{combine_script id='jquery' path='admin/themes/default/js/jquery/jquery.js'}
+{combine_script id='jquery.migrate' path='admin/themes/default/js/jquery/jquery-migrate-1.2.1.js'}
 {/strip}
 
 <!-- BEGIN get_combined -->
@@ -58,7 +59,7 @@
   </h1>
 
   <div id="headActions">
-    {'Hello'|@translate} {$USERNAME} |
+    {'Hello'|translate} {$USERNAME} |
     <a class="icon-eye" href="{$U_RETURN}">{'Visit Gallery'|translate}</a> |
     <a class="icon-brush" href="{$U_CHANGE_THEME}" title="{'Switch to clear or dark colors for administration'|translate}">{'Change Admin Colors'|translate}</a> |
     <a class="icon-help-circled" href="{$U_FAQ}" title="{'Instructions to use Phyxo'|translate}">{'Help Me'|translate}</a> |

@@ -22,12 +22,14 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if( !defined("PHPWG_ROOT_PATH") )
-{
-  die ("Hacking attempt!");
+if (!defined("PHPWG_ROOT_PATH")) {
+    die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/updates.class.php');
+require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
+
+use Phyxo\Update\Updates;
+
 include_once(PHPWG_ROOT_PATH.'admin/include/pclzip.lib.php');
 
 /*
@@ -43,125 +45,101 @@ $upgrade_to = isset($_GET['to']) ? $_GET['to'] : '';
 // +-----------------------------------------------------------------------+
 // |                                Step 0                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 0)
-{
-  $template->assign(array(
-    'CHECK_VERSION' => false,
-    'DEV_VERSION' => false,
-    )
-  );
+if ($step == 0) {
+    $template->assign(array(
+        'CHECK_VERSION' => false,
+        'DEV_VERSION' => false,
+    ));
 
-  if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches))
-  {
-    $url = PHPWG_URL.'/download/all_versions.php';
-    $url .= '?rand='.md5(uniqid(rand(), true)); // Avoid server cache
+    if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
+        $url = PHPWG_URL.'/download/all_versions.php';
+        $url .= '?rand='.md5(uniqid(rand(), true)); // Avoid server cache
 
-    if (@fetchRemote($url, $result)
-      and $all_versions = @explode("\n", $result)
-      and is_array($all_versions))
-    {
-      $template->assign('CHECK_VERSION', true);
+        if (@fetchRemote($url, $result) and $all_versions = @explode("\n", $result) and is_array($all_versions)) {
+            $template->assign('CHECK_VERSION', true);
 
-      $last_version = trim($all_versions[0]);
-      $upgrade_to = $last_version;
+            $last_version = trim($all_versions[0]);
+            $upgrade_to = $last_version;
 
-      if (version_compare(PHPWG_VERSION, $last_version, '<'))
-      {
-        $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $last_version);
-        $actual_branch = $matches[1];
+            if (version_compare(PHPWG_VERSION, $last_version, '<')) {
+                $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $last_version);
+                $actual_branch = $matches[1];
 
-        if ($new_branch == $actual_branch)
-        {
-          $step = 2;
-        }
-        else
-        {
-          $step = 3;
+                if ($new_branch == $actual_branch) {
+                    $step = 2;
+                } else {
+                    $step = 3;
 
-          // Check if new version exists in same branch
-          foreach ($all_versions as $version)
-          {
-            $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $version);
+                    // Check if new version exists in same branch
+                    foreach ($all_versions as $version) {
+                        $new_branch = preg_replace('/(\d+\.\d+)\.\d+/', '$1', $version);
 
-            if ($new_branch == $actual_branch)
-            {
-              if (version_compare(PHPWG_VERSION, $version, '<'))
-              {
-                $step = 1;
-              }
-              break;
+                        if ($new_branch == $actual_branch) {
+                            if (version_compare(PHPWG_VERSION, $version, '<')) {
+                                $step = 1;
+                            }
+                            break;
+                        }
+                    }
+                }
             }
-          }
         }
-      }
+    } else {
+        $template->assign('DEV_VERSION', true);
     }
-  }
-  else
-  {
-    $template->assign('DEV_VERSION', true);
-  }
 }
 
 // +-----------------------------------------------------------------------+
 // |                                Step 1                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 1)
-{
-  $template->assign(array(
-    'MINOR_VERSION' => $version,
-    'MAJOR_VERSION' => $last_version,
-    )
-  );
+if ($step == 1) {
+    $template->assign(array(
+        'MINOR_VERSION' => $version,
+        'MAJOR_VERSION' => $last_version,
+    ));
 }
 
 // +-----------------------------------------------------------------------+
 // |                                Step 2                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 2 and is_webmaster())
-{
-  if (isset($_POST['submit']) and isset($_POST['upgrade_to']))
-  {
-    updates::upgrade_to($_POST['upgrade_to'], $step);
-  }
+if ($step == 2 and is_webmaster()) {
+    if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
+        Updates::upgrade_to($_POST['upgrade_to'], $step);
+    }
 }
 
 // +-----------------------------------------------------------------------+
 // |                                Step 3                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 3 and is_webmaster())
-{
-  if (isset($_POST['dumpDatabase']))
-  {
-    updates::dump_database(isset($_POST['includeHistory']));
-  }
+if ($step == 3 and is_webmaster()) {
+    if (isset($_POST['dumpDatabase'])) {
+        Updates::dump_database(isset($_POST['includeHistory']));
+    }
 
-  if (isset($_POST['submit']) and isset($_POST['upgrade_to']))
-  {
-    updates::upgrade_to($_POST['upgrade_to'], $step);
-  }
+    if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
+        Updates::upgrade_to($_POST['upgrade_to'], $step);
+    }
 
-  $updates = new updates();
-  $updates->get_merged_extensions($upgrade_to);
-  $updates->get_server_extensions($upgrade_to);
-  $template->assign('missing', $updates->missing);
+    $updates = new Updates($conn);
+    $updates->get_merged_extensions($upgrade_to);
+    $updates->get_server_extensions($upgrade_to);
+    $template->assign('missing', $updates->missing);
 }
 
 // +-----------------------------------------------------------------------+
 // |                        Process template                               |
 // +-----------------------------------------------------------------------+
 
-if (!is_webmaster())
-{
-  $page['errors'][] = l10n('Webmaster status is required.');
+if (!is_webmaster()) {
+    $page['errors'][] = l10n('Webmaster status is required.');
 }
 
 $template->assign(array(
-  'STEP'          => $step,
-  'PHPWG_VERSION' => PHPWG_VERSION,
-  'UPGRADE_TO'    => $upgrade_to,
-  'RELEASE_URL'   => PHPWG_URL.'/releases/'.$upgrade_to,
-  )
-);
+    'STEP'          => $step,
+    'PHPWG_VERSION' => PHPWG_VERSION,
+    'UPGRADE_TO'    => $upgrade_to,
+    'RELEASE_URL'   => PHPWG_URL.'/releases/'.$upgrade_to,
+));
 
 $template->set_filename('plugin_admin_content', 'updates_pwg.tpl');
 $template->assign_var_from_handle('ADMIN_CONTENT', 'plugin_admin_content');

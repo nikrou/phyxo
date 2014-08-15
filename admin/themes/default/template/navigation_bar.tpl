@@ -1,10 +1,10 @@
 <div class="navigationBar">
   {if isset($navbar.URL_FIRST)}
-  <a href="{$navbar.URL_FIRST}" rel="first">{'First'|@translate}</a> |
-  <a href="{$navbar.URL_PREV}" rel="prev">{'Previous'|@translate}</a> |
+  <a href="{$navbar.URL_FIRST}" rel="first">{'First'|translate}</a> |
+  <a href="{$navbar.URL_PREV}" rel="prev">{'Previous'|translate}</a> |
   {else}
-  {'First'|@translate} |
-  {'Previous'|@translate} |
+  {'First'|translate} |
+  {'Previous'|translate} |
   {/if}
 
   {assign var='prev_page' value=0}
@@ -19,10 +19,10 @@
   {/foreach}
 
   {if isset($navbar.URL_NEXT)}
-  | <a href="{$navbar.URL_NEXT}" rel="next">{'Next'|@translate}</a>
-  | <a href="{$navbar.URL_LAST}" rel="last">{'Last'|@translate}</a>
+  | <a href="{$navbar.URL_NEXT}" rel="next">{'Next'|translate}</a>
+  | <a href="{$navbar.URL_LAST}" rel="last">{'Last'|translate}</a>
   {else}
-  | {'Next'|@translate}
-  | {'Last'|@translate}
+  | {'Next'|translate}
+  | {'Last'|translate}
   {/if}
 </div>

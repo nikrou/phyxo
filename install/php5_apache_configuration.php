@@ -39,7 +39,7 @@ function initPHP5()
 {
   include(PHPWG_ROOT_PATH.'install/hosting.php');
   $htaccess = PHPWG_ROOT_PATH.'.htaccess';
-  
+
   if ((file_exists($htaccess) and (!is_readable($htaccess) or !is_writable($htaccess)))
     or !($my_hostname = @gethostbyaddr($_SERVER['SERVER_ADDR'])))
   {
@@ -117,7 +117,7 @@ body {
   top:0;
   width:770px;
   text-align:right;
-  text-transform:none; 
+  text-transform:none;
 }
 
 table { margin: 0 0 15px 0; }
