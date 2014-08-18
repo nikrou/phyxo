@@ -1,6 +1,6 @@
 (function($, exports) {
   "use strict";
-  
+
   /**
    * Base LocalStorage cache
    *
@@ -24,7 +24,7 @@
     this.serverKey = options.serverKey;
     this.lifetime = options.lifetime ? options.lifetime*1000 : 3600*1000;
     this.loader = options.loader;
-    
+
     this.storage = window.localStorage;
     this.ready = !!this.storage;
   };
@@ -36,16 +36,16 @@
   LocalStorageCache.prototype.get = function(callback) {
     var now = new Date().getTime(),
         that = this;
-    
+
     if (this.ready && this.storage[this.key] != undefined) {
       var cache = JSON.parse(this.storage[this.key]);
-      
+
       if (now - cache.timestamp <= this.lifetime && cache.key == this.serverKey) {
         callback(cache.data);
         return;
       }
     }
-    
+
     this.loader(function(data) {
       that.set.call(that, data);
       callback(data);
@@ -75,7 +75,7 @@
     }
   };
 
-  
+
   /**
    * Abstract class containing common initialization code for selectize
    */
@@ -98,7 +98,7 @@
       $target.each(function() {
         var filtered, value, defaultValue,
             options = $.extend({}, globalOptions);
-        
+
         // apply filter function
         if (options.filter != undefined) {
           filtered = options.filter.call(this, data, options);
@@ -106,7 +106,7 @@
         else {
           filtered = data;
         }
-        
+
         // active creation mode
         if (this.hasAttribute('data-create')) {
           options.create = true;
@@ -132,7 +132,7 @@
               this.selectize.addItem(cat.id);
           }, this));
         }
-        
+
         // set default
         if ((defaultValue = $(this).data('default'))) {
           options.default = defaultValue;
@@ -140,7 +140,7 @@
         if (options.default == 'first') {
           options.default = filtered[0] ? filtered[0].id : undefined;
         }
-        
+
         if (options.default != undefined) {
           // add default item
           if (this.selectize.getValue() == '') {
@@ -150,7 +150,7 @@
           // if multiple: prevent item deletion
           if (this.multiple) {
             this.selectize.getItem(options.default).find('.remove').hide();
-            
+
             this.selectize.on('item_remove', function(id) {
               if (id == options.default) {
                 this.addItem(id);
@@ -170,7 +170,7 @@
       });
     });
   };
-  
+
   // redefine Selectize templates without escape
   AbstractSelectizer.getRender = function(field_label, lang) {
     lang = lang || { 'Add': 'Add' };
@@ -199,7 +199,7 @@
    */
   var CategoriesCache = function(options) {
     options.key = 'categoriesAdminList';
-    
+
     options.loader = function(callback) {
       $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.categories.getAdminList', function(data) {
         var cats = data.result.categories.map(function(c, i) {
@@ -212,7 +212,7 @@
         callback(cats);
       });
     };
-    
+
     this._init(options);
   };
 
@@ -233,7 +233,7 @@
       plugins: ['remove_button'],
       render: AbstractSelectizer.getRender('fullname', options.lang)
     });
-    
+
     this._selectize($target, options);
   };
 
@@ -248,7 +248,7 @@
    */
   var TagsCache = function(options) {
     options.key = 'tagsAdminList';
-    
+
     options.loader = function(callback) {
       $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.tags.getAdminList', function(data) {
         var tags = data.result.tags.map(function(t) {
@@ -261,7 +261,7 @@
         callback(tags);
       });
     };
-    
+
     this._init(options);
   };
 
@@ -282,11 +282,11 @@
       plugins: ['remove_button'],
       render: AbstractSelectizer.getRender('name', options.lang)
     });
-    
+
     this._selectize($target, options);
   };
-  
-  
+
+
   /**
    * Special LocalStorage for admin groups list
    *
@@ -297,7 +297,7 @@
    */
   var GroupsCache = function(options) {
     options.key = 'groupsAdminList';
-    
+
     options.loader = function(callback) {
       $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.groups.getList&per_page=9999', function(data) {
         var groups = data.result.groups.map(function(g) {
@@ -308,7 +308,7 @@
         callback(groups);
       });
     };
-    
+
     this._init(options);
   };
 
@@ -329,11 +329,11 @@
       plugins: ['remove_button'],
       render: AbstractSelectizer.getRender('name', options.lang)
     });
-    
+
     this._selectize($target, options);
   };
-  
-  
+
+
   /**
    * Special LocalStorage for admin users list
    *
@@ -344,15 +344,15 @@
    */
   var UsersCache = function(options) {
     options.key = 'usersAdminList';
-    
+
     options.loader = function(callback) {
       var users = [];
-      
+
       // recursive loader
       (function load(page){
         jQuery.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.users.getList&display=username&per_page=9999&page='+ page, function(data) {
           users = users.concat(data.result.users);
-          
+
           if (data.result.paging.count == data.result.paging.per_page) {
             load(++page);
           }
@@ -362,7 +362,7 @@
         });
       }(0));
     };
-    
+
     this._init(options);
   };
 
@@ -383,11 +383,11 @@
       plugins: ['remove_button'],
       render: AbstractSelectizer.getRender('username', options.lang)
     });
-    
+
     this._selectize($target, options);
   };
-  
-  
+
+
   /**
    * Expose classes in global scope
    */
@@ -396,5 +396,5 @@
   exports.TagsCache = TagsCache;
   exports.GroupsCache = GroupsCache;
   exports.UsersCache = UsersCache;
-  
+
 }(jQuery, window));

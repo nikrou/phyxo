@@ -31,4 +31,3 @@ $upgrade_description = 'add "comments_enable_website" parameter';
 conf_update_param('comments_enable_website', 'true');
 
 echo "\n".$upgrade_description."\n";
-

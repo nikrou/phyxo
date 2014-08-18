@@ -368,4 +368,3 @@ $lang['from %s to %s'] = 'vun %s bis %s';
 $lang['posted after %s (%s)'] = 'agesat nom %s (%s)';
 $lang['posted before %s (%s)'] = 'agesat virum  %s (%s)';
 $lang['posted on %s'] = 'agesat den %s';
-

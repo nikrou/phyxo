@@ -136,7 +136,7 @@ if (isset($_POST['submit']))
   }
 
   $data = trigger_change('picture_modify_before_update', $data);
-  
+
   single_update(
     IMAGES_TABLE,
     $data,

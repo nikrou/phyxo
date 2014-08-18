@@ -63,7 +63,7 @@ class pwg_image
         $this->source_filepath = $source_filepath;
 
         trigger_notify('load_image_library', array(&$this) );
-        
+
         if (is_object($this->image)) {
             return; // A plugin may have load its own library
         }
@@ -94,7 +94,7 @@ class pwg_image
         // width/height
         $source_width  = $this->image->get_width();
         $source_height = $this->image->get_height();
-        
+
         $rotation = null;
         if ($automatic_rotation) {
             $rotation = self::get_rotation_angle($this->source_filepath);
@@ -132,9 +132,9 @@ class pwg_image
         return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
     }
 
-    public static function get_resize_dimensions($width, $height, $max_width, $max_height, 
+    public static function get_resize_dimensions($width, $height, $max_width, $max_height,
     $rotation=null, $crop=false, $follow_orientation=true) {
-    
+
         $rotate_for_dimensions = false;
         if (isset($rotation) and in_array(abs($rotation), array(90, 270))) {
             $rotate_for_dimensions = true;
@@ -143,7 +143,7 @@ class pwg_image
         if ($rotate_for_dimensions) {
             list($width, $height) = array($height, $width);
         }
-        
+
         if ($crop) {
             $x = 0;
             $y = 0;
@@ -154,7 +154,7 @@ class pwg_image
 
             $img_ratio = $width / $height;
             $dest_ratio = $max_width / $max_height;
-            
+
             if($dest_ratio > $img_ratio) {
                 $destHeight = round($width * $max_height / $max_width);
                 $y = round(($height - $destHeight) / 2 );
@@ -181,7 +181,7 @@ class pwg_image
                 $destination_height = round($height / $ratio_width);
             }
         }
-        
+
         if ($rotate_for_dimensions) {
             list($destination_width, $destination_height) = array($destination_height, $destination_width);
         }
@@ -563,7 +563,7 @@ class image_ext_imagick implements imageInterface
   function resize($width, $height) {
       $this->width = $width;
       $this->height = $height;
-      
+
       $this->add_command('filter', 'Lanczos');
       $this->add_command('resize', $width.'x'.$height.'!');
 

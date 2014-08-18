@@ -426,4 +426,4 @@ $lang['Photo description'] = 'Περιγραφή Φωτογραφίας';
 $lang['Apply on properties'] = 'Εφαρμόστε σε ιδιότητες';
 $lang['Album name, Z &rarr; A'] = 'Όνομα Λευκώματος, Ω &rarr; Α';
 $lang['Album name, A &rarr; Z'] = 'Όνομα Λευκώματος, Α &rarr; Ω';
-
+$lang['Link: %s'] = 'Σύνδεσμος: %s';

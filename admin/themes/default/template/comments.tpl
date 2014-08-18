@@ -1,5 +1,4 @@
 {combine_script id="comments" load="footer" path="admin/themes/default/js/comments.js"}
-
 <h2>{'User comments'|translate} {$TABSHEET_TITLE}</h2>
 
 <div class="commentFilter">
@@ -22,7 +21,7 @@
     <td>
   <div class="comment">
     <a class="illustration" href="{$comment.U_PICTURE}"><img src="{$comment.TN_SRC}"></a>
-    <p class="commentHeader">{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em></p>
+    <p class="commentHeader">{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}{if !empty($comment.IP)}{$comment.IP} - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em></p>
     <blockquote>{$comment.CONTENT}</blockquote>
   </div>
     </td>

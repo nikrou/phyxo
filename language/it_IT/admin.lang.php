@@ -161,7 +161,7 @@ $lang['Tag selection'] = 'Selezione dei tags';
 $lang['The %d following tags were deleted'] = 'I %d tags seguenti sono stati cancellati';
 $lang['Unable to check for upgrade.'] = 'Impossibile controllare eventuali aggiornamenti.';
 $lang['Uninstall'] = 'Disinstallare';
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'Usare l\'ordinamento delle foto predefinito (cosi come definito nel file di configurazione)';
+$lang['Use the default photo sort order'] = 'Usare l\'ordinamento delle foto predefinito';
 $lang['User comments validation'] = 'Approvare i commenti degli utenti';
 $lang['Users'] = 'Utenti';
 $lang['Validate'] = 'Approvare';
@@ -973,4 +973,3 @@ $lang['Close user details'] = 'Chiudi dettagli utente';
 $lang['Open user details'] = 'Aprire dettagli utente';
 $lang['Activate it now'] = 'Attivalo ora';
 $lang['Allow users to add a link to their website'] = 'Consenti agli utenti di aggiungere un link al loro sito';
-

@@ -22,51 +22,36 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHOTOS_ADD_BASE_URL'))
-{
-  die ("Hacking attempt!");
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
 }
 
-// +-----------------------------------------------------------------------+
-// |                        batch management request                       |
-// +-----------------------------------------------------------------------+
+$upgrade_description = 'enlarge your user_id (16 millions possible users)';
 
-if (isset($_GET['batch']))
-{
-  check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
 
-  $query = '
-DELETE FROM '.CADDIE_TABLE.'
-  WHERE user_id = '.$user['id'].'
-;';
-  pwg_query($query);
+if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
+    // we use PREFIX_TABLE, in case Phyxo uses an external user table
+    pwg_query('ALTER TABLE '.PREFIX_TABLE.'users CHANGE id id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT;');
+    pwg_query('ALTER TABLE '.IMAGES_TABLE.' CHANGE added_by added_by MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
+    pwg_query('ALTER TABLE '.COMMENTS_TABLE.' CHANGE author_id author_id MEDIUMINT UNSIGNED DEFAULT NULL;');
 
-  $inserts = array();
-  foreach (explode(',', $_GET['batch']) as $image_id)
-  {
-    $inserts[] = array(
-      'user_id' => $user['id'],
-      'element_id' => $image_id,
-      );
-  }
-  mass_inserts(
-    CADDIE_TABLE,
-    array_keys($inserts[0]),
-    $inserts
+    $tables = array(
+        USER_ACCESS_TABLE,
+        USER_CACHE_TABLE,
+        USER_FEED_TABLE,
+        USER_GROUP_TABLE,
+        USER_INFOS_TABLE,
+        USER_CACHE_CATEGORIES_TABLE,
+        USER_MAIL_NOTIFICATION_TABLE,
+        RATE_TABLE,
+        CADDIE_TABLE,
+        FAVORITES_TABLE,
+        HISTORY_TABLE,
     );
 
-  redirect(get_root_url().'admin.php?page=batch_manager&filter=prefilter-caddie');
+    foreach ($tables as $table) {
+        pwg_query('ALTER TABLE '.$table.' CHANGE user_id user_id MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
+    }
 }
 
-// +-----------------------------------------------------------------------+
-// |                             prepare form                              |
-// +-----------------------------------------------------------------------+
-
-include_once(PHPWG_ROOT_PATH.'admin/include/photos_add_direct_prepare.inc.php');
-
-// +-----------------------------------------------------------------------+
-// |                           sending html code                           |
-// +-----------------------------------------------------------------------+
-trigger_notify('loc_end_photo_add_direct');
-
-$template->assign_var_from_handle('ADMIN_CONTENT', 'photos_add');
+echo "\n".$upgrade_description."\n";

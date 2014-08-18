@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,9 +22,8 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH'))
-{
-  die('Hacking attempt!');
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
 }
 
 $upgrade_description = 'add "latitude" and "longitude" fields';
@@ -39,17 +39,16 @@ pwg_query($query);
 // add index
 $query = '
 ALTER TABLE '. IMAGES_TABLE .'
-  ADD INDEX `images_i6` (`latitude`) 
+  ADD INDEX `images_i6` (`latitude`)
 ;';
 pwg_query($query);
 
 // search for old "lat" field
 $query = 'SHOW COLUMNS FROM '. IMAGES_TABLE .' LIKE "lat";';
 
-if (pwg_db_num_rows(pwg_query($query)))
-{
-  // duplicate non-null values
-  $query = '
+if (pwg_db_num_rows(pwg_query($query))) {
+    // duplicate non-null values
+    $query = '
 UPDATE '. IMAGES_TABLE .'
   SET latitude = lat,
     longitude = lon
@@ -60,5 +59,3 @@ UPDATE '. IMAGES_TABLE .'
 }
 
 echo "\n".$upgrade_description."\n";
-
-?>

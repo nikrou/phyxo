@@ -33,7 +33,7 @@ $tables = array(
   TAGS_TABLE,
   USER_INFOS_TABLE
   );
- 
+
 foreach ($tables as $table) {
     if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
         pwg_query('

@@ -156,7 +156,7 @@ $lang['Tag "%s" was added'] = 'Tag "%s" został dodany';
 $lang['Tag selection'] = 'Wybór tagu';
 $lang['The %d following tags were deleted'] = '%d tagów zostało usuniętych';
 $lang['Uninstall'] = 'Odinstaluj';
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'Użyj domyślnego sortowania zdjęć (zdefiniowane w pliku konfiguracyjnym)';
+$lang['Use the default photo sort order'] = 'Użyj domyślnego sortowania zdjęć';
 $lang['User comments validation'] = 'Zatwierdzanie komentarzy użytkowników';
 $lang['Users'] = 'Użytkownicy';
 $lang['Validate'] = 'Zatwierdź';
@@ -972,4 +972,3 @@ $lang['Close user details'] = 'Zamknij szczegóły użytkownika';
 $lang['Open user details'] = 'Otwórz szczegóły użytkownika';
 $lang['close'] = 'zamknij';
 $lang['Activate it now'] = 'Aktywuj teraz';
-

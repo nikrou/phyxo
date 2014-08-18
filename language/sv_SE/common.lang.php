@@ -424,4 +424,3 @@ $lang['Apply on properties'] = 'Verkställ egenskaper';
 $lang['No results for'] = 'Inget resultat för';
 $lang['Photo description'] = 'Fotots beskrivning';
 $lang['Photo title'] = 'Fotots titel';
-

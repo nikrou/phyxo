@@ -161,7 +161,7 @@ $lang['Tag selection'] = "Sélection de tags";
 $lang['The %d following tags were deleted'] = "Les %d tags suivants ont été supprimés";
 $lang['Unable to check for upgrade.'] = "Impossible de connaître la dernière version.";
 $lang['Uninstall'] = "Désinstaller";
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'Utiliser l\'ordre de tri des photos par défaut (défini dans le fichier de configuration)';
+$lang['Use the default photo sort order'] = 'Utiliser l\'ordre de tri des photos par défaut';
 $lang['User comments validation'] = "Validation des commentaires d'utilisateurs";
 $lang['Users'] = "Utilisateurs";
 $lang['Validate'] = "Valider";
@@ -975,7 +975,7 @@ $lang['close'] = 'fermer';
 $lang['Activate it now'] = 'Activate it now';
 $lang['Allow users to add a link to their website'] = 'Autoriser les utilisateurs à donner un lien vers leur site web';
 $lang['Impossible to deactivate the default theme.'] = 'Impossible de désactiver le thème par défaut.';
-
 $lang['Preview'] = 'Prévisualiser';
 $lang['Development'] = 'Développement';
 $lang['Javascript tests'] = 'Tests javascript';
+$lang['Empty caddie'] = 'Vider le panier';

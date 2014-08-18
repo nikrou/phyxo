@@ -52,4 +52,3 @@ $lang['locfiledit_file_already_exists'] = 'Il file esiste già.';
 $lang['locfiledit_model_error'] = 'Devi scegliere un modello.';
 $lang['locfiledit_empty_filename'] = 'Devi inserire il nome del file.';
 $lang['locfiledit_webmaster_only'] = 'Solo i webmasters sono autorizzati a creare o modificare i file locali.';
-

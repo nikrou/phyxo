@@ -117,7 +117,7 @@ DELETE
     AND tag_id IN ('.implode(',', $_POST['del_tags']).')
 ;';
             pwg_query($query);
-      
+
             if (isset($_SESSION['bulk_manager_filter']['tags']) &&
             count(array_intersect($_SESSION['bulk_manager_filter']['tags'], $_POST['del_tags']))) {
                 $redirect = true;
@@ -193,7 +193,7 @@ DELETE
             $_SESSION['page_infos'] = array(
                 l10n('Information data registered in database')
             );
-            
+
             // let's refresh the page because the current set might be modified
             $redirect = true;
         }
@@ -295,7 +295,7 @@ DELETE
     } elseif ('metadata' == $action) {   // synchronize metadata
         sync_metadata($collection);
         $page['infos'][] = l10n('Metadata synchronized from file');
-    } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
+    } elseif ('delete_derivatives' == $action)  && !empty($_POST['del_derivatives_type'])) {
         $query='SELECT path,representative_ext FROM '.IMAGES_TABLE.'
   WHERE id IN ('.implode(',', $collection).')';
         $result = pwg_query($query);
@@ -312,7 +312,7 @@ DELETE
             $page['warnings'][] = l10n('%s photos can not be regenerated', $_POST['regenerateError']);
         }
     }
-    
+
     if (!in_array($action, array('remove_from_caddie','add_to_caddie','delete_derivatives','generate_derivatives'))) {
         invalidate_user_cache();
     }
@@ -510,10 +510,10 @@ if (count($page['cat_elements_id']) > 0) {
     $query = '
 SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
   FROM '.IMAGES_TABLE;
-    
+
     if ($is_category) {
         $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
-        
+
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {
             $conf['order_by'] = ' ORDER BY '.$category_info['image_order'];
@@ -542,7 +542,7 @@ SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
     while ($row = pwg_db_fetch_assoc($result)) {
         $nb_thumbs_page++;
         $src_image = new SrcImage($row);
-        
+
         $ttitle = render_element_name($row);
         if ($ttitle != get_name_from_file($row['file'])) {
             $ttitle.= ' ('.$row['file'].')';

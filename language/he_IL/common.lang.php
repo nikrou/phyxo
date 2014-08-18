@@ -421,4 +421,3 @@ $lang['First Page'] = 'עמוד ראשון';
 $lang['Email'] = 'אימייל';
 $lang['%d photos per page'] = '%d תמונות בעמוד';
 $lang['No results for'] = 'לא נמצאו תוצאות עבור';
-

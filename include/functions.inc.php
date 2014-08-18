@@ -1016,6 +1016,8 @@ function load_conf_from_db($condition = '') {
       (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
  */
 function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
+    global $conf;
+
     if ($parser != null) {
         $dbValue = call_user_func($parser, $value);
     } elseif (is_array($value) || is_object($value)) {
@@ -1037,7 +1039,6 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
     }
 
     if ($updateGlobal) {
-        global $conf;
         $conf[$param] = $value;
     }
 }

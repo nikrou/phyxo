@@ -431,4 +431,3 @@ $lang['Photo description'] = 'توضیحاتِ عکس';
 $lang['Photo title'] = 'عنوانِ عکس';
 $lang['Album name, A &rarr; Z'] = 'نام آلبوم، به ترتیب حروف الفبا';
 $lang['Album name, Z &rarr; A'] = 'نام آلبوم، برعکسِ حروف الفبا';
-

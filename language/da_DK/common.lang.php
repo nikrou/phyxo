@@ -388,8 +388,8 @@ $lang['File name, A &rarr; Z'] = 'Filnavn, A &rarr; Å';
 $lang['File name, Z &rarr; A'] = 'Filnavn, Å &rarr; A';
 $lang['Photo title, A &rarr; Z'] = 'Fototitel, A &rarr; Å';
 $lang['Photo title, Z &rarr; A'] = 'Fototitel, Å &rarr; A';
-$lang['Date created, new &rarr; old'] = 'Dato oprettet, ny &rarr; gammel'; 
-$lang['Date created, old &rarr; new'] = 'Dato oprettet, gammel &rarr; ny'; 
+$lang['Date created, new &rarr; old'] = 'Dato oprettet, ny &rarr; gammel';
+$lang['Date created, old &rarr; new'] = 'Dato oprettet, gammel &rarr; ny';
 $lang['Date posted, new &rarr; old'] = 'Dato tilføjet, ny &rarr; gammel';
 $lang['Date posted, old &rarr; new'] = 'Dato tilføjet, gammel &rarr; ny';
 $lang['Rating score, high &rarr; low'] = 'bedømmelsesscore, høj &rarr; lav';
@@ -428,4 +428,4 @@ $lang['Photo description'] = 'Fotobeskrivelse';
 $lang['Photo title'] = 'Fototitel';
 $lang['Album name, A &rarr; Z'] = 'Albumnavn, A &rarr; Å';
 $lang['Album name, Z &rarr; A'] = 'Albumnavn, Å &rarr; A';
-
+$lang['Link: %s'] = 'Link: %s';

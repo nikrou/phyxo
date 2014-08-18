@@ -1270,7 +1270,7 @@ function ws_images_upload($params, $service)
   // {
   //   return new PwgError(405, 'The image (file) is missing');
   // }
-  
+
   // file_put_contents('/tmp/plupload.log', "[".date('c')."] ".__FUNCTION__."\n\n", FILE_APPEND);
   // file_put_contents('/tmp/plupload.log', '$_FILES = '.var_export($_FILES, true)."\n", FILE_APPEND);
   // file_put_contents('/tmp/plupload.log', '$_POST = '.var_export($_POST, true)."\n", FILE_APPEND);
@@ -1343,11 +1343,11 @@ function ws_images_upload($params, $service)
   // Check if file has been uploaded
   if (!$chunks || $chunk == $chunks - 1)
   {
-    // Strip the temp .part suffix off 
+    // Strip the temp .part suffix off
     rename("{$filePath}.part", $filePath);
-  
+
     include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
-    
+
     $image_id = add_uploaded_file(
       $filePath,
       $params['name'],
@@ -1355,11 +1355,12 @@ function ws_images_upload($params, $service)
       $params['level'],
       null // image_id = not provided, this is a new photo
       );
-    
+
     $query = '
 SELECT
     id,
     name,
+    representative_ext,
     path
   FROM '.IMAGES_TABLE.'
   WHERE id = '.$image_id.'
@@ -1375,7 +1376,7 @@ SELECT
     $category_infos = pwg_db_fetch_assoc(pwg_query($query));
 
     $category_name = get_cat_display_name_from_id($params['category'][0], null);
-    
+
     return array(
       'image_id' => $image_id,
       'src' => DerivativeImage::thumb_url($image_infos),

@@ -59,7 +59,7 @@ class check_integrity
         // Retrieve list
         $this->retrieve_list = array();
         $this->build_ignore_list = array();
-        
+
         trigger_notify('list_check_integrity', $this);
 
         // Information
@@ -74,7 +74,7 @@ class check_integrity
         if (isset($_POST['c13y_submit_correction']) and isset($_POST['c13y_selection'])) {
             $corrected_count = 0;
             $not_corrected_count = 0;
-            
+
             foreach ($this->retrieve_list as $i => $c13y) {
                 if (!empty($c13y['correction_fct']) and
                 $c13y['is_callable'] and
@@ -87,7 +87,7 @@ class check_integrity
                         $args = array();
                     }
                     $this->retrieve_list[$i]['corrected'] = call_user_func_array($c13y['correction_fct'], $args);
-                    
+
                     if ($this->retrieve_list[$i]['corrected']) {
                         $corrected_count += 1;
                     } else {
@@ -95,7 +95,7 @@ class check_integrity
                     }
                 }
             }
-            
+
             if ($corrected_count > 0) {
                 $page['infos'][] = l10n_dec(
                     '%d anomaly has been corrected.', '%d anomalies have been detected corrected.',
@@ -111,7 +111,7 @@ class check_integrity
         } else {
             if (isset($_POST['c13y_submit_ignore']) and isset($_POST['c13y_selection'])) {
                 $ignored_count = 0;
-                
+
                 foreach ($this->retrieve_list as $i => $c13y) {
                     if (in_array($c13y['id'], $_POST['c13y_selection'])) {
                         $this->build_ignore_list[] = $c13y['id'];
@@ -119,7 +119,7 @@ class check_integrity
                         $ignored_count += 1;
                     }
                 }
-                
+
                 if ($ignored_count > 0) {
                     $page['infos'][] = l10n_dec(
                         '%d anomaly has been ignored.', '%d anomalies have been ignored.',
@@ -148,14 +148,14 @@ class check_integrity
      */
     public function display() {
         global $template;
-        
+
         $check_automatic_correction = false;
         $submit_automatic_correction = false;
         $submit_ignore = false;
-        
+
         if (isset($this->retrieve_list) and count($this->retrieve_list) > 0) {
             $template->set_filenames(array('check_integrity' => 'check_integrity.tpl'));
-            
+
             foreach ($this->retrieve_list as $i => $c13y) {
                 $can_select = false;
                 $c13y_display = array(
@@ -169,7 +169,7 @@ class check_integrity
                     'show_correction_bad_fct' => false,
                     'correction_msg' => ''
                 );
-                
+
                 if (isset($c13y['ignored'])) {
                     if ($c13y['ignored']) {
                         $c13y_display['show_ignore_msg'] = true;
@@ -206,15 +206,15 @@ class check_integrity
                 if ($can_select) {
                     $submit_ignore = true;
                 }
-                
+
                 $template->append('c13y_list', $c13y_display);
             }
-            
+
             $template->assign('c13y_show_submit_automatic_correction', $submit_automatic_correction);
             $template->assign('c13y_show_submit_ignore', $submit_ignore);
-            
+
             $template->concat('ADMIN_CONTENT', $template->parse('check_integrity', true));
-            
+
         }
     }
 
@@ -226,7 +226,7 @@ class check_integrity
      */
     public function add_anomaly($anomaly, $correction_fct = null, $correction_fct_args = null, $correction_msg = null) {
         $id = md5($anomaly.$correction_fct.serialize($correction_fct_args).$correction_msg);
-        
+
         if (in_array($id, $this->ignore_list)) {
             $this->build_ignore_list[] = $id;
         } else {
@@ -240,7 +240,7 @@ class check_integrity
                     'is_callable' => is_callable($correction_fct));
         }
     }
-    
+
     /**
      * Update table config
      *
@@ -264,7 +264,7 @@ class check_integrity
     public function maintenance() {
         $this->update_conf();
     }
-    
+
     /**
      * Returns links more informations
      *
@@ -280,5 +280,5 @@ class check_integrity
                 sprintf($link_fmt, $pwg_links['FORUM'], l10n('the forum')),
                 sprintf($link_fmt, $pwg_links['WIKI'], l10n('the wiki'))
             );
-    }    
+    }
 }

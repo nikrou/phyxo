@@ -1,5 +1,5 @@
-{* 
-          Warning : This is the admin pages header only 
+{*
+          Warning : This is the admin pages header only
           don't confuse with the public page header
 *}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">

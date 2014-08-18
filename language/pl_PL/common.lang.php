@@ -446,4 +446,3 @@ $lang['No results for'] = 'Brak wyników dla';
 $lang['Apply on properties'] = 'Akceptuj ustawienia';
 $lang['Photo description'] = 'Opis zdjęcia';
 $lang['Photo title'] = 'Tytuł zdjęcia';
-

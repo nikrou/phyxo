@@ -424,4 +424,3 @@ $lang['Theme'] = 'Тема';
 $lang['No results for'] = 'Нема резултата за';
 $lang['Photo description'] = 'Опис фотографије';
 $lang['Photo title'] = 'Наслов фотографије';
-

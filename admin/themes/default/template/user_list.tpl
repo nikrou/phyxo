@@ -57,6 +57,11 @@ phyxo_msg.first = "{'First'|translate}";
 phyxo_msg.previous = "{'Previous'|translate}";
 phyxo_msg.next = "{'Next'|translate}";
 phyxo_msg.last = "{'Last'|translate}";
+var statusLabels = {
+{foreach from=$label_of_status key=status item=label}
+  '{$status}' : '{$label|escape:javascript}',
+{/foreach}
+};
 </script>
 {/html_head}
 

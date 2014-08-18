@@ -43,6 +43,27 @@ check_status(ACCESS_ADMINISTRATOR);
 
 check_input_parameter('selection', $_POST, true, PATTERN_ID);
 
+// +-----------------------------------------------------------------------+
+// | specific actions                                                      |
+// +-----------------------------------------------------------------------+
+
+if (isset($_GET['action']))
+{
+  if ('empty_caddie' == $_GET['action'])
+  {
+    $query = '
+DELETE FROM '.CADDIE_TABLE.'
+  WHERE user_id = '.$user['id'].'
+;';
+    pwg_query($query);
+
+    $_SESSION['page_infos'] = array(
+      l10n('Information data registered in database')
+      );
+
+    redirect(get_root_url().'admin.php?page='.$_GET['page']);
+  }
+}
 
 // +-----------------------------------------------------------------------+
 // |                      initialize current set                           |
@@ -148,12 +169,12 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     switch ($_SESSION['bulk_manager_filter']['prefilter']) {
     case 'caddie':
         $query = 'SELECT element_id FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-        $filter_sets[] = array_from_query($query, 'element_id');
+        $filter_sets[] = query2array($query, null, 'element_id');
         break;
 
     case 'favorites':
         $query = 'SELECT image_id FROM '.FAVORITES_TABLE.' WHERE user_id = '.$user['id'].';';
-        $filter_sets[] = array_from_query($query, 'image_id');
+        $filter_sets[] = query2array($query, null, 'image_id');
         break;
 
     case 'last_import':
@@ -163,21 +184,21 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             $query = 'SELECT id FROM '.IMAGES_TABLE;
             $query .= ' WHERE date_available BETWEEN ';
             $query .= pwg_db_get_recent_period_expression(1, $row['date']).' AND \''.$row['date'].'\';';
-            $filter_sets[] = array_from_query($query, 'id');
+            $filter_sets[] = query2array($query, null, 'id');
         }
         break;
 
     case 'no_virtual_album':
         // we are searching elements not linked to any virtual category
         $query = ' SELECT id FROM '.IMAGES_TABLE.';';
-        $all_elements = array_from_query($query, 'id');
+        $all_elements = query2array($query, null, 'id');
 
         $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL;';
         $virtual_categories = array_from_query($query, 'id');
         if (!empty($virtual_categories)) {
             $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
             $query .= ' WHERE category_id IN ('.implode(',', $virtual_categories).');';
-            $linked_to_virtual = array_from_query($query, 'image_id');
+            $linked_to_virtual = query2array($query, null, 'image_id');
         }
         $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
     break;
@@ -186,14 +207,14 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
         $query = 'SELECT id FROM '.IMAGES_TABLE;
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
         $query .= ' WHERE category_id is null;';
-        $filter_sets[] = array_from_query($query, 'id');
+        $filter_sets[] = query2array($query, null, 'id');
         break;
 
     case 'no_tag':
         $query = 'SELECT id FROM '.IMAGES_TABLE;
         $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id = image_id';
         $query .= ' WHERE tag_id is null;';
-        $filter_sets[] = array_from_query($query, 'id');
+        $filter_sets[] = query2array($query, null, 'id');
         break;
 
     case 'duplicates':
@@ -201,17 +222,17 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
         // image_ids but it would not be compatible with PostgreSQL, so let's
         // perform 2 queries instead. We hope there are not too many duplicates.
         $query = 'SELECT file FROM '.IMAGES_TABLE.' GROUP BY file HAVING COUNT(*) > 1;';
-        $duplicate_files = array_from_query($query, 'file');
+        $duplicate_files = query2array($query, null, 'file');
 
         $query = 'SELECT id FROM '.IMAGES_TABLE;
         $query .= ' WHERE file IN (\''.implode("','", array_map('pwg_db_real_escape_string', $duplicate_files)).'\');';
-        $filter_sets[] = array_from_query($query, 'id');
+        $filter_sets[] = query2array($query, null, 'id');
     break;
 
     case 'all_photos':
         if (count($_SESSION['bulk_manager_filter']) == 1) { // make the query only if this is the only filter
             $query = 'SELECT id FROM '.IMAGES_TABLE.' '.$conf['order_by'];
-            $filter_sets[] = array_from_query($query, 'id');
+            $filter_sets[] = query2array($query, null, 'id');
         }
         break;
     }
@@ -230,7 +251,7 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
 
     $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
     $query .= ' WHERE category_id IN ('.implode(',', $categories).');';
-    $filter_sets[] = array_from_query($query, 'image_id');
+    $filter_sets[] = query2array($query, null, 'image_id');
 }
 
 if (isset($_SESSION['bulk_manager_filter']['level'])) {
@@ -242,7 +263,7 @@ if (isset($_SESSION['bulk_manager_filter']['level'])) {
   $query = 'SELECT id FROM '.IMAGES_TABLE;
   $query .= ' WHERE level '.$operator.' '.$_SESSION['bulk_manager_filter']['level'].' '.$conf['order_by'];
 
-  $filter_sets[] = array_from_query($query, 'id');
+  $filter_sets[] = query2array($query, null, 'id');
 }
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
@@ -279,7 +300,7 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
 
   $query = 'SELECT id FROM '.IMAGES_TABLE.' WHERE '.implode(' AND ',$where_clause).' '.$conf['order_by'];
 
-  $filter_sets[] = array_from_query($query, 'id');
+  $filter_sets[] = query2array($query, null, 'id');
 }
 
 if (isset($_SESSION['bulk_manager_filter']['search'])) {
@@ -326,13 +347,6 @@ $tabsheet->set_id('batch_manager');
 $tabsheet->select($page['tab']);
 $tabsheet->assign();
 
-
-// +-----------------------------------------------------------------------+
-// |                              tags                                     |
-// +-----------------------------------------------------------------------+
-
-$query = 'SELECT id, name FROM '.TAGS_TABLE.';';
-$template->assign('tags', get_taglist($query, false));
 
 // +-----------------------------------------------------------------------+
 // |                              dimensions                               |

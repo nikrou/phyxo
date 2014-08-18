@@ -51,13 +51,13 @@ if (pwg_image::get_library() == 'gd') {
     $available_memory = get_ini_size('memory_limit') - memory_get_usage();
     $max_upload_width = round(sqrt($available_memory/(2 * $fudge_factor)));
     $max_upload_height = round(2 * $max_upload_width / 3);
-    
+
     // we don't want dimensions like 2995x1992 but 3000x2000
     $max_upload_width = round($max_upload_width/100)*100;
     $max_upload_height = round($max_upload_height/100)*100;
-    
+
     $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
-    
+
     // no need to display a limitation warning if the limitation is huge like 20MP
     if ($max_upload_resolution < 25) {
         $template->assign(
@@ -87,20 +87,17 @@ $template->assign(
     )
   );
 
-$upload_file_types = 'jpeg, png, gif';
-
-if (pwg_image::get_library() == 'ext_imagick') {
-    $upload_file_types.= ', tiff';
-    $template->assign('tif_enabled', true);
-}
-
-if (false) { // TODO manage zip files in pwg.images.upload
-    $upload_file_types.= ', zip';
-}
+$unique_exts = array_unique(
+    array_map(
+        'strtolower',
+        $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']
+    )
+);
 
 $template->assign(
     array(
-        'upload_file_types' => $upload_file_types,
+        'upload_file_types' => implode(', ', $unique_exts),
+        'file_exts' => implode(',', $unique_exts),
     )
 );
 
@@ -114,7 +111,7 @@ $selected_category = array();
 if (isset($_GET['album'])) {
     // set the category from get url or ...
     check_input_parameter('album', $_GET, false, PATTERN_ID);
-  
+
     // test if album really exists
     $query = '
 SELECT id
@@ -124,7 +121,7 @@ SELECT id
     $result = pwg_query($query);
     if (pwg_db_num_rows($result) == 1) {
         $selected_category = array($_GET['album']);
-    
+
         // lets put in the session to persist in case of upload method switch
         $_SESSION['selected_category'] = $selected_category;
     } else {
@@ -193,7 +190,7 @@ if (isset($_GET['hide_warnings'])) {
 
 if (!isset($_SESSION['upload_hide_warnings'])) {
     $setup_warnings = array();
-  
+
     if ($conf['use_exif'] and !function_exists('read_exif_data')) {
         $setup_warnings[] = l10n('Exif extension not available, admin should disable exif use');
     }
@@ -205,10 +202,10 @@ if (!isset($_SESSION['upload_hide_warnings'])) {
             get_ini_size('post_max_size', false)
         );
     }
-  $template->assign(
-      array(
-          'setup_warnings' => $setup_warnings,
-          'hide_warnings_link' => PHOTOS_ADD_BASE_URL.'&amp;hide_warnings=1'
-      )
-  );
+    $template->assign(
+        array(
+            'setup_warnings' => $setup_warnings,
+            'hide_warnings_link' => PHOTOS_ADD_BASE_URL.'&amp;hide_warnings=1'
+        )
+    );
 }

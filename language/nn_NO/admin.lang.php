@@ -814,7 +814,7 @@ $lang['Update Complete'] = 'Oppdatering ferdig';
 $lang['Update albums informations'] = 'Oppdater informasjon om album';
 $lang['Update in progress... Please wait.'] = 'Oppdatering igang... Vent.';
 $lang['Update photos information'] = 'Oppdater informasjon om bilete';
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'Bruk standard sorteringsrekkefylgje for bilete (definera i konfigurasjonefil)';
+$lang['Use the default photo sort order'] = 'Bruk standard sorteringsrekkefylgje for bilete';
 $lang['Used metadata'] = 'Metadata i bruk';
 $lang['You are running on development sources, no check possible.'] = 'Du køyrer med utviklingskjeldekode, sjekk er ikkje mogleg.';
 $lang['Unable to dump database.'] = 'Greier ikkje dumpe databasen';
@@ -970,4 +970,3 @@ $lang['Open user details'] = 'Opne brukardetaljar';
 $lang['close'] = 'lukk';
 $lang['Activate it now'] = 'Aktiver nå';
 $lang['Allow users to add a link to their website'] = 'Gje brukarar mogleghet til å legge inn lenke til si nettside';
-

@@ -426,4 +426,4 @@ $lang['Photo description'] = 'Mô tả hình ảnh';
 $lang['Photo title'] = 'Tiêu đề hình ảnh';
 $lang['Album name, A &rarr; Z'] = 'Tên album, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Tên album, Z &rarr; A';
-
+$lang['Link: %s'] = 'Liên kết: %s';

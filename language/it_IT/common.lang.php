@@ -425,4 +425,3 @@ $lang['Photo description'] = 'Descrizione foto';
 $lang['Photo title'] = 'Titolo foto';
 $lang['Album name, A &rarr; Z'] = 'Nome album, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Nome album, Z &rarr; A';
-

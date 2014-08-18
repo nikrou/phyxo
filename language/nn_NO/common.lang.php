@@ -423,4 +423,3 @@ $lang['No results for'] = 'Ikkje noko resultat for';
 $lang['Apply on properties'] = 'Gjer aktiv for eigneskapar';
 $lang['Photo description'] = 'Biletskildring';
 $lang['Photo title'] = 'Bilettittel';
-

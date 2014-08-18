@@ -157,7 +157,7 @@ $lang['Tag selection'] = 'Valg af tags';
 $lang['The %d following tags were deleted'] = 'Følgende %d tags er blevet slettet';
 $lang['Unable to check for upgrade.'] = 'Kunne ikke foretage opgraderingstjek.';
 $lang['Uninstall'] = 'Afinstaller';
-$lang['Use the default photo sort order (defined in the configuration file)'] = 'Anvend standarden for fotografiers sorteringsrækkefølge (defineret i opsætningsfilen)';
+$lang['Use the default photo sort order'] = 'Anvend standarden for fotografiers sorteringsrækkefølge';
 $lang['User comments validation'] = 'Godkendelse af brugerkommentarer';
 $lang['Users']  =  'Brugere';
 $lang['Validate']  =  'Godkend';
@@ -976,4 +976,4 @@ $lang['Activate it now'] = 'Aktiver nu';
 $lang['Allow users to add a link to their website'] = 'Tillad at brugere kan tilføje et link til deres hjemmeside';
 $lang['Impossible to deactivate the default theme.'] = 'Det er ikke muligt at deaktivere standardtemaet.';
 $lang['Mail address is mandatory for registration'] = 'En mailadresse skal angives ved registrering';
-
+$lang['Empty caddie'] = 'Tøm kurv';

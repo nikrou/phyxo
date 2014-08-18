@@ -179,3 +179,4 @@ SELECT
 
 add_event_handler('get_history', 'get_history');
 trigger_notify('functions_history_included');
+

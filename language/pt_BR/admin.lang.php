@@ -157,7 +157,7 @@ $lang['Tag selection'] = 'Seleção de tag';
 $lang['The %d following tags were deleted'] = 'As %d tags seguintes foram apagadas';
 $lang['Unable to check for upgrade.'] = 'Não foi possível checar as atualizações.';
 $lang['Uninstall'] = 'Desinstalar';
-$lang['Use the default photo sort order (defined in the configuration file)']='Usar a ordem de exibição padrão (definida no arquivo de configuração)';
+$lang['Use the default photo sort order'] = 'Usar a ordem de exibição padrão';
 $lang['User comments validation'] = 'Validação dos comentários de usuário';
 $lang['Users'] = 'Usuários';
 $lang['Validate'] = 'Aprovar';
@@ -975,4 +975,4 @@ $lang['Activate it now'] = 'Ativar agora';
 $lang['Allow users to add a link to their website'] = 'Permitir usuários adicionar um link em seus websites';
 $lang['Impossible to deactivate the default theme.'] = 'Imposível desativar o tema padrão';
 $lang['Mail address is mandatory for registration'] = 'Para registro o email é obrigatório';
-
+$lang['Empty caddie'] = 'Carrinho vazio';

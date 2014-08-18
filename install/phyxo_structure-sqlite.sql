@@ -319,7 +319,7 @@ CREATE TABLE "phyxo_tags"
 -----------------------------------------------------------------------------
 
 DROP TABLE IF EXISTS "phyxo_themes";
-CREATE TABLE "phyxo_themes" 
+CREATE TABLE "phyxo_themes"
 (
   "id" varchar(64) NOT NULL default '',
   "version" varchar(64) NOT NULL default '0',
@@ -442,7 +442,8 @@ CREATE TABLE "phyxo_user_infos"
   "registration_date" TIMESTAMP NOT NULL,
   "enabled_high" BOOLEAN default true,
   "level" INTEGER default 0 NOT NULL,
-  "activation_key" VARCHAR(20) default NULL,
+  "activation_key" VARCHAR(255) default NULL,
+  "activation_key_expire" TIMESTAMP default NULL,
   "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
   PRIMARY KEY ("user_id"),
   CONSTRAINT "user_infos_ui1" UNIQUE ("user_id")

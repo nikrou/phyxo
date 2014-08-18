@@ -427,4 +427,3 @@ $lang['No results for'] = '没有结果';
 $lang['Apply on properties'] = '应用到属性';
 $lang['Photo description'] = '相片描述';
 $lang['Photo title'] = '相片标题';
-

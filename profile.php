@@ -44,11 +44,12 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
     trigger_notify('loc_begin_profile');
 
-// Reset to default (Guest) custom settings
+    // Reset to default (Guest) custom settings
     if (isset($_POST['reset_to_default'])) {
         $fields = array(
             'nb_image_page', 'expand',
-            'show_nb_comments', 'show_nb_hits', 'recent_period', 'show_nb_hits'
+            'show_nb_comments', 'show_nb_hits',
+            'recent_period', 'show_nb_hits'
         );
 
         // Get the Guest custom settings
@@ -64,12 +65,14 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     $title= l10n('Your Gallery Customization');
     $page['body_id'] = 'theProfilePage';
     $template->set_filename('profile', 'profile.tpl');
+    $template->set_filename('profile_content', 'profile_content.tpl');
 
     load_profile_in_template(
         get_root_url().'profile.php', // action
         make_index_url(), // for redirect
         $userdata
     );
+    $template->assign_var_from_handle('PROFILE_CONTENT', 'profile_content');
 
     // include menubar
     $themeconf = $template->get_template_vars('themeconf');
@@ -96,10 +99,11 @@ function save_profile_from_post($userdata, &$errors) {
 
     $special_user = in_array($userdata['id'], array($conf['guest_id'], $conf['default_user_id']));
     if ($special_user) {
-        unset($_POST['username'], $_POST['mail_address'],
-        $_POST['password'], $_POST['use_new_pwd'],
-        $_POST['passwordConf'], $_POST['theme'],
-        $_POST['language']
+        unset(
+            $_POST['username'], $_POST['mail_address'],
+            $_POST['password'], $_POST['use_new_pwd'],
+            $_POST['passwordConf'], $_POST['theme'],
+            $_POST['language']
         );
         $_POST['theme'] = get_default_theme();
         $_POST['language'] = get_default_language();
@@ -116,7 +120,7 @@ function save_profile_from_post($userdata, &$errors) {
         }
 
         // periods must be integer values, they represents number of days
-        if (!preg_match($int_pattern, $_POST['recent_period']) || $_POST['recent_period'] < 0) {
+        if (!preg_match($int_pattern, $_POST['recent_period']) or $_POST['recent_period'] < 0) {
             $errors[] = l10n('Recent period must be a positive integer value') ;
         }
 
@@ -144,7 +148,7 @@ function save_profile_from_post($userdata, &$errors) {
             $errors[] = l10n('The passwords do not match');
         }
 
-        if ( !defined('IN_ADMIN') ) { // changing password requires old password
+        if (!defined('IN_ADMIN')) { // changing password requires old password
             $query = 'SELECT '.$conf['user_fields']['password'].' AS password FROM '.USERS_TABLE;
             $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$userdata['id'].'\';';
             list($current_password) = pwg_db_fetch_row(pwg_query($query));
@@ -164,14 +168,14 @@ function save_profile_from_post($userdata, &$errors) {
             $fields = array($conf['user_fields']['email']);
 
             $data = array();
-            $data{$conf['user_fields']['id']} = $userdata['id'];
-            $data{$conf['user_fields']['email']} = $_POST['mail_address'];
+            $data[$conf['user_fields']['id']] = $userdata['id'];
+            $data[$conf['user_fields']['email']] = $_POST['mail_address'];
 
             // password is updated only if filled
             if (!empty($_POST['use_new_pwd'])) {
                 $fields[] = $conf['user_fields']['password'];
                 // password is hashed with function $conf['password_hash']
-                $data{$conf['user_fields']['password']} = $conf['password_hash']($_POST['use_new_pwd']);
+                $data[$conf['user_fields']['password']] = $conf['password_hash']($_POST['use_new_pwd']);
             }
 
             // username is updated only if allowed
@@ -181,7 +185,7 @@ function save_profile_from_post($userdata, &$errors) {
                     unset($_POST['redirect']);
                 } else {
                     $fields[] = $conf['user_fields']['username'];
-                    $data{$conf['user_fields']['username']} = $_POST['username'];
+                    $data[$conf['user_fields']['username']] = $_POST['username'];
 
                     // send email to the user
                     if ($_POST['username'] != $userdata['username']) {
@@ -194,7 +198,8 @@ function save_profile_from_post($userdata, &$errors) {
                         );
 
                         pwg_mail(
-                            $_POST['mail_address'], array(
+                            $_POST['mail_address'],
+                            array(
                                 'subject' => '['.$conf['gallery_title'].'] '.l10n('Username modification'),
                                 'content' => l10n_args($keyargs_content),
                                 'content_format' => 'text/plain',
@@ -220,7 +225,8 @@ function save_profile_from_post($userdata, &$errors) {
             // update user "additional" informations (specific to Piwigo)
             $fields = array(
                 'nb_image_page', 'language',
-                'expand', 'show_nb_hits', 'recent_period', 'theme'
+                'expand', 'show_nb_hits',
+                'recent_period', 'theme'
             );
 
             if ($conf['activate_comments']) {
@@ -251,32 +257,38 @@ function save_profile_from_post($userdata, &$errors) {
     return true;
 }
 
-
-function load_profile_in_template($url_action, $url_redirect, $userdata) {
+/**
+ * Assign template variables, from arguments
+ * Used to build profile edition pages
+ *
+ * @param string $url_action
+ * @param string $url_redirect
+ * @param array $userdata
+ */
+function load_profile_in_template($url_action, $url_redirect, $userdata, $template_prefixe=null) {
     global $template, $conf;
 
-    $template->set_filename('profile_content', 'profile_content.tpl');
-
-    $template->assign('radio_options',
-    array(
-        'true' => l10n('Yes'),
-        'false' => l10n('No'))
+    $template->assign(
+        'radio_options',
+        array(
+            'true' => l10n('Yes'),
+            'false' => l10n('No')
+        )
     );
 
-    // @TODO: no stripslashes use htmlspecialchars here !!!
     $template->assign(
         array(
-            'USERNAME' => stripslashes($userdata['username']),
-            'EMAIL' => @$userdata['email'],
-            'ALLOW_USER_CUSTOMIZATION' => $conf['allow_user_customization'],
-            'ACTIVATE_COMMENTS' => $conf['activate_comments'],
-            'NB_IMAGE_PAGE' => $userdata['nb_image_page'],
-            'RECENT_PERIOD' => $userdata['recent_period'],
-            'EXPAND' => $userdata['expand'] ? 'true' : 'false',
-            'NB_COMMENTS' => $userdata['show_nb_comments'] ? 'true' : 'false',
-            'NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
-            'REDIRECT' => $url_redirect,
-            'F_ACTION' => $url_action,
+            $template_prefixe.'USERNAME'=>stripslashes($userdata['username']),
+            $template_prefixe.'EMAIL'=>@$userdata['email'],
+            $template_prefixe.'ALLOW_USER_CUSTOMIZATION'=>$conf['allow_user_customization'],
+            $template_prefixe.'ACTIVATE_COMMENTS'=>$conf['activate_comments'],
+            $template_prefixe.'NB_IMAGE_PAGE'=>$userdata['nb_image_page'],
+            $template_prefixe.'RECENT_PERIOD'=>$userdata['recent_period'],
+            $template_prefixe.'EXPAND' =>$userdata['expand'] ? 'true' : 'false',
+            $template_prefixe.'NB_COMMENTS'=>$userdata['show_nb_comments'] ? 'true' : 'false',
+            $template_prefixe.'NB_HITS'=>$userdata['show_nb_hits'] ? 'true' : 'false',
+            $template_prefixe.'REDIRECT' => $url_redirect,
+            $template_prefixe.'F_ACTION'=>$url_action,
         )
     );
 
@@ -300,5 +312,4 @@ function load_profile_in_template($url_action, $url_redirect, $userdata) {
     trigger_notify( 'load_profile_in_template', $userdata );
 
     $template->assign('PWG_TOKEN', get_pwg_token());
-    $template->assign_var_from_handle('PROFILE_CONTENT', 'profile_content');
 }

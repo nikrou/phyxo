@@ -242,4 +242,3 @@ $lang['Basic settings'] = 'ការកំណត់មូលដ្ឋាន';
 $lang['Average rate'] = 'អត្រាជាមធ្យម';
 $lang['Available versions for'] = 'ជំនាន់ដែល​មាន​សម្រាប់';
 $lang['Available only with HTML format'] = 'មាន​តែ​នៅលើ​ទម្រង់ HTML ទេ';
-

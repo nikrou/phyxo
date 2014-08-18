@@ -22,9 +22,8 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH'))
-{
-  die('Hacking attempt!');
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
 }
 
 $upgrade_description = '#tags.name is not binary';
@@ -36,4 +35,3 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
 }
 
 echo "\n".$upgrade_description."\n";
-

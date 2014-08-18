@@ -425,4 +425,3 @@ $lang['Apply on properties'] = 'Примени на подешавања';
 $lang['No results for'] = 'Нема резултата за';
 $lang['Photo description'] = 'Опис фотографије';
 $lang['Photo title'] = 'Назив фотографије';
-

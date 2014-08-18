@@ -21,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Autohide the bar of the slideshow'] = 'Ukrywaj belkę pokazu slajdów';
 $lang['Loop the slideshow'] = 'Zapętl pokaz slajdów';
 $lang['More Information'] = 'Więcej informacji';

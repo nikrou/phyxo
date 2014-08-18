@@ -109,7 +109,7 @@ function trigger_change($event, $data=null) {
     if (isset($pwg_event_handlers['trigger'])) {// debugging
         trigger_notify(
             'trigger',
-            array('type'=>'event', 'event'=>$event, 'data'=>$data)
+            array('type' => 'event', 'event' => $event, 'data' => $data)
         );
     }
 
@@ -134,7 +134,7 @@ function trigger_change($event, $data=null) {
     if (isset($pwg_event_handlers['trigger'])) { // debugging
         trigger_notify(
             'trigger',
-            array('type'=>'post_event', 'event'=>$event, 'data'=>$data)
+            array('type' => 'post_event', 'event' => $event, 'data' => $data)
         );
     }
 
@@ -156,7 +156,7 @@ function trigger_notify($event) {
     if (isset($pwg_event_handlers['trigger']) and $event!='trigger') { // debugging - avoid recursive calls
         trigger_notify(
             'trigger',
-            array('type'=>'action', 'event'=>$event, 'data'=>null)
+            array('type' => 'action', 'event' => $event, 'data' => null)
         );
     }
 
@@ -289,6 +289,7 @@ UPDATE '. PLUGINS_TABLE .'
             }
         }
     }
+    trigger_notify('plugins_loaded');
 }
 
 /**

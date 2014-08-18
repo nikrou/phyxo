@@ -66,4 +66,3 @@ $lang['Welcome to my photo gallery'] = 'ברוכים הבאים לגלרית ה�
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'אל תהסס להתייעץ בפורומים שלנו בכל נושא: %s';
 $lang['Welcome to your new installation of Phyxo!'] = 'ברוך הבא לגלרית Phyxo החדשה שלך';
 $lang['localhost or other, supplied by your host provider'] = 'מקומי(localhost)או אחר, המסופק על ידי הספק המארח שלך';
-
