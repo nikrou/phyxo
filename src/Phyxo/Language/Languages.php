@@ -30,8 +30,14 @@ class Languages
      * Initialize $fs_languages and $db_languages
      */
     public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $target_charset=null) {
-        $this->conn = $conn;
+        if (!is_null($conn)) {
+            $this->conn = $conn;
+        }
         $this->get_fs_languages($target_charset);
+    }
+
+    public function setConnection(\Phyxo\DBLayer\DBLayer $conn) {
+        $this->conn = $conn;
     }
 
     /**

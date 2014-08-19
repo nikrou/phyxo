@@ -72,12 +72,12 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     }
 
     public function db_check_version() {
-        $current_pgsql =$this->get_db_version();
-        if (version_compare($current_pgsql, REQUIRED_PGSQL_VERSION, '<')) {
+        $current_pgsql =$this->db_version();
+        if (version_compare($current_pgsql, self::REQUIRED_VERSION, '<')) {
             throw new \Exception(sprintf(
                 'your PostgreSQL version is too old, you have "%s" and you need at least "%s"',
                 $current_pgsql,
-                REQUIRED_PGSQL_VERSION
+                self::REQUIRED_VERSION
             ));
         }
     }

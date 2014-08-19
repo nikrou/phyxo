@@ -1,13 +1,13 @@
 <?php
-class smartpocket_maintain extends ThemeMaintain
+class smartpocket_maintain extends Phyxo\Theme\ThemeMaintain
 {
   private $installed = false;
-  
+
   private $default_conf = array(
     'loop'            => true,//true - false
     'autohide'            => 5000,//5000 - 0
   );
-  
+
   function activate($theme_version, &$errors=array())
   {
     global $conf, $prefixeTable;

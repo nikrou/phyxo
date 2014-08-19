@@ -66,7 +66,7 @@ if (
                 array(
                     'step' => 2,
                     'intro' => l10n(
-                        'Hello %s, your Piwigo photo gallery is empty!',
+                        'Hello %s, your Phyxo photo gallery is empty!',
                         $user['username']
                     ),
                     'next_step_url' => $url,

@@ -310,6 +310,7 @@ define(\'DB_COLLATE\', \'\');';
         conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
 
         // fill languages table
+        $languages->setConnection($conn);
         foreach ($languages->fs_languages as $language_code => $fs_language) {
             $languages->perform_action('activate', $language_code);
         }
@@ -326,7 +327,7 @@ define(\'DB_COLLATE\', \'\');';
         /**
          * Automatically activate all core themes in the "themes" directory.
          */
-        $themes = new Themes();
+        $themes = new Themes($conn);
         foreach ($themes->fs_themes as $theme_id => $fs_theme) {
             if (in_array($theme_id, array('elegant', 'smartpocket'))) {
                 $themes->perform_action('activate', $theme_id);

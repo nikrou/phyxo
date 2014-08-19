@@ -61,11 +61,11 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_check_version() {
         $current_mysql =$this->db_version();
-        if (version_compare($current_mysql, REQUIRED_MYSQL_VERSION, '<')) {
+        if (version_compare($current_mysql, self::REQUIRED_VERSION, '<')) {
             throw new \Exception(sprintf(
                 'your MySQL version is too old, you have "%s" and you need at least "%s"',
                 $current_mysql,
-                REQUIRED_MYSQL_VERSION
+                self::REQUIRED_VERSION
             ));
         }
     }
