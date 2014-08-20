@@ -36,3 +36,20 @@ Contributing
 If you'd like to contribute, please read the [CONTRIBUTING.md file](CONTRIBUTING.md). You can submit
  a pull request, or feel free to use any other way you'd prefer.
 
+Running tests
+-------------
+
+You must have install phyxo first, and update base_url in behat.yml.dist
+
+phyxo is tested using a BDD framework - [Behat](http://www.behat.org).
+To run test :
+
+```
+$ ./bin/behat
+```
+
+Todo
+----
+
+ * Add more tests
+ * See [TODO file](TODO.md)

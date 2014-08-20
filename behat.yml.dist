@@ -1,0 +1,29 @@
+default:
+  context:
+    parameters:
+      base_url: http://localhost/phyxo/behat
+
+      pages:
+        identification: identification.php
+        protected_page: profile.php
+
+      config_file: sites/behat/local/config/database.inc.php
+      sql_init_file: features/sql/db_init.sql
+      sql_cleanup_file: features/sql/db_cleanup.sql
+
+  extensions:
+    Behat\MinkExtension\Extension:
+      goutte: ~
+      base_url: http://localhost/phyxo/behat
+
+  paths:
+    features:  features
+    bootstrap: features/bootstrap
+
+annotations:
+  paths:
+    features: features/annotations
+
+closures:
+  paths:
+    features: features/closures

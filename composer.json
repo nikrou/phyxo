@@ -16,7 +16,15 @@
 		"jdorn/sql-formatter": "1.*"
 	},
 	"require-dev": {
-		"atoum/atoum": "dev-master"
+		"atoum/atoum": "dev-master",
+		"behat/behat": "<3",
+		"behat/common-contexts": "*",
+		"behat/mink": "*",
+		"behat/mink-extension": "*",
+		"behat/mink-goutte-driver": "*",
+		"behat/mink-zombie-driver": "*",
+		"symfony/dom-crawler": "2.1.*@dev",
+		"j4mie/idiorm": "*"
 	},
 	"config": {
 		"bin-dir": "bin/"
