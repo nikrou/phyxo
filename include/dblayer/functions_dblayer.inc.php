@@ -317,4 +317,8 @@ function array_from_query($query, $fieldname=false) {
     return $conn->array_from_query($query, $fieldname);
 }
 
+function pwg_db_get_flood_period_expression($seconds) {
+    global $conn;
 
+    return $conn->db_get_flood_period_expression($seconds);
+}

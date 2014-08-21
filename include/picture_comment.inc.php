@@ -171,7 +171,7 @@ if ($page['show_comments']) {
                 );
                 if (isset($edit_comment) and ($row['id'] == $edit_comment)) {
                     $tpl_comment['IN_EDIT'] = true;
-                    $key = get_ephemeral_key(2, $page['image_id']);
+                    $key = get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
                     $tpl_comment['KEY'] = $key;
                     $tpl_comment['CONTENT'] = $row['content'];
                     $tpl_comment['PWG_TOKEN'] = get_pwg_token();
@@ -205,7 +205,7 @@ if ($page['show_comments']) {
     }
 
     if ($show_add_comment_form) {
-        $key = get_ephemeral_key(3, $page['image_id']);
+        $key = get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
 
         $tpl_var =  array(
             'F_ACTION' => $url_self,

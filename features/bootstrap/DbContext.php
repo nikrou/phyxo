@@ -33,28 +33,29 @@ class DbContext extends RawMinkContext
      * @Given /^some users:$/
      */
     public function aUser(TableNode $table) {
-        $params = array(
-            'username' => '',
-            'password' => '',
-            'status' => 'normal'
-        );
         foreach ($table->getHash() as $user) {
+            $params = array(
+                'username' => '',
+                'password' => '',
+                'status' => 'normal'
+            );
             $params['username'] = $user['username'];
             $params['password'] = $user['password'];
             $params['status'] = $user['status'];
+            self::addUser($params['username'], $params['password'], $params['status']);
         }
-        self::addUser($params['username'], $params['password'], $params['status']);
     }
 
     /**
+     * @Given /^an image:$/
      * @Given /^images:$/
      */
     public function images(TableNode $table) {
-        $params = array(
-            'name' => '',
-            'album' => ''
-        );
         foreach ($table->getHash() as $image) {
+            $params = array(
+                'name' => '',
+                'album' => ''
+            );
             $params['name'] = $image['name'];
             $params['album'] = $image['album'];
             self::addImage($params);
@@ -66,10 +67,29 @@ class DbContext extends RawMinkContext
      */
     public function anAlbum(TableNode $table) {
         $params = array('name' => '');
+
         foreach ($table->getRowsHash() as $key => $value) {
             $params[$key] = $value;
         }
         self::addAlbum($params['name']);
+    }
+
+    /**
+     * @Given /^albums:$/
+     */
+    public function albums(TableNode $table) {
+        foreach ($table->getHash() as $album) {
+            $params = array('name' => '');
+            $params['name'] = $album['name'];
+            self::addAlbum($params['name']);
+        }
+    }
+
+    /**
+     * @Given /^a comment "([^"]*)" on "([^"]*)" by "([^"]*)"$/
+     */
+    public function aCommentOnBy($comment, $image_name, $username) {
+        self::addComment($comment, $image_name, $username);
     }
 
     /**
@@ -297,5 +317,26 @@ class DbContext extends RawMinkContext
         $user_cache = ORM::for_table(self::$prefix.'user_cache')
             ->where('user_id', $user->id)
             ->delete_many();
+    }
+
+    private function addComment($content, $photo_name, $username) {
+        $image = ORM::for_table(self::$prefix.'images')->where('name', $photo_name)->find_one();
+        if (!$image) {
+            throw new Exception('Image with name '.$photo_name.' does not exist'."\n");
+        }
+        $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
+        if (!$user) {
+            throw new Exception('User with username '.$username.' does not exist'."\n");
+        }
+        $comment = ORM::for_table(self::$prefix.'comments')->create();
+        $comment->image_id = $image->id;
+        $comment->author = $username;
+        $comment->author_id = $user->id;
+        $comment->content = $content;
+        $yesterday = (new DateTime('now - 1 day'))->format('Y-m-d H:i:s');
+        $comment->date = $yesterday;
+        $comment->validation_date = $yesterday;
+        $comment->validated = true;
+        $comment->save();
     }
 }

@@ -279,7 +279,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     }
 
     function db_get_flood_period_expression($seconds) {
-        return '(now() - \''.$period.' SECOND\'::interval)::timestamp';
+        return '(now() - \''.$seconds.' SECOND\'::interval)::timestamp';
     }
 
     public function db_date_to_ts($date) {

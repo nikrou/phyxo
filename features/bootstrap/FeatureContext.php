@@ -22,6 +22,7 @@ use Behat\MinkExtension\Context\MinkContext;
 use Behat\Behat\Exception\PendingException;
 use Behat\Behat\Context\Step\Then;
 use Behat\Behat\Context\Step\When;
+use Behat\Gherkin\Node\PyStringNode;
 
 use mageekguy\atoum\asserter as Atoum;
 
@@ -122,5 +123,13 @@ class FeatureContext extends MinkContext
             new When(sprintf('I go to "'.$this->pages['album'].'"', $album->id)),
             new Then('the response status code should be 401'),
         );
+    }
+
+    /**
+     * @When /^I add a comment :$/
+     */
+    public function whenIAddAComment(PyStringNode $comment) {
+        $this->fillField('Comment', $comment);
+        $this->pressButton('Submit');
     }
 }
