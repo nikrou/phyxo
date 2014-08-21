@@ -33,7 +33,7 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query .= ' ADD COLUMN activation_key_expire DATETIME DEFAULT NULL AFTER activation_key;';
     pwg_query($query);
 } elseif ($conf['dblayer']=='pgsql') {
-    $query = 'ALTER TABLE '.USER_INFOS_TABLE.' CHANGE activation_key activation_key VARCHAR(255) DEFAULT NULL,';
+    $query = 'ALTER TABLE '.USER_INFOS_TABLE.' ALTER COLUMN activation_key TYPE VARCHAR(255),';
     $query .= ' ADD COLUMN activation_key_expire TIMESTAMP DEFAULT NULL;';
     pwg_query($query);
 } elseif ($conf['dblayer']=='sqlite') {
