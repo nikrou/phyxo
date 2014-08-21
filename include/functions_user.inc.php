@@ -797,75 +797,37 @@ function auto_login() {
 }
 
 /**
- * Hashes a password with the PasswordHash class from phpass security library.
- * @since 2.5
+ * Hashes a password
  *
  * @param string $password plain text
  * @return string
  */
 function pwg_password_hash($password) {
-    global $pwg_hasher;
-
-    if (empty($pwg_hasher)) {
-        require_once(PHPWG_ROOT_PATH.'include/passwordhash.class.php');
-
-        // We use the portable hash feature from phpass because we can't be sure
-        // Piwigo runs on PHP 5.3+ (and won't run on an older version in the
-        // future)
-        $pwg_hasher = new PasswordHash(13, true);
-    }
-
-    return $pwg_hasher->HashPassword($password);
+    // From time to time algorithm need to be changed and password need to be rehashed
+    // @See password_needs_rehash
+    return password_hash($password, PASSWORD_BCRYPT);
 }
 
 /**
- * Verifies a password, with the PasswordHash class from phpass security library.
- * If the hash is 'old' (assumed MD5) the hash is updated in database, used for
- * migration from Piwigo 2.4.
- * @since 2.5
+ * Verifies a password
+ * If the hash is 'old' using PasswordHash class used in phyxo < 1.2, the hash is updated in database.
  *
  * @param string $password plain text
- * @param string $hash may be md5 or phpass hashed password
- * @param integer $user_id only useful to update password hash from md5 to phpass
+ * @param string $hash may be phpass hashed password
+ * @param integer $user_id only useful to update password hash from phpass ones
  * @return bool
  */
 function pwg_password_verify($password, $hash, $user_id=null) {
-    global $conf, $pwg_hasher;
-
-    // If the password has not been hashed with the current algorithm.
-    if (strpos($hash, '$P') !== 0) {
-        if (!empty($conf['pass_convert'])) {
-            $check = ($hash == $conf['pass_convert']($password));
-        } else {
-            $check = ($hash == md5($password));
-        }
-
-        if ($check) {
-            if (!isset($user_id) or $conf['external_authentification']) {
-                return true;
-            }
-
-            // Rehash using new hash.
-            $hash = pwg_password_hash($password);
-
-            single_update(
-                USERS_TABLE,
-                array('password' => $hash),
-                array('id' => $user_id)
-            );
-        }
+    if (empty($hash) || strpos($hash, '$P') !== false) {
+        $hash = pwg_password_hash($password);
+        single_update(
+            USERS_TABLE,
+            array('password' => $hash),
+            array('id' => $user_id)
+        );
     }
 
-    // If the stored hash is longer than an MD5, presume the
-    // new style phpass portable hash.
-    if (empty($pwg_hasher)) {
-        require_once(PHPWG_ROOT_PATH.'include/passwordhash.class.php');
-
-        // We use the portable hash feature
-        $pwg_hasher = new PasswordHash(13, true);
-    }
-
-    return $pwg_hasher->CheckPassword($password, $hash);
+    return password_verify($password, $hash);
 }
 
 /**

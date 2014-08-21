@@ -4,8 +4,50 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5dc1f4cc97284cd4f006cd9f4bca920b",
+    "hash": "3fd981655b42bc5cb22defef6ee85dcd",
     "packages": [
+        {
+            "name": "ircmaxell/password-compat",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ircmaxell/password_compat.git",
+                "reference": "c91b1168bc53c26f56fc65f16958b5be45ca5dc9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ircmaxell/password_compat/zipball/c91b1168bc53c26f56fc65f16958b5be45ca5dc9",
+                "reference": "c91b1168bc53c26f56fc65f16958b5be45ca5dc9",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/password.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Anthony Ferrara",
+                    "email": "ircmaxell@ircmaxell.com",
+                    "homepage": "http://blog.ircmaxell.com"
+                }
+            ],
+            "description": "A compatibility library for the proposed simplified password hashing algorithm: https://wiki.php.net/rfc/password_hash",
+            "homepage": "https://github.com/ircmaxell/password_compat",
+            "keywords": [
+                "hashing",
+                "password"
+            ],
+            "time": "2014-03-21 11:47:21"
+        },
         {
             "name": "jdorn/sql-formatter",
             "version": "v1.2.17",
@@ -1623,6 +1665,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "ircmaxell/password-compat": 20,
         "atoum/atoum": 20,
         "symfony/dom-crawler": 20
     },

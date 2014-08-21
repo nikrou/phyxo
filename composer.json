@@ -10,10 +10,11 @@
 	],
 	"minimum-stability": "stable",
 	"require": {
-		"php": ">=5.3.0",
+		"php": ">=5.3.7",
 		"smarty/smarty": "v3.1.13",
 		"phpmailer/phpmailer": "v5.2.7",
-		"jdorn/sql-formatter": "1.*"
+		"jdorn/sql-formatter": "1.*",
+		"ircmaxell/password-compat": "dev-master"
 	},
 	"require-dev": {
 		"atoum/atoum": "dev-master",

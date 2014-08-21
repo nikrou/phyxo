@@ -516,7 +516,7 @@ $conf['password_hash'] = 'pwg_password_hash';
 // password_verify: function that checks the password against its hash. The
 // function takes 2 mandatory parameter : clear password, hashed password +
 // an optional parameter user_id. The user_id is used to update the password
-// with the new hash introduced in Piwigo 2.5. See function
+// with the new hash introduced in Phyxo 1.2. See function
 // pwg_password_verify in include/functions_user.inc.php
 $conf['password_verify'] = 'pwg_password_verify';
 
