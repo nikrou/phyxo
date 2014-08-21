@@ -21,6 +21,7 @@
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\Behat\Exception\PendingException;
 use Behat\Behat\Context\Step\Then;
+use Behat\Behat\Context\Step\When;
 
 use mageekguy\atoum\asserter as Atoum;
 
@@ -109,5 +110,17 @@ class FeatureContext extends MinkContext
         $cookie = $session->getCookie('phyxo_remember'); // @TODO: retrieve cookie name from conf
         $session->restart();
         $session->setCookie('phyxo_remember', $cookie);
+    }
+
+    /**
+     * @Given /^I should not be allowed to go to album "([^"]*)"$/
+     */
+    public function iShouldNotBeAllowedToGoToAlbum($album_name) {
+        $album = $this->getSubcontext('db_context')->getAlbum($album_name);
+
+        return array(
+            new When(sprintf('I go to "'.$this->pages['album'].'"', $album->id)),
+            new Then('the response status code should be 401'),
+        );
     }
 }

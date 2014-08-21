@@ -6,6 +6,8 @@ default:
       pages:
         identification: identification.php
         protected_page: profile.php
+        album: index.php?/category/%d
+        picture: picture.php?/%%d/category/%d
 
       config_file: sites/behat/local/config/database.inc.php
       sql_init_file: features/sql/db_init.sql

@@ -28,9 +28,9 @@ class DbContext extends RawMinkContext
     private static $conf_loaded = false;
     public static $prefix = 'phyxo_';
 
-
     /**
      * @Given /^a user:$/
+     * @Given /^some users:$/
      */
     public function aUser(TableNode $table) {
         $params = array(
@@ -38,10 +38,61 @@ class DbContext extends RawMinkContext
             'password' => '',
             'status' => 'normal'
         );
+        foreach ($table->getHash() as $user) {
+            $params['username'] = $user['username'];
+            $params['password'] = $user['password'];
+            $params['status'] = $user['status'];
+        }
+        self::addUser($params['username'], $params['password'], $params['status']);
+    }
+
+    /**
+     * @Given /^images:$/
+     */
+    public function images(TableNode $table) {
+        $params = array(
+            'name' => '',
+            'album' => ''
+        );
+        foreach ($table->getHash() as $image) {
+            $params['name'] = $image['name'];
+            $params['album'] = $image['album'];
+            self::addImage($params);
+        }
+    }
+
+    /**
+     * @Given /^an album:$/
+     */
+    public function anAlbum(TableNode $table) {
+        $params = array('name' => '');
         foreach ($table->getRowsHash() as $key => $value) {
             $params[$key] = $value;
         }
-        self::addUser($params['username'], $params['password'], $params['status']);
+        self::addAlbum($params['name']);
+    }
+
+    /**
+     * @Given /^"([^"]*)" can access "([^"]*)"$/
+     */
+    public function canAccess($username, $album_name) {
+        self::manageAccess($username, $album_name);
+    }
+
+    /**
+     * @Given /^"([^"]*)" cannot access "([^"]*)"$/
+     */
+    public function cannotAccess($username, $album_name) {
+        self::manageAccess($username, $album_name, $remove=true);
+    }
+
+    public function getAlbum($album_name) {
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        if (!$album) {
+            throw new Exception('Album with name '.$album_name.' does not exist'."\n");
+        }
+
+        return $album;
     }
 
     /**
@@ -90,10 +141,16 @@ class DbContext extends RawMinkContext
         ORM::configure('username', $conf['db_user']);
         ORM::configure('password', $conf['db_password']);
 
+        ORM::configure('logging', true);
+
         // primary keys
         ORM::configure(
             'id_column_overrides',
-            array(self::$prefix.'user_infos' => 'user_id')
+            array(
+                self::$prefix.'user_infos' => 'user_id',
+                self::$prefix.'image_category' => array('image_id', 'category_id'),
+                self::$prefix.'user_access' => array('user_id', 'cat_id'),
+            )
         );
     }
 
@@ -122,11 +179,9 @@ class DbContext extends RawMinkContext
     private static function addUser($username, $password, $status) {
         $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
         if (!$user) {
-            include_once(__DIR__.'/../../include/passwordhash.class.php');
-            $pwg_hasher = new PasswordHash(13, true);
             $user = ORM::for_table(self::$prefix.'users')->create();
             $user->username = $username;
-            $user->password = $pwg_hasher->HashPassword($password);
+            $user->password = password_hash($password, PASSWORD_BCRYPT);
             $user->save();
 
             $user_info = ORM::for_table(self::$prefix.'user_infos')->create();
@@ -142,5 +197,105 @@ class DbContext extends RawMinkContext
             }
             $user_info->save();
         }
+    }
+
+    private static function addImage(array $params) {
+        if (empty($params['album']) || empty($params['name'])) {
+            throw new Exception('Album name and image name are mandatory'."\n");
+        }
+
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['album'])->find_one();
+        if (!$album) {
+            throw new Exception('Album with name '.$params['album'].' does not exist'."\n");
+        }
+
+        if (empty($params['file'])) {
+            $params['file'] = __DIR__ .'/../media/blank.png';
+        }
+        $md5sum = md5($params['file']);
+
+        $image = ORM::for_table(self::$prefix.'images')->create();
+        $image->name = $params['name'];
+        $image->file = basename($params['file']);
+
+        $now = new DateTime('now');
+        $upload_dir = './upload/'.$now->format('Y/m/d');
+        $path = $upload_dir . sprintf('/%s-%s.png', $now->format('YmdHis'), substr($md5sum, 0, 8));
+
+        $image->path = $path;
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+        copy($params['file'], $path);
+        if (empty($params['date_creation'])) {
+            $image->set_expr('date_creation', 'now()');
+        } else {
+            $image->date_creation = $params['date_creation'];
+        }
+        if (!empty($params['date_available'])) {
+            $image->date_available = $params['date_available'];
+        } else {
+            $image->set_expr('date_available', 'now()');
+        }
+        $image->md5sum = $md5sum;
+        $image->save();
+
+        $image_category = ORM::for_table(self::$prefix.'image_category')->create();
+        $image_category->image_id = $image->id;
+        $image_category->category_id = $album->id;
+        $image_category->save();
+
+        return $image->id;
+    }
+
+    private static function addAlbum($name) {
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $name)->find_one();
+        if (!$album) {
+            $album = ORM::for_table(self::$prefix.'categories')->create();
+            $album->name = $name;
+            $album->status = 'private';
+            $album->comment = 'true';
+            $album->global_rank = 1;
+            $album->save();
+
+            $album->uppercats = $album->id;
+            $album->save();
+        }
+    }
+
+    private static function manageAccess($username, $album_name, $remove=false) {
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        if (!$album) {
+            throw new Exception('Album with name '.$album_name.' does not exist'."\n");
+        }
+
+        $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
+        if (!$user) {
+            throw new Exception('User with username '.$username.' does not exist'."\n");
+        }
+
+        $access = ORM::for_table(self::$prefix.'user_access')
+            ->where('user_id', $user->id)
+            ->where('cat_id', $album->id)
+            ->find_one();
+        if ($remove) {
+            if ($access) {
+                ORM::for_table(self::$prefix.'user_access')
+                    ->where('user_id', $user->id)
+                    ->where('cat_id', $album->id)
+                    ->delete_many();
+            }
+        } else {
+            if (!$access) {
+                $access = ORM::for_table(self::$prefix.'user_access')->create();
+                $access->user_id = $user->id;
+                $access->cat_id = $album->id;
+                $access->save();
+            }
+        }
+
+        $user_cache = ORM::for_table(self::$prefix.'user_cache')
+            ->where('user_id', $user->id)
+            ->delete_many();
     }
 }
