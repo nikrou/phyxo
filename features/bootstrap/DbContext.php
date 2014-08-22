@@ -34,15 +34,7 @@ class DbContext extends RawMinkContext
      */
     public function aUser(TableNode $table) {
         foreach ($table->getHash() as $user) {
-            $params = array(
-                'username' => '',
-                'password' => '',
-                'status' => 'normal'
-            );
-            $params['username'] = $user['username'];
-            $params['password'] = $user['password'];
-            $params['status'] = $user['status'];
-            self::addUser($params['username'], $params['password'], $params['status']);
+            self::addUser($user);
         }
     }
 
@@ -52,36 +44,20 @@ class DbContext extends RawMinkContext
      */
     public function images(TableNode $table) {
         foreach ($table->getHash() as $image) {
-            $params = array(
-                'name' => '',
-                'album' => ''
-            );
-            $params['name'] = $image['name'];
-            $params['album'] = $image['album'];
-            self::addImage($params);
+            $image_id = self::addImage($image);
+            if (!empty($image['tags'])) {
+                self::addTags($image['tags'], $image_id);
+            }
         }
     }
 
     /**
      * @Given /^an album:$/
-     */
-    public function anAlbum(TableNode $table) {
-        $params = array('name' => '');
-
-        foreach ($table->getRowsHash() as $key => $value) {
-            $params[$key] = $value;
-        }
-        self::addAlbum($params['name']);
-    }
-
-    /**
      * @Given /^albums:$/
      */
     public function albums(TableNode $table) {
         foreach ($table->getHash() as $album) {
-            $params = array('name' => '');
-            $params['name'] = $album['name'];
-            self::addAlbum($params['name']);
+            self::addAlbum($album);
         }
     }
 
@@ -170,6 +146,7 @@ class DbContext extends RawMinkContext
                 self::$prefix.'user_infos' => 'user_id',
                 self::$prefix.'image_category' => array('image_id', 'category_id'),
                 self::$prefix.'user_access' => array('user_id', 'cat_id'),
+                self::$prefix.'image_tag' => array('image_id', 'tag_id'),
             )
         );
     }
@@ -196,19 +173,27 @@ class DbContext extends RawMinkContext
     }
 
     /* ORM methods */
-    private static function addUser($username, $password, $status) {
-        $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
+    private static function addUser(array $params) {
+        if (empty($params['username']) || empty($params['password'])) {
+            throw new Exception('Username and Password for user are mandatory'."\n");
+        }
+        $user = ORM::for_table(self::$prefix.'users')->where('username', $params['username'])->find_one();
         if (!$user) {
             $user = ORM::for_table(self::$prefix.'users')->create();
-            $user->username = $username;
-            $user->password = password_hash($password, PASSWORD_BCRYPT);
+            $user->username = $params['username'];
+            $user->password = password_hash($params['password'], PASSWORD_BCRYPT);
             $user->save();
 
             $user_info = ORM::for_table(self::$prefix.'user_infos')->create();
             $user_info->user_id = $user->id;
-            $user_info->status = $status;
+            if (empty($params['status'])) {
+                $user_info->status = 'normal';
+                $params['status'] = 'normal';
+            } else {
+                $user_info->status = $params['status'];
+            }
             $user_info->registration_date = 'now()';
-            if ($status=='webmaster') {
+            if ($params['status']=='webmaster') {
                 // to be retrieve from config_default
                 // @see include/function_user.inc.php:create_user_infos
                 $user_info->level = 8;
@@ -217,6 +202,8 @@ class DbContext extends RawMinkContext
             }
             $user_info->save();
         }
+
+        return $user->id;
     }
 
     private static function addImage(array $params) {
@@ -268,13 +255,25 @@ class DbContext extends RawMinkContext
         return $image->id;
     }
 
-    private static function addAlbum($name) {
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $name)->find_one();
+    private static function addAlbum(array $params) {
+        if (empty($params['name'])) {
+            throw new Exception('Album name is mandatory'."\n");
+        }
+
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['name'])->find_one();
         if (!$album) {
             $album = ORM::for_table(self::$prefix.'categories')->create();
-            $album->name = $name;
-            $album->status = 'private';
-            $album->comment = 'true';
+            $album->name = $params['name'];
+            if (!empty($params['status'])) {
+                $album->status = $params['status'];
+            } else {
+                $album->status = 'private';
+            }
+            if (!empty($params['commentable'])) {
+                $album->commentable = (boolean) $params['commentable'];
+            } else {
+                $album->commentable = true;
+            }
             $album->global_rank = 1;
             $album->save();
 
@@ -338,5 +337,37 @@ class DbContext extends RawMinkContext
         $comment->validation_date = $yesterday;
         $comment->validated = true;
         $comment->save();
+    }
+
+    private function addTags($param_tags, $image_id) {
+        if (!defined('PHPWG_ROOT_PATH')) {
+            define('PHPWG_ROOT_PATH', __DIR__.'/../../');
+        }
+        include_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
+
+        if (preg_match('`\[.*]`', $param_tags)) {
+            $tags = explode(',',  substr($param_tags, 1, strlen($param_tags)-2));
+        } else {
+            $tags = array($param_tags);
+        }
+        foreach ($tags as $tag_name) {
+            $tag = ORM::for_table(self::$prefix.'tags')->where('name', $tag_name)->find_one();
+            if (!$tag) {
+                $tag = ORM::for_table(self::$prefix.'tags')->create();
+                $tag->name = $tag_name;
+                $tag->url_name = str2url($tag_name);
+                $tag->save();
+            }
+            $image_tag = ORM::for_table(self::$prefix.'image_tag')
+                ->where('tag_id', $tag->id)
+                ->where('image_id', $image_id)
+                ->find_one();
+            if (!$image_tag) {
+                $image_tag = ORM::for_table(self::$prefix.'image_tag')->create();
+                $image_tag->image_id = $image_id;
+                $image_tag->tag_id = $tag->id;
+                $image_tag->save();
+            }
+        }
     }
 }

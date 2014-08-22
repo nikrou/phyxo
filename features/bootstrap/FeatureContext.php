@@ -132,4 +132,15 @@ class FeatureContext extends MinkContext
         $this->fillField('Comment', $comment);
         $this->pressButton('Submit');
     }
+
+    /**
+     * @When /^I clik rate button (\d+)$/
+     */
+    public function whenIClikRateButton($note) {
+        $formRate = $this->getSession()->getPage()->find('css', '#rateForm');
+        if ($formRate!==null) {
+            $star = $formRate->find('css', 'input[title=\''.$note.'\']');
+            $star->click();
+        }
+    }
 }

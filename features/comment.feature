@@ -1,7 +1,7 @@
 Feature: Comment
   In order to add comments to the gallery
   As a user
-  I need to be abble to add comments to picture
+  I need to be able to add comments to picture
 
   Background: init
     Given a user:
@@ -24,7 +24,6 @@ Feature: Comment
 
   Scenario: Add a comment
     Given I am logged in as "user1" with password "pass1"
-    Then I should see "album 1"
     When I follow "album 1"
     And I follow "photo 1"
     And I add a comment :

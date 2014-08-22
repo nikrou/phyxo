@@ -1,7 +1,7 @@
 Feature: User sessions
   In order to access my albums
   As a site visitor
-  I need to be abble to log into the website
+  I need to be able to log into the website
 
   Background: init
     Given a user:

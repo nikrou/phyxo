@@ -7,10 +7,10 @@ Feature: User albums
     Given a user:
       | username | password | status |
       | user1    | pass1    | normal |
-    And an album:
-      | name | album 1 |
-    And an album:
-      | name | album 2 |
+    And albums:
+      | name    |
+      | album 1 |
+      | album 2 |
     And images:
       | name    | album   |
       | photo 1 | album 1 |
