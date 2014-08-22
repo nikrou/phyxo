@@ -54,7 +54,7 @@ To run tests :
 $ ./bin/atoum
 ```
 
-And javascript is tested using (Jasmine)(http://jasmine.github.io/).
+And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
 
 
