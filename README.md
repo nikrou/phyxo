@@ -54,9 +54,10 @@ To run tests :
 $ ./bin/atoum
 ```
 
+Tests are automatically runned by travis : [![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
+
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
-
 
 Todo
 ----
