@@ -48,6 +48,16 @@ To run test :
 $ ./bin/behat
 ```
 
+But there's also unit tests in phyxo runned with [Atoum](http://atoum.org).
+To run tests :
+```
+$ ./bin/atoum
+```
+
+And javascript is tested using (Jasmine)(http://jasmine.github.io/).
+To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
+
+
 Todo
 ----
 

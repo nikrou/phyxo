@@ -1,7 +1,8 @@
-Phyxo 1.2.0 - 2014-08-15
+Phyxo 1.2.0 - 2014-MM-DD
 ========================
-* Add javascript tests using jasmine
-* Add php unit tests using atoum
+* Add javascript tests using [Jasmine](http://jasmine.github.io/)
+* Add php unit tests using [Atoum](http://atoum.org/)
+* Add functional tests using [Behat](http://www.behat.org).
 * Remove @ for Smarty (@translate becomes translate)
 * Make assets (js, css, images) for admin independant of public pages
 * Replace count(*) by count(1)
