@@ -181,10 +181,10 @@ if (count($user_ids) > 0) {
 
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
-        if (empty($groups_of_user[ $row['user_id'] ])) {
-            $groups_of_user[ $row['user_id'] ] = $row['name'];
+        if (empty($groups_of_user[$row['user_id']])) {
+            $groups_of_user[$row['user_id']] = $row['name'];
         } else {
-            $groups_of_user[ $row['user_id'] ] .= ',' . $row['name'];
+            $groups_of_user[$row['user_id']] .= ',' . $row['name'];
         }
     }
 

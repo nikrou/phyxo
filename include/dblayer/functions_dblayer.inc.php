@@ -179,6 +179,12 @@ function get_enums($table, $field) {
     return $conn->get_enums($table, $field);
 }
 
+function is_boolean($string) {
+    global $conn;
+
+    return $conn->is_boolean($string);
+}
+
 function get_boolean($string) {
     global $conn;
 

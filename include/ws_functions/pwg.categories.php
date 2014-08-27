@@ -168,8 +168,8 @@ function ws_categories_getList($params, &$service) {
     }
 
     if ($params['public']) {
-        $where[] = 'status = "public"';
-        $where[] = 'visible = "true"';
+        $where[] = 'status = \'public\'';
+        $where[] = 'visible = \'true\'';
 
         $join_user = $conf['guest_id'];
     } elseif (is_admin()) {

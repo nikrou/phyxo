@@ -24,7 +24,7 @@ var lang = {
 	AreYouSure: "{'Are you sure?'|translate|escape:'javascript'}"
 };
 
-jQuery(document).ready(function() {
+$(function() {
 
   {* <!-- TAGS --> *}
   var tagsCache = new TagsCache({
@@ -33,7 +33,7 @@ jQuery(document).ready(function() {
     rootUrl: '{$ROOT_URL}'
   });
 
-  tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+  tagsCache.selectize($('[data-selectize=tags]'), { lang: {
     'Add': '{'Create'|translate}'
   }});
 
@@ -44,15 +44,15 @@ jQuery(document).ready(function() {
     rootUrl: '{$ROOT_URL}'
   });
 
-  categoriesCache.selectize(jQuery('[data-selectize=categories]'), {
+  categoriesCache.selectize($('[data-selectize=categories]'), {
     filter: function(categories, options) {
       if (this.name == 'dissociate') {
-        var filtered = jQuery.grep(categories, function(cat) {
+        var filtered = $.grep(categories, function(cat) {
           return !cat.dir;
         });
 
         if (filtered.length > 0) {
-          jQuery('.albumDissociate').show();
+          $('.albumDissociate').show();
           options.default = filtered[0].id;
         }
 
@@ -63,8 +63,8 @@ jQuery(document).ready(function() {
     }
   });
 
-  if (jQuery(this).data('value')) {
-        jQuery.each(jQuery(this).data('value'), jQuery.proxy(function(i, tag) {
+  if ($(this).data('value')) {
+        $.each($(this).data('value'), $.proxy(function(i, tag) {
           this.selectize.addItem(tag.id);
         }, this));
   }
@@ -224,8 +224,8 @@ $(document).ready(function() {
   });
 
 
-  jQuery('#applyAction').click(function() {
-		var action = jQuery('[name="selectAction"]').val();
+  $('#applyAction').click(function() {
+		var action = $('[name="selectAction"]').val();
 		if (action == 'delete_derivatives') {
 			var d_count = $('#action_delete_derivatives input[type=checkbox]').filter(':checked').length
 				, e_count = $('input[name="setSelected"]').is(':checked') ? nb_thumbs_set : $('.thumbnails input[type=checkbox]').filter(':checked').length;
@@ -239,27 +239,27 @@ $(document).ready(function() {
 			return true;
 		}
 
-		jQuery('.bulkAction').hide();
+		$('.bulkAction').hide();
 
-		var queuedManager = jQuery.manageAjax.create('queued', {
+		var queuedManager = $.manageAjax.create('queued', {
 			queue: true,
 			cacheResponse: false,
 			maxRequests: 1
 		});
 
 		derivatives.elements = [];
-		if (jQuery('input[name="setSelected"]').is(':checked'))
+		if ($('input[name="setSelected"]').is(':checked'))
 			derivatives.elements = all_elements;
 		else
-			jQuery('.thumbnails input[type=checkbox]').each(function() {
-				if (jQuery(this).is(':checked')) {
-					derivatives.elements.push(jQuery(this).val());
+			$('.thumbnails input[type=checkbox]').each(function() {
+				if ($(this).is(':checked')) {
+					derivatives.elements.push($(this).val());
 				}
 			});
 
-		jQuery('#applyActionBlock').hide();
-		jQuery('select[name="selectAction"]').hide();
-		jQuery('#regenerationMsg').show();
+		$('#applyActionBlock').hide();
+		$('select[name="selectAction"]').hide();
+		$('#regenerationMsg').show();
 
 		progress();
 		getDerivativeUrls();
@@ -348,17 +348,55 @@ $(document).ready(function() {
   });
 
   $("a.dimensions-choice").click(function() {
-    var type = jQuery(this).data("type");
-    var min = jQuery(this).data("min");
-    var max = jQuery(this).data("max");
+    var type = $(this).data("type");
+    var min = $(this).data("min");
+    var max = $(this).data("max");
 
 		$("#filter_dimension_"+ type +"_slider")
 			.slider("values", 0, getSliderKeyFromValue(min, dimension_values[type]) )
 			.slider("values", 1, getSliderKeyFromValue(max, dimension_values[type]) );
   });
 
-  jQuery("select[name=filter_prefilter]").change(function() {
-    jQuery("#empty_caddie").toggle(jQuery(this).val() == "caddie");
+  {* filesize, copied from dimensions filter and modified, to be moved in a plugin later *}
+  var filesize_values = [{$filesize.list}];
+
+  function filesize_onSliderChange(ui, pattern) {
+    $("input[name='filter_filesize_min']").val(filesize_values[ui.values[0]]);
+    $("input[name='filter_filesize_max']").val(filesize_values[ui.values[1]]);
+
+    $("#filter_filesize_info").html(sprintf(
+      pattern,
+      filesize_values[ui.values[0]],
+      filesize_values[ui.values[1]]
+    ));
+  }
+
+  $("#filter_filesize_slider").slider({
+    range: true,
+    min: 0,
+    max: filesize_values.length - 1,
+    values: [
+      getSliderKeyFromValue({$filesize.selected.min}, filesize_values),
+      getSliderKeyFromValue({$filesize.selected.max}, filesize_values)
+    ],
+    slide: function(event, ui) {
+      filesize_onSliderChange(ui, "{'between %s and %s MB'|translate|escape:'javascript'}");
+    },
+    change: function(event, ui) {
+      filesize_onSliderChange(ui, "{'between %s and %s MB'|translate|escape:'javascript'}");
+    }
+  });
+
+  $("a.filesize-choice").click(function() {
+    $("#filter_filesize_slider")
+      .slider("values", 0, 0)
+      .slider("values", 1, filesize_values.length - 1);
+  });
+
+
+  $("select[name=filter_prefilter]").change(function() {
+    $("#empty_caddie").toggle($(this).val() == "caddie");
+    $("#duplicates_options").toggle($(this).val() == "duplicates");
   });
 });
 
@@ -385,6 +423,13 @@ $(document).ready(function() {
           {/foreach}
         </select>
         <a id="empty_caddie" href="admin.php?page=batch_manager&amp;action=empty_caddie" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}display:none{/if}">{'Empty caddie'|translate}</a>
+
+        <span id="duplicates_options" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}display:none{/if}">
+          {'based on'|translate}
+          <input type="checkbox" checked="checked" disabled="disabled"> {'file name'|translate}
+          <label><input type="checkbox" name="filter_duplicates_date" {if isset($filter.duplicates_date) or (isset($filter.prefilter) and $filter.prefilter ne 'duplicates')}checked="checked"{/if}> {'date & time'|translate}</label>
+          <label><input type="checkbox" name="filter_duplicates_dimensions" {if isset($filter.duplicates_dimensions)}checked="checked"{/if}> {'width & height'|translate}</label>
+        </span>
       </li>
 
       <li id="filter_category" {if !isset($filter.category)}style="display:none"{/if}>
@@ -464,6 +509,21 @@ $(document).ready(function() {
 				{combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
 				<a href="admin/popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
 			</li>
+
+      <li id="filter_filesize" {if !isset($filter.filesize)}style="display:none"{/if}>
+        <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+        <input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {if isset($filter.filesize)}checked="checked"{/if}>
+        {'Filesize'|translate}
+
+        <blockquote>
+          <span id="filter_filesize_info">{'between %s and %s MB'|translate:$filesize.selected.min:$filesize.selected.max}</span>
+          | <a class="filesize-choice">{'Reset'|translate}</a>
+          <div id="filter_filesize_slider"></div>
+        </blockquote>
+
+        <input type="hidden" name="filter_filesize_min" value="{$filesize.selected.min}">
+        <input type="hidden" name="filter_filesize_max" value="{$filesize.selected.max}">
+      </li>
     </ul>
 
     <p class="actionButtons">
@@ -475,7 +535,8 @@ $(document).ready(function() {
         <option value="filter_tags" {if isset($filter.tags)}disabled="disabled"{/if}>{'Tags'|translate}</option>
         <option value="filter_level" {if isset($filter.level)}disabled="disabled"{/if}>{'Privacy level'|translate}</option>
         <option value="filter_dimension" {if isset($filter.dimension)}disabled="disabled"{/if}>{'Dimensions'|translate}</option>
-				<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|translate}</option>
+        <option value="filter_filesize" {if isset($filter.filesize)}disabled="disabled"{/if}>{'Filesize'|translate}</option>
+	<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|translate}</option>
       </select>
       <a id="removeFilters">{'Remove all filters'|translate}</a>
     </p>
