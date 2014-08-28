@@ -629,7 +629,7 @@ if (!is_a_guest() and $conf['picture_favorite_icon']) {
 
 //--------------------------------------------------------- picture information
 // legend
-if (isset($picture['current']['comment']) and !empty($picture['current']['comment'])) {
+if (!empty($picture['current']['comment'])) {
     $template->assign(
         'COMMENT_IMG',
         trigger_change('render_element_description',

@@ -12,11 +12,11 @@ var categoriesCache = new CategoriesCache({
   rootUrl: '{$ROOT_URL}'
 });
 
-categoriesCache.selectize(jQuery('[data-selectize=categories]'), {
+categoriesCache.selectize($('[data-selectize=categories]'), {
   default: 0,
   filter: function(categories, options) {
     // remove itself and children
-    var filtered = jQuery.grep(categories, function(cat) {
+    var filtered = $.grep(categories, function(cat) {
       return !(/\b{$CAT_ID}\b/.test(cat.uppercats));
     });
 
@@ -124,7 +124,11 @@ categoriesCache.selectize(jQuery('[data-selectize=categories]'), {
   <p>
     <strong>{'Comments'|translate}</strong>
     <br>
-		{html_radios name='commentable' values=['false','true'] output=['No'|translate,'Yes'|translate] selected=$CAT_COMMENTABLE}
+    {html_radios name='commentable' values=['false','true'] output=['No'|translate,'Yes'|translate] selected=$CAT_COMMENTABLE}
+    <label id="applytoSubAction">
+      <input type="checkbox" name="apply_commentable_on_sub">
+      {'Apply to sub-albums'|translate}
+    </label>
   </p>
   {/if}
 

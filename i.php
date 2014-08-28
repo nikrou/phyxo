@@ -167,8 +167,8 @@ function parse_custom_params($tokens) {
 function parse_request() {
     global $conf, $page;
 
-    if ($conf['question_mark_in_urls']==false and isset($_SERVER["PATH_INFO"]) and !empty($_SERVER["PATH_INFO"])) {
-        $req = $_SERVER["PATH_INFO"];
+    if (!$conf['question_mark_in_urls'] && !empty($_SERVER['PATH_INFO'])) {
+        $req = $_SERVER['PATH_INFO'];
         $req = str_replace('//', '/', $req);
         $path_count = count( explode('/', $req) );
         $page['root_path'] = PHPWG_ROOT_PATH.str_repeat('../', $path_count-1);

@@ -926,7 +926,7 @@ function ws_images_add($params, $service) {
     }
 
     // and now, let's create tag associations
-    if (isset($params['tag_ids']) and !empty($params['tag_ids'])) {
+    if (!empty($params['tag_ids'])) {
         set_tags(explode(',', $params['tag_ids']), $image_id);
     }
 
@@ -997,7 +997,7 @@ function ws_images_addSimple($params, $service) {
         array('id' => $image_id)
     );
 
-    if (isset($params['tags']) and !empty($params['tags'])) {
+    if (!empty($params['tags'])) {
         include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
         $tag_ids = array();

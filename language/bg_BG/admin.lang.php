@@ -729,7 +729,6 @@ $lang['No order field selected'] = 'Не е за избраното поле';
 $lang['No photo can be deleted'] = 'Не може да бъде изтрита снимка';
 $lang['No photo in the current set.'] = 'Няма снимка в сегашния набор.';
 $lang['Link all album photos to some existing albums'] = 'Връзка всички албуми снимки на някои съществуващи албуми';
-$lang['Mail address is obligatory for all users'] = 'Мейл адрес е задължителна за всички потребители';
 $lang['Minimum height'] = 'Минимална височина';
 $lang['Minimum privacy level'] = 'Минимална поверителност ниво';
 $lang['Minimum width'] = 'Минимална ширина';

@@ -439,11 +439,11 @@ if ($step == 1) {
                 get_l10n_args('Welcome to your new installation of Phyxo!', ''),
                 get_l10n_args('', ''),
                 get_l10n_args('Here are your connection settings', ''),
+                get_l10n_args('', ''),
+                get_l10n_args('Link: %s', get_absolute_root_url()),
                 get_l10n_args('Username: %s', $admin_name),
                 get_l10n_args('Password: %s', $admin_pass1),
-                get_l10n_args('Email: %s', $admin_mail),
-                get_l10n_args('', ''),
-                get_l10n_args('Don\'t hesitate to consult our forums for any help: %s', PHPWG_URL),
+                get_l10n_args('Email: %s', $admin_mail)
             );
 
             pwg_mail(

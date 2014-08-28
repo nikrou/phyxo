@@ -21,6 +21,7 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
 $lang['Password ']['confirm'] = 'ពាក្យ​សម្ងាត់​ [បញ្ជាក់]';
 $lang['PHP 5 is required'] = 'PHP 5 ត្រូវ​ការជា​ចាំបាច់';
 $lang['Database configuration'] = 'ការ​កំណត់​លើ​មូលដ្ឋាន​ទិន្នន័យ';

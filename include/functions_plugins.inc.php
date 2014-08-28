@@ -36,9 +36,9 @@ define('EVENT_HANDLER_PRIORITY_NEUTRAL', 50);
  * @param Callable $func the callback function
  * @param int $priority greater priority will be executed at last
  * @param string $include_path file to include before executing the callback
- * @return bool false is handler already exists
+ * @return bool false if handler already exists
  */
-function add_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null) {
+function add_event_handler($event, Callable $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null) {
     global $pwg_event_handlers;
 
     if (isset($pwg_event_handlers[$event][$priority])) {
@@ -66,7 +66,7 @@ function add_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTR
  * @param Callable $func
  * @param int $priority
  */
-function remove_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
+function remove_event_handler($event, Callable $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
   global $pwg_event_handlers;
 
   if (!isset($pwg_event_handlers[$event][$priority])) {

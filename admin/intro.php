@@ -86,15 +86,6 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
 
 $template->set_filenames(array('intro' => 'intro.tpl'));
 
-if ($conf['show_newsletter_subscription']) {
-  $template->assign(
-    array(
-      'EMAIL' => $user['email'],
-      'SUBSCRIBE_BASE_URL' => get_newsletter_subscribe_base_url($user['language']),
-      )
-    );
-}
-
 $php_current_timestamp = date("Y-m-d H:i:s");
 $db_version = pwg_get_db_version();
 list($db_current_date) = pwg_db_fetch_row(pwg_query('SELECT now();'));

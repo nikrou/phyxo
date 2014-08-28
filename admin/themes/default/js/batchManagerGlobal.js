@@ -44,7 +44,6 @@ $("#removeFilters").click(function() {
 });
 
 
-
 /* ********** Thumbs */
 
 /* Shift-click: select all photos between the click and the shift+click */

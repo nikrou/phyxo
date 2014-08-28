@@ -407,7 +407,7 @@ $(document).ready(function() {
 <h2>{'Batch Manager'|translate}</h2>
 
   <form action="{$F_ACTION}" method="post">
-	<input type="hidden" name="start" value="{$START}">
+  <input type="hidden" name="start" value="{$START}">
 
   <fieldset>
     <legend>{'Filter'|translate}</legend>

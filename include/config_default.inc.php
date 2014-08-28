@@ -665,9 +665,6 @@ $conf['ws_max_images_per_page'] = 500;
 // Maximum number of users to be returned foreach call to the web service
 $conf['ws_max_users_per_page'] = 1000;
 
-// Display a link to subscribe to Phyxo Announcements Newsletter
-$conf['show_newsletter_subscription'] = true;
-
 // +-----------------------------------------------------------------------+
 // | Filter                                                                |
 // +-----------------------------------------------------------------------+

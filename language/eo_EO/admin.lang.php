@@ -298,7 +298,6 @@ $lang['List'] = 'Listo';
 $lang['Local'] = 'Loka';
 $lang['Lock'] = 'Ŝlosi';
 $lang['Lock albums'] = 'Ŝlosi fotarojn';
-$lang['Mail address is obligatory for all users'] = 'Retadreso devigas por ĉiu uzanto';
 $lang['Mail content'] = 'Mesaĝa enhavo';
 $lang['Include history data (Warning: server memory limit may be exceeded)'] = 'Inkluzivigi historidatumojn (Atentu! La limo de la servila memoro eble transpasiĝos)';
 $lang['Information data registered in database'] = 'Informo registriĝis en datumbazon';

@@ -380,6 +380,7 @@ $tabsheet->assign();
 $widths = array();
 $heights = array();
 $ratios = array();
+$dimensions = array();
 
 // get all width, height and ratios
 $query = 'SELECT DISTINCT width, height FROM '.IMAGES_TABLE;

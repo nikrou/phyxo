@@ -11,26 +11,46 @@ var sortPlugins = (function(a, b) {
       > $(b).find('input[name="'+sortOrder+'"]').val().toLowerCase()  ? 1 : -1;
 });
 
-jQuery(document).ready(function(){
-	jQuery("td[id^='desc_']").click(function() {
+$(function(){
+	$("td[id^='desc_']").click(function() {
 		id = this.id.split('_');
-		nb_lines = jQuery("#bigdesc_"+id[1]).html().split('<br>').length;
+		nb_lines = $("#bigdesc_"+id[1]).html().split('<br>').length;
 
-		jQuery("#smalldesc_"+id[1]).toggle('blind', 1);
-		if (jQuery(this).hasClass('bigdesc')) {
-			jQuery("#bigdesc_"+id[1]).toggle('blind', 1);
+		$("#smalldesc_"+id[1]).toggle('blind', 1);
+		if ($(this).hasClass('bigdesc')) {
+			$("#bigdesc_"+id[1]).toggle('blind', 1);
 		} else {
-			jQuery("#bigdesc_"+id[1]).toggle('blind', 50 + (nb_lines * 30));
+			$("#bigdesc_"+id[1]).toggle('blind', 50 + (nb_lines * 30));
 		}
-		jQuery(this).toggleClass('bigdesc');
+		$(this).toggleClass('bigdesc');
 		return false;
 	});
 
-  jQuery('select[name="selectOrder"]').change(function() {
+  $('select[name="selectOrder"]').change(function() {
     sortOrder = this.value;
     $('.pluginBox').sortElements(sortPlugins);
     $.get("admin.php?plugins_new_order="+sortOrder);
   });
+
+  $('#filter').keyup(function(){
+  var filter = $(this).val();
+  if (filter.length>2) {
+   $('.pluginBox').hide();
+    $('#availablePlugins .pluginBox input[name="name"]').each(function(){
+      if ($(this).val().toUpperCase().indexOf(filter.toUpperCase()) != -1) {
+       $(this).parents('div').show();
+      }
+    });
+  }
+  else {
+    $('.pluginBox').show();
+  }
+ });
+ $("#filter").focus();
+ $(".titrePage input[name='Clear']").click(function(){
+   $("#filter").val('');
+   $(".pluginBox").show();
+ });
 });
 {/literal}{/footer_script}
 

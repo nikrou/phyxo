@@ -448,7 +448,6 @@ $lang['add new photos to caddie'] = 'Aggiungere le nuove foto al cestino';
 $lang['No display'] = 'Nessuna visualizzazione';
 $lang['Classic display'] = 'Visualizzazione classica';
 $lang['Hoverbox display'] = 'Visualizzazione durante il passaggio del mouse';
-$lang['Mail address is obligatory for all users'] = 'L\'indirizzo email è obligatorio per tutti gli utenti';
 $lang['Minimum privacy level'] = 'Livello minimo di privacy';
 $lang['Privacy level'] = 'Livello di privacy';
 $lang['Level 0'] = '---';
