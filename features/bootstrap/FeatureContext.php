@@ -43,7 +43,8 @@ class FeatureContext extends MinkContext
         $this->parameters = $parameters;
         $this->pages = $parameters['pages'];
 
-        $this->useContext('db_context', new DbContext($parameters));
+        $this->useContext('db', new DbContext($parameters));
+        $this->useContext('api', new GuzzleApiContext($parameters));
     }
 
     /**
@@ -79,7 +80,7 @@ class FeatureContext extends MinkContext
     /**
      * @Then /^I should not be allowed to go to a protected page$/
      */
-    public function iShouldNotBeAllowedToSeeAProtectedPage() {
+    public function iShouldNotBeAllowedToGoToAProtectedPage() {
         return array(
             $this->iAmOnAProtectedPage(),
             new Then('the response status code should be 401'),
@@ -117,7 +118,7 @@ class FeatureContext extends MinkContext
      * @Given /^I should not be allowed to go to album "([^"]*)"$/
      */
     public function iShouldNotBeAllowedToGoToAlbum($album_name) {
-        $album = $this->getSubcontext('db_context')->getAlbum($album_name);
+        $album = $this->getSubcontext('db')->getAlbum($album_name);
 
         return array(
             new When(sprintf('I go to "'.$this->pages['album'].'"', $album->id)),

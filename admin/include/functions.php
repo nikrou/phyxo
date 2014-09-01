@@ -108,7 +108,7 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
     pwg_query($query);
 
     // destruction of the category
-    $query = 'DELETE FROM '.CATEGORIES_TABLE.' id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
+    $query = 'DELETE FROM '.CATEGORIES_TABLE.' WHERE id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
     pwg_query($query);
 
     $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.' WHERE cat_id IN ('.implode(',',$ids).')';

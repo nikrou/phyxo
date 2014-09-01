@@ -20,7 +20,8 @@
 
 ;; conf
 /local/config/config.inc.php
-local/config/database.*.php
+/local/config/database.*.php
+!/local/config/database.*.travis.php
 
 ;; external libraries
 /vendor/*

@@ -763,7 +763,6 @@ function log_user($user_id, $remember_me) {
         session_start();
     }
     $_SESSION['pwg_uid'] = (int)$user_id;
-
     $user['id'] = $_SESSION['pwg_uid'];
     trigger_notify('user_login', $user['id']);
 }
@@ -818,7 +817,7 @@ function pwg_password_hash($password) {
  * @return bool
  */
 function pwg_password_verify($password, $hash, $user_id=null) {
-    if (empty($hash) || strpos($hash, '$P') !== false) {
+    if (empty($hash) || strpos($hash, '$P') !== false || $hash == md5($password)) {
         $hash = pwg_password_hash($password);
         single_update(
             USERS_TABLE,
@@ -831,7 +830,7 @@ function pwg_password_verify($password, $hash, $user_id=null) {
 }
 
 /**
- * Tries to login a user given username and password (must be MySql escaped).
+ * Tries to login a user given username and password.
  *
  * @param string $username
  * @param string $password
@@ -854,6 +853,8 @@ add_event_handler('try_log_user', 'pwg_login');
  * @return bool
  */
 function pwg_login($success, $username, $password, $remember_me) {
+    global $conf;
+
     if ($success===true) {
         return true;
     }
@@ -861,7 +862,6 @@ function pwg_login($success, $username, $password, $remember_me) {
     // we force the session table to be clean
     pwg_session_gc();
 
-    global $conf;
     // retrieving the encrypted password of the login submitted
     $query = 'SELECT '.$conf['user_fields']['id'].' AS id,';
     $query .= $conf['user_fields']['password'].' AS password';

@@ -78,7 +78,7 @@ function get_site_url($category_id) {
     global $page;
 
     $query = 'SELECT galleries_url FROM '.SITES_TABLE.' AS s,'.CATEGORIES_TABLE.' AS c';
-    $query . = ' WHERE s.id = c.site_id AND c.id = '.$category_id;
+    $query .= ' WHERE s.id = c.site_id AND c.id = '.$category_id;
     $row = pwg_db_fetch_assoc(pwg_query($query));
 
     return $row['galleries_url'];

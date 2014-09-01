@@ -38,7 +38,7 @@ define('EVENT_HANDLER_PRIORITY_NEUTRAL', 50);
  * @param string $include_path file to include before executing the callback
  * @return bool false if handler already exists
  */
-function add_event_handler($event, Callable $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null) {
+function add_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path=null) {
     global $pwg_event_handlers;
 
     if (isset($pwg_event_handlers[$event][$priority])) {
@@ -66,7 +66,7 @@ function add_event_handler($event, Callable $func, $priority=EVENT_HANDLER_PRIOR
  * @param Callable $func
  * @param int $priority
  */
-function remove_event_handler($event, Callable $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
+function remove_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
   global $pwg_event_handlers;
 
   if (!isset($pwg_event_handlers[$event][$priority])) {
@@ -279,11 +279,8 @@ function autoupdate_plugin(&$plugin) {
 
                 // update database (only on production)
                 if ($plugin['version'] != 'auto') {
-                    $query = '
-UPDATE '. PLUGINS_TABLE .'
-  SET version = "'. $plugin['version'] .'"
-  WHERE id = "'. $plugin['id'] .'"
-;';
+                    $query = 'UPDATE '. PLUGINS_TABLE;
+                    $query .= ' SET version = \''. $plugin['version'] .'\' WHERE id = \''. $plugin['id'] .'\';';
                     pwg_query($query);
                 }
             }

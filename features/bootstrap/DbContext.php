@@ -27,6 +27,8 @@ class DbContext extends RawMinkContext
 {
     private static $conf_loaded = false;
     public static $prefix = 'phyxo_';
+    private $response_params = array();
+    private $last_id;
 
     /**
      * @Given /^a user:$/
@@ -34,7 +36,7 @@ class DbContext extends RawMinkContext
      */
     public function aUser(TableNode $table) {
         foreach ($table->getHash() as $user) {
-            self::addUser($user);
+            $this->last_id = self::addUser($user);
         }
     }
 
@@ -46,7 +48,7 @@ class DbContext extends RawMinkContext
         foreach ($table->getHash() as $image) {
             $image_id = self::addImage($image);
             if (!empty($image['tags'])) {
-                self::addTags($image['tags'], $image_id);
+                $this->last_id = self::addTags($image['tags'], $image_id);
             }
         }
     }
@@ -57,7 +59,22 @@ class DbContext extends RawMinkContext
      */
     public function albums(TableNode $table) {
         foreach ($table->getHash() as $album) {
-            self::addAlbum($album);
+            $this->last_id = self::addAlbum($album);
+        }
+    }
+
+    /**
+     * @Then /^save "([^"]*)"$/
+     */
+    public function save($id) {
+        $this->response_params[$id] = $this->last_id;
+    }
+
+    public function getSaved($id) {
+        if (isset($this->response_params[$id])) {
+            return $this->response_params[$id];
+        } else {
+            return null;
         }
     }
 
@@ -90,6 +107,15 @@ class DbContext extends RawMinkContext
 
         return $album;
     }
+
+
+    public function get_pwg_token($session_id) {
+        $conf = ORM::for_table(self::$prefix.'config')->where('param', 'secret_key')->find_one();
+        if ($conf) {
+            return hash_hmac('md5', $session_id, $conf->value);
+        }
+    }
+
 
     /**
      * @BeforeSuite
@@ -280,6 +306,8 @@ class DbContext extends RawMinkContext
             $album->uppercats = $album->id;
             $album->save();
         }
+
+        return $album->id;
     }
 
     private static function manageAccess($username, $album_name, $remove=false) {
@@ -337,6 +365,8 @@ class DbContext extends RawMinkContext
         $comment->validation_date = $yesterday;
         $comment->validated = true;
         $comment->save();
+
+        return $comment->id;
     }
 
     private function addTags($param_tags, $image_id) {

@@ -10,7 +10,7 @@
 	],
 	"minimum-stability": "stable",
 	"require": {
-		"php": ">=5.3.7",
+		"php": ">=5.4.0",
 		"smarty/smarty": "v3.1.13",
 		"phpmailer/phpmailer": "v5.2.7",
 		"jdorn/sql-formatter": "1.*",
@@ -25,7 +25,8 @@
 		"behat/mink-goutte-driver": "*",
 		"behat/mink-zombie-driver": "*",
 		"symfony/dom-crawler": "2.1.*@dev",
-		"j4mie/idiorm": "*"
+		"j4mie/idiorm": "*",
+		"guzzlehttp/guzzle": "4.*"
 	},
 	"config": {
 		"bin-dir": "bin/"

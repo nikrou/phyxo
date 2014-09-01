@@ -187,7 +187,7 @@ function ws_categories_getList($params, &$service) {
     $query .= 'nb_images, count_images AS total_nb_images, representative_picture_id,';
     $query .= 'user_representative_picture_id, count_images, count_categories,';
     $query .= 'date_last, max_date_last, count_categories AS nb_categories FROM '. CATEGORIES_TABLE;
-    $query .= $join_type.' JOIN '. USER_CACHE_CATEGORIES_TABLE .' ON id=cat_id AND user_id='.$join_user;
+    $query .= ' '.$join_type.' JOIN '. USER_CACHE_CATEGORIES_TABLE .' ON id=cat_id AND user_id='.$join_user;
     $query .= ' WHERE '. implode("\n    AND ", $where) .';';
     $result = pwg_query($query);
 
@@ -385,7 +385,7 @@ function ws_categories_getList($params, &$service) {
  * account.
  */
 function ws_categories_getAdminList($params, &$service) {
-    $query = 'SELECT category_id, COUNT(*) AS counter FROM '. IMAGE_CATEGORY_TABLE;
+    $query = 'SELECT category_id, COUNT(1) AS counter FROM '. IMAGE_CATEGORY_TABLE;
     $query .= ' GROUP BY category_id;';
     $nb_images_of = query2array($query, 'category_id', 'counter');
 

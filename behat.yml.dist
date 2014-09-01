@@ -2,6 +2,7 @@ default:
   context:
     parameters:
       base_url: http://localhost/phyxo/behat
+      api_base_url: %behat.mink.base_url%/ws.php
 
       pages:
         identification: identification.php

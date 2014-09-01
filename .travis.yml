@@ -2,10 +2,22 @@ language: php
 php:
   - "5.5"
   - "5.4"
-  - "5.3"
+
+env:
+  - DB=mysql
+  - DB=pgsql
+  - DB=sqlite
 
 before_script:
-  composer install
+  - composer install
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database phyxo_test;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/database.inc.mysql.travis.php local/config/database.inc.php;fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo_test;' -U postgres ;fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/database.inc.pgsql.travis.php local/config/database.inc.php;fi"
+  - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/database.inc.sqlite.travis.php local/database.inc.php;fi"
+  - php tools/install.php
+  - php -S localhost:1080 -t . &
 
 script:
   php ./bin/atoum
+  php ./bin/behat
