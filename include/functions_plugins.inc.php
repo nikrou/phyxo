@@ -67,27 +67,27 @@ function add_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTR
  * @param int $priority
  */
 function remove_event_handler($event, $func, $priority=EVENT_HANDLER_PRIORITY_NEUTRAL) {
-  global $pwg_event_handlers;
+    global $pwg_event_handlers;
 
-  if (!isset($pwg_event_handlers[$event][$priority])) {
-      return false;
-  }
-
-  for ($i=0; $i<count($pwg_event_handlers[$event][$priority]); $i++) {
-    if ($pwg_event_handlers[$event][$priority][$i]['function']==$func) {
-        unset($pwg_event_handlers[$event][$priority][$i]);
-        $pwg_event_handlers[$event][$priority] = array_values($pwg_event_handlers[$event][$priority]);
-
-        if (empty($pwg_event_handlers[$event][$priority])) {
-            unset($pwg_event_handlers[$event][$priority]);
-            if (empty($pwg_event_handlers[$event])) {
-                unset($pwg_event_handlers[$event]);
-            }
-        }
-        return true;
+    if (!isset($pwg_event_handlers[$event][$priority])) {
+        return false;
     }
-  }
-  return false;
+
+    for ($i=0; $i<count($pwg_event_handlers[$event][$priority]); $i++) {
+        if ($pwg_event_handlers[$event][$priority][$i]['function']==$func) {
+            unset($pwg_event_handlers[$event][$priority][$i]);
+            $pwg_event_handlers[$event][$priority] = array_values($pwg_event_handlers[$event][$priority]);
+
+            if (empty($pwg_event_handlers[$event][$priority])) {
+                unset($pwg_event_handlers[$event][$priority]);
+                if (empty($pwg_event_handlers[$event])) {
+                    unset($pwg_event_handlers[$event]);
+                }
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 /**

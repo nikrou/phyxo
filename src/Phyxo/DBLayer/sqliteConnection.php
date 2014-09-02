@@ -37,7 +37,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         try {
             $this->db_link = new \PDO($db_file);
         } catch (\Exception $e) {
-            my_error('Failed to open database '.$db_file . ':'.$e->getMessage(), true);
+            \my_error('Failed to open database '.$db_file . ':'.$e->getMessage(), true);
         }
 
         $this->db_link->sqliteCreateFunction('now', array($this, '_now'), 0);
@@ -219,26 +219,28 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * @param string fieldname
      */
     public function get_enums($table, $field) {
+        global $prefixeTable;
+
         $list = array();
 
         $Enums = array();
-        $Enums['piwigo_categories']['status'] = array('public', 'private');
-        $Enums['piwigo_categories']['visible'] = array('true', 'false');
-        $Enums['piwigo_categories']['commentable'] = array('true', 'false');
-        $Enums['piwigo_comments']['validated'] = array('true', 'false');
-        $Enums['piwigo_groups']['is_default'] = array('true', 'false');
-        $Enums['piwigo_history']['section'] = array('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats');
-        $Enums['piwigo_history']['summarized'] = array('true', 'false');
-        $Enums['piwigo_history']['image_type'] = array('picture', 'high', 'other');
-        $Enums['piwigo_plugins']['state'] = array('inactive', 'active');
-        $Enums['piwigo_user_cache']['need_update'] = array('true', 'false');
-        $Enums['piwigo_user_cache']['image_access_type'] = array('NOT IN', 'IN');
-        $Enums['piwigo_user_infos']['status'] = array('webmaster','admin','normal','generic','guest');
-        $Enums['piwigo_user_infos']['expand'] = array('true', 'false');
-        $Enums['piwigo_user_infos']['show_nb_comments'] = array('true', 'false');
-        $Enums['piwigo_user_infos']['show_nb_hits'] = array('true', 'false');
-        $Enums['piwigo_user_infos']['enabled_high'] = array('true', 'false');
-        $Enums['piwigo_user_mail_notification']['enabled'] = array('true', 'false');
+        $Enums[$prefixeTable.'categories']['status'] = array('public', 'private');
+        $Enums[$prefixeTable.'categories']['visible'] = array('true', 'false');
+        $Enums[$prefixeTable.'categories']['commentable'] = array('true', 'false');
+        $Enums[$prefixeTable.'comments']['validated'] = array('true', 'false');
+        $Enums[$prefixeTable.'groups']['is_default'] = array('true', 'false');
+        $Enums[$prefixeTable.'history']['section'] = array('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats');
+        $Enums[$prefixeTable.'history']['summarized'] = array('true', 'false');
+        $Enums[$prefixeTable.'history']['image_type'] = array('picture', 'high', 'other');
+        $Enums[$prefixeTable.'plugins']['state'] = array('inactive', 'active');
+        $Enums[$prefixeTable.'user_cache']['need_update'] = array('true', 'false');
+        $Enums[$prefixeTable.'user_cache']['image_access_type'] = array('NOT IN', 'IN');
+        $Enums[$prefixeTable.'user_infos']['status'] = array('webmaster','admin','normal','generic','guest');
+        $Enums[$prefixeTable.'user_infos']['expand'] = array('true', 'false');
+        $Enums[$prefixeTable.'user_infos']['show_nb_comments'] = array('true', 'false');
+        $Enums[$prefixeTable.'user_infos']['show_nb_hits'] = array('true', 'false');
+        $Enums[$prefixeTable.'user_infos']['enabled_high'] = array('true', 'false');
+        $Enums[$prefixeTable.'user_mail_notification']['enabled'] = array('true', 'false');
 
         if (!empty($Enums[$table][$field])) {
             $list = $Enums[$table][$field];
