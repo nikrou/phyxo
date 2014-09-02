@@ -324,7 +324,6 @@ $lang['Phyxo configuration'] = 'Phyxo podešavanja';
 $lang['Edit album'] = 'Uredi kategoriju';
 $lang['Group management'] = 'Upravljanje grupama';
 $lang['User list'] = 'Lista korisnika';
-$lang['Edit photo information'] = 'Promena podataka o slici';
 $lang['Database synchronization with files'] = 'Sinhronizacija baze podataka sa datotekama';
 $lang['all'] = 'sve';
 $lang['height must be a number superior to'] = 'visina mora biti broj veći od ';

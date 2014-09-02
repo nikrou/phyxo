@@ -19,5 +19,5 @@ before_script:
   - php -S localhost:1080 -t . &
 
 script:
-  php ./bin/atoum
-  php ./bin/behat
+  - php ./bin/atoum
+  - php ./bin/behat

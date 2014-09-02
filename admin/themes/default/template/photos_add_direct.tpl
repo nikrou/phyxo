@@ -101,7 +101,10 @@ jQuery(document).ready(function(){
 
     init : {
       BeforeUpload: function(up, file) {
-        console.log('[BeforeUpload]', file);
+        // warn user if she wants to leave page while upload is running
+ 	jQuery(window).bind('beforeunload', function() {
+ 	  return "{/literal}{'Upload in progress'|translate|escape}{literal}";
+ 	});
 
         // no more change on category/level
         jQuery("select[name=level]").attr("disabled", "disabled");
@@ -121,8 +124,6 @@ jQuery(document).ready(function(){
 
       FileUploaded: function(up, file, info) {
         // Called when file has finished uploading
-        console.log('[FileUploaded] File:', file, "Info:", info);
-
         var data = jQuery.parseJSON(info.response);
 
         jQuery("#uploadedPhotos").parent("fieldset").show();
@@ -141,8 +142,6 @@ jQuery(document).ready(function(){
 
       UploadComplete: function(up, files) {
         // Called when all files are either uploaded or failed
-        console.log('[UploadComplete]');
-
         jQuery(".selectAlbum, .selectFiles, #permissions, .showFieldset").hide();
 
         jQuery(".infos").append('<ul><li>'+sprintf(photosUploaded_label, uploadedPhotos.length)+'</li></ul>');
@@ -169,6 +168,11 @@ jQuery(document).ready(function(){
     }
 	});
 
+        // user can safely leave page without warning
+        jQuery(window).unbind('beforeunload');
+      }
+    }
+	});
 {/literal}
 });
 {/footer_script}

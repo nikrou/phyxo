@@ -93,7 +93,7 @@ trigger_notify('loc_begin_cat_modify');
 
 //---------------------------------------------------------------- verification
 if (!isset($_GET['cat_id']) || !is_numeric($_GET['cat_id'])) {
-  trigger_error( 'missing cat_id param', E_USER_ERROR);
+    trigger_error( 'missing cat_id param', E_USER_ERROR);
 }
 
 //--------------------------------------------------------- form criteria check
@@ -115,6 +115,13 @@ if (isset($_POST['submit'])) {
         $data,
         array('id' => $data['id'])
     );
+    if ($_POST['apply_commentable_on_sub']) {
+        $subcats = get_subcat_ids(array('id' => $data['id']));
+        $query = 'UPDATE '.CATEGORIES_TABLE;
+        $query .= ' SET commentable = \''.$data['commentable'].'\'';
+        $query .= ' WHERE id IN ('.implode(',', $subcats).');';
+        pwg_query($query);
+    }
 
     if ($_POST['apply_commentable_on_sub']) {
         $subcats = get_subcat_ids(array('id' => $data['id']));

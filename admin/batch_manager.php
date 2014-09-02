@@ -132,6 +132,7 @@ if (isset($_POST['submitFilter'])) {
     if (isset($_POST['filter_search_use'])) {
         $_SESSION['bulk_manager_filter']['search']['q'] = $_POST['q'];
     }
+    trigger_notify('batch_manager_register_filters');
 } elseif (isset($_GET['filter'])) { // filters from url
     if (!is_array($_GET['filter'])) {
         $_GET['filter'] = explode(',', $_GET['filter']);
@@ -333,6 +334,8 @@ if (isset($_SESSION['bulk_manager_filter']['search'])) {
     $res = get_quick_search_results_no_cache($_SESSION['bulk_manager_filter']['search']['q'], array('permissions'=>false));
     $filter_sets[] = $res['items'];
 }
+
+$filter_sets = trigger_change('batch_manager_perform_filters', $filter_sets);
 
 $current_set = array_shift($filter_sets);
 foreach ($filter_sets as $set) {

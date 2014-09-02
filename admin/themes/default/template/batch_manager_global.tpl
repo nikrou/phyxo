@@ -62,12 +62,6 @@ $(function() {
       }
     }
   });
-
-  if ($(this).data('value')) {
-        $.each($(this).data('value'), $.proxy(function(i, tag) {
-          this.selectize.addItem(tag.id);
-        }, this));
-  }
 });
 
 var nb_thumbs_page = {$nb_thumbs_page};
@@ -267,139 +261,50 @@ $(document).ready(function() {
   });
 
   checkPermitAction();
-
-	{* /* dimensions sliders */
-	/**
-	 * find the key from a value in the startStopValues array
-	 */ *}
-  function getSliderKeyFromValue(value, values) {
-    for (var key in values) {
-      if (values[key] == value) {
-        return key;
-      }
-    }
-
-    return 0;
-  }
-
-  var dimension_values = {
-    width:[{$dimensions.widths}],
-    height:[{$dimensions.heights}],
-    ratio:[{$dimensions.ratios}]
-  };
-
-	function onSliderChange(type, ui, pattern) {
-		$("input[name='filter_dimension_min_"+type+"']").val(dimension_values[type][ui.values[0]]);
-		$("input[name='filter_dimension_max_"+type+"']").val(dimension_values[type][ui.values[1]]);
-
-		$("#filter_dimension_"+type+"_info").html(sprintf(
-			pattern,
-			dimension_values[type][ui.values[0]],
-			dimension_values[type][ui.values[1]]
-		));
-	}
-
-  $("#filter_dimension_width_slider").slider({
-    range: true,
-    min: 0,
-    max: dimension_values['width'].length - 1,
-    values: [
-      getSliderKeyFromValue({$dimensions.selected.min_width}, dimension_values['width']),
-      getSliderKeyFromValue({$dimensions.selected.max_width}, dimension_values['width'])
-    ],
-		slide: function(event, ui) {
-			onSliderChange('width', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
-		},
-		change: function(event, ui) {
-			onSliderChange('width', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
-		}
-  });
-
-  $("#filter_dimension_height_slider").slider({
-    range: true,
-    min: 0,
-    max: dimension_values['height'].length - 1,
-    values: [
-      getSliderKeyFromValue({$dimensions.selected.min_height}, dimension_values['height']),
-      getSliderKeyFromValue({$dimensions.selected.max_height}, dimension_values['height'])
-    ],
-		slide: function(event, ui) {
-			onSliderChange('height', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
-		},
-		change: function(event, ui) {
-			onSliderChange('height', ui, "{'between %d and %d pixels'|translate|escape:'javascript'}");
-		}
-  });
-
-  $("#filter_dimension_ratio_slider").slider({
-    range: true,
-    min: 0,
-    max: dimension_values['ratio'].length - 1,
-    values: [
-      getSliderKeyFromValue({$dimensions.selected.min_ratio}, dimension_values['ratio']),
-      getSliderKeyFromValue({$dimensions.selected.max_ratio}, dimension_values['ratio'])
-    ],
-		slide: function(event, ui) {
-			onSliderChange('ratio', ui, "{'between %.2f and %.2f'|translate|escape:'javascript'}");
-		},
-		change: function(event, ui) {
-			onSliderChange('ratio', ui, "{'between %.2f and %.2f'|translate|escape:'javascript'}");
-		}
-  });
-
-  $("a.dimensions-choice").click(function() {
-    var type = $(this).data("type");
-    var min = $(this).data("min");
-    var max = $(this).data("max");
-
-		$("#filter_dimension_"+ type +"_slider")
-			.slider("values", 0, getSliderKeyFromValue(min, dimension_values[type]) )
-			.slider("values", 1, getSliderKeyFromValue(max, dimension_values[type]) );
-  });
-
-  {* filesize, copied from dimensions filter and modified, to be moved in a plugin later *}
-  var filesize_values = [{$filesize.list}];
-
-  function filesize_onSliderChange(ui, pattern) {
-    $("input[name='filter_filesize_min']").val(filesize_values[ui.values[0]]);
-    $("input[name='filter_filesize_max']").val(filesize_values[ui.values[1]]);
-
-    $("#filter_filesize_info").html(sprintf(
-      pattern,
-      filesize_values[ui.values[0]],
-      filesize_values[ui.values[1]]
-    ));
-  }
-
-  $("#filter_filesize_slider").slider({
-    range: true,
-    min: 0,
-    max: filesize_values.length - 1,
-    values: [
-      getSliderKeyFromValue({$filesize.selected.min}, filesize_values),
-      getSliderKeyFromValue({$filesize.selected.max}, filesize_values)
-    ],
-    slide: function(event, ui) {
-      filesize_onSliderChange(ui, "{'between %s and %s MB'|translate|escape:'javascript'}");
-    },
-    change: function(event, ui) {
-      filesize_onSliderChange(ui, "{'between %s and %s MB'|translate|escape:'javascript'}");
-    }
-  });
-
-  $("a.filesize-choice").click(function() {
-    $("#filter_filesize_slider")
-      .slider("values", 0, 0)
-      .slider("values", 1, filesize_values.length - 1);
-  });
-
-
   $("select[name=filter_prefilter]").change(function() {
     $("#empty_caddie").toggle($(this).val() == "caddie");
     $("#duplicates_options").toggle($(this).val() == "duplicates");
   });
 });
 
+{*<!-- sliders config -->*}
+var sliders = {
+  widths: {
+    values: [{$dimensions.widths}],
+    selected: {
+      min: {$dimensions.selected.min_width},
+      max: {$dimensions.selected.max_width},
+    },
+    text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
+  },
+
+  heights: {
+    values: [{$dimensions.heights}],
+    selected: {
+      min: {$dimensions.selected.min_height},
+      max: {$dimensions.selected.max_height},
+    },
+    text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
+  },
+
+  ratios: {
+    values: [{$dimensions.ratios}],
+    selected: {
+      min: {$dimensions.selected.min_ratio},
+      max: {$dimensions.selected.max_ratio},
+    },
+    text: '{'between %.2f and %.2f'|translate|escape:'javascript'}'
+  },
+
+  filesizes: {
+    values: [{$filesize.list}],
+    selected: {
+      min: {$filesize.selected.min},
+      max: {$filesize.selected.max},
+    },
+    text: '{'between %s and %s MB'|translate|escape:'javascript'}'
+  }
+};
 {/footer_script}
 
 <div id="batchManagerGlobal">

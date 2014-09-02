@@ -30,71 +30,63 @@ $template->set_filenames(array('header'=>'header.tpl'));
 trigger_notify('loc_begin_page_header');
 
 $template->assign(
-  array(
-    'GALLERY_TITLE' =>
-      isset($page['gallery_title']) ?
+    array(
+        'GALLERY_TITLE' =>
+        isset($page['gallery_title']) ?
         $page['gallery_title'] : $conf['gallery_title'],
 
-    'PAGE_BANNER' =>
-      trigger_change(
-        'render_page_banner',
-        str_replace(
-          '%gallery_title%',
-          $conf['gallery_title'],
-          isset($page['page_banner']) ? $page['page_banner'] : $conf['page_banner']
-          )
+        'PAGE_BANNER' =>
+        trigger_change(
+            'render_page_banner',
+            str_replace(
+                '%gallery_title%',
+                $conf['gallery_title'],
+                isset($page['page_banner']) ? $page['page_banner'] : $conf['page_banner']
+            )
         ),
 
-    'BODY_ID' =>
-      isset($page['body_id']) ?
-        $page['body_id'] : '',
-
-    'CONTENT_ENCODING' => get_pwg_charset(),
-    'PAGE_TITLE' => strip_tags($title),
-
-    'U_HOME' => get_gallery_home_url(),
-
-    'LEVEL_SEPARATOR' => $conf['level_separator'],
-    ));
+        'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
+        'CONTENT_ENCODING' => get_pwg_charset(),
+        'PAGE_TITLE' => strip_tags($title),
+        'U_HOME' => get_gallery_home_url(),
+        'LEVEL_SEPARATOR' => $conf['level_separator'],
+    )
+);
 
 
 // Header notes
-if ( !empty($header_notes) )
-{
-  $template->assign('header_notes',$header_notes);
+if (!empty($header_notes)) {
+    $template->assign('header_notes',$header_notes);
 }
 
 // No referencing is required
-if ( !$conf['meta_ref'] )
-{
-  $page['meta_robots']['noindex'] = 1;
-  $page['meta_robots']['nofollow'] = 1;
+if (!$conf['meta_ref']) {
+    $page['meta_robots']['noindex'] = 1;
+    $page['meta_robots']['nofollow'] = 1;
 }
 
-if ( !empty($page['meta_robots']) )
-{
-  $template->append('head_elements',
+if (!empty($page['meta_robots'])) {
+    $template->append(
+        'head_elements',
         '<meta name="robots" content="'
         .implode(',', array_keys($page['meta_robots']))
         .'">'
     );
 }
-if ( !isset($page['meta_robots']['noindex']) )
-{
-  $template->assign('meta_ref',1);
+if (!isset($page['meta_robots']['noindex'])) {
+    $template->assign('meta_ref',1);
 }
 
 // refresh
-if ( isset( $refresh ) and intval($refresh) >= 0
-    and isset( $url_link ) )
-{
-  $template->assign(
-    array(
-      'page_refresh' => array(
-            'TIME' => $refresh,
-            'U_REFRESH' => $url_link
-          )
-      ));
+if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
+    $template->assign(
+        array(
+            'page_refresh' => array(
+                'TIME' => $refresh,
+                'U_REFRESH' => $url_link
+            )
+        )
+    );
 }
 
 trigger_notify('loc_end_page_header');
