@@ -202,7 +202,7 @@ function get_image_ids_for_tags($tag_ids, $mode='AND', $extra_images_where_sql='
     if ($mode=='AND' and count($tag_ids)>1) {
         $query .= ' HAVING COUNT(DISTINCT tag_id)='.count($tag_ids);
     }
-    $query .= (empty($order_by) ? $conf['order_by'] : $order_by);
+    $query .= ' '.(empty($order_by) ? $conf['order_by'] : $order_by);
 
     return query2array($query, null, 'id');
 }

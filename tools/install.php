@@ -97,7 +97,7 @@ $inserts = array(
     array(
         'id' => 1,
         'username' => 'admin',
-        'password' => password_hash(mt_rand(uniqid()), PASSWORD_BCRYPT), // don't care, don't want access
+        'password' => password_hash(openssl_random_pseudo_bytes(15), PASSWORD_BCRYPT), // don't care, don't want access
         'mail_address' => 'nikrou77@gmail.com',
     ),
     array(

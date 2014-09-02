@@ -102,7 +102,7 @@ class PwgNamedArray
 class PwgNamedStruct
 {
     public $_content;
-    protected $_xmlAttributes;
+    public $_xmlAttributes;
 
     /**
      * Constructs a named struct (usually returned by web service function

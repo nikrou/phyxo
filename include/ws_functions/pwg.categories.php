@@ -83,7 +83,7 @@ function ws_categories_getImages($params, &$service) {
         $query .= ' LEFT JOIN '. IMAGE_CATEGORY_TABLE .' ON i.id=image_id';
         $query .= ' WHERE '. implode("\n    AND ", $where_clauses);
         $query .= ' GROUP BY i.id';
-        $query .= $order_by;
+        $query .= ' '.$order_by;
         $query .= ' LIMIT '. $params['per_page'] .' OFFSET '. ($params['per_page']*$params['page']) .';';
         $result = pwg_query($query);
 
