@@ -44,7 +44,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_query($query) {
         if (is_resource($this->db_link)) {
-            $result = mysql_query($this->db_link, $query);
+            $result = mysql_query($query, $this->db_link);
             if ($result === false) {
                 $e = new \Exception($this->db_last_error($handle));
                 $e->sql = $query;
@@ -56,7 +56,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
     }
 
     public function db_version()  {
-        return $db_link->server_info;
+        return mysql_get_server_info();
     }
 
     public function db_check_version() {

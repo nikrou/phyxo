@@ -37,7 +37,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         try {
             $this->db_link = new \PDO($db_file);
         } catch (\Exception $e) {
-            \my_error('Failed to open database '.$db_file . ':'.$e->getMessage(), true);
+            throw new \Exception('Failed to open database '.$db_file . ':'.$e->getMessage());
         }
 
         $this->db_link->sqliteCreateFunction('now', array($this, '_now'), 0);
