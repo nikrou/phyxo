@@ -26,6 +26,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
   die ("Hacking attempt!");
 }
 
+use Phyxo\Block\BlockManager;
 
 function abs_fn_cmp($a, $b) {
     return abs($a)-abs($b);
@@ -42,8 +43,6 @@ function make_consecutive(&$orders, $step=50) {
 
 
 global $template;
-
-include_once(PHPWG_ROOT_PATH.'include/block.class.php');
 
 $menu = new BlockManager('menubar');
 $menu->load_registered_blocks();

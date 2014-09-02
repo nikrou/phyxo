@@ -30,20 +30,20 @@ array(
   'name' => 'blockmanager_apply',
   'type' => 'trigger_notify',
   'vars' => array('object', 'menublock'),
-  'files' => array('include\block.class.php (BlockManager::apply)'),
+  'files' => array('src\Phyxo\Block\BlockManager.php (BlockManager::apply)'),
   'infos' => 'use this trigger to modify existing menu blocks',
 ),
 array(
   'name' => 'blockmanager_prepare_display',
   'type' => 'trigger_notify',
   'vars' => array('object', 'this'),
-  'files' => array('include\block.class.php (BlockManager::prepare_display)'),
+  'files' => array('src\Phyxo\Block\BlockManager.php (BlockManager::prepare_display)'),
 ),
 array(
   'name' => 'blockmanager_register_blocks',
   'type' => 'trigger_notify',
   'vars' => array('object', 'menu'),
-  'files' => array('include\block.class.php (BlockManager::load_registered_blocks)'),
+  'files' => array('src\Phyxo\Block\BlockManager.php (BlockManager::load_registered_blocks)'),
   'infos' => 'use this trigger to add menu block',
 ),
 array(

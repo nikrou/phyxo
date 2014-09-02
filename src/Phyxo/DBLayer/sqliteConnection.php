@@ -35,8 +35,8 @@ class sqliteConnection extends DBLayer implements iDBLayer
         $db_file = sprintf('sqlite:%s/%s/%s.db', __DIR__.'/../..', $conf['data_location'], $database);
 
         try {
-            $this->db_link = new PDO($db_file);
-        } catch (Exception $e) {
+            $this->db_link = new \PDO($db_file);
+        } catch (\Exception $e) {
             my_error('Failed to open database '.$db_file . ':'.$e->getMessage(), true);
         }
 
@@ -72,7 +72,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_version()  {
-        return $this->db_link->getAttribute(PDO::ATTR_SERVER_VERSION);
+        return $this->db_link->getAttribute(\PDO::ATTR_SERVER_VERSION);
     }
 
     public function db_check_version() {

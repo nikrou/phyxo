@@ -26,6 +26,7 @@
  * @package functions\html
  */
 
+use Phyxo\Block\RegisteredBlock;
 
 /**
  * Generates breadcrumb from categories list.

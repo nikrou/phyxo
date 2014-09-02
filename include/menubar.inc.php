@@ -26,7 +26,7 @@
  * @package functions\menubar
  */
 
-include_once(PHPWG_ROOT_PATH.'include/block.class.php');
+use Phyxo\Block\BlockManager;
 
 initialize_menu();
 
@@ -36,7 +36,7 @@ initialize_menu();
 function initialize_menu() {
     global $page, $conf, $user, $template, $filter;
 
-    $menu = new BlockManager("menubar");
+    $menu = new BlockManager('menubar');
     $menu->load_registered_blocks();
     $menu->prepare_display();
 
