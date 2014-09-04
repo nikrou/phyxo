@@ -4,7 +4,7 @@
 *}
 
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.dark.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {footer_script}
 jQuery(document).ready(function() {
@@ -13,7 +13,6 @@ jQuery(document).ready(function() {
   });
 });
 {/footer_script}
-
 
 {if isset($MENUBAR)}{$MENUBAR}{/if}
 <div id="content" class="content{if isset($MENUBAR)} contentWithMenu{/if}">

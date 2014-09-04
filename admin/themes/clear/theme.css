@@ -122,7 +122,7 @@ A{
 
 A:hover, A:active {
 	color: #d54e21;
-	cursor: pointer;
+	cursor: pointer; 
 }
 
 .content .navigationBar {color:#999;}
@@ -279,6 +279,7 @@ INPUT[type="text"].large  { width: 317px; }
 
 #pwgHead A, #footer A {color:#444;}
 #pwgHead A:hover, #footer A:hover {color:black;}
+#footer { background-image: url(images/piwigo_logo_small.png);}
 
 .pluginBox, .pluginMiniBox, .groups li {background-color:#ddd;color:#353535;border-color:#ddd;}
 .pluginBoxNameCell, .pluginMiniBoxNameCell {color:#111;}
@@ -293,7 +294,7 @@ UL.thumbnails li.rank-of-image {background-color: #ddd;}
 
 #batchManagerGlobal .thumbSelected {background-color:#C2F5C2 !important}
 #batchManagerGlobal #selectedMessage {background-color:#C2F5C2;}
-#filter_dimension_width_info, #filter_dimension_height_info, #filter_dimension_ratio_info, #filter_filesize_info {color:#ff7700;font-weight:bold;}
+.slider-info {color:#ff7700;font-weight:bold;}
 
 .selectedComment {background-color:#C2F5C2;}
 
@@ -304,7 +305,7 @@ UL.thumbnails li.rank-of-image {background-color: #ddd;}
   font-weight:bold;
   letter-spacing:1px;
   border:none;
-  background-color:#666666;
+  background-color:#666;
   color:#fff;
   padding:2px 5px;
   -moz-border-radius:5px;
@@ -318,6 +319,12 @@ UL.thumbnails li.rank-of-image {background-color: #ddd;}
   background-color: #ff7700;
   color: white;
 	text-decoration: none;
+}
+
+.buttonLike:disabled, input[type="submit"]:disabled, input[type="button"]:disabled, input[type="reset"]:disabled {
+  background-color:#999;
+  color:#eee;
+  cursor:not-allowed;
 }
 
 p.albumTitle img {margin-bottom:-3px;}
@@ -360,3 +367,15 @@ table.dataTable thead th {
 
 .userPropertiesContainer {border-color:#ddd;}
 .userPrefs {border-color:#ddd;}
+
+.big-progressbar {
+  background:#fff;
+  border:1px solid #aaa;
+  border-radius:5px;
+}
+.big-progressbar .progressbar {
+  background:#FF8A23;
+  background:#FF8A23 linear-gradient(135deg, rgba(255,51,51,0) 44%,rgba(255,51,51,0.2) 44%,rgba(255,51,51,0.2) 57%,rgba(255,51,51,0) 57%);
+  background-size:25px 25px;
+  box-shadow:inset 0px 1px 3px 0px rgba(255,255,255,0.4);
+}

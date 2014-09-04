@@ -605,13 +605,14 @@ html, body {height:100%; margin:0; padding:0;}
 }
 
 #footer {
+  position:absolute;
   bottom:0;
   width:100%;
-  height: 34px;
-  line-height: 34px;
-  background-repeat: no-repeat;
-  background-position: 7px 2px;
-  background-color:#464646;
+	height: 34px;
+	line-height: 34px;
+	background-repeat: no-repeat;
+	background-position: 7px 2px;
+	background-color:#464646;
   color:#aaa;
 }
 
@@ -630,7 +631,7 @@ html, body {height:100%; margin:0; padding:0;}
 #adminHome A {display:block; font-size:1.1em; font-weight:bold;}
 #adminHome A {text-decoration:none;}
 
-#piwigoInfos {float:left; margin-left:10px;}
+#piwigoInfos {float:left; margin-left:140px;}
 #pageInfos {float:right; margin-right:10px;}
 
 /* TipTip CSS - Version 1.2 */
@@ -1007,9 +1008,29 @@ p#uploadModeInfos {text-align:left;margin-top:1em;font-size:90%;color:#999;}
 
 #photosAddContent p.showFieldset {text-align:left;margin: 1em;}
 
-#uploadProgress {width:650px; margin:10px auto;font-size:90%;}
-#progressbar {border:1px solid #ccc; background-color:#eee;}
-.ui-progressbar-value { background-image: url(images/pbar-ani.gif); height:10px;margin:-1px;border:1px solid #E78F08;}
+#uploadForm .plupload_buttons, #uploadForm .plupload_progress { display:none !important; }
+#uploadForm #startUpload { margin:5px 0 15px 15px; padding:5px 10px; font-size:1.1em; }
+#uploadForm #startUpload:before { margin-right:0.5em; }
+#uploadForm #addFiles { margin-right:10px; float:left; }
+#uploadForm #uploadingActions { margin:10px 10px 10px 15px; }
+#uploadForm .big-progressbar { vertical-align:middle; display:inline-block; margin-left:10px; }
+
+.big-progressbar {
+  width:100%;
+  max-width:600px;
+  background:#fff;
+  padding:0;
+  border-radius:5px;
+  position:relative;
+  height:18px;
+}
+.big-progressbar .progressbar {
+  height:18px;
+  min-width:18px;
+  background:#444;
+  border-radius:5px 0 0 5px;
+}
+
 
 /* Tag Manager */
 .warningDeletion {display:none;font-style:italic;}

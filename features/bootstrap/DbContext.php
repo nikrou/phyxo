@@ -116,6 +116,19 @@ class DbContext extends RawMinkContext
         }
     }
 
+    public function setCommentValidTime($seconds) {
+        $conf = ORM::for_table(self::$prefix.'config')->where('param', 'key_comment_valid_time')->find_one();
+
+        if (!$conf) {
+            $conf = ORM::for_table(self::$prefix.'config')->create();
+            $conf->param = 'key_comment_valid_time';
+            $conf->value = $seconds;
+            $conf->save();
+        } else {
+            $conf->value = $seconds;
+            $conf->save();
+        }
+    }
 
     /**
      * @BeforeSuite
@@ -173,6 +186,7 @@ class DbContext extends RawMinkContext
                 self::$prefix.'image_category' => array('image_id', 'category_id'),
                 self::$prefix.'user_access' => array('user_id', 'cat_id'),
                 self::$prefix.'image_tag' => array('image_id', 'tag_id'),
+                self::$prefix.'config' => 'param',
             )
         );
     }

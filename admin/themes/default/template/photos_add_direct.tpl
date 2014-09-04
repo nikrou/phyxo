@@ -17,9 +17,8 @@
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{assign var="selectizeTheme" value=($themeconf.name=='roma')|ternary:'dark':'default'}
 {combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.`$selectizeTheme`.css"}
+{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {footer_script}
 {* <!-- CATEGORIES --> *}
@@ -64,14 +63,13 @@ jQuery(document).ready(function(){
 
 	jQuery("#uploader").pluploadQueue({
 		// General settings
+    browse_button : 'addFiles',
+
 		// runtimes : 'html5,flash,silverlight,html4',
 		runtimes : 'html5',
 
 		// url : '../upload.php',
 		url : 'ws.php?method=pwg.images.upload&format=json',
-
-		// User can upload no more then 20 files in one go (sets multiple_queues to false)
-		max_file_count: 100,
 
 		chunk_size: '500kb',
 
@@ -87,30 +85,52 @@ jQuery(document).ready(function(){
 		// Rename files by clicking on their titles
 		// rename: true,
 
-		// Sort files
-		sortable: true,
-
 		// Enable ability to drag'n'drop files onto the widget (currently only HTML5 supports that)
 		dragdrop: true,
 
     preinit: {
       Init: function (up, info) {
         jQuery('#uploader_container').removeAttr("title"); //remove the "using runtime" text
+
+        jQuery('#startUpload').on('click', function(e) {
+            e.preventDefault();
+            up.start();
+          });
+
+        jQuery('#cancelUpload').on('click', function(e) {
+            e.preventDefault();
+            up.stop();
+            up.trigger('UploadComplete', up.files);
+          });
       }
     },
 
     init : {
+      // update custom button state on queue change
+      QueueChanged : function(up) {
+        jQuery('#startUpload').prop('disabled', up.files.length == 0);
+      },
+
+      UploadProgress: function(up, file) {
+        jQuery('#uploadingActions .progressbar').width(up.total.percent+'%');
+      },
+
       BeforeUpload: function(up, file) {
+        //console.log('[BeforeUpload]', file);
+
+        // hide buttons
+        jQuery('#startUpload, #addFiles').hide();
+        jQuery('#uploadingActions').show();
+
         // warn user if she wants to leave page while upload is running
- 	jQuery(window).bind('beforeunload', function() {
- 	  return "{/literal}{'Upload in progress'|translate|escape}{literal}";
- 	});
+        jQuery(window).bind('beforeunload', function() {
+          return "{/literal}{'Upload in progress'|translate|escape}{literal}";
+        });
 
         // no more change on category/level
         jQuery("select[name=level]").attr("disabled", "disabled");
 
         // You can override settings before the file is uploaded
-        // up.setOption('url', 'upload.php?id=' + file.id);
         up.setOption(
           'multipart_params',
           {
@@ -124,6 +144,11 @@ jQuery(document).ready(function(){
 
       FileUploaded: function(up, file, info) {
         // Called when file has finished uploading
+        //console.log('[FileUploaded] File:', file, "Info:", info);
+
+        // hide item line
+        jQuery('#'+file.id).hide();
+
         var data = jQuery.parseJSON(info.response);
 
         jQuery("#uploadedPhotos").parent("fieldset").show();
@@ -142,6 +167,8 @@ jQuery(document).ready(function(){
 
       UploadComplete: function(up, files) {
         // Called when all files are either uploaded or failed
+        //console.log('[UploadComplete]');
+
         jQuery(".selectAlbum, .selectFiles, #permissions, .showFieldset").hide();
 
         jQuery(".infos").append('<ul><li>'+sprintf(photosUploaded_label, uploadedPhotos.length)+'</li></ul>');
@@ -164,9 +191,7 @@ jQuery(document).ready(function(){
         jQuery(".batchLink").html(sprintf(batch_Label, uploadedPhotos.length));
 
         jQuery(".afterUploadActions").show();
-      }
-    }
-	});
+        jQuery('#uploadingActions').hide();
 
         // user can safely leave page without warning
         jQuery(window).unbind('beforeunload');
@@ -198,7 +223,7 @@ jQuery(document).ready(function(){
 </div>
 {else}
 
-  {if count($setup_warnings) > 0}
+{if count($setup_warnings) > 0}
 <div class="warnings">
   <ul>
     {foreach from=$setup_warnings item=warning}
@@ -207,19 +232,18 @@ jQuery(document).ready(function(){
   </ul>
   <div class="hideButton" style="text-align:center"><a href="{$hide_warnings_link}">{'Hide'|translate}</a></div>
 </div>
-  {/if}
-
+{/if}
 
 <form id="uploadForm" enctype="multipart/form-data" method="post" action="{$form_action}">
     <fieldset class="selectAlbum">
       <legend>{'Drop into album'|translate}</legend>
 
-      <span id="albumSelection" style="display:none"></span>
-      <select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
-        data-default="first" name="category" style="width:400px"><option></option></select>
-      <p>{'... or '|translate}
-	<a href="#" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
-      </p>
+      <span id="albumSelection" style="display:none">
+	<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
+		data-default="first" name="category" style="width:400px"><option></option></select>
+	<br>{'... or '|translate}
+      </span>
+      <a href="#" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </fieldset>
 
     <p class="showFieldset" style="display:none"><a id="showPermissions" href="#">{'Manage Permissions'|translate}</a></p>
@@ -235,24 +259,37 @@ jQuery(document).ready(function(){
     <fieldset class="selectFiles" style="display:none">
       <legend>{'Select files'|translate}</legend>
 
-    {if isset($original_resize_maxheight)}<p class="uploadInfo">{'The picture dimensions will be reduced to %dx%d pixels.'|translate:$original_resize_maxwidth:$original_resize_maxheight}</p>{/if}
+      <button id="addFiles" class="buttonLike icon-plus-circled">{'Add Photos'|translate}</button>
 
-    <p id="uploadWarningsSummary">{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if} <a class="icon-info-circled-1 showInfo" title="{'Learn more'|translate}"></a></p>
+    {if isset($original_resize_maxheight)}
+      <p class="uploadInfo">{'The picture dimensions will be reduced to %dx%d pixels.'|translate:$original_resize_maxwidth:$original_resize_maxheight}</p>
+    {/if}
 
-    <p id="uploadWarnings">
-{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
-{'Allowed file types: %s.'|translate:$upload_file_types}
-  {if isset($max_upload_resolution)}
-{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
-  {/if}
-    </p>
+      <p id="uploadWarningsSummary">{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if} <a class="icon-info-circled-1 showInfo" title="{'Learn more'|translate}"></a></p>
 
+      <p id="uploadWarnings">
+        {'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
+        {'Allowed file types: %s.'|translate:$upload_file_types}
+      {if isset($max_upload_resolution)}
+        {'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
+      {/if}
+      </p>
 
-	<div id="uploader">
-		<p>Your browser doesn't have HTML5 support.</p>
-	</div>
+      <div id="uploader">
+        <p>Your browser doesn't have HTML5 support.</p>
+      </div>
 
     </fieldset>
+
+    <div id="uploadingActions" style="display:none">
+      <button id="cancelUpload" class="buttonLike icon-cancel-circled">{'Cancel'|translate}</button>
+
+      <div class="big-progressbar">
+        <div class="progressbar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <button id="startUpload" class="buttonLike icon-upload" disabled>{'Start Upload'|translate}</button>
 
 </form>
 
@@ -264,3 +301,4 @@ jQuery(document).ready(function(){
 {/if} {* $setup_errors *}
 
 </div> <!-- photosAddContent -->
+

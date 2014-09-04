@@ -295,9 +295,9 @@ DELETE
     } elseif ('metadata' == $action) {   // synchronize metadata
         sync_metadata($collection);
         $page['infos'][] = l10n('Metadata synchronized from file');
-    } elseif ('delete_derivatives' == $action)  && !empty($_POST['del_derivatives_type'])) {
-        $query='SELECT path,representative_ext FROM '.IMAGES_TABLE.'
-  WHERE id IN ('.implode(',', $collection).')';
+    } elseif (('delete_derivatives' == $action)  && !empty($_POST['del_derivatives_type'])) {
+        $query = 'SELECT path,representative_ext FROM '.IMAGES_TABLE;
+        $query .= ' WHERE id IN ('.implode(',', $collection).')';
         $result = pwg_query($query);
         while ($info = pwg_db_fetch_assoc($result)) {
             foreach( $_POST['del_derivatives_type'] as $type) {

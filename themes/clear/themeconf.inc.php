@@ -10,5 +10,5 @@ Author URI: http://piwigo.org
 $themeconf = array(
   'name'  => 'clear',
   'parent' => 'default',
+  'colorscheme' => 'clear',
 );
-?>

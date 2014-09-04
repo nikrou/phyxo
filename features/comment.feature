@@ -31,6 +31,7 @@ Feature: Comment
       What a good pics !
       """
     Then I should see "Your comment has been registered"
+    And I should see "What a good pics !"
 
   # @see bug http://piwigo.org/bugs/view.php?id=2887
   Scenario: I cannot see private photos on user comments page
