@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -23,32 +24,27 @@
 
 class PwgJsonEncoder extends PwgResponseEncoder
 {
-  function encodeResponse($response)
-  {
-    $respClass = strtolower( @get_class($response) );
-    if ($respClass=='pwgerror')
-    {
-      return json_encode(
-        array(
-          'stat' => 'fail',
-          'err' => $response->code(),
-          'message' => $response->message(),
-          )
-      );
+    function encodeResponse($response) {
+        $respClass = strtolower(@get_class($response));
+        if ($respClass=='pwgerror') {
+            return json_encode(
+                array(
+                    'stat' => 'fail',
+                    'err' => $response->code(),
+                    'message' => $response->message(),
+                )
+            );
+        }
+        parent::flattenResponse($response);
+        return json_encode(
+            array(
+                'stat' => 'ok',
+                'result' => $response,
+            )
+        );
     }
-    parent::flattenResponse($response);
-    return json_encode(
-        array(
-          'stat' => 'ok',
-          'result' => $response,
-      )
-    );
-  }
 
-  function getContentType()
-  {
-    return 'text/plain';
-  }
+    function getContentType() {
+        return 'text/plain';
+    }
 }
-
-?>

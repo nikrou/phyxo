@@ -264,7 +264,7 @@ $template->assign('ACTIVE_MENU', get_active_menu($page['page']));
 // | Sending html code                                                     |
 // +-----------------------------------------------------------------------+
 
-// Add the Piwigo Official menu
+// Add the Phyxo Official menu
 $template->assign('pwgmenu', pwg_URL() );
 
 include(PHPWG_ROOT_PATH.'include/page_header.php');

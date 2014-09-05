@@ -1,6 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
-// | Piwigo - a PHP based photo gallery                                    |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -23,39 +24,29 @@
 
 class PwgRestRequestHandler extends PwgRequestHandler
 {
-  function handleRequest(&$service)
-  {
-    $params = array();
+    function handleRequest(&$service) {
+        $params = array();
 
-    $param_array = $service->isPost() ? $_POST : $_GET;
-    foreach ($param_array as $name => $value)
-    {
-      if ($name=='format')
-        continue; // ignore - special keys
-      if ($name=='method')
-      {
-        $method = $value;
-      }
-      else
-      {
-        $params[$name]=$value;
-      }
-    }
-		if ( empty($method) && isset($_GET['method']) )
-		{
+        $param_array = $service->isPost() ? $_POST : $_GET;
+        foreach ($param_array as $name => $value) {
+            if ($name=='format') {
+                continue; // ignore - special keys
+            }
+            if ($name=='method') {
+                $method = $value;
+            } else {
+                $params[$name] = $value;
+            }
+        }
+		if ( empty($method) && isset($_GET['method'])) {
 			$method = $_GET['method'];
 		}
 
-    if ( empty($method) )
-    {
-      $service->sendResponse(
-          new PwgError(WS_ERR_INVALID_METHOD, 'Missing "method" name')
-        );
-      return;
+        if (empty($method)) {
+            $service->sendResponse(new PwgError(WS_ERR_INVALID_METHOD, 'Missing "method" name'));
+            return;
+        }
+        $resp = $service->invoke($method, $params);
+        $service->sendResponse($resp);
     }
-    $resp = $service->invoke($method, $params);
-    $service->sendResponse($resp);
-  }
 }
-
-?>
