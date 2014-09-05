@@ -2,7 +2,7 @@
 -- phyxo_caddie
 -----------------------------------------------------------------------------
 
-DROP TABLE IF EXISTS phyxo_caddie;
+DROP TABLE IF EXISTS "phyxo_caddie";
 CREATE TABLE "phyxo_caddie"
 (
   "user_id" INTEGER default 0 NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE "phyxo_categories"
   "global_rank" VARCHAR(255),
   "image_order" VARCHAR(128),
   "permalink" VARCHAR(64),
-  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
+  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
   PRIMARY KEY ("id"),
   CONSTRAINT "categories_i3" UNIQUE ("permalink")
 );
@@ -86,7 +86,7 @@ CREATE TABLE "phyxo_groups"
   "id" INTEGER  NOT NULL,
   "name" VARCHAR(255) default '' NOT NULL,
   "is_default" BOOLEAN default false,
-  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
+  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
   PRIMARY KEY ("id"),
   CONSTRAINT "groups_ui1" UNIQUE ("name")
 );
@@ -191,7 +191,7 @@ CREATE TABLE "phyxo_images"
   "rotation" INTEGER default NULL,
   "latitude" FLOAT default NULL,
   "longitude" FLOAT default NULL,
-  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
+  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
 
   PRIMARY KEY ("id")
 );
@@ -309,7 +309,7 @@ CREATE TABLE "phyxo_tags"
   "id" INTEGER  NOT NULL,
   "name" VARCHAR(255) default '' NOT NULL,
   "url_name" VARCHAR(255) default '' NOT NULL,
-  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
+  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
   PRIMARY KEY ("id")
 );
 
@@ -444,7 +444,7 @@ CREATE TABLE "phyxo_user_infos"
   "level" INTEGER default 0 NOT NULL,
   "activation_key" VARCHAR(255) default NULL,
   "activation_key_expire" TIMESTAMP default NULL,
-  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00'
+  "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
   PRIMARY KEY ("user_id"),
   CONSTRAINT "user_infos_ui1" UNIQUE ("user_id")
 );

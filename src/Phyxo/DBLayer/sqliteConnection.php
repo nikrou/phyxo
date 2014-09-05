@@ -433,15 +433,15 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     // sqlite create functions
-    protected function _now() {
+    public function _now() {
         return date('Y-m-d H:i:s');
     }
 
-    protected function _unix_timestamp() {
+    public function _unix_timestamp() {
         return time();
     }
 
-    protected function _if($expression, $value1, $value2) {
+    public function _if($expression, $value1, $value2) {
         if ($expression) {
             return $value1;
         } else {
@@ -449,19 +449,19 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    protected function _regexp($pattern, $string) {
+    public function _regexp($pattern, $string) {
         $pattern = sprintf('`%s`', $pattern);
 
         return preg_match($pattern, $string);
     }
 
-    protected function _std_step(&$values, $rownumber, $value) {
+    public function _std_step(&$values, $rownumber, $value) {
         $values[] = $value;
 
         return $values;
     }
 
-    protected function _std_finalize(&$values, $rownumber) {
+    public function _std_finalize(&$values, $rownumber) {
         if (count($values)<=1) {
             return 0;
         }
