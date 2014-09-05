@@ -32,7 +32,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     public function db_connect($host, $user, $password, $database) {
         global $conf;
 
-        $db_file = sprintf('sqlite:%s/%s/%s.db', __DIR__.'/../..', $conf['data_location'], $database);
+        $db_file = sprintf('sqlite:%s/%s%s.db', __DIR__.'/../../..', $conf['data_location'], $database);
 
         try {
             $this->db_link = new \PDO($db_file);

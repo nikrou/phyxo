@@ -104,7 +104,7 @@ $persistent_cache = new PersistentFileCache();
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
 } catch (Exception $e) {
-    my_error(l10n($e->getMessage()), true);
+    $page['error'][] = l10n($e->getMessage());
 }
 load_conf_from_db();
 
