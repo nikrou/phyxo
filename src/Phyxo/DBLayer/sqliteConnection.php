@@ -54,7 +54,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     public function db_query($query) {
         $truncate_pattern = '`truncate(.*)`i';
 
-        if (is_resource($this->db_link)) {
+        if ($this->db_link) {
             if (preg_match($truncate_pattern, $query, $matches)) {
                 $query = str_replace('TRUNCATE TABLE', 'DELETE FROM', $query);
                 $result = $this->db_link->exec($query);
@@ -62,9 +62,10 @@ class sqliteConnection extends DBLayer implements iDBLayer
                 $result = $this->db_link->query($query);
             }
             if ($result === false) {
-                $e = new \Exception($this->db_last_error($handle));
-                $e->sql = $query;
-                throw $e;
+                $msg = "Query: $query\n";
+                $msg .= $this->db_last_error()[2];
+
+                throw new \Exception($msg);
             }
 
             return $result;
@@ -87,7 +88,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_last_error() {
-        if (is_resource($this->db_link)) {
+        if ($this->db_link) {
             return $this->db_link->errorInfo();
         }
 
@@ -109,7 +110,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_num_rows($result) {
-        if (is_resource($result)) {
+        if (!empty($result)) {
             return $result->columnCount();
         }
 
@@ -117,14 +118,14 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_fetch_assoc($result) {
-        if (is_resource($result)) {
-            return $this->db_fetch_assoc($result);
+        if (!empty($result)) {
+            return $result->fetch(\PDO::FETCH_ASSOC);
         }
     }
 
     public function db_fetch_row($result) {
-        if (is_resource($result)) {
-            return $this->db_fetch_row($result);
+        if (!empty($result)) {
+            return $result->fetch(\PDO::FETCH_NUM);
         }
     }
 
@@ -140,7 +141,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_close() {
-        if (is_resource($this->db_link)) {
+        if ($this->db_link) {
             $this->db_link = null;
         }
     }
