@@ -100,16 +100,15 @@ function insert_user_comment(&$comm, $key, &$infos) {
         if (empty($comm['author'])) {
             if ($conf['comments_author_mandatory']) {
                 $infos[] = l10n('Username is mandatory');
-                $comment_action='reject';
+                $comment_action = 'reject';
             }
             $comm['author'] = 'guest';
         }
         $comm['author_id'] = $conf['guest_id'];
-        // if a guest try to use the name of an already existing user, he must be
-        // rejected
+        // if a guest try to use the name of an already existing user, he must be rejected
         if ($comm['author'] != 'guest') {
             $query = 'SELECT COUNT(1) AS user_exists FROM '.USERS_TABLE;
-            $query .= ' WHERE '.$conf['user_fields']['username']." = '".addslashes($comm['author'])."'";
+            $query .= ' WHERE '.$conf['user_fields']['username']." = '".pgw_db_real_escape_string($comm['author'])."'";
             $row = pwg_db_fetch_assoc(pwg_query($query));
             if ($row['user_exists'] == 1) {
                 $infos[] = l10n('This login is already used by another user');
@@ -117,7 +116,7 @@ function insert_user_comment(&$comm, $key, &$infos) {
             }
         }
     } else {
-        $comm['author'] = addslashes($user['username']);
+        $comm['author'] = addslashes($user['username']); // @TODO: remove addslashes
         $comm['author_id'] = $user['id'];
     }
 
@@ -125,7 +124,7 @@ function insert_user_comment(&$comm, $key, &$infos) {
         $comment_action = 'reject';
     }
 
-    if (!verify_ephemeral_key(@$key, $comm['image_id'])) {
+    if (!verify_ephemeral_key($key, $comm['image_id'])) {
         $comment_action = 'reject';
         $_POST['cr'][] = 'key'; // @TODO: remove ? rvelices: I use this outside to see how spam robots work
     }
@@ -167,7 +166,6 @@ function insert_user_comment(&$comm, $key, &$infos) {
     }
     $anonymous_id = implode('.', $ip_components);
 
-
     if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !is_admin()) { // anti-flood system
         $reference_date = pwg_db_get_flood_period_expression($conf['anti-flood_time']);
 
@@ -192,11 +190,13 @@ function insert_user_comment(&$comm, $key, &$infos) {
         $query = 'INSERT INTO '.COMMENTS_TABLE;
         $query .= ' (author, author_id, anonymous_id, content, date, validated, validation_date, image_id, website_url, email)';
         $query .= ' VALUES (\''.$comm['author'].'\','.$comm['author_id'].', \''.$comm['ip'].'\',';
-        $query .= '\''.$comm['content'].'\', NOW(), \''.($comment_action=='validate' ? 'true':'false').'\',';
-        $query .= ' '.($comment_action=='validate' ? 'NOW()':'NULL').','.$comm['image_id'].',';
+        $query .= '\''.$comm['content'].'\', NOW(), \'';
+        $query .= $comment_action=='validate' ? boolean_to_db('true'):boolean_to_db('false');
+        $query .= '\', '.($comment_action=='validate' ? 'NOW()':'NULL').','.$comm['image_id'].',';
         $query .= ' '.(!empty($comm['website_url']) ? '\''.$comm['website_url'].'\'' : 'NULL').',';
         $query .= ' '.(!empty($comm['email']) ? '\''.$comm['email'].'\'' : 'NULL').')';
         pwg_query($query);
+
         $comm['id'] = pwg_db_insert_id(COMMENTS_TABLE);
 
         invalidate_user_cache_nb_comments();

@@ -32,10 +32,11 @@ class sqliteConnection extends DBLayer implements iDBLayer
     public function db_connect($host, $user, $password, $database) {
         global $conf;
 
-        $db_file = sprintf('sqlite:%s/%s%s.db', __DIR__.'/../../..', $conf['data_location'], $database);
+        $db_file = sprintf('sqlite:%s/db/%s.db', __DIR__.'/../../..', $database);
 
         try {
-            $this->db_link = new \PDO($db_file);
+            $this->db_link = new \PDO($db_file, null, null, array(\PDO::ATTR_PERSISTENT => true));
+
         } catch (\Exception $e) {
             throw new \Exception('Failed to open database '.$db_file . ':'.$e->getMessage());
         }
@@ -62,10 +63,9 @@ class sqliteConnection extends DBLayer implements iDBLayer
                 $result = $this->db_link->query($query);
             }
             if ($result === false) {
-                $msg = "Query: $query\n";
-                $msg .= $this->db_last_error()[2];
-
-                throw new \Exception($msg);
+                $e = new \Exception($this->db_last_error());
+                $e->sql = $query;
+                throw $e;
             }
 
             return $result;
@@ -89,7 +89,8 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_last_error() {
         if ($this->db_link) {
-            return $this->db_link->errorInfo();
+            $err = $this->db_link->errorInfo();
+            return $err[2].' ('.$err[1].')';
         }
 
         return false;
@@ -285,6 +286,14 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
+    public function boolean_to_db($var) {
+        if (!empty($var)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     public function db_get_recent_period_expression($period, $date='CURRENT_DATE') {
         if ($date!='CURRENT_DATE') {
             $date = '\''.$date.'\'';
@@ -301,7 +310,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function db_get_flood_period_expression($seconds) {
-        return 'date('.$date.',\''.-$seconds.' SECOND\')';
+        return 'date('.$seconds.',\''.-$seconds.' SECOND\')';
     }
 
     public function db_date_to_ts($date) {
@@ -372,41 +381,84 @@ class sqliteConnection extends DBLayer implements iDBLayer
             return;
         }
 
-        $is_first = true;
+        if (count($datas) < 10) {
+            foreach ($datas as $data) {
+                $query = 'UPDATE '.$tablename.' SET ';
+                $is_first = true;
+                foreach ($dbfields['update'] as $key) {
+                    $separator = $is_first ? '' : ",\n    ";
 
-        $query = 'UPDATE '.$tablename.' SET ';
+                    if (isset($data[$key]) and $data[$key] != '') {
+                        $query .= $separator.$key.' = \''.$data[$key].'\'';
+                    } else {
+                        if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+                            continue; // next field
+                        }
+                        $query .= "$separator$key = NULL";
+                    }
+                    $is_first = false;
+                }
+                if (!$is_first) { // only if one field at least updated
+                    $query.= ' WHERE ';
+                    $is_first = true;
+                    foreach ($dbfields['primary'] as $key) {
+                        if (!$is_first) {
+                            $query .= ' AND ';
+                        }
+                        if (isset($data[$key])) {
+                            $query .= $key.' = \''.$data[$key].'\'';
+                        } else {
+                            $query .= $key.' IS NULL';
+                        }
+                        $is_first = false;
+                    }
+                    $this->db_query($query);
+                }
+            }
+        } else {
+            $all_fields = array_merge($dbfields['primary'], $dbfields['update']);
+            $temporary_tablename = $tablename.'_'.micro_seconds();
+            $query = 'CREATE TABLE '.$temporary_tablename.' AS SELECT * FROM '.$tablename.' WHERE 1=2';
 
-        foreach ($datas as $key => $value) {
-            $separator = $is_first ? '' : ",\n    ";
-
-            if (isset($value) and $value !== '') {
-                $query .= $separator.$key.' = \''.$value.'\'';
+            $this->db_query($query);
+            $this->mass_inserts($temporary_tablename, $all_fields, $datas);
+            if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+                $func_set = function($s) use ($tablename, $temporary_tablename) {
+                    return sprintf(
+                        '%1$s = IFNULL(%3$s.%1$s, %2$s.%1$s)',
+                        $s,
+                        $tablename,
+                        $temporary_tablename
+                    );
+                };
             } else {
-                if ($flags & MASS_UPDATES_SKIP_EMPTY) {
-                    continue; // next field
-                }
-                $query .= "$separator$key = NULL";
+                $func_set = function($s) use ($temporary_tablename) {
+                    return sprintf(
+                        '%1$s = %2$s.%1$s',
+                        $s,
+                        $temporary_tablename
+                    );
+                };
             }
-            $is_first = false;
-        }
 
-        if (!$is_first) { // only if one field at least updated
-            $is_first = true;
-
+            // update of images table by joining with temporary table
+            $query = 'UPDATE '.$tablename.' SET ';
+            $query .= implode(', ', array_map($func_set, $dbfields['update']));
+            $query .= ' FROM '.$temporary_tablename;
             $query .= ' WHERE ';
-
-            foreach ($where as $key => $value) {
-                if (!$is_first) {
-                    $query .= ' AND ';
-                }
-                if (isset($value)) {
-                    $query .= $key.' = \''.$value.'\'';
-                } else {
-                    $query .= $key.' IS NULL';
-                }
-                $is_first = false;
-            }
-
+            $query .= implode(' AND ', array_map(
+                function($s) use ($tablename, $temporary_tablename) {
+                    return sprintf(
+                        '%2$s.%1$s = %3$s.%1$s',
+                        $s,
+                        $tablename,
+                        $temporary_tablename
+                    );
+                },
+                $dbfields['primary'])
+            );
+            $this->db_query($query);
+            $query = 'DROP TABLE '.$temporary_tablename;
             $this->db_query($query);
         }
     }

@@ -26,7 +26,7 @@ use atoum;
 
 class DBLayer extends atoum
 {
-    public function testPublicMethods($dblayer) {
+    public function testPublicMethods($dblayer, $dblayer_extra_methods) {
         $class_name = sprintf('\Phyxo\DBLayer\%sConnection', $dblayer);
 
         // method not overriden
@@ -34,7 +34,7 @@ class DBLayer extends atoum
 
         $dblayer_methods = get_class_methods($class_name);
         sort($dblayer_methods);
-        $interface_methods = array_merge(get_class_methods('\Phyxo\DBLayer\iDBLayer'), $other_methods);
+        $interface_methods = array_merge(get_class_methods('\Phyxo\DBLayer\iDBLayer'), $other_methods, $dblayer_extra_methods);
         sort($interface_methods);
 
 		$this
@@ -58,10 +58,10 @@ class DBLayer extends atoum
      */
     protected function testPublicMethodsDataProvider() {
         return array(
-            'pgsql',
-            'mysql',
-            'mysqli',
-            'sqlite'
+            array('pgsql', array()),
+            array('mysql', array()),
+            array('mysqli', array()),
+            array('sqlite', array('_if','_now','_regexp','_std_finalize','_std_step','_unix_timestamp'))
         );
     }
 

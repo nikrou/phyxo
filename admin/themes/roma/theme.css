@@ -51,7 +51,7 @@ h3, .row2, .content { background-color: #222; }
 
 #content {
 	border: 1px solid #222;
-	min-height: 466px; 
+	min-height: 466px;
 	margin-top: 15px;
 }
 
@@ -153,7 +153,7 @@ width: 207px; border:0; margin: 0; padding: 0; display: block; min-height:35px; 
 #menubar dl:first-of-type{
 background:transparent url(images/menubar-top.png) no-repeat scroll left 1px; }
 #menubar dl:last-of-type { padding: 0 0 24px 0;}
-#menubar dt { 
+#menubar dt {
 	margin: 0; display: block; background: none; left:10px; font-weight:bold;
 	position:relative; padding: 5px 1px 4px 5px; top:-8px; font-size: 13px; color: #666;  outline:none;
 	cursor:pointer;
@@ -234,13 +234,13 @@ INPUT[type="text"].large  { width: 317px; }
 }
 
 .buttonLike:hover, input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover {
-	color:#999; 
+	color:#999;
 	border-color: #666;
 	text-decoration: none;
 }
 
 .buttonLike:disabled, input[type="button"]:disabled, input[type="submit"]:disabled, input[type="reset"]:disabled {
-	color:#666; 
+	color:#666;
 	border-color:#666;
   cursor:not-allowed;
 }
@@ -275,7 +275,6 @@ color:transparent;}
 #helpContent, #pLoaderPage, #ftpPage, #ftpPage LEGEND {color:#aaa;}
 
 #pwgHead, #footer {background-color:#222;}
-#footer {background-image: url(images/piwigo_logo_small.png);}
 
 .pluginBox, .pluginMiniBox, .groups li {background-color:#333;color:#999;border-color:#333;}
 .pluginBoxNameCell, .pluginMiniBoxNameCell {color:#ddd;}

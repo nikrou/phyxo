@@ -36,54 +36,54 @@ function changeImgSrc(url,typeSave,typeMap)
 }
 (SwitchBox=window.SwitchBox||[]).push("#derivativeSwitchLink", "#derivativeSwitchBox");
 {/literal}{/footer_script}
-{strip}<a id="derivativeSwitchLink" title="{'Photo sizes'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-  <span class="pwg-icon pwg-icon-sizes"></span><span class="pwg-button-text">{'Photo sizes'|@translate}</span>
+{strip}<a id="derivativeSwitchLink" title="{'Photo sizes'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+  <span class="pwg-icon pwg-icon-sizes"></span><span class="pwg-button-text">{'Photo sizes'|translate}</span>
 </a>
 <div id="derivativeSwitchBox" class="switchBox">
-  <div class="switchBoxTitle">{'Photo sizes'|@translate}</div>
+  <div class="switchBoxTitle">{'Photo sizes'|translate}</div>
   {foreach from=$current.unique_derivatives item=derivative key=derivative_type}
   <span class="switchCheck" id="derivativeChecked{$derivative->get_type()}"{if $derivative->get_type() ne $current.selected_derivative->get_type()} style="visibility:hidden"{/if}>&#x2714; </span>
   <a href="javascript:changeImgSrc('{$derivative->get_url()|@escape:javascript}','{$derivative_type}','{$derivative->get_type()}')">
-    {$derivative->get_type()|@translate}<span class="derivativeSizeDetails"> ({$derivative->get_size_hr()})</span>
+    {$derivative->get_type()|translate}<span class="derivativeSizeDetails"> ({$derivative->get_size_hr()})</span>
   </a><br>
   {/foreach}
   {if isset($U_ORIGINAL)}
     {combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
-  <a href="javascript:phpWGOpenWindow('{$U_ORIGINAL}','xxx','scrollbars=yes,toolbar=no,status=no,resizable=yes')" rel="nofollow">{'Original'|@translate}</a>
+  <a href="javascript:phpWGOpenWindow('{$U_ORIGINAL}','xxx','scrollbars=yes,toolbar=no,status=no,resizable=yes')" rel="nofollow">{'Original'|translate}</a>
   {/if}
 </div>
 {/strip}
 {/if}
 {strip}{if isset($U_SLIDESHOW_START)}
-	<a href="{$U_SLIDESHOW_START}" title="{'slideshow'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-slideshow"></span><span class="pwg-button-text">{'slideshow'|@translate}</span>
+	<a href="{$U_SLIDESHOW_START}" title="{'slideshow'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-slideshow"></span><span class="pwg-button-text">{'slideshow'|translate}</span>
 	</a>
 {/if}{/strip}
 {strip}{if isset($U_METADATA)}
-	<a href="{$U_METADATA}" title="{'Show file metadata'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-camera-info"></span><span class="pwg-button-text">{'Show file metadata'|@translate}</span>
+	<a href="{$U_METADATA}" title="{'Show file metadata'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-camera-info"></span><span class="pwg-button-text">{'Show file metadata'|translate}</span>
 	</a>
 {/if}{/strip}
 {strip}{if isset($current.U_DOWNLOAD)}
-	<a href="{$current.U_DOWNLOAD}" title="{'Download this file'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-save"></span><span class="pwg-button-text">{'Download'|@translate}</span>
+	<a href="{$current.U_DOWNLOAD}" title="{'Download this file'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-save"></span><span class="pwg-button-text">{'Download'|translate}</span>
 	</a>
 {/if}{/strip}
 {if isset($PLUGIN_PICTURE_BUTTONS)}{foreach from=$PLUGIN_PICTURE_BUTTONS item=button}{$button}{/foreach}{/if}
 {if isset($PLUGIN_PICTURE_ACTIONS)}{$PLUGIN_PICTURE_ACTIONS}{/if}
 {strip}{if isset($favorite)}
-	<a href="{$favorite.U_FAVORITE}" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|@translate}{else}{'add this photo to your favorites'|@translate}{/if}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-favorite-{if $favorite.IS_FAVORITE}del{else}add{/if}"></span><span class="pwg-button-text">{'Favorites'|@translate}</span>
+	<a href="{$favorite.U_FAVORITE}" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-favorite-{if $favorite.IS_FAVORITE}del{else}add{/if}"></span><span class="pwg-button-text">{'Favorites'|translate}</span>
 	</a>
 {/if}{/strip}
 {strip}{if isset($U_SET_AS_REPRESENTATIVE)}
-	<a id="cmdSetRepresentative" href="{$U_SET_AS_REPRESENTATIVE}" title="{'set as album representative'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-representative"></span><span class="pwg-button-text">{'representative'|@translate}</span>
+	<a id="cmdSetRepresentative" href="{$U_SET_AS_REPRESENTATIVE}" title="{'set as album representative'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-representative"></span><span class="pwg-button-text">{'representative'|translate}</span>
 	</a>
 {/if}{/strip}
 {strip}{if isset($U_PHOTO_ADMIN)}
-	<a id="cmdEditPhoto" href="{$U_PHOTO_ADMIN}" title="{'Edit photo'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-edit"></span><span class="pwg-button-text">{'Edit'|@translate}</span>
+	<a id="cmdEditPhoto" href="{$U_PHOTO_ADMIN}" title="{'Edit photo'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-edit"></span><span class="pwg-button-text">{'Edit'|translate}</span>
 	</a>
 {/if}{/strip}
 {strip}{if isset($U_CADDIE)}{*caddie management BEGIN*}
@@ -102,8 +102,8 @@ y.callService(
 	);
 }{/literal}
 {/footer_script}
-	<a href="{$U_CADDIE}" onclick="addToCadie(this, '{$ROOT_URL}', {$current.id}); return false;" title="{'Add to caddie'|@translate}" class="pwg-state-default pwg-button" rel="nofollow">
-		<span class="pwg-icon pwg-icon-caddie-add"> </span><span class="pwg-button-text">{'Caddie'|@translate}</span>
+	<a href="{$U_CADDIE}" onclick="addToCadie(this, '{$ROOT_URL}', {$current.id}); return false;" title="{'Add to caddie'|translate}" class="pwg-state-default pwg-button" rel="nofollow">
+		<span class="pwg-icon pwg-icon-caddie-add"> </span><span class="pwg-button-text">{'Caddie'|translate}</span>
 	</a>
 {/if}{/strip}{*caddie management END*}
 </div>
@@ -118,7 +118,7 @@ y.callService(
 {/if}
 {if isset($U_SLIDESHOW_STOP)}
 <p>
-  [ <a href="{$U_SLIDESHOW_STOP}">{'stop the slideshow'|@translate}</a> ]
+  [ <a href="{$U_SLIDESHOW_STOP}">{'stop the slideshow'|translate}</a> ]
 </p>
 {/if}
 
@@ -128,23 +128,23 @@ y.callService(
 {if $DISPLAY_NAV_THUMB}
 	<div class="navThumbs">
 		{if isset($previous)}
-			<a class="navThumb" id="linkPrev" href="{$previous.U_IMG}" title="{'Previous'|@translate} : {$previous.TITLE_ESC}" rel="prev">
+			<a class="navThumb" id="linkPrev" href="{$previous.U_IMG}" title="{'Previous'|translate} : {$previous.TITLE_ESC}" rel="prev">
 				<span class="thumbHover prevThumbHover"></span>
 				<img src="{$previous.derivatives.square->get_url()}" alt="{$previous.TITLE_ESC}">
 			</a>
 		{elseif isset($U_UP)}
-			<a class="navThumb" id="linkPrev" href="{$U_UP}" title="{'Thumbnails'|@translate}">
-				<div class="thumbHover">{'First Page'|@translate}<br><br>{'Go back to the album'|@translate}</div>
+			<a class="navThumb" id="linkPrev" href="{$U_UP}" title="{'Thumbnails'|translate}">
+				<div class="thumbHover">{'First Page'|translate}<br><br>{'Go back to the album'|translate}</div>
 			</a>
 		{/if}
 		{if isset($next)}
-			<a class="navThumb" id="linkNext" href="{$next.U_IMG}" title="{'Next'|@translate} : {$next.TITLE_ESC}" rel="next">
+			<a class="navThumb" id="linkNext" href="{$next.U_IMG}" title="{'Next'|translate} : {$next.TITLE_ESC}" rel="next">
 				<span class="thumbHover nextThumbHover"></span>
 				<img src="{$next.derivatives.square->get_url()}" alt="{$next.TITLE_ESC}">
 			</a>
 		{elseif isset($U_UP)}
-			<a class="navThumb" id="linkNext"  href="{$U_UP}"  title="{'Thumbnails'|@translate}">
-				<div class="thumbHover">{'Last Page'|@translate}<br><br>{'Go back to the album'|@translate}</div>
+			<a class="navThumb" id="linkNext"  href="{$U_UP}"  title="{'Thumbnails'|translate}">
+				<div class="thumbHover">{'Last Page'|translate}<br><br>{'Go back to the album'|translate}</div>
 			</a>
 		{/if}
 	</div>
@@ -154,43 +154,43 @@ y.callService(
 {strip}
 	{if $display_info.author and isset($INFO_AUTHOR)}
 	<div id="Author" class="imageInfo">
-		<dt>{'Author'|@translate}</dt>
+		<dt>{'Author'|translate}</dt>
 		<dd>{$INFO_AUTHOR}</dd>
 	</div>
 	{/if}
 	{if $display_info.created_on and isset($INFO_CREATION_DATE)}
 	<div id="datecreate" class="imageInfo">
-		<dt>{'Created on'|@translate}</dt>
+		<dt>{'Created on'|translate}</dt>
 		<dd>{$INFO_CREATION_DATE}</dd>
 	</div>
 	{/if}
 	{if $display_info.posted_on}
 	<div id="datepost" class="imageInfo">
-		<dt>{'Posted on'|@translate}</dt>
+		<dt>{'Posted on'|translate}</dt>
 		<dd>{$INFO_POSTED_DATE}</dd>
 	</div>
 	{/if}
 	{if $display_info.dimensions and isset($INFO_DIMENSIONS)}
 	<div id="Dimensions" class="imageInfo">
-		<dt>{'Dimensions'|@translate}</dt>
+		<dt>{'Dimensions'|translate}</dt>
 		<dd>{$INFO_DIMENSIONS}</dd>
 	</div>
 	{/if}
 	{if $display_info.file}
 	<div id="File" class="imageInfo">
-		<dt>{'File'|@translate}</dt>
+		<dt>{'File'|translate}</dt>
 		<dd>{$INFO_FILE}</dd>
 	</div>
 	{/if}
 	{if $display_info.filesize and isset($INFO_FILESIZE)}
 	<div id="Filesize" class="imageInfo">
-		<dt>{'Filesize'|@translate}</dt>
+		<dt>{'Filesize'|translate}</dt>
 		<dd>{$INFO_FILESIZE}</dd>
 	</div>
 	{/if}
 	{if $display_info.tags and isset($related_tags)}
 	<div id="Tags" class="imageInfo">
-		<dt>{'Tags'|@translate}</dt>
+		<dt>{'Tags'|translate}</dt>
 		<dd>
 		{foreach from=$related_tags item=tag name=tag_loop}{if !$smarty.foreach.tag_loop.first}, {/if}<a href="{$tag.URL}">{$tag.name}</a>{/foreach}
 		</dd>
@@ -198,7 +198,7 @@ y.callService(
 	{/if}
 	{if $display_info.categories and isset($related_categories)}
 	<div id="Categories" class="imageInfo">
-		<dt>{'Albums'|@translate}</dt>
+		<dt>{'Albums'|translate}</dt>
 		<dd>
 			<ul>
 				{foreach from=$related_categories item=cat}
@@ -210,19 +210,19 @@ y.callService(
 	{/if}
 	{if $display_info.visits}
 	<div id="Visits" class="imageInfo">
-		<dt>{'Visits'|@translate}</dt>
+		<dt>{'Visits'|translate}</dt>
 		<dd>{$INFO_VISITS}</dd>
 	</div>
 	{/if}
 
 {if $display_info.rating_score and isset($rate_summary)}
 	<div id="Average" class="imageInfo">
-		<dt>{'Rating score'|@translate}</dt>
+		<dt>{'Rating score'|translate}</dt>
 		<dd>
 		{if $rate_summary.count}
-			<span id="ratingScore">{$rate_summary.score}</span> <span id="ratingCount">({$rate_summary.count|@translate_dec:'%d rate':'%d rates'})</span>
+			<span id="ratingScore">{$rate_summary.score}</span> <span id="ratingCount">({$rate_summary.count|translate_dec:'%d rate':'%d rates'})</span>
 		{else}
-			<span id="ratingScore">{'no rate'|@translate}</span> <span id="ratingCount"></span>
+			<span id="ratingScore">{'no rate'|translate}</span> <span id="ratingCount"></span>
 		{/if}
 		</dd>
 	</div>
@@ -231,7 +231,7 @@ y.callService(
 {if isset($rating)}
 	<div id="rating" class="imageInfo">
 		<dt>
-			<span id="updateRate">{if isset($rating.USER_RATE)}{'Update your rating'|@translate}{else}{'Rate this photo'|@translate}{/if}</span>
+			<span id="updateRate">{if isset($rating.USER_RATE)}{'Update your rating'|translate}{else}{'Rate this photo'|translate}{/if}</span>
 		</dt>
 		<dd>
 			<form action="{$rating.F_ACTION}" method="post" id="rateForm" style="margin:0;">
@@ -250,15 +250,15 @@ y.callService(
 				_pwgRatingAutoQueue.push( {ldelim}rootUrl: '{$ROOT_URL}', image_id: {$current.id},
 					onSuccess : function(rating) {ldelim}
 						var e = document.getElementById("updateRate");
-						if (e) e.innerHTML = "{'Update your rating'|@translate|@escape:'javascript'}";
+						if (e) e.innerHTML = "{'Update your rating'|translate|@escape:'javascript'}";
 						e = document.getElementById("ratingScore");
 						if (e) e.innerHTML = rating.score;
 						e = document.getElementById("ratingCount");
 						if (e) {ldelim}
 							if (rating.count == 1) {ldelim}
-								e.innerHTML = "({'%d rate'|@translate|@escape:'javascript'})".replace( "%d", rating.count);
+								e.innerHTML = "({'%d rate'|translate|@escape:'javascript'})".replace( "%d", rating.count);
 							} else {ldelim}
-								e.innerHTML = "({'%d rates'|@translate|@escape:'javascript'})".replace( "%d", rating.count);
+								e.innerHTML = "({'%d rates'|translate|@escape:'javascript'})".replace( "%d", rating.count);
               }
 						{rdelim}
 					{rdelim}{rdelim} );
@@ -272,7 +272,7 @@ y.callService(
 
 {if $display_info.privacy_level and isset($available_permission_levels)}
 	<div id="Privacy" class="imageInfo">
-		<dt>{'Who can see this photo?'|@translate}</dt>
+		<dt>{'Who can see this photo?'|translate}</dt>
 		<dd>
 			<div>
 				<a id="privacyLevelLink" href>{$available_permission_levels[$current.level]}</a>
@@ -327,29 +327,29 @@ function setPrivacyLevel(id, level){
 {if isset($COMMENT_COUNT)}
 <div id="comments" {if (!isset($comment_add) && ($COMMENT_COUNT == 0))}class="noCommentContent"{else}class="commentContent"{/if}>
   <div id="commentsSwitcher"></div>
-  <h3>{$COMMENT_COUNT|@translate_dec:'%d comment':'%d comments'}</h3>
+  <h3>{$COMMENT_COUNT|translate_dec:'%d comment':'%d comments'}</h3>
 
   <div id="pictureComments">
     {if isset($comment_add)}
     <div id="commentAdd">
-      <h4>{'Add a comment'|@translate}</h4>
+      <h4>{'Add a comment'|translate}</h4>
       <form method="post" action="{$comment_add.F_ACTION}" id="addComment">
 	{if $comment_add.SHOW_AUTHOR}
-	<p><label for="author">{'Author'|@translate}{if $comment_add.AUTHOR_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
+	<p><label for="author">{'Author'|translate}{if $comment_add.AUTHOR_MANDATORY} ({'mandatory'|translate}){/if} :</label></p>
 	<p><input type="text" name="author" id="author" value="{$comment_add.AUTHOR}"></p>
 	{/if}
 	{if $comment_add.SHOW_EMAIL}
-	<p><label for="email">{'Email address'|@translate}{if $comment_add.EMAIL_MANDATORY} ({'mandatory'|@translate}){/if} :</label></p>
+	<p><label for="email">{'Email address'|translate}{if $comment_add.EMAIL_MANDATORY} ({'mandatory'|translate}){/if} :</label></p>
 	<p><input type="text" name="email" id="email" value="{$comment_add.EMAIL}"></p>
 	{/if}
         {if $comment_add.SHOW_WEBSITE}
-          <p><label for="website_url">{'Website'|@translate} :</label></p>
+          <p><label for="website_url">{'Website'|translate} :</label></p>
           <p><input type="text" name="website_url" id="website_url" value="{$comment_add.WEBSITE_URL}"></p>
         {/if}
-	<p><label for="contentid">{'Comment'|@translate} ({'mandatory'|@translate}) :</label></p>
+	<p><label for="contentid">{'Comment'|translate} ({'mandatory'|translate}) :</label></p>
 	<p><textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea></p>
 	<p><input type="hidden" name="key" value="{$comment_add.KEY}">
-	  <input type="submit" value="{'Submit'|@translate}"></p>
+	  <input type="submit" value="{'Submit'|translate}"></p>
       </form>
     </div>
     {/if}

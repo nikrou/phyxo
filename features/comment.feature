@@ -22,8 +22,15 @@ Feature: Comment
     And "user2" cannot access "album 1"
     And a comment "a good comment" on "photo 2" by "user2"
 
+  Scenario: See previous comment
+    Given I am logged in as "user2" with password "pass2"
+    When I follow "album 2"
+    And I follow "photo 2"
+    Then I should see "a good comment"
+
   Scenario: Add a comment
     Given I am logged in as "user1" with password "pass1"
+    And config for "key_comment_valid_time" equals to "0"
     When I follow "album 1"
     And I follow "photo 1"
     And I add a comment :

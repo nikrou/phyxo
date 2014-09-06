@@ -53,7 +53,11 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
 
     include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
 
-    $comment_action = insert_user_comment($comm, @$_POST['key'], $page['errors']);
+    if (empty($_POST['key'])) {
+        $comment_action = 'reject';
+    } else {
+        $comment_action = insert_user_comment($comm, $_POST['key'], $page['errors']);
+    }
 
     switch ($comment_action)
         {
@@ -79,7 +83,7 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
 
 if ($page['show_comments']) {
     if (!is_admin()) {
-        $validated_clause = '  AND validated = \'true\'';
+        $validated_clause = '  AND validated = \''.boolean_to_db('true').'\'';
     } else {
         $validated_clause = '';
     }

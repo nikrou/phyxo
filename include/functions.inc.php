@@ -1364,8 +1364,9 @@ function secure_directory($dir) {
  * @param string $aditionnal_data_to_hash
  * @return string
  */
-function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '') {
+function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash='') {
 	global $conf;
+
 	$time = round(microtime(true), 1);
 	return $time.':'.$valid_after_seconds.':'
 		.hash_hmac(
@@ -1383,8 +1384,9 @@ function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '') 
  */
 function verify_ephemeral_key($key, $aditionnal_data_to_hash = '') {
 	global $conf;
+
 	$time = microtime(true);
-	$key = explode( ':', @$key );
+	$key = explode(':', @$key);
 	if (
         count($key)!=3
         or $key[0]>$time-(float)$key[1] // page must have been retrieved more than X sec ago

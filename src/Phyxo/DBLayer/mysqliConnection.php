@@ -286,6 +286,10 @@ class mysqliConnection extends DBLayer implements iDBLayer
         }
     }
 
+    public function boolean_to_db($var) {
+        return $var;
+    }
+
     public function db_get_recent_period_expression($period, $date='CURRENT_DATE') {
         if ($date!='CURRENT_DATE') {
             $date = '\''.$date.'\'';

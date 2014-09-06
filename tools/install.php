@@ -124,3 +124,12 @@ mass_inserts(
     array_keys($datas[0]),
     $datas
 );
+if (!is_dir(PHPWG_ROOT_PATH.$conf['data_location'])) {
+    mkdir(PHPWG_ROOT_PATH.$conf['data_location']);
+}
+if (!is_dir(PHPWG_ROOT_PATH.$conf['upload_dir'])) {
+    mkdir(PHPWG_ROOT_PATH.$conf['upload_dir']);
+}
+chmod($conf['data_location'], 0777);
+chmod($conf['upload_dir'], 0777);
+chmod(PHPWG_ROOT_PATH.'db', 0777);

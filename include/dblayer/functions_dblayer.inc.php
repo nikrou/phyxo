@@ -197,6 +197,12 @@ function boolean_to_string($var) {
     return $conn->boolean_to_string($var);
 }
 
+function boolean_to_db($var) {
+    global $conn;
+
+    return $conn->boolean_to_db($var);
+}
+
 function pwg_db_get_recent_period_expression($period, $date='CURRENT_DATE') {
     global $conn;
 

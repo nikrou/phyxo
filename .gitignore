@@ -2,6 +2,9 @@
 /_data/*
 /upload/*
 /galleries/*
+/db/*
+!/db/index.php
+
 
 ;; plugins
 /plugins/*

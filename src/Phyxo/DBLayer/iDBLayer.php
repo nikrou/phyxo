@@ -280,6 +280,11 @@ interface iDBLayer
      */
     public function boolean_to_string($var);
 
+    /**
+     * boolean_to_db transforms boolean to a compatible field in database
+     */
+    public function boolean_to_db($var);
+
     /* day & time methods */
     public function db_get_recent_period($period, $date='CURRENT_DATE');
 

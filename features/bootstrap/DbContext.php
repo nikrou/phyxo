@@ -99,6 +99,24 @@ class DbContext extends RawMinkContext
         self::manageAccess($username, $album_name, $remove=true);
     }
 
+
+    /**
+     * @Given /^config for "([^"]*)" equals to "([^"]*)"$/
+     */
+    public function configForEqualsTo($param, $value) {
+        $conf = ORM::for_table(self::$prefix.'config')->where('param', $param)->find_one();
+
+        if (!$conf) {
+            $conf = ORM::for_table(self::$prefix.'config')->create();
+            $conf->param = $param;
+            $conf->value = $value;
+            $conf->save();
+        } else {
+            $conf->value = $value;
+            $conf->save();
+        }
+    }
+
     public function getAlbum($album_name) {
         $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
         if (!$album) {
@@ -116,20 +134,6 @@ class DbContext extends RawMinkContext
         }
     }
 
-    public function setCommentValidTime($seconds) {
-        $conf = ORM::for_table(self::$prefix.'config')->where('param', 'key_comment_valid_time')->find_one();
-
-        if (!$conf) {
-            $conf = ORM::for_table(self::$prefix.'config')->create();
-            $conf->param = 'key_comment_valid_time';
-            $conf->value = $seconds;
-            $conf->save();
-        } else {
-            $conf->value = $seconds;
-            $conf->save();
-        }
-    }
-
     /**
      * @BeforeSuite
      */
@@ -138,7 +142,7 @@ class DbContext extends RawMinkContext
         if (!empty($parameters['sql_init_file']) && !empty($parameters['config_file'])
         && is_readable($parameters['sql_init_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
-                self::configDB($parameters['config_file']);
+                self::configDB($parameters);
                 self::$conf_loaded = true;
             }
 
@@ -158,7 +162,7 @@ class DbContext extends RawMinkContext
         if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
         && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
-                self::configDB($parameters['config_file']);
+                self::configDB($parameters);
                 self::$conf_loaded = true;
             }
 
@@ -169,12 +173,18 @@ class DbContext extends RawMinkContext
         }
     }
 
-    private static function configDb($config_file) {
-        include($config_file);
+    private static function configDb($parameters) {
+        include($parameters['config_file']);
         self::$prefix = $prefixeTable;
-        ORM::configure($conf['dblayer'].':host='.$conf['db_host'].';dbname='.$conf['db_base']);
-        ORM::configure('username', $conf['db_user']);
-        ORM::configure('password', $conf['db_password']);
+
+        if ($conf['dblayer']=='sqlite') {
+            // @See src/Phyxo/DBLayer/sqliteConnection.php
+            ORM::configure(sprintf('sqlite:%s/db/%s.db', __DIR__.'/../..', $conf['db_base']));
+        } else {
+            ORM::configure($conf['dblayer'].':host='.$conf['db_host'].';dbname='.$conf['db_base']);
+            ORM::configure('username', $conf['db_user']);
+            ORM::configure('password', $conf['db_password']);
+        }
 
         ORM::configure('logging', true);
 
@@ -232,7 +242,8 @@ class DbContext extends RawMinkContext
             } else {
                 $user_info->status = $params['status'];
             }
-            $user_info->registration_date = 'now()';
+            $now = new DateTime('now');
+            $user_info->registration_date = $now->format('Y-m-d H:i:s');
             if ($params['status']=='webmaster') {
                 // to be retrieve from config_default
                 // @see include/function_user.inc.php:create_user_infos
@@ -275,14 +286,14 @@ class DbContext extends RawMinkContext
         }
         copy($params['file'], $path);
         if (empty($params['date_creation'])) {
-            $image->set_expr('date_creation', 'now()');
+            $image->date_creation = $now->format('Y-m-d H:i:s');
         } else {
             $image->date_creation = $params['date_creation'];
         }
         if (!empty($params['date_available'])) {
             $image->date_available = $params['date_available'];
         } else {
-            $image->set_expr('date_available', 'now()');
+            $image->date_available = $now->format('Y-m-d H:i:s');
         }
         $image->md5sum = $md5sum;
         $image->save();
