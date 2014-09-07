@@ -2,9 +2,9 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
 <head>
 <meta charset="{$CONTENT_ENCODING}">
-<meta name="generator" content="Piwigo (aka PWG), see piwigo.org">
+<meta name="generator" content="Phyxo, see http://phyxo.nikrou.net/">
 
-{if isset($meta_ref)} 
+{if isset($meta_ref)}
 {if isset($INFO_AUTHOR)}
 <meta name="author" content="{$INFO_AUTHOR|strip_tags:false|replace:'"':' '}">
 {/if}

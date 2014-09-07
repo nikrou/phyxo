@@ -26,6 +26,7 @@
  * @package functions\mail
  */
 
+use Pelago\Emogrifier;
 
 /**
  * Returns the name of the mail sender
@@ -774,10 +775,8 @@ function pwg_send_mail($result, $to, $subject, $content, $headers) {
  * @return string
  */
 function move_css_to_body($content) {
-    include_once(PHPWG_ROOT_PATH.'include/emogrifier.class.php');
-
     $e = new Emogrifier($content);
-    return @$e->emogrify();
+    return @$e->emogrify(); // @TODO: remove arobase
 }
 
 /**

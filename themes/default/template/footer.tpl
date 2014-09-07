@@ -3,12 +3,6 @@
     {'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
   {/if}
 
-  {*
-  Please, do not remove this copyright. If you really want to,
-  contact us on http://piwigo.org to find a solution on how
-  to show the origin of the script...
-  *}
-
   {'Powered by'|translate} <a href="{$PHPWG_URL}" class="Piwigo">Phyxo</a>
   {$VERSION}
   {if isset($CONTACT_MAIL)}
