@@ -1109,7 +1109,7 @@ function safe_json_decode($value) {
 function prepend_append_array_items($array, $prepend_str, $append_str) {
     array_walk(
         $array,
-        function(&$s) { $s = "'.$prepend_str.'".$s."'.$append_str.'";}
+        function(&$s) use ($prepend_str, $append_str) { $s = "'.$prepend_str.'".$s."'.$append_str.'";}
     );
 
     return $array;
