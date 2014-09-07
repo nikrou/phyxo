@@ -97,7 +97,7 @@ function get_sql_search_clause($search) {
 
         array_walk(
             $word_clauses,
-            function(&$s) { $s="(".$s.")";}
+            function(&$s) { $s = '('.$s.')';}
         );
 
         // make sure the "mode" is either OR or AND
@@ -105,7 +105,7 @@ function get_sql_search_clause($search) {
             $search['fields']['allwords']['mode'] = 'AND';
         }
 
-        $clauses[] = implode(' '.$search['fields']['allwords']['mode'].' ', $word_clauses);
+        $clauses[] = ' '.implode(' '.$search['fields']['allwords']['mode'].' ', $word_clauses);
     }
 
     foreach (array('date_available', 'date_creation') as $datefield) {
@@ -133,7 +133,7 @@ function get_sql_search_clause($search) {
 
         $local_clause = 'category_id IN ('.implode(',', $cat_ids).')';
         $clauses[] = $local_clause;
-  }
+    }
 
     // adds brackets around where clauses
     $clauses = prepend_append_array_items($clauses, '(', ')');

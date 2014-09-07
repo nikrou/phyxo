@@ -3,6 +3,9 @@ php:
   - "5.5"
   - "5.4"
 
+services:
+  - postgresql
+
 env:
   - DB=mysql
   - DB=pgsql
@@ -16,7 +19,7 @@ before_script:
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo_test;' -U postgres; fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo_test;' -U postgres ;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/database.inc.pgsql.travis.php local/config/database.inc.php;fi"
-  - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f _data/test.d;fi"
+  - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/test.d;fi"
   - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/database.inc.sqlite.travis.php local/config/database.inc.php;fi"
   - php tools/install.php
   - php -S localhost:1080 -t . &
