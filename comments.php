@@ -151,17 +151,13 @@ if (!empty($_GET['comment_id'])) {
 
 // search a substring among comments content
 if (!empty($_GET['keyword'])) {
-    $page['where_clauses'][] = '('.
-        implode(' AND ',
+    $page['where_clauses'][] = '('.implode(
+        ' AND ',
         array_map(
-            create_function(
-                '$s',
-                'return "content LIKE \'%$s%\'";'
-            ),
+            function($s) {return "content LIKE \'%$s%\'";},
             preg_split('/[\s,;]+/', $_GET['keyword'] )
         )
-        ).
-        ')';
+    ).')';
 }
 
 $page['where_clauses'][] = $since_options[$page['since']]['clause'];

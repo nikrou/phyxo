@@ -29,7 +29,7 @@ use Phyxo\Template\CssLoader;
 class Template
 {
     /** @var Smarty */
-    private $smarty;
+    public $smarty;
     /** @var string */
     private $output = '';
 
@@ -981,8 +981,9 @@ class Template
         // replaces echo PHP_STRING_LITERAL; with the string literal value
         $source = preg_replace_callback(
             '/\\<\\?php echo ((?:\'(?:(?:\\\\.)|[^\'])*\')|(?:"(?:(?:\\\\.)|[^"])*"));\\?\\>\\n/',
-            create_function('$matches', 'eval(\'$tmp=\'.$matches[1].\';\');return $tmp;'),
-            $source);
+            function($matches) { eval('$tmp='.$matches[1].';');return $tmp; }, // @TODO: remove eval
+            $source
+        );
 
         return $source;
     }

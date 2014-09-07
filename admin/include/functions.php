@@ -457,7 +457,9 @@ function update_global_rank() {
     $datas = array();
 
     // use function()
-    $cat_map_callback = create_function('$m', 'global $cat_map; return $cat_map[$m[1]]["rank"];');
+    $cat_map_callback = function($m) use ($cat_map) {
+        return $cat_map[$m[1]]["rank"];
+    };
 
     foreach ($cat_map as $id=>$cat) {
         $new_global_rank = preg_replace_callback(
@@ -742,8 +744,9 @@ function get_fulldirs($cat_ids) {
     $categories = query2array($query);
 
     // filling $cat_fulldirs
-    // @TODO: use function()
-    $cat_dirs_callback = create_function('$m', 'global $cat_dirs; return $cat_dirs[$m[1]];');
+    $cat_dirs_callback = function($m) use ($cat_dirs) {
+        return $cat_dirs[$m[1]];
+    };
 
     $cat_fulldirs = array();
     foreach ($categories as $category) {

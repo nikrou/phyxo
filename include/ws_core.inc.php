@@ -523,7 +523,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
         // @TODO: use function()
         $methods = array_filter(
             $service->_methods,
-            create_function('$m', 'return empty($m["options"]["hidden"]) || !$m["options"]["hidden"];')
+            function($m) { return empty($m['options']['hidden']) || !$m['options']['hidden'];}
         );
         return array('methods' => new PwgNamedArray( array_keys($methods),'method'));
     }

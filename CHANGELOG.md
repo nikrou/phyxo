@@ -3,12 +3,12 @@ Phyxo 1.2.0 - 2014-MM-DD
 * Add javascript tests using [Jasmine](http://jasmine.github.io/)
 * Add php unit tests using [Atoum](http://atoum.org/)
 * Add functional tests using [Behat](http://www.behat.org).
-* Remove @ for Smarty (@translate becomes translate)
+* Remove some @ for Smarty (@translate becomes translate)
 * Make assets (js, css, images) for admin independant of public pages
 * Replace count(*) by count(1)
 * Replace array_from_query by query2array
 * Move Themes, Plugins, Languages, Updates classes to Phyxo namespace
-* Use anonymous function instead of create_function construction (at some places)
+* Use anonymous function instead of create_function construction
 * Use DBLayer instead of functions
 * user_tags plugin will have its own repository
 * Use sql-formatter to display queries
