@@ -82,17 +82,10 @@ if (isset($_POST['submit'])) {
     $action = $_POST['selectAction'];
     $redirect = false;
 
-    if (!in_array($action, array('remove_from_caddie','add_to_caddie','delete_derivatives','generate_derivatives'))) {
-        invalidate_user_cache();
-    }
-
     if ('remove_from_caddie' == $action) {
-        $query = '
-DELETE
-  FROM '.CADDIE_TABLE.'
-  WHERE element_id IN ('.implode(',', $collection).')
-    AND user_id = '.$user['id'].'
-;';
+        $query = 'DELETE FROM '.CADDIE_TABLE;
+        $query .= ' WHERE element_id IN ('.implode(',', $collection).')';
+        $query .= ' AND user_id = '.$user['id'].';';
         pwg_query($query);
 
         // remove from caddie action available only in caddie so reload content
@@ -110,12 +103,9 @@ DELETE
         }
     } elseif ('del_tags' == $action) {
         if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0) {
-            $query = '
-DELETE
-  FROM '.IMAGE_TAG_TABLE.'
-  WHERE image_id IN ('.implode(',', $collection).')
-    AND tag_id IN ('.implode(',', $_POST['del_tags']).')
-;';
+            $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
+            $query .= ' WHERE image_id IN ('.implode(',', $collection).')';
+            $query .= ' AND tag_id IN ('.implode(',', $_POST['del_tags']).');';
             pwg_query($query);
 
             if (isset($_SESSION['bulk_manager_filter']['tags']) &&
@@ -133,9 +123,7 @@ DELETE
             array($_POST['associate'])
         );
 
-        $_SESSION['page_infos'] = array(
-            l10n('Information data registered in database')
-        );
+        $_SESSION['page_infos'][] = l10n('Information data registered in database');
 
         // let's refresh the page because we the current set might be modified
         if ('no_album' == $page['prefilter']) {
@@ -149,9 +137,7 @@ DELETE
     } elseif ('move' == $action) {
         move_images_to_categories($collection, array($_POST['move']));
 
-        $_SESSION['page_infos'] = array(
-            l10n('Information data registered in database')
-        );
+        $_SESSION['page_infos'][] = l10n('Information data registered in database');
 
         // let's refresh the page because we the current set might be modified
         if ('no_album' == $page['prefilter']) {
@@ -168,36 +154,25 @@ DELETE
     } elseif ('dissociate' == $action) {
         // physical links must not be broken, so we must first retrieve image_id
         // which create virtual links with the category to "dissociate from".
-        $query = '
-SELECT id
-  FROM '.IMAGE_CATEGORY_TABLE.'
-    INNER JOIN '.IMAGES_TABLE.' ON image_id = id
-  WHERE category_id = '.$_POST['dissociate'].'
-    AND id IN ('.implode(',', $collection).')
-    AND (
-      category_id != storage_category_id
-      OR storage_category_id IS NULL
-    )
-;';
+        $query = 'SELECT id FROM '.IMAGES_TABLE;
+        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
+        $query .= ' WHERE category_id = '.$_POST['dissociate'];
+        $query .= ' AND id IN ('.implode(',', $collection).')';
+        $query .= ' AND (category_id != storage_category_id OR storage_category_id IS NULL);';
         $dissociables = array_from_query($query, 'id');
 
         if (!empty($dissociables)) {
-            $query = '
-DELETE
-  FROM '.IMAGE_CATEGORY_TABLE.'
-  WHERE category_id = '.$_POST['dissociate'].'
-    AND image_id IN ('.implode(',', $dissociables).')
-';
+            $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
+            $query .= ' WHERE category_id = '.$_POST['dissociate'];
+            $query .= ' AND image_id IN ('.implode(',', $dissociables).')';
             pwg_query($query);
 
-            $_SESSION['page_infos'] = array(
-                l10n('Information data registered in database')
-            );
+            $_SESSION['page_infos'][] = l10n('Information data registered in database');
 
             // let's refresh the page because the current set might be modified
             $redirect = true;
         }
-    } elseif ('author' == $action) { // author
+    } elseif ('author' == $action) {
         if (isset($_POST['remove_author'])) {
             $_POST['author'] = null;
         }
@@ -215,7 +190,7 @@ DELETE
             array('primary' => array('id'), 'update' => array('author')),
             $datas
         );
-    } elseif ('title' == $action) { // title
+    } elseif ('title' == $action) {
         if (isset($_POST['remove_title'])) {
             $_POST['title'] = null;
         }
@@ -233,7 +208,7 @@ DELETE
             array('primary' => array('id'), 'update' => array('name')),
             $datas
         );
-    } elseif ('date_creation' == $action) { // date_creation
+    } elseif ('date_creation' == $action) {
         if (isset($_POST['remove_date_creation']) || empty($_POST['date_creation'])) {
             $date_creation = null;
         } else {
@@ -273,9 +248,9 @@ DELETE
                 $redirect = true;
             }
         }
-    } elseif ('add_to_caddie' == $action) { // add_to_caddie
+    } elseif ('add_to_caddie' == $action) {
         fill_caddie($collection);
-    } elseif ('delete' == $action) { // delete
+    } elseif ('delete' == $action) {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
             $deleted_count = delete_elements($collection, true);
             if ($deleted_count > 0) {
@@ -292,10 +267,10 @@ DELETE
         } else {
             $page['errors'][] = l10n('You need to confirm deletion');
         }
-    } elseif ('metadata' == $action) {   // synchronize metadata
+    } elseif ('metadata' == $action) {
         sync_metadata($collection);
         $page['infos'][] = l10n('Metadata synchronized from file');
-    } elseif (('delete_derivatives' == $action)  && !empty($_POST['del_derivatives_type'])) {
+    } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
         $query = 'SELECT path,representative_ext FROM '.IMAGES_TABLE;
         $query .= ' WHERE id IN ('.implode(',', $collection).')';
         $result = pwg_query($query);
@@ -391,15 +366,10 @@ $template->assign(
 $filter_tags = array();
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
-    $query = '
-SELECT
-    id,
-    name
-  FROM '.TAGS_TABLE.'
-  WHERE id IN ('.implode(',', $_SESSION['bulk_manager_filter']['tags']).')
-;';
+    $query = 'SELECT id,name FROM '.TAGS_TABLE;
+    $query .= ' WHERE id IN ('.implode(',', $_SESSION['bulk_manager_filter']['tags']).');';
 
-  $filter_tags = get_taglist($query);
+    $filter_tags = get_taglist($query);
 }
 
 $template->assign('filter_tags', $filter_tags);
@@ -411,12 +381,8 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
     $selected_category = array($_SESSION['bulk_manager_filter']['category']);
 } else {
     // we need to know the category in which the last photo was added
-    $query = '
-SELECT category_id
-  FROM '.IMAGE_CATEGORY_TABLE.'
-  ORDER BY image_id DESC
-  LIMIT 1
-;';
+    $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
+    $query .= ' ORDER BY image_id DESC LIMIT 1;';
     $result = pwg_query($query);
     if (pwg_db_num_rows($result) > 0) {
         $row = pwg_db_fetch_assoc($result);
@@ -432,10 +398,7 @@ if (count($page['cat_elements_id']) > 0) {
 }
 
 // creation date
-$template->assign(
-    'DATE_CREATION',
-    empty($_POST['date_creation']) ? date('Y-m-d').' 00:00:00' : $_POST['date_creation']
-);
+$template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d').' 00:00:00' : $_POST['date_creation']);
 
 // image level options
 $template->assign(
@@ -450,11 +413,7 @@ include_once( PHPWG_ROOT_PATH.'admin/site_reader_local.php');
 $site_reader = new LocalSiteReader('./');
 $used_metadata = implode( ', ', $site_reader->get_metadata_attributes());
 
-$template->assign(
-    array(
-        'used_metadata' => $used_metadata,
-    )
-);
+$template->assign(array('used_metadata' => $used_metadata));
 
 //derivatives
 $del_deriv_map = array();
@@ -497,19 +456,15 @@ if (count($page['cat_elements_id']) > 0) {
     $template->assign('navbar', $nav_bar);
 
     $is_category = false;
-    if (isset($_SESSION['bulk_manager_filter']['category'])
-    and !isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
+    if (isset($_SESSION['bulk_manager_filter']['category']) && !isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
         $is_category = true;
     }
 
-    if (isset($_SESSION['bulk_manager_filter']['prefilter'])
-    and 'duplicates' == $_SESSION['bulk_manager_filter']['prefilter']) {
+    if (isset($_SESSION['bulk_manager_filter']['prefilter']) && 'duplicates' == $_SESSION['bulk_manager_filter']['prefilter']) {
         $conf['order_by'] = ' ORDER BY file, id';
     }
 
-    $query = '
-SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
-  FROM '.IMAGES_TABLE;
+    $query = 'SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation FROM '.IMAGES_TABLE;
 
     if ($is_category) {
         $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
@@ -519,22 +474,16 @@ SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
             $conf['order_by'] = ' ORDER BY '.$category_info['image_order'];
         }
 
-        $query.= '
-    JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
     }
 
-    $query.= '
-  WHERE id IN ('.implode(',', $page['cat_elements_id']).')';
+    $query .= ' WHERE id IN ('.implode(',', $page['cat_elements_id']).')';
 
     if ($is_category) {
-        $query.= '
-    AND category_id = '.$_SESSION['bulk_manager_filter']['category'];
+        $query .= ' AND category_id = '.$_SESSION['bulk_manager_filter']['category'];
     }
 
-    $query.= '
-  '.$conf['order_by'].'
-  LIMIT '.$page['nb_images'].' OFFSET '.$page['start'].'
-;';
+    $query .= ' '.$conf['order_by'].' LIMIT '.$page['nb_images'].' OFFSET '.$page['start'].';';
     $result = pwg_query($query);
 
     $thumb_params = ImageStdParams::get_by_type(IMG_THUMB);
@@ -545,19 +494,17 @@ SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation
 
         $ttitle = render_element_name($row);
         if ($ttitle != get_name_from_file($row['file'])) {
-            $ttitle.= ' ('.$row['file'].')';
+            $ttitle .= ' ('.$row['file'].')';
         }
 
         $template->append(
-            'thumbnails', array_merge(
-                $row,
-                array(
-                    'thumb' => new DerivativeImage($thumb_params, $src_image),
-                    'TITLE' => $ttitle,
-                    'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                    'U_EDIT' => get_root_url().'admin.php?page=photo-'.$row['id'],
-                )
-            )
+            'thumbnails', array_merge($row,
+            array(
+                'thumb' => new DerivativeImage($thumb_params, $src_image),
+                'TITLE' => $ttitle,
+                'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
+                'U_EDIT' => get_root_url().'admin.php?page=photo-'.$row['id'],
+            ))
         );
     }
     $template->assign('thumb_params', $thumb_params);

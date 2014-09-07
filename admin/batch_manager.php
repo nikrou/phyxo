@@ -40,6 +40,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 // +-----------------------------------------------------------------------+
 
 check_status(ACCESS_ADMINISTRATOR);
+
 check_input_parameter('selection', $_POST, true, PATTERN_ID);
 
 // +-----------------------------------------------------------------------+
@@ -51,9 +52,7 @@ if (isset($_GET['action'])) {
         $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
         pwg_query($query);
 
-        $_SESSION['page_infos'] = array(
-            l10n('Information data registered in database')
-        );
+        $_SESSION['page_infos'][] = l10n('Information data registered in database');
 
         redirect(get_root_url().'admin.php?page='.$_GET['page']);
     }
@@ -132,6 +131,7 @@ if (isset($_POST['submitFilter'])) {
     if (isset($_POST['filter_search_use'])) {
         $_SESSION['bulk_manager_filter']['search']['q'] = $_POST['q'];
     }
+
     trigger_notify('batch_manager_register_filters');
 } elseif (isset($_GET['filter'])) { // filters from url
     if (!is_array($_GET['filter'])) {
@@ -143,125 +143,130 @@ if (isset($_POST['submitFilter'])) {
     foreach ($_GET['filter'] as $filter) {
         list($type, $value) = explode('-', $filter);
 
-        switch ($type) {
-        case 'prefilter':
-            $_SESSION['bulk_manager_filter']['prefilter'] = $value;
-            break;
+        switch ($type)
+            {
+            case 'prefilter':
+                $_SESSION['bulk_manager_filter']['prefilter'] = $value;
+                break;
 
-        case 'album':
-            if (is_numeric($value)) {
-                $_SESSION['bulk_manager_filter']['category'] = $value;
-            }
-            break;
+            case 'album':
+                if (is_numeric($value)) {
+                    $_SESSION['bulk_manager_filter']['category'] = $value;
+                }
+                break;
 
-        case 'tag':
-            if (is_numeric($value)) {
-                $_SESSION['bulk_manager_filter']['tags'] = array($value);
-                $_SESSION['bulk_manager_filter']['tag_mode'] = 'AND';
-            }
-            break;
+            case 'tag':
+                if (is_numeric($value)) {
+                    $_SESSION['bulk_manager_filter']['tags'] = array($value);
+                    $_SESSION['bulk_manager_filter']['tag_mode'] = 'AND';
+                }
+                break;
 
-        case 'level':
-            if (is_numeric($value) && in_array($value, $conf['available_permission_levels'])) {
-                $_SESSION['bulk_manager_filter']['level'] = $value;
+            case 'level':
+                if (is_numeric($value) && in_array($value, $conf['available_permission_levels'])) {
+                    $_SESSION['bulk_manager_filter']['level'] = $value;
+                }
+                break;
             }
-            break;
-        }
     }
 }
 
 if (empty($_SESSION['bulk_manager_filter'])) {
-    $_SESSION['bulk_manager_filter'] = array(
-        'prefilter' => 'caddie'
-    );
+    $_SESSION['bulk_manager_filter'] = array('prefilter' => 'caddie');
 }
 
 // depending on the current filter (in session), we find the appropriate photos
 $filter_sets = array();
 if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
-    switch ($_SESSION['bulk_manager_filter']['prefilter']) {
-    case 'caddie':
-        $query = 'SELECT element_id FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-        $filter_sets[] = query2array($query, null, 'element_id');
-        break;
+    switch ($_SESSION['bulk_manager_filter']['prefilter'])
+        {
+        case 'caddie':
+            $query = 'SELECT element_id FROM '.CADDIE_TABLE;
+            $query .= ' WHERE user_id = '.$user['id'];
+            $filter_sets[] = query2array($query, null, 'element_id');
+            break;
 
-    case 'favorites':
-        $query = 'SELECT image_id FROM '.FAVORITES_TABLE.' WHERE user_id = '.$user['id'].';';
-        $filter_sets[] = query2array($query, null, 'image_id');
-        break;
+        case 'favorites':
+            $query = 'SELECT image_id FROM '.FAVORITES_TABLE;
+            $query .= ' WHERE user_id = '.$user['id'];
+            $filter_sets[] = query2array($query, null, 'image_id');
+            break;
 
-    case 'last_import':
-        $query = 'SELECT MAX(date_available) AS date FROM '.IMAGES_TABLE.';';
-        $row = pwg_db_fetch_assoc(pwg_query($query));
-        if (!empty($row['date'])) {
+        case 'last_import':
+            $query = 'SELECT MAX(date_available) AS date FROM '.IMAGES_TABLE;
+            $row = pwg_db_fetch_assoc(pwg_query($query));
+            if (!empty($row['date'])) {
+                $query = 'SELECT id FROM '.IMAGES_TABLE;
+                $query .= ' WHERE date_available BETWEEN ';
+                $query .= pwg_db_get_recent_period_expression(1, $row['date']).' AND \''.$row['date'].'\';';
+                $filter_sets[] = query2array($query, null, 'id');
+            }
+            break;
+
+        case 'no_virtual_album':
+            // we are searching elements not linked to any virtual category
             $query = 'SELECT id FROM '.IMAGES_TABLE;
-            $query .= ' WHERE date_available BETWEEN ';
-            $query .= pwg_db_get_recent_period_expression(1, $row['date']).' AND \''.$row['date'].'\';';
+            $all_elements = query2array($query, null, 'id');
+            $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL;';
+            $virtual_categories = query2array($query, null, 'id');
+            if (!empty($virtual_categories)) {
+                $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
+                $query .= ' WHERE category_id IN ('.implode(',', $virtual_categories).');';
+                $linked_to_virtual = query2array($query, null, 'image_id');
+            }
+
+            $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
+            break;
+
+        case 'no_album':
+            $query = 'SELECT id FROM '.IMAGES_TABLE;
+            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+            $query .= ' WHERE category_id is null;';
             $filter_sets[] = query2array($query, null, 'id');
-        }
-        break;
+            break;
 
-    case 'no_virtual_album':
-        // we are searching elements not linked to any virtual category
-        $query = ' SELECT id FROM '.IMAGES_TABLE.';';
-        $all_elements = query2array($query, null, 'id');
-
-        $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL;';
-        $virtual_categories = array_from_query($query, 'id');
-        if (!empty($virtual_categories)) {
-            $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id IN ('.implode(',', $virtual_categories).');';
-            $linked_to_virtual = query2array($query, null, 'image_id');
-        }
-        $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
-    break;
-
-    case 'no_album':
-        $query = 'SELECT id FROM '.IMAGES_TABLE;
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
-        $query .= ' WHERE category_id is null;';
-        $filter_sets[] = query2array($query, null, 'id');
-        break;
-
-    case 'no_tag':
-        $query = 'SELECT id FROM '.IMAGES_TABLE;
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id = image_id';
-        $query .= ' WHERE tag_id is null;';
-        $filter_sets[] = query2array($query, null, 'id');
-        break;
-
-    case 'duplicates':
-        $duplicates_on_fields = array('file');
-
-        if (isset($_SESSION['bulk_manager_filter']['duplicates_date'])) {
-            $duplicates_on_fields[] = 'date_creation';
-        }
-
-        if (isset($_SESSION['bulk_manager_filter']['duplicates_dimensions'])) {
-            $duplicates_on_fields[] = 'width';
-            $duplicates_on_fields[] = 'height';
-        }
-
-        $query = 'SELECT '.pwg_db_group_concat('id').' AS ids FROM '.IMAGES_TABLE;
-        $query .= ' GROUP BY '.implode(',', $duplicates_on_fields).' HAVING COUNT(*) > 1;';
-        $array_of_ids_string = query2array($query, null, 'ids');
-
-        $ids = array();
-
-        foreach ($array_of_ids_string as $ids_string) {
-            $ids = array_merge($ids, explode(',', $ids_string));
-        }
-
-        $filter_sets[] = $ids;
-    break;
-
-    case 'all_photos':
-        if (count($_SESSION['bulk_manager_filter']) == 1) { // make the query only if this is the only filter
-            $query = 'SELECT id FROM '.IMAGES_TABLE.' '.$conf['order_by'];
+        case 'no_tag':
+            $query = 'SELECT id FROM '.IMAGES_TABLE;
+            $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id = image_id';
+            $query .= ' WHERE tag_id is null;';
             $filter_sets[] = query2array($query, null, 'id');
+            break;
+
+        case 'duplicates':
+            $duplicates_on_fields = array('file');
+
+            if (isset($_SESSION['bulk_manager_filter']['duplicates_date'])) {
+                $duplicates_on_fields[] = 'date_creation';
+            }
+
+            if (isset($_SESSION['bulk_manager_filter']['duplicates_dimensions'])) {
+                $duplicates_on_fields[] = 'width';
+                $duplicates_on_fields[] = 'height';
+            }
+
+            $query = 'SELECT '.pwg_db_group_concat('id').' AS ids FROM '.IMAGES_TABLE;
+            $query .= ' GROUP BY '.implode(',', $duplicates_on_fields);
+            $query .= ' HAVING COUNT(*) > 1;';
+            $array_of_ids_string = query2array($query, null, 'ids');
+
+            $ids = array();
+
+            foreach ($array_of_ids_string as $ids_string) {
+                $ids = array_merge($ids, explode(',', $ids_string));
+            }
+
+            $filter_sets[] = $ids;
+            break;
+
+        case 'all_photos':
+            if (count($_SESSION['bulk_manager_filter']) == 1) { // make the query only if this is the only filter
+                $query = 'SELECT id FROM '.IMAGES_TABLE;
+                $query .= ' '.$conf['order_by'];
+
+                $filter_sets[] = query2array($query, null, 'id');
+            }
+            break;
         }
-        break;
-    }
 
     $filter_sets = trigger_change('perform_batch_manager_prefilters', $filter_sets, $_SESSION['bulk_manager_filter']['prefilter']);
 }
@@ -321,10 +326,28 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
     }
     if (isset($_SESSION['bulk_manager_filter']['dimension']['max_ratio'])) {
         // max_ratio is a floor value, so must be a bit increased
-      $where_clause[] = 'width/height < '.($_SESSION['bulk_manager_filter']['dimension']['max_ratio']+0.01);
+        $where_clause[] = 'width/height < '.($_SESSION['bulk_manager_filter']['dimension']['max_ratio']+0.01);
     }
 
-    $query = 'SELECT id FROM '.IMAGES_TABLE.' WHERE '.implode(' AND ',$where_clause).' '.$conf['order_by'];
+    $query = 'SELECT id FROM '.IMAGES_TABLE;
+    $query .= ' WHERE '.implode(' AND ',$where_clause).' '.$conf['order_by'];
+
+    $filter_sets[] = query2array($query, null, 'id');
+}
+
+if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
+    $where_clauses = array();
+
+    if (isset($_SESSION['bulk_manager_filter']['filesize']['min'])) {
+        $where_clause[] = 'filesize >= '.$_SESSION['bulk_manager_filter']['filesize']['min']*1024;
+    }
+
+    if (isset($_SESSION['bulk_manager_filter']['filesize']['max'])) {
+        $where_clause[] = 'filesize <= '.$_SESSION['bulk_manager_filter']['filesize']['max']*1024;
+    }
+
+    $query = 'SELECT id FROM '.IMAGES_TABLE;
+    $query .= ' WHERE '.implode(' AND ',$where_clause).' '.$conf['order_by'];
 
     $filter_sets[] = query2array($query, null, 'id');
 }
@@ -343,7 +366,6 @@ foreach ($filter_sets as $set) {
 }
 $page['cat_elements_id'] = $current_set;
 
-
 // +-----------------------------------------------------------------------+
 // |                       first element to display                        |
 // +-----------------------------------------------------------------------+
@@ -352,8 +374,10 @@ $page['cat_elements_id'] = $current_set;
 // category. For exampe, $page['start'] = 12 means we must show elements #12
 // and $page['nb_images'] next elements
 
-if (!isset($_REQUEST['start']) || !is_numeric($_REQUEST['start']) || $_REQUEST['start'] < 0
-|| (isset($_REQUEST['display']) && 'all' == $_REQUEST['display'])) {
+if (!isset($_REQUEST['start'])
+    or !is_numeric($_REQUEST['start'])
+    or $_REQUEST['start'] < 0
+    or (isset($_REQUEST['display']) and 'all' == $_REQUEST['display'])) {
     $page['start'] = 0;
 } else {
     $page['start'] = $_REQUEST['start'];
@@ -364,6 +388,7 @@ if (!isset($_REQUEST['start']) || !is_numeric($_REQUEST['start']) || $_REQUEST['
 // |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
 $manager_link = get_root_url().'admin.php?page=batch_manager&amp;mode=';
+
 if (isset($_GET['mode'])) {
     $page['tab'] = $_GET['mode'];
 } else {
@@ -399,32 +424,26 @@ if (pwg_db_num_rows($result)) {
         }
     }
 }
+
 if (empty($widths)) { // arbitrary values, only used when no photos on the gallery
     $widths = array(600, 1920, 3500);
     $heights = array(480, 1080, 2300);
     $ratios = array(1.25, 1.52, 1.78);
 }
 
-$widths = array_unique($widths);
-sort($widths);
-
-$heights = array_unique($heights);
-sort($heights);
-
-$ratios = array_unique($ratios);
-sort($ratios);
-
-$dimensions['widths'] = implode(',', $widths);
-$dimensions['heights'] = implode(',', $heights);
-$dimensions['ratios'] = implode(',', $ratios);
+foreach (array('widths','heights','ratios') as $type) {
+    ${$type} = array_unique(${$type}); // @TODO : remove that ~ eval
+    sort(${$type});
+    $dimensions[$type] = implode(',', ${$type});
+}
 
 $dimensions['bounds'] = array(
     'min_width' => $widths[0],
-    'max_width' => $widths[count($widths)-1],
+    'max_width' => end($widths),
     'min_height' => $heights[0],
-    'max_height' => $heights[count($heights)-1],
+    'max_height' => end($heights),
     'min_ratio' => $ratios[0],
-    'max_ratio' => $ratios[count($ratios)-1],
+    'max_ratio' => end($ratios),
 );
 
 // find ratio categories
@@ -447,11 +466,11 @@ foreach ($ratios as $ratio) {
     }
 }
 
-foreach (array_keys($ratio_categories) as $ratio_category) {
-    if (count($ratio_categories[$ratio_category]) > 0) {
-        $dimensions['ratio_'.$ratio_category] = array(
-            'min' => $ratio_categories[$ratio_category][0],
-            'max' => array_pop($ratio_categories[$ratio_category]),
+foreach (array_keys($ratio_categories) as $type) {
+    if (count($ratio_categories[$type]) > 0) {
+        $dimensions['ratio_'.$type] = array(
+            'min' => $ratio_categories[$type][0],
+            'max' => end($ratio_categories[$type]),
         );
     }
 }
@@ -464,6 +483,48 @@ foreach (array_keys($dimensions['bounds']) as $type) {
 }
 
 $template->assign('dimensions', $dimensions);
+
+// +-----------------------------------------------------------------------+
+// | filesize                                                              |
+// +-----------------------------------------------------------------------+
+
+$filesizes = array();
+$filesize = array();
+
+$query = 'SELECT filesize FROM '.IMAGES_TABLE;
+$query .= ' WHERE filesize IS NOT NULL GROUP BY filesize;';
+$result = pwg_query($query);
+
+while ($row = pwg_db_fetch_assoc($result)) {
+    $filesizes[] = sprintf('%.1f', $row['filesize']/1024);
+}
+
+if (empty($filesizes)) { // arbitrary values, only used when no photos on the gallery
+    $filesizes = array(0, 1, 2, 5, 8, 15);
+}
+
+$filesizes = array_unique($filesizes);
+sort($filesizes);
+
+// add 0.1MB to the last value, to make sure the heavier photo will be in
+// the result
+$filesizes[count($filesizes)-1]+= 0.1;
+
+$filesize['list'] = implode(',', $filesizes);
+
+$filesize['bounds'] = array(
+    'min' => $filesizes[0],
+    'max' => end($filesizes),
+);
+
+// selected=bound if nothing selected
+foreach (array_keys($filesize['bounds']) as $type) {
+    $filesize['selected'][$type] = isset($_SESSION['bulk_manager_filter']['filesize'][$type])
+        ? $_SESSION['bulk_manager_filter']['filesize'][$type]
+        : $filesize['bounds'][$type];
+}
+
+$template->assign('filesize', $filesize);
 
 // +-----------------------------------------------------------------------+
 // |                         open specific mode                            |

@@ -78,7 +78,7 @@ if (isset($_POST['submit'])) {
 
         // tags management
         $tag_ids = array();
-        if (!empty($_POST[ 'tags-'.$row['id'] ])) {
+        if (!empty($_POST['tags-'.$row['id']])) {
             $tag_ids = get_tag_ids($_POST[ 'tags-'.$row['id'] ]);
         }
         set_tags($tag_ids, $row['id']);
@@ -180,7 +180,7 @@ if (count($page['cat_elements_id']) > 0) {
 
         $legend = render_element_name($row);
         if ($legend != get_name_from_file($row['file'])) {
-            $legend.= ' ('.$row['file'].')';
+            $legend .= ' ('.$row['file'].')';
         }
 
         $template->append(
@@ -197,8 +197,7 @@ if (count($page['cat_elements_id']) > 0) {
                 'DESCRIPTION' => htmlspecialchars(@$row['comment']),
                 'DATE_CREATION' => $row['date_creation'],
                 'TAGS' => $tag_selection,
-            )
-            )
+            ))
         );
     }
 

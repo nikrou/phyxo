@@ -4,8 +4,9 @@
 
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 
-{combine_script id='jquery.ui.slider' require='jquery.ui' load='footer' path='admin/themes/default/js/ui/minified/jquery.ui.slider.min.js'}
+{combine_script id='jquery.ui.slider' require='jquery.ui' load='async' path='admin/themes/default/js/ui/minified/jquery.ui.slider.min.js'}
 {combine_css path="admin/themes/default/js/ui/theme/jquery.ui.slider.css"}
+{combine_script id='doubleSlider' load='async' require='jquery.ui.slider' path='admin/themes/default/js/doubleSlider.js'}
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
@@ -15,7 +16,7 @@
 {combine_script id='jquery.progressBar' load='async' path='admin/themes/default/js/plugins/jquery.progressbar.min.js'}
 {combine_script id='jquery.ajaxmanager' load='async' path='admin/themes/default/js/plugins/jquery.ajaxmanager.js'}
 
-{combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum' path='admin/themes/default/js/batchManagerGlobal.js'}
+{combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider' path='admin/themes/default/js/batchManagerGlobal.js'}
 
 {footer_script}
 var lang = {
@@ -372,37 +373,37 @@ var sliders = {
         {'Dimensions'|translate}
 
         <blockquote>
-          {'Width'|translate} <span id="filter_dimension_width_info">{'between %d and %d pixels'|translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
-          | <a class="dimensions-choice" data-type="width" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|translate}</a>
-          <div id="filter_dimension_width_slider"></div>
+          <div data-slider="widths">
+            {'Width'|translate} <span class="slider-info">{'between %d and %d pixels'|translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
+            | <a class="slider-choice" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|translate}</a>
+            <div class="slider-slider"></div>
 
-          {'Height'|translate} <span id="filter_dimension_height_info">{'between %d and %d pixels'|translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
-          | <a class="dimensions-choice" data-type="height" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|translate}</a>
-          <div id="filter_dimension_height_slider"></div>
+            <input type="hidden" data-input="min" name="filter_dimension_min_width" value="{$dimensions.selected.min_width}">
+            <input type="hidden" data-input="max" name="filter_dimension_max_width" value="{$dimensions.selected.max_width}">
+          </div>
 
-          {'Ratio'|translate} ({'Width'|translate}/{'Height'|translate}) <span id="filter_dimension_ratio_info">{'between %.2f and %.2f'|translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
-{if isset($dimensions.ratio_portrait)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|translate}</a>
-{/if}
-{if isset($dimensions.ratio_square)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_square.min}" data-max="{$dimensions.ratio_square.max}">{'square'|translate}</a>
-{/if}
-{if isset($dimensions.ratio_landscape)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_landscape.min}" data-max="{$dimensions.ratio_landscape.max}">{'Landscape'|translate}</a>
-{/if}
-{if isset($dimensions.ratio_panorama)}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.ratio_panorama.min}" data-max="{$dimensions.ratio_panorama.max}">{'Panorama'|translate}</a>
-{/if}
-          | <a class="dimensions-choice" data-type="ratio" data-min="{$dimensions.bounds.min_ratio}" data-max="{$dimensions.bounds.max_ratio}">{'Reset'|translate}</a>
-          <div id="filter_dimension_ratio_slider"></div>
+          <div data-slider="heights">
+            {'Height'|translate} <span class="slider-info">{'between %d and %d pixels'|translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
+            | <a class="slider-choice" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|translate}</a>
+            <div class="slider-slider"></div>
+
+            <input type="hidden" data-input="min" name="filter_dimension_min_height" value="{$dimensions.selected.min_height}">
+            <input type="hidden" data-input="max" name="filter_dimension_max_height" value="{$dimensions.selected.max_height}">
+          </div>
+
+          <div data-slider="ratios">
+            {'Ratio'|translate} ({'Width'|translate}/{'Height'|translate}) <span class="slider-info">{'between %.2f and %.2f'|translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
+            {if isset($dimensions.ratio_portrait)}| <a class="slider-choice" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|translate}</a>{/if}
+            {if isset($dimensions.ratio_square)}| <a class="slider-choice" data-min="{$dimensions.ratio_square.min}" data-max="{$dimensions.ratio_square.max}">{'square'|translate}</a>{/if}
+            {if isset($dimensions.ratio_landscape)}| <a class="slider-choice" data-min="{$dimensions.ratio_landscape.min}" data-max="{$dimensions.ratio_landscape.max}">{'Landscape'|translate}</a>{/if}
+            {if isset($dimensions.ratio_panorama)}| <a class="slider-choice" data-min="{$dimensions.ratio_panorama.min}" data-max="{$dimensions.ratio_panorama.max}">{'Panorama'|translate}</a>{/if}
+            | <a class="slider-choice" data-min="{$dimensions.bounds.min_ratio}" data-max="{$dimensions.bounds.max_ratio}">{'Reset'|translate}</a>
+            <div class="slider-slider"></div>
+
+            <input type="hidden" data-input="min" name="filter_dimension_min_ratio" value="{$dimensions.selected.min_ratio}">
+            <input type="hidden" data-input="max" name="filter_dimension_max_ratio" value="{$dimensions.selected.max_ratio}">
+          </div>
         </blockquote>
-
-        <input type="hidden" name="filter_dimension_min_width" value="{$dimensions.selected.min_width}">
-        <input type="hidden" name="filter_dimension_max_width" value="{$dimensions.selected.max_width}">
-        <input type="hidden" name="filter_dimension_min_height" value="{$dimensions.selected.min_height}">
-        <input type="hidden" name="filter_dimension_max_height" value="{$dimensions.selected.max_height}">
-        <input type="hidden" name="filter_dimension_min_ratio" value="{$dimensions.selected.min_ratio}">
-        <input type="hidden" name="filter_dimension_max_ratio" value="{$dimensions.selected.max_ratio}">
       </li>
 
 			<li id="filter_search"{if !isset($filter.search)} style="display:none"{/if}>
@@ -420,13 +421,15 @@ var sliders = {
         {'Filesize'|translate}
 
         <blockquote>
-          <span id="filter_filesize_info">{'between %s and %s MB'|translate:$filesize.selected.min:$filesize.selected.max}</span>
-          | <a class="filesize-choice">{'Reset'|translate}</a>
-          <div id="filter_filesize_slider"></div>
-        </blockquote>
+          <div data-slider="filesizes">
+            <span class="slider-info">{'between %s and %s MB'|translate:$filesize.selected.min:$filesize.selected.max}</span>
+            | <a class="slider-choice" data-min="{$filesize.bounds.min}" data-max="{$filesize.bounds.max}">{'Reset'|translate}</a>
+            <div class="slider-slider"></div>
 
-        <input type="hidden" name="filter_filesize_min" value="{$filesize.selected.min}">
-        <input type="hidden" name="filter_filesize_max" value="{$filesize.selected.max}">
+            <input type="hidden" data-input="min" name="filter_filesize_min" value="{$filesize.selected.min}">
+            <input type="hidden" data-input="max" name="filter_filesize_max" value="{$filesize.selected.max}">
+          </div>
+        </blockquote>
       </li>
     </ul>
 
