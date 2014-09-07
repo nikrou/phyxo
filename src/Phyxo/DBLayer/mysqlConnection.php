@@ -31,11 +31,11 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_connect($host, $user, $password, $database) {
         if (($this->db_link = @mysql_connect($host, $user, $password)) === false) {
-            throw new \Exception('Can\'t connect to server');
+            throw new dbException('Can\'t connect to server');
         }
 
         if (@mysql_select_db($database, $this->db_link) === false) {
-            throw new \Exception('Connection to server succeed, but it was impossible to connect to database');
+            throw new dbException('Connection to server succeed, but it was impossible to connect to database');
         }
         $this->db_post_connect();
 
@@ -46,8 +46,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
         if (is_resource($this->db_link)) {
             $result = mysql_query($query, $this->db_link);
             if ($result === false) {
-                $e = new \Exception($this->db_last_error($handle));
-                $e->sql = $query;
+                $e = new dbException($this->db_last_error());
+                $e->query = $query;
                 throw $e;
             }
 
@@ -62,7 +62,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
     public function db_check_version() {
         $current_mysql =$this->db_version();
         if (version_compare($current_mysql, self::REQUIRED_VERSION, '<')) {
-            throw new \Exception(sprintf(
+            throw new dbException(sprintf(
                 'your MySQL version is too old, you have "%s" and you need at least "%s"',
                 $current_mysql,
                 self::REQUIRED_VERSION

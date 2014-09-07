@@ -41,7 +41,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         $connection_string .= sprintf(' user=%s password=%s dbname=%s', $user, $password, $database);
 
         if (($this->db_link = @pg_connect($connection_string)) === false) {
-            throw new \Exception('Unable to connect to database');
+            throw new dbException('Unable to connect to database');
         }
 
         return $this->db_link;
@@ -56,8 +56,8 @@ class pgsqlConnection extends DBLayer implements iDBLayer
             $this->db_show_query($query, $result, $time);
 
             if ($result === false) {
-                $e = new \Exception($this->db_last_error($handle));
-                $e->sql = $query;
+                $e = new dbException($this->db_last_error());
+                $e->query = $query;
                 throw $e;
             }
 
@@ -74,7 +74,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     public function db_check_version() {
         $current_pgsql =$this->db_version();
         if (version_compare($current_pgsql, self::REQUIRED_VERSION, '<')) {
-            throw new \Exception(sprintf(
+            throw new dbException(sprintf(
                 'your PostgreSQL version is too old, you have "%s" and you need at least "%s"',
                 $current_pgsql,
                 self::REQUIRED_VERSION

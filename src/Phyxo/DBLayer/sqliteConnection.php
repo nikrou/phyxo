@@ -38,7 +38,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
             $this->db_link = new \PDO($db_file, null, null, array(\PDO::ATTR_PERSISTENT => true));
 
         } catch (\Exception $e) {
-            throw new \Exception('Failed to open database '.$db_file . ':'.$e->getMessage());
+            throw new dbException('Failed to open database '.$db_file . ':'.$e->getMessage());
         }
 
         $this->db_link->sqliteCreateFunction('now', array($this, '_now'), 0);
@@ -63,8 +63,8 @@ class sqliteConnection extends DBLayer implements iDBLayer
                 $result = $this->db_link->query($query);
             }
             if ($result === false) {
-                $e = new \Exception($this->db_last_error());
-                $e->sql = $query;
+                $e = new dbException($this->db_last_error());
+                $e->query = $query;
                 throw $e;
             }
 
@@ -79,7 +79,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     public function db_check_version() {
         $current_sqlite =$this->db_version();
         if (version_compare($current_sqlite, self::REQUIRED_VERSION, '<')) {
-            throw new \Exception(sprintf(
+            throw new dbException(sprintf(
                 'your SQLite version is too old, you have "%s" and you need at least "%s"',
                 $current_sqlite,
                 self::REQUIRED_VERSION
