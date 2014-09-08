@@ -41,9 +41,6 @@ function make_consecutive(&$orders, $step=50) {
     }
 }
 
-
-global $template;
-
 $menu = new BlockManager('menubar');
 $menu->load_registered_blocks();
 $reg_blocks = $menu->get_registered_blocks();
@@ -65,6 +62,7 @@ foreach ($mb_conf as $id => $pos) {
 
 if (isset($_POST['reset'])) {
     $mb_conf = array();
+    // @TODO: use conf_update_param function
     $query = 'UPDATE '.CONFIG_TABLE.' SET value=\'\' WHERE param=\'blk_'.pwg_db_real_escape_string($menu->get_id()).'\'  LIMIT 1';
     pwg_query($query);
 }

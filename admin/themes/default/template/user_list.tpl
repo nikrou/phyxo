@@ -35,7 +35,7 @@ var truefalse = {
   'false':"{'No'|translate}",
 };
 
-var phyxo_msg = {};
+var phyxo_msg = phyxo_msg || {};
 phyxo_msg.days = "{'%d days'|translate}";
 phyxo_msg.photos_per_page = "{'%d photos per page'|translate}";
 phyxo_msg.user_updated = "{'User %s updated'|translate}";

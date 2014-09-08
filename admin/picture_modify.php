@@ -187,7 +187,7 @@ $image_file = $row['file'];
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('modify' => 'picture_modify.tpl'));
+$template->set_filenames(array('picture_modify' => 'picture_modify.tpl'));
 
 $admin_url_start = $admin_photo_base_url.'-properties';
 $admin_url_start.= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';

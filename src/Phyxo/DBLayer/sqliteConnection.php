@@ -485,6 +485,43 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return true;
     }
 
+    /**
+     * inserts multiple lines in a table
+     *
+     * @param string table_name
+     * @param array dbfields
+     * @param array inserts
+     * @return void
+     */
+    public function mass_inserts($table_name, $dbfields, $datas) {
+        if (count($datas) != 0) {
+            $first = true;
+
+            $packet_size = 16777216;
+            $packet_size = $packet_size - 2000; // The last list of values MUST not exceed 2000 character*/
+            $query = '';
+
+            foreach ($datas as $insert) {
+                $query = 'INSERT INTO '.$table_name.' ('.implode(',', $dbfields).') VALUES';
+
+                $query .= '(';
+                foreach ($dbfields as $field_id => $dbfield) {
+                    if ($field_id > 0) {
+                        $query .= ',';
+                    }
+
+                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                        $query .= 'NULL';
+                    } else {
+                        $query .= '\''.$insert[$dbfield].'\'';
+                    }
+                }
+                $query .= ')';
+                $this->db_query($query);
+            }
+        }
+    }
+
     // sqlite create functions
     public function _now() {
         return date('Y-m-d H:i:s');

@@ -22,9 +22,8 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if( !defined("PHPWG_ROOT_PATH") )
-{
-  die ("Hacking attempt!");
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
 }
 
 // +-----------------------------------------------------------------------+
@@ -32,21 +31,15 @@ if( !defined("PHPWG_ROOT_PATH") )
 // +-----------------------------------------------------------------------+
 
 check_status(ACCESS_ADMINISTRATOR);
-
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 $admin_album_base_url = get_root_url().'admin.php?page=album-'.$_GET['cat_id'];
 
-$query = '
-SELECT *
-  FROM '.CATEGORIES_TABLE.'
-  WHERE id = '.$_GET['cat_id'].'
-;';
+$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$_GET['cat_id'];
 $category = pwg_db_fetch_assoc(pwg_query($query));
 
-if (!isset($category['id']))
-{
-  die("unknown album");
+if (!isset($category['id'])) {
+    die('unknown album'); // @TODO: find a better way to stop and send response
 }
 
 // +-----------------------------------------------------------------------+
@@ -57,9 +50,8 @@ include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
 $page['tab'] = 'properties';
 
-if (isset($_GET['tab']))
-{
-  $page['tab'] = $_GET['tab'];
+if (isset($_GET['tab'])) {
+    $page['tab'] = $_GET['tab'];
 }
 
 $tabsheet = new tabsheet();
@@ -71,20 +63,13 @@ $tabsheet->assign();
 // | Load the tab                                                          |
 // +-----------------------------------------------------------------------+
 
-if ('properties' == $page['tab'])
-{
-  include(PHPWG_ROOT_PATH.'admin/cat_modify.php');
-}
-elseif ('sort_order' == $page['tab'])
-{
-  include(PHPWG_ROOT_PATH.'admin/element_set_ranks.php');
-}
-elseif ('permissions' == $page['tab'])
-{
-  $_GET['cat'] = $_GET['cat_id'];
-  include(PHPWG_ROOT_PATH.'admin/cat_perm.php');
-}
-else
-{
-  include(PHPWG_ROOT_PATH.'admin/album_'.$page['tab'].'.php');
+if ('properties' == $page['tab']) {
+    include(PHPWG_ROOT_PATH.'admin/cat_modify.php');
+} elseif ('sort_order' == $page['tab']) {
+    include(PHPWG_ROOT_PATH.'admin/element_set_ranks.php');
+} elseif ('permissions' == $page['tab']) {
+    $_GET['cat'] = $_GET['cat_id'];
+    include(PHPWG_ROOT_PATH.'admin/cat_perm.php');
+} else {
+    include(PHPWG_ROOT_PATH.'admin/album_'.$page['tab'].'.php');
 }

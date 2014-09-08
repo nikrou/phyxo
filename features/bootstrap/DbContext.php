@@ -46,9 +46,9 @@ class DbContext extends RawMinkContext
      */
     public function images(TableNode $table) {
         foreach ($table->getHash() as $image) {
-            $image_id = self::addImage($image);
+            $this->last_id = self::addImage($image);
             if (!empty($image['tags'])) {
-                $this->last_id = self::addTags($image['tags'], $image_id);
+                self::addTags($image['tags'], $this->last_id);
             }
         }
     }
@@ -126,6 +126,34 @@ class DbContext extends RawMinkContext
         return $album;
     }
 
+    /**
+     * @Given /^associate image "([^"]*)" to "([^"]*)"$/
+     */
+    public function associateImageToAlbum($image_id, $album_id) {
+        if (empty($album_id) || empty($image_id)) {
+            throw new Exception('Album Id and image Id are mandatory'."\n");
+        }
+
+        if (preg_match('`^SAVED:(.*)$`', $album_id, $matches)) {
+            $album_id = $this->getSaved($matches[1]);
+        }
+        if (preg_match('`^SAVED:(.*)$`', $image_id, $matches)) {
+            $image_id = $this->getSaved($matches[1]);
+        }
+
+        $album = ORM::for_table(self::$prefix.'categories')->where('id', $album_id)->find_one();
+        if (!$album) {
+            throw new Exception('Cannot find an album with id "'.$album_id.'"');
+        }
+        $image = ORM::for_table(self::$prefix.'images')->where('id', $image_id)->find_one();
+        if (!$image) {
+            throw new Exception('Cannot find an image with id "'.$image_id.'"');
+        }
+        $image_album = ORM::for_table(self::$prefix.'image_category')->create();
+        $image_album->category_id = $album_id;
+        $image_album->image_id = $image_id;
+        $image_album->save();
+    }
 
     public function get_pwg_token($session_id) {
         $conf = ORM::for_table(self::$prefix.'config')->where('param', 'secret_key')->find_one();
@@ -294,6 +322,9 @@ class DbContext extends RawMinkContext
             $image->date_available = $params['date_available'];
         } else {
             $image->date_available = $now->format('Y-m-d H:i:s');
+        }
+        if (!empty($params['author'])) {
+            $image->author = $params['author'];
         }
         $image->md5sum = $md5sum;
         $image->save();

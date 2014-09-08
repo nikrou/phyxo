@@ -33,13 +33,10 @@ check_status(ACCESS_ADMINISTRATOR);
 $help_link = get_root_url().'admin.php?page=help&section=';
 $selected = null;
 
-if (!isset($_GET['section']))
-{
-  $selected = 'add_photos';
-}
-else
-{
-  $selected = $_GET['section'];
+if (!isset($_GET['section'])) {
+    $selected = 'add_photos';
+} else {
+    $selected = $_GET['section'];
 }
 
 $tabsheet = new tabsheet();
@@ -52,15 +49,15 @@ trigger_notify('loc_end_help');
 $template->set_filenames(array('help' => 'help.tpl'));
 
 $template->assign(
-  array(
-    'HELP_CONTENT' => load_language(
-      'help/help_'.$tabsheet->selected.'.html',
-      '',
-      array('return'=>true)
-      ),
-    'HELP_SECTION_TITLE' => $tabsheet->sheets[ $tabsheet->selected ]['caption'],
+    array(
+        'HELP_CONTENT' => load_language(
+            'help/help_'.$tabsheet->selected.'.html',
+            '',
+            array('return'=>true)
+        ),
+        'HELP_SECTION_TITLE' => $tabsheet->sheets[ $tabsheet->selected ]['caption'],
     )
-  );
+);
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

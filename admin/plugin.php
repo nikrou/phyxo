@@ -22,41 +22,33 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if( !defined("PHPWG_ROOT_PATH") )
-{
-  die ("Hacking attempt!");
+if (!defined("PHPWG_ROOT_PATH")) {
+    die("Hacking attempt!");
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 check_status(ACCESS_ADMINISTRATOR);
 
 $sections = explode('/', $_GET['section'] );
-for ($i=0; $i<count($sections); $i++)
-{
-  if (empty($sections[$i]) or $sections[$i]=='..')
-  {
-    unset($sections[$i]);
-    $i--;
-  }
+for ($i=0; $i<count($sections); $i++) {
+    if (empty($sections[$i]) or $sections[$i]=='..') {
+        unset($sections[$i]);
+        $i--;
+    }
 }
 
-if (count($sections)<2)
-{
-  die('Invalid plugin URL');
+if (count($sections)<2) {
+    die('Invalid plugin URL');
 }
 
 $plugin_id = $sections[0];
-if ( !isset($pwg_loaded_plugins[$plugin_id]) )
-{
-  die('Invalid URL - plugin '.$plugin_id.' not active');
+if (!isset($pwg_loaded_plugins[$plugin_id])) {
+    die('Invalid URL - plugin '.$plugin_id.' not active');
 }
 
 $filename = PHPWG_PLUGINS_PATH.implode('/', $sections);
-if (is_file($filename))
-{
-  include_once($filename);
-}
-else
-{
-  die('Missing file '.$filename);
+if (is_file($filename)) {
+    include_once($filename);
+} else {
+    die('Missing file '.$filename);
 }

@@ -1,7 +1,12 @@
 {html_style}
 .showInfo { text-indent:5px; }
 {/html_style}
-
+{html_head}
+<script type="text/javascript">
+var phyxo_msg = phyxo_msg || {};
+phyxo_msg.select_at_least_two_tags = "{'Select at least two tags for merging'|translate}";
+</script>
+{/html_head}
 {combine_script id="tags" load="footer" path="admin/themes/default/js/tags.js"}
 
 <div class="titrePage">

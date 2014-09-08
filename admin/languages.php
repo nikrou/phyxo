@@ -22,27 +22,28 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if( !defined("PHPWG_ROOT_PATH") )
-{
-  die ("Hacking attempt!");
+if (!defined("PHPWG_ROOT_PATH")) {
+    die ("Hacking attempt!");
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
 $my_base_url = get_root_url().'admin.php?page=languages';
 
-if (isset($_GET['tab']))
-  $page['tab'] = $_GET['tab'];
-else
-  $page['tab'] = 'installed';
+if (isset($_GET['tab'])) {
+    $page['tab'] = $_GET['tab'];
+} else {
+    $page['tab'] = 'installed';
+}
 
 $tabsheet = new tabsheet();
 $tabsheet->set_id('languages');
 $tabsheet->select($page['tab']);
 $tabsheet->assign();
 
-if ($page['tab'] == 'update')
+if ($page['tab'] == 'update') {
   include(PHPWG_ROOT_PATH.'admin/updates_ext.php');
-else
+} else {
   include(PHPWG_ROOT_PATH.'admin/languages_'.$page['tab'].'.php');
+}
 

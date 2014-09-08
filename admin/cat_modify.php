@@ -311,12 +311,8 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     $tpl_representant['ALLOW_SET_RANDOM'] = ($category['has_images']) ? true : false;
 
     // can the admin delete the current representant ?
-    if (
-        ($category['has_images']
-        and $conf['allow_random_representative'])
-        or
-        (!$category['has_images']
-        and !empty($category['representative_picture_id']))) {
+    if (($category['has_images'] && $conf['allow_random_representative'])
+        or (!$category['has_images'] and !empty($category['representative_picture_id']))) {
         $tpl_representant['ALLOW_DELETE'] = true;
     }
     $template->assign('representant', $tpl_representant);

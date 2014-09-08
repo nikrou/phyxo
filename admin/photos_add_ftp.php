@@ -22,9 +22,8 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHOTOS_ADD_BASE_URL'))
-{
-  die ("Hacking attempt!");
+if (!defined('PHOTOS_ADD_BASE_URL')) {
+    die ("Hacking attempt!");
 }
 
 // +-----------------------------------------------------------------------+
@@ -32,13 +31,13 @@ if (!defined('PHOTOS_ADD_BASE_URL'))
 // +-----------------------------------------------------------------------+
 
 $template->assign(
-  'FTP_HELP_CONTENT',
-  load_language(
-    'help/photos_add_ftp.html',
-    '',
-    array('return'=>true)
+    'FTP_HELP_CONTENT',
+    load_language(
+        'help/photos_add_ftp.html',
+        '',
+        array('return'=>true)
     )
-  );
+);
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

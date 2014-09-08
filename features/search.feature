@@ -7,15 +7,20 @@ Feature: Searching for images
     Given a user:
       | username | password | status |
       | user1    | pass1    | normal |
-    And albums:
+    And an album:
       | name    |
       | album 1 |
       | album 2 |
+    Then save "album_id"
     And images:
-      | file                     | name    | album   | date_creation       |
-      | features/media/img_5.png | photo 5 | album 1 | 2013-04-12 11:00:00 |
-      | features/media/img_6.png | photo 6 | album 2 | 2013-04-11 13:00:00 |
-      | features/media/img_7.png | photo 7 | album 2 | 2013-04-11 14:00:00 |
+      | file                     | name    | album   | author  | date_creation       |
+      | features/media/img_5.png | photo 5 | album 1 | author1 | 2013-04-12 11:00:00 |
+    Then save "image_id"
+    And associate image "SAVED:image_id" to "SAVED:album_id"
+    And images:
+      | file                     | name    | album   | author  | date_creation       |
+      | features/media/img_6.png | photo 6 | album 2 | author2 | 2013-04-11 13:00:00 |
+      | features/media/img_7.png | photo 7 | album 2 | author3 | 2013-04-11 14:00:00 |
     And "user1" can access "album 1"
     And "user1" can access "album 2"
 
@@ -45,3 +50,11 @@ Feature: Searching for images
     And I press "Submit"
     Then I should see "photo 5"
     But I should not see "photo 6"
+
+  # @see bug http://piwigo.org/bugs/view.php?id=3136
+  Scenario: count photo once even in severals albums
+    Given I am logged in as "user1" with password "pass1"
+    When I am on homepage
+    And I follow "Search"
+    Then I should see "author1 (1 photo)"
+

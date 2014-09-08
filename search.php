@@ -191,7 +191,7 @@ if (count($available_tags) > 0) {
 }
 
 // authors
-$query = 'SELECT author, COUNT(1) AS counter FROM '.IMAGES_TABLE.' AS i';
+$query = 'SELECT author, id FROM '.IMAGES_TABLE.' AS i';
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.image_id = i.id';
 $query .= ' '.get_sql_condition_FandF(
     array(
@@ -202,9 +202,24 @@ $query .= ' '.get_sql_condition_FandF(
     ' WHERE '
 );
 $query .= ' AND author IS NOT NULL';
-$query .= ' GROUP BY author';
+$query .= ' GROUP BY author, id';
 $query .= ' ORDER BY author;';
-$authors = query2array($query);
+$author_counts = array();
+$result = pwg_query($query);
+while ($row = pwg_db_fetch_assoc($result)) {
+    if (!isset($author_counts[$row['author']])) {
+	    $author_counts[$row['author']] = 0;
+    }
+
+    $author_counts[ $row['author'] ]++;
+}
+
+foreach ($author_counts as $author => $counter) {
+    $authors[] = array(
+	    'author' => $author,
+	    'counter' => $counter,
+    );
+}
 
 $template->assign('AUTHORS', $authors);
 

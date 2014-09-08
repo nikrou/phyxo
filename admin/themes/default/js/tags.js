@@ -21,7 +21,7 @@ $(function() {
 
 	$("input[name=merge]").click(function() {
 		if ($("ul.tagSelection input[type=checkbox]:checked").length < 2) {
-			alert("{'Select at least two tags for merging'|@translate}");
+			alert(phyxo_msg.select_at_least_two_tags);
 			return false;
 		}
 	});

@@ -1420,7 +1420,7 @@ function invalidate_user_cache($full=true) {
         $query = 'TRUNCATE TABLE '.USER_CACHE_TABLE.';';
         pwg_query($query);
     } else {
-        $query = 'UPDATE '.USER_CACHE_TABLE.' SET need_update = \'true\';';
+        $query = 'UPDATE '.USER_CACHE_TABLE.' SET need_update = \''.boolean_to_db('true').'\';';
         pwg_query($query);
     }
     trigger_notify('invalidate_user_cache', $full);
@@ -1435,7 +1435,7 @@ function invalidate_user_cache_nb_tags() {
     unset($user['nb_available_tags']);
 
     $query = 'UPDATE '.USER_CACHE_TABLE;
-    $query .= 'SET nb_available_tags = NULL';
+    $query .= ' SET nb_available_tags = NULL';
     pwg_query($query);
 }
 
