@@ -104,6 +104,10 @@ class DbContext extends RawMinkContext
      * @Given /^config for "([^"]*)" equals to "([^"]*)"$/
      */
     public function configForEqualsTo($param, $value) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $conf = ORM::for_table(self::$prefix.'config')->where('param', $param)->find_one();
 
         if (!$conf) {
@@ -118,6 +122,10 @@ class DbContext extends RawMinkContext
     }
 
     public function getAlbum($album_name) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
         if (!$album) {
             throw new Exception('Album with name '.$album_name.' does not exist'."\n");
@@ -141,6 +149,10 @@ class DbContext extends RawMinkContext
             $image_id = $this->getSaved($matches[1]);
         }
 
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $album = ORM::for_table(self::$prefix.'categories')->where('id', $album_id)->find_one();
         if (!$album) {
             throw new Exception('Cannot find an album with id "'.$album_id.'"');
@@ -156,6 +168,10 @@ class DbContext extends RawMinkContext
     }
 
     public function get_pwg_token($session_id) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $conf = ORM::for_table(self::$prefix.'config')->where('param', 'secret_key')->find_one();
         if ($conf) {
             return hash_hmac('md5', $session_id, $conf->value);
@@ -171,7 +187,6 @@ class DbContext extends RawMinkContext
         && is_readable($parameters['sql_init_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
                 self::configDB($parameters);
-                self::$conf_loaded = true;
             }
 
             $sql_content = trim(file_get_contents($parameters['sql_init_file']));
@@ -191,7 +206,6 @@ class DbContext extends RawMinkContext
         && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
                 self::configDB($parameters);
-                self::$conf_loaded = true;
             }
 
             $sql_content = trim(file_get_contents($parameters['sql_cleanup_file']));
@@ -227,27 +241,7 @@ class DbContext extends RawMinkContext
                 self::$prefix.'config' => 'param',
             )
         );
-    }
-
-    private static function configApp() {
-        $config = ORM::for_table(self::$prefix.'config')
-            ->where('param', 'browser_language')
-            ->find_one();
-        if (!$config) {
-            $config = ORM::for_table(self::$prefix.'config')->create();
-            $config->param = 'browser_language';
-            $config->value = 'false';
-            $config->save();
-        }
-        $config = ORM::for_table(self::$prefix.'config')
-            ->where('param', 'newcat_default_status')
-            ->find_one();
-        if (!$config) {
-            $config = ORM::for_table(self::$prefix.'config')->create();
-            $config->param = 'newcat_default_status';
-            $config->value = 'private';
-            $config->save();
-        }
+        self::$conf_loaded = true;
     }
 
     /* ORM methods */
@@ -255,6 +249,10 @@ class DbContext extends RawMinkContext
         if (empty($params['username']) || empty($params['password'])) {
             throw new Exception('Username and Password for user are mandatory'."\n");
         }
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $user = ORM::for_table(self::$prefix.'users')->where('username', $params['username'])->find_one();
         if (!$user) {
             $user = ORM::for_table(self::$prefix.'users')->create();
@@ -288,6 +286,10 @@ class DbContext extends RawMinkContext
     private static function addImage(array $params) {
         if (empty($params['album']) || empty($params['name'])) {
             throw new Exception('Album name and image name are mandatory'."\n");
+        }
+
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
         }
 
         $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['album'])->find_one();
@@ -342,6 +344,10 @@ class DbContext extends RawMinkContext
             throw new Exception('Album name is mandatory'."\n");
         }
 
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['name'])->find_one();
         if (!$album) {
             $album = ORM::for_table(self::$prefix.'categories')->create();
@@ -367,6 +373,10 @@ class DbContext extends RawMinkContext
     }
 
     private static function manageAccess($username, $album_name, $remove=false) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
         if (!$album) {
             throw new Exception('Album with name '.$album_name.' does not exist'."\n");
@@ -403,6 +413,10 @@ class DbContext extends RawMinkContext
     }
 
     private function addComment($content, $photo_name, $username) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         $image = ORM::for_table(self::$prefix.'images')->where('name', $photo_name)->find_one();
         if (!$image) {
             throw new Exception('Image with name '.$photo_name.' does not exist'."\n");
@@ -436,6 +450,11 @@ class DbContext extends RawMinkContext
         } else {
             $tags = array($param_tags);
         }
+
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
         foreach ($tags as $tag_name) {
             $tag = ORM::for_table(self::$prefix.'tags')->where('name', $tag_name)->find_one();
             if (!$tag) {
