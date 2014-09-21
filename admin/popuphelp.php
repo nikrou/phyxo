@@ -43,7 +43,7 @@ $page['meta_robots']=array('noindex'=>1, 'nofollow'=>1);
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 
 if (isset($_GET['page']) and preg_match('/^[a-z_]*$/', $_GET['page'])) {
-    $help_content = load_language('help/'.$_GET['page'].'.html', '', array('return'=>true));
+    $help_content = load_language('help/'.$_GET['page'].'.html', '', array('force_fallback' => 'en_UK', 'return' => true));
 
     if ($help_content == false) {
         $help_content = '';

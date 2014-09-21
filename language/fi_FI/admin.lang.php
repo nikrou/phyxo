@@ -500,3 +500,4 @@ $lang['Automatic sort order'] = 'Automaattinen järjestys';
 $lang['Available on'] = 'Saatavilla';
 $lang['Average rate'] = 'Pisteiden keskiarvo';
 $lang['Batch Manager'] = 'Massahallintatyökalu';
+$lang['<em>Phyxo for Android</em> application empowers you to connect your Android phone or table to your Phyxo gallery, create some albums and upload several photos at once.'] = '<em>Phyxo Androidille</em> applikaatio mahdollistaa yhdistämisen Android laitteestasi Phyxo galleriaan albumeiden luontia ja kuvien lisäämistä varten.';

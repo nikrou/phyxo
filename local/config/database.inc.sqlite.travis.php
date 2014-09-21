@@ -1,6 +1,6 @@
 <?php
 $conf['dblayer'] = 'sqlite';
-$conf['db_base'] = 'test';
+$conf['db_base'] = 'phyxo';
 $conf['db_user'] = '';
 $conf['db_password'] = '';
 $conf['db_host'] = 'localhost';

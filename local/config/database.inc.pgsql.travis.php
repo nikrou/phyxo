@@ -1,6 +1,6 @@
 <?php
 $conf['dblayer'] = 'pgsql';
-$conf['db_base'] = 'phyxo_test';
+$conf['db_base'] = 'phyxo';
 $conf['db_user'] = 'postgres';
 $conf['db_password'] = '';
 $conf['db_host'] = 'localhost';

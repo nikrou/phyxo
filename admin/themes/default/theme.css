@@ -1024,13 +1024,31 @@ p#uploadModeInfos {text-align:left;margin-top:1em;font-size:90%;color:#999;}
   position:relative;
   height:18px;
 }
-.big-progressbar .progressbar {
-  height:18px;
-  min-width:18px;
-  background:#444;
-  border-radius:5px 0 0 5px;
+
+@keyframes animatedBackground {
+	from { background-position: 0 0; }
+	to { background-position: 33px 0; }
 }
 
+@-webkit-keyframes animatedBackground {
+	from { background-position: 0 0; }
+	to { background-position: 33px 0; }
+}
+
+.big-progressbar .progressbar {
+  height:18px;
+  min-width:5px;
+  background:#444;
+  border-radius:5px 0 0 5px;
+  background-size:33px 25px;
+  animation: animatedBackground 1s linear infinite;
+  -webkit-animation: animatedBackground 1s linear infinite;
+}
+
+/* Selectize */
+.selectize-dropdown [data-selectable], .selectize-dropdown .optgroup-header {
+    padding: 0px 5px !important;
+}
 
 /* Tag Manager */
 .warningDeletion {display:none;font-style:italic;}
@@ -1078,7 +1096,10 @@ p#uploadModeInfos {text-align:left;margin-top:1em;font-size:90%;color:#999;}
 #addAlbumForm .selectize-dropdown-content {
   max-height:170px;
 }
-#addAlbumForm input[name="category_name"], #formCreateAlbum input[name="virtual_name"] {
+#addAlbumForm input[name="category_name"] {
+  width:600px;
+}
+#formCreateAlbum input[name="virtual_name"] {
   width:300px;
 }
 
@@ -1206,3 +1227,70 @@ a.group_perm {
 .userProperty {width:340px;float:left;margin-bottom:15px;}
 .userActions {float:right;text-align:right;}
 
+.preview-box.icon-zoom-in {
+  display:block;
+  position:relative;
+}
+.preview-box.icon-zoom-in:before {
+  opacity:0;
+  position:absolute;
+  margin:-22px 0 0 -22px;
+  top:50%;
+  left:50%;
+  font-size:50px;
+  line-height:50px;
+  color:white;
+  z-index:100;
+  text-shadow:0 0 20px rgba(0,0,0,0.4);
+  -webkit-transition:opacity 200ms ease;
+  transition:opacity 200ms ease;
+}
+.preview-box.icon-zoom-in:hover:before {
+  opacity:0.9;
+}
+.preview-box.icon-zoom-in img {
+  opacity:1;
+  -webkit-transition:opacity 200ms ease;
+  transition:opacity 200ms ease;
+}
+.preview-box.icon-zoom-in:hover img {
+  opacity:0.5;
+}
+
+/* table in help/quick_search.html */
+table.qsearch_help_table {
+  border-collapse:collapse;
+  text-align:left;
+  margin:1em;
+}
+table.qsearch_help_table q {
+	font-family: Courier, Fixed;
+	font-weight: bold;
+}
+table.qsearch_help_table q:before {
+	content: '\'';
+	color: green;
+}
+table.qsearch_help_table q:after {
+	content: '\'';
+	color: green;
+}
+table.qsearch_help_table td {
+	border: 1px solid #ccc;
+  padding:5px;
+  vertical-align:top;
+}
+
+.font-checkbox [class*=icon-check]:before {
+  font-size:16px;
+  line-height:16px;
+  margin-right:0;
+  margin-left:0;
+}
+.font-checkbox .icon-check-empty {
+  position:relative;
+  left:-1px;
+}
+.font-checkbox input[type=checkbox], .font-checkbox input[type=radio] {
+  display:none;
+}

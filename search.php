@@ -191,6 +191,8 @@ if (count($available_tags) > 0) {
 }
 
 // authors
+$authors = array();
+
 $query = 'SELECT author, id FROM '.IMAGES_TABLE.' AS i';
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.image_id = i.id';
 $query .= ' '.get_sql_condition_FandF(

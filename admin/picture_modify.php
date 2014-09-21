@@ -192,13 +192,16 @@ $template->set_filenames(array('picture_modify' => 'picture_modify.tpl'));
 $admin_url_start = $admin_photo_base_url.'-properties';
 $admin_url_start.= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
 
+$src_image = new SrcImage($row);
+
 $template->assign(
     array(
         'tag_selection' => $tag_selection,
         'U_SYNC' => $admin_url_start.'&amp;sync_metadata=1',
         'U_DELETE' => $admin_url_start.'&amp;delete=1&amp;pwg_token='.get_pwg_token(),
         'PATH' => $row['path'],
-        'TN_SRC' => DerivativeImage::thumb_url($row),
+        'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
+        'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
         'TITLE' => render_element_name($row),
         'DIMENSIONS' => @$row['width'].' * '.@$row['height'],

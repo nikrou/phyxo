@@ -13,13 +13,13 @@ env:
 
 before_script:
   - composer install
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'drop database if exists phyxo_test;';fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database phyxo_test;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'drop database if exists phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database phyxo;';fi"
   - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/database.inc.mysql.travis.php local/config/database.inc.php;fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo_test;' -U postgres; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo_test;' -U postgres ;fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo;' -U postgres; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo;' -U postgres ;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/database.inc.pgsql.travis.php local/config/database.inc.php;fi"
-  - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/test.d;fi"
+  - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/phyxo.db;fi"
   - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/database.inc.sqlite.travis.php local/config/database.inc.php;fi"
   - php tools/install.php
   - php -S localhost:1080 -t . &

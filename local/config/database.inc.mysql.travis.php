@@ -1,6 +1,6 @@
 <?php
 $conf['dblayer'] = 'mysql';
-$conf['db_base'] = 'phyxo_test';
+$conf['db_base'] = 'phyxo';
 $conf['db_user'] = 'travis';
 $conf['db_password'] = '';
 $conf['db_host'] = 'localhost';

@@ -257,7 +257,7 @@ if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings
 }
 
 //----------------------------------------------------- template initialization
-$template->set_filename('config', 'configuration.tpl');
+$template->set_filename('config', 'configuration_' . $page['section'] . '.tpl');
 
 // TabSheet
 $tabsheet = new tabsheet();

@@ -425,3 +425,4 @@ $lang['Photo description'] = 'Deskrivadur al luc\'hskeudenn';
 $lang['Photo title'] = 'Titl al luc\'hskeudenn';
 $lang['Album name, A &rarr; Z'] = 'Anv ar rummad, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Anv ar rummad, Z &rarr; A';
+$lang['Link: %s'] = 'Liamm: %s';

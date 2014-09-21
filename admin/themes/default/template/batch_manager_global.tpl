@@ -413,6 +413,16 @@ var sliders = {
 				<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
 				{combine_script id='core.scripts' load='async' path='admin/themes/default/js/scripts.js'}
 				<a href="admin/popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
+				{if (isset($no_search_results))}
+				<div>{'No results for'|translate} :
+				  <em><strong>
+				      {foreach $no_search_results as $res}
+				      {if !$res@first} &mdash; {/if}
+				      {$res}
+				      {/foreach}
+				  </strong></em>
+				</div>
+				{/if}
 			</li>
 
       <li id="filter_filesize" {if !isset($filter.filesize)}style="display:none"{/if}>
@@ -569,14 +579,14 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- associate -->
     <div id="action_associate" class="bulkAction">
-      <select data-selectize="categories" data-default="first" name="associate" style="width:400px"></select>
+      <select data-selectize="categories" data-default="first" name="associate" style="width:600px"></select>
       <br>{'... or '|translate}
       <a href="#" data-add-album="associate" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </div>
 
     <!-- move -->
     <div id="action_move" class="bulkAction">
-      <select data-selectize="categories" data-default="first" name="move" style="width:400px"></select>
+      <select data-selectize="categories" data-default="first" name="move" style="width:600px"></select>
       <br>{'... or '|translate}
       <a href="#" data-add-album="move" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </div>
@@ -585,7 +595,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     <!-- dissociate -->
     <div id="action_dissociate" class="bulkAction albumDissociate" style="display:none">
       <select data-selectize="categories" placeholder="{'Type in a search term'|translate}"
-        name="dissociate" style="width:400px"></select>
+        name="dissociate" style="width:600px"></select>
     </div>
 
 
