@@ -980,3 +980,7 @@ $lang['between %s and %s MB'] = 'mellom%s og %s MB';
 $lang['date & time'] = 'dato og klokkeslett';
 $lang['file name'] = 'filnavn';
 $lang['width & height'] = 'bredde og høyde';
+
+$lang['Who can add tags?'] = "Hvem kan legge til tagger?";
+$lang['Who can delete related tags?'] = "Hvem kan slette tagger?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Vær forsiktig, uansett hva konfigurasjons verdien er, nya tagger kan slettes uansett";

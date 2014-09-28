@@ -27,7 +27,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Slovensky [SK]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=452
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -437,3 +437,9 @@ $lang['Photo title'] = 'Názov fotky';
 $lang['Album name, Z &rarr; A'] = 'Názov albumu, Z &rarr; A';
 $lang['Album name, A &rarr; Z'] = 'Názov albumu, A &rarr; Z';
 $lang['Link: %s'] = 'Link: %s';
+
+$lang['Tags updated'] = "Kľúčové slová aktualizované";
+$lang['Update tags'] = "Aktualizovať kľúčového slova";
+$lang['You are not allowed to add nor delete tags'] = "Nemáte povolenie na pridávanie alebo mazanie kľúčových slov";
+$lang['You are not allowed to add tags'] = "Nemáte povolenie na pridávanie kľúčových slov";
+$lang['You are not allowed to delete tags'] = "Nemáte povolenie na mazanie kľúčových slov";

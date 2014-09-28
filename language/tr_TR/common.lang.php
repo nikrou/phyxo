@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Türkçe [TR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=436
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,9 @@ $lang['Album name, A &rarr; Z'] = 'Albüm adı, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = '
 Albüm adı, Z &rarr; A';
 $lang['Link: %s'] = 'Bağlantı: %s';
+
+$lang['Tags updated'] = "Etiketler güncellendi";
+$lang['Update tags'] = "Etiketleri güncelle";
+$lang['You are not allowed to add nor delete tags'] = "Etiket eklemek ve silmek için izininiz yok";
+$lang['You are not allowed to add tags'] = "Etiket eklemek için izininiz yok";
+$lang['You are not allowed to delete tags'] = "Etiket silmek için izininiz yok";

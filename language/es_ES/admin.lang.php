@@ -982,3 +982,7 @@ $lang['based on'] = 'basada en ';
 $lang['Upload in progress'] = 'Carga en proceso';
 $lang['The settings for the guest are from the %s user'] = 'Los ajustes para el cliente son del usuario %s';
 $lang['No and unlock sub-albums'] = 'No, y desbloquear los subálbumes';
+
+$lang['Who can add tags?'] = "¿Que puede añadir etiquetas?";
+$lang['Who can delete related tags?'] = "¿Quién puede suprimir las etiquetas ya atadas a una imagen?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Atención, cualquiera que sea el valor de este parámetro de configuración, las nuevas etiquetas podrán ser suprimidas.";

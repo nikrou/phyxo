@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Български [BG]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=510
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,9 @@ $lang['Photo description'] = 'Описание на снимка';
 $lang['Link: %s'] = 'Линкове: %s';
 $lang['Album name, Z &rarr; A'] = 'Име на албум, Z &rarr; A';
 $lang['Album name, A &rarr; Z'] = 'Име на албум, A &rarr; Z';
+
+$lang['Tags updated'] = "Таговете са обновени";
+$lang['Update tags'] = "Обновете таговете";
+$lang['You are not allowed to add nor delete tags'] = "Вие не сте оторизирани да добавяте или изтривате тагове";
+$lang['You are not allowed to add tags'] = "Вие не сте оторизирани да добавяте тагове";
+$lang['You are not allowed to delete tags'] = "Вие не сте оторизирани да изтривате тагове";

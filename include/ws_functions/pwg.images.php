@@ -254,7 +254,7 @@ function remove_chunks($original_sum, $type) {
 function ws_images_addComment($params, $service) {
     $query = 'SELECT DISTINCT image_id  FROM '. CATEGORIES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id=id';
-    $query .= ' WHERE commentable=\'true\'';
+    $query .= ' WHERE commentable=\''.boolean_to_db('true').'\'';
     $query .= ' AND image_id='.$params['image_id'];
     $query .= get_sql_condition_FandF(
         array(
@@ -405,10 +405,10 @@ function ws_images_getInfo($params, $service) {
 
     $where_comments = 'image_id = '.$image_row['id'];
     if (!is_admin()) {
-        $where_comments .= ' AND validated=\'true\'';
+        $where_comments .= ' AND validated=\''.boolean_to_db('true').'\'';
     }
 
-    $query = 'SELECT COUNT(id) AS nb_comments FROM '. COMMENTS_TABLE .' '. $where_comments .';';
+    $query = 'SELECT COUNT(id) AS nb_comments FROM '. COMMENTS_TABLE .' WHERE '. $where_comments .';';
     list($nb_comments) = array_from_query($query, 'nb_comments');
     $nb_comments = (int)$nb_comments;
 
@@ -1246,6 +1246,65 @@ function ws_images_checkFiles($params, $service) {
     ws_logfile(__FUNCTION__.', output :  '.var_export($ret, true));
 
     return $ret;
+}
+
+/**
+ * API method
+ * Set list of related tags of an image
+ * @param mixed[] $params
+ *    @option bool sort_by_counter
+ */
+function ws_images_setRelatedTags($params, &$service) {
+    global $conf;
+
+    if (!$service->isPost()) {
+        return new PwgError(405, "This method requires HTTP POST");
+    }
+
+    if ((empty($conf['tags_permission_add']) || !is_autorize_status(get_access_type_status($conf['tags_permission_add'])))
+    && (empty($conf['tags_permission_delete']) || !is_autorize_status(get_access_type_status($conf['tags_permission_delete'])))) {
+
+        return new PwgError(403, l10n('You are not allowed to add nor delete tags'));
+    }
+
+    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+
+    $message = '';
+    if (empty($params['tags'])) {
+        $params['tags'] = array();
+    }
+
+    $query = 'SELECT id FROM '.TAGS_TABLE.' AS t';
+    $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
+    $query .= ' WHERE image_id = '.pwg_db_real_escape_string($params['image_id']);
+
+    $current_tags = array_map(function($id) { return '~~'.$id.'~~';}, query2array($query, null, 'id'));
+    $removed_tags = array_diff($current_tags, $params['tags']);
+    $new_tags = array_diff($params['tags'], $current_tags);
+
+    if (count($removed_tags)>0) {
+        if (empty($conf['tags_permission_delete']) || !is_autorize_status(get_access_type_status($conf['tags_permission_delete']))) {
+            return new PwgError(403, l10n('You are not allowed to delete tags'));
+        }
+    }
+    if (count($new_tags)>0) {
+        if (empty($conf['tags_permission_add']) || !is_autorize_status(get_access_type_status($conf['tags_permission_add']))) {
+            return new PwgError(403, l10n('You are not allowed to add tags'));
+        }
+    }
+
+    try {
+        if (empty($params['tags'])) { // remove all tags for an image
+            $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
+            $query .= ' WHERE image_id = '.pwg_db_real_escape_string($params['image_id']);
+            pwg_query($query);
+        } else {
+            $tag_ids = get_tag_ids(implode(',', $params['tags']));
+            set_tags($tag_ids, $params['image_id']);
+        }
+    } catch (Exception $e) {
+        return new PwgError(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
+    }
 }
 
 /**

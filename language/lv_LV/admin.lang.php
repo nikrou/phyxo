@@ -978,3 +978,8 @@ $lang['between %s and %s MB'] = 'starp %s un %s MB';
 $lang['width & height'] = 'platums&augstums';
 $lang['file name'] = 'faila nosaukums';
 $lang['date & time'] = 'datums&laiks';
+$lang['Upload in progress'] = 'Notiek augšupielāde';
+
+$lang['Who can add tags?'] = "Kurš var pievienot iezīmes (tagus)?";
+$lang['Who can delete related tags?'] = "Kurš var dzēst iezīmes (tagus)?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Esiet uzmanīgi, neatkarīgi no konfigurācijas vērtības, jaunais tags var tikt izdzēsts tik un tā";

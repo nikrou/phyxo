@@ -44,15 +44,16 @@ $(function() {
     rootUrl: '{$ROOT_URL}'
   });
 
+  var associated_categories = {$associated_categories|@json_encode};
+
   categoriesCache.selectize($('[data-selectize=categories]'), {
     filter: function(categories, options) {
       if (this.name == 'dissociate') {
         var filtered = $.grep(categories, function(cat) {
-          return !cat.dir;
+          return !!associated_categories[cat.id];
         });
 
         if (filtered.length > 0) {
-          $('.albumDissociate').show();
           options.default = filtered[0].id;
         }
 
@@ -62,6 +63,7 @@ $(function() {
       }
     }
   });
+
 });
 
 var nb_thumbs_page = {$nb_thumbs_page};
@@ -261,6 +263,7 @@ $(document).ready(function() {
   });
 
   checkPermitAction();
+
   $("select[name=filter_prefilter]").change(function() {
     $("#empty_caddie").toggle($(this).val() == "caddie");
     $("#duplicates_options").toggle($(this).val() == "duplicates");
@@ -305,6 +308,7 @@ var sliders = {
     text: '{'between %s and %s MB'|translate|escape:'javascript'}'
   }
 };
+
 {/footer_script}
 
 <div id="batchManagerGlobal">
@@ -342,7 +346,7 @@ var sliders = {
         <input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {if isset($filter.category)}checked="checked"{/if}>
         {'Album'|translate}
         <select data-selectize="categories" data-value="{$filter_category_selected|@json_encode|escape:html}"
-          data-default="first" name="filter_category" style="width:400px"></select>
+          data-default="first" name="filter_category" style="width:600px"></select>
         <label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|translate}</label>
       </li>
 
@@ -352,7 +356,7 @@ var sliders = {
         {'Tags'|translate}
         <select data-selectize="tags" data-value="{$filter_tags|@json_encode|escape:html}"
           placeholder="{'Type in a search term'|translate}"
-          name="filter_tags[]" multiple style="width:400px;"></select>
+          name="filter_tags[]" multiple style="width:600px;"></select>
         <label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|translate}</span></label>
         <label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|translate}</span></label>
       </li>
@@ -548,28 +552,30 @@ UL.thumbnails SPAN.wrap2 {ldelim}
       <option value="delete" class="icon-trash">{'Delete selected photos'|translate}</option>
       <option value="associate">{'Associate to album'|translate}</option>
       <option value="move">{'Move to album'|translate}</option>
-      <option value="dissociate" class="albumDissociate" style="display:none">{'Dissociate from album'|translate}</option>
+      {if !empty($associated_categories)}
+      <option value="dissociate">{'Dissociate from album'|translate}</option>
+      {/if}
       <option value="add_tags">{'Add tags'|translate}</option>
-  {if !empty($associated_tags)}
+      {if !empty($associated_tags)}
       <option value="del_tags">{'remove tags'|translate}</option>
-  {/if}
+      {/if}
       <option value="author">{'Set author'|translate}</option>
       <option value="title">{'Set title'|translate}</option>
       <option value="date_creation">{'Set creation date'|translate}</option>
       <option value="level" class="icon-lock">{'Who can see these photos?'|translate}</option>
       <option value="metadata">{'Synchronize metadata'|translate}</option>
-  {if ($IN_CADDIE)}
+      {if ($IN_CADDIE)}
       <option value="remove_from_caddie">{'Remove from caddie'|translate}</option>
-  {else}
+      {else}
       <option value="add_to_caddie">{'Add to caddie'|translate}</option>
-  {/if}
-		<option value="delete_derivatives">{'Delete multiple size images'|translate}</option>
-		<option value="generate_derivatives">{'Generate multiple size images'|translate}</option>
-  {if !empty($element_set_global_plugins_actions)}
-    {foreach from=$element_set_global_plugins_actions item=action}
+      {/if}
+      <option value="delete_derivatives">{'Delete multiple size images'|translate}</option>
+      <option value="generate_derivatives">{'Generate multiple size images'|translate}</option>
+      {if !empty($element_set_global_plugins_actions)}
+      {foreach from=$element_set_global_plugins_actions item=action}
       <option value="{$action.ID}">{$action.NAME}</option>
-    {/foreach}
-  {/if}
+      {/foreach}
+      {/if}
     </select>
 
     <!-- delete -->
@@ -593,9 +599,9 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
 
     <!-- dissociate -->
-    <div id="action_dissociate" class="bulkAction albumDissociate" style="display:none">
+    <div id="action_dissociate" class="bulkAction">
       <select data-selectize="categories" placeholder="{'Type in a search term'|translate}"
-        name="dissociate" style="width:600px"></select>
+              name="dissociate" style="width:600px"></select>
     </div>
 
 
@@ -607,28 +613,28 @@ UL.thumbnails SPAN.wrap2 {ldelim}
 
     <!-- del_tags -->
     <div id="action_del_tags" class="bulkAction">
-{if !empty($associated_tags)}
+      {if !empty($associated_tags)}
       <select data-selectize="tags" name="del_tags[]" multiple style="width:400px;"
         placeholder="{'Type in a search term'|translate}">
       {foreach from=$associated_tags item=tag}
         <option value="{$tag.id}">{$tag.name}</option>
       {/foreach}
       </select>
-{/if}
+      {/if}
     </div>
 
     <!-- author -->
     <div id="action_author" class="bulkAction">
     <label><input type="checkbox" name="remove_author"> {'remove author'|translate}</label><br>
     {assign var='authorDefaultValue' value='Type here the author name'|translate}
-<input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
+    <input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
     </div>
 
     <!-- title -->
     <div id="action_title" class="bulkAction">
     <label><input type="checkbox" name="remove_title"> {'remove title'|translate}</label><br>
     {assign var='titleDefaultValue' value='Type here the title'|translate}
-<input type="text" class="large" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
+    <input type="text" class="large" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
     </div>
 
     <!-- date_creation -->
@@ -654,25 +660,25 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     <div id="action_metadata" class="bulkAction">
     </div>
 
-		<!-- generate derivatives -->
-		<div id="action_generate_derivatives" class="bulkAction">
-			<a href="javascript:selectGenerateDerivAll()">{'All'|translate}</a>,
-			<a href="javascript:selectGenerateDerivNone()">{'None'|translate}</a>
-			<br>
-			{foreach from=$generate_derivatives_types key=type item=disp}
-				<label><input type="checkbox" name="generate_derivatives_type[]" value="{$type}"> {$disp}</label>
-			{/foreach}
-		</div>
+    <!-- generate derivatives -->
+    <div id="action_generate_derivatives" class="bulkAction">
+      <a href="javascript:selectGenerateDerivAll()">{'All'|translate}</a>,
+      <a href="javascript:selectGenerateDerivNone()">{'None'|translate}</a>
+      <br>
+      {foreach from=$generate_derivatives_types key=type item=disp}
+      <label><input type="checkbox" name="generate_derivatives_type[]" value="{$type}"> {$disp}</label>
+      {/foreach}
+    </div>
 
-		<!-- delete derivatives -->
-		<div id="action_delete_derivatives" class="bulkAction">
-			<a href="javascript:selectDelDerivAll()">{'All'|translate}</a>,
-			<a href="javascript:selectDelDerivNone()">{'None'|translate}</a>
-			<br>
-			{foreach from=$del_derivatives_types key=type item=disp}
-				<label><input type="checkbox" name="del_derivatives_type[]" value="{$type}"> {$disp}</label>
-			{/foreach}
-		</div>
+    <!-- delete derivatives -->
+    <div id="action_delete_derivatives" class="bulkAction">
+      <a href="javascript:selectDelDerivAll()">{'All'|translate}</a>,
+      <a href="javascript:selectDelDerivNone()">{'None'|translate}</a>
+      <br>
+      {foreach from=$del_derivatives_types key=type item=disp}
+      <label><input type="checkbox" name="del_derivatives_type[]" value="{$type}"> {$disp}</label>
+      {/foreach}
+    </div>
 
     <!-- progress bar -->
     <div id="regenerationMsg" class="bulkAction" style="display:none">
@@ -683,13 +689,13 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     </div>
 
     <!-- plugins -->
-{if !empty($element_set_global_plugins_actions)}
-  {foreach from=$element_set_global_plugins_actions item=action}
+    {if !empty($element_set_global_plugins_actions)}
+    {foreach from=$element_set_global_plugins_actions item=action}
     <div id="action_{$action.ID}" class="bulkAction">
-    {if !empty($action.CONTENT)}{$action.CONTENT}{/if}
+      {if !empty($action.CONTENT)}{$action.CONTENT}{/if}
     </div>
-  {/foreach}
-{/if}
+    {/foreach}
+    {/if}
 
     <p id="applyActionBlock" style="display:none" class="actionButtons">
       <input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span></p>

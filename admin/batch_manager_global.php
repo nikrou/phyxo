@@ -85,7 +85,7 @@ if (isset($_POST['submit'])) {
     if ('remove_from_caddie' == $action) {
         $query = 'DELETE FROM '.CADDIE_TABLE;
         $query .= ' WHERE element_id IN ('.implode(',', $collection).')';
-        $query .= ' AND user_id = '.$user['id'].';';
+        $query .= ' AND user_id = '.$user['id'];
         pwg_query($query);
 
         // remove from caddie action available only in caddie so reload content
@@ -105,11 +105,11 @@ if (isset($_POST['submit'])) {
         if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0) {
             $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
             $query .= ' WHERE image_id IN ('.implode(',', $collection).')';
-            $query .= ' AND tag_id IN ('.implode(',', $_POST['del_tags']).');';
+            $query .= ' AND tag_id IN ('.implode(',', $_POST['del_tags']).')';
             pwg_query($query);
 
-            if (isset($_SESSION['bulk_manager_filter']['tags']) &&
-            count(array_intersect($_SESSION['bulk_manager_filter']['tags'], $_POST['del_tags']))) {
+            if (isset($_SESSION['bulk_manager_filter']['tags'])
+            && count(array_intersect($_SESSION['bulk_manager_filter']['tags'], $_POST['del_tags']))) {
                 $redirect = true;
             }
         } else {
@@ -367,7 +367,7 @@ $filter_tags = array();
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
     $query = 'SELECT id,name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $_SESSION['bulk_manager_filter']['tags']).');';
+    $query .= ' WHERE id IN ('.implode(',', $_SESSION['bulk_manager_filter']['tags']).')';
 
     $filter_tags = get_taglist($query);
 }
@@ -382,7 +382,7 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
 } else {
     // we need to know the category in which the last photo was added
     $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' ORDER BY image_id DESC LIMIT 1;';
+    $query .= ' ORDER BY image_id DESC LIMIT 1';
     $result = pwg_query($query);
     if (pwg_db_num_rows($result) > 0) {
         $row = pwg_db_fetch_assoc($result);
@@ -391,6 +391,17 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
 }
 
 $template->assign('filter_category_selected', $selected_category);
+
+// Dissociate from a category : categories listed for dissociation can only
+// represent virtual links. We can't create orphans. Links to physical
+// categories can't be broken.
+if (count($page['cat_elements_id']) > 0) {
+    $query = 'SELECT DISTINCT(category_id) AS id FROM '.IMAGES_TABLE.' AS i';
+    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON i.id = ic.image_id';
+    $query .= ' WHERE ic.image_id IN ('.implode(',', $page['cat_elements_id']).')';
+    $query .= ' AND (ic.category_id != i.storage_category_id OR i.storage_category_id IS NULL)';
+    $template->assign('associated_categories', query2array($query, 'id', 'id'));
+}
 
 if (count($page['cat_elements_id']) > 0) {
     // remove tags
@@ -411,7 +422,7 @@ $template->assign(
 // metadata
 include_once( PHPWG_ROOT_PATH.'admin/site_reader_local.php');
 $site_reader = new LocalSiteReader('./');
-$used_metadata = implode( ', ', $site_reader->get_metadata_attributes());
+$used_metadata = implode(', ', $site_reader->get_metadata_attributes());
 
 $template->assign(array('used_metadata' => $used_metadata));
 
@@ -483,7 +494,7 @@ if (count($page['cat_elements_id']) > 0) {
         $query .= ' AND category_id = '.$_SESSION['bulk_manager_filter']['category'];
     }
 
-    $query .= ' '.$conf['order_by'].' LIMIT '.$page['nb_images'].' OFFSET '.$page['start'].';';
+    $query .= ' '.$conf['order_by'].' LIMIT '.$page['nb_images'].' OFFSET '.$page['start'];
     $result = pwg_query($query);
 
     $thumb_params = ImageStdParams::get_by_type(IMG_THUMB);

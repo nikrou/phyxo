@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Ελληνικά [GR]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=508
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,9 @@ $lang['Apply on properties'] = 'Εφαρμόστε σε ιδιότητες';
 $lang['Album name, Z &rarr; A'] = 'Όνομα Λευκώματος, Ω &rarr; Α';
 $lang['Album name, A &rarr; Z'] = 'Όνομα Λευκώματος, Α &rarr; Ω';
 $lang['Link: %s'] = 'Σύνδεσμος: %s';
+
+$lang['Tags updated'] = "Ενημέρωση Ετικετών";
+$lang['Update tags'] = "Ενημέρωση των ετικετών";
+$lang['You are not allowed to add nor delete tags'] = "Δεν έχετε το δικαίωμα να προσθέσει ή να διαγράψει ετικέτες";
+$lang['You are not allowed to add tags'] = "Δεν επιτρέπεται να προσθέσετε ετικέτες";
+$lang['You are not allowed to delete tags'] = "Δεν επιτρέπεται να διαγράψετε ετικέτες";

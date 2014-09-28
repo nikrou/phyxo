@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Português [PT]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=432
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -431,3 +431,9 @@ $lang['Apply on properties'] = 'Aplicar nas propriedades';
 $lang['Link: %s'] = 'Link: %s';
 $lang['Photo description'] = 'Descrição da foto';
 $lang['Photo title'] = 'Título da foto';
+
+$lang['Tags updated'] = "Etiquetas atualizadas";
+$lang['Update tags'] = "Atualizar etiquetas";
+$lang['You are not allowed to add nor delete tags'] = "Não lhe é permitido adicionar ou apagar etiquetas";
+$lang['You are not allowed to add tags'] = "Não lhe é permitido apagar etiquetas";
+$lang['You are not allowed to delete tags'] = "Não lhe é permitido apagar etiquetas";

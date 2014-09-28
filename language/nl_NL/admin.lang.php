@@ -984,3 +984,7 @@ $lang['date & time'] = 'datum & tijd';
 $lang['between %s and %s MB'] = 'tussen %s en %s MB';
 $lang['based on'] = 'gebaseerd op';
 $lang['Upload in progress'] = 'Bezig met uploaden';
+
+$lang['Who can add tags?'] = "Wie kan labels toevoegen?";
+$lang['Who can delete related tags?'] = "Wie kan gerelateerde labels verwijderen?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Voorzichtig, wat de waarde ook is, nieuwe labels kunnen worden verwijderd";

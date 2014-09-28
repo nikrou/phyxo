@@ -982,3 +982,7 @@ $lang['date & time'] = 'data e ora';
 $lang['width & height'] = 'larghezza e altezza';
 $lang['No and unlock sub-albums'] = 'No e sbloccare sub-albums';
 $lang['Upload in progress'] = 'Trasferimento in corso...';
+
+$lang['Who can add tags?'] = "Chi può aggiungere i tag?";
+$lang['Who can delete related tags?'] = "Chi può eliminare i tag?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Attenzione qualunque sia il valore di configurazione, un nuovo tag può essere eliminato in qualsiasi momento";

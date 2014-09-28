@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: 简体中文 [CN]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=438
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -430,3 +430,9 @@ $lang['Photo title'] = '相片标题';
 $lang['Album name, A &rarr; Z'] = '相册名称， A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = '相册名称， Z &rarr; A';
 $lang['Link: %s'] = '链接： %s';
+
+$lang['Tags updated'] = "标签已更新";
+$lang['Update tags'] = "更新标签";
+$lang['You are not allowed to add nor delete tags'] = "你不能添加未删除的标签";
+$lang['You are not allowed to add tags'] = "你不能添加标签";
+$lang['You are not allowed to delete tags'] = "你不能删除标签";

@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Dansk [DK]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=415
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -429,3 +429,9 @@ $lang['Photo title'] = 'Fototitel';
 $lang['Album name, A &rarr; Z'] = 'Albumnavn, A &rarr; Å';
 $lang['Album name, Z &rarr; A'] = 'Albumnavn, Å &rarr; A';
 $lang['Link: %s'] = 'Link: %s';
+
+$lang['Tags updated'] = "Tags opdateret";
+$lang['Update tags'] = "Opdater tags";
+$lang['You are not allowed to add nor delete tags'] = "Du har ikke tilladelse til at tilføje eller slette tags";
+$lang['You are not allowed to add tags'] = "Du har ikke tilladelse til at tilføje tags";
+$lang['You are not allowed to delete tags'] = "Du har ikke tilladelse til at slette tags";

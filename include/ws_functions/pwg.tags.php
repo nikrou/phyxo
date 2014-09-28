@@ -22,6 +22,21 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
+// @TODO: make a class to allow private methods
+
+/**
+ * API method
+ * Returns al list of all tags even associated to no image.
+ * The list can be can be filtered with option "q".
+ * @param mixed[] $params
+ *    @option q     subtsring of tag o search for
+ *    @option limit limit the number of tags to retrieved
+ */
+function ws_tags_getFilteredList($params, &$service) {
+    return tagsList(get_all_tags($params['q']), $params);
+}
+
+
 /**
  * API method
  * Returns a list of tags
@@ -29,11 +44,16 @@
  *    @option bool sort_by_counter
  */
 function ws_tags_getList($params, &$service) {
-    $tags = get_available_tags();
-    if ($params['sort_by_counter']) {
+    return tagsList(get_available_tags(), $params);
+}
+
+/** Not API directly; private function
+ */
+function tagsList($tags, $params) {
+    if (!empty($params['sort_by_counter'])) {
         usort(
             $tags,
-            function($a,$b) { return -$a["counter"]+$b["counter"]; }
+            function($a,$b) { return -$a['counter']+$b['counter']; }
         );
     } else {
         usort($tags, 'tag_alpha_compare');
@@ -41,11 +61,13 @@ function ws_tags_getList($params, &$service) {
 
     for ($i=0; $i<count($tags); $i++) {
         $tags[$i]['id'] = (int)$tags[$i]['id'];
-        $tags[$i]['counter'] = (int)$tags[$i]['counter'];
+        if (!empty($params['sort_by_counter'])) {
+            $tags[$i]['counter'] = (int)$tags[$i]['counter'];
+        }
         $tags[$i]['url'] = make_index_url(
             array(
-                'section'=>'tags',
-                'tags'=>array($tags[$i])
+                'section' => 'tags',
+                'tags' => array($tags[$i])
             )
         );
     }

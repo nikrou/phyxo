@@ -296,6 +296,14 @@ function ws_addDefaultMethods($arr) {
     );
 
     $service->addMethod(
+        'pwg.tags.getFilteredList',
+        'ws_tags_getFilteredList',
+        array('q' => array('default' => '')),
+        'Retrieves a filtered list of all available tags.',
+        $ws_functions_root . 'pwg.tags.php'
+    );
+
+    $service->addMethod(
         'pwg.tags.getList',
         'ws_tags_getList',
         array(
@@ -533,6 +541,18 @@ function ws_addDefaultMethods($arr) {
         'Checks if Piwigo is ready for upload.',
         $ws_functions_root . 'pwg.images.php',
         array('admin_only' => true)
+    );
+
+    $service->addMethod(
+        'pwg.images.setRelatedTags',
+        'ws_images_setRelatedTags',
+        array(
+            'image_id' => array('type' => WS_TYPE_ID),
+            'tags' => array('default' => null, 'flags' => WS_PARAM_FORCE_ARRAY),
+        ),
+        'Add/update/delete tags associated to an existing image. Actions availables depend on permissions.',
+        $ws_functions_root . 'pwg.images.php',
+        array('post_only' => true)
     );
 
     $service->addMethod(

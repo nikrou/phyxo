@@ -69,9 +69,9 @@ jQuery(document).ready(function() {
   <legend>{'Search tags'|translate}</legend>
   <p>
   <select id="tags" placeholder="{'Type in a search term'|translate}" name="tags[]" multiple>
-{foreach from=$TAGS item=tag}
+    {foreach from=$TAGS item=tag}
     <option value="{$tag.id}">{$tag.name} ({$tag.counter|translate_dec:'%d photo':'%d photos'})</option>
-{/foreach}
+    {/foreach}
   </select>
   <label><span><input type="radio" name="tag_mode" value="AND" checked="checked"> {'All tags'|translate}</span></label>
   <label><span><input type="radio" name="tag_mode" value="OR"> {'Any tag'|translate}</span></label>

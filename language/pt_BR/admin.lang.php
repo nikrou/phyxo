@@ -806,7 +806,7 @@ $lang['Settings'] = 'Configurações';
 $lang['Sharpen'] = 'Destacar';
 $lang['Shotwell is an open source digital photo organizer that runs on Linux. It is the default photo manager in Ubuntu and Fedora.'] = 'Shotwell é um organizador de fotos de código aberto que roda em Linux e é o gerenciador padrão de fotos no Ubuntu e Fedora.';
 $lang['Show menubar'] = 'Mostre menu';
-$lang['Some themes and plugins may be not available yet.'] = 'Álguns temas e plugins podem não estar disponíveis ainda.';
+$lang['Some themes and plugins may be not available yet.'] = 'Alguns temas e plugins podem não estar disponíveis ainda.';
 $lang['Some upgrades are available for extensions.'] = 'Algumas atualizações estão disponíveis para as extensões.';
 $lang['Source tag'] = 'Tag fonte';
 $lang['Start Upload'] = 'Inicia o envio';
@@ -982,3 +982,7 @@ $lang['between %s and %s MB'] = 'entre %s e %s MB';
 $lang['date & time'] = 'dia & hora';
 $lang['file name'] = 'nome do arquivo';
 $lang['width & height'] = 'largura & comprimento';
+
+$lang['Who can add tags?'] = "Quem pode adicionar etiquetas?";
+$lang['Who can delete related tags?'] = "Quem pode apagar etiquetas relacionadas?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Seja cuidadoso, qualquer que seja o valor da configuração, a nova etiqueta (tag) pode ser apagada";

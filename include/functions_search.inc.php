@@ -317,16 +317,16 @@ class QNumericRangeScope extends QSearchScope
         if (!$this->nullable && $range[0]=='' && $range[1] == '') {
             return false;
         }
-        $token->scope_data = array( 'range'=>$range, 'strict'=>$strict );
+        $token->scope_data = array('range' => $range, 'strict' => $strict);
         return true;
     }
 
     function get_sql($field, $token) {
         $clauses = array();
-        if ($token->scope_data['range'][0]!=='') {
+        if ($token->scope_data['range'][0]!='') {
             $clauses[] = $field.' >'.($token->scope_data['strict'][0]?'':'=').$token->scope_data['range'][0].' ';
         }
-        if ($token->scope_data['range'][1]!=='') {
+        if ($token->scope_data['range'][1]!='') {
             $clauses[] = $field.' <'.($token->scope_data['strict'][1]?'':'=').$token->scope_data['range'][1].' ';
         }
 
@@ -395,10 +395,10 @@ class QDateRangeScope extends QSearchScope
 
     function get_sql($field, $token) {
         $clauses = array();
-        if ($token->scope_data[0]!=='') {
+        if ($token->scope_data[0]!='') {
             $clauses[] = $field.' >= \'' . $token->scope_data[0].'\'';
         }
-        if ($token->scope_data[1]!=='') {
+        if ($token->scope_data[1]!='') {
             $clauses[] = $field.' <= \'' . $token->scope_data[1].'\'';
         }
 
@@ -974,7 +974,7 @@ function qsearch_eval(QMultiToken $expr, QResults $qsr, &$qualifies, &$ignored_t
         if ($crt->is_single) {
             $crt_ids = $qsr->iids[$crt->idx] = array_unique( array_merge($qsr->images_iids[$crt->idx], $qsr->tag_iids[$crt->idx]));
             $crt_qualifies = count($crt_ids)>0 || count($qsr->tag_ids[$crt->idx])>0;
-            $crt_ignored_terms = $crt_qualifies ? array() : array($crt->term);
+            $crt_ignored_terms = $crt_qualifies ? array() : array((string) $crt);
         } else {
             $crt_ids = qsearch_eval($crt, $qsr, $crt_qualifies, $crt_ignored_terms);
         }
@@ -1062,6 +1062,8 @@ function get_quick_search_results_no_cache($q, $options) {
         'qs' => array('q' => $q)
     );
 
+    $q = trigger_change('qsearch_pre', $q);
+
     $scopes = array();
     $scopes[] = new QSearchScope('tag', array('tags'));
     $scopes[] = new QSearchScope('photo', array('photos'));
@@ -1134,6 +1136,7 @@ function get_quick_search_results_no_cache($q, $options) {
     $debug[] = 'before perms '.count($ids);
 
     $search_results['qs']['matching_tags'] = $qsr->all_tags;
+    $search_results = trigger_change('qsearch_results', $search_results, $expression, $qsr);
 
     if (empty($ids)) {
         $debug[] = '-->';

@@ -984,3 +984,7 @@ $lang['file name'] = 'filnavn';
 $lang['width & height'] = 'bredde og højde';
 $lang['No and unlock sub-albums'] = 'Nej, og lås underalbummer op';
 $lang['Upload in progress'] = 'Upload i gang';
+
+$lang['Who can add tags?'] = "Hvem kan tilføje tags?";
+$lang['Who can delete related tags?'] = "Hvem kan slette relaterede tags?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Vær omhyggelig, uanset hvad opsætningsværdien er, kun et nyt tag under alle omstændigheder slettes";

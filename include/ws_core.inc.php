@@ -215,7 +215,7 @@ class PwgServer
     private $_requestHandler;
     private $_requestFormat;
     private $_responseEncoder;
-    private $_responseFormat;
+    public $_responseFormat;
 
     private $_methods = array();
 

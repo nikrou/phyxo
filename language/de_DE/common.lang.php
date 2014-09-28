@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Deutsch [DE]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=416
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,9 @@ $lang['Album name, A &rarr; Z'] = 'Albumname, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Albumname, Z &rarr; A';
 $lang['Apply on properties'] = 'Eigenschaften übernehmen';
 $lang['Link: %s'] = 'link: %s';
+
+$lang['Tags updated'] = "Tags wurden aktualisiert";
+$lang['Update tags'] = "Tags updaten";
+$lang['You are not allowed to add nor delete tags'] = "Du besitzt nicht die erforderlichen Rechte Tags hinzuzufügen oder zu löschen";
+$lang['You are not allowed to add tags'] = "Du besitzt nicht die erforderlichen Rechte Tags hinzuzufügen";
+$lang['You are not allowed to delete tags'] = "Du besitzt nicht die erforderlichen Rechte Tags zu löschen";

@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Brasil [BR]
-Version: 2.6.1
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=431
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -428,3 +428,9 @@ $lang['Photo title'] = 'Título da foto';
 $lang['Album name, A &rarr; Z'] = 'Nome do álbum, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Nome do álbum, Z &rarr; A';
 $lang['Link: %s'] = 'Link: %s';
+
+$lang['Tags updated'] = "Etiquetas atualizadas";
+$lang['Update tags'] = "Atualiza etiquetas";
+$lang['You are not allowed to add nor delete tags'] = "Você não tem permissão para adicionar ou apagar etiquetas";
+$lang['You are not allowed to add tags'] = "Você não tem permissão para adicionar etiquetas";
+$lang['You are not allowed to delete tags'] = "Você não tem permissã para apagar etiquetas";

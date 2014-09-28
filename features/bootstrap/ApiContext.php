@@ -126,13 +126,29 @@ class GuzzleApiContext extends BehatContext
 
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
-                    $body->setField($key, $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]));
+                    $value = $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                    if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
+                        $value = '~~'.$value.'~~';
+                    }
+                    $body->setField($key, $value);
                 } elseif ($key=='pwg_token') {
                     $body->setField(
                         'pwg_token',
                         $this->getMainContext()->getSubcontext('db')->get_pwg_token($this->getSessionId())
                     );
                 } else {
+                    if (preg_match('`\[(.*)]`', $val, $matches)) {
+                        $val = array_map('trim', explode(',',  $matches[1]));
+                        foreach ($val as &$v) {
+                            if (preg_match('`^SAVED:(.*)$`', $v, $matches)) {
+                                $v = $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                                if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
+                                    $v = '~~'.$v.'~~';
+                                }
+                            }
+                        }
+                    }
+
                     $body->setField($key, $val);
                 }
             }

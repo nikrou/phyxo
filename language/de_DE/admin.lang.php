@@ -985,3 +985,7 @@ $lang['between %s and %s MB'] = 'zwischen %s und %s MB';
 $lang['date & time'] = 'Datum & Zeit';
 $lang['file name'] = 'Dateiname';
 $lang['width & height'] = 'Breite & Höhe';
+
+$lang['Who can add tags?'] = "Wer darf die Tags hinzufügen?";
+$lang['Who can delete related tags?'] = "Wer darf zugehörige Tags löschen?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Seien Sie Vorsichtig, egal welche die Konfigurationswerte sind, neue Tags können trotzdem gelöscht werden";

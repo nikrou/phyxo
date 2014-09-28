@@ -989,3 +989,7 @@ $lang['date & time'] = '日期与时间';
 $lang['file name'] = '文件名';
 $lang['width & height'] = '宽度&高度';
 $lang['Upload in progress'] = '正在上传';
+
+$lang['Who can add tags?'] = "谁能添加标签?";
+$lang['Who can delete related tags?'] = "谁能删除相关连的标签?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "请注意: 不论设定值为何,新的标签都可能被删除.";

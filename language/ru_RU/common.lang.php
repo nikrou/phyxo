@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Русский [RU]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=434
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -430,3 +430,9 @@ $lang['Photo title'] = 'Заголовок изображения';
 $lang['Album name, A &rarr; Z'] = 'По названиям альбомов, от A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'По названиям альбомов, от Z &rarr; A';
 $lang['Link: %s'] = 'Ссылка: %s';
+
+$lang['Tags updated'] = "Теги обновлены";
+$lang['Update tags'] = "Обновить теги";
+$lang['You are not allowed to add nor delete tags'] = "Вы не можете добавлять или удалять теги";
+$lang['You are not allowed to add tags'] = "Вы не можете добавлять теги";
+$lang['You are not allowed to delete tags'] = "Вы не можете удалять теги";

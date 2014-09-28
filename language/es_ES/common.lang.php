@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Español [ES]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=169
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -435,3 +435,9 @@ $lang['Photo title'] = 'Título de la foto';
 $lang['Album name, Z &rarr; A'] = 'Nombre del album, Z &rarr; A';
 $lang['Album name, A &rarr; Z'] = 'Nombre del album, A &rarr; Z';
 $lang['Link: %s'] = 'Enlace: %s';
+
+$lang['Tags updated'] = "Las etiquetas han sido actualizadas";
+$lang['Update tags'] = "Actualizar las etiquetas";
+$lang['You are not allowed to add nor delete tags'] = "No esta autorizado a añadir o borrar etiquetas";
+$lang['You are not allowed to add tags'] = "No esta autorizado a añadir etiquetas";
+$lang['You are not allowed to delete tags'] = "No esta autorizado a borrar etiquetas";

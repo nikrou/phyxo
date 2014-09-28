@@ -38,7 +38,7 @@ check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 $admin_photo_base_url = get_root_url().'admin.php?page=photo-'.$_GET['image_id'];
 
 if (isset($_GET['cat_id'])) {
-    $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$_GET['cat_id'];
+    $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.(int) $_GET['cat_id'];
     $category = pwg_db_fetch_assoc(pwg_query($query));
 }
 
@@ -67,6 +67,4 @@ if ('properties' == $page['tab']) {
     include(PHPWG_ROOT_PATH.'admin/picture_modify.php');
 } elseif ('coi' == $page['tab']) {
     include(PHPWG_ROOT_PATH.'admin/picture_coi.php');
-} else {
-    include(PHPWG_ROOT_PATH.'admin/photo_'.$page['tab'].'.php');
 }

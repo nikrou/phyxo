@@ -713,6 +713,24 @@ if (count($tags)) {
     }
 }
 
+if ($conf['tags_permission_add']) {
+    $template->assign('TAGS_PERMISSION_ADD', (int) is_autorize_status(get_access_type_status($conf['tags_permission_add'])));
+} else {
+    $template->assign('TAGS_PERMISSION_ADD', 0);
+}
+if ($conf['tags_permission_delete']) {
+    $template->assign('TAGS_PERMISSION_DELETE', (int) is_autorize_status(get_access_type_status($conf['tags_permission_delete'])));
+} else {
+    $template->assign('TAGS_PERMISSION_DELETE', 0);
+}
+if (isset($conf['tags_existing_tags_only'])) {
+    $template->assign('TAGS_PERMISSION_ALLOW_CREATION', $conf['tags_existing_tags_only']==1?0:1);
+} else {
+    $template->assign('TAGS_PERMISSION_ALLOW_CREATION', 1);
+}
+$template->assign('USER_TAGS_WS_GETLIST', get_root_url().'ws.php?format=json&method=pwg.tags.getFilteredList');
+$template->assign('USER_TAGS_UPDATE_SCRIPT', get_root_url().'ws.php?format=json&method=pwg.images.setRelatedTags');
+
 // related categories
 if (count($related_categories)==1 and isset($page['category']) and $related_categories[0]['id']==$page['category']['id']) {
     // no need to go to db, we have all the info

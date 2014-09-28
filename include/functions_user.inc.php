@@ -199,7 +199,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
 
             $keyargs_content = array(
                 get_l10n_args('User: %s', stripslashes($login) ),
-                get_l10n_args('Email: %s', $_POST['mail_address']),
+                get_l10n_args('Email: %s', $mail_address),
                 get_l10n_args(''),
                 get_l10n_args('Admin: %s', $admin_url),
             );
@@ -238,9 +238,9 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
         trigger_notify(
             'register_user',
             array(
-                'id'=>$user_id,
-                'username'=>$login,
-                'email'=>$mail_address,
+                'id' => $user_id,
+                'username' => $login,
+                'email' => $mail_address,
             )
         );
 

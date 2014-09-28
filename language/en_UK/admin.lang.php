@@ -980,3 +980,7 @@ $lang['file name'] = 'file name';
 $lang['date & time'] = 'date & time';
 $lang['width & height'] = 'width & height';
 $lang['Upload in progress'] = 'Upload in progress';
+
+$lang['Who can add tags?'] = "Who can add tags?";
+$lang['Who can delete related tags?'] = "Who can delete related tags?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Be careful, whatever the configuration value is, new tag can be deleted anyway";

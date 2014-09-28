@@ -65,3 +65,7 @@ INSERT INTO phyxo_config (param,value) VALUES ('original_resize_maxheight','2016
 INSERT INTO phyxo_config (param,value) VALUES ('original_resize_quality','95');
 INSERT INTO phyxo_config (param,value) VALUES ('mobile_theme',null);
 INSERT INTO phyxo_config (param,value) VALUES ('mail_theme','clear');
+
+INSERT INTO phyxo_config (param,value) VALUES ('tags_permission_add','');
+INSERT INTO phyxo_config (param,value) VALUES ('tags_permission_delete','');
+INSERT INTO phyxo_config (param,value) VALUES ('tags_existing_tags_only','false');

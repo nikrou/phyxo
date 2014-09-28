@@ -233,11 +233,7 @@ if (isset($_POST['submit'])) {
                     }
                 }
 
-                // @TODO: use conf_update_param function
-                $query = 'UPDATE '.CONFIG_TABLE;
-                $query .= ' SET value = \''. str_replace("\'", "''", $value).'\'';
-                $query .= ' WHERE param = \''.$row['param'].'\';';
-                pwg_query($query);
+                conf_update_param($row['param'], $value);
             }
         }
         $page['infos'][] = l10n('Information data registered in database');
@@ -249,8 +245,8 @@ if (isset($_POST['submit'])) {
 
 // restore default derivatives settings
 if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings' == $_GET['action']) {
-    ImageStdParams::set_and_save( ImageStdParams::get_default_sizes() );
-    pwg_query('DELETE FROM '.CONFIG_TABLE.' WHERE param = \'disabled_derivatives\'');
+    ImageStdParams::set_and_save( ImageStdParams::get_default_sizes());
+    conf_delete_params('disabled_derivatives');
     clear_derivative_cache();
 
     $page['infos'][] = l10n('Your configuration settings are saved');

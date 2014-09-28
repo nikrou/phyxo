@@ -30,6 +30,7 @@ include(PHPWG_ROOT_PATH.'include/section_init.inc.php');
 // Check Access and exit when user status is not ok
 check_status(ACCESS_GUEST);
 
+
 // access authorization check
 if (isset($page['category'])) {
     check_restrictions($page['category']['id']);
@@ -55,7 +56,6 @@ if (isset($_GET['image_order'])) {
         )
     );
 }
-
 if (isset($_GET['display'])) {
     $page['meta_robots']['noindex']=1;
     if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
@@ -99,7 +99,7 @@ $template->assign('U_CANONICAL', $canonical_url);
 $title = $page['title'];
 $template_title = $page['section_title'];
 if (count($page['items']) > 0) {
-    $template_title.= ' ['.count($page['items']).']';
+    $template_title .= ' ['.count($page['items']).']';
 }
 $template->assign('TITLE', $template_title);
 
@@ -187,7 +187,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         );
     }
 
-    if ($page['section']=='search' and $page['start']==0 && !isset($page['chronology_field']) and isset($page['qsearch_details'])) {
+    if ($page['section']=='search' && $page['start']==0 && !isset($page['chronology_field']) && isset($page['qsearch_details'])) {
         $cats = array_merge(
             (array)@$page['qsearch_details']['matching_cats_no_images'],
             (array)@$page['qsearch_details']['matching_cats'] );
@@ -209,13 +209,15 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         if (empty($page['items'])) {
             $template->append( 'no_search_results', htmlspecialchars($page['qsearch_details']['q']));
         } elseif (!empty($page['qsearch_details']['unmatched_terms'])) {
-            $template->assign( 'no_search_results', $page['qsearch_details']['unmatched_terms']);
+            $template->assign( 'no_search_results', array_map($page['qsearch_details']['unmatched_terms'], 'htmlspecialchars'));
         }
     }
 
     // image order
-    if ($conf['index_sort_order_input'] and count($page['items']) > 0
-      and $page['section'] != 'most_visited' and $page['section'] != 'best_rated') {
+    if ( $conf['index_sort_order_input']
+    and count($page['items']) > 0
+    and $page['section'] != 'most_visited'
+    and $page['section'] != 'best_rated') {
         $preferred_image_orders = get_category_preferred_image_orders();
         $order_idx = pwg_get_session_var( 'image_order', 0 );
 
@@ -255,7 +257,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
 
     // category comment
     if ($page['start']==0 and !isset($page['chronology_field']) and !empty($page['comment'])) {
-        $template->assign('CONTENT_DESCRIPTION', $page['comment'] );
+        $template->assign('CONTENT_DESCRIPTION', $page['comment']);
     }
 
     if (isset($page['category']['count_categories']) and $page['category']['count_categories']==0) {
@@ -264,7 +266,9 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
     }
 
     //------------------------------------------------------ main part : thumbnails
-    if (0==$page['start'] && !isset($page['flat']) && !isset($page['chronology_field'])
+    if (0==$page['start']
+    and !isset($page['flat'])
+    and !isset($page['chronology_field'])
     and ('recent_cats'==$page['section'] or 'categories'==$page['section'])
     and (!isset($page['category']['count_categories']) or $page['category']['count_categories']>0)) {
         include(PHPWG_ROOT_PATH.'include/category_cats.inc.php');

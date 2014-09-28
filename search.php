@@ -42,7 +42,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    if (isset($_POST['search_allwords']) and !preg_match('/^\s*$/', $_POST['search_allwords'])) {
+    if (isset($_POST['search_allwords']) && !preg_match('/^\s*$/', $_POST['search_allwords'])) {
         check_input_parameter('mode', $_POST, false, '/^(OR|AND)$/');
 
         $fields = array_intersect($_POST['fields'], array('name', 'comment', 'file'));
@@ -83,7 +83,7 @@ if (isset($_POST['submit'])) {
         );
     }
 
-    if (isset($_POST['authors']) and is_array($_POST['authors']) and count($_POST['authors']) > 0) {
+    if (isset($_POST['authors']) && is_array($_POST['authors']) && count($_POST['authors']) > 0) {
         $authors = array();
 
         foreach ($_POST['authors'] as $author) {
@@ -158,6 +158,7 @@ if (isset($_POST['submit']) and count($page['errors']) == 0) {
 }
 //----------------------------------------------------- template initialization
 
+//
 // Start output of page
 //
 $title= l10n('Search');
@@ -173,7 +174,6 @@ $template->assign(
     array(
         'F_SEARCH_ACTION' => 'search.php',
         'U_HELP' => PHPWG_ROOT_PATH.'popuphelp.php?page=search',
-
         'month_list' => $month_list,
         'START_DAY_SELECTED' => @$_POST['start_day'],
         'START_MONTH_SELECTED' => @$_POST['start_month'],
@@ -206,20 +206,21 @@ $query .= ' '.get_sql_condition_FandF(
 $query .= ' AND author IS NOT NULL';
 $query .= ' GROUP BY author, id';
 $query .= ' ORDER BY author;';
+
 $author_counts = array();
 $result = pwg_query($query);
 while ($row = pwg_db_fetch_assoc($result)) {
     if (!isset($author_counts[$row['author']])) {
-	    $author_counts[$row['author']] = 0;
+        $author_counts[$row['author']] = 0;
     }
 
-    $author_counts[ $row['author'] ]++;
+    $author_counts[$row['author']]++;
 }
 
 foreach ($author_counts as $author => $counter) {
     $authors[] = array(
-	    'author' => $author,
-	    'counter' => $counter,
+        'author' => $author,
+        'counter' => $counter,
     );
 }
 

@@ -55,7 +55,7 @@ function get_nb_available_tags() {
  * @return array [id, name, counter, url_name]
  */
 function get_available_tags() {
-  // we can find top fatter tags among reachable images
+    // we can find top fatter tags among reachable images
     $query = 'SELECT tag_id, COUNT(DISTINCT(it.image_id)) AS counter FROM '.IMAGE_CATEGORY_TABLE.' ic';
     $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' it ON ic.image_id=it.image_id';
     $query .= ' '.get_sql_condition_FandF(
@@ -78,10 +78,8 @@ function get_available_tags() {
 
     $tags = array();
     while ($row = pwg_db_fetch_assoc($result)) {
-        // @TODO: remove arobase add a test
-        $counter = intval(@$tag_counters[$row['id']]);
-        if ($counter) {
-            $row['counter'] = $counter;
+        if (!empty($tag_counters[$row['id']])) {
+            $row['counter'] = (int) $tag_counters[$row['id']];
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
@@ -92,21 +90,27 @@ function get_available_tags() {
 
 /**
  * Returns all tags even associated to no image.
+ * The list can be filtered
  *
+ * @param  q string substring of tag to search
  * @return array [id, name, url_name]
  */
-function get_all_tags() {
-  $query = 'SELECT id, name, url_name, lastmodified FROM '.TAGS_TABLE.';';
-  $result = pwg_query($query);
-  $tags = array();
-  while ($row = pwg_db_fetch_assoc($result)) {
-      $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
-      $tags[] = $row;
-  }
+function get_all_tags($q='') {
+    $query = 'SELECT id, name, url_name, lastmodified FROM '.TAGS_TABLE;
+    if (!empty($q)) {
+        $query .= sprintf(' WHERE LOWER(name) like \'%%%s%%\'', strtolower(pwg_db_real_escape_string($q)));
+    }
 
-  usort($tags, 'tag_alpha_compare');
+    $result = pwg_query($query);
+    $tags = array();
+    while ($row = pwg_db_fetch_assoc($result)) {
+        $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
+        $tags[] = $row;
+    }
 
-  return $tags;
+    usort($tags, 'tag_alpha_compare');
+
+    return $tags;
 }
 
 /**

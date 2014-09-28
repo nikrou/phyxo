@@ -980,3 +980,7 @@ $lang['date & time'] = 'tarih ve saat';
 $lang['file name'] = 'dosya adı';
 $lang['width & height'] = 'genişlik ve yükseklik';
 $lang['Upload in progress'] = 'Yükleme devam ediyor';
+
+$lang['Who can add tags?'] = "Kim etiket ekleyebilir";
+$lang['Who can delete related tags?'] = "Kim etiket silebilir";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Dikkatli olun, Yapılandırma değeri ne olursa olsun, yeni etiket silinebilir";

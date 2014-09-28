@@ -64,6 +64,15 @@ class DbContext extends RawMinkContext
     }
 
     /**
+     * @Given /^tags:$/
+     */
+    public function tags(TableNode $table) {
+        foreach ($table->getHash() as $tag) {
+            $this->last_id = self::addTag($tag['name']);
+        }
+    }
+
+    /**
      * @Then /^save "([^"]*)"$/
      */
     public function save($id) {
@@ -372,6 +381,7 @@ class DbContext extends RawMinkContext
         return $album->id;
     }
 
+
     private static function manageAccess($username, $album_name, $remove=false) {
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
@@ -439,38 +449,52 @@ class DbContext extends RawMinkContext
         return $comment->id;
     }
 
-    private function addTags($param_tags, $image_id) {
+    private static function addTag($tag_name) {
         if (!defined('PHPWG_ROOT_PATH')) {
             define('PHPWG_ROOT_PATH', __DIR__.'/../../');
         }
         include_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
 
-        if (preg_match('`\[.*]`', $param_tags)) {
-            $tags = explode(',',  substr($param_tags, 1, strlen($param_tags)-2));
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
+        $tag = ORM::for_table(self::$prefix.'tags')->where('name', $tag_name)->find_one();
+        if (!$tag) {
+            $tag = ORM::for_table(self::$prefix.'tags')->create();
+            $tag->name = $tag_name;
+            $tag->url_name = str2url($tag_name);
+            $tag->save();
+        }
+
+        return $tag->id;
+    }
+
+    private function addTags($param_tags, $image_id) {
+        if (preg_match('`\[(.*)]`', $param_tags, $matches)) {
+            $tags = array_map('trim', explode(',',  $matches[1]));
         } else {
             $tags = array($param_tags);
         }
-
+        foreach ($tags as &$tag) {
+            if (preg_match('`^SAVED:(.*)$`', $tag, $matches)) {
+                $tag = $this->getSaved($matches[1]);
+            }
+        }
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
 
         foreach ($tags as $tag_name) {
-            $tag = ORM::for_table(self::$prefix.'tags')->where('name', $tag_name)->find_one();
-            if (!$tag) {
-                $tag = ORM::for_table(self::$prefix.'tags')->create();
-                $tag->name = $tag_name;
-                $tag->url_name = str2url($tag_name);
-                $tag->save();
-            }
+            $tag_id = self::addTag($tag_name);
             $image_tag = ORM::for_table(self::$prefix.'image_tag')
-                ->where('tag_id', $tag->id)
+                ->where('tag_id', $tag_id)
                 ->where('image_id', $image_id)
                 ->find_one();
             if (!$image_tag) {
                 $image_tag = ORM::for_table(self::$prefix.'image_tag')->create();
                 $image_tag->image_id = $image_id;
-                $image_tag->tag_id = $tag->id;
+                $image_tag->tag_id = $tag_id;
                 $image_tag->save();
             }
         }

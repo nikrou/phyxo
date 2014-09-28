@@ -6110,7 +6110,7 @@ var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
 
 
-var getStyles, curCSS,
+var gettyles, curCSS,
 	rposition = /^(top|right|bottom|left)$/;
 
 if ( window.getComputedStyle ) {

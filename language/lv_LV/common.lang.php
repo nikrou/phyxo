@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Latviešu [LV]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=427
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,9 @@ $lang['Photo description'] = 'Foto apraksts';
 $lang['Album name, A &rarr; Z'] = 'Albūma nosaukums, A &rarr; Z ';
 $lang['Album name, Z &rarr; A'] = 'Albūma nosaukums, Z &rarr; A ';
 $lang['Link: %s'] = 'Saite: %s';
+
+$lang['Tags updated'] = "Tagi ir atjaunināti";
+$lang['Update tags'] = "Atjaunināt tagus";
+$lang['You are not allowed to add nor delete tags'] = "Jums nav atļauts ne pievienot ne dzēst tagus";
+$lang['You are not allowed to add tags'] = "Jums nav atļauts pievienot tagus";
+$lang['You are not allowed to delete tags'] = "Jums nav atļauts dzēst tagus";

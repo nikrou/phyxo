@@ -191,7 +191,7 @@ if ($conf['activate_comments']) {
     $template->assign('U_COMMENTS', $link_start.'comments');
 
     // pending comments
-    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.' WHERE validated=\'false\';';
+    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.' WHERE validated=\''.boolean_to_db('false').'\';';
     list($nb_comments) = pwg_db_fetch_row(pwg_query($query));
 
     if ($nb_comments > 0) {

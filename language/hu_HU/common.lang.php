@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Magyar [HU]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=423
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -431,3 +431,9 @@ $lang['Album name, A &rarr; Z'] = 'Album név, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Album név, Z &rarr; A';
 $lang['No results for'] = 'Nincs eredmény';
 $lang['Link: %s'] = 'Hivatkozás: %s';
+
+$lang['Tags updated'] = "Címkék frissítve";
+$lang['Update tags'] = "Címkék frissítése";
+$lang['You are not allowed to add nor delete tags'] = "Ön nem adhat hozzá és nem törölhet címkéket";
+$lang['You are not allowed to add tags'] = "Ön nem jogosult a címkék hozzáadására";
+$lang['You are not allowed to delete tags'] = "Ön nem jogosult a címkék törlésére";

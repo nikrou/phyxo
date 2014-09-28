@@ -18,7 +18,7 @@
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
 {combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
-{combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
+{combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {footer_script}
 {* <!-- CATEGORIES --> *}
@@ -201,7 +201,6 @@ jQuery(document).ready(function(){
 {/literal}
 });
 {/footer_script}
-{combine_script id='photos_add_direct' load='footer' path='admin/themes/default/js/photos_add_direct.js'}
 
 <div class="titrePage">
   <h2>{'Upload Photos'|translate} {$TABSHEET_TITLE}</h2>
@@ -234,15 +233,15 @@ jQuery(document).ready(function(){
 </div>
 {/if}
 
+
 <form id="uploadForm" enctype="multipart/form-data" method="post" action="{$form_action}">
     <fieldset class="selectAlbum">
       <legend>{'Drop into album'|translate}</legend>
 
       <span id="albumSelection" style="display:none">
-	<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
-		data-default="first" name="category" style="width:600px"><option></option></select>
-	<br>{'... or '|translate}
-      </span>
+      <select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
+              data-default="first" name="category" style="width:600px"></select>
+      <br>{'... or '|translate}</span>
       <a href="#" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
     </fieldset>
 
@@ -301,4 +300,3 @@ jQuery(document).ready(function(){
 {/if} {* $setup_errors *}
 
 </div> <!-- photosAddContent -->
-

@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Norwegian [NO]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=483
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -426,3 +426,9 @@ $lang['Photo title'] = 'Bildetittel';
 $lang['Album name, A &rarr; Z'] = 'Albumnavn, A %rarr; Å';
 $lang['Album name, Z &rarr; A'] = 'Albumnavn, Å %rarr; A';
 $lang['Link: %s'] = 'Lenke: %s';
+
+$lang['Tags updated'] = "Tagger oppdaert";
+$lang['Update tags'] = "Oppdater tagger";
+$lang['You are not allowed to add nor delete tags'] = "Du har ikke tillatelse til å legge til/slette merknader";
+$lang['You are not allowed to add tags'] = "Du har ikke tillatelse til å legge til merknader";
+$lang['You are not allowed to delete tags'] = "Du har ikke tillatelse til å slette merknader";

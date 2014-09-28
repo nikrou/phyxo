@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Nederlands [NL]
-Version: 2.6.0
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=429
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -434,3 +434,9 @@ $lang['Apply on properties'] = 'Toepassen op eigenschappen';
 $lang['Link: %s'] = 'Link: %s';
 $lang['Photo description'] = 'Fotobeschrijving';
 $lang['Photo title'] = 'Fototitel';
+
+$lang['Tags updated'] = "Labels bijgewerkt";
+$lang['Update tags'] = "Labels bijwerken";
+$lang['You are not allowed to add nor delete tags'] = "U mag geel labels toevoegen of verwijderen";
+$lang['You are not allowed to add tags'] = "U mag geen labels toevoegen";
+$lang['You are not allowed to delete tags'] = "U mag geen labels verwijderen";

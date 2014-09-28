@@ -240,53 +240,50 @@ function load_plugin($plugin) {
  * @param array &$plugin (id, version, state) will be updated if version changes
  */
 function autoupdate_plugin(&$plugin) {
-    $maintain_file = PHPWG_PLUGINS_PATH.$plugin['id'].'/maintain.class.php';
+    // try to find the filesystem version in lines 2 to 10 of main.inc.php
+    $fh = fopen(PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php', 'r');
+    $fs_version = null;
+    $i = -1;
 
-    // autoupdate is applicable only to plugins with 2.7 architecture
-    if (file_exists($maintain_file)) {
-        // try to find the filesystem version in lines 2 to 10 of main.inc.php
-        $fh = fopen(PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php', 'r');
-        $fs_version = null;
-        $i = -1;
-
-        while (($line = fgets($fh))!==false && $fs_version==null && $i<10) {
-            $i++;
-            if ($i < 2) continue; // first lines are typically "<?php" and "/*"
-
-            if (preg_match('/Version:\\s*([\\w.-]+)/', $line, $matches)) {
-                $fs_version = $matches[1];
-            }
+    while (($line = fgets($fh))!==false && $fs_version==null && $i<10) {
+        $i++;
+        if ($i < 2) {
+            continue; // first lines are typically "<?php" and "/*"
         }
 
-        fclose($fh);
-
-        if ($fs_version != null) {
-            global $pwg_loaded_plugins, $page;
-
-            // if version is auto (dev) or superior
-            if (
-                $fs_version == 'auto' or $plugin['version'] == 'auto'
-                or safe_version_compare($plugin['version'], $fs_version, '<')
-            ) {
-                // call update method
-                include_once($maintain_file);
-
-                $classname = $plugin['id'].'_maintain';
-                $plugin_maintain = new $classname($plugin['id']);
-                $plugin_maintain->update($plugin['version'], $fs_version, $page['errors']);
-
-                $plugin['version'] = $fs_version;
-
-                // update database (only on production)
-                if ($plugin['version'] != 'auto') {
-                    $query = 'UPDATE '. PLUGINS_TABLE;
-                    $query .= ' SET version = \''. $plugin['version'] .'\' WHERE id = \''. $plugin['id'] .'\';';
-                    pwg_query($query);
-                }
-            }
+        if (preg_match('/Version:\\s*([\\w.-]+)/', $line, $matches)) {
+            $fs_version = $matches[1];
         }
     }
-    trigger_notify('plugins_loaded');
+    fclose($fh);
+
+    // if version is auto (dev) or superior
+    if ($fs_version != null && (
+        $fs_version == 'auto' || $plugin['version'] == 'auto' ||
+        safe_version_compare($plugin['version'], $fs_version, '<'))) {
+        $plugin['version'] = $fs_version;
+
+        $maintain_file = PHPWG_PLUGINS_PATH.$plugin['id'].'/maintain.class.php';
+
+        // autoupdate is applicable only to plugins with 2.7 architecture
+        if (file_exists($maintain_file)) {
+            global $page;
+
+            // call update method
+            include_once($maintain_file);
+
+            $classname = $plugin['id'].'_maintain';
+            $plugin_maintain = new $classname($plugin['id']);
+            $plugin_maintain->update($plugin['version'], $fs_version, $page['errors']);
+        }
+
+        // update database (only on production)
+        if ($plugin['version'] != 'auto') {
+            $query = 'UPDATE '. PLUGINS_TABLE .' SET version = \''. $plugin['version'] .'\'';
+            $query .= ' WHERE id = \''. $plugin['id'] .'\'';
+            pwg_query($query);
+        }
+    }
 }
 
 /**

@@ -984,3 +984,7 @@ $lang['based on'] = 'na základe';
 $lang['The settings for the guest are from the %s user'] = 'Nastavenia pre hostí sú z %s používateľa';
 $lang['No and unlock sub-albums'] = 'Nie a odomknúť pod-albumy';
 $lang['Upload in progress'] = 'Prebieha nahrávanie';
+
+$lang['Who can add tags?'] = "Kto môže pridávať kľúčového slova?";
+$lang['Who can delete related tags?'] = "Kto môže mazať kľúčového slova?";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Buďte opatrný, čokoľvek zmeníte v konfigurácii, nové kľúčové slovo bude vždy vymazané";

@@ -980,3 +980,7 @@ $lang['between %s and %s MB'] = 'Entre %s e %s MB';
 $lang['date & time'] = 'Data e hora';
 $lang['file name'] = 'Nome do arquivo';
 $lang['width & height'] = 'Largura & altura';
+
+$lang['Who can add tags?'] = "Quem pode adicionar etiquetas";
+$lang['Who can delete related tags?'] = "Quem pode apagar as ditas etiquetas";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Tenha cuidado, qualquer que seja o valor de configurado,a nova etiqueta pode ser apagada.";

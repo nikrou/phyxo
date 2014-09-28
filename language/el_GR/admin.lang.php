@@ -986,3 +986,7 @@ $lang['based on'] = 'βασισμένο σε';
 $lang['The settings for the guest are from the %s user'] = 'Οι ρυθμίσεις για τους επισκέπτες είναι από το χρήστη %s';
 $lang['No and unlock sub-albums'] = 'Όχι και ξεκλείδωμα υπο-λευκώματα';
 $lang['Upload in progress'] = 'Μεταφόρτωση σε εξέλιξη ';
+
+$lang['Who can add tags?'] = "Ποιος μπορεί να προσθέσει ετικέτες;";
+$lang['Who can delete related tags?'] = "Ποιος μπορεί να διαγράψει σχετικές ετικέτες;";
+$lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Να είστε προσεκτικοί, ανεξάρτητα από την τιμή στη διαμόρφωση, νέα ετικέτα μπορεί να διαγραφεί ούτως ή άλλως";

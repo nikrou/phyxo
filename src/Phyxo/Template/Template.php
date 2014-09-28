@@ -345,7 +345,7 @@ class Template
      * @param mixed $value
      */
     public function assign($tpl_var, $value=null) {
-        $this->smarty->assign( $tpl_var, $value );
+        $this->smarty->assign($tpl_var, $value );
     }
 
     /**
@@ -372,7 +372,7 @@ class Template
      * @param bool $merge
      */
     public function append($tpl_var, $value=null, $merge=false) {
-        $this->smarty->append( $tpl_var, $value, $merge );
+        $this->smarty->append($tpl_var, $value, $merge );
     }
 
     /**
@@ -382,8 +382,7 @@ class Template
      * @param string $value
      */
     public function concat($tpl_var, $value) {
-        $this->assign($tpl_var,
-        $this->smarty->getTemplateVars($tpl_var) . $value);
+        $this->assign($tpl_var, $this->smarty->getTemplateVars($tpl_var) . $value);
     }
 
     /**
@@ -421,7 +420,7 @@ class Template
             fatal_error("Template->parse(): Couldn't load template file for handle $handle");
         }
 
-        $this->smarty->assign( 'ROOT_URL', get_root_url() );
+        $this->smarty->assign('ROOT_URL', get_root_url() );
 
         $save_compile_id = $this->smarty->compile_id;
         $this->load_external_filters($handle);
@@ -679,7 +678,7 @@ class Template
         !empty($params['name']) or fatal_error('define_derivative missing name');
         if (isset($params['type'])) {
             $derivative = ImageStdParams::get_by_type($params['type']);
-            $smarty->assign( $params['name'], $derivative);
+            $smarty->assign($params['name'], $derivative);
             return;
         }
         !empty($params['width']) or fatal_error('define_derivative missing width');
@@ -706,7 +705,7 @@ class Template
             }
             }
 
-        $smarty->assign( $params['name'], ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
+        $smarty->assign($params['name'], ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
     }
 
     /**

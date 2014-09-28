@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Polski [PL]
-Version: 2.6.1
+Version: 2.7.0
 Language URI: http://piwigo.org/ext/extension_view.php?eid=430
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -446,3 +446,12 @@ $lang['No results for'] = 'Brak wyników dla';
 $lang['Apply on properties'] = 'Akceptuj ustawienia';
 $lang['Photo description'] = 'Opis zdjęcia';
 $lang['Photo title'] = 'Tytuł zdjęcia';
+$lang['Album name, A &rarr; Z'] = 'Nazwa albumu, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nazwa albumu, Z &rarr; A';
+$lang['Link: %s'] = 'Link: %s';
+
+$lang['Tags updated'] = "Tagi zaktualizowane";
+$lang['Update tags'] = "Aktualizuj tagi";
+$lang['You are not allowed to add nor delete tags'] = "Nie masz uprawnień do dodawania, ani usuwania tagów";
+$lang['You are not allowed to add tags'] = "Nie masz uprawnień do dodawania tagów";
+$lang['You are not allowed to delete tags'] = "Nie masz uprawnień do usuwania tagów";
