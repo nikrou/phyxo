@@ -1,4 +1,4 @@
-Phyxo 1.2.0 - 2014-MM-DD
+Phyxo 1.2.0 - 2014-09-28
 ========================
 * Add javascript tests using [Jasmine](http://jasmine.github.io/)
 * Add php unit tests using [Atoum](http://atoum.org/)
@@ -13,6 +13,7 @@ Phyxo 1.2.0 - 2014-MM-DD
 * user_tags plugin will have its own repository
 * Use sql-formatter to display queries
 * Add jquery-migrate to show warning for old jquery syntax.
+* Allow visitors to add/remove tags to photos
 
 Phyxo 1.1.0 - 2014-07-11
 ========================

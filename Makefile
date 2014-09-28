@@ -13,8 +13,11 @@ dist: config dist-tgz dist-zip
 
 config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
-	cp -pr *.php admin doc include install language vendor \
+	cp -pr *.php admin doc include install language \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
+	cp -p composer.* $(DIST)/$(APP_NAME)/
+	composer install --no-dev -d $(DIST)/$(APP_NAME)
+	rm $(DIST)/$(APP_NAME)/composer.*
 
 	# empty dirs
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload \
@@ -30,8 +33,7 @@ config: clean
 		themes/Sylvia $(DIST)/$(APP_NAME)/themes/
 
 	cp -pr plugins/LocalFilesEditor \
-		plugins/language_switch \
-		plugins/user_tags $(DIST)/$(APP_NAME)/plugins/
+		plugins/language_switch $(DIST)/$(APP_NAME)/plugins/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
