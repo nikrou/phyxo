@@ -1,0 +1,14 @@
+.js-hidden {
+  display: none;
+}
+
+.edit-tags {
+  background: transparent url(icon/edit.png) no-repeat left top;
+  cursor: pointer;
+  padding-left: 20px;
+}
+
+/* @TODO: simplify; no id */
+#imageInfos .imageInfo .edit-tags {
+  padding-left: 20px;
+}

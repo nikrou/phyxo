@@ -84,7 +84,7 @@ function ilog() {
             $line .= $arg;
         }
     }
-	$file=PHPWG_ROOT_PATH.$conf['data_location'].'tmp/i.log';
+	$file = PHPWG_ROOT_PATH.$conf['data_location'].'tmp/i.log';
     if (false == file_put_contents($file, $line."\n", FILE_APPEND)) {
 		mkgetdir(dirname($file));
 	}
@@ -542,48 +542,12 @@ $timing['save'] = time_step($step);
 send_derivative($expires);
 $timing['send'] = time_step($step);
 
-ilog('perf',
-  basename($page['src_path']), $o_size, $o_size[0]*$o_size[1],
-  basename($page['derivative_path']), $d_size, $d_size[0]*$d_size[1],
-  function_exists('memory_get_peak_usage') ? round( memory_get_peak_usage()/(1024*1024), 1) : '',
-  time_step($begin),
-  '|', $timing);
-
-
-// @TODO : find a better way to make i.php do his job; avoid duplication
-
-/**
- * Add or update a config parameter
- *
- * @param string $param
- * @param string $value
- * @param boolean $updateGlobal update global *$conf* variable
- * @param callable $parser function to apply to the value before save in database
-      (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
- */
-function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
-    if ($parser != null) {
-        $dbValue = call_user_func($parser, $value);
-    } elseif (is_array($value) || is_object($value)) {
-        $dbValue = addslashes(serialize($value));
-    } else {
-        $dbValue = boolean_to_string($value);
-    }
-
-    $query = 'SELECT param FROM '.CONFIG_TABLE;
-    $query .= ' WHERE param = \''.$param.'\';';
-    $params = query2array($query, null, 'param');
-
-    if (count($params) == 0) {
-        $query = 'INSERT INTO '.CONFIG_TABLE.' (param, value) VALUES(\''.$param.'\', \''.$value.'\');';
-        pwg_query($query);
-    } else {
-        $query = 'UPDATE '.CONFIG_TABLE.' SET value = \''.$value.'\' WHERE param = \''.$param.'\';';
-        pwg_query($query);
-    }
-
-    if ($updateGlobal) {
-        global $conf;
-        $conf[$param] = $value;
-    }
-}
+ilog(
+    'perf',
+    basename($page['src_path']), $o_size, $o_size[0]*$o_size[1],
+    basename($page['derivative_path']), $d_size, $d_size[0]*$d_size[1],
+    function_exists('memory_get_peak_usage') ? round( memory_get_peak_usage()/(1024*1024), 1) : '',
+    time_step($begin),
+    '|',
+    $timing
+);

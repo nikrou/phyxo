@@ -1,6 +1,7 @@
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
 {combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 {combine_script id='core.switchbox' load='async' require='jquery' path='themes/default/js/switchbox.js'}
+{combine_css id='picture.tags' path="themes/default/picture_tags.css"}
 {combine_script id='picture.tags' load='async' require='jquery' path='themes/default/js/picture_tags.js'}
 
 {footer_script require="picture.tags"}
@@ -200,10 +201,12 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 	{/if}
 	{if $display_info.tags}
 	<div id="Tags" class="imageInfo">
-	  <dt>{'Tags'|translate}</dt>
+	  <dt{if $TAGS_PERMISSION_ADD} class="edit-tags"{/if}>{'Tags'|translate}</dt>
 	  <dd>
+	    {foreach $related_tags as $tag}<a href="{$tag.URL}">{$tag.name}</a>{if !$tag@last},{/if}{/foreach}
+
 	    {if $TAGS_PERMISSION_ADD}
-	    <form action="{$USER_TAGS_UPDATE_SCRIPT}" method="post" id="user-tags-form">
+	    <form action="{$USER_TAGS_UPDATE_SCRIPT}" method="post" id="user-tags-form" class="js-hidden">
 	      <select name="user_tags[]" id="user-tags" multiple="multiple">
 		{foreach $related_tags as $tag}
 		<option value="~~{$tag.id}~~" selected="selected">{$tag.name}</option>
@@ -212,8 +215,6 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 	      <input type="hidden" name="image_id" value="{$current.id}">
 	      <input id="user-tags-update" type="submit" value="{'Update tags'|translate}">
 	    </form>
-	    {else}
-	    {foreach $related_tags as $tag}{$tag.name}{if !$tag@last},{/if}{/foreach}
 	    {/if}
 	  </dd>
 	</div>

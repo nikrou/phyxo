@@ -329,7 +329,7 @@ define(\'DB_COLLATE\', \'\');';
          */
         $themes = new Themes($conn);
         foreach ($themes->fs_themes as $theme_id => $fs_theme) {
-            if (in_array($theme_id, array('elegant', 'smartpocket'))) {
+            if ($theme_id == 'elegant') {
                 $themes->perform_action('activate', $theme_id);
             }
         }

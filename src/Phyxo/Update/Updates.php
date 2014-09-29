@@ -43,7 +43,7 @@ class Updates
         if (in_array($page, $this->types)) {
             $this->types = array($page);
         }
-        $this->default_themes = array('clear', 'dark', 'Sylvia', 'elegant', 'smartpocket');
+        $this->default_themes = array('clear', 'dark', 'Sylvia', 'elegant');
         $this->default_plugins = array('language_switch', 'LocalFilesEditor');
 
         $this->themes = new Themes($conn);

@@ -87,8 +87,7 @@ class BlockManager
         $conf_id = 'blk_'.$this->id;
         $mb_conf = isset($conf[$conf_id]) ? $conf[$conf_id] : array();
         if (!is_array($mb_conf)) {
-            // @TODO: remove serialize/unserialize
-            $mb_conf = @unserialize($mb_conf);
+            $mb_conf = json_decode($mb_conf, true);
         }
 
         $idx = 1;

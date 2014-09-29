@@ -19,6 +19,10 @@ config: clean
 	composer install --no-dev -d $(DIST)/$(APP_NAME)
 	rm $(DIST)/$(APP_NAME)/composer.*
 
+	# remove doc and useless stuff
+	rm -fr $(DIST)/vendor/smarty/smarty/development \
+		$(DIST)/vendor/smarty/smarty/documentation
+
 	# empty dirs
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload \
 	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config \
@@ -29,7 +33,6 @@ config: clean
 		themes/dark \
 		themes/default \
 		themes/elegant \
-		themes/smartpocket \
 		themes/Sylvia $(DIST)/$(APP_NAME)/themes/
 
 	cp -pr plugins/LocalFilesEditor \

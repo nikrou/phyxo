@@ -428,10 +428,7 @@ case 'param': {
             if (isset($_POST[$nbm_user['param']])) {
                 $value = $_POST[$nbm_user['param']];
 
-                $query = 'UPDATE '.CONFIG_TABLE;
-                $query .= ' SET value = \''. str_replace("\'", "''", $value).'\'';
-                $query .= ' WHERE param = \''.$nbm_user['param'].'\';';
-                pwg_query($query);
+                conf_update_param($nbm_user['param'], $value);
                 $updated_param_count += 1;
             }
         }

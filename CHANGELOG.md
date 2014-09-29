@@ -1,3 +1,8 @@
+Phyxo 1.3.0 - 2014-MM-DD
+========================
+* Fix issue in menu mangement
+* ...
+
 Phyxo 1.2.0 - 2014-09-28
 ========================
 * Add javascript tests using [Jasmine](http://jasmine.github.io/)

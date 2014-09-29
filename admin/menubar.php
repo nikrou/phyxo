@@ -45,14 +45,15 @@ $menu = new BlockManager('menubar');
 $menu->load_registered_blocks();
 $reg_blocks = $menu->get_registered_blocks();
 
-$mb_conf = $conf[ 'blk_'.$menu->get_id() ];
+$mb_conf = $conf['blk_'.$menu->get_id()];
 if (is_string($mb_conf)) {
-    $mb_conf = json_decode($mb_conf);
+    $mb_conf = json_decode($mb_conf, true);
 }
 
 if (!is_array($mb_conf)) {
-  $mb_conf=array();
+    $mb_conf = array();
 }
+
 
 foreach ($mb_conf as $id => $pos) {
     if (!isset($reg_blocks[$id])) {
@@ -62,9 +63,7 @@ foreach ($mb_conf as $id => $pos) {
 
 if (isset($_POST['reset'])) {
     $mb_conf = array();
-    // @TODO: use conf_update_param function
-    $query = 'UPDATE '.CONFIG_TABLE.' SET value=\'\' WHERE param=\'blk_'.pwg_db_real_escape_string($menu->get_id()).'\'  LIMIT 1';
-    pwg_query($query);
+    conf_update_param('blk_'.$menu->get_id(), '');
 }
 
 $idx=1;
@@ -89,9 +88,7 @@ if (isset($_POST['submit'])) {
     make_consecutive( $mb_conf );
 
     $mb_conf_db = $mb_conf;
-    $query = 'UPDATE '.CONFIG_TABLE.'  SET value=\''.pwg_db_real_escape_string(json_encode($mb_conf_db)).'\'';
-    $query .= ' WHERE param=\'blk_'.pwg_db_real_escape_string($menu->get_id()).'\'';
-    pwg_query($query);
+    conf_update_param('blk_'.$menu->get_id(), json_encode($mb_conf_db));
 
     $page['infos'][] = l10n('Order of menubar items has been updated successfully.');
 }

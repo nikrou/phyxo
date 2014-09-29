@@ -80,6 +80,24 @@ class DBLayer
     }
 
     /**
+     * return an IN clause where @params are escaped
+     */
+    public function in($params) {
+        if (empty($params)) {
+            return '';
+        }
+        if (!is_array($params)) {
+            $params = array($params);
+        }
+
+        foreach ($params as &$param) {
+            $param = $this->db_real_escape_string($param);
+        }
+
+        return ' IN(\''. implode('\',\'', $params) .'\') ';
+    }
+
+    /**
      * Builds an data array from a SQL query.
      * Depending on $key_name and $value_name it can return :
      *

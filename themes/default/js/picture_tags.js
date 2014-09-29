@@ -9,7 +9,6 @@
 		});
 	};
 
-
 	var changeSubmitStatus = function changeSubmitStatus(status) {
 		if (status=='disabled') {
 			$('#user-tags-update')
@@ -44,6 +43,10 @@
 	$.user_tags_target = $('#user-tags');
 	$.user_tags_target.after('<div class="flash-messages" style="position: absolute;"></div>');
 	changeSubmitStatus('disabled');
+
+	$('.edit-tags').click(function() {
+		$.user_tags_target.parent().toggleClass('js-hidden');
+	});
 
 	$(function() {
 		var selectize_options = {

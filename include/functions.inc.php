@@ -1050,7 +1050,7 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
  * @param string|string[] $params
  */
 function conf_delete_param($params) {
-    global $conf;
+    global $conf, $conn;
 
     if (!is_array($params)) {
         $params = array($params);
@@ -1059,8 +1059,8 @@ function conf_delete_param($params) {
         return;
     }
 
-    // @TODO : filter IN sql
-    $query = 'DELETE FROM '.CONFIG_TABLE.' WHERE param IN(\''. implode('\',\'', $params) .'\');';
+    $query = 'DELETE FROM '.CONFIG_TABLE;
+    $query .= ' WHERE param '.$conn->in($params);
     pwg_query($query);
 
     foreach ($params as $param) {

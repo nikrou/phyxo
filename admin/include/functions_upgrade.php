@@ -105,7 +105,6 @@ function deactivate_non_standard_themes() {
         'Sylvia',
         'dark',
         'elegant',
-        'smartpocket',
     );
 
     $query = 'SELECT id,name  FROM '.PREFIX_TABLE.'themes';

@@ -213,7 +213,7 @@ function initialize_menu() {
     }
 
     #---------------------------------------------------------------------- summary
-    if (($block=$menu->get_block('mbMenu')) != null) {
+    if (($block = $menu->get_block('mbMenu')) != null) {
         // quick search block will be displayed only if data['qsearch'] is set
         // to "yes"
         $block->data['qsearch']=true;
