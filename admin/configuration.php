@@ -416,7 +416,7 @@ case 'sizes': {
 
         // derivatives = multiple size
         $enabled = ImageStdParams::get_defined_type_map();
-        $disabled = @unserialize(@$conf['disabled_derivatives']);
+        $disabled = @unserialize(@$conf['disabled_derivatives']); // @TODO: remove arobase and unserialize
         if ($disabled === false) {
             $disabled = array();
         }

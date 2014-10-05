@@ -31,13 +31,12 @@ if (!isset($conf['elegant'])) {
 
     conf_update_param('elegant', json_encode($config));
     load_conf_from_db();
-} elseif (count(unserialize( $conf['elegant'] ))!=3) {
-    $conff= json_decode($conf['elegant'], true);
+} elseif (count($conff = json_decode($conf['elegant'], true))!=3) {
     $config = array(
         'p_main_menu' => (isset($conff['p_main_menu'])) ? $conff['p_main_menu'] :'on',
         'p_pict_descr' => (isset($conff['p_pict_descr'])) ? $conff['p_pict_descr'] :'on',
         'p_pict_comment' => (isset($conff['p_pict_comment'])) ? $conff['p_pict_comment'] :'off',
     );
-    conf_update_param('elegant', json_decode($config));
+    conf_update_param('elegant', json_encode($config));
     load_conf_from_db();
 }
