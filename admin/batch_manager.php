@@ -249,7 +249,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
 
         case 'no_album':
             $query = 'SELECT id FROM '.IMAGES_TABLE;
-            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id':
+            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
             $query .= ' WHERE category_id is null';
             $filter_sets[] = query2array($query, null, 'id');
             break;

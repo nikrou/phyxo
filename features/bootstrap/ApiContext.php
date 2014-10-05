@@ -24,6 +24,7 @@ use Behat\Gherkin\Node\PyStringNode;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Post\PostFile;
 
 use mageekguy\atoum\asserter as Atoum;
 
@@ -136,6 +137,8 @@ class GuzzleApiContext extends BehatContext
                         'pwg_token',
                         $this->getMainContext()->getSubcontext('db')->get_pwg_token($this->getSessionId())
                     );
+                } elseif (preg_match('`FILE:(.*)$`', $key, $matches)) {
+                    $body->addFile(new PostFile($matches[1], fopen($val, 'r')));
                 } else {
                     if (preg_match('`\[(.*)]`', $val, $matches)) {
                         $val = array_map('trim', explode(',',  $matches[1]));
@@ -193,6 +196,13 @@ class GuzzleApiContext extends BehatContext
      */
     public function theResponseHasPropertyEqualsTo($property, $value) {
         $data = $this->getJson();
+        $value = preg_replace_callback(
+            '`SAVED:([a-zA-z_-]*)`',
+            function($matches) {
+                return $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+            },
+            $value
+        );
 
         $this->assert
             ->variable($this->getProperty($data, $property))
