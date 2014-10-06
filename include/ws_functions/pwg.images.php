@@ -400,7 +400,7 @@ function ws_images_getInfo($params, $service) {
 		$rating['count'] = (int)$row['count'];
 	}
 
-  //---------------------------------------------------------- related comments
+    //---------------------------------------------------------- related comments
     $related_comments = array();
 
     $where_comments = 'image_id = '.$image_row['id'];
@@ -1438,6 +1438,7 @@ function ws_images_delete($params, $service) {
         return new PwgError(403, 'Invalid security token');
     }
 
+    // @TODO: simplify !!!
     if (!is_array($params['image_id'])) {
         $params['image_id'] = preg_split(
             '/[\s,;\|]/',
@@ -1456,8 +1457,10 @@ function ws_images_delete($params, $service) {
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-    delete_elements($image_ids, true);
+    $number_of_elements_deleted = delete_elements($image_ids, true);
     invalidate_user_cache();
+
+    return $number_of_elements_deleted;
 }
 
 /**

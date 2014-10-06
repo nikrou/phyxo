@@ -197,6 +197,7 @@ function delete_elements($ids, $physical_deletion=false) {
         }
     }
 
+    // @TODO: why wordwrap ???
     $ids_str = wordwrap(implode(', ', $ids), 80, "\n");
 
     // destruction of the comments on the image
@@ -328,7 +329,7 @@ function update_category($ids='all') {
         if (count($ids) == 0) {
             return false;
         }
-        $where_cats = '%s IN('.wordwrap(implode(', ', $ids), 120, "\n").')';
+        $where_cats = '%s IN('.wordwrap(implode(', ', $ids), 120, "\n").')'; // @TODO: why wordwrap ???
     }
 
     // find all categories where the setted representative is not possible :
@@ -367,8 +368,8 @@ function update_category($ids='all') {
  * Removes all entries from the table which correspond to a deleted image.
  */
 function images_integrity() {
-    $query = 'SELECT image_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' LEFT JOIN '.IMAGES_TABLE.' ON id = image_id WHERE id IS NULL;';
+    $query = 'SELECT image_id FROM '.IMAGES_TABLE;
+    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id WHERE id IS NULL;';
     $result = pwg_query($query);
     $orphan_image_ids = query2array($query, null, 'image_id');
 
@@ -458,7 +459,7 @@ function update_global_rank() {
 
     // use function()
     $cat_map_callback = function($m) use ($cat_map) {
-        return $cat_map[$m[1]]["rank"];
+        return $cat_map[$m[1]]['rank'];
     };
 
     foreach ($cat_map as $id=>$cat) {
@@ -512,7 +513,7 @@ function set_cat_visible($categories, $value, $unlock_child = false) {
         }
 
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET visible = \'true\' WHERE id IN ('.implode(',', $cats).')';
+        $query .= ' SET visible = \'true\' WHERE id IN ('.implode(',', $cats).')'; // @TODO: use filtered IN()
         pwg_query($query);
     } else { // locking a category   => all its child categories become locked
         $subcats = get_subcat_ids($categories);
@@ -620,7 +621,7 @@ function set_cat_status($categories, $value) {
 
         if (count($parent_ids) > 0) {
             $query = 'SELECT id,status FROM '.CATEGORIES_TABLE;
-            $query .= ' WHERE id IN ('.implode(',', $parent_ids).');';
+            $query .= ' WHERE id IN ('.implode(',', $parent_ids).');'; // @TODO: use filtered IN()
             $parent_cats= query2array($query, 'id');
         }
 
@@ -1463,7 +1464,7 @@ function get_user_access_level_html_options($MinLevelAccess=ACCESS_FREE, $MaxLev
  */
 function create_tag($tag_name) {
     // does the tag already exists?
-    $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$tag_name.'\';';
+    $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.pwg_db_real_escape_string($tag_name).'\';';
     $existing_tags = query2array($query, null, 'id');
 
     if (count($existing_tags) == 0) {
@@ -1478,11 +1479,11 @@ function create_tag($tag_name) {
         $inserted_id = pwg_db_insert_id(TAGS_TABLE);
 
         return array(
-            'info' => l10n('Tag "%s" was added', stripslashes($tag_name)),
+            'info' => l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
             'id' => $inserted_id,
         );
     } else {
-        return array('error' => l10n('Tag "%s" already exists', stripslashes($tag_name)));
+        return array('error' => l10n('Tag "%s" already exists', stripslashes($tag_name))); // @TODO: remove stripslashes
     }
 }
 
@@ -2019,8 +2020,8 @@ function delete_element_derivatives($infos, $type='all') {
     }
     $path = substr_replace($path, $pattern, $dot, 0);
     if (($glob=glob(PHPWG_ROOT_PATH.PWG_DERIVATIVE_DIR.$path)) !== false) {
-        foreach( $glob as $file) {
-            @unlink($file);
+        foreach($glob as $file) {
+            unlink($file);
         }
     }
 }

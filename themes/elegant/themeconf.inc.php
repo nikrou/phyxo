@@ -26,5 +26,5 @@ add_event_handler('init', 'set_config_values_elegant');
 function set_config_values_elegant() {
   global $conf, $template;
 
-  $template->assign('elegant', json_decode($config['elegant'], true));
+  $template->assign('elegant', json_decode($conf['elegant'], true));
 }

@@ -30,13 +30,17 @@ class DbContext extends RawMinkContext
     private $response_params = array();
     private $last_id;
 
+    public function __construct(array $parameters) {
+        $this->parameters = $parameters;
+    }
+
     /**
      * @Given /^a user:$/
      * @Given /^some users:$/
      */
     public function aUser(TableNode $table) {
         foreach ($table->getHash() as $user) {
-            $this->last_id = self::addUser($user);
+            $this->last_id = $this->addUser($user);
         }
     }
 
@@ -46,9 +50,9 @@ class DbContext extends RawMinkContext
      */
     public function images(TableNode $table) {
         foreach ($table->getHash() as $image) {
-            $this->last_id = self::addImage($image);
+            $this->last_id = $this->addImage($image);
             if (!empty($image['tags'])) {
-                self::addTags($image['tags'], $this->last_id);
+                $this->addTags($image['tags'], $this->last_id);
             }
         }
     }
@@ -59,7 +63,7 @@ class DbContext extends RawMinkContext
      */
     public function albums(TableNode $table) {
         foreach ($table->getHash() as $album) {
-            $this->last_id = self::addAlbum($album);
+            $this->last_id = $this->addAlbum($album);
         }
     }
 
@@ -68,15 +72,22 @@ class DbContext extends RawMinkContext
      */
     public function tags(TableNode $table) {
         foreach ($table->getHash() as $tag) {
-            $this->last_id = self::addTag($tag['name']);
+            $this->last_id = $this->addTag($tag['name']);
         }
     }
 
     /**
      * @Then /^save "([^"]*)"$/
      */
-    public function save($id) {
+    public function save($id, $value='') {
         $this->response_params[$id] = $this->last_id;
+    }
+
+    /**
+     * @Then /^save "([^"]*)" from property "([^"]*)"$/
+     */
+    public function saveFromProperty($id, $property) {
+        $this->response_params[$id] = $this->getMainContext()->getSubcontext('api')->theResponseHasProperty($property);
     }
 
     public function getSaved($id) {
@@ -91,21 +102,21 @@ class DbContext extends RawMinkContext
      * @Given /^a comment "([^"]*)" on "([^"]*)" by "([^"]*)"$/
      */
     public function aCommentOnBy($comment, $image_name, $username) {
-        self::addComment($comment, $image_name, $username);
+        $this->addComment($comment, $image_name, $username);
     }
 
     /**
      * @Given /^"([^"]*)" can access "([^"]*)"$/
      */
     public function canAccess($username, $album_name) {
-        self::manageAccess($username, $album_name);
+        $this->manageAccess($username, $album_name);
     }
 
     /**
      * @Given /^"([^"]*)" cannot access "([^"]*)"$/
      */
     public function cannotAccess($username, $album_name) {
-        self::manageAccess($username, $album_name, $remove=true);
+        $this->manageAccess($username, $album_name, $remove=true);
     }
 
 
@@ -208,7 +219,7 @@ class DbContext extends RawMinkContext
     /**
      * @AfterScenario
      */
-    public static function cleanDB(ScenarioEvent $event) {
+    public function cleanDB(ScenarioEvent $event) {
         $parameters = $event->getContext()->parameters;
 
         if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
@@ -254,7 +265,7 @@ class DbContext extends RawMinkContext
     }
 
     /* ORM methods */
-    private static function addUser(array $params) {
+    private function addUser(array $params) {
         if (empty($params['username']) || empty($params['password'])) {
             throw new Exception('Username and Password for user are mandatory'."\n");
         }
@@ -292,7 +303,7 @@ class DbContext extends RawMinkContext
         return $user->id;
     }
 
-    private static function addImage(array $params) {
+    private function addImage(array $params) {
         if (empty($params['album']) || empty($params['name'])) {
             throw new Exception('Album name and image name are mandatory'."\n");
         }
@@ -316,7 +327,7 @@ class DbContext extends RawMinkContext
         $image->file = basename($params['file']);
 
         $now = new DateTime('now');
-        $upload_dir = './upload/'.$now->format('Y/m/d');
+        $upload_dir = $this->parameters['upload_dir'].$now->format('Y/m/d');
         $path = $upload_dir . sprintf('/%s-%s.png', $now->format('YmdHis'), substr($md5sum, 0, 8));
 
         $image->path = $path;
@@ -348,7 +359,7 @@ class DbContext extends RawMinkContext
         return $image->id;
     }
 
-    private static function addAlbum(array $params) {
+    private function addAlbum(array $params) {
         if (empty($params['name'])) {
             throw new Exception('Album name is mandatory'."\n");
         }
@@ -382,7 +393,7 @@ class DbContext extends RawMinkContext
     }
 
 
-    private static function manageAccess($username, $album_name, $remove=false) {
+    private function manageAccess($username, $album_name, $remove=false) {
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
@@ -449,7 +460,7 @@ class DbContext extends RawMinkContext
         return $comment->id;
     }
 
-    private static function addTag($tag_name) {
+    private function addTag($tag_name) {
         if (!defined('PHPWG_ROOT_PATH')) {
             define('PHPWG_ROOT_PATH', __DIR__.'/../../');
         }
@@ -486,7 +497,7 @@ class DbContext extends RawMinkContext
         }
 
         foreach ($tags as $tag_name) {
-            $tag_id = self::addTag($tag_name);
+            $tag_id = $this->addTag($tag_name);
             $image_tag = ORM::for_table(self::$prefix.'image_tag')
                 ->where('tag_id', $tag_id)
                 ->where('image_id', $image_id)

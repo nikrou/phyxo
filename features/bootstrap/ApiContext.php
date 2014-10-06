@@ -128,6 +128,7 @@ class GuzzleApiContext extends BehatContext
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
                     $value = $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+
                     if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
                         $value = '~~'.$value.'~~';
                     }
@@ -187,12 +188,12 @@ class GuzzleApiContext extends BehatContext
     public function theResponseHasProperty($property) {
         $data = $this->getJson();
 
-        $value = $this->getProperty($data, $property);
+        return $this->getProperty($data, $property);
     }
-
 
     /**
      * @Given /^the response has property "([^"]*)" equals to "([^"]*)"$/
+     * @Given /^the response has property "([^"]*)" equals to '([^']*)'$/
      */
     public function theResponseHasPropertyEqualsTo($property, $value) {
         $data = $this->getJson();
@@ -226,10 +227,14 @@ class GuzzleApiContext extends BehatContext
             $data;
             $n = 0;
             while ($n<count($parts)) {
-                if (!isset($data[$parts[$n]])) {
-                    throw new Exception("Complex property '".$property."' is not set!\n");
+                if (is_null($data[$parts[$n]]) && ($n+1)==count($parts)) {
+                    $data = '';
+                } else {
+                    if (!isset($data[$parts[$n]])) {
+                        throw new Exception("Complex property '".$property."' is not set!\n");
+                    }
+                    $data = $data[$parts[$n]];
                 }
-                $data = $data[$parts[$n]];
                 $n++;
             }
             return $data;
