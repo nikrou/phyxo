@@ -198,7 +198,7 @@ class GuzzleApiContext extends BehatContext
     public function theResponseHasPropertyEqualsTo($property, $value) {
         $data = $this->getJson();
         $value = preg_replace_callback(
-            '`SAVED:([a-zA-z_-]*)`',
+            '`SAVED:([a-zA-Z0-9_-]*)`',
             function($matches) {
                 return $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
             },

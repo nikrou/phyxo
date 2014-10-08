@@ -293,7 +293,7 @@ function mass_updates($tablename, $dbfields, $datas, $flags=0) {
     $conn->mass_updates($tablename, $dbfields, $datas, $flags);
 }
 
-function mass_inserts($table_name, $dbfields, $datas) {
+function mass_inserts($table_name, $dbfields, $datas, $options=array()) {
     global $conn;
 
     $conn->mass_inserts($table_name, $dbfields, $datas);

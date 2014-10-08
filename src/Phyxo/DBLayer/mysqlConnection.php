@@ -332,6 +332,63 @@ class mysqlConnection extends DBLayer implements iDBLayer
     }
 
     /**
+     * inserts multiple lines in a table
+     *
+     * @param string table_name
+     * @param array dbfields
+     * @param array inserts
+     * @return void
+     */
+    function mass_inserts($table_name, $dbfields, $datas, $options=array()) {
+        $ignore = '';
+        if (isset($options['ignore']) and $options['ignore']) {
+            $ignore = 'IGNORE';
+        }
+
+        if (count($datas) != 0) {
+            $first = true;
+
+            $packet_size = $this->getMaxAllowedPacket();
+            $packet_size = $packet_size - 2000; // The last list of values MUST not exceed 2000 character*/
+            $query = '';
+
+            foreach ($datas as $insert) {
+                if (strlen($query) >= $packet_size) {
+                    $this->db_query($query);
+                    $first = true;
+                }
+
+                if ($first) {
+                    $query = 'INSERT '.$ignore.' INTO '.$table_name.' ('.implode(',', $dbfields).') VALUES';
+                    $first = false;
+                } else {
+                    $query .= ', ';
+                }
+
+                $query .= '(';
+                foreach ($dbfields as $field_id => $dbfield) {
+                    if ($field_id > 0) {
+                        $query .= ',';
+                    }
+
+                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                        $query .= 'NULL';
+                    } else {
+                        $query .= "'".$insert[$dbfield]."'";
+                    }
+                }
+                $query .= ')';
+            }
+            $this->db_query($query);
+        }
+    }
+
+    public function getMaxAllowedPacket() {
+        $query = 'SHOW VARIABLES LIKE \'max_allowed_packet\'';
+        list(, $packet_size) = $this->db_fetch_row($this->db_query($query));
+    }
+
+    /**
      * updates multiple lines in a table
      *
      * @param string table_name

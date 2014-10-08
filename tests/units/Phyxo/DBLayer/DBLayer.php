@@ -26,7 +26,7 @@ use atoum;
 
 class DBLayer extends atoum
 {
-    public function testPublicMethods($dblayer, $dblayer_extra_methods) {
+    public function _testPublicMethods($dblayer, $dblayer_extra_methods) {
         $class_name = sprintf('\Phyxo\DBLayer\%sConnection', $dblayer);
 
         // method not overriden
@@ -42,7 +42,7 @@ class DBLayer extends atoum
 			->isEqualTo($interface_methods);
 	}
 
-    public function testBoolean($dblayer, $field, $result) {
+    public function _testBoolean($dblayer, $field, $result) {
         $controller = new \atoum\mock\controller();
 		$controller->__construct = function() {};
 
@@ -52,6 +52,29 @@ class DBLayer extends atoum
         $this
             ->boolean($conn->is_boolean($field))
             ->isEqualTo($result);
+    }
+
+    public function testMassInsertQuery($dblayer, $query) {
+        $controller = new \atoum\mock\controller();
+		$controller->__construct = function() {};
+
+        $class_name = sprintf('\mock\Phyxo\DBLayer\%sConnection', $dblayer);
+        $conn = new $class_name('', '', '', '', $controller);
+        if (in_array('getMaxAllowedPacket', get_class_methods($class_name))) {
+            $this->calling($conn)->getMaxAllowedPacket = 16777216;
+        }
+
+        $this
+            ->if($conn->mass_inserts(
+                'dummy', array('user_id', 'cat_id'),
+                array(array('user_id' => 1, 'cat_id' => 10)),
+                array('ignore' => true)
+            ))
+            ->then()
+                  ->mock($conn)
+                  ->call('db_query')
+                  ->withIdenticalArguments($query)
+                  ->once();
     }
 
     /**
@@ -79,6 +102,15 @@ class DBLayer extends atoum
             array('sqlite', 'true', true),
             array('sqlite', 'false', true),
             array('sqlite', 'dummy string', false),
+        );
+    }
+
+    protected function testMassInsertQueryDataProvider() {
+        return array(
+            array('pgsql', "INSERT INTO dummy (user_id,cat_id) SELECT '1','10' WHERE NOT EXISTS( SELECT 1 FROM dummy WHERE user_id = '1' AND cat_id = '10')"),
+            array('mysql', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
+            array('mysqli', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
+            array('sqlite', "INSERT OR IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')")
         );
     }
 }

@@ -13,7 +13,7 @@ Feature: My favorites pictures
     And an image:
       | name    | album   |
       | photo 1 | album 1 |
-    And "user1" can access "album 1"
+    And user "user1" can access "album 1"
 
   Scenario: Add picture to favorites
     Given I am logged in as "user1" with password "pass1"

@@ -16,7 +16,7 @@ Feature: API
       | photo 1 | album 1 | features/media/img_1.png |
       | photo 2 | album 1 | features/media/img_2.png |
     Then save "image_id"
-    And "user1" can access "album 1"
+    And user "user1" can access "album 1"
 
   Scenario: add an image to a category
     Given I am authenticated for api as "user1" with password "pass1"

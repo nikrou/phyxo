@@ -17,8 +17,8 @@ Feature: Tag
       | features/media/img_2.png | photo 2 | album 1 | t2      |
       | features/media/img_3.png | photo 3 | album 2 | [t1,t2] |
       | features/media/img_4.png | photo 4 | album 2 | [t1,t3] |
-    And "user1" can access "album 1"
-    And "user1" can access "album 2"
+    And user "user1" can access "album 1"
+    And user "user1" can access "album 2"
 
   Scenario: Find image by a tag
     Given I am logged in as "user1" with password "pass1"

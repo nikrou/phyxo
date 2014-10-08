@@ -68,18 +68,7 @@ if ($conf['show_gt']) {
     }
 }
 
-$template->assign('debug', $debug_vars );
-
-//------------------------------------------------------------- mobile version
-if ( !empty($conf['mobile_theme']) && (get_device() != 'desktop' || mobile_theme())) {
-    $template->assign(
-        'TOGGLE_MOBILE_THEME_URL',
-        add_url_params(
-            htmlspecialchars($_SERVER['REQUEST_URI']),
-            array('mobile' => mobile_theme() ? 'false' : 'true')
-        )
-    );
-}
+$template->assign('debug', $debug_vars);
 
 trigger_notify('loc_end_page_tail');
 

@@ -493,16 +493,17 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    public function mass_inserts($table_name, $dbfields, $datas) {
-        if (count($datas) != 0) {
-            $first = true;
+    public function mass_inserts($table_name, $dbfields, $datas, $options=array()) {
+        $ignore = '';
+        if (isset($options['ignore']) and $options['ignore']) {
+            $ignore = 'OR IGNORE';
+        }
 
-            $packet_size = 16777216;
-            $packet_size = $packet_size - 2000; // The last list of values MUST not exceed 2000 character*/
+        if (count($datas) != 0) {
             $query = '';
 
             foreach ($datas as $insert) {
-                $query = 'INSERT INTO '.$table_name.' ('.implode(',', $dbfields).') VALUES';
+                $query = 'INSERT '.$ignore.' INTO '.$table_name.' ('.implode(',', $dbfields).') VALUES';
 
                 $query .= '(';
                 foreach ($dbfields as $field_id => $dbfield) {

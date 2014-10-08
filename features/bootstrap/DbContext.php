@@ -45,6 +45,15 @@ class DbContext extends RawMinkContext
     }
 
     /**
+     * @Given /^a group:$/
+     */
+    public function aGroup(TableNode $table) {
+        foreach ($table->getHash() as $group) {
+            $this->last_id = $this->addGroup($group);
+        }
+    }
+
+    /**
      * @Given /^an image:$/
      * @Given /^images:$/
      */
@@ -106,19 +115,49 @@ class DbContext extends RawMinkContext
     }
 
     /**
-     * @Given /^"([^"]*)" can access "([^"]*)"$/
+     * @Given /^users "([^"]*)" belong to group "([^"]*)"$/
      */
-    public function canAccess($username, $album_name) {
-        $this->manageAccess($username, $album_name);
+    public function usersBelongToGroup($users, $group) {
+        $user_ids = explode(',', $users);
+        $group_id = preg_replace_callback(
+            '`SAVED:(.*)`',
+            function($matches) {
+                return $this->getSaved($matches[1]);
+            },
+            $group
+        );
+        foreach ($user_ids as $user) {
+            $user_id = preg_replace_callback(
+                '`SAVED:(.*)`',
+                function($matches) {
+                    return $this->getSaved($matches[1]);
+                },
+                $user
+            );
+            $this->addUserToGroup($user_id, $group_id);
+        }
     }
 
     /**
-     * @Given /^"([^"]*)" cannot access "([^"]*)"$/
+     * @Given /^user "([^"]*)" can access "([^"]*)"$/
      */
-    public function cannotAccess($username, $album_name) {
-        $this->manageAccess($username, $album_name, $remove=true);
+    public function userCanAccess($username, $album_name) {
+        $this->userAccess($username, $album_name);
     }
 
+    /**
+     * @Given /^user "([^"]*)" cannot access "([^"]*)"$/
+     */
+    public function userCannotAccess($username, $album_name) {
+        $this->userAccess($username, $album_name, $remove=true);
+    }
+
+    /**
+     * @Given /^group "([^"]*)" can access "([^"]*)"$/
+     */
+    public function groupCanAccess($groupname, $album_name) {
+        $this->groupAccess($groupname, $album_name);
+    }
 
     /**
      * @Given /^config for "([^"]*)" equals to "([^"]*)"$/
@@ -257,6 +296,8 @@ class DbContext extends RawMinkContext
                 self::$prefix.'user_infos' => 'user_id',
                 self::$prefix.'image_category' => array('image_id', 'category_id'),
                 self::$prefix.'user_access' => array('user_id', 'cat_id'),
+                self::$prefix.'group_access' => array('group_id', 'cat_id'),
+                self::$prefix.'user_group' => array('user_id', 'group_id'),
                 self::$prefix.'image_tag' => array('image_id', 'tag_id'),
                 self::$prefix.'config' => 'param',
             )
@@ -301,6 +342,22 @@ class DbContext extends RawMinkContext
         }
 
         return $user->id;
+    }
+
+    private function addGroup(array $params) {
+        if (empty($params['name'])) {
+            throw new Exception('Name for group is mandatory'."\n");
+        }
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+        $group = ORM::for_table(self::$prefix.'groups')->where('name', $params['name'])->find_one();
+        if (!$group) {
+            $group = ORM::for_table(self::$prefix.'groups')->create();
+            $group->name = $params['name'];
+            $group->save();
+        }
+        return $group->id;
     }
 
     private function addImage(array $params) {
@@ -392,8 +449,31 @@ class DbContext extends RawMinkContext
         return $album->id;
     }
 
+    private function addUserToGroup($user_id, $group_id) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+        $user = ORM::for_table(self::$prefix.'users')->where('id', $user_id);
+        if (!$user) {
+            throw new Exception('User with id "'.$user_id.'" does not exist'."\n");
+        }
+        $group = ORM::for_table(self::$prefix.'groups')->where('id', $group_id);
+        if (!$group) {
+            throw new Exception('Group with id "'.$group_id.'" does not exist'."\n");
+        }
+        $user_group = ORM::for_table(self::$prefix.'user_group')
+            ->where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->find_one();
+        if (!$user_group) {
+            $user_group = ORM::for_table(self::$prefix.'user_group')->create();
+            $user_group->user_id = $user_id;
+            $user_group->group_id = $group_id;
+            $user_group->save();
+        }
+    }
 
-    private function manageAccess($username, $album_name, $remove=false) {
+    private function userAccess($username, $album_name, $remove=false) {
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
@@ -431,6 +511,33 @@ class DbContext extends RawMinkContext
         $user_cache = ORM::for_table(self::$prefix.'user_cache')
             ->where('user_id', $user->id)
             ->delete_many();
+    }
+
+    private function groupAccess($groupname, $album_name) {
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+
+        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        if (!$album) {
+            throw new Exception('Album with name '.$album_name.' does not exist'."\n");
+        }
+
+        $group = ORM::for_table(self::$prefix.'groups')->where('name', $groupname)->find_one();
+        if (!$group) {
+            throw new Exception('Group with name '.$groupname.' does not exist'."\n");
+        }
+
+        $access = ORM::for_table(self::$prefix.'group_access')
+            ->where('group_id', $group->id)
+            ->where('cat_id', $album->id)
+            ->find_one();
+        if (!$access) {
+            $access = ORM::for_table(self::$prefix.'group_access')->create();
+            $access->group_id = $group->id;
+            $access->cat_id = $album->id;
+            $access->save();
+        }
     }
 
     private function addComment($content, $photo_name, $username) {

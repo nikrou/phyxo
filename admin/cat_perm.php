@@ -103,7 +103,7 @@ if (!empty($_POST)) {
                 GROUP_ACCESS_TABLE,
                 array('group_id','cat_id'),
                 $inserts,
-                array('ignore'=>true)
+                array('ignore' => true)
             );
         }
 

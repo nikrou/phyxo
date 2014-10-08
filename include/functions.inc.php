@@ -1607,24 +1607,10 @@ function get_branch_from_version($version) {
  * return the device type: mobile, tablet or desktop
  *
  * @return string
+ * @deprecated Deprecated in 1.2.0, to be removed in 1.3.0. Use mediaqueries instead.
  */
 function get_device() {
-    $device = pwg_get_session_var('device');
-
-    if (is_null($device)) {
-        include_once(PHPWG_ROOT_PATH.'include/mdetect.php');
-        $uagent_obj = new uagent_info();
-        if ($uagent_obj->DetectSmartphone()) {
-            $device = 'mobile';
-        } elseif ($uagent_obj->DetectTierTablet()) {
-            $device = 'tablet';
-        } else {
-            $device = 'desktop';
-        }
-        pwg_set_session_var('device', $device);
-    }
-
-    return $device;
+    return;
 }
 
 /**

@@ -10,6 +10,7 @@ default:
         album: index.php?/category/%d
         picture: picture.php?/%%d/category/%d
 
+      upload_dir: upload/
       config_file: local/config/database.inc.php
       sql_init_file: features/sql/db_init.sql
       sql_cleanup_file: features/sql/db_cleanup.sql

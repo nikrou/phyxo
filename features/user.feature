@@ -15,8 +15,8 @@ Feature: User albums
       | name    | album   |
       | photo 1 | album 1 |
       | photo 2 | album 2 |
-    And "user1" can access "album 1"
-    And "user1" cannot access "album 2"
+    And user "user1" can access "album 1"
+    And user "user1" cannot access "album 2"
 
   Scenario: I can see my photos
     Given I am logged in as "user1" with password "pass1"

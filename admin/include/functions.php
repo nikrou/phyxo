@@ -1892,7 +1892,7 @@ function add_permission_on_category($category_ids, $user_ids) {
         USER_ACCESS_TABLE,
         array('user_id','cat_id'),
         $inserts,
-        array('ignore'=>true)
+        array('ignore' => true)
     );
 }
 

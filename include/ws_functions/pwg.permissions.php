@@ -41,17 +41,26 @@ function ws_permissions_getList($params, &$service) {
         $cat_filter = 'WHERE cat_id IN('. implode(',', $params['cat_id']) .')';
     }
 
+    $filters = array('group_id' => '', 'user_id' => '');
+    if (!empty($params['group_id'])) {
+        $filters['group_id'] = $params['group_id'];
+    }
+    if (!empty($params['user_id'])) {
+        $filters['user_id'] = $params['user_id'];
+    }
+
     $perms = array();
 
     // direct users
-    $query = 'SELECT user_id, cat_id FROM '. USER_ACCESS_TABLE .' '. $cat_filter .';';
+    $query = 'SELECT user_id, cat_id FROM '.USER_ACCESS_TABLE;
+    $query .= ' '. $cat_filter;
     $result = pwg_query($query);
 
     while ($row = pwg_db_fetch_assoc($result)) {
-        if (!isset($perms[ $row['cat_id'] ])) {
-            $perms[ $row['cat_id'] ]['id'] = intval($row['cat_id']);
+        if (!isset($perms[$row['cat_id']])) {
+            $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
         }
-        $perms[ $row['cat_id'] ]['users'][] = intval($row['user_id']);
+        $perms[$row['cat_id']]['users'][] = intval($row['user_id']);
     }
 
     // indirect users
@@ -60,10 +69,12 @@ function ws_permissions_getList($params, &$service) {
     $result = pwg_query($query);
 
     while ($row = pwg_db_fetch_assoc($result)) {
-        if (!isset($perms[ $row['cat_id'] ])) {
-            $perms[ $row['cat_id'] ]['id'] = intval($row['cat_id']);
+        if (!empty($row['cat_id'])) {
+            if (!isset($perms[$row['cat_id']])) {
+                $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
+            }
+            $perms[$row['cat_id']]['users_indirect'][] = intval($row['user_id']);
         }
-        $perms[ $row['cat_id'] ]['users_indirect'][] = intval($row['user_id']);
     }
 
     // groups
@@ -72,20 +83,21 @@ function ws_permissions_getList($params, &$service) {
 
     while ($row = pwg_db_fetch_assoc($result)) {
         if (!isset($perms[ $row['cat_id'] ])) {
-            $perms[ $row['cat_id'] ]['id'] = intval($row['cat_id']);
+            $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
         }
-        $perms[ $row['cat_id'] ]['groups'][] = intval($row['group_id']);
+        $perms[$row['cat_id']]['groups'][] = intval($row['group_id']);
     }
+
 
     // filter by group and user
     foreach ($perms as $cat_id => &$cat) {
-        if (isset($filters['group_id'])) {
+        if (!empty($filters['group_id'])) {
             if (empty($cat['groups']) or count(array_intersect($cat['groups'], $params['group_id'])) == 0) {
                 unset($perms[$cat_id]);
                 continue;
             }
         }
-        if (isset($filters['user_id'])) {
+        if (!empty($filters['user_id'])) {
             if (
                 (empty($cat['users_indirect']) or count(array_intersect($cat['users_indirect'], $params['user_id'])) == 0)
                 and (empty($cat['users']) or count(array_intersect($cat['users'], $params['user_id'])) == 0)

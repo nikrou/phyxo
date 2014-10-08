@@ -346,6 +346,49 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return 'CAST('.$string.' AS TEXT)';
     }
 
+
+    /**
+     * inserts multiple lines in a table
+     *
+     * @param string table_name
+     * @param array dbfields
+     * @param array inserts
+     * @return void
+     */
+    public function mass_inserts($tablename, $dbfields, $datas, $options=array()) {
+        if (count($datas) != 0) {
+            foreach ($datas as $insert) {
+                $query = 'INSERT INTO '.$tablename.' ('.implode(',', $dbfields).')';
+                $query .= ' SELECT ';
+                foreach ($dbfields as $field_id => $dbfield) {
+                    if ($field_id > 0) {
+                        $query .= ',';
+                    }
+
+                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                        $query .= 'NULL';
+                    } else {
+                        $query .= '\''.$insert[$dbfield].'\'';
+                    }
+                }
+                $query .= ' WHERE NOT EXISTS(';
+                $query .= ' SELECT 1 FROM '.$tablename;
+                $query .= ' WHERE ';
+                $parts = array();
+                foreach ($dbfields as $dbfield) {
+                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                        $parts[] = $dbfield.' = NULL';
+                    } else {
+                        $parts[] = $dbfield.' = \''.$insert[$dbfield].'\'';
+                    }
+                }
+                $query .= implode(' AND ', $parts);
+                $query .= ')';
+                $this->db_query($query);
+            }
+        }
+    }
+
     /**
      * updates multiple lines in a table
      *

@@ -21,8 +21,8 @@ Feature: Searching for images
       | file                     | name    | album   | author  | date_creation       |
       | features/media/img_6.png | photo 6 | album 2 | author2 | 2013-04-11 13:00:00 |
       | features/media/img_7.png | photo 7 | album 2 | author3 | 2013-04-11 14:00:00 |
-    And "user1" can access "album 1"
-    And "user1" can access "album 2"
+    And user "user1" can access "album 1"
+    And user "user1" can access "album 2"
 
   Scenario: search by name
     Given I am logged in as "user1" with password "pass1"

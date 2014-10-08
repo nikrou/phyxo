@@ -15,8 +15,8 @@ Feature: Rate photos
       | name    |  album  |
       | photo 1 | album 1 |
       | photo 2 | album 1 |
-    And "user1" can access "album 1"
-    And "user2" can access "album 1"
+    And user "user1" can access "album 1"
+    And user "user2" can access "album 1"
 
   Scenario: Rate a picture
     Given I am logged in as "user1" with password "pass1"

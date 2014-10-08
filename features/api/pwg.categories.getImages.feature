@@ -17,7 +17,7 @@ Feature: API
       | photo 2 | album 1 |
       | photo 3 | album 1 |
       | photo 4 | album 1 |
-    And "user1" can access "album 1"
+    And user "user1" can access "album 1"
 
   Scenario: Get images in album
     Given I am authenticated for api as "user1" with password "pass1"

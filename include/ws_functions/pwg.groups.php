@@ -201,8 +201,7 @@ function ws_groups_addUser($params, &$service) {
     mass_inserts(
         USER_GROUP_TABLE,
         array('group_id', 'user_id'),
-        $inserts,
-        array('ignore'=>true)
+        $inserts
     );
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');

@@ -16,10 +16,10 @@ Feature: Comment
       | name    | album   |
       | photo 1 | album 1 |
       | photo 2 | album 2 |
-    And "user1" can access "album 1"
-    And "user2" can access "album 2"
-    And "user1" cannot access "album 2"
-    And "user2" cannot access "album 1"
+    And user "user1" can access "album 1"
+    And user "user2" can access "album 2"
+    And user "user1" cannot access "album 2"
+    And user "user2" cannot access "album 1"
     And a comment "a good comment" on "photo 2" by "user2"
 
   Scenario: See previous comment

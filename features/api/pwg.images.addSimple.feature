@@ -12,7 +12,7 @@ Feature: API
       | name   |
       | album 1|
     Then save "category_id"
-    And "user1" can access "album 1"
+    And user "user1" can access "album 1"
 
   Scenario: add an image to a category
     Given I am authenticated for api as "user1" with password "pass1"

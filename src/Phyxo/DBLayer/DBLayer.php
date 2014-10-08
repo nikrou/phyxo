@@ -29,7 +29,6 @@ class DBLayer
     protected $queries_time = 0;
 
     public static function init($layer, $host, $user, $password, $database) {
-
 		if (file_exists(__DIR__.'/'.$layer.'Connection.php')) {
 			require_once __DIR__.'/'.$layer.'Connection.php';
             $className = sprintf('\Phyxo\DBLayer\%sConnection', $layer);
@@ -240,53 +239,6 @@ class DBLayer
                 $is_first = false;
             }
 
-            $this->db_query($query);
-        }
-    }
-
-    /**
-     * inserts multiple lines in a table
-     *
-     * @param string table_name
-     * @param array dbfields
-     * @param array inserts
-     * @return void
-     */
-    public function mass_inserts($table_name, $dbfields, $datas) {
-        if (count($datas) != 0) {
-            $first = true;
-
-            $packet_size = 16777216;
-            $packet_size = $packet_size - 2000; // The last list of values MUST not exceed 2000 character*/
-            $query = '';
-
-            foreach ($datas as $insert) {
-                if (strlen($query) >= $packet_size) {
-                    $this->db_query($query);
-                    $first = true;
-                }
-
-                if ($first) {
-                    $query = 'INSERT INTO '.$table_name.' ('.implode(',', $dbfields).') VALUES';
-                    $first = false;
-                } else {
-                    $query .= ', ';
-                }
-
-                $query .= '(';
-                foreach ($dbfields as $field_id => $dbfield) {
-                    if ($field_id > 0) {
-                        $query .= ',';
-                    }
-
-                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
-                        $query .= 'NULL';
-                    } else {
-                        $query .= '\''.$insert[$dbfield].'\'';
-                    }
-                }
-                $query .= ')';
-            }
             $this->db_query($query);
         }
     }
