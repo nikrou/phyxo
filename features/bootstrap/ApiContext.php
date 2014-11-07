@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -45,12 +45,9 @@ class GuzzleApiContext extends BehatContext
 
         $this->parameters = $parameters;
         $this->baseUrl = $parameters['api_base_url'];
-
         $this->jar = new CookieJar();
 
-        $this->client = new Client();
-        $this->client->setDefaultOption('cookies', $this->jar);
-        $this->client->setDefaultOption('exceptions', false);
+        $this->client = new Client(array('defaults' => array('cookies' => $this->jar, 'exceptions' => false)));
     }
 
     /**

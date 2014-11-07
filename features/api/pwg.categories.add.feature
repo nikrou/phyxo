@@ -18,4 +18,3 @@ Feature: API
     When I send a GET request to "pwg.categories.getAdminList"
     And the response has property "result/categories" with size 1
     And the response has property "result/categories/0/name" equals to "album 1"
-

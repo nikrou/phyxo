@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -117,7 +117,7 @@ function ws_tags_getImages($params, &$service) {
     $tags_by_id = array();
     foreach ($tags as $tag) {
         $tags['id'] = (int)$tag['id'];
-        $tags_by_id[ $tag['id'] ] = $tag;
+        $tags_by_id[$tag['id']] = $tag;
     }
     unset($tags);
     $tag_ids = array_keys($tags_by_id);
@@ -127,11 +127,16 @@ function ws_tags_getImages($params, &$service) {
         $where_clauses = implode(' AND ', $where_clauses);
     }
 
+    $order_by = ws_std_image_sql_order($params, 'i.');
+    if (!empty($order_by)) {
+        $order_by = 'ORDER BY '.$order_by;
+    }
+
     $image_ids = get_image_ids_for_tags(
         $tag_ids,
         $params['tag_mode_and'] ? 'AND' : 'OR',
         $where_clauses,
-        ws_std_image_sql_order($params)
+        $order_by
     );
 
     $count_set = count($image_ids);
@@ -147,7 +152,6 @@ function ws_tags_getImages($params, &$service) {
 
         while ($row = pwg_db_fetch_assoc($result)) {
             $row['image_id'] = (int)$row['image_id'];
-            $image_ids[] = $row['image_id'];
             $image_tag_map[ $row['image_id'] ] = explode(',', $row['tag_ids']);
         }
     }

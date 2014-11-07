@@ -59,6 +59,12 @@ Tests are automatically runned by travis : [![Build Status](https://travis-ci.or
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
 
+Demo
+----
+
+You can find, discover and play with a [demo](http://demo.phyxo.net/)
+
+
 Todo
 ----
 
