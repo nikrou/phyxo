@@ -1,0 +1,9 @@
+;;stuff from others branches
+/.dist
+/vendor
+/_data
+/local
+/themes
+/plugins
+/upload
+/target
