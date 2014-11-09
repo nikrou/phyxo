@@ -7,3 +7,5 @@
 /plugins
 /upload
 /target
+/Makefile
+/rsync_exclude
