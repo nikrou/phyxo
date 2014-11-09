@@ -308,7 +308,7 @@ function query2array($query, $key_name=null, $value_name=null) {
 function do_maintenance_all_tables() {
     global $conn;
 
-    $conn->do_maintenance_all_tables();
+    return $conn->do_maintenance_all_tables();
 }
 
 function simple_hash_from_query($query, $keyname, $valuename) {

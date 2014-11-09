@@ -11,8 +11,8 @@
 	"minimum-stability": "stable",
 	"require": {
 		"php": ">=5.4.0",
-		"smarty/smarty": "v3.1.13",
-		"phpmailer/phpmailer": "v5.2.7",
+		"smarty/smarty": "3.1.*",
+		"phpmailer/phpmailer": "5.2.*",
 		"jdorn/sql-formatter": "1.*",
 		"pelago/emogrifier": "dev-master",
 		"ircmaxell/password-compat": "dev-master"
@@ -27,7 +27,7 @@
 		"behat/mink-zombie-driver": "*",
 		"symfony/dom-crawler": "2.1.*@dev",
 		"j4mie/idiorm": "*",
-		"guzzlehttp/guzzle": "4.*"
+		"guzzlehttp/guzzle": "5.*"
 	},
 	"config": {
 		"bin-dir": "bin/"

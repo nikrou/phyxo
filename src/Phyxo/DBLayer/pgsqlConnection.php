@@ -499,13 +499,13 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         $query = 'SELECT tablename FROM pg_tables';
         $query .= ' WHERE tablename like \''.$prefixeTable.'%\'';
 
-        $all_tables = $this->conn->query2array($query, null, 'tablename');
-
+        $all_tables = $this->query2array($query, null, 'tablename');
         // Optimize all tables
         foreach ($all_tables as $table) {
-            $query = 'VACUUM FULL '.$table;
+            $query = 'VACUUM '.$table;
             $this->db_query($query);
         }
+
         return true;
     }
 }
