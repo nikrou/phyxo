@@ -191,8 +191,9 @@ class GuzzleApiContext extends BehatContext
     /**
      * @Given /^the response has property "([^"]*)" equals to "([^"]*)"$/
      * @Given /^the response has property "([^"]*)" equals to '([^']*)'$/
+     * @Then /^the response has property "([^"]*)" equals to "([^"]*)" of type (boolean)$/
      */
-    public function theResponseHasPropertyEqualsTo($property, $value) {
+    public function theResponseHasPropertyEqualsTo($property, $value, $type='') {
         $data = $this->getJson();
         $value = preg_replace_callback(
             '`SAVED:([a-zA-Z0-9_-]*)`',
@@ -201,6 +202,9 @@ class GuzzleApiContext extends BehatContext
             },
             $value
         );
+        if (!empty($type) && $type=='boolean') {
+            $value = ($value=='true');
+        }
 
         $this->assert
             ->variable($this->getProperty($data, $property))

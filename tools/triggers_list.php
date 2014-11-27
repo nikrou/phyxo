@@ -1,4 +1,23 @@
 <?php
+// +-----------------------------------------------------------------------+
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// +-----------------------------------------------------------------------+
+// | This program is free software; you can redistribute it and/or modify  |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
+// |                                                                       |
+// | This program is distributed in the hope that it will be useful, but   |
+// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+// | General Public License for more details.                              |
+// |                                                                       |
+// | You should have received a copy of the GNU General Public License     |
+// | along with this program; if not, write to the Free Software           |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
+// +-----------------------------------------------------------------------+
+
 $core = array(
 array(
   'name' => 'allow_increment_element_hit_count',
@@ -249,15 +268,15 @@ array(
   'name' => 'get_tag_alt_names',
   'type' => 'trigger_change',
   'vars' => array('array', null, 'string', 'raw_name'),
-  'files' => array('admin\tags.php', 'admin\include\functions.php (get_taglist)'),
+  'files' => array('admin\tags.php', 'Phyxo\Model\Repository\Tags::getTagsList'),
   'infos' => 'New in 2.4',
 ),
 array(
   'name' => 'get_tag_name_like_where',
   'type' => 'trigger_change',
   'vars' => array('array', null, 'string', 'tag_name'),
-  'files' => array('admin\include\functions.php (tag_id_from_tag_name)'),
-  'infos' => 'New in 2.7',
+  'files' => 'Phyxo\Model\Repository\Tags::tagIdFromTagName'),
+  'infos' => 'New in 1.3',
 ),
 array(
   'name' => 'get_webmaster_mail_address',
@@ -745,13 +764,13 @@ array(
   'name' => 'render_tag_name',
   'type' => 'trigger_change',
   'vars' => array('string', 'tag_name', 'array', 'tag'),
-  'files' => array('admin\include\functions.php (get_taglist)', 'admin\tags.php', 'admin\history.php', 'include\functions_tag.inc.php (get_available_tags, get_all_tags, get_common_tags)', 'include\functions_html.inc.php (get_tags_content_title)', 'include\functions_search.inc.php (get_qsearch_tags)'),
+  'files' => array('Phyxo\Model\Repository\Tags::getTagsList)', 'admin\tags.php', 'admin\history.php', 'Phyxo\Model\Repository\Tags::getAvailableTags, Phyxo\Model\Repository\Tags::getAllTags, Phyxo\Model\Repository\Tags::getCommonTags)', 'include\functions_html.inc.php (get_tags_content_title)', 'include\functions_search.inc.php (get_qsearch_tags)'),
 ),
 array(
   'name' => 'render_tag_url',
   'type' => 'trigger_change',
   'vars' => array('string', 'tag_name'),
-  'files' => array('admin\include\functions.php (tag_id_from_tag_name, create_tag)', 'admin\tags.php'),
+  'files' => array('Phyxo\Model\Repository\Tags::tagIdFromTagName, Phyxo\Model\Repository\Tags::createTag)', 'admin\tags.php'),
 ),
 array(
   'name' => 'save_profile_from_post',

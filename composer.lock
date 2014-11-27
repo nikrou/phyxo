@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9b3351379eb5a255fe227e5136a7b04e",
+    "hash": "a910b3c763885125dc857f9563f65203",
     "packages": [
         {
             "name": "ircmaxell/password-compat",
@@ -271,12 +271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/atoum/atoum.git",
-                "reference": "662e543db9302b92a9341180173890dfcdb8af34"
+                "reference": "2ecade7d2829d89fce1961a0f46cc38d4b8192e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/atoum/atoum/zipball/662e543db9302b92a9341180173890dfcdb8af34",
-                "reference": "662e543db9302b92a9341180173890dfcdb8af34",
+                "url": "https://api.github.com/repos/atoum/atoum/zipball/2ecade7d2829d89fce1961a0f46cc38d4b8192e2",
+                "reference": "2ecade7d2829d89fce1961a0f46cc38d4b8192e2",
                 "shasum": ""
             },
             "require": {
@@ -337,7 +337,7 @@
                 "test",
                 "unit testing"
             ],
-            "time": "2014-10-07 11:28:16"
+            "time": "2014-11-09 10:10:43"
         },
         {
             "name": "behat/behat",
@@ -532,21 +532,21 @@
         },
         {
             "name": "behat/mink",
-            "version": "v1.6.0",
+            "version": "v1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Mink.git",
-                "reference": "090900a0049c441f1e072bbd837db4079b2250c5"
+                "reference": "0817070a6e2ec9f475fad9bfb81a962c462eb934"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Mink/zipball/090900a0049c441f1e072bbd837db4079b2250c5",
-                "reference": "090900a0049c441f1e072bbd837db4079b2250c5",
+                "url": "https://api.github.com/repos/Behat/Mink/zipball/0817070a6e2ec9f475fad9bfb81a962c462eb934",
+                "reference": "0817070a6e2ec9f475fad9bfb81a962c462eb934",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.1",
-                "symfony/css-selector": "~2.0"
+                "symfony/css-selector": ">=2.0,<2.4-dev"
             },
             "suggest": {
                 "behat/mink-browserkit-driver": "extremely fast headless driver for Symfony\\Kernel-based apps (Sf2, Silex)",
@@ -557,7 +557,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-develop": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -583,35 +583,35 @@
                 "testing",
                 "web"
             ],
-            "time": "2014-09-26 09:25:05"
+            "time": "2013-03-02 15:53:18"
         },
         {
             "name": "behat/mink-browserkit-driver",
-            "version": "v1.2.0",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/MinkBrowserKitDriver.git",
-                "reference": "aed8f4a596b79014a75254c3e337511c33e38cbd"
+                "reference": "f2771b5fc4dbc233859addf37a7d150852f78418"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/MinkBrowserKitDriver/zipball/aed8f4a596b79014a75254c3e337511c33e38cbd",
-                "reference": "aed8f4a596b79014a75254c3e337511c33e38cbd",
+                "url": "https://api.github.com/repos/Behat/MinkBrowserKitDriver/zipball/f2771b5fc4dbc233859addf37a7d150852f78418",
+                "reference": "f2771b5fc4dbc233859addf37a7d150852f78418",
                 "shasum": ""
             },
             "require": {
-                "behat/mink": "~1.6@dev",
+                "behat/mink": "~1.4.3",
                 "php": ">=5.3.1",
                 "symfony/browser-kit": "~2.0",
                 "symfony/dom-crawler": "~2.0"
             },
             "require-dev": {
-                "silex/silex": "~1.2"
+                "silex/silex": "@dev"
             },
             "type": "mink-driver",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -638,31 +638,30 @@
                 "browser",
                 "testing"
             ],
-            "time": "2014-09-26 11:35:19"
+            "time": "2013-04-13 12:17:15"
         },
         {
             "name": "behat/mink-extension",
-            "version": "v1.3.3",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/MinkExtension.git",
-                "reference": "b885b9407cba50a954f72c69ed1b2f8d3bc694f8"
+                "reference": "0642b680b613fdd6cb774debacf65a0d0d1f08e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/MinkExtension/zipball/b885b9407cba50a954f72c69ed1b2f8d3bc694f8",
-                "reference": "b885b9407cba50a954f72c69ed1b2f8d3bc694f8",
+                "url": "https://api.github.com/repos/Behat/MinkExtension/zipball/0642b680b613fdd6cb774debacf65a0d0d1f08e8",
+                "reference": "0642b680b613fdd6cb774debacf65a0d0d1f08e8",
                 "shasum": ""
             },
             "require": {
                 "behat/behat": "~2.5.0",
-                "behat/mink": "~1.5",
+                "behat/mink": ">=1.4.3,<1.6-dev",
                 "php": ">=5.3.2",
                 "symfony/config": "~2.2"
             },
             "require-dev": {
-                "behat/mink-goutte-driver": "~1.0",
-                "fabpot/goutte": "~1.0"
+                "behat/mink-goutte-driver": "~1.0"
             },
             "type": "behat-extension",
             "autoload": {
@@ -689,32 +688,31 @@
                 "test",
                 "web"
             ],
-            "time": "2014-05-15 19:27:39"
+            "time": "2014-04-27 11:55:27"
         },
         {
             "name": "behat/mink-goutte-driver",
-            "version": "v1.1.0",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/MinkGoutteDriver.git",
-                "reference": "2bf327b4166694ecaa8ae7f956cb6ae252ecf03e"
+                "reference": "fa1b073b48761464feb0b05e6825da44b20118d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/MinkGoutteDriver/zipball/2bf327b4166694ecaa8ae7f956cb6ae252ecf03e",
-                "reference": "2bf327b4166694ecaa8ae7f956cb6ae252ecf03e",
+                "url": "https://api.github.com/repos/Behat/MinkGoutteDriver/zipball/fa1b073b48761464feb0b05e6825da44b20118d8",
+                "reference": "fa1b073b48761464feb0b05e6825da44b20118d8",
                 "shasum": ""
             },
             "require": {
-                "behat/mink": "~1.6@dev",
-                "behat/mink-browserkit-driver": "~1.2@dev",
-                "fabpot/goutte": "~1.0.4|~2.0",
+                "behat/mink-browserkit-driver": ">=1.0.5,<1.2.0",
+                "fabpot/goutte": "~1.0.1",
                 "php": ">=5.3.1"
             },
             "type": "mink-driver",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -741,31 +739,31 @@
                 "headless",
                 "testing"
             ],
-            "time": "2014-10-09 09:21:12"
+            "time": "2013-07-03 18:43:54"
         },
         {
             "name": "behat/mink-zombie-driver",
-            "version": "v1.2.0",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/MinkZombieDriver.git",
-                "reference": "cf15a3a0cc4865bb55253cd033a03a20cee6d2d1"
+                "reference": "c4ec4b803b73dba4d1a03a47e53ca205ba841351"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/MinkZombieDriver/zipball/cf15a3a0cc4865bb55253cd033a03a20cee6d2d1",
-                "reference": "cf15a3a0cc4865bb55253cd033a03a20cee6d2d1",
+                "url": "https://api.github.com/repos/Behat/MinkZombieDriver/zipball/c4ec4b803b73dba4d1a03a47e53ca205ba841351",
+                "reference": "c4ec4b803b73dba4d1a03a47e53ca205ba841351",
                 "shasum": ""
             },
             "require": {
-                "behat/mink": "~1.6@dev",
+                "behat/mink": "~1.4.3",
                 "php": ">=5.3.1",
                 "symfony/process": "~2.1"
             },
             "type": "mink-driver",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -799,7 +797,7 @@
                 "testing",
                 "zombie"
             ],
-            "time": "2014-09-26 12:26:25"
+            "time": "2013-04-13 12:54:30"
         },
         {
             "name": "fabpot/goutte",
@@ -1475,17 +1473,17 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v2.5.6",
+            "version": "v2.3.21",
             "target-dir": "Symfony/Component/CssSelector",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/CssSelector.git",
-                "reference": "7cdf543a3f31935aae58de4e6e607d4bdeb3f5dc"
+                "reference": "d9943386b648d21746bed25cc24f61fab1387943"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/CssSelector/zipball/7cdf543a3f31935aae58de4e6e607d4bdeb3f5dc",
-                "reference": "7cdf543a3f31935aae58de4e6e607d4bdeb3f5dc",
+                "url": "https://api.github.com/repos/symfony/CssSelector/zipball/d9943386b648d21746bed25cc24f61fab1387943",
+                "reference": "d9943386b648d21746bed25cc24f61fab1387943",
                 "shasum": ""
             },
             "require": {
@@ -1494,7 +1492,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.5-dev"
+                    "dev-master": "2.3-dev"
                 }
             },
             "autoload": {
@@ -1522,7 +1520,7 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "http://symfony.com",
-            "time": "2014-10-09 16:00:03"
+            "time": "2014-10-09 12:30:02"
         },
         {
             "name": "symfony/dependency-injection",
@@ -1583,32 +1581,37 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "2.1.x-dev",
+            "version": "v2.3.21",
             "target-dir": "Symfony/Component/DomCrawler",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DomCrawler.git",
-                "reference": "bedfd7eb44e3b1224d1e18335d2e36bbbed26cbe"
+                "reference": "64b90870ee3a4e88c9a7a12861683864de029d31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/bedfd7eb44e3b1224d1e18335d2e36bbbed26cbe",
-                "reference": "bedfd7eb44e3b1224d1e18335d2e36bbbed26cbe",
+                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/64b90870ee3a4e88c9a7a12861683864de029d31",
+                "reference": "64b90870ee3a4e88c9a7a12861683864de029d31",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "symfony/css-selector": "2.1.*"
+                "symfony/css-selector": "~2.0"
             },
             "suggest": {
-                "symfony/css-selector": "2.1.*"
+                "symfony/css-selector": ""
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
-                    "Symfony\\Component\\DomCrawler": ""
+                    "Symfony\\Component\\DomCrawler\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1617,19 +1620,17 @@
             ],
             "authors": [
                 {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
-                },
-                {
                     "name": "Symfony Community",
                     "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
                 }
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "http://symfony.com",
-            "time": "2013-05-16 00:06:15"
+            "time": "2014-10-01 05:38:33"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1938,8 +1939,7 @@
     "stability-flags": {
         "pelago/emogrifier": 20,
         "ircmaxell/password-compat": 20,
-        "atoum/atoum": 20,
-        "symfony/dom-crawler": 20
+        "atoum/atoum": 20
     },
     "prefer-stable": false,
     "platform": {

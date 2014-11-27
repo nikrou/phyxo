@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -32,29 +32,6 @@ use Phyxo\Template\Template;
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
 
-// @TODO: remove that ugly code ; no need to systematically use addslashes
-// addslashes to vars if magic_quotes_gpc is off this is a security
-// precaution to prevent someone trying to break out of a SQL statement.
-//
-if (!@get_magic_quotes_gpc()) {
-    function sanitize_mysql_kv(&$v, $k) {
-        $v = addslashes($v);
-    }
-    if (is_array($_GET)) {
-        array_walk_recursive($_GET, 'sanitize_mysql_kv');
-    }
-    if (is_array($_POST)) {
-        array_walk_recursive($_POST, 'sanitize_mysql_kv');
-    }
-    if (is_array($_COOKIE)) {
-        array_walk_recursive( $_COOKIE, 'sanitize_mysql_kv');
-    }
-}
-if (!empty($_SERVER["PATH_INFO"])) {
-    $_SERVER["PATH_INFO"] = addslashes($_SERVER["PATH_INFO"]);
-}
-
-//
 // Define some basic configuration arrays this also prevents malicious
 // rewriting of language and otherarray values via URI params
 //
@@ -106,6 +83,10 @@ try {
 } catch (Exception $e) {
     $page['error'][] = l10n($e->getMessage());
 }
+
+// services
+include(PHPWG_ROOT_PATH . 'include/services.php');
+
 load_conf_from_db();
 
 if (!$conf['check_upgrade_feed']) {
@@ -129,13 +110,13 @@ if (isset($conf['order_by_inside_category_custom'])) {
 
 include(PHPWG_ROOT_PATH.'include/user.inc.php');
 
-define('PHPWG_DOMAIN', 'piwigo.org');
-define('PHPWG_URL', 'http://phyxo.nikrou.net');
+define('PHPWG_DOMAIN', 'phyxo.net');
+define('PHPWG_URL', 'http://www.phyxo.net');
 
-if(isset($conf['alternative_pem_url']) and $conf['alternative_pem_url']!='') {
+if (!empty($conf['alternative_pem_url'])) {
     define('PEM_URL', $conf['alternative_pem_url']);
 } else {
-    define('PEM_URL', 'http://'.PHPWG_DOMAIN.'/ext');
+    define('PEM_URL', 'http://ext.'.PHPWG_DOMAIN);
 }
 
 // language files
@@ -144,10 +125,9 @@ if (is_admin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     load_language('admin.lang');
 }
 trigger_notify('loading_lang');
-load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
+load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
 
-// only now we can set the localized username of the guest user (and not in
-// include/user.inc.php)
+// only now we can set the localized username of the guest user (and not in include/user.inc.php)
 if (is_a_guest()) {
     $user['username'] = l10n('guest');
 }
@@ -187,8 +167,7 @@ if ($conf['gallery_locked']) {
 if ($conf['check_upgrade_feed']) {
     include_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
     if (check_upgrade_feed()) {
-        $header_msgs[] = 'Some database upgrades are missing, '
-            .'<a href="'.get_absolute_root_url(false).'upgrade_feed.php">upgrade now</a>';
+        $header_msgs[] = 'Some database upgrades are missing, <a href="'.get_absolute_root_url(false).'upgrade_feed.php">upgrade now</a>';
     }
 }
 

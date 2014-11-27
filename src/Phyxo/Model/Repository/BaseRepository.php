@@ -18,16 +18,15 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die ('Hacking attempt!');
-}
+namespace Phyxo\Model\Repository;
 
-if (!empty($_POST['tag_ids'])) {
-    if (!empty($_POST['validate'])) {
-        $services['tags']->validateTags($_POST['tag_ids']);
-    } elseif ($_POST['reject']) {
-        $services['tags']->rejectTags($_POST['tag_ids']);
+use Phyxo\Model\Entity\BaseEntity;
+
+class BaseRepository
+{
+    public function __construct(\Phyxo\DBLayer\DBLayer $conn, $model, $table) {
+        $this->conn = $conn;
+        $this->model = $model;
+        $this->table = $table;
     }
 }
-
-$template->assign('tags', $services['tags']->getPendingTags());

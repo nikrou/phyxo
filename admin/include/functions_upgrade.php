@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,27 +70,26 @@ function prepare_conf_upgrade() {
 
 // Deactivate all non-standard plugins
 function deactivate_non_standard_plugins() {
-    global $page;
+    global $page, $conn;
 
     $standard_plugins = array(
-        'event_tracer',
         'language_switch',
         'LocalFilesEditor'
     );
 
     $query = 'SELECT id FROM '.PREFIX_TABLE.'plugins WHERE state = \'active\'';
-    $query.= ' AND id NOT IN (\'' . implode('\',\'', $standard_plugins) . '\');';
+    $query.= ' AND id NOT '.$conn->in($standard_plugins);
 
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
     $plugins = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $plugins[] = $row['id'];
     }
 
     if (!empty($plugins)) {
         $query = 'UPDATE '.PREFIX_TABLE.'plugins SET state=\'inactive\'';
-        $query .= ' WHERE id IN (\'' . implode('\',\'', $plugins) . '\');';
-        pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($plugins);
+        $conn->db_query($query);
 
         $page['infos'][] = l10n('As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:').'<p><i>'.implode(', ', $plugins).'</i></p>';
     }
@@ -98,7 +97,7 @@ function deactivate_non_standard_plugins() {
 
 // Deactivate all non-standard themes
 function deactivate_non_standard_themes() {
-    global $page, $conf;
+    global $page, $conf, $conn;
 
     $standard_themes = array(
         'clear',
@@ -108,30 +107,32 @@ function deactivate_non_standard_themes() {
     );
 
     $query = 'SELECT id,name  FROM '.PREFIX_TABLE.'themes';
-    $query .= ' WHERE id NOT IN (\''.implode("','", $standard_themes).'\');';
-    $result = pwg_query($query);
+    $query .= ' WHERE id NOT '.$conn->in($standard_themes);
+    $result = $conn->db_query($query);
     $theme_ids = array();
     $theme_names = array();
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $theme_ids[] = $row['id'];
         $theme_names[] = $row['name'];
     }
 
     if (!empty($theme_ids)) {
-        $query = 'DELETE FROM '.PREFIX_TABLE.'themes WHERE id IN (\''.implode("','", $theme_ids).'\');';
-        pwg_query($query);
+        $query = 'DELETE FROM '.PREFIX_TABLE.'themes WHERE id '.$conn->in($theme_ids);
+        $conn->db_query($query);
 
         $page['infos'][] = l10n('As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:').'<p><i>'.implode(', ', $theme_names).'</i></p>';
 
         // what is the default theme?
-        $query = 'SELECT theme FROM '.PREFIX_TABLE.'user_infos WHERE user_id = '.$conf['default_user_id'].';';
-        list($default_theme) = pwg_db_fetch_row(pwg_query($query));
+        $query = 'SELECT theme FROM '.PREFIX_TABLE.'user_infos';
+        $query .= ' WHERE user_id = '.$conn->db_real_escape_string($conf['default_user_id']);
+        list($default_theme) = $conn->db_fetch_row(pwg_query($query));
 
         // if the default theme has just been deactivated, let's set another core theme as default
         if (in_array($default_theme, $theme_ids)) {
-            $query = 'UPDATE '.PREFIX_TABLE.'user_infos SET theme = \'elegant\' WHERE user_id = '.$conf['default_user_id'].';';
-            pwg_query($query);
+            $query = 'UPDATE '.PREFIX_TABLE.'user_infos';
+            $query .= ' SET theme = \'elegant\' WHERE user_id = '.$conn->db_real_escape_string($conf['default_user_id']);
+            $conn->db_query($query);
         }
     }
 }
@@ -142,16 +143,16 @@ function deactivate_templates() {
 
 // Check access rights
 function check_upgrade_access_rights() {
-    global $conf, $page, $current_release;
+    global $conf, $page, $current_release, $conn;
 
     if (version_compare($current_release, '1.0', '>=') and isset($_COOKIE[session_name()])) {
         // Check if user is already connected as webmaster
         session_start();
         if (!empty($_SESSION['pwg_uid'])) {
-            $query = 'SELECT status FROM '.USER_INFOS_TABLE.' WHERE user_id = '.$_SESSION['pwg_uid'].';';
-            pwg_query($query);
-
-            $row = pwg_db_fetch_assoc(pwg_query($query));
+            $query = 'SELECT status FROM '.USER_INFOS_TABLE;
+            $query .= ' WHERE user_id = '.$conn->db_real_escape_string($_SESSION['pwg_uid']);
+            $result = $conn->db_query($query);
+            $row = $conn->db_fetch_assoc($result);
             if (isset($row['status']) and $row['status'] == 'webmaster') {
                 define('PHPWG_IN_UPGRADE', true);
                 return;
@@ -168,9 +169,9 @@ function check_upgrade_access_rights() {
 
     $query = 'SELECT u.password, ui.status FROM '.USERS_TABLE.' AS u';
     $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON u.'.$conf['user_fields']['id'].'=ui.user_id';
-    $query .= ' WHERE '.$conf['user_fields']['username'].'=\''.pwg_db_real_escape_string($username).'\';';
+    $query .= ' WHERE '.$conf['user_fields']['username'].'=\''.$conn->db_real_escape_string($username).'\';';
 
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
     if (!$conf['password_verify']($password, $row['password'])) {
         $page['errors'][] = l10n('Invalid password!');
     } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {
@@ -207,9 +208,11 @@ function get_available_upgrade_ids() {
  * returns true if there are available upgrade files
  */
 function check_upgrade_feed() {
+    global $conn;
+
     // retrieve already applied upgrades
-    $query = 'SELECT id FROM '.UPGRADE_TABLE.';';
-    $applied = array_from_query($query, 'id');
+    $query = 'SELECT id FROM '.UPGRADE_TABLE;
+    $applied = $conn->query2array($query, null, 'id');
 
     // retrieve existing upgrades
     $existing = get_available_upgrade_ids();

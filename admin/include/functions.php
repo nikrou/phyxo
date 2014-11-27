@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +27,7 @@
  */
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_metadata.php');
-
+include_once(PHPWG_ROOT_PATH .'include/derivative.inc.php');
 
 /**
  * Deletes a site and call delete_categories for each primary category of the site
@@ -284,32 +284,6 @@ function delete_user($user_id) {
     pwg_query($query);
 
     trigger_notify('delete_user', $user_id);
-}
-
-/**
- * Deletes all tags linked to no photo
- */
-function delete_orphan_tags() {
-    $orphan_tags = get_orphan_tags();
-
-    if (count($orphan_tags) > 0) {
-        $orphan_tag_ids = array();
-        foreach ($orphan_tags as $tag) {
-            $orphan_tag_ids[] = $tag['id'];
-        }
-
-        delete_tags($orphan_tag_ids);
-    }
-}
-
-/**
- * Get all tags (id + name) linked to no photo
- */
-function get_orphan_tags() {
-    $query = 'SELECT id,name FROM '.TAGS_TABLE;
-    $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id = tag_id';
-    $query .= ' WHERE tag_id IS NULL;';
-    return query2array($query);
 }
 
 /**
@@ -1117,167 +1091,6 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
 }
 
 /**
- * Set tags to an image.
- * Warning: given tags are all tags associated to the image, not additionnal tags.
- *
- * @param int[] $tags
- * @param int $image_id
- */
-function set_tags($tags, $image_id) {
-    set_tags_of(array($image_id=>$tags));
-}
-
-/**
- * Add new tags to a set of images.
- *
- * @param int[] $tags
- * @param int[] $images
- */
-function add_tags($tags, $images) {
-    if (count($tags) == 0 or count($images) == 0) {
-        return;
-    }
-
-    // we can't insert twice the same {image_id,tag_id} so we must first
-    // delete lines we'll insert later
-    $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-    $query .= ' WHERE image_id IN ('.implode(',', $images).')';
-    $query .= ' AND tag_id IN ('.implode(',', $tags).');';
-    pwg_query($query);
-
-    $inserts = array();
-    foreach ($images as $image_id) {
-        foreach ( array_unique($tags) as $tag_id) {
-            $inserts[] = array(
-                'image_id' => $image_id,
-                'tag_id' => $tag_id,
-            );
-        }
-    }
-    mass_inserts(
-        IMAGE_TAG_TABLE,
-        array_keys($inserts[0]),
-        $inserts
-    );
-    invalidate_user_cache_nb_tags();
-}
-
-/**
- * Delete tags and tags associations.
- *
- * @param int[] $tag_ids
- */
-function delete_tags($tag_ids) {
-    if (is_numeric($tag_ids)) {
-        $tag_ids = array($tag_ids);
-    }
-
-    if (!is_array($tag_ids)) {
-        return false;
-    }
-
-    $query = 'DELETE  FROM '.IMAGE_TAG_TABLE;
-    $query .= ' WHERE tag_id IN ('.implode(',', $tag_ids).');';
-    pwg_query($query);
-
-    $query = 'DELETE FROM '.TAGS_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $tag_ids).');';
-    pwg_query($query);
-
-    invalidate_user_cache_nb_tags();
-}
-
-/**
- * Returns a tag id from its name. If nothing found, create a new tag.
- *
- * @param string $tag_name
- * @return int
- */
-function tag_id_from_tag_name($tag_name) {
-    global $page;
-
-    $tag_name = trim($tag_name);
-    if (isset($page['tag_id_from_tag_name_cache'][$tag_name])) {
-        return $page['tag_id_from_tag_name_cache'][$tag_name];
-    }
-
-    // search existing by exact name
-    $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$tag_name.'\';';
-    if (count($existing_tags = query2array($query, null, 'id')) == 0) {
-        $url_name = trigger_change('render_tag_url', $tag_name);
-        // search existing by url name
-        $query = 'SELECT id FROM '.TAGS_TABLE;
-        $query .= ' WHERE url_name = \''.$url_name.'\';';
-        if (count($existing_tags = query2array($query, null, 'id')) == 0) {
-            // search by extended description (plugin sub name)
-            $sub_name_where = trigger_change('get_tag_name_like_where', array(), $tag_name);
-            if (count($sub_name_where)) {
-                $query = 'SELECT id FROM '.TAGS_TABLE;
-                $query .= ' WHERE '.implode(' OR ', $sub_name_where).';';
-                $existing_tags = query2array($query, null, 'id');
-            }
-
-            if (count($existing_tags) == 0) { // finally create the tag
-                mass_inserts(
-                    TAGS_TABLE,
-                    array('name', 'url_name'),
-                    array(
-                        array(
-                            'name' => $tag_name,
-                            'url_name' => $url_name,
-                        )
-                    )
-                );
-
-                $page['tag_id_from_tag_name_cache'][$tag_name] = pwg_db_insert_id(TAGS_TABLE);
-
-                invalidate_user_cache_nb_tags();
-
-                return $page['tag_id_from_tag_name_cache'][$tag_name];
-            }
-        }
-    }
-
-    $page['tag_id_from_tag_name_cache'][$tag_name] = $existing_tags[0];
-
-    return $page['tag_id_from_tag_name_cache'][$tag_name];
-}
-
-/**
- * Set tags of images. Overwrites all existing associations.
- *
- * @param array $tags_of - keys are image ids, values are array of tag ids
- */
-function set_tags_of($tags_of) {
-    if (count($tags_of) > 0) {
-        $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id IN ('.implode(',', array_keys($tags_of)).');';
-        pwg_query($query);
-
-        $inserts = array();
-
-        foreach ($tags_of as $image_id => $tag_ids) {
-            foreach (array_unique($tag_ids) as $tag_id) {
-                $inserts[] = array(
-                    'image_id' => $image_id,
-                    'tag_id' => $tag_id,
-                );
-            }
-        }
-
-        if (count($inserts)) {
-            mass_inserts(
-                IMAGE_TAG_TABLE,
-                array_keys($inserts[0]),
-                $inserts
-            );
-        }
-
-        invalidate_user_cache_nb_tags();
-    }
-}
-
-/**
  * Associate a list of images to a list of categories.
  * The function will not duplicate links and will preserve ranks.
  *
@@ -1454,37 +1267,6 @@ function get_user_access_level_html_options($MinLevelAccess=ACCESS_FREE, $MaxLev
     }
 
     return $tpl_options;
-}
-
-/**
- * Create a new tag.
- *
- * @param string $tag_name
- * @return array ('id', info') or ('error')
- */
-function create_tag($tag_name) {
-    // does the tag already exists?
-    $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.pwg_db_real_escape_string($tag_name).'\';';
-    $existing_tags = query2array($query, null, 'id');
-
-    if (count($existing_tags) == 0) {
-        single_insert(
-            TAGS_TABLE,
-            array(
-                'name' => $tag_name,
-                'url_name' => trigger_change('render_tag_url', $tag_name),
-            )
-        );
-
-        $inserted_id = pwg_db_insert_id(TAGS_TABLE);
-
-        return array(
-            'info' => l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
-            'id' => $inserted_id,
-        );
-    } else {
-        return array('error' => l10n('Tag "%s" already exists', stripslashes($tag_name))); // @TODO: remove stripslashes
-    }
 }
 
 /**
@@ -1750,79 +1532,6 @@ function get_active_menu($menu_page) {
         default:
             return 0;
         }
-}
-
-/**
- * Get tags list from SQL query (ids are surrounded by ~~, for get_tag_ids()).
- *
- * @param string $query
- * @param boolean $only_user_language - if true, only local name is returned for
- *    multilingual tags (if ExtendedDescription plugin is active)
- * @return array[] ('id', 'name')
- */
-function get_taglist($query, $only_user_language=true) {
-    $result = pwg_query($query);
-
-    $taglist = array();
-    $altlist = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
-        $raw_name = $row['name'];
-        $name = trigger_change('render_tag_name', $raw_name, $row);
-
-        $taglist[] =  array(
-            'name' => $name,
-            'id' => '~~'.$row['id'].'~~',
-        );
-
-        if (!$only_user_language) {
-            $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
-
-            foreach( array_diff( array_unique($alt_names), array($name) ) as $alt) {
-                $altlist[] =  array(
-                    'name' => $alt,
-                    'id' => '~~'.$row['id'].'~~',
-                );
-            }
-        }
-    }
-
-    usort($taglist, 'tag_alpha_compare');
-    if (count($altlist)) {
-        usort($altlist, 'tag_alpha_compare');
-        $taglist = array_merge($taglist, $altlist);
-    }
-
-    return $taglist;
-}
-
-/**
- * Get tags ids from a list of raw tags (existing tags or new tags).
- *
- * In $raw_tags we receive something like array('~~6~~', '~~59~~', 'New
- * tag', 'Another new tag') The ~~34~~ means that it is an existing
- * tag. We added the surrounding ~~ to permit creation of tags like "10"
- * or "1234" (numeric characters only)
- *
- * @param string|string[] $raw_tags - array or comma separated string
- * @param boolean $allow_create
- * @return int[]
- */
-function get_tag_ids($raw_tags, $allow_create=true) {
-    $tag_ids = array();
-    if (!is_array($raw_tags)) {
-        $raw_tags = explode(',',$raw_tags);
-    }
-
-    foreach ($raw_tags as $raw_tag) {
-        if (preg_match('/^~~(\d+)~~$/', $raw_tag, $matches)) {
-            $tag_ids[] = $matches[1];
-        } elseif ($allow_create) {
-            // we have to create a new tag
-            $tag_ids[] = tag_id_from_tag_name($raw_tag);
-        }
-    }
-
-    return $tag_ids;
 }
 
 /**

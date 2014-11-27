@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,14 +35,16 @@
  * @return array
  */
 function get_search_array($search_id) {
+    global $conn;
+
     if (!is_numeric($search_id)) {
         die('Search id must be an integer');
     }
 
-    $query = 'SELECT rules FROM '.SEARCH_TABLE.' WHERE id = '.$search_id;
-    list($serialized_rules) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT rules FROM '.SEARCH_TABLE.' WHERE id = '.$conn->db_real_escape_string($search_id);
+    list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
 
-    return unserialize($serialized_rules);
+    return unserialize($serialized_rules); // @TODO: remove unserialize
 }
 
 /**
@@ -53,6 +55,8 @@ function get_search_array($search_id) {
  * @return string
  */
 function get_sql_search_clause($search) {
+    global $conn;
+
     // SQL where clauses are stored in $clauses array during query
     // construction
     $clauses = array();
@@ -62,9 +66,9 @@ function get_sql_search_clause($search) {
             $local_clauses = array();
             foreach ($search['fields'][$textfield]['words'] as $word) {
                 if ($textfield=='author') {
-                    $local_clauses[] = $textfield." = '".$word."'";
+                    $local_clauses[] = $textfield." = '".$conn->db_real_escape_string($word)."'";
                 } else {
-                    $local_clauses[] = $textfield." LIKE '%".$word."%'";
+                    $local_clauses[] = $textfield." LIKE '%".$conn->db_real_escape_string($word)."%'";
                 }
             }
 
@@ -93,7 +97,7 @@ function get_sql_search_clause($search) {
         foreach ($search['fields']['allwords']['words'] as $word) {
             $field_clauses = array();
             foreach ($fields as $field) {
-                $field_clauses[] = $field." LIKE '%".$word."%'";
+                $field_clauses[] = $field." LIKE '%".$conn->db_real_escape_string($word)."%'";
             }
             // adds brackets around where clauses
             $word_clauses[] = implode(' OR ', $field_clauses);
@@ -135,7 +139,7 @@ function get_sql_search_clause($search) {
             $cat_ids = $search['fields']['cat']['words'];
         }
 
-        $local_clause = 'category_id IN ('.implode(',', $cat_ids).')';
+        $local_clause = 'category_id '.$conn->in($cat_ids);
         $clauses[] = $local_clause;
     }
 
@@ -157,22 +161,22 @@ function get_sql_search_clause($search) {
  * @return array
  */
 function get_regular_search_results($search, $images_where='') {
-  global $conf;
+    global $conf, $conn, $services;
 
-  $forbidden = get_sql_condition_FandF(
-      array(
-          'forbidden_categories' => 'category_id',
-          'visible_categories' => 'category_id',
-          'visible_images' => 'id'
-      ),
-      "\n  AND"
-  );
+    $forbidden = get_sql_condition_FandF(
+        array(
+            'forbidden_categories' => 'category_id',
+            'visible_categories' => 'category_id',
+            'visible_images' => 'id'
+        ),
+        "\n  AND"
+    );
 
-  $items = array();
-  $tag_items = array();
+    $items = array();
+    $tag_items = array();
 
   if (isset($search['fields']['tags'])) {
-      $tag_items = get_image_ids_for_tags(
+      $tag_items = $services['tags']->getImageIdsForTags(
           $search['fields']['tags']['words'],
           $search['fields']['tags']['mode']
       );
@@ -190,7 +194,7 @@ function get_regular_search_results($search, $images_where='') {
           $query .= ' AND '.$images_where;
       }
       $query .= $forbidden.' '.$conf['order_by'];
-      $items = array_from_query($query, 'id');
+      $items = $conn->array_from_query($query, 'id');
   }
 
   if (!empty($tag_items)) {
@@ -804,7 +808,7 @@ function qsearch_get_text_token_search_sql($token, $fields) {
             $pre = ($token->modifier & QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
             $post = ($token->modifier & QST_WILDCARD_END) ? '' : '[[:>:]]';
             foreach( $fields as $field) {
-                $clauses[] = $field.' '.$conn::REGEX_OPERATOR.' \''.$pre.pwg_db_real_escape_string(preg_quote($variant)).$post.'\'';
+                $clauses[] = $field.' '.$conn::REGEX_OPERATOR.' \''.$pre.$conn->db_real_escape_string(preg_quote($variant)).$post.'\'';
             }
         } else {
             $ft = $variant;
@@ -819,7 +823,7 @@ function qsearch_get_text_token_search_sql($token, $fields) {
     }
 
     if (count($fts)) {
-        $clauses[] = pwg_db_full_text_search($fields, $fts);
+        $clauses[] = $conn->db_full_text_search($fields, $fts);
     }
 
     return $clauses;
@@ -834,7 +838,7 @@ function qsearch_get_images(QExpression $expr, QResults $qsr) {
         $scope_id = isset($token->scope) ? $token->scope->id : 'photo';
         $clauses = array();
 
-        $like = pwg_db_real_escape_string($token->term);
+        $like = $conn->db_real_escape_string($token->term);
         $like = str_replace( array('%','_'), array('\\%','\\_'), $like); // escape LIKE specials %_
         $file_like = 'file LIKE \'%'.$like.'%\'';
 
@@ -890,6 +894,8 @@ function qsearch_get_images(QExpression $expr, QResults $qsr) {
 }
 
 function qsearch_get_tags(QExpression $expr, QResults $qsr) {
+    global $conn;
+
     $token_tag_ids = $qsr->tag_iids = array_fill(0, count($expr->stokens), array());
     $all_tags = array();
 
@@ -904,8 +910,8 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr) {
 
         $clauses = qsearch_get_text_token_search_sql( $token, array('name'));
         $query = 'SELECT * FROM '.TAGS_TABLE.' WHERE ('. implode("\n OR ",$clauses) .')';
-        $result = pwg_query($query);
-        while ($tag = pwg_db_fetch_assoc($result)) {
+        $result = $conn->db_query($query);
+        while ($tag = $conn->db_fetch_assoc($result)) {
             $token_tag_ids[$i][] = $tag['id'];
             $all_tags[$tag['id']] = $tag;
         }

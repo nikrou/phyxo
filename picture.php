@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -49,7 +49,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
         $query .= 'file LIKE \'' . str_replace(array('_','%'), array('/_','/%'), $page['image_file']);
         $query .= '.%\' ESCAPE \'/\' LIMIT 1';
     }
-    if (!($row = pwg_db_fetch_assoc(pwg_query($query)))) { // element does not exist
+    if (!($row = $conn->db_fetch_assoc($conn->db_query($query)))) { // element does not exist
         page_not_found( 'The requested image does not exist',
         duplicate_index_url()
         );
@@ -74,7 +74,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
             $query .= ' WHERE id='.$page['image_id'];
             $query .= ' '. get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
             $query .= ' LIMIT 1';
-            if (pwg_db_num_rows(pwg_query($query)) == 0) {
+            if ($conn->db_num_rows($conn->db_query($query)) == 0) {
                 access_denied();
             } else {
                 if ('best_rated'==$page['section']) {
@@ -223,14 +223,14 @@ if (isset($_GET['action'])) {
         {
         case 'add_to_favorites': {
             $query = 'INSERT INTO '.FAVORITES_TABLE.' (image_id,user_id) VALUES('.$page['image_id'].','.$user['id'].');';
-            pwg_query($query);
+            $conn->db_query($query);
 
             redirect($url_self);
             break;
         }
         case 'remove_from_favorites': {
             $query = 'DELETE FROM '.FAVORITES_TABLE.' WHERE user_id = '.$user['id'].' AND image_id = '.$page['image_id'].';';
-            pwg_query($query);
+            $conn->db_query($query);
 
             if ('favorites' == $page['section']) {
                 redirect($url_up);
@@ -243,7 +243,7 @@ if (isset($_GET['action'])) {
             if (is_admin() and isset($page['category'])) {
                 $query = 'UPDATE '.CATEGORIES_TABLE;
                 $query .= ' SET representative_picture_id = '.$page['image_id'].' WHERE id = '.$page['category']['id'].';';
-                pwg_query($query);
+                $conn->db_query($query);
 
                 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
                 invalidate_user_cache();
@@ -351,7 +351,7 @@ if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
 if (trigger_change('allow_increment_element_hit_count', $inc_hit_count, $page['image_id'])) {
     // avoiding auto update of "lastmodified" field
     $query = 'UPDATE '.IMAGES_TABLE.' SET hit = hit+1, lastmodified = lastmodified WHERE id = '.$page['image_id'].';';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 //---------------------------------------------------------- related categories
@@ -375,11 +375,10 @@ if (isset($page['next_item'])) {
 }
 
 // @TODO: replace select * by fields
-// @TODO: use filtered sql IN
-$query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id IN ('.implode(',', $ids).');';
-$result = pwg_query($query);
+$query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id '.$conn->in($ids);
+$result = $conn->db_query($query);
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     if (isset($page['previous_item']) and $row['id'] == $page['previous_item']) {
         $i = 'previous';
     } elseif (isset($page['next_item']) and $row['id'] == $page['next_item']) {
@@ -612,7 +611,7 @@ if (!is_a_guest() and $conf['picture_favorite_icon']) {
     // verify if the picture is already in the favorite of the user
     $query = 'SELECT COUNT(1) AS nb_fav FROM '.FAVORITES_TABLE;
     $query .= ' WHERE image_id = '.$page['image_id'].' AND user_id = '.$user['id'].';';
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
 	$is_favorite = $row['nb_fav'] != 0;
 
     $template->assign(
@@ -693,32 +692,32 @@ $template->assign($infos);
 $template->assign('display_info', unserialize($conf['picture_informations']));
 
 // related tags
-$tags = get_common_tags( array($page['image_id']), -1);
+$tags = $services['tags']->getCommonTags(array($page['image_id']), -1);
 if (count($tags)) {
     foreach ($tags as $tag) {
         $template->append(
             'related_tags',
             array_merge($tag,
-            array(
-                'URL' => make_index_url(array('tags' => array($tag))),
-                'U_TAG_IMAGE' => duplicate_picture_url(
-                    array(
-                        'section' => 'tags',
-                        'tags' => array($tag)
-                    )
-                )
-            )
+                        array(
+                            'URL' => make_index_url(array('tags' => array($tag))),
+                            'U_TAG_IMAGE' => duplicate_picture_url(
+                                array(
+                                    'section' => 'tags',
+                                    'tags' => array($tag)
+                                )
+                            )
+                        )
             )
         );
     }
 }
 
-if ($conf['tags_permission_add']) {
+if (!empty($conf['tags_permission_add'])) {
     $template->assign('TAGS_PERMISSION_ADD', (int) is_autorize_status(get_access_type_status($conf['tags_permission_add'])));
 } else {
     $template->assign('TAGS_PERMISSION_ADD', 0);
 }
-if ($conf['tags_permission_delete']) {
+if (!empty($conf['tags_permission_delete'])) {
     $template->assign('TAGS_PERMISSION_DELETE', (int) is_autorize_status(get_access_type_status($conf['tags_permission_delete'])));
 } else {
     $template->assign('TAGS_PERMISSION_DELETE', 0);
@@ -745,8 +744,7 @@ if (count($related_categories)==1 and isset($page['category']) and $related_cate
     }
     $ids = array_unique($ids);
     $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
-    // @TODO : use filtered sql IN
-    $query .= ' WHERE id IN ('.implode(',',$ids).')';
+    $query .= ' WHERE id '.$conn->in($ids);
     $cat_map = hash_from_query($query, 'id');
     foreach ($related_categories as $category) {
         $cats = array();

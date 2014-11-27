@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -582,7 +582,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
     $datas = array();
     $tags_of = array();
 
-    foreach ( $files as $id => $element_infos ) {
+    foreach ($files as $id => $element_infos) {
         $data = $site_reader->get_element_metadata($element_infos);
 
         if (is_array($data)) {
@@ -597,7 +597,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
                     }
 
                     foreach (explode(',', $data[$key]) as $tag_name) {
-                        $tags_of[$id][] = tag_id_from_tag_name($tag_name);
+                        $tags_of[$id][] = $services['tags']->TagIdFromTagName($tag_name);
                     }
                 }
             }
@@ -630,7 +630,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
               isset($_POST['meta_empty_overrides']) ? 0 : MASS_UPDATES_SKIP_EMPTY
           );
       }
-      set_tags_of($tags_of);
+      $services['tags']->setTagsOf($tags_of);
   }
 
   $template->append('footer_elements', '<!-- metadata update : '. get_elapsed_time($start, get_moment()). ' -->');

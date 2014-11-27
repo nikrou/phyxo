@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,7 +39,7 @@ check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 // represent
 $query = 'SELECT id FROM '.CATEGORIES_TABLE;
 $query .= ' WHERE representative_picture_id = '.(int) $_GET['image_id'];
-$represented_albums = query2array($query, null, 'id');
+$represented_albums = $conn->query2array($query, null, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |
@@ -68,10 +68,10 @@ if (isset($_GET['delete'])) {
     }
 
     $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id = '.$_GET['image_id'].';';
+    $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
 
     $authorizeds = array_diff(
-        array_from_query($query, 'category_id'),
+        $conn->query2array($query, null, 'category_id'),
         explode(',', calculate_permissions($user['id'], $user['status']))
     );
 
@@ -105,7 +105,7 @@ if (isset($_POST['submit'])) {
     $data['author'] = $_POST['author'];
     $data['level'] = $_POST['level'];
 
-    // @TODO: remove arobase
+    // @TODO: remove arobases
     if ($conf['allow_html_descriptions']) {
         $data['comment'] = @$_POST['description'];
     } else {
@@ -120,7 +120,7 @@ if (isset($_POST['submit'])) {
 
     $data = trigger_change('picture_modify_before_update', $data);
 
-    single_update(
+    $conn->single_update(
         IMAGES_TABLE,
         $data,
         array('id' => $data['id'])
@@ -129,9 +129,9 @@ if (isset($_POST['submit'])) {
     // time to deal with tags
     $tag_ids = array();
     if (!empty($_POST['tags'])) {
-        $tag_ids = get_tag_ids($_POST['tags']);
+        $tag_ids = $services['tags']->getTagsIds($_POST['tags']);
     }
-    set_tags($tag_ids, $_GET['image_id']);
+    $services['tags']->setTags($tag_ids, $_GET['image_id']);
 
     // association to albums
     if (!isset($_POST['associate'])) {
@@ -157,24 +157,24 @@ if (isset($_POST['submit'])) {
     if (count($new_thumbnail_for) > 0) {
         $query = 'UPDATE '.CATEGORIES_TABLE;
         $query .= ' SET representative_picture_id = '.(int) $_GET['image_id'];
-        $query .= ' WHERE id IN ('.implode(',', $new_thumbnail_for).');';
-        pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($new_thumbnail_for);
+        $conn->db_query($query);
     }
 
     $represented_albums = $_POST['represent'];
-
     $page['infos'][] = l10n('Photo informations updated');
 }
 
 // tags
 $query = 'SELECT id,name FROM '.TAGS_TABLE.' AS t';
 $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
-$query .= ' WHERE image_id = '.$_GET['image_id'].';';
-$tag_selection = get_taglist($query);
+$query .= ' WHERE image_id = '.$conn->db_real_escape_string($_GET['image_id']);
+$query .= ' AND validated = \''.$conn->boolean_to_db(true).'\'';
+$tag_selection = $services['tags']->getTagsList($query);
 
 // retrieving direct information about picture
 $query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id = '.(int) $_GET['image_id'];
-$row = pwg_db_fetch_assoc(pwg_query($query));
+$row = $conn->db_fetch_assoc($conn->db_query($query));
 
 $storage_category_id = null;
 if (!empty($row['storage_category_id'])) {
@@ -190,7 +190,7 @@ $image_file = $row['file'];
 $template->set_filenames(array('picture_modify' => 'picture_modify.tpl'));
 
 $admin_url_start = $admin_photo_base_url.'-properties';
-$admin_url_start.= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
+$admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
 
 $src_image = new SrcImage($row);
 
@@ -217,8 +217,8 @@ $template->assign(
 $added_by = 'N/A';
 $query = 'SELECT '.$conf['user_fields']['username'].' AS username FROM '.USERS_TABLE;
 $query .= ' WHERE '.$conf['user_fields']['id'].' = '.$row['added_by'].';';
-$result = pwg_query($query);
-while ($user_row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($user_row = $conn->db_fetch_assoc($result)) {
     $row['added_by'] = $user_row['username'];
 }
 
@@ -234,7 +234,7 @@ $intro_vars = array(
 if ($conf['rate'] and !empty($row['rating_score'])) {
     $query = 'SELECT COUNT(1) FROM '.RATE_TABLE;
     $query .= ' WHERE element_id = '.(int) $_GET['image_id'];
-    list($row['nb_rates']) = pwg_db_fetch_row(pwg_query($query));
+    list($row['nb_rates']) = $conn->db_fetch_row($conn->db_query($query));
 
     $intro_vars['stats'].= ', '.sprintf(l10n('Rated %d times, score : %.2f'), $row['nb_rates'], $row['rating_score']);
 }
@@ -258,9 +258,9 @@ $template->assign(
 $query = 'SELECT category_id, uppercats FROM '.CATEGORIES_TABLE.' AS c';
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON c.id = ic.category_id';
 $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $name = get_cat_display_name_cache($row['uppercats'], get_root_url().'admin.php?page=album-');
 
     if ($row['category_id'] == $storage_category_id) {
@@ -282,7 +282,7 @@ $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
 $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
 
 $authorizeds = array_diff(
-    array_from_query($query, 'category_id'),
+    $conn->query2array($query, null, 'category_id'),
     explode(',', calculate_permissions($user['id'], $user['status']))
 );
 

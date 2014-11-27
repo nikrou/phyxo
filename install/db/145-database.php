@@ -19,15 +19,31 @@
 // +-----------------------------------------------------------------------+
 
 if (!defined('PHPWG_ROOT_PATH')) {
-    die ('Hacking attempt!');
+    die('Hacking attempt!');
 }
 
-if (!empty($_POST['tag_ids'])) {
-    if (!empty($_POST['validate'])) {
-        $services['tags']->validateTags($_POST['tag_ids']);
-    } elseif ($_POST['reject']) {
-        $services['tags']->rejectTags($_POST['tag_ids']);
-    }
+$upgrade_description = 'add fields for users tags';
+
+if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE;
+    $query .= ' ADD COLUMN validated enum("true","false") NOT NULL default "false",';
+    $query .= ' ADD COLUMN created_by mediumtext(8) unsigned DEFAULT NULL,';
+    $query .= ' ADD COLUMN status smallint(3) DEFAULT 1';
+    $conn->db_query($query);
+} elseif ($conf['dblayer']=='pgsql') {
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN validated BOOLEAN default true';
+    $conn->db_query($query);
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN created_by INTEGER REFERENCES "phyxo_users" (id)';
+    $conn->db_query($query);
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN status INTEGER default 1';
+    $conn->db_query($query);
+} elseif ($conf['dblayer']=='sqlite') {
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN validated" BOOLEAN default false';
+    $conn->db_query($query);
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN created_by INTEGER REFERENCES "phyxo_users" (id)';
+    $conn->db_query($query);
+    $query = 'ALTER TABLE '.IMAGE_TAG_TABLE.' ADD COLUMN status INTEGER DEFAULT 1';
+    $conn->db_query($query);
 }
 
-$template->assign('tags', $services['tags']->getPendingTags());
+echo "\n".$upgrade_description."\n";

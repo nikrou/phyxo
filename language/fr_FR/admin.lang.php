@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -596,7 +596,7 @@ $lang['Install on your computer,'] = 'Installez sur votre ordinateur,';
 $lang['Make this theme available to users'] = 'Rendre ce thème disponible aux utilisateurs';
 $lang['Page end'] = 'Fin de la page';
 $lang['Piwigo Uploader'] = 'Piwigo Uploader';
-$lang['Read Piwigo Documentation'] = 'Lire la documentation Piwigo';
+$lang['Read Phyxo Documentation'] = 'Lire la documentation Phyxo';
 $lang['Start pLoader and add your photos.'] = 'Démarrez pLoader et ajoutez vos photos.';
 $lang['Switch to clear or dark colors for administration'] = 'Choisir des couleurs claires ou sombres pour l\'administration';
 $lang['Theme has been successfully installed'] = 'Le thème a été installé avec succès';
@@ -609,7 +609,6 @@ $lang['Activate Navigation Bar'] = 'Activer la barre de navigation';
 $lang['Activate Navigation Thumbnails'] = 'Activer les miniatures de navigation';
 $lang['Activate icon "%s"'] = 'Activer l\'icône "%s"';
 $lang['Photo Properties'] = 'Propriétés de la photo';
-$lang['pLoader stands for <em>Piwigo Uploader</em>. From your computer, pLoader prepares your photos and transfer them to your Piwigo photo gallery.'] = 'pLoader signifie <em>Piwigo Uploader</em>. Depuis votre ordinateur, pLoader prépare vos photos et les transfère vers votre galerie photo Piwigo.';
 $lang['Languages'] = 'Langues';
 $lang['Installed Languages'] = 'Langues installées';
 $lang['Add New Language'] = 'Ajouter une langue';
@@ -987,3 +986,13 @@ $lang['Who can add tags?'] = "Qui peut ajouter des tags ?";
 $lang['Who can delete related tags?'] = "Qui peut supprimer les tags déjà liés à une image ?";
 $lang['Be careful, whatever the configuration value is, new tag can be deleted anyway'] = "Attention, quelle que soit la valeur de ce paramètre de configuration, les nouveaux tags pourront être supprimés.";
 $lang['Only add existing tags'] = "Ajouter seulement des tags existants";
+$lang['Moderate added tags'] = "Modérer l'ajout de tags";
+$lang['Moderate deleted tags'] = "Modérer la suppression de tags";
+$lang['Settings have been updated'] = "Les paramètres ont été mis à jour";
+$lang['If a user delete a tag and you "moderate delete tags", then theses tags will be displayed to all users until you validate the deletion.'] = "Si un utilisateur supprime un tag et que vous \"modérer la suppression des tags\", alors ces tags seront affichés pour tous les utilisateurs jusqu'à ce que vous validiez la suppression.";
+$lang['Display for pending tags'] = "Affichage des tags en attente de modération";
+$lang['By default, if you allow some users to add tags, theses tags are not shown to them (nor others users). And pending deleted tags are shown.'] = "Par défaut, si vous autorisez les utilisateurs à ajouter des tags, ceux-là ne seront pas affichés à ces utilisateurs (ni aux autres). Quant aux tags en attente de suppression ils seront affichés";
+$lang['Show added pending tags to the user who add them'] = "Afficher les tags en attente de validation à l'utilisateur qui les a ajoutés ";
+$lang['A css class is added to tag to show deleted pending tags differently to the user who delete them'] = "Une classe css est ajoutée aux tags pour permettre d'afficher différemment les tags en attente de suppression pour l'utilisateur les ayant supprimés";
+$lang['Created by'] = 'Créé par';
+$lang['Pendings'] = "En attente";

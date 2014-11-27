@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -34,7 +34,7 @@ initialize_menu();
  * Setups each block the main menubar.
  */
 function initialize_menu() {
-    global $page, $conf, $user, $template, $filter;
+    global $page, $conf, $user, $template, $filter, $services;
 
     $menu = new BlockManager('menubar');
     $menu->load_registered_blocks();
@@ -104,12 +104,12 @@ function initialize_menu() {
     $block = $menu->get_block('mbTags');
     if ($block!=null && !empty($page['items']) && 'picture' != script_basename()) {
         if (!empty($page['section']) && 'tags'==$page['section']) {
-            $tags = get_common_tags(
+            $tags = $services['tags']->getCommonTags(
                 $page['items'],
                 $conf['menubar_tag_cloud_items_number'],
                 $page['tag_ids']
             );
-            $tags = add_level_to_tags($tags);
+            $tags = $services['tags']->addLevelToTags($tags);
 
             foreach ($tags as $tag) {
                 $block->data[] = array_merge(
@@ -130,7 +130,9 @@ function initialize_menu() {
             }
         } else {
             $selection = array_slice( $page['items'], $page['start'], $page['nb_image_page'] );
-            $tags = add_level_to_tags( get_common_tags($selection, $conf['content_tag_cloud_items_number']) );
+            $tags = $services['tags']->addLevelToTags(
+                $services['tags']->getCommonTags($selection, $conf['content_tag_cloud_items_number'])
+            );
             foreach ($tags as $tag) {
                 $block->data[] =
                     array_merge( $tag,
@@ -224,7 +226,7 @@ function initialize_menu() {
                 'TITLE' => l10n('display available tags'),
                 'NAME' => l10n('Tags'),
                 'URL'=> get_root_url().'tags.php',
-                'COUNTER' => get_nb_available_tags(),
+                'COUNTER' => $services['tags']->getNbAvailableTags($user),
             );
 
         // search link

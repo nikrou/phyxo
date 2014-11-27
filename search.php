@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -182,10 +182,10 @@ $template->assign(
     )
 );
 
-$available_tags = get_available_tags();
+$available_tags = $services['tags']->getAvailableTags();
 
 if (count($available_tags) > 0) {
-    usort( $available_tags, 'tag_alpha_compare');
+    usort($available_tags, 'tag_alpha_compare');
 
     $template->assign('TAGS', $available_tags);
 }
@@ -208,8 +208,8 @@ $query .= ' GROUP BY author, id';
 $query .= ' ORDER BY author;';
 
 $author_counts = array();
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($author_counts[$row['author']])) {
         $author_counts[$row['author']] = 0;
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -69,8 +69,6 @@ try {
 $languages = new Languages($conn, 'utf-8');
 
 if (isset($_GET['language'])) {
-    $language = strip_tags($_GET['language']);
-
     if (!in_array($language, array_keys($languages->fs_languages))) {
         $language = PHPWG_DEFAULT_LANGUAGE;
     }
@@ -92,12 +90,7 @@ load_language('admin.lang', '', array('language' => $language, 'target_charset'=
 load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('upgrade.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 
-// check php version
-if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<')) {
-    include(PHPWG_ROOT_PATH.'install/php5_apache_configuration.php');
-}
-
-list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 
 // +-----------------------------------------------------------------------+
@@ -119,7 +112,9 @@ $columns_of = $conn->db_get_columns_of($tables);
 $query = 'SELECT id FROM '.PREFIX_TABLE.'upgrade;';
 $applied_upgrades = $conn->query2array($query, null, 'id');
 
-if (!in_array(142, $applied_upgrades)) {
+if (in_array('validated', $columns_of[PREFIX_TABLE.'tags'])) {
+    $current_release = '1.3.0';
+} elseif (!in_array(142, $applied_upgrades)) {
     $current_release = '1.0.0';
 } else {
     // confirm that the database is in the same version as source code files
@@ -181,14 +176,6 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         // Save $page['infos'] in order to restore after maintenance actions
         $page['infos_sav'] = $page['infos'];
         $page['infos'] = array();
-
-        /* might be usefull when we will have a real integrity checker
-           $query = '
-           REPLACE INTO '.PLUGINS_TABLE.'
-           (id, state)
-           VALUES (\'c13y_upgrade\', \'active\')
-           ;';
-           pwg_query($query);*/
 
         // Delete cache data
         invalidate_user_cache(true);

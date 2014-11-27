@@ -586,6 +586,13 @@ FIELDSET {
 .tagLevel2 { font-size: 100% !important; }
 .tagLevel1 { font-size: 90%  !important; }
 
+.pending.added {
+      color: #00FF00;
+}
+
+.pending.deleted {
+      color: #0000FF;
+}
 
 /* Popup help page */
 #thePopuphelpPage #copyright {
@@ -597,7 +604,7 @@ FIELDSET {
 }
 
 #thePopuphelpPage DL  {
-	margin: 0 25px 25px; 
+	margin: 0 25px 25px;
 }
 
 TR.tagLine {

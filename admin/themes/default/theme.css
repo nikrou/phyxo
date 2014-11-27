@@ -1296,3 +1296,30 @@ table.qsearch_help_table td {
 .font-checkbox input[type=checkbox], .font-checkbox input[type=radio] {
   display:none;
 }
+
+#pending-tags table {
+      min-width: 800px;
+      margin: 0 0 2em 2em;
+}
+#pending-tags table tr.selected td {
+      background-color: #C2F5C2;
+}
+#pending-tags table tr td {
+      padding: 0.5em;
+}
+#pending-tags table tr td.check {
+      cursor: pointer;
+}
+#pending-tags table tr.even {
+      background-color: #DDDDDD;
+}
+#pending-tags table tr td.added {
+      background-color: #00FF00;
+}
+#pending-tags table tr td.deleted {
+      background-color: #FF0000;
+}
+#pending-tags .check-actions, #pending-tags .formButtons {
+      text-align: left;
+      margin: 0 0 2em 2em;
+}

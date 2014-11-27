@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,11 +31,11 @@ $upgrade_description = 'add activation_key_expire';
 if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query = 'ALTER TABLE '.USER_INFOS_TABLE.' CHANGE activation_key activation_key VARCHAR(255) DEFAULT NULL,';
     $query .= ' ADD COLUMN activation_key_expire DATETIME DEFAULT NULL AFTER activation_key;';
-    pwg_query($query);
+    $conn->db_query($query);
 } elseif ($conf['dblayer']=='pgsql') {
     $query = 'ALTER TABLE '.USER_INFOS_TABLE.' ALTER COLUMN activation_key TYPE VARCHAR(255),';
     $query .= ' ADD COLUMN activation_key_expire TIMESTAMP DEFAULT NULL;';
-    pwg_query($query);
+    $conn->db_query($query);
 } elseif ($conf['dblayer']=='sqlite') {
     $temporary_table = 'tmp_user_infos_'.micro_seconds();
 
@@ -63,10 +63,10 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query .= 'ALTER TABLE '.$temporary_table.' RENAME TO '.USER_INFOS_TABLE.';';
     $query .= 'ALTER TABLE '.USER_INFOS_TABLE.' ADD COLUMN "activation_key_expire" TIMESTAMP default NULL;';
     $query .= 'COMMIT;';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 // purge current expiration keys
-pwg_query('UPDATE '.USER_INFOS_TABLE.' SET activation_key = NULL;');
+$conn->db_query('UPDATE '.USER_INFOS_TABLE.' SET activation_key = NULL;');
 
 echo "\n".$upgrade_description."\n";

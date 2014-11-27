@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -75,7 +75,7 @@ foreach (array('cloud', 'letters') as $mode) {
 $template->assign( 'display_mode', $page['display_mode'] );
 
 // find all tags available for the current user
-$tags = get_available_tags();
+$tags = $services['tags']->getAvailableTags();
 
 // +-----------------------------------------------------------------------+
 // |                       letter groups construction                      |
@@ -151,7 +151,7 @@ if ($page['display_mode'] == 'letters') {
     $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
     // depending on its counter and the other tags counter, each tag has a level
-    $tags = add_level_to_tags($tags);
+    $tags = $services['tags']->addLevelToTags($tags);
 
     // we want tags diplayed in alphabetic order
     usort($tags, 'tag_alpha_compare');

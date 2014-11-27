@@ -117,19 +117,19 @@ jQuery("a.preview-box").colorbox();
     </p>
 
     <p>
-      <strong>{'Representation of albums'|translate}</strong>
-      <br>
+      <label>{'Representation of albums'|translate}
       <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
         placeholder="{'Type in a search term'|translate}"
-        name="represent[]" multiple style="width:600px;"></select>
+              name="represent[]" multiple style="width:600px;"></select>
+      </label>
     </p>
 
     <p>
-      <strong>{'Tags'|translate}</strong>
-      <br>
+      <label>{'Tags'|translate}
       <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
         placeholder="{'Type in a search term'|translate}"
-        data-create="true" name="tags[]" multiple style="width:600px;"></select>
+              data-create="true" name="tags[]" multiple style="width:600px;"></select>
+      </label>
     </p>
 
     <p>

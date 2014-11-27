@@ -35,6 +35,7 @@
 ;; other stuff
 /target
 /.dist
+/rsync_exclude
 
 ;; multisites
 /sites

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -306,46 +306,35 @@ function ws_images_addComment($params, $service) {
  *    @option int comments_per_page
  */
 function ws_images_getInfo($params, $service) {
-    global $user, $conf;
+    global $user, $conf, $conn, $services;
 
     $query = 'SELECT * FROM '. IMAGES_TABLE;
-    $query .= ' WHERE id='. $params['image_id'];
-    $query .= get_sql_condition_FandF(
-        array('visible_images' => 'id'),
-        ' AND'
-    );
+    $query .= ' WHERE id='. $conn->db_real_escape_string($params['image_id']);
+    $query .= get_sql_condition_FandF(array('visible_images' => 'id'), ' AND ');
     $query .= ' LIMIT 1;';
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return new PwgError(404, 'image_id not found');
     }
 
-    $image_row = pwg_db_fetch_assoc($result);
+    $image_row = $conn->db_fetch_assoc($result);
     $image_row = array_merge($image_row, ws_std_get_urls($image_row));
 
     //-------------------------------------------------------- related categories
     $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM '. CATEGORIES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id = id';
-    $query .= ' WHERE image_id = '. $image_row['id'];
-    $query .= get_sql_condition_FandF(
-        array('forbidden_categories' => 'category_id'),
-        ' AND'
-    );
-    $result = pwg_query($query);
+    $query .= ' WHERE image_id = '. $conn->db_real_escape_string($image_row['id']);
+    $query .= get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
+    $result = $conn->db_query($query);
 
     $is_commentable = false;
     $related_categories = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
-        $is_commentable = get_boolean($row['commentable']);
+    while ($row = $conn->db_fetch_assoc($result)) {
+        $is_commentable = $conn->get_boolean($row['commentable']);
         unset($row['commentable']);
 
-        $row['url'] = make_index_url(
-            array(
-                'category' => $row
-            )
-        );
-
+        $row['url'] = make_index_url(array('category' => $row));
         $row['page_url'] = make_picture_url(
             array(
                 'image_id' => $image_row['id'],
@@ -354,7 +343,7 @@ function ws_images_getInfo($params, $service) {
             )
         );
 
-        $row['id']=(int)$row['id'];
+        $row['id'] = (int)$row['id'];
         $related_categories[] = $row;
     }
     usort($related_categories, 'global_rank_compare');
@@ -364,13 +353,9 @@ function ws_images_getInfo($params, $service) {
     }
 
   //-------------------------------------------------------------- related tags
-    $related_tags = get_common_tags(array($image_row['id']), -1);
-    foreach ($related_tags as $i=>$tag) {
-        $tag['url'] = make_index_url(
-            array(
-                'tags' => array($tag)
-            )
-        );
+    $related_tags = $services['tags']->getCommonTags(array($image_row['id']), -1);
+    foreach ($related_tags as $i => $tag) {
+        $tag['url'] = make_index_url(array('tags' => array($tag)));
         $tag['page_url'] = make_picture_url(
             array(
                 'image_id' => $image_row['id'],
@@ -820,7 +805,7 @@ function ws_images_addFile($params, $service) {
  *    @option int image_id (optional)
  */
 function ws_images_add($params, $service) {
-    global $conf, $user;
+    global $conf, $user, $conn, $services;
 
     foreach ($params as $param_key => $param_value) {
         ws_logfile(
@@ -833,8 +818,9 @@ function ws_images_add($params, $service) {
     }
 
     if ($params['image_id'] > 0) {
-        $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE id = '. $params['image_id'] .';';
-        list($count) = pwg_db_fetch_row(pwg_query($query));
+        $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
+        $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+        list($count) = $conn->db_fetch_row(pwg_query($query));
         if ($count == 0) {
             return new PwgError(404, 'image_id not found');
         }
@@ -850,7 +836,7 @@ function ws_images_add($params, $service) {
         }
 
         $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE '. $where_clause .';';
-        list($counter) = pwg_db_fetch_row(pwg_query($query));
+        list($counter) = $conn->db_fetch_row(pwg_query($query));
         if ($counter != 0) {
             return new PwgError(500, 'file already exists');
         }
@@ -917,8 +903,8 @@ function ws_images_add($params, $service) {
             $category_id = $matches[0];
 
             $query = 'SELECT id, name, permalink FROM '. CATEGORIES_TABLE .' WHERE id = '. $category_id .';';
-            $result = pwg_query($query);
-            $category = pwg_db_fetch_assoc($result);
+            $result = $conn->db_query($query);
+            $category = $conn->db_fetch_assoc($result);
 
             $url_params['section'] = 'categories';
             $url_params['category'] = $category;
@@ -927,7 +913,7 @@ function ws_images_add($params, $service) {
 
     // and now, let's create tag associations
     if (!empty($params['tag_ids'])) {
-        set_tags(explode(',', $params['tag_ids']), $image_id);
+        $services['tags']->setTags(explode(',', $params['tag_ids']), $image_id);
     }
 
     invalidate_user_cache();
@@ -951,7 +937,7 @@ function ws_images_add($params, $service) {
  *    @option int image_id (optional)
  */
 function ws_images_addSimple($params, $service) {
-    global $conf;
+    global $conf, $conn, $services;
 
     if (!isset($_FILES['image'])) {
         return new PwgError(405, 'The image (file) is missing');
@@ -959,8 +945,8 @@ function ws_images_addSimple($params, $service) {
 
     if ($params['image_id'] > 0) {
         $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id = '. $params['image_id'] .';';
-        list($count) = pwg_db_fetch_row(pwg_query($query));
+        $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
             return new PwgError(404, 'image_id not found');
         }
@@ -991,7 +977,7 @@ function ws_images_addSimple($params, $service) {
         }
     }
 
-    single_update(
+    $conn->single_update(
         IMAGES_TABLE,
         $update,
         array('id' => $image_id)
@@ -1003,24 +989,25 @@ function ws_images_addSimple($params, $service) {
         $tag_ids = array();
         if (is_array($params['tags'])) {
             foreach ($params['tags'] as $tag_name) {
-                $tag_ids[] = tag_id_from_tag_name($tag_name);
+                $tag_ids[] = $services['tags']->tagIdFromTagName($tag_name);
             }
         } else {
             $tag_names = preg_split('~(?<!\\\),~', $params['tags']);
             foreach ($tag_names as $tag_name) {
-                $tag_ids[] = tag_id_from_tag_name(preg_replace('#\\\\*,#', ',', $tag_name));
+                $tag_ids[] = $services['tags']->tagIdFromTagName(preg_replace('#\\\\*,#', ',', $tag_name));
             }
         }
 
-        add_tags($tag_ids, array($image_id));
+        $services['tags']->addTags($tag_ids, array($image_id));
     }
 
     $url_params = array('image_id' => $image_id);
 
     if (!empty($params['category'])) {
-        $query = 'SELECT id, name, permalink FROM '. CATEGORIES_TABLE .' WHERE id = '. $params['category'][0] .';';
-        $result = pwg_query($query);
-        $category = pwg_db_fetch_assoc($result);
+        $query = 'SELECT id, name, permalink FROM '. CATEGORIES_TABLE;
+        $query .= ' WHERE id = '. $conn->db_real_escape_string($params['category'][0]);
+        $result = $conn->db_query($query);
+        $category = $conn->db_fetch_assoc($result);
 
         $url_params['section'] = 'categories';
         $url_params['category'] = $category;
@@ -1255,15 +1242,16 @@ function ws_images_checkFiles($params, $service) {
  *    @option bool sort_by_counter
  */
 function ws_images_setRelatedTags($params, &$service) {
-    global $conf;
+    global $conf, $conn, $services;
 
     if (!$service->isPost()) {
         return new PwgError(405, "This method requires HTTP POST");
     }
 
-    if ((empty($conf['tags_permission_add']) || !is_autorize_status(get_access_type_status($conf['tags_permission_add'])))
-    && (empty($conf['tags_permission_delete']) || !is_autorize_status(get_access_type_status($conf['tags_permission_delete'])))) {
-
+    if ((empty($conf['tags_permission_add'])
+         || !is_autorize_status(get_access_type_status($conf['tags_permission_add']))) &&
+        (empty($conf['tags_permission_delete'])
+         || !is_autorize_status(get_access_type_status($conf['tags_permission_delete'])))) {
         return new PwgError(403, l10n('You are not allowed to add nor delete tags'));
     }
 
@@ -1276,9 +1264,11 @@ function ws_images_setRelatedTags($params, &$service) {
 
     $query = 'SELECT id FROM '.TAGS_TABLE.' AS t';
     $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
-    $query .= ' WHERE image_id = '.pwg_db_real_escape_string($params['image_id']);
+    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
 
-    $current_tags = array_map(function($id) { return '~~'.$id.'~~';}, query2array($query, null, 'id'));
+    $removed_tags_ids = $new_tags_ids = array();
+    $current_tags_ids = $conn->query2array($query, null, 'id');
+    $current_tags = array_map(function($id) { return '~~'.$id.'~~';}, $current_tags_ids);
     $removed_tags = array_diff($current_tags, $params['tags']);
     $new_tags = array_diff($params['tags'], $current_tags);
 
@@ -1295,12 +1285,44 @@ function ws_images_setRelatedTags($params, &$service) {
 
     try {
         if (empty($params['tags'])) { // remove all tags for an image
-            $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE image_id = '.pwg_db_real_escape_string($params['image_id']);
-            pwg_query($query);
+            if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately']==0) {
+                $services['tags']->toBeValidatedTags(
+                    $current_tags_ids,
+                    $params['image_id'],
+                    array('status' => 0, 'user_id' => $_SESSION['pwg_uid'])
+                );
+            } else {
+                $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
+                $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
+                $conn->db_query($query);
+            }
         } else {
-            $tag_ids = get_tag_ids(implode(',', $params['tags']));
-            set_tags($tag_ids, $params['image_id']);
+            // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
+            if (count($removed_tags)>0) {
+                $removed_tags_ids = $services['tags']->getTagsIds($removed_tags);
+                if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately']==0) {
+                    $services['tags']->toBeValidatedTags(
+                        $removed_tags_ids,
+                        $params['image_id'],
+                        array('status' => 0, 'user_id' => $_SESSION['pwg_uid'])
+                    );
+                } else {
+                    $services['tags']->dissociateTags($removed_tags_ids, $params['image_id']);
+                }
+            }
+
+            if (count($new_tags)>0) {
+                $new_tags_ids = $services['tags']->getTagsIds($new_tags);
+                if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately']==0) {
+                    $services['tags']->toBeValidatedTags(
+                        $new_tags_ids,
+                        $params['image_id'],
+                        array('status' => 1, 'user_id' => $_SESSION['pwg_uid'])
+                    );
+                } else {
+                    $services['tags']->associateTags($new_tags_ids, $params['image_id']);
+                }
+            }
         }
     } catch (Exception $e) {
         return new PwgError(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
@@ -1324,16 +1346,19 @@ function ws_images_setRelatedTags($params, &$service) {
  *    @option string multiple_value_mode
  */
 function ws_images_setInfo($params, $service) {
+    global $conn, $services;
+
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
-    $query = 'SELECT * FROM '. IMAGES_TABLE .' WHERE id = '. $params['image_id'] .';';
-    $result = pwg_query($query);
+    $query = 'SELECT * FROM '. IMAGES_TABLE;
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return new PwgError(404, 'image_id not found');
     }
 
-    $image_row = pwg_db_fetch_assoc($result);
+    $image_row = $conn->db_fetch_assoc($result);
 
     // database registration
     $update = array();
@@ -1377,7 +1402,7 @@ function ws_images_setInfo($params, $service) {
     if (count(array_keys($update)) > 0) {
         $update['id'] = $params['image_id'];
 
-        single_update(
+        $conn->single_update(
             IMAGES_TABLE,
             $update,
             array('id' => $update['id'])
@@ -1405,15 +1430,9 @@ function ws_images_setInfo($params, $service) {
         }
 
         if ('replace' == $params['multiple_value_mode']) {
-            set_tags(
-                $tag_ids,
-                $params['image_id']
-            );
+            $services['tags']->setTags($tag_ids, $params['image_id']);
         } elseif ('append' == $params['multiple_value_mode']) {
-            add_tags(
-                $tag_ids,
-                array($params['image_id'])
-            );
+            $services['tags']->addTags($tag_ids, array($params['image_id']));
         } else {
             return new PwgError(500,
             '[ws_images_setInfo]'

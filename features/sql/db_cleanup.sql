@@ -15,3 +15,5 @@ DELETE FROM phyxo_user_access;
 DELETE FROM phyxo_images;
 DELETE FROM phyxo_image_category;
 DELETE FROM phyxo_sessions;
+-- special keys for config
+DELETE FROM phyxo_config WHERE param in ('tags_permission_add', 'tags_permission_delete', 'publish_tags_immediately', 'delete_tags_immediately');

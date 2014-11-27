@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -32,7 +32,6 @@ include_once( PHPWG_ROOT_PATH .'include/functions_cookie.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/functions_session.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/functions_category.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/functions_html.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_tag.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/functions_url.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -33,15 +33,15 @@ if (isset($_POST['edit_submit'])) {
     $current_name_of = array();
     $query = 'SELECT id, name FROM '.TAGS_TABLE;
     $query .= ' WHERE id IN ('.$_POST['edit_list'].');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[ $row['id'] ] = $row['name'];
     }
 
     $updates = array();
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
-        $tag_name = stripslashes($_POST['tag_name-'.$tag_id]);
+        $tag_name = $_POST['tag_name-'.$tag_id];
 
         if ($tag_name != $current_name_of[$tag_id]) {
             if (in_array($tag_name, $existing_names)) {
@@ -49,7 +49,7 @@ if (isset($_POST['edit_submit'])) {
             } elseif (!empty($tag_name)) {
                 $updates[] = array(
                     'id' => $tag_id,
-                    'name' => addslashes($tag_name),
+                    'name' => $tag_name,
                     'url_name' => trigger_change('render_tag_url', $tag_name),
                 );
             }
@@ -73,16 +73,16 @@ if (isset($_POST['duplic_submit'])) {
     $existing_names = array_from_query($query, 'name');
 
     $current_name_of = array();
-    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id IN ('.$_POST['edit_list'].');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['edit_list']);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[$row['id']] = $row['name'];
     }
 
     $updates = array();
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
-        $tag_name = stripslashes($_POST['tag_name-'.$tag_id]);
+        $tag_name = $_POST['tag_name-'.$tag_id];
 
         if ($tag_name != $current_name_of[$tag_id]) {
             if (in_array($tag_name, $existing_names)) {
@@ -96,11 +96,11 @@ if (isset($_POST['duplic_submit'])) {
                     )
                 );
 
-                $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$tag_name.'\';';
-                $destination_tag = array_from_query($query, 'id');
+                $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$conn->db_real_escape_string($tag_name).'\';';
+                $destination_tag = $conn->query2array($query, null, 'id');
                 $destination_tag_id = $destination_tag[0];
 
-                $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$tag_id.';';
+                $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($tag_id).';';
                 $destination_tag_image_ids = array_from_query($query, 'image_id');
 
                 $inserts = array();
@@ -121,7 +121,7 @@ if (isset($_POST['duplic_submit'])) {
 
                 $page['infos'][] = l10n(
                     'Tag "%s" is now a duplicate of "%s"',
-                    stripslashes($tag_name),
+                    $tag_name,
                     $current_name_of[$tag_id]
                 );
             }
@@ -151,9 +151,9 @@ if (isset($_POST['merge_submit'])) {
 
         if (is_array($tag_ids) and count($tag_ids) > 1) {
             $name_of_tag = array();
-            $query = 'SELECT id,name FROM '.TAGS_TABLE.' WHERE id IN ('.implode(',', $tag_ids).');';
-            $result = pwg_query($query);
-            while ($row = pwg_db_fetch_assoc($result)) {
+            $query = 'SELECT id,name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($tag_ids);
+            $result = $conn->db_query($query);
+            while ($row = $conn->db_fetch_assoc($result)) {
                 $name_of_tag[ $row['id'] ] = trigger_change('render_tag_name', $row['name'], $row);
             }
 
@@ -163,13 +163,13 @@ if (isset($_POST['merge_submit'])) {
             );
 
             $query = 'SELECT DISTINCT(image_id)  FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id IN ('.implode(',', $tag_ids_to_delete).');';
-            $image_ids = array_from_query($query, 'image_id');
+            $query .= ' WHERE tag_id '.$conn->in($tag_ids_to_delete);
+            $image_ids = $conn->query2array($query, null, 'image_id');
 
             delete_tags($tag_ids_to_delete);
 
-            $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$destination_tag_id.';';
-            $destination_tag_image_ids = array_from_query($query, 'image_id');
+            $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($destination_tag_id);
+            $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
 
             $image_ids_to_link = array_diff(
                 $image_ids,
@@ -212,8 +212,8 @@ if (isset($_POST['merge_submit'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['delete']) and isset($_POST['tags'])) {
-    $query = 'SELECT name FROM '.TAGS_TABLE.' WHERE id IN ('.implode(',', $_POST['tags']).');';
-    $tag_names = array_from_query($query, 'name');
+    $query = 'SELECT name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['tags']);
+    $tag_names = $conn->query2array($query, null, 'name');
 
     delete_tags($_POST['tags']);
 
@@ -231,7 +231,7 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
     check_pwg_token();
 
     delete_orphan_tags();
-    $_SESSION['page_infos'] = array(l10n('Orphan tags deleted'));
+    $_SESSION['page_infos'][] = l10n('Orphan tags deleted');
     redirect(get_root_url().'admin.php?page=tags');
 }
 
@@ -253,7 +253,7 @@ if (isset($_POST['add']) and !empty($_POST['add_tag'])) {
 // |                              orphan tags                              |
 // +-----------------------------------------------------------------------+
 
-$orphan_tags = get_orphan_tags();
+$orphan_tags = $services['tags']->getOrphanTags();
 
 $orphan_tag_names = array();
 foreach ($orphan_tags as $tag) {
@@ -275,13 +275,13 @@ if (count($orphan_tag_names) > 0) {
 
 // tag counters
 $query = 'SELECT tag_id, COUNT(image_id) AS counter FROM '.IMAGE_TAG_TABLE.' GROUP BY tag_id';
-$tag_counters = simple_hash_from_query($query, 'tag_id', 'counter');
+$tag_counters = $conn->query2array($query, 'tag_id', 'counter');
 
 // all tags
 $query = 'SELECT id,name FROM '.TAGS_TABLE;
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 $all_tags = array();
-while ($tag = pwg_db_fetch_assoc($result)) {
+while ($tag = $conn->db_fetch_assoc($result)) {
     $raw_name = $tag['name'];
     $tag['name'] = trigger_change('render_tag_name', $raw_name, $tag);
     if (empty($tag_counters[$tag['id']])) {
@@ -313,9 +313,9 @@ if ((isset($_POST['edit']) or isset($_POST['duplicate']) or isset($_POST['merge'
 
     $template->assign($list_name, implode(',', $_POST['tags']));
 
-    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id IN ('.implode(',', $_POST['tags']).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['tags']);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $template->append(
             'tags',
             array(

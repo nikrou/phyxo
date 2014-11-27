@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,10 +37,10 @@ function add_core_tabs($sheets, $tab_id) {
                 'caption' => l10n('Permissions'),
                 'url' => $admin_tags_base_url.'&section=perm'
             );
-            /* $sheets['pending'] = array( */
-            /*     'caption' => l10n('Pendings'), */
-            /*     'url' => $admin_tags_base_url.'&section=pending' */
-            /* ); */
+            $sheets['pending'] = array(
+                'caption' => l10n('Pendings'),
+                'url' => $admin_tags_base_url.'&section=pending'
+            );
             break;
         case 'album':
             global $admin_album_base_url;

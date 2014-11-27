@@ -170,6 +170,10 @@ DROP TABLE IF EXISTS `phyxo_image_tag`;
 CREATE TABLE `phyxo_image_tag` (
   `image_id` mediumint(8) unsigned NOT NULL default '0',
   `tag_id` smallint(5) unsigned NOT NULL default '0',
+  `validated` enum('true','false') NOT NULL default 'true',
+  `created_by` mediumtext(8) unsigned DEFAULT NULL,
+  `status` smallint(3) DEFAULT 1,
+
   PRIMARY KEY  (`image_id`,`tag_id`),
   KEY `image_tag_i1` (`tag_id`)
 ) ENGINE=MyISAM;
@@ -312,6 +316,7 @@ CREATE TABLE `phyxo_tags` (
   `name` varchar(255) NOT NULL default '',
   `url_name` varchar(255) binary NOT NULL default '',
   `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
   PRIMARY KEY  (`id`),
   KEY `tags_i1` (`url_name`),
   KEY `lastmodified` (`lastmodified`)

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -190,7 +190,7 @@ function get_sync_metadata($infos) {
  * @param int[] $ids
  */
 function sync_metadata($ids) {
-    global $conf;
+    global $conf, $conn, $services;
 
     if (!defined('CURRENT_DATE')) {
         define('CURRENT_DATE', date('Y-m-d'));
@@ -200,10 +200,10 @@ function sync_metadata($ids) {
     $tags_of = array();
 
     $query = 'SELECT id, path, representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.wordwrap(implode(', ', $ids), 160, "\n").');';
+    $query .= ' WHERE id IN ('.wordwrap(implode(', ', $ids), 160, "\n").');'; // @TODO: why wordwrap ?
 
-    $result = pwg_query($query);
-    while ($data = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($data = $conn->db_fetch_assoc($result)) {
         $data = get_sync_metadata($data);
         if ($data === false) {
             continue;
@@ -217,7 +217,7 @@ function sync_metadata($ids) {
                 }
 
                 foreach (explode(',', $data[$key]) as $tag_name) {
-                    $tags_of[$id][] = tag_id_from_tag_name($tag_name);
+                    $tags_of[$id][] = $services['tags']->tagIdFromTagName($tag_name);
                 }
             }
         }
@@ -236,7 +236,7 @@ function sync_metadata($ids) {
             array('tags', 'keywords')
         );
 
-        mass_updates(
+        $conn->mass_updates(
             IMAGES_TABLE,
             array(
                 'primary' => array('id'),
@@ -247,7 +247,7 @@ function sync_metadata($ids) {
         );
     }
 
-    set_tags_of($tags_of);
+    $services['tags']->setTagsOf($tags_of);
 }
 
 /**
@@ -293,4 +293,3 @@ function get_filelist($category_id = '', $site_id=1, $recursive = false, $only_n
     $query.= ';';
     return hash_from_query($query, 'id');
 }
-

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -365,7 +365,9 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                         $query .= ',';
                     }
 
-                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                    if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
+                        $query .= boolean_to_string($insert[$dbfield]);
+                    } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $query .= 'NULL';
                     } else {
                         $query .= '\''.$insert[$dbfield].'\'';
@@ -376,7 +378,9 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                 $query .= ' WHERE ';
                 $parts = array();
                 foreach ($dbfields as $dbfield) {
-                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
+                    if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
+                        $parts[] = $dbfield .' = '.boolean_to_string($insert[$dbfield]);
+                    } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $parts[] = $dbfield.' = NULL';
                     } else {
                         $parts[] = $dbfield.' = \''.$insert[$dbfield].'\'';
@@ -399,7 +403,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @return void
      */
     public function mass_updates($tablename, $dbfields, $datas, $flags=0) {
-        if (count($datas) == 0) {
+        if (count($datas)==0) {
             return;
         }
 
@@ -410,7 +414,9 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                 foreach ($dbfields['update'] as $key) {
                     $separator = $is_first ? '' : ",\n    ";
 
-                    if (isset($data[$key]) and $data[$key] != '') {
+                    if (isset($data[$key]) && is_bool($data[$key])) {
+                        $query .= $separator.$key.' = '.boolean_to_string($data[$key]);
+                    } elseif (isset($data[$key])) {
                         $query .= $separator.$key.' = \''.$data[$key].'\'';
                     } else {
                         if ($flags & MASS_UPDATES_SKIP_EMPTY) {

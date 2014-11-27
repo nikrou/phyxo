@@ -156,6 +156,9 @@ CREATE TABLE "phyxo_image_tag"
 (
   "image_id" INTEGER default 0 NOT NULL,
   "tag_id" INTEGER default 0 NOT NULL,
+  "validated" BOOLEAN default false,
+  "created_by" INTEGER REFERENCES "phyxo_users" (id),
+  "status" INTEGER DEFAULT 1,
   PRIMARY KEY ("image_id","tag_id")
 );
 
@@ -310,6 +313,7 @@ CREATE TABLE "phyxo_tags"
   "name" VARCHAR(255) default '' NOT NULL,
   "url_name" VARCHAR(255) default '' NOT NULL,
   "lastmodified" TIMESTAMP NULL DEFAULT '1970-01-01 00:00:00',
+
   PRIMARY KEY ("id")
 );
 

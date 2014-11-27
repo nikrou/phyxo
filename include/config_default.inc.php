@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -211,13 +211,13 @@ $conf['display_fromto'] = false;
 $conf['allow_random_representative'] = false;
 
 // representative_cache_on_level: if a thumbnail is chosen as representative
-// but has higher privacy level than current user, Piwigo randomly selects
+// but has higher privacy level than current user, Phyxo randomly selects
 // another thumbnail. Should be store this thumbnail in cache to avoid
 // another consuming SQL query on next page refresh?
 $conf['representative_cache_on_level'] = true;
 
 // representative_cache_on_subcats: if a category (= album) only contains
-// sub-categories, Piwigo randomly selects a thumbnail among sub-categories
+// sub-categories, Phyxo randomly selects a thumbnail among sub-categories
 // representative. Should we store this thumbnail in cache to avoid another
 // "slightly" consuming SQL query on next page refresh?
 $conf['representative_cache_on_subcats'] = true;
@@ -327,9 +327,9 @@ $conf['show_iptc_mapping'] = array(
 // metadata
 $conf['use_iptc'] = false;
 
-// use_iptc_mapping : in which IPTC fields will Piwigo find image
+// use_iptc_mapping : in which IPTC fields will Phyxo find image
 // information ? This setting is used during metadata synchronisation. It
-// associates a piwigo_images column name to a IPTC key
+// associates a phyxo_images column name to a IPTC key
 $conf['use_iptc_mapping'] = array(
   'keywords'        => '2#025',
   'date_creation'   => '2#055',
@@ -474,7 +474,7 @@ $conf['enable_i_log'] = false;
 $conf['apache_authentication'] = false;
 
 // users_table: which table is the reference for users? Can be a different
-// table than Piwigo table
+// table than Phyxo table
 //
 // If you decide to use another table than the default one, you need to
 // prepare your database by deleting some datas :
@@ -639,7 +639,7 @@ $conf['recent_post_dates'] = array(
   );
 
 // the author shown in the RSS feed <author> element
-$conf['rss_feed_author'] = 'Piwigo notifier';
+$conf['rss_feed_author'] = 'Phyxo notifier';
 
 // +-----------------------------------------------------------------------+
 // | Set admin layout                                                      |
@@ -731,7 +731,7 @@ $conf['light_slideshow'] = true;
 $conf['data_location'] = '_data/';
 
 // where should the API/UploadForm add photos? This path must be relative to
-// the Piwigo installation directory (but can be outside, as long as it's
+// the Phyxo installation directory (but can be outside, as long as it's
 // reachable from your webserver).
 $conf['upload_dir'] = './upload';
 
@@ -750,7 +750,7 @@ $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 // folders name exluded during synchronization
 $conf['sync_exclude_folders'] = array();
 
-// PEM url (default is http://piwigo.org/ext)
+// PEM url (default is http://ext.phyxo.org)
 $conf['alternative_pem_url'] = '';
 
 // categories ID on PEM
@@ -792,7 +792,7 @@ $conf['inheritance_by_default'] = false;
 $conf['tiff_representative_ext'] = 'png';
 
 // in the upload form, let users upload only picture_exts or all file_exts?
-// for some file types, Piwigo will try to generate a pwg_representative
+// for some file types, Phyxo will try to generate a pwg_representative
 // (TIFF, videos, PDF)
 $conf['upload_form_all_types'] = false;
 

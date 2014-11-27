@@ -165,6 +165,10 @@ CREATE TABLE "phyxo_image_tag"
 (
   "image_id" INTEGER default 0 NOT NULL,
   "tag_id" INTEGER default 0 NOT NULL,
+  "validated" BOOLEAN default true,
+  "created_by" INTEGER REFERENCES "phyxo_users" (id),
+  "status" INTEGER default 1,
+
   PRIMARY KEY ("image_id","tag_id")
 );
 

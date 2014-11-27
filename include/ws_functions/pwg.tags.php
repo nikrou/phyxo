@@ -33,7 +33,9 @@
  *    @option limit limit the number of tags to retrieved
  */
 function ws_tags_getFilteredList($params, &$service) {
-    return tagsList(get_all_tags($params['q']), $params);
+    global $services;
+
+    return tagsList($services['tags']->getAllTags($params['q']), $params);
 }
 
 
@@ -44,7 +46,9 @@ function ws_tags_getFilteredList($params, &$service) {
  *    @option bool sort_by_counter
  */
 function ws_tags_getList($params, &$service) {
-    return tagsList(get_available_tags(), $params);
+    global $services;
+
+    return tagsList($services['tags']->getAvailableTags(), $params);
 }
 
 /** Not API directly; private function
@@ -90,9 +94,11 @@ function tagsList($tags, $params) {
  * account.
  */
 function ws_tags_getAdminList($params, &$service) {
+    global $services;
+
     return array(
         'tags' => new PwgNamedArray(
-            get_all_tags(),
+            $services['tags']->getAllTags(),
             'tag',
             ws_std_get_tag_xml_attributes()
         )
@@ -112,11 +118,13 @@ function ws_tags_getAdminList($params, &$service) {
  *    @option string order
  */
 function ws_tags_getImages($params, &$service) {
+    global $conn, $services;
+
     // first build all the tag_ids we are interested in
-    $tags = find_tags($params['tag_id'], $params['tag_url_name'], $params['tag_name']);
+    $tags = $services['tags']->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']);
     $tags_by_id = array();
     foreach ($tags as $tag) {
-        $tags['id'] = (int)$tag['id'];
+        $tags['id'] = (int) $tag['id'];
         $tags_by_id[$tag['id']] = $tag;
     }
     unset($tags);
@@ -132,7 +140,7 @@ function ws_tags_getImages($params, &$service) {
         $order_by = 'ORDER BY '.$order_by;
     }
 
-    $image_ids = get_image_ids_for_tags(
+    $image_ids = $services['tags']->getImageIdsForTags(
         $tag_ids,
         $params['tag_mode_and'] ? 'AND' : 'OR',
         $where_clauses,
@@ -145,14 +153,14 @@ function ws_tags_getImages($params, &$service) {
     $image_tag_map = array();
     // build list of image ids with associated tags per image
     if (!empty($image_ids) and !$params['tag_mode_and']) {
-        $query = 'SELECT image_id, '.pwg_db_group_concat('tag_id').' AS tag_ids FROM '. IMAGE_TAG_TABLE;
-        $query .= ' WHERE tag_id IN ('. implode(',', $tag_ids) .')';
-        $query .= ' AND image_id IN ('. implode(',', $image_ids) .') GROUP BY image_id;';
-        $result = pwg_query($query);
+        $query = 'SELECT image_id, '.$conn->db_group_concat('tag_id').' AS tag_ids FROM '. IMAGE_TAG_TABLE;
+        $query .= ' WHERE tag_id '.$conn->in($tag_ids);
+        $query .= ' AND image_id '.$conn->in($image_ids).' GROUP BY image_id;';
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
-            $row['image_id'] = (int)$row['image_id'];
-            $image_tag_map[ $row['image_id'] ] = explode(',', $row['tag_ids']);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            $row['image_id'] = (int) $row['image_id'];
+            $image_tag_map[$row['image_id']] = explode(',', $row['tag_ids']);
         }
     }
 
@@ -160,22 +168,23 @@ function ws_tags_getImages($params, &$service) {
     if (!empty($image_ids)) {
         $rank_of = array_flip($image_ids);
 
-        $query = 'SELECT * FROM '. IMAGES_TABLE .' WHERE id IN ('. implode(',',$image_ids) .');';
-        $result = pwg_query($query);
+        $query = 'SELECT * FROM '. IMAGES_TABLE;
+        $query .= ' WHERE id '.$conn->in($image_ids);
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $image = array();
             $image['rank'] = $rank_of[ $row['id'] ];
 
             foreach (array('id', 'width', 'height', 'hit') as $k) {
                 if (isset($row[$k])) {
-                    $image[$k] = (int)$row[$k];
+                    $image[$k] = (int) $row[$k];
                 }
             }
             foreach (array('file', 'name', 'comment', 'date_creation', 'date_available') as $k) {
                 $image[$k] = $row[$k];
             }
-            $image = array_merge( $image, ws_std_get_urls($row) );
+            $image = array_merge($image, ws_std_get_urls($row));
 
             $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image['id']];
             $image_tags = array();
@@ -195,7 +204,7 @@ function ws_tags_getImages($params, &$service) {
                     )
                 );
                 $image_tags[] = array(
-                    'id' => (int)$tag_id,
+                    'id' => (int) $tag_id,
                     'url' => $url,
                     'page_url' => $page_url,
                 );
@@ -233,9 +242,11 @@ function ws_tags_getImages($params, &$service) {
  *    @option string name
  */
 function ws_tags_add($params, &$service) {
+    global $services;
+
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
-    $creation_output = create_tag($params['name']);
+    $creation_output = $services['tags']->createTag($params['name']);
 
     if (isset($creation_output['error'])) {
         return new PwgError(500, $creation_output['error']);

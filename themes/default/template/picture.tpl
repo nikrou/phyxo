@@ -203,7 +203,9 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 	<div id="Tags" class="imageInfo">
 	  <dt{if $TAGS_PERMISSION_ADD} class="edit-tags"{/if}>{'Tags'|translate}</dt>
 	  <dd>
-	    {foreach $related_tags as $tag}<a href="{$tag.URL}">{$tag.name}</a>{if !$tag@last},{/if}{/foreach}
+	    {foreach $related_tags as $tag}
+	    <a {if !$tag.validated}class="pending{if $tag.status==1} added{else} deleted{/if}"{/if} href="{$tag.URL}">{$tag.name}</a>{if !$tag@last},{/if}
+	    {/foreach}
 
 	    {if $TAGS_PERMISSION_ADD}
 	    <form action="{$USER_TAGS_UPDATE_SCRIPT}" method="post" id="user-tags-form" class="js-hidden">

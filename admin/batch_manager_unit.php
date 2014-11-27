@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -51,10 +51,10 @@ if (isset($_POST['submit'])) {
     $datas = array();
 
     $query = 'SELECT id, date_creation FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $collection).');';
-    $result = pwg_query($query);
+    $query .= ' WHERE id '.$conn->in($collection);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $data = array();
 
         $data['id'] = $row['id'];
@@ -63,9 +63,9 @@ if (isset($_POST['submit'])) {
         $data['level'] = $_POST['level-'.$row['id']];
 
         if ($conf['allow_html_descriptions']) {
-            $data['comment'] = @$_POST['description-'.$row['id']];
+            $data['comment'] = @$_POST['description-'.$row['id']]; // @TODO: remove arobase !!
         } else {
-            $data['comment'] = strip_tags(@$_POST['description-'.$row['id']]);
+            $data['comment'] = strip_tags(@$_POST['description-'.$row['id']]);// @TODO: remove arobase and strip_tags !!
         }
 
         if (!empty($_POST['date_creation-'.$row['id']])) {
@@ -79,12 +79,12 @@ if (isset($_POST['submit'])) {
         // tags management
         $tag_ids = array();
         if (!empty($_POST['tags-'.$row['id']])) {
-            $tag_ids = get_tag_ids($_POST[ 'tags-'.$row['id'] ]);
+            $tag_ids = $services['tags']->getTagIds($_POST['tags-'.$row['id']]);
         }
-        set_tags($tag_ids, $row['id']);
+        $services['tags']->setTags($tag_ids, $row['id']);
     }
 
-    mass_updates(
+    $conn->mass_updates(
         IMAGES_TABLE,
         array(
             'primary' => array('id'),
@@ -159,16 +159,18 @@ if (count($page['cat_elements_id']) > 0) {
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
     }
 
-    $query .= ' WHERE id IN ('.implode(',', $page['cat_elements_id']).')';
+    $query .= ' WHERE id '.$conn->in($page['cat_elements_id']);
 
     if ($is_category) {
-        $query .= ' AND category_id = '.$_SESSION['bulk_manager_filter']['category'];
+        $query .= ' AND category_id = '.$conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
     }
 
-    $query .= ' '.$conf['order_by'].' LIMIT '.$page['nb_images'].' OFFSET '.$page['start'].';';
-    $result = pwg_query($query);
+    $query .= ' '.$conf['order_by'].' LIMIT '.$conn->db_real_escape_string($page['nb_images']);
+    $query .= ' OFFSET '.$conn->db_real_escape_string($page['start']).';';
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    // @TODO : query in a loop ???? getTagsList is another query
+    while ($row = $conn->db_fetch_assoc($result)) {
         $element_ids[] = $row['id'];
 
         $src_image = new SrcImage($row);
@@ -176,7 +178,7 @@ if (count($page['cat_elements_id']) > 0) {
         $query = 'SELECT id,name FROM '.TAGS_TABLE.' AS t';
         $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
         $query .= ' WHERE image_id = '.$row['id'].';';
-        $tag_selection = get_taglist($query);
+        $tag_selection = $services['tags']->getTagsList($query);
 
         $legend = render_element_name($row);
         if ($legend != get_name_from_file($row['file'])) {

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -166,7 +166,7 @@ class DBLayer
      * @param string $table_name
      * @param array $data
      */
-    public function single_insert($table_name, $data) {
+    public function single_insert($table_name, $data) { // @TODO: need refactoring between mass_* and single_*
         if (count($data) != 0) {
             $query = 'INSERT INTO '.$table_name.' ('.implode(',', array_keys($data)).')';
             $query .= ' VALUES(';
@@ -199,7 +199,7 @@ class DBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update($tablename, $datas, $where, $flags=0) {
+    public function single_update($tablename, $datas, $where, $flags=0) { // @TODO: need refactoring between mass_* and single_*
         if (count($datas) == 0) {
             return;
         }
@@ -286,5 +286,41 @@ class DBLayer
         } else {
             return $this->query2array($query, null, $fieldname);
         }
+    }
+
+    /**
+     * deletes multiple lines in a table
+     *
+     * @param string table_name
+     * @param array dbfields
+     * @param array datas
+     * @return void
+     */
+    public function mass_deletes($tablename, array $dbfields, array $datas) {
+        if (empty($dbfields) || empty($datas)) {
+            return;
+        }
+        $query = 'DELETE FROM '.$tablename;
+        $query .= ' WHERE ('.implode(',', $dbfields).')';
+
+        $rows = array();
+        foreach ($datas as $data) {
+            $elements = array();
+            foreach ($dbfields as $dbfield) {
+                if (isset($data[$dbfield]) && is_bool($data[$dbfield])) {
+                    $elements[] = boolean_to_string($data[$dbfield]);
+                } elseif (!isset($data[$dbfield]) or $data[$dbfield] === '') {
+                    $elements[] = 'NULL';
+                } else {
+                    $elements[] = '\''.$data[$dbfield].'\'';
+                }
+            }
+            $rows[] = '('.implode(',', $elements).')';
+        }
+        if (empty($rows)) {
+            return;
+        }
+        $query .= ' IN ('.implode(',', $rows).')';
+        $this->db_query($query);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -58,7 +58,7 @@ $template->set_filenames(array('tags' => $tpl_tags));
 
 $template->assign(
     array(
-        'F_ACTION' => PHPWG_ROOT_PATH.'admin.php?page=tags',
+        'F_ACTION' => PHPWG_ROOT_PATH.'admin.php?page=tags&amp;section='.$page['section'],
         'PWG_TOKEN' => get_pwg_token(),
     )
 );

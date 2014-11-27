@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -83,6 +83,33 @@ class DbContext extends RawMinkContext
         foreach ($table->getHash() as $tag) {
             $this->last_id = $this->addTag($tag['name']);
         }
+    }
+
+    /**
+     * @Given /^add tag "([^"]*)" on "([^"]*)" (not)? validated$/
+     */
+    public function addTagOnImageValidatedOrNot($tag, $image_id, $validated=true) {
+        if ($validated=='not') {
+            $validated = false;
+        }
+        if (preg_match('`^SAVED:(.*)$`', $image_id, $matches)) {
+            $image_id = $this->getSaved($matches[1]);
+        }
+
+        $this->addTags($tag, $image_id, $validated);
+    }
+
+    /**
+     * @Given /^remove tag "([^"]*)" on "([^"]*)" (not)? validated$/
+     */
+    public function removeTagOnImageValidatedOrNot($tag, $image_id, $validated=true) {
+        if ($validated=='not') {
+            $validated = false;
+        }
+        if (preg_match('`^SAVED:(.*)$`', $image_id, $matches)) {
+            $image_id = $this->getSaved($matches[1]);
+        }
+        $this->dissociateTags($tag, $image_id, $validated);
     }
 
     /**
@@ -249,6 +276,15 @@ class DbContext extends RawMinkContext
             }
 
             $sql_content = trim(file_get_contents($parameters['sql_init_file']));
+            if (!empty($sql_content)) {
+                ORM::get_db()->exec($sql_content);
+            }
+        }
+
+        // in case suite has been stopped before end
+        if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
+        && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
+            $sql_content = trim(file_get_contents($parameters['sql_cleanup_file']));
             if (!empty($sql_content)) {
                 ORM::get_db()->exec($sql_content);
             }
@@ -588,7 +624,39 @@ class DbContext extends RawMinkContext
         return $tag->id;
     }
 
-    private function addTags($param_tags, $image_id) {
+    private function dissociateTags($param_tags, $image_id, $validated=true) {
+        if (preg_match('`\[(.*)]`', $param_tags, $matches)) {
+            $tags = array_map('trim', explode(',',  $matches[1]));
+        } else {
+            $tags = array($param_tags);
+        }
+        foreach ($tags as &$tag) {
+            if (preg_match('`^SAVED:(.*)$`', $tag, $matches)) {
+                $tag = $this->getSaved($matches[1]);
+            }
+        }
+        if (!self::$conf_loaded) {
+            self::configDB($this->parameters);
+        }
+        foreach ($tags as $tag_name) {
+            $tag_id = $this->addTag($tag_name);
+            $image_tag = ORM::for_table(self::$prefix.'image_tag')
+                ->where('tag_id', $tag_id)
+                ->where('image_id', $image_id)
+                ->find_one();
+            if ($image_tag) {
+                if (!$validated) {
+                    $image_tag->status = 0;
+                    $image_tag->validated = $validated;
+                    $image_tag->save();
+                } else {
+                    $image_tag->delete();
+                }
+            }
+        }
+    }
+
+    private function addTags($param_tags, $image_id, $validated=true) {
         if (preg_match('`\[(.*)]`', $param_tags, $matches)) {
             $tags = array_map('trim', explode(',',  $matches[1]));
         } else {
@@ -613,6 +681,8 @@ class DbContext extends RawMinkContext
                 $image_tag = ORM::for_table(self::$prefix.'image_tag')->create();
                 $image_tag->image_id = $image_id;
                 $image_tag->tag_id = $tag_id;
+                $image_tag->validated = $validated;
+                $image_tag->status = 1;
                 $image_tag->save();
             }
         }
