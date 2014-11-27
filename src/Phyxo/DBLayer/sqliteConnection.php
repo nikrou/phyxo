@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -287,7 +287,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     }
 
     public function boolean_to_db($var) {
-        if (!empty($var)) {
+        if ($var===true) {
             return 1;
         } else {
             return 0;

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -195,12 +195,6 @@ function boolean_to_string($var) {
     global $conn;
 
     return $conn->boolean_to_string($var);
-}
-
-function boolean_to_db($var) {
-    global $conn;
-
-    return $conn->boolean_to_db($var);
 }
 
 function pwg_db_get_recent_period_expression($period, $date='CURRENT_DATE') {

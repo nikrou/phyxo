@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -76,10 +76,10 @@ check_status(ACCESS_ADMINISTRATOR);
 
 $query = 'SELECT date,'.pwg_db_get_hour('time').' AS hour,MAX(id) AS max_id,';
 $query .= 'COUNT(1) AS nb_pages FROM '.HISTORY_TABLE;
-$query .= ' WHERE summarized = \''.boolean_to_db('false').'\'';
+$query .= ' WHERE summarized = \''.$conn->boolean_to_db(false).'\'';
 $query .= ' GROUP BY date,hour';
 $query .= ' ORDER BY date ASC,hour ASC;';
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
 $need_update = array();
 
@@ -193,10 +193,10 @@ if (count($inserts) > 0) {
 }
 
 if ($max_id != 0) {
-    $query = 'UPDATE '.HISTORY_TABLE.' SET summarized = \''.boolean_to_db('true').'\'';
-    $query .= ' WHERE summarized = \''.boolean_to_db('false').'\'';
+    $query = 'UPDATE '.HISTORY_TABLE.' SET summarized = \''.$conn->boolean_to_db(true).'\'';
+    $query .= ' WHERE summarized = \''.$conn->boolean_to_db(false).'\'';
     $query .= ' AND id <= '.$max_id.';';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 // +-----------------------------------------------------------------------+

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -83,7 +83,7 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
 
 if ($page['show_comments']) {
     if (!is_admin()) {
-        $validated_clause = '  AND validated = \''.boolean_to_db('true').'\'';
+        $validated_clause = '  AND validated = \''.$conn->boolean_to_db(true).'\'';
     } else {
         $validated_clause = '';
     }
@@ -91,7 +91,7 @@ if ($page['show_comments']) {
     // number of comments for this picture
     $query = 'SELECT COUNT(1) AS nb_comments FROM '.COMMENTS_TABLE;
     $query .= ' WHERE image_id = '.$page['image_id'].$validated_clause.';';
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     // navigation bar creation
     if (!isset($page['start'])) {
@@ -132,9 +132,9 @@ if ($page['show_comments']) {
         $query .= ' '.$validated_clause;
         $query .= ' ORDER BY date '.$comments_order;
         $query .= ' LIMIT '.$conf['nb_comment_page'].' OFFSET '.$page['start'].';';
-        $result = pwg_query($query);
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['author'] == 'guest') {
                 $row['author'] = l10n('guest');
             }

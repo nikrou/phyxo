@@ -128,7 +128,7 @@ $template->assign(
 $where_clauses = array('1=1');
 
 if ('pending' == $page['filter']) {
-    $where_clauses[] = 'validated=\''.boolean_to_db('false').'\'';
+    $where_clauses[] = 'validated=\''.$conn->boolean_to_db(false).'\'';
 }
 
 $query = 'SELECT c.id,c.image_id,c.date,c.author,';
@@ -140,8 +140,8 @@ $query .= ' WHERE '.implode(' AND ', $where_clauses);
 $query .= ' ORDER BY c.date DESC';
 $query .= ' LIMIT '.$conf['comments_page_nb_comments'].' OFFSET '.$page['start'];
 
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     $thumb = DerivativeImage::thumb_url(
         array(
             'id' => $row['image_id'],

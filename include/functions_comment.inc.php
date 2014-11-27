@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -78,7 +78,7 @@ function user_comment_check($action, $comment) {
  * @return string validate, moderate, reject
  */
 function insert_user_comment(&$comm, $key, &$infos) {
-    global $conf, $user;
+    global $conf, $user, $conn;
 
     $comm = array_merge(
         $comm,
@@ -108,8 +108,8 @@ function insert_user_comment(&$comm, $key, &$infos) {
         // if a guest try to use the name of an already existing user, he must be rejected
         if ($comm['author'] != 'guest') {
             $query = 'SELECT COUNT(1) AS user_exists FROM '.USERS_TABLE;
-            $query .= ' WHERE '.$conf['user_fields']['username']." = '".pgw_db_real_escape_string($comm['author'])."'";
-            $row = pwg_db_fetch_assoc(pwg_query($query));
+            $query .= ' WHERE '.$conf['user_fields']['username']." = '".$conn->db_real_escape_string($comm['author'])."'";
+            $row = $conn->db_fetch_assoc($conn->db_query($query));
             if ($row['user_exists'] == 1) {
                 $infos[] = l10n('This login is already used by another user');
                 $comment_action='reject';
@@ -132,7 +132,7 @@ function insert_user_comment(&$comm, $key, &$infos) {
     // website
     if (!empty($comm['website_url'])) {
         if (!$conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
-            $comment_action='reject';
+            $comment_action = 'reject';
             $_POST['cr'][] = 'website_url';
         } else {
             $comm['website_url'] = strip_tags($comm['website_url']);
@@ -167,7 +167,7 @@ function insert_user_comment(&$comm, $key, &$infos) {
     $anonymous_id = implode('.', $ip_components);
 
     if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !is_admin()) { // anti-flood system
-        $reference_date = pwg_db_get_flood_period_expression($conf['anti-flood_time']);
+        $reference_date = $conn->db_get_flood_period_expression($conf['anti-flood_time']);
 
         $query = 'SELECT count(1) FROM '.COMMENTS_TABLE;
         $query .= ' WHERE date > '.$reference_date.' AND author_id = '.$comm['author_id'];
@@ -175,7 +175,7 @@ function insert_user_comment(&$comm, $key, &$infos) {
             $query .= ' AND anonymous_id LIKE \''.$anonymous_id.'.%\'';
         }
 
-        list($counter) = pwg_db_fetch_row(pwg_query($query));
+        list($counter) = $conn->db_fetch_row(pwg_query($query));
         if ($counter > 0) {
             $infos[] = l10n('Anti-flood system : please wait for a moment before trying to post another comment');
             $comment_action = 'reject';
@@ -191,13 +191,13 @@ function insert_user_comment(&$comm, $key, &$infos) {
         $query .= ' (author, author_id, anonymous_id, content, date, validated, validation_date, image_id, website_url, email)';
         $query .= ' VALUES (\''.$comm['author'].'\','.$comm['author_id'].', \''.$comm['ip'].'\',';
         $query .= '\''.$comm['content'].'\', NOW(), \'';
-        $query .= $comment_action=='validate' ? boolean_to_db('true'):boolean_to_db('false');
+        $query .= $comment_action=='validate' ? $conn->boolean_to_db(true):$conn->boolean_to_db(false);
         $query .= '\', '.($comment_action=='validate' ? 'NOW()':'NULL').','.$comm['image_id'].',';
         $query .= ' '.(!empty($comm['website_url']) ? '\''.$comm['website_url'].'\'' : 'NULL').',';
         $query .= ' '.(!empty($comm['email']) ? '\''.$comm['email'].'\'' : 'NULL').')';
-        pwg_query($query);
+        $conn->db_query($query);
 
-        $comm['id'] = pwg_db_insert_id(COMMENTS_TABLE);
+        $comm['id'] = $conn->db_insert_id(COMMENTS_TABLE);
 
         invalidate_user_cache_nb_comments();
 

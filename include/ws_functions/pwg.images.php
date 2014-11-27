@@ -252,9 +252,11 @@ function remove_chunks($original_sum, $type) {
  *    @option string key
  */
 function ws_images_addComment($params, $service) {
+    global $conn;
+
     $query = 'SELECT DISTINCT image_id  FROM '. CATEGORIES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id=id';
-    $query .= ' WHERE commentable=\''.boolean_to_db('true').'\'';
+    $query .= ' WHERE commentable=\''.$conn->boolean_to_db(true).'\'';
     $query .= ' AND image_id='.$params['image_id'];
     $query .= get_sql_condition_FandF(
         array(
@@ -265,7 +267,7 @@ function ws_images_addComment($params, $service) {
         ' AND'
     );
 
-    if (!pwg_db_num_rows(pwg_query($query))) {
+    if (!$conn->db_num_rows($conn->db_query($query))) {
         return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid image_id');
     }
 
@@ -378,7 +380,7 @@ function ws_images_getInfo($params, $service) {
 	if (isset($rating['score'])) {
 		$query = 'SELECT COUNT(rate) AS count, ROUND(AVG(rate),2) AS average FROM '. RATE_TABLE;
         $query .= ' WHERE element_id = '. $image_row['id'] .';';
-		$row = pwg_db_fetch_assoc(pwg_query($query));
+		$row = $conn->db_fetch_assoc($conn->db_query($query));
 
 		$rating['score'] = (float)$rating['score'];
 		$rating['average'] = (float)$row['average'];
@@ -390,11 +392,11 @@ function ws_images_getInfo($params, $service) {
 
     $where_comments = 'image_id = '.$image_row['id'];
     if (!is_admin()) {
-        $where_comments .= ' AND validated=\''.boolean_to_db('true').'\'';
+        $where_comments .= ' AND validated=\''.$conn->boolean_to_db(true).'\'';
     }
 
     $query = 'SELECT COUNT(id) AS nb_comments FROM '. COMMENTS_TABLE .' WHERE '. $where_comments .';';
-    list($nb_comments) = array_from_query($query, 'nb_comments');
+    list($nb_comments) = $conn->query2array($query, null, 'nb_comments');
     $nb_comments = (int)$nb_comments;
 
     if ($nb_comments>0 and $params['comments_per_page']>0) {
@@ -402,9 +404,9 @@ function ws_images_getInfo($params, $service) {
         $query .= ' WHERE '. $where_comments .' ORDER BY date';
         $query .= ' LIMIT '. (int)$params['comments_per_page'];
         $query .= ' OFFSET '. (int)($params['comments_per_page']*$params['comments_page']) .';';
-        $result = pwg_query($query);
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $row['id'] = (int)$row['id'];
             $related_comments[] = $row;
         }

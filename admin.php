@@ -192,8 +192,8 @@ if ($conf['activate_comments']) {
     $template->assign('U_COMMENTS', $link_start.'comments');
 
     // pending comments
-    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.' WHERE validated=\''.boolean_to_db('false').'\';';
-    list($nb_comments) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.' WHERE validated=\''.$conn->boolean_to_db(false).'\';';
+    list($nb_comments) = $conn->db_fetch_row($conn->db_query($query));
 
     if ($nb_comments > 0) {
         $template->assign('NB_PENDING_COMMENTS', $nb_comments);
@@ -202,7 +202,7 @@ if ($conf['activate_comments']) {
 
 // any photo in the caddie?
 $query = 'SELECT COUNT(1) FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-list($nb_photos_in_caddie) = pwg_db_fetch_row(pwg_query($query));
+list($nb_photos_in_caddie) = $conn->db_fetch_row(pwg_query($query));
 
 if ($nb_photos_in_caddie > 0) {
     $template->assign(

@@ -250,7 +250,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     }
 
     public function boolean_to_db($var) {
-        if ($var=='true') {
+        if ($var===true) {
             return 't';
         } else {
             return 'f';
