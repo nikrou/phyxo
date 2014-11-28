@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -109,13 +109,13 @@ function get_tab_status($mode) {
  * Inserting News users
  */
 function insert_new_data_user_mail_notification() {
-    global $conf, $page, $env_nbm;
+    global $conf, $page, $env_nbm, $conn;
 
     // Set null mail_address empty
     $query = 'UPDATE '.USERS_TABLE;
     $query .= ' SET '.$conf['user_fields']['email'].' = null';
-    $query .= ' WHERE trim('.$conf['user_fields']['email'].') = \'\';';
-    pwg_query($query);
+    $query .= ' WHERE trim('.$conf['user_fields']['email'].') = \'\';'; // @TODO: simplify
+    $conn->db_query($query);
 
     // null mail_address are not selected in the list
     $query = 'SELECT u.'.$conf['user_fields']['id'].' AS user_id,';
@@ -126,12 +126,12 @@ function insert_new_data_user_mail_notification() {
     $query .= ' AND m.user_id is null';
     $query .= ' ORDER BY user_id;';
 
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) > 0) {
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) > 0) {
         $inserts = array();
         $check_key_list = array();
 
-        while ($nbm_user = pwg_db_fetch_assoc($result)) {
+        while ($nbm_user = $conn->db_fetch_assoc($result)) {
             // Calculate key
             $nbm_user['check_key'] = find_available_check_key();
 
@@ -153,7 +153,7 @@ function insert_new_data_user_mail_notification() {
         }
 
         // Insert new nbm_users
-        mass_inserts(USER_MAIL_NOTIFICATION_TABLE, array('user_id', 'check_key', 'enabled'), $inserts);
+        $conn->mass_inserts(USER_MAIL_NOTIFICATION_TABLE, array('user_id', 'check_key', 'enabled'), $inserts);
         // Update field enabled with specific function
         $check_key_treated = do_subscribe_unsubscribe_notification_by_mail(
             true,
@@ -165,8 +165,9 @@ function insert_new_data_user_mail_notification() {
         if ($env_nbm['is_sendmail_timeout']) {
             $quoted_check_key_list = quote_check_key_list(array_diff($check_key_list, $check_key_treated));
             if (count($quoted_check_key_list) != 0 ) {
-                $query = 'DELETE FROM '.USER_MAIL_NOTIFICATION_TABLE.' WHERE check_key IN ('.implode(",", $quoted_check_key_list).');';
-                $result = pwg_query($query);
+                $query = 'DELETE FROM '.USER_MAIL_NOTIFICATION_TABLE;
+                $query .= ' WHERE check_key '.$conn->in($quoted_check_key_list);
+                $result = $conn->db_query($query);
 
                 redirect($base_url.get_query_string_diff(array(), false), l10n('Operation in progress')."\n".l10n('Please wait...'));
             }
@@ -197,12 +198,12 @@ function render_global_customize_mail_content($customize_mail_content) {
  * Return list of "treated" check_key for 'send'
  */
 function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = array(), $customize_mail_content = '') {
-    global $conf, $page, $user, $lang_info, $lang, $env_nbm;
+    global $conf, $page, $user, $lang_info, $lang, $env_nbm, $conn;
 
     $return_list = array();
 
     if (in_array($action, array('list_to_send', 'send'))) {
-        list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+        list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
         $is_action_send = ($action == 'send');
 
@@ -357,7 +358,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                 end_users_env_nbm();
 
                 if ($is_action_send) {
-                    mass_updates(
+                    $conn->mass_updates(
                         USER_MAIL_NOTIFICATION_TABLE,
                         array(
                             'primary' => array('user_id'),
@@ -422,9 +423,8 @@ case 'param': {
     if (isset($_POST['param_submit'])) {
         $updated_param_count = 0;
         // Update param
-        // @TODO: use conf_update_param
-        $result = pwg_query('select param, value from '.CONFIG_TABLE.' where param like \'nbm\\_%\'');
-        while ($nbm_user = pwg_db_fetch_assoc($result)) {
+        $result = $conn->db_query('select param, value from '.CONFIG_TABLE.' where param like \'nbm\\_%\'');
+        while ($nbm_user = $conn->db_fetch_assoc($result)) {
             if (isset($_POST[$nbm_user['param']])) {
                 $value = $_POST[$nbm_user['param']];
 

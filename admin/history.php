@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 if (!defined('PHPWG_ROOT_PATH')) {
-  die('Hacking attempt!');
+    die('Hacking attempt!');
 }
 
 /**
@@ -89,7 +89,7 @@ if (isset($_POST['submit'])) {
         $search['fields']['filename'] = str_replace(
             '*',
             '%',
-            pwg_db_real_escape_string($_POST['filename'])
+            $conn->db_real_escape_string($_POST['filename'])
         );
     }
 
@@ -97,7 +97,7 @@ if (isset($_POST['submit'])) {
         $search['fields']['ip'] = str_replace(
             '*',
             '%',
-            pwg_db_real_escape_string($_POST['ip'])
+            $conn->db_real_escape_string($_POST['ip'])
         );
     }
 
@@ -119,9 +119,9 @@ if (isset($_POST['submit'])) {
         // thumbnails page and picture page.
         $query = 'INSERT INTO '.SEARCH_TABLE;
         $query .= ' (rules) VALUES(\''.serialize($search).'\');';
-        pwg_query($query);
+        $conn->db_query($query);
 
-        $search_id = pwg_db_insert_id(SEARCH_TABLE);
+        $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
         redirect(PHPWG_ROOT_PATH.'admin.php?page=history&search_id='.$search_id);
     } else {
@@ -152,8 +152,8 @@ $template->assign(
 if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     // what are the lines to display in reality ?
     $query = 'SELECT rules FROM '.SEARCH_TABLE;
-    $query .= ' WHERE id = '.$page['search_id'];
-    list($serialized_rules) = pwg_db_fetch_row(pwg_query($query));
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($page['search_id']);
+    list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
 
     $page['search'] = unserialize($serialized_rules);
 
@@ -166,9 +166,9 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $query = 'INSERT INTO '.SEARCH_TABLE;
         $query .= ' (rules) VALUES(\''.serialize($page['search']).'\');';
-        pwg_query($query);
+        $conn->db_query($query);
 
-        $search_id = pwg_db_insert_id(SEARCH_TABLE);
+        $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
         redirect(PHPWG_ROOT_PATH.'admin.php?page=history&search_id='.$search_id);
     }
@@ -208,19 +208,19 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     if (count($user_ids) > 0) {
         $query = 'SELECT '.$conf['user_fields']['id'].' AS id, '.$conf['user_fields']['username'].' AS username';
         $query .= ' FROM '.USERS_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', array_keys($user_ids)).');';
-        $result = pwg_query($query);
+        $query .= ' WHERE id '.$conn->in(array_keys($user_ids));
+        $result = $conn->db_query($query);
 
         $username_of = array();
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $username_of[$row['id']] = stripslashes($row['username']);
         }
     }
 
     if (count($category_ids) > 0) {
         $query = 'SELECT id, uppercats FROM '.CATEGORIES_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', array_keys($category_ids)).');';
-        $uppercats_of = query2array($query, 'id', 'uppercats');
+        $query .= ' WHERE id '.$conn->in(array_keys($category_ids));
+        $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
 
         $name_of_category = array();
 
@@ -232,16 +232,16 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     if (count($image_ids) > 0) {
         $query = 'SELECT id,IF(name IS NULL, file, name) AS label,filesize,file,';
         $query .= 'path,representative_ext FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', array_keys($image_ids)).');';
-        $image_infos = query2array($query, 'id');
+        $query .= ' WHERE id '.$conn->in(array_keys($image_ids));
+        $image_infos = $conn->query2array($query, null, 'id');
     }
 
     if ($has_tags > 0) {
         $query = 'SELECT id,name, url_name FROM '.TAGS_TABLE;
 
         $name_of_tag = array();
-        $result = pwg_query($query);
-        while ($row=pwg_db_fetch_assoc($result)) {
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
             $name_of_tag[ $row['id'] ] = '<a href="'.make_index_url( array('tags'=>array($row))).'">'.trigger_change("render_tag_name", $row['name'], $row).'</a>';
         }
     }
@@ -494,7 +494,7 @@ $query .= $conf['user_fields']['username'].' AS username FROM '.USERS_TABLE;
 $query .= ' ORDER BY username ASC;';
 $template->assign(
     array(
-        'user_options' => query2array($query, 'id','username'),
+        'user_options' => $conn->query2array($query, 'id','username'),
         'user_options_selected' => array(@$form['user'])
     )
 );

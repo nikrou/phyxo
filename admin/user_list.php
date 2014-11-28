@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -46,9 +46,9 @@ $tabsheet->assign();
 $groups = array();
 
 $query = 'SELECT id, name FROM '.GROUPS_TABLE.' ORDER BY name ASC;';
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $groups[$row['id']] = $row['name'];
 }
 
@@ -64,8 +64,8 @@ $query .= 'ui.level FROM '.USERS_TABLE.' AS u';
 $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON u.'.$conf['user_fields']['id'].' = ui.user_id';
 $query .= ' WHERE u.'.$conf['user_fields']['id'].' > 0;';
 
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     $users[] = $row;
     $user_ids[] = $row['id'];
 }
@@ -89,8 +89,8 @@ $protected_users = array(
 
 // an admin can't delete other admin/webmaster
 if ('admin' == $user['status']) {
-    $query = 'SELECT user_id FROM '.USER_INFOS_TABLE.' WHERE status IN (\'webmaster\', \'admin\');';
-    $protected_users = array_merge($protected_users, query2array($query, null, 'user_id'));
+    $query = 'SELECT user_id FROM '.USER_INFOS_TABLE.' WHERE status '.$conn->in(array('webmaster', 'admin');
+    $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
 }
 
 $template->assign(

@@ -43,14 +43,14 @@ if (!is_numeric($_GET['site'])) {
 }
 $site_id = $_GET['site'];
 
-$query = 'SELECT galleries_url FROM '.SITES_TABLE.' WHERE id = '.$site_id;
-list($site_url) = pwg_db_fetch_row(pwg_query($query));
+$query = 'SELECT galleries_url FROM '.SITES_TABLE.' WHERE id = '.$conn->db_real_escape_string($site_id);
+list($site_url) = $conn->db_fetch_row($conn->db_query($query));
 if (!isset($site_url)) {
     die('site '.$site_id.' does not exist');
 }
 $site_is_remote = url_is_remote($site_url);
 
-list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 
 $error_labels = array(
@@ -103,16 +103,16 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     $start = get_moment();
     // which categories to update ?
     $query = 'SELECT id, uppercats, global_rank, status, visible FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE dir IS NOT NULL AND site_id = '.$site_id;
+    $query .= ' WHERE dir IS NOT NULL AND site_id = '.$conn->db_real_escape_string($site_id);
 
     if (isset($_POST['cat']) and is_numeric($_POST['cat'])) {
         if (isset($_POST['subcats-included']) and $_POST['subcats-included'] == 1) {
-            $query.= ' AND uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$_POST['cat'].'(,|$)\'';
+            $query .= ' AND uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$conn->db_real_escape_string($_POST['cat']).'(,|$)\'';
         } else {
-            $query.= ' AND id = '.$_POST['cat'];
+            $query .= ' AND id = '.$conn->db_real_escape_string($_POST['cat']);
         }
     }
-    $db_categories = hash_from_query($query, 'id');
+    $db_categories = $conn->query2array($query, 'id');
 
     // get categort full directories in an array for comparison with file
     // system directory tree
@@ -133,8 +133,8 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     $next_rank['NULL'] = 1;
 
     $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $next_rank[$row['id']] = 1;
     }
 
@@ -142,8 +142,8 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     $query = 'SELECT id_uppercat, MAX(rank)+1 AS next_rank FROM '.CATEGORIES_TABLE;
     $query .= ' GROUP BY id_uppercat';
 
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         // for the id_uppercat NULL, we write 'NULL' and not the empty string
         if (!isset($row['id_uppercat']) or $row['id_uppercat'] == '') {
             $row['id_uppercat'] = 'NULL';
@@ -152,7 +152,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     }
 
     // next category id available
-    $next_id = pwg_db_nextval('id', CATEGORIES_TABLE);
+    $next_id = $conn->db_nextval('id', CATEGORIES_TABLE);
 
     // retrieve sub-directories fulldirs from the site reader
     $fs_fulldirs = $site_reader->get_full_directories($basedir);
@@ -236,7 +236,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 'id','dir','name','site_id','id_uppercat','uppercats','commentable',
                 'visible','status','rank','global_rank'
             );
-            mass_inserts(CATEGORIES_TABLE, $dbfields, $inserts);
+            $conn->mass_inserts(CATEGORIES_TABLE, $dbfields, $inserts);
 
             // add default permissions to categories
             $category_ids = array();
@@ -250,12 +250,12 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
             $category_up=implode(',',array_unique($category_up));
             if ($conf['inheritance_by_default']) {
                 // TODO remove SELECT *
-                // TODO filter IN
-                $query = 'SELECT * FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id IN ('.$category_up.');';
-                $result = pwg_query($query);
+                $query = 'SELECT * FROM '.GROUP_ACCESS_TABLE;
+                $query .= ' WHERE cat_id '.$conn->in($category_up);
+                $result = $conn->db_query($query);
                 if (!empty($result)) {
                     $granted_grps = array();
-                    while ($row = pwg_db_fetch_assoc($result)) {
+                    while ($row = $conn->db_fetch_assoc($result)) {
                         if (!isset($granted_grps[$row['cat_id']])) {
                             $granted_grps[$row['cat_id']]=array();
                         }
@@ -269,12 +269,12 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                     }
                 }
                 // TODO remove SELECT *
-                // TODO filter IN
-                $query = 'SELECT * FROM '.USER_ACCESS_TABLE.' WHERE cat_id IN ('.$category_up.');';
-                $result = pwg_query($query);
+                $query = 'SELECT * FROM '.USER_ACCESS_TABLE;
+                $query .= ' WHERE cat_id '.$conn->in($category_up);
+                $result = $conn->db_query($query);
                 if (!empty($result)) {
                     $granted_users = array();
-                    while ($row = pwg_db_fetch_assoc($result)) {
+                    while ($row = $conn->db_fetch_assoc($result)) {
                         if (!isset($granted_users[$row['cat_id']])) {
                             $granted_users[$row['cat_id']]=array();
                         }
@@ -292,7 +292,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 foreach ($category_ids as $ids) {
                     $parent_id=$db_categories[$ids]['parent'];
                     while (in_array($parent_id, $category_ids)) {
-                        $parent_id= $db_categories[$parent_id]['parent'];
+                        $parent_id = $db_categories[$parent_id]['parent'];
                     }
                     if ($db_categories[$ids]['status']=='private' and !is_null($parent_id)) {
                         if (isset($granted_grps[$parent_id])) {
@@ -319,9 +319,9 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                         }
                     }
                 }
-                mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $insert_granted_grps);
+                $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $insert_granted_grps);
                 $insert_granted_users=array_unique($insert_granted_users, SORT_REGULAR);
-                mass_inserts(USER_ACCESS_TABLE, array('user_id','cat_id'), $insert_granted_users);
+                $conn->mass_inserts(USER_ACCESS_TABLE, array('user_id','cat_id'), $insert_granted_users);
             } else {
                 add_permission_on_category($category_ids, get_admins());
             }
@@ -380,12 +380,12 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 
     if (count($cat_ids) > 0) {
         $query = 'SELECT id, path FROM '.IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $cat_ids), 160, "\n").')';
-        $db_elements = simple_hash_from_query($query, 'id', 'path');
+        $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $cat_ids), 160, "\n").')'; // @TODO: why wordwrap ??
+        $db_elements = $conn->query2array($query, 'id', 'path');
     }
 
     // next element id available
-    $next_element_id = pwg_db_nextval('id', IMAGES_TABLE);
+    $next_element_id = $conn->db_nextval('id', IMAGES_TABLE);
 
     $start = get_moment();
 
@@ -442,14 +442,14 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
     if (count($inserts) > 0) {
         if (!$simulate) {
             // inserts all new elements
-            mass_inserts(
+            $conn->mass_inserts(
                 IMAGES_TABLE,
                 array_keys($inserts[0]),
                 $inserts
             );
 
             // inserts all links between new elements and their storage category
-            mass_inserts(
+            $conn->mass_inserts(
                 IMAGE_CATEGORY_TABLE,
                 array_keys($insert_links[0]),
                 $insert_links
@@ -523,7 +523,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
         $counts['upd_elements'] = count($datas);
         if (!$simulate and count($datas)>0 ) {
-            mass_updates(
+            $conn->mass_updates(
                 IMAGES_TABLE,
                 // fields
                 array(
@@ -611,7 +611,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
 
   if (!$simulate) {
       if (count($datas) > 0) {
-          mass_updates(
+          $conn->mass_updates(
               IMAGES_TABLE,
               // fields
               array(
@@ -657,7 +657,7 @@ if (isset($simulate) and $simulate) {
 // used from files for synchronization
 $used_metadata = implode( ', ', $site_reader->get_metadata_attributes());
 if ($site_is_remote and !isset($_POST['submit']) ) {
-    $used_metadata.= ' + ...';
+    $used_metadata .= ' + ...';
 }
 
 $template->assign(

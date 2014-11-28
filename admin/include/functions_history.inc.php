@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -26,30 +26,27 @@
  * @package functions\admin\history
  */
 
-
 include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
 /**
  * Init tabsheet for history pages
  * @ignore
  */
-function history_tabsheet()
-{
-  global $page, $link_start;
+function history_tabsheet() {
+    global $page, $link_start;
 
-  // TabSheet
-  $tabsheet = new tabsheet();
-  $tabsheet->set_id('history');
-  $tabsheet->select($page['page']);
-  $tabsheet->assign();
+    // TabSheet
+    $tabsheet = new tabsheet();
+    $tabsheet->set_id('history');
+    $tabsheet->select($page['page']);
+    $tabsheet->assign();
 }
 
 /**
  * Callback used to sort history entries
  */
-function history_compare($a, $b)
-{
-  return strcmp($a['date'].$a['time'], $b['date'].$b['time']);
+function history_compare($a, $b) {
+    return strcmp($a['date'].$a['time'], $b['date'].$b['time']);
 }
 
 /**
@@ -60,123 +57,83 @@ function history_compare($a, $b)
  * @param string[] $types
  * @param array
  */
-function get_history($data, $search, $types)
-{
-  if (isset($search['fields']['filename']))
-  {
-    $query = '
-SELECT
-    id
-  FROM '.IMAGES_TABLE.'
-  WHERE file LIKE \''.$search['fields']['filename'].'\'
-;';
-    $search['image_ids'] = array_from_query($query, 'id');
-  }
+function get_history($data, $search, $types) {
+    global $conn;
 
-  // echo '<pre>'; print_r($search); echo '</pre>';
+    if (isset($search['fields']['filename'])) {
+        $query = 'SELECT id FROM '.IMAGES_TABLE;
+        $query .= ' WHERE file LIKE \''.$search['fields']['filename'].'\'';
+        $search['image_ids'] = $conn->query2array($query, null, 'id');
+    }
 
-  $clauses = array();
+    $clauses = array();
 
-  if (isset($search['fields']['date-after']))
-  {
-    $clauses[] = "date >= '".$search['fields']['date-after']."'";
-  }
+    if (isset($search['fields']['date-after'])) {
+        $clauses[] = "date >= '".$search['fields']['date-after']."'";
+    }
 
-  if (isset($search['fields']['date-before']))
-  {
-    $clauses[] = "date <= '".$search['fields']['date-before']."'";
-  }
+    if (isset($search['fields']['date-before'])) {
+        $clauses[] = "date <= '".$search['fields']['date-before']."'";
+    }
 
-  if (isset($search['fields']['types']))
-  {
-    $local_clauses = array();
+    if (isset($search['fields']['types'])) {
+        $local_clauses = array();
 
-    foreach ($types as $type) {
-      if (in_array($type, $search['fields']['types'])) {
-        $clause = 'image_type ';
-        if ($type == 'none')
-        {
-          $clause.= 'IS NULL';
-        }
-        else
-        {
-          $clause.= "= '".$type."'";
+        foreach ($types as $type) {
+            if (in_array($type, $search['fields']['types'])) {
+                $clause = 'image_type ';
+                if ($type == 'none') {
+                    $clause .= 'IS NULL';
+                } else {
+                    $clause .= "= '".$type."'";
+                }
+
+                $local_clauses[] = $clause;
+            }
         }
 
-        $local_clauses[] = $clause;
-      }
+        if (count($local_clauses) > 0) {
+            $clauses[] = implode(' OR ', $local_clauses);
+        }
     }
 
-    if (count($local_clauses) > 0)
-    {
-      $clauses[] = implode(' OR ', $local_clauses);
+    if (isset($search['fields']['user']) and $search['fields']['user'] != -1) {
+        $clauses[] = 'user_id = '.$search['fields']['user'];
     }
-  }
 
-  if (isset($search['fields']['user'])
-      and $search['fields']['user'] != -1)
-  {
-    $clauses[] = 'user_id = '.$search['fields']['user'];
-  }
-
-  if (isset($search['fields']['image_id']))
-  {
-    $clauses[] = 'image_id = '.$search['fields']['image_id'];
-  }
-
-  if (isset($search['fields']['filename']))
-  {
-    if (count($search['image_ids']) == 0)
-    {
-      // a clause that is always false
-      $clauses[] = '1 = 2 ';
+    if (isset($search['fields']['image_id'])) {
+        $clauses[] = 'image_id = '.$search['fields']['image_id'];
     }
-    else
-    {
-      $clauses[] = 'image_id IN ('.implode(', ', $search['image_ids']).')';
+
+    if (isset($search['fields']['filename'])) {
+        if (count($search['image_ids']) == 0) {
+            // a clause that is always false
+            $clauses[] = '1 = 2 ';
+        } else {
+            $clauses[] = 'image_id '.$conn->in($search['image_ids']);
+        }
     }
-  }
 
-  if (isset($search['fields']['ip']))
-  {
-    $clauses[] = 'IP LIKE "'.$search['fields']['ip'].'"';
-  }
+    if (isset($search['fields']['ip'])) {
+        $clauses[] = 'IP LIKE \''.$search['fields']['ip'].'\'';
+    }
 
-  $clauses = prepend_append_array_items($clauses, '(', ')');
+    $clauses = prepend_append_array_items($clauses, '(', ')');
 
-  $where_separator =
-    implode(
-      "\n    AND ",
-      $clauses
-      );
+    $where_separator = implode(' AND ', $clauses);
 
-  $query = '
-SELECT
-    date,
-    time,
-    user_id,
-    IP,
-    section,
-    category_id,
-    tag_ids,
-    image_id,
-    image_type
-  FROM '.HISTORY_TABLE.'
-  WHERE '.$where_separator.'
-;';
+    $query = 'SELECT date,time,user_id,IP,section,category_id,tag_ids,';
+    $query .= 'image_id,image_type FROM '.HISTORY_TABLE;
+    $query .= ' WHERE '.$where_separator;
 
-  // LIMIT '.$conf['nb_logs_page'].' OFFSET '.$page['start'].'
+    $result = pwg_query($query);
 
-  $result = pwg_query($query);
+    while ($row = pwg_db_fetch_assoc($result)) {
+        $data[] = $row;
+    }
 
-  while ($row = pwg_db_fetch_assoc($result))
-  {
-    $data[] = $row;
-  }
-
-  return $data;
+    return $data;
 }
 
 add_event_handler('get_history', 'get_history');
 trigger_notify('functions_history_included');
-

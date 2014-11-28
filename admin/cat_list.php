@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -62,6 +62,8 @@ $sort_orders = array(
  * @return void
  */
 function save_categories_order($categories) {
+    global $conn;
+
     $current_rank_for_id_uppercat = array();
     $current_rank = 0;
 
@@ -83,12 +85,14 @@ function save_categories_order($categories) {
         $datas[] = array('id' => $id, 'rank' => $current_rank);
     }
     $fields = array('primary' => array('id'), 'update' => array('rank'));
-    mass_updates(CATEGORIES_TABLE, $fields, $datas);
+    $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
 
     update_global_rank();
 }
 
 function get_categories_ref_date($ids, $field='date_available', $minmax='max') {
+    global $conn;
+
     // we need to work on the whole tree under each category, even if we don't
     // want to sort sub categories
     $category_ids = get_subcat_ids($ids);
@@ -96,14 +100,15 @@ function get_categories_ref_date($ids, $field='date_available', $minmax='max') {
     // search for the reference date of each album
     $query = 'SELECT category_id,'.$minmax.'('.$field.') as ref_date FROM '.IMAGES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
-    $query .= ' WHERE category_id IN ('.implode(',', $category_ids).')';
+    $query .= ' WHERE category_id '.$conn->in($category_ids);
     $query .= ' GROUP BY category_id;';
-    $ref_dates = query2array($query, 'category_id', 'ref_date');
+    $ref_dates = $conn->query2array($query, 'category_id', 'ref_date');
 
     // the iterate on all albums (having a ref_date or not) to find the
     // reference_date, with a search on sub-albums
-    $query = 'SELECT id,uppercats FROM '.CATEGORIES_TABLE.' WHERE id IN ('.implode(',', $category_ids).');';
-    $uppercats_of = query2array($query, 'id', 'uppercats');
+    $query = 'SELECT id,uppercats FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
 
     foreach (array_keys($uppercats_of) as $cat_id) {
         // find the subcats
@@ -196,8 +201,9 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     }
 
     $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id_uppercat '. (!isset($_GET['parent_id']) ? 'IS NULL' : '= '.$_GET['parent_id']).';';
-    $category_ids = array_from_query($query, 'id');
+    $query .= ' WHERE id_uppercat ';
+    $query .= !isset($_GET['parent_id']) ? 'IS NULL' : '= '.$conn->db_real_escape_string($_GET['parent_id']);
+    $category_ids = $conn->query2array($query, null, 'id');
 
     if (isset($_POST['recursive'])) {
         $category_ids = get_subcat_ids($category_ids);
@@ -220,9 +226,9 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     }
 
     $query = 'SELECT id, name, id_uppercat FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $category_ids).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         if ($order_by_date) {
             $sort[] = $ref_dates[ $row['id'] ];
         } else {
@@ -288,10 +294,10 @@ $query = 'SELECT id, name, permalink, dir, rank, status FROM '.CATEGORIES_TABLE;
 if (!isset($_GET['parent_id'])) {
     $query .= ' WHERE id_uppercat IS NULL';
 } else {
-  $query .= ' WHERE id_uppercat = '.$_GET['parent_id'];
+    $query .= ' WHERE id_uppercat = '.$conn->db_real_escape_string($_GET['parent_id']);
 }
 $query .= ' ORDER BY rank ASC;';
-$categories = hash_from_query($query, 'id');
+$categories = $conn->query2array($query, 'id');
 
 // get the categories containing images directly
 $categories_with_images = array();
@@ -299,10 +305,10 @@ if (count($categories)) {
     $query = 'SELECT category_id,COUNT(1) AS nb_photos FROM '.IMAGE_CATEGORY_TABLE;
     $query .= ' GROUP BY category_id;';
 
-    $nb_photos_in = query2array($query, 'category_id', 'nb_photos');
+    $nb_photos_in = $conn->query2array($query, 'category_id', 'nb_photos');
 
     $query = 'SELECT id,uppercats FROM '.CATEGORIES_TABLE;
-    $all_categories = query2array($query, 'id', 'uppercats');
+    $all_categories = $conn->query2array($query, 'id', 'uppercats');
     $subcats_of = array();
 
     foreach (array_keys($categories) as $cat_id) {

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -48,7 +48,7 @@ $query .= 'u.'.$conf['user_fields']['username'].' AS name,ui.status FROM '.USERS
 $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON u.'.$conf['user_fields']['id'].' = ui.user_id';
 
 $users_by_id = array();
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 while ($row = pwg_db_fetch_assoc($result)) {
     $users_by_id[(int)$row['id']] = array(
         'name' => $row['name'],
@@ -65,8 +65,8 @@ foreach($conf['rate_items'] as $rate) {
 $image_ids = array();
 $by_user_ratings = array();
 $query = 'SELECT * FROM '.RATE_TABLE.' ORDER by date DESC';
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($users_by_id[$row['user_id']])) {
         $users_by_id[$row['user_id']] = array('name' => '???'.$row['user_id'], 'anon' => false);
     }
@@ -98,10 +98,10 @@ while ($row = pwg_db_fetch_assoc($result)) {
 $image_urls = array();
 if (count($image_ids) > 0) {
     $query = 'SELECT id, name, file, path, representative_ext, level FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', array_keys($image_ids)).')';
-    $result = pwg_query($query);
+    $query .= ' WHERE id '.$conn->in(array_keys($image_ids));
+    $result = $conn->db_query($query);
     $params = ImageStdParams::get_by_type(IMG_SQUARE);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $image_urls[$row['id']] = array(
             'tn' => DerivativeImage::url($params, $row),
             'page' => make_picture_url( array('image_id'=>$row['id'], 'image_file'=>$row['file']) ),
@@ -112,13 +112,13 @@ if (count($image_ids) > 0) {
 //all image averages
 $query = 'SELECT element_id,AVG(rate) AS avg FROM '.RATE_TABLE.' GROUP BY element_id';
 $all_img_sum = array();
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
-    $all_img_sum[(int)$row['element_id']] = array( 'avg'=>(float)$row['avg'] );
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
+    $all_img_sum[(int) $row['element_id']] = array('avg' => (float) $row['avg']);
 }
 
 $query = 'SELECT id FROM '.IMAGES_TABLE.' ORDER by rating_score DESC LIMIT '.$consensus_top_number;
-$best_rated = array_flip( array_from_query($query, 'id'));
+$best_rated = array_flip($conn->query2array($query, null, 'id'));
 
 // by user stats
 foreach($by_user_ratings as $id => &$rating) {
@@ -161,7 +161,6 @@ foreach ($by_user_ratings as $id => $rating) {
         unset($by_user_ratings[$id]);
     }
 }
-
 
 function avg_compare($a, $b) {
     $d = $a['avg'] - $b['avg'];

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,39 +39,37 @@ check_status(ACCESS_ADMINISTRATOR);
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
-  switch ($_GET['section']) {
-  case 'comments': {
-      $query = 'UPDATE '.CATEGORIES_TABLE;
-      $query .= ' SET commentable = \'false\'';
-      $query .= ' WHERE id IN ('.implode(',', $_POST['cat_true']).');';
-      pwg_query($query);
-      break;
-  }
-  case 'visible': {
-      set_cat_visible($_POST['cat_true'], 'false');
-      break;
-  }
-  case 'status': {
-      set_cat_status($_POST['cat_true'], 'private');
-      break;
-  }
-  case 'representative': {
-      $query = 'UPDATE '.CATEGORIES_TABLE;
-      $query .= ' SET representative_picture_id = NULL';
-      // @TODO : filtered IN
-      $query .= ' WHERE id IN ('.implode(',', $_POST['cat_true']).');';
-      pwg_query($query);
+    switch ($_GET['section']) {
+    case 'comments': {
+        $query = 'UPDATE '.CATEGORIES_TABLE;
+        $query .= ' SET commentable = \'false\'';
+        $query .= ' WHERE id '.$conn->in($_POST['cat_true']);
+        $conn->db_query($query);
+        break;
+    }
+    case 'visible': {
+        set_cat_visible($_POST['cat_true'], 'false');
+        break;
+    }
+    case 'status': {
+        set_cat_status($_POST['cat_true'], 'private');
+        break;
+    }
+    case 'representative': {
+        $query = 'UPDATE '.CATEGORIES_TABLE;
+        $query .= ' SET representative_picture_id = NULL';
+        $query .= ' WHERE id '.$conn->in($_POST['cat_true']);
+        $conn->db_query($query);
       break;
     }
-  }
+    }
 } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     switch ($_GET['section']) {
     case 'comments': {
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET commentable = \'true\'';
-        // @TODO : filtered IN
-        $query .= ' WHERE id IN ('.implode(',', $_POST['cat_false']).');';
-        pwg_query($query);
+        $query .= ' SET commentable = \''.$conn->boolean_to_db(true).'\'';
+        $query .= ' WHERE id '.$conn->in($_POST['cat_false']);
+        $conn->db_query($query);
         break;
     }
     case 'visible': {
@@ -135,8 +133,10 @@ $cats_true = array();
 $cats_false = array();
 switch ($page['section']) {
 case 'comments': {
-    $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE commentable = \'true\';';
-    $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE commentable = \'false\';';
+    $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+    $query_true .= ' WHERE commentable = \''.$conn->boolean_to_db(true).'\'';
+    $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+    $query_false .= ' WHERE commentable = \''.$conn->boolean_to_db(false).'\'';
     $template->assign(
         array(
             'L_SECTION' => l10n('Authorize users to add comments on selected albums'),
@@ -147,8 +147,10 @@ case 'comments': {
     break;
 }
 case 'visible': {
-    $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE visible = \'true\';';
-    $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE visible = \'false\';';
+    $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+    $query_true .= ' WHERE visible = \''.$conn->boolean_to_db(true).'\'';
+    $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+    $query_false .= ' WHERE visible = \''.$conn->boolean_to_db(false).'\'';
     $template->assign(
         array(
             'L_SECTION' => l10n('Lock albums'),

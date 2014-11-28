@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -52,17 +52,16 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
     // automatically forbidden
     $subcats = get_subcat_ids($_POST['cat_true']);
     $query = 'DELETE FROM '.GROUP_ACCESS_TABLE;
-    $query .= ' WHERE group_id = '.$page['group'].' AND cat_id IN ('.implode(',', $subcats).');';
-    pwg_query($query);
+    $query .= ' WHERE group_id = '.$page['group'].' AND cat_id '.$conn->in($subcats);
+    $conn->db_query($query);
 } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     $uppercats = get_uppercat_ids($_POST['cat_false']);
     $private_uppercats = array();
 
     $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    // @TODO: filtered IN
-    $query .= ' WHERE id IN ('.implode(',', $uppercats).') AND status = \'private\';';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query .= ' WHERE id '.$conn->in($uppercats).' AND status = \'private\';';
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $private_uppercats[] = $row['id'];
     }
 
@@ -71,10 +70,10 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
     // accesible
     $authorized_ids = array();
 
-    $query = 'SELECT cat_id FROM '.GROUP_ACCESS_TABLE.' WHERE group_id = '.$page['group'].';';
-    $result = pwg_query($query);
+    $query = 'SELECT cat_id FROM '.GROUP_ACCESS_TABLE.' WHERE group_id = '.$conn->db_real_escape_string($page['group']);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $authorized_ids[] = $row['cat_id'];
     }
 
@@ -87,7 +86,7 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
         );
     }
 
-    mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $inserts);
+    $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $inserts);
     invalidate_user_cache();
 }
 
@@ -119,19 +118,20 @@ $template->assign(
 );
 
 // only private categories are listed
-$query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' INNER JOIN '.GROUP_ACCESS_TABLE.' ON cat_id = id';
-$query_true .= ' WHERE status = \'private\' AND group_id = '.$page['group'].';';
+$query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+$query_true .= ' LEFT JOIN '.GROUP_ACCESS_TABLE.' ON cat_id = id';
+$query_true .= ' WHERE status = \'private\' AND group_id = '.$conn->db_real_escape_string($page['group']);
 display_select_cat_wrapper($query_true, array(), 'category_option_true');
 
-$result = pwg_query($query_true);
+$result = $conn->db_query($query_true);
 $authorized_ids = array();
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $authorized_ids[] = $row['id'];
 }
 
 $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE status = \'private\'';
 if (count($authorized_ids) > 0) {
-    $query_false.= ' AND id NOT IN ('.implode(',', $authorized_ids).')';
+    $query_false.= ' AND id NOT '.$conn->in($authorized_ids);
 }
 display_select_cat_wrapper($query_false,array(),'category_option_false');
 
@@ -141,4 +141,3 @@ display_select_cat_wrapper($query_false,array(),'category_option_false');
 
 $template->assign_var_from_handle('DOUBLE_SELECT', 'double_select');
 $template->assign_var_from_handle('ADMIN_CONTENT', 'group_perm');
-

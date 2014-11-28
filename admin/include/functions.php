@@ -35,14 +35,16 @@ include_once(PHPWG_ROOT_PATH .'include/derivative.inc.php');
  * @param int $id
  */
 function delete_site($id) {
+    global $conn;
+
     // destruction of the categories of the site
     $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE site_id = '.$id;
-    $category_ids = query2array($query, null, 'id');
+    $category_ids = $conn->query2array($query, null, 'id');
     delete_categories($category_ids);
 
     // destruction of the site
     $query = 'DELETE FROM '.SITES_TABLE.' WHERE id = '.$id;
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 /**
@@ -59,6 +61,8 @@ function delete_site($id) {
  *    - force_delete : delete photos even if they are linked to another category
  */
 function delete_categories($ids, $photo_deletion_mode='no_delete') {
+    global $conn;
+
     if (count($ids) == 0) {
         return;
     }
@@ -69,22 +73,22 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
 
     // destruction of all photos physically linked to the category
     $query = 'SELECT id FROM '.IMAGES_TABLE;
-    $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
-    $element_ids = query2array($query, null, 'id');
+    $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');'; // @TODO: need to understand why wordwrap
+    $element_ids = $conn->query2array($query, null, 'id');
     delete_elements($element_ids);
 
     // now, should we delete photos that are virtually linked to the category?
     if ('delete_orphans' == $photo_deletion_mode or 'force_delete' == $photo_deletion_mode) {
         $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id IN ('.implode(',', $ids).');';
-        $image_ids_linked = query2array($query, null, 'image_id');
+        $query .= ' WHERE category_id '.$conn->in($ids);
+        $image_ids_linked = $conn->query2array($query, null, 'image_id');
 
         if (count($image_ids_linked) > 0) {
             if ('delete_orphans' == $photo_deletion_mode) {
                 $query = 'SELECT DISTINCT(image_id) FROM '.IMAGE_CATEGORY_TABLE;
-                $query .= ' WHERE image_id IN ('.implode(',', $image_ids_linked).')';
-                $query .= ' AND category_id NOT IN ('.implode(',', $ids).');';
-                $image_ids_not_orphans = query2array($query, null, 'image_id');
+                $query .= ' WHERE image_id '.$conn->in($image_ids_linked);
+                $query .= ' AND category_id NOT '.$conn->in($ids);
+                $image_ids_not_orphans = $conn->query2array($query, null, 'image_id');
                 $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
             }
 
@@ -98,24 +102,24 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
 
     // destruction of the links between images and this category
     $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE category_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the access linked to the category
     $query = 'DELETE FROM '.USER_ACCESS_TABLE.' WHERE cat_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     $query = 'DELETE FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the category
     $query = 'DELETE FROM '.CATEGORIES_TABLE.' WHERE id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
-    pwg_query($query);
+    $conn->db_query($query);
 
-    $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.' WHERE cat_id IN ('.implode(',',$ids).')';
-    pwg_query($query);
+    $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.' WHERE cat_id '.$conn->in($ids);
+    $conn->db_query($query);
 
-    $query = 'DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.' WHERE cat_id IN ('.implode(',',$ids).')';
-    pwg_query($query);
+    $query = 'DELETE FROM '.USER_CACHE_CATEGORIES_TABLE.' WHERE cat_id '.$conn->in($ids);
+    $conn->db_query($query);
 
     trigger_notify('delete_categories', $ids);
 }
@@ -127,7 +131,7 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
  * @return 0|int[] image ids where files were successfully deleted
  */
 function delete_element_files($ids) {
-    global $conf;
+    global $conf, $conn;
 
     if (count($ids) == 0) {
         return 0;
@@ -136,9 +140,9 @@ function delete_element_files($ids) {
     $new_ids = array();
 
     $query = 'SELECT id,path,representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $ids).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query .= ' WHERE id '.$conn->in($ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         if (url_is_remote($row['path'])) {
             continue;
         }
@@ -185,6 +189,8 @@ function delete_element_files($ids) {
  * @return int number of deleted elements
  */
 function delete_elements($ids, $physical_deletion=false) {
+    global $conn;
+
     if (count($ids) == 0) {
         return 0;
     }
@@ -202,31 +208,31 @@ function delete_elements($ids, $physical_deletion=false) {
 
     // destruction of the comments on the image
     $query = 'DELETE FROM '.COMMENTS_TABLE.' WHERE image_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the links between images and categories
     $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the links between images and tags
     $query = 'DELETE FROM '.IMAGE_TAG_TABLE.' WHERE image_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the favorites associated with the picture
     $query = 'DELETE FROM '.FAVORITES_TABLE.' WHERE image_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the rates associated to this element
     $query = 'DELETE FROM '.RATE_TABLE.' WHERE element_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the caddie associated to this element
     $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE element_id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // destruction of the image
     $query = 'DELETE FROM '.IMAGES_TABLE.' WHERE id IN ('. $ids_str .');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // are the photo used as category representant?
     $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE representative_picture_id IN ('. $ids_str .');';
@@ -248,7 +254,8 @@ function delete_elements($ids, $physical_deletion=false) {
  * @param int $user_id
  */
 function delete_user($user_id) {
-    global $conf;
+    global $conf, $conn;
+
     $tables = array(
         // destruction of the access linked to the user
         USER_ACCESS_TABLE,
@@ -272,16 +279,16 @@ function delete_user($user_id) {
 
     foreach ($tables as $table) {
         $query = 'DELETE FROM '.$table.' WHERE user_id = '.$user_id.';';
-        pwg_query($query);
+        $conn->db_query($query);
     }
 
     // purge of sessions
-    $query = 'DELETE FROM '.SESSIONS_TABLE.' WHERE data LIKE \'pwg_uid|i:'.(int)$user_id.';%\';';
-    pwg_query($query);
+    $query = 'DELETE FROM '.SESSIONS_TABLE.' WHERE data LIKE \'pwg_uid|i:'.(int) $user_id.';%\';';
+    $conn->db_query($query);
 
     // destruction of the user
-    $query = 'DELETE FROM '.USERS_TABLE.' WHERE '.$conf['user_fields']['id'].' = '.$user_id.';';
-    pwg_query($query);
+    $query = 'DELETE FROM '.USERS_TABLE.' WHERE '.$conf['user_fields']['id'].' = '.(int) $user_id.';';
+    $conn->db_query($query);
 
     trigger_notify('delete_user', $user_id);
 }
@@ -293,7 +300,7 @@ function delete_user($user_id) {
  * @param 'all'|int|int[] $ids
  */
 function update_category($ids='all') {
-    global $conf;
+    global $conf, $conn;
 
     if ($ids=='all') {
         $where_cats = '1=1';
@@ -312,13 +319,13 @@ function update_category($ids='all') {
     $query .= ' LEFT JOIN '.IMAGES_TABLE.' AS i ON c.representative_picture_id = i.id';
     $query .= ' WHERE representative_picture_id IS NOT NULL';
     $query .= ' AND '.sprintf($where_cats, 'c.id').' AND i.id IS NULL;';
-    $wrong_representant = query2array($query, null, 'id');
+    $wrong_representant = $conn->query2array($query, null, 'id');
 
     if (count($wrong_representant) > 0) {
         $query = 'UPDATE '.CATEGORIES_TABLE;
         $query .= ' SET representative_picture_id = NULL';
         $query .= ' WHERE id IN ('.wordwrap(implode(', ', $wrong_representant), 120, "\n").');';
-        pwg_query($query);
+        $conn->db_query($query);
     }
 
     if (!$conf['allow_random_representative']) {
@@ -330,7 +337,7 @@ function update_category($ids='all') {
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id';
         $query .= ' WHERE representative_picture_id IS NULL';
         $query .= ' AND '.sprintf($where_cats, 'category_id');
-        $to_rand = query2array($query, null, 'id');
+        $to_rand = $conn->query2array($query, null, 'id');
         if (count($to_rand) > 0) {
             set_random_representant($to_rand);
         }
@@ -342,15 +349,17 @@ function update_category($ids='all') {
  * Removes all entries from the table which correspond to a deleted image.
  */
 function images_integrity() {
+    global $conn;
+
     $query = 'SELECT image_id FROM '.IMAGES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id WHERE id IS NULL;';
-    $result = pwg_query($query);
-    $orphan_image_ids = query2array($query, null, 'image_id');
+    $result = $conn->db_query($query);
+    $orphan_image_ids = $conn->query2array($query, null, 'image_id');
 
     if (count($orphan_image_ids) > 0) {
         $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE image_id IN ('.implode(',', $orphan_image_ids).');';
-        pwg_query($query);
+        $query .= ' WHERE image_id '.$conn->in($orphan_image_ids);
+        $conn->db_query($query);
     }
 }
 
@@ -403,7 +412,7 @@ function get_fs_directories($path, $recursive=true) {
  * so that rank field are consecutive integers starting at 1 for each child.
  */
 function update_global_rank() {
-    global $cat_map; // used in preg_replace callback
+    global $cat_map, $conn;
 
     $query = 'SELECT id, id_uppercat, uppercats, rank, global_rank FROM '.CATEGORIES_TABLE;
     $query .= ' ORDER BY id_uppercat,rank,name';
@@ -413,8 +422,8 @@ function update_global_rank() {
     $current_rank = 0;
     $current_uppercat = '';
 
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['id_uppercat'] != $current_uppercat) {
             $current_rank = 0;
             $current_uppercat = $row['id_uppercat'];
@@ -436,7 +445,7 @@ function update_global_rank() {
         return $cat_map[$m[1]]['rank'];
     };
 
-    foreach ($cat_map as $id=>$cat) {
+    foreach ($cat_map as $id => $cat) {
         $new_global_rank = preg_replace_callback(
             '/(\d+)/',
             $cat_map_callback,
@@ -454,7 +463,7 @@ function update_global_rank() {
 
     unset($cat_map);
 
-    mass_updates(
+    $conn->mass_updates(
         CATEGORIES_TABLE,
         array(
             'primary' => array('id'),
@@ -474,6 +483,8 @@ function update_global_rank() {
  * @param boolean $unlock_child optional   default false
  */
 function set_cat_visible($categories, $value, $unlock_child = false) {
+    global $conn;
+
     if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
         trigger_error("set_cat_visible invalid param $value", E_USER_WARNING);
         return false;
@@ -487,12 +498,15 @@ function set_cat_visible($categories, $value, $unlock_child = false) {
         }
 
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET visible = \'true\' WHERE id IN ('.implode(',', $cats).')'; // @TODO: use filtered IN()
-        pwg_query($query);
+        $query .= ' SET visible = \''.$conn->boolean_to_db(true).'\'';
+        $query .= ' WHERE id '.$conn->in($cats);
+        $conn->db_query($query);
     } else { // locking a category   => all its child categories become locked
         $subcats = get_subcat_ids($categories);
-        $query = 'UPDATE '.CATEGORIES_TABLE.' SET visible = \'false\' WHERE id IN ('.implode(',', $subcats).')';
-        pwg_query($query);
+        $query = 'UPDATE '.CATEGORIES_TABLE;
+        $query .= ' SET visible = \''.$conn->boolean_to_db(false).'\'';
+        $query .= ' WHERE id '.$conn->in($subcats);
+        $conn->db_query($query);
     }
 }
 
@@ -503,6 +517,8 @@ function set_cat_visible($categories, $value, $unlock_child = false) {
  * @param string $value
  */
 function set_cat_status($categories, $value) {
+    global $conn;
+
     if (!in_array($value, array('public', 'private'))) {
         trigger_error("set_cat_status invalid param $value", E_USER_WARNING);
         return false;
@@ -512,8 +528,8 @@ function set_cat_status($categories, $value) {
     if ($value == 'public') {
         $uppercats = get_uppercat_ids($categories);
         $query = 'UPDATE '.CATEGORIES_TABLE.' SET status = \'public\'';
-        $query .= ' WHERE id IN ('.implode(',', $uppercats).');';
-        pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($uppercats);
+        $conn->db_query($query);
     }
 
     // make a category private => all its child categories become private
@@ -522,8 +538,8 @@ function set_cat_status($categories, $value) {
 
         $query = 'UPDATE '.CATEGORIES_TABLE;
         $query .= ' SET status = \'private\'';
-        $query .= ' WHERE id IN ('.implode(',', $subcats).')';
-        pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($subcats);
+        $conn->db_query($query);
 
         // @TODO: add unit tests for that
         // We have to keep permissions consistant: a sub-album can't be
@@ -563,8 +579,8 @@ function set_cat_status($categories, $value) {
         $parent_ids = array();
 
         $query = 'SELECT id,name,id_uppercat,uppercats,global_rank FROM '.CATEGORIES_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', $categories).');';
-        $all_categories = query2array($query);
+        $query .= ' WHERE id '.$conn->in($categories);
+        $all_categories = $conn->query2array($query);
         usort($all_categories, 'global_rank_compare');
 
         foreach ($all_categories as $cat) {
@@ -595,8 +611,8 @@ function set_cat_status($categories, $value) {
 
         if (count($parent_ids) > 0) {
             $query = 'SELECT id,status FROM '.CATEGORIES_TABLE;
-            $query .= ' WHERE id IN ('.implode(',', $parent_ids).');'; // @TODO: use filtered IN()
-            $parent_cats= query2array($query, 'id');
+            $query .= ' WHERE id '.$conn->in($parent_ids);
+            $parent_cats= $conn->query2array($query, 'id');
         }
 
         $tables = array(
@@ -610,8 +626,8 @@ function set_cat_status($categories, $value) {
             $ref_cat_id = $top_category['id'];
 
             if (!empty($top_category['id_uppercat'])
-            and isset($parent_cats[ $top_category['id_uppercat'] ])
-            and 'private' == $parent_cats[$top_category['id_uppercat']]['status']) {
+                and isset($parent_cats[ $top_category['id_uppercat'] ])
+                and 'private' == $parent_cats[$top_category['id_uppercat']]['status']) {
                 $ref_cat_id = $top_category['id_uppercat'];
             }
 
@@ -620,8 +636,8 @@ function set_cat_status($categories, $value) {
             foreach ($tables as $table => $field) {
                 // what are the permissions user/group of the reference album
                 $query = 'SELECT '.$field.' FROM '.$table;
-                $query .= ' WHERE cat_id = '.$ref_cat_id.';';
-                $ref_access = query2array($query, null, $field);
+                $query .= ' WHERE cat_id = '.$conn->db_real_escape_string($ref_cat_id);
+                $ref_access = $conn->query2array($query, null, $field);
 
                 if (count($ref_access) == 0) {
                     $ref_access[] = -1;
@@ -629,9 +645,9 @@ function set_cat_status($categories, $value) {
 
                 // step 3, remove the inconsistant permissions from sub-albums
                 $query = 'DELETE FROM '.$table;
-                $query .= ' WHERE '.$field.' NOT IN ('.implode(',', $ref_access).')';
-                $query .= ' AND cat_id IN ('.implode(',', $subcats).');';
-                pwg_query($query);
+                $query .= ' WHERE '.$field.' NOT '.$conn->in($ref_access);
+                $query .= ' AND cat_id '.$conn->in($subcats);
+                $conn->db_query($query);
             }
         }
     }
@@ -644,15 +660,18 @@ function set_cat_status($categories, $value) {
  * @return int[]
  */
 function get_uppercat_ids($cat_ids) {
+    global $conn;
+
     if (!is_array($cat_ids) or count($cat_ids) < 1) {
         return array();
     }
 
     $uppercats = array();
 
-    $query = 'SELECT uppercats FROM '.CATEGORIES_TABLE.' WHERE id IN ('.implode(',', $cat_ids).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT uppercats FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($cat_ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $uppercats = array_merge($uppercats, explode(',', $row['uppercats']));
     }
     $uppercats = array_unique($uppercats);
@@ -673,7 +692,7 @@ function set_random_representant($categories) {
         $query = 'SELECT image_id FROM '.IMAGE_CATEGORY_TABLE;
         $query .= ' WHERE category_id = '.$category_id;
         $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'()  LIMIT 1;';
-        list($representative) = pwg_db_fetch_row(pwg_query($query));
+        list($representative) = $conn->db_fetch_row($conn->db_query($query));
 
         $datas[] = array(
             'id' => $category_id,
@@ -681,7 +700,7 @@ function set_random_representant($categories) {
         );
     }
 
-    mass_updates(
+    $conn->mass_updates(
         CATEGORIES_TABLE,
         array(
             'primary' => array('id'),
@@ -698,7 +717,7 @@ function set_random_representant($categories) {
  * @return string[]
  */
 function get_fulldirs($cat_ids) {
-    global $cat_dirs; // used in preg_replace callback
+    global $cat_dirs, $conn;
 
     if (count($cat_ids) == 0) {
         return array();
@@ -706,17 +725,17 @@ function get_fulldirs($cat_ids) {
 
     // caching directories of existing categories
     $query = 'SELECT id, dir  FROM '.CATEGORIES_TABLE.' WHERE dir IS NOT NULL;';
-    $cat_dirs = query2array($query, 'id', 'dir');
+    $cat_dirs = $conn->query2array($query, 'id', 'dir');
 
     // caching galleries_url
     $query = 'SELECT id, galleries_url FROM '.SITES_TABLE;
-    $galleries_url = query2array($query, 'id', 'galleries_url');
+    $galleries_url = $conn->query2array($query, 'id', 'galleries_url');
 
     // categories : id, site_id, uppercats
     $query = 'SELECT id, uppercats, site_id FROM '.CATEGORIES_TABLE;
     $query .= ' WHERE dir IS NOT NULL';
-    $query .= ' AND id IN ('.wordwrap(implode(', ', $cat_ids), 80, "\n").');';
-    $categories = query2array($query);
+    $query .= ' AND id IN ('.wordwrap(implode(', ', $cat_ids), 80, "\n").');'; // @TODO: why wordwrap ??
+    $categories = $conn->query2array($query);
 
     // filling $cat_fulldirs
     $cat_dirs_callback = function($m) use ($cat_dirs) {
@@ -809,13 +828,13 @@ function get_fs($path, $recursive = true) {
  * present in base table must be deleted.
  */
 function sync_users() {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['id'].' AS id FROM '.USERS_TABLE;
-    $base_users = query2array($query, null, 'id');
+    $base_users = $conn->query2array($query, null, 'id');
 
     $query = 'SELECT user_id FROM '.USER_INFOS_TABLE;
-    $infos_users = query2array($query, null, 'user_id');
+    $infos_users = $conn->query2array($query, null, 'user_id');
 
     // users present in $base_users and not in $infos_users must be added
     $to_create = array_diff($base_users, $infos_users);
@@ -839,13 +858,14 @@ function sync_users() {
     foreach ($tables as $table) {
         $query = 'SELECT DISTINCT user_id FROM '.$table;
         $to_delete = array_diff(
-            query2array($query, null, 'user_id'),
+            $conn->query2array($query, null, 'user_id'),
             $base_users
         );
 
         if (count($to_delete) > 0) {
-            $query = 'DELETE FROM '.$table.' WHERE user_id in ('.implode(',', $to_delete).');';
-            pwg_query($query);
+            $query = 'DELETE FROM '.$table;
+            $query .= ' WHERE user_id '.$conn->in($to_delete);
+            $conn->db_query($query);
         }
     }
 }
@@ -854,8 +874,10 @@ function sync_users() {
  * Updates categories.uppercats field based on categories.id + categories.id_uppercat
  */
 function update_uppercats() {
+    global $conn;
+
     $query = 'SELECT id, id_uppercat, uppercats FROM '.CATEGORIES_TABLE;
-    $cat_map = query2array($query, 'id');
+    $cat_map = $conn->query2array($query, 'id');
 
     $datas = array();
     foreach ($cat_map as $id => $cat) {
@@ -876,23 +898,25 @@ function update_uppercats() {
         }
     }
     $fields = array('primary' => array('id'), 'update' => array('uppercats'));
-    mass_updates(CATEGORIES_TABLE, $fields, $datas);
+    $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
 }
 
 /**
  * Update images.path field base on images.file and storage categories fulldirs.
  */
 function update_path() {
+    global $conn;
+
     $query = 'SELECT DISTINCT(storage_category_id) FROM '.IMAGES_TABLE;
     $query .= ' WHERE storage_category_id IS NOT NULL';
-    $cat_ids = query2array($query, null, 'storage_category_id');
+    $cat_ids = $conn->query2array($query, null, 'storage_category_id');
     $fulldirs = get_fulldirs($cat_ids);
 
-    foreach ($cat_ids as $cat_id) {
+    foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
         $query = 'UPDATE '.IMAGES_TABLE;
-        $query .= ' SET path = '.pwg_db_concat(array("'".$fulldirs[$cat_id]."/'", 'file'));
+        $query .= ' SET path = '.$conn->db_concat(array("'".$fulldirs[$cat_id]."/'", 'file'));
         $query .= ' WHERE storage_category_id = '.$cat_id.';';
-        pwg_query($query);
+        $conn->db_query($query);
     }
 }
 
@@ -904,7 +928,7 @@ function update_path() {
  * @param int $new_parent (-1 for root)
  */
 function move_categories($category_ids, $new_parent = -1) {
-    global $page;
+    global $page, $conn;
 
     if (count($category_ids) == 0) {
         return;
@@ -914,9 +938,9 @@ function move_categories($category_ids, $new_parent = -1) {
     $categories = array();
 
     $query = 'SELECT id, id_uppercat, status, uppercats FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $category_ids).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $categories[$row['id']] = array(
             'parent' => empty($row['id_uppercat']) ? 'NULL' : $row['id_uppercat'],
             'status' => $row['status'],
@@ -928,7 +952,7 @@ function move_categories($category_ids, $new_parent = -1) {
     // a category in a sub-category or itself
     if ('NULL' != $new_parent) {
         $query = 'SELECT uppercats FROM '.CATEGORIES_TABLE.' WHERE id = '.$new_parent.';';
-        list($new_parent_uppercats) = pwg_db_fetch_row(pwg_query($query));
+        list($new_parent_uppercats) = $conn->db_fetch_row($conn->db_query($query));
 
         foreach ($categories as $category) {
             // technically, you can't move a category with uppercats 12,125,13,14
@@ -947,8 +971,8 @@ function move_categories($category_ids, $new_parent = -1) {
 
     $query = 'UPDATE '.CATEGORIES_TABLE;
     $query .= ' SET id_uppercat = '.$new_parent;
-    $query .= ' WHERE id IN ('.implode(',', $category_ids).');';
-    pwg_query($query);
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $conn->db_query($query);
 
     update_uppercats();
     update_global_rank();
@@ -958,7 +982,7 @@ function move_categories($category_ids, $new_parent = -1) {
         $parent_status = 'public';
     } else {
         $query = 'SELECT status FROM '.CATEGORIES_TABLE.' WHERE id = '.$new_parent.';';
-        list($parent_status) = pwg_db_fetch_row(pwg_query($query));
+        list($parent_status) = $conn->db_fetch_row($conn->db_query($query));
     }
 
     if ('private' == $parent_status) {
@@ -985,7 +1009,7 @@ function move_categories($category_ids, $new_parent = -1) {
  * @return array ('info', 'id') or ('error')
  */
 function create_virtual_category($category_name, $parent_id=null, $options=array()) {
-    global $conf, $user;
+    global $conf, $user, $conn;
 
     // is the given category name only containing blank spaces ?
     if (preg_match('/^\s*$/', $category_name)) {
@@ -1031,7 +1055,7 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
     if (!empty($parent_id) and is_numeric($parent_id)) {
         $query = 'SELECT id, uppercats, global_rank, visible, status FROM '.CATEGORIES_TABLE;
         $query .= ' WHERE id = '.$parent_id.';';
-        $parent = pwg_db_fetch_assoc(pwg_query($query));
+        $parent = $conn->db_fetch_assoc($conn->db_query($query));
 
         $insert['id_uppercat'] = $parent['id'];
         $insert['global_rank'] = $parent['global_rank'].'.'.$insert['rank'];
@@ -1056,10 +1080,10 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
     }
 
     // we have then to add the virtual category
-    single_insert(CATEGORIES_TABLE, $insert);
-    $inserted_id = pwg_db_insert_id(CATEGORIES_TABLE);
+    $conn->single_insert(CATEGORIES_TABLE, $insert);
+    $inserted_id = $conn->db_insert_id(CATEGORIES_TABLE);
 
-    single_update(
+    $conn->single_update(
         CATEGORIES_TABLE,
         array('uppercats' => $uppercats_prefix.$inserted_id),
         array('id' => $inserted_id)
@@ -1067,18 +1091,19 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
 
     update_global_rank();
 
-    if ('private'==$insert['status'] and !empty($insert['id_uppercat']) and ((isset($options['inherit']) and $options['inherit']) or $conf['inheritance_by_default'])) {
+    if ('private'==$insert['status'] and !empty($insert['id_uppercat'])
+        and ((isset($options['inherit']) and $options['inherit']) or $conf['inheritance_by_default'])) {
         $query = 'SELECT group_id FROM '.GROUP_ACCESS_TABLE;
         $query .= ' WHERE cat_id = '.$insert['id_uppercat'];
-        $granted_grps =  query2array($query, null, 'group_id');
+        $granted_grps =  $conn->query2array($query, null, 'group_id');
         $inserts = array();
         foreach ($granted_grps as $granted_grp) {
             $inserts[] = array('group_id' => $granted_grp, 'cat_id' => $inserted_id);
         }
-        mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $inserts);
+        $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $inserts);
 
         $query = 'SELECT user_id FROM '.USER_ACCESS_TABLE.' WHERE cat_id = '.$insert['id_uppercat'];
-        $granted_users =  query2array($query, null, 'user_id');
+        $granted_users =  $conn->query2array($query, null, 'user_id');
         add_permission_on_category($inserted_id, array_unique(array_merge(get_admins(), array($user['id']), $granted_users)));
     } elseif ('private' == $insert['status']) {
         add_permission_on_category($inserted_id, array_unique(array_merge(get_admins(), array($user['id']))));
@@ -1098,15 +1123,17 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
  * @param int[] $categories
  */
 function associate_images_to_categories($images, $categories) {
+    global $conn;
+
     if (count($images) == 0 || count($categories) == 0) {
         return false;
     }
 
     // get existing associations
     $query = 'SELECT image_id,category_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id IN ('.implode(',', $images).')';
-    $query .= ' AND category_id IN ('.implode(',', $categories).');';
-    $result = pwg_query($query);
+    $query .= ' WHERE image_id '.$conn->in($images);
+    $query .= ' AND category_id '.$conn->in($categories);
+    $result = $conn->db_query($query);
 
     $existing = array();
     while ($row = pwg_db_fetch_assoc($result)) {
@@ -1116,16 +1143,16 @@ function associate_images_to_categories($images, $categories) {
     // get max rank of each categories
     $query = 'SELECT category_id,MAX(rank) AS max_rank FROM '.IMAGE_CATEGORY_TABLE;
     $query .= ' WHERE rank IS NOT NULL';
-    $query .= ' AND category_id IN ('.implode(',', $categories).')';
+    $query .= ' AND category_id '.$conn->in($categories);
     $query .= ' GROUP BY category_id;';
 
-    $current_rank_of = query2array(
+    $current_rank_of = $conn->query2array(
         $query,
         'category_id',
         'max_rank'
     );
 
-  // associate only not already associated images
+    // associate only not already associated images
     $inserts = array();
     foreach ($categories as $category_id) {
         if (!isset($current_rank_of[$category_id])) {
@@ -1149,7 +1176,7 @@ function associate_images_to_categories($images, $categories) {
     }
 
     if (count($inserts)) {
-        mass_inserts(
+        $conn->mass_inserts(
             IMAGE_CATEGORY_TABLE,
             array_keys($inserts[0]),
             $inserts
@@ -1168,6 +1195,8 @@ function associate_images_to_categories($images, $categories) {
  * @param int[] $categories
  */
 function move_images_to_categories($images, $categories) {
+    global $conn;
+
     if (count($images) == 0) {
         return false;
     }
@@ -1176,11 +1205,11 @@ function move_images_to_categories($images, $categories) {
     $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
     $query .= ' WHERE category_id in (';
     $query .= ' SELECT id FROM '.IMAGES_TABLE;
-    $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT IN ('.implode(',', $categories).'))';
+    $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT '.$conn->in($categories).')';
     $query .= ')';
-    $query .= ' AND image_id IN ('.implode(',', $images).')';
+    $query .= ' AND image_id '.$conn->in($images);
 
-    pwg_query($query);
+    $conn->db_query($query);
 
     if (is_array($categories) and count($categories) > 0) {
         associate_images_to_categories($images, $categories);
@@ -1195,19 +1224,21 @@ function move_images_to_categories($images, $categories) {
  * @param int[] $destinations
  */
 function associate_categories_to_categories($sources, $destinations) {
+    global $conn;
+
     if (count($sources) == 0) {
         return false;
     }
 
     $query = 'SELECT image_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE category_id IN ('.implode(',', $sources).');';
-    $images = query2array($query, null, 'image_id');
+    $query .= ' WHERE category_id '.$conn->in($sources);
+    $images = $conn->query2array($query, null, 'image_id');
 
     associate_images_to_categories($images, $destinations);
 }
 
 /**
- * Refer main Piwigo URLs (currently PHPWG_DOMAIN domain)
+ * Refer main Phyxo URLs (currently PHPWG_DOMAIN domain)
  *
  * @return string[]
  */
@@ -1246,13 +1277,13 @@ function invalidate_user_cache($full=true) {
  * Invalidates cached tags counter for all users.
  */
 function invalidate_user_cache_nb_tags() {
-    global $user;
+    global $user, $conn;
 
     unset($user['nb_available_tags']);
 
     $query = 'UPDATE '.USER_CACHE_TABLE;
     $query .= ' SET nb_available_tags = NULL';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 /**
@@ -1441,10 +1472,12 @@ function fetchRemote($src, &$dest, $get_data=array(), $post_data=array(), $user_
  * @return string|false
  */
 function get_groupname($group_id) {
+    global $conn;
+
     $query = 'SELECT name FROM '.GROUPS_TABLE.' WHERE id = '.intval($group_id).';';
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) > 0) {
-        list($groupname) = pwg_db_fetch_row($result);
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) > 0) {
+        list($groupname) = $conn->db_fetch_row($result);
     } else {
         return false;
     }
@@ -1459,18 +1492,18 @@ function get_groupname($group_id) {
  * @return string|false
  */
 function get_username($user_id) {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['username'].' FROM '.USERS_TABLE;
     $query .= ' WHERE '.$conf['user_fields']['id'].' = '.intval($user_id).';';
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) > 0) {
-        list($username) = pwg_db_fetch_row($result);
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) > 0) {
+        list($username) = $conn->db_fetch_row($result);
     } else {
         return false;
     }
 
-    //why stripslashes ?
+    // @TODO: why stripslashes ?
     return stripslashes($username);
 }
 
@@ -1488,52 +1521,52 @@ function get_active_menu($menu_page) {
     }
 
     switch ($menu_page)
-        {
-        case 'photo':
-        case 'photos_add':
-        case 'rating':
-        case 'tags':
-        case 'batch_manager':
-            return 0;
+    {
+    case 'photo':
+    case 'photos_add':
+    case 'rating':
+    case 'tags':
+    case 'batch_manager':
+        return 0;
 
-        case 'album':
-        case 'cat_list':
-        case 'cat_move':
-        case 'cat_options':
-        case 'permalinks':
-            return 1;
+    case 'album':
+    case 'cat_list':
+    case 'cat_move':
+    case 'cat_options':
+    case 'permalinks':
+        return 1;
 
-        case 'user_list':
-        case 'user_perm':
-        case 'group_list':
-        case 'group_perm':
-        case 'notification_by_mail':
-            return 2;
+    case 'user_list':
+    case 'user_perm':
+    case 'group_list':
+    case 'group_perm':
+    case 'notification_by_mail':
+        return 2;
 
-        case 'plugins':
-        case 'plugin':
-            return 3;
+    case 'plugins':
+    case 'plugin':
+        return 3;
 
-        case 'site_manager':
-        case 'site_update':
-        case 'stats':
-        case 'history':
-        case 'maintenance':
-        case 'comments':
-        case 'updates':
-            return 4;
+    case 'site_manager':
+    case 'site_update':
+    case 'stats':
+    case 'history':
+    case 'maintenance':
+    case 'comments':
+    case 'updates':
+        return 4;
 
-        case 'configuration':
-        case 'derivatives':
-        case 'menubar':
-        case 'themes':
-        case 'theme':
-        case 'languages':
-            return 5;
+    case 'configuration':
+    case 'derivatives':
+    case 'menubar':
+    case 'themes':
+    case 'theme':
+    case 'languages':
+        return 5;
 
-        default:
-            return 0;
-        }
+    default:
+        return 0;
+    }
 }
 
 /**
@@ -1562,6 +1595,8 @@ function order_by_name($element_ids, $name) {
  * @param int[] $user_ids
  */
 function add_permission_on_category($category_ids, $user_ids) {
+    global $conn;
+
     if (!is_array($category_ids)) {
         $category_ids = array($category_ids);
     }
@@ -1581,9 +1616,9 @@ function add_permission_on_category($category_ids, $user_ids) {
     }
 
     $query = 'SELECT id  FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $cat_ids).')';
+    $query .= ' WHERE id '.$conn->in($cat_ids);
     $query .= ' AND status = \'private\';';
-    $private_cats = query2array($query, null, 'id');
+    $private_cats = $conn->query2array($query, null, 'id');
 
     if (count($private_cats) == 0) {
         return;
@@ -1599,7 +1634,7 @@ function add_permission_on_category($category_ids, $user_ids) {
         }
     }
 
-    mass_inserts(
+    $conn->mass_inserts(
         USER_ACCESS_TABLE,
         array('user_id','cat_id'),
         $inserts,
@@ -1614,6 +1649,8 @@ function add_permission_on_category($category_ids, $user_ids) {
  * @return int[]
  */
 function get_admins($include_webmaster=true) {
+    global $conn;
+
     $status_list = array('admin');
 
     if ($include_webmaster) {
@@ -1621,9 +1658,9 @@ function get_admins($include_webmaster=true) {
     }
 
     $query = 'SELECT user_id  FROM '.USER_INFOS_TABLE;
-    $query .= ' WHERE status in (\''.implode("','", $status_list).'\');';
+    $query .= ' WHERE status '.$conn->in($status_list);
 
-    return query2array($query, null, 'user_id');
+    return $conn->query2array($query, null, 'user_id');
 }
 
 /**
@@ -1730,7 +1767,7 @@ function delete_element_derivatives($infos, $type='all') {
         $pattern = '-'.derivative_to_url($type).'*';
     }
     $path = substr_replace($path, $pattern, $dot, 0);
-    if (($glob=glob(PHPWG_ROOT_PATH.PWG_DERIVATIVE_DIR.$path)) !== false) {
+    if (($glob = glob(PHPWG_ROOT_PATH.PWG_DERIVATIVE_DIR.$path)) !== false) {
         foreach($glob as $file) {
             unlink($file);
         }
@@ -1806,6 +1843,8 @@ function deltree($path, $trash_path=null) {
  * @return string[]
  */
 function get_admin_client_cache_keys($requested=array()) {
+    global $conn;
+
     $tables = array(
         'categories' => CATEGORIES_TABLE,
         'groups' => GROUPS_TABLE,
@@ -1829,10 +1868,10 @@ function get_admin_client_cache_keys($requested=array()) {
 
     foreach ($requested as $item) {
         // @TODO : add _ between timestamp and count -> pwg_concat ??
-        $query = 'SELECT '.pwg_db_date_to_ts('MAX(lastmodified)').', COUNT(1)';
+        $query = 'SELECT '.$conn->db_date_to_ts('MAX(lastmodified)').', COUNT(1)';
         $query .= ' FROM '. $tables[$item] .';';
-        $result = pwg_query($query);
-        $row = pwg_db_fetch_row($result);
+        $result = $conn->db_query($query);
+        $row = $conn->db_fetch_row($result);
 
         $keys[$item] = sprintf('%s_%s', $row[0], $row[1]);
     }

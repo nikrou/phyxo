@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -41,8 +41,8 @@ function get_complete_dir( $category_id ) {
 // Example : "pets > rex > 1_year_old" is on the the same site as the
 // Piwigo files and this category has 22 for identifier
 // get_local_dir(22) returns "pets/rex/1_year_old/"
-function get_local_dir( $category_id ) {
-    global $page;
+function get_local_dir($category_id) {
+    global $page, $conn;
 
     $uppercats = '';
     $local_dir = '';
@@ -52,7 +52,7 @@ function get_local_dir( $category_id ) {
     } else {
         $query = 'SELECT uppercats';
         $query.= ' FROM '.CATEGORIES_TABLE.' WHERE id = '.$category_id;
-        $row = pwg_db_fetch_assoc( pwg_query( $query ) );
+        $row = $conn->db_fetch_assoc($conn->db_query($query));
         $uppercats = $row['uppercats'];
     }
 
@@ -60,13 +60,13 @@ function get_local_dir( $category_id ) {
 
     $database_dirs = array();
     $query = 'SELECT id,dir';
-    $query.= ' FROM '.CATEGORIES_TABLE.' WHERE id IN ('.$uppercats.')';
-    $result = pwg_query( $query );
-    while($row = pwg_db_fetch_assoc($result)) {
+    $query.= ' FROM '.CATEGORIES_TABLE.' WHERE id '.$conn->in($uppercats);
+    $result = $conn->db_query($query);
+    while($row = $conn->db_fetch_assoc($result)) {
         $database_dirs[$row['id']] = $row['dir'];
     }
     foreach ($upper_array as $id) {
-        $local_dir.= $database_dirs[$id].'/';
+        $local_dir .= $database_dirs[$id].'/';
     }
 
     return $local_dir;
@@ -75,11 +75,11 @@ function get_local_dir( $category_id ) {
 // retrieving the site url : "http://domain.com/gallery/" or
 // simply "./galleries/"
 function get_site_url($category_id) {
-    global $page;
+    global $page, $conn;
 
     $query = 'SELECT galleries_url FROM '.SITES_TABLE.' AS s,'.CATEGORIES_TABLE.' AS c';
     $query .= ' WHERE s.id = c.site_id AND c.id = '.$category_id;
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     return $row['galleries_url'];
 }
@@ -93,7 +93,7 @@ trigger_notify('loc_begin_cat_modify');
 
 //---------------------------------------------------------------- verification
 if (!isset($_GET['cat_id']) || !is_numeric($_GET['cat_id'])) {
-    trigger_error( 'missing cat_id param', E_USER_ERROR);
+    trigger_error('missing cat_id param', E_USER_ERROR);
 }
 
 //--------------------------------------------------------- form criteria check
@@ -110,7 +110,7 @@ if (isset($_POST['submit'])) {
         $data['commentable'] = isset($_POST['commentable'])?$_POST['commentable']:'false';
     }
 
-    single_update(
+    $conn->single_update(
         CATEGORIES_TABLE,
         $data,
         array('id' => $data['id'])
@@ -118,17 +118,17 @@ if (isset($_POST['submit'])) {
     if ($_POST['apply_commentable_on_sub']) {
         $subcats = get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET commentable = \''.$data['commentable'].'\'';
-        $query .= ' WHERE id IN ('.implode(',', $subcats).');';
-        pwg_query($query);
+        $query .= ' SET commentable = \''.$data['commentable'].'\''; // @TODO : use boolean_to_db ?
+        $query .= ' WHERE id '.$conn->in($subcats);
+        $conn->db_query($query);
     }
 
     if ($_POST['apply_commentable_on_sub']) {
         $subcats = get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET commentable = \''.$data['commentable'].'\'';
-        $query .= ' WHERE id IN ('.implode(',', $subcats).');';
-        pwg_query($query);
+        $query .= ' SET commentable = \''.$data['commentable'].'\'';  // @TODO : use boolean_to_db ?
+        $query .= ' WHERE id '.$conn->in($subcats);
+        $conn->db_query($query);
     }
 
     // retrieve cat infos before continuing (following updates are expensive)
@@ -149,7 +149,7 @@ if (isset($_POST['submit'])) {
 
     // only move virtual albums
     if (empty($cat_info['dir']) and $cat_info['id_uppercat'] != $_POST['parent']) {
-        move_categories( array($_GET['cat_id']), $_POST['parent'] );
+        move_categories(array($_GET['cat_id']), $_POST['parent']);
     }
 
     $_SESSION['page_infos'][] = l10n('Album updated successfully');
@@ -159,8 +159,8 @@ if (isset($_POST['submit'])) {
     $redirect = true;
 } elseif (isset($_POST['delete_representant'])) {
     $query = 'UPDATE '.CATEGORIES_TABLE;
-    $query .= ' SET representative_picture_id = NULL WHERE id = '.$_GET['cat_id'].';';
-    pwg_query($query);
+    $query .= ' SET representative_picture_id = NULL WHERE id = '.$conn->db_real_escape_string($_GET['cat_id']);
+    $conn->db_query($query);
     $redirect = true;
 }
 
@@ -178,9 +178,9 @@ foreach (array('comment','dir','site_id', 'id_uppercat') as $nullable) {
 $category['is_virtual'] = empty($category['dir']) ? true : false;
 
 $query = 'SELECT DISTINCT category_id FROM '.IMAGE_CATEGORY_TABLE;
-$query .= ' WHERE category_id = '.$_GET['cat_id'].' LIMIT 1';
-$result = pwg_query($query);
-$category['has_images'] = pwg_db_num_rows($result)>0 ? true : false;
+$query .= ' WHERE category_id = '.$conn->db_real_escape_string($_GET['cat_id']).' LIMIT 1';
+$result = $conn->db_query($query);
+$category['has_images'] = $conn->db_num_rows($result)>0 ? true : false;
 
 // Navigation path
 $navigation = get_cat_display_name_cache(
@@ -237,7 +237,7 @@ if ($category['has_images']) {
     $query = 'SELECT COUNT(image_id), MIN(DATE(date_available)), MAX(DATE(date_available)) FROM '.IMAGES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
     $query .= ' WHERE category_id = '.$category['id'].';';
-    list($image_count, $min_date, $max_date) = pwg_db_fetch_row(pwg_query($query));
+    list($image_count, $min_date, $max_date) = $conn->db_fetch_row($conn->db_query($query));
 
     if ($min_date == $max_date) {
         $intro = l10n(
@@ -296,7 +296,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     if (!empty($category['representative_picture_id'])) {
         $query = 'SELECT id,representative_ext,path FROM '.IMAGES_TABLE;
         $query .= ' WHERE id = '.$category['representative_picture_id'].';';
-        $row = pwg_db_fetch_assoc(pwg_query($query));
+        $row = $conn->db_fetch_assoc($conn->db_query($query));
         $src = DerivativeImage::thumb_url($row);
         $url = get_root_url().'admin.php?page=photo-'.$category['representative_picture_id'];
 

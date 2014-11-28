@@ -275,9 +275,8 @@ function get_filelist($category_id = '', $site_id=1, $recursive = false, $only_n
             $query.= ' AND id = '.$category_id;
         }
     }
-    $query.= ';';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $cat_ids[] = $row['id'];
     }
 
@@ -286,10 +285,10 @@ function get_filelist($category_id = '', $site_id=1, $recursive = false, $only_n
     }
 
     $query = 'SELECT id, path, representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE storage_category_id IN ('.implode(',', $cat_ids).')';
+    $query .= ' WHERE storage_category_id '.$conn->in($cat_ids);
     if ($only_new) {
         $query.= ' AND date_metadata_update IS NULL';
     }
-    $query.= ';';
-    return hash_from_query($query, 'id');
+
+    return $conn->query2array($query, 'id');
 }

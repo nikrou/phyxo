@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -52,8 +52,8 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
     // automatically forbidden
     $subcats = get_subcat_ids($_POST['cat_true']);
     $query = 'DELETE FROM '.USER_ACCESS_TABLE;
-    $query .= ' WHERE user_id = '.$page['user'].' AND cat_id IN ('.implode(',', $subcats).');';
-    pwg_query($query);
+    $query .= ' WHERE user_id = '.$page['user'].' AND cat_id '.$conn->in($subcats);
+    $conn->db_query($query);
 } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     add_permission_on_category($_POST['cat_false'], $page['user']);
 }
@@ -94,11 +94,11 @@ $query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM '.USER_GROUP_T
 $query .= ' LEFT JOIN '.GROUP_ACCESS_TABLE.' AS ga ON ug.group_id = ga.group_id';
 $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' AS c ON c.id = ga.cat_id';
 $query .= ' WHERE ug.user_id = '.$page['user'];
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
-if (pwg_db_num_rows($result) > 0) {
+if ($conn->db_num_rows($result) > 0) {
     $cats = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $cats[] = $row;
         $group_authorized[] = $row['cat_id'];
     }
@@ -117,23 +117,23 @@ $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
 $query_true .= ' LEFT JOIN '.USER_ACCESS_TABLE.' ON cat_id = id';
 $query_true .= ' WHERE status = \'private\' AND user_id = '.$page['user'];
 if (count($group_authorized) > 0) {
-    $query_true .= ' AND cat_id NOT IN ('.implode(',', $group_authorized).')';
+    $query_true .= ' AND cat_id NOT '.$conn->in($group_authorized);
 }
-display_select_cat_wrapper($query_true,array(),'category_option_true');
+display_select_cat_wrapper($query_true, array(), 'category_option_true');
 
-$result = pwg_query($query_true);
+$result = $conn->db_query($query_true);
 $authorized_ids = array();
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $authorized_ids[] = $row['id'];
 }
 
 $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
 $query_false .= ' WHERE status = \'private\'';
 if (count($authorized_ids) > 0) {
-    $query_false .= ' AND id NOT IN ('.implode(',', $authorized_ids).')';
+    $query_false .= ' AND id NOT '.$conn->in($authorized_ids);
 }
 if (count($group_authorized) > 0) {
-    $query_false .= ' AND id NOT IN ('.implode(',', $group_authorized).')';
+    $query_false .= ' AND id NOT '.$conn->in($group_authorized);
 }
 display_select_cat_wrapper($query_false,array(),'category_option_false');
 

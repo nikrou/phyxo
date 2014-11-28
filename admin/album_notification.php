@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -55,9 +55,9 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
         $query = 'SELECT id, file, path, representative_ext FROM '.IMAGES_TABLE;
         $query .= ' WHERE id = '.$category['representative_picture_id'];
 
-        $result = pwg_query($query);
-        if (pwg_db_num_rows($result) > 0) {
-            $element = pwg_db_fetch_assoc($result);
+        $result = $conn->db_query($query);
+        if ($conn->db_num_rows($result) > 0) {
+            $element = $conn->db_fetch_assoc($result);
 
             $img_url  = '<a href="'.
                 make_picture_url(array(
@@ -98,8 +98,8 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
 
     unset_make_full_url();
 
-    $query = 'SELECT name FROM '.GROUPS_TABLE.' WHERE id = '.pwg_db_real_escape_string($_POST['group']);
-    list($group_name) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT name FROM '.GROUPS_TABLE.' WHERE id = '.$conn->db_real_escape_string($_POST['group']);
+    list($group_name) = $conn->db_fetch_row($conn->db_query($query));
 
     $page['infos'][] = l10n('An information email was sent to group "%s"', $group_name);
 }
@@ -127,14 +127,14 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 $query = 'SELECT AS group_id FROM '.GROUPS_TABLE;
-$all_group_ids = array_from_query($query, 'group_id');
+$all_group_ids = $conn->query2array($query, null, 'group_id');
 
 if (count($all_group_ids) == 0) {
     $template->assign('no_group_in_gallery', true);
 } else {
     if ('private' == $category['status']) {
         $query = 'SELECT group_id FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id = '.$category['id'];
-        $group_ids = array_from_query($query, 'group_id');
+        $group_ids = $conn->query2array($query, null, 'group_id');
 
         if (count($group_ids) == 0) {
             $template->assign('permission_url', $admin_album_base_url.'-permissions');
@@ -145,10 +145,10 @@ if (count($all_group_ids) == 0) {
 
     if (count($group_ids) > 0) {
         $query = 'SELECT id,name FROM '.GROUPS_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', $group_ids).') ORDER BY name ASC;';
+        $query .= ' WHERE id '.$conn->in($group_ids).' ORDER BY name ASC';
         $template->assign(
             'group_mail_options',
-            simple_hash_from_query($query, 'id', 'name')
+            $conn->query2array($query, 'id', 'name')
         );
     }
 }

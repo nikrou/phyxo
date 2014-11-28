@@ -28,11 +28,11 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 if (isset($_POST['edit_submit'])) {
     $query = 'SELECT name FROM '.TAGS_TABLE.';';
-    $existing_names = array_from_query($query, 'name');
+    $existing_names = $conn->query2array($query, null, 'name');
 
     $current_name_of = array();
     $query = 'SELECT id, name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id IN ('.$_POST['edit_list'].');';
+    $query .= ' WHERE id '.$conn->in($_POST['edit_list']);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[ $row['id'] ] = $row['name'];
@@ -55,7 +55,7 @@ if (isset($_POST['edit_submit'])) {
             }
         }
     }
-    mass_updates(
+    $conn->mass_updates(
         TAGS_TABLE,
         array(
             'primary' => array('id'),
@@ -70,7 +70,7 @@ if (isset($_POST['edit_submit'])) {
 
 if (isset($_POST['duplic_submit'])) {
     $query = 'SELECT name FROM '.TAGS_TABLE;
-    $existing_names = array_from_query($query, 'name');
+    $existing_names = $conn->query2array($query, null, 'name');
 
     $current_name_of = array();
     $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['edit_list']);
@@ -88,7 +88,7 @@ if (isset($_POST['duplic_submit'])) {
             if (in_array($tag_name, $existing_names)) {
                 $page['errors'][] = l10n('Tag "%s" already exists', $tag_name);
             } elseif (!empty($tag_name)) {
-                single_insert(
+                $conn->single_insert(
                     TAGS_TABLE,
                     array(
                         'name' => $tag_name,
@@ -96,12 +96,12 @@ if (isset($_POST['duplic_submit'])) {
                     )
                 );
 
-                $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$conn->db_real_escape_string($tag_name).'\';';
+                $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$conn->db_real_escape_string($tag_name).'\'';
                 $destination_tag = $conn->query2array($query, null, 'id');
                 $destination_tag_id = $destination_tag[0];
 
                 $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($tag_id).';';
-                $destination_tag_image_ids = array_from_query($query, 'image_id');
+                $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
 
                 $inserts = array();
                 foreach ($destination_tag_image_ids as $image_id) {
@@ -112,7 +112,7 @@ if (isset($_POST['duplic_submit'])) {
                 }
 
                 if (count($inserts) > 0) {
-                    mass_inserts(
+                    $conn->mass_inserts(
                         IMAGE_TAG_TABLE,
                         array_keys($inserts[0]),
                         $inserts
@@ -128,7 +128,7 @@ if (isset($_POST['duplic_submit'])) {
         }
     }
 
-    mass_updates(
+    $conn->mass_updates(
         TAGS_TABLE,
         array(
             'primary' => array('id'),
@@ -166,7 +166,7 @@ if (isset($_POST['merge_submit'])) {
             $query .= ' WHERE tag_id '.$conn->in($tag_ids_to_delete);
             $image_ids = $conn->query2array($query, null, 'image_id');
 
-            delete_tags($tag_ids_to_delete);
+            $services['tags']->deleteTags($tag_ids_to_delete);
 
             $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($destination_tag_id);
             $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
@@ -215,7 +215,7 @@ if (isset($_POST['delete']) and isset($_POST['tags'])) {
     $query = 'SELECT name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['tags']);
     $tag_names = $conn->query2array($query, null, 'name');
 
-    delete_tags($_POST['tags']);
+    $services['tags']->deleteTags($_POST['tags']);
 
     $page['infos'][] = l10n_dec(
         'The following tag was deleted', 'The %d following tags were deleted',
@@ -230,7 +230,7 @@ if (isset($_POST['delete']) and isset($_POST['tags'])) {
 if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
     check_pwg_token();
 
-    delete_orphan_tags();
+    $services['tags']->deleteOrphanTags();
     $_SESSION['page_infos'][] = l10n('Orphan tags deleted');
     redirect(get_root_url().'admin.php?page=tags');
 }
@@ -240,7 +240,7 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['add']) and !empty($_POST['add_tag'])) {
-    $ret = create_tag($_POST['add_tag']);
+    $ret = $services['tags']->createTag($_POST['add_tag']);
 
     if (isset($ret['error'])) {
         $page['errors'][] = $ret['error'];
@@ -293,7 +293,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     $tag['U_EDIT'] = 'admin.php?page=batch_manager&amp;filter=tag-'.$tag['id'];
 
     $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
-    $alt_names = array_diff( array_unique($alt_names), array($tag['name']) );
+    $alt_names = array_diff(array_unique($alt_names), array($tag['name']));
     if (count($alt_names)) {
         $tag['alt_names'] = implode(', ', $alt_names);
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,7 +70,6 @@ if (isset($_REQUEST['iDisplayStart']) && $_REQUEST['iDisplayLength'] != '-1') {
     );
 }
 
-
 /*
  * Ordering
  */
@@ -78,7 +77,8 @@ if (isset($_REQUEST['iSortCol_0'])) {
     $sOrder = 'ORDER BY  ';
     for ($i=0;$i<intval($_REQUEST['iSortingCols']);$i++) {
         if ($_REQUEST['bSortable_'.intval($_REQUEST['iSortCol_'.$i])] == 'true') {
-            $sOrder .= $aColumns[ intval( $_REQUEST['iSortCol_'.$i] ) ].' '.$conn->db_real_escape_string($_REQUEST['sSortDir_'.$i]) .', ';
+            $sOrder .= $aColumns[ intval( $_REQUEST['iSortCol_'.$i] ) ];
+            $sOrder .= ' '.$conn->db_real_escape_string($_REQUEST['sSortDir_'.$i]) .', ';
         }
     }
 
@@ -124,7 +124,7 @@ for ( $i=0;$i<count($aColumns);$i++) {
  */
 $sQuery = 'SELECT '.str_replace(' , ', ' ', implode(', ', $aColumns)). ' FROM '. $sTable;
 $sQuery .= $sWhere .' '. $sOrder.' '. $sLimit;
-$rResult = pwg_query($sQuery);
+$rResult = $conn->db_query($sQuery);
 
 /* Data set length after filtering */
 $iFilteredTotal = 0;
@@ -149,7 +149,7 @@ $output = array(
 $user_ids = array();
 
 while ($aRow = $conn->db_fetch_assoc($rResult)) {
-    $user_ids[] = $aRow[ $conf['user_fields']['id'] ];
+    $user_ids[] = $aRow[$conf['user_fields']['id']];
 
     $row = array();
     for ($i=0;$i<count($aColumns);$i++) {
@@ -177,7 +177,7 @@ if (count($user_ids) > 0) {
 
     $query = 'SELECT user_id, name FROM '.USER_GROUP_TABLE;
     $query .= ' LEFT JOIN '.GROUPS_TABLE.' ON id = group_id';
-    $query .= ' WHERE user_id IN ('.implode(',', $user_ids).');';
+    $query .= ' WHERE user_id '.$conn->in($user_ids);
 
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {

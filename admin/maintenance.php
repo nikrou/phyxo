@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -45,87 +45,87 @@ if (isset($_GET['action'])) {
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 switch ($action)
-    {
-    case 'lock_gallery' : {
-        conf_update_param('gallery_locked', 'true');
-        redirect(get_root_url().'admin.php?page=maintenance');
+{
+case 'lock_gallery' : {
+    conf_update_param('gallery_locked', 'true');
+    redirect(get_root_url().'admin.php?page=maintenance');
+    break;
+}
+case 'unlock_gallery' : {
+    conf_update_param('gallery_locked', 'false');
+    $_SESSION['page_infos'] = array(l10n('Gallery unlocked'));
+    redirect(get_root_url().'admin.php?page=maintenance');
+    break;
+}
+case 'categories' : {
+    images_integrity();
+    update_uppercats();
+    update_category('all');
+    update_global_rank();
+    invalidate_user_cache(true);
+    break;
+}
+case 'images' : {
+    images_integrity();
+    update_path();
+    include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
+    update_rating_score();
+    invalidate_user_cache();
+    break;
+}
+case 'delete_orphan_tags' : {
+    $services['tags']->deleteOrphanTags();
+    break;
+}
+case 'user_cache' : {
+    invalidate_user_cache();
+    break;
+}
+case 'history_detail' : {
+    $query = 'DELETE FROM '.HISTORY_TABLE.';';
+    $conn->db_query($query);
+    break;
+}
+case 'history_summary' : {
+    $query = 'DELETE FROM '.HISTORY_SUMMARY_TABLE.';';
+    $conn->db_query($query);
         break;
     }
-    case 'unlock_gallery' : {
-        conf_update_param('gallery_locked', 'false');
-        $_SESSION['page_infos'] = array(l10n('Gallery unlocked'));
-        redirect(get_root_url().'admin.php?page=maintenance');
-        break;
+case 'sessions' : {
+    pwg_session_gc();
+    break;
+}
+case 'feeds' : {
+    $query = 'DELETE FROM '.USER_FEED_TABLE.' WHERE last_check IS NULL;';
+    $conn->db_query($query);
+    break;
+}
+case 'database' : {
+    if (do_maintenance_all_tables()) {
+        $page['infos'][] = l10n('All optimizations have been successfully completed.');
+    } else {
+        $page['errors'][] = l10n('Optimizations have been completed with some errors.');
     }
-    case 'categories' : {
-        images_integrity();
-        update_uppercats();
-        update_category('all');
-        update_global_rank();
-        invalidate_user_cache(true);
-        break;
-    }
-    case 'images' : {
-        images_integrity();
-        update_path();
-		include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
-        update_rating_score();
-        invalidate_user_cache();
-        break;
-    }
-    case 'delete_orphan_tags' : {
-        delete_orphan_tags();
-        break;
-    }
-    case 'user_cache' : {
-        invalidate_user_cache();
-        break;
-    }
-    case 'history_detail' : {
-        $query = 'DELETE FROM '.HISTORY_TABLE.';';
-        pwg_query($query);
-        break;
-    }
-    case 'history_summary' : {
-        $query = 'DELETE FROM '.HISTORY_SUMMARY_TABLE.';';
-        pwg_query($query);
-        break;
-    }
-    case 'sessions' : {
-        pwg_session_gc();
-        break;
-    }
-    case 'feeds' : {
-        $query = 'DELETE FROM '.USER_FEED_TABLE.' WHERE last_check IS NULL;';
-        pwg_query($query);
-        break;
-    }
-    case 'database' : {
-        if (do_maintenance_all_tables()) {
-            $page['infos'][] = l10n('All optimizations have been successfully completed.');
-        } else {
-            $page['errors'][] = l10n('Optimizations have been completed with some errors.');
-        }
-        break;
-    }
-    case 'search' : {
-        $query = 'DELETE FROM '.SEARCH_TABLE.';';
-        pwg_query($query);
-        break;
-    }
-    case 'compiled-templates': {
-        $template->delete_compiled_templates();
-        FileCombiner::clear_combined_files();
-        $persistent_cache->purge(true);
-        break;
-    }
-    case 'derivatives': {
-        clear_derivative_cache($_GET['type']);
-        break;
-    }
-    default : {
-        break;
-    }
+    break;
+}
+case 'search' : {
+    $query = 'DELETE FROM '.SEARCH_TABLE.';';
+    $conn->db_query($query);
+    break;
+}
+case 'compiled-templates': {
+    $template->delete_compiled_templates();
+    FileCombiner::clear_combined_files();
+    $persistent_cache->purge(true);
+    break;
+}
+case 'derivatives': {
+    clear_derivative_cache($_GET['type']);
+    break;
+}
+default : {
+    break;
+}
 }
 
 // +-----------------------------------------------------------------------+
