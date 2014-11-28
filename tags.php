@@ -56,7 +56,7 @@ trigger_notify('loc_begin_tags');
 $title= l10n('Tags');
 $page['body_id'] = 'theTagsPage';
 
-$template->set_filenames(array('tags'=>'tags.tpl'));
+$template->set_filenames(array('tags' => 'tags.tpl'));
 
 $page['display_mode'] = $conf['tags_default_display_mode'];
 if (isset($_GET['display_mode'])) {

@@ -22,7 +22,7 @@ phyxo.checkboxesHelper('#pending-tags');
     <tbody>
       {foreach $tags as $tag}
       <tr{if $tag@index%2==0} class="even"{/if}>
-	<td class="check">{$tag.id} <input type="checkbox" name="tag_ids[{$tag.image_id}][]" value="{$tag.id}"/></td>
+	<td class="check"><input type="checkbox" name="tag_ids[{$tag.image_id}][]" value="{$tag.id}"/></td>
 	<td>{$tag.name}</td>
 	<td><a href="{$tag.picture_url}"><img src="{$tag.thumb_src}"></a></td>
 	<td>{if $tag.created_by}{$tag.username}{/if}</td>

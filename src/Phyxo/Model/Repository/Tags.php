@@ -656,6 +656,7 @@ class Tags extends BaseRepository
         $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
         $query .= ' WHERE status = 0 AND validated = \''.$conn->boolean_to_db(true).'\'';
         $this->conn->db_query($query);
+        invalidate_user_cache_nb_tags();
     }
 
     public function dissociateTags($tag_ids, $image_id) {
@@ -715,7 +716,7 @@ class Tags extends BaseRepository
         $sql = ' ((validated = \''.$this->conn->boolean_to_db(true).'\' AND status = 1)';
         $sql .= ' OR (validated = \''.$this->conn->boolean_to_db(false).'\' AND status = 0))';
 
-        if (isset($conf['show_pending_added_tags']) && $conf['show_pending_added_tags']==1) {
+        if (!empty($conf['show_pending_added_tags'])) {
             $sql .= ' OR (created_by = '.$user_id.')';
         }
 
