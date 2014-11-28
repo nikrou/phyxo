@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -41,19 +41,12 @@ load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 
 // +-----------------------------------------------------------------------+
 // | Main                                                                  |
 // +-----------------------------------------------------------------------+
-if (isset($_GET['subscribe'])
-    and preg_match('/^[A-Za-z0-9]{16}$/', $_GET['subscribe']))
-{
-  subscribe_notification_by_mail(false, array($_GET['subscribe']));
-}
-else if (isset($_GET['unsubscribe'])
-    and preg_match('/^[A-Za-z0-9]{16}$/', $_GET['unsubscribe']))
-{
-  unsubscribe_notification_by_mail(false, array($_GET['unsubscribe']));
-}
-else
-{
-  $page['errors'][] = l10n('Unknown identifier');
+if (isset($_GET['subscribe']) and preg_match('/^[A-Za-z0-9]{16}$/', $_GET['subscribe'])) {
+    subscribe_notification_by_mail(false, array($_GET['subscribe']));
+} elseif (isset($_GET['unsubscribe']) and preg_match('/^[A-Za-z0-9]{16}$/', $_GET['unsubscribe'])) {
+    unsubscribe_notification_by_mail(false, array($_GET['unsubscribe']));
+} else {
+    $page['errors'][] = l10n('Unknown identifier');
 }
 
 // +-----------------------------------------------------------------------+
@@ -67,9 +60,8 @@ $template->set_filenames(array('nbm'=>'nbm.tpl'));
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('theNBMPage', $themeconf['hide_menu_on']))
-{
-  include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+if (!isset($themeconf['hide_menu_on']) OR !in_array('theNBMPage', $themeconf['hide_menu_on'])) {
+    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
 }
 
 // +-----------------------------------------------------------------------+

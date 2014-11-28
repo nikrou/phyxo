@@ -73,14 +73,14 @@ if (isset($_GET['language'])) {
         $language = PHPWG_DEFAULT_LANGUAGE;
     }
 } else {
-  $language = 'en_UK';
-  // Try to get browser language
-  foreach ($languages->fs_languages as $language_code => $fs_language) {
-      if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {
-          $language = $language_code;
-          break;
-      }
-  }
+    $language = 'en_UK';
+    // Try to get browser language
+    foreach ($languages->fs_languages as $language_code => $fs_language) {
+        if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {
+            $language = $language_code;
+            break;
+        }
+    }
 }
 
 define('PHPWG_URL', 'http://www.phyxo.net');

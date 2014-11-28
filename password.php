@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -135,7 +135,7 @@ function process_password_request() {
  * @return mixed (user_id if OK, false otherwise)
  */
 function check_password_reset_key($key) {
-    global $page;
+    global $page, $conn;
 
     if (!preg_match('/^[a-z0-9]{20}$/i', $key)) {
         $page['errors'][] = l10n('Invalid key');
@@ -143,10 +143,10 @@ function check_password_reset_key($key) {
     }
 
     $query = 'SELECT user_id, status FROM '.USER_INFOS_TABLE;
-    $query .= ' WHERE activation_key = \''.$key.'\';';
-    $result = pwg_query($query);
+    $query .= ' WHERE activation_key = \''.$conn->db_real_escape_string($key).'\'';
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         $page['errors'][] = l10n('Invalid key');
         return false;
     }
@@ -168,7 +168,7 @@ function check_password_reset_key($key) {
  * @return bool (true if password was reset, false otherwise)
  */
 function reset_password() {
-    global $page, $user, $conf;
+    global $page, $user, $conf, $conn;
 
     if ($_POST['use_new_pwd'] != $_POST['passwordConf']) {
         $page['errors'][] = l10n('The passwords do not match');
@@ -191,7 +191,7 @@ function reset_password() {
         $user_id = $user['id'];
     }
 
-    single_update(
+    $conn->single_update(
         USERS_TABLE,
         array($conf['user_fields']['password'] => $conf['password_hash']($_POST['use_new_pwd'])),
         array($conf['user_fields']['id'] => $user_id)

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -75,9 +75,9 @@ if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
 // since when display comments ?
 //
 $since_options = array(
-    1 => array('label' => l10n('today'), 'clause' => 'date > '.pwg_db_get_recent_period_expression(1)),
-    2 => array('label' => l10n('last %d days', 7), 'clause' => 'date > '.pwg_db_get_recent_period_expression(7)),
-    3 => array('label' => l10n('last %d days', 30), 'clause' => 'date > '.pwg_db_get_recent_period_expression(30)),
+    1 => array('label' => l10n('today'), 'clause' => 'date > '.$conn->db_get_recent_period_expression(1)),
+    2 => array('label' => l10n('last %d days', 7), 'clause' => 'date > '.$conn->db_get_recent_period_expression(7)),
+    3 => array('label' => l10n('last %d days', 30), 'clause' => 'date > '.$conn->db_get_recent_period_expression(30)),
     4 => array('label' => l10n('the beginning'), 'clause' => '1=1') // stupid but generic
 );
 
@@ -131,7 +131,8 @@ if (isset($_GET['cat']) and 0 != $_GET['cat']) {
 
 // search a particular author
 if (!empty($_GET['author'])) {
-    $page['where_clauses'][] = '(u.'.$conf['user_fields']['username'].' = \''.$_GET['author'].'\' OR author = \''.$_GET['author'].'\')';
+    $page['where_clauses'][] = '(u.'.$conf['user_fields']['username'].' = \''.$conn->db_real_escape_string($_GET['author'])
+        .'\' OR author = \''.$conn->db_real_escape_string($_GET['author']).'\')';
 }
 
 // search a specific comment (if you're coming directly from an admin
@@ -142,11 +143,12 @@ if (!empty($_GET['comment_id'])) {
     // currently, the $_GET['comment_id'] is only used by admins from email
     // for management purpose (validate/delete)
     if (!is_admin()) {
+        // double urlencode because redirect makes a decode !!
         $login_url = get_root_url().'identification.php?redirect='.urlencode(urlencode($_SERVER['REQUEST_URI']));
         redirect($login_url);
     }
 
-    $page['where_clauses'][] = 'com.id = '.$_GET['comment_id'];
+    $page['where_clauses'][] = 'com.id = '.$conn->db_real_escape_string($_GET['comment_id']);
 }
 
 // search a substring among comments content
@@ -155,7 +157,7 @@ if (!empty($_GET['keyword'])) {
         ' AND ',
         array_map(
             function($s) {return "content LIKE \'%$s%\'";},
-            preg_split('/[\s,;]+/', $_GET['keyword'] )
+            preg_split('/[\s,;]+/', $conn->db_real_escape_string($_GET['keyword']))
         )
     ).')';
 }
@@ -164,7 +166,7 @@ $page['where_clauses'][] = $since_options[$page['since']]['clause'];
 
 // which status to filter on ?
 if (!is_admin()) {
-    $page['where_clauses'][] = 'validated=\'true\'';
+    $page['where_clauses'][] = 'validated = \''.$conn->boolean_to_db(true).'\'';
 }
 
 $page['where_clauses'][] = get_sql_condition_FandF(
@@ -331,10 +333,10 @@ $query .= ' WHERE '.implode(' AND ', $page['where_clauses']);
 $query .= ' GROUP BY comment_id, ic.category_id, u.mail_address';
 $query .= ' ORDER BY '.$page['sort_by'].' '.$page['sort_order'];
 if ('all' != $page['items_number']) {
-    $query .= ' LIMIT '.$page['items_number'].' OFFSET '.$start;
+    $query .= ' LIMIT '.$page['items_number'].' OFFSET '.$conn->db_real_escape_string($start);
 }
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     $comments[] = $row;
     $element_ids[] = $row['image_id'];
     $category_ids[] = $row['category_id'];
@@ -356,13 +358,13 @@ $template->assign('navbar', $navbar);
 if (count($comments) > 0) {
   // retrieving element informations
     $query = 'SELECT * FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $element_ids).');';
-    $elements = query2array($query, 'id');
+    $query .= ' WHERE id '.$conn->in($element_ids);
+    $elements = $conn->query2array($query, 'id');
 
     // retrieving category informations
     $query = 'SELECT id, name, permalink, uppercats FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $category_ids).')';
-    $categories = query2array($query, 'id');
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $categories = $conn->query2array($query, 'id');
 
     foreach ($comments as $comment) {
         if (!empty($elements[$comment['image_id']]['name'])) {

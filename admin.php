@@ -230,26 +230,15 @@ $template->assign('plugin_menu_items', $plugin_menu_links);
 // +-----------------------------------------------------------------------+
 
 // Only for pages witch change permissions
-if (
-    in_array($page['page'],
-      array(
-        'site_manager', // delete site
-        'site_update',  // ?only POST
-      )
-    )
-    or ( !empty($_POST) and in_array($page['page'],
-        array(
-          'album',        // public/private; lock/unlock, permissions
-          'cat_move',
-          'cat_options',  // public/private; lock/unlock
-          'user_list',    // group assoc; user level
-          'user_perm',
-        )
-      )
-    )
-  )
-{
-  invalidate_user_cache();
+if (in_array($page['page'], array('site_manager', 'site_update'))
+    or (!empty($_POST) and in_array($page['page'], array(
+        'album',        // public/private; lock/unlock, permissions
+        'cat_move',
+        'cat_options',  // public/private; lock/unlock
+        'user_list',    // group assoc; user level
+        'user_perm',
+    )))) {
+    invalidate_user_cache();
 }
 
 // +-----------------------------------------------------------------------+
@@ -266,14 +255,11 @@ $template->assign('ACTIVE_MENU', get_active_menu($page['page']));
 // +-----------------------------------------------------------------------+
 
 // Add the Phyxo Official menu
-$template->assign('pwgmenu', pwg_URL() );
+$template->assign('pwgmenu', pwg_URL());
 
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 
 trigger_notify('loc_end_admin');
-
 flush_page_messages();
-
 $template->pparse('admin');
-
 include(PHPWG_ROOT_PATH.'include/page_tail.php');

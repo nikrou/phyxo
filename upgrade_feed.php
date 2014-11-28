@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,15 +22,9 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-//check php version
-if (version_compare(PHP_VERSION, '5', '<')) {
-    die('Piwigo requires PHP 5 or above.');
-}
-
 define('PHPWG_ROOT_PATH', './');
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\DBLayer\DBLayer;
 
 include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
@@ -100,7 +94,7 @@ foreach ($to_apply as $upgrade_id) {
     // notify upgrade
     $query = 'INSERT INTO '.PREFIX_TABLE.'upgrade (id, applied, description)';
     $query .= ' VALUES(\''.$upgrade_id.'\', NOW(), \''.$upgrade_description.'\');';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 echo '</pre>';

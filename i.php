@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // +-----------------------------------------------------------------------+
@@ -325,7 +325,7 @@ function send_derivative($expires) {
         include_once(PHPWG_ROOT_PATH.'include/functions_cookie.inc.php');
         include_once(PHPWG_ROOT_PATH.'include/functions_url.inc.php');
 
-        echo json_encode( array( 'url'=>embellish_url(get_absolute_root_url().$page['derivative_path']) ) );
+        echo json_encode( array( 'url' => embellish_url(get_absolute_root_url().$page['derivative_path'])));
         return;
     }
 
@@ -341,20 +341,20 @@ function send_derivative($expires) {
 
     $ctype="application/octet-stream";
     switch (strtolower($page['derivative_ext']))
-        {
-        case ".jpe": case ".jpeg": case ".jpg": $ctype="image/jpeg"; break;
-        case ".png": $ctype="image/png"; break;
-        case ".gif": $ctype="image/gif"; break;
-        }
+    {
+    case ".jpe": case ".jpeg": case ".jpg": $ctype="image/jpeg"; break;
+    case ".png": $ctype="image/png"; break;
+    case ".gif": $ctype="image/gif"; break;
+    }
     header("Content-Type: $ctype");
 
     fpassthru($fp);
     fclose($fp);
 }
 
-$page=array();
+$page = array();
 $begin = $step = microtime(true);
-$timing=array();
+$timing = array();
 foreach (explode(',','load,rotate,crop,scale,sharpen,watermark,save,send') as $k) {
     $timing[$k] = '';
 }
@@ -413,18 +413,18 @@ $page['coi'] = null;
 if (strpos($page['src_location'], '/pwg_representative/')===false && strpos($page['src_location'], 'themes/')===false && strpos($page['src_location'], 'plugins/')===false) {
     try {
         $query = 'SELECT * FROM '.$prefixeTable.'images';
-        $query .= ' WHERE path=\''.pwg_db_real_escape_string($page['src_location']).'\';';
+        $query .= ' WHERE path=\''.$conn->db_real_escape_string($page['src_location']).'\';';
 
-        if (($row=pwg_db_fetch_assoc(pwg_query($query)))) {
+        if (($row = $conn->db_fetch_assoc($conn->db_query($query)))) {
             if (isset($row['width'])) {
-                $page['original_size'] = array($row['width'],$row['height']);
+                $page['original_size'] = array($row['width'], $row['height']);
             }
             $page['coi'] = $row['coi'];
 
             if (!isset($row['rotation'])) {
                 $page['rotation_angle'] = pwg_image::get_rotation_angle($page['src_path']);
 
-                single_update(
+                $conn->single_update(
                     $prefixeTable.'images',
                     array('rotation' => pwg_image::get_rotation_code_from_angle($page['rotation_angle'])),
                     array('id' => $row['id'])
@@ -453,7 +453,7 @@ if (!try_switch_source($params, $src_mtime) && $params->type==IMG_CUSTOM) {
 }
 
 if (!mkgetdir(dirname($page['derivative_path']))) {
-  ierror("dir create error", 500);
+    ierror("dir create error", 500);
 }
 
 ignore_user_abort(true);
@@ -510,12 +510,15 @@ if ($params->will_watermark($d_size)) {
             // todo
             $pad = $wm_size[0] + max(30, round($wm_size[0]/4));
             for($i=-$wm->xrepeat; $i<=$wm->xrepeat; $i++) {
-                if (!$i) continue;
+                if (!$i) {
+                    continue;
+                }
                 $x2 = $x + $i * $pad;
-                if ($x2>=0 && $x2+$wm_size[0]<$d_size[0])
+                if ($x2>=0 && $x2+$wm_size[0]<$d_size[0]) {
                     if (!$image->compose($wm_image, $x2, $y, $wm->opacity)) {
                         break;
                     }
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -106,12 +106,13 @@ if (isset($search['fields']['cat'])) {
         $cat_ids = $search['fields']['cat']['words'];
     }
 
-    $query = 'SELECT id, uppercats, global_rank FROM '.CATEGORIES_TABLE.' WHERE id IN ('.implode(',', $cat_ids).');';
-    $result = pwg_query($query);
+    $query = 'SELECT id, uppercats, global_rank FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($cat_ids);
+    $result = $conn->db_query($query);
 
     $categories = array();
     if (!empty($result)) {
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $categories[] = $row;
         }
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -55,8 +55,8 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
         // Get the Guest custom settings
         $query = 'SELECT '.implode(',', $fields).' FROM '.USER_INFOS_TABLE;
         $query .= ' WHERE user_id = '.$conf['default_user_id'].';';
-        $result = pwg_query($query);
-        $default_user = pwg_db_fetch_assoc($result);
+        $result = $conn->db_query($query);
+        $default_user = $conn->db_fetch_assoc($result);
         $userdata = array_merge($userdata, $default_user);
     }
 
@@ -89,7 +89,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
 //------------------------------------------------------ update & customization
 function save_profile_from_post($userdata, &$errors) {
-    global $conf, $page;
+    global $conf, $page, $conn;
 
     $errors = array();
 
@@ -150,8 +150,8 @@ function save_profile_from_post($userdata, &$errors) {
 
         if (!defined('IN_ADMIN')) { // changing password requires old password
             $query = 'SELECT '.$conf['user_fields']['password'].' AS password FROM '.USERS_TABLE;
-            $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$userdata['id'].'\';';
-            list($current_password) = pwg_db_fetch_row(pwg_query($query));
+            $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$conn->db_real_escape_string($userdata['id']).'\'';
+            list($current_password) = $conn->db_fetch_row($conn->db_query($query));
 
             if (!$conf['password_verify']($_POST['password'], $current_password)) {
                 $errors[] = l10n('Current password is wrong');
@@ -211,7 +211,7 @@ function save_profile_from_post($userdata, &$errors) {
                 }
             }
 
-            mass_updates(
+            $conn->mass_updates(
                 USERS_TABLE,
                 array(
                     'primary' => array($conf['user_fields']['id']),
@@ -241,7 +241,7 @@ function save_profile_from_post($userdata, &$errors) {
                     $data[$field] = $_POST[$field];
                 }
             }
-            mass_updates(
+            $conn->mass_updates(
                 USER_INFOS_TABLE,
                 array('primary' => array('user_id'), 'update' => $fields),
                 array($data)

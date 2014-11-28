@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -62,12 +62,13 @@ function ts_to_iso8601($ts) {
 
 check_input_parameter('feed', $_GET, false, '/^[0-9a-z]{50}$/i');
 
-$feed_id= isset($_GET['feed']) ? $_GET['feed'] : '';
+$feed_id = isset($_GET['feed']) ? $_GET['feed'] : '';
 $image_only=isset($_GET['image_only']);
 
 if (!empty($feed_id)) {
-    $query = 'SELECT user_id,_check  FROM '.USER_FEED_TABLE.' WHERE id = \''.$feed_id.'\';';
-    $feed_row = pwg_db_fetch_assoc(pwg_query($query));
+    $query = 'SELECT user_id,_check  FROM '.USER_FEED_TABLE;
+    $query .= ' WHERE id = \''.$conn->db_real_escape_string($feed_id).'\'';
+    $feed_row = $conn->db_fetch_assoc($conn->db_query($query));
     if (empty($feed_row)) {
         page_not_found(l10n('Unknown feed identifier'));
     }
@@ -84,16 +85,16 @@ if (!empty($feed_id)) {
 // Check the status now after the user has been loaded
 check_status(ACCESS_GUEST);
 
-list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+list($dbnow) = $conn->db_fetch_row(pwg_query('SELECT NOW();'));
 
 include_once(PHPWG_ROOT_PATH.'include/feedcreator.class.php');
 
 set_make_full_url();
 
 $rss = new UniversalFeedCreator();
-$rss->encoding=get_pwg_charset();
+$rss->encoding = get_pwg_charset();
 $rss->title = $conf['gallery_title'];
-$rss->title.= ' (as '.stripslashes($user['username']).')';
+$rss->title .= ' (as '.stripslashes($user['username']).')';
 
 $rss->link = get_gallery_home_url();
 
@@ -124,16 +125,17 @@ if (!$image_only) {
 
         $rss->addItem($item);
 
-        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = \''.$dbnow.'\' id = \''.$feed_id.'\';';
-        pwg_query($query);
+        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = \''.$dbnow;
+        $query .= '\' id = \''.$conn->db_real_escape_string($feed_id).'\'';
+        $conn->db_query($query);
     }
 }
 
 if (!empty($feed_id) and empty($news)) {// update the last check from time to time to avoid deletion by maintenance tasks
     if (!isset($feed_row['last_check']) or time()-datetime_to_ts($feed_row['last_check']) > 30*24*3600) {
-        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = '.pwg_db_get_recent_period_expression(-15, $dbnow);
-        $query .= ' WHERE id = \''.$feed_id.'\';';
-        pwg_query($query);
+        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = '.$conn->db_get_recent_period_expression(-15, $dbnow);
+        $query .= ' WHERE id = \''.$conn->db_real_escape_string($feed_id).'\'';
+        $conn->db_query($query);
     }
 }
 
@@ -164,8 +166,8 @@ foreach($dates as $date_detail) { // for each recent post date we create a feed 
     $rss->addItem($item);
 }
 
-$fileName= PHPWG_ROOT_PATH.$conf['data_location'].'tmp';
+$fileName = PHPWG_ROOT_PATH.$conf['data_location'].'tmp';
 mkgetdir($fileName); // just in case
-$fileName.='/feed.xml';
+$fileName .='/feed.xml';
 // send XML feed
 echo $rss->saveFeed('RSS2.0', $fileName, true);

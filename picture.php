@@ -45,7 +45,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
     if ($page['image_id']>0) {
         $query .= 'id = '.$page['image_id'];
     } else { // url given by file name
-        assert(!empty($page['image_file']));
+        assert(!empty($page['image_file'])); // @TODO: remove and throw error/exception
         $query .= 'file LIKE \'' . str_replace(array('_','%'), array('/_','/%'), $page['image_file']);
         $query .= '.%\' ESCAPE \'/\' LIMIT 1';
     }
@@ -359,7 +359,7 @@ $query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM '.IMA
 $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' ON category_id = id';
 $query .= ' WHERE image_id = '.$page['image_id'];
 $query .= get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), ' AND ').';';
-$related_categories = array_from_query($query);
+$related_categories = $conn->query2array($query);
 usort($related_categories, 'global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
 $picture = array();
@@ -745,7 +745,7 @@ if (count($related_categories)==1 and isset($page['category']) and $related_cate
     $ids = array_unique($ids);
     $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
     $query .= ' WHERE id '.$conn->in($ids);
-    $cat_map = hash_from_query($query, 'id');
+    $cat_map = $conn->query2array($query, 'id');
     foreach ($related_categories as $category) {
         $cats = array();
         foreach ( explode(',', $category['uppercats']) as $id ) {

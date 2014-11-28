@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,22 +29,6 @@
 define('PHPWG_ROOT_PATH','./');
 include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 
-/**
- * search an available feed_id
- *
- * @return string feed identifier
- */
-function find_available_feed_id() {
-    while (true) {
-        $key = generate_key(50);
-        $query = 'SELECT COUNT(1) FROM '.USER_FEED_TABLE.' WHERE id = \''.$key.'\';';
-        list($count) = pwg_db_fetch_row(pwg_query($query));
-        if (0 == $count) {
-            return $key;
-        }
-    }
-}
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -56,18 +40,18 @@ trigger_notify('loc_begin_notification');
 // |                          new feed creation                            |
 // +-----------------------------------------------------------------------+
 
-$page['feed'] = find_available_feed_id();
+$page['feed'] = md5(uniqid(true));
 
 $query = 'INSERT INTO '.USER_FEED_TABLE.' (id, user_id, last_check) VALUES (\''.$page['feed'].'\', '.$user['id'].', NULL);';
-pwg_query($query);
+$conn->db_query($query);
 
-$feed_url=PHPWG_ROOT_PATH.'feed.php';
+$feed_url = PHPWG_ROOT_PATH.'feed.php';
 if (is_a_guest()) {
-    $feed_image_only_url=$feed_url;
+    $feed_image_only_url = $feed_url;
     $feed_url .= '?feed='.$page['feed'];
 } else {
     $feed_url .= '?feed='.$page['feed'];
-    $feed_image_only_url=$feed_url.'&amp;image_only';
+    $feed_image_only_url = $feed_url.'&amp;image_only';
 }
 
 // +-----------------------------------------------------------------------+
@@ -76,9 +60,9 @@ if (is_a_guest()) {
 
 $title = l10n('Notification');
 $page['body_id'] = 'theNotificationPage';
-$page['meta_robots']=array('noindex'=>1, 'nofollow'=>1);
+$page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 
-$template->set_filenames(array('notification'=>'notification.tpl'));
+$template->set_filenames(array('notification' => 'notification.tpl'));
 $template->assign(
     array(
         'U_FEED' => $feed_url,

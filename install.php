@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,74 +31,6 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
-
-// @TODO: remove that ugly code
-//
-// addslashes to vars if magic_quotes_gpc is off this is a security
-// precaution to prevent someone trying to break out of a SQL statement.
-//
-if( !@get_magic_quotes_gpc() )
-{
-  if( is_array($_POST) )
-  {
-    while( list($k, $v) = each($_POST) )
-    {
-      if( is_array($_POST[$k]) )
-      {
-        while( list($k2, $v2) = each($_POST[$k]) )
-        {
-          $_POST[$k][$k2] = addslashes($v2);
-        }
-        @reset($_POST[$k]);
-      }
-      else
-      {
-        $_POST[$k] = addslashes($v);
-      }
-    }
-    @reset($_POST);
-  }
-
-  if( is_array($_GET) )
-  {
-    while( list($k, $v) = each($_GET) )
-    {
-      if( is_array($_GET[$k]) )
-      {
-        while( list($k2, $v2) = each($_GET[$k]) )
-        {
-          $_GET[$k][$k2] = addslashes($v2);
-        }
-        @reset($_GET[$k]);
-      }
-      else
-      {
-        $_GET[$k] = addslashes($v);
-      }
-    }
-    @reset($_GET);
-  }
-
-  if( is_array($_COOKIE) )
-  {
-    while( list($k, $v) = each($_COOKIE) )
-    {
-      if( is_array($_COOKIE[$k]) )
-      {
-        while( list($k2, $v2) = each($_COOKIE[$k]) )
-        {
-          $_COOKIE[$k][$k2] = addslashes($v2);
-        }
-        @reset($_COOKIE[$k]);
-      }
-      else
-      {
-        $_COOKIE[$k] = addslashes($v);
-      }
-    }
-    @reset($_COOKIE);
-  }
-}
 
 //----------------------------------------------------- variable initialization
 
@@ -335,7 +267,7 @@ define(\'DB_COLLATE\', \'\');';
         }
 
         $insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH.'galleries/');
-        mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
+        $conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
 
         // webmaster admin user
         $inserts = array(
@@ -350,7 +282,7 @@ define(\'DB_COLLATE\', \'\');';
                 'username'     => 'guest',
             ),
         );
-        mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
+        $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
 
         create_user_infos(array(1,2), array('language' => $language));
 
@@ -367,7 +299,7 @@ define(\'DB_COLLATE\', \'\');';
                 'description' => 'upgrade included in installation',
             );
         }
-        mass_inserts(
+        $conn->mass_inserts(
             UPGRADE_TABLE,
             array_keys($datas[0]),
             $datas

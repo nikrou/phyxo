@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,7 +37,7 @@ if (empty($_GET['q'])) {
 $search = array();
 $search['q'] = $_GET['q'];
 
-$query = 'SElECT id FROM '.SEARCH_TABLE.' WHERE rules = \''.$conn->db_real_escape_string(serialize($search)).'\';';
+$query = 'SElECT id FROM '.SEARCH_TABLE.' WHERE rules = \''.$conn->db_real_escape_string(serialize($search)).'\'';
 $search_id = $conn->query2array($query, 'id');
 if (!empty($search_id)) {
     $search_id = $search_id[0];
