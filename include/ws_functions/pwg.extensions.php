@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -273,10 +273,10 @@ function ws_extensions_checkupdates($params, $service) {
     $result = array();
 
     if (!isset($_SESSION['need_update'])) {
-        $update->check_piwigo_upgrade();
+        $update->check_phyxo_upgrade();
     }
 
-    $result['piwigo_need_update'] = $_SESSION['need_update'];
+    $result['phyxo_need_update'] = $_SESSION['need_update'];
 
     $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
 

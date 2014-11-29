@@ -126,7 +126,7 @@ if (isset($_GET['cat']) and 0 != $_GET['cat']) {
         $category_ids = array(-1);
     }
 
-    $page['where_clauses'][] = 'category_id IN ('.implode(',', $category_ids).')';
+    $page['where_clauses'][] = 'category_id '.$conn->in($category_ids);
 }
 
 // search a particular author
@@ -302,8 +302,8 @@ $tpl_var=array();
 foreach ($items_number as $option) {
     $tpl_var[ $option ] = is_numeric($option) ? $option : l10n($option);
 }
-$template->assign( 'item_number_options', $tpl_var);
-$template->assign( 'item_number_options_selected', $page['items_number']);
+$template->assign('item_number_options', $tpl_var);
+$template->assign('item_number_options_selected', $page['items_number']);
 
 
 // +-----------------------------------------------------------------------+
@@ -341,7 +341,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $element_ids[] = $row['image_id'];
     $category_ids[] = $row['category_id'];
 }
-list($counter) = pwg_db_num_rows($result);
+list($counter) = $conn->db_num_rows($result);
 
 $url = PHPWG_ROOT_PATH.'comments.php'.get_query_string_diff(array('start','edit','delete','validate','pwg_token'));
 

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,9 +35,10 @@
  * @return string|void error message or nothing
  */
 function validate_mail_address($user_id, $mail_address) {
-    global $conf;
+    global $conf, $conn;
 
-    if (empty($mail_address) and !($conf['obligatory_user_mail_address'] and in_array(script_basename(), array('register', 'profile')))) {
+    if (empty($mail_address)
+        and !($conf['obligatory_user_mail_address'] and in_array(script_basename(), array('register', 'profile')))) {
         return '';
     }
 
@@ -49,7 +50,7 @@ function validate_mail_address($user_id, $mail_address) {
         $query = 'SELECT count(1) FROM '.USERS_TABLE;
         $query .= ' WHERE upper('.$conf['user_fields']['email'].') = upper(\''.$mail_address.'\')';
         $query .= (is_numeric($user_id) ? 'AND '.$conf['user_fields']['id'].' != \''.$user_id.'\'' : '').';';
-        list($count) = pwg_db_fetch_row(pwg_query($query));
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count != 0) {
             return l10n('this email address is already in use');
         }
@@ -64,12 +65,12 @@ function validate_mail_address($user_id, $mail_address) {
  * @return string|void error message or nothing
  */
 function validate_login_case($login) {
-    global $conf;
+    global $conf, $conn;
 
     if (defined("PHPWG_INSTALLED")) {
         $query = 'SELECT '.$conf['user_fields']['username'].' FROM '.USERS_TABLE;
-        $query .= ' WHERE LOWER('.pwg_db_real_escape_string($conf['user_fields']['username']).') = \''.strtolower($login).'\'';
-        $count = pwg_db_num_rows(pwg_query($query));
+        $query .= ' WHERE LOWER('.$conn->db_real_escape_string($conf['user_fields']['username']).') = \''.strtolower($login).'\'';
+        $count = $conn->db_num_rows($conn->db_query($query));
 
         if ($count > 0) {
             return l10n('this login is already used');
@@ -83,14 +84,14 @@ function validate_login_case($login) {
  * @return string $username found in database
  */
 function search_case_username($username) {
-    global $conf;
+    global $conf, $conn;
 
     $username_lo = strtolower($username);
 
     $users = array();
 
-    $q = pwg_query('SELECT '.$conf['user_fields']['username'].' AS username FROM '.USERS_TABLE);
-    while ($r = pwg_db_fetch_assoc($q)) {
+    $q = $conn->db_query('SELECT '.$conf['user_fields']['username'].' AS username FROM '.USERS_TABLE);
+    while ($r = $conn->db_fetch_assoc($q)) {
         $users[$r['username']] = strtolower($r['username']);
     }
    // $users is now an associative table where the key is the account as
@@ -118,7 +119,7 @@ function search_case_username($username) {
  * @return int|false user id or false
  */
 function register_user($login, $password, $mail_address, $notify_admin=true, &$errors = array(), $notify_user=false) {
-    global $conf;
+    global $conf, $conn;
 
     if ($login == '') {
         $errors[] = l10n('Please, enter a login');
@@ -165,16 +166,16 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
             $conf['user_fields']['email'] => $mail_address
         );
 
-        single_insert(USERS_TABLE, $insert);
-        $user_id = pwg_db_insert_id(USERS_TABLE);
+        $conn->single_insert(USERS_TABLE, $insert);
+        $user_id = $conn->db_insert_id(USERS_TABLE);
 
         // Assign by default groups
         $query = 'SELECT id FROM '.GROUPS_TABLE;
         $query .= ' WHERE is_default = \''.boolean_to_string(true).'\' ORDER BY id ASC;';
-        $result = pwg_query($query);
+        $result = $conn->db_query($query);
 
         $inserts = array();
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $inserts[] = array(
                 'user_id' => $user_id,
                 'group_id' => $row['id']
@@ -301,7 +302,7 @@ function getuserdata($user_id, $use_cache=false) {
     $query.= ' FROM '.USERS_TABLE;
     $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$user_id.'\'';
 
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = pwg_db_fetch_assoc($conn->db_query($query));
 
     // retrieve additional user data ?
     if ($conf['external_authentification']) {
@@ -426,7 +427,7 @@ function getuserdata($user_id, $use_cache=false) {
  * Deletes favorites of the current user if he's not allowed to see them.
  */
 function check_user_favorites() {
-    global $user;
+    global $user, $conn;
 
     if ($user['forbidden_categories'] == '') {
         return;
@@ -439,18 +440,18 @@ function check_user_favorites() {
     $query = 'SELECT DISTINCT f.image_id FROM '.FAVORITES_TABLE.' AS f';
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON f.image_id = ic.image_id';
     $query .= ' WHERE f.user_id = '.$user['id'];
-    $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ').';';
-    $authorizeds = query2array($query,null, 'image_id');
+    $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ');
+    $authorizeds = $conn->query2array($query, null, 'image_id');
 
     $query = 'SELECT image_id FROM '.FAVORITES_TABLE;
-    $query .= ' WHERE user_id = '.$user['id'].';';
-    $favorites = query2array($query,null, 'image_id');
+    $query .= ' WHERE user_id = '.$user['id'];
+    $favorites = $conn->query2array($query, null, 'image_id');
 
     $to_deletes = array_diff($favorites, $authorizeds);
     if (count($to_deletes) > 0) {
         $query = 'DELETE FROM '.FAVORITES_TABLE;
-        $query .= ' WHERE image_id IN ('.implode(',', $to_deletes).') AND user_id = '.$user['id'].';';
-        pwg_query($query);
+        $query .= ' WHERE image_id '.$conn->in($to_deletes).' AND user_id = '.$user['id'];
+        $conn->db_query($query);
     }
 }
 
@@ -467,12 +468,14 @@ function check_user_favorites() {
  * @return string comma separated ids
  */
 function calculate_permissions($user_id, $user_status) {
+    global $conn;
+
     $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE status = \'private\';';
-    $private_array = query2array($query,null, 'id');
+    $private_array = $conn->query2array($query,null, 'id');
 
     // retrieve category ids directly authorized to the user
     $query = 'SELECT cat_id FROM '.USER_ACCESS_TABLE.' WHERE user_id = '.$user_id.';';
-    $authorized_array = query2array($query,null, 'cat_id');
+    $authorized_array = $conn->query2array($query,null, 'cat_id');
 
   // retrieve category ids authorized to the groups the user belongs to
     $query = 'SELECT cat_id FROM '.USER_GROUP_TABLE.' AS ug';
@@ -481,7 +484,7 @@ function calculate_permissions($user_id, $user_status) {
     $authorized_array =
         array_merge(
             $authorized_array,
-            query2array($query,null, 'cat_id')
+            $conn->query2array($query,null, 'cat_id')
         );
 
     // uniquify ids : some private categories might be authorized for the
@@ -493,14 +496,13 @@ function calculate_permissions($user_id, $user_status) {
 
     // if user is not an admin, locked categories are forbidden
     if (!is_admin($user_status)) {
-        $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE visible = \'false\';';
-        $forbidden_array = array_merge($forbidden_array, query2array($query, null, 'id') );
+        $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE visible = \''.$conn->boolean_to_db(false).'\'';
+        $forbidden_array = array_merge($forbidden_array, $conn->query2array($query, null, 'id') );
         $forbidden_array = array_unique($forbidden_array);
     }
 
     if (empty($forbidden_array)) { // at least, the list contains 0 value. This category does not exists so
-        // where clauses such as "WHERE category_id NOT IN(0)" will always be
-        // true.
+        // where clauses such as "WHERE category_id NOT IN(0)" will always be true.
         $forbidden_array[] = 0;
     }
 
@@ -514,18 +516,16 @@ function calculate_permissions($user_id, $user_status) {
  * @param int|false
  */
 function get_userid($username) {
-    global $conf;
-
-    $username = pwg_db_real_escape_string($username);
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['id'].' FROM '.USERS_TABLE;
-    $query .= ' WHERE '.$conf['user_fields']['username'].' = \''.$username.'\';';
-    $result = pwg_query($query);
+    $query .= ' WHERE '.$conf['user_fields']['username'].' = \''.$conn->db_real_escape_string($username).'\';';
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return false;
     } else {
-        list($user_id) = pwg_db_fetch_row($result);
+        list($user_id) = $conn->db_fetch_row($result);
         return $user_id;
     }
 }
@@ -537,18 +537,16 @@ function get_userid($username) {
  * @param int|false
  */
 function get_userid_by_email($email) {
-    global $conf;
-
-    $email = pwg_db_real_escape_string($email);
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['id'].' FROM '.USERS_TABLE;
-    $query .= ' WHERE UPPER('.$conf['user_fields']['email'].') = UPPER(\''.$email.'\');';
-    $result = pwg_query($query);
+    $query .= ' WHERE UPPER('.$conf['user_fields']['email'].') = UPPER(\''.$conn->db_real_escape_string($email).'\');';
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return false;
     } else {
-        list($user_id) = pwg_db_fetch_row($result);
+        list($user_id) = $conn->db_fetch_row($result);
         return $user_id;
     }
 }
@@ -659,7 +657,7 @@ function get_browser_language(&$lang) {
  * @param array $override_values values used to override default user values
  */
 function create_user_infos($user_ids, $override_values=null) {
-    global $conf;
+    global $conf, $conn;
 
     if (!is_array($user_ids)) {
         $user_ids = array($user_ids);
@@ -667,7 +665,7 @@ function create_user_infos($user_ids, $override_values=null) {
 
     if (!empty($user_ids)) {
         $inserts = array();
-        list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+        list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
         $default_user = get_default_user_info(false);
         if ($default_user === false) {
@@ -683,7 +681,7 @@ function create_user_infos($user_ids, $override_values=null) {
             $level= isset($default_user['level']) ? $default_user['level'] : 0;
             if ($user_id == $conf['webmaster_id']) {
                 $status = 'webmaster';
-                $level = max( $conf['available_permission_levels'] );
+                $level = max($conf['available_permission_levels']);
             } elseif (($user_id == $conf['guest_id']) or ($user_id == $conf['default_user_id'])) {
                 $status = 'guest';
             } else {
@@ -702,7 +700,7 @@ function create_user_infos($user_ids, $override_values=null) {
             $inserts[] = $insert;
         }
 
-        mass_inserts(USER_INFOS_TABLE, array_keys($inserts[0]), $inserts);
+        $conn->mass_inserts(USER_INFOS_TABLE, array_keys($inserts[0]), $inserts);
     }
 }
 
@@ -715,15 +713,15 @@ function create_user_infos($user_ids, $override_values=null) {
  * @return string|false
  */
 function calculate_auto_login_key($user_id, $time, &$username) {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['username'].' AS username';
     $query .= ', '.$conf['user_fields']['password'].' AS password FROM '.USERS_TABLE;
     $query .= ' WHERE '.$conf['user_fields']['id'].' = '.$user_id;
 
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) > 0) {
-        $row = pwg_db_fetch_assoc($result);
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) > 0) {
+        $row = $conn->db_fetch_assoc($result);
         $data = $time.$user_id.$row['username'];
         $key = base64_encode(hash_hmac('sha1', $data, $conf['secret_key'].$row['password'],true));
         return $key;
@@ -817,9 +815,11 @@ function pwg_password_hash($password) {
  * @return bool
  */
 function pwg_password_verify($password, $hash, $user_id=null) {
+    global $conn;
+
     if (empty($hash) || strpos($hash, '$P') !== false || $hash == md5($password)) {
         $hash = pwg_password_hash($password);
-        single_update(
+        $conn->single_update(
             USERS_TABLE,
             array('password' => $hash),
             array('id' => $user_id)
@@ -853,7 +853,7 @@ add_event_handler('try_log_user', 'pwg_login');
  * @return bool
  */
 function pwg_login($success, $username, $password, $remember_me) {
-    global $conf;
+    global $conf, $conn;
 
     if ($success===true) {
         return true;
@@ -866,8 +866,8 @@ function pwg_login($success, $username, $password, $remember_me) {
     $query = 'SELECT '.$conf['user_fields']['id'].' AS id,';
     $query .= $conf['user_fields']['password'].' AS password';
     $query .= ' FROM '.USERS_TABLE;
-    $query .= ' WHERE '.$conf['user_fields']['username'].' = \''.pwg_db_real_escape_string($username).'\';';
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $query .= ' WHERE '.$conf['user_fields']['username'].' = \''.$conn->db_real_escape_string($username).'\';';
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
     if ($conf['password_verify']($password, $row['password'], $row['id'])) {
         log_user($row['id'], $remember_me);
         trigger_notify('login_success', stripslashes($username));
@@ -1078,7 +1078,7 @@ function can_manage_comment($action, $comment_author_id) {
  * @return string
  */
 function get_sql_condition_FandF($condition_fields, $prefix_condition=null, $force_one_condition=false) {
-    global $user, $filter;
+    global $user, $filter, $conn;
 
     $sql_list = array();
 
@@ -1144,13 +1144,13 @@ function get_sql_condition_FandF($condition_fields, $prefix_condition=null, $for
  * @return string
  */
 function get_recent_photos_sql($db_field) {
-    global $user;
+    global $user, $conn;
 
     if (!isset($user['last_photo_date'])) {
         return '0=1';
     }
 
     return $db_field.'>=LEAST('
-        .pwg_db_get_recent_period_expression($user['recent_period'])
-        .','.pwg_db_get_recent_period_expression(1,$user['last_photo_date']).')';
+        .$conn->db_get_recent_period_expression($user['recent_period'])
+        .','.$conn->db_get_recent_period_expression(1,$user['last_photo_date']).')';
 }

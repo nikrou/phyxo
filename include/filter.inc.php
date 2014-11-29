@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -80,12 +80,12 @@ if ($filter['enabled']) {
         $query .= ' WHERE ';
 
         if (!empty($filter['visible_categories'])) {
-            $query .= ' category_id  IN ('.$filter['visible_categories'].') and';
+            $query .= ' category_id  '.$conn->in($filter['visible_categories']).' AND ';
         }
 
-        $query .= ' date_available >= '.pwg_db_get_recent_period_expression($filter['recent_period']);
+        $query .= ' date_available >= '.$conn->db_get_recent_period_expression($filter['recent_period']);
 
-        $filter['visible_images'] = implode(',', array_from_query($query, 'image_id'));
+        $filter['visible_images'] = implode(',', $conn->query2array($query, null, 'image_id'));
 
         if (empty($filter['visible_images'])) {
             // Must be not empty

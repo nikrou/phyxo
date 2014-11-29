@@ -194,7 +194,7 @@ function get_regular_search_results($search, $images_where='') {
           $query .= ' AND '.$images_where;
       }
       $query .= $forbidden.' '.$conf['order_by'];
-      $items = $conn->array_from_query($query, 'id');
+      $items = $conn->query2array($query, null, 'id');
   }
 
   if (!empty($tag_items)) {
@@ -830,6 +830,8 @@ function qsearch_get_text_token_search_sql($token, $fields) {
 }
 
 function qsearch_get_images(QExpression $expr, QResults $qsr) {
+    global $conn;
+
     $qsr->images_iids = array_fill(0, count($expr->stokens), array());
 
     $query_base = 'SELECT id from '.IMAGES_TABLE.' i WHERE ';
@@ -937,9 +939,9 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr) {
 
         if (!empty($tag_ids)) {
             $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id IN ('.implode(',',$tag_ids).')';
+            $query .= ' WHERE tag_id '.$conn->in($tag_ids);
             $query .= ' GROUP BY image_id';
-            $qsr->tag_iids[$i] = query2array($query, null, 'image_id');
+            $qsr->tag_iids[$i] = $conn->query2array($query, null, 'image_id');
             if ($expr->stoken_modifiers[$i]&QST_NOT) {
                 $not_ids = array_merge($not_ids, $tag_ids);
             } else {
@@ -951,11 +953,11 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr) {
             }
         } elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term)==0) {
             if ($token->modifier & QST_WILDCARD) { // eg. 'tag:*' returns all tagged images
-                $qsr->tag_iids[$i] = query2array('SELECT DISTINCT image_id FROM '.IMAGE_TAG_TABLE, null, 'image_id');
+                $qsr->tag_iids[$i] = $conn->query2array('SELECT DISTINCT image_id FROM '.IMAGE_TAG_TABLE, null, 'image_id');
             } else { // eg. 'tag:' returns all untagged images
                 $query = 'SELECT id FROM '.IMAGES_TABLE;
                 $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id=image_id WHERE image_id IS NULL';
-                $qsr->tag_iids[$i] = query2array($query, null, 'id');
+                $qsr->tag_iids[$i] = $conn->query2array($query, null, 'id');
             }
         }
     }
@@ -1060,7 +1062,7 @@ function get_quick_search_results($q, $options) {
  * @see get_quick_search_results but without result caching
  */
 function get_quick_search_results_no_cache($q, $options) {
-    global $conf, $template;
+    global $conf, $template, $conn;
 
     $q = trim(stripslashes($q));
     $search_results = array(
@@ -1118,7 +1120,6 @@ function get_quick_search_results_no_cache($q, $options) {
 
 
     trigger_notify('qsearch_expression_parsed', $expression);
-    //var_export($expression);
 
     if (count($expression->stokens)==0) {
         return $search_results;
@@ -1153,7 +1154,7 @@ function get_quick_search_results_no_cache($q, $options) {
     $permissions = !isset($options['permissions']) ? true : $options['permissions'];
 
     $where_clauses = array();
-    $where_clauses[]='i.id IN ('. implode(',', $ids) . ')';
+    $where_clauses[] = 'i.id '.$conn->in($ids);
     if (!empty($options['images_where'])) {
         $where_clauses[]='('.$options['images_where'].')';
     }
@@ -1173,7 +1174,7 @@ function get_quick_search_results_no_cache($q, $options) {
     }
     $query .= ' WHERE '.implode("\n AND ", $where_clauses).' '.$conf['order_by'];
 
-    $ids = query2array($query, null, 'id');
+    $ids = $conn->query2array($query, null, 'id');
 
     $debug[] = count($ids).' final photo count -->';
     $template->append('footer_elements', implode("\n", $debug) );

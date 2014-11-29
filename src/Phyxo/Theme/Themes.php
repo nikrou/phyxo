@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -238,7 +238,7 @@ class Themes
         // theme
 
         $query = 'UPDATE '.USER_INFOS_TABLE.' SET theme = \''.$theme_id.'\'';
-        $query .= ' WHERE user_id IN ('.implode(',', $user_ids).');';
+        $query .= ' WHERE user_id '.$this->conn->in($user_ids);
         $this->conn->db_query($query);
     }
 

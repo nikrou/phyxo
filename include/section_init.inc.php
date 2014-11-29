@@ -115,7 +115,7 @@ if (!isset($page['section'])) {
     $page['section'] = 'categories';
 
     switch (script_basename())
-        {
+    {
         case 'picture':
             break;
         case 'index':
@@ -137,13 +137,14 @@ if (!isset($page['section'])) {
         }
         default:
             trigger_error('script_basename "'.script_basename().'" unknown', E_USER_WARNING);
-        }
+    }
 }
 
 $page = array_merge($page, parse_well_known_params_url($tokens, $next_token));
 
 //access a picture only by id, file or id-file without given section
-if (script_basename()=='picture' and 'categories'==$page['section'] and !isset($page['category']) and !isset($page['chronology_field'])) {
+if (script_basename()=='picture' and 'categories'==$page['section']
+    and !isset($page['category']) and !isset($page['chronology_field'])) {
     $page['flat'] = true;
 }
 
@@ -154,9 +155,8 @@ $page['nb_image_page'] = $user['nb_image_page'];
 // if flat mode is active, we must consider the image set as a standard set
 // and not as a category set because we can't use the #image_category.rank :
 // displayed images are not directly linked to the displayed category
-if ('categories' == $page['section'] and !isset($page['flat']))
-{
-  $conf['order_by'] = $conf['order_by_inside_category'];
+if ('categories' == $page['section'] and !isset($page['flat'])) {
+    $conf['order_by'] = $conf['order_by_inside_category'];
 }
 
 if (pwg_get_session_var('image_order',0) > 0) {
@@ -212,15 +212,9 @@ if ('categories' == $page['section']) {
     }
 
     // GET IMAGES LIST
-    if
-        (
-            $page['startcat'] == 0 and
-            (!isset($page['chronology_field'])) and // otherwise the calendar will requery all subitems
-            (
-                (isset($page['category'])) or
-                (isset($page['flat']))
-            )
-        ) {
+    if ($page['startcat'] == 0 and
+        (!isset($page['chronology_field'])) and // otherwise the calendar will requery all subitems
+        ((isset($page['category'])) or (isset($page['flat'])))) {
         if (!empty($page['category']['image_order']) and !isset($page['super_order_by'])) {
             $conf[ 'order_by' ] = ' ORDER BY '.$page['category']['image_order'];
         }
@@ -233,9 +227,9 @@ if ('categories' == $page['section']) {
                 $query .= ' WHERE uppercats LIKE \''.$page['category']['uppercats'].',%\' ';
                 $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'AND');
 
-                $subcat_ids = query2array($query,null, 'id');
+                $subcat_ids = $conn->query2array($query,null, 'id');
                 $subcat_ids[] = $page['category']['id'];
-                $where_sql = 'category_id IN ('.implode(',',$subcat_ids).')';
+                $where_sql = 'category_id '.$conn->in($subcat_ids);
                 // remove categories from forbidden because just checked above
                 $forbidden = get_sql_condition_FandF(array( 'visible_images' => 'id'), 'AND');
             } else {
@@ -251,9 +245,9 @@ if ('categories' == $page['section']) {
             // main query
             $query = 'SELECT DISTINCT(image_id),'.addOrderByFields($conf['order_by']).' FROM '.IMAGES_TABLE;
             $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
-            $query .= ' WHERE '.$where_sql.' '.$forbidden.' '.$conf['order_by'].';';
+            $query .= ' WHERE '.$where_sql.' '.$forbidden.' '.$conf['order_by'];
 
-            $page['items'] = query2array($query,null, 'image_id');
+            $page['items'] = $conn->query2array($query,null, 'image_id');
 
             if (isset($cache_key)) {
                 $persistent_cache->set($cache_key, $page['items']);
@@ -308,15 +302,15 @@ if ('categories' == $page['section']) {
 
         if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
             $query = 'DELETE FROM '.FAVORITES_TABLE.' WHERE user_id = '.$user['id'].';';
-            pwg_query($query);
+            $conn->db_query($query);
             redirect(make_index_url( array('section'=>'favorites') ));
         } else {
             $query = 'SELECT image_id FROM '.IMAGES_TABLE;
             $query .= ' LEFT JOIN '.FAVORITES_TABLE.' ON image_id = id';
             $query .= ' WHERE user_id = '.$user['id'];
             $query .= ' '.get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
-            $query .= ' '.$conf['order_by'].';';
-            $page = array_merge($page, array('items' => query2array($query,null, 'image_id')));
+            $query .= ' '.$conf['order_by'];
+            $page = array_merge($page, array('items' => $conn->query2array($query, null, 'image_id')));
 
             if (count($page['items'])>0) {
                 $template->assign(
@@ -344,13 +338,13 @@ if ('categories' == $page['section']) {
 
         $query = 'SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).' FROM '.IMAGES_TABLE;
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
-        $query .= ' WHERE '.get_recent_photos_sql('date_available').' '.$forbidden.' '.$conf['order_by'].';';
+        $query .= ' WHERE '.get_recent_photos_sql('date_available').' '.$forbidden.' '.$conf['order_by'];
 
         $page = array_merge(
             $page,
             array(
                 'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'.l10n('Recent photos').'</a>',
-                'items' => query2array($query,null, 'id')
+                'items' => $conn->query2array($query, null, 'id')
             )
         );
     } elseif ($page['section'] == 'recent_cats') {
@@ -369,13 +363,13 @@ if ('categories' == $page['section']) {
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
         $query .= ' WHERE hit > 0';
         $query .= ' '.$forbidden;
-        $query .= ' '.$conf['order_by'].' LIMIT '.$conf['top_number'].';';
+        $query .= ' '.$conf['order_by'].' LIMIT '.$conf['top_number'];
 
         $page = array_merge(
             $page,
             array(
                 'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'.$conf['top_number'].' '.l10n('Most visited').'</a>',
-                'items' => query2array($query,null, 'id'),
+                'items' => $conn->query2array($query, null, 'id'),
             )
         );
     }  elseif ($page['section'] == 'best_rated') {
@@ -389,12 +383,12 @@ if ('categories' == $page['section']) {
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
         $query .= ' WHERE rating_score IS NOT NULL';
         $query .= ' '.$forbidden;
-        $query .= ' '.$conf['order_by'].' LIMIT '.$conf['top_number'].';';
+        $query .= ' '.$conf['order_by'].' LIMIT '.$conf['top_number'];
         $page = array_merge(
             $page,
             array(
                 'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'.$conf['top_number'].' '.l10n('Best rated').'</a>',
-                'items' => query2array($query,null, 'id'),
+                'items' => $conn->query2array($query, null, 'id'),
             )
         );
     } elseif ($page['section'] == 'list') {
@@ -403,15 +397,15 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         $query ='SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).' FROM '.IMAGES_TABLE;
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
-        $query .= ' WHERE image_id IN ('.implode(',', $page['list']).')';
+        $query .= ' WHERE image_id '.$conn->in($page['list']);
         $query .= ' '.$forbidden;
-        $query .= ' '.$conf['order_by'].';';
+        $query .= ' '.$conf['order_by'];
 
         $page = array_merge(
             $page,
             array(
                 'title' => '<a href="'.duplicate_index_url(array('start'=>0)).'">'.l10n('Random photos').'</a>',
-                'items' => query2array($query,null, 'id'),
+                'items' => $conn->query2array($query, null, 'id'),
             )
         );
     }

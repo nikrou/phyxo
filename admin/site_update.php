@@ -380,7 +380,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 
     if (count($cat_ids) > 0) {
         $query = 'SELECT id, path FROM '.IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $cat_ids), 160, "\n").')'; // @TODO: why wordwrap ??
+        $query .= ' WHERE storage_category_id '.$conn->in($cat_ids);
         $db_elements = $conn->query2array($query, 'id', 'path');
     }
 

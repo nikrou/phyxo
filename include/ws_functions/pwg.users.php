@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,12 +37,12 @@
  *    @option string display
  */
 function ws_users_getList($params, &$service) {
-    global $conf;
+    global $conf, $conn;
 
     $where_clauses = array('1=1');
 
     if (!empty($params['user_id'])) {
-        $where_clauses[] = 'u.'.$conf['user_fields']['id'].' IN('. implode(',', $params['user_id']) .')';
+        $where_clauses[] = 'u.'.$conf['user_fields']['id'].' '.$conn->in($params['user_id']);
     }
 
     if (!empty($params['username'])) {
@@ -52,7 +52,7 @@ function ws_users_getList($params, &$service) {
     if (!empty($params['status'])) {
         $params['status'] = array_intersect($params['status'], get_enums(USER_INFOS_TABLE, 'status'));
         if (count($params['status']) > 0) {
-            $where_clauses[] = 'ui.status IN(\''. implode('\',\'', $params['status']) .'\')';
+            $where_clauses[] = 'ui.status '.$conn->in($params['status']);
         }
     }
 
@@ -64,7 +64,7 @@ function ws_users_getList($params, &$service) {
     }
 
     if (!empty($params['group_id'])) {
-        $where_clauses[] = 'ug.group_id IN('. implode(',', $params['group_id']) .')';
+        $where_clauses[] = 'ug.group_id '.$conn->in($params['group_id']);
     }
 
     $display = array('u.'.$conf['user_fields']['id'] => 'id');
@@ -139,12 +139,12 @@ function ws_users_getList($params, &$service) {
     $query .= ' LEFT JOIN '. USER_INFOS_TABLE .' AS ui ON u.'. $conf['user_fields']['id'] .' = ui.user_id';
     $query .= ' LEFT JOIN '. USER_GROUP_TABLE .' AS ug ON u.'. $conf['user_fields']['id'] .' = ug.user_id';
     $query .= ' WHERE '. implode(' AND ', $where_clauses);
-    $query .= ' ORDER BY '. $params['order'];
-    $query .= ' LIMIT '. $params['per_page'] .' OFFSET '. ($params['per_page']*$params['page']) .';';
+    $query .= ' ORDER BY '. $conn->db_real_escape_string($params['order']);
+    $query .= ' LIMIT '. (int) $params['per_page'] .' OFFSET '. (int) ($params['per_page']*$params['page']) .';';
 
     $users = array();
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $row['id'] = intval($row['id']);
         $users[ $row['id'] ] = $row;
     }
@@ -152,10 +152,10 @@ function ws_users_getList($params, &$service) {
     if (count($users) > 0) {
         if (isset($params['display']['groups'])) {
             $query = 'SELECT user_id, group_id FROM '. USER_GROUP_TABLE;
-            $query .= ' WHERE user_id IN ('. implode(',', array_keys($users)).');';
-            $result = pwg_query($query);
+            $query .= ' WHERE user_id '.$conn->in(array_keys($users));
+            $result = $conn->db_query($query);
 
-            while ($row = pwg_db_fetch_assoc($result)) {
+            while ($row = $conn->db_fetch_assoc($result)) {
                 $users[ $row['user_id'] ]['groups'][] = intval($row['group_id']);
             }
         }
@@ -168,23 +168,23 @@ function ws_users_getList($params, &$service) {
 
         if (isset($params['display']['registration_date_since'])) {
             foreach ($users as $cur_user) {
-                $users[ $cur_user['id'] ]['registration_date_since'] = time_since($cur_user['registration_date'], 'month');
+                $users[$cur_user['id']]['registration_date_since'] = time_since($cur_user['registration_date'], 'month');
             }
         }
 
         if (isset($params['display']['last_visit'])) {
             $query = 'SELECT MAX(id) as history_id FROM '.HISTORY_TABLE;
-            $query .= ' WHERE user_id IN ('.implode(',', array_keys($users)).') GROUP BY user_id;';
-            $history_ids = array_from_query($query, 'history_id');
+            $query .= ' WHERE user_id '.$conn->in(array_keys($users)).' GROUP BY user_id;';
+            $history_ids = $conn->query2array($query, null, 'history_id');
 
             if (count($history_ids) == 0) {
                 $history_ids[] = -1;
             }
 
             $query = 'SELECT user_id, date, time FROM '.HISTORY_TABLE;
-            $query .= ' WHERE id IN ('.implode(',', $history_ids).');';
-            $result = pwg_query($query);
-            while ($row = pwg_db_fetch_assoc($result)) {
+            $query .= ' WHERE id '.$conn->in($history_ids);
+            $result = $conn->db_query($query);
+            while ($row = $conn->db_fetch_assoc($result)) {
                 $last_visit = $row['date'].' '.$row['time'];
                 $users[ $row['user_id'] ]['last_visit'] = $last_visit;
 
@@ -258,7 +258,7 @@ function ws_users_add($params, &$service) {
  *    @option string pwg_token
  */
 function ws_users_delete($params, &$service) {
-    global $conf, $user;
+    global $conf, $user, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -276,8 +276,8 @@ function ws_users_delete($params, &$service) {
     // an admin can't delete other admin/webmaster
     if ('admin' == $user['status']) {
         $query = 'SELECT user_id '.USER_INFOS_TABLE;
-        $query .= ' WHERE status IN (\'webmaster\', \'admin\');';
-        $protected_users = array_merge($protected_users, query2array($query, null, 'user_id'));
+        $query .= ' WHERE status '.$conn->in(array('webmaster', 'admin'));
+        $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
     }
 
     // protect some users
@@ -316,7 +316,7 @@ function ws_users_delete($params, &$service) {
  *    @option bool enabled_high (optional)
  */
 function ws_users_setInfo($params, &$service) {
-    global $conf, $user;
+    global $conf, $user, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -373,8 +373,8 @@ function ws_users_setInfo($params, &$service) {
         // an admin can't change status of other admin/webmaster
         if ('admin' == $user['status']) {
             $query = 'SELECT user_id '.USER_INFOS_TABLE;
-            $query .= ' WHERE status IN (\'webmaster\', \'admin\');';
-            $protected_users = array_merge($protected_users, query2array($query, null, 'user_id'));
+            $query .= ' WHERE status '.$conn->in(array('webmaster', 'admin'));
+            $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
         }
 
         // status update query is separated from the rest as not applying to the same
@@ -435,7 +435,7 @@ function ws_users_setInfo($params, &$service) {
     }
 
     // perform updates
-    single_update(
+    $conn->single_update(
         USERS_TABLE,
         $updates,
         array($conf['user_fields']['id'] => $params['user_id'][0])
@@ -443,9 +443,9 @@ function ws_users_setInfo($params, &$service) {
 
     if (isset($update_status) and count($params['user_id_for_status']) > 0) {
         $query = 'UPDATE '. USER_INFOS_TABLE;
-        $query .= ' SET status = \''.$update_status.'\'';
-        $query .= ' WHERE user_id IN('. implode(',', $params['user_id_for_status']) .');';
-        pwg_query($query);
+        $query .= ' SET status = \''.$conn->boolean_to_db($update_status).'\'';
+        $query .= ' WHERE user_id '.$conn->in($params['user_id_for_status']);
+        $conn->db_query($query);
     }
 
     if (count($updates_infos) > 0) {
@@ -462,20 +462,20 @@ function ws_users_setInfo($params, &$service) {
             $query .= $field .'=\''.$value.'\'';
         }
 
-        $query .= ' WHERE user_id IN('. implode(',', $params['user_id']) .');';
-        pwg_query($query);
+        $query .= ' WHERE user_id '.$conn->in($params['user_id']);
+        $conn->db_query($query);
     }
 
     // manage association to groups
     if (!empty($params['group_id'])) {
         $query = 'DELETE FROM '.USER_GROUP_TABLE;
-        $query .= ' WHERE user_id IN ('.implode(',', $params['user_id']).');';
-        pwg_query($query);
+        $query .= ' WHERE user_id '.$conn->in($params['user_id']);
+        $conn->db_query($query);
 
         // we remove all provided groups that do not really exist
         $query = 'SELECT id FROM '.GROUPS_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', $params['group_id']).');';
-        $group_ids = array_from_query($query, 'id');
+        $query .= ' WHERE id '.$conn->in($params['group_id']);
+        $group_ids = $conn->query2array($query, null, 'id');
 
         // if only -1 (a group id that can't exist) is in the list, then no
         // group is associated

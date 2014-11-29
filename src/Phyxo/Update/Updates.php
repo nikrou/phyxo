@@ -51,7 +51,7 @@ class Updates
         $this->languages = new Languages($conn);
     }
 
-    public static function check_piwigo_upgrade() {
+    public static function check_phyxo_upgrade() {
         $_SESSION['need_update'] = null;
 
         if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)

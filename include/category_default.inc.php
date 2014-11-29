@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -41,9 +41,9 @@ $selection = trigger_change('loc_index_thumbnails_selection', $selection);
 if (count($selection) > 0) {
     $rank_of = array_flip($selection);
 
-    $query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id IN ('.implode(',', $selection).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id '.$conn->in($selection);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $row['rank'] = $rank_of[ $row['id'] ];
         $pictures[] = $row;
     }
@@ -68,14 +68,14 @@ if (count($pictures) > 0) {
 
     if ($conf['activate_comments'] and $user['show_nb_comments']) {
         $query = 'SELECT image_id, COUNT(1) AS nb_comments FROM '.COMMENTS_TABLE;
-        $query .= ' WHERE validated = \'true\' AND image_id IN ('.implode(',', $selection).')';
+        $query .= ' WHERE validated = \''.$conn->boolean_to_db(true).'\' AND image_id '.$conn->in($selection);
         $query .= ' GROUP BY image_id;';
         $nb_comments_of = query2array($query, 'image_id', 'nb_comments');
     }
 }
 
 // template thumbnail initialization
-$template->set_filenames( array( 'index_thumbnails' => 'thumbnails.tpl',));
+$template->set_filenames(array('index_thumbnails' => 'thumbnails.tpl'));
 
 trigger_notify('loc_begin_index_thumbnails', $pictures);
 $tpl_thumbnails_var = array();
@@ -134,8 +134,8 @@ $template->assign(
     array(
         'derivative_params' => trigger_change('get_index_derivative_params',
         ImageStdParams::get_by_type(pwg_get_session_var('index_deriv', IMG_THUMB))),
-        'maxRequests' =>$conf['max_requests'],
-        'SHOW_THUMBNAIL_CAPTION' =>$conf['show_thumbnail_caption'],
+        'maxRequests' => $conf['max_requests'],
+        'SHOW_THUMBNAIL_CAPTION' => $conf['show_thumbnail_caption'],
     )
 );
 $tpl_thumbnails_var = trigger_change('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);

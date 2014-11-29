@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -41,36 +41,38 @@ function ws_categories_getImages($params, &$service) {
     $where_clauses = array();
     foreach ($params['cat_id'] as $cat_id) {
         if ($params['recursive']) {
-            $where_clauses[] = 'uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$cat_id.'(,|$)\'';
+            $where_clauses[] = 'uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$conn->db_real_escape_string($cat_id).'(,|$)\'';
         } else {
-            $where_clauses[] = 'id='.$cat_id;
+            $where_clauses[] = 'id='.$conn->db_real_escape_string($cat_id);
         }
     }
     if (!empty($where_clauses)) {
-        $where_clauses = array('('. implode("\n    OR ", $where_clauses) . ')');
+        $where_clauses = array('('. implode(' OR ', $where_clauses) . ')');
     }
     $where_clauses[] = get_sql_condition_FandF(
         array('forbidden_categories' => 'id'),
-        null, true
+        null,
+        true
     );
 
     $query = 'SELECT id, name, permalink, image_order FROM '. CATEGORIES_TABLE;
-    $query .= ' WHERE '. implode("\n    AND ", $where_clauses) .';';
-    $result = pwg_query($query);
+    $query .= ' WHERE '. implode(' AND ', $where_clauses);
+    $result = $conn->db_query($query);
 
     $cats = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
-        $row['id'] = (int)$row['id'];
-        $cats[ $row['id'] ] = $row;
+    while ($row = $conn->db_fetch_assoc($result)) {
+        $row['id'] = (int) $row['id'];
+        $cats[$row['id']] = $row;
     }
 
     //-------------------------------------------------------- get the images
     if (!empty($cats)) {
         $where_clauses = ws_std_image_sql_filter($params, 'i.');
-        $where_clauses[] = 'category_id IN ('. implode(',', array_keys($cats)) .')';
+        $where_clauses[] = 'category_id '.$conn->in(array_keys($cats));
         $where_clauses[] = get_sql_condition_FandF(
             array('visible_images' => 'i.id'),
-            null, true
+            null,
+            true
         );
 
         $order_by = ws_std_image_sql_order($params, 'i.');
@@ -81,13 +83,14 @@ function ws_categories_getImages($params, &$service) {
 
         $query = 'SELECT i.*, '.pwg_db_group_concat('category_id').' AS cat_ids FROM '. IMAGES_TABLE .' i';
         $query .= ' LEFT JOIN '. IMAGE_CATEGORY_TABLE .' ON i.id=image_id';
-        $query .= ' WHERE '. implode("\n    AND ", $where_clauses);
+        $query .= ' WHERE '. implode(' AND ', $where_clauses);
         $query .= ' GROUP BY i.id';
         $query .= ' '.$order_by;
-        $query .= ' LIMIT '. $params['per_page'] .' OFFSET '. ($params['per_page']*$params['page']) .';';
-        $result = pwg_query($query);
+        $query .= ' LIMIT '. (int) $params['per_page'];
+        $query .= ' OFFSET '. (int) ($params['per_page']*$params['page']) .';';
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $image = array();
             foreach (array('id', 'width', 'height', 'hit') as $k) {
                 if (isset($row[$k])) {
@@ -178,6 +181,7 @@ function ws_categories_getList($params, &$service) {
         // categories that are either locked or private and not permitted
         //
         // calculate_permissions does not consider empty categories as forbidden
+         // @TODO : modify calculate_permissions. It must return an array to apply DBLayer::in
         $forbidden_categories = calculate_permissions($user['id'], $user['status']);
         $where[]= 'id NOT IN ('.$forbidden_categories.')';
         $join_type = 'LEFT';
@@ -188,8 +192,8 @@ function ws_categories_getList($params, &$service) {
     $query .= 'user_representative_picture_id, count_images, count_categories,';
     $query .= 'date_last, max_date_last, count_categories AS nb_categories FROM '. CATEGORIES_TABLE;
     $query .= ' '.$join_type.' JOIN '. USER_CACHE_CATEGORIES_TABLE .' ON id=cat_id AND user_id='.$join_user;
-    $query .= ' WHERE '. implode("\n    AND ", $where) .';';
-    $result = pwg_query($query);
+    $query .= ' WHERE '. implode(' AND ', $where);
+    $result = $conn->db_query($query);
 
     // management of the album thumbnail -- starts here
     $image_ids = array();
@@ -198,7 +202,7 @@ function ws_categories_getList($params, &$service) {
     // management of the album thumbnail -- stops here
 
     $cats = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $row['url'] = make_index_url(
             array(
                 'category' => $row
@@ -253,7 +257,7 @@ function ws_categories_getList($params, &$service) {
                 $query .= ' WHERE uppercats LIKE \''.$row['uppercats'].',%\' AND representative_picture_id IS NOT NULL';
                 $query .= ' '.get_sql_condition_FandF(array('visible_categories' => 'id'), "\n  AND" );
                 $query .= ' ORDER BY '. $conn::RANDOM_FUNCTION .'() LIMIT 1;';
-                $subresult = pwg_query($query);
+                $subresult = $conn->db_query($query);
 
                 if (pwg_db_num_rows($subresult) > 0) {
                     list($image_id) = pwg_db_fetch_row($subresult);
@@ -283,10 +287,10 @@ function ws_categories_getList($params, &$service) {
         $new_image_ids = array();
 
         $query = 'SELECT id, path, representative_ext, level FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id IN ('. implode(',', $image_ids) .');';
-        $result = pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($image_ids);
+        $result = $conn->db_query($query);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['level'] <= $user['level']) {
                 $thumbnail_src_of[$row['id']] = DerivativeImage::thumb_url($row);
             } else {
@@ -318,10 +322,10 @@ function ws_categories_getList($params, &$service) {
 
         if (count($new_image_ids) > 0) {
             $query = 'SELECT id, path, representative_ext FROM '. IMAGES_TABLE;
-            $query .= ' WHERE id IN ('. implode(',', $new_image_ids) .');';
-            $result = pwg_query($query);
+            $query .= ' WHERE id '.$conn->in($new_image_ids);
+            $result = $conn->db_query($query);
 
-            while ($row = pwg_db_fetch_assoc($result)) {
+            while ($row = $conn->db_fetch_assoc($result)) {
                 $thumbnail_src_of[ $row['id'] ] = DerivativeImage::thumb_url($row);
             }
         }
@@ -341,7 +345,7 @@ function ws_categories_getList($params, &$service) {
             );
         }
 
-        mass_updates(
+        $conn->mass_updates(
             USER_CACHE_CATEGORIES_TABLE,
             array(
                 'primary' => array('user_id', 'cat_id'),
@@ -385,15 +389,17 @@ function ws_categories_getList($params, &$service) {
  * account.
  */
 function ws_categories_getAdminList($params, &$service) {
+    global $conn;
+
     $query = 'SELECT category_id, COUNT(1) AS counter FROM '. IMAGE_CATEGORY_TABLE;
     $query .= ' GROUP BY category_id;';
-    $nb_images_of = query2array($query, 'category_id', 'counter');
+    $nb_images_of = $conn->query2array($query, 'category_id', 'counter');
 
     $query = 'SELECT id, name, comment, uppercats, global_rank, dir FROM '. CATEGORIES_TABLE;
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
     $cats = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $id = $row['id'];
         $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
 
@@ -478,6 +484,8 @@ function ws_categories_add($params, &$service) {
  *    @option string comment (optional)
  */
 function ws_categories_setInfo($params, &$service) {
+    global $conn;
+
     $update = array(
         'id' => $params['category_id'],
     );
@@ -493,7 +501,7 @@ function ws_categories_setInfo($params, &$service) {
     }
 
     if ($perform_update) {
-        single_update(
+        $conn->single_update(
             CATEGORIES_TABLE,
             $update,
             array('id' => $update['id'])
@@ -509,28 +517,33 @@ function ws_categories_setInfo($params, &$service) {
  *    @option int image_id
  */
 function ws_categories_setRepresentative($params, &$service) {
+    global $conn;
+
     // does the category really exist?
-    $query = 'SELECT COUNT(1) FROM '. CATEGORIES_TABLE .' WHERE id = '. $params['category_id'] .';';
-    list($count) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT COUNT(1) FROM '. CATEGORIES_TABLE;
+    $query .= ' WHERE id = '. $conn->db_real_escape_string($params['category_id']);
+    list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new PwgError(404, 'category_id not found');
     }
 
     // does the image really exist?
-    $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE id = '. $params['image_id'] .';';
-    list($count) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
+    $query .= ' WHERE id = '. $conn->db_real_escape_string($params['image_id']);
+    list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new PwgError(404, 'image_id not found');
     }
 
     // apply change
-    $query = 'UPDATE '. CATEGORIES_TABLE .' SET representative_picture_id = '. $params['image_id'];
-    $query .= ' WHERE id = '. $params['category_id'] .';';
-    pwg_query($query);
+    $query = 'UPDATE '. CATEGORIES_TABLE;
+    $query .= ' SET representative_picture_id = '.$conn->db_real_escape_string($params['image_id']);
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['category_id']);
+    $conn->db_query($query);
 
     $query = 'UPDATE '. USER_CACHE_CATEGORIES_TABLE .' SET user_representative_picture_id = NULL';
-    $query .= ' WHERE cat_id = '. $params['category_id'] .';';
-    pwg_query($query);
+    $query .= ' WHERE cat_id = '. $conn->db_real_escape_string($params['category_id']);
+    $conn->db_query($query);
 }
 
 /**
@@ -542,6 +555,8 @@ function ws_categories_setRepresentative($params, &$service) {
  *    @option string pwg_token
  */
 function ws_categories_delete($params, &$service) {
+    global $conn;
+
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
     }
@@ -576,8 +591,9 @@ function ws_categories_delete($params, &$service) {
         return;
     }
 
-    $query = 'SELECT id FROM '. CATEGORIES_TABLE .' WHERE id IN ('. implode(',', $category_ids) .');';
-    $category_ids = array_from_query($query, 'id');
+    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $category_ids = $conn->query2array($query, null, 'id');
 
     if (count($category_ids) == 0) {
         return;
@@ -597,7 +613,7 @@ function ws_categories_delete($params, &$service) {
  *    @option string pwg_token
  */
 function ws_categories_move($params, &$service) {
-    global $page;
+    global $page, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -627,9 +643,10 @@ function ws_categories_move($params, &$service) {
     // we can't move physical categories
     $categories_in_db = array();
 
-    $query = 'SELECT id, name, dir FROM '. CATEGORIES_TABLE .' WHERE id IN ('. implode(',', $category_ids) .');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT id, name, dir FROM '. CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($category_ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $categories_in_db[ $row['id'] ] = $row;
 
         // we break on error at first physical category detected

@@ -33,6 +33,8 @@
  * @param bool $replace_mode - removes old associations
  */
 function ws_add_image_category_relations($image_id, $categories_string, $replace_mode=false) {
+    global $conn;
+
     // let's add links between the image and the categories
     //
     // $params['categories'] should look like 123,12;456,auto;789 which means:
@@ -72,8 +74,9 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
         );
     }
 
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE id IN ('.implode(',', $cat_ids).');';
-    $db_cat_ids = array_from_query($query, 'id');
+    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id '.$conn->in($cat_ids);
+    $db_cat_ids = $conn->query2array($query, null, 'id');
 
     $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
     if (count($unknown_cat_ids) != 0) {
@@ -86,14 +89,14 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
 
     // in case of replace mode, we first check the existing associations
     $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id = '.$image_id.';';
-    $existing_cat_ids = array_from_query($query, 'category_id');
+    $existing_cat_ids = $conn->query2array($query, null, 'category_id');
 
     if ($replace_mode) {
         $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
         if (count($to_remove_cat_ids) > 0) {
             $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id = '.$image_id;
-            $query .= ' AND category_id IN ('.implode(', ', $to_remove_cat_ids).');';
-            pwg_query($query);
+            $query .= ' AND category_id '.$conn->in($to_remove_cat_ids);
+            $conn->db_query($query);
             update_category($to_remove_cat_ids);
         }
     }
@@ -105,13 +108,9 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
 
     if ($search_current_ranks) {
         $query = 'SELECT category_id, MAX(rank) AS max_rank FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE rank IS NOT NULL AND category_id IN ('.implode(',', $new_cat_ids).')';
+        $query .= ' WHERE rank IS NOT NULL AND category_id '.$conn->in($new_cat_ids);
         $query .= ' GROUP BY category_id;';
-        $current_rank_of = simple_hash_from_query(
-            $query,
-            'category_id',
-            'max_rank'
-        );
+        $current_rank_of = $conn->query2array($query, 'category_id', 'max_rank');
 
         foreach ($new_cat_ids as $cat_id) {
             if (!isset($current_rank_of[$cat_id])) {
@@ -134,7 +133,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
         );
     }
 
-    mass_inserts(
+    $conn->mass_inserts(
         IMAGE_CATEGORY_TABLE,
         array_keys($inserts[0]),
         $inserts
@@ -477,11 +476,11 @@ function ws_images_getInfo($params, $service) {
  *    @option float rate
  */
 function ws_images_rate($params, $service) {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT DISTINCT id FROM '. IMAGES_TABLE;
     $query .= ' LEFT JOIN '. IMAGE_CATEGORY_TABLE .' ON id=image_id';
-    $query .= ' WHERE id='. $params['image_id'];
+    $query .= ' WHERE id='. $conn->db_real_escape_string($params['image_id']);
     $query .= get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'category_id',
@@ -490,7 +489,7 @@ function ws_images_rate($params, $service) {
         '    AND'
     );
     $query .= ' LIMIT 1;';
-    if (pwg_db_num_rows(pwg_query($query))==0) {
+    if (pwg_db_num_rows($conn->db_query($query))==0) {
         return new PwgError(404, 'Invalid image_id or access denied');
     }
 
@@ -513,6 +512,8 @@ function ws_images_rate($params, $service) {
  *    @option string order (optional)
  */
 function ws_images_search($params, $service) {
+    global $conn;
+
     include_once(PHPWG_ROOT_PATH .'include/functions_search.inc.php');
 
     $images = array();
@@ -542,11 +543,11 @@ function ws_images_search($params, $service) {
 
     if (count($image_ids)) {
         $query = 'SELECT * FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id IN ('. implode(',', $image_ids) .');';
-        $result = pwg_query($query);
+        $query .= ' WHERE id '.$conn->in($image_ids);
+        $result = $conn->db_query($query);
         $image_ids = array_flip($image_ids);
 
-        while ($row = pwg_db_fetch_assoc($result)) {
+        while ($row = $conn->db_fetch_assoc($result)) {
             $image = array();
             foreach (array('id', 'width', 'height', 'hit') as $k) {
                 if (isset($row[$k])) {
@@ -589,7 +590,7 @@ function ws_images_search($params, $service) {
  *    @option int level
  */
 function ws_images_setPrivacyLevel($params, $service) {
-    global $conf;
+    global $conf, $conn;
 
     if (!in_array($params['level'], $conf['available_permission_levels'])) {
         return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid level');
@@ -597,11 +598,10 @@ function ws_images_setPrivacyLevel($params, $service) {
 
     $query = 'UPDATE '. IMAGES_TABLE;
     $query .= ' SET level='. (int)$params['level'];
-    $query .= ' WHERE id IN ('. implode(',',$params['image_id']) .');';
-    $result = pwg_query($query);
+    $query .= ' WHERE id '.$conn->in($params['image_id']);
+    $result = $conn->db_query($query);
 
-    $affected_rows = pwg_db_changes($result);
-    if ($affected_rows) {
+    if ($affected_rows = $conn->db_changes($result)) {
         include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
         invalidate_user_cache();
     }
@@ -617,25 +617,29 @@ function ws_images_setPrivacyLevel($params, $service) {
  *    @option int rank
  */
 function ws_images_setRank($params, $service) {
+    global $conn;
+
     // does the image really exist?
-    $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE id = '. $params['image_id'] .';';
-    list($count) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE;
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new PwgError(404, 'image_id not found');
     }
 
     // is the image associated to this category?
-    $query = 'SELECT COUNT(1) FROM '. IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id = '. $params['image_id'] .' AND category_id = '. $params['category_id'] .';';
-    list($count) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT COUNT(1) FROM '.IMAGE_CATEGORY_TABLE;
+    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
+    $query .= ' AND category_id = '.$conn->db_real_escape_string($params['category_id']);
+    list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new PwgError(404, 'This image is not associated to this category');
     }
 
     // what is the current higher rank for this category?
     $query = 'SELECT MAX(rank) AS max_rank FROM '. IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE category_id = '. $params['category_id'] .';';
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category_id']);
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     if (is_numeric($row['max_rank'])) {
         if ($params['rank'] > $row['max_rank']) {
@@ -648,14 +652,15 @@ function ws_images_setRank($params, $service) {
     // update rank for all other photos in the same category
     $query = 'UPDATE '. IMAGE_CATEGORY_TABLE;
     $query .= ' SET rank = rank + 1';
-    $query .= ' WHERE category_id = '. $params['category_id'];
+    $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category_id']);
     $query .= ' AND rank IS NOT NULL AND rank >= '. $params['rank'] .';';
-    pwg_query($query);
+    $conn->db_query($query);
 
     // set the new rank for the photo
     $query = 'UPDATE '. IMAGE_CATEGORY_TABLE .' SET rank = '. $params['rank'];
-    $query .= ' WHERE image_id = '. $params['image_id'] .' AND category_id = '. $params['category_id'] .';';
-    pwg_query($query);
+    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
+    $query .= ' AND category_id = '.$conn->db_real_escape_string($params['category_id']);
+    $conn->db_query($query);
 
     // return data for client
     return array(
@@ -727,20 +732,20 @@ function ws_images_add_chunk($params, $service) {
  *    @option string sum
  */
 function ws_images_addFile($params, $service) {
-    global $conf;
+    global $conf, $conn;
 
     ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
 
     // what is the path and other infos about the photo?
     $query = 'SELECT path, file, md5sum, width, height, filesize FROM '. IMAGES_TABLE;
-    $query .= ' WHERE id = '. $params['image_id'] .';';
-    $result = pwg_query($query);
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return new PwgError(404, "image_id not found");
     }
 
-    $image = pwg_db_fetch_assoc($result);
+    $image = $conn->db_fetch_assoc($result);
 
     // since Piwigo 2.4 and derivatives, we do not take the imported "thumb" into account
     if ('thumb' == $params['type']) {
@@ -822,7 +827,7 @@ function ws_images_add($params, $service) {
     if ($params['image_id'] > 0) {
         $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
         $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
-        list($count) = $conn->db_fetch_row(pwg_query($query));
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
             return new PwgError(404, 'image_id not found');
         }
@@ -831,14 +836,14 @@ function ws_images_add($params, $service) {
     // does the image already exists ?
     if ($params['check_uniqueness']) {
         if ('md5sum' == $conf['uniqueness_mode']) {
-            $where_clause = "md5sum = '".$params['original_sum']."'";
+            $where_clause = 'md5sum = \''.$conn->db_real_escape_string($params['original_sum']).'\'';
         }
         if ('filename' == $conf['uniqueness_mode']) {
-            $where_clause = "file = '".$params['original_filename']."'";
+            $where_clause = 'file = \''.$conn->db_real_escape_string($params['original_filename']).'\'';
         }
 
         $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE '. $where_clause .';';
-        list($counter) = $conn->db_fetch_row(pwg_query($query));
+        list($counter) = $conn->db_fetch_row($conn->db_query($query));
         if ($counter != 0) {
             return new PwgError(500, 'file already exists');
         }
@@ -888,7 +893,7 @@ function ws_images_add($params, $service) {
     }
 
     if (count(array_keys($update)) > 0) {
-        single_update(
+        $conn->single_update(
             IMAGES_TABLE,
             $update,
             array('id' => $image_id)
@@ -1039,7 +1044,7 @@ function ws_images_addSimple($params, $service) {
  *    @option int image_id (optional)
  */
 function ws_images_upload($params, $service) {
-    global $conf;
+    global $conf, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -1109,12 +1114,12 @@ function ws_images_upload($params, $service) {
             null // image_id = not provided, this is a new photo
         );
 
-        $query = 'SELECT id,name,representative_ext,path FROM '.IMAGES_TABLE.' WHERE id = '.$image_id.';';
-        $image_infos = pwg_db_fetch_assoc(pwg_query($query));
+        $query = 'SELECT id,name,representative_ext,path FROM '.IMAGES_TABLE.' WHERE id = '.$image_id;
+        $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
         $query = 'SELECT COUNT(1) AS nb_photos FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id = '.$params['category'][0].';';
-        $category_infos = pwg_db_fetch_assoc(pwg_query($query));
+        $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category'][0]);
+        $category_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
         $category_name = get_cat_display_name_from_id($params['category'][0], null);
 
@@ -1139,7 +1144,7 @@ function ws_images_upload($params, $service) {
  *    @option string filename_list (optional)
  */
 function ws_images_exist($params, $service) {
-    global $conf;
+    global $conf, $conn;
 
     ws_logfile(__FUNCTION__.' '.var_export($params, true));
 
@@ -1155,8 +1160,9 @@ function ws_images_exist($params, $service) {
             PREG_SPLIT_NO_EMPTY
         );
 
-        $query = 'SELECT id, md5sum FROM '. IMAGES_TABLE .' WHERE md5sum IN (\''. implode("','", $md5sums) .'\');';
-        $id_of_md5 = simple_hash_from_query($query, 'md5sum', 'id');
+        $query = 'SELECT id, md5sum FROM '. IMAGES_TABLE;
+        $query .= ' WHERE md5sum '.$conn->in($md5sums);
+        $id_of_md5 = $conn->query2array($query, 'md5sum', 'id');
 
         foreach ($md5sums as $md5sum) {
             $result[$md5sum] = null;
@@ -1174,8 +1180,9 @@ function ws_images_exist($params, $service) {
             PREG_SPLIT_NO_EMPTY
         );
 
-        $query = 'SELECT id, file FROM '.IMAGES_TABLE.' WHERE file IN (\''. implode("','", $filenames) .'\');';
-        $id_of_filename = simple_hash_from_query($query, 'file', 'id');
+        $query = 'SELECT id, file FROM '.IMAGES_TABLE;
+        $query .= ' WHERE file '.$conn->in($filenames);
+        $id_of_filename = $conn->query2array($query, 'file', 'id');
 
         foreach ($filenames as $filename) {
             $result[$filename] = null;
@@ -1196,16 +1203,18 @@ function ws_images_exist($params, $service) {
  *    @option string file_sum
  */
 function ws_images_checkFiles($params, $service) {
+    global $conn;
+
     ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
 
-    $query = 'SELECT path FROM '. IMAGES_TABLE .' WHERE id = '. $params['image_id'] .';';
-    $result = pwg_query($query);
+    $query = 'SELECT path FROM '. IMAGES_TABLE .' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $result = $conn->db_query($query);
 
     if (pwg_db_num_rows($result) == 0) {
         return new PwgError(404, 'image_id not found');
     }
 
-    list($path) = pwg_db_fetch_row($result);
+    list($path) = $conn->db_fetch_row($result);
 
     $ret = array();
 

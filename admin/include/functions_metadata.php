@@ -200,7 +200,7 @@ function sync_metadata($ids) {
     $tags_of = array();
 
     $query = 'SELECT id, path, representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.wordwrap(implode(', ', $ids), 160, "\n").');'; // @TODO: why wordwrap ?
+    $query .= ' WHERE id '.$conn->in($ids);
 
     $result = $conn->db_query($query);
     while ($data = $conn->db_fetch_assoc($result)) {

@@ -320,7 +320,7 @@ class DBLayer
         if (empty($rows)) {
             return;
         }
-        $query .= ' IN ('.implode(',', $rows).')';
+        $query .= ' '.$this->in($rows);
         $this->db_query($query);
     }
 }

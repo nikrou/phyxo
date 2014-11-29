@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,6 +31,8 @@
  *    @option int[] user_id (optional)
  */
 function ws_permissions_getList($params, &$service) {
+    global $conn;
+
     $my_params = array_intersect(array_keys($params), array('cat_id','group_id','user_id'));
     if (count($my_params) > 1) {
         return new PwgError(WS_ERR_INVALID_PARAM, 'Too many parameters, provide cat_id OR user_id OR group_id');
@@ -38,7 +40,7 @@ function ws_permissions_getList($params, &$service) {
 
     $cat_filter = '';
     if (!empty($params['cat_id'])) {
-        $cat_filter = 'WHERE cat_id IN('. implode(',', $params['cat_id']) .')';
+        $cat_filter = 'WHERE cat_id '.$conn->in($params['cat_id']);
     }
 
     $filters = array('group_id' => '', 'user_id' => '');
@@ -54,9 +56,9 @@ function ws_permissions_getList($params, &$service) {
     // direct users
     $query = 'SELECT user_id, cat_id FROM '.USER_ACCESS_TABLE;
     $query .= ' '. $cat_filter;
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         if (!isset($perms[$row['cat_id']])) {
             $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
         }
@@ -66,9 +68,9 @@ function ws_permissions_getList($params, &$service) {
     // indirect users
     $query = 'SELECT ug.user_id, ga.cat_id FROM '. USER_GROUP_TABLE .' AS ug';
     $query .= ' LEFT JOIN '. GROUP_ACCESS_TABLE .' AS ga ON ug.group_id = ga.group_id '. $cat_filter .';';
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         if (!empty($row['cat_id'])) {
             if (!isset($perms[$row['cat_id']])) {
                 $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
@@ -79,9 +81,9 @@ function ws_permissions_getList($params, &$service) {
 
     // groups
     $query = 'SELECT group_id, cat_id FROM '. GROUP_ACCESS_TABLE .' '. $cat_filter .';';
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         if (!isset($perms[ $row['cat_id'] ])) {
             $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
         }
@@ -132,6 +134,8 @@ function ws_permissions_getList($params, &$service) {
  *    @option bool recursive
  */
 function ws_permissions_add($params, &$service) {
+    global $conn;
+
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
     }
@@ -145,8 +149,8 @@ function ws_permissions_add($params, &$service) {
         }
 
         $query = 'SELECT id FROM '. CATEGORIES_TABLE;
-        $query .= ' WHERE id IN ('. implode(',', $cat_ids) .') AND status = \'private\';';
-        $private_cats = array_from_query($query, 'id');
+        $query .= ' WHERE id '.$conn->in($cat_ids).' AND status = \'private\';';
+        $private_cats = $conn->query2array($query, null, 'id');
 
         $inserts = array();
         foreach ($private_cats as $cat_id) {
@@ -158,11 +162,11 @@ function ws_permissions_add($params, &$service) {
             }
         }
 
-        mass_inserts(
+        $conn->mass_inserts(
             GROUP_ACCESS_TABLE,
             array('group_id','cat_id'),
             $inserts,
-            array('ignore'=>true)
+            array('ignore' => true)
         );
     }
 
@@ -171,7 +175,7 @@ function ws_permissions_add($params, &$service) {
         add_permission_on_category($params['cat_id'], $params['user_id']);
     }
 
-    return $service->invoke('pwg.permissions.getList', array('cat_id'=>$params['cat_id']));
+    return $service->invoke('pwg.permissions.getList', array('cat_id' => $params['cat_id']));
 }
 
 /**
@@ -183,6 +187,8 @@ function ws_permissions_add($params, &$service) {
  *    @option int[] user_id (optional)
  */
 function ws_permissions_remove($params, &$service) {
+    global $conn;
+
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
     }
@@ -193,16 +199,16 @@ function ws_permissions_remove($params, &$service) {
 
     if (!empty($params['group_id'])) {
         $query = 'DELETE FROM '. GROUP_ACCESS_TABLE;
-        $query .= ' WHERE group_id IN ('. implode(',', $params['group_id']).')';
-        $query .= ' AND cat_id IN ('. implode(',', $cat_ids).');';
-        pwg_query($query);
+        $query .= ' WHERE group_id '.$conn->in($params['group_id']);
+        $query .= ' AND cat_id '.$conn->in($cat_ids);
+        $conn->db_query($query);
     }
 
     if (!empty($params['user_id'])) {
         $query = 'DELETE FROM '. USER_ACCESS_TABLE;
-        $query .= ' WHERE user_id IN ('. implode(',', $params['user_id']) .')';
-        $query .= ' AND cat_id IN ('. implode(',', $cat_ids) .');';
-        pwg_query($query);
+        $query .= ' WHERE user_id '.$conn->in($params['user_id']);
+        $query .= ' AND cat_id '.$conn->in($cat_ids);
+        $conn->db_query($query);
     }
 
     return $service->invoke('pwg.permissions.getList', array('cat_id'=>$params['cat_id']));

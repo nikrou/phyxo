@@ -35,7 +35,7 @@
  * @return array as return by update_rating_score()
  */
 function rate_picture($image_id, $rate) {
-    global $conf, $user;
+    global $conf, $user, $conn;
 
     if (!isset($rate) || !$conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $conf['rate_items'])) {
         return false;
@@ -59,19 +59,19 @@ function rate_picture($image_id, $rate) {
         if ($anonymous_id != $save_anonymous_id) { // client has changed his IP adress or he's trying to fool us
             $query = 'SELECT element_id FROM '.RATE_TABLE;
             $query .= ' WHERE user_id = '.$user['id'].' AND anonymous_id = \''.$anonymous_id.'\';';
-            $already_there = array_from_query($query, 'element_id');
+            $already_there = $conn->query2array($query, null, 'element_id');
 
             if (count($already_there) > 0) {
                 $query = 'DELETE FROM '.RATE_TABLE;
                 $query .= ' WHERE user_id = '.$user['id'];
                 $query .= ' AND anonymous_id = \''.$save_anonymous_id.'\'';
-                $query .= ' AND element_id IN ('.implode(',', $already_there).');';
-                pwg_query($query);
+                $query .= ' AND element_id '.$conn->in($already_there);
+                $conn->db_query($query);
             }
 
             $query = 'UPDATE '.RATE_TABLE.'  SET anonymous_id = \'' .$anonymous_id.'\'';
             $query .= ' WHERE user_id = '.$user['id'].' AND anonymous_id = \'' . $save_anonymous_id.'\';';
-            pwg_query($query);
+            $conn->db_query($query);
         } // end client changed ip
 
         pwg_set_cookie_var('anonymous_rater', $anonymous_id);
@@ -82,10 +82,10 @@ function rate_picture($image_id, $rate) {
     if ($user_anonymous) {
         $query .= ' AND anonymous_id = \''.$anonymous_id.'\'';
     }
-    pwg_query($query);
+    $conn->db_query($query);
     $query = 'INSERT INTO '.RATE_TABLE.' (user_id,anonymous_id,element_id,rate,date)';
     $query .= ' VALUES('.$user['id'].',\''.$anonymous_id.'\','.$image_id.','.$rate.',NOW());';
-    pwg_query($query);
+    $conn->db_query($query);
 
     return update_rating_score($image_id);
 }
@@ -101,6 +101,8 @@ function rate_picture($image_id, $rate) {
  * @return array (score, average, count) values are null if $element_id is false
 */
 function update_rating_score($element_id = false) {
+    global $conn;
+
     if (($alt_result = trigger_change('update_rating_score', false, $element_id)) !== false) {
         return $alt_result;
     }
@@ -112,8 +114,8 @@ function update_rating_score($element_id = false) {
     $item_ratecount_avg = 0;
     $by_item = array();
 
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $all_rates_count += $row['rcount'];
         $all_rates_avg += $row['rsum'];
         $by_item[$row['element_id']] = $row;
@@ -137,7 +139,7 @@ function update_rating_score($element_id = false) {
         }
         $updates[] = array( 'id'=>$id, 'rating_score'=>$score );
     }
-    mass_updates(
+    $conn->mass_updates(
         IMAGES_TABLE,
         array(
             'primary' => array('id'),
@@ -157,8 +159,8 @@ function update_rating_score($element_id = false) {
         if (!empty($to_update)) {
             $query = 'UPDATE '.IMAGES_TABLE;
             $query .= ' SET rating_score=NULL';
-            $query .= ' WHERE id IN (' . implode(',',$to_update) . ')';
-            pwg_query($query);
+            $query .= ' WHERE id '.$conn->in($to_update);
+            $conn->db_query($query);
         }
     }
 

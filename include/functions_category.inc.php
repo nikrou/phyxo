@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -63,7 +63,7 @@ function check_restrictions($category_id) {
  * @return array[]
  */
 function get_categories_menu() {
-    global $page, $user, $filter, $conf;
+    global $page, $user, $filter, $conf, $conn;
 
     $query = 'SELECT ';
     // From CATEGORIES_TABLE
@@ -79,24 +79,21 @@ function get_categories_menu() {
     if (!$user['expand'] and !$filter['enabled']) {
         $where = ' (id_uppercat is NULL';
         if (isset($page['category'])) {
-            $where .= ' OR id_uppercat IN ('.$page['category']['uppercats'].')';
+            $where .= ' OR id_uppercat '.$conn->in($page['category']['uppercats']);
         }
         $where .= ')';
     } else {
         $where = ' '.get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
     }
 
-    $where = trigger_change(
-        'get_categories_menu_sql_where',
-        $where, $user['expand'], $filter['enabled']
-    );
+    $where = trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
 
-    $query.= ' WHERE '.$where.';';
+    $query.= ' WHERE '.$where;
 
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
     $cats = array();
     $selected_category = isset($page['category']) ? $page['category'] : null;
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $child_date_last = @$row['max_date_last']> @$row['date_last'];
         $row = array_merge($row,
         array(
@@ -168,8 +165,8 @@ function get_cat_info($id) {
         );
     } else {
         $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
-        $query .= ' WHERE id IN ('.$cat['uppercats'].');';
-        $names = query2array($query, 'id');
+        $query .= ' WHERE id '.$conn->in($cat['uppercats']);
+        $names = $conn->query2array($query, 'id');
 
         // category names must be in the same order than uppercats list
         $cat['upper_names'] = array();
@@ -252,7 +249,9 @@ function display_select_categories($categories, $selecteds, $blockname, $fullnam
  * @see display_select_categories()
  */
 function display_select_cat_wrapper($query, $selecteds, $blockname, $fullname=true) {
-    $categories = query2array($query);
+    global $conn;
+
+    $categories = $conn->query2array($query);
     usort($categories, 'global_rank_compare');
     display_select_categories($categories, $selecteds, $blockname, $fullname);
 }
@@ -280,9 +279,8 @@ function get_subcat_ids($ids) {
         }
         $query.= 'uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$category_id.'(,|$)\'';
     }
-    $query.= ';';
 
-    return array_from_query($query, 'id');
+    return $conn->query2array($query, null, 'id');
 }
 
 /**
@@ -293,19 +291,14 @@ function get_subcat_ids($ids) {
  * @return int|null
  */
 function get_cat_id_from_permalinks($permalinks, &$idx) {
-    $in = '';
-    foreach($permalinks as $permalink) {
-        if ( !empty($in) ) {
-            $in .= ', ';
-        }
-        $in .= '\''.$permalink.'\'';
-    }
+    global $conn;
+
     $query ='SELECT cat_id AS id, permalink, 1 AS is_old FROM '.OLD_PERMALINKS_TABLE;
-    $query .= ' WHERE permalink IN ('.$in.')';
+    $query .= ' WHERE permalink '.$conn->in($permalinks);
     $query .= ' UNION ';
     $query .= ' SELECT id, permalink, 0 AS is_old FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE permalink IN ('.$in.');';
-    $perma_hash = query2array($query, 'permalink');
+    $query .= ' WHERE permalink '.$conn->in($permalinks);
+    $perma_hash = $conn->query2array($query, 'permalink');
 
     if (empty($perma_hash)) {
         return null;
@@ -318,7 +311,7 @@ function get_cat_id_from_permalinks($permalinks, &$idx) {
             if ($perma_hash[$permalinks[$i]]['is_old']) {
                 $query = 'UPDATE '.OLD_PERMALINKS_TABLE.' SET last_hit=NOW(), hit=hit+1';
                 $query .= ' WHERE permalink=\''.$permalinks[$i].'\' AND cat_id='.$cat_id.' LIMIT 1';
-                pwg_query($query);
+                $conn->db_query($query);
             }
             return $cat_id;
         }
@@ -390,9 +383,9 @@ function get_random_image_in_category($category, $recursive=true) {
         "\n  AND"
         );
         $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT 1;';
-        $result = pwg_query($query);
-        if (pwg_db_num_rows($result) > 0) {
-            list($image_id) = pwg_db_fetch_row($result);
+        $result = $conn->db_query($query);
+        if ($conn->db_num_rows($result) > 0) {
+            list($image_id) = $conn->db_fetch_row($result);
         }
     }
 
@@ -408,6 +401,8 @@ function get_random_image_in_category($category, $recursive=true) {
  * @return array
  */
 function get_computed_categories(&$userdata, $filter_days=null) {
+    global $conn;
+
     $query = 'SELECT c.id AS cat_id, id_uppercat';
     // Count by date_available to avoid count null
     $query .= ', MAX(date_available) AS date_last, COUNT(date_available) AS nb_images FROM '.CATEGORIES_TABLE.' as c';
@@ -415,7 +410,7 @@ function get_computed_categories(&$userdata, $filter_days=null) {
     $query .= ' LEFT JOIN '.IMAGES_TABLE.' AS i ON ic.image_id = i.id AND i.level<='.$userdata['level'];
 
     if (isset($filter_days)) {
-        $query .= ' AND i.date_available > '.pwg_db_get_recent_period_expression($filter_days);
+        $query .= ' AND i.date_available > '.$conn->db_get_recent_period_expression($filter_days);
     }
 
     if (!empty($userdata['forbidden_categories'])) {
@@ -423,11 +418,11 @@ function get_computed_categories(&$userdata, $filter_days=null) {
     }
 
     $query .= ' GROUP BY c.id';
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
     $userdata['last_photo_date'] = null;
     $cats = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $row['user_id'] = $userdata['id'];
         $row['nb_categories'] = 0;
         $row['count_categories'] = 0;

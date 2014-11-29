@@ -81,7 +81,7 @@ if (isset($search['fields']['tags'])) {
     $template->assign('SEARCH_TAGS_MODE', $search['fields']['tags']['mode']);
 
     $query = 'SELECT name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $search['fields']['tags']['words']).');';
+    $query .= ' WHERE id '.$conn->in($search['fields']['tags']['words']);
     $template->assign(
         'search_tags',
         $conn->query2array($query, 'name')

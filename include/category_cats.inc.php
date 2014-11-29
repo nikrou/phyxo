@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,25 +35,25 @@ $query .= 'count_images,nb_categories,count_categories FROM '.CATEGORIES_TABLE.'
 $query .= ' LEFT JOIN '.USER_CACHE_CATEGORIES_TABLE.' ucc ON id = cat_id AND user_id = '.$user['id'];
 
 if ('recent_cats' == $page['section']) {
-  $query.= ' WHERE '.get_recent_photos_sql('date_last');
+  $query .= ' WHERE '.get_recent_photos_sql('date_last');
 } else {
-  $query.= ' WHERE id_uppercat '.(!isset($page['category']) ? 'is NULL' : '= '.$page['category']['id']);
+  $query .= ' WHERE id_uppercat '.(!isset($page['category']) ? 'is NULL' : '='.$page['category']['id']);
 }
 
-$query.= '  '.get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
+$query .= ' '.get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
 
 if ('recent_cats' != $page['section']) {
   $query.= ' ORDER BY rank';
 }
 
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 $categories = array();
 $category_ids = array();
 $image_ids = array();
 $user_representative_updates_for = array();
 
-while ($row = pwg_db_fetch_assoc($result)) {
-    // TODO remove arobase ; need tests ?
+while ($row = $conn->db_fetch_assoc($result)) {
+    // TODO remove arobases ; need tests ?
     $row['is_child_date_last'] = @$row['max_date_last']>@$row['date_last'];
 
     if (!empty($row['user_representative_picture_id'])) {
@@ -69,15 +69,15 @@ while ($row = pwg_db_fetch_assoc($result)) {
         $query .= ' AND representative_picture_id IS NOT NULL';
         $query .= get_sql_condition_FandF(array('visible_categories' => 'id',),"\n  AND");
         $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT 1;';
-        $subresult = pwg_query($query);
-        if (pwg_db_num_rows($subresult) > 0) {
-            list($image_id) = pwg_db_fetch_row($subresult);
+        $subresult = $conn->db_query($query);
+        if ($conn->db_num_rows($subresult) > 0) {
+            list($image_id) = $conn->db_fetch_row($subresult);
         }
     }
 
     if (isset($image_id)) {
         if ($conf['representative_cache_on_subcats'] and $row['user_representative_picture_id'] != $image_id) {
-            $user_representative_updates_for[ $row['id'] ] = $image_id;
+            $user_representative_updates_for[$row['id']] = $image_id;
         }
 
         $row['representative_picture_id'] = $image_id;
@@ -93,10 +93,10 @@ if ($conf['display_fromto']) {
         $query = 'SELECT category_id, MIN(date_creation) AS _from,';
         $query .= ' MAX(date_creation) AS _to FROM '.IMAGE_CATEGORY_TABLE;
         $query .= ' LEFT JOIN '.IMAGES_TABLE.' ON image_id = id';
-        $query .= ' WHERE category_id IN ('.implode(',', $category_ids).')';
+        $query .= ' WHERE category_id '.$conn->in($category_ids);
         $query .= get_sql_condition_FandF(array('visible_categories' => 'category_id','visible_images' => 'id'),'AND');
         $query .= ' GROUP BY category_id;';
-        $dates_of_category = query2array($query, 'category_id');
+        $dates_of_category = $conn->query2array($query, 'category_id');
     }
 }
 
@@ -109,9 +109,9 @@ if (count($categories) > 0) {
     $new_image_ids = array();
 
     $query = 'SELECT * FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id IN ('.implode(',', $image_ids).');';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $query .= ' WHERE id '.$conn->in($image_ids);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['level'] <= $user['level']) {
             $infos_of_image[$row['id']] = $row;
         } else {
@@ -145,9 +145,9 @@ if (count($categories) > 0) {
 
     if (count($new_image_ids) > 0) {
         $query = 'SELECT * FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id IN ('.implode(',', $new_image_ids).');';
-        $result = pwg_query($query);
-        while ($row = pwg_db_fetch_assoc($result)) {
+        $query .= ' WHERE id '.$conn->in($new_image_ids);
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
             $infos_of_image[$row['id']] = $row;
         }
     }
@@ -169,7 +169,7 @@ if (count($user_representative_updates_for)) {
         );
     }
 
-    mass_updates(
+    $conn->mass_updates(
         USER_CACHE_CATEGORIES_TABLE,
         array(
             'primary' => array('user_id', 'cat_id'),

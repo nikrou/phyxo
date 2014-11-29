@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -91,10 +91,11 @@ class Languages
 
             case 'set_default':
                 $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$language_id.'\'';
-                $query .= ' WHERE user_id IN ('.$conf['default_user_id'].', '.$conf['guest_id'].');';
+                $query .= ' WHERE user_id '.$this->conn->in(array($conf['default_user_id'], $conf['guest_id']));
                 $this->conn->db_query($query);
                 break;
             }
+
         return $errors;
     }
 
@@ -321,4 +322,3 @@ class Languages
         return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
     }
 }
-

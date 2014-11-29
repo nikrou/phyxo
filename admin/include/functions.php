@@ -73,7 +73,7 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
 
     // destruction of all photos physically linked to the category
     $query = 'SELECT id FROM '.IMAGES_TABLE;
-    $query .= ' WHERE storage_category_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');'; // @TODO: need to understand why wordwrap
+    $query .= ' WHERE storage_category_id '.$conn->in($ids);
     $element_ids = $conn->query2array($query, null, 'id');
     delete_elements($element_ids);
 
@@ -101,18 +101,18 @@ function delete_categories($ids, $photo_deletion_mode='no_delete') {
     }
 
     // destruction of the links between images and this category
-    $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE category_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
+    $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE category_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the access linked to the category
-    $query = 'DELETE FROM '.USER_ACCESS_TABLE.' WHERE cat_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
+    $query = 'DELETE FROM '.USER_ACCESS_TABLE.' WHERE cat_id '.$conn->in($ids);
     $conn->db_query($query);
 
-    $query = 'DELETE FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
+    $query = 'DELETE FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the category
-    $query = 'DELETE FROM '.CATEGORIES_TABLE.' WHERE id IN ('.wordwrap(implode(', ', $ids), 80, "\n").');';
+    $query = 'DELETE FROM '.CATEGORIES_TABLE.' WHERE id '.$conn->in($ids);
     $conn->db_query($query);
 
     $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.' WHERE cat_id '.$conn->in($ids);
@@ -203,39 +203,36 @@ function delete_elements($ids, $physical_deletion=false) {
         }
     }
 
-    // @TODO: why wordwrap ???
-    $ids_str = wordwrap(implode(', ', $ids), 80, "\n");
-
     // destruction of the comments on the image
-    $query = 'DELETE FROM '.COMMENTS_TABLE.' WHERE image_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.COMMENTS_TABLE.' WHERE image_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the links between images and categories
-    $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the links between images and tags
-    $query = 'DELETE FROM '.IMAGE_TAG_TABLE.' WHERE image_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.IMAGE_TAG_TABLE.' WHERE image_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the favorites associated with the picture
-    $query = 'DELETE FROM '.FAVORITES_TABLE.' WHERE image_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.FAVORITES_TABLE.' WHERE image_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the rates associated to this element
-    $query = 'DELETE FROM '.RATE_TABLE.' WHERE element_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.RATE_TABLE.' WHERE element_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the caddie associated to this element
-    $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE element_id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE element_id '.$conn->in($ids);
     $conn->db_query($query);
 
     // destruction of the image
-    $query = 'DELETE FROM '.IMAGES_TABLE.' WHERE id IN ('. $ids_str .');';
+    $query = 'DELETE FROM '.IMAGES_TABLE.' WHERE id '.$conn->in($ids);
     $conn->db_query($query);
 
     // are the photo used as category representant?
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE representative_picture_id IN ('. $ids_str .');';
+    $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE representative_picture_id '.$conn->in($ids);
     $category_ids = query2array($query, null, 'id');
     if (count($category_ids) > 0) {
         update_category($category_ids);
@@ -310,7 +307,7 @@ function update_category($ids='all') {
         if (count($ids) == 0) {
             return false;
         }
-        $where_cats = '%s IN('.wordwrap(implode(', ', $ids), 120, "\n").')'; // @TODO: why wordwrap ???
+        $where_cats = '%s '.$conn->in($ids);
     }
 
     // find all categories where the setted representative is not possible :
@@ -324,7 +321,7 @@ function update_category($ids='all') {
     if (count($wrong_representant) > 0) {
         $query = 'UPDATE '.CATEGORIES_TABLE;
         $query .= ' SET representative_picture_id = NULL';
-        $query .= ' WHERE id IN ('.wordwrap(implode(', ', $wrong_representant), 120, "\n").');';
+        $query .= ' WHERE id '.$conn->in($wrong_representant);
         $conn->db_query($query);
     }
 
@@ -734,7 +731,7 @@ function get_fulldirs($cat_ids) {
     // categories : id, site_id, uppercats
     $query = 'SELECT id, uppercats, site_id FROM '.CATEGORIES_TABLE;
     $query .= ' WHERE dir IS NOT NULL';
-    $query .= ' AND id IN ('.wordwrap(implode(', ', $cat_ids), 80, "\n").');'; // @TODO: why wordwrap ??
+    $query .= ' AND id '.$conn->in($cat_ids);
     $categories = $conn->query2array($query);
 
     // filling $cat_fulldirs
