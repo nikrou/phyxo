@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -45,7 +45,7 @@ if (!empty($_POST) or isset($_GET['action'])) {
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
-$template->set_filenames(array('site_manager'=>'site_manager.tpl'));
+$template->set_filenames(array('site_manager' => 'site_manager.tpl'));
 
 // +-----------------------------------------------------------------------+
 // |                        new site creation form                         |
@@ -64,7 +64,7 @@ if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
     // site must not exists
     $query = 'SELECT COUNT(id) AS count FROM '.SITES_TABLE;
     $query .= ' WHERE galleries_url = \''.$url.'\';';
-    $row = pwg_db_fetch_assoc(pwg_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
     if ($row['count'] > 0) {
         $page['errors'][] = l10n('This site already exists').' ['.$url.']';
     }
@@ -76,7 +76,7 @@ if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
 
     if (count($page['errors']) == 0) {
         $query = 'INSERT INTO '.SITES_TABLE.' (galleries_url) VALUES(\''.$url.'\');';
-        pwg_query($query);
+        $conn->db_query($query);
         $page['infos'][] = $url.' '.l10n('created');
     }
 }
@@ -88,8 +88,8 @@ if (isset($_GET['site']) and is_numeric($_GET['site'])) {
     $page['site'] = $_GET['site'];
 }
 if (isset($_GET['action']) and isset($page['site'])) {
-    $query = 'SELECT galleries_url FROM '.SITES_TABLE.' WHERE id = '.$page['site'].';';
-    list($galleries_url) = pwg_db_fetch_row(pwg_query($query));
+    $query = 'SELECT galleries_url FROM '.SITES_TABLE.' WHERE id = '.$conn->db_real_escape_string($page['site']);
+    list($galleries_url) = $conn->db_fetch_row($conn->db_query($query));
     if ($_GET['action']=='delete') {
         delete_site($page['site']);
         $page['infos'][] = $galleries_url.' '.l10n('deleted');
@@ -107,12 +107,12 @@ $template->assign(
 $query = 'SELECT c.site_id, COUNT(DISTINCT c.id) AS nb_categories, COUNT(i.id) AS nb_images';
 $query .= ' FROM '.CATEGORIES_TABLE.' AS c LEFT JOIN '.IMAGES_TABLE.' AS i ON c.id=i.storage_category_id';
 $query .= ' WHERE c.site_id IS NOT NULL GROUP BY c.site_id;';
-$sites_detail = hash_from_query($query, 'site_id');
+$sites_detail = $conn->query2array($query, 'site_id');
 
 $query = 'SELECT * FROM '.SITES_TABLE;
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $is_remote = url_is_remote($row['galleries_url']);
     $base_url = PHPWG_ROOT_PATH.'admin.php';
     $base_url.= '?page=site_manager';

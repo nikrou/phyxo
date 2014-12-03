@@ -305,24 +305,6 @@ function do_maintenance_all_tables() {
     return $conn->do_maintenance_all_tables();
 }
 
-function simple_hash_from_query($query, $keyname, $valuename) {
-    global $conn;
-
-    return $conn->simple_hash_from_query($query, $keyname, $valuename);
-}
-
-function hash_from_query($query, $keyname) {
-    global $conn;
-
-    return $conn->hash_from_query($query, $keyname);
-}
-
-function array_from_query($query, $fieldname=false) {
-    global $conn;
-
-    return $conn->array_from_query($query, $fieldname);
-}
-
 function pwg_db_get_flood_period_expression($seconds) {
     global $conn;
 

@@ -244,51 +244,6 @@ class DBLayer
     }
 
     /**
-     * creates an simple hashmap based on a SQL query.
-     * choose one to be the key, another one to be the value.
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $keyname
-     * @param string $valuename
-     * @return array
-     */
-    public function simple_hash_from_query($query, $keyname, $valuename) {
-        return $this->query2array($query, $keyname, $valuename);
-    }
-
-    /**
-     * creates an associative array based on a SQL query.
-     * choose one to be the key
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $keyname
-     * @return array
-     */
-    public function hash_from_query($query, $keyname) {
-        return $this->query2array($query, $keyname);
-    }
-
-    /**
-     * creates a numeric array based on a SQL query.
-     * if _$fieldname_ is empty the returned value will be an array of arrays
-     * if _$fieldname_ is provided the returned value will be a one dimension array
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $fieldname
-     * @return array
-     */
-    public function array_from_query($query, $fieldname=false) {
-        if (false === $fieldname) {
-            return $this->query2array($query);
-        } else {
-            return $this->query2array($query, null, $fieldname);
-        }
-    }
-
-    /**
      * deletes multiple lines in a table
      *
      * @param string table_name

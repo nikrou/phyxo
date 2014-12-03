@@ -114,7 +114,7 @@ function ws_groups_delete($params, &$service) {
     $conn->db_query($query);
 
     $query = 'SELECT name FROM '. GROUPS_TABLE .' WHERE id '.$conn->in($params['group_id']);
-    $groupnames = array_from_query($query, 'name');
+    $groupnames = $conn->query2array($query, null, 'name');
 
     // destruction of the group
     $query = 'DELETE FROM '. GROUPS_TABLE .' WHERE id '.$conn->in($params['group_id']);

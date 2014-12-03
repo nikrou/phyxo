@@ -137,7 +137,7 @@ function update_rating_score($element_id = false) {
                 'count' => $rate_summary['rcount'],
             );
         }
-        $updates[] = array( 'id'=>$id, 'rating_score'=>$score );
+        $updates[] = array('id' => $id, 'rating_score' => $score);
     }
     $conn->mass_updates(
         IMAGES_TABLE,
@@ -154,7 +154,7 @@ function update_rating_score($element_id = false) {
         $query .= ' LEFT JOIN '.RATE_TABLE.' ON id=element_id';
         $query .= ' WHERE element_id IS NULL AND rating_score IS NOT NULL';
 
-        $to_update = array_from_query( $query, 'id');
+        $to_update = $conn->query2array($query, null, 'id');
 
         if (!empty($to_update)) {
             $query = 'UPDATE '.IMAGES_TABLE;
@@ -164,5 +164,5 @@ function update_rating_score($element_id = false) {
         }
     }
 
-    return isset($return) ? $return : array('score'=>null, 'average'=>null, 'count'=>0 );
+    return isset($return) ? $return : array('score' => null, 'average' => null, 'count' => 0);
 }

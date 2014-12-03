@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -399,39 +399,4 @@ interface iDBLayer
      * @return true on success false on failure
      */
     function do_maintenance_all_tables();
-
-    /**
-     * creates an simple hashmap based on a SQL query.
-     * choose one to be the key, another one to be the value.
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $keyname
-     * @param string $valuename
-     * @return array
-     */
-    public function simple_hash_from_query($query, $keyname, $valuename);
-
-    /**
-     * creates an associative array based on a SQL query.
-     * choose one to be the key
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $keyname
-     * @return array
-     */
-    public function hash_from_query($query, $keyname);
-
-    /**
-     * creates a numeric array based on a SQL query.
-     * if _$fieldname_ is empty the returned value will be an array of arrays
-     * if _$fieldname_ is provided the returned value will be a one dimension array
-     * @deprecated Deprecated in 1.2, to be removed in 1.3
-     *
-     * @param string $query
-     * @param string $fieldname
-     * @return array
-     */
-    public function array_from_query($query, $fieldname=false);
 }

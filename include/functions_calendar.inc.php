@@ -237,7 +237,7 @@ function initialize_calendar() {
             $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
             $query .= ' '.$order_by;
 
-            $page['items'] = array_from_query($query, 'id');
+            $page['items'] = $conn->query2array($query, null, 'id');
             if (isset($cache_key)) {
                 $persistent_cache->set($cache_key, $page['items']);
             }
