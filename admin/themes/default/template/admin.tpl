@@ -90,7 +90,7 @@ $('#menubar').lightAccordion({
   </dl>
   {if $U_DEV_VERSION}
   <dl>
-    <dt><span class="icon-cw">{'Development'|translate}</span></dt>
+    <dt><i class="icon-cw">&nbsp;</i><span>{'Development'|translate}</span></dt>
     <dd>
       <ul>
 	{if $U_DEV_API}

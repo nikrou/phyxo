@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,15 +27,43 @@ define('PHPWG_VERSION', '1.3.0-dev');
 define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
 define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
 
-define('PHPWG_THEMES_PATH', $conf['themes_dir'].'/');
-define('PHPWG_PLUGINS_PATH', PHPWG_ROOT_PATH.'plugins/');
-define('PHPWG_LANGUAGES_PATH', PHPWG_ROOT_PATH.'language/');
+if (!defined('PHPWG_THEMES_PATH')) {
+    define('PHPWG_THEMES_PATH', $conf['themes_dir'].'/');
+}
+if (!defined('PHPWG_PLUGINS_PATH')) {
+    define('PHPWG_PLUGINS_PATH', PHPWG_ROOT_PATH.'plugins/');
+}
+if (!defined('PHPWG_LANGUAGES_PATH')) {
+    define('PHPWG_LANGUAGES_PATH', PHPWG_ROOT_PATH.'language/');
+}
+if (!defined('PWG_COMBINED_DIR')) {
+    define('PWG_COMBINED_DIR', $conf['data_location'].'combined/');
+}
+if (!defined('PWG_DERIVATIVE_DIR')) {
+    define('PWG_DERIVATIVE_DIR', $conf['data_location'].'i/');
+}
 
-defined('PWG_COMBINED_DIR') or define('PWG_COMBINED_DIR', $conf['data_location'].'combined/');
-defined('PWG_DERIVATIVE_DIR') or define('PWG_DERIVATIVE_DIR', $conf['data_location'].'i/');
+// Update settings
+if (!defined('PHPWG_DOMAIN')) {
+    define('PHPWG_DOMAIN', 'phyxo.net');
+}
+if (!defined('PHPWG_URL')) {
+    define('PHPWG_URL', 'http://www.phyxo.net');
+}
+if (!defined('PHYXO_UPDATE_URL')) {
+    define('PHYXO_UPDATE_URL', 'http://download.phyxo.net/versions');
+}
+if (!defined('PEM_URL')) {
+    if (!empty($conf['alternative_pem_url'])) {
+        define('PEM_URL', $conf['alternative_pem_url']);
+    } else {
+        define('PEM_URL', 'http://ext.'.PHPWG_DOMAIN);
+    }
+}
+
 
 // Required versions
-define('REQUIRED_PHP_VERSION', '5.3.0');
+define('REQUIRED_PHP_VERSION', '5.4.0');
 
 // Access codes
 define('ACCESS_FREE', 0);

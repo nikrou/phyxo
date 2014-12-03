@@ -754,9 +754,9 @@ $conf['sync_exclude_folders'] = array();
 $conf['alternative_pem_url'] = '';
 
 // categories ID on PEM
-$conf['pem_plugins_category'] = 12;
-$conf['pem_themes_category'] = 10;
-$conf['pem_languages_category'] = 8;
+$conf['pem_plugins_category'] = 2;
+$conf['pem_themes_category'] = 1;
+$conf['pem_languages_category'] = 3;
 
 // based on the EXIF "orientation" tag, should we rotate photos added in the
 // upload form or through pwg.images.addSimple web API method?

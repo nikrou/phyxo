@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -26,11 +26,12 @@ use Phyxo\Language\Languages;
 
 class Updates
 {
-    private $types = array();
-    private $plugins;
-    private $themes;
-    private $languages;
-    private $missing = array();
+    // @TODO: fix to avoid public properties
+    public $types = array();
+    public $plugins;
+    public $themes;
+    public $languages;
+    public $missing = array();
     private $default_plugins = array();
     private $default_themes = array();
     private $default_languages = array();
@@ -228,48 +229,10 @@ class Updates
         }
     }
 
+    /**
+     * @deprecated Deprecated in 1.3.0, to be removed in 1.4.0.
+     */
     public static function dump_database($include_history=false) {
-        global $page, $conf, $cfgBase;
-
-        if (version_compare(PHPWG_VERSION, '2.1', '<')) {
-            $conf['db_base'] = $cfgBase;
-        }
-
-        include(PHPWG_ROOT_PATH.'admin/include/mysqldump.php');
-
-        $path = PHPWG_ROOT_PATH.$conf['data_location'].'update';
-
-        if (@mkgetdir($path) and ($backupFile = tempnam($path, 'sql'))
-        and ($dumper = new MySQLDump($conf['db_base'],$backupFile,false,false))) {
-            foreach (get_defined_constants() as $constant => $value) {
-                if (preg_match('/_TABLE$/', $constant)) {
-                    $dumper->getTableStructure($value);
-                    if ($constant == 'HISTORY_TABLE' and !$include_history) {
-                        continue;
-                    }
-                    $dumper->getTableData($value);
-                }
-            }
-        }
-
-        if (@filesize($backupFile)) {
-            $http_headers = array(
-                'Content-Length: '.@filesize($backupFile),
-                'Content-Type: text/x-sql',
-                'Content-Disposition: attachment; filename="database.sql";',
-                'Content-Transfer-Encoding: binary',
-            );
-
-            foreach ($http_headers as $header) {
-                header($header);
-            }
-
-            @readfile($backupFile);
-            deltree(PHPWG_ROOT_PATH.$conf['data_location'].'update');
-            exit();
-        } else {
-            $page['errors'][] = l10n('Unable to dump database.');
-        }
     }
 
     public static function upgrade_to($upgrade_to, &$step, $check_current_version=true) {

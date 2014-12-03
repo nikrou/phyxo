@@ -110,15 +110,6 @@ if (isset($conf['order_by_inside_category_custom'])) {
 
 include(PHPWG_ROOT_PATH.'include/user.inc.php');
 
-define('PHPWG_DOMAIN', 'phyxo.net');
-define('PHPWG_URL', 'http://www.phyxo.net');
-
-if (!empty($conf['alternative_pem_url'])) {
-    define('PEM_URL', $conf['alternative_pem_url']);
-} else {
-    define('PEM_URL', 'http://ext.'.PHPWG_DOMAIN);
-}
-
 // language files
 load_language('common.lang');
 if (is_admin() || (defined('IN_ADMIN') && IN_ADMIN)) {
