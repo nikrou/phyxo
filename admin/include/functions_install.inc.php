@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,39 +37,34 @@
  * @param string $replaced
  * @param string $replacing
  */
-function execute_sqlfile($filepath, $replaced, $replacing, $dblayer)
-{
-  $sql_lines = file($filepath);
-  $query = '';
-  foreach ($sql_lines as $sql_line)
-  {
-    $sql_line = trim($sql_line);
-    if (preg_match('/(^--|^$)/', $sql_line))
-    {
-      continue;
-    }
-    $query.= ' '.$sql_line;
-    // if we reached the end of query, we execute it and reinitialize the
-    // variable "query"
-    if (preg_match('/;$/', $sql_line))
-    {
-      $query = trim($query);
-      $query = str_replace($replaced, $replacing, $query);
-      // we don't execute "DROP TABLE" queries
-      if (!preg_match('/^DROP TABLE/i', $query))
-      {
-        if ('mysql' == $dblayer)
-        {
-          if ( preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches) )
-          {
-            $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
-          }
+function execute_sqlfile($filepath, $replaced, $replacing, $dblayer) {
+    global $conn;
+
+    $sql_lines = file($filepath);
+    $query = '';
+    foreach ($sql_lines as $sql_line) {
+        $sql_line = trim($sql_line);
+        if (preg_match('/(^--|^$)/', $sql_line)) {
+            continue;
         }
-        pwg_query($query);
-      }
-      $query = '';
+        $query .= ' '.$sql_line;
+        // if we reached the end of query, we execute it and reinitialize the
+        // variable "query"
+        if (preg_match('/;$/', $sql_line)) {
+            $query = trim($query);
+            $query = str_replace($replaced, $replacing, $query);
+            // we don't execute "DROP TABLE" queries
+            if (!preg_match('/^DROP TABLE/i', $query)) {
+                if ('mysql' == $dblayer) {
+                    if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
+                        $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
+                    }
+                }
+                $conn->db_query($query);
+            }
+            $query = '';
+        }
     }
-  }
 }
 
 /**

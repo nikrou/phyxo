@@ -204,7 +204,7 @@ function get_regular_search_results($search, $images_where='') {
               if (empty($search_clause)) {
                   $items = $tag_items;
               } else {
-                  $items = array_values( array_intersect($items, $tag_items) );
+                  $items = array_values(array_intersect($items, $tag_items));
               }
               break;
           case 'OR':
@@ -890,7 +890,7 @@ function qsearch_get_images(QExpression $expr, QResults $qsr) {
             }
         if (!empty($clauses)) {
             $query = $query_base.'('.implode(' OR ', $clauses).')';
-            $qsr->images_iids[$i] = query2array($query,null,'id');
+            $qsr->images_iids[$i] = $conn->query2array($query,null,'id');
         }
     }
 }

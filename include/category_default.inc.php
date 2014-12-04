@@ -70,7 +70,7 @@ if (count($pictures) > 0) {
         $query = 'SELECT image_id, COUNT(1) AS nb_comments FROM '.COMMENTS_TABLE;
         $query .= ' WHERE validated = \''.$conn->boolean_to_db(true).'\' AND image_id '.$conn->in($selection);
         $query .= ' GROUP BY image_id;';
-        $nb_comments_of = query2array($query, 'image_id', 'nb_comments');
+        $nb_comments_of = $conn->query2array($query, 'image_id', 'nb_comments');
     }
 }
 

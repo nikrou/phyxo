@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -56,34 +56,27 @@ if (isset($conf['session_save_handler']) and ($conf['session_save_handler'] == '
  * @param int $size
  * @return string
  */
-function generate_key($size)
-{
-  if (
-    is_callable('openssl_random_pseudo_bytes')
-    and !(version_compare(PHP_VERSION, '5.3.4') < 0 and defined('PHP_WINDOWS_VERSION_MAJOR'))
-    )
-  {
-    return substr(
-      str_replace(
-        array('+', '/'),
-        '',
-        base64_encode(openssl_random_pseudo_bytes($size))
-        ),
-      0,
-      $size
-      );
-  }
-  else
-  {
-    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $l = strlen($alphabet)-1;
-    $key = '';
-    for ($i=0; $i<$size; $i++)
-    {
-      $key.= $alphabet[mt_rand(0, $l)];
+function generate_key($size) {
+    if (is_callable('openssl_random_pseudo_bytes')
+        && !(version_compare(PHP_VERSION, '5.3.4') < 0 and defined('PHP_WINDOWS_VERSION_MAJOR'))) {
+        return substr(
+            str_replace(
+                array('+', '/'),
+                '',
+                base64_encode(openssl_random_pseudo_bytes($size))
+            ),
+            0,
+            $size
+        );
+    } else {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $l = strlen($alphabet)-1;
+        $key = '';
+        for ($i=0; $i<$size; $i++) {
+            $key .= $alphabet[mt_rand(0, $l)];
+        }
+        return $key;
     }
-    return $key;
-  }
 }
 
 /**
@@ -137,11 +130,13 @@ function get_remote_addr_session_hash() {
  * @return string
  */
 function pwg_session_read($session_id) {
+    global $conn;
+
     $query = 'SELECT data FROM '.SESSIONS_TABLE;
     $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\';';
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
     if ($result) {
-        $row = pwg_db_fetch_assoc($result);
+        $row = $conn->db_fetch_assoc($result);
         return $row['data'];
     } else {
         return '';
@@ -156,18 +151,20 @@ function pwg_session_read($session_id) {
  * @return true
  */
 function pwg_session_write($session_id, $data) {
+    global $conn;
+
     $query = 'SELECT count(1) FROM '.SESSIONS_TABLE;
     $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
 
-    list($counter) = pwg_db_fetch_row(pwg_query($query));
+    list($counter) = $conn->db_fetch_row($conn->db_query($query));
     if ($counter==1) {
         $query = 'UPDATE '.SESSIONS_TABLE.' SET data = \''.pwg_db_real_escape_string($data).'\', expiration=now()';
         $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
-        pwg_query($query);
+        $conn->db_query($query);
     } else {
         $query = 'INSERT INTO '.SESSIONS_TABLE.' (id,data,expiration)';
         $query .= ' VALUES(\''.get_remote_addr_session_hash().$session_id.'\',\''.pwg_db_real_escape_string($data).'\',now())';
-        pwg_query($query);
+        $conn->db_query($query);
     }
 
     return true;
@@ -180,7 +177,9 @@ function pwg_session_write($session_id, $data) {
  * @return true
  */
 function pwg_session_destroy($session_id) {
-    pwg_query('DELETE FROM '.SESSIONS_TABLE.' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'');
+    global $conn;
+
+    $conn->db_query('DELETE FROM '.SESSIONS_TABLE.' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'');
 
     return true;
 }
@@ -191,11 +190,11 @@ function pwg_session_destroy($session_id) {
  * @return true
  */
 function pwg_session_gc() {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'DELETE FROM '.SESSIONS_TABLE;
-    $query .= ' WHERE '.pwg_db_date_to_ts('NOW()').' - '.pwg_db_date_to_ts('expiration').' > '.$conf['session_length'].';';
-    pwg_query($query);
+    $query .= ' WHERE '.$conn->db_date_to_ts('NOW()').' - '.$conn->db_date_to_ts('expiration').' > '.$conf['session_length'].';';
+    $conn->db_query($query);
 
     return true;
 }

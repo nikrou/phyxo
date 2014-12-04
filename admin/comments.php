@@ -98,8 +98,8 @@ $nb_total = 0;
 $nb_pending = 0;
 
 $query = 'SELECT COUNT(1) AS counter,validated FROM '.COMMENTS_TABLE.' GROUP BY validated;';
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     $nb_total += $row['counter'];
 
     if (get_boolean($row['validated'])==false) {

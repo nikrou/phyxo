@@ -123,7 +123,7 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
             $conn->db_query($query);
 
             $query = 'SELECT name FROM '.GROUPS_TABLE.' WHERE id = '.$group;
-            list($groupname) = $conn->db_fetch_row(pwg_query($query));
+            list($groupname) = $conn->db_fetch_row($conn->db_query($query));
 
             // destruction of the group
             $query = 'DELETE FROM '.GROUPS_TABLE.' WHERE id = '.$group;
@@ -278,7 +278,7 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 $query = 'SELECT id, name, is_default FROM '.GROUPS_TABLE.' ORDER BY name ASC';
-$result = pwg_query($query);
+$result = $conn->db_query($query);
 
 $admin_url = get_root_url().'admin.php?page=';
 $perm_url = $admin_url.'group_perm&amp;group_id=';

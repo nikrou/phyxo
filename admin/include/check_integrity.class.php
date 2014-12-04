@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -43,12 +43,8 @@ class check_integrity
 
         // Ignore list
         $conf_c13y_ignore = unserialize($conf['c13y_ignore']);
-        if (
-            is_array($conf_c13y_ignore) and
-            isset($conf_c13y_ignore['version']) and
-            ($conf_c13y_ignore['version'] == PHPWG_VERSION) and
-            is_array($conf_c13y_ignore['list'])
-        ) {
+        if (is_array($conf_c13y_ignore) && isset($conf_c13y_ignore['version'])
+            && ($conf_c13y_ignore['version'] == PHPWG_VERSION) && is_array($conf_c13y_ignore['list'])) {
             $ignore_list_changed = false;
             $this->ignore_list = $conf_c13y_ignore['list'];
         } else {
@@ -248,11 +244,13 @@ class check_integrity
      * @return void
      */
     public function update_conf($conf_ignore_list = array()) {
+        global $conn;
+
         $conf_c13y_ignore =  array();
         $conf_c13y_ignore['version'] = PHPWG_VERSION;
         $conf_c13y_ignore['list'] = $conf_ignore_list;
-        $query = 'update '.CONFIG_TABLE.' set value =\''.serialize($conf_c13y_ignore).'\'where param = \'c13y_ignore\';';
-        pwg_query($query);
+        $query = 'UPDATE '.CONFIG_TABLE.' SET value =\''.serialize($conf_c13y_ignore).'\' WHERE param = \'c13y_ignore\';';
+        $conn->db_query($query);
     }
 
     /**

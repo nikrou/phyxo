@@ -31,7 +31,7 @@ $upgrade_description = '#tags.name is not binary';
 // add fields
 if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query = 'ALTER TABLE '.TAGS_TABLE.' CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL DEFAULT \'\'';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 echo "\n".$upgrade_description."\n";

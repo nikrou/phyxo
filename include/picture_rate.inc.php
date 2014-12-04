@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,8 +31,8 @@ if ($conf['rate']) {
     $rate_summary = array('count' => 0, 'score' => $picture['current']['rating_score'], 'average' => null);
     if (NULL != $rate_summary['score']) {
         $query = 'SELECT COUNT(rate) AS count,ROUND(AVG(rate),2) AS average FROM '.RATE_TABLE;
-        $query .= ' WHERE element_id = '.$picture['current']['id'];
-		list($rate_summary['count'], $rate_summary['average']) = pwg_db_fetch_row(pwg_query($query));
+        $query .= ' WHERE element_id = '.$conn->db_real_escape_string($picture['current']['id']);
+		list($rate_summary['count'], $rate_summary['average']) = $conn->db_fetch_row($conn->db_query($query));
     }
     $template->assign('rate_summary', $rate_summary);
 
@@ -40,7 +40,8 @@ if ($conf['rate']) {
     if ($conf['rate_anonymous'] or is_autorize_status(ACCESS_CLASSIC)) {
         if ($rate_summary['count']>0) {
             $query = 'SELECT rate FROM '.RATE_TABLE;
-            $query .= ' WHERE element_id = '.$page['image_id'] . ' AND user_id = '.$user['id'];
+            $query .= ' WHERE element_id = '.$conn->db_real_escape_string($page['image_id']);
+            $query .= ' AND user_id = '.$conn->db_real_escape_string($user['id']);
 
             if (!is_autorize_status(ACCESS_CLASSIC)) {
                 $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
@@ -51,9 +52,9 @@ if ($conf['rate']) {
                 $query .= ' AND anonymous_id = \''.$anonymous_id . '\'';
             }
 
-            $result = pwg_query($query);
-            if (pwg_db_num_rows($result) > 0) {
-                $row = pwg_db_fetch_assoc($result);
+            $result = $conn->db_query($query);
+            if ($conn->db_num_rows($result) > 0) {
+                $row = $conn->db_fetch_assoc($result);
                 $user_rate = $row['rate'];
             }
         }
@@ -71,4 +72,3 @@ if ($conf['rate']) {
         );
     }
 }
-

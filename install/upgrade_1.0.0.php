@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -88,9 +88,8 @@ for ($upgrade_id = 139; $upgrade_id <= 142; $upgrade_id++) { // TODO change on e
     $query = 'INSERT INTO '.PREFIX_TABLE.'upgrade (id, applied, description)';
     $query .= ' VALUES';
     $query.= '(\''.$upgrade_id.'\', NOW(), \'[migration from 1.0.0 to '.PHPWG_VERSION.'] '.$upgrade_description.'\');';
-    pwg_query($query);
+    $conn->db_query($query);
 }
 
 echo '</pre>';
 ob_end_clean();
-

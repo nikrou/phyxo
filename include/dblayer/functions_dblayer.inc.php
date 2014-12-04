@@ -22,12 +22,6 @@
  * @deprecated Deprecated in 1.2.0, to be removed in 1.3.0. Use DBLayer class instead.
  */
 
-function pwg_query($query) {
-    global $conn;
-
-    return $conn->db_query($query);
-}
-
 function pwg_get_db_version()  {
     global $conn;
 
@@ -267,24 +261,6 @@ function pwg_db_get_weekday($date) {
     global $conn;
 
     return $conn->db_get_weekday($date);
-}
-
-function single_update($table_name, $datas, $where, $flags=0) {
-    global $conn;
-
-    return $conn->single_update($table_name, $datas, $where, $flags);
-}
-
-function single_insert($table_name, $data) {
-    global $conn;
-
-    $conn->single_insert($table_name, $data);
-}
-
-function query2array($query, $key_name=null, $value_name=null) {
-    global $conn;
-
-    return $conn->query2array($query, $key_name, $value_name);
 }
 
 function do_maintenance_all_tables() {

@@ -38,12 +38,12 @@ function delete_site($id) {
     global $conn;
 
     // destruction of the categories of the site
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE site_id = '.$id;
+    $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE site_id = '.$conn->db_real_escape_string($id);
     $category_ids = $conn->query2array($query, null, 'id');
     delete_categories($category_ids);
 
     // destruction of the site
-    $query = 'DELETE FROM '.SITES_TABLE.' WHERE id = '.$id;
+    $query = 'DELETE FROM '.SITES_TABLE.' WHERE id = '.$conn->db_real_escape_string($id);
     $conn->db_query($query);
 }
 
@@ -233,7 +233,7 @@ function delete_elements($ids, $physical_deletion=false) {
 
     // are the photo used as category representant?
     $query = 'SELECT id FROM '.CATEGORIES_TABLE.' WHERE representative_picture_id '.$conn->in($ids);
-    $category_ids = query2array($query, null, 'id');
+    $category_ids = $conn->query2array($query, null, 'id');
     if (count($category_ids) > 0) {
         update_category($category_ids);
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -36,18 +36,15 @@
  * @param bool $force_one_condition
  * @return string
  */
-function get_std_sql_where_restrict_filter($prefix_condition,
-                                           $img_field = 'ic.image_id',
-                                           $force_one_condition = false)
-{
-  return get_sql_condition_FandF(
-    array(
-      'forbidden_categories' => 'ic.category_id',
-      'visible_categories' => 'ic.category_id',
-      'visible_images' => $img_field
-      ),
-    $prefix_condition,
-    $force_one_condition
+function get_std_sql_where_restrict_filter($prefix_condition, $img_field='ic.image_id', $force_one_condition=false) {
+    return get_sql_condition_FandF(
+        array(
+            'forbidden_categories' => 'ic.category_id',
+            'visible_categories' => 'ic.category_id',
+            'visible_images' => $img_field
+        ),
+        $prefix_condition,
+        $force_one_condition
     );
 }
 
@@ -61,171 +58,139 @@ function get_std_sql_where_restrict_filter($prefix_condition,
  * @param string $end (mysql datetime format)
  * @return int|array int for action count array for info
  */
-function custom_notification_query($action, $type, $start=null, $end=null)
-{
-  global $user;
+function custom_notification_query($action, $type, $start=null, $end=null) {
+    global $user, $conn;
 
-  switch($type)
-  {
+    switch($type)
+    {
     case 'new_comments':
     {
-      $query = '
-  FROM '.COMMENTS_TABLE.' AS c
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON c.image_id = ic.image_id
-  WHERE 1=1';
-      if (!empty($start))
-      {
-        $query.= '
-    AND c.validation_date > \''.$start.'\'';
-      }
-      if (!empty($end))
-      {
-        $query.= '
-    AND c.validation_date <= \''.$end.'\'';
-      }
-      $query.= get_std_sql_where_restrict_filter('AND');
-      break;
+        $query = ' FROM '.COMMENTS_TABLE.' AS c';
+        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON c.image_id = ic.image_id WHERE 1=1';
+        if (!empty($start)) {
+            $query .= ' AND c.validation_date > \''.$conn->db_real_escape_string($start).'\'';
+        }
+        if (!empty($end)) {
+            $query .= ' AND c.validation_date <= \''.$conn->db_real_escape_string($end).'\'';
+        }
+        $query .= get_std_sql_where_restrict_filter('AND');
+        break;
     }
 
     case 'unvalidated_comments':
     {
-      $query = '
-  FROM '.COMMENTS_TABLE.'
-  WHERE 1=1';
-      if (!empty($start))
-      {
-        $query.= '
-    AND date > \''.$start.'\'';
-      }
-      if (!empty($end))
-      {
-        $query.= '
-    AND date <= \''.$end.'\'';
-      }
-      $query.= '
-    AND validated = \'false\'';
-      break;
+        $query = ' FROM '.COMMENTS_TABLE.' WHERE 1=1';
+        if (!empty($start)) {
+            $query .= ' AND date > \''.$conn->db_real_escape_string($start).'\'';
+        }
+        if (!empty($end)) {
+            $query .= ' AND date <= \''.$conn->db_real_escape_string($end).'\'';
+        }
+        $query .= ' AND validated = \''.$conn->boolean_to_db(false).'\'';
+        break;
     }
 
     case 'new_elements':
     {
-      $query = '
-  FROM '.IMAGES_TABLE.'
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = id
-  WHERE 1=1';
-      if (!empty($start))
-      {
-        $query.= '
-    AND date_available > \''.$start.'\'';
-      }
-      if (!empty($end))
-      {
-        $query.= '
-    AND date_available <= \''.$end.'\'';
-      }
-      $query.= get_std_sql_where_restrict_filter('AND', 'id');
-      break;
+        $query = ' FROM '.IMAGES_TABLE;
+        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = id WHERE 1=1';
+        if (!empty($start)) {
+            $query .= ' AND date_available > \''.$conn->db_real_escape_string($start).'\'';
+        }
+        if (!empty($end)) {
+            $query .= ' AND date_available <= \''.$conn->db_real_escape_string($end).'\'';
+        }
+        $query .= get_std_sql_where_restrict_filter('AND', 'id');
+        break;
     }
 
     case 'updated_categories':
     {
-      $query = '
-  FROM '.IMAGES_TABLE.'
-    INNER JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = id
-  WHERE 1=1';
-      if (!empty($start))
-      {
-        $query.= '
-    AND date_available > \''.$start.'\'';
-      }
-      if (!empty($end))
-      {
-        $query.= '
-    AND date_available <= \''.$end.'\'';
-      }
-      $query.= get_std_sql_where_restrict_filter('AND', 'id');
-      break;
+        $query = ' FROM '.IMAGES_TABLE;
+        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = id WHERE 1=1';
+        if (!empty($start)) {
+            $query .= ' AND date_available > \''.$conn->db_real_escape_string($start).'\'';
+        }
+        if (!empty($end)) {
+            $query .= ' AND date_available <= \''.$conn->db_real_escape_string($end).'\'';
+        }
+        $query .= get_std_sql_where_restrict_filter('AND', 'id');
+        break;
     }
 
     case 'new_users':
     {
-      $query = '
-  FROM '.USER_INFOS_TABLE.'
-  WHERE 1=1';
-      if (!empty($start))
-      {
-        $query.= '
-    AND registration_date > \''.$start.'\'';
-      }
-      if (!empty($end))
-      {
-        $query.= '
-    AND registration_date <= \''.$end.'\'';
-      }
-      break;
+        $query = ' FROM '.USER_INFOS_TABLE.' WHERE 1=1';
+        if (!empty($start)) {
+            $query .= ' AND registration_date > \''.$conn->db_real_escape_string($start).'\'';
+        }
+        if (!empty($end)) {
+            $query .= ' AND registration_date <= \''.$conn->db_real_escape_string($end).'\'';
+        }
+        break;
     }
 
     default:
-      return null; // stop and return nothing
-  }
+        return null; // stop and return nothing
+    }
 
-  switch($action)
-  {
+    switch($action)
+    {
     case 'count':
     {
-      switch($type)
-      {
+        switch($type)
+        {
         case 'new_comments':
-          $field_id = 'c.id';
-          break;
+            $field_id = 'c.id';
+            break;
         case 'unvalidated_comments':
-          $field_id = 'id';
-          break;
+            $field_id = 'id';
+            break;
         case 'new_elements':
-          $field_id = 'image_id';
-          break;
+            $field_id = 'image_id';
+            break;
         case 'updated_categories':
-          $field_id = 'category_id';
-          break;
+            $field_id = 'category_id';
+            break;
         case 'new_users':
-          $field_id = 'user_id';
-          break;
-      }
-      $query = 'SELECT COUNT(DISTINCT '.$field_id.') '.$query.';';
-      list($count) = pwg_db_fetch_row(pwg_query($query));
-      return $count;
-      break;
+            $field_id = 'user_id';
+            break;
+        }
+        $query = 'SELECT COUNT(DISTINCT '.$field_id.') '.$query;
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
+        return $count;
+        break;
     }
 
     case 'info':
     {
-      switch($type)
-      {
+        switch($type)
+        {
         case 'new_comments':
-          $field_id = 'c.id';
-          break;
+            $field_id = 'c.id';
+            break;
         case 'unvalidated_comments':
-          $field_id = 'id';
-          break;
+            $field_id = 'id';
+            break;
         case 'new_elements':
-          $field_id = 'image_id';
-          break;
+            $field_id = 'image_id';
+            break;
         case 'updated_categories':
-          $field_id = 'category_id';
-          break;
+            $field_id = 'category_id';
+            break;
         case 'new_users':
-          $field_id = 'user_id';
-          break;
-      }
-      $query = 'SELECT DISTINCT '.$field_id.' '.$query.';';
-      $infos = query2array($query);
-      return $infos;
-      break;
+            $field_id = 'user_id';
+            break;
+        }
+        $query = 'SELECT DISTINCT '.$field_id.' '.$query.';';
+        $infos = $conn->query2array($query);
+        return $infos;
+        break;
     }
 
     default:
-      return null; // stop and return nothing
-  }
+        return null; // stop and return nothing
+    }
 }
 
 /**
@@ -235,9 +200,8 @@ function custom_notification_query($action, $type, $start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int
  */
-function nb_new_comments($start=null, $end=null)
-{
-  return custom_notification_query('count', 'new_comments', $start, $end);
+function nb_new_comments($start=null, $end=null) {
+    return custom_notification_query('count', 'new_comments', $start, $end);
 }
 
 /**
@@ -247,9 +211,8 @@ function nb_new_comments($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int[] comment ids
  */
-function new_comments($start=null, $end=null)
-{
-  return custom_notification_query('info', 'new_comments', $start, $end);
+function new_comments($start=null, $end=null) {
+    return custom_notification_query('info', 'new_comments', $start, $end);
 }
 
 /**
@@ -259,9 +222,8 @@ function new_comments($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int
  */
-function nb_unvalidated_comments($start=null, $end=null)
-{
-  return custom_notification_query('count', 'unvalidated_comments', $start, $end);
+function nb_unvalidated_comments($start=null, $end=null) {
+    return custom_notification_query('count', 'unvalidated_comments', $start, $end);
 }
 
 
@@ -272,9 +234,8 @@ function nb_unvalidated_comments($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int
  */
-function nb_new_elements($start=null, $end=null)
-{
-  return custom_notification_query('count', 'new_elements', $start, $end);
+function nb_new_elements($start=null, $end=null) {
+    return custom_notification_query('count', 'new_elements', $start, $end);
 }
 
 /**
@@ -284,9 +245,8 @@ function nb_new_elements($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int[] photos ids
  */
-function new_elements($start=null, $end=null)
-{
-  return custom_notification_query('info', 'new_elements', $start, $end);
+function new_elements($start=null, $end=null) {
+    return custom_notification_query('info', 'new_elements', $start, $end);
 }
 
 /**
@@ -296,9 +256,8 @@ function new_elements($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int
  */
-function nb_updated_categories($start=null, $end=null)
-{
-  return custom_notification_query('count', 'updated_categories', $start, $end);
+function nb_updated_categories($start=null, $end=null) {
+    return custom_notification_query('count', 'updated_categories', $start, $end);
 }
 
 /**
@@ -308,9 +267,8 @@ function nb_updated_categories($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int[] categories ids
  */
-function updated_categories($start=null, $end=null)
-{
-  return custom_notification_query('info', 'updated_categories', $start, $end);
+function updated_categories($start=null, $end=null) {
+    return custom_notification_query('info', 'updated_categories', $start, $end);
 }
 
 /**
@@ -320,9 +278,8 @@ function updated_categories($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int
  */
-function nb_new_users($start=null, $end=null)
-{
-  return custom_notification_query('count', 'new_users', $start, $end);
+function nb_new_users($start=null, $end=null) {
+    return custom_notification_query('count', 'new_users', $start, $end);
 }
 
 /**
@@ -332,9 +289,8 @@ function nb_new_users($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return int[] user ids
  */
-function new_users($start=null, $end=null)
-{
-  return custom_notification_query('info', 'new_users', $start, $end);
+function new_users($start=null, $end=null) {
+    return custom_notification_query('info', 'new_users', $start, $end);
 }
 
 /**
@@ -349,14 +305,13 @@ function new_users($start=null, $end=null)
  * @param string $end (mysql datetime format)
  * @return boolean
  */
-function news_exists($start=null, $end=null)
-{
-  return (
-          (nb_new_comments($start, $end) > 0) or
-          (nb_new_elements($start, $end) > 0) or
-          (nb_updated_categories($start, $end) > 0) or
-          ((is_admin()) and (nb_unvalidated_comments($start, $end) > 0)) or
-          ((is_admin()) and (nb_new_users($start, $end) > 0)));
+function news_exists($start=null, $end=null) {
+    return (
+        (nb_new_comments($start, $end) > 0) or
+        (nb_new_elements($start, $end) > 0) or
+        (nb_updated_categories($start, $end) > 0) or
+        ((is_admin()) and (nb_unvalidated_comments($start, $end) > 0)) or
+        ((is_admin()) and (nb_new_users($start, $end) > 0)));
 }
 
 /**
@@ -369,17 +324,14 @@ function news_exists($start=null, $end=null)
  * @param string $url
  * @param bool $add_url
  */
-function add_news_line(&$news, $count, $singular_key, $plural_key, $url='', $add_url=false)
-{
-  if ($count > 0)
-  {
-    $line = l10n_dec($singular_key, $plural_key, $count);
-    if ($add_url and !empty($url) )
-    {
-      $line = '<a href="'.$url.'">'.$line.'</a>';
+function add_news_line(&$news, $count, $singular_key, $plural_key, $url='', $add_url=false) {
+    if ($count > 0) {
+        $line = l10n_dec($singular_key, $plural_key, $count);
+        if ($add_url and !empty($url)) {
+            $line = '<a href="'.$url.'">'.$line.'</a>';
+        }
+        $news[] = $line;
     }
-    $news[] = $line;
-  }
 }
 
 /**
@@ -396,40 +348,41 @@ function add_news_line(&$news, $count, $singular_key, $plural_key, $url='', $add
  * @param bool $add_url add html link around news
  * @return array
  */
-function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false)
-{
-  $news = array();
+function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false) {
+    $news = array();
 
-  if (!$exclude_img_cats)
-  {
-    add_news_line( $news,
-      nb_new_elements($start, $end), '%d new photo', '%d new photos',
-      make_index_url(array('section'=>'recent_pics')), $add_url );
-  }
+    if (!$exclude_img_cats) {
+        add_news_line($news,
+                      nb_new_elements($start, $end), '%d new photo', '%d new photos',
+                      make_index_url(array('section'=>'recent_pics')), $add_url
+        );
+    }
 
-  if (!$exclude_img_cats)
-  {
-    add_news_line( $news,
-      nb_updated_categories($start, $end), '%d album updated', '%d albums updated',
-      make_index_url(array('section'=>'recent_cats')), $add_url );
-  }
+    if (!$exclude_img_cats) {
+        add_news_line($news,
+                      nb_updated_categories($start, $end), '%d album updated', '%d albums updated',
+                      make_index_url(array('section'=>'recent_cats')), $add_url
+        );
+    }
 
-  add_news_line( $news,
-      nb_new_comments($start, $end), '%d new comment', '%d new comments',
-      get_root_url().'comments.php', $add_url );
+    add_news_line($news,
+                  nb_new_comments($start, $end), '%d new comment', '%d new comments',
+                  get_root_url().'comments.php', $add_url
+    );
 
-  if (is_admin())
-  {
-    add_news_line( $news,
-        nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate',
-        get_root_url().'admin.php?page=comments', $add_url );
+    if (is_admin()) {
+        add_news_line($news,
+                      nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate',
+                      get_root_url().'admin.php?page=comments', $add_url
+        );
 
-    add_news_line( $news,
-        nb_new_users($start, $end), '%d new user', '%d new users',
-        get_root_url().'admin.php?page=user_list', $add_url );
-  }
+        add_news_line($news,
+                      nb_new_users($start, $end), '%d new user', '%d new users',
+                      get_root_url().'admin.php?page=user_list', $add_url
+        );
+    }
 
-  return $news;
+    return $news;
 }
 
 /**
@@ -453,8 +406,8 @@ function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
     $query .= ' COUNT(DISTINCT category_id) AS nb_cats FROM '.IMAGES_TABLE.' i';
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = image_id';
     $query .= ' '.$where_sql;
-    $query .= ' GROUP BY date_available ORDER BY date_available DESC LIMIT '.$max_dates.';';
-    $dates = query2array($query);
+    $query .= ' GROUP BY date_available ORDER BY date_available DESC LIMIT '.$conn->db_real_escape_string($max_dates);
+    $dates = $conn->query2array($query);
 
     for ($i=0; $i<count($dates); $i++) {
         if ($max_elements>0) { // get some thumbnails ...
@@ -463,7 +416,7 @@ function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
             $query .= ' '.$where_sql;
             $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
             $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT '.$max_elements.';';
-            $dates[$i]['elements'] = query2array($query);
+            $dates[$i]['elements'] = $conn->query2array($query);
         }
 
         if ($max_cats>0) { // get some categories ...
@@ -473,7 +426,7 @@ function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
             $query .= ' '.$where_sql;
             $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
             $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT '.$max_cats.';';
-            $dates[$i]['categories'] = query2array($query);
+            $dates[$i]['categories'] = $conn->query2array($query);
         }
     }
 
@@ -515,7 +468,7 @@ function get_html_description_recent_post_date($date_detail) {
         .l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
         .' ('
         .'<a href="'.make_index_url(array('section'=>'recent_pics')).'">'
-          .l10n('Recent photos').'</a>'
+        .l10n('Recent photos').'</a>'
         .')'
         .'</li><br>';
 
@@ -556,27 +509,25 @@ function get_html_description_recent_post_date($date_detail) {
  * @param array $date_detail returned value of get_recent_post_dates()
  * @return string
  */
-function get_title_recent_post_date($date_detail)
-{
-  global $lang;
+function get_title_recent_post_date($date_detail) {
+    global $lang;
 
-  $date = $date_detail['date_available'];
-  $exploded_date = strptime($date, '%Y-%m-%d %H:%M:%S');
+    $date = $date_detail['date_available'];
+    $exploded_date = strptime($date, '%Y-%m-%d %H:%M:%S');
 
-  $title = l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements']);
-  $title .= ' ('.$lang['month'][1+$exploded_date['tm_mon']].' '.$exploded_date['tm_mday'].')';
+    $title = l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements']);
+    $title .= ' ('.$lang['month'][1+$exploded_date['tm_mon']].' '.$exploded_date['tm_mday'].')';
 
-  return $title;
+    return $title;
 }
 
-if (!function_exists('strptime'))
-{
-  function strptime($date, $fmt)
-  {
-    if ($fmt != '%Y-%m-%d %H:%M:%S')
-      die('Invalid strptime format '.$fmt);
-    list($y,$m,$d,$H,$M,$S) = preg_split('/[-: ]/', $date);
-    $res = localtime( mktime($H,$M,$S,$m,$d,$y), true );
-    return $res;
-  }
+if (!function_exists('strptime')) {
+    function strptime($date, $fmt) {
+        if ($fmt != '%Y-%m-%d %H:%M:%S') {
+            die('Invalid strptime format '.$fmt);
+        }
+        list($y,$m,$d,$H,$M,$S) = preg_split('/[-: ]/', $date);
+        $res = localtime( mktime($H,$M,$S,$m,$d,$y), true );
+        return $res;
+    };
 }

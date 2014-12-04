@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -193,7 +193,7 @@ if (isset($_POST['submit'])) {
             // the number of comments per page must be an integer between 5 and 50
             // included
             if (!preg_match($int_pattern, $_POST['nb_comment_page'])
-            or $_POST['nb_comment_page'] < 5 or $_POST['nb_comment_page'] > 50) {
+                or $_POST['nb_comment_page'] < 5 or $_POST['nb_comment_page'] > 50) {
                 $page['errors'][] = l10n('The number of comments a page must be between 5 and 50 included.');
             }
             foreach ($comments_checkboxes as $checkbox) {
@@ -222,8 +222,8 @@ if (isset($_POST['submit'])) {
 
     // updating configuration if no error found
     if (!in_array($page['section'], array('sizes', 'watermark')) and count($page['errors']) == 0) {
-        $result = pwg_query('SELECT param FROM '.CONFIG_TABLE);
-        while ($row = pwg_db_fetch_assoc($result)) {
+        $result = $conn->db_query('SELECT param FROM '.CONFIG_TABLE);
+        while ($row = $conn->db_fetch_assoc($result)) {
             if (isset($_POST[$row['param']])) {
                 $value = $_POST[$row['param']];
 
@@ -464,13 +464,13 @@ case 'watermark': {
     foreach (glob(PHPWG_ROOT_PATH.'themes/default/watermarks/*.png') as $file) {
         $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
     }
-    if (($glob=glob(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'watermarks/*.png')) !== false) {
+    if (($glob = glob(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'watermarks/*.png')) !== false) {
         foreach ($glob as $file) {
             $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
         }
     }
-    $watermark_filemap = array( '' => '---' );
-    foreach( $watermark_files as $file) {
+    $watermark_filemap = array('' => '---');
+    foreach ($watermark_files as $file) {
         $display = basename($file);
         $watermark_filemap[$file] = $display;
     }

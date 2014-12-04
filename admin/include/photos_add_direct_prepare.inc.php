@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,9 +27,9 @@
 // +-----------------------------------------------------------------------+
 
 $upload_max_filesize = min(
-  get_ini_size('upload_max_filesize'),
-  get_ini_size('post_max_size')
-  );
+    get_ini_size('upload_max_filesize'),
+    get_ini_size('post_max_size')
+);
 
 if ($upload_max_filesize == get_ini_size('upload_max_filesize')) {
     $upload_max_filesize_shorthand = get_ini_size('upload_max_filesize', false);
@@ -39,11 +39,11 @@ if ($upload_max_filesize == get_ini_size('upload_max_filesize')) {
 
 $template->assign(
     array(
-      'F_ADD_ACTION'=> PHOTOS_ADD_BASE_URL,
-      'upload_max_filesize' => $upload_max_filesize,
-      'upload_max_filesize_shorthand' => $upload_max_filesize_shorthand,
+        'F_ADD_ACTION'=> PHOTOS_ADD_BASE_URL,
+        'upload_max_filesize' => $upload_max_filesize,
+        'upload_max_filesize_shorthand' => $upload_max_filesize_shorthand,
     )
-  );
+);
 
 // what is the maximum number of pixels permitted by the memory_limit?
 if (pwg_image::get_library() == 'gd') {
@@ -82,10 +82,10 @@ if ($conf['original_resize']) {
 
 $template->assign(
     array(
-      'form_action' => PHOTOS_ADD_BASE_URL,
-      'pwg_token' => get_pwg_token(),
+        'form_action' => PHOTOS_ADD_BASE_URL,
+        'pwg_token' => get_pwg_token(),
     )
-  );
+);
 
 $unique_exts = array_unique(
     array_map(
@@ -113,13 +113,10 @@ if (isset($_GET['album'])) {
     check_input_parameter('album', $_GET, false, PATTERN_ID);
 
     // test if album really exists
-    $query = '
-SELECT id
-  FROM '.CATEGORIES_TABLE.'
-  WHERE id = '.$_GET['album'].'
-;';
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) == 1) {
+    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($_GET['album']);
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) == 1) {
         $selected_category = array($_GET['album']);
 
         // lets put in the session to persist in case of upload method switch
@@ -131,18 +128,13 @@ SELECT id
     $selected_category = $_SESSION['selected_category'];
 } else {
     // we need to know the category in which the last photo was added
-    $query = '
-SELECT category_id
-  FROM '.IMAGES_TABLE.' AS i
-    JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = i.id
-    JOIN '.CATEGORIES_TABLE.' AS c ON category_id = c.id
-  ORDER BY i.id DESC
-  LIMIT 1
-;
-';
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) > 0) {
-        $row = pwg_db_fetch_assoc($result);
+    $query = 'SELECT category_id FROM '.IMAGES_TABLE.' AS i';
+    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = i.id';
+    $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' AS c ON category_id = c.id';
+    $query .= ' ORDER BY i.id DESC LIMIT 1';
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) > 0) {
+        $row = $conn->db_fetch_assoc($result);
         $selected_category = array($row['category_id']);
     }
 }
@@ -155,10 +147,10 @@ $template->assign('selected_category', $selected_category);
 $selected_level = isset($_POST['level']) ? $_POST['level'] : 0;
 $template->assign(
     array(
-      'level_options'=> get_privacy_level_options(),
-      'level_options_selected' => array($selected_level)
+        'level_options'=> get_privacy_level_options(),
+        'level_options_selected' => array($selected_level)
     )
-  );
+);
 
 // +-----------------------------------------------------------------------+
 // | Setup errors/warnings                                                 |
@@ -168,20 +160,18 @@ $template->assign(
 $setup_errors = array();
 
 $error_message = ready_for_upload_message();
-if (!empty($error_message))
-{
-  $setup_errors[] = $error_message;
+if (!empty($error_message)) {
+    $setup_errors[] = $error_message;
 }
 
-if (!function_exists('gd_info'))
-{
-  $setup_errors[] = l10n('GD library is missing');
+if (!function_exists('gd_info')) {
+    $setup_errors[] = l10n('GD library is missing');
 }
 
 $template->assign(array(
-  'setup_errors'=> $setup_errors,
-  'CACHE_KEYS' => get_admin_client_cache_keys(array('categories')),
-  ));
+    'setup_errors'=> $setup_errors,
+    'CACHE_KEYS' => get_admin_client_cache_keys(array('categories')),
+));
 
 // Warnings
 if (isset($_GET['hide_warnings'])) {

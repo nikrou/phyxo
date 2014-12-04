@@ -49,7 +49,7 @@ trigger_notify('loc_begin_password');
  * @return bool (true if email was sent, false otherwise)
  */
 function process_password_request() {
-    global $page, $conf;
+    global $page, $conf, $conn;
 
     if (empty($_POST['username_or_email'])) {
         $page['errors'][] = l10n('Invalid username or email');
@@ -87,7 +87,7 @@ function process_password_request() {
     if (empty($userdata['activation_key'])) {
         $activation_key = get_user_activation_key();
 
-        single_update(
+        $conn->single_update(
             USER_INFOS_TABLE,
             array('activation_key' => $activation_key),
             array('user_id' => $user_id)
@@ -151,7 +151,7 @@ function check_password_reset_key($key) {
         return false;
     }
 
-    $userdata = pwg_db_fetch_assoc($result);
+    $userdata = $conn->db_fetch_assoc($result);
 
     if (is_a_guest($userdata['status']) or is_generic($userdata['status'])) {
         $page['errors'][] = l10n('Password reset is not allowed for this user');

@@ -41,17 +41,18 @@ if ((!isset($env_nbm['sendmail_timeout'])) or (!is_numeric($env_nbm['sendmail_ti
  * @return string nbm identifier
  */
 function find_available_check_key() {
+    global $conn;
+
     while (true) {
         $key = generate_key(16);
         $query = 'SELECT count(1) FROM '.USER_MAIL_NOTIFICATION_TABLE;
         $query .= ' WHERE check_key = \''.$key.'\';';
 
-    list($count) = pwg_db_fetch_row(pwg_query($query));
-    if ($count == 0)
-    {
-      return $key;
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
+        if ($count == 0) {
+            return $key;
+        }
     }
-  }
 }
 
 /*
@@ -84,15 +85,15 @@ function quote_check_key_list($check_key_list=array()) {
  *
  * return array of users
  */
-function get_user_notifications($action, $check_key_list=array(), $enabled_filter_value='') {
-    global $conf;
+function get_user_notifications($action, $check_key_list=array(), $enabled_filter_value=false) {
+    global $conf, $conn;
 
     $data_users = array();
 
     if (in_array($action, array('subscribe', 'send'))) {
         $quoted_check_key_list = quote_check_key_list($check_key_list);
         if (count($quoted_check_key_list) != 0) {
-            $query_and_check_key = ' AND check_key IN('.implode(",", $quoted_check_key_list).') ';
+            $query_and_check_key = ' AND check_key '.$conn->in($quoted_check_key_list);
         } else {
             $query_and_check_key = '';
         }
@@ -104,13 +105,13 @@ function get_user_notifications($action, $check_key_list=array(), $enabled_filte
 
         if ($action == 'send') {
             // No mail empty and all users enabled
-            $query .= ' AND N.enabled = \'true\' AND U.'.$conf['user_fields']['email'].' is not null';
+            $query .= ' AND N.enabled = \''.$conn->boolean_to_db(true).'\' AND U.'.$conf['user_fields']['email'].' is not null';
         }
 
         $query .= $query_and_check_key;
 
         if (!empty($enabled_filter_value)) {
-            $query .= ' AND N.enabled = \''.boolean_to_string($enabled_filter_value).'\'';
+            $query .= ' AND N.enabled = \''.$conn->boolean_to_db($enabled_filter_value).'\'';
         }
 
         $query .= ' ORDER BY';
@@ -121,9 +122,9 @@ function get_user_notifications($action, $check_key_list=array(), $enabled_filte
             $query .= ' username;';
         }
 
-        $result = pwg_query($query);
+        $result = $conn->db_query($query);
         if (!empty($result)) {
-            while ($nbm_user = pwg_db_fetch_assoc($result)) {
+            while ($nbm_user = $conn->db_fetch_assoc($result)) {
                 $data_users[] = $nbm_user;
             }
         }

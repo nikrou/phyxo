@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -88,11 +88,11 @@ function get_cat_display_name($cat_informations, $url='') {
  * @return string
  */
 function get_cat_display_name_cache($uppercats, $url='', $single_link=false, $link_class=null) {
-    global $cache, $conf;
+    global $cache, $conf, $conn;
 
     if (!isset($cache['cat_names'])) {
         $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
-        $cache['cat_names'] = query2array($query, 'id');
+        $cache['cat_names'] = $conn->query2array($query, 'id');
     }
 
     $output = '';

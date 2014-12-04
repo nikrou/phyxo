@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -110,7 +110,7 @@ class Plugins
                    if ($new_version != 'auto') {
                        $query = 'UPDATE '. PLUGINS_TABLE .' SET version=\''. $new_version .'\'';
                        $query .= ' WHERE id=\''. $plugin_id .'\'';
-                       pwg_query($query);
+                       $this->conn->db_query($query);
                    }
                }
                break;

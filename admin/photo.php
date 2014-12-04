@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,7 +39,7 @@ $admin_photo_base_url = get_root_url().'admin.php?page=photo-'.$_GET['image_id']
 
 if (isset($_GET['cat_id'])) {
     $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.(int) $_GET['cat_id'];
-    $category = pwg_db_fetch_assoc(pwg_query($query));
+    $category = $conn->db_fetch_assoc($conn->db_query($query));
 }
 
 // +-----------------------------------------------------------------------+

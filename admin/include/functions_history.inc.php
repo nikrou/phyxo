@@ -126,9 +126,9 @@ function get_history($data, $search, $types) {
     $query .= 'image_id,image_type FROM '.HISTORY_TABLE;
     $query .= ' WHERE '.$where_separator;
 
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $data[] = $row;
     }
 

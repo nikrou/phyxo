@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,8 +35,8 @@ check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 $admin_album_base_url = get_root_url().'admin.php?page=album-'.$_GET['cat_id'];
 
-$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$_GET['cat_id'];
-$category = pwg_db_fetch_assoc(pwg_query($query));
+$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($_GET['cat_id']);
+$category = $conn->db_fetch_assoc($conn->db_query($query));
 
 if (!isset($category['id'])) {
     die('unknown album'); // @TODO: find a better way to stop and send response

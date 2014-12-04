@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -26,15 +26,15 @@
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
-if (
-    !(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
+if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
     and script_basename() != 'identification' // keep the ability to login
     and script_basename() != 'ws'             // keep the ability to discuss with web API
     and script_basename() != 'popuphelp'      // keep the ability to display help popups
     and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
+
     $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE.';';
-    list($nb_photos) = pwg_db_fetch_row(pwg_query($query));
-    if (0 == $nb_photos) {
+    list($nb_photos) = $conn->db_fetch_row($conn->db_query($query));
+    if ($nb_photos == 0) {
         // make sure we don't use the mobile theme, which is not compatible with
         // the "no photo yet" feature
         $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $user['theme']);

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -44,12 +44,12 @@ if (isset($_POST['submit'])) {
             .fraction_to_char($_POST['b']);
         $query .= ' SET coi=\''.$coi.'\'';
     }
-    $query .= ' WHERE id='.$_GET['image_id'];
-    pwg_query($query);
+    $query .= ' WHERE id='.$conn->db_real_escape_string($_GET['image_id']);
+    $conn->db_query($query);
 }
 
-$query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id='.$_GET['image_id'];
-$row = pwg_db_fetch_assoc( pwg_query($query) );
+$query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id='.$conn->db_real_escape_string($_GET['image_id']);
+$row = $conn->db_fetch_assoc($conn->db_query($query));
 
 if (isset($_POST['submit'])) {
     foreach(ImageStdParams::get_defined_type_map() as $params) {

@@ -31,9 +31,9 @@ $upgrade_description = 'enlarge your user_id (16 millions possible users)';
 
 if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     // we use PREFIX_TABLE, in case Phyxo uses an external user table
-    pwg_query('ALTER TABLE '.PREFIX_TABLE.'users CHANGE id id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT;');
-    pwg_query('ALTER TABLE '.IMAGES_TABLE.' CHANGE added_by added_by MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
-    pwg_query('ALTER TABLE '.COMMENTS_TABLE.' CHANGE author_id author_id MEDIUMINT UNSIGNED DEFAULT NULL;');
+    $conn->db_query('ALTER TABLE '.PREFIX_TABLE.'users CHANGE id id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT;');
+    $conn->db_query('ALTER TABLE '.IMAGES_TABLE.' CHANGE added_by added_by MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
+    $conn->db_query('ALTER TABLE '.COMMENTS_TABLE.' CHANGE author_id author_id MEDIUMINT UNSIGNED DEFAULT NULL;');
 
     $tables = array(
         USER_ACCESS_TABLE,
@@ -50,7 +50,7 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     );
 
     foreach ($tables as $table) {
-        pwg_query('ALTER TABLE '.$table.' CHANGE user_id user_id MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
+        $conn->db_query('ALTER TABLE '.$table.' CHANGE user_id user_id MEDIUMINT UNSIGNED NOT NULL DEFAULT \'0\';');
     }
 }
 

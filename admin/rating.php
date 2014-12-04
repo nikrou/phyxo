@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,16 +70,15 @@ if (isset($_GET['users'])) {
 
 $users = array();
 $query = 'SELECT '.$conf['user_fields']['username'].' as username, '.$conf['user_fields']['id'].' as id FROM '.USERS_TABLE;
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
-    $users[$row['id']]=stripslashes($row['username']);
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
+    $users[$row['id']] = stripslashes($row['username']); // @TODO: remove
 }
 
 
-$query = 'SELECT COUNT(DISTINCT(r.element_id))
-FROM '.RATE_TABLE.' AS r
-WHERE 1=1'. $page['user_filter'];
-list($nb_images) = pwg_db_fetch_row(pwg_query($query));
+$query = 'SELECT COUNT(DISTINCT(r.element_id)) FROM '.RATE_TABLE.' AS r';
+$query .= ' WHERE 1=1'. $page['user_filter'];
+list($nb_images) = $conn->db_fetch_row($conn->db_query($query));
 
 
 // +-----------------------------------------------------------------------+
@@ -142,8 +141,8 @@ $query .= ' ORDER BY ' . $available_order_by[$order_by_index][1];
 $query .= ' LIMIT '.$elements_per_page.' OFFSET '.$start.';';
 
 $images = array();
-$result = pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
     $images[] = $row;
 }
 
@@ -155,8 +154,8 @@ foreach ($images as $image) {
 
     $query = 'SELECT * FROM '.RATE_TABLE.' AS r';
     $query .= ' WHERE r.element_id='.$image['id']. ' ORDER BY date DESC;';
-    $result = pwg_query($query);
-    $nb_rates = pwg_db_num_rows($result);
+    $result = $conn->db_query($query);
+    $nb_rates = $conn->db_num_rows($result);
 
     $tpl_image =
         array(
@@ -172,7 +171,7 @@ foreach ($images as $image) {
             'rates'  => array()
         );
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         if (isset($users[$row['user_id']])) {
             $user_rate = $users[$row['user_id']];
         } else {

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // +-----------------------------------------------------------------------+
@@ -134,13 +134,15 @@ final class SrcImage
      * @return int[]|null 0=width, 1=height or null if fail to compute size
      */
     function get_size() {
+        global $conn;
+
         if ($this->size == null) {
             if ($this->flags & self::DIM_NOT_GIVEN)
                 fatal_error('SrcImage dimensions required but not provided');
             // probably not metadata synced
             if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
                 $this->size = array($size[0],$size[1]);
-                pwg_query('UPDATE '.IMAGES_TABLE.' SET width='.$size[0].', height='.$size[1].' WHERE id='.$this->id);
+                $conn->db_query('UPDATE '.IMAGES_TABLE.' SET width='.$size[0].', height='.$size[1].' WHERE id='.$this->id);
             }
         }
         return $this->size;

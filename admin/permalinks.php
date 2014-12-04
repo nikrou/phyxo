@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -78,9 +78,10 @@ if (isset($_POST['set_permalink']) and $_POST['cat_id']>0) {
     }
     $selected_cat = array( $_POST['cat_id'] );
 } elseif ( isset($_GET['delete_permanent'])) {
-    $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE.' WHERE permalink=\''.$_GET['delete_permanent'].'\' LIMIT 1';
-    $result = pwg_query($query);
-    if (pwg_db_changes($result)==0) {
+    $query = 'DELETE FROM '.OLD_PERMALINKS_TABLE;
+    $query .= ' WHERE permalink=\''.$conn->db_real_escape_string($_GET['delete_permanent']).'\' LIMIT 1';
+    $result = $conn->db_query($query);
+    if ($conn->db_changes($result)==0) {
         $page['errors'][] = l10n('Cannot delete the old permalink !');
     }
 }
@@ -96,7 +97,7 @@ include(PHPWG_ROOT_PATH.'admin/include/albums_tab.inc.php');
 
 $query = 'SELECT id,permalink,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
 
-display_select_cat_wrapper( $query, $selected_cat, 'categories', false );
+display_select_cat_wrapper($query, $selected_cat, 'categories', false);
 
 // --- generate display of active permalinks -----------------------------------
 $sort_by = parse_sort_variables(
@@ -111,9 +112,9 @@ if ($sort_by[0]=='id' or $sort_by[0]=='permalink') {
     $query .= ' ORDER BY '.$sort_by[0];
 }
 $categories=array();
-$result=pwg_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
-    $row['name'] = get_cat_display_name_cache( $row['uppercats'] );
+$result = $conn->db_query($query);
+while ($row = $conn->db_fetch_assoc($result)) {
+    $row['name'] = get_cat_display_name_cache($row['uppercats']);
     $categories[] = $row;
 }
 
@@ -136,15 +137,14 @@ $query = 'SELECT * FROM '.OLD_PERMALINKS_TABLE;
 if (count($sort_by)) {
     $query .= ' ORDER BY '.$sort_by[0];
 }
-$result = pwg_query($query);
-$deleted_permalinks=array();
-while ($row = pwg_db_fetch_assoc($result)) {
+$result = $conn->db_query($query);
+$deleted_permalinks = array();
+while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = get_cat_display_name_cache($row['cat_id']);
-    $row['U_DELETE'] =
-        add_url_params(
-            $url_del_base,
-            array( 'delete_permanent'=> $row['permalink'] )
-        );
+    $row['U_DELETE'] = add_url_params(
+        $url_del_base,
+        array('delete_permanent'=> $row['permalink'])
+    );
     $deleted_permalinks[] = $row;
 }
 $template->assign('deleted_permalinks', $deleted_permalinks);

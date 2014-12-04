@@ -85,7 +85,7 @@ if (isset($_POST['submit'])) {
     if ('remove_from_caddie' == $action) {
         $query = 'DELETE FROM '.CADDIE_TABLE;
         $query .= ' WHERE element_id '.$conn->in($collection);
-        $query .= ' AND user_id = '.$user['id'];
+        $query .= ' AND user_id = '.$conn->db_real_escape_string($user['id']);
         $conn->db_query($query);
 
         // remove from caddie action available only in caddie so reload content
@@ -401,7 +401,7 @@ if (count($page['cat_elements_id']) > 0) {
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON i.id = ic.image_id';
     $query .= ' WHERE ic.image_id '.$conn->in($page['cat_elements_id']);
     $query .= ' AND (ic.category_id != i.storage_category_id OR i.storage_category_id IS NULL)';
-    $template->assign('associated_categories', query2array($query, 'id', 'id'));
+    $template->assign('associated_categories', $conn->query2array($query, 'id', 'id'));
 }
 
 if (count($page['cat_elements_id']) > 0) {

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -79,29 +79,6 @@ class Template
         }
         $this->smarty->compile_check = $conf['template_compile_check'];
         $this->smarty->force_compile = $conf['template_force_compile'];
-
-        /*
-          if (!isset($conf['data_dir_checked']))
-          {
-          $dir = PHPWG_ROOT_PATH.$conf['data_location'];
-          mkgetdir($dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR);
-          if (!is_writable($dir))
-          {
-          load_language('admin.lang');
-          fatal_error(
-          l10n(
-          'Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation',
-          $conf['data_location']
-          ),
-          l10n('an error happened'),
-          false // show trace
-          );
-          }
-          if (function_exists('pwg_query')) {
-          conf_update_param('data_dir_checked', 1);
-          }
-          }
-        */
         $compile_dir = PHPWG_ROOT_PATH.$conf['data_location'].'templates_c';
         mkgetdir($compile_dir);
 

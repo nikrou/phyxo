@@ -170,12 +170,12 @@ function insert_user_comment(&$comm, $key, &$infos) {
         $reference_date = $conn->db_get_flood_period_expression($conf['anti-flood_time']);
 
         $query = 'SELECT count(1) FROM '.COMMENTS_TABLE;
-        $query .= ' WHERE date > '.$reference_date.' AND author_id = '.$comm['author_id'];
+        $query .= ' WHERE date > '.$reference_date.' AND author_id = '.$conn->db_real_escape_string($comm['author_id']);
         if (!is_classic_user()) {
             $query .= ' AND anonymous_id LIKE \''.$anonymous_id.'.%\'';
         }
 
-        list($counter) = $conn->db_fetch_row(pwg_query($query));
+        list($counter) = $conn->db_fetch_row($conn->db_query($query));
         if ($counter > 0) {
             $infos[] = l10n('Anti-flood system : please wait for a moment before trying to post another comment');
             $comment_action = 'reject';
@@ -189,12 +189,12 @@ function insert_user_comment(&$comm, $key, &$infos) {
     if ($comment_action!='reject') {
         $query = 'INSERT INTO '.COMMENTS_TABLE;
         $query .= ' (author, author_id, anonymous_id, content, date, validated, validation_date, image_id, website_url, email)';
-        $query .= ' VALUES (\''.$comm['author'].'\','.$comm['author_id'].', \''.$comm['ip'].'\',';
-        $query .= '\''.$comm['content'].'\', NOW(), \'';
+        $query .= ' VALUES (\''.$comm['author'].'\','.$conn->db_real_escape_string($comm['author_id']).', \''.$comm['ip'].'\',';
+        $query .= '\''.$conn->db_real_escape_string($comm['content']).'\', NOW(), \'';
         $query .= $comment_action=='validate' ? $conn->boolean_to_db(true):$conn->boolean_to_db(false);
         $query .= '\', '.($comment_action=='validate' ? 'NOW()':'NULL').','.$comm['image_id'].',';
-        $query .= ' '.(!empty($comm['website_url']) ? '\''.$comm['website_url'].'\'' : 'NULL').',';
-        $query .= ' '.(!empty($comm['email']) ? '\''.$comm['email'].'\'' : 'NULL').')';
+        $query .= ' '.(!empty($comm['website_url']) ? '\''.$conn->db_real_escape_string($comm['website_url']).'\'' : 'NULL').',';
+        $query .= ' '.(!empty($comm['email']) ? '\''.$conn->db_real_escape_string($comm['email']).'\'' : 'NULL').')';
         $conn->db_query($query);
 
         $comm['id'] = $conn->db_insert_id(COMMENTS_TABLE);
@@ -238,21 +238,24 @@ function insert_user_comment(&$comm, $key, &$infos) {
  * @return bool false if nothing deleted
  */
 function delete_user_comment($comment_id) {
+    global $conn;
+
     $user_where_clause = '';
     if (!is_admin()) {
-        $user_where_clause = ' AND author_id = \''.$GLOBALS['user']['id'].'\'';
+        // @TODO : don't use GLOBALS
+        $user_where_clause = ' AND author_id = \''.$conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
     }
 
     if (is_array($comment_id)) {
-        $where_clause = 'id IN('.implode(',', $comment_id).')';
+        $where_clause = 'id '.$conn->in($comment_id);
     } else {
-        $where_clause = 'id = '.$comment_id;
+        $where_clause = 'id = '.$conn->db_real_escape_string($comment_id);
     }
 
     $query = 'DELETE FROM '.COMMENTS_TABLE;
     $query .= ' WHERE '.$where_clause.$user_where_clause.';';
 
-    if (pwg_db_changes(pwg_query($query))) {
+    if ($conn->db_changes($conn->db_query($query))) {
         invalidate_user_cache_nb_comments();
 
         email_admin(
@@ -280,7 +283,7 @@ function delete_user_comment($comment_id) {
  */
 
 function update_user_comment($comment, $post_key) {
-    global $conf, $page;
+    global $conf, $page, $conn;
 
     $comment_action = 'validate';
 
@@ -317,16 +320,16 @@ function update_user_comment($comment, $post_key) {
     if ($comment_action!='reject') {
         $user_where_clause = '';
         if (!is_admin()) {
-            $user_where_clause = ' AND author_id = \''.	$GLOBALS['user']['id'].'\'';
+            $user_where_clause = ' AND author_id = \''.	$conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
         }
 
         $query = 'UPDATE '.COMMENTS_TABLE;
         $query .= ' SET content = \''.$comment['content'].'\',';
-        $query .= ' website_url = '.(!empty($comment['website_url']) ? '\''.$comment['website_url'].'\'' : 'NULL').',';
-        $query .= ' validated = \''.($comment_action=='validate' ? 'true':'false').'\',';
+        $query .= ' website_url = '.(!empty($comment['website_url']) ? '\''.$conn->db_real_escape_string($comment['website_url']).'\'' : 'NULL').',';
+        $query .= ' validated = \''.($comment_action=='validate' ? ''.$conn->boolean_to_db(true).'':''.$conn->boolean_to_db(false).'').'\',';
         $query .= ' validation_date = '.($comment_action=='validate' ? 'NOW()':'NULL');
-        $query .= ' WHERE id = '.$comment['comment_id'].$user_where_clause.';';
-        $result = pwg_query($query);
+        $query .= ' WHERE id = '.$conn->db_real_escape_string($comment['comment_id']).$user_where_clause.';';
+        $result = $conn->db_query($query);
 
         // mail admin and ask to validate the comment
         if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
@@ -366,8 +369,8 @@ function email_admin($action, $comment) {
     global $conf;
 
     if (!in_array($action, array('edit', 'delete'))
-    or (($action=='edit') and !$conf['email_admin_on_comment_edition'])
-    or (($action=='delete') and !$conf['email_admin_on_comment_deletion'])) {
+        or (($action=='edit') and !$conf['email_admin_on_comment_edition'])
+        or (($action=='delete') and !$conf['email_admin_on_comment_deletion'])) {
         return;
     }
 
@@ -396,10 +399,12 @@ function email_admin($action, $comment) {
  * @return int
  */
 function get_comment_author_id($comment_id, $die_on_error=true) {
+    global $conn;
+
     $query = 'SELECT author_id FROM '.COMMENTS_TABLE;
-    $query .= ' WHERE id = '.$comment_id.';';
-    $result = pwg_query($query);
-    if (pwg_db_num_rows($result) == 0) {
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($comment_id);
+    $result = $conn->db_query($query);
+    if ($conn->db_num_rows($result) == 0) {
         if ($die_on_error) {
             fatal_error('Unknown comment identifier');
         } else {
@@ -407,7 +412,7 @@ function get_comment_author_id($comment_id, $die_on_error=true) {
         }
     }
 
-    list($author_id) = pwg_db_fetch_row($result);
+    list($author_id) = $conn->db_fetch_row($result);
 
     return $author_id;
 }
@@ -418,15 +423,17 @@ function get_comment_author_id($comment_id, $die_on_error=true) {
  * @param int|int[] $comment_id
  */
 function validate_user_comment($comment_id) {
+    global $conn;
+
     if (is_array($comment_id)) {
-        $where_clause = 'id IN('.implode(',', $comment_id).')';
+        $where_clause = 'id '.$conn->in($comment_id);
     } else {
-        $where_clause = 'id = '.$comment_id;
+        $where_clause = 'id = '.$conn->db_real_escape_string($comment_id);
     }
 
     $query = 'UPDATE '.COMMENTS_TABLE;
-    $query .= ' SET validated = \'true\', validation_date = NOW() WHERE '.$where_clause.';';
-    pwg_query($query);
+    $query .= ' SET validated = \''.$conn->boolean_to_db(true).'\', validation_date = NOW() WHERE '.$where_clause.';';
+    $conn->db_query($query);
 
     invalidate_user_cache_nb_comments();
     trigger_notify('user_comment_validation', $comment_id);
@@ -436,10 +443,10 @@ function validate_user_comment($comment_id) {
  * Clears cache of nb comments for all users
  */
 function invalidate_user_cache_nb_comments() {
-    global $user;
+    global $user, $conn;
 
     unset($user['nb_available_comments']);
 
     $query = 'UPDATE '.USER_CACHE_TABLE.' SET nb_available_comments = NULL;';
-    pwg_query($query);
+    $conn->db_query($query);
 }

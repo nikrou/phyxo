@@ -26,17 +26,17 @@
  * @package functions\
  */
 
-include_once( PHPWG_ROOT_PATH .'include/functions_plugins.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_user.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_cookie.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_session.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_category.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_html.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/functions_url.inc.php' );
-include_once( PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
-include_once( PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
-include_once( PHPWG_ROOT_PATH .'include/derivative.inc.php');
-include_once( PHPWG_ROOT_PATH .'include/cache.class.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_plugins.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_user.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_cookie.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_session.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_category.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_html.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/functions_url.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/derivative.inc.php');
+include_once(PHPWG_ROOT_PATH .'include/cache.class.php');
 
 
 /**
@@ -748,12 +748,12 @@ function redirect($url, $msg='', $refresh_time=0) {
  * @return array
  */
 function get_pwg_themes($show_mobile=false) {
-    global $conf;
+    global $conf, $conn;
 
     $themes = array();
     $query = 'SELECT id, name FROM '.THEMES_TABLE.' ORDER BY name ASC;';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['id'] == $conf['mobile_theme']) {
             if (!$show_mobile) {
                 continue;
@@ -1470,7 +1470,7 @@ function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $cle
  * @return array
  */
 function get_icon($date, $is_child_date = false) {
-    global $cache, $user;
+    global $cache, $user, $conn;
 
     if (empty($date)) {
         return false;
@@ -1494,7 +1494,7 @@ function get_icon($date, $is_child_date = false) {
 
     if (!isset($cache['get_icon']['sql_recent_date'])) {
         // Use MySql date in order to standardize all recent "actions/queries" ???
-        $cache['get_icon']['sql_recent_date'] = pwg_db_get_recent_period($user['recent_period']);
+        $cache['get_icon']['sql_recent_date'] = $conn->db_get_recent_period($user['recent_period']);
     }
 
     $cache['get_icon'][$date] = $date > $cache['get_icon']['sql_recent_date'];

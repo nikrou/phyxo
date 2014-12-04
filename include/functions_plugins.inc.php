@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -240,6 +240,8 @@ function load_plugin($plugin) {
  * @param array &$plugin (id, version, state) will be updated if version changes
  */
 function autoupdate_plugin(&$plugin) {
+    global $conn;
+
     // try to find the filesystem version in lines 2 to 10 of main.inc.php
     $fh = fopen(PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php', 'r');
     $fs_version = null;
@@ -281,7 +283,7 @@ function autoupdate_plugin(&$plugin) {
         if ($plugin['version'] != 'auto') {
             $query = 'UPDATE '. PLUGINS_TABLE .' SET version = \''. $plugin['version'] .'\'';
             $query .= ' WHERE id = \''. $plugin['id'] .'\'';
-            pwg_query($query);
+            $conn->db_query($query);
         }
     }
 }

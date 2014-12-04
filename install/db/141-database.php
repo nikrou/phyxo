@@ -36,15 +36,14 @@ $tables = array(
 
 foreach ($tables as $table) {
     if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
-        pwg_query('
-ALTER TABLE '. $table .'
-  ADD `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  ADD INDEX `lastmodified` (`lastmodified`)
-;');
+        $query = 'ALTER TABLE '. $table;
+        $query .= ' ADD `lastmodified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,';
+        $query .= ' ADD INDEX `lastmodified` (`lastmodified`)';
+        $conn->db_query($query);
     } elseif ($conf['dblayer']=='pgsql') {
-        pwg_query('ALTER TABLE '.$table.' ADD "lastmodified" TIMESTAMP NULL DEFAULT now()');
+        $conn->db_query('ALTER TABLE '.$table.' ADD "lastmodified" TIMESTAMP NULL DEFAULT now()');
     } elseif ($conf['dblayer']=='sqlite') {
-        pwg_query('ALTER TABLE '.$table.' ADD "lastmodified" TIMESTAMP NULL DEFAULT \'1970-01-01 00:00:00\'');
+        $conn->db_query('ALTER TABLE '.$table.' ADD "lastmodified" TIMESTAMP NULL DEFAULT \'1970-01-01 00:00:00\'');
     }
 }
 

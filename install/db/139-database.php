@@ -34,28 +34,23 @@ ALTER TABLE '. IMAGES_TABLE .'
   ADD `latitude` DOUBLE(8, 6) DEFAULT NULL,
   ADD `longitude` DOUBLE(9, 6) DEFAULT NULL
 ;';
-pwg_query($query);
+$conn->db_query($query);
 
 // add index
 $query = '
 ALTER TABLE '. IMAGES_TABLE .'
   ADD INDEX `images_i6` (`latitude`)
 ;';
-pwg_query($query);
+$conn->db_query($query);
 
 // search for old "lat" field
-$query = 'SHOW COLUMNS FROM '. IMAGES_TABLE .' LIKE "lat";';
+$query = 'SHOW COLUMNS FROM '. IMAGES_TABLE .' LIKE \'lat\'';
 
-if (pwg_db_num_rows(pwg_query($query))) {
+if ($conn->db_num_rows($conn->db_query($query))) {
     // duplicate non-null values
-    $query = '
-UPDATE '. IMAGES_TABLE .'
-  SET latitude = lat,
-    longitude = lon
-  WHERE lat IS NOT NULL
-    AND lon IS NOT NULL
-;';
-  pwg_query($query);
+    $query = 'UPDATE '. IMAGES_TABLE;
+    $query .= ' SET latitude = lat,longitude = lon WHERE lat IS NOT NULL AND lon IS NOT NULL';
+    $conn->db_query($query);
 }
 
 echo "\n".$upgrade_description."\n";

@@ -315,7 +315,7 @@ if (isset($url_img)) {
 $query = 'SELECT id FROM '.CATEGORIES_TABLE;
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id';
 $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
-$associated_albums = query2array($query, null, 'id');
+$associated_albums = $conn->query2array($query, null, 'id');
 
 $template->assign(array(
     'associated_albums' => $associated_albums,
