@@ -34,6 +34,8 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions_history.inc.php');
 // +-----------------------------------------------------------------------+
 
 function get_summary($year=null, $month=null, $day=null) {
+    global $conn;
+
     $query = 'SELECT year,month,day,hour,nb_pages FROM '.HISTORY_SUMMARY_TABLE;
 
     if (isset($day)) {
@@ -54,10 +56,10 @@ function get_summary($year=null, $month=null, $day=null) {
         $query .= ' ORDER BY year ASC;';
     }
 
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
     $output = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $output[] = $row;
     }
 
@@ -87,7 +89,7 @@ $max_id = 0;
 $is_first = true;
 $first_time_key = null;
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $time_keys = array(
         substr($row['date'], 0, 4), //yyyy
         substr($row['date'], 0, 7), //yyyy-mm
@@ -140,8 +142,8 @@ if (isset($first_time_key)) {
     $query = 'SELECT * FROM '.HISTORY_SUMMARY_TABLE;
     $query .= ' WHERE year='.$year;
     $query .= ' AND ( month IS NULL OR ( month='.$month.' AND ( day is NULL OR (day='.$day.' AND (hour IS NULL OR hour='.$hour.')))));';
-    $result = pwg_query($query);
-    while ($row = pwg_db_fetch_assoc($result)) {
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
         $key = sprintf('%4u', $row['year']);
         if (isset($row['month'])) {
             $key .= sprintf('-%02u', $row['month']);
@@ -174,7 +176,7 @@ foreach ($need_update as $time_key => $nb_pages) {
 }
 
 if (count($updates) > 0) {
-    mass_updates(
+    $conn->mass_updates(
         HISTORY_SUMMARY_TABLE,
         array(
             'primary' => array('year','month','day','hour'),
@@ -185,7 +187,7 @@ if (count($updates) > 0) {
 }
 
 if (count($inserts) > 0) {
-    mass_inserts(
+    $conn->mass_inserts(
         HISTORY_SUMMARY_TABLE,
         array_keys($inserts[0]),
         $inserts

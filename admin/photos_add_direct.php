@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -33,8 +33,8 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
 if (isset($_GET['batch'])) {
     check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
 
-    $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-    pwg_query($query);
+    $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE user_id = '.$conn->db_real_escape_string($user['id']);
+    $conn->db_query($query);
 
     $inserts = array();
     foreach (explode(',', $_GET['batch']) as $image_id) {
@@ -43,7 +43,7 @@ if (isset($_GET['batch'])) {
             'element_id' => $image_id,
         );
     }
-    mass_inserts(
+    $conn->mass_inserts(
         CADDIE_TABLE,
         array_keys($inserts[0]),
         $inserts

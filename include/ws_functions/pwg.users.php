@@ -489,7 +489,7 @@ function ws_users_setInfo($params, &$service) {
                 }
             }
 
-            mass_inserts(USER_GROUP_TABLE, array_keys($inserts[0]), $inserts);
+            $conn->mass_inserts(USER_GROUP_TABLE, array_keys($inserts[0]), $inserts);
         }
     }
 

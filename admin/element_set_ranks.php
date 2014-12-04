@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -71,7 +71,7 @@ function save_images_order($category_id, $images) {
         'primary' => array('image_id', 'category_id'),
         'update' => array('rank')
     );
-    mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
+    $conn->mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
 }
 
 // +-----------------------------------------------------------------------+
@@ -104,24 +104,24 @@ if (isset($_POST['submit'])) {
                 if (!empty($image_order)) {
                     $image_order .= ',';
                 }
-                $image_order.= $_POST['image_order'][$i];
+                $image_order .= $_POST['image_order'][$i];
             }
         }
     } elseif ($image_order_choice=='rank') {
         $image_order = 'rank ASC';
     }
     $query = 'UPDATE '.CATEGORIES_TABLE;
-    $query .= ' SET image_order = '.(isset($image_order) ? '\''.$image_order.'\'' : 'NULL');
-    $query .= ' WHERE id='.$page['category_id'];
-    pwg_query($query);
+    $query .= ' SET image_order = '.(isset($image_order) ? '\''.$conn->db_real_escape_string($image_order).'\'' : 'NULL');
+    $query .= ' WHERE id='.$conn->db_real_escape_string($page['category_id']);
+    $conn->db_query($query);
 
     if (isset($_POST['image_order_subcats'])) {
         $cat_info = get_cat_info($page['category_id']);
 
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET image_order = '.(isset($image_order) ? '\''.$image_order.'\'' : 'NULL');
-        $query .= ' WHERE uppercats LIKE \''.$cat_info['uppercats'].',%\'';
-        pwg_query($query);
+        $query .= ' SET image_order = '.(isset($image_order) ? '\''.$conn->db_real_escape_string($image_order).'\'' : 'NULL');
+        $query .= ' WHERE uppercats LIKE \''.$conn->db_real_escape_string($cat_info['uppercats']).',%\'';
+        $conn->db_query($query);
     }
 
     $page['infos'][] = l10n('Your configuration settings are saved');
@@ -134,8 +134,8 @@ $template->set_filenames(array('element_set_ranks' => 'element_set_ranks.tpl'));
 
 $base_url = get_root_url().'admin.php';
 
-$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$page['category_id'];
-$category = pwg_db_fetch_assoc(pwg_query($query));
+$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($page['category_id']);
+$category = $conn->db_fetch_assoc($conn->db_query($query));
 
 if ($category['image_order']=='rank ASC') {
     $image_order_choice = 'rank';
@@ -163,13 +163,13 @@ $template->assign(
 $query = 'SELECT id,file,path,representative_ext,width, height,rotation,';
 $query .= ' name,rank FROM '.IMAGES_TABLE;
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
-$query .= ' WHERE category_id = '.$page['category_id'].' ORDER BY rank;';
-$result = pwg_query($query);
-if (pwg_db_num_rows($result) > 0) {
+$query .= ' WHERE category_id = '.$conn->db_real_escape_string($page['category_id']).' ORDER BY rank;';
+$result = $conn->db_query($query);
+if ($conn->db_num_rows($result) > 0) {
 	// template thumbnail initialization
 	$current_rank = 1;
     $derivativeParams = ImageStdParams::get_by_type(IMG_SQUARE);
-	while ($row = pwg_db_fetch_assoc($result)) {
+	while ($row = $conn->db_fetch_assoc($result)) {
         $derivative = new DerivativeImage($derivativeParams, new SrcImage($row));
 
 		if (!empty($row['name'])) {

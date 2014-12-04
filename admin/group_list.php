@@ -178,8 +178,8 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
                 }
             }
         }
-        mass_inserts(USER_GROUP_TABLE, array('user_id','group_id'), $usr_grp);
-        mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $grp_access);
+        $conn->mass_inserts(USER_GROUP_TABLE, array('user_id','group_id'), $usr_grp);
+        $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id','cat_id'), $grp_access);
 
         $page['infos'][] = l10n('group "%s" added', $_POST['merge']);
     }

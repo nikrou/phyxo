@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -69,6 +69,8 @@ function get_upload_form_config() {
 }
 
 function save_upload_form_config($data, &$errors=array(), &$form_errors=array()) {
+    global $conn;
+
     if (!is_array($data) or empty($data)) {
         return false;
     }
@@ -118,7 +120,7 @@ function save_upload_form_config($data, &$errors=array(), &$form_errors=array())
     }
 
     if (count($errors) == 0) {
-        mass_updates(
+        $conn->mass_updates(
             CONFIG_TABLE,
             array(
                 'primary' => array('param'),
@@ -133,6 +135,8 @@ function save_upload_form_config($data, &$errors=array(), &$form_errors=array())
 }
 
 function add_uploaded_file($source_filepath, $original_filename=null, $categories=null, $level=null, $image_id=null, $original_md5sum=null) {
+    global $conn;
+
     // 1) move uploaded file to upload/2010/01/22/20100122003814-449ada00.jpg
     //
     // 2) keep/resize original
@@ -155,9 +159,9 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
     if (isset($image_id)) { // this photo already exists, we update it
         $query = 'SELECT path FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id = '.$image_id;
-        $result = pwg_query($query);
-        while ($row = pwg_db_fetch_assoc($result)) {
+        $query .= ' WHERE id = '.$conn->db_real_escape_string($image_id);
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
             $file_path = $row['path'];
         }
 
@@ -170,7 +174,7 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     } else {
         // this photo is new
         // current date
-        list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+        list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         list($year, $month, $day) = preg_split('/[^\d]/', $dbnow, 4);
 
         // upload directory hierarchy
@@ -340,7 +344,7 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
     if (isset($image_id)) {
         $update = array(
-            'file' => pwg_db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)),
+            'file' => $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)),
             'filesize' => $file_infos['filesize'],
             'width' => $file_infos['width'],
             'height' => $file_infos['height'],
@@ -353,14 +357,14 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
             $update['level'] = $level;
         }
 
-        single_update(
+        $conn->single_update(
             IMAGES_TABLE,
             $update,
             array('id' => $image_id)
         );
     } else {
         // database registration
-        $file = pwg_db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
+        $file = $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
         $insert = array(
             'file' => $file,
             'name' => get_name_from_file($file),
@@ -382,9 +386,9 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
             $insert['representative_ext'] = $representative_ext;
         }
 
-        single_insert(IMAGES_TABLE, $insert);
+        $conn->single_insert(IMAGES_TABLE, $insert);
 
-        $image_id = pwg_db_insert_id(IMAGES_TABLE);
+        $image_id = $conn->db_insert_id(IMAGES_TABLE);
     }
 
     if (isset($categories) and count($categories) > 0) {
@@ -404,8 +408,8 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
     // cache thumbnail
     $query = 'SELECT id,path FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id = '.$image_id;
-    $image_infos = pwg_db_fetch_assoc(pwg_query($query));
+    $query .= ' WHERE id = '.$conn->db_real_escape_string($image_id);
+    $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
     set_make_full_url();
     // in case we are on uploadify.php, we have to replace the false path

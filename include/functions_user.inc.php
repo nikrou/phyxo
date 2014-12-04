@@ -183,7 +183,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
         }
 
         if (count($inserts) != 0) {
-            mass_inserts(USER_GROUP_TABLE, array('user_id', 'group_id'), $inserts);
+            $conn->mass_inserts(USER_GROUP_TABLE, array('user_id', 'group_id'), $inserts);
         }
 
         $override = null;

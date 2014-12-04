@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -306,7 +306,7 @@ function assign_vars_nbm_mail_content($nbm_user) {
  * @return check_key list treated
  */
 function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe=false, $check_key_list=array()) {
-    global $conf, $page, $env_nbm, $conf;
+    global $conf, $page, $env_nbm, $conf, $conn;
 
     set_make_full_url();
 
@@ -406,7 +406,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
 
         display_counter_info();
 
-        mass_updates(
+        $conn->mass_updates(
             USER_MAIL_NOTIFICATION_TABLE,
             array(
                 'primary' => array('check_key'),
@@ -454,4 +454,3 @@ function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = a
 function subscribe_notification_by_mail($is_admin_request, $check_key_list = array()) {
     return do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
 }
-

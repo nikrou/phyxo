@@ -354,12 +354,15 @@ function str2url($str) {
  *
  * @return string[]
  */
+// @TODO: transform Phyxo\Language\Languages as service and use it
 function get_languages() {
-  $query = 'SELECT id, name FROM '.LANGUAGES_TABLE.' ORDER BY name ASC;';
-  $result = pwg_query($query);
+    global $conn;
 
-  $languages = array();
-  while ($row = pwg_db_fetch_assoc($result)) {
+    $query = 'SELECT id, name FROM '.LANGUAGES_TABLE.' ORDER BY name ASC;';
+    $result = $conn->db_query($query);
+
+    $languages = array();
+    while ($row = $conn->db_fetch_assoc($result)) {
       if (is_dir(PHPWG_ROOT_PATH.'language/'.$row['id'])) {
           $languages[ $row['id'] ] = $row['name'];
       }
@@ -376,7 +379,7 @@ function get_languages() {
  * @return bool
  */
 function pwg_log($image_id = null, $image_type = null) {
-    global $conf, $user, $page;
+    global $conf, $user, $page, $conn;
 
     $do_log = $conf['log'];
     if (is_admin()) {
@@ -400,14 +403,15 @@ function pwg_log($image_id = null, $image_type = null) {
     $query = 'INSERT INTO '.HISTORY_TABLE;
     $query .= ' (date,time,user_id,IP,section,category_id,image_id,image_type,tag_ids)';
     $query .= ' VALUES(';
-    $query .= ' CURRENT_DATE,CURRENT_TIME,'.$user['id'].',\''.$_SERVER['REMOTE_ADDR'].'\',';
-    $query .= (isset($page['section']) ? "'".$page['section']."'" : 'NULL').',';
-    $query .= (isset($page['category']['id']) ? $page['category']['id'] : 'NULL').',';
-    $query .= (isset($image_id) ? $image_id : 'NULL').',';
-    $query .= (isset($image_type) ? "'".$image_type."'" : 'NULL').',';
-    $query .= (isset($tags_string) ? "'".$tags_string."'" : 'NULL');
+    $query .= ' CURRENT_DATE,CURRENT_TIME,';
+    $query .= $conn->db_real_escape_string($user['id']).',\''.$conn->db_real_escape_string($_SERVER['REMOTE_ADDR']).'\',';
+    $query .= (isset($page['section']) ? "'".$conn->db_real_escape_string($page['section'])."'" : 'NULL').',';
+    $query .= (isset($page['category']['id']) ? $conn->db_real_escape_string($page['category']['id']) : 'NULL').',';
+    $query .= (isset($image_id) ? $conn->db_real_escape_string($image_id) : 'NULL').',';
+    $query .= (isset($image_type) ? "'".$conn->db_real_escape_string($image_type)."'" : 'NULL').',';
+    $query .= (isset($tags_string) ? "'".$conn->db_real_escape_string($tags_string)."'" : 'NULL');
     $query .= ');';
-    pwg_query($query);
+    $conn->db_query($query);
 
     return true;
 }
@@ -691,7 +695,7 @@ function redirect_html( $url, $msg='', $refresh_time=0) {
         trigger_notify('loading_lang');
         load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
         $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
-    }elseif (defined('IN_ADMIN') and IN_ADMIN) {
+    } elseif (defined('IN_ADMIN') and IN_ADMIN) {
 		$template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
 	}
 
@@ -814,10 +818,11 @@ function get_element_path($element_info) {
  * @param int[] $elements_id
  */
 function fill_caddie($elements_id) {
-    global $user;
+    global $user, $conn;
 
-    $query = 'SELECT element_id FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-    $in_caddie = query2array($query, null, 'element_id');
+    $query = 'SELECT element_id FROM '.CADDIE_TABLE;
+    $query .= ' WHERE user_id = '.$conn->db_real_escape_string($user['id']);
+    $in_caddie = $conn->query2array($query, null, 'element_id');
 
     $caddiables = array_diff($elements_id, $in_caddie);
 
@@ -831,7 +836,7 @@ function fill_caddie($elements_id) {
     }
 
     if (count($caddiables) > 0) {
-        mass_inserts(CADDIE_TABLE, array('element_id','user_id'), $datas);
+        $conn->mass_inserts(CADDIE_TABLE, array('element_id','user_id'), $datas);
     }
 }
 
@@ -961,11 +966,11 @@ function get_themeconf($key) {
  * @return string
  */
 function get_webmaster_mail_address() {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT '.$conf['user_fields']['email'].' FROM '.USERS_TABLE;
     $query .= ' WHERE '.$conf['user_fields']['id'].' = '.$conf['webmaster_id'].';';
-    list($email) = pwg_db_fetch_row(pwg_query($query));
+    list($email) = $conn->db_fetch_row($conn->db_query($query));
 
     $email = trigger_change('get_webmaster_mail_address', $email);
 
@@ -979,25 +984,22 @@ function get_webmaster_mail_address() {
  * @return void
  */
 function load_conf_from_db($condition = '') {
-    global $conf;
+    global $conf, $conn;
 
     $query = 'SELECT param, value  FROM '.CONFIG_TABLE;
     if (!empty($condition)) {
         $query .= ' WHERE '.$condition;
     }
-    $result = pwg_query($query);
+    $result = $conn->db_query($query);
 
-    if ((pwg_db_num_rows($result) == 0) and !empty($condition)) {
+    if (($conn->db_num_rows($result) == 0) and !empty($condition)) {
         fatal_error('No configuration data');
     }
 
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $val = isset($row['value']) ? $row['value'] : '';
-        // If the field is true or false, the variable is transformed into a boolean value.
-        if ($val == 'true') {
-            $val = true;
-        } elseif ($val == 'false') {
-            $val = false;
+        if ($conn->is_boolean($val)) {
+            $val = $conn->get_boolean($val);
         }
         $conf[$row['param']] = $val;
     }
@@ -1015,26 +1017,29 @@ function load_conf_from_db($condition = '') {
       (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
  */
 function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
-    global $conf;
+    global $conf, $conn;
 
     if ($parser != null) {
         $dbValue = call_user_func($parser, $value);
     } elseif (is_array($value) || is_object($value)) {
-        $dbValue = addslashes(serialize($value));
+        $dbValue = addslashes(serialize($value)); // @TODO : remove
     } else {
-        $dbValue = boolean_to_string($value);
+        $dbValue = $conn->boolean_to_string($value);
     }
 
     $query = 'SELECT count(1) FROM '.CONFIG_TABLE;
-    $query .= ' WHERE param = \''.$param.'\';';
+    $query .= ' WHERE param = \''.$conn->db_real_escape_string($param).'\'';
 
-    list($counter) = pwg_db_fetch_row(pwg_query($query));
+    list($counter) = $conn->db_fetch_row($conn->db_query($query));
     if ($counter==0) {
-        $query = 'INSERT INTO '.CONFIG_TABLE.' (param, value) VALUES(\''.$param.'\', \''.$value.'\');';
-        pwg_query($query);
+        $query = 'INSERT INTO '.CONFIG_TABLE.' (param, value)';
+        $query .= ' VALUES(\''.$conn->db_real_escape_string($param).'\', \''.$conn->db_real_escape_string($value).'\')';
+        $conn->db_query($query);
     } else {
-        $query = 'UPDATE '.CONFIG_TABLE.' SET value = \''.$value.'\' WHERE param = \''.$param.'\';';
-        pwg_query($query);
+        $query = 'UPDATE '.CONFIG_TABLE;
+        $query .= ' SET value = \''.$conn->db_real_escape_string($value).'\'';
+        $query .= ' WHERE param = \''.$conn->db_real_escape_string($param).'\'';
+        $conn->db_query($query);
     }
 
     if ($updateGlobal) {
@@ -1060,7 +1065,7 @@ function conf_delete_param($params) {
 
     $query = 'DELETE FROM '.CONFIG_TABLE;
     $query .= ' WHERE param '.$conn->in($params);
-    pwg_query($query);
+    $conn->db_query($query);
 
     foreach ($params as $param) {
         unset($conf[$param]);
@@ -1603,16 +1608,6 @@ function get_branch_from_version($version) {
 }
 
 /**
- * return the device type: mobile, tablet or desktop
- *
- * @return string
- * @deprecated Deprecated in 1.2.0, to be removed in 1.3.0. Use mediaqueries instead.
- */
-function get_device() {
-    return;
-}
-
-/**
  * return true if mobile theme should be loaded
  *
  * @return bool
@@ -1629,11 +1624,6 @@ function mobile_theme() {
         pwg_set_session_var('mobile_theme', $is_mobile_theme);
     } else {
         $is_mobile_theme = pwg_get_session_var('mobile_theme');
-    }
-
-    if (is_null($is_mobile_theme)) {
-        $is_mobile_theme = (get_device() == 'mobile');
-        pwg_set_session_var('mobile_theme', $is_mobile_theme);
     }
 
     return $is_mobile_theme;
@@ -1665,12 +1655,12 @@ function email_check_format($mail_address) {
  * @return int
  */
 function get_nb_available_comments() {
-    global $user;
+    global $user, $conn;
 
     if (!isset($user['nb_available_comments']))  {
         $where = array();
         if (!is_admin())
-            $where[] = 'validated=\'true\'';
+            $where[] = 'validated=\''.$conn->boolean_to_db(true).'\'';
         $where[] = get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'category_id',
@@ -1683,9 +1673,9 @@ function get_nb_available_comments() {
         $query = 'SELECT COUNT(DISTINCT(com.id)) FROM '.IMAGE_CATEGORY_TABLE.' AS ic';
         $query .= ' LEFT JOIN '.COMMENTS_TABLE.' AS com ON ic.image_id = com.image_id';
         $query .= ' WHERE '.implode(' AND ', $where);
-        list($user['nb_available_comments']) = pwg_db_fetch_row(pwg_query($query));
+        list($user['nb_available_comments']) = $conn->db_fetch_row($conn->db_query($query));
 
-        single_update(
+        $conn->single_update(
             USER_CACHE_TABLE,
             array('nb_available_comments'=>$user['nb_available_comments']),
             array('user_id'=>$user['id'])

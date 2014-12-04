@@ -232,7 +232,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * return boolean true/false if $string (comming from database) can be converted to a real boolean
      */
     public function is_boolean($string) {
-        return ($string=='f' || $string=='t');
+        return ($string=='f' || $string=='t' || $string=='false' || $string=='true');
     }
 
     /**
@@ -264,7 +264,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @return mixed
      */
     public function boolean_to_string($var) {
-        if (!empty($var) && ($var == 't')) {
+        if (!empty($var) && (($var == 't') || ($var=='true'))) {
             return 'true';
         } else {
             return 'false';
@@ -366,7 +366,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     }
 
                     if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
-                        $query .= boolean_to_string($insert[$dbfield]);
+                        $query .= $this->boolean_to_db($insert[$dbfield]);
                     } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $query .= 'NULL';
                     } else {
@@ -379,7 +379,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                 $parts = array();
                 foreach ($dbfields as $dbfield) {
                     if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
-                        $parts[] = $dbfield .' = '.boolean_to_string($insert[$dbfield]);
+                        $parts[] = $dbfield .' = '.$this->boolean_to_db($insert[$dbfield]);
                     } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $parts[] = $dbfield.' = NULL';
                     } else {
@@ -415,7 +415,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     $separator = $is_first ? '' : ",\n    ";
 
                     if (isset($data[$key]) && is_bool($data[$key])) {
-                        $query .= $separator.$key.' = '.boolean_to_string($data[$key]);
+                        $query .= $separator.$key.' = '.$this->boolean_to_db($data[$key]);
                     } elseif (isset($data[$key])) {
                         $query .= $separator.$key.' = \''.$data[$key].'\'';
                     } else {
@@ -433,10 +433,12 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                         if (!$is_first) {
                             $query .= ' AND ';
                         }
-                        if (isset($data[$key])) {
-                            $query .= $key.' = \''.$data[$key].'\'';
-                        } else {
+                        if (isset($data[$key]) && is_bool($data[$key])) {
+                            $query .= $key.' = \''.$this->boolean_to_db($data[$key]).'\'';
+                        } elseif (!isset($data[$key]) || $data[$key] === '') {
                             $query .= $key.' IS NULL';
+                        } else {
+                            $query .= $key.' = \''.$data[$key].'\'';
                         }
                         $is_first = false;
                     }

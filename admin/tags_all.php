@@ -35,7 +35,7 @@ if (isset($_POST['edit_submit'])) {
     $query .= ' WHERE id '.$conn->in($_POST['edit_list']);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
-        $current_name_of[ $row['id'] ] = $row['name'];
+        $current_name_of[$row['id']] = $row['name'];
     }
 
     $updates = array();
@@ -154,7 +154,7 @@ if (isset($_POST['merge_submit'])) {
             $query = 'SELECT id,name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($tag_ids);
             $result = $conn->db_query($query);
             while ($row = $conn->db_fetch_assoc($result)) {
-                $name_of_tag[ $row['id'] ] = trigger_change('render_tag_name', $row['name'], $row);
+                $name_of_tag[$row['id']] = trigger_change('render_tag_name', $row['name'], $row);
             }
 
             $tag_ids_to_delete = array_diff(
@@ -185,7 +185,7 @@ if (isset($_POST['merge_submit'])) {
             }
 
             if (count($inserts) > 0) {
-                mass_inserts(
+                $conn->mass_inserts(
                     IMAGE_TAG_TABLE,
                     array_keys($inserts[0]),
                     $inserts

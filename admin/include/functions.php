@@ -912,7 +912,7 @@ function update_path() {
     foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
         $query = 'UPDATE '.IMAGES_TABLE;
         $query .= ' SET path = '.$conn->db_concat(array("'".$fulldirs[$cat_id]."/'", 'file'));
-        $query .= ' WHERE storage_category_id = '.$cat_id.';';
+        $query .= ' WHERE storage_category_id = '.$conn->db_real_escape_string($cat_id);
         $conn->db_query($query);
     }
 }

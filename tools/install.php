@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -43,7 +43,7 @@ define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-    pwg_db_check_version();
+    $conn->db_check_version();
 } catch (Exception $e) {
     die($e->getMessage());
 }
@@ -91,7 +91,7 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme) {
 }
 
 $insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH.'galleries/');
-mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
+$conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
 
 $inserts = array(
     array(
@@ -105,11 +105,11 @@ $inserts = array(
         'username' => 'guest',
     ),
 );
-mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
+$conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
 
 create_user_infos(array(1,2), array('language' => 'en'));
 
-list($dbnow) = pwg_db_fetch_row(pwg_query('SELECT NOW();'));
+list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 $datas = array();
 foreach (get_available_upgrade_ids() as $upgrade_id) {
@@ -119,7 +119,7 @@ foreach (get_available_upgrade_ids() as $upgrade_id) {
         'description' => 'upgrade included in installation',
     );
 }
-mass_inserts(
+$conn->mass_inserts(
     UPGRADE_TABLE,
     array_keys($datas[0]),
     $datas

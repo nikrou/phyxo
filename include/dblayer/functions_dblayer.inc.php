@@ -281,18 +281,6 @@ function single_insert($table_name, $data) {
     $conn->single_insert($table_name, $data);
 }
 
-function mass_updates($tablename, $dbfields, $datas, $flags=0) {
-    global $conn;
-
-    $conn->mass_updates($tablename, $dbfields, $datas, $flags);
-}
-
-function mass_inserts($table_name, $dbfields, $datas, $options=array()) {
-    global $conn;
-
-    $conn->mass_inserts($table_name, $dbfields, $datas);
-}
-
 function query2array($query, $key_name=null, $value_name=null) {
     global $conn;
 

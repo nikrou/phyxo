@@ -166,7 +166,7 @@ class DBLayer
      * @param string $table_name
      * @param array $data
      */
-    public function single_insert($table_name, $data) { // @TODO: need refactoring between mass_* and single_*
+    public function single_insert($table_name, $data) {
         if (count($data) != 0) {
             $query = 'INSERT INTO '.$table_name.' ('.implode(',', array_keys($data)).')';
             $query .= ' VALUES(';
@@ -179,7 +179,9 @@ class DBLayer
                     $is_first = false;
                 }
 
-                if ($value === '') {
+                if (is_bool($value)) {
+                    $query .= '\''.$this->boolean_to_db($value).'\'';
+                } elseif ($value === '') {
                     $query .= 'NULL';
                 } else {
                     $query .= '\''.$value.'\'';
@@ -211,8 +213,12 @@ class DBLayer
         foreach ($datas as $key => $value) {
             $separator = $is_first ? '' : ",\n    ";
 
-            if (isset($value) and $value !== '') {
-                $query .= $separator.$key.' = \''.$value.'\'';
+            if (isset($value)) {
+                if (is_bool($value)) {
+                    $query .= $separator.$key.' = \''.$this->boolean_to_db($value).'\'';
+                } elseif ($value !== '') {
+                    $query .= $separator.$key.' = \''.$value.'\'';
+                }
             } else {
                 if ($flags & MASS_UPDATES_SKIP_EMPTY) {
                     continue; // next field
@@ -231,10 +237,12 @@ class DBLayer
                 if (!$is_first) {
                     $query.= ' AND ';
                 }
-                if (isset($value)) {
-                    $query.= $key.' = \''.$value.'\'';
-                } else {
+                if (isset($value) && is_bool($value)) {
+                    $query.= $key.' = \''.$this->boolean_to_db($value).'\'';
+                } elseif (!isset($value) || $value === '') {
                     $query.= $key.' IS NULL';
+                } else {
+                    $query.= $key.' = \''.$value.'\'';
                 }
                 $is_first = false;
             }
@@ -263,7 +271,7 @@ class DBLayer
             $elements = array();
             foreach ($dbfields as $dbfield) {
                 if (isset($data[$dbfield]) && is_bool($data[$dbfield])) {
-                    $elements[] = boolean_to_string($data[$dbfield]);
+                    $elements[] = $this->boolean_to_db($data[$dbfield]);
                 } elseif (!isset($data[$dbfield]) or $data[$dbfield] === '') {
                     $elements[] = 'NULL';
                 } else {
