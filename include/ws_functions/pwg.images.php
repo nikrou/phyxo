@@ -489,7 +489,7 @@ function ws_images_rate($params, $service) {
         '    AND'
     );
     $query .= ' LIMIT 1;';
-    if (pwg_db_num_rows($conn->db_query($query))==0) {
+    if ($conn->db_num_rows($conn->db_query($query))==0) {
         return new PwgError(404, 'Invalid image_id or access denied');
     }
 
@@ -1210,7 +1210,7 @@ function ws_images_checkFiles($params, $service) {
     $query = 'SELECT path FROM '. IMAGES_TABLE .' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
     $result = $conn->db_query($query);
 
-    if (pwg_db_num_rows($result) == 0) {
+    if ($conn->db_num_rows($result) == 0) {
         return new PwgError(404, 'image_id not found');
     }
 

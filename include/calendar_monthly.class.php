@@ -202,7 +202,7 @@ class CalendarMonthly extends CalendarBase
         global $page, $lang, $conn;
 
         assert( count($page['chronology_date']) == 0 );
-        $query = 'SELECT '.pwg_db_get_date_YYYYMM($this->date_field).' as period,';
+        $query = 'SELECT '.$conn->db_get_date_YYYYMM($this->date_field).' as period,';
         $query .= 'COUNT(distinct id) as count';
         $query .= $this->inner_sql;
         $query .= $this->get_date_where();
@@ -257,7 +257,7 @@ class CalendarMonthly extends CalendarBase
         global $page, $lang, $conn;
 
         assert( count($page['chronology_date']) == 1 );
-        $query = 'SELECT '.pwg_db_get_date_MMDD($this->date_field).' as period,';
+        $query = 'SELECT '.$conn->db_get_date_MMDD($this->date_field).' as period,';
         $query .= ' COUNT(DISTINCT id) as count';
         $query .= $this->inner_sql;
         $query .= $this->get_date_where();

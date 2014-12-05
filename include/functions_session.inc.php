@@ -158,12 +158,12 @@ function pwg_session_write($session_id, $data) {
 
     list($counter) = $conn->db_fetch_row($conn->db_query($query));
     if ($counter==1) {
-        $query = 'UPDATE '.SESSIONS_TABLE.' SET data = \''.pwg_db_real_escape_string($data).'\', expiration=now()';
+        $query = 'UPDATE '.SESSIONS_TABLE.' SET data = \''.$conn->db_real_escape_string($data).'\', expiration=now()';
         $query .= ' WHERE id = \''.get_remote_addr_session_hash().$session_id.'\'';
         $conn->db_query($query);
     } else {
         $query = 'INSERT INTO '.SESSIONS_TABLE.' (id,data,expiration)';
-        $query .= ' VALUES(\''.get_remote_addr_session_hash().$session_id.'\',\''.pwg_db_real_escape_string($data).'\',now())';
+        $query .= ' VALUES(\''.get_remote_addr_session_hash().$session_id.'\',\''.$conn->db_real_escape_string($data).'\',now())';
         $conn->db_query($query);
     }
 

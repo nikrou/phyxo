@@ -89,7 +89,7 @@ $protected_users = array(
 
 // an admin can't delete other admin/webmaster
 if ('admin' == $user['status']) {
-    $query = 'SELECT user_id FROM '.USER_INFOS_TABLE.' WHERE status '.$conn->in(array('webmaster', 'admin');
+    $query = 'SELECT user_id FROM '.USER_INFOS_TABLE.' WHERE status '.$conn->in(array('webmaster', 'admin'));
     $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
 }
 
@@ -109,7 +109,7 @@ $template->assign(
 );
 
 // Status options
-foreach (get_enums(USER_INFOS_TABLE, 'status') as $status) {
+foreach ($conn->get_enums(USER_INFOS_TABLE, 'status') as $status) {
     $label_of_status[$status] = l10n('user_status_'.$status);
 }
 

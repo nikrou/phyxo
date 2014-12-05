@@ -325,7 +325,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
 
     if (count($check_key_list) != 0) {
         $updates = array();
-        $enabled_value = boolean_to_string($is_subscribe);
+        $enabled_value = $conn->boolean_to_string($is_subscribe);
         $data_users = get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
         // Prepare message after change language

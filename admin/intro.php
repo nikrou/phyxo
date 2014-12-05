@@ -28,7 +28,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
-include_once PHPWG_ROOT_PATH. 'include/dblayer/dblayers.inc.php';
+include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -87,7 +87,7 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
 $template->set_filenames(array('intro' => 'intro.tpl'));
 
 $php_current_timestamp = date("Y-m-d H:i:s");
-$db_version = $conn->get_db_version();
+$db_version = $conn->db_version();
 list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
 
 $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE;

@@ -285,7 +285,7 @@ $perm_url = $admin_url.'group_perm&amp;group_id=';
 $del_url = $admin_url.'group_list&amp;delete=';
 $toggle_is_default_url = $admin_url.'group_list&amp;toggle_is_default=';
 
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $query = 'SELECT u.'. $conf['user_fields']['username'].' AS username FROM '.USERS_TABLE.' AS u';
     $query .= ' LEFT JOIN '.USER_GROUP_TABLE.' AS ug ON u.'.$conf['user_fields']['id'].' = ug.user_id';
     $query .= ' WHERE ug.group_id = '.$row['id'];

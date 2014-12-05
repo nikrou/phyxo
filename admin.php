@@ -202,7 +202,7 @@ if ($conf['activate_comments']) {
 
 // any photo in the caddie?
 $query = 'SELECT COUNT(1) FROM '.CADDIE_TABLE.' WHERE user_id = '.$user['id'].';';
-list($nb_photos_in_caddie) = $conn->db_fetch_row(pwg_query($query));
+list($nb_photos_in_caddie) = $conn->db_fetch_row($conn->db_query($query));
 
 if ($nb_photos_in_caddie > 0) {
     $template->assign(

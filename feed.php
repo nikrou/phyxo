@@ -85,7 +85,7 @@ if (!empty($feed_id)) {
 // Check the status now after the user has been loaded
 check_status(ACCESS_GUEST);
 
-list($dbnow) = $conn->db_fetch_row(pwg_query('SELECT NOW();'));
+list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
 include_once(PHPWG_ROOT_PATH.'include/feedcreator.class.php');
 

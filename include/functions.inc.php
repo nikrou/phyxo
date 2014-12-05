@@ -1613,14 +1613,14 @@ function get_branch_from_version($version) {
  * @return bool
  */
 function mobile_theme() {
-    global $conf;
+    global $conf, $conn;
 
     if (empty($conf['mobile_theme'])) {
         return false;
     }
 
     if (isset($_GET['mobile'])) {
-        $is_mobile_theme = get_boolean($_GET['mobile']);
+        $is_mobile_theme = $conn->get_boolean($_GET['mobile']);
         pwg_set_session_var('mobile_theme', $is_mobile_theme);
     } else {
         $is_mobile_theme = pwg_get_session_var('mobile_theme');

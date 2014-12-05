@@ -276,7 +276,7 @@ switch ($page['section'])
 case 'main': {
     function order_by_is_local() {
         if (is_readable(PHPWG_ROOT_PATH. 'local/config/config.inc.php')) {
-            include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
+            include_once(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
         }
         if (isset($conf['local_dir_site']) && is_readable(PHPWG_ROOT_PATH.PWG_LOCAL_DIR. 'config/config.inc.php')) {
             include(PHPWG_ROOT_PATH.PWG_LOCAL_DIR. 'config/config.inc.php');

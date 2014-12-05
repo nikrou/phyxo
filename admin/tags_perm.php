@@ -23,7 +23,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 $status_options[null] = '----------';
-foreach (get_enums(USER_INFOS_TABLE, 'status') as $status) {
+foreach ($conn->get_enums(USER_INFOS_TABLE, 'status') as $status) {
     $status_options[$status] = l10n('user_status_'.$status);
 }
 

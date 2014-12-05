@@ -126,7 +126,7 @@ function deactivate_non_standard_themes() {
         // what is the default theme?
         $query = 'SELECT theme FROM '.PREFIX_TABLE.'user_infos';
         $query .= ' WHERE user_id = '.$conn->db_real_escape_string($conf['default_user_id']);
-        list($default_theme) = $conn->db_fetch_row(pwg_query($query));
+        list($default_theme) = $conn->db_fetch_row($conn->db_query($query));
 
         // if the default theme has just been deactivated, let's set another core theme as default
         if (in_array($default_theme, $theme_ids)) {

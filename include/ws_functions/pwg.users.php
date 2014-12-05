@@ -46,11 +46,11 @@ function ws_users_getList($params, &$service) {
     }
 
     if (!empty($params['username'])) {
-        $where_clauses[] = 'u.'.$conf['user_fields']['username'].' LIKE \''.pwg_db_real_escape_string($params['username']).'\'';
+        $where_clauses[] = 'u.'.$conf['user_fields']['username'].' LIKE \''.$conn->db_real_escape_string($params['username']).'\'';
     }
 
     if (!empty($params['status'])) {
-        $params['status'] = array_intersect($params['status'], get_enums(USER_INFOS_TABLE, 'status'));
+        $params['status'] = array_intersect($params['status'], $conn->get_enums(USER_INFOS_TABLE, 'status'));
         if (count($params['status']) > 0) {
             $where_clauses[] = 'ui.status '.$conn->in($params['status']);
         }
@@ -416,22 +416,22 @@ function ws_users_setInfo($params, &$service) {
 
     // @TODO: remove arobase : add test
     if (!empty($params['expand']) or @$params['expand']===false) {
-        $updates_infos['expand'] = boolean_to_string($params['expand']);
+        $updates_infos['expand'] = $conn->boolean_to_string($params['expand']);
     }
 
     // @TODO: remove arobase : add test
     if (!empty($params['show_nb_comments']) or @$params['show_nb_comments']===false) {
-        $updates_infos['show_nb_comments'] = boolean_to_string($params['show_nb_comments']);
+        $updates_infos['show_nb_comments'] = $conn->boolean_to_string($params['show_nb_comments']);
     }
 
     // @TODO: remove arobase : add test
     if (!empty($params['show_nb_hits']) or @$params['show_nb_hits']===false) {
-        $updates_infos['show_nb_hits'] = boolean_to_string($params['show_nb_hits']);
+        $updates_infos['show_nb_hits'] = $conn->boolean_to_string($params['show_nb_hits']);
     }
 
     // @TODO: remove arobase : add test
     if (!empty($params['enabled_high']) or @$params['enabled_high']===false) {
-        $updates_infos['enabled_high'] = boolean_to_string($params['enabled_high']);
+        $updates_infos['enabled_high'] = $conn->boolean_to_string($params['enabled_high']);
     }
 
     // perform updates

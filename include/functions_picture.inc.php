@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,7 +70,7 @@ function correct_slideshow_params($params=array()) {
  * @return array
  */
 function decode_slideshow_params($encode_params=null) {
-    global $conf;
+    global $conf, $conn;
 
     $result = get_default_slideshow_params();
 
@@ -88,7 +88,7 @@ function decode_slideshow_params($encode_params=null) {
         if (preg_match_all('/([a-z]+)-(true|false)/', $encode_params, $matches)) {
             $matchcount = count($matches[1]);
             for ($i = 0; $i < $matchcount; $i++) {
-                $result[$matches[1][$i]] = get_boolean($matches[2][$i]);
+                $result[$matches[1][$i]] = $conn->get_boolean($matches[2][$i]);
             }
         }
     }
@@ -103,16 +103,15 @@ function decode_slideshow_params($encode_params=null) {
  * @return string
  */
 function encode_slideshow_params($decode_params=array()) {
-    global $conf;
+    global $conf, $conn;
 
     $params = array_diff_assoc(correct_slideshow_params($decode_params), get_default_slideshow_params());
     $result = '';
 
     foreach ($params as $name => $value) {
         // boolean_to_string return $value, if it's not a bool
-        $result .= '+'.$name.'-'.boolean_to_string($value);
+        $result .= '+'.$name.'-'.$conn->boolean_to_string($value);
     }
 
     return $result;
 }
-

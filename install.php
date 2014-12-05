@@ -137,7 +137,6 @@ if (!isset($step)) {
 }
 
 //---------------------------------------------------------------- form analyze
-include(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
 include(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
 if (isset($_POST['install'])) {
@@ -155,7 +154,7 @@ if (isset($_POST['install'])) {
     if (empty($errors)) {
         try {
             $conn = DBLayer::init($_POST['dblayer'], $_POST['dbhost'], $_POST['dbuser'], $_POST['dbpasswd'], $_POST['dbname']);
-            pwg_db_check_version();
+            $conn->db_check_version();
         } catch (Exception $e) {
             $errors[] = l10n($e->getMessage());
         }
@@ -234,7 +233,7 @@ define(\'DB_COLLATE\', \'\');';
 
         conf_update_param(
             'secret_key',
-            'md5('.pwg_db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
+            'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
             'a secret key specific to the gallery for internal use'
         );
         conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));

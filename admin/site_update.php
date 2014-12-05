@@ -180,9 +180,9 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 'dir'         => $dir,
                 'name'        => str_replace('_', ' ', $dir),
                 'site_id'     => $site_id,
-                'commentable' => boolean_to_string($conf['newcat_default_commentable']),
+                'commentable' => $conn->boolean_to_string($conf['newcat_default_commentable']),
                 'status'      => $conf['newcat_default_status'],
-                'visible'     => boolean_to_string($conf['newcat_default_visible']),
+                'visible'     => $conn->boolean_to_string($conf['newcat_default_visible']),
             );
 
             if (isset($db_fulldirs[dirname($fulldir)])) {

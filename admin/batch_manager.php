@@ -221,7 +221,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
 
     case 'last_import':
         $query = 'SELECT MAX(date_available) AS date FROM '.IMAGES_TABLE;
-        $row = $conn->db_fetch_assoc(pwg_query($query));
+        $row = $conn->db_fetch_assoc($conn->db_query($query));
         if (!empty($row['date'])) {
             $query = 'SELECT id FROM '.IMAGES_TABLE;
             $query .= ' WHERE date_available BETWEEN ';

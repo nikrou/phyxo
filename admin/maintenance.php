@@ -101,7 +101,7 @@ case 'feeds' : {
     break;
 }
 case 'database' : {
-    if (do_maintenance_all_tables()) {
+    if ($conn->do_maintenance_all_tables()) {
         $page['infos'][] = l10n('All optimizations have been successfully completed.');
     } else {
         $page['errors'][] = l10n('Optimizations have been completed with some errors.');

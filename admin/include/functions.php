@@ -1025,7 +1025,7 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
     } else {
         $insert['commentable'] = $conf['newcat_default_commentable'];
     }
-    $insert['commentable'] = boolean_to_string($insert['commentable']);
+    $insert['commentable'] = $conn->boolean_to_string($insert['commentable']);
 
     // is the album temporarily locked? (only visible by administrators,
     // whatever permissions) (may be overwritten if parent album is not
@@ -1035,7 +1035,7 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
     } else {
         $insert['visible'] = $conf['newcat_default_visible'];
     }
-    $insert['visible'] = boolean_to_string($insert['visible']);
+    $insert['visible'] = $conn->boolean_to_string($insert['visible']);
 
     // is the album private? (may be overwritten if parent album is private)
     if (isset($options['status']) and 'private' == $options['status']) {
@@ -1060,7 +1060,7 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
         // at creation, must a category be visible or not ? Warning : if the
         // parent category is invisible, the category is automatically create
         // invisible. (invisible = locked)
-        if (get_boolean($parent['visible'])===false) {
+        if ($conn->get_boolean($parent['visible'])===false) {
             $insert['visible'] = 'false';
         }
 
@@ -1133,7 +1133,7 @@ function associate_images_to_categories($images, $categories) {
     $result = $conn->db_query($query);
 
     $existing = array();
-    while ($row = pwg_db_fetch_assoc($result)) {
+    while ($row = $conn->db_fetch_assoc($result)) {
         $existing[ $row['category_id'] ][] = $row['image_id'];
     }
 

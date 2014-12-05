@@ -59,9 +59,6 @@ if ($conf['question_mark_in_urls']==false and isset($_SERVER['PATH_INFO']) and !
         $rewritten = $key;
         break;
     }
-
-    // the $_GET keys are not protected in include/common.inc.php, only the values
-    $rewritten = pwg_db_real_escape_string($rewritten);
     $page['root_path'] = PHPWG_ROOT_PATH;
 }
 

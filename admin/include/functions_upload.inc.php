@@ -91,7 +91,7 @@ function save_upload_form_config($data, &$errors=array(), &$form_errors=array())
 
             $updates[] = array(
                 'param' => $field,
-                'value' => boolean_to_string($value)
+                'value' => $conn->boolean_to_string($value)
             );
         } elseif ($upload_form_config[$field]['can_be_null'] and empty($value)) {
             $updates[] = array(

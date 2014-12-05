@@ -81,7 +81,7 @@ function ws_categories_getImages($params, &$service) {
         }
         $order_by = empty($order_by) ? $conf['order_by'] : 'ORDER BY '.$order_by;
 
-        $query = 'SELECT i.*, '.pwg_db_group_concat('category_id').' AS cat_ids FROM '. IMAGES_TABLE .' i';
+        $query = 'SELECT i.*, '.$conn->db_group_concat('category_id').' AS cat_ids FROM '. IMAGES_TABLE .' i';
         $query .= ' LEFT JOIN '. IMAGE_CATEGORY_TABLE .' ON i.id=image_id';
         $query .= ' WHERE '. implode(' AND ', $where_clauses);
         $query .= ' GROUP BY i.id';
@@ -259,8 +259,8 @@ function ws_categories_getList($params, &$service) {
                 $query .= ' ORDER BY '. $conn::RANDOM_FUNCTION .'() LIMIT 1;';
                 $subresult = $conn->db_query($query);
 
-                if (pwg_db_num_rows($subresult) > 0) {
-                    list($image_id) = pwg_db_fetch_row($subresult);
+                if ($conn->db_num_rows($subresult) > 0) {
+                    list($image_id) = $conn->db_fetch_row($subresult);
                 }
             }
         }

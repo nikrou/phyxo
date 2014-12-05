@@ -65,8 +65,6 @@ if (!defined('PHPWG_INSTALLED')) {
     exit();
 }
 
-include(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
-
 if (!empty($conf['show_php_errors'])) {
     @ini_set('error_reporting', $conf['show_php_errors']);
     @ini_set('display_errors', true);

@@ -161,7 +161,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
     // if no error until here, registration of the user
     if (count($errors) == 0) {
         $insert = array(
-            $conf['user_fields']['username'] => pwg_db_real_escape_string($login),
+            $conf['user_fields']['username'] => $conn->db_real_escape_string($login),
             $conf['user_fields']['password'] => $conf['password_hash']($password),
             $conf['user_fields']['email'] => $mail_address
         );
@@ -171,7 +171,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
 
         // Assign by default groups
         $query = 'SELECT id FROM '.GROUPS_TABLE;
-        $query .= ' WHERE is_default = \''.boolean_to_string(true).'\' ORDER BY id ASC;';
+        $query .= ' WHERE is_default = \''.boolean_to_db(true).'\' ORDER BY id ASC;';
         $result = $conn->db_query($query);
 
         $inserts = array();
@@ -302,7 +302,7 @@ function getuserdata($user_id, $use_cache=false) {
     $query.= ' FROM '.USERS_TABLE;
     $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$user_id.'\'';
 
-    $row = pwg_db_fetch_assoc($conn->db_query($query));
+    $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     // retrieve additional user data ?
     if ($conf['external_authentification']) {
@@ -408,7 +408,7 @@ function getuserdata($user_id, $use_cache=false) {
                 $query = 'INSERT INTO '.USER_CACHE_TABLE;
                 $query .= ' (user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,';
                 $query .= ' last_photo_date,image_access_type, image_access_list)';
-                $query .= ' VALUES('.$userdata['id'].',\''.boolean_to_string($userdata['need_update']).'\',';
+                $query .= ' VALUES('.$userdata['id'].',\''.$conn->boolean_to_db($userdata['need_update']).'\',';
                 $query .= $userdata['cache_update_time'].',\''.$userdata['forbidden_categories'].'\','.$userdata['nb_total_images'].',';
                 $query .= (empty($userdata['last_photo_date']) ? 'NULL': '\''.$userdata['last_photo_date'].'\'');
                 $query .= ',\''.$userdata['image_access_type'].'\',\''.$userdata['image_access_list'].'\')';

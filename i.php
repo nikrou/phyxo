@@ -359,7 +359,6 @@ foreach (explode(',','load,rotate,crop,scale,sharpen,watermark,save,send') as $k
     $timing[$k] = '';
 }
 
-include_once(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
 include_once(PHPWG_ROOT_PATH .'/include/derivative_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'/include/derivative_std_params.inc.php');
 
@@ -410,10 +409,11 @@ if (!$need_generate) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
 $page['coi'] = null;
-if (strpos($page['src_location'], '/pwg_representative/')===false && strpos($page['src_location'], 'themes/')===false && strpos($page['src_location'], 'plugins/')===false) {
+if (strpos($page['src_location'], '/pwg_representative/')===false
+    && strpos($page['src_location'], 'themes/')===false && strpos($page['src_location'], 'plugins/')===false) {
     try {
         $query = 'SELECT * FROM '.$prefixeTable.'images';
-        $query .= ' WHERE path=\''.$conn->db_real_escape_string($page['src_location']).'\';';
+        $query .= ' WHERE path=\''.$conn->db_real_escape_string($page['src_location']).'\'';
 
         if (($row = $conn->db_fetch_assoc($conn->db_query($query)))) {
             if (isset($row['width'])) {
@@ -442,7 +442,7 @@ if (strpos($page['src_location'], '/pwg_representative/')===false && strpos($pag
 } else {
     $page['rotation_angle'] = 0;
 }
-pwg_db_close();
+$conn->db_close();
 
 if (!try_switch_source($params, $src_mtime) && $params->type==IMG_CUSTOM) {
 	$sharpen = 0;

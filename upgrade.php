@@ -55,7 +55,6 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 // |                          database connection                          |
 // +-----------------------------------------------------------------------+
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
-include(PHPWG_ROOT_PATH .'include/dblayer/functions_dblayer.inc.php');
 
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
@@ -141,7 +140,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         $page['upgrade_start'] = get_moment();
         $conf['die_on_sql_error'] = false;
         include($upgrade_file);
-        conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
+        conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE.'plugins', $tables)) {

@@ -102,7 +102,7 @@ $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
     $nb_total += $row['counter'];
 
-    if (get_boolean($row['validated'])==false) {
+    if ($conn->get_boolean($row['validated'])==false) {
         $nb_pending = $row['counter'];
     }
 }
@@ -162,7 +162,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
             'AUTHOR' => trigger_change('render_comment_author', $author_name),
             'DATE' => format_date($row['date'], array('day_name','day','month','year','time')),
             'CONTENT' => trigger_change('render_comment_content',$row['content']),
-            'IS_PENDING' => get_boolean($row['validated'])===false,
+            'IS_PENDING' => $conn->get_boolean($row['validated'])===false,
             'IP' => $row['anonymous_id'],
         )
     );

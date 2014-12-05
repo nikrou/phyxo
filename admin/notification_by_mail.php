@@ -531,7 +531,7 @@ case 'subscribe': {
     $opt_false = array();
     $opt_false_selected = array();
     foreach ($data_users as $nbm_user) {
-        if (get_boolean($nbm_user['enabled'])) {
+        if ($conn->get_boolean($nbm_user['enabled'])) {
             $opt_true[ $nbm_user['check_key'] ] = stripslashes($nbm_user['username']).'['.$nbm_user['mail_address'].']';
             if ((isset($_POST['falsify']) and isset($_POST['cat_true']) and in_array($nbm_user['check_key'], $_POST['cat_true']))) {
                 $opt_true_selected[] = $nbm_user['check_key'];

@@ -136,7 +136,7 @@ if (isset($_POST['submit'])) {
 
     if ($_POST['visible']=='true_sub') {
         set_cat_visible(array($_GET['cat_id']), true, true);
-    } elseif ($cat_info['visible'] != get_boolean($_POST['visible'])) {
+    } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
         set_cat_visible(array($_GET['cat_id']), $_POST['visible']);
     }
 
@@ -207,7 +207,7 @@ $template->assign(
         'CAT_ID' => $category['id'],
         'CAT_NAME' => @htmlspecialchars($category['name']),
         'CAT_COMMENT' => @htmlspecialchars($category['comment']),
-        'CAT_VISIBLE' => boolean_to_string($category['visible']),
+        'CAT_VISIBLE' => $conn->boolean_to_string($category['visible']),
 
         'U_JUMPTO' => make_index_url(
             array(
@@ -224,7 +224,7 @@ $template->assign(
 );
 
 if ($conf['activate_comments']) {
-    $template->assign('CAT_COMMENTABLE', boolean_to_string($category['commentable']));
+    $template->assign('CAT_COMMENTABLE', $conn->boolean_to_string($category['commentable']));
 }
 
 // manage album elements link

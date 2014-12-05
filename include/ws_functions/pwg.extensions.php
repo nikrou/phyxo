@@ -240,7 +240,7 @@ function ws_extensions_ignoreupdate($params, $service) {
             );
         }
 
-        conf_update_param('updates_ignored', pwg_db_real_escape_string(serialize($conf['updates_ignored'])));
+        conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
         unset($_SESSION['extensions_need_update']);
         return true;
     }
@@ -254,7 +254,7 @@ function ws_extensions_ignoreupdate($params, $service) {
         $conf['updates_ignored'][ $params['type'] ][] = $params['id'];
     }
 
-    conf_update_param('updates_ignored', pwg_db_real_escape_string(serialize($conf['updates_ignored'])));
+    conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
     unset($_SESSION['extensions_need_update']);
     return true;
 }

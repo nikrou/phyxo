@@ -31,7 +31,7 @@
 // is commentable
 $page['show_comments'] = false;
 foreach ($related_categories as $category) {
-    if (get_boolean($category['commentable'])) {
+    if ($conn->get_boolean($category['commentable'])) {
         $page['show_comments'] = true;
         break;
     }

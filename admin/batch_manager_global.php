@@ -165,7 +165,7 @@ if (isset($_POST['submit'])) {
         if (!empty($dissociables)) {
             $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
             $query .= ' WHERE category_id = '.$conn->db_real_escape_string($_POST['dissociate']);
-            $query .= ' AND image_id '.$conn->in($dissociables)';
+            $query .= ' AND image_id '.$conn->in($dissociables);
             $conn->db_query($query);
 
             $_SESSION['page_infos'][] = l10n('Information data registered in database');
@@ -489,7 +489,7 @@ if (count($page['cat_elements_id']) > 0) {
         $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
     }
 
-    $query .= ' WHERE id '.$conn->($page['cat_elements_id']);
+    $query .= ' WHERE id '.$conn->in($page['cat_elements_id']);
 
     if ($is_category) {
         $query .= ' AND category_id = '.$conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);

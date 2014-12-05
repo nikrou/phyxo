@@ -35,7 +35,7 @@ function ws_groups_getList($params, &$service) {
     $where_clauses = array('1=1');
 
     if (!empty($params['name'])) {
-        $where_clauses[] = 'LOWER(name) LIKE \''. pwg_db_real_escape_string($params['name']) .'\'';
+        $where_clauses[] = 'LOWER(name) LIKE \''. $conn->db_real_escape_string($params['name']) .'\'';
     }
 
     if (!empty($params['group_id'])) {
@@ -84,7 +84,7 @@ function ws_groups_add($params, &$service) {
         GROUPS_TABLE,
         array(
             'name' => $params['name'],
-            'is_default' => boolean_to_string($params['is_default']),
+            'is_default' => $conn->boolean_to_string($params['is_default']),
         )
     );
 
@@ -154,7 +154,7 @@ function ws_groups_setInfo($params, &$service) {
         // is the name not already used ?
         $query = 'SELECT COUNT(1) FROM '. GROUPS_TABLE;
         $query .= ' WHERE name = \''. $conn->db_real_escape_string($params['name']).'\'';
-        list($count) = pwg_db_fetch_row($conn->db_query($query));
+        list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count != 0) {
             return new PwgError(WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
@@ -163,7 +163,7 @@ function ws_groups_setInfo($params, &$service) {
     }
 
     if (!empty($params['is_default']) or @$params['is_default']===false) {
-        $updates['is_default'] = boolean_to_string($params['is_default']);
+        $updates['is_default'] = $conn->boolean_to_string($params['is_default']);
     }
 
     $conn->single_update(

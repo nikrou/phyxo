@@ -36,7 +36,6 @@ require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
 
 require_once(PHPWG_ROOT_PATH.'include/constants.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-require_once(PHPWG_ROOT_PATH.'include/dblayer/functions_dblayer.inc.php');
 require_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
@@ -65,7 +64,7 @@ execute_sqlfile(
 
 conf_update_param(
     'secret_key',
-    'md5('.pwg_db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
+    'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
     'a secret key specific to the gallery for internal use'
 );
 conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));

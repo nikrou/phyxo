@@ -49,7 +49,7 @@ $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON u.'.$conf['user_fields']['id
 
 $users_by_id = array();
 $result = $conn->db_query($query);
-while ($row = pwg_db_fetch_assoc($result)) {
+while ($row = $conn->db_fetch_assoc($result)) {
     $users_by_id[(int)$row['id']] = array(
         'name' => $row['name'],
         'anon' => is_autorize_status(ACCESS_CLASSIC, $row['status']) ? false : true

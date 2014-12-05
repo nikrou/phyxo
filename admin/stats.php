@@ -76,7 +76,7 @@ check_status(ACCESS_ADMINISTRATOR);
 // | Refresh summary from details                                          |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT date,'.pwg_db_get_hour('time').' AS hour,MAX(id) AS max_id,';
+$query = 'SELECT date,'.$conn->db_get_hour('time').' AS hour,MAX(id) AS max_id,';
 $query .= 'COUNT(1) AS nb_pages FROM '.HISTORY_TABLE;
 $query .= ' WHERE summarized = \''.$conn->boolean_to_db(false).'\'';
 $query .= ' GROUP BY date,hour';

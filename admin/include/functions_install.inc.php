@@ -79,7 +79,7 @@ function available_engines() {
     $engines = array();
 
     $pattern = PHPWG_ROOT_PATH. 'src/Phyxo/DBLayer/%sConnection.php';
-    include_once PHPWG_ROOT_PATH. 'include/dblayer/dblayers.inc.php';
+    include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
 
     foreach ($dblayers as $engine_name => $engine) {
         if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])
