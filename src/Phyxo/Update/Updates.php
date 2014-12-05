@@ -23,6 +23,7 @@ namespace Phyxo\Update;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
+use PclZip;
 
 class Updates
 {

@@ -30,8 +30,6 @@ require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\Update\Updates;
 
-include_once(PHPWG_ROOT_PATH.'admin/include/pclzip.lib.php');
-
 /*
 STEP:
 0 = check is needed. If version is latest or check fail, we stay on step 0

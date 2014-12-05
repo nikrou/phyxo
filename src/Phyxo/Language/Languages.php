@@ -20,6 +20,8 @@
 
 namespace Phyxo\Language;
 
+use PclZip;
+
 class Languages
 {
     public $fs_languages = array();
@@ -247,7 +249,6 @@ class Languages
 
             if ($handle = @fopen($archive, 'wb') and fetchRemote($url, $handle, $get_data)) {
                 fclose($handle);
-                include_once(PHPWG_ROOT_PATH.'admin/include/pclzip.lib.php');
                 $zip = new PclZip($archive);
                 if ($list = $zip->listContent()) {
                     foreach ($list as $file) {

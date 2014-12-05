@@ -16,7 +16,8 @@
 		"phpmailer/phpmailer": "5.2.*",
 		"jdorn/sql-formatter": "1.*",
 		"pelago/emogrifier": "dev-master",
-		"ircmaxell/password-compat": "dev-master"
+		"ircmaxell/password-compat": "dev-master",
+		"pclzip/pclzip": "dev-master"
 	},
 	"require-dev": {
 		"atoum/atoum": "dev-master",
