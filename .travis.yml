@@ -26,4 +26,4 @@ before_script:
 
 script:
   - php ./bin/atoum
-  - php ./bin/behat -c behat.yml.travis.dist
+#  - php ./bin/behat -c behat.yml.travis.dist
