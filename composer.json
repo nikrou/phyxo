@@ -17,7 +17,9 @@
 		"jdorn/sql-formatter": "1.*",
 		"pelago/emogrifier": "dev-master",
 		"ircmaxell/password-compat": "dev-master",
-		"pclzip/pclzip": "dev-master"
+		"pclzip/pclzip": "dev-master",
+		"tedivm/jshrink": "dev-master",
+		"natxet/CssMin": "3.0.2"
 	},
 	"require-dev": {
 		"atoum/atoum": "dev-master",

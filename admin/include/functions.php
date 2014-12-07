@@ -1330,7 +1330,7 @@ function cat_admin_access($category_id) {
  * @param int $step (internal use)
  * @return bool
  */
-function fetchRemote($src, &$dest, $get_data=array(), $post_data=array(), $user_agent='Piwigo', $step=0) {
+function fetchRemote($src, &$dest, $get_data=array(), $post_data=array(), $user_agent='Phyxo', $step=0) {
     // Try to retrieve data from local file?
     if (!url_is_remote($src)) {
         $content = @file_get_contents($src);

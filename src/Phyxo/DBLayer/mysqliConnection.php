@@ -153,7 +153,7 @@ class mysqliConnection extends DBLayer implements iDBLayer
     /* transaction functions */
     public function db_start_transaction() {
         if (!empty($this->db_link)) {
-            $this->db_link->db_query('BEGIN');
+            $this->db_query('BEGIN');
         }
     }
 
