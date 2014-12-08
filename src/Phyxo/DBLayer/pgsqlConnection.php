@@ -370,7 +370,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $query .= 'NULL';
                     } else {
-                        $query .= '\''.$insert[$dbfield].'\'';
+                        $query .= '\''.$this->db_real_escape_string($insert[$dbfield]).'\'';
                     }
                 }
                 $query .= ' WHERE NOT EXISTS(';
@@ -383,7 +383,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     } elseif (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $parts[] = $dbfield.' = NULL';
                     } else {
-                        $parts[] = $dbfield.' = \''.$insert[$dbfield].'\'';
+                        $parts[] = $dbfield.' = \''.$this->db_real_escape_string($insert[$dbfield]).'\'';
                     }
                 }
                 $query .= implode(' AND ', $parts);
@@ -417,7 +417,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     if (isset($data[$key]) && is_bool($data[$key])) {
                         $query .= $separator.$key.' = \''.$this->boolean_to_db($data[$key]).'\'';
                     } elseif (isset($data[$key])) {
-                        $query .= $separator.$key.' = \''.$data[$key].'\'';
+                        $query .= $separator.$key.' = \''.$this->db_real_escape_string($data[$key]).'\'';
                     } else {
                         if ($flags & MASS_UPDATES_SKIP_EMPTY) {
                             continue; // next field
@@ -438,7 +438,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                         } elseif (!isset($data[$key]) || $data[$key] === '') {
                             $query .= $key.' IS NULL';
                         } else {
-                            $query .= $key.' = \''.$data[$key].'\'';
+                            $query .= $key.' = \''.$this->db_real_escape_string($data[$key]).'\'';
                         }
                         $is_first = false;
                     }

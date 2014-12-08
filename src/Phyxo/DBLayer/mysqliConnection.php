@@ -417,7 +417,7 @@ class mysqliConnection extends DBLayer implements iDBLayer
                     if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
                         $query .= 'NULL';
                     } else {
-                        $query .= "'".$insert[$dbfield]."'";
+                        $query .= "'".$this->db_real_escape_string($insert[$dbfield])."'";
                     }
                 }
                 $query .= ')';
@@ -449,7 +449,7 @@ class mysqliConnection extends DBLayer implements iDBLayer
                     $separator = $is_first ? '' : ",\n    ";
 
                     if (isset($data[$key]) and $data[$key] != '') {
-                        $query .= $separator.$key.' = \''.$data[$key].'\'';
+                        $query .= $separator.$key.' = \''.$this->db_real_escape_string($data[$key]).'\'';
                     } else {
                         if ( $flags & MASS_UPDATES_SKIP_EMPTY ) {
                             continue; // next field
@@ -466,7 +466,7 @@ class mysqliConnection extends DBLayer implements iDBLayer
                             $query .= ' AND ';
                         }
                         if (isset($data[$key])) {
-                            $query .= $key.' = \''.$data[$key].'\'';
+                            $query .= $key.' = \''.$this->db_real_escape_string($data[$key]).'\'';
                         } else {
                             $query .= $key.' IS NULL';
                         }

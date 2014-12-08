@@ -184,7 +184,7 @@ class DBLayer
                 } elseif ($value === '') {
                     $query .= 'NULL';
                 } else {
-                    $query .= '\''.$value.'\'';
+                    $query .= '\''.$this->db_real_escape_string($value).'\'';
                 }
             }
             $query .= ')';
@@ -217,7 +217,7 @@ class DBLayer
                 if (is_bool($value)) {
                     $query .= $separator.$key.' = \''.$this->boolean_to_db($value).'\'';
                 } elseif ($value !== '') {
-                    $query .= $separator.$key.' = \''.$value.'\'';
+                    $query .= $separator.$key.' = \''.$this->db_real_escape_string($value).'\'';
                 }
             } else {
                 if ($flags & MASS_UPDATES_SKIP_EMPTY) {
@@ -242,7 +242,7 @@ class DBLayer
                 } elseif (!isset($value) || $value === '') {
                     $query.= $key.' IS NULL';
                 } else {
-                    $query.= $key.' = \''.$value.'\'';
+                    $query.= $key.' = \''.$this->db_real_escape_string($value).'\'';
                 }
                 $is_first = false;
             }
@@ -275,7 +275,7 @@ class DBLayer
                 } elseif (!isset($data[$dbfield]) or $data[$dbfield] === '') {
                     $elements[] = 'NULL';
                 } else {
-                    $elements[] = '\''.$data[$dbfield].'\'';
+                    $elements[] = '\''.$this->db_real_escape_string($data[$dbfield]).'\'';
                 }
             }
             $rows[] = '('.implode(',', $elements).')';
