@@ -28,13 +28,15 @@ li { margin: 5px; }
 </div>
 
 {if $STEP == 0}
-  {if $CHECK_VERSION}
-    <p>{'You are running the latest version of Phyxo.'|translate}</p>
-  {elseif $DEV_VERSION}
-    <p>{'You are running on development sources, no check possible.'|translate}</p>
-  {else}
-    <p>{'Check for upgrade failed for unknown reasons.'|translate}</p>
-  {/if}
+{if $UPGRADE_ERROR}
+<p>{$UPGRADE_ERROR}</p>
+{elseif $CHECK_VERSION}
+<p>{'You are running the latest version of Phyxo.'|translate}</p>
+{elseif $DEV_VERSION}
+<p>{'You are running on development sources, no check possible.'|translate}</p>
+{else}
+<p>{'Check for upgrade failed for unknown reasons.'|translate}</p>
+{/if}
 {/if}
 
 {if $STEP == 1}

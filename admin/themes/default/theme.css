@@ -337,7 +337,7 @@ TABLE { /* horizontaly centered */
 	margin-right: auto;
 }
 /* for debugging purpose */
-PRE { text-align:left; }
+PRE { text-align:left; margin-left: 2em; overflow:auto; }
 
 /** forms **/
 

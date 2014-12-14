@@ -6,6 +6,11 @@ Phyxo 1.3.0 - 2014-MM-DD
 * Add moderation for tags added/removed by visitors
 * ...
 
+Phyxo 1.2.1 - 2014-12-14
+========================
+* Fix issue for missing files in archive
+* Fix upgrade core.
+
 Phyxo 1.2.0 - 2014-09-28
 ========================
 * Add javascript tests using [Jasmine](http://jasmine.github.io/)

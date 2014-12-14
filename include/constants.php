@@ -23,9 +23,15 @@
 // +-----------------------------------------------------------------------+
 
 // Default settings
-define('PHPWG_VERSION', '1.3.0-dev');
-define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
-define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
+if (!defined('PHPWG_VERSION')) { // can be defined in tests
+    define('PHPWG_VERSION', '1.3.0-dev');
+}
+if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
+    define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
+}
+if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
+    define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
+}
 
 if (!defined('PHPWG_THEMES_PATH')) {
     define('PHPWG_THEMES_PATH', $conf['themes_dir'].'/');
@@ -52,6 +58,9 @@ if (!defined('PHPWG_URL')) {
 }
 if (!defined('PHYXO_UPDATE_URL')) {
     define('PHYXO_UPDATE_URL', 'http://download.phyxo.net/versions');
+}
+if (!defined('PHYXO_UPDATE_VERSION')) {
+	define('PHYXO_UPDATE_VERSION', 'stable');
 }
 if (!defined('PEM_URL')) {
     if (!empty($conf['alternative_pem_url'])) {

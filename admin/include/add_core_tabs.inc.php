@@ -304,10 +304,12 @@ function add_core_tabs($sheets, $tab_id) {
                 'caption' => l10n('Phyxo Update'),
                 'url' => $my_base_url
             );
+            /*
             $sheets['ext'] = array(
                 'caption' => l10n('Extensions Update'),
                 'url' => $my_base_url.'&amp;tab=ext'
             );
+            */
             break;
         }
 

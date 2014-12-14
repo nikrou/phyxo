@@ -49,14 +49,13 @@ if ($step == 0) {
         'DEV_VERSION' => false,
     ));
 
+    $updater = new Updates(PHYXO_UPDATE_URL);
+
     if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
-        $url = PHPWG_URL.'/download/all_versions.php';
-        $url .= '?rand='.md5(uniqid(rand(), true)); // Avoid server cache
-
-        if (@fetchRemote($url, $result) and $all_versions = @explode("\n", $result) and is_array($all_versions)) {
+        try {
+            $all_versions = $updater->getAllVersions();
             $template->assign('CHECK_VERSION', true);
-
-            $last_version = trim($all_versions[0]);
+            $last_version = trim($all_versions[0]['version']);
             $upgrade_to = $last_version;
 
             if (version_compare(PHPWG_VERSION, $last_version, '<')) {
@@ -81,6 +80,8 @@ if ($step == 0) {
                     }
                 }
             }
+        } catch (Exception $e) {
+            $template->assign('LAST_ERROR_MESSAGE', $e->getMessage());
         }
     } else {
         $template->assign('DEV_VERSION', true);
@@ -102,7 +103,27 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 if ($step == 2 and is_webmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        Updates::upgrade_to($_POST['upgrade_to'], $step);
+        $updater->upgradeTo($_POST['upgrade_to']);
+        $updater->download($zip);
+
+        try {
+            $updater->upgrade($zip);
+
+            deltree(PHPWG_ROOT_PATH.$conf['data_location'].'update');
+            invalidate_user_cache(true);
+            $template->delete_compiled_templates();
+            $page['infos'][] = l10n('Update Complete');
+            $page['infos'][] = $upgrade_to;
+            $step = -1;
+        } catch (Exception $e) {
+            $step = 0;
+            $message = $e->getMessage();
+            $message .= '<pre>';
+            $message .= implode("\n", $e->not_writable);
+            $message .= '</pre>';
+
+            $template->assign(array('UPGRADE_ERROR' => $message));
+        }
     }
 }
 
@@ -111,13 +132,27 @@ if ($step == 2 and is_webmaster()) {
 // +-----------------------------------------------------------------------+
 if ($step == 3 and is_webmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        Updates::upgrade_to($_POST['upgrade_to'], $step);
-    }
+        $zip = PHPWG_ROOT_PATH.$conf['data_location'].'update'.'/'.$_POST['upgrade_to'].'.zip';
+        $updater->upgradeTo($_POST['upgrade_to']);
+        $updater->download($zip);
 
-    $updates = new Updates($conn);
-    $updates->get_merged_extensions($upgrade_to);
-    $updates->get_server_extensions($upgrade_to);
-    $template->assign('missing', $updates->missing);
+        try {
+            $updater->upgrade($zip);
+
+            deltree(PHPWG_ROOT_PATH.$conf['data_location'].'update');
+            invalidate_user_cache(true);
+            $template->delete_compiled_templates();
+            redirect(PHPWG_ROOT_PATH.'upgrade.php?now=');
+        } catch (Exception $e) {
+            $step = 0;
+            $message = $e->getMessage();
+            $message .= '<pre>';
+            $message .= implode("\n", $e->not_writable);
+            $message .= '</pre>';
+
+            $template->assign(array('UPGRADE_ERROR' => $message));
+        }
+    }
 }
 
 // +-----------------------------------------------------------------------+
