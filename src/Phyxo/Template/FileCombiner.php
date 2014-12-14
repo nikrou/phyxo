@@ -21,6 +21,8 @@
 namespace Phyxo\Template;
 
 use Phyxo\Template\Combinable;
+use JShrink;
+use CssMin;
 
 /**
  * Allows merging of javascript and css files into a single one.
@@ -207,7 +209,7 @@ final class FileCombiner
     private static function process_js($js, $file) {
         if (strpos($file, '.min')===false and strpos($file, '.packed')===false ) {
             try {
-                $js = \JShrink_Minifier::minify($js);
+                $js = \JShrink\Minifier::minify($js);
             } catch(Exception $e) {}
         }
         return trim($js, " \t\r\n;").";\n";

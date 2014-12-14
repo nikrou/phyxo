@@ -129,15 +129,6 @@ if (isset($conf['order_by_inside_category_custom'])) {
 
 include(PHPWG_ROOT_PATH.'include/user.inc.php');
 
-define('PHPWG_DOMAIN', 'piwigo.org');
-define('PHPWG_URL', 'http://phyxo.nikrou.net');
-
-if(isset($conf['alternative_pem_url']) and $conf['alternative_pem_url']!='') {
-    define('PEM_URL', $conf['alternative_pem_url']);
-} else {
-    define('PEM_URL', 'http://'.PHPWG_DOMAIN.'/ext');
-}
-
 // language files
 load_language('common.lang');
 if (is_admin() || (defined('IN_ADMIN') && IN_ADMIN)) {

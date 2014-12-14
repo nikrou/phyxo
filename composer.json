@@ -15,7 +15,11 @@
 		"phpmailer/phpmailer": "v5.2.7",
 		"jdorn/sql-formatter": "1.*",
 		"pelago/emogrifier": "dev-master",
-		"ircmaxell/password-compat": "dev-master"
+		"pclzip/pclzip": "dev-master",
+		"ircmaxell/password-compat": "dev-master",
+		"tedivm/jshrink": "dev-master",
+		"natxet/CssMin": "3.0.2",
+		"guzzlehttp/guzzle": "5.*"
 	},
 	"require-dev": {
 		"atoum/atoum": "dev-master",
@@ -26,8 +30,7 @@
 		"behat/mink-goutte-driver": "*",
 		"behat/mink-zombie-driver": "*",
 		"symfony/dom-crawler": "2.1.*@dev",
-		"j4mie/idiorm": "*",
-		"guzzlehttp/guzzle": "4.*"
+		"j4mie/idiorm": "*"
 	},
 	"config": {
 		"bin-dir": "bin/"

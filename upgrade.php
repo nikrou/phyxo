@@ -85,8 +85,6 @@ if (isset($_GET['language'])) {
   }
 }
 
-define('PHPWG_URL', 'http://phyxo.nikrou.net');
-
 load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('admin.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
@@ -146,7 +144,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         $page['upgrade_start'] = get_moment();
         $conf['die_on_sql_error'] = false;
         include($upgrade_file);
-        conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
+        conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE.'plugins', $tables)) {

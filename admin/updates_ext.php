@@ -25,6 +25,7 @@
 if (!defined("PHPWG_ROOT_PATH")) {
     die ("Hacking attempt!");
 }
+return; // temporary
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
