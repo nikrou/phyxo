@@ -82,8 +82,6 @@ if (isset($_GET['language'])) {
     }
 }
 
-define('PHPWG_URL', 'http://www.phyxo.net');
-
 load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('admin.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
 load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );

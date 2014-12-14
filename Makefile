@@ -15,6 +15,7 @@ config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
 	cp -pr *.php admin doc include install language src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
+
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -d $(DIST)/$(APP_NAME)
 	rm $(DIST)/$(APP_NAME)/composer.*
@@ -45,14 +46,14 @@ config: clean
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
 
-dist-tgz:;
+dist-tgz: config
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
 
-dist-zip:;
+dist-zip: config
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
