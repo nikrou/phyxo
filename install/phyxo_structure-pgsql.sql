@@ -157,23 +157,6 @@ CREATE TABLE "phyxo_image_category"
 
 
 -----------------------------------------------------------------------------
--- phyxo_image_tag
------------------------------------------------------------------------------
-
-DROP TABLE IF EXISTS "phyxo_image_tag";
-CREATE TABLE "phyxo_image_tag"
-(
-  "image_id" INTEGER default 0 NOT NULL,
-  "tag_id" INTEGER default 0 NOT NULL,
-  "validated" BOOLEAN default true,
-  "created_by" INTEGER REFERENCES "phyxo_users" (id),
-  "status" INTEGER default 1,
-
-  PRIMARY KEY ("image_id","tag_id")
-);
-
-
------------------------------------------------------------------------------
 -- phyxo_images
 -----------------------------------------------------------------------------
 
@@ -505,6 +488,23 @@ CREATE TABLE "phyxo_users"
   "mail_address" VARCHAR(255),
   PRIMARY KEY ("id"),
   CONSTRAINT "users_ui1" UNIQUE ("username")
+);
+
+
+-----------------------------------------------------------------------------
+-- phyxo_image_tag
+-----------------------------------------------------------------------------
+
+DROP TABLE IF EXISTS "phyxo_image_tag";
+CREATE TABLE "phyxo_image_tag"
+(
+  "image_id" INTEGER default 0 NOT NULL,
+  "tag_id" INTEGER default 0 NOT NULL,
+  "validated" BOOLEAN default true,
+  "created_by" INTEGER REFERENCES "phyxo_users" (id),
+  "status" INTEGER default 1,
+
+  PRIMARY KEY ("image_id","tag_id")
 );
 
 
