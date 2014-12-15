@@ -282,6 +282,9 @@ define(\'DB_COLLATE\', \'\');';
             ),
         );
         $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
+        if ($dblayer=='pgsql') {
+            $conn->db_query('ALTER SEQUENCE '.strtolower(USERS_TABLE).'_id_seq RESTART WITH 3');
+        }
 
         create_user_infos(array(1,2), array('language' => $language));
 
