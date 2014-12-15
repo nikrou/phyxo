@@ -351,7 +351,9 @@ define(\'DB_COLLATE\', \'\');';
             ),
         );
         mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
-
+        if ($dblayer=='pgsql') {
+            pwg_query('ALTER SEQUENCE '.strtolower(USERS_TABLE).'_id_seq RESTART WITH 3');
+        }
         create_user_infos(array(1,2), array('language' => $language));
 
         // Available upgrades must be ignored after a fresh installation. To
