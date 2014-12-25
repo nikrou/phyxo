@@ -62,6 +62,9 @@ try {
     $page['errors'][] = l10n($e->getMessage());
 }
 
+$page['count_queries'] = 0;
+$page['queries_time'] = 0;
+
 // +-----------------------------------------------------------------------+
 // |                             language                                  |
 // +-----------------------------------------------------------------------+
@@ -111,6 +114,8 @@ $applied_upgrades = $conn->query2array($query, null, 'id');
 
 if (in_array('validated', $columns_of[PREFIX_TABLE.'tags'])) {
     $current_release = '1.3.0';
+} elseif (!in_array(145, $applied_upgrades)) {
+    $current_release = '1.2.0';
 } elseif (!in_array(142, $applied_upgrades)) {
     $current_release = '1.0.0';
 } else {

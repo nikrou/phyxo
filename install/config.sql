@@ -72,3 +72,4 @@ INSERT INTO phyxo_config (param,value) VALUES ('tags_existing_tags_only',0);
 INSERT INTO phyxo_config (param,value) VALUES ('publish_tags_immediately',0);
 INSERT INTO phyxo_config (param,value) VALUES ('delete_tags_immediately',0);
 INSERT INTO phyxo_config (param,value) VALUES ('show_pending_added_tags',0);
+INSERT INTO phyxo_config (param,value) VALUES ('show_pending_deleted_tags',0);

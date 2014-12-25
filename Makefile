@@ -1,6 +1,6 @@
 DIST=.dist
 APP_NAME=phyxo
-APP_VERSION=$(shell grep 'PHPWG_VERSION' ./include/constants.php| cut -d"'" -f4)
+APP_VERSION=$(shell grep "PHPWG_VERSION'," ./include/constants.php| cut -d"'" -f4)
 SOURCE=./*
 TARGET=../target
 

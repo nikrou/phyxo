@@ -1,10 +1,10 @@
-Phyxo 1.3.0 - 2014-MM-DD
+Phyxo 1.3.0 - 2014-12-25
 ========================
 * Fix issue in menu mangement
 * Change copyright to map new domain name : phyxo.net (wip)
 * Fix issue with Behat dependencies
 * Add moderation for tags added/removed by visitors
-* ...
+* Several fixes
 
 Phyxo 1.2.1 - 2014-12-14
 ========================
