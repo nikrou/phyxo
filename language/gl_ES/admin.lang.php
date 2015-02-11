@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -185,7 +185,7 @@ $lang['Crop'] = 'Redimensionar';
 $lang['Default user does not exist'] = 'O usuario predeterminado non existe';
 $lang['Delete multiple size images'] = 'Eliminar imaxes con múltiples tamaños';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'A anomalía ha de ser corrixida e non pode ser ignorada';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Crear o cartafol "%s" na raíz da instalación do teu sitio Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Crear o cartafol "%s" na raíz da instalación do teu sitio Phyxo';
 $lang['Create this site'] = 'Crear este sitio';
 $lang['Current name'] = 'Nome actual';
 $lang['Database'] = 'Base de datos';
@@ -532,7 +532,7 @@ $lang['Gallery unlocked'] = 'Galería desbloqueada';
 $lang['General statistics'] = 'Estatísticas xerais';
 $lang['Generate multiple size images'] = 'Xerar múltiples tamaños para as imaxes';
 $lang['Get Support on Piwigo Forum'] = 'Obter asistencia no foro de Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Dar permiso de escritura (chmod 777) ó cartafol "%s" na raíz da instalación do teu sitio Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Dar permiso de escritura (chmod 777) ó cartafol "%s" na raíz da instalación do teu sitio Phyxo';
 $lang['Go to'] = 'Ir a';
 $lang['For photo sizes with crop, such as "Square", Piwigo will do its best to include the center of interest.'] = 'Para tamaños de fotos recortadas, como "Cadrado", Piwigo fará o posible para incluír o centro de interese.';
 $lang['Follow Orientation'] = 'Sigue a orientación';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -203,8 +203,8 @@ $lang['Permalink'] = 'Peurliamm';
 $lang['Permalink %s is already used by album %s'] = 'Peurliamm %s a zo implijet gant ar rummad %s dija';
 $lang['Permalink history'] = 'Istor ar peurliammoù';
 $lang['Permalinks'] = 'Peurliammoù';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Ober kavlec\'h "%s" e penngavlec\'h ho staliadur Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Reiñ gwirioù da skrivañ (chmod 777) e kavlec\'h "%s" eus penngavlec\'h ho staliadur Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Ober kavlec\'h "%s" e penngavlec\'h ho staliadur Phyxo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Reiñ gwirioù da skrivañ (chmod 777) e kavlec\'h "%s" eus penngavlec\'h ho staliadur Phyxo';
 $lang['Add write access to the "%s" directory'] = 'Reiñ gwirioù da skrivañ e kavlec\'h "%s"';
 $lang['Add another set of photos'] = 'Lakaat ur stroll luc\'hskeudennoù all';
 $lang['Add detailed content'] = 'Lakaat endalc\'h dre ar munud';

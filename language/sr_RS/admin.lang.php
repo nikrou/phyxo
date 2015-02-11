@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -556,8 +556,8 @@ $lang['unknown'] = 'непознато';
 $lang['Upload Photos'] = 'Пошаљи фотографије';
 $lang['Drop into album'] = 'Баци у категорију';
 $lang['+ Add an upload box'] = '+ Додај кутију за слање';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Направи "%s" дирецторијум у корену Ваше Piwigo инсталације';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Дозволи упис (chmod 777) у "%s" директоријум у корену Ваше Piwigo инсталције';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Направи "%s" дирецторијум у корену Ваше Phyxo инсталације';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Дозволи упис (chmod 777) у "%s" директоријум у корену Ваше Phyxo инсталције';
 $lang['existing album'] = 'постојеће категорије';
 $lang['create a new album'] = 'направи нову категорију';
 $lang['Album name'] = 'Назив категорије';

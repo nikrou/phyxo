@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -555,8 +555,8 @@ $lang['unknown'] = 'inconnu';
 $lang['Upload Photos'] = 'Ajoutez des photos';
 $lang['Drop into album'] = 'Choisir un album';
 $lang['+ Add an upload box'] = '+ Ajouter une autre boîte de transfert';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Créez le répertoire "%s" à la racine de votre installation Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Donnez les droits en écriture (chmod 777) sur le répertoire "%s" à la racine de votre installation Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Créez le répertoire "%s" à la racine de votre installation Phyxo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Donnez les droits en écriture (chmod 777) sur le répertoire "%s" à la racine de votre installation Phyxo';
 $lang['existing album'] = 'album existant';
 $lang['create a new album'] = 'créer un nouvel album';
 $lang['Album name'] = 'Nom de l\'album';
@@ -784,8 +784,8 @@ $lang['Average rate'] = 'Note moyenne';
 $lang['Rate'] = 'Note';
 $lang['Learn more'] = 'En savoir plus';
 $lang['Select an album'] = 'Selectionnez un album';
-$lang['By default, Piwigo will create a new websize from the HD (high definition) version of your photo.'] = 'Par défaut, Piwigo créera la nouvelle taille web à partir de la HD (haute définition).';
-$lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Si la HD n\'est pas disponible et que la version actuelle de la taille web est plus grande que les dimensions ci-dessous, alors Piwigo la considérera comme HD et créera la nouvelle taille web à partir de celle-ci.';
+$lang['By default, Phyxo will create a new websize from the HD (high definition) version of your photo.'] = 'Par défaut, Phyxo créera la nouvelle taille web à partir de la HD (haute définition).';
+$lang['If no HD is available and if the current websize is bigger than resize dimensions, Phyxo will move it as HD and create a downsized websize photo from it.'] = 'Si la HD n\'est pas disponible et que la version actuelle de la taille web est plus grande que les dimensions ci-dessous, alors Phyxo la considérera comme HD et créera la nouvelle taille web à partir de celle-ci.';
 $lang['An error has occured during upgrade.'] = 'Une erreur est survenue pendant la mise à jour.';
 $lang['An error has occured during extract. Please check files permissions of your phyxo installation.<br><a href="%s">Click here to show log error</a>.'] = 'Impossible d\'extraire les fichiers. Veuillez vérifier les permissions des fichiers de votre installation.<br><a href="%s">Cliquez ici pour voir le rapport d\'erreur</a>.';
 $lang['Phyxo cannot retrieve upgrade file from server'] = 'Phyxo ne peut pas récupérer le fichier de mise à jour depuis le serveur';
@@ -870,7 +870,7 @@ $lang['No group is permitted to see this private album'] = 'Aucun groupe n\'est 
 $lang['Permission management'] = 'Gestion des permissions';
 $lang['Photo sizes with crop'] = 'Tailles de photo avec retaillage';
 $lang['The center of interest is the most meaningful zone in the photo.'] = 'Le centre d\'intérêt est la zone la plus représentative de la photo.';
-$lang['For photo sizes with crop, such as "Square", Piwigo will do its best to include the center of interest.'] = 'Pour les tailles de photo avec retaillage, comme la taille "Carré", Piwigo essaiera d\'inclure au mieux ce centre d\'intérêt.';
+$lang['For photo sizes with crop, such as "Square", Phyxo will do its best to include the center of interest.'] = 'Pour les tailles de photo avec retaillage, comme la taille "Carré", Phyxo essaiera d\'inclure au mieux ce centre d\'intérêt.';
 $lang['By default, the center of interest is placed in the middle of the photo.'] = 'Par défaut, le centre d\'intérêt est placé au milieu de la photo.';
 $lang['Select a zone with your mouse to define a new center of interest.'] = 'Sélectionnez une zone avec votre souris pour définir un nouveau centre d\'intérêt.';
 $lang['custom'] = 'Personnalisé';

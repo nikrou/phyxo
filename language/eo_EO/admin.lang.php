@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -436,14 +436,14 @@ $lang['Main Page'] = 'Ĉefa paĝo';
 $lang['Maintenance'] = 'Funkciteno';
 $lang['Manage'] = 'Administri';
 $lang['Manage Permissions'] = 'Administri la permesojn';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Krei la "%s" dosierujon ĉe la radiko de via Piwigo-instalo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Krei la "%s" dosierujon ĉe la radiko de via Phyxo-instalo';
 $lang['Delete multiple size images'] = 'Forigi la multoblan grandecon de fotoj';
 $lang['Documentation'] = 'Dokumentaro';
 $lang['Does not represent'] = 'Ne estas miniaturo por';
 $lang['Dump Database'] = 'Ŝuti la datumbazon';
 $lang['Duplicate'] = 'Duobligi';
 $lang['Duplicate selected tags'] = 'Duobligi la selektitajn etikedojn';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Doni skribaliron (chmod777) al la "%s" dosierujo ĉe la radiko de via Piwigo-instalo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Doni skribaliron (chmod777) al la "%s" dosierujo ĉe la radiko de via Phyxo-instalo';
 $lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Se neniu tredistingiva versio disponeblas kaj se la kuranta retgrandeco plias ol la ĉisubaj grandecoj, Piwigo konsideros ĝin kiel tredistingiva versio kaj kreos la novan retgrandecon de ĝi.';
 $lang['If you encounter problems or have any question, please send a message to'] = 'En kazo de problemoj aŭ demandoj, bonvolu sendi mesaĝon al';
 $lang['Do you want to activate anyway?'] = 'Ĉu vi tamen volas aktivigi ĝin?';

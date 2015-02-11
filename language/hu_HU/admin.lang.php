@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -538,8 +538,8 @@ $lang['Email administrators when a comment is deleted'] = 'Email az adminisztrá
 $lang['Upload Photos'] = 'Képek feltöltése';
 $lang['Drop into album'] = 'Album választás:';
 $lang['+ Add an upload box'] = '+ További képek feltöltése...';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = '"%s" könyvtár létrehozása a telepített Piwigo galériában.';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Adjon írási jogot (chmod 777) a(z) "%s" gyökerének a telepített Piwigo galériában';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = '"%s" könyvtár létrehozása a telepített Phyxo galériában.';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Adjon írási jogot (chmod 777) a(z) "%s" gyökerének a telepített Phyxo galériában';
 $lang['existing album'] = 'létező album';
 $lang['create a new album'] = ' új album létrehozása';
 $lang['Album name'] = 'Album neve';

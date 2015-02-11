@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -188,7 +188,7 @@ $lang['Correction applied with success'] = "การแก้ไขได้ส
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = "การแก้ไขความผิดปกติจะใช้เวลานานและอาจไม่สำเร็จ";
 $lang['Correction'] = "การแก้ไข";
 $lang['create a new album'] = 'สร้างอัลบั้มใหม่';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'สร้าง "%s" ไว้ที่โฟลเดอร์ Piwigo ของคุณ หรือ Root ที่เดียวกับที่ Piwigo ได้ติดตั้งอยู่';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'สร้าง "%s" ไว้ที่โฟลเดอร์ Phyxo ของคุณ หรือ Root ที่เดียวกับที่ Phyxo ได้ติดตั้งอยู่';
 $lang['Create this site'] = "สร้างที่อยู่นี้";
 $lang['created'] = "สร้าง";
 $lang['Current name'] = "ชื่อปัจจุบัน";
@@ -281,7 +281,7 @@ $lang['GD library is missing'] = "ไม่พบ GD ไลบรารี่";
 $lang['GD version'] = "GD เวอร์ชั่น";
 $lang['General statistics'] = "สถิติทั่วไป";
 $lang['Get Support on Piwigo Forum'] = 'ขอรับการสนับสนุนของ Piwigo จากฟอรั่ม Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation';
 $lang['global mode'] = "โหมดทั่วไป";
 $lang['Go to %s or %s for more informations'] = "ไปที่ %s หรือ %s เพื่อดูข้อมูลเพิ่มเติม";
 $lang['Go to'] = "ไปที่";

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -72,7 +72,7 @@ $lang['Correction applied with success'] = 'Popravek uspešno namešcen';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Odpravljene anomalije ne bodo več ignorirane.';
 $lang['Correction'] = 'Popravek';
 $lang['create a new album'] = 'ustvari nov album';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Ustvari imenik "%s" v korenu Piwigo namestitve.';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Ustvari imenik "%s" v korenu Phyxo namestitve.';
 $lang['Create this site'] = 'Ustvari stran';
 $lang['delete album'] = 'odstrani album';
 $lang['Delete orphan tags'] = 'Odstrani neuporabljene oznake';
@@ -373,7 +373,7 @@ $lang['GD version'] = 'GD različica';
 $lang['Gallery title'] = 'Naslov galerije';
 $lang['Gallery unlocked'] = 'Galerija je odklenjena';
 $lang['Generate multiple size images'] = 'Ustvari slike različnih velikosti';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Omogoči dovoljenje za pisanje (chmod 777) na "%s" mapi v korenu vaše Piwigo namestitve';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Omogoči dovoljenje za pisanje (chmod 777) na "%s" mapi v korenu vaše Phyxo namestitve';
 $lang['File'] = 'Datoteka';
 $lang['Extensions Update'] = 'Posodobitev razširitev';
 $lang['FTP + Synchronization'] = 'FTP + Sinhronizacija';

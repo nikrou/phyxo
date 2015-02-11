@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -555,8 +555,8 @@ $lang['unknown'] = 'unbekannt';
 $lang['Upload Photos'] = 'Lade Fotos hoch';
 $lang['Drop into album'] = 'In das Album hochladen';
 $lang['+ Add an upload box'] = '+ Füge eine weitere Uploadbox hinzu';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Erstellen Sie das Verzeichnis "%s" im Hauptverzeichnis (root) Ihrer Piwigo-Installation';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Geben Sie dem Verzeichnis "%s" im Hauptverzeichnis (root) Ihrer Piwigo-Installation Schreibrechte (chmod 777)';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Erstellen Sie das Verzeichnis "%s" im Hauptverzeichnis (root) Ihrer Phyxo-Installation';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Geben Sie dem Verzeichnis "%s" im Hauptverzeichnis (root) Ihrer Phyxo-Installation Schreibrechte (chmod 777)';
 $lang['existing album'] = 'existierendes Album';
 $lang['create a new album'] = 'Erstelle ein neues Album';
 $lang['Album name'] = 'Albumname';

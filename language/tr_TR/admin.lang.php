@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -204,7 +204,7 @@ $lang['Correction applied with success'] = 'Düzeltme başarıyla uygulandı';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Düzeltilmiş anomali artık göz ardı edilecektir';
 $lang['Correction'] = 'Düzeltme';
 $lang['create a new album'] = 'yeni bir albüm oluştur';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Piwigo\'nun kurulduğu kök dizin altında "%s" dizinini oluşturun';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Phyxo\'nun kurulduğu kök dizin altında "%s" dizinini oluşturun';
 $lang['Create this site'] = 'Bu siteyi oluştur';
 $lang['Create'] = 'Oluştur';
 $lang['created'] = 'yaratildi';
@@ -308,7 +308,7 @@ $lang['GD library is missing'] = 'GD kütüphanesi eksik';
 $lang['GD version'] = 'GD sürümü';
 $lang['General statistics'] = 'Genel istatistikler';
 $lang['Get Support on Piwigo Forum'] = 'Piwigo forumundan destek alın';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Piwigo\'nun kurulduğu kök dizindeki "%s" dizinine yazma yetkisi verin (chmod 777)';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Phyxo\'nun kurulduğu kök dizindeki "%s" dizinine yazma yetkisi verin (chmod 777)';
 $lang['global mode'] = 'Küresel mod';
 $lang['Go to %s or %s for more informations'] = 'Daha fazla bilgi için %s veya %s \'ye gidin';
 $lang['Go to'] = 'Git';

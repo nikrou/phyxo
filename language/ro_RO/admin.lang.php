@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -324,7 +324,7 @@ $lang['Correction applied with error'] = 'Corecţie aplicată cu eroare';
 $lang['Correction applied with success'] = 'Corecţie aplicată cu succes';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Anomalia rectificată nu va mai fi ignorată';
 $lang['Correction'] = 'Corectare';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Creați dosarul "%s" la rădăcina de instalare Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Creați dosarul "%s" la rădăcina de instalare Phyxo';
 $lang['Create this site'] = 'Creați siteul acesta';
 $lang['Create'] = 'Creare';
 $lang['automatic order'] = 'ordonare automată';
@@ -414,7 +414,7 @@ $lang['GD library is missing'] = 'Biblioteca GD lipseşte';
 $lang['GD version'] = 'Versiunea GD';
 $lang['General statistics'] = 'Statistici generale';
 $lang['Get Support on Piwigo Forum'] = 'Primiți sprijin pe forumul Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Dați acces de scriere (chmod 777) la dosarul "%s" în dosarul rădăcină de instalare Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Dați acces de scriere (chmod 777) la dosarul "%s" în dosarul rădăcină de instalare Phyxo';
 $lang['Go to %s or %s for more informations'] = 'Mergeți la %s sau %s pentru mai multe informații';
 $lang['Go to'] = 'Mergeți la';
 $lang['Graphics Library'] = 'Biblioteca de grafice';

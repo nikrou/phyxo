@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -215,7 +215,7 @@ $lang['General'] = '普通';
 $lang['General statistics'] = '普通統計';
 $lang['Generate multiple size images'] = '產生多種大小的圖像';
 $lang['Get Support on Piwigo Forum'] = '在 Piwigo 論壇上獲取幫助';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = '給予根目錄下的 "%s" 目錄寫權限 (chmod 777) 以完成 Piwigo 的安裝';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = '給予根目錄下的 "%s" 目錄寫權限 (chmod 777) 以完成 Phyxo 的安裝';
 $lang['Go to'] = '轉至 ';
 $lang['Go to %s or %s for more informations'] = '獲取更多信息，請到 %s 或者 %s ';
 $lang['Grant selected groups'] = '對所選群組授權';
@@ -309,7 +309,7 @@ $lang['Description'] = '描述';
 $lang['Detailed informations'] = '詳細信息';
 $lang['Directory'] = '目錄';
 $lang['Directory does not exist'] = '目錄不存在';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = '建立"%s"在安裝Piwigo的根目錄下';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = '建立"%s"在安裝Phyxo的根目錄下';
 $lang['Complementary mail content'] = '郵件附加內容';
 $lang['Configuration'] = '設定';
 $lang['Confirm merge'] = '確認合併';

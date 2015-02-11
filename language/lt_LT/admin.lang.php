@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -242,7 +242,7 @@ $lang['Images manual order was saved'] = 'Paveiksliukų rankinis rūšiavimas i�
 $lang['Impossible automatic correction'] = 'Automatiniai pataisymai neįmanomi';
 $lang['Impossible to activate this theme, the parent theme is missing: %s'] = 'Ši tema negali būti aktyvuota, nes jai trūksta pagrindinės temos: %s';
 $lang['Impossible to deactivate this language, first set another language as default.'] = 'Šios kalbos išjungti neįmanoma, pirmiausia nustatykite kitą kalbą, kaip pagrindinę.';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Suteikite rašymo teises (chmod 777) "%s" katalogui šakniniame jūsų Piwigo instaliacijos kataloge';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Suteikite rašymo teises (chmod 777) "%s" katalogui šakniniame jūsų Phyxo instaliacijos kataloge';
 $lang['Go to'] = 'Eiti į';
 $lang['Go to %s or %s for more informations'] = 'Norėdami gauti daugiau informacijos eikite į %s arba %s';
 $lang['Graphics Library'] = 'Grafinė biblioteka';
@@ -366,7 +366,7 @@ $lang['Correction applied with error'] = 'Koregavimas įvykdytas su klaida';
 $lang['Correction applied with success'] = 'Koregavimas sėkmingai įvykdytas';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Pataisyta anomalija nebebus ignoruojama';
 $lang['Create'] = 'Sukurti';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Sukurkite "%s" katalogą pagrindiniame Piwigo instaliacijos kataloge';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Sukurkite "%s" katalogą pagrindiniame Phyxo instaliacijos kataloge';
 $lang['Create this site'] = 'Sukurti šį puslapį';
 $lang['Crop'] = 'Apkarpyti';
 $lang['Current name'] = 'Dabartinis pavadinimas';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -379,7 +379,7 @@ $lang['Correction'] = 'Korreksjon';
 $lang['Correction applied with error'] = 'Korreksjon vart gjort, men med feil';
 $lang['Correction applied with success'] = 'Korreksjon vellukka';
 $lang['Create'] = 'Opprett';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Opprett mappa "%s" i rotmappa for din Piwigo-installasjon';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Opprett mappa "%s" i rotmappa for din Phyxo-installasjon';
 $lang['Create this site'] = 'Opprett denne nettsida';
 $lang['Crop'] = 'Kutt';
 $lang['Current name'] = 'Noverande namn';
@@ -901,7 +901,7 @@ $lang['Exif extension not available, admin should disable exif use'] = 'EXIF-utv
 $lang['Features include gallery browsing, album creation and photo upload.'] = 'Mogleghetar inkluderar å bla i galleriet, lage album og laste opp bilete.';
 $lang['Follow Orientation'] = 'Fylg orientering/retning';
 $lang['Generate multiple size images'] = 'Lag fleire størrelsar av bileta';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Gje skriverettar (chmod 777) til "%s" mappa i rotmappa i din Piwigo installasjon';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Gje skriverettar (chmod 777) til "%s" mappa i rotmappa i din Phyxo installasjon';
 $lang['Grant selected groups'] = 'Gje tilgang til valde grupper';
 $lang['Grant selected users'] = 'Gje tilgang til valde brukarar';
 $lang['Aperture is a powerful tool to refine images and manage massive libraries on Mac.'] = 'Aperture er eit kraftig verktøy for å forbetre bilete og handtere store mengder bilete på ein Mac datamaskin.';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -569,8 +569,8 @@ $lang['unknown'] = 'უცნობია';
 $lang['Upload Photos'] = 'ავტვირთოთ ფოტოები';
 $lang['Drop into album'] = 'ავტვირთოთ კატეგორიაში';
 $lang['+ Add an upload box'] = '+ დავამატოთ ასატვირთი ველი';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'შექმენით "%s" კატალოგი თქვენს მიერ დაყენებული Piwigo-ს ფუძეში';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'მიეცით ჩაწერაზე დაშვება (chmod 777)  "%s" კატალოგს, თქვენს მიერ დაყენებული Piwigo-ს ფუძეში';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'შექმენით "%s" კატალოგი თქვენს მიერ დაყენებული Phyxo-ს ფუძეში';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'მიეცით ჩაწერაზე დაშვება (chmod 777)  "%s" კატალოგს, თქვენს მიერ დაყენებული Phyxo-ს ფუძეში';
 $lang['existing album'] = 'არსებული კატეგორია';
 $lang['create a new album'] = 'შევქმნათ ახალი კატეგორია';
 $lang['Album name'] = 'კატეგორიის სახელი';

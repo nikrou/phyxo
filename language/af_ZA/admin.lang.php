@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -817,12 +817,12 @@ $lang['singly represented'] = 'album voorbeeldfoto is reggemaak';
 $lang[' and %d virtuals'] = 'en %d virtuele';
 $lang['Complementary mail content'] = 'Ekstra e-pos inhoud';
 $lang['Continue processing treatment'] = 'Gaan voort met huidige behandeling';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Skep \'n vouer genaamd "%s" in die basis pad van jou Piwigo-installasie';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Skep \'n vouer genaamd "%s" in die basis pad van jou Phyxo-installasie';
 $lang['Element type'] = 'Element tipe';
 $lang['Element'] = 'Element';
 $lang['Execution time is out, treatment must be continue [Estimated time: %d second].'] = 'Maksimum uitvoertyd is bereik, maar behandeling moet voortgaan [Tyd om te gaan: %d sekondes]';
 $lang['Execution time is out, treatment must be continue [Estimated time: %d seconds].'] = 'Maksimum uitvoertyd is verby, maar behandeling moet voortgaan [Tyd om te gaan: %d sekondes]';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Gee skryfregte (chmod 777) aan die vouer "%s" in die basis pad van jou Piwigo-installasie';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Gee skryfregte (chmod 777) aan die vouer "%s" in die basis pad van jou Phyxo-installasie';
 $lang['Information data registered in database'] = 'Inligting aangeteken in databasis';
 $lang['Invert'] = 'Keer om';
 $lang['Language has been successfully installed'] = 'Taal is suksesvol geïnstalleer';

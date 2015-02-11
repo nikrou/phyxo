@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -183,7 +183,7 @@ $lang['Correction applied with success'] = 'Виправлення успішн�
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Виправлена ​​аномалія більше не ігноруватиметься';
 $lang['Correction'] = 'Виправлення';
 $lang['create a new album'] = 'створити новий альбом';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Створити директорію "%s" в кореневій директорії інсталяції Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Створити директорію "%s" в кореневій директорії інсталяції Phyxo';
 $lang['Create this site'] = 'Створити цей сайт';
 $lang['created'] = 'створено';
 $lang['Current name'] = "Поточне ім'я";
@@ -275,7 +275,7 @@ $lang['GD library is missing'] = 'GD бібліотека відсутня';
 $lang['GD version'] = 'GD версія';
 $lang['General statistics'] = 'Загальна статистика';
 $lang['Get Support on Piwigo Forum'] = 'Отримати підтримку на форумі Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Надайте право запису (chmod 777) директорії "%s" в кореневому каталозі установки Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Надайте право запису (chmod 777) директорії "%s" в кореневому каталозі установки Phyxo';
 $lang['global mode'] = 'глобальний режим';
 $lang['Go to %s or %s for more informations'] = 'Перейдіть до %s або %s для детальнішої інформації';
 $lang['Go to'] = 'До';

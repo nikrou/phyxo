@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -237,7 +237,7 @@ $lang['Complementary mail content'] = 'Täiendav meilisisu';
 $lang['Correction applied with error'] = 'Parandust rakendamisel esines viga';
 $lang['Correction applied with success'] = 'Parandati edukalt';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Parandatud anomaaliat ei ignoreerita edaspidi';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Loo kaust "%s" paigaldatud Piwigo juurikasse';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Loo kaust "%s" paigaldatud Phyxo juurikasse';
 $lang['Create this site'] = 'Loo gallerii';
 $lang['Create'] = 'Loo';
 $lang['Crop'] = 'Kärbi';
@@ -329,7 +329,7 @@ $lang['Gallery unlocked'] = 'Gallerii lukustamata';
 $lang['General statistics'] = 'Üldine statistika';
 $lang['Generate multiple size images'] = 'Genereeri fotole mitmes suuruses variandid';
 $lang['Get Support on Piwigo Forum'] = 'Leia abi Piwigo foorumist';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Anna kirjutamisõigused (chmod 777) kaustale "%s", mis asub Piwigo juurkataloogis';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Anna kirjutamisõigused (chmod 777) kaustale "%s", mis asub Phyxo juurkataloogis';
 $lang['Go to %s or %s for more informations'] = 'Vaata %s või %s lisa informatsiooni saamiseks';
 $lang['Go to'] = 'Mine';
 $lang['Grant selected groups'] = 'Luba valitud grupidele';

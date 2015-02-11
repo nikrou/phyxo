@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
@@ -525,8 +525,8 @@ $lang['Number of downloads'] = 'Počet stiahnutí';
 $lang['Upload Photos'] = 'Nahrať fotografie';
 $lang['Drop into album'] = 'Späť do albumu';
 $lang['+ Add an upload box'] = '+ Pridat pole';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Vytvorte "%s" adresár v koreňovom adresári inštalácie Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Povoľte zápis (chmod 777,644,atď.) do "%s" adresára v koreňovom adresári inštalácie Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Vytvorte "%s" adresár v koreňovom adresári inštalácie Phyxo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Povoľte zápis (chmod 777,644,atď.) do "%s" adresára v koreňovom adresári inštalácie Phyxo';
 $lang['existing album'] = 'súčasný album';
 $lang['create a new album'] = 'Založiť nový album';
 $lang['Album name'] = 'Názov albumu';

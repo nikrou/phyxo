@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -553,8 +553,8 @@ $lang['unknown'] = 'không xác định';
 $lang['Upload Photos'] = 'Tải ảnh lên';
 $lang['Drop into album'] = 'Chuyển vào đề mục';
 $lang['+ Add an upload box'] = '+ Thêm một mục gởi hình ';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Tạo ra "%s" thư mục ở cùng thư mục cài đặt Piwigo của bạn';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Gán quyền được ghi (chmod 777) cho "%s" thư mục ở cùng thư mục cài đặt Piwigo của bạn';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Tạo ra "%s" thư mục ở cùng thư mục cài đặt Phyxo của bạn';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Gán quyền được ghi (chmod 777) cho "%s" thư mục ở cùng thư mục cài đặt Phyxo của bạn';
 $lang['existing album'] = 'đề mục hiện có';
 $lang['create a new album'] = 'tạo một đề mục mới';
 $lang['Album name'] = 'Tên đề mục';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -477,7 +477,7 @@ $lang['Dissociate from album'] = 'Poista linkitys albumiin';
 $lang['Dissociated'] = 'Poista linkitys';
 $lang['Does not represent'] = 'Ei ole pikkukuva seuraavalle: ';
 $lang['Dump Database'] = 'Lataa kopio tietokannasta';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Luo hakemisto "%s" Piwigo asennuksesi juurikansioon';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Luo hakemisto "%s" Phyxo asennuksesi juurikansioon';
 $lang['Default user does not exist'] = 'Oletuskäyttäjää ei löydy';
 $lang['Delete multiple size images'] = 'Poista useita kuvakokoja';
 $lang['Deletions'] = 'Poistot';

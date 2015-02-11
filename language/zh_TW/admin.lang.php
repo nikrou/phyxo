@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -546,8 +546,8 @@ $lang['unknown'] = '未知';
 $lang['Upload Photos'] = '上傳相片';
 $lang['Drop into album'] = '選擇一個相冊';
 $lang['+ Add an upload box'] = '+ 添加一個上傳框';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = '建立 "%" 在安裝Piwigo的根目錄下';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = '給予根目錄下的 "%s" 目錄寫權限 (chmod 777) 以完成 Piwigo 的安裝';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = '建立 "%" 在安裝Phyxo的根目錄下';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = '給予根目錄下的 "%s" 目錄寫權限 (chmod 777) 以完成 Phyxo 的安裝';
 $lang['existing album'] = '現有的相冊';
 $lang['create a new album'] = '建立一個新相冊';
 $lang['Album name'] = '相冊名稱';

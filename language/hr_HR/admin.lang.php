@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -581,8 +581,8 @@ $lang['unknown'] = 'nepoznat';
 $lang['Upload Photos'] = 'Prebaci Slike';
 $lang['Drop into album'] = 'Spusti u skupinu';
 $lang['+ Add an upload box'] = '+ Dodaj kutiju prebacivanja';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Izradi "%s" mapu u korijenu vaše Piwigo galerije';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Dozvoli pravo upisa (chmod 777) za "%s" mapu u korijenu Piwigo galerije';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Izradi "%s" mapu u korijenu vaše Phyxo galerije';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Dozvoli pravo upisa (chmod 777) za "%s" mapu u korijenu Phyxo galerije';
 $lang['existing album'] = 'postojeća skupina';
 $lang['create a new album'] = 'stvori novu skupinu';
 $lang['Album name'] = 'Naziv skupine';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -563,8 +563,8 @@ $lang['Upload Photos'] = 'Ajoutez des photos';
 $lang['Drop into album'] = 'Mettre dans une catégorie';
 $lang['+ Add an upload box'] = '+ Ajouter une autre boîte de transfert';
 $lang['Upload'] = 'Transférer';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Créez le répertoire "%s" à la racine de votre installation Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Donnez les droits en écriture (chmod 777) sur le répertoire "%s" à la racine de votre installation Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Créez le répertoire "%s" à la racine de votre installation Phyxo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Donnez les droits en écriture (chmod 777) sur le répertoire "%s" à la racine de votre installation Phyxo';
 $lang['existing album'] = 'catégorie existante';
 $lang['create a new album'] = 'créer une nouvelle catégorie';
 $lang['Album name'] = 'Nom de la catégorie';

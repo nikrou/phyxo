@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -557,8 +557,8 @@ $lang['unknown'] = '不明';
 $lang['Upload Photos'] = '写真をアップロードする';
 $lang['Drop into album'] = 'アルバムに入れる';
 $lang['+ Add an upload box'] = '+ アップロード・ボックスを追加する';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = ' Piwigoにインストールされている場所の"%s" というディレクトリーに作成してください。';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Piwigoにインストールされている場所の "%s" というディレクトリーに書き込み(chmod 777)アクセスをする。';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = ' Phyxoにインストールされている場所の"%s" というディレクトリーに作成してください。';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Phyxoにインストールされている場所の "%s" というディレクトリーに書き込み(chmod 777)アクセスをする。';
 $lang['existing album'] = '存在しているカテゴリー';
 $lang['create a new album'] = '新しいカテゴリーを作成する';
 $lang['Album name'] = 'アルバム名';

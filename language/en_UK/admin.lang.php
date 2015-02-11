@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -251,7 +251,7 @@ $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Corre
 $lang['Correction'] = "Correction";
 $lang['create a new album'] = 'create a new album';
 $lang['create a new site'] = 'create a new site';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Create the "%s" directory at the root of your Piwigo installation';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Create the "%s" directory at the root of your Phyxo installation';
 $lang['Create this site'] = "Create this site";
 $lang['Create'] = 'Create';
 $lang['created'] = "created";
@@ -368,7 +368,7 @@ $lang['General'] = "General";
 $lang['General statistics'] = "General statistics";
 $lang['Generate multiple size images']='Generate multiple size images';
 $lang['Get Support on Piwigo Forum'] = 'Get support on Piwigo forum';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation';
 $lang['global mode'] = "global mode";
 $lang['Go to %s or %s for more informations'] = 'Go to %s or %s for more information';
 $lang['Go to'] = "Go to";

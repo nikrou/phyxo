@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -548,8 +548,8 @@ $lang['unknown'] = 'onbekend';
 $lang['Upload Photos'] = 'Upload foto\'s';
 $lang['Drop into album'] = 'Selecteer een album';
 $lang['+ Add an upload box'] = 'Voeg een lege upload-regel toe';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Maak de "%s" directory aan vanuit de root van uw Piwigo-installatie';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Geef schrijfrechten (chmod 777) aan de "%s" directory vanuit de root van uw piwigo installatie';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Maak de "%s" directory aan vanuit de root van uw Phyxo-installatie';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Geef schrijfrechten (chmod 777) aan de "%s" directory vanuit de root van uw piwigo installatie';
 $lang['existing album'] = 'Bestaand album';
 $lang['create a new album'] = 'Maak een nieuw album aan';
 $lang['Album name'] = 'Albumnaam';

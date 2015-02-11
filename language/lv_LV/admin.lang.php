@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -552,8 +552,8 @@ $lang['unknown'] = 'nezināms';
 $lang['Upload Photos'] = 'Augšupielādēt attēlus';
 $lang['Drop into album'] = 'Ievietot albūmā';
 $lang['+ Add an upload box'] = '+ Pievienot augšupielādes lauku';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Izveidot "%s" mapi jūsu instalētajā Piwigo saknes mapē';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Piešķirt rakstīšanas tiesības (chmod 777) "%s" mapei jūsu instalētajā Piwigo saknes mapē';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Izveidot "%s" mapi jūsu instalētajā Phyxo saknes mapē';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Piešķirt rakstīšanas tiesības (chmod 777) "%s" mapei jūsu instalētajā Phyxo saknes mapē';
 $lang['existing album'] = 'esošs albūms';
 $lang['create a new album'] = 'izveidot jaunu albūmu';
 $lang['Album name'] = 'Albūma nosaukums';

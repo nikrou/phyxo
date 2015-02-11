@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -591,7 +591,7 @@ $lang['Change Admin Colors'] = 'Trocar cores da administração';
 $lang['Choose an action'] = 'Escolha uma ação';
 $lang['Confirm merge'] = 'Confirme a fusão';
 $lang['create a new album'] = 'criar um novo álbum';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Criar o diretório "%s" no diretório raiz de instalação do seu Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Criar o diretório "%s" no diretório raiz de instalação do seu Phyxo';
 $lang['Create'] = 'Criar';
 $lang['Crop'] = 'Cortar';
 $lang['Deactivate all'] = 'Desativar todos';
@@ -701,7 +701,7 @@ $lang['<em>Piwigo for iOS</em> application empowers you to connect to your Piwig
 $lang['Aperture is designed for professional photographers with iPhoto simplicity.'] = 'Aperture foi desenvolvido para fotógrafos profissionais com a simplicidade do iPhoto.';
 $lang['Features include gallery browsing, album creation and photo upload.'] = 'As características incluem navegação em galerias, criação de álbuns e envio de fotos.';
 $lang['For photo sizes with crop, such as "Square", Piwigo will do its best to include the center of interest.'] = 'Para fotos recortadas no formato "quadrado", Piwigo fará o melhor para incluir o centro de interesse.';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Dê permissão de escrita (chmod 777) para o diretório "%s" na raiz da usa instalação Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Dê permissão de escrita (chmod 777) para o diretório "%s" na raiz da usa instalação Phyxo';
 $lang['Hit'] = 'Acesso';
 $lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Se nenhuma foto de Alta Definição estiver disponível e se o tamanho atual for maior do que as dimensões de redimensionamento, Piwigo moverá a foto como Alta Definição e criará uma foto de menor resolução para ser baixada.';
 $lang['In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting'] = 'No seu arquivo php.ini, o upload_max_filesize (%sB) é maior do que post_max_size (%sB), você deve mudar essa configuração.';

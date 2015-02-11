@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -569,7 +569,7 @@ $lang['Cannot delete the old permalink !'] = 'O permalink antigo não pode ser a
 $lang['Change Admin Colors'] = 'Alterar cores na Administração';
 $lang['Choose an action'] = 'Escolher uma acção';
 $lang['create a new album'] = 'criar novo album';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Criar o diretório "%s" na raiz da instalação Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Criar o diretório "%s" na raiz da instalação Phyxo';
 $lang['Delete orphan tags'] = 'Apagar Etiquetas orfãs';
 $lang['delete photo'] = 'Apagar foto';
 $lang['Delete this language'] = 'Apagar este idioma';
@@ -590,7 +590,7 @@ $lang['Forbid this language to users'] = 'Proibir este idioma aos utilizadores';
 $lang['Forbid this theme to users'] = 'Proibir este tema aos utilizadores';
 $lang['FTP + Synchronization'] = 'FTP + Sincronização';
 $lang['Get Support on Piwigo Forum'] = 'Obtenha ajuda no fórum Piwigo';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Dê permissões de escrita (chmod 777) à pasta "%s" situada na raiz da sua intalação Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Dê permissões de escrita (chmod 777) à pasta "%s" situada na raiz da sua intalação Phyxo';
 $lang['Guest Settings'] = 'Definições de Visitante';
 $lang['Help Me'] = 'Ajuda';
 $lang['Hit'] = 'Visita';

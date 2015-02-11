@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -550,8 +550,8 @@ $lang['unknown'] = 'نا معلوم';
 $lang['Upload Photos'] = 'آپلود عکس';
 $lang['Drop into album'] = 'انتخاب یک آلبوم';
 $lang['+ Add an upload box'] = '+ افزودن یک جعبه‌ی آپلود';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'مسیر "%s" را در جایی که Piwigo را نصب کرده‌اید ایجاد کنید';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'مجوز نوشتن (chmod 777) برای مسیر "%s" در جایی که Piwigo نصب شده را بدهید';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'مسیر "%s" را در جایی که Phyxo را نصب کرده‌اید ایجاد کنید';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'مجوز نوشتن (chmod 777) برای مسیر "%s" در جایی که Phyxo نصب شده را بدهید';
 $lang['existing album'] = 'آلبومِ موجود';
 $lang['create a new album'] = 'افزودن یک آلبوم تازه';
 $lang['Album name'] = 'نام آلبوم';

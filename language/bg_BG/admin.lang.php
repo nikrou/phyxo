@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -625,7 +625,7 @@ $lang['Continue processing treatment'] = 'Продължаване на пров
 $lang['Correction applied with error'] = 'Корекция се прилага с грешка';
 $lang['Correction applied with success'] = 'Корекцията е успешно приложена';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Коригираните аномалии вече няма да бъдат пренебрегнати';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Създайте директория "% S" в основата на вашата инсталация Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Създайте директория "% S" в основата на вашата инсталация Phyxo';
 $lang['Default comments order'] = 'Коментари по подразбиране';
 $lang['Default photos order'] = 'Ред на снимки по подразбиране';
 $lang['Delete Representant'] = 'Изтриване умалените албуми';
@@ -646,7 +646,7 @@ $lang['Follow Orientation'] = 'Следвай ориентацията';
 $lang['Forbid this language to users'] = 'Забранете този език за потребителите';
 $lang['Forbid this theme to users'] = 'Забранете тази тема за потребителите';
 $lang['Get Support on Piwigo Forum'] = 'Получете помощ от форума Piwigo ';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Дайте права (chmod 777)на инсталационната директория "%s" на Piwigo';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Дайте права (chmod 777)на инсталационната директория "%s" на Phyxo';
 $lang['Go to %s or %s for more informations'] = 'Отидете %s или %s за повече информация';
 $lang['Dump Database'] = 'Изхвърляне на базата данни';
 $lang['Extensions Update'] = 'Extensions Актуализация';

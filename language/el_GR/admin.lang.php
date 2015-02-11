@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -255,7 +255,7 @@ $lang['Correction applied with error'] = 'Διόρθωση εφαρμόστηκ�
 $lang['Correction applied with success'] = 'Διόρθωση εφαρμόστηκε επιτυχώς';
 $lang['Correction the anomaly will cancel the fact that it\'s ignored'] = 'Η ανωμαλία που διορθώθηκε δεν μπορεί πλέον να αγνοηθεί';
 $lang['Correction'] = 'Διόρθωση ';
-$lang['Create the "%s" directory at the root of your Piwigo installation'] = 'Δημιουργία καταλόγου "%s" στη ρίζα της εγκατάστασης του Piwigo';
+$lang['Create the "%s" directory at the root of your Phyxo installation'] = 'Δημιουργία καταλόγου "%s" στη ρίζα της εγκατάστασης του Phyxo';
 $lang['Create this site'] = 'Δημιουργήστε την ιστοσελίδα';
 $lang['Create'] = 'Δημιουργήστε';
 $lang['Crop'] = 'ενσωμάτωση';
@@ -354,7 +354,7 @@ $lang['GD version'] = 'Ανεπτυγμένα πρότυπα';
 $lang['Gallery title'] = 'Ο χρόνος εκτέλεσης έχει τελειώσει, η  επεξεργασία πρέπει να συνεχιστεί [Εκτιμώμενος χρόνος:%d δευτερόλεπτα].';
 $lang['General statistics'] = 'Ενημέρωση Επεκτάσεων';
 $lang['Get Support on Piwigo Forum'] = 'Αποτυχία εγγραφής αρχείου στο δίσκο';
-$lang['Give write access (chmod 777) to "%s" directory at the root of your Piwigo installation'] = 'Φόρτωση αρχείου διακόπηκε από επέκταση';
+$lang['Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'] = 'Φόρτωση αρχείου διακόπηκε από επέκταση';
 $lang['Go to %s or %s for more informations'] = 'λάθος ανάγνωσης Αρχείου / Καταλόγου ';
 $lang['Go to'] = 'Βρείτε μια νεα τυχαία μικρογραφία λευκώματος';
 $lang['Grant selected groups'] = 'πρώτη φωτογραφία προστέθηκε στις %s';
