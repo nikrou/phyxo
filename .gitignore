@@ -8,8 +8,6 @@
 
 ;; plugins
 /plugins/*
-!/plugins/language_switch
-!/plugins/LocalFilesEditor/
 
 ;; themes
 /themes/*
