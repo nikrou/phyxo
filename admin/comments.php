@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -48,11 +48,10 @@ if (!empty($_POST)) {
     if (empty($_POST['comments'])) {
         $page['errors'][] = l10n('Select at least one comment');
     } else {
-        include_once( PHPWG_ROOT_PATH .'include/functions_comment.inc.php' );
         check_input_parameter('comments', $_POST, true, PATTERN_ID);
 
         if (isset($_POST['validate'])) {
-            validate_user_comment($_POST['comments']);
+            $services['comments']->validateUserComment($_POST['comments']);
 
             $page['infos'][] = l10n_dec(
                 '%d user comment validated', '%d user comments validated',
@@ -61,7 +60,7 @@ if (!empty($_POST)) {
         }
 
         if (isset($_POST['reject'])) {
-            delete_user_comment($_POST['comments']);
+            $services['comments']->deleteUserComment($_POST['comments']);
 
             $page['infos'][] = l10n_dec(
                 '%d user comment rejected', '%d user comments rejected',

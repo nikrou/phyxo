@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -51,12 +51,10 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
         'image_id' => $page['image_id'],
     );
 
-    include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
-
     if (empty($_POST['key'])) {
         $comment_action = 'reject';
     } else {
-        $comment_action = insert_user_comment($comm, $_POST['key'], $page['errors']);
+        $comment_action = $services['comments']->insertUserComment($comm, $_POST['key'], $page['errors']);
     }
 
     switch ($comment_action)
@@ -75,7 +73,7 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
         }
 
     // allow plugins to notify what's going on
-    trigger_notify('user_comment_insertion', array_merge($comm, array('action'=>$comment_action)));
+    trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
 } elseif (isset($_POST['content'])) {
     set_status_header(403);
     die('ugly spammer');

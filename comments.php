@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +27,6 @@
 // +-----------------------------------------------------------------------+
 define('PHPWG_ROOT_PATH','./');
 include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
 
 if (!$conf['activate_comments']) {
     page_not_found(null);
@@ -197,27 +196,27 @@ foreach ($actions as $loop_action) {
 }
 
 if (isset($action)) {
-    $comment_author_id = get_comment_author_id($comment_id);
+    $comment_author_id = $services['comments']->getCommentAuthorId($comment_id);
 
     if (can_manage_comment($action, $comment_author_id)) {
         $perform_redirect = false;
 
         if ('delete' == $action) {
             check_pwg_token();
-            delete_user_comment($comment_id);
+            $services['comments']->deleteUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('validate' == $action) {
             check_pwg_token();
-            validate_user_comment($comment_id);
+            $services['comments']->validateUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('edit' == $action) {
             if (!empty($_POST['content'])) {
                 check_pwg_token();
-                $comment_action = update_user_comment(
+                $comment_action = $services['comments']->updateUserComment(
                     array(
                         'comment_id' => $_GET['edit'],
                         'image_id' => $_POST['image_id'],

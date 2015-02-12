@@ -18,16 +18,12 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if(!defined("PHPWG_ROOT_PATH")) {
-    die('Hacking attempt!');
+namespace Phyxo\Model\Entity;
+
+class Comment
+{
+    private $id;
+    private $username;
+    private $password;
+    private $mail_address;
 }
-
-use Phyxo\Model\Repository\Tags;
-use Phyxo\Model\Repository\Comments;
-
-$services = array();
-$services['tags'] = new Tags($conn, 'Phyxo\Model\Entity\Tag', TAGS_TABLE);
-$services['comments'] = new Comments($conn, 'Phyxo\Model\Entity\Comment', COMMENTS_TABLE);
-
-// @TODO : find a better place
-add_event_handler('user_comment_check', array($services['comments'], 'userCommentCheck'));

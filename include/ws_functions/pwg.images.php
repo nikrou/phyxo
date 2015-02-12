@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -251,7 +251,7 @@ function remove_chunks($original_sum, $type) {
  *    @option string key
  */
 function ws_images_addComment($params, $service) {
-    global $conn;
+    global $conn, $services;
 
     $query = 'SELECT DISTINCT image_id  FROM '. CATEGORIES_TABLE;
     $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id=id';
@@ -276,9 +276,7 @@ function ws_images_addComment($params, $service) {
         'image_id' => $params['image_id'],
     );
 
-    include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
-
-    $comment_action = insert_user_comment($comm, $params['key'], $infos);
+    $comment_action = $services['comments']->insertUserComment($comm, $params['key'], $infos);
 
     switch ($comment_action)
         {

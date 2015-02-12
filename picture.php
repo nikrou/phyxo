@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -262,14 +262,13 @@ if (isset($_GET['action'])) {
             redirect($url_self);
         }
         case 'edit_comment': {
-            include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
             check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
-            $author_id = get_comment_author_id($_GET['comment_to_edit']);
+            $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_edit']);
 
             if (can_manage_comment('edit', $author_id)) {
                 if (!empty($_POST['content'])) {
                     check_pwg_token();
-                    $comment_action = update_user_comment(
+                    $comment_action = $services['comments']->updateUserComment(
                         array(
                             'comment_id' => $_GET['comment_to_edit'],
                             'image_id' => $page['image_id'],
@@ -307,26 +306,22 @@ if (isset($_GET['action'])) {
         }
         case 'delete_comment': {
             check_pwg_token();
-
-            include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
             check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
-            $author_id = get_comment_author_id($_GET['comment_to_delete']);
+            $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_delete']);
 
             if (can_manage_comment('delete', $author_id)) {
-                delete_user_comment($_GET['comment_to_delete']);
+                $services['comments']->deleteUserComment($_GET['comment_to_delete']);
             }
 
             redirect($url_self);
         }
         case 'validate_comment': {
             check_pwg_token();
-
-            include_once(PHPWG_ROOT_PATH.'include/functions_comment.inc.php');
             check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
-            $author_id = get_comment_author_id($_GET['comment_to_validate']);
+            $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_validate']);
 
             if (can_manage_comment('validate', $author_id)) {
-                validate_user_comment($_GET['comment_to_validate']);
+                $services['comments']->validateUserComment($_GET['comment_to_validate']);
             }
             redirect($url_self);
         }
