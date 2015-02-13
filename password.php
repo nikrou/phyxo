@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -34,7 +34,7 @@ include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
 
-check_status(ACCESS_FREE);
+$services['users']->checkStatus(ACCESS_FREE);
 
 trigger_notify('loc_begin_password');
 
@@ -49,17 +49,17 @@ trigger_notify('loc_begin_password');
  * @return bool (true if email was sent, false otherwise)
  */
 function process_password_request() {
-    global $page, $conf, $conn;
+    global $page, $conf, $conn, $services;
 
     if (empty($_POST['username_or_email'])) {
         $page['errors'][] = l10n('Invalid username or email');
         return false;
     }
 
-    $user_id = get_userid_by_email($_POST['username_or_email']);
+    $user_id = $services['users']->getUserIdByEmail($_POST['username_or_email']);
 
     if (!is_numeric($user_id)) {
-        $user_id = get_userid($_POST['username_or_email']);
+        $user_id = $services['users']->getUserId($_POST['username_or_email']);
     }
 
     if (!is_numeric($user_id)) {
@@ -67,11 +67,11 @@ function process_password_request() {
         return false;
     }
 
-    $userdata = getuserdata($user_id, false);
+    $userdata = $services['users']->getUserData($user_id, false);
 
     // password request is not possible for guest/generic users
     $status = $userdata['status'];
-    if (is_a_guest($status) or is_generic($status)) {
+    if ($services['users']->isGuest($status) or $services['users']->isGeneric($status)) {
         $page['errors'][] = l10n('Password reset is not allowed for this user');
         return false;
     }
@@ -128,38 +128,6 @@ function process_password_request() {
     }
 }
 
-/**
- *  checks the activation key: does it match the expected pattern? is it
- *  linked to a user? is this user allowed to reset his password?
- *
- * @return mixed (user_id if OK, false otherwise)
- */
-function check_password_reset_key($key) {
-    global $page, $conn;
-
-    if (!preg_match('/^[a-z0-9]{20}$/i', $key)) {
-        $page['errors'][] = l10n('Invalid key');
-        return false;
-    }
-
-    $query = 'SELECT user_id, status FROM '.USER_INFOS_TABLE;
-    $query .= ' WHERE activation_key = \''.$conn->db_real_escape_string($key).'\'';
-    $result = $conn->db_query($query);
-
-    if ($conn->db_num_rows($result) == 0) {
-        $page['errors'][] = l10n('Invalid key');
-        return false;
-    }
-
-    $userdata = $conn->db_fetch_assoc($result);
-
-    if (is_a_guest($userdata['status']) or is_generic($userdata['status'])) {
-        $page['errors'][] = l10n('Password reset is not allowed for this user');
-        return false;
-    }
-
-    return $userdata['user_id'];
-}
 
 /**
  * checks the passwords, checks that user is allowed to reset his password,
@@ -168,7 +136,7 @@ function check_password_reset_key($key) {
  * @return bool (true if password was reset, false otherwise)
  */
 function reset_password() {
-    global $page, $user, $conf, $conn;
+    global $page, $user, $conf, $conn, $services;
 
     if ($_POST['use_new_pwd'] != $_POST['passwordConf']) {
         $page['errors'][] = l10n('The passwords do not match');
@@ -176,14 +144,14 @@ function reset_password() {
     }
 
     if (isset($_GET['key'])) {
-        $user_id = check_password_reset_key($_GET['key']);
+        $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
         if (!is_numeric($user_id)) {
             $page['errors'][] = l10n('Invalid key');
             return false;
         }
     } else {
         // we check the currently logged in user
-        if (is_a_guest() or is_generic()) {
+        if ($services['users']->isGuest() or $services['users']->isGeneric()) {
             $page['errors'][] = l10n('Password reset is not allowed for this user');
             return false;
         }
@@ -232,14 +200,14 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 
 // a connected user can't reset the password from a mail
-if (isset($_GET['key']) and !is_a_guest()) {
+if (isset($_GET['key']) and !$services['users']->isGuest()) {
     unset($_GET['key']);
 }
 
 if (isset($_GET['key'])) {
-    $user_id = check_password_reset_key($_GET['key']);
+    $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
     if (is_numeric($user_id)) {
-        $userdata = getuserdata($user_id, false);
+        $userdata = $services['users']->getUserData($user_id, false);
         $page['username'] = $userdata['username'];
         $template->assign('key', $_GET['key']);
 
@@ -259,11 +227,11 @@ if (!isset($page['action'])) {
     }
 }
 
-if ('reset' == $page['action'] and !isset($_GET['key']) and (is_a_guest() or is_generic())) {
+if ('reset' == $page['action'] and !isset($_GET['key']) and ($services['users']->isGuest() or $services['users']->isGeneric())) {
     redirect(get_gallery_home_url());
 }
 
-if ('lost' == $page['action'] and !is_a_guest()) {
+if ('lost' == $page['action'] and !$services['users']->isGuest()) {
     redirect(get_gallery_home_url());
 }
 

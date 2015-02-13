@@ -39,7 +39,7 @@ foreach ($related_categories as $category) {
 
 
 if ($page['show_comments'] and isset( $_POST['content'])) {
-    if (is_a_guest() and !$conf['comments_forall']) {
+    if ($services['users']->isGuest() and !$conf['comments_forall']) {
         die('Session expired'); // TODO : better end of request ; better response
     }
 
@@ -80,7 +80,7 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
 }
 
 if ($page['show_comments']) {
-    if (!is_admin()) {
+    if (!$services['users']->isAdmin()) {
         $validated_clause = '  AND validated = \''.$conn->boolean_to_db(true).'\'';
     } else {
         $validated_clause = '';
@@ -153,7 +153,7 @@ if ($page['show_comments']) {
                     'WEBSITE_URL' => $row['website_url'],
                 );
 
-            if (can_manage_comment('delete', $row['author_id'])) {
+            if ($services['users']->canManageComment('delete', $row['author_id'])) {
                 $tpl_comment['U_DELETE'] = add_url_params(
                     $url_self,
                     array(
@@ -163,7 +163,7 @@ if ($page['show_comments']) {
                     )
                 );
             }
-            if (can_manage_comment('edit', $row['author_id'])) {
+            if ($services['users']->canManageComment('edit', $row['author_id'])) {
                 $tpl_comment['U_EDIT'] = add_url_params(
                     $url_self,
                     array(
@@ -180,7 +180,7 @@ if ($page['show_comments']) {
                     $tpl_comment['U_CANCEL'] = $url_self;
                 }
             }
-            if (is_admin()) {
+            if ($services['users']->isAdmin()) {
                 $tpl_comment['EMAIL'] = $email;
 
                 if ($row['validated'] != 'true') {
@@ -202,7 +202,7 @@ if ($page['show_comments']) {
     if (isset($edit_comment)) {
         $show_add_comment_form = false;
     }
-    if (is_a_guest() and !$conf['comments_forall']) {
+    if ($services['users']->isGuest() and !$conf['comments_forall']) {
         $show_add_comment_form = false;
     }
 
@@ -213,11 +213,11 @@ if ($page['show_comments']) {
             'F_ACTION' => $url_self,
             'KEY' => $key,
             'CONTENT' => '',
-            'SHOW_AUTHOR' => !is_classic_user(),
+            'SHOW_AUTHOR' => !$services['users']->isClassicUser(),
             'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
             'AUTHOR' => '',
             'WEBSITE_URL' => '',
-            'SHOW_EMAIL' => !is_classic_user() or empty($user['email']),
+            'SHOW_EMAIL' => !$services['users']->isClassicUser() or empty($user['email']),
             'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
             'EMAIL' => '',
             'SHOW_WEBSITE' => $conf['comments_enable_website'],

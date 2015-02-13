@@ -28,7 +28,7 @@ include(PHPWG_ROOT_PATH.'include/section_init.inc.php');
 include_once(PHPWG_ROOT_PATH.'include/functions_picture.inc.php');
 
 // Check Access and exit when user status is not ok
-check_status(ACCESS_GUEST);
+$services['users']->checkStatus(ACCESS_GUEST);
 
 // access authorization check
 if (isset($page['category'])) {
@@ -240,7 +240,7 @@ if (isset($_GET['action'])) {
             break;
         }
         case 'set_as_representative': {
-            if (is_admin() and isset($page['category'])) {
+            if ($services['users']->isAdmin() and isset($page['category'])) {
                 $query = 'UPDATE '.CATEGORIES_TABLE;
                 $query .= ' SET representative_picture_id = '.$page['image_id'].' WHERE id = '.$page['category']['id'].';';
                 $conn->db_query($query);
@@ -265,7 +265,7 @@ if (isset($_GET['action'])) {
             check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
             $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_edit']);
 
-            if (can_manage_comment('edit', $author_id)) {
+            if ($services['users']->canManageComment('edit', $author_id)) {
                 if (!empty($_POST['content'])) {
                     check_pwg_token();
                     $comment_action = $services['comments']->updateUserComment(
@@ -309,8 +309,9 @@ if (isset($_GET['action'])) {
             check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
             $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_delete']);
 
-            if (can_manage_comment('delete', $author_id)) {
+            if ($services['users']->canManageComment('delete', $author_id)) {
                 $services['comments']->deleteUserComment($_GET['comment_to_delete']);
+                delete_user_comment($_GET['comment_to_delete']);
             }
 
             redirect($url_self);
@@ -320,7 +321,7 @@ if (isset($_GET['action'])) {
             check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
             $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_validate']);
 
-            if (can_manage_comment('validate', $author_id)) {
+            if ($services['users']->canManageComment('validate', $author_id)) {
                 $services['comments']->validateUserComment($_GET['comment_to_validate']);
             }
             redirect($url_self);
@@ -575,7 +576,7 @@ if ($conf['picture_metadata_icon']) {
 //------------------------------------------------------- upper menu management
 
 // admin links
-if (is_admin()) {
+if ($services['users']->isAdmin()) {
     if (isset($page['category'])) {
         $template->assign(
             array(
@@ -602,7 +603,7 @@ if (is_admin()) {
 }
 
 // favorite manipulation
-if (!is_a_guest() and $conf['picture_favorite_icon']) {
+if (!$services['users']->isGuest() and $conf['picture_favorite_icon']) {
     // verify if the picture is already in the favorite of the user
     $query = 'SELECT COUNT(1) AS nb_fav FROM '.FAVORITES_TABLE;
     $query .= ' WHERE image_id = '.$page['image_id'].' AND user_id = '.$user['id'].';';
@@ -708,12 +709,18 @@ if (count($tags)) {
 }
 
 if (!empty($conf['tags_permission_add'])) {
-    $template->assign('TAGS_PERMISSION_ADD', (int) is_autorize_status(get_access_type_status($conf['tags_permission_add'])));
+    $template->assign(
+        'TAGS_PERMISSION_ADD',
+        (int) $services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))
+    );
 } else {
     $template->assign('TAGS_PERMISSION_ADD', 0);
 }
 if (!empty($conf['tags_permission_delete'])) {
-    $template->assign('TAGS_PERMISSION_DELETE', (int) is_autorize_status(get_access_type_status($conf['tags_permission_delete'])));
+    $template->assign(
+        'TAGS_PERMISSION_DELETE',
+        (int) $services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))
+    );
 } else {
     $template->assign('TAGS_PERMISSION_DELETE', 0);
 }

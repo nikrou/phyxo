@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -154,7 +154,7 @@ function ws_categories_getImages($params, &$service) {
  *    @option bool fullname
  */
 function ws_categories_getList($params, &$service) {
-    global $user, $conf, $conn;
+    global $user, $conf, $conn, $services;
 
     $where = array('1=1');
     $join_type = 'INNER';
@@ -175,14 +175,14 @@ function ws_categories_getList($params, &$service) {
         $where[] = 'visible = \'true\'';
 
         $join_user = $conf['guest_id'];
-    } elseif (is_admin()) {
+    } elseif ($services['users']->isAdmin()) {
         // in this very specific case, we don't want to hide empty
-        // categories. Function calculate_permissions will only return
+        // categories. Method calculatePermissions will only return
         // categories that are either locked or private and not permitted
         //
-        // calculate_permissions does not consider empty categories as forbidden
-         // @TODO : modify calculate_permissions. It must return an array to apply DBLayer::in
-        $forbidden_categories = calculate_permissions($user['id'], $user['status']);
+        // calculatePermissions does not consider empty categories as forbidden
+         // @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
+        $forbidden_categories = $services['users']->calculatePermissions($user['id'], $user['status']);
         $where[]= 'id NOT IN ('.$forbidden_categories.')';
         $join_type = 'LEFT';
     }

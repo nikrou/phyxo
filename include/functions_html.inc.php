@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -215,12 +215,12 @@ function tag_alpha_compare($a, $b) {
  * Exits the current script (or redirect to login page if not logged).
  */
 function access_denied() {
-    global $user;
+    global $user, $services;
 
     $login_url = get_root_url().'identification.php?redirect='.urlencode(urlencode($_SERVER['REQUEST_URI']));
 
     set_status_header(401);
-    if (isset($user) and !is_a_guest()) {
+    if (isset($user) and !$services['users']->isGuest()) {
         echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
         echo '<div style="text-align:center;">'.l10n('You are not authorized to access the requested page').'<br>';
         echo '<a href="'.get_root_url().'identification.php">'.l10n('Identification').'</a>&nbsp;';

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -32,7 +32,7 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_GUEST);
+$services['users']->checkStatus(ACCESS_GUEST);
 
 trigger_notify('loc_begin_notification');
 
@@ -46,7 +46,7 @@ $query = 'INSERT INTO '.USER_FEED_TABLE.' (id, user_id, last_check) VALUES (\''.
 $conn->db_query($query);
 
 $feed_url = PHPWG_ROOT_PATH.'feed.php';
-if (is_a_guest()) {
+if ($services['users']->isGuest()) {
     $feed_image_only_url = $feed_url;
     $feed_url .= '?feed='.$page['feed'];
 } else {

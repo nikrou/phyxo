@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,11 +22,11 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-define ('PHPWG_ROOT_PATH', './');
-define ('IN_WS', true);
+define('PHPWG_ROOT_PATH', './');
+define('IN_WS', true);
 
 include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
-check_status(ACCESS_FREE);
+$services['users']->checkStatus(ACCESS_FREE);
 
 if (!$conf['allow_web_services']) {
     page_forbidden('Web services are disabled');
@@ -93,7 +93,8 @@ $service->run();
  * event handler that registers standard methods with the web service
  */
 function ws_addDefaultMethods($arr) {
-    global $conf, $user;
+    global $conf, $user, $services;
+
     $service = &$arr[0];
 
     include_once(PHPWG_ROOT_PATH.'include/ws_functions.inc.php');
@@ -187,7 +188,7 @@ function ws_addDefaultMethods($arr) {
         'ws_images_addComment',
         array(
             'image_id' => array('type' => WS_TYPE_ID),
-            'author' => array('default' => is_a_guest()?'guest':$user['username']),
+            'author' => array('default' => $services['users']->isGuest()?'guest':$user['username']),
             'content' => array(),
             'key' => array(),
         ),

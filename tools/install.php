@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -106,7 +106,7 @@ $inserts = array(
 );
 $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
 
-create_user_infos(array(1,2), array('language' => 'en'));
+$services['users']->createUserInfos(array(1,2), array('language' => 'en'));
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);

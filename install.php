@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -172,7 +172,7 @@ if (isset($_POST['install'])) {
     if (empty($admin_mail)) {
         $errors[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
     } else {
-        $error_mail_address = validate_mail_address(null, $admin_mail);
+        $error_mail_address = $services['users']->validateMailAddress(null, $admin_mail);
         if (!empty($error_mail_address)) {
             $errors[] = $error_mail_address;
         }
@@ -286,7 +286,7 @@ define(\'DB_COLLATE\', \'\');';
             $conn->db_query('ALTER SEQUENCE '.strtolower(USERS_TABLE).'_id_seq RESTART WITH 3');
         }
 
-        create_user_infos(array(1,2), array('language' => $language));
+        $services['users']->createUserInfos(array(1,2), array('language' => $language));
 
         // Available upgrades must be ignored after a fresh installation. To
         // make PWG avoid upgrading, we must tell it upgrades have already been
@@ -361,8 +361,8 @@ if ($step == 1) {
         session_set_cookie_params(0, cookie_path());
         register_shutdown_function('session_write_close');
 
-        $user = build_user(1, true);
-        log_user($user['id'], false);
+        $user = $services['users']->buildUser(1, true);
+        $services['users']->logUser($user['id'], false);
 
         // email notification
         if (isset($_POST['send_password_by_mail'])) {

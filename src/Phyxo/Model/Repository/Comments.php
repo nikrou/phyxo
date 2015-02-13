@@ -33,7 +33,7 @@ class Comments extends BaseRepository
      * @return string validate, moderate, reject
      */
     public function userCommentCheck($action, $comment) {
-        global $conf,$user;
+        global $conf, $user, $services;
 
         if ($action=='reject') {
             return $action;
@@ -46,7 +46,7 @@ class Comments extends BaseRepository
         }
 
         // we do here only BASIC spam check (plugins can do more)
-        if (!is_a_guest()) {
+        if (!$services['users']->isGuest()) {
             return $action;
         }
 
@@ -73,7 +73,7 @@ class Comments extends BaseRepository
      * @return string validate, moderate, reject
      */
     public function insertUserComment(&$comm, $key, &$infos) {
-        global $conf, $user;
+        global $conf, $user, $services;
 
         $comm = array_merge(
             $comm,
@@ -84,14 +84,14 @@ class Comments extends BaseRepository
         );
 
         $infos = array();
-        if (!$conf['comments_validation'] or is_admin()) {
+        if (!$conf['comments_validation'] or $services['users']->isAdmin()) {
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
         }
 
         // display author field if the user status is guest or generic
-        if (!is_classic_user()) {
+        if (!$services['users']->isClassicUser()) {
             if (empty($comm['author'])) {
                 if ($conf['comments_author_mandatory']) {
                     $infos[] = l10n('Username is mandatory');
@@ -161,12 +161,12 @@ class Comments extends BaseRepository
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !is_admin()) { // anti-flood system
+        if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !$services['users']->isAdmin()) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($conf['anti-flood_time']);
 
             $query = 'SELECT count(1) FROM '.COMMENTS_TABLE;
             $query .= ' WHERE date > '.$reference_date.' AND author_id = '.$this->conn->db_real_escape_string($comm['author_id']);
-            if (!is_classic_user()) {
+            if (!$services['users']->isClassicUser()) {
                 $query .= ' AND anonymous_id LIKE \''.$anonymous_id.'.%\'';
             }
 
@@ -234,8 +234,10 @@ class Comments extends BaseRepository
      * @return bool false if nothing deleted
      */
     public function deleteUserComment($comment_id) {
+        global $services;
+
         $user_where_clause = '';
-        if (!is_admin()) {
+        if (!$services['users']->isAdmin()) {
             // @TODO : don't use GLOBALS
             $user_where_clause = ' AND author_id = \''.$this->conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
         }
@@ -300,13 +302,13 @@ class Comments extends BaseRepository
      * @return string validate, moderate, reject
      */
     public function updateUserComment($comment, $post_key) {
-        global $conf, $page;
+        global $conf, $page, $services;
 
         $comment_action = 'validate';
 
         if (!verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action='reject';
-        } elseif (!$conf['comments_validation'] or is_admin()) { // should the updated comment must be validated
+        } elseif (!$conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
             $comment_action='validate'; //one of validate, moderate, reject
         } else {
             $comment_action='moderate'; //one of validate, moderate, reject
@@ -336,7 +338,7 @@ class Comments extends BaseRepository
 
         if ($comment_action!='reject') {
             $user_where_clause = '';
-            if (!is_admin()) {
+            if (!$services['users']->isAdmin()) {
                 $user_where_clause = ' AND author_id = \''.	$this->conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
             }
 

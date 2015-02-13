@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -1062,7 +1062,7 @@ function get_quick_search_results($q, $options) {
  * @see get_quick_search_results but without result caching
  */
 function get_quick_search_results_no_cache($q, $options) {
-    global $conf, $template, $conn;
+    global $conf, $template, $conn, $services;
 
     $q = trim(stripslashes($q));
     $search_results = array(
@@ -1101,7 +1101,7 @@ function get_quick_search_results_no_cache($q, $options) {
 
     // get inflections for terms
     $inflector = null;
-    $lang_code = substr(get_default_language(),0,2);
+    $lang_code = substr($services['users']->getDefaultLanguage(), 0, 2);
     @include_once(PHPWG_ROOT_PATH.'include/inflectors/'.$lang_code.'.php');
     $class_name = 'Inflector_'.$lang_code;
     if (class_exists($class_name)) {
@@ -1111,8 +1111,8 @@ function get_quick_search_results_no_cache($q, $options) {
                 continue;
             }
             if (strlen($token->term)>2
-            && ($token->modifier & (QST_QUOTED|QST_WILDCARD))==0
-            && strcspn($token->term, '\'0123456789') == strlen($token->term)) {
+                && ($token->modifier & (QST_QUOTED|QST_WILDCARD))==0
+                && strcspn($token->term, '\'0123456789') == strlen($token->term)) {
                 $token->variants = array_unique( array_diff( $inflector->get_variants($token->term), array($token->term) ) );
             }
         }

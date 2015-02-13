@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +27,7 @@ $user['id'] = $conf['guest_id'];
 
 if (isset($_COOKIE[session_name()])) {
     if (isset($_GET['act']) and $_GET['act'] == 'logout') { // logout
-        logout_user();
+        $services['users']->logoutUser();
         redirect(get_gallery_home_url());
     } elseif (!empty($_SESSION['pwg_uid'])) {
         $user['id'] = $_SESSION['pwg_uid'];
@@ -36,7 +36,7 @@ if (isset($_COOKIE[session_name()])) {
 
 // Now check the auto-login
 if ( $user['id']==$conf['guest_id'] ) {
-    auto_login();
+    $services['users']->autoLogin();
 }
 
 // using Apache authentication override the above user search
@@ -50,15 +50,15 @@ if ($conf['apache_authentication']) {
     }
 
     if (isset($remote_user)) {
-        if (!($user['id'] = get_userid($remote_user))) {
-            $user['id'] = register_user($remote_user, '', '', false);
+        if (!($user['id'] = $services['users']->getUserId($remote_user))) {
+            $user['id'] = $services['users']->registerUser($remote_user, '', '', false);
         }
     }
 }
 
-$user = build_user($user['id'], (defined('IN_ADMIN') and IN_ADMIN ) ? false : true); // use cache ?
+$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN ) ? false : true); // use cache ?
 
-if ($conf['browser_language'] and (is_a_guest() or is_generic())) {
+if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {
     get_browser_language($user['language']);
 }
 trigger_notify('user_init', $user);

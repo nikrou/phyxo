@@ -18,31 +18,12 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if(!defined("PHPWG_ROOT_PATH")) {
-    die('Hacking attempt!');
-}
+namespace Phyxo\Model\Entity;
 
-use Phyxo\Model\Repository\Tags;
-use Phyxo\Model\Repository\Comments;
-use Phyxo\Model\Repository\Users;
-
-$services = array();
-$services['tags'] = new Tags($conn, 'Phyxo\Model\Entity\Tag', TAGS_TABLE);
-$services['comments'] = new Comments($conn, 'Phyxo\Model\Entity\Comment', COMMENTS_TABLE);
-$services['users'] = new Users($conn, 'Phyxo\Model\Entity\User', USERS_TABLE);
-
-// @TODO : find a better place
-add_event_handler('user_comment_check', array($services['comments'], 'userCommentCheck'));
-
-// temporary hack for password_*
-function pwg_password_verify($password, $hash, $user_id=null) {
-    global $services;
-
-    return $services['users']->passwordVerify($password, $hash, $user_id);
-}
-
-function pwg_password_hash($password) {
-    global $services;
-
-    return $services['users']->passwordHash($password);
+class User
+{
+    private $id;
+    private $username;
+    private $password;
+    private $mail_address;
 }

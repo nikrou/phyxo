@@ -34,7 +34,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
 
-check_status(ACCESS_ADMINISTRATOR);
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (isset($_GET['action'])) {
     check_pwg_token();

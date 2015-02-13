@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -250,7 +250,9 @@ function ws_rates_delete($params, &$service) {
  *    @option string password
  */
 function ws_session_login($params, &$service) {
-    if (try_log_user($params['username'], $params['password'], false)) {
+    global $conn, $services;
+
+    if ($services['users']->tryLogUser($params['username'], $params['password'], false)) {
         return true;
     }
 
@@ -264,8 +266,10 @@ function ws_session_login($params, &$service) {
  * @param mixed[] $params
  */
 function ws_session_logout($params, &$service) {
-    if (!is_a_guest()) {
-        logout_user();
+    global $services;
+
+    if (!$services['users']->isGuest()) {
+        $services['users']->logoutUser();
     }
 
     return true;
@@ -277,9 +281,9 @@ function ws_session_logout($params, &$service) {
  * @param mixed[] $params
  */
 function ws_session_getStatus($params, &$service) {
-    global $user, $conf, $conn;
+    global $user, $conf, $conn, $services;
 
-    $res['username'] = is_a_guest() ? 'guest' : stripslashes($user['username']);
+    $res['username'] = $services['users']->isGuest() ? 'guest' : stripslashes($user['username']);
     foreach ( array('status', 'theme', 'language') as $k ) {
         $res[$k] = $user[$k];
     }
@@ -290,7 +294,7 @@ function ws_session_getStatus($params, &$service) {
     $res['current_datetime'] = $dbnow;
     $res['version'] = PHPWG_VERSION;
 
-    if (is_admin()) {
+    if ($services['users']->isAdmin()) {
         $res['upload_file_types'] = implode(
             ',',
             array_unique(

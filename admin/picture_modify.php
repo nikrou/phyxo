@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,7 +31,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_ADMINISTRATOR);
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -72,7 +72,7 @@ if (isset($_GET['delete'])) {
 
     $authorizeds = array_diff(
         $conn->query2array($query, null, 'category_id'),
-        explode(',', calculate_permissions($user['id'], $user['status']))
+        explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
     );
 
     foreach ($authorizeds as $category_id) {
@@ -283,7 +283,7 @@ $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
 
 $authorizeds = array_diff(
     $conn->query2array($query, null, 'category_id'),
-    explode(',', calculate_permissions($user['id'], $user['status']))
+    explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
 );
 
 if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {

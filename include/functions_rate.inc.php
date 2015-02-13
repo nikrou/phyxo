@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,13 +35,13 @@
  * @return array as return by update_rating_score()
  */
 function rate_picture($image_id, $rate) {
-    global $conf, $user, $conn;
+    global $conf, $user, $conn, $services;
 
     if (!isset($rate) || !$conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $conf['rate_items'])) {
         return false;
     }
 
-    $user_anonymous = is_autorize_status(ACCESS_CLASSIC) ? false : true;
+    $user_anonymous = $services['users']->isAuthorizeStatus(ACCESS_CLASSIC) ? false : true;
 
     if ($user_anonymous and !$conf['rate_anonymous']) {
         return false;

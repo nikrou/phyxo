@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -200,9 +200,9 @@ function end_users_env_nbm() {
  * Return none
  */
 function set_user_on_env_nbm(&$nbm_user, $is_action_send) {
-    global $user, $lang, $lang_info, $env_nbm;
+    global $user, $lang, $lang_info, $env_nbm, $services;
 
-    $user = build_user( $nbm_user['user_id'], true );
+    $user = $services['users']->buildUser($nbm_user['user_id'], true);
 
     switch_lang_to($user['language']);
 

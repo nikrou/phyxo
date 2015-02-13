@@ -14,4 +14,4 @@ Feature: API
     And I send a GET request to "pwg.getVersion"
     Then the response code should be 200
     And the response is JSON
-    And the response has property "result" equals to "1.3.0-dev"
+    And the response has property "result" equals to "1.4.0-dev"

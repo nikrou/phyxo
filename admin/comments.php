@@ -38,7 +38,7 @@ if (isset($_GET['start']) and is_numeric($_GET['start'])) {
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
 
-check_status(ACCESS_ADMINISTRATOR);
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 // +-----------------------------------------------------------------------+
 // |                                actions                                |

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -49,7 +49,7 @@ class Languages
      * @param array - errors
      */
     function perform_action($action, $language_id) {
-        global $conf;
+        global $conf, $services;
 
         if (isset($this->db_languages[$language_id])) {
             $crt_db_language = $this->db_languages[$language_id];
@@ -84,7 +84,7 @@ class Languages
                 }
 
                 // Set default language to user who are using this language
-                $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.get_default_language().'\'';
+                $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$services['users']->getDefaultLanguage().'\'';
                 $query .= ' WHERE language = \''.$language_id.'\';';
                 $this->conn->db_query($query);
 

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -306,12 +306,14 @@ function new_users($start=null, $end=null) {
  * @return boolean
  */
 function news_exists($start=null, $end=null) {
+    global $services;
+
     return (
         (nb_new_comments($start, $end) > 0) or
         (nb_new_elements($start, $end) > 0) or
         (nb_updated_categories($start, $end) > 0) or
-        ((is_admin()) and (nb_unvalidated_comments($start, $end) > 0)) or
-        ((is_admin()) and (nb_new_users($start, $end) > 0)));
+        (($services['users']->isAdmin()) and (nb_unvalidated_comments($start, $end) > 0)) or
+        (($services['users']->isAdmin()) and (nb_new_users($start, $end) > 0)));
 }
 
 /**
@@ -349,6 +351,8 @@ function add_news_line(&$news, $count, $singular_key, $plural_key, $url='', $add
  * @return array
  */
 function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false) {
+    global $services;
+
     $news = array();
 
     if (!$exclude_img_cats) {
@@ -370,7 +374,7 @@ function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false) {
                   get_root_url().'comments.php', $add_url
     );
 
-    if (is_admin()) {
+    if ($services['users']->isAdmin()) {
         add_news_line($news,
                       nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate',
                       get_root_url().'admin.php?page=comments', $add_url

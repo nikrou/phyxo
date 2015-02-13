@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -33,7 +33,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_ADMINISTRATOR);
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 //-------------------------------------------------------- sections definitions
 
@@ -349,13 +349,13 @@ case 'comments': {
     break;
 }
 case 'default': {
-    $edit_user = build_user($conf['guest_id'], false);
+    $edit_user = $services['users']->buildUser($conf['guest_id'], false);
     include_once(PHPWG_ROOT_PATH.'profile.php');
 
     $errors = array();
     if (save_profile_from_post($edit_user, $errors)) {
         // Reload user
-        $edit_user = build_user($conf['guest_id'], false);
+        $edit_user = $services['users']->buildUser($conf['guest_id'], false);
         $page['infos'][] = l10n('Information data registered in database');
     }
     $page['errors'] = array_merge($page['errors'], $errors);

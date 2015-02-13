@@ -388,7 +388,7 @@ function ws_images_getInfo($params, $service) {
     $related_comments = array();
 
     $where_comments = 'image_id = '.$image_row['id'];
-    if (!is_admin()) {
+    if (!$services['users']->isAdmin()) {
         $where_comments .= ' AND validated=\''.$conn->boolean_to_db(true).'\'';
     }
 
@@ -410,7 +410,7 @@ function ws_images_getInfo($params, $service) {
     }
 
     $comment_post_data = null;
-    if ($is_commentable && (!is_a_guest() || (is_a_guest() && $conf['comments_forall']))) {
+    if ($is_commentable && (!$services['users']->isGuest() || ($services['users']->isGuest() && $conf['comments_forall']))) {
         $comment_post_data['author'] = stripslashes($user['username']);
         $comment_post_data['key'] = get_ephemeral_key(2, $params['image_id']);
     }
@@ -1258,9 +1258,9 @@ function ws_images_setRelatedTags($params, &$service) {
     }
 
     if ((empty($conf['tags_permission_add'])
-         || !is_autorize_status(get_access_type_status($conf['tags_permission_add']))) &&
+         || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) &&
         (empty($conf['tags_permission_delete'])
-         || !is_autorize_status(get_access_type_status($conf['tags_permission_delete'])))) {
+         || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
         return new PwgError(403, l10n('You are not allowed to add nor delete tags'));
     }
 
@@ -1282,12 +1282,14 @@ function ws_images_setRelatedTags($params, &$service) {
     $new_tags = array_diff($params['tags'], $current_tags);
 
     if (count($removed_tags)>0) {
-        if (empty($conf['tags_permission_delete']) || !is_autorize_status(get_access_type_status($conf['tags_permission_delete']))) {
+        if (empty($conf['tags_permission_delete'])
+            || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
             return new PwgError(403, l10n('You are not allowed to delete tags'));
         }
     }
     if (count($new_tags)>0) {
-        if (empty($conf['tags_permission_add']) || !is_autorize_status(get_access_type_status($conf['tags_permission_add']))) {
+        if (empty($conf['tags_permission_add'])
+            || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
             return new PwgError(403, l10n('You are not allowed to add tags'));
         }
     }

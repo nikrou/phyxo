@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +27,6 @@
  */
 
 include_once(PHPWG_ROOT_PATH .'include/functions_plugins.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_user.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_cookie.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_session.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_category.inc.php');
@@ -379,13 +378,13 @@ function get_languages() {
  * @return bool
  */
 function pwg_log($image_id = null, $image_type = null) {
-    global $conf, $user, $page, $conn;
+    global $conf, $user, $page, $conn, $services;
 
     $do_log = $conf['log'];
-    if (is_admin()) {
+    if ($services['users']->isAdmin()) {
         $do_log = $conf['history_admin'];
     }
-    if (is_a_guest()) {
+    if ($services['users']->isGuest()) {
         $do_log = $conf['history_guest'];
     }
 
@@ -685,18 +684,20 @@ function redirect_http($url) {
  * @param string $msg
  * @param integer $refresh_time
  * @return void
+ *
+ * @deprecated Deprecated in 1.4.0, to be removed in 1.5.0. Use real redirect
  */
 function redirect_html( $url, $msg='', $refresh_time=0) {
-    global $user, $template, $lang_info, $conf, $lang, $t2, $page, $debug;
+    global $user, $template, $lang_info, $conf, $lang, $t2, $page, $debug, $services;
 
     if (!isset($lang_info) || !isset($template)) {
-        $user = build_user( $conf['guest_id'], true);
+        $user = $services['users']->buildUser($conf['guest_id'], true);
         load_language('common.lang');
         trigger_notify('loading_lang');
         load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
+        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $services['users']->getDefaultTheme());
     } elseif (defined('IN_ADMIN') and IN_ADMIN) {
-		$template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', get_default_theme());
+		$template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $services['users']->getDefaultTheme());
 	}
 
     if (empty($msg)) {
@@ -1219,7 +1220,7 @@ function get_parent_language($lang_id=null) {
  * @return boolean|string
  */
 function load_language($filename, $dirname = '', $options = array()) {
-    global $user, $language_files;
+    global $user, $language_files, $services;
 
     // keep trace of plugins loaded files for switch_lang_to() function
     if (!empty($dirname) && !empty($filename) && !@$options['return'] && !isset($language_files[$dirname][$filename])) {
@@ -1234,7 +1235,7 @@ function load_language($filename, $dirname = '', $options = array()) {
     }
     $dirname .= 'language/';
 
-    $default_language = defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH') ? get_default_language() : PHPWG_DEFAULT_LANGUAGE;
+    $default_language = defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH') ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
 
     // construct list of potential languages
     $languages = array();
@@ -1655,11 +1656,11 @@ function email_check_format($mail_address) {
  * @return int
  */
 function get_nb_available_comments() {
-    global $user, $conn;
+    global $user, $conn, $services;
 
     if (!isset($user['nb_available_comments']))  {
         $where = array();
-        if (!is_admin())
+        if (!$services['users']->isAdmin())
             $where[] = 'validated=\''.$conn->boolean_to_db(true).'\'';
         $where[] = get_sql_condition_FandF(
             array(
@@ -1717,4 +1718,146 @@ function safe_version_compare($a, $b, $op=null) {
 
 function addOrderByFields($order_by_string) {
     return str_ireplace(array('order by', ' asc', ' desc'), array('', '', ''), $order_by_string);
+}
+
+/**
+ * Deletes favorites of the current user if he's not allowed to see them.
+ */
+function check_user_favorites() {
+    global $user, $conn;
+
+    if ($user['forbidden_categories'] == '') {
+        return;
+    }
+
+    // $filter['visible_categories'] and $filter['visible_images']
+    // must be not used because filter <> restriction
+    // retrieving images allowed : belonging to at least one authorized
+    // category
+    $query = 'SELECT DISTINCT f.image_id FROM '.FAVORITES_TABLE.' AS f';
+    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON f.image_id = ic.image_id';
+    $query .= ' WHERE f.user_id = '.$user['id'];
+    $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ');
+    $authorizeds = $conn->query2array($query, null, 'image_id');
+
+    $query = 'SELECT image_id FROM '.FAVORITES_TABLE;
+    $query .= ' WHERE user_id = '.$user['id'];
+    $favorites = $conn->query2array($query, null, 'image_id');
+
+    $to_deletes = array_diff($favorites, $authorizeds);
+    if (count($to_deletes) > 0) {
+        $query = 'DELETE FROM '.FAVORITES_TABLE;
+        $query .= ' WHERE image_id '.$conn->in($to_deletes).' AND user_id = '.$user['id'];
+        $conn->db_query($query);
+    }
+}
+
+/**
+ * Tries to find the browser language among available languages.
+ * @todo : try to match 'fr_CA' before 'fr'
+ *
+ * @param string &$lang
+ * @return bool
+ */
+function get_browser_language(&$lang) {
+    $browser_language = substr(@$_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2);
+    foreach (get_languages() as $language_code => $language_name) {
+        if (substr($language_code, 0, 2) == $browser_language) {
+            $lang = $language_code;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Compute sql WHERE condition with restrict and filter data.
+ * "FandF" means Forbidden and Filters.
+ *
+ * @param array $condition_fields one witch fields apply each filter
+ *    - forbidden_categories
+ *    - visible_categories
+ *    - forbidden_images
+ *    - visible_images
+ * @param string $prefix_condition prefixes query if condition is not empty
+ * @param boolean $force_one_condition use at least "1 = 1"
+ * @return string
+ */
+function get_sql_condition_FandF($condition_fields, $prefix_condition=null, $force_one_condition=false) {
+    global $user, $filter, $conn;
+
+    $sql_list = array();
+
+    foreach ($condition_fields as $condition => $field_name) {
+        switch($condition)
+            {
+            case 'forbidden_categories': {
+                if (!empty($user['forbidden_categories'])) {
+                    $sql_list[] = $field_name.' NOT IN ('.$user['forbidden_categories'].')';
+                }
+                break;
+            }
+            case 'visible_categories': {
+                if (!empty($filter['visible_categories'])) {
+                    $sql_list[] = $field_name.' IN ('.$filter['visible_categories'].')';
+                }
+                break;
+            }
+            case 'visible_images':
+                if (!empty($filter['visible_images'])) {
+                    $sql_list[] = $field_name.' IN ('.$filter['visible_images'].')';
+                }
+                // note there is no break - visible include forbidden
+            case 'forbidden_images':
+                if (!empty($user['image_access_list']) or $user['image_access_type']!='NOT IN') {
+                    $table_prefix=null;
+                    if ($field_name=='id') {
+                        $table_prefix = '';
+                    } elseif ($field_name=='i.id') {
+                        $table_prefix = 'i.';
+                    }
+                    if (isset($table_prefix)) {
+                        $sql_list[] = $table_prefix.'level<='.$user['level'];
+                    } elseif (!empty($user['image_access_list']) and !empty($user['image_access_type'])) {
+                        $sql_list[] = $field_name.' '.$user['image_access_type'].' ('.$user['image_access_list'].')';
+                    }
+                }
+                break;
+            default: {
+                die('Unknown condition: '.$condition);
+                break;
+            }
+            }
+    }
+
+    if (count($sql_list) > 0) {
+        $sql = '('.implode(' AND ', $sql_list).')';
+    } else {
+        $sql = $force_one_condition ? '1 = 1' : '';
+    }
+
+    if (isset($prefix_condition) and !empty($sql)) {
+        $sql = $prefix_condition.' '.$sql;
+    }
+
+    return $sql;
+}
+
+/**
+ * Returns sql WHERE condition for recent photos/albums for current user.
+ *
+ * @param string $db_field
+ * @return string
+ */
+function get_recent_photos_sql($db_field) {
+    global $user, $conn;
+
+    if (!isset($user['last_photo_date'])) {
+        return '0=1';
+    }
+
+    return $db_field.'>=LEAST('
+        .$conn->db_get_recent_period_expression($user['recent_period'])
+        .','.$conn->db_get_recent_period_expression(1,$user['last_photo_date']).')';
 }

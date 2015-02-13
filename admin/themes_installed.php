@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -55,7 +55,7 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
 
 $themes->sort_fs_themes();
 
-$default_theme = get_default_theme();
+$default_theme = $services['users']->getDefaultTheme();
 
 $db_themes = $themes->get_db_themes();
 $db_theme_ids = array();

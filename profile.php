@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -34,7 +34,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     // +-----------------------------------------------------------------------+
     // | Check Access and exit when user status is not ok                      |
     // +-----------------------------------------------------------------------+
-    check_status(ACCESS_CLASSIC);
+    $services['users']->checkStatus(ACCESS_CLASSIC);
 
     if (!empty($_POST)) {
         check_pwg_token();
@@ -89,7 +89,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
 //------------------------------------------------------ update & customization
 function save_profile_from_post($userdata, &$errors) {
-    global $conf, $page, $conn;
+    global $conf, $page, $conn, $services;
 
     $errors = array();
 
@@ -105,8 +105,8 @@ function save_profile_from_post($userdata, &$errors) {
             $_POST['passwordConf'], $_POST['theme'],
             $_POST['language']
         );
-        $_POST['theme'] = get_default_theme();
-        $_POST['language'] = get_default_language();
+        $_POST['theme'] = $services['users']->getDefaultTheme();
+        $_POST['language'] = $services['users']->getDefaultLanguage();
     }
 
     if (!defined('IN_ADMIN')) {
@@ -135,8 +135,8 @@ function save_profile_from_post($userdata, &$errors) {
 
     if (isset($_POST['mail_address'])) {
         // if $_POST and $userdata have are same email
-        // validate_mail_address allows, however, to check email
-        $mail_error = validate_mail_address($userdata['id'], $_POST['mail_address']);
+        // validateMailAddress allows, however, to check email
+        $mail_error = $services['users']->validateMailAddress($userdata['id'], $_POST['mail_address']);
         if (!empty($mail_error)) {
             $errors[] = $mail_error;
         }
@@ -180,7 +180,7 @@ function save_profile_from_post($userdata, &$errors) {
 
             // username is updated only if allowed
             if (!empty($_POST['username'])) {
-                if ($_POST['username'] != $userdata['username'] and get_userid($_POST['username'])) {
+                if ($_POST['username'] != $userdata['username'] and $services['users']->getUserId($_POST['username'])) {
                     $page['errors'][] = l10n('this login is already used');
                     unset($_POST['redirect']);
                 } else {

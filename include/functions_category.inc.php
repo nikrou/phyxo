@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -188,7 +188,7 @@ function get_cat_info($id) {
  * @return array[]
  */
 function get_category_preferred_image_orders() {
-    global $conf, $page;
+    global $conf, $page, $services;
 
     return trigger_change('get_category_preferred_image_orders', array(
         array(l10n('Default'),                        '',                     true),
@@ -202,7 +202,7 @@ function get_category_preferred_image_orders() {
         array(l10n('Rating score, low &rarr; high'),  'rating_score ASC',     $conf['rate']),
         array(l10n('Visits, high &rarr; low'),        'hit DESC',             true),
         array(l10n('Visits, low &rarr; high'),        'hit ASC',              true),
-        array(l10n('Permissions'),                    'level DESC',           is_admin()),
+        array(l10n('Permissions'),                    'level DESC',           $services['users']->isAdmin()),
     ));
 }
 

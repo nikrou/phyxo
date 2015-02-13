@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -222,7 +222,7 @@ function ws_users_getList($params, &$service) {
  *    @option string email (optional)
  */
 function ws_users_add($params, &$service) {
-    global $conf;
+    global $conf, $services;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -234,7 +234,7 @@ function ws_users_add($params, &$service) {
         }
     }
 
-    $user_id = register_user(
+    $user_id = $services['users']->registerUser(
         $params['username'],
         $params['password'],
         $params['email'],
@@ -316,7 +316,7 @@ function ws_users_delete($params, &$service) {
  *    @option bool enabled_high (optional)
  */
 function ws_users_setInfo($params, &$service) {
-    global $conf, $user, $conn;
+    global $conf, $user, $conn, $services;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new PwgError(403, 'Invalid security token');
@@ -333,7 +333,7 @@ function ws_users_setInfo($params, &$service) {
         }
 
         if (!empty($params['username'])) {
-            $user_id = get_userid($params['username']);
+            $user_id = $services['users']->getUserId($params['username']);
             if ($user_id and $user_id != $params['user_id'][0]) {
                 return new PwgError(WS_ERR_INVALID_PARAM, l10n('this login is already used'));
             }
@@ -344,7 +344,7 @@ function ws_users_setInfo($params, &$service) {
         }
 
         if (!empty($params['email'])) {
-            if (($error = validate_mail_address($params['user_id'][0], $params['email'])) != '') {
+            if (($error = $services['users']->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
                 return new PwgError(WS_ERR_INVALID_PARAM, $error);
             }
             $updates[ $conf['user_fields']['email'] ] = $params['email'];
@@ -356,7 +356,7 @@ function ws_users_setInfo($params, &$service) {
     }
 
     if (!empty($params['status'])) {
-        if (in_array($params['status'], array('webmaster', 'admin')) and !is_webmaster()) {
+        if (in_array($params['status'], array('webmaster', 'admin')) and !$services['users']->isWebmaster()) {
             return new PwgError(403, 'Only webmasters can grant "webmaster/admin" status');
         }
 

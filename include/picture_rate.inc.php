@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -37,13 +37,13 @@ if ($conf['rate']) {
     $template->assign('rate_summary', $rate_summary);
 
     $user_rate = null;
-    if ($conf['rate_anonymous'] or is_autorize_status(ACCESS_CLASSIC)) {
+    if ($conf['rate_anonymous'] or $services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
         if ($rate_summary['count']>0) {
             $query = 'SELECT rate FROM '.RATE_TABLE;
             $query .= ' WHERE element_id = '.$conn->db_real_escape_string($page['image_id']);
             $query .= ' AND user_id = '.$conn->db_real_escape_string($user['id']);
 
-            if (!is_autorize_status(ACCESS_CLASSIC)) {
+            if (!$services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
                 $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
                 if (count($ip_components)>3) {
                     array_pop($ip_components);

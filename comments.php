@@ -35,7 +35,7 @@ if (!$conf['activate_comments']) {
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_GUEST);
+$services['users']->checkStatus(ACCESS_GUEST);
 
 $url_self = PHPWG_ROOT_PATH.'comments.php'.get_query_string_diff(array('delete','edit','validate','pwg_token'));
 
@@ -141,7 +141,7 @@ if (!empty($_GET['comment_id'])) {
 
     // currently, the $_GET['comment_id'] is only used by admins from email
     // for management purpose (validate/delete)
-    if (!is_admin()) {
+    if (!$services['users']->isAdmin()) {
         // double urlencode because redirect makes a decode !!
         $login_url = get_root_url().'identification.php?redirect='.urlencode(urlencode($_SERVER['REQUEST_URI']));
         redirect($login_url);
@@ -164,7 +164,7 @@ if (!empty($_GET['keyword'])) {
 $page['where_clauses'][] = $since_options[$page['since']]['clause'];
 
 // which status to filter on ?
-if (!is_admin()) {
+if (!$services['users']->isAdmin()) {
     $page['where_clauses'][] = 'validated = \''.$conn->boolean_to_db(true).'\'';
 }
 
@@ -198,7 +198,7 @@ foreach ($actions as $loop_action) {
 if (isset($action)) {
     $comment_author_id = $services['comments']->getCommentAuthorId($comment_id);
 
-    if (can_manage_comment($action, $comment_author_id)) {
+    if ($services['users']->canManageComment($action, $comment_author_id)) {
         $perform_redirect = false;
 
         if ('delete' == $action) {
@@ -402,11 +402,11 @@ if (count($comments) > 0) {
             'CONTENT'=>trigger_change('render_comment_content',$comment['content']),
         );
 
-        if (is_admin()) {
+        if ($services['users']->isAdmin()) {
             $tpl_comment['EMAIL'] = $email;
         }
 
-        if (can_manage_comment('delete', $comment['author_id'])) {
+        if ($services['users']->canManageComment('delete', $comment['author_id'])) {
             $tpl_comment['U_DELETE'] = add_url_params(
                 $url_self,
                 array(
@@ -416,7 +416,7 @@ if (count($comments) > 0) {
             );
         }
 
-        if (can_manage_comment('edit', $comment['author_id'])) {
+        if ($services['users']->canManageComment('edit', $comment['author_id'])) {
             $tpl_comment['U_EDIT'] = add_url_params(
                 $url_self,
                 array(
@@ -435,7 +435,7 @@ if (count($comments) > 0) {
             }
         }
 
-        if (can_manage_comment('validate', $comment['author_id'])) {
+        if ($services['users']->canManageComment('validate', $comment['author_id'])) {
             if ($conn->is_boolean($comment['validated']) && !$conn->get_boolean($comment['validated'])) {
                 $tpl_comment['U_VALIDATE'] = add_url_params(
                     $url_self,

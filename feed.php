@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -73,17 +73,17 @@ if (!empty($feed_id)) {
         page_not_found(l10n('Unknown feed identifier'));
     }
     if ($feed_row['user_id']!=$user['id']) { // new user
-        $user = build_user( $feed_row['user_id'], true );
+        $user = $services['users']->buildUser($feed_row['user_id'], true);
     }
 } else {
     $image_only = true;
-    if (!is_a_guest()) { // auto session was created - so switch to guest
-        $user = build_user( $conf['guest_id'], true );
+    if (!$services['users']->isGuest()) { // auto session was created - so switch to guest
+        $user = $services['users']->buildUser($conf['guest_id'], true);
     }
 }
 
 // Check the status now after the user has been loaded
-check_status(ACCESS_GUEST);
+$services['users']->checkStatus(ACCESS_GUEST);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 

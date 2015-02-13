@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +29,7 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_FREE);
+$services['users']->checkStatus(ACCESS_FREE);
 
 trigger_notify('loc_begin_identification');
 
@@ -37,7 +37,7 @@ trigger_notify('loc_begin_identification');
 $redirect_to = '';
 if (!empty($_GET['redirect'])) {
     $redirect_to = urldecode($_GET['redirect']);
-    if (is_a_guest()) {
+    if ($services['users']->isGuest()) {
         $page['errors'][] = l10n('You are not authorized to access the requested page');
     }
 }
@@ -47,13 +47,13 @@ if (isset($_POST['login'])) {
         $page['errors'][] = l10n('Cookies are blocked or not supported by your browser. You must enable cookies to connect.');
     } else {
         if ($conf['insensitive_case_logon'] == true) {
-            $_POST['username'] = search_case_username($_POST['username']);
+            $_POST['username'] = $services['users']->searchCaseUsername($_POST['username']);
         }
 
         $redirect_to = isset($_POST['redirect']) ? urldecode($_POST['redirect']) : '';
         $remember_me = isset($_POST['remember_me']) and $_POST['remember_me']==1;
 
-        if (try_log_user($_POST['username'], $_POST['password'], $remember_me)) {
+        if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
             redirect(empty($redirect_to) ? get_gallery_home_url() : $redirect_to);
         } else {
             $page['errors'][] = l10n('Invalid password!');

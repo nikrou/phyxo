@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -321,14 +321,14 @@ function switch_lang_back() {
  * @return boolean
  */
 function pwg_mail_notification_admins($subject, $content, $send_technical_details=true) {
-    global $conf, $user;
+    global $conf, $user, $services;
 
     if (empty($subject) or empty($content)) {
         return false;
     }
 
     if (is_array($subject) or is_array($content)) {
-        switch_lang_to(get_default_language());
+        switch_lang_to($services['users']->getDefaultLanguage());
 
         if (is_array($subject)) {
             $subject = l10n_args($subject);
@@ -375,7 +375,7 @@ function pwg_mail_notification_admins($subject, $content, $send_technical_detail
  * @return boolean
  */
 function pwg_mail_admins($args=array(), $tpl=array()) {
-    global $conf, $user, $conn;
+    global $conf, $user, $conn, $services;
 
     if (empty($args['content']) and empty($tpl)) {
         return false;
@@ -397,7 +397,7 @@ function pwg_mail_admins($args=array(), $tpl=array()) {
         return $return;
     }
 
-    switch_lang_to(get_default_language());
+    switch_lang_to($services['users']->getDefaultLanguage());
 
     $return = pwg_mail($admins, $args, $tpl);
 
@@ -496,7 +496,7 @@ function pwg_mail_group($group_id, $args=array(), $tpl=array()) {
  * @return boolean
  */
 function pwg_mail($to, $args=array(), $tpl=array()) {
-    global $conf, $conf_mail, $lang_info, $page;
+    global $conf, $conf_mail, $lang_info, $page, $services;
 
     if (empty($to) and empty($args['Cc']) and empty($args['Bcc'])) {
         return true;
@@ -737,7 +737,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
 
     if ($pre_result) {
     $ret = $mail->send();
-    if (!$ret and (!ini_get('display_errors') or is_admin())) {
+    if (!$ret and (!ini_get('display_errors') or $services['users']->isAdmin())) {
         trigger_error('Mailer Error: ' . $mail->ErrorInfo, E_USER_WARNING);
     }
     if ($conf['debug_mail']) {
@@ -752,7 +752,9 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
  * @deprecated 2.6
  */
 function pwg_send_mail($result, $to, $subject, $content, $headers) {
-    if (is_admin()) {
+    global $services;
+
+    if ($services['users']->isAdmin()) {
         trigger_error('pwg_send_mail function is deprecated', E_USER_NOTICE);
     }
 
@@ -808,4 +810,3 @@ function pwg_send_mail_test($success, $mail, $args) {
 }
 
 trigger_notify('functions_mail_included');
-

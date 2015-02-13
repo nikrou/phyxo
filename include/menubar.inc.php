@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -48,7 +48,7 @@ function initialize_menu() {
     if (($block=$menu->get_block('mbLinks')) && !empty($conf['links'])) {
         $block->data = array();
         foreach ($conf['links'] as $url => $url_data) {
-            if (!is_array($url_data)) {
+            if (!$is_array($url_data)) {
                 $url_data = array('label' => $url_data);
             }
 
@@ -149,7 +149,7 @@ function initialize_menu() {
 
     #----------------------------------------------------------- special categories
     if (($block = $menu->get_block('mbSpecials')) != null) {
-        if (!is_a_guest()) { // favorites
+        if (!$services['users']->isGuest()) { // favorites
             $block->data['favorites'] =
                 array(
                     'URL' => make_index_url(array('section' => 'favorites')),
@@ -270,7 +270,7 @@ function initialize_menu() {
 
 
     #--------------------------------------------------------------- identification
-    if (is_a_guest()) {
+    if ($services['users']->isGuest()) {
         $template->assign(
             array(
                 'U_LOGIN' => get_root_url().'identification.php',
@@ -283,7 +283,7 @@ function initialize_menu() {
         }
     } else {
         $template->assign('USERNAME', stripslashes($user['username']));
-        if (is_autorize_status(ACCESS_CLASSIC)) {
+        if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
             $template->assign('U_PROFILE', get_root_url().'profile.php');
         }
 
@@ -292,7 +292,7 @@ function initialize_menu() {
         if (!$conf['apache_authentication']) {
             $template->assign('U_LOGOUT', get_root_url().'?act=logout');
         }
-        if (is_admin()) {
+        if ($services['users']->isAdmin()) {
             $template->assign('U_ADMIN', get_root_url().'admin.php');
         }
     }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -48,7 +48,7 @@ if (isset($_GET['action']) and isset($_GET['language'])) {
 // +-----------------------------------------------------------------------+
 // |                     start template output                             |
 // +-----------------------------------------------------------------------+
-$default_language = get_default_language();
+$default_language = $services['users']->getDefaultLanguage();
 
 $tpl_languages = array();
 
@@ -91,7 +91,7 @@ $missing_language_ids = array_diff(
 );
 
 foreach($missing_language_ids as $language_id) {
-    $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.get_default_language().'\'';
+    $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$services['users']->getDefaultLanguage().'\'';
     $query .= ' WHERE language = \''.$language_id.'\';';
     $conn->db_query($query);
 

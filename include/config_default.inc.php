@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -139,8 +139,8 @@ $conf['meta_ref'] = true;
 //  you can pass a array with different optional parameter values
 //  $conf['links'] = array(
 //    'http://piwigo.org' => array('label' => 'PWG website', 'new_window' => false, 'eval_visible' => 'return true;'),
-//    'http://piwigo.org/forum' => array('label' => 'For ADMIN', 'new_window' => true, 'eval_visible' => 'return is_admin();'),
-//    'http://piwigo.org/ext' => array('label' => 'For Guest', 'new_window' => true, 'eval_visible' => 'return is_a_guest();'),
+//    'http://piwigo.org/forum' => array('label' => 'For ADMIN', 'new_window' => true, 'eval_visible' => 'return Users::isAdmin();'),
+//    'http://piwigo.org/ext' => array('label' => 'For Guest', 'new_window' => true, 'eval_visible' => 'return Users::isGuest();'),
 //    'http://piwigo.org/downloads' =>
 //      array('label' => 'PopUp', 'new_window' => true,
 //      'nw_name' => 'PopUp', 'nw_features' => 'width=800,height=450,location=no,status=no,toolbar=no,scrollbars=no,menubar=no'),
@@ -180,7 +180,7 @@ $conf['links'] = array();
 //  '' condition is equivalent to 'return true;'
 //  $conf['random_index_redirect'] = array(
 //    PHPWG_ROOT_PATH.'index.php?/best_rated' => 'return true;',
-//    PHPWG_ROOT_PATH.'index.php?/recent_pics' => 'return is_a_guest();',
+//    PHPWG_ROOT_PATH.'index.php?/recent_pics' => 'return Users::isGuest();',
 //    PHPWG_ROOT_PATH.'random.php' => '',
 //    PHPWG_ROOT_PATH.'index.php?/categories' => '',
 //    );
@@ -520,7 +520,8 @@ $conf['password_hash'] = 'pwg_password_hash';
 // function takes 2 mandatory parameter : clear password, hashed password +
 // an optional parameter user_id. The user_id is used to update the password
 // with the new hash introduced in Phyxo 1.2. See function
-// pwg_password_verify in include/functions_user.inc.php
+// pwg_password_verify in include/services.php
+// and src/Phyxo/Model/Repository/Users:passwordVerify
 $conf['password_verify'] = 'pwg_password_verify';
 
 // guest_id : id of the anonymous user

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -55,7 +55,7 @@ $plugins = new Plugins($conn);
 
 //--------------------------------------------------perform requested actions
 if (isset($_GET['action']) and isset($_GET['plugin'])) {
-    if (!is_webmaster()) {
+    if (!$services['users']->isWebmaster()) {
         $page['errors'][] = l10n('Webmaster status is required.');
     } else {
         check_pwg_token();

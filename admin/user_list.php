@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -78,7 +78,7 @@ $template->assign(
     )
 );
 
-$default_user = get_default_user_info(true);
+$default_user = $services['users']->getDefaultUserInfo(true);
 
 $protected_users = array(
     $user['id'],
@@ -99,9 +99,9 @@ $template->assign(
         'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
         'RECENT_PERIOD' => $default_user['recent_period'],
         'theme_options' => get_pwg_themes(),
-        'theme_selected' => get_default_theme(),
+        'theme_selected' => $services['users']->getDefaultTheme(),
         'language_options' => get_languages(),
-        'language_selected' => get_default_language(),
+        'language_selected' => $services['users']->getDefaultLanguage(),
         'association_options' => $groups,
         'protected_users' => implode(',', array_unique($protected_users)),
         'guest_user' => $conf['guest_id'],

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -67,7 +67,7 @@ class Themes
      * @param array - errors
      */
     public function perform_action($action, $theme_id) {
-        global $conf;
+        global $conf, $services;
 
         if (isset($this->db_themes_by_id[$theme_id])) {
             $crt_db_theme = $this->db_themes_by_id[$theme_id];
@@ -131,7 +131,7 @@ class Themes
                 break;
             }
 
-            if ($theme_id == get_default_theme()) {
+            if ($theme_id == $services['users']->getDefaultTheme()) {
                 // find a random theme to replace
                 $new_theme = null;
 
@@ -220,10 +220,10 @@ class Themes
     }
 
     public function set_default_theme($theme_id) {
-        global $conf;
+        global $conf, $services;
 
         // first we need to know which users are using the current default theme
-        $default_theme = get_default_theme();
+        $default_theme = $services['users']->getDefaultTheme();
 
         $query = 'SELECT user_id FROM '.USER_INFOS_TABLE;
         $query .= ' WHERE theme = \''.$default_theme.'\';';

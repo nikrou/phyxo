@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -442,6 +442,8 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
      *  @param params array array of parameters to pass to the invoked method
      */
     function invoke($methodName, $params) {
+        global $services;
+
         $method = @$this->_methods[$methodName];
 
         if ($method == null) {
@@ -453,7 +455,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
         }
 
 
-        if (isset($method['options']['admin_only']) and $method['options']['admin_only'] and !is_admin()) {
+        if (isset($method['options']['admin_only']) and $method['options']['admin_only'] and !$services['users']->isAdmin()) {
             return new PwgError(401, 'Access denied');
         }
 

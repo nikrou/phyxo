@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -101,7 +101,7 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 // |                                Step 2                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 2 and is_webmaster()) {
+if ($step == 2 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
@@ -130,7 +130,7 @@ if ($step == 2 and is_webmaster()) {
 // +-----------------------------------------------------------------------+
 // |                                Step 3                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 3 and is_webmaster()) {
+if ($step == 3 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
         $zip = PHPWG_ROOT_PATH.$conf['data_location'].'update'.'/'.$_POST['upgrade_to'].'.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
@@ -159,7 +159,7 @@ if ($step == 3 and is_webmaster()) {
 // |                        Process template                               |
 // +-----------------------------------------------------------------------+
 
-if (!is_webmaster()) {
+if (!$services['users']->isWebmaster()) {
     $page['errors'][] = l10n('Webmaster status is required.');
 }
 

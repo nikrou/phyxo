@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -75,10 +75,10 @@ final class FileCombiner
      * @return Combinable[]
      */
     public function combine() {
-        global $conf;
+        global $conf, $services;
 
         $force = false;
-        if (is_admin() && ($this->is_css || !$conf['template_compile_check'])) {
+        if ($services['users']->isAdmin() && ($this->is_css || !$conf['template_compile_check'])) {
             $force = (isset($_SERVER['HTTP_CACHE_CONTROL']) && strpos($_SERVER['HTTP_CACHE_CONTROL'], 'max-age=0') !== false)
                 || (isset($_SERVER['HTTP_PRAGMA']) && strpos($_SERVER['HTTP_PRAGMA'], 'no-cache'));
         }

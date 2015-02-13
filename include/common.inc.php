@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -110,14 +110,14 @@ include(PHPWG_ROOT_PATH.'include/user.inc.php');
 
 // language files
 load_language('common.lang');
-if (is_admin() || (defined('IN_ADMIN') && IN_ADMIN)) {
+if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     load_language('admin.lang');
 }
 trigger_notify('loading_lang');
 load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
 
 // only now we can set the localized username of the guest user (and not in include/user.inc.php)
-if (is_a_guest()) {
+if ($services['users']->isGuest()) {
     $user['username'] = l10n('guest');
 }
 
@@ -143,7 +143,7 @@ if (isset($user['internal_status']['guest_must_be_guest']) && $user['internal_st
 if ($conf['gallery_locked']) {
     $header_msgs[] = l10n('The gallery is locked for maintenance. Please, come back later.');
 
-    if (script_basename() != 'identification' && !is_admin()) {
+    if (script_basename() != 'identification' && !$services['users']->isAdmin()) {
         set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
         header('Content-Type: text/html; charset='.get_pwg_charset());

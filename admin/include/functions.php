@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -825,7 +825,7 @@ function get_fs($path, $recursive = true) {
  * present in base table must be deleted.
  */
 function sync_users() {
-    global $conf, $conn;
+    global $conf, $conn, $services;
 
     $query = 'SELECT '.$conf['user_fields']['id'].' AS id FROM '.USERS_TABLE;
     $base_users = $conn->query2array($query, null, 'id');
@@ -837,7 +837,7 @@ function sync_users() {
     $to_create = array_diff($base_users, $infos_users);
 
     if (count($to_create) > 0) {
-        create_user_infos($to_create);
+        $services['users']->createUserInfos($to_create);
     }
 
     // users present in user related tables must be present in the base user

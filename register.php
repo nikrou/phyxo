@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +29,7 @@ include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
-check_status(ACCESS_FREE);
+$services['users']->checkStatus(ACCESS_FREE);
 
 //----------------------------------------------------------- user registration
 
@@ -53,7 +53,7 @@ if (isset($_POST['submit'])) {
         $page['errors'][] = l10n('The passwords do not match');
     }
 
-    register_user(
+    $services['users']->registerUser(
         $_POST['login'],
         $_POST['password'],
         $_POST['mail_address'],
@@ -69,8 +69,8 @@ if (isset($_POST['submit'])) {
         }
 
         // log user and redirect
-        $user_id = get_userid($_POST['login']);
-        log_user($user_id, false);
+        $user_id = $services['users']->getUserId($_POST['login']);
+        $services['users']->logUser($user_id, false);
         redirect(make_index_url());
     }
 	$registration_post_key = get_ephemeral_key(2);

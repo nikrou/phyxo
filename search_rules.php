@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,13 +39,13 @@ function inc_exc_str($is_included) {
 
 define('PHPWG_ROOT_PATH','./');
 include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
-check_status(ACCESS_FREE);
+$services['users']->checkStatus(ACCESS_FREE);
 include_once( PHPWG_ROOT_PATH.'include/functions_search.inc.php' );
 
 $page['body_id'] = 'thePopuphelpPage';
 $title = l10n('Piwigo Help');
 $page['page_banner'] = '';
-$page['meta_robots']=array('noindex'=>1, 'nofollow'=>1);
+$page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 
 $template->set_filenames(array('search_rules' => 'search_rules.tpl'));
@@ -60,7 +60,7 @@ $template->set_filenames(array('search_rules' => 'search_rules.tpl'));
 $search = get_search_array($_GET['search_id']);
 
 if (isset($search['q'])) {
-    $template->append( 'search_words', $search['q'] );
+    $template->append('search_words', $search['q']);
 } else {
     $template->assign(
         array('INTRODUCTION' => 'OR' == $search['mode'] ? l10n('At least one listed rule must be satisfied.') : l10n('Each listed rule must be satisfied.'))

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -155,7 +155,7 @@ function ws_tags_getImages($params, &$service) {
     if (!empty($image_ids) and !$params['tag_mode_and']) {
         $query = 'SELECT image_id, '.$conn->db_group_concat('tag_id').' AS tag_ids FROM '. IMAGE_TAG_TABLE;
         $query .= ' WHERE tag_id '.$conn->in($tag_ids);
-        $query .= ' AND image_id '.$conn->in($image_ids).' GROUP BY image_id;';
+        $query .= ' AND image_id '.$conn->in($image_ids).' GROUP BY image_id';
         $result = $conn->db_query($query);
 
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -211,8 +211,15 @@ function ws_tags_getImages($params, &$service) {
             }
 
             $image['tags'] = new PwgNamedArray($image_tags, 'tag', ws_std_get_tag_xml_attributes() );
-            $images[] = $image;
+            $images[$image['id']] = $image;
         }
+        // postgresql does not understand order by field(field_name, id1, id2, id3,...)
+        $tmp = array();
+        foreach ($image_ids as $image_id) {
+            $tmp[] = $images[$image_id];
+        }
+        $images = $tmp;
+        unset($tmp);
 
         usort($images, 'rank_compare');
         unset($rank_of);
