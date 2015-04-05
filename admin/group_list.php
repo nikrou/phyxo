@@ -290,8 +290,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $query .= ' LEFT JOIN '.USER_GROUP_TABLE.' AS ug ON u.'.$conf['user_fields']['id'].' = ug.user_id';
     $query .= ' WHERE ug.group_id = '.$row['id'];
     $members = array();
-    $result = $conn->db_query($query);
-    while ($user = $conn->db_fetch_assoc($result)) {
+    $user_result = $conn->db_query($query);
+    while ($user = $conn->db_fetch_assoc($user_result)) {
         $members[] = $user['username'];
     }
     $template->append(

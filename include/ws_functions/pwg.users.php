@@ -443,7 +443,7 @@ function ws_users_setInfo($params, &$service) {
 
     if (isset($update_status) and count($params['user_id_for_status']) > 0) {
         $query = 'UPDATE '. USER_INFOS_TABLE;
-        $query .= ' SET status = \''.$conn->boolean_to_db($update_status).'\'';
+        $query .= ' SET status = \''.$conn->db_real_escape_string($update_status).'\'';
         $query .= ' WHERE user_id '.$conn->in($params['user_id_for_status']);
         $conn->db_query($query);
     }
