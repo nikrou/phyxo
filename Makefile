@@ -17,7 +17,7 @@ config: clean
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
-	composer install --no-dev -d $(DIST)/$(APP_NAME)
+	composer install --no-dev -o -d $(DIST)/$(APP_NAME)
 	rm $(DIST)/$(APP_NAME)/composer.*
 
 	# remove doc and useless stuff
