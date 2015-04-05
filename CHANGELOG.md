@@ -1,3 +1,8 @@
+Phyxo 1.3.1 - 2015-04-05
+========================
+* Fix issue in groups list
+* Fix issue in user infos (user's status)
+
 Phyxo 1.3.0 - 2014-12-25
 ========================
 * Fix issue in menu mangement
