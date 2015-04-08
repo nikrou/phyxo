@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -42,7 +42,7 @@ class DBLayer extends atoum
 			->isEqualTo($interface_methods);
 	}
 
-    public function _testBoolean($dblayer, $field, $result) {
+    public function testBoolean($dblayer, $field, $result) {
         $controller = new \atoum\mock\controller();
 		$controller->__construct = function() {};
 
@@ -54,12 +54,33 @@ class DBLayer extends atoum
             ->isEqualTo($result);
     }
 
+    public function testIn($dblayer) {
+        $controller = new \atoum\mock\controller();
+		$controller->__construct = function() {};
+
+        $class_name = sprintf('\mock\Phyxo\DBLayer\%sConnection', $dblayer);
+        $conn = new $class_name('', '', '', '', $controller);
+        $this->calling($conn)->db_real_escape_string = function($s) {
+            return $s;
+        };
+
+        $this
+            ->string($conn->in(array(1,2,3)))
+            ->isIdenticalTo(" IN('1','2','3') ")
+            ->and()
+            ->string($conn->in('1,2,3'))
+            ->isIdenticalTo(" IN('1','2','3') ");
+    }
+
     public function testMassInsertQuery($dblayer, $query) {
         $controller = new \atoum\mock\controller();
 		$controller->__construct = function() {};
 
         $class_name = sprintf('\mock\Phyxo\DBLayer\%sConnection', $dblayer);
         $conn = new $class_name('', '', '', '', $controller);
+        $this->calling($conn)->db_real_escape_string = function($s) {
+            return $s;
+        };
         if (in_array('getMaxAllowedPacket', get_class_methods($class_name))) {
             $this->calling($conn)->getMaxAllowedPacket = 16777216;
         }
@@ -111,6 +132,15 @@ class DBLayer extends atoum
             array('mysql', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
             array('mysqli', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
             array('sqlite', "INSERT OR IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')")
+        );
+    }
+
+    protected function testInDataProvider() {
+        return array(
+            array('pgsql'),
+            array('mysql'),
+            array('mysqli'),
+            array('sqlite'),
         );
     }
 }
