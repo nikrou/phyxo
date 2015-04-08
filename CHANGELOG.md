@@ -1,3 +1,9 @@
+Phyxo 1.3.2 - 2015-04-08
+========================
+* Fix issue in register user
+* Fix missing zip filename if upgrade.
+* Fix issue with DBLayer::in when argument is a comma separated value.
+
 Phyxo 1.3.1 - 2015-04-05
 ========================
 * Fix issue in groups list
