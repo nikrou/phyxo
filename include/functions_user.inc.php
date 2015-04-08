@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -171,7 +171,7 @@ function register_user($login, $password, $mail_address, $notify_admin=true, &$e
 
         // Assign by default groups
         $query = 'SELECT id FROM '.GROUPS_TABLE;
-        $query .= ' WHERE is_default = \''.boolean_to_db(true).'\' ORDER BY id ASC;';
+        $query .= ' WHERE is_default = \''.$conn->boolean_to_db(true).'\' ORDER BY id ASC;';
         $result = $conn->db_query($query);
 
         $inserts = array();

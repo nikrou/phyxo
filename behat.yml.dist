@@ -20,6 +20,8 @@ default:
     Behat\MinkExtension\Extension:
       goutte: ~
       base_url: http://localhost/phyxo/behat
+      selenium2:
+        wd_host: "http://localhost:8643/wd/hub"
 
   paths:
     features:  features
