@@ -103,6 +103,7 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 if ($step == 2 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
+        $zip = PHPWG_ROOT_PATH.$conf['data_location'].'update'.'/'.$_POST['upgrade_to'].'.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
 
