@@ -99,7 +99,12 @@ function get_sync_exif_data($file) {
     foreach ($exif as $pwg_key => $value) {
         if (in_array($pwg_key, array('date_creation', 'date_available'))) {
             if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
-                $exif[$pwg_key] = $matches[1].'-'.$matches[2].'-'.$matches[3].' '.$matches[4].':'.$matches[5].':'.$matches[6];
+                if ($matches[1]!='0000' && $matches[2]!='00' && $matches[3]!='00'
+                    && $matches[4]!='00' && $matches[5]!='00' && $matches[6]!='00') {
+                    $exif[$pwg_key] = $matches[1].'-'.$matches[2].'-'.$matches[3].' '.$matches[4].':'.$matches[5].':'.$matches[6];
+                } else {
+                    unset($exif[$pwg_key]);
+                }
             } elseif (preg_match('/^(\d{4}).(\d{2}).(\d{2})/', $value, $matches)) {
                 $exif[$pwg_key] = $matches[1].'-'.$matches[2].'-'.$matches[3];
             } else {
@@ -107,7 +112,9 @@ function get_sync_exif_data($file) {
                 continue;
             }
         }
-        $exif[$pwg_key] = addslashes($exif[$pwg_key]);
+        if (!empty($exif[$pwg_key])) {
+            $exif[$pwg_key] = addslashes($exif[$pwg_key]); // @TODO: why addslashes ???
+        }
     }
 
     return $exif;

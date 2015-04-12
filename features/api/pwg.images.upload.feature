@@ -28,5 +28,14 @@ Feature: API
     And the response has property "result/category/label" equals to "album 1"
     And the response has property "result/category/nb_photos" equals to "2"
 
-
-
+  Scenario: upload an image with missing datetime
+    Given I am authenticated for api as "user1" with password "pass1"
+    When I send a POST request to "pwg.images.upload" with values:
+      | name      | my photo                                  |
+      | category  | SAVED:category_id                         |
+      | pwg_token |                                           |
+      | FILE:file | features/media/image_without_datetime.jpg |
+    Then the response code should be 200
+    And the response has property "result/name" equals to "my photo"
+    And the response has property "result/category/label" equals to "album 1"
+    And the response has property "result/category/nb_photos" equals to "2"
