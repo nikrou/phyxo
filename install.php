@@ -160,6 +160,8 @@ if (isset($_POST['install'])) {
         }
     }
 
+    include(PHPWG_ROOT_PATH . 'include/services.php');
+
     $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
     if (empty($webmaster)) {
         $errors[] = l10n('enter a login for webmaster');

@@ -78,7 +78,7 @@ final class FileCombiner
         global $conf, $services;
 
         $force = false;
-        if ($services['users']->isAdmin() && ($this->is_css || !$conf['template_compile_check'])) {
+        if (!empty($services['users']) && $services['users']->isAdmin() && ($this->is_css || !$conf['template_compile_check'])) {
             $force = (isset($_SERVER['HTTP_CACHE_CONTROL']) && strpos($_SERVER['HTTP_CACHE_CONTROL'], 'max-age=0') !== false)
                 || (isset($_SERVER['HTTP_PRAGMA']) && strpos($_SERVER['HTTP_PRAGMA'], 'no-cache'));
         }
