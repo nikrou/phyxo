@@ -1023,7 +1023,7 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
     if ($parser != null) {
         $dbValue = call_user_func($parser, $value);
     } elseif (is_array($value) || is_object($value)) {
-        $dbValue = addslashes(serialize($value)); // @TODO : remove
+        $dbValue = json_encode($value);
     } else {
         $dbValue = $conn->boolean_to_string($value);
     }
@@ -1034,11 +1034,11 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
     list($counter) = $conn->db_fetch_row($conn->db_query($query));
     if ($counter==0) {
         $query = 'INSERT INTO '.CONFIG_TABLE.' (param, value)';
-        $query .= ' VALUES(\''.$conn->db_real_escape_string($param).'\', \''.$conn->db_real_escape_string($value).'\')';
+        $query .= ' VALUES(\''.$conn->db_real_escape_string($param).'\', \''.$conn->db_real_escape_string($dbValue).'\')';
         $conn->db_query($query);
     } else {
         $query = 'UPDATE '.CONFIG_TABLE;
-        $query .= ' SET value = \''.$conn->db_real_escape_string($value).'\'';
+        $query .= ' SET value = \''.$conn->db_real_escape_string($dbValue).'\'';
         $query .= ' WHERE param = \''.$conn->db_real_escape_string($param).'\'';
         $conn->db_query($query);
     }
@@ -1081,11 +1081,7 @@ function conf_delete_param($params) {
  * @return array
  */
 function safe_unserialize($value) {
-    if (is_string($value)) {
-        return unserialize($value);
-    }
-
-    return $value;
+    return safe_json_decode($value);
 }
 
 /**
