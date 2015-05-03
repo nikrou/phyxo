@@ -431,7 +431,7 @@ class Users extends BaseRepository
             $query .= $dbfield.' AS '.$pwgfield;
         }
         $query.= ' FROM '.USERS_TABLE;
-        $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$user_id.'\'';
+        $query .= ' WHERE '.$conf['user_fields']['id'].' = '.$this->conn->db_real_escape_string($user_id);
 
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
 

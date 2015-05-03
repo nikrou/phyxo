@@ -149,7 +149,6 @@ class FeatureContext extends MinkContext
      * @Then /^I wait for message "([^"]*)" to appear$/
      */
     public function iWaitForMessageToAppear($message_type) {
-        \Log::getInstance()->debug($this->getSession());
         $this->getSession()->wait(
             2000,
             "$('a .infos').length > 0"

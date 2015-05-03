@@ -155,12 +155,12 @@ if (isset($_POST['install'])) {
         try {
             $conn = DBLayer::init($_POST['dblayer'], $_POST['dbhost'], $_POST['dbuser'], $_POST['dbpasswd'], $_POST['dbname']);
             $conn->db_check_version();
+
+            include(PHPWG_ROOT_PATH . 'include/services.php');
         } catch (Exception $e) {
             $errors[] = l10n($e->getMessage());
         }
     }
-
-    include(PHPWG_ROOT_PATH . 'include/services.php');
 
     $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
     if (empty($webmaster)) {
