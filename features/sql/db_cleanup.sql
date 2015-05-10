@@ -1,6 +1,7 @@
 DELETE FROM phyxo_comments;
 DELETE FROM phyxo_favorites;
 DELETE FROM phyxo_rate;
+DELETE FROM phyxo_plugins;
 DELETE FROM phyxo_user_cache;
 DELETE FROM phyxo_user_cache_categories;
 DELETE FROM phyxo_tags;

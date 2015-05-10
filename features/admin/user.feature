@@ -34,5 +34,4 @@ Feature: Create new access
     Then I wait for message "infos" to appear
     And I should see "User user2 added"
     Given I am logged in as "user2" with password "pass2"
-    Then print last response
     Then I should see "Hello user2"

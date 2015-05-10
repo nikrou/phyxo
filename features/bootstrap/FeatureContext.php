@@ -154,4 +154,20 @@ class FeatureContext extends MinkContext
             "$('a .infos').length > 0"
         );
     }
+
+    /**
+     * @Given /^I click on the "([^"]*)" element$/
+     */
+    public function iClickOnTheElement($cssSelector) {
+        $session = $this->getSession();
+        $element = $session->getPage()->find(
+            'xpath',
+            $session->getSelectorsHandler()->selectorToXpath('css', $cssSelector) // just changed xpath to css
+        );
+        if (null === $element) {
+            throw new \InvalidArgumentException(sprintf('Could not evaluate CSS Selector: "%s"', $cssSelector));
+        }
+
+        $element->click();
+    }
 }

@@ -20,9 +20,13 @@
 		"pclzip/pclzip": "dev-master",
 		"tedivm/jshrink": "dev-master",
 		"natxet/CssMin": "3.0.2",
+		"silex/silex": "~1.2",
 		"guzzlehttp/guzzle": "5.*"
 	},
 	"require-dev": {
+		"zircote/swagger-php": "~0.8,<0.10.0",
+		"jdesrosiers/silex-swagger-provider": "~1.0",
+		"jdesrosiers/silex-cors-provider": "~0.1",
 		"atoum/atoum": "1.1.*",
 		"behat/behat": "<3",
 		"behat/common-contexts": "*",

@@ -109,7 +109,7 @@ jQuery(document).ready(function() {
   </fieldset>
   {/if}
 
-  <fieldset class="pluginBoxes">
+  <fieldset class="pluginBoxes {$plugin.STATE}">
     <legend>
     {if $plugin.STATE == 'active'}
       {'Active Plugins'|translate}
