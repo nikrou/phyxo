@@ -58,6 +58,8 @@ $page['category_id'] = $_GET['cat_id'];
  * @return void
  */
 function save_images_order($category_id, $images) {
+    global $conn;
+
     $current_rank = 0;
     $datas = array();
     foreach ($images as $id) {

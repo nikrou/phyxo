@@ -157,7 +157,7 @@ if (isset($_POST['install'])) {
             $conn->db_check_version();
 
             include(PHPWG_ROOT_PATH . 'include/services.php');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $errors[] = l10n($e->getMessage());
         }
     }

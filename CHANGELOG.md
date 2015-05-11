@@ -1,5 +1,9 @@
-Phyxo 1.4.0 - 2014-xx-xx
+Phyxo 1.4.0 - 2015-05-10
 ========================
+* Fix missing dependency
+* Add repositories for comments and users
+* Fix severals issues.
+* DBLayer::in could accept commat separated value instead of array
 
 Phyxo 1.3.0 - 2014-12-25
 ========================
