@@ -24,6 +24,9 @@ config: clean
 	rm -fr $(DIST)/vendor/smarty/smarty/development \
 		$(DIST)/vendor/smarty/smarty/documentation
 
+	rm -fr $(DIST)/$(APP_NAME)/admin/node_modules \
+		$(DIST)/$(APP_NAME)/admin/bower_components
+
 	# empty dirs
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload \
 	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config \

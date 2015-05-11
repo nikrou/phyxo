@@ -20,10 +20,10 @@
 		"pclzip/pclzip": "dev-master",
 		"tedivm/jshrink": "dev-master",
 		"natxet/CssMin": "3.0.2",
-		"silex/silex": "~1.2",
 		"guzzlehttp/guzzle": "5.*"
 	},
 	"require-dev": {
+		"silex/silex": "~1.2",
 		"zircote/swagger-php": "~0.8,<0.10.0",
 		"jdesrosiers/silex-swagger-provider": "~1.0",
 		"jdesrosiers/silex-cors-provider": "~0.1",
