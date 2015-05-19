@@ -264,10 +264,14 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @return mixed
      */
     public function boolean_to_string($var) {
-        if (!empty($var) && (($var == 't') || ($var=='true'))) {
-            return 'true';
+        if (is_bool($var)) {
+            if (!empty($var) && (($var == 't') || ($var=='true'))) {
+                return 'true';
+            } else {
+                return 'false';
+            }
         } else {
-            return 'false';
+            return $var;
         }
     }
 
