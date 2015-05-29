@@ -1,6 +1,8 @@
 Phyxo
 ======
 
+[![Join the chat at https://gitter.im/nikrou/phyxo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nikrou/phyxo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This project is based on Piwigo. It aims to provide support for PostgreSQL and SQLite engines.
 
 Requirements
