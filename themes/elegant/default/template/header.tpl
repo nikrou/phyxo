@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset={$CONTENT_ENCODING}">
 <meta name="generator" content="Piwigo (aka PWG), see piwigo.org">
-{if isset($meta_ref) } 
+{if isset($meta_ref) }
 {if isset($INFO_AUTHOR)}
 <meta name="author" content="{$INFO_AUTHOR|@strip_tags:false|@replace:'"':' '}">
 {/if}
@@ -42,9 +42,6 @@
 {if not empty($page_refresh)    }<meta http-equiv="refresh" content="{$page_refresh.TIME};url={$page_refresh.U_REFRESH}">{/if}
 
 {get_combined_scripts load='header'}
-<!--[if lt IE 7]>
-<script type="text/javascript" src="{$ROOT_URL}themes/default/js/pngfix.js"></script>
-<![endif]-->
 
 {combine_script id="jquery" load="footer"}
 
