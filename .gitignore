@@ -1,16 +1,16 @@
 ;; data
-/_data/*
-/upload/*
-/galleries/*
-/db/*
+/_data
+/upload
+/galleries
+/db
 !/db/index.php
 
 
 ;; plugins
-/plugins/*
+/plugins
 
 ;; themes
-/themes/*
+/themes
 !/themes/Sylvia
 !/themes/clear/
 !/themes/dark/
@@ -27,7 +27,7 @@
 ;; external libraries
 /vendor/*
 
-/bin/*
+/bin
 
 
 ;; other stuff
