@@ -215,7 +215,7 @@ if (isset($_POST['submit'])) {
             foreach ($display_info_checkboxes as $checkbox) {
                 $_POST['picture_informations'][$checkbox] = empty($_POST['picture_informations'][$checkbox])? false : true;
             }
-            $_POST['picture_informations'] = addslashes(serialize($_POST['picture_informations']));
+            $_POST['picture_informations'] = $_POST['picture_informations'];
             break;
         }
         }
@@ -245,8 +245,8 @@ if (isset($_POST['submit'])) {
 
 // restore default derivatives settings
 if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings' == $_GET['action']) {
-    ImageStdParams::set_and_save( ImageStdParams::get_default_sizes());
-    conf_delete_params('disabled_derivatives');
+    ImageStdParams::set_and_save(ImageStdParams::get_default_sizes());
+    conf_delete_param('disabled_derivatives');
     clear_derivative_cache();
 
     $page['infos'][] = l10n('Your configuration settings are saved');
@@ -382,7 +382,7 @@ case 'display': {
     $template->append(
         'display',
         array(
-            'picture_informations' => unserialize($conf['picture_informations']),
+            'picture_informations' => json_decode($conf['picture_informations'], true),
             'NB_CATEGORIES_PAGE' => $conf['nb_categories_page'],
         ),
         true
@@ -416,8 +416,9 @@ case 'sizes': {
 
         // derivatives = multiple size
         $enabled = ImageStdParams::get_defined_type_map();
-        $disabled = @unserialize(@$conf['disabled_derivatives']); // @TODO: remove arobase and unserialize
-        if ($disabled === false) {
+        if (!empty($conf['disabled_derivatives'])) {
+            $disabled = unserialize($conf['disabled_derivatives']);
+        } else {
             $disabled = array();
         }
 
@@ -428,11 +429,11 @@ case 'sizes': {
             $tpl_var['must_square'] = ($type==IMG_SQUARE ? true : false);
             $tpl_var['must_enable'] = ($type==IMG_SQUARE || $type==IMG_THUMB || $type==$conf['derivative_default_size'])? true : false;
 
-            if ($params = @$enabled[$type]) {
+            if (!empty($enabled[$type]) && ($params = $enabled[$type])) {
                 $tpl_var['enabled'] = true;
             } else {
-                $tpl_var['enabled']=false;
-                $params = @$disabled[$type];
+                $tpl_var['enabled'] = false;
+                $params = $disabled[$type];
             }
 
             if ($params) {

@@ -33,7 +33,6 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment',
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment_validation','true','Send an email to the administrators when a comment requires validation');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('obligatory_user_mail_address','false','Mail address is obligatory for users');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('c13y_ignore',null,'List of ignored anomalies');
-INSERT INTO phyxo_config (param,value,comment) VALUES ('extents_for_templates','a:0:{}','Actived template-extension(s)');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('blk_menubar','','Menubar options');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('menubar_filter_icon','false','Display filter icon');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('index_sort_order_input','true','Display image order selection list');
@@ -49,14 +48,9 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('picture_download_icon','
 INSERT INTO phyxo_config (param,value,comment) VALUES ('picture_navigation_icons','true','Display navigation icons on picture page');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('picture_navigation_thumb','true','Display navigation thumbnails on picture page');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('picture_menu','false','Show menubar on picture page');
-INSERT INTO phyxo_config (param,value,comment)
-  VALUES (
-    'picture_informations',
-    'a:11:{s:6:"author";b:1;s:10:"created_on";b:1;s:9:"posted_on";b:1;s:10:"dimensions";b:0;s:4:"file";b:0;s:8:"filesize";b:0;s:4:"tags";b:1;s:10:"categories";b:1;s:6:"visits";b:1;s:12:"rating_score";b:1;s:13:"privacy_level";b:1;}',
-    'Information displayed on picture page'
-  );
+INSERT INTO phyxo_config (param,value,comment) VALUES ('picture_informations','{"author":true,"created_on":true,"posted_on":true,"dimensions":false,"file":false,"filesize":false,"tags":true,"categories":true,"visits":true,"rating_score":true,"privacy_level":true}','Information displayed on picture page');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('week_starts_on','monday','Monday may not be the first day of the week');
-INSERT INTO phyxo_config (param,value,comment) VALUES ('updates_ignored','a:3:{s:7:"plugins";a:0:{}s:6:"themes";a:0:{}s:9:"languages";a:0:{}}','Extensions ignored for update');
+INSERT INTO phyxo_config (param,value,comment) VALUES ('updates_ignored','{"plugins":[],"themes":[],"languages":[]}','Extensions ignored for update');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('order_by','ORDER BY date_available DESC, file ASC, id ASC','default photo order');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('order_by_inside_category','ORDER BY date_available DESC, file ASC, id ASC','default photo order inside category');
 INSERT INTO phyxo_config (param,value) VALUES ('original_resize','false');

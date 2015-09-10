@@ -124,8 +124,9 @@ if (count($errors) == 0) {
     ImageStdParams::$quality = intval($_POST['resize_quality']);
 
     $enabled = ImageStdParams::get_defined_type_map();
-    $disabled = @unserialize(@$conf['disabled_derivatives']); // @TODO: remove arobase
-    if ($disabled === false) {
+    if (!empty($conf['disabled_derivatives'])) {
+        $disabled = unserialize($conf['disabled_derivatives']);
+    } else {
         $disabled = array();
     }
     $changed_types = array();
@@ -201,7 +202,7 @@ if (count($errors) == 0) {
     if (count($disabled) == 0) {
         conf_delete_param('disabled_derivatives');
     } else {
-        conf_update_param('disabled_derivatives', addslashes(serialize($disabled)) );
+        conf_update_param('disabled_derivatives', serialize($disabled));
     }
     $conf['disabled_derivatives'] = serialize($disabled);
 

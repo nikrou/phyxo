@@ -24,19 +24,6 @@
  * @package Derivatives
  */
 
-
-define('IMG_SQUARE', 'square');
-define('IMG_THUMB', 'thumb');
-define('IMG_XXSMALL', '2small');
-define('IMG_XSMALL', 'xsmall');
-define('IMG_SMALL', 'small');
-define('IMG_MEDIUM', 'medium');
-define('IMG_LARGE', 'large');
-define('IMG_XLARGE', 'xlarge');
-define('IMG_XXLARGE', 'xxlarge');
-define('IMG_CUSTOM', 'custom');
-
-
 /**
  * Container for watermark configuration.
  */
@@ -209,15 +196,15 @@ final class ImageStdParams
      */
     public static function get_default_sizes() {
         $arr = array(
-            IMG_SQUARE => new DerivativeParams( SizingParams::square(120,120) ),
-            IMG_THUMB => new DerivativeParams( SizingParams::classic(144,144) ),
-            IMG_XXSMALL => new DerivativeParams( SizingParams::classic(240,240) ),
-            IMG_XSMALL => new DerivativeParams( SizingParams::classic(432,324) ),
-            IMG_SMALL => new DerivativeParams( SizingParams::classic(576,432) ),
-            IMG_MEDIUM => new DerivativeParams( SizingParams::classic(792,594) ),
-            IMG_LARGE => new DerivativeParams( SizingParams::classic(1008,756) ),
-            IMG_XLARGE => new DerivativeParams( SizingParams::classic(1224,918) ),
-            IMG_XXLARGE => new DerivativeParams( SizingParams::classic(1656,1242) ),
+            IMG_SQUARE => new DerivativeParams( SizingParams::square(120, 120)),
+            IMG_THUMB => new DerivativeParams( SizingParams::classic(144, 144)),
+            IMG_XXSMALL => new DerivativeParams( SizingParams::classic(240, 240)),
+            IMG_XSMALL => new DerivativeParams( SizingParams::classic(432, 324)),
+            IMG_SMALL => new DerivativeParams( SizingParams::classic(576, 432)),
+            IMG_MEDIUM => new DerivativeParams( SizingParams::classic(792, 594)),
+            IMG_LARGE => new DerivativeParams( SizingParams::classic(1008, 756)),
+            IMG_XLARGE => new DerivativeParams( SizingParams::classic(1224, 918)),
+            IMG_XXLARGE => new DerivativeParams( SizingParams::classic(1656, 1242)),
         );
         $now = time();
         foreach($arr as $params) {

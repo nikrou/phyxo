@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -121,11 +121,6 @@ class Template
         }
 
         $this->smarty->assign('lang_info', $lang_info);
-
-        if (!defined('IN_ADMIN') and isset($conf['extents_for_templates'])) {
-            $tpl_extents = unserialize($conf['extents_for_templates']);
-            $this->set_extents($tpl_extents, './template-extension/', true, $theme);
-        }
     }
 
     /**
