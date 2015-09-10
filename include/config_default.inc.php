@@ -751,7 +751,7 @@ $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 // folders name exluded during synchronization
 $conf['sync_exclude_folders'] = array();
 
-// PEM url (default is http://ext.phyxo.org)
+// PEM url (default is http://ext.phyxo.net)
 $conf['alternative_pem_url'] = '';
 
 // categories ID on PEM

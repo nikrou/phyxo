@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -35,16 +35,16 @@ class Languages extends atoum
                 'name' => 'AA Language [AA]',
                 'code' => 'aa_AA',
                 'version' => '1.0.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=16',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=16',
                 'author' => 'Nicolas',
-                'author uri' => 'http://www.nikrou.net/',
+                'author uri' => 'http://www.phyxo.net/',
                 'extension' => '16'
             ),
             'gg_GG' => array(
                 'name' => 'GG Language [GG]',
                 'code' => 'gg_GG',
                 'version' => '3.0.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=61',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=61',
                 'author' => 'Jean',
                 'extension' => '61'
             ),
@@ -52,7 +52,7 @@ class Languages extends atoum
                 'name' => 'SS Language [SS]',
                 'code' => 'ss_SS',
                 'version' => '1.2.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=33',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=33',
                 'author' => 'Jean',
                 'extension' => '33'
             ),
@@ -60,9 +60,9 @@ class Languages extends atoum
                 'name' => 'TT Language [TT]',
                 'code' => 'tt_TT',
                 'version' => '0.3.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=99',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=99',
                 'author' => 'Arthur',
-                'author uri' => 'http://www.nikrou.net/',
+                'author uri' => 'http://www.phyxo.net/',
                 'extension' => '99'
             )
         );

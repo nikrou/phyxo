@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -26,21 +26,18 @@
  * Retrieves an url for a plugin page.
  * @param string file - php script full name
  */
-function get_admin_plugin_menu_link($file)
-{
-  global $page;
-  $real_file = realpath($file);
-  $url = get_root_url().'admin.php?page=plugin';
-  if (false!==$real_file)
-  {
-    $real_plugin_path = rtrim(realpath(PHPWG_PLUGINS_PATH), '\\/');
-    $file = substr($real_file, strlen($real_plugin_path)+1);
-    $file = str_replace('\\', '/', $file);//Windows
-    $url .= '&amp;section='.urlencode($file);
-  }
-  else if (isset($page['errors']))
-  {
-    $page['errors'][] = 'PLUGIN ERROR: "'.$file.'" is not a valid file';
-  }
-  return $url;
+function get_admin_plugin_menu_link($file) {
+    global $page;
+    $real_file = realpath($file);
+    $url = get_root_url().'admin.php?page=plugin';
+    if (false!==$real_file) {
+        $real_plugin_path = rtrim(realpath(PHPWG_PLUGINS_PATH), '\\/');
+        $file = substr($real_file, strlen($real_plugin_path)+1);
+        $file = str_replace('\\', '/', $file);//Windows
+        $url .= '&amp;section='.urlencode($file);
+    } elseif (isset($page['errors'])) {
+        $page['errors'][] = 'PLUGIN ERROR: "'.$file.'" is not a valid file';
+    }
+
+    return $url;
 }

@@ -3,9 +3,9 @@
 Theme Name: My first theme
 Version: 7.8.9
 Description: Simple Number Three
-Theme URI: http://phyxo.nikrou.net/ext/extension_view.php?eid=789
+Theme URI: http://ext.phyxo.net/extension_view.php?eid=789
 Author: Jean
-Author URI: http://www.nikrou.net
+Author URI: http://www.phyxo.net
 */
 $themeconf = array(
   'name'         => 'theme3',
@@ -14,4 +14,3 @@ $themeconf = array(
   'mime_icon_dir' => 'themes/theme3/icon/mimetypes/',
   'local_head'    => 'local_head.tpl',
 );
-

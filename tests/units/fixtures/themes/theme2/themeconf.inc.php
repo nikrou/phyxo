@@ -3,7 +3,7 @@
 Theme Name: ZZ Theme
 Version: 4.5.6
 Description: Theme mobile without author uri
-Theme URI: http://phyxo.nikrou.net/ext/extension_view.php?eid=456
+Theme URI: http://ext.phyxo.net/extension_view.php?eid=456
 Author: Arthur
 */
 $themeconf = array(
@@ -14,4 +14,3 @@ $themeconf = array(
   'mobile'        => true,
   'local_head'    => 'local_head.tpl',
 );
-

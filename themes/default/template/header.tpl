@@ -2,7 +2,7 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
 <head>
 <meta charset="{$CONTENT_ENCODING}">
-<meta name="generator" content="Phyxo, see http://phyxo.nikrou.net/">
+<meta name="generator" content="Phyxo, see http://www.phyxo.net/">
 
 {if isset($meta_ref)}
 {if isset($INFO_AUTHOR)}

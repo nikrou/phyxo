@@ -6,7 +6,7 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset={$CONTENT_ENCODING}">
-    <meta name="generator" content="Phyxo, see phyxo.nikrou.net">
+    <meta name="generator" content="Phyxo, see www.phyxo.net">
 <title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 <link rel="shortcut icon" type="image/x-icon" href="{$ROOT_URL}{$themeconf.icon_dir}/favicon.ico">
 

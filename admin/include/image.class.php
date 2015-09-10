@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -133,7 +133,7 @@ class pwg_image
     }
 
     public static function get_resize_dimensions($width, $height, $max_width, $max_height,
-    $rotation=null, $crop=false, $follow_orientation=true) {
+                                                 $rotation=null, $crop=false, $follow_orientation=true) {
 
         $rotate_for_dimensions = false;
         if (isset($rotation) and in_array(abs($rotation), array(90, 270))) {
@@ -202,180 +202,151 @@ class pwg_image
         return $result;
     }
 
-  public static function get_rotation_angle($source_filepath)
-  {
-    list($width, $height, $type) = getimagesize($source_filepath);
-    if (IMAGETYPE_JPEG != $type)
-    {
-      return null;
-    }
-
-    if (!function_exists('exif_read_data'))
-    {
-      return null;
-    }
-
-    $rotation = 0;
-
-    $exif = @exif_read_data($source_filepath);
-
-    if (isset($exif['Orientation']) and preg_match('/^\s*(\d)/', $exif['Orientation'], $matches))
-    {
-      $orientation = $matches[1];
-      if (in_array($orientation, array(3, 4)))
-      {
-        $rotation = 180;
-      }
-      elseif (in_array($orientation, array(5, 6)))
-      {
-        $rotation = 270;
-      }
-      elseif (in_array($orientation, array(7, 8)))
-      {
-        $rotation = 90;
-      }
-    }
-
-    return $rotation;
-  }
-
-  static function get_rotation_code_from_angle($rotation_angle)
-  {
-    switch($rotation_angle)
-    {
-      case 0:   return 0;
-      case 90:  return 1;
-      case 180: return 2;
-      case 270: return 3;
-    }
-  }
-
-  static function get_rotation_angle_from_code($rotation_code)
-  {
-    switch($rotation_code%4)
-    {
-      case 0: return 0;
-      case 1: return 90;
-      case 2: return 180;
-      case 3: return 270;
-    }
-  }
-
-  /** Returns a normalized convolution kernel for sharpening*/
-  static function get_sharpen_matrix($amount)
-  {
-    // Amount should be in the range of 48-10
-    $amount = round(abs(-48 + ($amount * 0.38)), 2);
-
-    $matrix = array(
-      array(-1,   -1,    -1),
-      array(-1, $amount, -1),
-      array(-1,   -1,    -1),
-      );
-
-    $norm = array_sum(array_map('array_sum', $matrix));
-
-    for ($i=0; $i<3; $i++)
-    {
-      $line = & $matrix[$i];
-      for ($j=0; $j<3; $j++)
-      {
-        $line[$j] /= $norm;
-      }
-    }
-
-    return $matrix;
-  }
-
-  private function get_resize_result($destination_filepath, $width, $height, $time=null)
-  {
-    return array(
-      'source'      => $this->source_filepath,
-      'destination' => $destination_filepath,
-      'width'       => $width,
-      'height'      => $height,
-      'size'        => floor(filesize($destination_filepath) / 1024).' KB',
-      'time'        => $time ? number_format((get_moment() - $time) * 1000, 2, '.', ' ').' ms' : null,
-      'library'     => $this->library,
-    );
-  }
-
-  static function is_imagick()
-  {
-    return (extension_loaded('imagick') and class_exists('Imagick'));
-  }
-
-  static function is_ext_imagick()
-  {
-    global $conf;
-
-    if (!function_exists('exec'))
-    {
-      return false;
-    }
-    @exec($conf['ext_imagick_dir'].'convert -version', $returnarray);
-    if (is_array($returnarray) and !empty($returnarray[0]) and preg_match('/ImageMagick/i', $returnarray[0]))
-    {
-      if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match))
-      {
-        self::$ext_imagick_version = $match[1];
-      }
-      return true;
-    }
-    return false;
-  }
-
-  static function is_gd()
-  {
-    return function_exists('gd_info');
-  }
-
-  static function get_library($library=null, $extension=null)
-  {
-    global $conf;
-
-    if (is_null($library))
-    {
-      $library = $conf['graphics_library'];
-    }
-
-    // Choose image library
-    switch (strtolower($library))
-    {
-      case 'auto':
-      case 'imagick':
-        if ($extension != 'gif' and self::is_imagick())
-        {
-          return 'imagick';
+    public static function get_rotation_angle($source_filepath) {
+        list($width, $height, $type) = getimagesize($source_filepath);
+        if (IMAGETYPE_JPEG != $type) {
+            return null;
         }
-      case 'ext_imagick':
-        if ($extension != 'gif' and self::is_ext_imagick())
-        {
-          return 'ext_imagick';
+
+        if (!function_exists('exif_read_data')) {
+            return null;
         }
-      case 'gd':
-        if (self::is_gd())
-        {
-          return 'gd';
+
+        $rotation = 0;
+
+        $exif = @exif_read_data($source_filepath);
+
+        if (isset($exif['Orientation']) and preg_match('/^\s*(\d)/', $exif['Orientation'], $matches)) {
+            $orientation = $matches[1];
+            if (in_array($orientation, array(3, 4))) {
+                $rotation = 180;
+            } elseif (in_array($orientation, array(5, 6))) {
+                $rotation = 270;
+            } elseif (in_array($orientation, array(7, 8))) {
+                $rotation = 90;
+            }
         }
-      default:
-        if ($library != 'auto')
+
+        return $rotation;
+    }
+
+    public static function get_rotation_code_from_angle($rotation_angle) {
+        switch($rotation_angle)
         {
-          // Requested library not available. Try another library
-          return self::get_library('auto', $extension);
+        case 0:   return 0;
+        case 90:  return 1;
+        case 180: return 2;
+        case 270: return 3;
         }
     }
-    return false;
-  }
 
-  function destroy()
-  {
-    if (method_exists($this->image, 'destroy'))
-    {
-      return $this->image->destroy();
+    public static function get_rotation_angle_from_code($rotation_code) {
+        switch($rotation_code%4)
+        {
+        case 0: return 0;
+        case 1: return 90;
+        case 2: return 180;
+        case 3: return 270;
+        }
     }
-    return true;
-  }
+
+    /** Returns a normalized convolution kernel for sharpening*/
+    public static function get_sharpen_matrix($amount) {
+        // Amount should be in the range of 48-10
+        $amount = round(abs(-48 + ($amount * 0.38)), 2);
+
+        $matrix = array(
+            array(-1,   -1,    -1),
+            array(-1, $amount, -1),
+            array(-1,   -1,    -1),
+        );
+
+        $norm = array_sum(array_map('array_sum', $matrix));
+
+        for ($i=0; $i<3; $i++) {
+            $line = & $matrix[$i];
+            for ($j=0; $j<3; $j++) {
+                $line[$j] /= $norm;
+            }
+        }
+
+        return $matrix;
+    }
+
+    private function get_resize_result($destination_filepath, $width, $height, $time=null) {
+        return array(
+            'source'      => $this->source_filepath,
+            'destination' => $destination_filepath,
+            'width'       => $width,
+            'height'      => $height,
+            'size'        => floor(filesize($destination_filepath) / 1024).' KB',
+            'time'        => $time ? number_format((get_moment() - $time) * 1000, 2, '.', ' ').' ms' : null,
+            'library'     => $this->library,
+        );
+    }
+
+    public static function is_imagick() {
+        return (extension_loaded('imagick') and class_exists('Imagick'));
+    }
+
+    public static function is_ext_imagick() {
+        global $conf;
+
+        if (!function_exists('exec')) {
+            return false;
+        }
+        @exec($conf['ext_imagick_dir'].'convert -version', $returnarray);
+        if (is_array($returnarray) and !empty($returnarray[0]) and preg_match('/ImageMagick/i', $returnarray[0])) {
+            if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match)) {
+                self::$ext_imagick_version = $match[1];
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public static function is_gd() {
+        return function_exists('gd_info');
+    }
+
+    public static function get_library($library=null, $extension=null) {
+        global $conf;
+
+        if (is_null($library)) {
+            $library = $conf['graphics_library'];
+        }
+
+        // Choose image library
+        switch (strtolower($library))
+        {
+        case 'auto':
+        case 'imagick':
+            if ($extension != 'gif' and self::is_imagick()) {
+                return 'imagick';
+            }
+        case 'ext_imagick':
+            if ($extension != 'gif' and self::is_ext_imagick()) {
+                return 'ext_imagick';
+            }
+        case 'gd':
+            if (self::is_gd()) {
+                return 'gd';
+            }
+        default:
+            if ($library != 'auto') {
+                // Requested library not available. Try another library
+                return self::get_library('auto', $extension);
+            }
+        }
+        return false;
+    }
+
+    public function destroy() {
+        if (method_exists($this->image, 'destroy')) {
+            return $this->image->destroy();
+        }
+        return true;
+    }
 }
 
 // +-----------------------------------------------------------------------+
@@ -384,92 +355,78 @@ class pwg_image
 
 class image_imagick implements imageInterface
 {
-  var $image;
+    var $image;
 
-  function __construct($source_filepath)
-  {
-    // A bug cause that Imagick class can not be extended
-    $this->image = new Imagick($source_filepath);
-  }
-
-  function get_width()
-  {
-    return $this->image->getImageWidth();
-  }
-
-  function get_height()
-  {
-    return $this->image->getImageHeight();
-  }
-
-  function set_compression_quality($quality)
-  {
-    return $this->image->setImageCompressionQuality($quality);
-  }
-
-  function crop($width, $height, $x, $y)
-  {
-    return $this->image->cropImage($width, $height, $x, $y);
-  }
-
-  function strip()
-  {
-    return $this->image->stripImage();
-  }
-
-  function rotate($rotation)
-  {
-    $this->image->rotateImage(new ImagickPixel(), -$rotation);
-    $this->image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
-    return true;
-  }
-
-  function resize($width, $height)
-  {
-    $this->image->setInterlaceScheme(Imagick::INTERLACE_LINE);
-
-    // TODO need to explain this condition
-    if ($this->get_width()%2 == 0
-        && $this->get_height()%2 == 0
-        && $this->get_width() > 3*$width)
-    {
-      $this->image->scaleImage($this->get_width()/2, $this->get_height()/2);
+    public function __construct($source_filepath) {
+        // A bug cause that Imagick class can not be extended
+        $this->image = new Imagick($source_filepath);
     }
 
-    return $this->image->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 0.9);
-  }
-
-  function sharpen($amount)
-  {
-    $m = pwg_image::get_sharpen_matrix($amount);
-    return  $this->image->convolveImage($m);
-  }
-
-  function compose($overlay, $x, $y, $opacity)
-  {
-    $ioverlay = $overlay->image->image;
-    /*if ($ioverlay->getImageAlphaChannel() !== Imagick::ALPHACHANNEL_OPAQUE)
-    {
-      // Force the image to have an alpha channel
-      $ioverlay->setImageAlphaChannel(Imagick::ALPHACHANNEL_OPAQUE);
-    }*/
-
-    global $dirty_trick_xrepeat;
-    if ( !isset($dirty_trick_xrepeat) && $opacity < 100)
-    {// NOTE: Using setImageOpacity will destroy current alpha channels!
-      $ioverlay->evaluateImage(Imagick::EVALUATE_MULTIPLY, $opacity / 100, Imagick::CHANNEL_ALPHA);
-      $dirty_trick_xrepeat = true;
+    public function get_width() {
+        return $this->image->getImageWidth();
     }
 
-    return $this->image->compositeImage($ioverlay, Imagick::COMPOSITE_DISSOLVE, $x, $y);
-  }
+    public function get_height() {
+        return $this->image->getImageHeight();
+    }
 
-  function write($destination_filepath)
-  {
-    // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
-    $this->image->setSamplingFactors( array(2,1) );
-    return $this->image->writeImage($destination_filepath);
-  }
+    public function set_compression_quality($quality) {
+        return $this->image->setImageCompressionQuality($quality);
+    }
+
+    public function crop($width, $height, $x, $y) {
+        return $this->image->cropImage($width, $height, $x, $y);
+    }
+
+    public function strip() {
+        return $this->image->stripImage();
+    }
+
+    public function rotate($rotation) {
+        $this->image->rotateImage(new ImagickPixel(), -$rotation);
+        $this->image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
+        return true;
+    }
+
+    public function resize($width, $height) {
+        $this->image->setInterlaceScheme(Imagick::INTERLACE_LINE);
+
+        // @TODO need to explain this condition
+        if ($this->get_width()%2 == 0 && $this->get_height()%2 == 0 && $this->get_width() > 3*$width) {
+            $this->image->scaleImage($this->get_width()/2, $this->get_height()/2);
+        }
+
+        return $this->image->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 0.9);
+    }
+
+    public function sharpen($amount) {
+        $m = pwg_image::get_sharpen_matrix($amount);
+        return  $this->image->convolveImage($m);
+    }
+
+    public function compose($overlay, $x, $y, $opacity) {
+        $ioverlay = $overlay->image->image;
+        /*if ($ioverlay->getImageAlphaChannel() !== Imagick::ALPHACHANNEL_OPAQUE)
+          {
+          // Force the image to have an alpha channel
+          $ioverlay->setImageAlphaChannel(Imagick::ALPHACHANNEL_OPAQUE);
+          }*/
+
+        global $dirty_trick_xrepeat;
+        if ( !isset($dirty_trick_xrepeat) && $opacity < 100) {
+            // NOTE: Using setImageOpacity will destroy current alpha channels!
+            $ioverlay->evaluateImage(Imagick::EVALUATE_MULTIPLY, $opacity / 100, Imagick::CHANNEL_ALPHA);
+            $dirty_trick_xrepeat = true;
+        }
+
+        return $this->image->compositeImage($ioverlay, Imagick::COMPOSITE_DISSOLVE, $x, $y);
+    }
+
+    public function write($destination_filepath) {
+        // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
+        $this->image->setSamplingFactors( array(2,1) );
+        return $this->image->writeImage($destination_filepath);
+    }
 }
 
 // +-----------------------------------------------------------------------+
@@ -478,163 +435,149 @@ class image_imagick implements imageInterface
 
 class image_ext_imagick implements imageInterface
 {
-  var $imagickdir = '';
-  var $source_filepath = '';
-  var $width = '';
-  var $height = '';
-  var $commands = array();
+    var $imagickdir = '';
+    var $source_filepath = '';
+    var $width = '';
+    var $height = '';
+    var $commands = array();
 
-  function __construct($source_filepath)
-  {
-    global $conf;
-    $this->source_filepath = $source_filepath;
-    $this->imagickdir = $conf['ext_imagick_dir'];
+    public function __construct($source_filepath) {
+        global $conf;
+        $this->source_filepath = $source_filepath;
+        $this->imagickdir = $conf['ext_imagick_dir'];
 
-    if (strpos(@$_SERVER['SCRIPT_FILENAME'], '/kunden/') === 0)  // 1and1
-    {
-      @putenv('MAGICK_THREAD_LIMIT=1');
+        if (strpos(@$_SERVER['SCRIPT_FILENAME'], '/kunden/') === 0) { // 1and1 ???
+            @putenv('MAGICK_THREAD_LIMIT=1');
+        }
+
+        $command = $this->imagickdir.'identify -format "%wx%h" "'.realpath($source_filepath).'"';
+        @exec($command, $returnarray);
+        if(!is_array($returnarray) or empty($returnarray[0]) or !preg_match('/^(\d+)x(\d+)$/', $returnarray[0], $match)) {
+            die("[External ImageMagick] Corrupt image\n" . var_export($returnarray, true));
+        }
+
+        $this->width = $match[1];
+        $this->height = $match[2];
     }
 
-    $command = $this->imagickdir.'identify -format "%wx%h" "'.realpath($source_filepath).'"';
-    @exec($command, $returnarray);
-    if(!is_array($returnarray) or empty($returnarray[0]) or !preg_match('/^(\d+)x(\d+)$/', $returnarray[0], $match))
-    {
-      die("[External ImageMagick] Corrupt image\n" . var_export($returnarray, true));
+    public function add_command($command, $params=null) {
+        $this->commands[$command] = $params;
     }
 
-    $this->width = $match[1];
-    $this->height = $match[2];
-  }
-
-  function add_command($command, $params=null)
-  {
-    $this->commands[$command] = $params;
-  }
-
-  function get_width()
-  {
-    return $this->width;
-  }
-
-  function get_height()
-  {
-    return $this->height;
-  }
-
-  function crop($width, $height, $x, $y) {
-      $this->width = $width;
-      $this->height = $height;
-
-      $this->add_command('crop', $width.'x'.$height.'+'.$x.'+'.$y);
-
-      return true;
-  }
-
-  function strip()
-  {
-    $this->add_command('strip');
-    return true;
-  }
-
-  function rotate($rotation)
-  {
-    if (empty($rotation))
-    {
-      return true;
+    public function get_width() {
+        return $this->width;
     }
 
-    if ($rotation==90 || $rotation==270)
-    {
-      $tmp = $this->width;
-      $this->width = $this->height;
-      $this->height = $tmp;
-    }
-    $this->add_command('rotate', -$rotation);
-    $this->add_command('orient', 'top-left');
-    return true;
-  }
-
-  function set_compression_quality($quality)
-  {
-    $this->add_command('quality', $quality);
-    return true;
-  }
-
-  function resize($width, $height) {
-      $this->width = $width;
-      $this->height = $height;
-
-      $this->add_command('filter', 'Lanczos');
-      $this->add_command('resize', $width.'x'.$height.'!');
-
-      return true;
-  }
-
-  function sharpen($amount)
-  {
-    $m = pwg_image::get_sharpen_matrix($amount);
-
-    $param ='convolve "'.count($m).':';
-    foreach ($m as $line)
-    {
-      $param .= ' ';
-      $param .= implode(',', $line);
-    }
-    $param .= '"';
-    $this->add_command('morphology', $param);
-    return true;
-  }
-
-  function compose($overlay, $x, $y, $opacity)
-  {
-    $param = 'compose dissolve -define compose:args='.$opacity;
-    $param .= ' '.escapeshellarg(realpath($overlay->image->source_filepath));
-    $param .= ' -gravity NorthWest -geometry +'.$x.'+'.$y;
-    $param .= ' -composite';
-    $this->add_command($param);
-    return true;
-  }
-
-  function write($destination_filepath)
-  {
-    $this->add_command('interlace', 'line'); // progressive rendering
-    // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
-    //
-    // option deactivated for Piwigo 2.4.1, it doesn't work fo old versions
-    // of ImageMagick, see bug:2672. To reactivate once we have a better way
-    // to detect IM version and when we know which version supports this
-    // option
-    //
-    if (version_compare(pwg_image::$ext_imagick_version, '6.6') > 0)
-    {
-      $this->add_command('sampling-factor', '4:2:2' );
+    public function get_height() {
+        return $this->height;
     }
 
-    $exec = $this->imagickdir.'convert';
-    $exec .= ' "'.realpath($this->source_filepath).'"';
+    public function crop($width, $height, $x, $y) {
+        $this->width = $width;
+        $this->height = $height;
 
-    foreach ($this->commands as $command => $params)
-    {
-      $exec .= ' -'.$command;
-      if (!empty($params))
-      {
-        $exec .= ' '.$params;
-      }
+        $this->add_command('crop', $width.'x'.$height.'+'.$x.'+'.$y);
+
+        return true;
     }
 
-    $dest = pathinfo($destination_filepath);
-    $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'" 2>&1';
-    @exec($exec, $returnarray);
-
-    if (function_exists('ilog')) ilog($exec);
-    if (is_array($returnarray) && (count($returnarray)>0) )
-    {
-      if (function_exists('ilog')) ilog('ERROR', $returnarray);
-      foreach($returnarray as $line)
-        trigger_error($line, E_USER_WARNING);
+    public function strip() {
+        $this->add_command('strip');
+        return true;
     }
-    return is_array($returnarray);
-  }
+
+    public function rotate($rotation) {
+        if (empty($rotation)) {
+            return true;
+        }
+
+        if ($rotation==90 || $rotation==270) {
+            $tmp = $this->width;
+            $this->width = $this->height;
+            $this->height = $tmp;
+        }
+        $this->add_command('rotate', -$rotation);
+        $this->add_command('orient', 'top-left');
+        return true;
+    }
+
+    public function set_compression_quality($quality) {
+        $this->add_command('quality', $quality);
+        return true;
+    }
+
+    public function resize($width, $height) {
+        $this->width = $width;
+        $this->height = $height;
+
+        $this->add_command('filter', 'Lanczos');
+        $this->add_command('resize', $width.'x'.$height.'!');
+
+        return true;
+    }
+
+    public function sharpen($amount) {
+        $m = pwg_image::get_sharpen_matrix($amount);
+
+        $param ='convolve "'.count($m).':';
+        foreach ($m as $line) {
+            $param .= ' ';
+            $param .= implode(',', $line);
+        }
+        $param .= '"';
+        $this->add_command('morphology', $param);
+        return true;
+    }
+
+    public function compose($overlay, $x, $y, $opacity) {
+        $param = 'compose dissolve -define compose:args='.$opacity;
+        $param .= ' '.escapeshellarg(realpath($overlay->image->source_filepath));
+        $param .= ' -gravity NorthWest -geometry +'.$x.'+'.$y;
+        $param .= ' -composite';
+        $this->add_command($param);
+        return true;
+    }
+
+    public function write($destination_filepath) {
+        $this->add_command('interlace', 'line'); // progressive rendering
+        // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
+        //
+        // option deactivated for Piwigo 2.4.1, it doesn't work fo old versions
+        // of ImageMagick, see bug:2672. To reactivate once we have a better way
+        // to detect IM version and when we know which version supports this
+        // option
+        //
+        if (version_compare(pwg_image::$ext_imagick_version, '6.6') > 0) {
+            $this->add_command('sampling-factor', '4:2:2' );
+        }
+
+        $exec = $this->imagickdir.'convert';
+        $exec .= ' "'.realpath($this->source_filepath).'"';
+
+        foreach ($this->commands as $command => $params) {
+            $exec .= ' -'.$command;
+            if (!empty($params)) {
+                $exec .= ' '.$params;
+            }
+        }
+
+        $dest = pathinfo($destination_filepath);
+        $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'" 2>&1';
+        @exec($exec, $returnarray);
+
+        if (function_exists('ilog')) {
+            ilog($exec);
+        }
+        if (is_array($returnarray) && (count($returnarray)>0)) {
+            if (function_exists('ilog')) {
+                ilog('ERROR', $returnarray);
+            }
+            foreach($returnarray as $line) {
+                trigger_error($line, E_USER_WARNING);
+            }
+        }
+        return is_array($returnarray);
+    }
 }
 
 // +-----------------------------------------------------------------------+
@@ -643,125 +586,100 @@ class image_ext_imagick implements imageInterface
 
 class image_gd implements imageInterface
 {
-  var $image;
-  var $quality = 95;
+    var $image;
+    var $quality = 95;
 
-  function __construct($source_filepath)
-  {
-    $gd_info = gd_info();
-    $extension = strtolower(get_extension($source_filepath));
+    public function __construct($source_filepath) {
+        $gd_info = gd_info();
+        $extension = strtolower(get_extension($source_filepath));
 
-    if (in_array($extension, array('jpg', 'jpeg')))
-    {
-      $this->image = imagecreatefromjpeg($source_filepath);
-    }
-    else if ($extension == 'png')
-    {
-      $this->image = imagecreatefrompng($source_filepath);
-    }
-    elseif ($extension == 'gif' and $gd_info['GIF Read Support'] and $gd_info['GIF Create Support'])
-    {
-      $this->image = imagecreatefromgif($source_filepath);
-    }
-    else
-    {
-      die('[Image GD] unsupported file extension');
-    }
-  }
-
-  function get_width()
-  {
-    return imagesx($this->image);
-  }
-
-  function get_height()
-  {
-    return imagesy($this->image);
-  }
-
-  function crop($width, $height, $x, $y)
-  {
-    $dest = imagecreatetruecolor($width, $height);
-
-    imagealphablending($dest, false);
-    imagesavealpha($dest, true);
-    if (function_exists('imageantialias'))
-    {
-      imageantialias($dest, true);
+        if (in_array($extension, array('jpg', 'jpeg'))) {
+            $this->image = imagecreatefromjpeg($source_filepath);
+        } elseif ($extension == 'png') {
+            $this->image = imagecreatefrompng($source_filepath);
+        } elseif ($extension == 'gif' and $gd_info['GIF Read Support'] and $gd_info['GIF Create Support']) {
+            $this->image = imagecreatefromgif($source_filepath);
+        } else {
+            die('[Image GD] unsupported file extension');
+        }
     }
 
-    $result = imagecopymerge($dest, $this->image, 0, 0, $x, $y, $width, $height, 100);
-
-    if ($result !== false)
-    {
-      imagedestroy($this->image);
-      $this->image = $dest;
-    }
-    else
-    {
-      imagedestroy($dest);
-    }
-    return $result;
-  }
-
-  function strip()
-  {
-    return true;
-  }
-
-  function rotate($rotation)
-  {
-    $dest = imagerotate($this->image, $rotation, 0);
-    imagedestroy($this->image);
-    $this->image = $dest;
-    return true;
-  }
-
-  function set_compression_quality($quality)
-  {
-    $this->quality = $quality;
-    return true;
-  }
-
-  function resize($width, $height)
-  {
-    $dest = imagecreatetruecolor($width, $height);
-
-    imagealphablending($dest, false);
-    imagesavealpha($dest, true);
-    if (function_exists('imageantialias'))
-    {
-      imageantialias($dest, true);
+    public function get_width() {
+        return imagesx($this->image);
     }
 
-    $result = imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $width, $height, $this->get_width(), $this->get_height());
-
-    if ($result !== false)
-    {
-      imagedestroy($this->image);
-      $this->image = $dest;
+    public function get_height() {
+        return imagesy($this->image);
     }
-    else
-    {
-      imagedestroy($dest);
+
+    public function crop($width, $height, $x, $y) {
+        $dest = imagecreatetruecolor($width, $height);
+
+        imagealphablending($dest, false);
+        imagesavealpha($dest, true);
+        if (function_exists('imageantialias')) {
+            imageantialias($dest, true);
+        }
+
+        $result = imagecopymerge($dest, $this->image, 0, 0, $x, $y, $width, $height, 100);
+
+        if ($result !== false) {
+            imagedestroy($this->image);
+            $this->image = $dest;
+        } else {
+            imagedestroy($dest);
+        }
+        return $result;
     }
-    return $result;
-  }
 
-  function sharpen($amount)
-  {
-    $m = pwg_image::get_sharpen_matrix($amount);
-    return imageconvolution($this->image, $m, 1, 0);
-  }
+    public function strip() {
+        return true;
+    }
 
-  function compose($overlay, $x, $y, $opacity)
-  {
-    $ioverlay = $overlay->image->image;
-    /* A replacement for php's imagecopymerge() function that supports the alpha channel
-    See php bug #23815:  http://bugs.php.net/bug.php?id=23815 */
+    public function rotate($rotation) {
+        $dest = imagerotate($this->image, $rotation, 0);
+        imagedestroy($this->image);
+        $this->image = $dest;
+        return true;
+    }
 
-    $ow = imagesx($ioverlay);
-    $oh = imagesy($ioverlay);
+    public function set_compression_quality($quality) {
+        $this->quality = $quality;
+        return true;
+    }
+
+    public function resize($width, $height) {
+        $dest = imagecreatetruecolor($width, $height);
+
+        imagealphablending($dest, false);
+        imagesavealpha($dest, true);
+        if (function_exists('imageantialias')) {
+            imageantialias($dest, true);
+        }
+
+        $result = imagecopyresampled($dest, $this->image, 0, 0, 0, 0, $width, $height, $this->get_width(), $this->get_height());
+
+        if ($result !== false) {
+            imagedestroy($this->image);
+            $this->image = $dest;
+        } else {
+            imagedestroy($dest);
+        }
+        return $result;
+    }
+
+    public function sharpen($amount) {
+        $m = pwg_image::get_sharpen_matrix($amount);
+        return imageconvolution($this->image, $m, 1, 0);
+    }
+
+    public function compose($overlay, $x, $y, $opacity) {
+        $ioverlay = $overlay->image->image;
+        /* A replacement for php's imagecopymerge() function that supports the alpha channel
+           See php bug #23815:  http://bugs.php.net/bug.php?id=23815 */
+
+        $ow = imagesx($ioverlay);
+        $oh = imagesy($ioverlay);
 
 		// Create a new blank image the site of our source image
 		$cut = imagecreatetruecolor($ow, $oh);
@@ -772,30 +690,23 @@ class image_gd implements imageInterface
 		// Place the source image in the destination image
 		imagecopy($cut, $ioverlay, 0, 0, 0, 0, $ow, $oh);
 		imagecopymerge($this->image, $cut, $x, $y, 0, 0, $ow, $oh, $opacity);
-    imagedestroy($cut);
-    return true;
-  }
-
-  function write($destination_filepath)
-  {
-    $extension = strtolower(get_extension($destination_filepath));
-
-    if ($extension == 'png')
-    {
-      imagepng($this->image, $destination_filepath);
+        imagedestroy($cut);
+        return true;
     }
-    elseif ($extension == 'gif')
-    {
-      imagegif($this->image, $destination_filepath);
-    }
-    else
-    {
-      imagejpeg($this->image, $destination_filepath, $this->quality);
-    }
-  }
 
-  function destroy()
-  {
-    imagedestroy($this->image);
-  }
+    public function write($destination_filepath) {
+        $extension = strtolower(get_extension($destination_filepath));
+
+        if ($extension == 'png') {
+            imagepng($this->image, $destination_filepath);
+        } elseif ($extension == 'gif') {
+            imagegif($this->image, $destination_filepath);
+        } else {
+            imagejpeg($this->image, $destination_filepath, $this->quality);
+        }
+    }
+
+    public function destroy() {
+        imagedestroy($this->image);
+    }
 }

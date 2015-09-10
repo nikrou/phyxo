@@ -211,7 +211,7 @@
           </tfoot>
         </table>
       </div> <!-- methodParams -->
-      
+
       <div id="requestDisplay" style="display:none;">
         <br>
         <h3>Request</h3>
@@ -239,7 +239,7 @@
 </div> <!-- the_page -->
 
 <div id="the_footer">
-  Copyright &copy; 2014 <a href="http://phyxo.nikrou.net/">Phyxo</a>
+  Copyright &copy; 2014 <a href="http://www.phyxo.net/">Phyxo</a>
 </div> <!-- the_footer -->
 
 <script src="../themes/default/js/jquery.js"></script>
@@ -404,7 +404,7 @@ function selectMethod(methodName) {
 						onlys+= 'Admin only. ';
 					}
 					onlys+= '</div>';
-					
+
 					result.description = onlys + result.description;
 				}
         cachedMethods[ methodName ] = result;
@@ -519,7 +519,7 @@ function invokeMethod(methodName, newWindow) {
     else {
       $("#invokeFrame").attr('src', reqUrl);
     }
-    
+
     $('#requestDisplay').show()
       .find('.url').html(reqUrl).end()
       .find('.params').hide();
@@ -527,7 +527,7 @@ function invokeMethod(methodName, newWindow) {
   // POST
   else {
     var params = {};
-    
+
     var form = $("#invokeForm");
     form.attr('action', reqUrl);
 
@@ -541,10 +541,10 @@ function invokeMethod(methodName, newWindow) {
       var paramValue = $("input.methodParameterValue[data-id='"+ i +"']").val(),
           paramName = method.params[i].name,
           paramSplitted = paramValue.split('|');
-           
+
       if (method.params[i].acceptArray &&  paramSplitted.length > 1) {
         params[paramName] = [];
-        
+
         $.each(paramSplitted, function(i, value) {
           params[paramName].push(value);
           t+= '<input type="hidden" name="'+ paramName +'[]" value="'+ value +'">';
@@ -559,7 +559,7 @@ function invokeMethod(methodName, newWindow) {
     form.html(t);
     form.attr('target', newWindow ? "_blank" : "invokeFrame");
     form.submit();
-    
+
     $('#requestDisplay').show()
       .find('.url').html(reqUrl).end()
       .find('.params').show().html(JSON.stringify(params, null, 4));

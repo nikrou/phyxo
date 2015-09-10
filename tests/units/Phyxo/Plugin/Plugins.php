@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire           http://phyxo.nikrou.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -34,16 +34,16 @@ class Plugins extends atoum
             'plugin1' => array(
                 'name' => 'A simple plugin',
                 'version' => '0.1.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=1',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=1',
                 'description' => 'My first plugin',
                 'author' => 'Nicolas',
-                'author uri' => 'http://www.nikrou.net/',
+                'author uri' => 'http://www.phyxo.net/',
                 'extension' => '1'
             ),
             'plugin2' => array(
                 'name' => 'ZZ Plugin',
                 'version' => '1.0.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=2',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=2',
                 'description' => 'My second plugin',
                 'author' => 'Arthur',
                 'extension' => '2'
@@ -51,19 +51,19 @@ class Plugins extends atoum
             'plugin3' => array(
                 'name' => 'My Plugin',
                 'version' => '2.1.0',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=90',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=90',
                 'description' => 'A simple description',
                 'author' => 'Jean',
-                'author uri' => 'http://www.nikrou.net/',
+                'author uri' => 'http://www.phyxo.net/',
                 'extension' => '90'
             ),
             'plugin4' => array(
                 'name' => 'Photos Plugin',
                 'version' => '3.1.3',
-                'uri' => 'http://phyxo.nikrou.net/ext/extension_view.php?eid=44',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=44',
                 'description' => 'The best plugin',
                 'author' => 'Jean',
-                'author uri' => 'http://www.nikrou.net/',
+                'author uri' => 'http://www.phxyo.net/',
                 'extension' => '44'
             ),
 

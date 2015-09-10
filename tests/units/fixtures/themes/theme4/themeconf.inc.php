@@ -3,9 +3,9 @@
 Theme Name: Photos Theme
 Version: 10.11.12
 Description: Simple Number Four
-Theme URI: http://phyxo.nikrou.net/ext/extension_view.php?eid=10
+Theme URI: http://ext.phyxo.net/extension_view.php?eid=10
 Author: Jean
-Author URI: http://www.nikrou.net
+Author URI: http://www.phyxo.net
 */
 $themeconf = array(
   'name'         => 'theme4',
@@ -14,4 +14,3 @@ $themeconf = array(
   'mime_icon_dir' => 'themes/theme4/icon/mimetypes/',
   'local_head'    => 'local_head.tpl',
 );
-

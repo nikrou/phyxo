@@ -21,7 +21,7 @@
 <div id="footer">
   <div id="piwigoInfos">
     {* Please, do not remove this copyright. If you really want to,
-    contact us on http://phyxo.nikrou.net/ to find a solution on how
+    contact us on http://www.phyxo.net/ to find a solution on how
     to show the origin of the script...
     *}
 
