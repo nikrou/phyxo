@@ -1,15 +1,11 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,34 +14,26 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/**
- * @package functions\calendar
- */
+namespace Phyxo\Calendar;
 
-include_once(PHPWG_ROOT_PATH.'include/calendar_base.class.php');
-
-/** level of year view */
-define('CYEAR',  0);
-/** level of month view */
-define('CMONTH', 1);
-/** level of day view */
-define('CDAY',   2);
-
+use Phyxo\Calendar\CalendarBase;
 
 /**
  * Monthly calendar style (composed of years/months and days)
  */
 class CalendarMonthly extends CalendarBase
 {
+    Const CYEAR = 0, CMONTH = 1, CDAY = 2;
+
     /**
      * Initialize the calendar.
      * @param string $inner_sql
      */
-    function initialize($inner_sql) {
+    public function initialize($inner_sql) {
         global $lang, $conn;
 
         parent::initialize($inner_sql);
@@ -70,7 +58,7 @@ class CalendarMonthly extends CalendarBase
      *
      * @return boolean false indicates that thumbnails where not included
      */
-    function generate_category_content() {
+    public function generate_category_content() {
         global $conf, $page, $template;
 
         $view_type = $page['chronology_view'];
@@ -86,7 +74,7 @@ class CalendarMonthly extends CalendarBase
             if (count($page['chronology_date'])==1) { //case B: year given - display all days in given year
                 if ($this->build_year_calendar($tpl_var)) {
                     $template->assign('chronology_calendar', $tpl_var);
-                    $this->build_nav_bar(CYEAR); // years
+                    $this->build_nav_bar(self::CYEAR); // years
                     return true;
                 }
             }
@@ -102,17 +90,16 @@ class CalendarMonthly extends CalendarBase
 
         if ($view_type==CAL_VIEW_LIST or count($page['chronology_date'])==3) {
             if (count($page['chronology_date'])==0) {
-                $this->build_nav_bar(CYEAR); // years
+                $this->build_nav_bar(self::CYEAR); // years
             }
             if (count($page['chronology_date'])==1) {
-                $this->build_nav_bar(CMONTH); // month
+                $this->build_nav_bar(self::CMONTH); // month
             }
             if (count($page['chronology_date'])==2) {
-                $day_labels = range( 1, $this->get_all_days_in_month(
-                    $page['chronology_date'][CYEAR] ,$page['chronology_date'][CMONTH] ) );
+                $day_labels = range( 1, $this->get_all_days_in_month($page['chronology_date'][self::CYEAR] ,$page['chronology_date'][self::CMONTH]));
                 array_unshift($day_labels, 0);
                 unset( $day_labels[0] );
-                $this->build_nav_bar( CDAY, $day_labels ); // days
+                $this->build_nav_bar( self::CDAY, $day_labels ); // days
             }
             $this->build_next_prev();
         }
@@ -125,7 +112,7 @@ class CalendarMonthly extends CalendarBase
      * @param int $max_levels (e.g. 2=only year and month)
      * @return string
      */
-    function get_date_where($max_levels=3) {
+    public function get_date_where($max_levels=3) {
         global $page;
 
         $date = $page['chronology_date'];
@@ -133,37 +120,37 @@ class CalendarMonthly extends CalendarBase
             array_pop($date);
         }
         $res = '';
-        if (isset($date[CYEAR]) and $date[CYEAR]!=='any') {
-            $b = $date[CYEAR] . '-';
-            $e = $date[CYEAR] . '-';
-            if (isset($date[CMONTH]) and $date[CMONTH]!=='any') {
-                $b .= sprintf('%02d-', $date[CMONTH]);
-                $e .= sprintf('%02d-', $date[CMONTH]);
-                if (isset($date[CDAY]) and $date[CDAY]!=='any') {
-                    $b .= sprintf('%02d', $date[CDAY]);
-                    $e .= sprintf('%02d', $date[CDAY]);
+        if (isset($date[self::CYEAR]) and $date[self::CYEAR]!=='any') {
+            $b = $date[self::CYEAR] . '-';
+            $e = $date[self::CYEAR] . '-';
+            if (isset($date[self::CMONTH]) and $date[self::CMONTH]!=='any') {
+                $b .= sprintf('%02d-', $date[self::CMONTH]);
+                $e .= sprintf('%02d-', $date[self::CMONTH]);
+                if (isset($date[self::CDAY]) and $date[self::CDAY]!=='any') {
+                    $b .= sprintf('%02d', $date[self::CDAY]);
+                    $e .= sprintf('%02d', $date[self::CDAY]);
                 } else {
                     $b .= '01';
-                    $e .= $this->get_all_days_in_month($date[CYEAR], $date[CMONTH]);
+                    $e .= $this->get_all_days_in_month($date[self::CYEAR], $date[self::CMONTH]);
                 }
             } else {
                 $b .= '01-01';
                 $e .= '12-31';
-                if (isset($date[CMONTH]) and $date[CMONTH]!=='any') {
-                    $res .= ' AND '.$this->calendar_levels[CMONTH]['sql'].'='.$date[CMONTH];
+                if (isset($date[self::CMONTH]) and $date[self::CMONTH]!=='any') {
+                    $res .= ' AND '.$this->calendar_levels[self::CMONTH]['sql'].'='.$date[self::CMONTH];
                 }
-                if (isset($date[CDAY]) and $date[CDAY]!=='any') {
-                    $res .= ' AND '.$this->calendar_levels[CDAY]['sql'].'='.$date[CDAY];
+                if (isset($date[self::CDAY]) and $date[self::CDAY]!=='any') {
+                    $res .= ' AND '.$this->calendar_levels[self::CDAY]['sql'].'='.$date[self::CDAY];
                 }
             }
             $res = " AND $this->date_field BETWEEN '$b' AND '$e 23:59:59'" . $res;
         } else {
             $res = ' AND '.$this->date_field.' IS NOT NULL';
-            if (isset($date[CMONTH]) and $date[CMONTH]!=='any') {
-                $res .= ' AND '.$this->calendar_levels[CMONTH]['sql'].'='.$date[CMONTH];
+            if (isset($date[self::CMONTH]) and $date[self::CMONTH]!=='any') {
+                $res .= ' AND '.$this->calendar_levels[self::CMONTH]['sql'].'='.$date[self::CMONTH];
             }
-            if (isset($date[CDAY]) and $date[CDAY]!=='any') {
-                $res .= ' AND '.$this->calendar_levels[CDAY]['sql'].'='.$date[CDAY];
+            if (isset($date[self::CDAY]) and $date[self::CDAY]!=='any') {
+                $res .= ' AND '.$this->calendar_levels[self::CDAY]['sql'].'='.$date[self::CDAY];
             }
         }
         return $res;
@@ -177,19 +164,7 @@ class CalendarMonthly extends CalendarBase
      * @return int[]
      */
     protected function get_all_days_in_month($year, $month) {
-        $md= array(1=>31,28,31,30,31,30,31,31,30,31,30,31);
-
-        if ( is_numeric($year) and $month==2) {
-            $nb_days = $md[2];
-            if (($year%4==0)  and ( ($year%100!=0) or ($year%400!=0) )) {
-                $nb_days++;
-            }
-        } elseif (is_numeric($month)) {
-            $nb_days = $md[ $month ];
-        } else {
-            $nb_days = 31;
-        }
-        return $nb_days;
+        return cal_days_in_month(CAL_GREGORIAN, $month, $year);
     }
 
     /**
@@ -201,7 +176,10 @@ class CalendarMonthly extends CalendarBase
     protected function build_global_calendar(&$tpl_var) {
         global $page, $lang, $conn;
 
-        assert( count($page['chronology_date']) == 0 );
+        if (count($page['chronology_date']) != 0) {
+            return;
+        }
+
         $query = 'SELECT '.$conn->db_get_date_YYYYMM($this->date_field).' as period,';
         $query .= 'COUNT(distinct id) as count';
         $query .= $this->inner_sql;
@@ -223,11 +201,11 @@ class CalendarMonthly extends CalendarBase
 
         if (count($items)==1) { // only one year exists so bail out to year view
             list($y) = array_keys($items);
-            $page['chronology_date'][CYEAR] = $y;
+            $page['chronology_date'][self::CYEAR] = $y;
             return false;
         }
 
-        foreach ($items as $year=>$year_data) {
+        foreach ($items as $year => $year_data) {
             $chronology_date = array($year );
             $url = duplicate_index_url(array('chronology_date' => $chronology_date));
 
@@ -256,7 +234,9 @@ class CalendarMonthly extends CalendarBase
     protected function build_year_calendar(&$tpl_var) {
         global $page, $lang, $conn;
 
-        assert( count($page['chronology_date']) == 1 );
+        if (count($page['chronology_date']) != 1) {
+            return;
+        }
         $query = 'SELECT '.$conn->db_get_date_MMDD($this->date_field).' as period,';
         $query .= ' COUNT(DISTINCT id) as count';
         $query .= $this->inner_sql;
@@ -277,12 +257,12 @@ class CalendarMonthly extends CalendarBase
         }
         if (count($items)==1) { // only one month exists so bail out to month view
             list($m) = array_keys($items);
-            $page['chronology_date'][CMONTH] = $m;
+            $page['chronology_date'][self::CMONTH] = $m;
             return false;
         }
 
         foreach ($items as $month => $month_data) {
-            $chronology_date = array($page['chronology_date'][CYEAR], $month);
+            $chronology_date = array($page['chronology_date'][self::CYEAR], $month);
             $url = duplicate_index_url(array('chronology_date' => $chronology_date));
 
             $nav_bar = $this->get_nav_bar_from_items( $chronology_date,
@@ -321,17 +301,17 @@ class CalendarMonthly extends CalendarBase
             $items[$d] = array('nb_images' => $row['count']);
         }
 
-        foreach ($items as $day=>$data) {
-            $page['chronology_date'][CDAY]=$day;
+        foreach ($items as $day => $data) {
+            $page['chronology_date'][self::CDAY]=$day;
             $query = 'SELECT id, file,representative_ext,path,width,height,rotation, ';
             $query .= $conn->db_get_dayofweek($this->date_field).'-1 as dow';
             $query .= $this->inner_sql;
             $query .= $this->get_date_where();
             $query .= 'ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT 1';
-            unset($page['chronology_date'][CDAY]);
+            unset($page['chronology_date'][self::CDAY]);
 
             $row = $conn->db_fetch_assoc($conn->db_query($query));
-            $derivative = new DerivativeImage(IMG_SQUARE, new SrcImage($row));
+            $derivative = new \DerivativeImage(IMG_SQUARE, new \SrcImage($row));
             $items[$day]['derivative'] = $derivative;
             $items[$day]['file'] = $row['file'];
             $items[$day]['dow'] = $row['dow'];
@@ -357,7 +337,7 @@ class CalendarMonthly extends CalendarBase
                 $wday_labels[] = array_shift($wday_labels);
             }
 
-            list($cell_width, $cell_height) = ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size;
+            list($cell_width, $cell_height) = \ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size;
 
             $tpl_weeks    = array();
             $tpl_crt_week = array();
@@ -367,7 +347,7 @@ class CalendarMonthly extends CalendarBase
                 $tpl_crt_week[] = array();
             }
 
-            for ($day=1;$day<=$this->get_all_days_in_month($page['chronology_date'][CYEAR], $page['chronology_date'][CMONTH]);$day++) {
+            for ($day=1;$day<=$this->get_all_days_in_month($page['chronology_date'][self::CYEAR], $page['chronology_date'][self::CMONTH]);$day++) {
                 $dow = ($first_day_dow + $day-1)%7;
                 if ($dow==0 and $day!=1) {
                     $tpl_weeks[] = $tpl_crt_week; // add finished week to week list
@@ -381,8 +361,8 @@ class CalendarMonthly extends CalendarBase
                         array(
                             'chronology_date' =>
                             array(
-                                $page['chronology_date'][CYEAR],
-                                $page['chronology_date'][CMONTH],
+                                $page['chronology_date'][self::CYEAR],
+                                $page['chronology_date'][self::CMONTH],
                                 $day
                             )
                         )

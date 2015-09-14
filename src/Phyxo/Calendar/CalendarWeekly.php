@@ -1,15 +1,11 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,34 +14,26 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/**
- * @package functions\calendar
- */
+namespace Phyxo\Calendar;
 
-include_once(PHPWG_ROOT_PATH.'include/calendar_base.class.php');
-
-/** level of year view */
-define('CYEAR', 0);
-/** level of week view */
-define('CWEEK', 1);
-/** level of day view */
-define('CDAY',  2);
-
+use Phyxo\Calendar\CalendarBase;
 
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
  */
 class CalendarWeekly extends CalendarBase
 {
+    Const CYEAR = 0, CWEEK = 1, CDAY = 2;
+
     /**
      * Initialize the calendar
      * @param string $inner_sql
      */
-    function initialize($inner_sql) {
+    public function initialize($inner_sql) {
         global $lang, $conf, $conn;
 
         parent::initialize($inner_sql);
@@ -71,9 +59,9 @@ class CalendarWeekly extends CalendarBase
         //Comment next lines for week starting on Sunday or if MySQL version<4.0.17
         //WEEK(date,5) = "0-53 - Week 1=the first week with a Monday in this year"
         if ('monday' == $conf['week_starts_on']) {
-            $this->calendar_levels[CWEEK]['sql'] = $conn->db_get_week($this->date_field, 5).'+1';
-            $this->calendar_levels[CDAY]['sql'] = $conn->db_get_weekday($this->date_field);
-            $this->calendar_levels[CDAY]['labels'][] = array_shift($this->calendar_levels[CDAY]['labels']);
+            $this->calendar_levels[self::CWEEK]['sql'] = $conn->db_get_week($this->date_field, 5).'+1';
+            $this->calendar_levels[self::CDAY]['sql'] = $conn->db_get_weekday($this->date_field);
+            $this->calendar_levels[self::CDAY]['labels'][] = array_shift($this->calendar_levels[self::CDAY]['labels']);
         }
     }
 
@@ -82,19 +70,20 @@ class CalendarWeekly extends CalendarBase
      *
      * @return boolean false indicates that thumbnails where not included
      */
-    function generate_category_content() {
+    public function generate_category_content() {
         global $conf, $page;
 
         if (count($page['chronology_date'])==0) {
-            $this->build_nav_bar(CYEAR); // years
+            $this->build_nav_bar(self::CYEAR); // years
         }
         if (count($page['chronology_date'])==1) {
-            $this->build_nav_bar(CWEEK, array()); // week nav bar 1-53
+            $this->build_nav_bar(self::CWEEK, array()); // week nav bar 1-53
         }
         if (count($page['chronology_date'])==2) {
-            $this->build_nav_bar(CDAY); // days nav bar Mon-Sun
+            $this->build_nav_bar(self::CDAY); // days nav bar Mon-Sun
         }
         $this->build_next_prev();
+
         return false;
     }
 
@@ -112,16 +101,16 @@ class CalendarWeekly extends CalendarBase
             array_pop($date);
         }
         $res = '';
-        if (isset($date[CYEAR]) and $date[CYEAR]!=='any') {
-            $y = $date[CYEAR];
+        if (isset($date[self::CYEAR]) and $date[self::CYEAR]!=='any') {
+            $y = $date[self::CYEAR];
             $res = " AND $this->date_field BETWEEN '$y-01-01' AND '$y-12-31 23:59:59'";
         }
 
-        if (isset($date[CWEEK]) and $date[CWEEK]!=='any') {
-            $res .= ' AND '.$this->calendar_levels[CWEEK]['sql'].'='.$date[CWEEK];
+        if (isset($date[self::CWEEK]) and $date[self::CWEEK]!=='any') {
+            $res .= ' AND '.$this->calendar_levels[self::CWEEK]['sql'].'='.$date[self::CWEEK];
         }
-        if (isset($date[CDAY]) and $date[CDAY]!=='any') {
-            $res .= ' AND '.$this->calendar_levels[CDAY]['sql'].'='.$date[CDAY];
+        if (isset($date[self::CDAY]) and $date[self::CDAY]!=='any') {
+            $res .= ' AND '.$this->calendar_levels[self::CDAY]['sql'].'='.$date[self::CDAY];
         }
         if (empty($res)) {
             $res = ' AND '.$this->date_field.' IS NOT NULL';

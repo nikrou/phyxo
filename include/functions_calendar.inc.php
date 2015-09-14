@@ -22,15 +22,14 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-/**
- * @package functions\calendar
- */
+use Phyxo\Calendar\CalendarWeekly;
+use Phyxo\Calendar\CalendarMonthly;
+
 
 /** URL keyword for list view */
 define('CAL_VIEW_LIST',     'list');
 /** URL keyword for calendar view */
 define('CAL_VIEW_CALENDAR', 'calendar');
-
 
 /**
  * Initialize _$page_ and _$template_ vars for calendar view.
@@ -111,9 +110,8 @@ function initialize_calendar() {
         $page['chronology_style'] = 'monthly';
     }
     $cal_style = $page['chronology_style'];
-    $classname = $styles[$cal_style]['classname'];
+    $classname = 'Phyxo\Calendar\\'.$styles[$cal_style]['classname'];
 
-    include(PHPWG_ROOT_PATH.'include/'. $styles[$cal_style]['include']);
     $calendar = new $classname();
 
     // Retrieve view

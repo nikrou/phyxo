@@ -1,15 +1,11 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,14 +14,11 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/**
- * @package functions\calendar
- */
-
+namespace Phyxo\Calendar;
 
 /**
  * Base class for monthly and weekly calendar styles
@@ -44,7 +37,7 @@ abstract class CalendarBase
      *
      * @return boolean false indicates that thumbnails where not included
      */
-    abstract function generate_category_content();
+    public abstract function generate_category_content();
 
     /**
      * Returns a sql WHERE subquery for the date field.
@@ -52,14 +45,14 @@ abstract class CalendarBase
      * @param int $max_levels (e.g. 2=only year and month)
      * @return string
      */
-    abstract function get_date_where($max_levels=3);
+    public abstract function get_date_where($max_levels=3);
 
     /**
      * Initialize the calendar.
      *
      * @param string $inner_sql
      */
-    function initialize($inner_sql) {
+    public function initialize($inner_sql) {
         global $page;
         if ($page['chronology_field']=='posted') {
             $this->date_field = 'date_available';
@@ -74,8 +67,7 @@ abstract class CalendarBase
      *
      * @return string
      */
-    function get_display_name()
-    {
+    public function get_display_name() {
         global $conf, $page;
         $res = '';
 
@@ -87,15 +79,9 @@ abstract class CalendarBase
                     array( 'chronology_date'=>$chronology_date ),
                     array( 'start' )
                 );
-                $res .=
-                    '<a href="'.$url.'">'
-                    .$this->get_date_component_label($i, $page['chronology_date'][$i])
-                    .'</a>';
+                $res .= '<a href="'.$url.'">'.$this->get_date_component_label($i, $page['chronology_date'][$i]).'</a>';
             } else {
-                $res .=
-                    '<span class="calInHere">'
-                    .$this->get_date_component_label($i, $page['chronology_date'][$i])
-                    .'</span>';
+                $res .= '<span class="calInHere">'.$this->get_date_component_label($i, $page['chronology_date'][$i]).'</span>';
             }
         }
         return $res;
@@ -212,7 +198,7 @@ abstract class CalendarBase
 
         $query = 'SELECT DISTINCT('.$this->calendar_levels[$level]['sql'].') as period,';
         $query .= ' COUNT(DISTINCT id) as nb_images';
-        $query .= ' '$this->inner_sql;
+        $query .= ' '.$this->inner_sql;
         $query .= ' '.$this->get_date_where($level).' GROUP BY period';
 
         $level_items = $conn->query2array($query, 'period', 'nb_images');
@@ -314,7 +300,7 @@ abstract class CalendarBase
 
         if (!empty($tpl_var)) {
             $existing = $template->smarty->getVariable('chronology_navigation_bars');
-            if (!($existing instanceof Undefined_Smarty_Variable)) {
+            if (!($existing instanceof \Undefined_Smarty_Variable)) {
                 $existing->value[ sizeof($existing->value)-1 ] = array_merge($existing->value[sizeof($existing->value)-1], $tpl_var);
             } else {
                 $template->append('chronology_navigation_bars', $tpl_var);
