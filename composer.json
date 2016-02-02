@@ -12,7 +12,7 @@
 	"minimum-stability": "stable",
 	"require": {
 		"php": ">=5.4.0",
-		"smarty/smarty": "3.1.20",
+		"smarty/smarty": "3.1.*",
 		"phpmailer/phpmailer": "5.2.*",
 		"jdorn/sql-formatter": "1.*",
 		"pelago/emogrifier": "dev-master",

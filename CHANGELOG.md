@@ -1,3 +1,8 @@
+Phyxo 1.4.1 - 2016-02-02
+========================
+* Fix issue with php 7 and old Smarty release.
+  Thanks to Julien <lolop@openmailbox.org>
+
 Phyxo 1.4.0 - 2015-05-10
 ========================
 * Fix missing dependency

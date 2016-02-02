@@ -308,12 +308,7 @@ class Users extends BaseRepository
         } else { // make sure we clean any remember me ...
             setcookie($conf['remember_me_name'], '', 0, cookie_path(),ini_get('session.cookie_domain'));
         }
-        if (session_id()!="") { // we regenerate the session for security reasons
-            // see http://www.acros.si/papers/session_fixation.pdf
-            session_regenerate_id(true);
-        } else {
-            session_start();
-        }
+        session_start();
         $_SESSION['pwg_uid'] = (int)$user_id;
         $user['id'] = $_SESSION['pwg_uid'];
         trigger_notify('user_login', $user['id']);
