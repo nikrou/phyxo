@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,7 +27,7 @@ class LocalSiteReader
 {
     var $site_url;
 
-    function LocalSiteReader($url) {
+    public function __construct($url) {
         $this->site_url = $url;
         global $conf;
         if (!isset($conf['flip_file_ext'])) {
@@ -43,7 +43,7 @@ class LocalSiteReader
      *
      * @return true on success, false otherwise
      */
-    function open() {
+    public function open() {
         global $errors;
 
         if (!is_dir($this->site_url)) {
@@ -59,7 +59,7 @@ class LocalSiteReader
     }
 
     // retrieve file system sub-directories fulldirs
-    function get_full_directories($basedir) {
+    public function get_full_directories($basedir) {
         $fs_fulldirs = get_fs_directories($basedir);
         return $fs_fulldirs;
     }
@@ -70,7 +70,7 @@ class LocalSiteReader
      * @param string $path recurse in this directory
      * @return array like "pic.jpg"=>array('representative_ext'=>'jpg' ... )
      */
-    function get_elements($path) {
+    public function get_elements($path) {
         global $conf;
 
         $subdirs = array();
@@ -107,11 +107,11 @@ class LocalSiteReader
 
     // returns the name of the attributes that are supported for
     // files update/synchronization
-    function get_update_attributes() {
+    public function get_update_attributes() {
         return array('representative_ext');
     }
 
-    function get_element_update_attributes($file) {
+    public function get_element_update_attributes($file) {
         global $conf;
         $data = array();
 
@@ -131,17 +131,17 @@ class LocalSiteReader
 
     // returns the name of the attributes that are supported for
     // metadata update/synchronization according to configuration
-    function get_metadata_attributes() {
+    public function get_metadata_attributes() {
         return get_sync_metadata_attributes();
     }
 
     // returns a hash of attributes (metadata+filesize+width,...) for file
-    function get_element_metadata($infos) {
+    public function get_element_metadata($infos) {
         return get_sync_metadata($infos);
     }
 
     //-------------------------------------------------- private functions --------
-    function get_representative_ext($path, $filename_wo_ext) {
+    public function get_representative_ext($path, $filename_wo_ext) {
         global $conf;
         $base_test = $path.'/pwg_representative/'.$filename_wo_ext.'.';
         foreach ($conf['picture_ext'] as $ext) {

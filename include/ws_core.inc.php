@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -57,7 +57,7 @@ class PwgError
     private $_code;
     private $_codeText;
 
-    function PwgError($code, $codeText) {
+    public function __construct($code, $codeText) {
         if ($code>=400 and $code<600) {
             set_status_header($code, $codeText);
         }
@@ -66,8 +66,8 @@ class PwgError
         $this->_codeText = $codeText;
     }
 
-    function code() { return $this->_code; }
-    function message() { return $this->_codeText; }
+    public function code() { return $this->_code; }
+    public function message() { return $this->_codeText; }
 }
 
 /**
@@ -88,7 +88,7 @@ class PwgNamedArray
    * @param xmlAttributes array of sub-item attributes that will be encoded as
    *      xml attributes instead of xml child elements
    */
-    function PwgNamedArray($arr, $itemName, $xmlAttributes=array()) {
+    public function __construct($arr, $itemName, $xmlAttributes=array()) {
         $this->_content = $arr;
         $this->_itemName = $itemName;
         $this->_xmlAttributes = array_flip($xmlAttributes);
@@ -113,7 +113,7 @@ class PwgNamedStruct
      *    encoded as xml attributes (if null - automatically prefer xml attributes
      *    whenever possible)
      */
-    function PwgNamedStruct($content, $xmlAttributes=null, $xmlElements=null) {
+    public function __construct($content, $xmlAttributes=null, $xmlElements=null) {
         $this->_content = $content;
         if (isset($xmlAttributes)) {
             $this->_xmlAttributes = array_flip($xmlAttributes);
@@ -219,14 +219,14 @@ class PwgServer
 
     private $_methods = array();
 
-    function PwgServer() {
+    public function __construct() {
     }
 
     /**
      *  Initializes the request handler.
      */
 
-    function setHandler($requestFormat, &$requestHandler) {
+    public function setHandler($requestFormat, &$requestHandler) {
         $this->_requestHandler = &$requestHandler;
         $this->_requestFormat = $requestFormat;
     }
@@ -234,7 +234,7 @@ class PwgServer
     /**
      *  Initializes the request handler.
      */
-    function setEncoder($responseFormat, &$encoder) {
+    public function setEncoder($responseFormat, &$encoder) {
         $this->_responseEncoder = &$encoder;
         $this->_responseFormat = $responseFormat;
     }
@@ -243,12 +243,11 @@ class PwgServer
      * Runs the web service call (handler and response encoder should have been
      * created)
      */
-    function run() {
+    public function run() {
         if (is_null($this->_responseEncoder)) {
             set_status_header(400);
             @header("Content-Type: text/plain");
-            echo ("Cannot process your request. Unknown response format.
-Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseFormat."\n");
+            echo ("Cannot process your request. Unknown response format. Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseFormat."\n");
             var_export($this);
             die(0);
         }
@@ -277,7 +276,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
     /**
      * Encodes a response and sends it back to the browser.
      */
-    function sendResponse($response) {
+    public function sendResponse($response) {
         $encodedResponse = $this->_responseEncoder->encodeResponse($response);
         $contentType = $this->_responseEncoder->getContentType();
 
@@ -305,7 +304,7 @@ Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseF
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    function addMethod($methodName, $callback, $params=array(), $description='', $include_file='', $options=array()) {
+    public function addMethod($methodName, $callback, $params=array(), $description='', $include_file='', $options=array()) {
         if (!is_array($params)) {
             $params = array();
         }
