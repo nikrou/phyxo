@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -157,6 +157,18 @@ class GuzzleApiContext extends BehatContext
 
         $this->json_decoded = false;
         $this->response = $this->client->send($request);
+    }
+
+    /**
+     * @Given /^the response has property "([^"]*)" equals to PHYXO_VERSION$/
+     */
+    public function theResponseHasPropertyEqualsToPhyxoVersion($version) {
+        $conf_content = file_get_contents(__DIR__.'/../../include/constants.php');
+        if (preg_match("`define\('PHPWG_VERSION', '([^\'])'\)`", $conf_content, $matches)) {
+            $this->assert
+                ->string($matches[1])
+                ->isEqualTo($version);
+        }
     }
 
     /**
