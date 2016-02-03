@@ -1,3 +1,7 @@
+Phyxo 1.4.2 - 2016-02-03
+========================
+* Fix more issues with php7
+
 Phyxo 1.4.1 - 2016-02-02
 ========================
 * Fix issue with php 7 and old Smarty release.
