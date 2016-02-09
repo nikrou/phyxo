@@ -29,7 +29,7 @@ use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 
 require_once(PHPWG_ROOT_PATH.'include/config_default.inc.php');
-require_once(PHPWG_ROOT_PATH.'sites/behat/local/config/database.inc.php');
+require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions_install.inc.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
 
