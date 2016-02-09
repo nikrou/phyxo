@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -308,7 +308,17 @@ class Users extends BaseRepository
         } else { // make sure we clean any remember me ...
             setcookie($conf['remember_me_name'], '', 0, cookie_path(),ini_get('session.cookie_domain'));
         }
-        session_start();
+
+
+        session_name($conf['session_name']);
+        if (session_id()!='') {
+            if (version_compare(PHP_VERSION, '7') <= 0 || version_compare(PHP_VERSION, '7.0.3') >= 0) {
+                session_regenerate_id(true);
+            }
+        } else {
+            session_start();
+        }
+
         $_SESSION['pwg_uid'] = (int)$user_id;
         $user['id'] = $_SESSION['pwg_uid'];
         trigger_notify('user_login', $user['id']);
@@ -400,7 +410,7 @@ class Users extends BaseRepository
         $_SESSION = array();
         session_unset();
         session_destroy();
-        setcookie(session_name(),'',0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
+        setcookie(session_name($conf['session_name']),'',0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
         setcookie($conf['remember_me_name'], '', 0, cookie_path(),ini_get('session.cookie_domain'));
     }
 

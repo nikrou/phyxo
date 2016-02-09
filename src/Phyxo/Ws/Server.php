@@ -3,13 +3,9 @@
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,199 +14,13 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/**** WEB SERVICE CORE CLASSES************************************************
- * PwgServer - main object - the link between web service methods, request
- *  handler and response encoder
- * PwgRequestHandler - base class for handlers
- * PwgResponseEncoder - base class for response encoders
- * PwgError, PwgNamedArray, PwgNamedStruct - can be used by web service functions
- * as return values
- */
+namespace Phyxo\Ws;
 
-
-define('WS_PARAM_ACCEPT_ARRAY',  0x010000 );
-define('WS_PARAM_FORCE_ARRAY',   0x030000 );
-define('WS_PARAM_OPTIONAL',      0x040000 );
-
-define('WS_TYPE_BOOL',           0x01 );
-define('WS_TYPE_INT',            0x02 );
-define('WS_TYPE_FLOAT',          0x04 );
-define('WS_TYPE_POSITIVE',       0x10 );
-define('WS_TYPE_NOTNULL',        0x20 );
-define('WS_TYPE_ID', WS_TYPE_INT | WS_TYPE_POSITIVE | WS_TYPE_NOTNULL);
-
-define('WS_ERR_INVALID_METHOD',  501 );
-define('WS_ERR_MISSING_PARAM',   1002 );
-define('WS_ERR_INVALID_PARAM',   1003 );
-
-define('WS_XML_ATTRIBUTES', 'attributes_xml_');
-
-/**
- * PwgError object can be returned from any web service function implementation.
- */
-class PwgError
-{
-    private $_code;
-    private $_codeText;
-
-    public function __construct($code, $codeText) {
-        if ($code>=400 and $code<600) {
-            set_status_header($code, $codeText);
-        }
-
-        $this->_code = $code;
-        $this->_codeText = $codeText;
-    }
-
-    public function code() { return $this->_code; }
-    public function message() { return $this->_codeText; }
-}
-
-/**
- * Simple wrapper around an array (keys are consecutive integers starting at 0).
- * Provides naming clues for xml output (xml attributes vs. xml child elements?)
- * Usually returned by web service function implementation.
- */
-class PwgNamedArray
-{
-    public $_content;
-    public $_itemName;
-    public $_xmlAttributes;
-
-  /**
-   * Constructs a named array
-   * @param arr array (keys must be consecutive integers starting at 0)
-   * @param itemName string xml element name for values of arr (e.g. image)
-   * @param xmlAttributes array of sub-item attributes that will be encoded as
-   *      xml attributes instead of xml child elements
-   */
-    public function __construct($arr, $itemName, $xmlAttributes=array()) {
-        $this->_content = $arr;
-        $this->_itemName = $itemName;
-        $this->_xmlAttributes = array_flip($xmlAttributes);
-    }
-}
-/**
- * Simple wrapper around a "struct" (php array whose keys are not consecutive
- * integers starting at 0). Provides naming clues for xml output (what is xml
- * attributes and what is element)
- */
-class PwgNamedStruct
-{
-    public $_content;
-    public $_xmlAttributes;
-
-    /**
-     * Constructs a named struct (usually returned by web service function
-     * implementation)
-     * @param name string - containing xml element name
-     * @param content array - the actual content (php array)
-     * @param xmlAttributes array - name of the keys in $content that will be
-     *    encoded as xml attributes (if null - automatically prefer xml attributes
-     *    whenever possible)
-     */
-    public function __construct($content, $xmlAttributes=null, $xmlElements=null) {
-        $this->_content = $content;
-        if (isset($xmlAttributes)) {
-            $this->_xmlAttributes = array_flip($xmlAttributes);
-        } else {
-            $this->_xmlAttributes = array();
-            foreach ($this->_content as $key => $value) {
-                if (!empty($key) and (is_scalar($value) or is_null($value))) {
-                    if (empty($xmlElements) or !in_array($key,$xmlElements)) {
-                        $this->_xmlAttributes[$key]=1;
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-/**
- * Abstract base class for request handlers.
- */
-abstract class PwgRequestHandler
-{
-    /** Virtual abstract method. Decodes the request (GET or POST) handles the
-     * method invocation as well as response sending.
-     */
-    abstract function handleRequest(&$service);
-}
-
-/**
- *
- * Base class for web service response encoder.
- */
-abstract class PwgResponseEncoder
-{
-    /** encodes the web service response to the appropriate output format
-     * @param response mixed the unencoded result of a service method call
-     */
-    abstract function encodeResponse($response);
-
-    /** default "Content-Type" http header for this kind of response format
-     */
-    abstract function getContentType();
-
-    /**
-     * returns true if the parameter is a 'struct' (php array type whose keys are
-     * NOT consecutive integers starting with 0)
-     */
-    static function is_struct(&$data) {
-        if (is_array($data)) {
-            if (range(0, count($data) - 1) !== array_keys($data)) {
-                # string keys, unordered, non-incremental keys, .. - whatever, make object
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * removes all XML formatting from $response (named array, named structs, etc)
-     * usually called by every response encoder, except rest xml.
-     */
-    static function flattenResponse(&$value) {
-        self::flatten($value);
-    }
-
-    private static function flatten(&$value) {
-        if (is_object($value)) {
-            $class = strtolower(@get_class($value));
-            if ($class == 'pwgnamedarray') {
-                $value = $value->_content;
-            }
-            if ($class == 'pwgnamedstruct') {
-                $value = $value->_content;
-            }
-        }
-
-        if (!is_array($value)) {
-            return;
-        }
-
-        if (self::is_struct($value)) {
-            if (isset($value[WS_XML_ATTRIBUTES])) {
-                $value = array_merge($value, $value[WS_XML_ATTRIBUTES]);
-                unset( $value[WS_XML_ATTRIBUTES] );
-            }
-        }
-
-        foreach ($value as $key => &$v) {
-            self::flatten($v);
-        }
-    }
-}
-
-
-
-class PwgServer
+class Server
 {
     private $_requestHandler;
     private $_requestFormat;
@@ -253,18 +63,18 @@ class PwgServer
         }
 
         if (is_null($this->_requestHandler)) {
-            $this->sendResponse( new PwgError(400, 'Unknown request format') );
+            $this->sendResponse(new Error(400, 'Unknown request format') );
             return;
         }
 
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            array('PwgServer', 'ws_getMethodList')
+            array('Server', 'ws_getMethodList')
         );
         $this->addMethod(
             'reflection.getMethodDetails',
-            array('PwgServer', 'ws_getMethodDetails'),
+            array('Server', 'ws_getMethodDetails'),
             array('methodName')
         );
 
@@ -339,33 +149,30 @@ class PwgServer
         );
     }
 
-    function hasMethod($methodName) {
+    public function hasMethod($methodName) {
         return isset($this->_methods[$methodName]);
     }
 
-    function getMethodDescription($methodName) {
+    public function getMethodDescription($methodName) {
         $desc = @$this->_methods[$methodName]['description'];
         return isset($desc) ? $desc : '';
     }
 
-    function getMethodSignature($methodName) {
+    public function getMethodSignature($methodName) {
         $signature = @$this->_methods[$methodName]['signature'];
         return isset($signature) ? $signature : array();
     }
 
-    /**
-     * @since 2.6
-     */
     function getMethodOptions($methodName) {
         $options = @$this->_methods[$methodName]['options'];
         return isset($options) ? $options : array();
     }
 
-    static function isPost() {
-        return isset($HTTP_RAW_POST_DATA) or !empty($_POST);
+    public static function isPost() {
+        return isset($HTTP_RAW_POST_DATA) or !empty($_POST); // @TODO: remove $HTTP_RAW_POST_DATA
     }
 
-    static function makeArrayParam(&$param) {
+    public static function makeArrayParam(&$param) {
         if ($param==null) {
             $param = array();
         } else {
@@ -375,7 +182,7 @@ class PwgServer
         }
     }
 
-    static function checkType(&$param, $type, $name) {
+    public static function checkType(&$param, $type, $name) {
         $opts = array();
         $msg = '';
         if (self::hasFlag($type, WS_TYPE_POSITIVE | WS_TYPE_NOTNULL)) {
@@ -390,14 +197,14 @@ class PwgServer
             if (self::hasFlag($type, WS_TYPE_BOOL)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                        return new PwgError(WS_ERR_INVALID_PARAM, $name.' must only contain booleans');
+                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain booleans');
                     }
                 }
                 unset($value);
             } elseif ( self::hasFlag($type, WS_TYPE_INT)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_INT, $opts)) === false) {
-                        return new PwgError(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' integers');
+                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' integers');
                     }
                 }
                 unset($value);
@@ -405,7 +212,7 @@ class PwgServer
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) === false
                     or (isset($opts['options']['min_range']) and $value < $opts['options']['min_range'])) {
-                        return new PwgError(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' floats');
+                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' floats');
                     }
                 }
                 unset($value);
@@ -413,16 +220,16 @@ class PwgServer
         } elseif ($param !== '') {
             if (self::hasFlag($type, WS_TYPE_BOOL)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                    return new PwgError(WS_ERR_INVALID_PARAM, $name.' must be a boolean');
+                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be a boolean');
                 }
             } elseif (self::hasFlag($type, WS_TYPE_INT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_INT, $opts)) === false) {
-                    return new PwgError(WS_ERR_INVALID_PARAM, $name.' must be an'.$msg.' integer');
+                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be an'.$msg.' integer');
                 }
             } elseif (self::hasFlag($type, WS_TYPE_FLOAT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_FLOAT)) === false
                 or (isset($opts['options']['min_range']) and $param < $opts['options']['min_range'])) {
-                    return new PwgError(WS_ERR_INVALID_PARAM, $name.' must be a'.$msg.' float');
+                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be a'.$msg.' float');
                 }
             }
         }
@@ -430,32 +237,31 @@ class PwgServer
         return null;
     }
 
-    static function hasFlag($val, $flag) {
+    public static function hasFlag($val, $flag) {
         return ($val & $flag) == $flag;
     }
 
     /**
      *  Invokes a registered method. Returns the return of the method (or
-     *  a PwgError object if the method is not found)
+     *  a Error object if the method is not found)
      *  @param methodName string the name of the method to invoke
      *  @param params array array of parameters to pass to the invoked method
      */
-    function invoke($methodName, $params) {
+    public function invoke($methodName, $params) {
         global $services;
 
         $method = @$this->_methods[$methodName];
 
         if ($method == null) {
-            return new PwgError(WS_ERR_INVALID_METHOD, 'Method name is not valid');
+            return new Error(WS_ERR_INVALID_METHOD, 'Method name is not valid');
         }
 
         if (isset($method['options']['post_only']) and $method['options']['post_only'] and !self::isPost()) {
-            return new PwgError(405, 'This method requires HTTP POST');
+            return new Error(405, 'This method requires HTTP POST');
         }
 
-
         if (isset($method['options']['admin_only']) and $method['options']['admin_only'] and !$services['users']->isAdmin()) {
-            return new PwgError(401, 'Access denied');
+            return new Error(401, 'Access denied');
         }
 
         // parameter check and data correction
@@ -480,7 +286,7 @@ class PwgServer
             } else { // parameter provided - do some basic checks
                 $the_param = $params[$name];
                 if (is_array($the_param) and !self::hasFlag($flags, WS_PARAM_ACCEPT_ARRAY)) {
-                    return new PwgError(WS_ERR_INVALID_PARAM, $name.' must be scalar' );
+                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be scalar' );
                 }
 
                 if (self::hasFlag($flags, WS_PARAM_FORCE_ARRAY)) {
@@ -502,12 +308,12 @@ class PwgServer
         }
 
         if (count($missing_params)) {
-            return new PwgError(WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
+            return new Error(WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
         }
 
         $result = trigger_change('ws_invoke_allowed', true, $methodName, $params);
 
-        if (strtolower( @get_class($result) )!='pwgerror') {
+        if (@get_class($result) != 'Phyxo\Ws\Error') {
             if (!empty($method['include'])) {
                 include_once($method['include']);
             }
@@ -520,23 +326,22 @@ class PwgServer
     /**
      * WS reflection method implementation: lists all available methods
      */
-    static function ws_getMethodList($params, &$service) {
-        // @TODO: use function()
+    public static function ws_getMethodList($params, &$service) {
         $methods = array_filter(
             $service->_methods,
             function($m) { return empty($m['options']['hidden']) || !$m['options']['hidden'];}
         );
-        return array('methods' => new PwgNamedArray( array_keys($methods),'method'));
+        return array('methods' => new NamedArray( array_keys($methods),'method'));
     }
 
     /**
      * WS reflection method implementation: gets information about a given method
      */
-    static function ws_getMethodDetails($params, &$service) {
+    public static function ws_getMethodDetails($params, &$service) {
         $methodName = $params['methodName'];
 
         if (!$service->hasMethod($methodName)) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Requested method does not exist');
+            return new Error(WS_ERR_INVALID_PARAM, 'Requested method does not exist');
         }
 
         $res = array(

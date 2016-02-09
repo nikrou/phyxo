@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -233,11 +233,12 @@ define(\'DB_COLLATE\', \'\');';
             $dblayer
         );
 
-        conf_update_param(
-            'secret_key',
-            'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
-            'a secret key specific to the gallery for internal use'
-        );
+        $query = 'INSERT INTO '.CONFIG_TABLE.' (param,value,comment)';
+        $query .= 'VALUES (\'secret_key\',';
+        $query .= 'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').'),';
+        $query .= '\'a secret key specific to the gallery for internal use\')';
+        $conn->db_query($query);
+
         conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
         conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
         conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');

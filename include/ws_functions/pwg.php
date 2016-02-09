@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -39,7 +39,7 @@ function ws_getMissingDerivatives($params, &$service) {
     } else {
         $types = array_intersect(array_keys(ImageStdParams::get_defined_type_map()), $params['types']);
         if (count($types)==0) {
-            return new PwgError(WS_ERR_INVALID_PARAM, "Invalid types");
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, "Invalid types");
         }
     }
 
@@ -179,7 +179,7 @@ function ws_getInfos($params, &$service) {
         );
     }
 
-    return array('infos' => new PwgNamedArray($output, 'item'));
+    return array('infos' => new Phyxo\Ws\NamedArray($output, 'item'));
 }
 
 /**
@@ -256,7 +256,7 @@ function ws_session_login($params, &$service) {
         return true;
     }
 
-    return new PwgError(999, 'Invalid username/password');
+    return new Phyxo\Ws\Error(999, 'Invalid username/password');
 }
 
 

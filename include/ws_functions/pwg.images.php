@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -69,7 +69,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
     $cat_ids = array_unique($cat_ids);
 
     if (count($cat_ids) == 0) {
-        return new PwgError(500,
+        return new Phyxo\Ws\Error(500,
         '[ws_add_image_category_relations] there is no category defined in "'.$categories_string.'"'
         );
     }
@@ -80,7 +80,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
 
     $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
     if (count($unknown_cat_ids) != 0) {
-        return new PwgError(500,
+        return new Phyxo\Ws\Error(500,
         '[ws_add_image_category_relations] the following categories are unknown: '.implode(', ', $unknown_cat_ids)
         );
     }
@@ -158,7 +158,7 @@ function merge_chunks($output_filepath, $original_sum, $type) {
         unlink($output_filepath);
 
         if (is_file($output_filepath)) {
-            return new PwgError(500, '[merge_chunks] error while trying to remove existing '.$output_filepath);
+            return new Phyxo\Ws\Error(500, '[merge_chunks] error while trying to remove existing '.$output_filepath);
         }
     }
 
@@ -192,7 +192,7 @@ function merge_chunks($output_filepath, $original_sum, $type) {
         }
 
         if (!file_put_contents($output_filepath, $string, FILE_APPEND)) {
-            return new PwgError(500, '[merge_chunks] error while writting chunks for '.$output_filepath);
+            return new Phyxo\Ws\Error(500, '[merge_chunks] error while writting chunks for '.$output_filepath);
         }
 
         unlink($chunk);
@@ -267,7 +267,7 @@ function ws_images_addComment($params, $service) {
     );
 
     if (!$conn->db_num_rows($conn->db_query($query))) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid image_id');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid image_id');
     }
 
     $comm = array(
@@ -282,7 +282,7 @@ function ws_images_addComment($params, $service) {
         {
         case 'reject':
             $infos[] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
-            return new PwgError(403, implode("; ", $infos) );
+            return new Phyxo\Ws\Error(403, implode("; ", $infos) );
 
         case 'validate':
         case 'moderate':
@@ -290,9 +290,9 @@ function ws_images_addComment($params, $service) {
                 'id' => $comm['id'],
                 'validation' => $comment_action=='validate',
             );
-            return array('comment' => new PwgNamedStruct($ret));
+            return array('comment' => new Phyxo\Ws\NamedStruct($ret));
         default:
-            return new PwgError(500, "Unknown comment action ".$comment_action );
+            return new Phyxo\Ws\Error(500, "Unknown comment action ".$comment_action );
         }
 }
 
@@ -314,7 +314,7 @@ function ws_images_getInfo($params, $service) {
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
-        return new PwgError(404, 'image_id not found');
+        return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     $image_row = $conn->db_fetch_assoc($result);
@@ -348,7 +348,7 @@ function ws_images_getInfo($params, $service) {
     usort($related_categories, 'global_rank_compare');
 
     if (empty($related_categories)) {
-        return new PwgError(401, 'Access denied');
+        return new Phyxo\Ws\Error(401, 'Access denied');
     }
 
   //-------------------------------------------------------------- related tags
@@ -428,12 +428,12 @@ function ws_images_getInfo($params, $service) {
     $ret['rates'] = array(
         WS_XML_ATTRIBUTES => $rating
     );
-    $ret['categories'] = new PwgNamedArray(
+    $ret['categories'] = new Phyxo\Ws\NamedArray(
         $related_categories,
         'category',
         array('id','url', 'page_url')
     );
-    $ret['tags'] = new PwgNamedArray(
+    $ret['tags'] = new Phyxo\Ws\NamedArray(
         $related_tags,
         'tag',
         ws_std_get_tag_xml_attributes()
@@ -443,7 +443,7 @@ function ws_images_getInfo($params, $service) {
             WS_XML_ATTRIBUTES => $comment_post_data
         );
     }
-    $ret['comments_paging'] = new PwgNamedStruct(
+    $ret['comments_paging'] = new Phyxo\Ws\NamedStruct(
         array(
             'page' => $params['comments_page'],
             'per_page' => $params['comments_per_page'],
@@ -451,7 +451,7 @@ function ws_images_getInfo($params, $service) {
             'total_count' => $nb_comments,
         )
     );
-    $ret['comments'] = new PwgNamedArray(
+    $ret['comments'] = new Phyxo\Ws\NamedArray(
         $related_comments,
         'comment',
         array('id','date')
@@ -461,7 +461,7 @@ function ws_images_getInfo($params, $service) {
         return $ret; // for backward compatibility only
     } else {
         return array(
-            'image' => new PwgNamedStruct($ret, null, array('name','comment'))
+            'image' => new Phyxo\Ws\NamedStruct($ret, null, array('name','comment'))
         );
     }
 }
@@ -488,14 +488,14 @@ function ws_images_rate($params, $service) {
     );
     $query .= ' LIMIT 1;';
     if ($conn->db_num_rows($conn->db_query($query))==0) {
-        return new PwgError(404, 'Invalid image_id or access denied');
+        return new Phyxo\Ws\Error(404, 'Invalid image_id or access denied');
     }
 
     include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
     $res = rate_picture($params['image_id'], (int)$params['rate']);
 
     if ($res==false) {
-        return new PwgError(403, 'Forbidden or rate not in '. implode(',', $conf['rate_items']));
+        return new Phyxo\Ws\Error(403, 'Forbidden or rate not in '. implode(',', $conf['rate_items']));
     }
     return $res;
 }
@@ -564,7 +564,7 @@ function ws_images_search($params, $service) {
     }
 
     return array (
-        'paging' => new PwgNamedStruct(
+        'paging' => new Phyxo\Ws\NamedStruct(
             array(
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
@@ -572,7 +572,7 @@ function ws_images_search($params, $service) {
                 'total_count' => count($search_result['items']),
             )
         ),
-        'images' => new PwgNamedArray(
+        'images' => new Phyxo\Ws\NamedArray(
             $images,
             'image',
             ws_std_get_image_xml_attributes()
@@ -591,7 +591,7 @@ function ws_images_setPrivacyLevel($params, $service) {
     global $conf, $conn;
 
     if (!in_array($params['level'], $conf['available_permission_levels'])) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid level');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid level');
     }
 
     $query = 'UPDATE '. IMAGES_TABLE;
@@ -622,7 +622,7 @@ function ws_images_setRank($params, $service) {
     $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(404, 'image_id not found');
+        return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     // is the image associated to this category?
@@ -631,7 +631,7 @@ function ws_images_setRank($params, $service) {
     $query .= ' AND category_id = '.$conn->db_real_escape_string($params['category_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(404, 'This image is not associated to this category');
+        return new Phyxo\Ws\Error(404, 'This image is not associated to this category');
     }
 
     // what is the current higher rank for this category?
@@ -697,7 +697,7 @@ function ws_images_add_chunk($params, $service) {
 
     // create the upload directory tree if not exists
     if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR)) {
-        return new PwgError(500, 'error during buffer directory creation');
+        return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
     $filename = sprintf(
@@ -715,7 +715,7 @@ function ws_images_add_chunk($params, $service) {
     );
 
     if (false === $bytes_written) {
-        return new PwgError(500,
+        return new Phyxo\Ws\Error(500,
         'an error has occured while writting chunk '.$params['position'].' for '.$params['type']
         );
     }
@@ -740,7 +740,7 @@ function ws_images_addFile($params, $service) {
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
-        return new PwgError(404, "image_id not found");
+        return new Phyxo\Ws\Error(404, "image_id not found");
     }
 
     $image = $conn->db_fetch_assoc($result);
@@ -827,7 +827,7 @@ function ws_images_add($params, $service) {
         $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
-            return new PwgError(404, 'image_id not found');
+            return new Phyxo\Ws\Error(404, 'image_id not found');
         }
     }
 
@@ -843,7 +843,7 @@ function ws_images_add($params, $service) {
         $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE '. $where_clause .';';
         list($counter) = $conn->db_fetch_row($conn->db_query($query));
         if ($counter != 0) {
-            return new PwgError(500, 'file already exists');
+            return new Phyxo\Ws\Error(500, 'file already exists');
         }
     }
 
@@ -945,7 +945,7 @@ function ws_images_addSimple($params, $service) {
     global $conf, $conn, $services;
 
     if (!isset($_FILES['image'])) {
-        return new PwgError(405, 'The image (file) is missing');
+        return new Phyxo\Ws\Error(405, 'The image (file) is missing');
     }
 
     if ($params['image_id'] > 0) {
@@ -953,7 +953,7 @@ function ws_images_addSimple($params, $service) {
         $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
-            return new PwgError(404, 'image_id not found');
+            return new Phyxo\Ws\Error(404, 'image_id not found');
         }
     }
 
@@ -1045,14 +1045,14 @@ function ws_images_upload($params, $service) {
     global $conf, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $upload_dir = $conf['upload_dir'].'/buffer';
 
     // create the upload directory tree if not exists
     if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR)) {
-        return new PwgError(500, 'error during buffer directory creation');
+        return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
     // Get a file name
@@ -1209,7 +1209,7 @@ function ws_images_checkFiles($params, $service) {
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
-        return new PwgError(404, 'image_id not found');
+        return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     list($path) = $conn->db_fetch_row($result);
@@ -1254,14 +1254,14 @@ function ws_images_setRelatedTags($params, &$service) {
     global $conf, $conn, $services;
 
     if (!$service->isPost()) {
-        return new PwgError(405, "This method requires HTTP POST");
+        return new Phyxo\Ws\Error(405, "This method requires HTTP POST");
     }
 
     if ((empty($conf['tags_permission_add'])
          || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) &&
         (empty($conf['tags_permission_delete'])
          || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
-        return new PwgError(403, l10n('You are not allowed to add nor delete tags'));
+        return new Phyxo\Ws\Error(403, l10n('You are not allowed to add nor delete tags'));
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -1284,13 +1284,13 @@ function ws_images_setRelatedTags($params, &$service) {
     if (count($removed_tags)>0) {
         if (empty($conf['tags_permission_delete'])
             || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
-            return new PwgError(403, l10n('You are not allowed to delete tags'));
+            return new Phyxo\Ws\Error(403, l10n('You are not allowed to delete tags'));
         }
     }
     if (count($new_tags)>0) {
         if (empty($conf['tags_permission_add'])
             || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
-            return new PwgError(403, l10n('You are not allowed to add tags'));
+            return new Phyxo\Ws\Error(403, l10n('You are not allowed to add tags'));
         }
     }
 
@@ -1336,7 +1336,7 @@ function ws_images_setRelatedTags($params, &$service) {
             }
         }
     } catch (Exception $e) {
-        return new PwgError(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
+        return new Phyxo\Ws\Error(500, '[ws_images_setRelatedTags]  Something went wrong when updating tags');
     }
 }
 
@@ -1366,7 +1366,7 @@ function ws_images_setInfo($params, $service) {
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
-        return new PwgError(404, 'image_id not found');
+        return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     $image_row = $conn->db_fetch_assoc($result);
@@ -1391,7 +1391,7 @@ function ws_images_setInfo($params, $service) {
             } elseif ('replace' == $params['single_value_mode']) {
                 $update[$key] = $params[$key];
             } else {
-                return new PwgError(500,
+                return new Phyxo\Ws\Error(500,
                 '[ws_images_setInfo]'
                 .' invalid parameter single_value_mode "'.$params['single_value_mode'].'"'
                 .', possible values are {fill_if_empty, replace}.'
@@ -1402,7 +1402,7 @@ function ws_images_setInfo($params, $service) {
 
     if (isset($params['file'])) {
         if (!empty($image_row['storage_category_id'])) {
-            return new PwgError(500,
+            return new Phyxo\Ws\Error(500,
             '[ws_images_setInfo] updating "file" is forbidden on photos added by synchronization'
             );
         }
@@ -1445,7 +1445,7 @@ function ws_images_setInfo($params, $service) {
         } elseif ('append' == $params['multiple_value_mode']) {
             $services['tags']->addTags($tag_ids, array($params['image_id']));
         } else {
-            return new PwgError(500,
+            return new Phyxo\Ws\Error(500,
             '[ws_images_setInfo]'
             .' invalid parameter multiple_value_mode "'.$params['multiple_value_mode'].'"'
             .', possible values are {replace, append}.'
@@ -1465,7 +1465,7 @@ function ws_images_setInfo($params, $service) {
  */
 function ws_images_delete($params, $service) {
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // @TODO: simplify !!!

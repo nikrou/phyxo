@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -77,7 +77,7 @@ function tagsList($tags, $params) {
     }
 
     return array(
-        'tags' => new PwgNamedArray(
+        'tags' => new Phyxo\Ws\NamedArray(
             $tags,
             'tag',
             ws_std_get_tag_xml_attributes()
@@ -97,7 +97,7 @@ function ws_tags_getAdminList($params, &$service) {
     global $services;
 
     return array(
-        'tags' => new PwgNamedArray(
+        'tags' => new Phyxo\Ws\NamedArray(
             $services['tags']->getAllTags(),
             'tag',
             ws_std_get_tag_xml_attributes()
@@ -210,7 +210,7 @@ function ws_tags_getImages($params, &$service) {
                 );
             }
 
-            $image['tags'] = new PwgNamedArray($image_tags, 'tag', ws_std_get_tag_xml_attributes() );
+            $image['tags'] = new Phyxo\Ws\NamedArray($image_tags, 'tag', ws_std_get_tag_xml_attributes() );
             $images[$image['id']] = $image;
         }
         // postgresql does not understand order by field(field_name, id1, id2, id3,...)
@@ -226,7 +226,7 @@ function ws_tags_getImages($params, &$service) {
     }
 
     return array(
-        'paging' => new PwgNamedStruct(
+        'paging' => new Phyxo\Ws\NamedStruct(
             array(
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
@@ -234,7 +234,7 @@ function ws_tags_getImages($params, &$service) {
                 'total_count' => $count_set,
             )
         ),
-        'images' => new PwgNamedArray(
+        'images' => new Phyxo\Ws\NamedArray(
             $images,
             'image',
             ws_std_get_image_xml_attributes()
@@ -256,7 +256,7 @@ function ws_tags_add($params, &$service) {
     $creation_output = $services['tags']->createTag($params['name']);
 
     if (isset($creation_output['error'])) {
-        return new PwgError(500, $creation_output['error']);
+        return new Phyxo\Ws\Error(500, $creation_output['error']);
     }
 
     return $creation_output;

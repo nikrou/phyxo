@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -23,7 +23,7 @@
 // +-----------------------------------------------------------------------+
 
 /**
- * Event handler for method invocation security check. Should return a PwgError
+ * Event handler for method invocation security check. Should return a Phyxo\Ws\Error
  * if the preconditions are not satifsied for method invocation.
  */
 function ws_isInvokeAllowed($res, $methodName, $params) {
@@ -34,7 +34,7 @@ function ws_isInvokeAllowed($res, $methodName, $params) {
     }
 
     if (!$services['users']->isAuthorizeStatus(ACCESS_GUEST) && strpos($methodName,'pwg.session.')!==0) {
-        return new PwgError(401, 'Access denied');
+        return new Phyxo\Ws\Error(401, 'Access denied');
     }
 
     return $res;
@@ -206,7 +206,7 @@ function categories_flatlist_to_tree($categories) {
             $tree[] = &$node;
         } else {
             if (!isset($categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'])) {
-                $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = new PwgNamedArray(array(), 'category', ws_std_get_category_xml_attributes());
+                $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = new Phyxo\Ws\NamedArray(array(), 'category', ws_std_get_category_xml_attributes());
             }
 
             $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories']->_content[] = &$node;

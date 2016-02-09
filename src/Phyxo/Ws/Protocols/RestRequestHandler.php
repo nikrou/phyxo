@@ -1,15 +1,11 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,11 +14,13 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-class PwgRestRequestHandler extends PwgRequestHandler
+namespace Phyxo\Ws\Protocols;
+
+class RestRequestHandler extends RequestHandler
 {
     function handleRequest(&$service) {
         $params = array();
@@ -43,7 +41,7 @@ class PwgRestRequestHandler extends PwgRequestHandler
 		}
 
         if (empty($method)) {
-            $service->sendResponse(new PwgError(WS_ERR_INVALID_METHOD, 'Missing "method" name'));
+            $service->sendResponse(new Error(WS_ERR_INVALID_METHOD, 'Missing "method" name'));
             return;
         }
         $resp = $service->invoke($method, $params);

@@ -1,3 +1,11 @@
+Phyxo 1.5.0 - 2016-02-09
+========================
+* Move webservice to Phyxo namespace
+* Move Calendars to Phyxo namespace
+* Fix issue with session_regenerate_id with php < 7.0.3
+* Remove serialize for some configuration keys. Add migration script
+* No more pngfix
+
 Phyxo 1.4.1 - 2016-02-02
 ========================
 * Fix issue with php 7 and old Smarty release.

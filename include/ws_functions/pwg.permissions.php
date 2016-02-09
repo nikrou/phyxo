@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,7 +35,7 @@ function ws_permissions_getList($params, &$service) {
 
     $my_params = array_intersect(array_keys($params), array('cat_id','group_id','user_id'));
     if (count($my_params) > 1) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'Too many parameters, provide cat_id OR user_id OR group_id');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Too many parameters, provide cat_id OR user_id OR group_id');
     }
 
     $cat_filter = '';
@@ -116,7 +116,7 @@ function ws_permissions_getList($params, &$service) {
     unset($cat);
 
     return array(
-        'categories' => new PwgNamedArray(
+        'categories' => new Phyxo\Ws\NamedArray(
             array_values($perms),
             'category',
             array('id')
@@ -137,7 +137,7 @@ function ws_permissions_add($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -190,7 +190,7 @@ function ws_permissions_remove($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -58,7 +58,7 @@ function ws_users_getList($params, &$service) {
 
     if (!empty($params['min_level'])) {
         if (!in_array($params['min_level'], $conf['available_permission_levels'])) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid level');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid level');
         }
         $where_clauses[] = 'ui.level >= '.$params['min_level'];
     }
@@ -202,14 +202,14 @@ function ws_users_getList($params, &$service) {
     $users = trigger_change('ws_users_getList', $users);
 
     return array(
-        'paging' => new PwgNamedStruct(
+        'paging' => new Phyxo\Ws\NamedStruct(
             array(
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
                 'count' => count($users)
             )
         ),
-        'users' => new PwgNamedArray(array_values($users), 'user')
+        'users' => new Phyxo\Ws\NamedArray(array_values($users), 'user')
     );
 }
 
@@ -225,12 +225,12 @@ function ws_users_add($params, &$service) {
     global $conf, $services;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     if ($conf['double_password_type_in_admin']) {
         if ($params['password'] != $params['password_confirm']) {
-            return new PwgError(WS_ERR_INVALID_PARAM, l10n('The passwords do not match'));
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('The passwords do not match'));
         }
     }
 
@@ -244,7 +244,7 @@ function ws_users_add($params, &$service) {
     );
 
     if (!$user_id) {
-        return new PwgError(WS_ERR_INVALID_PARAM, $errors[0]);
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, $errors[0]);
     }
 
     return $service->invoke('pwg.users.getList', array('user_id'=>$user_id));
@@ -261,7 +261,7 @@ function ws_users_delete($params, &$service) {
     global $conf, $user, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -319,7 +319,7 @@ function ws_users_setInfo($params, &$service) {
     global $conf, $user, $conn, $services;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -329,23 +329,23 @@ function ws_users_setInfo($params, &$service) {
 
     if (count($params['user_id']) == 1) {
         if (get_username($params['user_id'][0]) === false) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'This user does not exist.');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This user does not exist.');
         }
 
         if (!empty($params['username'])) {
             $user_id = $services['users']->getUserId($params['username']);
             if ($user_id and $user_id != $params['user_id'][0]) {
-                return new PwgError(WS_ERR_INVALID_PARAM, l10n('this login is already used'));
+                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('this login is already used'));
             }
             if ($params['username'] != strip_tags($params['username'])) {
-                return new PwgError(WS_ERR_INVALID_PARAM, l10n('html tags are not allowed in login'));
+                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('html tags are not allowed in login'));
             }
             $updates[ $conf['user_fields']['username'] ] = $params['username'];
         }
 
         if (!empty($params['email'])) {
             if (($error = $services['users']->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
-                return new PwgError(WS_ERR_INVALID_PARAM, $error);
+                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, $error);
             }
             $updates[ $conf['user_fields']['email'] ] = $params['email'];
         }
@@ -357,11 +357,11 @@ function ws_users_setInfo($params, &$service) {
 
     if (!empty($params['status'])) {
         if (in_array($params['status'], array('webmaster', 'admin')) and !$services['users']->isWebmaster()) {
-            return new PwgError(403, 'Only webmasters can grant "webmaster/admin" status');
+            return new Phyxo\Ws\Error(403, 'Only webmasters can grant "webmaster/admin" status');
         }
 
         if (!in_array($params['status'], array('guest','generic','normal','admin','webmaster'))) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid status');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid status');
         }
 
         $protected_users = array(
@@ -386,21 +386,21 @@ function ws_users_setInfo($params, &$service) {
 
     if (!empty($params['level']) or @$params['level']===0) {
         if (!in_array($params['level'], $conf['available_permission_levels'])) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid level');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid level');
         }
         $updates_infos['level'] = $params['level'];
     }
 
     if (!empty($params['language'])) {
         if (!in_array($params['language'], array_keys(get_languages()))) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid language');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid language');
         }
         $updates_infos['language'] = $params['language'];
     }
 
     if (!empty($params['theme'])) {
         if (!in_array($params['theme'], array_keys(get_pwg_themes()))) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid theme');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid theme');
         }
         $updates_infos['theme'] = $params['theme'];
     }

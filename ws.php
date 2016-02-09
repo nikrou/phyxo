@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -25,6 +25,30 @@
 define('PHPWG_ROOT_PATH', './');
 define('IN_WS', true);
 
+define('WS_PARAM_ACCEPT_ARRAY',  0x010000 );
+define('WS_PARAM_FORCE_ARRAY',   0x030000 );
+define('WS_PARAM_OPTIONAL',      0x040000 );
+
+define('WS_TYPE_BOOL',           0x01 );
+define('WS_TYPE_INT',            0x02 );
+define('WS_TYPE_FLOAT',          0x04 );
+define('WS_TYPE_POSITIVE',       0x10 );
+define('WS_TYPE_NOTNULL',        0x20 );
+define('WS_TYPE_ID', WS_TYPE_INT | WS_TYPE_POSITIVE | WS_TYPE_NOTNULL);
+
+define('WS_ERR_INVALID_METHOD',  501 );
+define('WS_ERR_MISSING_PARAM',   1002 );
+define('WS_ERR_INVALID_PARAM',   1003 );
+
+define('WS_XML_ATTRIBUTES', 'attributes_xml_');
+
+use Phyxo\Ws\Server;
+use Phyxo\Ws\Protocols\RestRequestHandler;
+use Phyxo\Ws\Protocols\JsonEncoder;
+use Phyxo\Ws\Protocols\SerialPhpEncoder;
+use Phyxo\Ws\Protocols\RestEncoder;
+use Phyxo\Ws\Protocols\XmlRpcEncoder;
+
 include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
 
@@ -32,30 +56,27 @@ if (!$conf['allow_web_services']) {
     page_forbidden('Web services are disabled');
 }
 
-include_once(PHPWG_ROOT_PATH.'include/ws_core.inc.php');
-
 add_event_handler('ws_add_methods', 'ws_addDefaultMethods');
 add_event_handler('ws_invoke_allowed', 'ws_isInvokeAllowed', EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
 
 $requestFormat = 'rest';
 $responseFormat = null;
 
-if (isset($_GET['format'])) {
-    $responseFormat = $_GET['format'];
+if (isset($_REQUEST['format'])) { // @TODO filter format
+    $responseFormat = $_REQUEST['format'];
 }
 
 if (!isset($responseFormat) and isset($requestFormat)) {
     $responseFormat = $requestFormat;
 }
 
-$service = new PwgServer();
+$service = new Server();
 if (!is_null($requestFormat)) {
     $handler = null;
     switch ($requestFormat)
         {
         case 'rest':
-            include_once(PHPWG_ROOT_PATH.'include/ws_protocols/rest_handler.php');
-            $handler = new PwgRestRequestHandler();
+            $handler = new RestRequestHandler();
             break;
         }
     $service->setHandler($requestFormat, $handler);
@@ -66,20 +87,16 @@ if (!is_null($responseFormat)) {
     switch ($responseFormat)
         {
         case 'rest':
-            include_once(PHPWG_ROOT_PATH.'include/ws_protocols/rest_encoder.php');
-            $encoder = new PwgRestEncoder();
+            $encoder = new RestEncoder();
             break;
         case 'php':
-            include_once(PHPWG_ROOT_PATH.'include/ws_protocols/php_encoder.php');
-            $encoder = new PwgSerialPhpEncoder();
+            $encoder = new SerialPhpEncoder();
             break;
         case 'json':
-            include_once(PHPWG_ROOT_PATH.'include/ws_protocols/json_encoder.php');
-            $encoder = new PwgJsonEncoder();
+            $encoder = new JsonEncoder();
             break;
         case 'xmlrpc':
-            include_once(PHPWG_ROOT_PATH.'include/ws_protocols/xmlrpc_encoder.php');
-            $encoder = new PwgXmlRpcEncoder();
+            $encoder = new XmlRpcEncoder();
             break;
         }
     $service->setEncoder($responseFormat, $encoder);

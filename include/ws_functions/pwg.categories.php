@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -119,7 +119,7 @@ function ws_categories_getImages($params, &$service) {
                 );
             }
 
-            $image['categories'] = new PwgNamedArray(
+            $image['categories'] = new Phyxo\Ws\NamedArray(
                 $image_cats,
                 'category',
                 array('id', 'url', 'page_url')
@@ -129,14 +129,14 @@ function ws_categories_getImages($params, &$service) {
     }
 
     return array(
-        'paging' => new PwgNamedStruct(
+        'paging' => new Phyxo\Ws\NamedStruct(
             array(
                 'page' => $params['page'],
                 'per_page' => $params['per_page'],
                 'count' => count($images)
             )
         ),
-        'images' => new PwgNamedArray(
+        'images' => new Phyxo\Ws\NamedArray(
             $images, 'image',
             ws_std_get_image_xml_attributes()
         )
@@ -372,7 +372,7 @@ function ws_categories_getList($params, &$service) {
     }
 
     return array(
-        'categories' => new PwgNamedArray(
+        'categories' => new Phyxo\Ws\NamedArray(
             $cats,
             'category',
             ws_std_get_category_xml_attributes()
@@ -429,7 +429,7 @@ function ws_categories_getAdminList($params, &$service) {
 
     usort($cats, 'global_rank_compare');
     return array(
-        'categories' => new PwgNamedArray(
+        'categories' => new Phyxo\Ws\NamedArray(
             $cats,
             'category',
             array('id', 'nb_images', 'name', 'uppercats', 'global_rank')
@@ -467,7 +467,7 @@ function ws_categories_add($params, &$service) {
     );
 
     if (isset($creation_output['error'])) {
-        return new PwgError(500, $creation_output['error']);
+        return new Phyxo\Ws\Error(500, $creation_output['error']);
     }
 
     invalidate_user_cache();
@@ -524,7 +524,7 @@ function ws_categories_setRepresentative($params, &$service) {
     $query .= ' WHERE id = '. $conn->db_real_escape_string($params['category_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(404, 'category_id not found');
+        return new Phyxo\Ws\Error(404, 'category_id not found');
     }
 
     // does the image really exist?
@@ -532,7 +532,7 @@ function ws_categories_setRepresentative($params, &$service) {
     $query .= ' WHERE id = '. $conn->db_real_escape_string($params['image_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(404, 'image_id not found');
+        return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     // apply change
@@ -558,12 +558,12 @@ function ws_categories_delete($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $modes = array('no_delete', 'delete_orphans', 'force_delete');
     if (!in_array($params['photo_deletion_mode'], $modes)) {
-        return new PwgError(500,
+        return new Phyxo\Ws\Error(500,
         '[ws_categories_delete]'
         .' invalid parameter photo_deletion_mode "'.$params['photo_deletion_mode'].'"'
         .', possible values are {'.implode(', ', $modes).'}.'
@@ -616,7 +616,7 @@ function ws_categories_move($params, &$service) {
     global $page, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     if (!is_array($params['category_id'])) {
@@ -637,7 +637,7 @@ function ws_categories_move($params, &$service) {
     }
 
     if (count($category_ids) == 0) {
-        return new PwgError(403, 'Invalid category_id input parameter, no category to move');
+        return new Phyxo\Ws\Error(403, 'Invalid category_id input parameter, no category to move');
     }
 
     // we can't move physical categories
@@ -659,7 +659,7 @@ function ws_categories_move($params, &$service) {
                 )
             );
 
-            return new PwgError(403,
+            return new Phyxo\Ws\Error(403,
             sprintf(
                 'Category %s (%u) is not a virtual category, you cannot move it',
                 $row['name'],
@@ -672,7 +672,7 @@ function ws_categories_move($params, &$service) {
     if (count($categories_in_db) != count($category_ids)) {
         $unknown_category_ids = array_diff($category_ids, array_keys($categories_in_db));
 
-        return new PwgError(403, sprintf('Category %u does not exist', $unknown_category_ids[0]));
+        return new Phyxo\Ws\Error(403, sprintf('Category %u does not exist', $unknown_category_ids[0]));
     }
 
     // does this parent exists? This check should be made in the
@@ -681,7 +681,7 @@ function ws_categories_move($params, &$service) {
     if (0 != $params['parent']) {
         $subcat_ids = get_subcat_ids(array($params['parent']));
         if (count($subcat_ids) == 0) {
-            return new PwgError(403, 'Unknown parent category id');
+            return new Phyxo\Ws\Error(403, 'Unknown parent category id');
         }
     }
 
@@ -693,6 +693,6 @@ function ws_categories_move($params, &$service) {
     invalidate_user_cache();
 
     if (count($page['errors']) != 0) {
-        return new PwgError(403, implode('; ', $page['errors']));
+        return new Phyxo\Ws\Error(403, implode('; ', $page['errors']));
     }
 }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -52,12 +52,12 @@ function ws_groups_getList($params, &$service) {
     $groups = $conn->query2array($query);
 
     return array(
-        'paging' => new PwgNamedStruct(array(
+        'paging' => new Phyxo\Ws\NamedStruct(array(
             'page' => $params['page'],
             'per_page' => $params['per_page'],
             'count' => count($groups)
         )),
-        'groups' => new PwgNamedArray($groups, 'group')
+        'groups' => new Phyxo\Ws\NamedArray($groups, 'group')
     );
 }
 
@@ -76,7 +76,7 @@ function ws_groups_add($params, &$service) {
     $query .= ' WHERE name = \''.$conn->db_real_escape_string($params['name']).'\'';
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count != 0) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
     }
 
     // creating the group
@@ -102,7 +102,7 @@ function ws_groups_delete($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // destruction of the access linked to the group
@@ -123,7 +123,7 @@ function ws_groups_delete($params, &$service) {
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
     invalidate_user_cache();
 
-    return new PwgNamedArray($groupnames, 'group_deleted');
+    return new Phyxo\Ws\NamedArray($groupnames, 'group_deleted');
 }
 
 /**
@@ -138,7 +138,7 @@ function ws_groups_setInfo($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $updates = array();
@@ -147,7 +147,7 @@ function ws_groups_setInfo($params, &$service) {
     $query = 'SELECT COUNT(1) '. GROUPS_TABLE .' WHERE id = '. $conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'This group does not exist.');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This group does not exist.');
     }
 
     if (!empty($params['name'])) {
@@ -156,7 +156,7 @@ function ws_groups_setInfo($params, &$service) {
         $query .= ' WHERE name = \''. $conn->db_real_escape_string($params['name']).'\'';
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count != 0) {
-            return new PwgError(WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
+            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
 
         $updates['name'] = $params['name'];
@@ -186,7 +186,7 @@ function ws_groups_addUser($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // does the group exist ?
@@ -194,7 +194,7 @@ function ws_groups_addUser($params, &$service) {
     $query .= ' WHERE id = '.$conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'This group does not exist.');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This group does not exist.');
     }
 
     $inserts = array();
@@ -228,7 +228,7 @@ function ws_groups_deleteUser($params, &$service) {
     global $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // does the group exist ?
@@ -236,7 +236,7 @@ function ws_groups_deleteUser($params, &$service) {
     $query .= ' WHERE id = '.$conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
-        return new PwgError(WS_ERR_INVALID_PARAM, 'This group does not exist.');
+        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This group does not exist.');
     }
 
     $query = 'DELETE FROM '. USER_GROUP_TABLE;

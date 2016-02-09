@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,7 +70,7 @@ function ws_plugins_performAction($params, $service) {
     global $template;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     define('IN_ADMIN', true);
@@ -79,7 +79,7 @@ function ws_plugins_performAction($params, $service) {
     $errors = $plugins->perform_action($params['action'], $params['plugin']);
 
     if (!empty($errors)) {
-        return new PwgError(500, $errors);
+        return new Phyxo\Ws\Error(500, $errors);
     } else {
         if (in_array($params['action'], array('activate', 'deactivate'))) {
             $template->delete_compiled_templates();
@@ -100,7 +100,7 @@ function ws_themes_performAction($params, $service) {
     global $template;
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     define('IN_ADMIN', true);
@@ -109,7 +109,7 @@ function ws_themes_performAction($params, $service) {
     $errors = $themes->perform_action($params['action'], $params['theme']);
 
     if (!empty($errors)) {
-        return new PwgError(500, $errors);
+        return new Phyxo\Ws\Error(500, $errors);
     } else {
         if (in_array($params['action'], array('activate', 'deactivate'))) {
             $template->delete_compiled_templates();
@@ -132,15 +132,15 @@ function ws_extensions_update($params, $service) {
     global $template, $services;
 
     if (!$services['users']->isWebmaster()) {
-        return new PwgError(401, l10n('Webmaster status is required.'));
+        return new Phyxo\Ws\Error(401, l10n('Webmaster status is required.'));
     }
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     if (!in_array($params['type'], array('plugins', 'themes', 'languages'))) {
-        return new PwgError(403, "invalid extension type");
+        return new Phyxo\Ws\Error(403, "invalid extension type");
     }
 
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -190,16 +190,16 @@ function ws_extensions_update($params, $service) {
             return l10n('%s has been successfully updated.', $extension_name);
 
         case 'temp_path_error':
-            return new PwgError(null, l10n('Can\'t create temporary file.'));
+            return new Phyxo\Ws\Error(null, l10n('Can\'t create temporary file.'));
 
         case 'dl_archive_error':
-            return new PwgError(null, l10n('Can\'t download archive.'));
+            return new Phyxo\Ws\Error(null, l10n('Can\'t download archive.'));
 
         case 'archive_error':
-            return new PwgError(null, l10n('Can\'t read or extract archive.'));
+            return new Phyxo\Ws\Error(null, l10n('Can\'t read or extract archive.'));
 
         default:
-            return new PwgError(null, l10n('An error occured during extraction (%s).', $upgrade_status));
+            return new Phyxo\Ws\Error(null, l10n('An error occured during extraction (%s).', $upgrade_status));
         }
 }
 
@@ -219,11 +219,11 @@ function ws_extensions_ignoreupdate($params, $service) {
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
     if (!$services['users']->isWebmaster()) {
-        return new PwgError(401, 'Access denied');
+        return new Phyxo\Ws\Error(401, 'Access denied');
     }
 
     if (get_pwg_token() != $params['pwg_token']) {
-        return new PwgError(403, 'Invalid security token');
+        return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
@@ -246,7 +246,7 @@ function ws_extensions_ignoreupdate($params, $service) {
     }
 
     if (empty($params['id']) or empty($params['type']) or !in_array($params['type'], array('plugins', 'themes', 'languages'))) {
-        return new PwgError(403, 'Invalid parameters');
+        return new Phyxo\Ws\Error(403, 'Invalid parameters');
     }
 
     // Add or remove extension from ignore list

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -29,10 +29,9 @@ use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 
 require_once(PHPWG_ROOT_PATH.'include/config_default.inc.php');
-require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
+require_once(PHPWG_ROOT_PATH.'sites/behat/local/config/database.inc.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions_install.inc.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
-require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
 
 require_once(PHPWG_ROOT_PATH.'include/constants.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
@@ -46,6 +45,9 @@ try {
 } catch (Exception $e) {
     die($e->getMessage());
 }
+
+// services
+include(PHPWG_ROOT_PATH . 'include/services.php');
 
 $languages = new Languages($conn, 'utf-8');
 
@@ -62,11 +64,12 @@ execute_sqlfile(
     $conf['dblayer']
 );
 
-conf_update_param(
-    'secret_key',
-    'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').')',
-    'a secret key specific to the gallery for internal use'
-);
+$query = 'INSERT INTO '.CONFIG_TABLE.' (param,value,comment)';
+$query .= 'VALUES (\'secret_key\',';
+$query .= 'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').'),';
+$query .= '\'a secret key specific to the gallery for internal use\')';
+$conn->db_query($query);
+
 conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
 conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
 conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
@@ -91,6 +94,9 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme) {
 
 $insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH.'galleries/');
 $conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
+if ($conf['dblayer']=='pgsql') {
+    $conn->db_query('ALTER SEQUENCE '.strtolower(SITES_TABLE).'_id_seq RESTART WITH 2');
+}
 
 $inserts = array(
     array(
@@ -105,6 +111,9 @@ $inserts = array(
     ),
 );
 $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
+if ($conf['dblayer']=='pgsql') {
+    $conn->db_query('ALTER SEQUENCE '.strtolower(USERS_TABLE).'_id_seq RESTART WITH 3');
+}
 
 $services['users']->createUserInfos(array(1,2), array('language' => 'en'));
 
