@@ -3,6 +3,7 @@ APP_NAME=phyxo
 APP_VERSION=$(shell grep "PHPWG_VERSION'," ./include/constants.php| cut -d"'" -f4)
 SOURCE=./*
 TARGET=../target
+MIN_JS_PHP=../tools/min_js.php
 
 all:;
 	@echo "make config or make dist"
@@ -39,6 +40,13 @@ config: clean
 		themes/elegant \
 		themes/Sylvia $(DIST)/$(APP_NAME)/themes/
 
+	# minified javascript files
+	find ./$(DIST)/$(APP_NAME)/admin/themes/default/js/*.js -type f -exec $(MIN_JS_PHP) \{\} \;
+	find ./$(DIST)/$(APP_NAME)/admin/themes/default/js/ui/*.js -type f -exec $(MIN_JS_PHP) \{\} \;
+	find ./$(DIST)/$(APP_NAME)/admin/themes/default/js/jquery/*.js -type f -exec $(MIN_JS_PHP) \{\} \;
+	find ./$(DIST)/$(APP_NAME)/admin/themes/default/js/plugins/*.js -type f -exec $(MIN_JS_PHP) \{\} \;
+
+	# remove scm files and directories
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf

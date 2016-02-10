@@ -11,7 +11,7 @@
 	],
 	"minimum-stability": "stable",
 	"require": {
-		"php": ">=5.4.0",
+		"php": ">=5.5.0",
 		"smarty/smarty": "3.1.*",
 		"phpmailer/phpmailer": "5.2.*",
 		"jdorn/sql-formatter": "1.*",
@@ -27,7 +27,7 @@
 		"zircote/swagger-php": "~0.8,<0.10.0",
 		"jdesrosiers/silex-swagger-provider": "~1.0",
 		"jdesrosiers/silex-cors-provider": "~0.1",
-		"atoum/atoum": "1.1.*",
+		"atoum/atoum": "2.*",
 		"behat/behat": "<3",
 		"behat/common-contexts": "*",
 		"behat/mink": ">=1.4,<1.5-dev",

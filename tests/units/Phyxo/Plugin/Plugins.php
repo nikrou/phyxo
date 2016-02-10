@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -63,7 +63,7 @@ class Plugins extends atoum
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=44',
                 'description' => 'The best plugin',
                 'author' => 'Jean',
-                'author uri' => 'http://www.phxyo.net/',
+                'author uri' => 'http://www.phyxo.net/',
                 'extension' => '44'
             ),
 

@@ -1,4 +1,4 @@
-{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
+{combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.js'}
 {combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 {combine_script id='core.switchbox' load='async' require='jquery' path='themes/default/js/switchbox.js'}
 {combine_css id='picture.tags' path="themes/default/picture_tags.css"}

@@ -1,7 +1,7 @@
 {html_head}
 <link rel="stylesheet" type="text/css" href="admin/themes/default/js/plugins/jquery.Jcrop.css" />
 {/html_head}
-{combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.Jcrop.min.js'}
+{combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.Jcrop.js'}
 
 <h2>{$TITLE} &#8250; {'Edit photo'|translate} {$TABSHEET_TITLE}</h2>
 
@@ -70,4 +70,3 @@ jQuery("#jcrop").Jcrop( {ldelim}
 {/if}
 );
 {/footer_script}
-

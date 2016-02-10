@@ -43,7 +43,7 @@
 </div>{* <!-- footer --> *}
 </div>{* <!-- the_page --> *}
 
-{combine_script id='jquery.tipTip' load='footer' path='admin/themes/default/js/plugins/jquery.tipTip.minified.js'}
+{combine_script id='jquery.tipTip' load='footer' path='admin/themes/default/js/plugins/jquery.tipTip.js'}
 {footer_script require='jquery.tipTip'}
 jQuery('.tiptip').tipTip({
   delay: 0,

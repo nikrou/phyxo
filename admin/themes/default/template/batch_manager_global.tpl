@@ -4,16 +4,16 @@
 
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 
-{combine_script id='jquery.ui.slider' require='jquery.ui' load='async' path='admin/themes/default/js/ui/minified/jquery.ui.slider.min.js'}
+{combine_script id='jquery.ui.slider' require='jquery.ui' load='async' path='admin/themes/default/js/ui/jquery.ui.slider.js'}
 {combine_css path="admin/themes/default/js/ui/theme/jquery.ui.slider.css"}
 {combine_script id='doubleSlider' load='async' require='jquery.ui.slider' path='admin/themes/default/js/doubleSlider.js'}
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
+{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.js'}
 {combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
-{combine_script id='jquery.progressBar' load='async' path='admin/themes/default/js/plugins/jquery.progressbar.min.js'}
+{combine_script id='jquery.progressBar' load='async' path='admin/themes/default/js/plugins/jquery.progressbar.js'}
 {combine_script id='jquery.ajaxmanager' load='async' path='admin/themes/default/js/plugins/jquery.ajaxmanager.js'}
 
 {combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider' path='admin/themes/default/js/batchManagerGlobal.js'}

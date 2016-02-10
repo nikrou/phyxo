@@ -1,7 +1,7 @@
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
-{combine_script id='jquery.jgrowl' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.jgrowl_minimized.js'}
-{combine_script id='jquery.plupload' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/plupload.full.min.js'}
-{combine_script id='jquery.plupload.queue' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.min.js'}
+{combine_script id='jquery.jgrowl' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.jgrowl.js'}
+{combine_script id='jquery.plupload' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/plupload.full.js'}
+{combine_script id='jquery.plupload.queue' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js'}
 {combine_script id='jquery.ui.progressbar' load='footer'}
 
 {combine_css path="admin/themes/default/js/plugins/jquery.jgrowl.css"}
@@ -17,7 +17,7 @@
 
 {combine_script id='LocalStorageCache' load='footer' path='admin/themes/default/js/LocalStorageCache.js'}
 
-{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.min.js'}
+{combine_script id='jquery.selectize' load='footer' path='admin/themes/default/js/plugins/selectize.js'}
 {combine_css id='jquery.selectize' path="admin/themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 
 {footer_script}

@@ -1,8 +1,8 @@
+#!/usr/bin/env php
 <?php
 // +-----------------------------------------------------------------------+
-// | Plugin 3 - a plugin for Phyxo                                         |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net  |
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -19,14 +19,25 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/*
-Plugin Name: My Plugin
-Version: 2.1.0
-Description: Another plugin
-Plugin URI: http://ext.phyxo.net/extension_view.php?eid=90
-Author: Jean
-Author URI: http://www.phyxo.net/
-*/
 
+try {
+	$js = (!empty($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : null;
 
-// nothing more
+	if (!$js || !is_file($js)) {
+		throw new Exception(sprintf("File %s does not exist", $js));
+	}
+
+    include_once(__DIR__.'/jsmin-1.1.1.php');
+
+	$content = file_get_contents($js);
+	$res = JSMin::minify($content);
+
+	if (($fp = fopen($js,'wb')) === false) {
+		throw new Exception(sprintf('Unable to open file %s', $js));
+	}
+	fwrite($fp,$res);
+	fclose($fp);
+} catch (Exception $e) {
+	fwrite(STDERR, $e->getMessage()."\n");
+	exit(1);
+}
