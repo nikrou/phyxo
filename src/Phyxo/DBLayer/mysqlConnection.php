@@ -30,7 +30,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
     protected $db_link = null;
 
     public function db_connect($host, $user, $password, $database) {
-        if (($this->db_link = @mysql_connect($host, $user, $password)) === false) {
+        if (($this->db_link = @\mysql_connect($host, $user, $password)) === false) {
             throw new dbException('Can\'t connect to server');
         }
 

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -677,7 +677,7 @@ class Template
             }
             }
 
-        $smarty->assign($params['name'], ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
+        $smarty->assign($params['name'], \ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
     }
 
     /**
@@ -1036,14 +1036,6 @@ class Template
                 $buttons = array_merge($buttons, $row);
             }
             $this->assign('PLUGIN_PICTURE_BUTTONS', $buttons);
-
-            // only for PHP 5.3
-            // $this->assign('PLUGIN_PICTURE_BUTTONS',
-            // array_reduce(
-            // $this->picture_buttons,
-            // create_function('$v,$w', 'return array_merge($v, $w);'),
-            // array()
-            // ));
         }
     }
 
@@ -1058,14 +1050,6 @@ class Template
                 $buttons = array_merge($buttons, $row);
             }
             $this->assign('PLUGIN_INDEX_BUTTONS', $buttons);
-
-            // only for PHP 5.3
-            // $this->assign('PLUGIN_INDEX_BUTTONS',
-            // array_reduce(
-            // $this->index_buttons,
-            // create_function('$v,$w', 'return array_merge($v, $w);'),
-            // array()
-            // ));
         }
     }
 }

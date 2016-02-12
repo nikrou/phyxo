@@ -93,7 +93,6 @@ if (isset($_GET['action']) and isset($page['site'])) {
     if ($_GET['action']=='delete') {
         delete_site($page['site']);
         $page['infos'][] = $galleries_url.' '.l10n('deleted');
-        break;
     }
 }
 
