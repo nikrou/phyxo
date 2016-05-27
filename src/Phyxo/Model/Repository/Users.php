@@ -309,15 +309,8 @@ class Users extends BaseRepository
             setcookie($conf['remember_me_name'], '', 0, cookie_path(),ini_get('session.cookie_domain'));
         }
 
-
         session_name($conf['session_name']);
-        if (session_id()!='') {
-            if (version_compare(PHP_VERSION, '7') <= 0 || version_compare(PHP_VERSION, '7.0.3') >= 0) {
-                session_regenerate_id(true);
-            }
-        } else {
-            session_start();
-        }
+        session_start();
 
         $_SESSION['pwg_uid'] = (int)$user_id;
         $user['id'] = $_SESSION['pwg_uid'];

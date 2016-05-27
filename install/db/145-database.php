@@ -27,7 +27,7 @@ $upgrade_description = 'add fields for users tags';
 if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query = 'ALTER TABLE '.IMAGE_TAG_TABLE;
     $query .= ' ADD COLUMN validated enum("true","false") NOT NULL default "false",';
-    $query .= ' ADD COLUMN created_by mediumtext(8) unsigned DEFAULT NULL,';
+    $query .= ' ADD COLUMN created_by mediumint(8) unsigned DEFAULT NULL,';
     $query .= ' ADD COLUMN status smallint(3) DEFAULT 1';
     $conn->db_query($query);
 } elseif ($conf['dblayer']=='pgsql') {

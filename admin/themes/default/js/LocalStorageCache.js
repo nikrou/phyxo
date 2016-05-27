@@ -127,12 +127,14 @@
           options.value = value;
         }
         if (options.value != undefined) {
-          $.each(value, $.proxy(function(i, cat) {
-            if ($.isNumeric(cat))
-              this.selectize.addItem(cat);
-            else
-              this.selectize.addItem(cat.id);
-          }, this));
+            $.each(value, $.proxy(function(i, cat) {
+		if (cat) {
+		    if ($.isNumeric(cat))
+			this.selectize.addItem(cat);
+		    else
+			this.selectize.addItem(cat.id);
+		}
+            }, this));
         }
 
         // set default
