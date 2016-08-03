@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -156,8 +156,8 @@ if ('categories' == $page['section'] and !isset($page['flat'])) {
     $conf['order_by'] = $conf['order_by_inside_category'];
 }
 
-if (pwg_get_session_var('image_order',0) > 0) {
-    $image_order_id = pwg_get_session_var('image_order');
+if (!empty($_SESSION['image_order']) && $_SESSION['image_order'] > 0) {
+    $image_order_id = $_SESSION['image_order'];
 
     $orders = get_category_preferred_image_orders();
 
@@ -174,7 +174,7 @@ if (pwg_get_session_var('image_order',0) > 0) {
         );
         $page['super_order_by'] = true;
     } else {
-        pwg_unset_session_var('image_order');
+        unset($_SESSION['image_order']);
         $page['super_order_by'] = false;
     }
 }

@@ -94,7 +94,7 @@ case 'history_summary' : {
         break;
     }
 case 'sessions' : {
-    pwg_session_gc();
+    // pwg_session_gc(); @TODO : sessions handler could be files so no db cleanup
     break;
 }
 case 'feeds' : {

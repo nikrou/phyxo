@@ -31,6 +31,7 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
+use Phyxo\Session\SessionDbHandler;
 
 //----------------------------------------------------- variable initialization
 
@@ -347,13 +348,10 @@ if ($step == 1) {
     if (isset($error_copy)) {
         $errors[] = $error_copy;
     } else {
-        session_set_save_handler('pwg_session_open',
-        'pwg_session_close',
-        'pwg_session_read',
-        'pwg_session_write',
-        'pwg_session_destroy',
-        'pwg_session_gc'
-        );
+        if (isset($conf['session_save_handler']) && ($conf['session_save_handler'] == 'db')) {
+            session_set_save_handler(new SessionDbHandler($conn), true);
+        }
+
         if (function_exists('ini_set')) {
             ini_set('session.use_cookies', $conf['session_use_cookies']);
             ini_set('session.use_only_cookies', $conf['session_use_only_cookies']);

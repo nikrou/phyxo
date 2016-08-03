@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -94,8 +94,8 @@ $template->assign('order_options', array(
 // +-----------------------------------------------------------------------+
 if ($plugins->get_server_plugins(true)) {
     /* order plugins */
-    if (pwg_get_session_var('plugins_new_order') != null) {
-        $order_selected = pwg_get_session_var('plugins_new_order');
+    if (!empty($_SESSION['plugins_new_order'])) {
+        $order_selected = $_SESSION['plugins_new_order'];
         $plugins->sort_server_plugins($order_selected);
         $template->assign('order_selected', $order_selected);
     } else {

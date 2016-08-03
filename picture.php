@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -99,10 +99,10 @@ if (!isset($page['rank_of'][$page['image_id']])) {
 
 // There is cookie, so we must handle it at the beginning
 if (isset($_GET['metadata'])) {
-    if (pwg_get_session_var('show_metadata') == null) {
-		pwg_set_session_var('show_metadata', 1);
+    if (empty($_SESSION['show_metadata'])) {
+		$_SESSION['show_metadata'] =  1;
 	} else {
-        pwg_unset_session_var('show_metadata');
+        unset($_SESSION['show_metadata']);
 	}
 }
 
@@ -123,11 +123,11 @@ function default_picture_content($content, $element_info) {
 
     if (isset($_COOKIE['picture_deriv'])) {
         if (array_key_exists($_COOKIE['picture_deriv'], ImageStdParams::get_defined_type_map())) {
-            pwg_set_session_var('picture_deriv', $_COOKIE['picture_deriv']);
+            $_SESSION['picture_deriv'] = $_COOKIE['picture_deriv'];
         }
         setcookie('picture_deriv', false, 0, cookie_path() );
     }
-    $deriv_type = pwg_get_session_var('picture_deriv', $conf['derivative_default_size']);
+    $deriv_type = isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size'];
     $selected_derivative = $element_info['derivatives'][$deriv_type];
 
     $unique_derivatives = array();
@@ -337,10 +337,10 @@ if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
   $inc_hit_count = false;
 } else {
     // don't increment counter if comming from the same picture (actions)
-    if (pwg_get_session_var('referer_image_id',0) == $page['image_id']) {
+    if (!empty($_SESSION['referer_image_id']) && $_SESSION['referer_image_id'] == $page['image_id']) {
         $inc_hit_count = false;
     }
-    pwg_set_session_var('referer_image_id', $page['image_id']);
+    $_SESSION['referer_image_id'] = $page['image_id'];
 }
 
 // don't increment if adding a comment
@@ -481,8 +481,8 @@ $metadata_showable = trigger_change(
     $picture['current']
 );
 
-if ($metadata_showable and pwg_get_session_var('show_metadata')) {
-    $page['meta_robots']=array('noindex'=>1, 'nofollow'=>1);
+if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
+    $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 }
 
 $page['body_id'] = 'thePicturePage';
@@ -770,7 +770,7 @@ if (isset($picture['next']) and $picture['next']['src_image']->is_original() and
     and strpos(@$_SERVER['HTTP_USER_AGENT'], 'Chrome/') === false) {
     $template->assign(
         'U_PREFETCH',
-        $picture['next']['derivatives'][pwg_get_session_var('picture_deriv', $conf['derivative_default_size'])]->get_url()
+        $picture['next']['derivatives'][isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size']]->get_url()
     );
 }
 
@@ -791,7 +791,7 @@ include(PHPWG_ROOT_PATH.'include/picture_rate.inc.php');
 if ($conf['activate_comments']) {
     include(PHPWG_ROOT_PATH.'include/picture_comment.inc.php');
 }
-if ($metadata_showable and pwg_get_session_var('show_metadata') != null ) {
+if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
     include(PHPWG_ROOT_PATH.'include/picture_metadata.inc.php');
 }
 

@@ -28,6 +28,7 @@ require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Template\Template;
+use Phyxo\Session\SessionDbHandler;
 
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
@@ -95,6 +96,19 @@ if (!$conf['check_upgrade_feed']) {
 
 ImageStdParams::load_from_db();
 
+if (isset($conf['session_save_handler']) && ($conf['session_save_handler'] == 'db') && defined('PHPWG_INSTALLED')) {
+    session_set_save_handler(new SessionDbHandler($conn), true);
+}
+
+if (function_exists('ini_set')) {
+    ini_set('session.use_cookies', $conf['session_use_cookies']);
+    ini_set('session.use_only_cookies', $conf['session_use_only_cookies']);
+    ini_set('session.use_trans_sid', intval($conf['session_use_trans_sid']));
+    ini_set('session.cookie_httponly', 1);
+}
+
+session_set_cookie_params(0, cookie_path());
+register_shutdown_function('session_write_close');
 session_name($conf['session_name']);
 session_start();
 load_plugins();

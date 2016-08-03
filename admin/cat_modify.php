@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -107,7 +107,7 @@ if (isset($_POST['submit'])) {
     );
 
     if ($conf['activate_comments']) {
-        $data['commentable'] = isset($_POST['commentable'])?$_POST['commentable']:'false';
+        $data['commentable'] = isset($_POST['commentable'])?$conn->boolean_to_db($_POST['commentable']):$conn->boolean_to_db(false);
     }
 
     $conn->single_update(
@@ -115,18 +115,18 @@ if (isset($_POST['submit'])) {
         $data,
         array('id' => $data['id'])
     );
-    if ($_POST['apply_commentable_on_sub']) {
+    if (!empty($_POST['apply_commentable_on_sub'])) {
         $subcats = get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET commentable = \''.$data['commentable'].'\''; // @TODO : use boolean_to_db ?
+        $query .= ' SET commentable = \''.$conn->boolean_to_db($data['commentable']).'\'';
         $query .= ' WHERE id '.$conn->in($subcats);
         $conn->db_query($query);
     }
 
-    if ($_POST['apply_commentable_on_sub']) {
+    if (!empty($_POST['apply_commentable_on_sub'])) {
         $subcats = get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET commentable = \''.$data['commentable'].'\'';  // @TODO : use boolean_to_db ?
+        $query .= ' SET commentable = \''.$conn->boolean_to_db($data['commentable']).'\'';
         $query .= ' WHERE id '.$conn->in($subcats);
         $conn->db_query($query);
     }
@@ -134,10 +134,12 @@ if (isset($_POST['submit'])) {
     // retrieve cat infos before continuing (following updates are expensive)
     $cat_info = get_cat_info($_GET['cat_id']);
 
-    if ($_POST['visible']=='true_sub') {
-        set_cat_visible(array($_GET['cat_id']), true, true);
-    } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
-        set_cat_visible(array($_GET['cat_id']), $_POST['visible']);
+    if (!empty($_POST['visible'])) {
+        if ($_POST['visible']=='true_sub') {
+            set_cat_visible(array($_GET['cat_id']), true, true);
+        } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
+            set_cat_visible(array($_GET['cat_id']), $_POST['visible']);
+        }
     }
 
     // in case the use moves his album to the gallery root, we force

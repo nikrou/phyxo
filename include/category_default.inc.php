@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -133,7 +133,7 @@ foreach ($pictures as $row) {
 $template->assign(
     array(
         'derivative_params' => trigger_change('get_index_derivative_params',
-        ImageStdParams::get_by_type(pwg_get_session_var('index_deriv', IMG_THUMB))),
+                                              ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB)),
         'maxRequests' => $conf['max_requests'],
         'SHOW_THUMBNAIL_CAPTION' => $conf['show_thumbnail_caption'],
     )

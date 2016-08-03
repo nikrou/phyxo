@@ -70,11 +70,11 @@ class Server
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            array('Server', 'ws_getMethodList')
+            array('Phyxo\Ws\Server', 'ws_getMethodList')
         );
         $this->addMethod(
             'reflection.getMethodDetails',
-            array('Server', 'ws_getMethodDetails'),
+            array('Phyxo\Ws\Server', 'ws_getMethodDetails'),
             array('methodName')
         );
 

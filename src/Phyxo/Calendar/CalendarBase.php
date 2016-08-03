@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -300,7 +300,7 @@ abstract class CalendarBase
 
         if (!empty($tpl_var)) {
             $existing = $template->smarty->getVariable('chronology_navigation_bars');
-            if (!($existing instanceof \Undefined_Smarty_Variable)) {
+            if (!($existing instanceof \Smarty_Undefined_Variable)) {
                 $existing->value[ sizeof($existing->value)-1 ] = array_merge($existing->value[sizeof($existing->value)-1], $tpl_var);
             } else {
                 $template->append('chronology_navigation_bars', $tpl_var);

@@ -309,8 +309,8 @@ class Users extends BaseRepository
             setcookie($conf['remember_me_name'], '', 0, cookie_path(),ini_get('session.cookie_domain'));
         }
 
-        session_name($conf['session_name']);
-        session_start();
+        //session_name($conf['session_name']);
+        //session_start();
 
         $_SESSION['pwg_uid'] = (int)$user_id;
         $user['id'] = $_SESSION['pwg_uid'];
@@ -373,8 +373,8 @@ class Users extends BaseRepository
             return true;
         }
 
-        // we force the session table to be clean
-        pwg_session_gc();
+        // we force the session table to be clean : @TODO : check why
+        //        pwg_session_gc();
 
         // retrieving the encrypted password of the login submitted
         $query = 'SELECT '.$conf['user_fields']['id'].' AS id,';

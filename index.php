@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -45,9 +45,9 @@ trigger_notify('loc_begin_index');
 //---------------------------------------------- change of image display order
 if (isset($_GET['image_order'])) {
     if ((int) $_GET['image_order'] > 0) {
-        pwg_set_session_var('image_order', (int)$_GET['image_order']);
+        $_SESSION['image_order'] = (int)$_GET['image_order'];
     } else {
-        pwg_unset_session_var('image_order');
+        unset($_SESSION['image_order']);
     }
     redirect(
         duplicate_index_url(
@@ -59,7 +59,7 @@ if (isset($_GET['image_order'])) {
 if (isset($_GET['display'])) {
     $page['meta_robots']['noindex']=1;
     if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
-        pwg_set_session_var('index_deriv', $_GET['display']);
+        $_SESSION['index_deriv'] = $_GET['display'];
     }
 }
 
@@ -219,7 +219,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
     and $page['section'] != 'most_visited'
     and $page['section'] != 'best_rated') {
         $preferred_image_orders = get_category_preferred_image_orders();
-        $order_idx = pwg_get_session_var( 'image_order', 0 );
+        $order_idx = isset($_SESSION['image_order']) ? $_SESSION['image_order'] : 0;
 
         // get first order field and direction
         $first_order = substr($conf['order_by'], 9);

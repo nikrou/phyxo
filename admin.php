@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -48,7 +48,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 // save plugins_new display order (AJAX action)
 if (isset($_GET['plugins_new_order'])) {
-    pwg_set_session_var('plugins_new_order', $_GET['plugins_new_order']);
+    $_SESSION['plugins_new_order'] = $_GET['plugins_new_order']; // @TODO: filter ??
     exit;
 }
 

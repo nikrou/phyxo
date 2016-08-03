@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -34,14 +34,14 @@ if (!get_filter_page_value('cancel')) {
         $filter['matches'] = array();
         $filter['enabled'] = preg_match('/^start-recent-(\d+)$/', $_GET['filter'], $filter['matches']) === 1;
     } else {
-        $filter['enabled'] = pwg_get_session_var('filter_enabled', false);
+        $filter['enabled'] = isset($_SESSION['filter_enabled']) ? $_SESSION['filter_enabled'] : false;
     }
 } else {
     $filter['enabled'] = false;
 }
 
 if ($filter['enabled']) {
-    $filter_key = pwg_get_session_var('filter_check_key', array('user' => 0,'recent_period' => -1, 'time' =>0, 'date' => ''));
+    $filter_key = isset($_SESSION['filter_check_key']) ? $_SESSION['filter_check_key'] : array('user' => 0,'recent_period' => -1, 'time' => 0, 'date' => '');
 
     if (isset($filter['matches'])) {
         $filter['recent_period'] = $filter['matches'][1];
@@ -50,14 +50,14 @@ if ($filter['enabled']) {
     }
 
     if (
-      // New filter
-      !pwg_get_session_var('filter_enabled', false) or
-      // Cache data updated
-      $filter_key['time'] <= $user['cache_update_time'] or
-      // Date, period, user are changed
-      $filter_key['user'] != $user['id'] or
-      $filter_key['recent_period'] != $filter['recent_period'] or
-      $filter_key['date'] != date('Ymd')
+        // New filter
+        empty($_SESSION['filter_enabled']) or
+        // Cache data updated
+        $filter_key['time'] <= $user['cache_update_time'] or
+        // Date, period, user are changed
+        $filter_key['user'] != $user['id'] or
+        $filter_key['recent_period'] != $filter['recent_period'] or
+        $filter_key['date'] != date('Ymd')
     ) {
         // Need to compute dats
         $filter_key = array(
@@ -93,16 +93,16 @@ if ($filter['enabled']) {
         }
 
         // Save filter data on session
-        pwg_set_session_var('filter_enabled', $filter['enabled']);
-        pwg_set_session_var('filter_check_key', $filter_key);
-        pwg_set_session_var('filter_categories', serialize($filter['categories']));
-        pwg_set_session_var('filter_visible_categories', $filter['visible_categories']);
-        pwg_set_session_var('filter_visible_images', $filter['visible_images']);
+        $_SESSION['filter_enabled'] = $filter['enabled'];
+        $_SESSION['filter_check_key'] = $filter_key;
+        $_SESSION['filter_categories'] = $filter['categories'];
+        $_SESSION['filter_visible_categories'] = $filter['visible_categories'];
+        $_SESSION['filter_visible_images'] = $filter['visible_images'];
     } else {
         // Read only data
-        $filter['categories'] = unserialize(pwg_get_session_var('filter_categories', serialize(array())));
-        $filter['visible_categories'] = pwg_get_session_var('filter_visible_categories', '');
-        $filter['visible_images'] = pwg_get_session_var('filter_visible_images', '');
+        $filter['categories'] = isset($_SESSION['filter_categories']) ? $_SESSION['filter_categories'] : array();
+        $filter['visible_categories'] = isset($_SESSION['filter_visible_categories']) ? $_SESSION['filter_visible_categories'] : '';
+        $filter['visible_images'] = isset($_SESSION['filter_visible_images']) ? $_SESSION['filter_visible_images'] : '';
     }
     unset($filter_key);
     if (get_filter_page_value('add_notes')) {
@@ -113,11 +113,8 @@ if ($filter['enabled']) {
     }
     include_once(PHPWG_ROOT_PATH.'include/functions_filter.inc.php');
 } else {
-    if (pwg_get_session_var('filter_enabled', false)) {
-        pwg_unset_session_var('filter_enabled');
-        pwg_unset_session_var('filter_check_key');
-        pwg_unset_session_var('filter_categories');
-        pwg_unset_session_var('filter_visible_categories');
-        pwg_unset_session_var('filter_visible_images');
+    if (!empty($_SESSION['filter_enabled'])) {
+        unset($_SESSION['filter_enabled'], $_SESSION['filter_check_key'], $_SESSION['filter_categories'],
+              $_SESSION['filter_visible_categories'], $_SESSION['filter_visible_images']);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -114,12 +114,12 @@ if ($page['show_comments']) {
     if ($row['nb_comments'] > 0) {
         // comments order (get, session, conf)
         if (!empty($_GET['comments_order']) && in_array(strtoupper($_GET['comments_order']), array('ASC', 'DESC'))) {
-            pwg_set_session_var('comments_order', $_GET['comments_order']);
+            $_SESSION['comments_order'] = $_GET['comments_order'];
         }
-        $comments_order = pwg_get_session_var('comments_order', $conf['comments_order']);
+        $comments_order = isset($_SESSION['comments_order']) ? $_SESSION['comments_order'] : $conf['comments_order'];
 
         $template->assign(array(
-            'COMMENTS_ORDER_URL' => add_url_params( duplicate_picture_url(), array('comments_order'=> ($comments_order == 'ASC' ? 'DESC' : 'ASC') ) ),
+            'COMMENTS_ORDER_URL' => add_url_params(duplicate_picture_url(), array('comments_order'=> ($comments_order == 'ASC' ? 'DESC' : 'ASC'))),
             'COMMENTS_ORDER_TITLE' => $comments_order == 'ASC' ? l10n('Show latest comments first') : l10n('Show oldest comments first'),
         ));
 

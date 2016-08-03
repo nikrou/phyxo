@@ -21,26 +21,16 @@ config: clean
 	rm $(DIST)/$(APP_NAME)/composer.*
 
 	# remove doc and useless stuff
-	rm -fr $(DIST)/vendor/smarty/smarty/development					\
-		$(DIST)/vendor/smarty/smarty/documentation				\
-		$(DIST)/vendor/symfony/http-kernel/Tests				\
-		$(DIST)/vendor/symfony/debug						\
-		$(DIST)/vendor/symfony/routing/Tests					\
-		$(DIST)/vendor/symfony/http-foundation/Tests/CookieTest.php		\
-		$(DIST)/vendor/phpmailer/phpmailer/docs/DomainKeys_notes.txt		\
-		$(DIST)/vendor/phpmailer/phpmailer/examples/styles/shCoreMDUltra.css	\
-		$(DIST)/vendor/phpmailer/phpmailer/test/fakepopserver.sh		\
-		$(DIST)/vendor/smarty/smarty/demo/templates/footer.tpl			\
-		$(DIST)/vendor/guzzlehttp/guzzle/tests/MimetypesTest.php		\
-		$(DIST)/vendor/guzzlehttp/ringphp/docs/index.rst			\
-		$(DIST)/vendor/guzzlehttp/ringphp/tests/Client/MiddlewareTest.php	\
-		$(DIST)/vendor/guzzlehttp/streams/tests/AsyncReadStreamTest.php		\
-		$(DIST)/vendor/guzzlehttp/guzzle/docs/streams.rst			\
-		$(DIST)/vendor/silex/silex/doc/cookbook/sub_requests.rst		\
-		$(DIST)/vendor/silex/silex/tests/Silex/Tests/ControllerResolverTest.php	\
-		$(DIST)/vendor/react/promise/tests/					\
-		$(DIST)/vendor/tedivm/jshrink/tests/Resources/minify/output/144.js	\
-		$(DIST)/vendor/pimple/pimple/tests/bootstrap.php
+	find $(DIST)/vendor -path '*/.git/*'			\
+		-o -path '*/Tests/*'				\
+		-o -path '*/tests/*'				\
+		-o -path '*/Test/*'				\
+		-o -path '*/test/*'				\
+		-o -path '*/docs/*'				\
+		-o -path '*/doc/*'				\
+		-o -path '*/demo/*'				\
+		-o -path '*/documentation/*'			\
+		-o -path '*/examples/*'	| xargs rm -fr ; 	\
 
 	rm -fr $(DIST)/$(APP_NAME)/admin/node_modules \
 		$(DIST)/$(APP_NAME)/admin/bower_components

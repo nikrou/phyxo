@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -28,7 +28,6 @@
 
 include_once(PHPWG_ROOT_PATH .'include/functions_plugins.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_cookie.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_session.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_category.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_html.inc.php');
 include_once(PHPWG_ROOT_PATH .'include/functions_url.inc.php');
@@ -1618,9 +1617,9 @@ function mobile_theme() {
 
     if (isset($_GET['mobile'])) {
         $is_mobile_theme = $conn->get_boolean($_GET['mobile']);
-        pwg_set_session_var('mobile_theme', $is_mobile_theme);
+        $_SESSION['mobile_theme'] = $is_mobile_theme;
     } else {
-        $is_mobile_theme = pwg_get_session_var('mobile_theme');
+        $is_mobile_theme = $_SESSION['mobile_theme'];
     }
 
     return $is_mobile_theme;
