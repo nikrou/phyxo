@@ -29,6 +29,37 @@
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_metadata.php');
 include_once(PHPWG_ROOT_PATH .'include/derivative.inc.php');
 
+
+/**
+ * Generates a pseudo random string.
+ * Characters used are a-z A-Z and numerical values.
+ *
+ * @param int $size
+ * @return string
+ */
+function generate_key($size) {
+    if (is_callable('openssl_random_pseudo_bytes')
+        && !(version_compare(PHP_VERSION, '5.3.4') < 0 and defined('PHP_WINDOWS_VERSION_MAJOR'))) {
+        return substr(
+            str_replace(
+                array('+', '/'),
+                '',
+                base64_encode(openssl_random_pseudo_bytes($size))
+            ),
+            0,
+            $size
+        );
+    } else {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $l = strlen($alphabet)-1;
+        $key = '';
+        for ($i=0; $i<$size; $i++) {
+            $key .= $alphabet[mt_rand(0, $l)];
+        }
+        return $key;
+    }
+}
+
 /**
  * Deletes a site and call delete_categories for each primary category of the site
  *
