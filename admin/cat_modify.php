@@ -98,16 +98,18 @@ if (!isset($_GET['cat_id']) || !is_numeric($_GET['cat_id'])) {
 
 //--------------------------------------------------------- form criteria check
 if (isset($_POST['submit'])) {
-    $data = array(
-        'id' => $_GET['cat_id'],
-        'name' => @$_POST['name'],
-        'comment' =>
-        $conf['allow_html_descriptions'] ?
-        @$_POST['comment'] : strip_tags(@$_POST['comment']),
-    );
+    $data = array('id' => $_GET['cat_id'], 'name' => '', 'comment' => '');
+
+    if (!empty($_POST['name'])) {
+        $data['name'] = $_POST['name'];
+    }
+
+    if (!empty($_POST['comment'])) {
+        $data['comment'] = $conf['allow_html_descriptions'] ? $_POST['comment'] : strip_tags($_POST['comment']);
+    }
 
     if ($conf['activate_comments']) {
-        $data['commentable'] = isset($_POST['commentable'])?$conn->boolean_to_db($_POST['commentable']):$conn->boolean_to_db(false);
+        $data['commentable'] = isset($_POST['commentable']) ? $conn->get_boolean($_POST['commentable']) : false;
     }
 
     $conn->single_update(
@@ -138,7 +140,7 @@ if (isset($_POST['submit'])) {
         if ($_POST['visible']=='true_sub') {
             set_cat_visible(array($_GET['cat_id']), true, true);
         } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
-            set_cat_visible(array($_GET['cat_id']), $_POST['visible']);
+            set_cat_visible(array($_GET['cat_id']), $conn->get_boolean($_POST['visible']));
         }
     }
 
@@ -210,17 +212,10 @@ $template->assign(
         'CAT_NAME' => @htmlspecialchars($category['name']),
         'CAT_COMMENT' => @htmlspecialchars($category['comment']),
         'CAT_VISIBLE' => $conn->boolean_to_string($category['visible']),
-
-        'U_JUMPTO' => make_index_url(
-            array(
-                'category' => $category
-            )
-        ),
-
+        'U_JUMPTO' => make_index_url(array('category' => $category)),
         'U_ADD_PHOTOS_ALBUM' => $base_url.'photos_add&amp;album='.$category['id'],
         'U_CHILDREN' => $cat_list_url.'&amp;parent_id='.$category['id'],
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_modify',
-
         'F_ACTION' => $form_action,
     )
 );

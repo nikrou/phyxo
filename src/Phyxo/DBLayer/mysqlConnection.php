@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -387,7 +387,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function getMaxAllowedPacket() {
+    private function getMaxAllowedPacket() {
         $query = 'SHOW VARIABLES LIKE \'max_allowed_packet\'';
         list(, $packet_size) = $this->db_fetch_row($this->db_query($query));
     }

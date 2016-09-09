@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -26,7 +26,7 @@ use atoum;
 
 class DBLayer extends atoum
 {
-    public function _testPublicMethods($dblayer, $dblayer_extra_methods) {
+    public function testPublicMethods($dblayer, $dblayer_extra_methods) {
         $class_name = sprintf('\Phyxo\DBLayer\%sConnection', $dblayer);
 
         // method not overriden
@@ -98,6 +98,28 @@ class DBLayer extends atoum
                   ->once();
     }
 
+    public function testSignleUpdate($dblayer, $query) {
+        $controller = new \atoum\mock\controller();
+		$controller->__construct = function() {};
+
+        $class_name = sprintf('\mock\Phyxo\DBLayer\%sConnection', $dblayer);
+        $conn = new $class_name('', '', '', '', $controller);
+        $this->calling($conn)->db_real_escape_string = function($s) {
+            return $s;
+        };
+        $this
+            ->if($conn->single_update(
+                'dummy',
+                array('id' => 1, 'name' => 'my name', 'comment' => ''),
+                array('id' => 1)
+            ))
+            ->then()
+                  ->mock($conn)
+                  ->call('db_query')
+                  ->withIdenticalArguments($query)
+                  ->once();
+    }
+
     /**
      */
     protected function testPublicMethodsDataProvider() {
@@ -132,6 +154,15 @@ class DBLayer extends atoum
             array('mysql', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
             array('mysqli', "INSERT IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')"),
             array('sqlite', "INSERT OR IGNORE INTO dummy (user_id,cat_id) VALUES('1','10')")
+        );
+    }
+
+    protected function testSignleUpdateDataProvider() {
+        return array(
+            array('pgsql', "UPDATE dummy SET id = '1', name = 'my name', comment = NULL WHERE id = '1'"),
+            array('mysql', "UPDATE dummy SET id = '1', name = 'my name', comment = NULL WHERE id = '1'"),
+            array('mysqli', "UPDATE dummy SET id = '1', name = 'my name', comment = NULL WHERE id = '1'"),
+            array('sqlite', "UPDATE dummy SET id = '1', name = 'my name', comment = NULL WHERE id = '1'"),
         );
     }
 

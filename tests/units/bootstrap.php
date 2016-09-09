@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -25,7 +25,7 @@ define('PHPWG_ROOT_PATH', './../../');
 define('PHPWG_THEMES_PATH', __DIR__.'/fixtures/themes/');
 define('PHPWG_PLUGINS_PATH', __DIR__.'/fixtures/plugins/');
 define('PHPWG_LANGUAGES_PATH', __DIR__.'/fixtures/language/');
-
+define('MASS_UPDATES_SKIP_EMPTY', false);
 
 $conf['admin_theme'] = 'default';
 

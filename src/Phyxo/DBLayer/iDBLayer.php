@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -392,6 +392,16 @@ interface iDBLayer
      * @return void
      */
     public function mass_inserts($table_name, $dbfields, $datas);
+
+    /**
+     * deletes multiple lines in a table
+     *
+     * @param string table_name
+     * @param array dbfields
+     * @param array datas
+     * @return void
+     */
+    public function mass_deletes($tablename, array $dbfields, array $datas);
 
     /**
      * Do maintenance on all Phyxo tables

@@ -386,9 +386,24 @@ DIV.comment BLOCKQUOTE {
  * below the label. Use an UL to make a group (radiobox for instance).
  * Use a SPAN to group objects in line
  */
-FIELDSET {
-	padding: 1em;
-	margin: 1em;
+fieldset {
+    padding: 1em;
+    margin: 1em;
+}
+
+.vertical-form label {
+    display: block;
+    font-weight: bold;
+}
+
+.vertical-form .radio label, .vertical-form .checkbox label {
+    display: inline-block;
+    font-weight: normal;
+}
+
+.content .vertical-form h3 {
+    font-size: 13px;
+    text-align: left;
 }
 
 FORM.filter FIELDSET UL {
