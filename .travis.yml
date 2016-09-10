@@ -14,9 +14,9 @@ env:
 
 before_script:
   - composer install
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'drop database if exists phyxo;';fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database phyxo;';fi"
-  - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/database.inc.mysql.travis.php local/config/database.inc.php;fi"
+  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -e 'drop database if exists phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -e 'create database phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysqli' ]; then cp -p local/config/database.inc.mysql.travis.php local/config/database.inc.php;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo;' -U postgres; fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo;' -U postgres ;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/database.inc.pgsql.travis.php local/config/database.inc.php;fi"
@@ -27,4 +27,4 @@ before_script:
 
 script:
   - php ./bin/atoum
-  # - php ./bin/behat -c behat.yml.travis.dist
+  - php ./bin/behat -c behat.yml.travis.dist
