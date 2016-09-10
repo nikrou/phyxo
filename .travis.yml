@@ -1,6 +1,5 @@
 language: php
 php:
-  #  - "5.5"
   - "5.6"
   - "7.0"
 
@@ -9,7 +8,7 @@ services:
   - postgresql
 
 env:
-  - DB=mysql
+  - DB=mysqli
   - DB=pgsql
   - DB=sqlite
 

@@ -22,7 +22,8 @@ Feature: API
   Scenario: Get images in album
     Given I am authenticated for api as "user1" with password "pass1"
     When I send a GET request to "pwg.categories.getImages" with values:
-      | album | album 1 |
+      | album       | album 1        |
+      | order       | id ASC         |
     Then the response code should be 200
     And the response is JSON
     And the response has property "result/images"

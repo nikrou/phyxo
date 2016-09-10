@@ -32,6 +32,7 @@ Feature: API
       Given I am authenticated for api as "user1" with password "pass1"
       When I send a POST request to "pwg.tags.getImages" with values:
         | tag_name | tag2      |
+        | order    | file desc |
       Then the response code should be 200
       And the response has property "result/images" with size 2
       And the response has property "result/images/0/name" equals to "photo 2"

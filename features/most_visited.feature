@@ -28,4 +28,3 @@ Feature: See most visited photos
     And I follow "photo 1"
     And I go to the homepage
     And I follow "Most visited"
-    Then print last response

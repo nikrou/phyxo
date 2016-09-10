@@ -65,7 +65,7 @@ class FeatureContext extends MinkContext
      */
     public function iAmLoggedInAsWithPasswordAndAutoLogin($username, $password) {
         $this->iAmLoggedInAsWithPassword($username, $password, true);
-        $this->getMink()->assertSession()->cookieExists('phyxo_id');
+        $this->getMink()->assertSession()->cookieExists('pwg_id');
         $this->getMink()->assertSession()->cookieExists('phyxo_remember');
     }
 
