@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -59,7 +59,7 @@ $template->set_filename('cat_move', 'cat_move.tpl');
 $template->assign(
     array(
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_move',
-        'F_ACTION' => get_root_url().'admin.php?page=cat_move',
+        'F_ACTION' => get_root_url().'admin/index.php?page=cat_move',
     )
 );
 

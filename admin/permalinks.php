@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -132,7 +132,7 @@ $sort_by = parse_sort_variables(
     'SORT_OLD_', '#old_permalinks'
 );
 
-$url_del_base = get_root_url().'admin.php?page=permalinks';
+$url_del_base = get_root_url().'admin/index.php?page=permalinks';
 $query = 'SELECT * FROM '.OLD_PERMALINKS_TABLE;
 if (count($sort_by)) {
     $query .= ' ORDER BY '.$sort_by[0];

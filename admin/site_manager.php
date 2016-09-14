@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -98,7 +98,7 @@ if (isset($_GET['action']) and isset($page['site'])) {
 
 $template->assign(
     array(
-        'F_ACTION'  => get_root_url().'admin.php'.get_query_string_diff(array('action','site','pwg_token')),
+        'F_ACTION'  => get_root_url().'admin/index.php'.get_query_string_diff(array('action','site','pwg_token')),
         'PWG_TOKEN' => get_pwg_token(),
     )
 );
@@ -113,13 +113,13 @@ $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
     $is_remote = url_is_remote($row['galleries_url']);
-    $base_url = PHPWG_ROOT_PATH.'admin.php';
+    $base_url = get_root_url().'admin/index.php';
     $base_url.= '?page=site_manager';
     $base_url.= '&amp;site='.$row['id'];
     $base_url.= '&amp;pwg_token='.get_pwg_token();
     $base_url.= '&amp;action=';
 
-    $update_url = PHPWG_ROOT_PATH.'admin.php';
+    $update_url = get_root_url().'admin/index.php';
     $update_url.= '?page=site_update';
     $update_url.= '&amp;site='.$row['id'];
 

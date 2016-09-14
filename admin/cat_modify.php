@@ -189,15 +189,15 @@ $category['has_images'] = $conn->db_num_rows($result)>0 ? true : false;
 // Navigation path
 $navigation = get_cat_display_name_cache(
     $category['uppercats'],
-    get_root_url().'admin.php?page=album-'
+    get_root_url().'admin/index.php?page=album-'
 );
 
 $form_action = $admin_album_base_url.'-properties';
 
 //----------------------------------------------------- template initialization
-$template->set_filename( 'album_properties', 'cat_modify.tpl');
+$template->set_filename('album_properties', 'cat_modify.tpl');
 
-$base_url = get_root_url().'admin.php?page=';
+$base_url = get_root_url().'admin/index.php?page=';
 $cat_list_url = $base_url.'cat_list';
 
 $self_url = $cat_list_url;
@@ -209,8 +209,8 @@ $template->assign(
     array(
         'CATEGORIES_NAV' => $navigation,
         'CAT_ID' => $category['id'],
-        'CAT_NAME' => @htmlspecialchars($category['name']),
-        'CAT_COMMENT' => @htmlspecialchars($category['comment']),
+        'CAT_NAME' => @htmlspecialchars($category['name']), // @TODO: remove arobase
+        'CAT_COMMENT' => @htmlspecialchars($category['comment']), // @TODO: remove arobase
         'CAT_VISIBLE' => $conn->boolean_to_string($category['visible']),
         'U_JUMPTO' => make_index_url(array('category' => $category)),
         'U_ADD_PHOTOS_ALBUM' => $base_url.'photos_add&amp;album='.$category['id'],
@@ -292,10 +292,10 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     // representant ?
     if (!empty($category['representative_picture_id'])) {
         $query = 'SELECT id,representative_ext,path FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id = '.$category['representative_picture_id'].';';
+        $query .= ' WHERE id = '.$category['representative_picture_id'];
         $row = $conn->db_fetch_assoc($conn->db_query($query));
         $src = DerivativeImage::thumb_url($row);
-        $url = get_root_url().'admin.php?page=photo-'.$category['representative_picture_id'];
+        $url = get_root_url().'admin/index.php?page=photo-'.$category['representative_picture_id'];
 
         $tpl_representant['picture'] =
             array(

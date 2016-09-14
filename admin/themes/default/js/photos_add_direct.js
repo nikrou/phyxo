@@ -1,121 +1,107 @@
-$(function(){
-	$("#uploadWarningsSummary a.showInfo").click(function() {
-		$("#uploadWarningsSummary").hide();
-		$("#uploadWarnings").show();
-		return false;
-	});
+$(function() {
+    $("#uploadWarningsSummary a.showInfo").click(function() {
+	$("#uploadWarningsSummary").hide();
+	$("#uploadWarnings").show();
+	return false;
+    });
 
-	$("#showPermissions").click(function() {
-		$(this).parent(".showFieldset").hide();
-		$("#permissions").show();
-		return false;
-	});
+    $("#showPermissions").click(function() {
+	jQuery(this).parent(".showFieldset").hide();
+	jQuery("#permissions").show();
+	return false;
+    });
 
-	$("#uploader").pluploadQueue({
-		// General settings
-		// runtimes : 'html5,flash,silverlight,html4',
-		runtimes : 'html5',
+    $("#uploader").pluploadQueue({
+	browse_button : 'addFiles',
+	runtimes : 'html5',
+	url : '../ws.php?method=pwg.images.upload&format=json',
+	chunk_size: '500kb',
+	filters : {
+	    max_file_size : '1000mb',
+	    mime_types: [
+		{title : "Image files", extensions : "jpg,jpeg,png,gif"} // @TODO: retrieve from conf
+	    ]
+	},
+	dragdrop: true,
+	preinit: {
+	    Init: function (up, info) {
+		$('#uploader_container').removeAttr("title");
 
-		// url : '../upload.php',
-		url : 'ws.php?method=pwg.images.upload&format=json',
+		$('#startUpload').on('click', function(e) {
+		    e.preventDefault();
+		    up.start();
+		});
 
-		// User can upload no more then 20 files in one go (sets multiple_queues to false)
-		max_file_count: 100,
+		$('#cancelUpload').on('click', function(e) {
+		    e.preventDefault();
+		    up.stop();
+		    up.trigger('UploadComplete', up.files);
+		});
+	    }
+	},
 
-		chunk_size: '500kb',
+	init : {
+	    // update custom button state on queue change
+	    QueueChanged : function(up) {
+		$('#startUpload').prop('disabled', up.files.length == 0);
+	    },
 
-		filters : {
-			// Maximum file size
-			max_file_size : '1000mb',
-			// Specify what files to browse for
-			mime_types: [
-				{title : "Image files", extensions : "jpeg,jpg,gif,png"},
-				{title : "Zip files", extensions : "zip"}
-			]
-		},
+	    UploadProgress: function(up, file) {
+		$('#uploadingActions .progressbar').width(up.total.percent+'%');
+	    },
 
-		// Rename files by clicking on their titles
-		// rename: true,
+	    BeforeUpload: function(up, file) {
+		$('#startUpload, #addFiles').hide();
+		$('#uploadingActions').show();
 
-		// Sort files
-		sortable: true,
+		$(window).bind('beforeunload', function() {
+		    return "Upload in progress";
+		});
 
-		// Enable ability to drag'n'drop files onto the widget (currently only HTML5 supports that)
-		dragdrop: true,
+		$("select[name=level]").attr("disabled", "disabled");
+		up.setOption(
+		    'multipart_params',
+		    {
+			category : $("select[name=category] option:selected").val(),
+			level : $("select[name=level] option:selected").val(),
+			pwg_token : pwg_token
+		    }
+		);
+	    },
 
-		preinit: {
-			Init: function (up, info) {
-				jQuery('#uploader_container').removeAttr("title"); //remove the "using runtime" text
-			}
-		},
+	    FileUploaded: function(up, file, info) {
+		$('#'+file.id).hide();
+		var data = $.parseJSON(info.response);
+		$("#uploadedPhotos").parent("fieldset").show();
+		html = '<a href="./index.php?page=photo-'+data.result.image_id+'">';
+		html += '<img src="'+data.result.src+'" class="thumbnail" title="'+data.result.name+'">';
+		html += '</a> ';
 
-		init : {
-			BeforeUpload: function(up, file) {
-				console.log('[BeforeUpload]', file);
+		$("#uploadedPhotos").prepend(html);
 
-				// no more change on category/level
-				$("select[name=level]").attr("disabled", "disabled");
+		uploadedPhotos.push(parseInt(data.result.image_id));
+		uploadCategory = data.result.category;
+	    },
 
-				// You can override settings before the file is uploaded
-				// up.setOption('url', 'upload.php?id=' + file.id);
-				up.setOption(
-					'multipart_params',
-					{
-						category : $("select[name=category] option:selected").val(),
-						level : jQuery("select[name=level] option:selected").val(),
-						pwg_token : pwg_token
-						// name : file.name
-					}
-				);
-			},
+	    UploadComplete: function(up, files) {
+		$(".selectAlbum, .selectFiles, #permissions, .showFieldset").hide();
+		$(".infos").append('<ul><li>'+sprintf(photosUploaded_label, uploadedPhotos.length)+'</li></ul>');
 
-			FileUploaded: function(up, file, info) {
-				// Called when file has finished uploading
-				console.log('[FileUploaded] File:', file, "Info:", info);
+		html = sprintf(
+		    albumSummary_label,
+		    '<a href="./index.php?page=album-'+uploadCategory.id+'">'+uploadCategory.label+'</a>',
+		    parseInt(uploadCategory.nb_photos)
+		);
+		$(".infos ul").append('<li>'+html+'</li>');
+		$(".infos").show();
 
-				var data = jQuery.parseJSON(info.response);
+		$(".batchLink").attr("href", "./index.php?page=photos_add&section=direct&batch="+uploadedPhotos.join(","));
+		$(".batchLink").html(sprintf(batch_Label, uploadedPhotos.length));
 
-				$("#uploadedPhotos").parent("fieldset").show();
-
-				html = '<a href="admin.php?page=photo-'+data.result.image_id+'" target="_blank">';
-				html += '<img src="'+data.result.src+'" class="thumbnail" title="'+data.result.name+'">';
-				html += '</a> ';
-
-				jQuery("#uploadedPhotos").prepend(html);
-
-				// do not remove file, or it will reset the progress bar :-/
-				// up.removeFile(file);
-				uploadedPhotos.push(parseInt(data.result.image_id));
-				uploadCategory = data.result.category;
-			},
-
-			UploadComplete: function(up, files) {
-				// Called when all files are either uploaded or failed
-				console.log('[UploadComplete]');
-
-				$(".selectAlbum, .selectFiles, #permissions, .showFieldset").hide();
-
-				$(".infos").append('<ul><li>'+sprintf(photosUploaded_label, uploadedPhotos.length)+'</li></ul>');
-
-				html = sprintf(
-					albumSummary_label,
-					'<a href="admin.php?page=album-'+uploadCategory.id+'">'+uploadCategory.label+'</a>',
-					parseInt(uploadCategory.nb_photos)
-				);
-
-				$(".infos ul").append('<li>'+html+'</li>');
-
-				$(".infos").show();
-
-				// TODO: use a new method pwg.caddie.empty +
-				// pwg.caddie.add(uploadedPhotos) instead of relying on huge GET parameter
-				// (and remove useless code from admin/photos_add_direct.php)
-
-				$(".batchLink").attr("href", "admin.php?page=photos_add&section=direct&batch="+uploadedPhotos.join(","));
-				$(".batchLink").html(sprintf(batch_Label, uploadedPhotos.length));
-
-				$(".afterUploadActions").show();
-			}
-		}
-	});
+		$(".afterUploadActions").show();
+		$('#uploadingActions').hide();
+		$(window).unbind('beforeunload');
+	    }
+	}
+    });
 });

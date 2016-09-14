@@ -176,7 +176,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
     if (isset($page['category']) and $services['users']->isAdmin()) {
         $template->assign(
             'U_EDIT',
-            get_root_url().'admin.php?page=album-'.$page['category']['id']
+            get_root_url().'admin/index.php?page=album-'.$page['category']['id']
         );
     }
 

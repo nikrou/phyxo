@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +29,7 @@
 function get_admin_plugin_menu_link($file) {
     global $page;
     $real_file = realpath($file);
-    $url = get_root_url().'admin.php?page=plugin';
+    $url = get_root_url().'admin/index.php?page=plugin';
     if (false!==$real_file) {
         $real_plugin_path = rtrim(realpath(PHPWG_PLUGINS_PATH), '\\/');
         $file = substr($real_file, strlen($real_plugin_path)+1);

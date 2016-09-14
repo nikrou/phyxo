@@ -115,7 +115,7 @@ $template->assign(
         'CATEGORIES_NAV' =>
         get_cat_display_name_from_id(
             $page['cat'],
-            'admin.php?page=album-'
+            'admin/index.php?page=album-'
         ),
         'F_ACTION' => $admin_album_base_url.'-notification',
         'PWG_TOKEN' => get_pwg_token(),

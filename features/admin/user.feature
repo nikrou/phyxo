@@ -12,7 +12,7 @@ Feature: Create new access
   @javascript
   Scenario: Create new user
     Given I am logged in as "user1" with password "pass1"
-    When I go to "admin.php?page=user_list"
+    When I go to "admin/index.php?page=user_list"
     And I follow "Add a user"
     And I fill in "username" with "John Doe"
     And I fill in "email" with "john.doe@phyxo.net"
@@ -23,17 +23,15 @@ Feature: Create new access
     And I should see "User" in the "#userList tr:nth-child(4) td:nth-child(2)" element
     And I should see "john.doe@phyxo.net" in the "#userList tr:nth-child(4) td:nth-child(3)" element
 
-  # need an album
-  # @javascript
-  # Scenario: Create new user and connect with him
-  #   Given I am logged in as "user1" with password "pass1"
-  #   When I go to "admin.php?page=user_list"
-  #   And I follow "Add a user"
-  #   And I fill in "username" with "user2"
-  #   And I fill in "password" with "pass2"
-  #   And I press "Submit"
-  #   Then I wait for message "infos" to appear
-  #   And I should see "User user2 added"
-  #   Given I am logged in as "user2" with password "pass2"
-  #   Then print last response
-  #   Then I should see "Hello user2"
+  @javascript
+  Scenario: Create new user and connect with him
+    Given I am logged in as "user1" with password "pass1"
+    When I go to "admin/index.php?page=user_list"
+    And I follow "Add a user"
+    And I fill in "username" with "user2"
+    And I fill in "password" with "pass2"
+    And I press "Submit"
+    Then I wait for message "infos" to appear
+    And I should see "User user2 added"
+    Given I am logged in as "user2" with password "pass2"
+    Then I should see "Hello user2"

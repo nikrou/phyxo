@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -329,7 +329,7 @@ class Themes
 
             $admin_file = dirname($themeconf).'/admin/admin.inc.php';
             if (file_exists($admin_file)) {
-                $theme['admin_uri'] = \get_root_url().'admin.php?page=theme&theme='.$theme_dir;
+                $theme['admin_uri'] = \get_root_url().'admin/index.php?page=theme&theme='.$theme_dir;
             }
 
             $this->fs_themes[$theme_dir] = $theme;

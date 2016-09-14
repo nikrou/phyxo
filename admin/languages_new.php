@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,7 +31,7 @@ require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 use Phyxo\Language\Languages;
 
 $template->set_filenames(array('languages' => 'languages_new.tpl'));
-$base_url = get_root_url().'admin.php?page='.$page['page'].'&tab='.$page['tab'];
+$base_url = get_root_url().'admin/index.php?page='.$page['page'].'&tab='.$page['tab'];
 
 $languages = new Languages($conn);
 $languages->get_db_languages();

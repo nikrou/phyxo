@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -35,7 +35,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
-$admin_photo_base_url = get_root_url().'admin.php?page=photo-'.$_GET['image_id'];
+$admin_photo_base_url = get_root_url().'admin/index.php?page=photo-'.$_GET['image_id'];
 
 if (isset($_GET['cat_id'])) {
     $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.(int) $_GET['cat_id'];

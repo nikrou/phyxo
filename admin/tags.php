@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -42,7 +42,7 @@ if (!empty($_GET['section'])) {
 }
 $tpl_tags = 'tags_'.$page['section'].'.tpl';
 
-$admin_tags_base_url = get_root_url().'admin.php?page=tags';
+$admin_tags_base_url = get_root_url().'admin/index.php?page=tags';
 $tabsheet = new TabSheet();
 $tabsheet->set_id('tags');
 $tabsheet->select($page['section']);
@@ -58,7 +58,7 @@ $template->set_filenames(array('tags' => $tpl_tags));
 
 $template->assign(
     array(
-        'F_ACTION' => PHPWG_ROOT_PATH.'admin.php?page=tags&amp;section='.$page['section'],
+        'F_ACTION' => get_root_url().'admin/index.php?page=tags&amp;section='.$page['section'],
         'PWG_TOKEN' => get_pwg_token(),
     )
 );

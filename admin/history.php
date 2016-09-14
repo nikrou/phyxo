@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -123,7 +123,7 @@ if (isset($_POST['submit'])) {
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(PHPWG_ROOT_PATH.'admin.php?page=history&search_id='.$search_id);
+        redirect(PHPWG_ROOT_PATH.'admin/index.php?page=history&search_id='.$search_id);
     } else {
         $page['errors'][] = l10n('Empty query. No criteria has been entered.');
     }
@@ -141,7 +141,7 @@ history_tabsheet();
 $template->assign(
     array(
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=history',
-        'F_ACTION' => get_root_url().'admin.php?page=history'
+        'F_ACTION' => get_root_url().'admin/index.php?page=history'
     )
 );
 
@@ -170,7 +170,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(PHPWG_ROOT_PATH.'admin.php?page=history&search_id='.$search_id);
+        redirect(get_root_url().'admin/index.php?page=history&search_id='.$search_id);
     }
 
     /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
@@ -279,7 +279,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
             $user_string .= $line['user_id'];
         }
         $user_string .= '&nbsp;<a href="';
-        $user_string .= PHPWG_ROOT_PATH.'admin.php?page=history';
+        $user_string .= get_root_url().'admin/index.php?page=history';
         $user_string .= '&amp;search_id='.$page['search_id'];
         $user_string .= '&amp;user_id='.$line['user_id'];
         $user_string .= '">+</a>';
@@ -384,7 +384,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     $member_strings = array();
     foreach ($username_of as $user_id => $user_name) {
         $member_string = $user_name.'&nbsp;<a href="';
-        $member_string.= get_root_url().'admin.php?page=history';
+        $member_string.= get_root_url().'admin/index.php?page=history';
         $member_string.= '&amp;search_id='.$page['search_id'];
         $member_string.= '&amp;user_id='.$user_id;
         $member_string.= '">+</a>';
@@ -424,7 +424,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
 if (isset($page['search_id'])) {
     $navbar = create_navigation_bar(
-        get_root_url().'admin.php'.get_query_string_diff(array('start')),
+        get_root_url().'admin/index.php'.get_query_string_diff(array('start')),
         $page['nb_lines'],
         $page['start'],
         $conf['nb_logs_page']

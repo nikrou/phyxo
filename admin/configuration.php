@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -261,7 +261,7 @@ $tabsheet->set_id('configuration');
 $tabsheet->select($page['section']);
 $tabsheet->assign();
 
-$action = get_root_url().'admin.php?page=configuration';
+$action = get_root_url().'admin/index.php?page=configuration';
 $action .= '&amp;section='.$page['section'];
 
 $template->assign(

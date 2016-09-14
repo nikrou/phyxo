@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -737,7 +737,7 @@ $conf['data_location'] = '_data/';
 $conf['upload_dir'] = './upload';
 
 // where should the user be guided when there is no photo in his gallery yet?
-$conf['no_photo_yet_url'] = 'admin.php?page=photos_add';
+$conf['no_photo_yet_url'] = 'admin/index.php?page=photos_add';
 
 // directory with themes inside
 $conf['themes_dir'] = PHPWG_ROOT_PATH.'themes';

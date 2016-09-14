@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -50,13 +50,13 @@ switch ($action)
 {
 case 'lock_gallery' : {
     conf_update_param('gallery_locked', 'true');
-    redirect(get_root_url().'admin.php?page=maintenance');
+    redirect(get_root_url().'admin/index.php?page=maintenance');
     break;
 }
 case 'unlock_gallery' : {
     conf_update_param('gallery_locked', 'false');
     $_SESSION['page_infos'] = array(l10n('Gallery unlocked'));
-    redirect(get_root_url().'admin.php?page=maintenance');
+    redirect(get_root_url().'admin/index.php?page=maintenance');
     break;
 }
 case 'categories' : {
@@ -134,15 +134,15 @@ default : {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('maintenance'=>'maintenance.tpl'));
+$template->set_filenames(array('maintenance' => 'maintenance.tpl'));
 
-$url_format = get_root_url().'admin.php?page=maintenance&amp;action=%s&amp;pwg_token='.get_pwg_token();
+$url_format = get_root_url().'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token='.get_pwg_token();
 
 $purge_urls[l10n('All')] = sprintf($url_format, 'derivatives').'&amp;type=all';
 foreach(ImageStdParams::get_defined_type_map() as $params) {
-    $purge_urls[ l10n($params->type) ] = sprintf($url_format, 'derivatives').'&amp;type='.$params->type;
+    $purge_urls[l10n($params->type)] = sprintf($url_format, 'derivatives').'&amp;type='.$params->type;
 }
-$purge_urls[ l10n(IMG_CUSTOM) ] = sprintf($url_format, 'derivatives').'&amp;type='.IMG_CUSTOM;
+$purge_urls[l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives').'&amp;type='.IMG_CUSTOM;
 
 $template->assign(
     array(

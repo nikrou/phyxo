@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -139,8 +139,8 @@ $template->assign(
         'DB_USERS' => l10n_dec('%d user', '%d users', $nb_users),
         'DB_GROUPS' => l10n_dec('%d group', '%d groups', $nb_groups),
         'DB_RATES' => ($nb_rates == 0) ? l10n('no rate') : l10n('%d rates', $nb_rates),
-        'U_CHECK_UPGRADE' => PHPWG_ROOT_PATH.'admin.php?action=check_upgrade',
-        'U_PHPINFO' => PHPWG_ROOT_PATH.'admin.php?action=phpinfo',
+        'U_CHECK_UPGRADE' => get_root_url().'admin/index.php?action=check_upgrade',
+        'U_PHPINFO' => get_root_url().'admin/index.php?action=phpinfo',
         'PHP_DATATIME' => $php_current_timestamp,
         'DB_DATATIME' => $db_current_date,
     )

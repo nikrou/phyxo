@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,7 +70,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     $page['prefilter'] = $_SESSION['bulk_manager_filter']['prefilter'];
 }
 
-$redirect_url = get_root_url().'admin.php?page='.$_GET['page'];
+$redirect_url = get_root_url().'admin/index.php?page='.$_GET['page'];
 
 if (isset($_POST['submit'])) {
     // if the user tries to apply an action, it means that there is at least 1
@@ -260,7 +260,7 @@ if (isset($_POST['submit'])) {
                     $deleted_count
                 );
 
-                $redirect_url = get_root_url().'admin.php?page='.$_GET['page'];
+                $redirect_url = get_root_url().'admin/index.php?page='.$_GET['page'];
                 $redirect = true;
             } else {
                 $page['errors'][] = l10n('No photo can be deleted');
@@ -305,7 +305,7 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 $template->set_filenames(array('batch_manager_global' => 'batch_manager_global.tpl'));
 
-$base_url = get_root_url().'admin.php';
+$base_url = get_root_url().'admin/index.php';
 
 $prefilters = array(
     array('ID' => 'caddie', 'NAME' => l10n('Caddie')),
@@ -516,7 +516,7 @@ if (count($page['cat_elements_id']) > 0) {
                 'thumb' => new DerivativeImage($thumb_params, $src_image),
                 'TITLE' => $ttitle,
                 'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                'U_EDIT' => get_root_url().'admin.php?page=photo-'.$row['id'],
+                'U_EDIT' => get_root_url().'admin/index.php?page=photo-'.$row['id'],
             ))
         );
     }

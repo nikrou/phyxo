@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -103,7 +103,7 @@ if (isset($_POST['submit'])) {
 
 $template->set_filenames(array('batch_manager_unit' => 'batch_manager_unit.tpl'));
 
-$base_url = PHPWG_ROOT_PATH.'admin.php';
+$base_url = PHPWG_ROOT_PATH.'admin/index.php';
 
 $template->assign(
     array(
@@ -166,7 +166,7 @@ if (count($page['cat_elements_id']) > 0) {
     }
 
     $query .= ' '.$conf['order_by'].' LIMIT '.$conn->db_real_escape_string($page['nb_images']);
-    $query .= ' OFFSET '.$conn->db_real_escape_string($page['start']).';';
+    $query .= ' OFFSET '.$conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 
     // @TODO : query in a loop ???? getTagsList is another query
@@ -192,11 +192,11 @@ if (count($page['cat_elements_id']) > 0) {
                 'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
                 'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
                 'LEGEND' => $legend,
-                'U_EDIT' => get_root_url().'admin.php?page=photo-'.$row['id'],
-                'NAME' => htmlspecialchars(@$row['name']),
-                'AUTHOR' => htmlspecialchars(@$row['author']),
+                'U_EDIT' => get_root_url().'admin/index.php?page=photo-'.$row['id'],
+                'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
+                'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
                 'LEVEL' => !empty($row['level'])?$row['level']:'0',
-                'DESCRIPTION' => htmlspecialchars(@$row['comment']),
+                'DESCRIPTION' => htmlspecialchars(@$row['comment']), // @TODO: remove arobase
                 'DATE_CREATION' => $row['date_creation'],
                 'TAGS' => $tag_selection,
             ))

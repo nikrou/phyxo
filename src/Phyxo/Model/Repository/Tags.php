@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -62,7 +62,7 @@ class Tags extends BaseRepository
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['thumb_src'] = \DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
-            $row['picture_url'] = get_root_url().'admin.php?page=photo-'.$row['image_id'];
+            $row['picture_url'] = get_root_url().'admin/index.php?page=photo-'.$row['image_id'];
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }

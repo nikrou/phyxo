@@ -35,7 +35,7 @@ jQuery.fn.pwgAddAlbum = function(options) {
           target = $popup.data('target');
 
       jQuery.ajax({
-        url: 'ws.php?format=json',
+        url: '../ws.php?format=json',
         type: 'POST',
         dataType: 'json',
         data: {

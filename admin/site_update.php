@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -663,7 +663,7 @@ if ($site_is_remote and !isset($_POST['submit']) ) {
 $template->assign(
     array(
         'SITE_URL'=>$site_url,
-        'U_SITE_MANAGER'=> get_root_url().'admin.php?page=site_manager',
+        'U_SITE_MANAGER'=> get_root_url().'admin/index.php?page=site_manager',
         'L_RESULT_UPDATE'=>$result_title.l10n('Search for new images in the directories'),
         'L_RESULT_METADATA'=>$result_title.l10n('Metadata synchronization results'),
         'METADATA_LIST' => $used_metadata,

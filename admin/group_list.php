@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -34,7 +34,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
 include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
-$my_base_url = get_root_url().'admin.php?page=';
+$my_base_url = get_root_url().'admin/index.php?page=';
 
 $tabsheet = new tabsheet();
 $tabsheet->set_id('groups');
@@ -267,7 +267,7 @@ $template->set_filenames(array('group_list' => 'group_list.tpl'));
 
 $template->assign(
     array(
-        'F_ADD_ACTION' => get_root_url().'admin.php?page=group_list',
+        'F_ADD_ACTION' => get_root_url().'admin/index.php?page=group_list',
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=group_list',
         'PWG_TOKEN' => get_pwg_token(),
     )
@@ -280,7 +280,7 @@ $template->assign(
 $query = 'SELECT id, name, is_default FROM '.GROUPS_TABLE.' ORDER BY name ASC';
 $result = $conn->db_query($query);
 
-$admin_url = get_root_url().'admin.php?page=';
+$admin_url = get_root_url().'admin/index.php?page=';
 $perm_url = $admin_url.'group_perm&amp;group_id=';
 $del_url = $admin_url.'group_list&amp;delete=';
 $toggle_is_default_url = $admin_url.'group_list&amp;toggle_is_default=';

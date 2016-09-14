@@ -31,7 +31,7 @@ require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 use Phyxo\Plugin\Plugins;
 
 $template->set_filenames(array('plugins' => 'plugins_new.tpl'));
-$base_url = get_root_url().'admin.php?page='.$page['page'].'&tab='.$page['tab'];
+$base_url = get_root_url().'admin/index.php?page='.$page['page'].'&tab='.$page['tab'];
 
 $plugins = new Plugins($conn);
 
@@ -53,7 +53,7 @@ if (isset($_GET['installstatus'])) {
     switch ($_GET['installstatus'])
         {
         case 'ok':
-            $activate_url = get_root_url().'admin.php?page=plugins'
+            $activate_url = get_root_url().'admin/index.php?page=plugins'
                 . '&amp;plugin=' . $_GET['plugin_id']
                 . '&amp;pwg_token=' . get_pwg_token()
                                     . '&amp;action=activate';

@@ -22,7 +22,7 @@
 
       <p>
 	<input type="submit" value="{'Create'|translate}">
-	<span id="albumCreationLoading" style="display:none"><img src="admin/themes/default/images/ajax-loader-small.gif" alt=""></span>
+	<span id="albumCreationLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
       </p>
     </form>
   </div>

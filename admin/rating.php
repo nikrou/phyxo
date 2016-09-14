@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -90,12 +90,12 @@ $template->set_filename('rating', 'rating.tpl');
 $template->assign(
     array(
         'navbar' => create_navigation_bar(
-            PHPWG_ROOT_PATH.'admin.php'.get_query_string_diff(array('start','del')),
+            get_root_url().'admin/index.php'.get_query_string_diff(array('start','del')),
             $nb_images,
             $start,
             $elements_per_page
         ),
-        'F_ACTION' => PHPWG_ROOT_PATH.'admin.php',
+        'F_ACTION' => get_root_url().'admin/index.php',
         'DISPLAY' => $elements_per_page,
         'NB_ELEMENTS' => $nb_images,
     )
@@ -150,7 +150,7 @@ $template->assign('images', array() );
 foreach ($images as $image) {
     $thumbnail_src = DerivativeImage::thumb_url($image);
 
-    $image_url = get_root_url().'admin.php?page=photo-'.$image['id'];
+    $image_url = get_root_url().'admin/index.php?page=photo-'.$image['id'];
 
     $query = 'SELECT * FROM '.RATE_TABLE.' AS r';
     $query .= ' WHERE r.element_id='.$image['id']. ' ORDER BY date DESC;';

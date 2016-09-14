@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,7 +31,7 @@ include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
 
-define('PHOTOS_ADD_BASE_URL', get_root_url().'admin.php?page=photos_add');
+define('PHOTOS_ADD_BASE_URL', get_root_url().'admin/index.php?page=photos_add');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |

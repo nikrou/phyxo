@@ -24,7 +24,7 @@
 
 defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
+require_once(PHPWG_ROOT_PATH.'vendor/autoload.php');
 
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Template\Template;

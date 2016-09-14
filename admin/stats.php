@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -236,7 +236,7 @@ $summary_lines = get_summary(
 // page title creation
 $title_parts = array();
 
-$url = PHPWG_ROOT_PATH.'admin.php?page=stats';
+$url = get_root_url().'admin/index.php?page=stats';
 
 $title_parts[] = '<a href="'.$url.'">'.l10n('Overall').'</a>';
 
@@ -279,7 +279,7 @@ $template->set_filename('stats', 'stats.tpl');
 // TabSheet initialization
 history_tabsheet();
 
-$base_url = get_root_url().'admin.php?page=history';
+$base_url = get_root_url().'admin/index.php?page=history';
 
 $template->assign(
     array(
@@ -343,7 +343,7 @@ if (count($datas) > 0) {
             $value = sprintf('%02u', $i);
         } elseif (isset($page['month'])) {
             $url =
-                get_root_url().'admin.php'
+                get_root_url().'admin/index.php'
                 .'?page=stats'
                 .'&amp;year='.$page['year']
                 .'&amp;month='.$page['month']
@@ -354,7 +354,7 @@ if (count($datas) > 0) {
             $value = $i.' ('.$lang['day'][date('w', $time)].')';
         } elseif (isset($page['year'])) {
             $url =
-                get_root_url().'admin.php'
+                get_root_url().'admin/index.php'
                 .'?page=stats'
                 .'&amp;year='.$page['year']
                 .'&amp;month='.$i;
@@ -362,7 +362,7 @@ if (count($datas) > 0) {
             $value = $lang['month'][$i];
         } else { // at least the year is defined
             $url =
-                get_root_url().'admin.php'
+                get_root_url().'admin/index.php'
                 .'?page=stats'
                 .'&amp;year='.$i;
 

@@ -587,7 +587,7 @@ if ($services['users']->isAdmin()) {
         );
     }
 
-    $url_admin = get_root_url().'admin.php?page=photo-'.$page['image_id'];
+    $url_admin = get_root_url().'admin/index.php?page=photo-'.$page['image_id'];
     $url_admin .= (isset($page['category']) ? '&amp;cat_id='.$page['category']['id'] : '');
 
     $template->assign(

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -38,8 +38,8 @@ $errors = array();
 save_profile_from_post($edit_user, $errors);
 
 load_profile_in_template(
-    get_root_url().'admin.php?page=profile&amp;user_id='.$edit_user['id'],
-    get_root_url().'admin.php?page=user_list',
+    get_root_url().'admin/index.php?page=profile&amp;user_id='.$edit_user['id'],
+    get_root_url().'admin/index.php?page=user_list',
     $edit_user
 );
 $page['errors'] = array_merge($page['errors'], $errors);

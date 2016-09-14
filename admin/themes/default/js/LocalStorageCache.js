@@ -204,7 +204,7 @@
   var CategoriesCache = function(options) {
     options.key = 'categoriesAdminList';
 
-    options.loader = function(callback) {
+      options.loader = function(callback) {
       $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.categories.getAdminList', function(data) {
         var cats = data.result.categories.map(function(c, i) {
           c.pos = i;

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -76,7 +76,7 @@ if (!empty($_POST)) {
 
 $template->set_filenames(array('comments'=>'comments.tpl'));
 
-$template->assign(array('F_ACTION' => get_root_url().'admin.php?page=comments'));
+$template->assign(array('F_ACTION' => get_root_url().'admin/index.php?page=comments'));
 
 // +-----------------------------------------------------------------------+
 // | Tabs                                                                  |
@@ -155,7 +155,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $template->append(
         'comments',
         array(
-            'U_PICTURE' => get_root_url().'admin.php?page=photo-'.$row['image_id'],
+            'U_PICTURE' => get_root_url().'admin/index.php?page=photo-'.$row['image_id'],
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
             'AUTHOR' => trigger_change('render_comment_author', $author_name),
@@ -174,7 +174,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // +-----------------------------------------------------------------------+
 
 $navbar = create_navigation_bar(
-    get_root_url().'admin.php'.get_query_string_diff(array('start')),
+    get_root_url().'admin/index.php'.get_query_string_diff(array('start')),
     ('pending' == $page['filter'] ? $nb_pending : $nb_total),
     $page['start'],
     $conf['comments_page_nb_comments']

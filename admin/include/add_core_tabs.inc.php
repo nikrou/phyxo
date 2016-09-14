@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -274,11 +274,11 @@ function add_core_tabs($sheets, $tab_id) {
         case 'rating':
             $sheets['rating'] = array(
                 'caption' => l10n('Photos'),
-                'url' => get_root_url().'admin.php?page=rating'
+                'url' => get_root_url().'admin/index.php?page=rating'
             );
             $sheets['rating_user'] = array(
                 'caption' => l10n('Users'),
-                'url' => get_root_url().'admin.php?page=rating_user'
+                'url' => get_root_url().'admin/index.php?page=rating_user'
             );
             break;
 

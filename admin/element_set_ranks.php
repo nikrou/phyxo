@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -134,7 +134,7 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 $template->set_filenames(array('element_set_ranks' => 'element_set_ranks.tpl'));
 
-$base_url = get_root_url().'admin.php';
+$base_url = get_root_url().'admin/index.php';
 
 $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($page['category_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));
@@ -148,7 +148,7 @@ if ($category['image_order']=='rank ASC') {
 // Navigation path
 $navigation = get_cat_display_name_cache(
     $category['uppercats'],
-    get_root_url().'admin.php?page=album-'
+    get_root_url().'admin/index.php?page=album-'
 );
 
 $template->assign(

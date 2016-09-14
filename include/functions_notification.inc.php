@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -377,12 +377,12 @@ function news($start=null, $end=null, $exclude_img_cats=false, $add_url=false) {
     if ($services['users']->isAdmin()) {
         add_news_line($news,
                       nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate',
-                      get_root_url().'admin.php?page=comments', $add_url
+                      get_root_url().'admin/index.php?page=comments', $add_url
         );
 
         add_news_line($news,
                       nb_new_users($start, $end), '%d new user', '%d new users',
-                      get_root_url().'admin.php?page=user_list', $add_url
+                      get_root_url().'admin/index.php?page=user_list', $add_url
         );
     }
 

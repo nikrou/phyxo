@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -210,7 +210,7 @@ $template->assign(
         'AUTHOR' => htmlspecialchars(isset($_POST['author']) ? stripslashes($_POST['author']) : @$row['author']),
         'DATE_CREATION' => $row['date_creation'],
         'DESCRIPTION' => htmlspecialchars( isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
-        'F_ACTION' => get_root_url().'admin.php'.get_query_string_diff(array('sync_metadata'))
+        'F_ACTION' => get_root_url().'admin/index.php'.get_query_string_diff(array('sync_metadata'))
     )
 );
 
@@ -242,7 +242,7 @@ if ($conf['rate'] and !empty($row['rating_score'])) {
 $template->assign('INTRO', $intro_vars);
 
 if (in_array(get_extension($row['path']),$conf['picture_ext'])) {
-    $template->assign('U_COI', get_root_url().'admin.php?page=picture_coi&amp;image_id='.$_GET['image_id']);
+    $template->assign('U_COI', get_root_url().'admin/index.php?page=picture_coi&amp;image_id='.$_GET['image_id']);
 }
 
 // image level options
@@ -261,7 +261,7 @@ $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
 $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $name = get_cat_display_name_cache($row['uppercats'], get_root_url().'admin.php?page=album-');
+    $name = get_cat_display_name_cache($row['uppercats'], get_root_url().'admin/index.php?page=album-');
 
     if ($row['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);

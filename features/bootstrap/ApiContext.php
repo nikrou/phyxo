@@ -274,7 +274,7 @@ class GuzzleApiContext extends BehatContext
 
     private function getSessionId() {
         foreach ($this->jar->toArray() as $cookie) {
-            if ($cookie['Name']=='pwg_id') { // @TODO: retrieve name from conf
+            if ($cookie['Name']=='phyxo_id') { // @TODO: retrieve name from conf
                 return $cookie['Value'];
             }
         }

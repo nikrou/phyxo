@@ -47,7 +47,7 @@ if (isset($_GET['show_details'])) {
     $show_details = false;
 }
 
-$base_url = get_root_url().'admin.php?page='.$page['page'];
+$base_url = get_root_url().'admin/index.php?page='.$page['page'];
 $pwg_token = get_pwg_token();
 $action_url = $base_url.'&amp;plugin='.'%s'.'&amp;pwg_token='.$pwg_token;
 

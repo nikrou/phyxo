@@ -16,7 +16,7 @@ $(function() {
 
 	$("#addUserForm").submit(function() {
 		$.ajax({
-			url: "ws.php?format=json&method=pwg.users.add",
+			url: "../ws.php?format=json&method=pwg.users.add",
 			type:"POST",
 			data: $(this).serialize()+"&pwg_token="+pwg_token,
 			beforeSend: function() {
@@ -286,7 +286,7 @@ $(function() {
 			}
 		});
 
-		return '<div id="user'+userId+'" class="userProperties"><img class="loading" src="admin/themes/default/images/ajax-loader-small.gif" alt=""></div>';
+		return '<div id="user'+userId+'" class="userProperties"><img class="loading" src="themes/default/images/ajax-loader-small.gif" alt=""></div>';
 	}
 
 	/* change password */
@@ -530,7 +530,7 @@ $(function() {
 		"bProcessing": true,
 		"bServerSide": true,
 		"sServerMethod": "POST",
-		"sAjaxSource": "admin/user_list_backend.php",
+		"sAjaxSource": "./user_list_backend.php",
 		"oLanguage": {
 			"sProcessing": phyxo_msg.loading,
 			"sLengthMenu": phyxo_msg.show_users.replace('%s', '_MENU_'),

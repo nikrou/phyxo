@@ -29,7 +29,7 @@ $(function(){
   $('select[name="selectOrder"]').change(function() {
     sortOrder = this.value;
     $('.pluginBox').sortElements(sortPlugins);
-    $.get("admin.php?plugins_new_order="+sortOrder);
+    $.get("./index.php?plugins_new_order="+sortOrder);
   });
 
   $('#filter').keyup(function(){

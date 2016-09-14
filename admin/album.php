@@ -33,7 +33,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
-$admin_album_base_url = get_root_url().'admin.php?page=album-'.$_GET['cat_id'];
+$admin_album_base_url = get_root_url().'admin/index.php?page=album-'.$_GET['cat_id'];
 
 $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($_GET['cat_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));

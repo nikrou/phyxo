@@ -128,7 +128,7 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
     <p class="actionButtons">
       <input class="submit" name="submit_add" type="submit" value="{'Submit'|translate}">
       <a href="#" id="addUserClose">{'Cancel'|translate}</a>
-      <span class="loading" style="display:none"><img src="admin/themes/default/images/ajax-loader-small.gif" alt=""></span>
+      <span class="loading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
       <span class="errors" style="display:none"></span>
     </p>
   </fieldset>
@@ -270,7 +270,7 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
 
     <p id="applyActionBlock" style="display:none" class="actionButtons">
       <input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span>
-      <span id="applyActionLoading" style="display:none"><img src="admin/themes/default/images/ajax-loader-small.gif" alt=""></span>
+      <span id="applyActionLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif" alt=""></span>
       <span class="infos" style="display:none">&#x2714; {'Users modified'|translate}</span>
     </p>
 
@@ -285,15 +285,15 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
   <div class="userActions">
 <% if (!user.isGuest) { %>
     <span class="changePasswordDone infos" style="display:none">&#x2714; {'Password updated'|translate}</span>
-    <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> <a href="#" class="buttonLike updatePassword"><img src="admin/themes/default/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a></span>
+    <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> <a href="#" class="buttonLike updatePassword"><img src="themes/default/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a></span>
     <a class="icon-key changePasswordOpen" href="#">{'Change password'|translate}</a>
     <br>
 <% } %>
 
-    <a target="_blank" href="admin.php?page=user_perm&amp;user_id=<%- user.id %>" class="icon-lock">{'Permissions'|translate}</a>
+    <a target="_blank" href="admin/index.php?page=user_perm&amp;user_id=<%- user.id %>" class="icon-lock">{'Permissions'|translate}</a>
 
 <% if (!user.isProtected) { %>
-    <br><span class="userDelete"><img class="loading" src="admin/themes/default/images/ajax-loader-small.gif" alt="" style="display:none;"><a href="#" class="icon-trash" data-user_id="<%- user.id %>">{'Delete'|translate}</a></span>
+    <br><span class="userDelete"><img class="loading" src="themes/default/images/ajax-loader-small.gif" alt="" style="display:none;"><a href="#" class="icon-trash" data-user_id="<%- user.id %>">{'Delete'|translate}</a></span>
 <% } %>
 
   </div>
@@ -303,7 +303,7 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
 <% if (!user.isGuest) { %>
   <a href="#" class="icon-pencil">{'Change username'|translate}</a></span>
   <span class="changeUsername" style="display:none">
-  <input type="text"> <a href="#" class="buttonLike updateUsername"><img src="admin/themes/default/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a>
+  <input type="text"> <a href="#" class="buttonLike updateUsername"><img src="themes/default/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a>
 <% } %>
 
   </span>
@@ -397,6 +397,6 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
   <span class="infos propertiesUpdateDone" style="display:none">&#x2714; <%- user.updateString %></span>
 
   <input type="submit" value="{'Update user'|translate|escape:html}" style="display:none;" data-user_id="<%- user.id %>">
-  <img class="submitWait" src="admin/themes/default/images/ajax-loader-small.gif" alt="" style="display:none">
+  <img class="submitWait" src="themes/default/images/ajax-loader-small.gif" alt="" style="display:none">
 </form>
 </script>

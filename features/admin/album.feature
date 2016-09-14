@@ -11,7 +11,7 @@ Feature: Create new access
   @javascript
   Scenario: Create new album
     Given I am logged in as "user1" with password "pass1"
-    When I go to "admin.php?page=photos_add"
+    When I go to "admin/index.php?page=photos_add"
     And I follow "create a new album"
     Then I wait for message "infos" to appear
     # wait for modal to appear instead.
@@ -20,4 +20,4 @@ Feature: Create new access
     And I press "Create"
     Then I wait for message "infos" to appear
     Then I should not see "create a new album" in the "#cboxWrapper" element
-    And the ".selectize-dropdown-content" element should contain "My Album"
+    And the "#albumSelection" element should contain "My Album"

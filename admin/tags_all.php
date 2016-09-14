@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -232,7 +232,7 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
 
     $services['tags']->deleteOrphanTags();
     $_SESSION['page_infos'][] = l10n('Orphan tags deleted');
-    redirect(get_root_url().'admin.php?page=tags');
+    redirect(get_root_url().'admin/index.php?page=tags');
 }
 
 // +-----------------------------------------------------------------------+
@@ -265,7 +265,7 @@ if (count($orphan_tag_names) > 0) {
         l10n('You have %d orphan tags: %s.').' <a href="%s">'.l10n('Delete orphan tags').'</a>',
         count($orphan_tag_names),
         implode(', ', $orphan_tag_names),
-        get_root_url().'admin.php?page=tags&amp;action=delete_orphans&amp;pwg_token='.get_pwg_token()
+        get_root_url().'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token='.get_pwg_token()
     );
 }
 
@@ -289,8 +289,8 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     } else {
         $tag['counter'] = intval($tag_counters[$tag['id']]);
     }
-    $tag['U_VIEW'] = make_index_url(array('tags'=>array($tag)));
-    $tag['U_EDIT'] = 'admin.php?page=batch_manager&amp;filter=tag-'.$tag['id'];
+    $tag['U_VIEW'] = make_index_url(array('tags' => array($tag)));
+    $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-'.$tag['id'];
 
     $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
     $alt_names = array_diff(array_unique($alt_names), array($tag['name']));

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -293,7 +293,7 @@ function initialize_menu() {
             $template->assign('U_LOGOUT', get_root_url().'?act=logout');
         }
         if ($services['users']->isAdmin()) {
-            $template->assign('U_ADMIN', get_root_url().'admin.php');
+            $template->assign('U_ADMIN', get_root_url().'admin/index.php');
         }
     }
     if (($block=$menu->get_block('mbIdentification')) != null) {

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -210,7 +210,7 @@ $template->assign('order_by_options_selected', array($order_by_index));
 $x = uasort($by_user_ratings, $available_order_by[$order_by_index][1]);
 
 $template->assign(array(
-    'F_ACTION' => get_root_url().'admin.php',
+    'F_ACTION' => get_root_url().'admin/index.php',
     'F_MIN_RATES' => $filter_min_rates,
     'CONSENSUS_TOP_NUMBER' => $consensus_top_number,
     'available_rates' => $conf['rate_items'],

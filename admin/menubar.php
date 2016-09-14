@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -105,8 +105,8 @@ foreach ($mb_conf as $id => $pos ) {
     );
 }
 
-$action = get_root_url().'admin.php?page=menubar';
+$action = get_root_url().'admin/index.php?page=menubar';
 $template->assign(array('F_ACTION'=>$action));
 
-$template->set_filename( 'menubar_admin_content', 'menubar.tpl' );
-$template->assign_var_from_handle( 'ADMIN_CONTENT', 'menubar_admin_content');
+$template->set_filename('menubar_admin_content', 'menubar.tpl');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'menubar_admin_content');

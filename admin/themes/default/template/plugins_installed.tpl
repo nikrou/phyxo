@@ -43,7 +43,7 @@ jQuery(document).ready(function() {
   jQuery(document).ready(function() {
     jQuery.ajax({
       method: 'GET',
-      url: 'admin.php',
+      url: './index.php',
       data: { page: 'plugins_installed', incompatible_plugins: true },
       dataType: 'json',
       success: function(data) {

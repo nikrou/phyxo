@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -151,7 +151,7 @@ check_input_parameter('parent_id', $_GET, false, PATTERN_ID);
 
 $categories = array();
 
-$base_url = get_root_url().'admin.php?page=cat_list';
+$base_url = get_root_url().'admin/index.php?page=cat_list';
 $navigation = '<a href="'.$base_url.'">';
 $navigation.= l10n('Home');
 $navigation.= '</a>';
@@ -173,7 +173,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     update_global_rank();
     invalidate_user_cache();
 
-    $redirect_url = get_root_url().'admin.php?page=cat_list';
+    $redirect_url = get_root_url().'admin/index.php?page=cat_list';
     if (isset($_GET['parent_id'])) {
         $redirect_url.= '&parent_id='.$_GET['parent_id'];
     }
@@ -270,7 +270,7 @@ if (isset($_GET['parent_id'])) {
 // +-----------------------------------------------------------------------+
 $template->set_filename('categories', 'cat_list.tpl');
 
-$form_action = PHPWG_ROOT_PATH.'admin.php?page=cat_list';
+$form_action = get_root_url().'admin/index.php?page=cat_list';
 if (isset($_GET['parent_id'])) {
     $form_action.= '&amp;parent_id='.$_GET['parent_id'];
 }
@@ -333,7 +333,7 @@ if (count($categories)) {
 }
 
 $template->assign('categories', array());
-$base_url = get_root_url().'admin.php?page=';
+$base_url = get_root_url().'admin/index.php?page=';
 
 if (isset($_GET['parent_id'])) {
     $template->assign('PARENT_EDIT', $base_url.'album-'.$_GET['parent_id']);

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -101,7 +101,7 @@ $template->set_filenames(
 );
 
 $page['section'] = isset($_GET['section']) ? $_GET['section'] : 'status';
-$base_url = PHPWG_ROOT_PATH.'admin.php?page=cat_options&amp;section=';
+$base_url = get_root_url().'admin/index.php?page=cat_options&amp;section=';
 
 $template->assign(
     array(

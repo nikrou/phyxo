@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -52,7 +52,7 @@ if (isset($_GET['action'])) {
         $conn->db_query($query);
 
         $_SESSION['page_infos'][] = l10n('Information data registered in database');
-        redirect(get_root_url().'admin.php?page='.$_GET['page']);
+        redirect(get_root_url().'admin/index.php?page='.$_GET['page']);
     }
 }
 
@@ -423,7 +423,7 @@ if (!isset($_REQUEST['start']) or !is_numeric($_REQUEST['start'])
 // +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
-$manager_link = get_root_url().'admin.php?page=batch_manager&amp;mode=';
+$manager_link = get_root_url().'admin/index.php?page=batch_manager&amp;mode=';
 
 if (isset($_GET['mode'])) {
     $page['tab'] = $_GET['mode'];

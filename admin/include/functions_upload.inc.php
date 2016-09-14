@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -542,20 +542,21 @@ function add_upload_error($upload_id, $error_message) {
 function ready_for_upload_message() {
     global $conf;
 
-    $relative_dir = preg_replace('#^'.PHPWG_ROOT_PATH.'#', '', $conf['upload_dir']);
+    $relative_dir = preg_replace('#^'.realpath(PHPWG_ROOT_PATH).'#', '', $conf['upload_dir']);
+    $absolute_dir = realpath(PHPWG_ROOT_PATH).'/'.$conf['upload_dir'];
 
-    if (!is_dir($conf['upload_dir'])) {
-        if (!is_writable(dirname($conf['upload_dir']))) {
+    if (!is_dir($absolute_dir)) {
+        if (!is_writable(dirname($absolute_dir))) {
             return sprintf(
                 l10n('Create the "%s" directory at the root of your Phyxo installation'),
                 $relative_dir
             );
         }
     } else {
-        if (!is_writable($conf['upload_dir'])) {
-            @chmod($conf['upload_dir'], 0777);
+        if (!is_writable($absolute_dir)) {
+            @chmod($absolute_dir, 0777);
 
-            if (!is_writable($conf['upload_dir'])) {
+            if (!is_writable($absolute_dir)) {
                 return sprintf(
                     l10n('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'),
                     $relative_dir
