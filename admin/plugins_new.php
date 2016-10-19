@@ -22,16 +22,13 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("PLUGINS_BASE_URL")) {
     die ("Hacking attempt!");
 }
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\Plugin\Plugins;
-
-$template->set_filenames(array('plugins' => 'plugins_new.tpl'));
-$base_url = get_root_url().'admin/index.php?page='.$page['page'].'&tab='.$page['tab'];
 
 $plugins = new Plugins($conn);
 
@@ -44,7 +41,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
 
         $install_status = $plugins->extract_plugin_files('install', $_GET['revision'], $_GET['extension'], $plugin_id);
 
-        redirect($base_url.'&installstatus='.$install_status.'&plugin_id='.$plugin_id);
+        redirect(PLUGINS_BASE_URL.'&installstatus='.$install_status.'&plugin_id='.$plugin_id);
     }
 }
 
@@ -53,7 +50,7 @@ if (isset($_GET['installstatus'])) {
     switch ($_GET['installstatus'])
         {
         case 'ok':
-            $activate_url = get_root_url().'admin/index.php?page=plugins'
+            $activate_url = PLUGINS_BASE_URL
                 . '&amp;plugin=' . $_GET['plugin_id']
                 . '&amp;pwg_token=' . get_pwg_token()
                                     . '&amp;action=activate';
@@ -107,7 +104,8 @@ if ($plugins->get_server_plugins(true)) {
         $ext_desc = trim($plugin['extension_description'], " \n\r");
         list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
 
-        $url_auto_install = htmlentities($base_url)
+        $url_auto_install = htmlentities(PLUGINS_BASE_URL)
+            . '&amp;section=new'
             . '&amp;revision=' . $plugin['revision_id']
             . '&amp;extension=' . $plugin['extension_id']
             . '&amp;pwg_token='.get_pwg_token();

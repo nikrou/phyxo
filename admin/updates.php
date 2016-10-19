@@ -26,19 +26,37 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+define('UPDATES_BASE_URL', get_root_url().'admin/index.php?page=updates');
 
-$my_base_url = get_root_url().'admin/index.php?page=updates';
+use Phyxo\TabSheet\TabSheet;
 
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
+// +-----------------------------------------------------------------------+
+// | Check Access and exit when user status is not ok                      |
+// +-----------------------------------------------------------------------+
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
+
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    $page['tab'] = 'pwg';
+    $page['section'] = 'core';
 }
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('updates');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
+$tabsheet = new TabSheet();
+$tabsheet->setId('updates');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
-include(PHPWG_ROOT_PATH.'admin/updates_'.$page['tab'].'.php');
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('updates' => 'updates_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/updates_'.$page['section'].'.php');

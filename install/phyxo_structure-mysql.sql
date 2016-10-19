@@ -124,7 +124,7 @@ CREATE TABLE `phyxo_history` (
   `date` date NOT NULL default '0000-00-00',
   `time` time NOT NULL default '00:00:00',
   `user_id` mediumint(8) unsigned NOT NULL default '0',
-  `IP` varchar(15) NOT NULL default '',
+  `ip` varchar(15) NOT NULL default '',
   `section` enum('categories','tags','search','list','favorites','most_visited','best_rated','recent_pics','recent_cats') default NULL,
   `category_id` smallint(5) default NULL,
   `tag_ids` varchar(50) default NULL,

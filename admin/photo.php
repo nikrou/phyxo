@@ -26,6 +26,8 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die ("Hacking attempt!");
 }
 
+use Phyxo\TabSheet\TabSheet;
+
 // +-----------------------------------------------------------------------+
 // | Basic checks                                                          |
 // +-----------------------------------------------------------------------+
@@ -35,36 +37,35 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
-$admin_photo_base_url = get_root_url().'admin/index.php?page=photo-'.$_GET['image_id'];
+define('PHOTO_BASE_URL', get_root_url().'admin/index.php?page=photo&amp;image_id='.$_GET['image_id']);
 
-if (isset($_GET['cat_id'])) {
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'properties';
+}
+
+$tabsheet = new TabSheet();
+$tabsheet->setId('photo');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
+
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('photo' => 'photo_'.$page['section'].'.tpl'));
+
+if (!empty($_GET['cat_id'])) {
     $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.(int) $_GET['cat_id'];
     $category = $conn->db_fetch_assoc($conn->db_query($query));
 }
 
 // +-----------------------------------------------------------------------+
-// | Tabs                                                                  |
+// |                             Load the tab                              |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
-
-$page['tab'] = 'properties';
-
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
-}
-
-$tabsheet = new tabsheet();
-$tabsheet->set_id('photo');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
-
-// +-----------------------------------------------------------------------+
-// | Load the tab                                                          |
-// +-----------------------------------------------------------------------+
-
-if ('properties' == $page['tab']) {
-    include(PHPWG_ROOT_PATH.'admin/picture_modify.php');
-} elseif ('coi' == $page['tab']) {
-    include(PHPWG_ROOT_PATH.'admin/picture_coi.php');
-}
+include(PHPWG_ROOT_PATH.'admin/photo_'.$page['section'].'.php');

@@ -22,15 +22,11 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("THEMES_BASE_URL")) {
     die ("Hacking attempt!");
 }
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Theme\Themes;
-
-$base_url = get_root_url().'admin/index.php?page='.$page['page'];
 
 $themes = new Themes($conn);
 
@@ -45,7 +41,7 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
         if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
             $template->delete_compiled_templates();
         }
-        redirect($base_url);
+        redirect(THEMES_BASE_URL.'&section=installed');
     }
 }
 
@@ -153,15 +149,14 @@ usort($tpl_themes, 'cmp');
 
 $template->assign(
     array(
-        'activate_baseurl' => $base_url.'&amp;action=activate&amp;theme=',
-        'deactivate_baseurl' => $base_url.'&amp;action=deactivate&amp;theme=',
-        'set_default_baseurl' => $base_url.'&amp;action=set_default&amp;theme=',
-        'delete_baseurl' => $base_url.'&amp;action=delete&amp;theme=',
+        'activate_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=activate&amp;theme=',
+        'deactivate_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=deactivate&amp;theme=',
+        'set_default_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=set_default&amp;theme=',
+        'delete_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=delete&amp;theme=',
         'tpl_themes' => $tpl_themes,
     )
 );
 
 trigger_notify('loc_end_themes_installed');
 
-$template->set_filenames(array('themes' => 'themes_installed.tpl'));
 $template->assign_var_from_handle('ADMIN_CONTENT', 'themes');

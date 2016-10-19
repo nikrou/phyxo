@@ -27,54 +27,13 @@
  *
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-if (!isset($_GET['cat_id']) or !is_numeric($_GET['cat_id'])) {
-    trigger_error('missing cat_id param', E_USER_ERROR);
-}
-
-$page['category_id'] = $_GET['cat_id'];
-
-// +-----------------------------------------------------------------------+
-// |                               functions                               |
-// +-----------------------------------------------------------------------+
-
-/**
- * save the rank depending on given images order
- *
- * The list of ordered images id is supposed to be in the same parent
- * category
- *
- * @param array categories
- * @return void
- */
-function save_images_order($category_id, $images) {
-    global $conn;
-
-    $current_rank = 0;
-    $datas = array();
-    foreach ($images as $id) {
-        $datas[] = array(
-            'category_id' => $category_id,
-            'image_id' => $id,
-            'rank' => ++$current_rank,
-        );
-    }
-    $fields = array(
-        'primary' => array('image_id', 'category_id'),
-        'update' => array('rank')
-    );
-    $conn->mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
-}
+$page['category_id'] = $category['id'];
 
 // +-----------------------------------------------------------------------+
 // |                       global mode form submission                     |
@@ -132,7 +91,6 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
-$template->set_filenames(array('element_set_ranks' => 'element_set_ranks.tpl'));
 
 $base_url = get_root_url().'admin/index.php';
 
@@ -232,4 +190,38 @@ $template->assign('image_order_choice', $image_order_choice);
 // |                          sending html code                            |
 // +-----------------------------------------------------------------------+
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'element_set_ranks');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'album');
+
+
+
+// +-----------------------------------------------------------------------+
+// |                               functions                               |
+// +-----------------------------------------------------------------------+
+
+/**
+ * save the rank depending on given images order
+ *
+ * The list of ordered images id is supposed to be in the same parent
+ * category
+ *
+ * @param array categories
+ * @return void
+ */
+function save_images_order($category_id, $images) {
+    global $conn;
+
+    $current_rank = 0;
+    $datas = array();
+    foreach ($images as $id) {
+        $datas[] = array(
+            'category_id' => $category_id,
+            'image_id' => $id,
+            'rank' => ++$current_rank,
+        );
+    }
+    $fields = array(
+        'primary' => array('image_id', 'category_id'),
+        'update' => array('rank')
+    );
+    $conn->mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
+}

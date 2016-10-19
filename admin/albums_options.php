@@ -27,12 +27,35 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+
+define('ALBUMS_OPTIONS_BASE_URL', get_root_url().'admin/index.php?page=albums_options');
+
+use Phyxo\TabSheet\TabSheet;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
+
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'status';
+}
+
+$tabsheet = new TabSheet();
+$tabsheet->setId('albums_options');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
+
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('albums_options' => 'albums_options.tpl'));
 
 // +-----------------------------------------------------------------------+
 // |                       modification registration                       |
@@ -100,21 +123,12 @@ $template->set_filenames(
     )
 );
 
-$page['section'] = isset($_GET['section']) ? $_GET['section'] : 'status';
-$base_url = get_root_url().'admin/index.php?page=cat_options&amp;section=';
-
 $template->assign(
     array(
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_options',
-        'F_ACTION'=>$base_url.$page['section']
+        'F_ACTION' => ALBUMS_OPTIONS_BASE_URL.'&amp;section='.$page['section']
     )
 );
-
-// TabSheet
-$tabsheet = new tabsheet();
-$tabsheet->set_id('cat_options');
-$tabsheet->select($page['section']);
-$tabsheet->assign();
 
 // +-----------------------------------------------------------------------+
 // |                              form display                             |
@@ -194,4 +208,4 @@ display_select_cat_wrapper($query_false,array(),'category_option_false');
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('DOUBLE_SELECT', 'double_select');
-$template->assign_var_from_handle('ADMIN_CONTENT', 'cat_options');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'albums_options');

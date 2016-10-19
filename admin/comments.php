@@ -28,6 +28,10 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
+define('COMMENTS_BASE_URL', get_root_url().'admin/index.php?page=comments');
+
+use Phyxo\TabSheet\TabSheet;
+
 if (isset($_GET['start']) and is_numeric($_GET['start'])) {
     $page['start'] = $_GET['start'];
 } else {
@@ -81,13 +85,16 @@ $template->assign(array('F_ACTION' => get_root_url().'admin/index.php?page=comme
 // +-----------------------------------------------------------------------+
 // | Tabs                                                                  |
 // +-----------------------------------------------------------------------+
-
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'user';
+}
 
 $tabsheet = new tabsheet();
-$tabsheet->set_id('comments');
-$tabsheet->select('');
-$tabsheet->assign();
+$tabsheet->setId('comments');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
 // +-----------------------------------------------------------------------+
 // |                           comments display                            |

@@ -1,0 +1,83 @@
+<?php
+// +-----------------------------------------------------------------------+
+// | Phyxo - Another web based photo gallery                               |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// +-----------------------------------------------------------------------+
+// | This program is free software; you can redistribute it and/or modify  |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
+// |                                                                       |
+// | This program is distributed in the hope that it will be useful, but   |
+// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
+// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
+// | General Public License for more details.                              |
+// |                                                                       |
+// | You should have received a copy of the GNU General Public License     |
+// | along with this program; if not, write to the Free Software           |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
+// +-----------------------------------------------------------------------+
+
+if (!defined("THEMES_BASE_URL")) {
+    die ("Hacking attempt!");
+}
+
+use Phyxo\Update\Updates;
+
+//$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+
+$autoupdate = new Updates($conn, $page['page']);
+
+$show_reset = false;
+if (!$autoupdate->getServerExtensions()) {
+    $page['errors'][] = l10n('Can\'t connect to server.');
+    return; // @TODO: remove this return and add a proper "page killer"
+}
+
+foreach ($autoupdate->types as $type) {
+    $fs = 'fs_'.$type;
+    $server = 'server_'.$type;
+    $server_ext = $autoupdate->$type->$server;
+    $fs_ext = $autoupdate->$type->$fs;
+
+    if (empty($server_ext)) {
+        continue;
+    }
+
+    foreach($fs_ext as $ext_id => $fs_ext) {
+        if (!isset($fs_ext['extension']) or !isset($server_ext[$fs_ext['extension']])) {
+            continue;
+        }
+
+        $ext_info = $server_ext[$fs_ext['extension']];
+
+        if (!safe_version_compare($fs_ext['version'], $ext_info['revision_name'], '>=')) {
+            $template->append('update_'.$type, array(
+                'ID' => $ext_info['extension_id'],
+                'REVISION_ID' => $ext_info['revision_id'],
+                'EXT_ID' => $ext_id,
+                'EXT_NAME' => $fs_ext['name'],
+                'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$ext_info['extension_id'],
+                'EXT_DESC' => trim($ext_info['extension_description'], " \n\r"),
+                'REV_DESC' => trim($ext_info['revision_description'], " \n\r"),
+                'CURRENT_VERSION' => $fs_ext['version'],
+                'NEW_VERSION' => $ext_info['revision_name'],
+                'AUTHOR' => $ext_info['author_name'],
+                'DOWNLOADS' => $ext_info['extension_nb_downloads'],
+                'URL_DOWNLOAD' => $ext_info['download_url'] . '&amp;origin=piwigo_download',
+                'IGNORED' => in_array($ext_id, $conf['updates_ignored'][$type]),
+            )
+            );
+        }
+    }
+
+    if (!empty($conf['updates_ignored'][$type])) {
+        $show_reset = true;
+    }
+}
+
+$template->assign('SHOW_RESET', $show_reset);
+$template->assign('PWG_TOKEN', get_pwg_token());
+$template->assign('EXT_TYPE', $page['page'] == 'updates' ? 'extensions' : $page['page']);
+
+$template->assign_var_from_handle('ADMIN_CONTENT', 'themes');

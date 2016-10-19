@@ -26,20 +26,42 @@
  * @package functions\admin\history
  */
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
-/**
- * Init tabsheet for history pages
- * @ignore
- */
-function history_tabsheet() {
-    global $page, $link_start;
+// +-----------------------------------------------------------------------+
+// | Functions                                                             |
+// +-----------------------------------------------------------------------+
 
-    // TabSheet
-    $tabsheet = new tabsheet();
-    $tabsheet->set_id('history');
-    $tabsheet->select($page['page']);
-    $tabsheet->assign();
+function get_summary($year=null, $month=null, $day=null) {
+    global $conn;
+
+    $query = 'SELECT year,month,day,hour,nb_pages FROM '.HISTORY_SUMMARY_TABLE;
+
+    if (isset($day)) {
+        $query .= ' WHERE year = '.$year.' AND month = '.$month;
+        $query .= ' AND day = '.$day.' AND hour IS NOT NULL';
+        $query .= ' ORDER BY year ASC,month ASC,day ASC,hour ASC;';
+    } elseif (isset($month)) {
+        $query .= ' WHERE year = '.$year.' AND month = '.$month;
+        $query .= ' AND day IS NOT NULL AND hour IS NULL';
+        $query .= ' ORDER BY year ASC,month ASC,day ASC;';
+    } elseif (isset($year)) {
+        $query .= ' WHERE year = '.$year.' AND month IS NOT NULL';
+        $query .= ' AND day IS NULL';
+        $query .= ' ORDER BY year ASC,month ASC;';
+    } else {
+        $query .= ' WHERE year IS NOT NULL';
+        $query .= ' AND month IS NULL';
+        $query .= ' ORDER BY year ASC;';
+    }
+
+    $result = $conn->db_query($query);
+
+    $output = array();
+    while ($row = $conn->db_fetch_assoc($result)) {
+        $output[] = $row;
+    }
+
+    return $output;
 }
 
 /**
@@ -115,14 +137,14 @@ function get_history($data, $search, $types) {
     }
 
     if (isset($search['fields']['ip'])) {
-        $clauses[] = 'IP LIKE \''.$search['fields']['ip'].'\'';
+        $clauses[] = 'ip LIKE \''.$search['fields']['ip'].'\'';
     }
 
     $clauses = prepend_append_array_items($clauses, '(', ')');
 
     $where_separator = implode(' AND ', $clauses);
 
-    $query = 'SELECT date,time,user_id,IP,section,category_id,tag_ids,';
+    $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,';
     $query .= 'image_id,image_type FROM '.HISTORY_TABLE;
     $query .= ' WHERE '.$where_separator;
 

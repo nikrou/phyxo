@@ -28,7 +28,7 @@
  *
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('BATCH_MANAGER_BASE_URL')) {
     die('Hacking attempt!');
 }
 
@@ -100,8 +100,6 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
-
-$template->set_filenames(array('batch_manager_unit' => 'batch_manager_unit.tpl'));
 
 $base_url = PHPWG_ROOT_PATH.'admin/index.php';
 
@@ -215,4 +213,4 @@ trigger_notify('loc_end_element_set_unit');
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager_unit');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager');

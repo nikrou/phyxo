@@ -124,13 +124,13 @@ if (isset($_GET['page']) and preg_match('/^album-(\d+)(?:-(.*))?$/', $_GET['page
 
 // ?page=photo-1234-properties is an clean alias of
 // ?page=photo&image_id=1234&tab=properties
-if (isset($_GET['page']) and preg_match('/^photo-(\d+)(?:-(.*))?$/', $_GET['page'], $matches)) {
-    $_GET['page'] = 'photo';
-    $_GET['image_id'] = $matches[1];
-    if (isset($matches[2])) {
-        $_GET['tab'] = $matches[2];
-    }
-}
+// if (isset($_GET['page']) and preg_match('/^photo-(\d+)(?:-(.*))?$/', $_GET['page'], $matches)) {
+//     $_GET['page'] = 'photo';
+//     $_GET['image_id'] = $matches[1];
+//     if (isset($matches[2])) {
+//         $_GET['tab'] = $matches[2];
+//     }
+// }
 
 if (isset($_GET['page']) and preg_match('/^[a-z_]*$/', $_GET['page']) and is_file(PHPWG_ROOT_PATH.'admin/'.$_GET['page'].'.php')) {
     $page['page'] = $_GET['page'];
@@ -155,30 +155,30 @@ $template->assign(
     array(
         'USERNAME' => $user['username'],
         'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
-        'U_SITE_MANAGER'=> $link_start.'site_manager',
-        'U_HISTORY_STAT'=> $link_start.'stats',
-        'U_FAQ'=> $link_start.'help',
-        'U_SITES'=> $link_start.'remote_site',
-        'U_MAINTENANCE'=> $link_start.'maintenance',
-        'U_NOTIFICATION_BY_MAIL'=> $link_start.'notification_by_mail',
-        'U_CONFIG_GENERAL'=> $link_start.'configuration',
-        'U_CONFIG_DISPLAY'=> $conf_link.'default',
-        'U_CONFIG_MENUBAR'=> $link_start.'menubar',
+        'U_SITE_MANAGER' => $link_start.'site_manager',
+        'U_HISTORY_STAT' => $link_start.'history',
+        'U_FAQ' => $link_start.'help',
+        'U_SITES' => $link_start.'remote_site',
+        'U_MAINTENANCE' => $link_start.'maintenance',
+        'U_CONFIG_GENERAL' => $link_start.'configuration',
+        'U_CONFIG_DISPLAY' => $conf_link.'default',
+        'U_CONFIG_MENUBAR' => $link_start.'menubar',
         'U_CONFIG_LANGUAGES' => $link_start.'languages',
-        'U_CONFIG_THEMES'=> $link_start.'themes',
-        'U_CATEGORIES'=> $link_start.'cat_list',
-        'U_CAT_OPTIONS'=> $link_start.'cat_options',
-        'U_CAT_UPDATE'=> $link_start.'site_update&amp;site=1',
-        'U_RATING'=> $link_start.'rating',
-        'U_RECENT_SET'=> $link_start.'batch_manager&amp;filter=prefilter-last_import',
-        'U_BATCH'=> $link_start.'batch_manager',
-        'U_TAGS'=> $link_start.'tags',
-        'U_USERS'=> $link_start.'user_list',
-        'U_GROUPS'=> $link_start.'group_list',
-        'U_RETURN'=> get_gallery_home_url(),
-        'U_ADMIN'=> get_root_url().'admin/index.php',
-        'U_LOGOUT'=> get_root_url().'index.php?act=logout',
-        'U_PLUGINS'=> $link_start.'plugins',
+        'U_CONFIG_THEMES' => $link_start.'themes',
+        'U_ALBUMS' => $link_start.'albums',
+        'U_ALBUMS_OPTIONS' => $link_start.'albums_options',
+        'U_CAT_UPDATE' => $link_start.'site_update&amp;site=1',
+        'U_RATING' => $link_start.'rating',
+        'U_RECENT_SET' => $link_start.'batch_manager&amp;filter=prefilter-last_import',
+        'U_BATCH' => $link_start.'batch_manager',
+        'U_TAGS' => $link_start.'tags',
+        'U_USERS' => $link_start.'users',
+        'U_GROUPS' => $link_start.'groups',
+        'U_NOTIFICATION_BY_MAIL' => $link_start.'notification_by_mail',
+        'U_RETURN' => get_gallery_home_url(),
+        'U_ADMIN' => get_root_url().'admin/index.php',
+        'U_LOGOUT' => get_root_url().'index.php?act=logout',
+        'U_PLUGINS' => $link_start.'plugins',
         'U_ADD_PHOTOS' => $link_start.'photos_add',
         'U_CHANGE_THEME' => $change_theme_url,
         'U_UPDATES' => $link_start.'updates',
@@ -233,8 +233,8 @@ $template->assign('plugin_menu_items', $plugin_menu_links);
 if (in_array($page['page'], array('site_manager', 'site_update'))
     or (!empty($_POST) and in_array($page['page'], array(
         'album',        // public/private; lock/unlock, permissions
-        'cat_move',
-        'cat_options',  // public/private; Nicolas lock/unlock
+        'albums_move',
+        'albums_options',  // public/private; lock/unlock
         'user_list',    // group assoc; user level
         'user_perm',
     )))) {

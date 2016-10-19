@@ -1,3 +1,4 @@
+@admin
 Feature: Create new access
   In order share my albums
   As a webmaster

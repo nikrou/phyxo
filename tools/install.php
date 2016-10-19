@@ -76,8 +76,8 @@ conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welc
 
 // fill languages table
 $languages->setConnection($conn);
-foreach ($languages->fs_languages as $language_code => $fs_language) {
-    $languages->perform_action('activate', $language_code);
+foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
+    $languages->performAction('activate', $language_code);
 }
 
 load_conf_from_db();

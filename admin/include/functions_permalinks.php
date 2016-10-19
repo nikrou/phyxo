@@ -25,6 +25,48 @@
 /** returns a category id that corresponds to the given permalink (or null)
  * @param string permalink
  */
+function parse_sort_variables($sortable_by, $default_field, $get_param, $get_rejects, $template_var, $anchor = '') {
+    global $template;
+
+    $url_components = parse_url( $_SERVER['REQUEST_URI'] );
+
+    $base_url = $url_components['path'];
+
+    parse_str($url_components['query'], $vars);
+    $is_first = true;
+    foreach ($vars as $key => $value) {
+        if (!in_array($key, $get_rejects) and $key!=$get_param) {
+            $base_url .= $is_first ? '?' : '&amp;';
+            $is_first = false;
+            $base_url .= $key.'='.urlencode($value);
+        }
+    }
+
+    $ret = array();
+    foreach($sortable_by as $field) {
+        $url = $base_url;
+        $disp = '↓'; // @TODO: an small image is better
+
+        if ($field !== @$_GET[$get_param]) {
+            if (!isset($default_field) or $default_field!=$field) { // the first should be the default
+                $url = add_url_params($url, array($get_param=>$field));
+            } elseif (isset($default_field) and !isset($_GET[$get_param])) {
+                $ret[] = $field;
+                $disp = '<em>'.$disp.'</em>';
+            }
+        } else {
+            $ret[] = $field;
+            $disp = '<em>'.$disp.'</em>';
+        }
+        if (isset($template_var)) {
+            $template->assign( $template_var.strtoupper($field),
+            '<a href="'.$url.$anchor.'" title="'.l10n('Sort order').'">'.$disp.'</a>'
+            );
+        }
+    }
+    return $ret;
+}
+
 function get_cat_id_from_permalink($permalink) {
     global $conn;
 

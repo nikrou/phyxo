@@ -22,21 +22,9 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('ALBUMS_BASE_URL')) {
     die('Hacking attempt!');
 }
-
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
-// |                               functions                               |
-// +-----------------------------------------------------------------------+
-
 
 // +-----------------------------------------------------------------------+
 // |                          categories movement                          |
@@ -54,21 +42,13 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 // |                       template initialization                         |
 // +-----------------------------------------------------------------------+
-$template->set_filename('cat_move', 'cat_move.tpl');
 
 $template->assign(
     array(
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_move',
-        'F_ACTION' => get_root_url().'admin/index.php?page=cat_move',
+        'F_ACTION' => ALBUMS_BASE_URL.'&amp;section=move',
     )
 );
-
-// +-----------------------------------------------------------------------+
-// | tabs                                                                  |
-// +-----------------------------------------------------------------------+
-
-$page['tab'] = 'move';
-include(PHPWG_ROOT_PATH.'admin/include/albums_tab.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                          Categories display                           |
@@ -93,4 +73,4 @@ display_select_cat_wrapper(
 // |                          sending html code                            |
 // +-----------------------------------------------------------------------+
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'cat_move');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'albums');

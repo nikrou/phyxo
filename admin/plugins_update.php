@@ -22,23 +22,22 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("PLUGINS_BASE_URL")) {
     die ("Hacking attempt!");
 }
-return; // temporary
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\Update\Updates;
 
-$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+//$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
 
 $autoupdate = new Updates($conn, $page['page']);
 
 $show_reset = false;
-if (!$autoupdate->get_server_extensions()) {
+if (!$autoupdate->getServerExtensions()) {
     $page['errors'][] = l10n('Can\'t connect to server.');
-    return; // TODO: remove this return and add a proper "page killer"
+    return; // @TODO: remove this return and add a proper "page killer"
 }
 
 foreach ($autoupdate->types as $type) {
@@ -86,5 +85,5 @@ foreach ($autoupdate->types as $type) {
 $template->assign('SHOW_RESET', $show_reset);
 $template->assign('PWG_TOKEN', get_pwg_token());
 $template->assign('EXT_TYPE', $page['page'] == 'updates' ? 'extensions' : $page['page']);
-$template->set_filename('plugin_admin_content', 'updates_ext.tpl');
-$template->assign_var_from_handle('ADMIN_CONTENT', 'plugin_admin_content');
+
+$template->assign_var_from_handle('ADMIN_CONTENT', 'plugins');

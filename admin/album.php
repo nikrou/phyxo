@@ -26,6 +26,8 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
 }
 
+use Phyxo\TabSheet\TabSheet;
+
 // +-----------------------------------------------------------------------+
 // | Basic checks                                                          |
 // +-----------------------------------------------------------------------+
@@ -33,7 +35,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
-$admin_album_base_url = get_root_url().'admin/index.php?page=album-'.$_GET['cat_id'];
 
 $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($_GET['cat_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));
@@ -43,38 +44,30 @@ foreach ($category as $k => $v) {
     }
 }
 
-if (!isset($category['id'])) {
-    die('unknown album'); // @TODO: find a better way to stop and send response
-}
+define('ALBUM_BASE_URL', get_root_url().'admin/index.php?page=album&amp;cat_id='.$category['id']);
 
 // +-----------------------------------------------------------------------+
-// | Tabs                                                                  |
+// |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
-
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
-
-$page['tab'] = 'properties';
-
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
-}
-
-$tabsheet = new tabsheet();
-$tabsheet->set_id('album');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
-
-// +-----------------------------------------------------------------------+
-// | Load the tab                                                          |
-// +-----------------------------------------------------------------------+
-
-if ('properties' == $page['tab']) {
-    include(PHPWG_ROOT_PATH.'admin/cat_modify.php');
-} elseif ('sort_order' == $page['tab']) {
-    include(PHPWG_ROOT_PATH.'admin/element_set_ranks.php');
-} elseif ('permissions' == $page['tab']) {
-    $_GET['cat'] = $_GET['cat_id'];
-    include(PHPWG_ROOT_PATH.'admin/cat_perm.php');
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    include(PHPWG_ROOT_PATH.'admin/album_'.$page['tab'].'.php');
+    $page['section'] = 'properties';
 }
+
+$tabsheet = new TabSheet();
+$tabsheet->setId('album');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
+
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('album' => 'album_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/album_'.$page['section'].'.php');

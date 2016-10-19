@@ -22,15 +22,9 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("RATING_BASE_URL")) {
     die ("Hacking attempt!");
 }
-
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
-$tabsheet = new tabsheet();
-$tabsheet->set_id('rating');
-$tabsheet->select('rating_user');
-$tabsheet->assign();
 
 $filter_min_rates = 2;
 if (isset($_GET['f_min_rates'])) {
@@ -218,5 +212,5 @@ $template->assign(array(
     'image_urls' => $image_urls,
     'TN_WIDTH' => ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size[0],
 ));
-$template->set_filename('rating', 'rating_user.tpl');
+
 $template->assign_var_from_handle('ADMIN_CONTENT', 'rating');

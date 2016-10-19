@@ -44,6 +44,7 @@ var pwg_token = '{$pwg_token}';
 var photosUploaded_label = "{'%d photos uploaded'|translate}";
 var batch_Label = "{'Manage this set of %d photos'|translate}";
 var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
+var upload_file_types = "{$upload_file_types}";
 var uploadedPhotos = [];
 var uploadCategory = null;
 {/footer_script}

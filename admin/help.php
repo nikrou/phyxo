@@ -23,26 +23,26 @@
 // +-----------------------------------------------------------------------+
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+
+use Phyxo\TabSheet\TabSheet;
+
+define('HELP_BASE_URL', get_root_url().'admin/index.php?page=help');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-$help_link = get_root_url().'admin/index.php?page=help&section=';
-$selected = null;
-
-if (!isset($_GET['section'])) {
-    $selected = 'add_photos';
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    $selected = $_GET['section'];
+    $page['section'] = 'add_photos';
 }
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('help');
-$tabsheet->select($selected);
-$tabsheet->assign();
+$tabsheet = new TabSheet();
+$tabsheet->setId('help');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
 trigger_notify('loc_end_help');
 
@@ -51,11 +51,11 @@ $template->set_filenames(array('help' => 'help.tpl'));
 $template->assign(
     array(
         'HELP_CONTENT' => load_language(
-            'help/help_'.$tabsheet->selected.'.html',
+            'help/help_'.$page['section'].'.html',
             '',
-            array('return'=>true)
+            array('return' => true)
         ),
-        'HELP_SECTION_TITLE' => $tabsheet->sheets[ $tabsheet->selected ]['caption'],
+        'HELP_SECTION_TITLE' => $tabsheet->getCaption()
     )
 );
 

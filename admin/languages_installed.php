@@ -22,26 +22,20 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("LANGUAGES_BASE_URL")) {
     die ("Hacking attempt!");
 }
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Language\Languages;
 
-$template->set_filenames(array('languages' => 'languages_installed.tpl'));
-$base_url = get_root_url().'admin/index.php?page='.$page['page'];
-
 $languages = new Languages($conn);
-$languages->get_db_languages();
 
 //--------------------------------------------------perform requested actions
 if (isset($_GET['action']) and isset($_GET['language'])) {
-    $page['errors'] = $languages->perform_action($_GET['action'], $_GET['language']);
+    $page['errors'] = $languages->performAction($_GET['action'], $_GET['language']);
 
     if (empty($page['errors'])) {
-        redirect($base_url);
+        redirect(LANGUAGES_BASE_URL.'&section=installed');
     }
 }
 
@@ -52,14 +46,14 @@ $default_language = $services['users']->getDefaultLanguage();
 
 $tpl_languages = array();
 
-foreach($languages->fs_languages as $language_id => $language) {
-    $language['u_action'] = add_url_params($base_url, array('language' => $language_id));
+foreach($languages->getFsLanguages() as $language_id => $language) {
+    $language['u_action'] = add_url_params(LANGUAGES_BASE_URL.'&amp;section=installed', array('language' => $language_id));
 
-    if (in_array($language_id, array_keys($languages->db_languages))) {
+    if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
         $language['state'] = 'active';
         $language['deactivable'] = true;
 
-        if (count($languages->db_languages) <= 1) {
+        if (count($languages->getDbLanguages()) <= 1) {
             $language['deactivable'] = false;
             $language['deactivate_tooltip'] = l10n('Impossible to deactivate this language, you need at least one language.');
         }
@@ -86,8 +80,8 @@ $template->append('language_states', 'active');
 $template->append('language_states', 'inactive');
 
 $missing_language_ids = array_diff(
-    array_keys($languages->db_languages),
-    array_keys($languages->fs_languages)
+    array_keys($languages->getDbLanguages()),
+    array_keys($languages->getFsLanguages())
 );
 
 foreach($missing_language_ids as $language_id) {

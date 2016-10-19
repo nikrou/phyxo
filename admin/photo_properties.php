@@ -3,13 +3,9 @@
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,20 +14,15 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if(!defined("PHPWG_ROOT_PATH")) {
-    die('Hacking attempt!');
+if (!defined("PHOTO_BASE_URL")) {
+    die ("Hacking attempt!");
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -39,7 +30,7 @@ check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 // represent
 $query = 'SELECT id FROM '.CATEGORIES_TABLE;
 $query .= ' WHERE representative_picture_id = '.(int) $_GET['image_id'];
-$represented_albums = $conn->query2array($query, null, 'id');
+$represented_albums = $conn->query2array($query, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |
@@ -93,7 +84,7 @@ if (isset($_GET['delete'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['sync_metadata'])) {
-    sync_metadata(array( intval($_GET['image_id'])));
+    sync_metadata(array(intval($_GET['image_id'])));
     $page['infos'][] = l10n('Metadata synchronized from file');
 }
 
@@ -187,9 +178,7 @@ $image_file = $row['file'];
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('picture_modify' => 'picture_modify.tpl'));
-
-$admin_url_start = $admin_photo_base_url.'-properties';
+$admin_url_start = PHOTO_BASE_URL.'&amp;section=properties';
 $admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
 
 $src_image = new SrcImage($row);
@@ -315,7 +304,7 @@ if (isset($url_img)) {
 $query = 'SELECT id FROM '.CATEGORIES_TABLE;
 $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id';
 $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
-$associated_albums = $conn->query2array($query, null, 'id');
+$associated_albums = $conn->query2array($query, 'id');
 
 $template->assign(array(
     'associated_albums' => $associated_albums,
@@ -328,4 +317,4 @@ trigger_notify('loc_end_picture_modify');
 
 //----------------------------------------------------------- sending html code
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'picture_modify');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'photo');

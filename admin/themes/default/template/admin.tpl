@@ -26,8 +26,8 @@ $('#menubar').lightAccordion({
     <dt><i class="icon-sitemap"> </i><span>{'Albums'|translate}&nbsp;</span></dt>
     <dd>
       <ul>
-        <li><a href="{$U_CATEGORIES}"><i class="icon-folder-open"></i>{'Manage'|translate}</a></li>
-        <li><a href="{$U_CAT_OPTIONS}"><i class="icon-pencil"></i>{'Properties'|translate}</a></li>
+        <li><a href="{$U_ALBUMS}"><i class="icon-folder-open"></i>{'Manage'|translate}</a></li>
+        <li><a href="{$U_ALBUMS_OPTIONS}"><i class="icon-pencil"></i>{'Properties'|translate}</a></li>
       </ul>
     </dd>
   </dl>

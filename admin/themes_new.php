@@ -22,15 +22,11 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("THEMES_BASE_URL")) {
     die ("Hacking attempt!");
 }
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Theme\Themes;
-
-$base_url = get_root_url().'admin/index.php?page='.$page['page'].'&tab='.$page['tab'];
 
 $themes = new Themes($conn);
 
@@ -59,7 +55,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
             $_GET['extension']
         );
 
-        redirect($base_url.'&installstatus='.$install_status);
+        redirect(THEMES_BASE_URL.'&section=new&installstatus='.$install_status);
     }
 }
 
@@ -98,11 +94,10 @@ if (isset($_GET['installstatus'])) {
 // |                          template output                              |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('themes' => 'themes_new.tpl'));
-
 if ($themes->get_server_themes(true)) { // only new themes
   foreach($themes->server_themes as $theme) {
-      $url_auto_install = htmlentities($base_url)
+      $url_auto_install = htmlentities(THEMES_BASE_URL)
+          . '&amp;section=new'
           . '&amp;revision=' . $theme['revision_id']
           . '&amp;extension=' . $theme['extension_id']
           . '&amp;pwg_token='.get_pwg_token()

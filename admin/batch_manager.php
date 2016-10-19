@@ -33,7 +33,10 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+
+define('BATCH_MANAGER_BASE_URL', get_root_url().'admin/index.php?page=batch_manager');
+
+use Phyxo\TabSheet\TabSheet;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -41,6 +44,22 @@ include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('selection', $_POST, true, PATTERN_ID);
+
+
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'global';
+}
+
+$tabsheet = new TabSheet();
+$tabsheet->setId('batch_manager');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
 // +-----------------------------------------------------------------------+
 // | specific actions                                                      |
@@ -420,21 +439,6 @@ if (!isset($_REQUEST['start']) or !is_numeric($_REQUEST['start'])
 }
 
 
-// +-----------------------------------------------------------------------+
-// |                                 Tabs                                  |
-// +-----------------------------------------------------------------------+
-$manager_link = get_root_url().'admin/index.php?page=batch_manager&amp;mode=';
-
-if (isset($_GET['mode'])) {
-    $page['tab'] = $_GET['mode'];
-} else {
-    $page['tab'] = 'global';
-}
-
-$tabsheet = new tabsheet();
-$tabsheet->set_id('batch_manager');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
 
 
 // +-----------------------------------------------------------------------+
@@ -562,7 +566,9 @@ foreach (array_keys($filesize['bounds']) as $type) {
 $template->assign('filesize', $filesize);
 
 // +-----------------------------------------------------------------------+
-// |                         open specific mode                            |
+// |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH.'admin/batch_manager_'.$page['tab'].'.php');
+$template->set_filenames(array('batch_manager' => 'batch_manager_'.$page['section'].'.tpl'));
+
+include(PHPWG_ROOT_PATH.'admin/batch_manager_'.$page['section'].'.php');

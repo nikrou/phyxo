@@ -26,23 +26,32 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+define('PLUGINS_BASE_URL', get_root_url().'admin/index.php?page=plugins');
 
-$my_base_url = get_root_url().'admin/index.php?page=plugins';
+use Phyxo\TabSheet\TabSheet;
 
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    $page['tab'] = 'installed';
+    $page['section'] = 'installed';
 }
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('plugins');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
+$tabsheet = new TabSheet();
+$tabsheet->setId('plugins');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
-if ($page['tab'] == 'update') {
-    include(PHPWG_ROOT_PATH.'admin/updates_ext.php');
-} else {
-    include(PHPWG_ROOT_PATH.'admin/plugins_'.$page['tab'].'.php');
-}
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('plugins' => 'plugins_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/plugins_'.$page['section'].'.php');

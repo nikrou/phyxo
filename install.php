@@ -106,13 +106,13 @@ $languages = new Languages(null, 'utf-8');
 if (isset($_GET['language'])) {
     $language = strip_tags($_GET['language']);
 
-    if (!in_array($language, array_keys($languages->fs_languages))) {
+    if (!in_array($language, array_keys($languages->getFsLanguages()))) {
         $language = PHPWG_DEFAULT_LANGUAGE;
     }
 } else {
     $language = 'en_UK';
     // Try to get browser language
-    foreach ($languages->fs_languages as $language_code => $fs_language) {
+    foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
         if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {
             $language = $language_code;
             break;
@@ -246,8 +246,8 @@ define(\'DB_COLLATE\', \'\');';
 
         // fill languages table
         $languages->setConnection($conn);
-        foreach ($languages->fs_languages as $language_code => $fs_language) {
-            $languages->perform_action('activate', $language_code);
+        foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
+            $languages->performAction('activate', $language_code);
         }
 
         // fill $conf global array
@@ -314,7 +314,7 @@ define(\'DB_COLLATE\', \'\');';
 }
 
 //------------------------------------------------------ start template output
-foreach ($languages->fs_languages as $language_code => $fs_language) {
+foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
     if ($language == $language_code) {
         $template->assign('language_selection', $language_code);
     }

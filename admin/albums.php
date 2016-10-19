@@ -22,11 +22,44 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
+}
 
-$my_base_url = get_root_url().'admin/index.php?page=';
+include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('albums');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
+define('ALBUMS_BASE_URL', get_root_url().'admin/index.php?page=albums');
+
+use Phyxo\TabSheet\TabSheet;
+
+// +-----------------------------------------------------------------------+
+// | Check Access and exit when user status is not ok                      |
+// +-----------------------------------------------------------------------+
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
+
+// +-----------------------------------------------------------------------+
+// | tabs                                                                  |
+// +-----------------------------------------------------------------------+
+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'list';
+}
+
+$tabsheet = new TabSheet();
+$tabsheet->setId('albums');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
+
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('albums' => 'albums_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/albums_'.$page['section'].'.php');

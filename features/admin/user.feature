@@ -1,3 +1,4 @@
+@admin
 Feature: Create new access
   In order share my albums
   As a webmaster
@@ -12,7 +13,7 @@ Feature: Create new access
   @javascript
   Scenario: Create new user
     Given I am logged in as "user1" with password "pass1"
-    When I go to "admin/index.php?page=user_list"
+    When I go to "admin/index.php?page=users"
     And I follow "Add a user"
     And I fill in "username" with "John Doe"
     And I fill in "email" with "john.doe@phyxo.net"
@@ -26,7 +27,7 @@ Feature: Create new access
   @javascript
   Scenario: Create new user and connect with him
     Given I am logged in as "user1" with password "pass1"
-    When I go to "admin/index.php?page=user_list"
+    When I go to "admin/index.php?page=users"
     And I follow "Add a user"
     And I fill in "username" with "user2"
     And I fill in "password" with "pass2"

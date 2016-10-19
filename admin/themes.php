@@ -26,23 +26,37 @@ if (!defined("PHPWG_ROOT_PATH")) {
   die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+define('THEMES_BASE_URL', get_root_url().'admin/index.php?page=themes');
 
-$my_base_url = get_root_url().'admin/index.php?page=themes';
+use Phyxo\TabSheet\TabSheet;
 
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
+// +-----------------------------------------------------------------------+
+// | Check Access and exit when user status is not ok                      |
+// +-----------------------------------------------------------------------+
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
+
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    $page['tab'] = 'installed';
+    $page['section'] = 'installed';
 }
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('themes');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
+$tabsheet = new TabSheet();
+$tabsheet->setId('themes');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
-if ($page['tab'] == 'update') {
-    include(PHPWG_ROOT_PATH.'admin/updates_ext.php');
-} else {
-    include(PHPWG_ROOT_PATH.'admin/themes_'.$page['tab'].'.php');
-}
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('themes' => 'themes_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/themes_'.$page['section'].'.php');

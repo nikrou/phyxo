@@ -22,14 +22,9 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("PHOTO_BASE_URL")) {
     die('Hacking attempt!');
 }
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
@@ -92,8 +87,5 @@ foreach(ImageStdParams::get_defined_type_map() as $params) {
     }
 }
 
-
 $template->assign($tpl_var);
-$template->set_filename('picture_coi', 'picture_coi.tpl');
-
-$template->assign_var_from_handle('ADMIN_CONTENT', 'picture_coi');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'photo');

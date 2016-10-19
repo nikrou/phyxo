@@ -26,23 +26,37 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+define('LANGUAGES_BASE_URL', get_root_url().'admin/index.php?page=languages');
 
-$my_base_url = get_root_url().'admin/index.php?page=languages';
+use Phyxo\TabSheet\TabSheet;
 
-if (isset($_GET['tab'])) {
-    $page['tab'] = $_GET['tab'];
+// +-----------------------------------------------------------------------+
+// | Check Access and exit when user status is not ok                      |
+// +-----------------------------------------------------------------------+
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
+
+// +-----------------------------------------------------------------------+
+// |                                 Tabs                                  |
+// +-----------------------------------------------------------------------+
+if (isset($_GET['section'])) {
+    $page['section'] = $_GET['section'];
 } else {
-    $page['tab'] = 'installed';
+    $page['section'] = 'installed';
 }
 
-$tabsheet = new tabsheet();
-$tabsheet->set_id('languages');
-$tabsheet->select($page['tab']);
-$tabsheet->assign();
+$tabsheet = new TabSheet();
+$tabsheet->setId('languages');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
-if ($page['tab'] == 'update') {
-  include(PHPWG_ROOT_PATH.'admin/updates_ext.php');
-} else {
-  include(PHPWG_ROOT_PATH.'admin/languages_'.$page['tab'].'.php');
-}
+// +-----------------------------------------------------------------------+
+// |                             template init                             |
+// +-----------------------------------------------------------------------+
+
+$template->set_filenames(array('languages' => 'languages_'.$page['section'].'.tpl'));
+
+// +-----------------------------------------------------------------------+
+// |                             Load the tab                              |
+// +-----------------------------------------------------------------------+
+
+include(PHPWG_ROOT_PATH.'admin/languages_'.$page['section'].'.php');

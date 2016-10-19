@@ -22,18 +22,12 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('ALBUM_BASE_URL')) {
     die ("Hacking attempt!");
 }
 
 include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
@@ -108,8 +102,6 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
 // |                       template initialization                         |
 // +-----------------------------------------------------------------------+
 
-$template->set_filename('album_notification', 'album_notification.tpl');
-
 $template->assign(
     array(
         'CATEGORIES_NAV' =>
@@ -117,7 +109,7 @@ $template->assign(
             $page['cat'],
             'admin/index.php?page=album-'
         ),
-        'F_ACTION' => $admin_album_base_url.'-notification',
+        'F_ACTION' => ALBUM_BASE_URL.'&amp;section=notification',
         'PWG_TOKEN' => get_pwg_token(),
     )
 );
@@ -137,7 +129,7 @@ if (count($all_group_ids) == 0) {
         $group_ids = $conn->query2array($query, null, 'group_id');
 
         if (count($group_ids) == 0) {
-            $template->assign('permission_url', $admin_album_base_url.'-permissions');
+            $template->assign('permission_url', ALBUM_BASE_URL.'&amp;section=permissions');
         }
     } else {
         $group_ids = $all_group_ids;
@@ -157,4 +149,4 @@ if (count($all_group_ids) == 0) {
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'album_notification');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'album');

@@ -28,7 +28,10 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
+
+define('CONFIGURATION_BASE_URL', get_root_url().'admin/index.php?page=configuration');
+
+use Phyxo\TabSheet\TabSheet;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -39,11 +42,17 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 check_input_parameter('section', $_GET, false, '/^[a-z]+$/i');
 
-if (!isset($_GET['section'])) {
-    $page['section'] = 'main';
-} else {
+if (isset($_GET['section'])) {
     $page['section'] = $_GET['section'];
+} else {
+    $page['section'] = 'main';
 }
+
+// TabSheet
+$tabsheet = new TabSheet();
+$tabsheet->setId('configuration');
+$tabsheet->select($page['section']);
+$tabsheet->assign($template);
 
 $main_checkboxes = array(
     'allow_user_registration',
@@ -254,12 +263,6 @@ if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings
 
 //----------------------------------------------------- template initialization
 $template->set_filename('config', 'configuration_' . $page['section'] . '.tpl');
-
-// TabSheet
-$tabsheet = new tabsheet();
-$tabsheet->set_id('configuration');
-$tabsheet->select($page['section']);
-$tabsheet->assign();
 
 $action = get_root_url().'admin/index.php?page=configuration';
 $action .= '&amp;section='.$page['section'];

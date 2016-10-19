@@ -18,7 +18,7 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('TAGS_BASE_URL')) {
     die ('Hacking attempt!');
 }
 

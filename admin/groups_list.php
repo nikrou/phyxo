@@ -3,13 +3,9 @@
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,37 +14,14 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
+if (!defined("GROUPS_BASE_URL")) {
+    die ("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | tabs                                                                  |
-// +-----------------------------------------------------------------------+
-
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
-
-$my_base_url = get_root_url().'admin/index.php?page=';
-
-$tabsheet = new tabsheet();
-$tabsheet->set_id('groups');
-$tabsheet->select('group_list');
-$tabsheet->assign();
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-if (!empty($_POST) or isset($_GET['delete']) or isset($_GET['toggle_is_default'])) {
-    check_pwg_token();
-}
 // +-----------------------------------------------------------------------+
 // |                              add a group                              |
 // +-----------------------------------------------------------------------+
@@ -91,7 +64,6 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     // |rename a group
     // +
-
     if ($action=="rename") {
         // is the group not already existing ?
         $query = 'SELECT name FROM '.GROUPS_TABLE;
@@ -111,7 +83,6 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     // |delete a group
     // +
-
     if ($action=="delete" and isset($_POST['confirm_deletion']) and $_POST['confirm_deletion']) {
         foreach($groups as $group) {
             // destruction of the access linked to the group
@@ -136,7 +107,6 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     // |merge groups into a new one
     // +
-
     if ($action=="merge" and count($groups) > 1) {
         // is the group not already existing ?
         $query = 'SELECT COUNT(1) FROM '.GROUPS_TABLE;
@@ -187,7 +157,6 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     // |duplicate a group
     // +
-
     if ($action=="duplicate") {
         foreach($groups as $group) {
             if (empty($_POST['duplicate_'.$group.''])) {
@@ -240,7 +209,6 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     // | toggle_default
     // +
-
     if ($action=="toggle_default") {
         foreach($groups as $group) {
             $query = 'SELECT name, is_default FROM '.GROUPS_TABLE.' WHERE id = '.$group;
@@ -263,11 +231,9 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('group_list' => 'group_list.tpl'));
-
 $template->assign(
     array(
-        'F_ADD_ACTION' => get_root_url().'admin/index.php?page=group_list',
+        'F_ADD_ACTION' => GROUPS_BASE_URL.'&amp;section=list',
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=group_list',
         'PWG_TOKEN' => get_pwg_token(),
     )
@@ -280,10 +246,9 @@ $template->assign(
 $query = 'SELECT id, name, is_default FROM '.GROUPS_TABLE.' ORDER BY name ASC';
 $result = $conn->db_query($query);
 
-$admin_url = get_root_url().'admin/index.php?page=';
-$perm_url = $admin_url.'group_perm&amp;group_id=';
-$del_url = $admin_url.'group_list&amp;delete=';
-$toggle_is_default_url = $admin_url.'group_list&amp;toggle_is_default=';
+$perm_url = GROUPS_BASE_URL.'&amp;section=perm&amp;group_id=';
+$del_url = GROUPS_BASE_URL.'&amp;section=list&amp;delete=';
+$toggle_is_default_url = GROUPS_BASE_URL.'&amp;section=list&amp;toggle_is_default=';
 
 while ($row = $conn->db_fetch_assoc($result)) {
     $query = 'SELECT u.'. $conf['user_fields']['username'].' AS username FROM '.USERS_TABLE.' AS u';
@@ -314,4 +279,4 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'group_list');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'groups');

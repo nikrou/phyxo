@@ -3,13 +3,9 @@
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,20 +14,13 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
+if (!defined("ALBUMS_BASE_URL")) {
+    die ("Hacking attempt!");
 }
-
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 trigger_notify('loc_begin_cat_list');
 
@@ -151,17 +140,10 @@ check_input_parameter('parent_id', $_GET, false, PATTERN_ID);
 
 $categories = array();
 
-$base_url = get_root_url().'admin/index.php?page=cat_list';
-$navigation = '<a href="'.$base_url.'">';
+$navigation = '<a href="'.ALBUMS_BASE_URL.'">';
 $navigation.= l10n('Home');
 $navigation.= '</a>';
 
-// +-----------------------------------------------------------------------+
-// | tabs                                                                  |
-// +-----------------------------------------------------------------------+
-
-$page['tab'] = 'list';
-include(PHPWG_ROOT_PATH.'admin/include/albums_tab.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                    virtual categories management                      |
@@ -173,7 +155,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     update_global_rank();
     invalidate_user_cache();
 
-    $redirect_url = get_root_url().'admin/index.php?page=cat_list';
+    $redirect_url = ALBUMS_BASE_URL.'&amp;section=list';
     if (isset($_GET['parent_id'])) {
         $redirect_url.= '&parent_id='.$_GET['parent_id'];
     }
@@ -262,15 +244,14 @@ if (isset($_GET['parent_id'])) {
 
     $navigation.= get_cat_display_name_from_id(
         $_GET['parent_id'],
-        $base_url.'&amp;parent_id='
+        ALBUMS_BASE_URL.'&amp;section=list&amp;parent_id='
     );
 }
 // +-----------------------------------------------------------------------+
 // |                       template initialization                         |
 // +-----------------------------------------------------------------------+
-$template->set_filename('categories', 'cat_list.tpl');
 
-$form_action = get_root_url().'admin/index.php?page=cat_list';
+$form_action = ALBUMS_BASE_URL;
 if (isset($_GET['parent_id'])) {
     $form_action.= '&amp;parent_id='.$_GET['parent_id'];
 }
@@ -334,14 +315,13 @@ if (count($categories)) {
 
 $template->assign('categories', array());
 $base_url = get_root_url().'admin/index.php?page=';
+$cat_list_url = ALBUMS_BASE_URL.'&amp;section=list';
 
 if (isset($_GET['parent_id'])) {
-    $template->assign('PARENT_EDIT', $base_url.'album-'.$_GET['parent_id']);
+    $template->assign('PARENT_EDIT', $base_url.'album&amp;cat_id='.$_GET['parent_id']);
 }
 
 foreach ($categories as $category) {
-    $cat_list_url = $base_url.'cat_list';
-
     $self_url = $cat_list_url;
     if (isset($_GET['parent_id'])) {
         $self_url .= '&amp;parent_id='.$_GET['parent_id'];
@@ -356,7 +336,7 @@ foreach ($categories as $category) {
         'RANK' => $category['rank']*10,
         'U_JUMPTO' => make_index_url(array('category' => $category)),
         'U_CHILDREN' => $cat_list_url.'&amp;parent_id='.$category['id'],
-        'U_EDIT' => $base_url.'album-'.$category['id'],
+        'U_EDIT' => $base_url.'album&amp;cat_id='.$category['id'],
         'IS_VIRTUAL' => empty($category['dir'])
     );
 
@@ -377,4 +357,4 @@ trigger_notify('loc_end_cat_list');
 // +-----------------------------------------------------------------------+
 // |                          sending html code                            |
 // +-----------------------------------------------------------------------+
-$template->assign_var_from_handle('ADMIN_CONTENT', 'categories');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'albums');

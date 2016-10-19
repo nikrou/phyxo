@@ -3,13 +3,9 @@
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
+// | it under the terms of the GNU General Public License version 2 as     |
+// | published by the Free Software Foundation                             |
 // |                                                                       |
 // | This program is distributed in the hope that it will be useful, but   |
 // | WITHOUT ANY WARRANTY; without even the implied warranty of            |
@@ -18,26 +14,13 @@
 // |                                                                       |
 // | You should have received a copy of the GNU General Public License     |
 // | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
+// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
+// | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-/**
- * Add users and manage users list
- */
-
-// +-----------------------------------------------------------------------+
-// | tabs                                                                  |
-// +-----------------------------------------------------------------------+
-
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
-
-$my_base_url = get_root_url().'admin/index.php?page=';
-
-$tabsheet = new tabsheet();
-$tabsheet->set_id('users');
-$tabsheet->select('user_list');
-$tabsheet->assign();
+if (!defined("USERS_BASE_URL")) {
+    die ("Hacking attempt!");
+}
 
 // +-----------------------------------------------------------------------+
 // |                              groups list                              |
@@ -55,8 +38,6 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // +-----------------------------------------------------------------------+
 // | template                                                              |
 // +-----------------------------------------------------------------------+
-
-$template->set_filenames(array('user_list'=>'user_list.tpl'));
 
 $query = 'SELECT DISTINCT u.'.$conf['user_fields']['id'].' AS id,u.'.$conf['user_fields']['username'].' AS username,';
 $query .= 'u.'.$conf['user_fields']['email'].' AS email,ui.status,ui.enabled_high,';
@@ -132,8 +113,4 @@ foreach ($conf['available_permission_levels'] as $level) {
 $template->assign('level_options', $level_options);
 $template->assign('level_selected', $default_user['level']);
 
-// +-----------------------------------------------------------------------+
-// | html code display                                                     |
-// +-----------------------------------------------------------------------+
-
-$template->assign_var_from_handle('ADMIN_CONTENT', 'user_list');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'users');

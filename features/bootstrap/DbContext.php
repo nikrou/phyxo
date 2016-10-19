@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -270,7 +270,7 @@ class DbContext extends RawMinkContext
     public static function prepareDB(SuiteEvent $event) {
         $parameters = $event->getContextParameters();
         if (!empty($parameters['sql_init_file']) && !empty($parameters['config_file'])
-        && is_readable($parameters['sql_init_file']) && is_readable($parameters['config_file'])) {
+            && is_readable($parameters['sql_init_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
                 self::configDB($parameters);
             }
@@ -283,7 +283,7 @@ class DbContext extends RawMinkContext
 
         // in case suite has been stopped before end
         if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
-        && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
+            && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
             $sql_content = trim(file_get_contents($parameters['sql_cleanup_file']));
             if (!empty($sql_content)) {
                 ORM::get_db()->exec($sql_content);

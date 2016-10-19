@@ -21,6 +21,7 @@
 namespace Phyxo\Theme;
 
 use Phyxo\Theme\DummyThemeMaintain;
+use PclZip;
 
 class Themes
 {

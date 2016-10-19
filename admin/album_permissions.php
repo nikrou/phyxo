@@ -22,16 +22,11 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) {
+if (!defined('ALBUM_BASE_URL')) {
     die ("Hacking attempt!");
 }
 
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
@@ -146,8 +141,6 @@ if (!empty($_POST)) {
 // |                       template initialization                         |
 // +-----------------------------------------------------------------------+
 
-$template->set_filename('cat_perm', 'cat_perm.tpl');
-
 $template->assign(
     array(
         'CATEGORIES_NAV' =>
@@ -156,7 +149,7 @@ $template->assign(
             'admin/index.php?page=album-'
         ),
         'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_perm',
-        'F_ACTION' => $admin_album_base_url.'-permissions',
+        'F_ACTION' => ALBUM_BASE_URL.'&amp;section=permissions',
         'private' => ('private' == $category['status']),
     )
 );
@@ -247,4 +240,4 @@ $template->assign(array(
     'CACHE_KEYS' => get_admin_client_cache_keys(array('groups', 'users')),
 ));
 
-$template->assign_var_from_handle('ADMIN_CONTENT', 'cat_perm');
+$template->assign_var_from_handle('ADMIN_CONTENT', 'album');

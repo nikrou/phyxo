@@ -19,7 +19,7 @@ $(function() {
 	filters : {
 	    max_file_size : '1000mb',
 	    mime_types: [
-		{title : "Image files", extensions : "jpg,jpeg,png,gif"} // @TODO: retrieve from conf
+		{title : "Image files", extensions : upload_file_types}
 	    ]
 	},
 	dragdrop: true,

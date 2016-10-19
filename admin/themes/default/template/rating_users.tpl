@@ -1,14 +1,14 @@
-{combine_script id='jquery.dataTables' load='footer' path='admin/themes/default/js/plugins/jquery.dataTables.js'}
+{combine_script id='jquery.dataTables' load='footer' path='themes/default/js/plugins/jquery.dataTables.js'}
 {html_style}
-.sorting { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
-.sorting_asc { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
-.sorting_desc { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
+.sorting { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
+.sorting_asc { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
+.sorting_desc { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
 
 .sorting, .sorting_asc, .sorting_desc {
 	padding: 3px 18px 3px 10px;
 }
-.sorting_asc_disabled { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
-.sorting_desc_disabled { background: url({$ROOT_URL}admin/themes/default/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
+.sorting_asc_disabled { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
+.sorting_desc_disabled { background: url({$ROOT_URL}themes/default/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
 
 .dtBar {
 	text-align:left;
@@ -40,39 +40,38 @@ body .ui-tooltip {
 <h2>{$ratings|@count} {'Users'|translate}</h2>
 
 <form action="{$F_ACTION}" method="GET">
-<fieldset>
-<noscript>
-	<label>{'Sort by'|translate}
-		<select name="order_by">
-			{html_options options=$order_by_options selected=$order_by_options_selected}
-		</select>
-	</label>
-</noscript>
-	<label>{'Number of rates'|translate}&gt;
-	<input type="text" size="5" name="f_min_rates" value="{$F_MIN_RATES}">
-	</label>
-	<label>{'Consensus deviation'|translate}
-	<input type="text" size="5" name="consensus_top_number" value="{$CONSENSUS_TOP_NUMBER}">
-	{'Best rated'|translate}
-	</label>
+  <fieldset>
+    <noscript>
+      <label>{'Sort by'|@translate}
+	<select name="order_by">
+	  {html_options options=$order_by_options selected=$order_by_options_selected}
+	</select>
+      </label>
+    </noscript>
+    <label>{'Number of rates'|translate}&gt;
+      <input type="text" size="5" name="f_min_rates" value="{$F_MIN_RATES}">
+    </label>
+    <label>{'Consensus deviation'|translate}
+      <input type="text" size="5" name="consensus_top_number" value="{$CONSENSUS_TOP_NUMBER}">
+      {'Best rated'|translate}
+    </label>
 
-	<input type="submit" value="{'Submit'|translate}">
-	</label>
-	<input type="hidden" name="page" value="rating_user">
-</fieldset>
+    <input type="submit" value="{'Submit'|translate}">
+    <input type="hidden" name="page" value="rating_user">
+  </fieldset>
 </form>
 
 {combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
 {combine_script id='jquery.geoip' load='async' path='admin/themes/default/js/jquery.geoip.js'}
 {footer_script}
-var oTable = jQuery('#rateTable').dataTable({
-	sDom : '<"dtBar"filp>rt<"dtBar"ilp>',
-	iDisplayLength: 100,
-	aLengthMenu: [ [25, 50, 100, 500, -1], [25, 50, 100, 500, "All"]],
-	aaSorting: [], //[[1,'desc']],
-	bAutoWidth: false,
-	bSortClasses: false,
-	aoColumnDefs: [
+jQuery('#rateTable').dataTable({
+	dom : '<"dtBar"filp>rt<"dtBar"ilp>',
+	pageLength: 100,
+	lengthMenu: [ [25, 50, 100, 500, -1], [25, 50, 100, 500, "All"]],
+	sorting: [], //[[1,'desc']],
+	autoWidth: false,
+	sortClasses: false,
+	columnDefs: [
 		{
 			aTargets: ["dtc_user"],
 			sType: "string",
@@ -108,41 +107,55 @@ var oTable = jQuery('#rateTable').dataTable({
 	]
 });
 
-function del(elt,uid,aid){
-	if (!confirm('{'Are you sure?'|translate|@escape:'javascript'}'))
-		return false;
-	var tr = elt;
+var oTable = jQuery('#rateTable').DataTable();
+
+function uidFromCell(cell){
+	var tr = cell;
 	while ( tr.nodeName != "TR") tr = tr.parentNode;
 	return $(tr).data("usr");
 }
 
-	(new PwgWS('{$ROOT_URL|@escape:javascript}')).callService(
-		'pwg.rates.delete', { user_id:uid, anonymous_id:aid},
-		{
-			method: 'POST',
-			onFailure: function(num, text) { tr.stop(); tr.fadeTo(0,1); alert(num + " " + text); },
-			onSuccess: function(result){
-				if (result)
-					oTable.fnDeleteRow(tr[0]);
-				else
-					alert(result);
-			}
-		}
-	);
+{* -----DELETE----- *}
+$(function(){
+	$("#rateTable").on( "click", ".del", function(e) {
+		e.preventDefault();
+		if (!confirm('{'Are you sure?'|@translate|@escape:'javascript'}'))
+			return;
+		var cell = e.target.parentNode,
+			tr = cell;
+		while ( tr.nodeName != "TR") tr = tr.parentNode;
+		tr = jQuery(tr).fadeTo(1000, 0.4);
 
-	return false;
-}
+		var data=uidFromCell(cell);
+
+		(new PwgWS('{$ROOT_URL|@escape:javascript}')).callService(
+			'pwg.rates.delete', { user_id:data.uid, anonymous_id:data.aid},
+			{
+				method: 'POST',
+				onFailure: function(num, text) { tr.stop(); tr.fadeTo(0,1); alert(num + " " + text); },
+				onSuccess: function(result){
+					if (result)
+						oTable.row(tr[0]).remove().draw();
+					else
+						alert(result);
+				}
+			}
+		);
+
+	});
+});
+
 {/footer_script}
 <table id="rateTable">
 <thead>
 <tr class="throw">
-	<td class="dtc_user">{'Username'|translate}</td>
-	<td class="dtc_date">{'Last'|translate}</td>
-	<td class="dtc_stat">{'Number of rates'|translate}</td>
-	<td class="dtc_stat">{'Average rate'|translate}</td>
-	<td class="dtc_stat">{'Variation'|translate}</td>
-	<td class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'}</td>
-	<td class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</td>
+	<th class="dtc_user">{'Username'|translate}</th>
+	<th class="dtc_date">{'Last'|translate}</th>
+	<th class="dtc_stat">{'Number of rates'|translate}</th>
+	<th class="dtc_stat">{'Average rate'|translate}</th>
+	<th class="dtc_stat">{'Variation'|translate}</th>
+	<th class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'}</th>
+	<th class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</th>
 {foreach from=$available_rates item=rate}
 	<th class="dtc_rate">{$rate}</th>
 {/foreach}

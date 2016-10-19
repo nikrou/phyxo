@@ -76,7 +76,7 @@ class Languages extends atoum
         $languages = new \Phyxo\Language\Languages($conn);
 
         $this
-            ->array($languages->fs_languages)
+            ->array($languages->getFsLanguages())
             ->isEqualTo($this->getLocalLanguages());
     }
 }

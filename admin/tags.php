@@ -26,8 +26,11 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die ('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/tabsheet.class.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+
+define('TAGS_BASE_URL', get_root_url().'admin/index.php?page=tags');
+
+use Phyxo\TabSheet\TabSheet;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -40,13 +43,13 @@ if (!empty($_GET['section'])) {
 } else {
     $page['section'] = 'all';
 }
+
 $tpl_tags = 'tags_'.$page['section'].'.tpl';
 
-$admin_tags_base_url = get_root_url().'admin/index.php?page=tags';
 $tabsheet = new TabSheet();
-$tabsheet->set_id('tags');
+$tabsheet->setId('tags');
 $tabsheet->select($page['section']);
-$tabsheet->assign();
+$tabsheet->assign($template);
 
 include_once(PHPWG_ROOT_PATH.'admin/tags_'.$page['section'].'.php');
 

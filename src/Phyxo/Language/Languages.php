@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -24,18 +24,14 @@ use PclZip;
 
 class Languages
 {
-    public $fs_languages = array();
-    public $db_languages = array();
+    public $fs_languages = array(), $db_languages = array();
+    private $fs_languages_retrieved = false, $db_languages_retrieved = false;
     public $server_languages = array();
 
-    /**
-     * Initialize $fs_languages and $db_languages
-     */
     public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $target_charset=null) {
         if (!is_null($conn)) {
             $this->conn = $conn;
         }
-        $this->get_fs_languages($target_charset);
     }
 
     public function setConnection(\Phyxo\DBLayer\DBLayer $conn) {
@@ -48,8 +44,15 @@ class Languages
      * @param string - language id
      * @param array - errors
      */
-    function perform_action($action, $language_id) {
+    function performAction($action, $language_id) {
         global $conf, $services;
+
+        if (!$this->db_languages_retrieved) {
+            $this->getDbLanguages();
+        }
+        if (!$this->fs_languages_retrieved) {
+            $this->getFsLanguages();
+        }
 
         if (isset($this->db_languages[$language_id])) {
             $crt_db_language = $this->db_languages[$language_id];
@@ -57,46 +60,59 @@ class Languages
 
         $errors = array();
 
-        switch ($action)
-            {
-            case 'activate':
-                if (isset($crt_db_language))
-                    {
-                        $errors[] = 'CANNOT ACTIVATE - LANGUAGE IS ALREADY ACTIVATED';
-                        break;
-                    }
-
-                $query = 'INSERT INTO '.LANGUAGES_TABLE.' (id, version, name)';
-                $query .= ' VALUES(\''.$language_id.'\',';
-                $query .= ' \''.$this->fs_languages[$language_id]['version'].'\',';
-                $query .= ' \''.$this->fs_languages[$language_id]['name'].'\');';
-                $this->conn->db_query($query);
-                break;
-
-            case 'delete':
-                if (!empty($crt_db_language)) {
-                    $errors[] = 'CANNOT DELETE - LANGUAGE IS ACTIVATED';
-                    break;
-                }
-                if (!isset($this->fs_languages[$language_id])) {
-                    $errors[] = 'CANNOT DELETE - LANGUAGE DOES NOT EXIST';
-                    break;
-                }
-
-                // Set default language to user who are using this language
-                $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$services['users']->getDefaultLanguage().'\'';
-                $query .= ' WHERE language = \''.$language_id.'\';';
-                $this->conn->db_query($query);
-
-                deltree(PHPWG_ROOT_PATH.'language/'.$language_id, PHPWG_ROOT_PATH.'language/trash');
-                break;
-
-            case 'set_default':
-                $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$language_id.'\'';
-                $query .= ' WHERE user_id '.$this->conn->in(array($conf['default_user_id'], $conf['guest_id']));
-                $this->conn->db_query($query);
+        switch ($action) {
+        case 'activate':
+            if (isset($crt_db_language)) {
+                $errors[] = 'CANNOT ACTIVATE - LANGUAGE IS ALREADY ACTIVATED';
                 break;
             }
+
+            $query = 'INSERT INTO '.LANGUAGES_TABLE.' (id, version, name)';
+            $query .= ' VALUES(\''.$language_id.'\',';
+            $query .= ' \''.$this->fs_languages[$language_id]['version'].'\',';
+            $query .= ' \''.$this->fs_languages[$language_id]['name'].'\');';
+            $this->conn->db_query($query);
+            break;
+
+        case 'deactivate':
+            if (!isset($crt_db_language)) {
+                $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS ALREADY DEACTIVATED';
+                break;
+            }
+
+            if ($language_id == $services['users']->getDefaultLanguage()) {
+                $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
+                break;
+            }
+
+            $query = 'DELETE FROM '.LANGUAGES_TABLE.' WHERE id= \''.$language_id.'\'';
+            $this->conn->db_query($query);
+            break;
+
+        case 'delete':
+            if (!empty($crt_db_language)) {
+                $errors[] = 'CANNOT DELETE - LANGUAGE IS ACTIVATED';
+                break;
+            }
+            if (!isset($this->fs_languages[$language_id])) {
+                $errors[] = 'CANNOT DELETE - LANGUAGE DOES NOT EXIST';
+                break;
+            }
+
+            // Set default language to user who are using this language
+            $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$services['users']->getDefaultLanguage().'\'';
+            $query .= ' WHERE language = \''.$language_id.'\';';
+            $this->conn->db_query($query);
+
+            deltree(PHPWG_ROOT_PATH.'language/'.$language_id, PHPWG_ROOT_PATH.'language/trash');
+            break;
+
+        case 'set_default':
+            $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$language_id.'\'';
+            $query .= ' WHERE user_id '.$this->conn->in(array($conf['default_user_id'], $conf['guest_id']));
+            $this->conn->db_query($query);
+            break;
+        }
 
         return $errors;
     }
@@ -104,68 +120,81 @@ class Languages
     /**
      *  Get languages defined in the language directory
      */
-    public function get_fs_languages($target_charset=null) {
-        if (empty($target_charset)) {
-            $target_charset = \get_pwg_charset();
-        }
-        $target_charset = strtolower($target_charset);
+    public function getFsLanguages($target_charset=null) {
+        if (!$this->fs_languages_retrieved) {
+            if (empty($target_charset)) {
+                $target_charset = \get_pwg_charset();
+            }
+            $target_charset = strtolower($target_charset);
 
-        foreach (glob(PHPWG_LANGUAGES_PATH . '*/common.lang.php') as $common_lang) {
-            $language_dir = basename(dirname($common_lang));
+            foreach (glob(PHPWG_LANGUAGES_PATH . '*/common.lang.php') as $common_lang) {
+                $language_dir = basename(dirname($common_lang));
 
-            if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
-                continue;
-            }
-            $language = array(
-                'name' => $language_dir,
-                'code' => $language_dir,
-                'version' => '0',
-                'uri' => '',
-                'author' => ''
-            );
-            $language_data = file_get_contents($common_lang, false, null, 0, 2048);
-
-            if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
-                $language['name'] = trim( $val[1] );
-                $language['name'] = \convert_charset($language['name'], 'utf-8', $target_charset);
-            }
-            if (preg_match("|Version:\\s*([\\w.-]+)|", $language_data, $val)) {
-                $language['version'] = trim($val[1]);
-            }
-            if (preg_match("|Language URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
-                $language['uri'] = trim($val[1]);
-            }
-            if (preg_match("|Author:\\s*(.+)|", $language_data, $val)) {
-                $language['author'] = trim($val[1]);
-            }
-            if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
-                $language['author uri'] = trim($val[1]);
-            }
-            if (!empty($language['uri']) and strpos($language['uri'] , 'extension_view.php?eid=')) {
-                list( , $extension) = explode('extension_view.php?eid=', $language['uri']);
-                if (is_numeric($extension)) {
-                    $language['extension'] = $extension;
+                if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
+                    continue;
                 }
-            }
+                $language = array(
+                    'name' => $language_dir,
+                    'code' => $language_dir,
+                    'version' => '0',
+                    'uri' => '',
+                    'author' => ''
+                );
+                $language_data = file_get_contents($common_lang, false, null, 0, 2048);
 
-            $this->fs_languages[$language_dir] = $language;
+                if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
+                    $language['name'] = trim( $val[1] );
+                    $language['name'] = \convert_charset($language['name'], 'utf-8', $target_charset);
+                }
+                if (preg_match("|Version:\\s*([\\w.-]+)|", $language_data, $val)) {
+                    $language['version'] = trim($val[1]);
+                }
+                if (preg_match("|Language URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
+                    $language['uri'] = trim($val[1]);
+                }
+                if (preg_match("|Author:\\s*(.+)|", $language_data, $val)) {
+                    $language['author'] = trim($val[1]);
+                }
+                if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $language_data, $val)) {
+                    $language['author uri'] = trim($val[1]);
+                }
+                if (!empty($language['uri']) and strpos($language['uri'] , 'extension_view.php?eid=')) {
+                    list( , $extension) = explode('extension_view.php?eid=', $language['uri']);
+                    if (is_numeric($extension)) {
+                        $language['extension'] = $extension;
+                    }
+                }
+
+                $this->fs_languages[$language_dir] = $language;
+            }
+            uasort($this->fs_languages, '\name_compare');
+
+            $this->fs_languages_retrieved = true;
         }
-        uasort($this->fs_languages, '\name_compare');
+
+        return $this->fs_languages;
+
     }
 
-    public function get_db_languages() {
-        $query = 'SELECT id, name FROM '.LANGUAGES_TABLE.' ORDER BY name ASC;';
-        $result = $this->conn->db_query($query);
+    public function getDbLanguages() {
+        if (!$this->db_languages_retrieved) {
+            $query = 'SELECT id, name FROM '.LANGUAGES_TABLE.' ORDER BY name ASC;';
+            $result = $this->conn->db_query($query);
 
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $this->db_languages[ $row['id'] ] = $row['name'];
+            while ($row = $this->conn->db_fetch_assoc($result)) {
+                $this->db_languages[$row['id']] = $row['name'];
+            }
+
+            $this->db_languages_retrieved = true;
         }
+
+        return $this->db_languages;
     }
 
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function get_server_languages($new=false) {
+    public function getServerLanguages($new=false) {
         global $user, $conf;
 
         $get_data = array(
@@ -189,12 +218,12 @@ class Languages
             }
         }
         if (empty($versions_to_check)) {
-            return false;
+            return array();
         }
 
         // Languages to check
         $languages_to_check = array();
-        foreach($this->fs_languages as $fs_language) {
+        foreach($this->getFsLanguages() as $fs_language) {
             if (isset($fs_language['extension'])) {
                 $languages_to_check[] = $fs_language['extension'];
             }
@@ -219,7 +248,7 @@ class Languages
         if (fetchRemote($url, $result, $get_data)) {
             $pem_languages = @unserialize($result);
             if (!is_array($pem_languages)) {
-                return false;
+                return array();
             }
             foreach ($pem_languages as $language) {
                 if (preg_match('/^.*? \[[A-Z]{2}\]$/', $language['extension_name'])) {
@@ -227,9 +256,10 @@ class Languages
                 }
             }
             @uasort($this->server_languages, array($this, 'extension_name_compare'));
-            return true;
+            return $this->server_languages;
         }
-        return false;
+
+        return array();
     }
 
     /**
@@ -239,7 +269,7 @@ class Languages
      * @param string - remote revision identifier (numeric)
      * @param string - language id or extension id
      */
-    public function extract_language_files($action, $revision, $dest='') {
+    public function extractLanguageFiles($action, $revision, $dest='') {
         if ($archive = tempnam( PHPWG_ROOT_PATH.'language', 'zip')) {
             $url = PEM_URL . '/download.php';
             $get_data = array(
@@ -254,8 +284,8 @@ class Languages
                     foreach ($list as $file) {
                         // we search common.lang.php in archive
                         if (basename($file['filename']) == 'common.lang.php'
-                        and (!isset($main_filepath)
-                        or strlen($file['filename']) < strlen($main_filepath))) {
+                            and (!isset($main_filepath)
+                                 or strlen($file['filename']) < strlen($main_filepath))) {
                             $main_filepath = $file['filename'];
                         }
                     }
@@ -267,7 +297,7 @@ class Languages
                             }
                             $extract_path = PHPWG_ROOT_PATH.'language/'.$dest;
                             if ($result = $zip->extract(PCLZIP_OPT_PATH, $extract_path,
-                            PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
+                                                        PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                                 foreach ($result as $file) {
                                     if ($file['stored_filename'] == $main_filepath) {
                                         $status = $file['status'];
@@ -275,14 +305,14 @@ class Languages
                                     }
                                 }
                                 if ($status == 'ok') {
-                                    $this->get_fs_languages();
+                                    $this->getFsLanguages();
                                     if ($action == 'install') {
-                                        $this->perform_action('activate', $dest);
+                                        $this->performAction('activate', $dest);
                                     }
                                 }
                                 if (file_exists($extract_path.'/obsolete.list')
-                                and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                                and !empty($old_files)) {
+                                    and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
+                                    and !empty($old_files)) {
                                     $old_files[] = 'obsolete.list';
                                     foreach($old_files as $old_file) {
                                         $path = $extract_path.'/'.$old_file;
@@ -319,7 +349,7 @@ class Languages
     /**
      * Sort functions
      */
-    public function extension_name_compare($a, $b) {
+    public function extensionNameCompare($a, $b) {
         return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
     }
 }
