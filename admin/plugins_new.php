@@ -26,8 +26,6 @@ if (!defined("PLUGINS_BASE_URL")) {
     die ("Hacking attempt!");
 }
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Plugin\Plugins;
 
 $plugins = new Plugins($conn);
@@ -39,7 +37,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     } else {
         check_pwg_token();
 
-        $install_status = $plugins->extract_plugin_files('install', $_GET['revision'], $_GET['extension'], $plugin_id);
+        $install_status = $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
 
         redirect(PLUGINS_BASE_URL.'&installstatus='.$install_status.'&plugin_id='.$plugin_id);
     }
@@ -89,41 +87,44 @@ $template->assign('order_options', array(
 // +-----------------------------------------------------------------------+
 // |                     start template output                             |
 // +-----------------------------------------------------------------------+
-if ($plugins->get_server_plugins(true)) {
-    /* order plugins */
-    if (!empty($_SESSION['plugins_new_order'])) {
-        $order_selected = $_SESSION['plugins_new_order'];
-        $plugins->sort_server_plugins($order_selected);
-        $template->assign('order_selected', $order_selected);
-    } else {
-        $plugins->sort_server_plugins('date');
-        $template->assign('order_selected', 'date');
+
+try {
+    if (count($plugins->getServerPlugins(true))>0) {
+        /* order plugins */
+        if (!empty($_SESSION['plugins_new_order'])) {
+            $order_selected = $_SESSION['plugins_new_order'];
+            $plugins->sortServerPlugins($order_selected);
+            $template->assign('order_selected', $order_selected);
+        } else {
+            $plugins->sortServerPlugins('date');
+            $template->assign('order_selected', 'date');
+        }
+
+        foreach($plugins->getServerPlugins() as $plugin) {
+            $ext_desc = trim($plugin['extension_description'], " \n\r");
+            list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
+
+            $url_auto_install = htmlentities(PLUGINS_BASE_URL)
+                . '&amp;section=new'
+                . '&amp;revision=' . $plugin['revision_id']
+                . '&amp;extension=' . $plugin['extension_id']
+                . '&amp;pwg_token='.get_pwg_token();
+
+            $template->append('plugins', array(
+                'ID' => $plugin['extension_id'],
+                'EXT_NAME' => $plugin['extension_name'],
+                'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$plugin['extension_id'],
+                'SMALL_DESC' => trim($small_desc, " \r\n"),
+                'BIG_DESC' => $ext_desc,
+                'VERSION' => $plugin['revision_name'],
+                'REVISION_DATE' => preg_replace('/[^0-9]/', '', $plugin['revision_date']),
+                'AUTHOR' => $plugin['author_name'],
+                'DOWNLOADS' => $plugin['extension_nb_downloads'],
+                'URL_INSTALL' => $url_auto_install,
+                'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download'));
+        }
     }
-
-    foreach($plugins->server_plugins as $plugin) {
-        $ext_desc = trim($plugin['extension_description'], " \n\r");
-        list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
-
-        $url_auto_install = htmlentities(PLUGINS_BASE_URL)
-            . '&amp;section=new'
-            . '&amp;revision=' . $plugin['revision_id']
-            . '&amp;extension=' . $plugin['extension_id']
-            . '&amp;pwg_token='.get_pwg_token();
-
-        $template->append('plugins', array(
-            'ID' => $plugin['extension_id'],
-            'EXT_NAME' => $plugin['extension_name'],
-            'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$plugin['extension_id'],
-            'SMALL_DESC' => trim($small_desc, " \r\n"),
-            'BIG_DESC' => $ext_desc,
-            'VERSION' => $plugin['revision_name'],
-            'REVISION_DATE' => preg_replace('/[^0-9]/', '', $plugin['revision_date']),
-            'AUTHOR' => $plugin['author_name'],
-            'DOWNLOADS' => $plugin['extension_nb_downloads'],
-            'URL_INSTALL' => $url_auto_install,
-            'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=piwigo_download'));
-    }
-} else {
+} catch (\Exception $e) {
     $page['errors'][] = l10n('Can\'t connect to server.');
 }
 

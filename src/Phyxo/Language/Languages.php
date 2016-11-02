@@ -24,9 +24,8 @@ use PclZip;
 
 class Languages
 {
-    public $fs_languages = array(), $db_languages = array();
-    private $fs_languages_retrieved = false, $db_languages_retrieved = false;
-    public $server_languages = array();
+    private $fs_languages = array(), $db_languages = array(), $server_languages = array();
+    private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $target_charset=null) {
         if (!is_null($conn)) {
@@ -50,6 +49,7 @@ class Languages
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
         }
+
         if (!$this->fs_languages_retrieved) {
             $this->getFsLanguages();
         }
@@ -115,6 +115,11 @@ class Languages
         }
 
         return $errors;
+    }
+
+    // for Update/Updates
+    public function getFsExtensions($target_charset=null) {
+        return $this->getFsLanguages($target_charset);
     }
 
     /**
@@ -197,69 +202,76 @@ class Languages
     public function getServerLanguages($new=false) {
         global $user, $conf;
 
-        $get_data = array(
-            'category_id' => $conf['pem_languages_category'],
-            'format' => 'php',
-        );
+        if (!$this->server_languages_retrieved) {
+            $get_data = array(
+                'category_id' => $conf['pem_languages_category'],
+                'format' => 'php',
+            );
 
-        // Retrieve PEM versions
-        $version = PHPWG_VERSION;
-        $versions_to_check = array();
-        $url = PEM_URL . '/api/get_version_list.php';
-        if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
-            if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
-                $version = $pem_versions[0]['name'];
-            }
-            $branch = get_branch_from_version($version);
-            foreach ($pem_versions as $pem_version) {
-                if (strpos($pem_version['name'], $branch) === 0) {
-                    $versions_to_check[] = $pem_version['id'];
+            // Retrieve PEM versions
+            $version = PHPWG_VERSION;
+            $versions_to_check = array();
+            $url = PEM_URL . '/api/get_version_list.php';
+
+            if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
+                if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                    $version = $pem_versions[0]['name'];
+                }
+                $branch = get_branch_from_version($version);
+                foreach ($pem_versions as $pem_version) {
+                    if (strpos($pem_version['name'], $branch) === 0) {
+                        $versions_to_check[] = $pem_version['id'];
+                    }
                 }
             }
-        }
-        if (empty($versions_to_check)) {
-            return array();
-        }
 
-        // Languages to check
-        $languages_to_check = array();
-        foreach($this->getFsLanguages() as $fs_language) {
-            if (isset($fs_language['extension'])) {
-                $languages_to_check[] = $fs_language['extension'];
-            }
-        }
-
-        // Retrieve PEM languages infos
-        $url = PEM_URL . '/api/get_revision_list.php';
-        $get_data = array_merge($get_data, array(
-            'last_revision_only' => 'true',
-            'version' => implode(',', $versions_to_check),
-            'lang' => $user['language'],
-            'get_nb_downloads' => 'true',
-        ));
-        if (!empty($languages_to_check)) {
-            if ($new) {
-                $get_data['extension_exclude'] = implode(',', $languages_to_check);
-            } else {
-                $get_data['extension_include'] = implode(',', $languages_to_check);
-            }
-        }
-
-        if (fetchRemote($url, $result, $get_data)) {
-            $pem_languages = @unserialize($result);
-            if (!is_array($pem_languages)) {
+            if (empty($versions_to_check)) {
                 return array();
             }
-            foreach ($pem_languages as $language) {
-                if (preg_match('/^.*? \[[A-Z]{2}\]$/', $language['extension_name'])) {
-                    $this->server_languages[$language['extension_id']] = $language;
+
+            // Languages to check
+            $languages_to_check = array();
+            foreach($this->getFsLanguages() as $fs_language) {
+                if (isset($fs_language['extension'])) {
+                    $languages_to_check[] = $fs_language['extension'];
                 }
             }
-            @uasort($this->server_languages, array($this, 'extension_name_compare'));
-            return $this->server_languages;
-        }
 
-        return array();
+            // Retrieve PEM languages infos
+            $url = PEM_URL . '/api/get_revision_list.php';
+            $get_data = array_merge($get_data, array(
+                'last_revision_only' => 'true',
+                'version' => implode(',', $versions_to_check),
+                'lang' => $user['language'],
+                'get_nb_downloads' => 'true',
+                'format' => 'json'
+            ));
+            if (!empty($languages_to_check)) {
+                if ($new) {
+                    $get_data['extension_exclude'] = implode(',', $languages_to_check);
+                } else {
+                    $get_data['extension_include'] = implode(',', $languages_to_check);
+                }
+            }
+
+            if (fetchRemote($url, $result, $get_data)) {
+                $pem_languages = json_decode($result, true);
+
+                if (!is_array($pem_languages)) {
+                    return array();
+                }
+
+                foreach ($pem_languages as $language) {
+                    if (preg_match('/^.*? \[[A-Z]{2}\]$/', $language['extension_name'])) {
+                        $this->server_languages[$language['extension_id']] = $language;
+                    }
+                }
+                uasort($this->server_languages, array($this, 'extensionNameCompare'));
+            }
+
+            $this->server_languages_retrieved = true;
+        }
+        return $this->server_languages;
     }
 
     /**

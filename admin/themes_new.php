@@ -49,7 +49,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     } else {
         check_pwg_token();
 
-        $install_status = $themes->extract_theme_files(
+        $install_status = $themes->extractThemeFiles(
             'install',
             $_GET['revision'],
             $_GET['extension']
@@ -94,27 +94,23 @@ if (isset($_GET['installstatus'])) {
 // |                          template output                              |
 // +-----------------------------------------------------------------------+
 
-if ($themes->get_server_themes(true)) { // only new themes
-  foreach($themes->server_themes as $theme) {
-      $url_auto_install = htmlentities(THEMES_BASE_URL)
-          . '&amp;section=new'
-          . '&amp;revision=' . $theme['revision_id']
-          . '&amp;extension=' . $theme['extension_id']
-          . '&amp;pwg_token='.get_pwg_token()
-          ;
+foreach($themes->getServerThemes(true) as $theme) {
+    $url_auto_install = htmlentities(THEMES_BASE_URL)
+        . '&amp;section=new'
+        . '&amp;revision=' . $theme['revision_id']
+        . '&amp;extension=' . $theme['extension_id']
+        . '&amp;pwg_token='.get_pwg_token()
+        ;
 
-      $template->append(
-          'new_themes',
-          array(
-              'name' => $theme['extension_name'],
-              'thumbnail' => PEM_URL.'/upload/extension-'.$theme['extension_id'].'/thumbnail.jpg',
-              'screenshot' => PEM_URL.'/upload/extension-'.$theme['extension_id'].'/screenshot.jpg',
-              'install_url' => $url_auto_install,
-          )
-      );
-  }
-} else {
-    $page['errors'][] = l10n('Can\'t connect to server.');
+    $template->append(
+        'new_themes',
+        array(
+            'name' => $theme['extension_name'],
+            'thumbnail' => PEM_URL.'/upload/extension-'.$theme['extension_id'].'/thumbnail.jpg',
+            'screenshot' => PEM_URL.'/upload/extension-'.$theme['extension_id'].'/screenshot.jpg',
+            'install_url' => $url_auto_install,
+        )
+    );
 }
 
 $template->assign(

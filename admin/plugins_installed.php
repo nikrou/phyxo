@@ -22,11 +22,9 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-if (!defined("PHPWG_ROOT_PATH")) {
+if (!defined("PLUGINS_BASE_URL")) {
     die ("Hacking attempt!");
 }
-
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\Plugin\Plugins;
 
@@ -47,9 +45,8 @@ if (isset($_GET['show_details'])) {
     $show_details = false;
 }
 
-$base_url = get_root_url().'admin/index.php?page='.$page['page'];
 $pwg_token = get_pwg_token();
-$action_url = $base_url.'&amp;plugin='.'%s'.'&amp;pwg_token='.$pwg_token;
+$action_url = PLUGINS_BASE_URL.'&amp;section=installed&amp;plugin='.'%s'.'&amp;pwg_token='.$pwg_token;
 
 $plugins = new Plugins($conn);
 
@@ -60,14 +57,14 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
     } else {
         check_pwg_token();
 
-        $page['errors'] = $plugins->perform_action($_GET['action'], $_GET['plugin']);
+        $page['errors'] = $plugins->performAction($_GET['action'], $_GET['plugin']);
 
         if (empty($page['errors'])) {
             if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
                 $template->delete_compiled_templates();
                 $persistent_cache->purge(true);
             }
-            redirect($base_url);
+            redirect(PLUGINS_BASE_URL.'&section=installed');
         }
     }
 }
@@ -75,7 +72,7 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
 //--------------------------------------------------------Incompatible Plugins
 if (isset($_GET['incompatible_plugins'])) {
     $incompatible_plugins = array();
-    foreach ($plugins->get_incompatible_plugins() as $plugin => $version) {
+    foreach ($plugins->getIncompatiblePlugins() as $plugin => $version) {
         if ($plugin == '~~expire~~') {
             continue;
         }
@@ -89,15 +86,15 @@ if (isset($_GET['incompatible_plugins'])) {
 // |                     start template output                             |
 // +-----------------------------------------------------------------------+
 
-$plugins->sort_fs_plugins('name');
-$merged_extensions = $plugins->get_merged_extensions();
+$plugins->sortFsPlugins('name');
+$merged_extensions = $plugins->getMergedExtensions();
 $merged_plugins = false;
 $tpl_plugins = array();
 $active_plugins = 0;
 
-foreach($plugins->fs_plugins as $plugin_id => $fs_plugin) {
+foreach($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
     if (isset($_SESSION['incompatible_plugins'][$plugin_id])
-    and $fs_plugin['version'] != $_SESSION['incompatible_plugins'][$plugin_id]) {
+        && $fs_plugin['version'] != $_SESSION['incompatible_plugins'][$plugin_id]) {
         // Incompatible plugins must be reinitilized
         unset($_SESSION['incompatible_plugins']);
     }
@@ -113,8 +110,8 @@ foreach($plugins->fs_plugins as $plugin_id => $fs_plugin) {
         'U_ACTION' => sprintf($action_url, $plugin_id),
     );
 
-    if (isset($plugins->db_plugins_by_id[$plugin_id])) {
-        $tpl_plugin['STATE'] = $plugins->db_plugins_by_id[$plugin_id]['state'];
+    if (isset($plugins->getDbPlugins()[$plugin_id])) {
+        $tpl_plugin['STATE'] = $plugins->getDbPlugins()[$plugin_id]['state'];
     } else {
         $tpl_plugin['STATE'] = 'inactive';
     }
@@ -125,7 +122,7 @@ foreach($plugins->fs_plugins as $plugin_id => $fs_plugin) {
         $conn->db_query($query);
 
         $tpl_plugin['STATE'] = 'merged';
-        $tpl_plugin['DESC'] = l10n('THIS PLUGIN IS NOW PART OF PIWIGO CORE! DELETE IT NOW.');
+        $tpl_plugin['DESC'] = l10n('THIS PLUGIN IS NOW PART OF PHYXO CORE! DELETE IT NOW.');
         $merged_plugins = true;
     }
 
@@ -144,15 +141,15 @@ if ($merged_plugins) {
 }
 
 $missing_plugin_ids = array_diff(
-    array_keys($plugins->db_plugins_by_id),
-    array_keys($plugins->fs_plugins)
+    array_keys($plugins->getDbPlugins()),
+    array_keys($plugins->getFsPlugins())
 );
 
 if (count($missing_plugin_ids) > 0) {
     foreach ($missing_plugin_ids as $plugin_id) {
         $tpl_plugins[] = array(
             'NAME' => $plugin_id,
-            'VERSION' => $plugins->db_plugins_by_id[$plugin_id]['version'],
+            'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
             'DESC' => l10n('ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'),
             'U_ACTION' => sprintf($action_url, $plugin_id),
             'STATE' => 'missing',
@@ -178,7 +175,7 @@ $template->assign(
         'plugins' => $tpl_plugins,
         'active_plugins' => $active_plugins,
         'PWG_TOKEN' => $pwg_token,
-        'base_url' => $base_url,
+        'base_url' => PLUGINS_BASE_URL.'&amp;section=installed',
         'show_details' => $show_details,
     )
 );

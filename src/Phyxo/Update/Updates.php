@@ -29,7 +29,7 @@ use GuzzleHttp\Client;
 class Updates
 {
     private $versions = array(), $version = array();
-    public $types = array(), $merged_extensions = array();
+    private $types = array(), $merged_extensions = array();
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $page='updates') {
         $this->types = array('plugins', 'themes', 'languages');
@@ -39,6 +39,7 @@ class Updates
         }
         $this->default_themes = array('clear', 'dark', 'Sylvia', 'elegant', 'default');
         $this->default_plugins = array();
+        $this->default_languages = array();
 
         foreach ($this->types as $type) {
             $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
@@ -48,6 +49,14 @@ class Updates
 
     public function setUpdateUrl($url) {
         $this->update_url = $url;
+    }
+
+    public function getType($type) {
+        if (!in_array($type, $this->types)) {
+            return null;
+        }
+
+        return $this->$type;
     }
 
     public function getAllVersions() {
@@ -146,14 +155,13 @@ class Updates
             }
         }
         if (empty($versions_to_check)) {
-            return false;
+            return array();
         }
 
         // Extensions to check
         $ext_to_check = array();
         foreach ($this->types as $type) {
-            $fs = 'fs_'.$type;
-            foreach ($this->$type->$fs as $ext) {
+            foreach ($this->getType($type)->getFsExtensions() as $ext) {
                 if (isset($ext['extension'])) {
                     $ext_to_check[$ext['extension']] = $type;
                 }
@@ -178,7 +186,7 @@ class Updates
         if (fetchRemote($url, $result, $get_data, $post_data)) {
             $pem_exts = @unserialize($result);
             if (!is_array($pem_exts)) {
-                return false;
+                return array();
             }
 
             $servers = array();
@@ -197,24 +205,29 @@ class Updates
                 }
             }
 
-            foreach ($servers as $server_type => $extension_list) {
-                $server_string = 'server_'.$server_type;
-
-                $this->$server_type->$server_string = $extension_list;
-            }
-
             $this->checkMissingExtensions($ext_to_check);
-            return true;
+            return array();
         }
 
-        return false;
+        return array();
+    }
+
+    public function checkCoreUpgrade() {
+        $_SESSION['need_update'] = null;
+
+        if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)
+            && @fetchRemote(PHPWG_URL.'/download/all_versions.php?rand='.md5(uniqid(rand(), true)), $result)) {
+            $all_versions = @explode("\n", $result);
+            $new_version = trim($all_versions[0]);
+            $_SESSION['need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
+        }
     }
 
     // Check all extensions upgrades
     protected function checkExtensions() {
         global $conf;
 
-        if (!$this->get_server_extensions()) {
+        if (!$this->getServerExtensions()) {
             return false;
         }
 
@@ -251,8 +264,7 @@ class Updates
     protected function checkUpdatedExtensions() {
         foreach ($this->types as $type) {
             if (!empty($_SESSION['extensions_need_update'][$type])) {
-                $fs = 'fs_'.$type;
-                foreach($this->$type->$fs as $ext_id => $fs_ext) {
+                foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                     if (isset($_SESSION['extensions_need_update'][$type][$ext_id])
                         and safe_version_compare($fs_ext['version'], $_SESSION['extensions_need_update'][$type][$ext_id], '>=')) {
                         // Extension have been upgraded
@@ -266,9 +278,8 @@ class Updates
 
     protected function checkMissingExtensions($missing) {
         foreach ($missing as $id => $type) {
-            $fs = 'fs_'.$type;
             $default = 'default_'.$type;
-            foreach ($this->$type->$fs as $ext_id => $ext) {
+            foreach ($this->getType($type)->getFsExtensions() as $ext_id => $ext) {
                 if (isset($ext['extension']) and $id == $ext['extension']
                     and !in_array($ext_id, $this->$default)
                     and !in_array($ext['extension'], $this->merged_extensions)) {

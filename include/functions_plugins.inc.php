@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -298,7 +298,7 @@ function load_plugins() {
 
     if ($conf['enable_plugins']) {
         $plugins = new \Phyxo\Plugin\Plugins($conn);
-        $db_plugins = $plugins->get_db_plugins('active');
+        $db_plugins = $plugins->getDbPlugins('active');
         foreach($db_plugins as $plugin) { // include main from a function to avoid using same function context
             load_plugin($plugin);
         }

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -25,21 +25,12 @@ use PclZip;
 
 class Plugins
 {
-    public $fs_plugins = array();
-    public $db_plugins_by_id = array();
-    public $server_plugins = array();
-    public $default_plugins = array();
+    private $fs_plugins = array(), $db_plugins = array(), $server_plugins = array();
+    private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
+    private $default_plugins = array();
 
-    /**
-     * Initialize $fs_plugins and $db_plugins_by_id
-     */
     public function __construct(\Phyxo\DBLayer\DBLayer $conn) {
         $this->conn = $conn;
-        $this->get_fs_plugins();
-
-        foreach ($this->get_db_plugins() as $db_plugin) {
-            $this->db_plugins_by_id[$db_plugin['id']] = $db_plugin;
-        }
     }
 
     /**
@@ -73,9 +64,17 @@ class Plugins
      * @param string - plugin id
      * @param array - errors
      */
-    public function perform_action($action, $plugin_id, $options=array()) {
-        if (isset($this->db_plugins_by_id[$plugin_id])) {
-            $crt_db_plugin = $this->db_plugins_by_id[$plugin_id];
+    public function performAction($action, $plugin_id, $options=array()) {
+        if (!$this->db_plugins_retrieved) {
+            $this->getDbPlugins();
+        }
+
+        if (!$this->fs_plugins_retrieved) {
+            $this->getFsPlugins();
+        }
+
+        if (isset($this->db_plugins[$plugin_id])) {
+            $crt_db_plugin = $this->db_plugins[$plugin_id];
         }
 
         if ($action!='update') { // wait for files to be updated
@@ -101,9 +100,9 @@ class Plugins
 
            case 'update':
                $previous_version = $this->fs_plugins[$plugin_id]['version'];
-               $errors[0] = $this->extract_plugin_files('upgrade', $options['revision'], $plugin_id);
+               $errors[0] = $this->extractPluginFiles('upgrade', $options['revision'], $plugin_id);
                if ($errors[0] === 'ok') {
-                   $this->get_fs_plugin($plugin_id); // refresh plugins list
+                   $this->getFsPlugin($plugin_id); // refresh plugins list
                    $new_version = $this->fs_plugins[$plugin_id]['version'];
 
                    $plugin_maintain = self::build_maintain_class($plugin_id);
@@ -118,9 +117,9 @@ class Plugins
 
         case 'activate':
             if (!isset($crt_db_plugin)) {
-                $errors = $this->perform_action('install', $plugin_id);
-                list($crt_db_plugin) = $this->get_db_plugins(null, $plugin_id);
-                load_conf_from_db();
+                $errors = $this->performAction('install', $plugin_id);
+                list($crt_db_plugin) = $this->getDbPlugins(null, $plugin_id);
+                \load_conf_from_db();
             } elseif ($crt_db_plugin['state'] == 'active') {
                 break;
             }
@@ -153,7 +152,7 @@ class Plugins
                 break;
             }
             if ($crt_db_plugin['state'] == 'active') {
-                $this->perform_action('deactivate', $plugin_id);
+                $this->performAction('deactivate', $plugin_id);
             }
 
             $query = 'DELETE FROM '. PLUGINS_TABLE .' WHERE id=\''. $plugin_id .'\';';
@@ -163,45 +162,52 @@ class Plugins
             break;
 
         case 'restore':
-            $this->perform_action('uninstall', $plugin_id);
-            unset($this->db_plugins_by_id[$plugin_id]);
-            $errors = $this->perform_action('activate', $plugin_id);
+            $this->performAction('uninstall', $plugin_id);
+            unset($this->db_plugins[$plugin_id]);
+            $errors = $this->performAction('activate', $plugin_id);
             break;
 
         case 'delete':
             if (!empty($crt_db_plugin)) {
-                $this->perform_action('uninstall', $plugin_id);
+                $this->performAction('uninstall', $plugin_id);
             }
             if (!isset($this->fs_plugins[$plugin_id])) {
                 break;
             }
 
-            deltree(PHPWG_PLUGINS_PATH . $plugin_id, PHPWG_PLUGINS_PATH . 'trash');
+            \deltree(PHPWG_PLUGINS_PATH . $plugin_id, PHPWG_PLUGINS_PATH . 'trash');
             break;
         }
 
         return $errors;
     }
 
+    public function getFsExtensions() {
+        return $this->getFsPlugins();
+    }
+
     /**
      * Get plugins defined in the plugin directory
      */
-    public function get_fs_plugins() {
-        foreach (glob(PHPWG_PLUGINS_PATH . '*/main.inc.php') as $main_file) {
-            $plugin_dir = basename(dirname($main_file));
-            if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
-                $this->get_fs_plugin($plugin_dir);
+    public function getFsPlugins() {
+        if (!$this->fs_plugins_retrieved) {
+            foreach (glob(PHPWG_PLUGINS_PATH . '*/main.inc.php') as $main_file) {
+                $plugin_dir = basename(dirname($main_file));
+                if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
+                    $this->getFsPlugin($plugin_dir);
+                }
             }
+            $this->fs_plugins_retrieved = true;
         }
+        return $this->fs_plugins;
     }
 
     /**
      * Load metadata of a plugin in `fs_plugins` array
-     * @from 2.7
      * @param $plugin_id
      * @return false|array
      */
-    public function get_fs_plugin($plugin_id) {
+    public function getFsPlugin($plugin_id) {
 	    $path = PHPWG_PLUGINS_PATH.$plugin_id;
         $main_file = $path.'/main.inc.php';
 
@@ -256,36 +262,44 @@ class Plugins
      * @param string $id returns only data about given plugin
      * @return array
      */
-    public function get_db_plugins($state='', $id='') {
-        $query = 'SELECT id, state, version FROM '.PLUGINS_TABLE;
-        $clauses = array();
+    public function getDbPlugins($state='', $id='') {
+        if (!$this->db_plugins_retrieved) {
+            $query = 'SELECT id, state, version FROM '.PLUGINS_TABLE;
+            $clauses = array();
 
-        if (!empty($state)) {
-            $clauses[] = 'state=\''.$state.'\'';
-        }
-        if (!empty($id)) {
-            $clauses[] = 'id = \''.$id.'\'';
-        }
-        if (count($clauses)) {
-            $query .= ' WHERE '. implode(' AND ', $clauses);
+            if (!empty($state)) {
+                $clauses[] = 'state=\''.$state.'\'';
+            }
+            if (!empty($id)) {
+                $clauses[] = 'id = \''.$id.'\'';
+            }
+            if (count($clauses)) {
+                $query .= ' WHERE '. implode(' AND ', $clauses);
+            }
+
+            $this->db_plugins = $this->conn->query2array($query, 'id');
+            $this->db_plugins_retrieved = true;
         }
 
-        return $this->conn->query2array($query);
+        return $this->db_plugins;
     }
 
     /**
      * Sort fs_plugins
      */
-    public function sort_fs_plugins($order='name') {
+    public function sortFsPlugins($order='name') {
+        if (!$this->fs_plugins_retrieved) {
+            $this->getFsPlugins();
+        }
         switch ($order) {
         case 'name':
             uasort($this->fs_plugins, '\name_compare');
             break;
         case 'status':
-            $this->sort_plugins_by_state();
+            $this->sortPluginsByState();
             break;
         case 'author':
-            uasort($this->fs_plugins, array($this, 'plugin_author_compare'));
+            uasort($this->fs_plugins, array($this, 'pluginAuthorCompare'));
             break;
         case 'id':
             uksort($this->fs_plugins, 'strcasecmp');
@@ -294,7 +308,7 @@ class Plugins
     }
 
     // Retrieve PEM versions
-    public function get_versions_to_check($version=PHPWG_VERSION) {
+    public function getVersionsToCheck($version=PHPWG_VERSION) {
         global $conf;
 
         $versions_to_check = array();
@@ -303,7 +317,7 @@ class Plugins
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = get_branch_from_version($version);
+            $branch = \get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
                 if (strpos($pem_version['name'], $branch) === 0) {
                     $versions_to_check[] = $pem_version['id'];
@@ -317,65 +331,68 @@ class Plugins
     /**
      * Retrieve PEM server datas to $server_plugins
      */
-    public function get_server_plugins($new=false) {
+    public function getServerPlugins($new=false) {
         global $user, $conf;
 
-        $versions_to_check = $this->get_versions_to_check();
-        if (empty($versions_to_check)) {
-            return false;
+        if (!$this->server_plugins_retrieved) {
+            $versions_to_check = $this->getVersionsToCheck();
+            if (empty($versions_to_check)) {
+                return array();
+            }
+
+            // Plugins to check
+            $plugins_to_check = array();
+            foreach($this->getFsPlugins() as $fs_plugin) {
+                if (isset($fs_plugin['extension'])) {
+                    $plugins_to_check[] = $fs_plugin['extension'];
+                }
+            }
+
+            // Retrieve PEM plugins infos
+            $url = PEM_URL . '/api/get_revision_list.php';
+            $get_data = array(
+                'category_id' => $conf['pem_plugins_category'],
+                'format' => 'php',
+                'last_revision_only' => 'true',
+                'version' => implode(',', $versions_to_check),
+                'lang' => substr($user['language'], 0, 2),
+                'get_nb_downloads' => 'true',
+            );
+
+            if (!empty($plugins_to_check)) {
+                if ($new) {
+                    $get_data['extension_exclude'] = implode(',', $plugins_to_check);
+                } else {
+                    $get_data['extension_include'] = implode(',', $plugins_to_check);
+                }
+            }
+            if (fetchRemote($url, $result, $get_data)) {
+                $pem_plugins = @unserialize($result);
+                if (!is_array($pem_plugins)) {
+                    return array();
+                }
+                foreach ($pem_plugins as $plugin) {
+                    $this->server_plugins[$plugin['extension_id']] = $plugin;
+                }
+            }
+
+            $this->server_plugins_retrieved = true;
         }
 
-        // Plugins to check
-        $plugins_to_check = array();
-        foreach($this->fs_plugins as $fs_plugin) {
-            if (isset($fs_plugin['extension'])) {
-                $plugins_to_check[] = $fs_plugin['extension'];
-            }
-        }
-
-        // Retrieve PEM plugins infos
-        $url = PEM_URL . '/api/get_revision_list.php';
-        $get_data = array(
-            'category_id' => $conf['pem_plugins_category'],
-            'format' => 'php',
-            'last_revision_only' => 'true',
-            'version' => implode(',', $versions_to_check),
-            'lang' => substr($user['language'], 0, 2),
-            'get_nb_downloads' => 'true',
-        );
-
-        if (!empty($plugins_to_check)) {
-            if ($new) {
-                $get_data['extension_exclude'] = implode(',', $plugins_to_check);
-            } else {
-                $get_data['extension_include'] = implode(',', $plugins_to_check);
-            }
-        }
-        if (fetchRemote($url, $result, $get_data)) {
-            $pem_plugins = @unserialize($result);
-            if (!is_array($pem_plugins)) {
-                return false;
-            }
-            foreach ($pem_plugins as $plugin) {
-                $this->server_plugins[$plugin['extension_id']] = $plugin;
-            }
-            return true;
-        }
-
-        return false;
+        return $this->server_plugins;
     }
 
-    public function get_incompatible_plugins($actualize=false) {
+    public function getIncompatiblePlugins($actualize=false) {
         global $conf;
 
         if (isset($_SESSION['incompatible_plugins']) and !$actualize
-        and $_SESSION['incompatible_plugins']['~~expire~~'] > time()) {
+            and $_SESSION['incompatible_plugins']['~~expire~~'] > time()) {
             return $_SESSION['incompatible_plugins'];
         }
 
         $_SESSION['incompatible_plugins'] = array('~~expire~~' => time() + 300);
 
-        $versions_to_check = $this->get_versions_to_check();
+        $versions_to_check = $this->getVersionsToCheck();
         if (empty($versions_to_check)) {
             return false;
         }
@@ -383,7 +400,7 @@ class Plugins
 
         // Plugins to check
         $plugins_to_check = array();
-        foreach($this->fs_plugins as $fs_plugin) {
+        foreach($this->getFsPlugins() as $fs_plugin) {
             if (isset($fs_plugin['extension'])) {
                 $plugins_to_check[] = $fs_plugin['extension'];
             }
@@ -412,7 +429,7 @@ class Plugins
                 $server_plugins[$plugin['extension_id']][] = $plugin['revision_name'];
             }
 
-            foreach ($this->fs_plugins as $plugin_id => $fs_plugin) {
+            foreach ($this->getFsPlugins() as $plugin_id => $fs_plugin) {
                 if (isset($fs_plugin['extension'])
                 and !in_array($plugin_id, $this->default_plugins)
                 and $fs_plugin['version'] != 'auto'
@@ -429,23 +446,23 @@ class Plugins
     /**
      * Sort $server_plugins
      */
-    public function sort_server_plugins($order='date') {
+    public function sortServerPlugins($order='date') {
         switch ($order)
             {
             case 'date':
                 krsort($this->server_plugins);
                 break;
             case 'revision':
-                usort($this->server_plugins, array($this, 'extension_revision_compare'));
+                usort($this->server_plugins, array($this, 'extensionRevisionCompare'));
                 break;
             case 'name':
-                uasort($this->server_plugins, array($this, 'extension_name_compare'));
+                uasort($this->server_plugins, array($this, 'extensionNameCompare'));
                 break;
             case 'author':
-                uasort($this->server_plugins, array($this, 'extension_author_compare'));
+                uasort($this->server_plugins, array($this, 'extensionAuthorCompare'));
                 break;
             case 'downloads':
-                usort($this->server_plugins, array($this, 'extension_downloads_compare'));
+                usort($this->server_plugins, array($this, 'extensionDownloadsCompare'));
                 break;
             }
     }
@@ -456,7 +473,7 @@ class Plugins
      *  @param string - archive URL
      * @param string - plugin id or extension id
      */
-    public function extract_plugin_files($action, $revision, $dest, &$plugin_id=null) {
+    public function extractPluginFiles($action, $revision, $dest, &$plugin_id=null) {
         if ($archive = tempnam( PHPWG_PLUGINS_PATH, 'zip')) {
             $url = PEM_URL . '/download.php';
             $get_data = array(
@@ -471,8 +488,7 @@ class Plugins
                     foreach ($list as $file) {
                         // we search main.inc.php in archive
                         if (basename($file['filename']) == 'main.inc.php'
-                        and (!isset($main_filepath)
-                        or strlen($file['filename']) < strlen($main_filepath))) {
+                            && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {
                             $main_filepath = $file['filename'];
                         }
                     }
@@ -495,15 +511,15 @@ class Plugins
                                 }
                             }
                             if (file_exists($extract_path.'/obsolete.list')
-                            and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                            and !empty($old_files)) {
+                                && $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
+                                && !empty($old_files)) {
                                 $old_files[] = 'obsolete.list';
                                 foreach($old_files as $old_file) {
                                     $path = $extract_path.'/'.$old_file;
                                     if (is_file($path)) {
                                         @unlink($path);
                                     } elseif (is_dir($path)) {
-                                        deltree($path, PHPWG_PLUGINS_PATH . 'trash');
+                                        \deltree($path, PHPWG_PLUGINS_PATH . 'trash');
                                     }
                                 }
                             }
@@ -527,7 +543,7 @@ class Plugins
         return $status;
     }
 
-    public function get_merged_extensions($version=PHPWG_VERSION) {
+    public function getMergedExtensions($version=PHPWG_VERSION) {
         $file = PHPWG_ROOT_PATH.'install/obsolete_extensions.list';
         $merged_extensions = array();
 
@@ -544,7 +560,7 @@ class Plugins
     /**
      * Sort functions
      */
-    protected function extension_revision_compare($a, $b) {
+    protected function extensionRevisionCompare($a, $b) {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
         } else {
@@ -552,20 +568,20 @@ class Plugins
         }
     }
 
-    protected function extension_name_compare($a, $b) {
+    protected function extensionNameCompare($a, $b) {
         return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
     }
 
-    protected function extension_author_compare($a, $b) {
+    protected function extensionAuthorCompare($a, $b) {
         $r = strcasecmp($a['author_name'], $b['author_name']);
         if ($r == 0) {
-            return $this->extension_name_compare($a, $b);
+            return $this->extensionNameCompare($a, $b);
         } else {
             return $r;
         }
     }
 
-    protected function plugin_author_compare($a, $b) {
+    protected function pluginAuthorCompare($a, $b) {
         $r = strcasecmp($a['author'], $b['author']);
         if ($r == 0) {
             return \name_compare($a, $b);
@@ -574,7 +590,7 @@ class Plugins
         }
     }
 
-    protected function extension_downloads_compare($a, $b) {
+    protected function extensionDownloadsCompare($a, $b) {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
         } else {
@@ -582,7 +598,11 @@ class Plugins
         }
     }
 
-    public function sort_plugins_by_state() {
+    public function sortPluginsByState() {
+        if (!$this->fs_plugins_retrieved) {
+            $this->getFsPlugins();
+        }
+
         uasort($this->fs_plugins, '\name_compare');
 
         $active_plugins = array();
@@ -590,8 +610,8 @@ class Plugins
         $not_installed = array();
 
         foreach($this->fs_plugins as $plugin_id => $plugin) {
-            if (isset($this->db_plugins_by_id[$plugin_id])) {
-                $this->db_plugins_by_id[$plugin_id]['state'] == 'active' ?
+            if (isset($this->db_plugins[$plugin_id])) {
+                $this->db_plugins[$plugin_id]['state'] == 'active' ?
                     $active_plugins[$plugin_id] = $plugin : $inactive_plugins[$plugin_id] = $plugin;
             } else {
                 $not_installed[$plugin_id] = $plugin;

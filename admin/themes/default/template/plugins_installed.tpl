@@ -29,7 +29,7 @@ jQuery(document).ready(function() {
    queuedManager.add({
       type: 'GET',
       dataType: 'json',
-      url: 'ws.php',
+      url: '../ws.php',
       data: { method: 'pwg.plugins.performAction', action: 'deactivate', plugin: id, pwg_token: pwg_token, format: 'json' },
       success: function(data) {
         if (data['stat'] == 'ok') jQuery("#"+id).removeClass('active').addClass('inactive');
@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
 
 {assign var='field_name' value='null'} {* <!-- 'counter' for fieldset management --> *}
 {counter start=0 assign=i} {* <!-- counter for 'deactivate all' link --> *}
-{foreach from=$plugins item=plugin name=plugins_loop}
+{foreach $plugins as $plugin}
 
 {if $field_name != $plugin.STATE}
   {if $field_name != 'null'}

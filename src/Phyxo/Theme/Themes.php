@@ -25,20 +25,11 @@ use PclZip;
 
 class Themes
 {
-    public $fs_themes = array();
-    public $db_themes_by_id = array();
-    public $server_themes = array();
+    private $fs_themes = array(), $db_themes = array(), $server_themes = array();
+    private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    /**
-     * Initialize $fs_themes and $db_themes_by_id
-     */
     public function __construct(\Phyxo\DBLayer\DBLayer $conn) {
         $this->conn = $conn;
-        $this->get_fs_themes();
-
-        foreach ($this->get_db_themes() as $db_theme) {
-            $this->db_themes_by_id[$db_theme['id']] = $db_theme;
-        }
     }
 
     /**
@@ -67,11 +58,19 @@ class Themes
      * @param string - theme id
      * @param array - errors
      */
-    public function perform_action($action, $theme_id) {
+    public function performAction($action, $theme_id) {
         global $conf, $services;
 
-        if (isset($this->db_themes_by_id[$theme_id])) {
-            $crt_db_theme = $this->db_themes_by_id[$theme_id];
+        if (!$this->db_themes_retrieved) {
+            $this->getDbThemes();
+        }
+
+        if (!$this->fs_themes_retrieved) {
+            $this->getFsThemes();
+        }
+
+        if (isset($this->db_themes[$theme_id])) {
+            $crt_db_theme = $this->db_themes[$theme_id];
         }
 
         $theme_maintain = self::build_maintain_class($theme_id);
@@ -90,7 +89,7 @@ class Themes
                 break;
             }
 
-            $missing_parent = $this->missing_parent_theme($theme_id);
+            $missing_parent = $this->missingParentTheme($theme_id);
             if (isset($missing_parent)) {
                 $errors[] = l10n(
                     'Impossible to activate this theme, the parent theme is missing: %s',
@@ -115,7 +114,7 @@ class Themes
                 $this->conn->db_query($query);
 
                 if ($this->fs_themes[$theme_id]['mobile']) {
-                    conf_update_param('mobile_theme', $theme_id);
+                    \conf_update_param('mobile_theme', $theme_id);
                 }
             }
             break;
@@ -127,7 +126,7 @@ class Themes
             }
 
             // you can't deactivate the last theme
-            if (count($this->db_themes_by_id) <= 1) {
+            if (count($this->db_themes) <= 1) {
                 $errors[] = l10n('Impossible to deactivate this theme, you need at least one theme.');
                 break;
             }
@@ -145,7 +144,7 @@ class Themes
                     list($new_theme) = $this->conn->db_fetch_row($result);
                 }
 
-                $this->set_default_theme($new_theme);
+                $this->setDefaultTheme($new_theme);
             }
 
             $theme_maintain->deactivate();
@@ -154,7 +153,7 @@ class Themes
             $this->conn->db_query($query);
 
             if ($this->fs_themes[$theme_id]['mobile']) {
-                conf_update_param('mobile_theme', '');
+                \conf_update_param('mobile_theme', '');
             }
             break;
 
@@ -168,7 +167,7 @@ class Themes
                 break;
             }
 
-            $children = $this->get_children_themes($theme_id);
+            $children = $this->getChildrenThemes($theme_id);
             if (count($children) > 0) {
                 $errors[] = l10n(
                     'Impossible to delete this theme. Other themes depends on it: %s',
@@ -179,18 +178,20 @@ class Themes
 
             $theme_maintain->delete();
 
-            deltree(PHPWG_THEMES_PATH.$theme_id, PHPWG_THEMES_PATH . 'trash');
+            \deltree(PHPWG_THEMES_PATH.$theme_id, PHPWG_THEMES_PATH . 'trash');
             break;
 
         case 'set_default':
             // first we need to know which users are using the current default theme
-            $this->set_default_theme($theme_id);
+            $this->setDefaultTheme($theme_id);
             break;
         }
         return $errors;
     }
 
-    public function missing_parent_theme($theme_id) {
+    public function missingParentTheme($theme_id) {
+        $this->getFsThemes();
+
         if (!isset($this->fs_themes[$theme_id]['parent'])) {
             return null;
         }
@@ -205,13 +206,13 @@ class Themes
             return $parent;
         }
 
-        return $this->missing_parent_theme($parent);
+        return $this->missingParentTheme($parent);
     }
 
-    public function get_children_themes($theme_id) {
+    public function getChildrenThemes($theme_id) {
         $children = array();
 
-        foreach ($this->fs_themes as $test_child) {
+        foreach ($this->getFsThemes() as $test_child) {
             if (isset($test_child['parent']) and $test_child['parent'] == $theme_id) {
                 $children[] = $test_child['name'];
             }
@@ -220,7 +221,7 @@ class Themes
         return $children;
     }
 
-    public function set_default_theme($theme_id) {
+    public function setDefaultTheme($theme_id) {
         global $conf, $services;
 
         // first we need to know which users are using the current default theme
@@ -243,114 +244,126 @@ class Themes
         $this->conn->db_query($query);
     }
 
-    public function get_db_themes($id='') {
-        $query = 'SELECT id, version, name FROM '.THEMES_TABLE;
+    public function getDbThemes($id='') {
+        if (!$this->db_themes_retrieved) {
+            $query = 'SELECT id, version, name FROM '.THEMES_TABLE;
 
-        $clauses = array();
-        if (!empty($id)) {
-            $clauses[] = 'id = \''.$id.'\'';
-        }
-        if (count($clauses) > 0) {
-            $query .= ' WHERE '. implode(' AND ', $clauses);
-        }
+            $clauses = array();
+            if (!empty($id)) {
+                $clauses[] = 'id = \''.$id.'\'';
+            }
+            if (count($clauses) > 0) {
+                $query .= ' WHERE '. implode(' AND ', $clauses);
+            }
 
-        $result = $this->conn->db_query($query);
-        $themes = array();
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $themes[] = $row;
+            $result = $this->conn->db_query($query);
+            $themes = array();
+            while ($row = $this->conn->db_fetch_assoc($result)) {
+                $themes[] = $row;
+            }
+            $this->db_themes_retrieved = true;
         }
+        return $this->db_themes;
+    }
 
-        return $themes;
+    // for Update/Updates
+    public function getFsExtensions() {
+        return $this->getFsThemes();
     }
 
     /**
      *  Get themes defined in the theme directory
      */
-    public function get_fs_themes() {
+    public function getFsThemes() {
         global $conf;
 
-        foreach (glob(PHPWG_THEMES_PATH . '*/themeconf.inc.php') as $themeconf) {
-            $theme_dir = basename(dirname($themeconf));
-            if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
-                continue;
-            }
+        if (!$this->fs_themes_retrieved) {
+            foreach (glob(PHPWG_THEMES_PATH . '*/themeconf.inc.php') as $themeconf) {
+                $theme_dir = basename(dirname($themeconf));
+                if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
+                    continue;
+                }
 
-            $theme = array(
-                'id' => $theme_dir,
-                'name' => $theme_dir,
-                'version' => '0',
-                'uri' => '',
-                'description' => '',
-                'author' => '',
-                'mobile' => false,
-            );
-            $theme_data = implode('', file($themeconf));
+                $theme = array(
+                    'id' => $theme_dir,
+                    'name' => $theme_dir,
+                    'version' => '0',
+                    'uri' => '',
+                    'description' => '',
+                    'author' => '',
+                    'mobile' => false,
+                );
+                $theme_data = implode('', file($themeconf));
 
-            if (preg_match("|Theme Name:\\s*(.+)|", $theme_data, $val)) {
-                $theme['name'] = trim( $val[1] );
-            }
-            if (preg_match("|Version:\\s*([\\w.-]+)|", $theme_data, $val)) {
-                $theme['version'] = trim($val[1]);
-            }
-            if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
-                $theme['uri'] = trim($val[1]);
-            }
-            if ($desc = \load_language('description.txt', dirname($themeconf).'/', array('return' => true))) {
-                $theme['description'] = trim($desc);
-            } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
-                $theme['description'] = trim($val[1]);
-            }
-            if (preg_match("|Author:\\s*(.+)|", $theme_data, $val)) {
-                $theme['author'] = trim($val[1]);
-            }
-            if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
-                $theme['author uri'] = trim($val[1]);
-            }
-            if (!empty($theme['uri']) and strpos($theme['uri'] , 'extension_view.php?eid=')) {
-                list( , $extension) = explode('extension_view.php?eid=', $theme['uri']);
-                if (is_numeric($extension)) $theme['extension'] = $extension;
-            }
-            if (preg_match('/["\']parent["\'][^"\']+["\']([^"\']+)["\']/', $theme_data, $val)) {
-                $theme['parent'] = $val[1];
-            }
-            if (preg_match('/["\']activable["\'].*?(true|false)/i', $theme_data, $val)) {
-                $theme['activable'] = $this->conn->get_boolean($val[1]);
-            }
-            if (preg_match('/["\']mobile["\'].*?(true|false)/i', $theme_data, $val)) {
-                $theme['mobile'] = $this->conn->get_boolean($val[1]);
-            }
+                if (preg_match("|Theme Name:\\s*(.+)|", $theme_data, $val)) {
+                    $theme['name'] = trim( $val[1] );
+                }
+                if (preg_match("|Version:\\s*([\\w.-]+)|", $theme_data, $val)) {
+                    $theme['version'] = trim($val[1]);
+                }
+                if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
+                    $theme['uri'] = trim($val[1]);
+                }
+                if ($desc = \load_language('description.txt', dirname($themeconf).'/', array('return' => true))) {
+                    $theme['description'] = trim($desc);
+                } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
+                    $theme['description'] = trim($val[1]);
+                }
+                if (preg_match("|Author:\\s*(.+)|", $theme_data, $val)) {
+                    $theme['author'] = trim($val[1]);
+                }
+                if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
+                    $theme['author uri'] = trim($val[1]);
+                }
+                if (!empty($theme['uri']) and strpos($theme['uri'] , 'extension_view.php?eid=')) {
+                    list( , $extension) = explode('extension_view.php?eid=', $theme['uri']);
+                    if (is_numeric($extension)) $theme['extension'] = $extension;
+                }
+                if (preg_match('/["\']parent["\'][^"\']+["\']([^"\']+)["\']/', $theme_data, $val)) {
+                    $theme['parent'] = $val[1];
+                }
+                if (preg_match('/["\']activable["\'].*?(true|false)/i', $theme_data, $val)) {
+                    $theme['activable'] = $this->conn->get_boolean($val[1]);
+                }
+                if (preg_match('/["\']mobile["\'].*?(true|false)/i', $theme_data, $val)) {
+                    $theme['mobile'] = $this->conn->get_boolean($val[1]);
+                }
 
-            // screenshot
-            $screenshot_path = dirname($themeconf).'/screenshot.png';
-            if (file_exists($screenshot_path)) {
-                $theme['screenshot'] = $screenshot_path;
-            } else {
-                $theme['screenshot'] = \get_root_url().'admin/themes/'.$conf['admin_theme'].'/images/missing_screenshot.png';
-            }
+                // screenshot
+                $screenshot_path = dirname($themeconf).'/screenshot.png';
+                if (file_exists($screenshot_path)) {
+                    $theme['screenshot'] = $screenshot_path;
+                } else {
+                    $theme['screenshot'] = \get_root_url().'admin/themes/'.$conf['admin_theme'].'/images/missing_screenshot.png';
+                }
 
-            $admin_file = dirname($themeconf).'/admin/admin.inc.php';
-            if (file_exists($admin_file)) {
-                $theme['admin_uri'] = \get_root_url().'admin/index.php?page=theme&theme='.$theme_dir;
-            }
+                $admin_file = dirname($themeconf).'/admin/admin.inc.php';
+                if (file_exists($admin_file)) {
+                    $theme['admin_uri'] = \get_root_url().'admin/index.php?page=theme&theme='.$theme_dir;
+                }
 
-            $this->fs_themes[$theme_dir] = $theme;
+                $this->fs_themes[$theme_dir] = $theme;
+            }
+            $this->fs_themes_retrieved = true;
         }
+
+        return $this->fs_themes;
     }
 
     /**
      * Sort fs_themes
      */
-    public function sort_fs_themes($order='name') {
+    public function sortFsThemes($order='name') {
         switch ($order)
             {
             case 'name':
                 uasort($this->fs_themes, '\name_compare');
                 break;
             case 'status':
-                $this->sort_themes_by_state();
+                $this->sortThemesByState();
                 break;
             case 'author':
-                uasort($this->fs_themes, array($this, 'theme_author_compare'));
+                uasort($this->fs_themes, array($this, 'themeAuthorCompare'));
                 break;
             case 'id':
                 uksort($this->fs_themes, 'strcasecmp');
@@ -361,91 +374,96 @@ class Themes
     /**
      * Retrieve PEM server datas to $server_themes
      */
-    public function get_server_themes($new=false) {
+    public function getServerThemes($new=false) {
         global $user, $conf;
 
-        $get_data = array(
-            'category_id' => $conf['pem_themes_category'],
-            'format' => 'php',
-        );
+        if (!$this->server_themes_retrieved) {
+            $get_data = array(
+                'category_id' => $conf['pem_themes_category'],
+                'format' => 'php',
+            );
 
-        // Retrieve PEM versions
-        $version = PHPWG_VERSION;
-        $versions_to_check = array();
-        $url = PEM_URL . '/api/get_version_list.php';
-        if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
-            if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
-                $version = $pem_versions[0]['name'];
-            }
-            $branch = get_branch_from_version($version);
-            foreach ($pem_versions as $pem_version) {
-                if (strpos($pem_version['name'], $branch) === 0) {
-                    $versions_to_check[] = $pem_version['id'];
+            // Retrieve PEM versions
+            $version = PHPWG_VERSION;
+            $versions_to_check = array();
+            $url = PEM_URL . '/api/get_version_list.php';
+            if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
+                if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                    $version = $pem_versions[0]['name'];
+                }
+                $branch = \get_branch_from_version($version);
+                foreach ($pem_versions as $pem_version) {
+                    if (strpos($pem_version['name'], $branch) === 0) {
+                        $versions_to_check[] = $pem_version['id'];
+                    }
                 }
             }
-        }
-        if (empty($versions_to_check)) {
-            return false;
-        }
+            if (empty($versions_to_check)) {
+                return array();
+            }
 
-        // Themes to check
-        $themes_to_check = array();
-        foreach($this->fs_themes as $fs_theme) {
-            if (isset($fs_theme['extension'])) {
-                $themes_to_check[] = $fs_theme['extension'];
+            // Themes to check
+            $themes_to_check = array();
+            foreach($this->getFsThemes() as $fs_theme) {
+                if (isset($fs_theme['extension'])) {
+                    $themes_to_check[] = $fs_theme['extension'];
+                }
             }
-        }
 
-        // Retrieve PEM themes infos
-        $url = PEM_URL . '/api/get_revision_list.php';
-        $get_data = array_merge($get_data, array(
-            'last_revision_only' => 'true',
-            'version' => implode(',', $versions_to_check),
-            'lang' => substr($user['language'], 0, 2),
-            'get_nb_downloads' => 'true',
-        )
-        );
+            // Retrieve PEM themes infos
+            $url = PEM_URL . '/api/get_revision_list.php';
+            $get_data = array_merge(
+                $get_data,
+                array(
+                    'last_revision_only' => 'true',
+                    'version' => implode(',', $versions_to_check),
+                    'lang' => substr($user['language'], 0, 2),
+                    'get_nb_downloads' => 'true',
+                )
+            );
 
-        if (!empty($themes_to_check)) {
-            if ($new) {
-                $get_data['extension_exclude'] = implode(',', $themes_to_check);
-            } else {
-                $get_data['extension_include'] = implode(',', $themes_to_check);
+            if (!empty($themes_to_check)) {
+
+                if ($new) {
+                    $get_data['extension_exclude'] = implode(',', $themes_to_check);
+                } else {
+                    $get_data['extension_include'] = implode(',', $themes_to_check);
+                }
             }
+            if (fetchRemote($url, $result, $get_data)) {
+                $pem_themes = @unserialize($result);
+                if (!is_array($pem_themes)) {
+                    return array();
+                }
+                foreach ($pem_themes as $theme) {
+                    $this->server_themes[$theme['extension_id']] = $theme;
+                }
+            }
+            $this->server_themes_retrieved = true;
         }
-        if (fetchRemote($url, $result, $get_data)) {
-            $pem_themes = @unserialize($result);
-            if (!is_array($pem_themes)) {
-                return false;
-            }
-            foreach ($pem_themes as $theme) {
-                $this->server_themes[$theme['extension_id']] = $theme;
-            }
-            return true;
-        }
-        return false;
+        return $this->server_themes;
     }
 
     /**
      * Sort $server_themes
      */
-    public function sort_server_themes($order='date') {
+    public function sortServerThemes($order='date') {
         switch ($order)
             {
             case 'date':
                 krsort($this->server_themes);
                 break;
             case 'revision':
-                usort($this->server_themes, array($this, 'extension_revision_compare'));
+                usort($this->server_themes, array($this, 'extensionRevisionCompare'));
                 break;
             case 'name':
-                uasort($this->server_themes, array($this, 'extension_name_compare'));
+                uasort($this->server_themes, array($this, 'extensionNameCompare'));
                 break;
             case 'author':
-                uasort($this->server_themes, array($this, 'extension_author_compare'));
+                uasort($this->server_themes, array($this, 'extensionAuthorCompare'));
                 break;
             case 'downloads':
-                usort($this->server_themes, array($this, 'extension_downloads_compare'));
+                usort($this->server_themes, array($this, 'extensionDownloadsCompare'));
                 break;
             }
     }
@@ -457,7 +475,7 @@ class Themes
      * @param string - remote revision identifier (numeric)
      * @param string - theme id or extension id
      */
-    public function extract_theme_files($action, $revision, $dest) {
+    public function extractThemeFiles($action, $revision, $dest) {
         if ($archive = tempnam( PHPWG_THEMES_PATH, 'zip')) {
             $url = PEM_URL . '/download.php';
             $get_data = array(
@@ -467,16 +485,16 @@ class Themes
 
             if ($handle = @fopen($archive, 'wb') and fetchRemote($url, $handle, $get_data)) {
                 fclose($handle);
-                include_once(PHPWG_ROOT_PATH.'admin/include/pclzip.lib.php');
                 $zip = new PclZip($archive);
                 if ($list = $zip->listContent()) {
                     foreach ($list as $file) {
                         // we search main.inc.php in archive
                         if (basename($file['filename']) == 'themeconf.inc.php'
-                        and (!isset($main_filepath) or strlen($file['filename']) < strlen($main_filepath))) {
+                            and (!isset($main_filepath) or strlen($file['filename']) < strlen($main_filepath))) {
                             $main_filepath = $file['filename'];
                         }
                     }
+
                     if (isset($main_filepath)) {
                         $root = dirname($main_filepath); // main.inc.php path in archive
                         if ($action == 'upgrade') {
@@ -484,6 +502,8 @@ class Themes
                         } else {
                             $extract_path = PHPWG_THEMES_PATH . ($root == '.' ? 'extension_' . $dest : basename($root));
                         }
+
+
                         if ($result = $zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                             foreach ($result as $file) {
                                 if ($file['stored_filename'] == $main_filepath) {
@@ -492,8 +512,8 @@ class Themes
                                 }
                             }
                             if (file_exists($extract_path.'/obsolete.list')
-                            and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                            and !empty($old_files)) {
+                                and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
+                                and !empty($old_files)) {
                                 $old_files[] = 'obsolete.list';
                                 foreach($old_files as $old_file) {
                                     $path = $extract_path.'/'.$old_file;
@@ -527,7 +547,7 @@ class Themes
     /**
      * Sort functions
      */
-    public function extension_revision_compare($a, $b) {
+    public function extensionRevisionCompare($a, $b) {
         if ($a['revision_date'] < $b['revision_date']) {
             return 1;
         } else {
@@ -535,20 +555,20 @@ class Themes
         }
     }
 
-    public function extension_name_compare($a, $b) {
+    public function extensionNameCompare($a, $b) {
         return strcmp(strtolower($a['extension_name']), strtolower($b['extension_name']));
     }
 
-    public function extension_author_compare($a, $b) {
+    public function extensionAuthorCompare($a, $b) {
         $r = strcasecmp($a['author_name'], $b['author_name']);
         if ($r == 0) {
-            return $this->extension_name_compare($a, $b);
+            return $this->extensionNameCompare($a, $b);
         } else {
             return $r;
         }
     }
 
-    public function theme_author_compare($a, $b) {
+    public function themeAuthorCompare($a, $b) {
         $r = strcasecmp($a['author'], $b['author']);
         if ($r == 0) {
             return \name_compare($a, $b);
@@ -557,7 +577,7 @@ class Themes
         }
     }
 
-    public function extension_downloads_compare($a, $b) {
+    public function extensionDownloadsCompare($a, $b) {
         if ($a['extension_nb_downloads'] < $b['extension_nb_downloads']) {
             return 1;
         } else {
@@ -565,7 +585,7 @@ class Themes
         }
     }
 
-    public function sort_themes_by_state() {
+    public function sortThemesByState() {
         uasort($this->fs_themes, '\name_compare');
 
         $active_themes = array();
@@ -573,8 +593,8 @@ class Themes
         $not_installed = array();
 
         foreach($this->fs_themes as $theme_id => $theme) {
-            if (isset($this->db_themes_by_id[$theme_id])) {
-                $this->db_themes_by_id[$theme_id]['state'] == 'active' ?
+            if (isset($this->db_themes[$theme_id])) {
+                $this->db_themes[$theme_id]['state'] == 'active' ?
                     $active_themes[$theme_id] = $theme : $inactive_themes[$theme_id] = $theme;
             } else {
                 $not_installed[$theme_id] = $theme;

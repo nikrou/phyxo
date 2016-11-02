@@ -55,10 +55,12 @@ $(function(){
 {/literal}{/footer_script}
 
 <div class="titrePage">
+{if not empty($plugins)}
 <span class="sort">
 {'Sort order'|translate} :
 {html_options name="selectOrder" options=$order_options selected=$order_selected}
 </span>
+{/if}
   <h2>{'Plugins'|translate}</h2>
 </div>
 
@@ -66,7 +68,7 @@ $(function(){
 <div id="availablePlugins">
 <fieldset>
 <legend></legend>
-{foreach from=$plugins item=plugin name=plugins_loop}
+{foreach $plugins as $plugin}
 <div class="pluginBox" id="plugin_{$plugin.ID}">
 <input type="hidden" name="date" value="{$plugin.ID}">
 <input type="hidden" name="name" value="{$plugin.EXT_NAME}">

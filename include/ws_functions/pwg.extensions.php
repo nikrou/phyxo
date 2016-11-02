@@ -36,12 +36,12 @@ use Phyxo\Update\Updates;
  */
 function ws_plugins_getList($params, $service) {
     $plugins = new Plugins($GLOBALS['conn']);
-    $plugins->sort_fs_plugins('name');
+    $plugins->sortFsPlugins('name');
     $plugin_list = array();
 
-    foreach ($plugins->fs_plugins as $plugin_id => $fs_plugin) {
-        if (isset($plugins->db_plugins_by_id[$plugin_id])) {
-            $state = $plugins->db_plugins_by_id[$plugin_id]['state'];
+    foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
+        if (isset($plugins->getDbPlugins()[$plugin_id])) {
+            $state = $plugins->getDbPlugins()[$plugin_id]['state'];
         } else {
             $state = 'uninstalled';
         }
@@ -76,7 +76,7 @@ function ws_plugins_performAction($params, $service) {
     define('IN_ADMIN', true);
 
     $plugins = new Plugins($GLOBALS['conn']);
-    $errors = $plugins->perform_action($params['action'], $params['plugin']);
+    $errors = $plugins->performAction($params['action'], $params['plugin']);
 
     if (!empty($errors)) {
         return new Phyxo\Ws\Error(500, $errors);
@@ -106,7 +106,7 @@ function ws_themes_performAction($params, $service) {
     define('IN_ADMIN', true);
 
     $themes = new Themes($GLOBALS['conn']);
-    $errors = $themes->perform_action($params['action'], $params['theme']);
+    $errors = $themes->performAction($params['action'], $params['theme']);
 
     if (!empty($errors)) {
         return new Phyxo\Ws\Error(500, $errors);
@@ -146,15 +146,15 @@ function ws_extensions_update($params, $service) {
     include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
     $type = $params['type'];
-    $class_type = ucfirst($params['type']);
+    $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
     $extension_id = $params['id'];
     $revision = $params['revision'];
 
-    $extension = new $class_type($GLOBALS['conn']);
+    $extension = new $typeClassName($GLOBALS['conn']);
 
     if ($type == 'plugins') {
-        if (isset($extension->db_plugins_by_id[$extension_id]) and $extension->db_plugins_by_id[$extension_id]['state'] == 'active') {
-            $extension->perform_action('deactivate', $extension_id);
+        if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
+            $extension->performAction('deactivate', $extension_id);
 
             redirect(PHPWG_ROOT_PATH
             . 'ws.php'
@@ -168,18 +168,18 @@ function ws_extensions_update($params, $service) {
             );
         }
 
-        list($upgrade_status) = $extension->perform_action('update', $extension_id, array('revision' => $revision));
-        $extension_name = $extension->fs_plugins[$extension_id]['name'];
+        list($upgrade_status) = $extension->performAction('update', $extension_id, array('revision' => $revision));
+        $extension_name = $extension->getFsPlugins()[$extension_id]['name'];
 
         if (isset($params['reactivate'])) {
-            $extension->perform_action('activate', $extension_id);
+            $extension->performAction('activate', $extension_id);
         }
     } elseif ($type == 'themes') {
-        $upgrade_status = $extension->extract_theme_files('upgrade', $revision, $extension_id);
-        $extension_name = $extension->fs_themes[$extension_id]['name'];
+        $upgrade_status = $extension->extractThemeFiles('upgrade', $revision, $extension_id);
+        $extension_name = $extension->getFsThemes()[$extension_id]['name'];
     } elseif ($type == 'languages') {
-        $upgrade_status = $extension->extract_language_files('upgrade', $revision, $extension_id);
-        $extension_name = $extension->fs_languages[$extension_id]['name'];
+        $upgrade_status = $extension->extractLanguageFiles('upgrade', $revision, $extension_id);
+        $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
     }
 
     $template->delete_compiled_templates();
@@ -226,11 +226,11 @@ function ws_extensions_ignoreupdate($params, $service) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+    $conf['updates_ignored'] = unserialize($conf['updates_ignored']); // @TODO: use json_decode instead
 
     // Reset ignored extension
     if ($params['reset']) {
-        if (!empty($params['type']) and isset($conf['updates_ignored'][ $params['type'] ])) {
+        if (!empty($params['type']) and isset($conf['updates_ignored'][$params['type']])) {
             $conf['updates_ignored'][$params['type']] = array();
         } else {
             $conf['updates_ignored'] = array(
@@ -273,7 +273,7 @@ function ws_extensions_checkupdates($params, $service) {
     $result = array();
 
     if (!isset($_SESSION['need_update'])) {
-        $update->check_phyxo_upgrade();
+        $update->checkCoreUpgrade();
     }
 
     $result['phyxo_need_update'] = $_SESSION['need_update'];
@@ -281,9 +281,9 @@ function ws_extensions_checkupdates($params, $service) {
     $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
 
     if (!isset($_SESSION['extensions_need_update'])) {
-        $update->check_extensions();
+        $update->checkExtensions();
     } else {
-        $update->check_updated_extensions();
+        $update->checkUpdatedExtensions();
     }
 
     if (!is_array($_SESSION['extensions_need_update'])) {

@@ -35,7 +35,7 @@ $themes = new Themes($conn);
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['action']) and isset($_GET['theme'])) {
-    $page['errors'] = $themes->perform_action($_GET['action'], $_GET['theme']);
+    $page['errors'] = $themes->performAction($_GET['action'], $_GET['theme']);
 
     if (empty($page['errors'])) {
         if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
@@ -49,11 +49,11 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
 // |                     start template output                             |
 // +-----------------------------------------------------------------------+
 
-$themes->sort_fs_themes();
+$themes->sortFsThemes();
 
 $default_theme = $services['users']->getDefaultTheme();
 
-$db_themes = $themes->get_db_themes();
+$db_themes = $themes->getDbThemes();
 $db_theme_ids = array();
 foreach ($db_themes as $db_theme) {
     $db_theme_ids[] = $db_theme['id'];
@@ -61,7 +61,7 @@ foreach ($db_themes as $db_theme) {
 
 $tpl_themes = array();
 
-foreach ($themes->fs_themes as $theme_id => $fs_theme) {
+foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
     if ($theme_id == 'default') {
         continue;
     }
@@ -104,7 +104,7 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme) {
             $tpl_theme['ACTIVABLE'] = true;
         }
 
-        $missing_parent = $themes->missing_parent_theme($theme_id);
+        $missing_parent = $themes->missingParentTheme($theme_id);
         if (isset($missing_parent)) {
             $tpl_theme['ACTIVABLE'] = false;
 
@@ -115,7 +115,7 @@ foreach ($themes->fs_themes as $theme_id => $fs_theme) {
         }
 
         // is the theme "deletable" ?
-        $children = $themes->get_children_themes($theme_id);
+        $children = $themes->getChildrenThemes($theme_id);
 
         $tpl_theme['DELETABLE'] = true;
 
