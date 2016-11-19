@@ -222,7 +222,7 @@ function get_plugin_data($plugin_id) {
  * @param string $plugin
  */
 function load_plugin($plugin) {
-    $file_name = PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php';
+    $file_name = PHPWG_PLUGINS_PATH.'/'.$plugin['id'].'/main.inc.php';
     if (file_exists($file_name)) {
         autoupdate_plugin($plugin);
         global $pwg_loaded_plugins;
@@ -243,7 +243,7 @@ function autoupdate_plugin(&$plugin) {
     global $conn;
 
     // try to find the filesystem version in lines 2 to 10 of main.inc.php
-    $fh = fopen(PHPWG_PLUGINS_PATH.$plugin['id'].'/main.inc.php', 'r');
+    $fh = fopen(PHPWG_PLUGINS_PATH.'/'.$plugin['id'].'/main.inc.php', 'r');
     $fs_version = null;
     $i = -1;
 
@@ -265,7 +265,7 @@ function autoupdate_plugin(&$plugin) {
         safe_version_compare($plugin['version'], $fs_version, '<'))) {
         $plugin['version'] = $fs_version;
 
-        $maintain_file = PHPWG_PLUGINS_PATH.$plugin['id'].'/maintain.class.php';
+        $maintain_file = PHPWG_PLUGINS_PATH.'/'.$plugin['id'].'/maintain.class.php';
 
         // autoupdate is applicable only to plugins with 2.7 architecture
         if (file_exists($maintain_file)) {

@@ -1,3 +1,9 @@
+Phyxo 1.6.0 - 2016-11-19
+========================
+* Remove fetchRemote
+* Refactoring of TabSheet class
+* Refactoring of plugins, themes and languages classes
+
 Phyxo 1.5.0 - 2016-02-09
 ========================
 * Move webservice to Phyxo namespace

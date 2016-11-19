@@ -21,15 +21,17 @@
 namespace Phyxo\Plugin;
 
 use Phyxo\Plugin\DummyPluginMaintain;
-use PclZip;
+use Phyxo\Extension\Extensions;
 
-class Plugins
+class Plugins extends Extensions
 {
     private $fs_plugins = array(), $db_plugins = array(), $server_plugins = array();
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = array();
+    private static $plugins_root_path = PHPWG_PLUGINS_PATH;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn) {
+    public function __construct(\Phyxo\DBLayer\DBLayer $conn, $plugins_root_path=PHPWG_PLUGINS_PATH) {
+        self::$plugins_root_path = $plugins_root_path;
         $this->conn = $conn;
     }
 
@@ -39,7 +41,7 @@ class Plugins
      * @param string $plugin_id
      */
     private static function build_maintain_class($plugin_id) {
-        $file_to_include = PHPWG_PLUGINS_PATH . $plugin_id . '/maintain';
+        $file_to_include = self::$plugins_root_path . $plugin_id . '/maintain';
         $classname = $plugin_id.'_maintain';
 
         if (file_exists($file_to_include.'.class.php')) {
@@ -98,22 +100,25 @@ class Plugins
             }
             break;
 
-           case 'update':
-               $previous_version = $this->fs_plugins[$plugin_id]['version'];
-               $errors[0] = $this->extractPluginFiles('upgrade', $options['revision'], $plugin_id);
-               if ($errors[0] === 'ok') {
-                   $this->getFsPlugin($plugin_id); // refresh plugins list
-                   $new_version = $this->fs_plugins[$plugin_id]['version'];
+        case 'update':
+            $previous_version = $this->fs_plugins[$plugin_id]['version'];
+            try {
+                $this->extractPluginFiles('upgrade', $options['revision'], $plugin_id);
 
-                   $plugin_maintain = self::build_maintain_class($plugin_id);
-                   $plugin_maintain->update($previous_version, $new_version, $errors);
-                   if ($new_version != 'auto') {
-                       $query = 'UPDATE '. PLUGINS_TABLE .' SET version=\''. $new_version .'\'';
-                       $query .= ' WHERE id=\''. $plugin_id .'\'';
-                       $this->conn->db_query($query);
-                   }
-               }
-               break;
+                $this->getFsPlugin($plugin_id); // refresh plugins list
+                $new_version = $this->fs_plugins[$plugin_id]['version'];
+
+                $plugin_maintain = self::build_maintain_class($plugin_id);
+                $plugin_maintain->update($previous_version, $new_version, $errors);
+                if ($new_version != 'auto') {
+                    $query = 'UPDATE '. PLUGINS_TABLE .' SET version=\''. $new_version .'\'';
+                    $query .= ' WHERE id=\''. $plugin_id .'\'';
+                    $this->conn->db_query($query);
+                }
+            } catch (\Exception $e) {
+                $errors[] = $e->getMessage();
+            }
+            break;
 
         case 'activate':
             if (!isset($crt_db_plugin)) {
@@ -175,7 +180,7 @@ class Plugins
                 break;
             }
 
-            \deltree(PHPWG_PLUGINS_PATH . $plugin_id, PHPWG_PLUGINS_PATH . 'trash');
+            \deltree(self::$plugins_root_path . $plugin_id, self::$plugins_root_path . 'trash');
             break;
         }
 
@@ -191,7 +196,7 @@ class Plugins
      */
     public function getFsPlugins() {
         if (!$this->fs_plugins_retrieved) {
-            foreach (glob(PHPWG_PLUGINS_PATH . '*/main.inc.php') as $main_file) {
+            foreach (glob(PHPWG_PLUGINS_PATH . '/*/main.inc.php') as $main_file) {
                 $plugin_dir = basename(dirname($main_file));
                 if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
                     $this->getFsPlugin($plugin_dir);
@@ -208,7 +213,7 @@ class Plugins
      * @return false|array
      */
     public function getFsPlugin($plugin_id) {
-	    $path = PHPWG_PLUGINS_PATH.$plugin_id;
+	    $path = self::$plugins_root_path . '/' .$plugin_id;
         $main_file = $path.'/main.inc.php';
 
         if (!is_dir($path) && !is_readable($main_file)) {
@@ -312,8 +317,9 @@ class Plugins
         global $conf;
 
         $versions_to_check = array();
-        $url = PEM_URL . '/api/get_version_list.php?category_id='. $conf['pem_plugins_category'] .'&format=php';
-        if (fetchRemote($url, $result) and $pem_versions = @unserialize($result)) {
+        $url = PEM_URL . '/api/get_version_list.php?category_id='. $conf['pem_plugins_category'];
+        try {
+            $pem_versions = $this->getJsonFromServer($url);
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
@@ -323,6 +329,8 @@ class Plugins
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return $versions_to_check;
@@ -366,14 +374,17 @@ class Plugins
                     $get_data['extension_include'] = implode(',', $plugins_to_check);
                 }
             }
-            if (fetchRemote($url, $result, $get_data)) {
-                $pem_plugins = @unserialize($result);
+            try {
+                $pem_plugins = $this->getJsonFromServer($url, $get_data);
+
                 if (!is_array($pem_plugins)) {
                     return array();
                 }
                 foreach ($pem_plugins as $plugin) {
                     $this->server_plugins[$plugin['extension_id']] = $plugin;
                 }
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
 
             $this->server_plugins_retrieved = true;
@@ -394,7 +405,7 @@ class Plugins
 
         $versions_to_check = $this->getVersionsToCheck();
         if (empty($versions_to_check)) {
-            return false;
+            return array();
         }
 
 
@@ -415,10 +426,11 @@ class Plugins
             'extension_include' => implode(',', $plugins_to_check),
         );
 
-        if (fetchRemote($url, $result, $get_data)) {
-            $pem_plugins = @unserialize($result);
+        try {
+            $pem_plugins = $this->getJsonFromServer($url, $get_data);
+
             if (!is_array($pem_plugins)) {
-                return false;
+                return array();
             }
 
             $server_plugins = array();
@@ -439,8 +451,11 @@ class Plugins
                 }
             }
             return $_SESSION['incompatible_plugins'];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
-        return false;
+
+        return array();
     }
 
     /**
@@ -474,87 +489,26 @@ class Plugins
      * @param string - plugin id or extension id
      */
     public function extractPluginFiles($action, $revision, $dest, &$plugin_id=null) {
-        if ($archive = tempnam( PHPWG_PLUGINS_PATH, 'zip')) {
-            $url = PEM_URL . '/download.php';
-            $get_data = array(
-                'rid' => $revision,
-                'origin' => 'piwigo_'.$action,
-            );
+        $archive = tempnam(self::$plugins_root_path, 'zip');
+        $get_data = array(
+            'rid' => $revision,
+            'origin' => 'piwigo_'.$action,
+        );
 
-            if ($handle = @fopen($archive, 'wb') and fetchRemote($url, $handle, $get_data)) {
-                fclose($handle);
-                $zip = new PclZip($archive);
-                if ($list = $zip->listContent()) {
-                    foreach ($list as $file) {
-                        // we search main.inc.php in archive
-                        if (basename($file['filename']) == 'main.inc.php'
-                            && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {
-                            $main_filepath = $file['filename'];
-                        }
-                    }
-                    if (isset($main_filepath)) {
-                        $root = dirname($main_filepath); // main.inc.php path in archive
-                        if ($action == 'upgrade') {
-                            $plugin_id = $dest;
-                        } else {
-                            $plugin_id = ($root == '.' ? 'extension_' . $dest : basename($root));
-                        }
-                        $extract_path = PHPWG_PLUGINS_PATH . $plugin_id;
-
-                        if($result = $zip->extract(PCLZIP_OPT_PATH, $extract_path,
-                        PCLZIP_OPT_REMOVE_PATH, $root,
-                        PCLZIP_OPT_REPLACE_NEWER)) {
-                            foreach ($result as $file) {
-                                if ($file['stored_filename'] == $main_filepath) {
-                                    $status = $file['status'];
-                                    break;
-                                }
-                            }
-                            if (file_exists($extract_path.'/obsolete.list')
-                                && $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                                && !empty($old_files)) {
-                                $old_files[] = 'obsolete.list';
-                                foreach($old_files as $old_file) {
-                                    $path = $extract_path.'/'.$old_file;
-                                    if (is_file($path)) {
-                                        @unlink($path);
-                                    } elseif (is_dir($path)) {
-                                        \deltree($path, PHPWG_PLUGINS_PATH . 'trash');
-                                    }
-                                }
-                            }
-                        } else {
-                            $status = 'extract_error';
-                        }
-                    } else {
-                        $status = 'archive_error';
-                    }
-                } else {
-                    $status = 'archive_error';
-                }
-            } else {
-                $status = 'dl_archive_error';
-            }
-        } else {
-            $status = 'temp_path_error';
+        try {
+            $this->download($get_data, $archive);
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot download plugin file");
         }
 
-        @unlink($archive);
-        return $status;
-    }
-
-    public function getMergedExtensions($version=PHPWG_VERSION) {
-        $file = PHPWG_ROOT_PATH.'install/obsolete_extensions.list';
-        $merged_extensions = array();
-
-        if (file_exists($file) and $obsolete_ext = file($file, FILE_IGNORE_NEW_LINES) and !empty($obsolete_ext)) {
-            foreach ($obsolete_ext as $ext) {
-                if (preg_match('/^(\d+) ?: ?(.*?)$/', $ext, $matches)) {
-                    $merged_extensions[$matches[1]] = $matches[2];
-                }
-            }
+        $extract_path = self::$plugins_root_path;
+        try {
+            $this->extractZipFiles($archive, 'main.inc.php', $extract_path);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        } finally {
+            unlink($archive);
         }
-        return $merged_extensions;
     }
 
     /**

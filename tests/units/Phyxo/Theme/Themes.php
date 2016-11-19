@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -89,7 +89,7 @@ class Themes extends atoum
         $themes = new \Phyxo\Theme\Themes($conn);
 
         $this
-            ->array($themes->fs_themes)
+            ->array($themes->getFsThemes())
             ->isEqualTo($this->getLocalThemes());
     }
 
@@ -100,13 +100,13 @@ class Themes extends atoum
 		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \Phyxo\Theme\Themes($conn);
 
-        $themes->sort_fs_themes($sort_type);
+        $themes->sortFsThemes($sort_type);
 
         $this
-            ->array($themes->fs_themes)
+            ->array($themes->getFsThemes())
             ->isEqualTo($this->getLocalThemes())
             ->and()
-            ->array($themes->fs_themes)
+            ->array($themes->getFsThemes())
             ->keys->isEqualTo($order);
     }
 

@@ -1085,7 +1085,7 @@ function create_virtual_category($category_name, $parent_id=null, $options=array
         $query .= ' WHERE id = '.$parent_id.';';
         $parent = $conn->db_fetch_assoc($conn->db_query($query));
 
-        $insert['id_uppercat'] = $parent['id'];
+        $insert['id_uppercat'] = (int) $parent['id'];
         $insert['global_rank'] = $parent['global_rank'].'.'.$insert['rank'];
 
         // at creation, must a category be visible or not ? Warning : if the
@@ -1351,6 +1351,8 @@ function cat_admin_access($category_id) {
 }
 
 /**
+ *	@deprecated use Guzzlehttp instead
+ *
  * Retrieve data from external URL.
  *
  * @param string $src

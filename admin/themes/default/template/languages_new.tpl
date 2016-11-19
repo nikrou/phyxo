@@ -24,8 +24,9 @@ jQuery().ready(function(){ldelim}
     <td>{'Actions'|translate}</td>
   </tr>
 </thead>
-{foreach from=$languages item=language name=languages_loop}
-  <tr class="{if $smarty.foreach.languages_loop.index is odd}row1{else}row2{/if}">
+<tbody>
+  {foreach from=$languages item=language name=languages_loop}
+  <tr class="language {if $smarty.foreach.languages_loop.index is odd}row1{else}row2{/if}">
     <td><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.EXT_DESC|@htmlspecialchars|@nl2br}">{$language.EXT_NAME}</a></td>
     <td style="text-align:center;"><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.VER_DESC|@htmlspecialchars|@nl2br}">{$language.VERSION}</a></td>
     <td>{$language.DATE}</td>
@@ -34,7 +35,8 @@ jQuery().ready(function(){ldelim}
       / <a href="{$language.URL_DOWNLOAD}">{'Download'|translate}</a>
     </td>
   </tr>
-{/foreach}
+  {/foreach}
+</tbody>
 </table>
 {else}
 <p>{'There is no other language available.'|translate}</p>

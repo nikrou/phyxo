@@ -20,9 +20,9 @@
 
 namespace Phyxo\Language;
 
-use PclZip;
+use Phyxo\Extension\Extensions;
 
-class Languages
+class Languages extends Extensions
 {
     private $fs_languages = array(), $db_languages = array(), $server_languages = array();
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
@@ -205,7 +205,6 @@ class Languages
         if (!$this->server_languages_retrieved) {
             $get_data = array(
                 'category_id' => $conf['pem_languages_category'],
-                'format' => 'php',
             );
 
             // Retrieve PEM versions
@@ -213,7 +212,8 @@ class Languages
             $versions_to_check = array();
             $url = PEM_URL . '/api/get_version_list.php';
 
-            if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
+            try {
+                $pem_versions = $this->getJsonFromServer($url, $get_data);
                 if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
@@ -223,6 +223,8 @@ class Languages
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
 
             if (empty($versions_to_check)) {
@@ -244,7 +246,6 @@ class Languages
                 'version' => implode(',', $versions_to_check),
                 'lang' => $user['language'],
                 'get_nb_downloads' => 'true',
-                'format' => 'json'
             ));
             if (!empty($languages_to_check)) {
                 if ($new) {
@@ -254,9 +255,8 @@ class Languages
                 }
             }
 
-            if (fetchRemote($url, $result, $get_data)) {
-                $pem_languages = json_decode($result, true);
-
+            try {
+                $pem_languages = $this->getJsonFromServer($url, $get_data);
                 if (!is_array($pem_languages)) {
                     return array();
                 }
@@ -267,6 +267,8 @@ class Languages
                     }
                 }
                 uasort($this->server_languages, array($this, 'extensionNameCompare'));
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
 
             $this->server_languages_retrieved = true;
@@ -282,80 +284,31 @@ class Languages
      * @param string - language id or extension id
      */
     public function extractLanguageFiles($action, $revision, $dest='') {
-        if ($archive = tempnam( PHPWG_ROOT_PATH.'language', 'zip')) {
-            $url = PEM_URL . '/download.php';
-            $get_data = array(
-                'rid' => $revision,
-                'origin' => 'piwigo_'.$action,
-            );
+        $archive = tempnam(PHPWG_ROOT_PATH.'language', 'zip');
+        $get_data = array(
+            'rid' => $revision,
+            'origin' => 'phyxo_'.$action,
+        );
 
-            if ($handle = @fopen($archive, 'wb') and fetchRemote($url, $handle, $get_data)) {
-                fclose($handle);
-                $zip = new PclZip($archive);
-                if ($list = $zip->listContent()) {
-                    foreach ($list as $file) {
-                        // we search common.lang.php in archive
-                        if (basename($file['filename']) == 'common.lang.php'
-                            and (!isset($main_filepath)
-                                 or strlen($file['filename']) < strlen($main_filepath))) {
-                            $main_filepath = $file['filename'];
-                        }
-                    }
-                    if (isset($main_filepath)) {
-                        $root = basename(dirname($main_filepath)); // common.lang.php path in archive
-                        if (preg_match('/^[a-z]{2}_[A-Z]{2}$/', $root)) {
-                            if ($action == 'install') {
-                                $dest = $root;
-                            }
-                            $extract_path = PHPWG_ROOT_PATH.'language/'.$dest;
-                            if ($result = $zip->extract(PCLZIP_OPT_PATH, $extract_path,
-                                                        PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
-                                foreach ($result as $file) {
-                                    if ($file['stored_filename'] == $main_filepath) {
-                                        $status = $file['status'];
-                                        break;
-                                    }
-                                }
-                                if ($status == 'ok') {
-                                    $this->getFsLanguages();
-                                    if ($action == 'install') {
-                                        $this->performAction('activate', $dest);
-                                    }
-                                }
-                                if (file_exists($extract_path.'/obsolete.list')
-                                    and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                                    and !empty($old_files)) {
-                                    $old_files[] = 'obsolete.list';
-                                    foreach($old_files as $old_file) {
-                                        $path = $extract_path.'/'.$old_file;
-                                        if (is_file($path)) {
-                                            @unlink($path);
-                                        } elseif (is_dir($path)) {
-                                            deltree($path, PHPWG_ROOT_PATH.'language/trash');
-                                        }
-                                    }
-                                }
-                            } else {
-                                $status = 'extract_error';
-                            }
-                        } else {
-                            $status = 'archive_error';
-                        }
-                    } else {
-                        $status = 'archive_error';
-                    }
-                } else {
-                    $status = 'archive_error';
-                }
-            } else {
-                $status = 'dl_archive_error';
-            }
-        } else {
-            $status = 'temp_path_error';
+        $this->directory_pattern = '/^[a-z]{2}_[A-Z]{2}$/';
+        try {
+            $this->download($get_data, $archive);
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot download language archive");
         }
 
-        @unlink($archive);
-        return $status;
+        $extract_path = PHPWG_ROOT_PATH.'language';
+        try {
+            $this->extractZipFiles($archive, 'common.lang.php', $extract_path);
+            $this->getFsLanguages();
+            if ($action == 'install') {
+                $this->performAction('activate', $dest);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        } finally {
+            unlink($archive);
+        }
     }
 
     /**

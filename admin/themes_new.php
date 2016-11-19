@@ -49,11 +49,12 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     } else {
         check_pwg_token();
 
-        $install_status = $themes->extractThemeFiles(
-            'install',
-            $_GET['revision'],
-            $_GET['extension']
-        );
+        try {
+            $themes->extractThemeFiles('install', $_GET['revision'], $_GET['extension']);
+            $install_status = 'ok';
+        } catch (\Exception $e) {
+            $page['errors'] = $e->getMessage();
+        }
 
         redirect(THEMES_BASE_URL.'&section=new&installstatus='.$install_status);
     }

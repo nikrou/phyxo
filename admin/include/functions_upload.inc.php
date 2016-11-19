@@ -25,6 +25,8 @@
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
 
+use GuzzleHttp\Client;
+
 // add default event handler for image and thumbnail resize
 add_event_handler('upload_image_resize', 'pwg_image_resize');
 add_event_handler('upload_thumbnail_resize', 'pwg_image_resize');
@@ -416,7 +418,12 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     $thumb_url = preg_replace('#admin/include/i#', 'i', DerivativeImage::thumb_url($image_infos));
     unset_make_full_url();
 
-    fetchRemote($thumb_url, $dest);
+    try {
+        $client = new Client();
+        $request = $client->createRequest('GET', $thumb_url);
+        $response = $client->send($request);
+    } catch (\Exception $e) {
+    }
 
     return $image_id;
 }

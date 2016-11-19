@@ -37,7 +37,12 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     } else {
         check_pwg_token();
 
-        $install_status = $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
+        try {
+            $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
+            $install_status = 'ok';
+        } catch (\Exception $e) {
+            $page['errors'] = $e->getMessage();
+        }
 
         redirect(PLUGINS_BASE_URL.'&installstatus='.$install_status.'&plugin_id='.$plugin_id);
     }

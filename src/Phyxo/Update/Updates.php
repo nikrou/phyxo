@@ -29,7 +29,7 @@ use GuzzleHttp\Client;
 class Updates
 {
     private $versions = array(), $version = array();
-    private $types = array(), $merged_extensions = array();
+    private $types = array();
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $page='updates') {
         $this->types = array('plugins', 'themes', 'languages');
@@ -137,13 +137,27 @@ class Updates
         global $user;
 
         $get_data = array(
-            'format' => 'php',
+            'format' => 'json',
         );
 
         // Retrieve PEM versions
         $versions_to_check = array();
         $url = PEM_URL . '/api/get_version_list.php';
-        if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
+
+        try {
+            $client = new Client();
+            $request = $client->createRequest('GET', $url);
+            $query = $request->getQuery();
+            foreach ($get_data as $key => $value) {
+                $query->set($key, $value);
+            }
+            $response = $client->send($request);
+            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+                $pem_versions = json_decode($response->getBody(), true);
+            } else {
+                throw new \Exception("Reponse from server is not readable");
+            }
+
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
@@ -153,9 +167,8 @@ class Updates
                     $versions_to_check[] = $pem_version['id'];
                 }
             }
-        }
-        if (empty($versions_to_check)) {
-            return array();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
 
         // Extensions to check
@@ -175,16 +188,27 @@ class Updates
             'version' => implode(',', $versions_to_check),
             'lang' => substr($user['language'], 0, 2),
             'get_nb_downloads' => 'true',
-        )
-        );
+            'format' => 'json'
+        ));
 
         $post_data = array();
         if (!empty($ext_to_check)) {
             $post_data['extension_include'] = implode(',', array_keys($ext_to_check));
         }
 
-        if (fetchRemote($url, $result, $get_data, $post_data)) {
-            $pem_exts = @unserialize($result);
+        try {
+            $client = new Client();
+            $request = $client->createRequest('GET', $url);
+            $query = $request->getQuery();
+            foreach ($get_data as $key => $value) {
+                $query->set($key, $value);
+            }
+            $response = $client->send($request);
+            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+                $pem_exts = json_decode($response->getBody(), true);
+            } else {
+                throw new \Exception("Reponse from server is not readable");
+            }
             if (!is_array($pem_exts)) {
                 return array();
             }
@@ -207,24 +231,35 @@ class Updates
 
             $this->checkMissingExtensions($ext_to_check);
             return array();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return array();
     }
 
     public function checkCoreUpgrade() {
-        $_SESSION['need_update'] = null;
+        $_SESSION['phyxo_need_update'] = false;
 
-        if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)
-            && @fetchRemote(PHPWG_URL.'/download/all_versions.php?rand='.md5(uniqid(rand(), true)), $result)) {
-            $all_versions = @explode("\n", $result);
-            $new_version = trim($all_versions[0]);
-            $_SESSION['need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
+        if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
+            try {
+                $client = new Client();
+                $request = $client->createRequest('GET', PHPWG_URL.'/download/all_versions.php');
+                $response = $client->send($request);
+                if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+                    $all_versions = json_decode($response->getBody(), true);
+                }
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
+
+            $new_version = trim($all_versions[0]['version']);
+            $_SESSION['phyxo_need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
         }
     }
 
     // Check all extensions upgrades
-    protected function checkExtensions() {
+    public function checkExtensions() {
         global $conf;
 
         if (!$this->getServerExtensions()) {
@@ -234,15 +269,10 @@ class Updates
         $_SESSION['extensions_need_update'] = array();
 
         foreach ($this->types as $type) {
-            $fs = 'fs_'.$type;
-            $server = 'server_'.$type;
-            $server_ext = $this->$type->$server;
-            $fs_ext = $this->$type->$fs;
-
             $ignore_list = array();
             $need_upgrade = array();
 
-            foreach($fs_ext as $ext_id => $fs_ext) {
+            foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                 if (isset($fs_ext['extension']) and isset($server_ext[$fs_ext['extension']])) {
                     $ext_info = $server_ext[$fs_ext['extension']];
 
@@ -281,24 +311,9 @@ class Updates
             $default = 'default_'.$type;
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $ext) {
                 if (isset($ext['extension']) and $id == $ext['extension']
-                    and !in_array($ext_id, $this->$default)
-                    and !in_array($ext['extension'], $this->merged_extensions)) {
+                    and !in_array($ext_id, $this->$default)) {
                     $this->missing[$type][] = $ext;
                     break;
-                }
-            }
-        }
-    }
-
-    protected function getMergedExtensions($version) {
-        if (fetchRemote($this->merged_extension_url, $result)) {
-            $rows = explode("\n", $result);
-            foreach ($rows as $row) {
-                if (preg_match('/^(\d+\.\d+): *(.*)$/', $row, $match)) {
-                    if (version_compare($version, $match[1], '>=')) {
-                        $extensions = explode(',', trim($match[2]));
-                        $this->merged_extensions = array_merge($this->merged_extensions, $extensions);
-                    }
                 }
             }
         }

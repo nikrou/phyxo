@@ -20,10 +20,10 @@
 
 namespace Phyxo\Theme;
 
+use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
-use PclZip;
 
-class Themes
+class Themes extends Extensions
 {
     private $fs_themes = array(), $db_themes = array(), $server_themes = array();
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
@@ -354,6 +354,10 @@ class Themes
      * Sort fs_themes
      */
     public function sortFsThemes($order='name') {
+        if (!$this->fs_themes_retrieved) {
+            $this->getFsThemes();
+        }
+
         switch ($order)
             {
             case 'name':
@@ -380,14 +384,15 @@ class Themes
         if (!$this->server_themes_retrieved) {
             $get_data = array(
                 'category_id' => $conf['pem_themes_category'],
-                'format' => 'php',
             );
 
             // Retrieve PEM versions
             $version = PHPWG_VERSION;
             $versions_to_check = array();
             $url = PEM_URL . '/api/get_version_list.php';
-            if (fetchRemote($url, $result, $get_data) and $pem_versions = @unserialize($result)) {
+
+            try {
+                $pem_versions = $this->getJsonFromServer($url, $get_data);
                 if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
@@ -397,7 +402,10 @@ class Themes
                         $versions_to_check[] = $pem_version['id'];
                     }
                 }
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
+
             if (empty($versions_to_check)) {
                 return array();
             }
@@ -430,14 +438,17 @@ class Themes
                     $get_data['extension_include'] = implode(',', $themes_to_check);
                 }
             }
-            if (fetchRemote($url, $result, $get_data)) {
-                $pem_themes = @unserialize($result);
+            try {
+                $pem_themes = $this->getJsonFromServer($url, $get_data);
                 if (!is_array($pem_themes)) {
                     return array();
                 }
+
                 foreach ($pem_themes as $theme) {
                     $this->server_themes[$theme['extension_id']] = $theme;
                 }
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
             $this->server_themes_retrieved = true;
         }
@@ -476,72 +487,26 @@ class Themes
      * @param string - theme id or extension id
      */
     public function extractThemeFiles($action, $revision, $dest) {
-        if ($archive = tempnam( PHPWG_THEMES_PATH, 'zip')) {
-            $url = PEM_URL . '/download.php';
-            $get_data = array(
-                'rid' => $revision,
-                'origin' => 'piwigo_'.$action,
-            );
+        $archive = tempnam( PHPWG_THEMES_PATH, 'zip');
+        $get_data = array(
+            'rid' => $revision,
+            'origin' => 'phyxo_'.$action
+        );
 
-            if ($handle = @fopen($archive, 'wb') and fetchRemote($url, $handle, $get_data)) {
-                fclose($handle);
-                $zip = new PclZip($archive);
-                if ($list = $zip->listContent()) {
-                    foreach ($list as $file) {
-                        // we search main.inc.php in archive
-                        if (basename($file['filename']) == 'themeconf.inc.php'
-                            and (!isset($main_filepath) or strlen($file['filename']) < strlen($main_filepath))) {
-                            $main_filepath = $file['filename'];
-                        }
-                    }
-
-                    if (isset($main_filepath)) {
-                        $root = dirname($main_filepath); // main.inc.php path in archive
-                        if ($action == 'upgrade') {
-                            $extract_path = PHPWG_THEMES_PATH . $dest;
-                        } else {
-                            $extract_path = PHPWG_THEMES_PATH . ($root == '.' ? 'extension_' . $dest : basename($root));
-                        }
-
-
-                        if ($result = $zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
-                            foreach ($result as $file) {
-                                if ($file['stored_filename'] == $main_filepath) {
-                                    $status = $file['status'];
-                                    break;
-                                }
-                            }
-                            if (file_exists($extract_path.'/obsolete.list')
-                                and $old_files = file($extract_path.'/obsolete.list', FILE_IGNORE_NEW_LINES)
-                                and !empty($old_files)) {
-                                $old_files[] = 'obsolete.list';
-                                foreach($old_files as $old_file) {
-                                    $path = $extract_path.'/'.$old_file;
-                                    if (is_file($path)) {
-                                        @unlink($path);
-                                    } elseif (is_dir($path)) {
-                                        deltree($path, PHPWG_THEMES_PATH . 'trash');
-                                    }
-                                }
-                            }
-                        } else {
-                            $status = 'extract_error';
-                        }
-                    } else {
-                        $status = 'archive_error';
-                    }
-                } else {
-                    $status = 'archive_error';
-                }
-            } else {
-                $status = 'dl_archive_error';
-            }
-        } else {
-            $status = 'temp_path_error';
+        try {
+            $this->download($get_data, $archive);
+        } catch (\Exception $e) {
+            throw new \Exception("Cannot download theme archive");
         }
 
-        @unlink($archive);
-        return $status;
+        $extract_path = PHPWG_THEMES_PATH;
+        try {
+            $this->extractZipFiles($archive, 'themeconf.inc.php', $extract_path);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        } finally {
+            unlink($archive);
+        }
     }
 
     /**

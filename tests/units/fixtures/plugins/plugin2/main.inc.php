@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Plugin 2 - a plugin for Phyxo                                         |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net  |
+// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net  |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -23,7 +23,7 @@
 Plugin Name: ZZ Plugin
 Version: 1.0.0
 Description: My second plugin
-Plugin URI: http://ext.phyxo.net/extension_view.php?eid=2
+Plugin URI: http://ext.phyxo.net/extension_view.php?eid=20
 Author: Arthur
 */
 

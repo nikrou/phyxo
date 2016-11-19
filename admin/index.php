@@ -184,7 +184,7 @@ $template->assign(
         'U_UPDATES' => $link_start.'updates',
         'U_DEV_VERSION' => strpos(PHPWG_VERSION, 'dev')!==false,
         'U_DEV_API' => 'dev/api',
-        'U_DEV_JS_TESTS' => 'tests/functional/'
+        'U_DEV_JS_TESTS' => '../tests/functional/'
     )
 );
 

@@ -26,6 +26,9 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die ("Hacking attempt!");
 }
 
+use GuzzleHttp\Client;
+
+
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
 include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
@@ -41,38 +44,26 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 // Check for upgrade : code inspired from punbb
 if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
-    if (!fetchRemote(PHPWG_URL.'/download/latest_version', $result)) {
-        $page['errors'][] = l10n('Unable to check for upgrade.');
-    } else {
-        $versions = array('current' => PHPWG_VERSION);
-        $lines = @explode("\r\n", $result);
-
-        // if the current version is a BSF (development branch) build, we check
-        // the first line, for stable versions, we check the second line
-        if (preg_match('/^BSF/', $versions['current'])) {
-            $versions['latest'] = trim($lines[0]);
-
-            // because integer are limited to 4,294,967,296 we need to split BSF
-            // versions in date.time
-            foreach ($versions as $key => $value) {
-                $versions[$key] = preg_replace('/BSF_(\d{8})(\d{4})/', '$1.$2', $value);
-            }
+    try {
+        $client = new Client();
+        $request = $client->createRequest('GET', PHPWG_URL.'/download/');
+        $response = $client->send($request);
+        if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            $versions = json_decode($response->getBody(), true);
+            $latest_version = $versions[0]['version'];
         } else {
-            $versions['latest'] = trim($lines[1]);
+            throw new \Exception('Unable to check for upgrade.');
         }
 
-        if ('' == $versions['latest']) {
-            $page['errors'][] = l10n('Check for upgrade failed for unknown reasons.');
-        } elseif ('%'.'PWGVERSION'.'%' == $versions['current']) {
-            // concatenation needed to avoid automatic transformation by release
-            // script generator
-
+        if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
             $page['infos'][] = l10n('You are running on development sources, no check possible.');
-        } elseif (version_compare($versions['current'], $versions['latest']) < 0) {
+        } elseif (version_compare(PHPWG_VERSION, $latest_version) < 0) {
             $page['infos'][] = l10n('A new version of Phyxo is available.');
         } else {
             $page['infos'][] = l10n('You are running the latest version of Phyxo.');
         }
+    } catch (\Exception $e) {
+        $page['errors'][] = l10n('Unable to check for upgrade.');
     }
 } elseif (isset($_GET['action']) and 'phpinfo' == $_GET['action']) {
     // Show phpinfo() output

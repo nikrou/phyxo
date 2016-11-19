@@ -3,7 +3,6 @@ Things to do
 
  * Remove useless arobase in code
  * Move more code (classes) to Phyxo namespace
- * remove fetchRemote
  * sanitize notification_by_mail
  * Move install.php, upgrade.php and upgrade_feed.php to admin/
 

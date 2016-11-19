@@ -50,7 +50,9 @@ if ($step == 0) {
     $updater = new Updates($conn);
     $updater->setUpdateUrl(PHYXO_UPDATE_URL);
 
-    if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
+    if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
+        $template->assign('DEV_VERSION', true);
+    } elseif (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
         try {
             $all_versions = $updater->getAllVersions();
             $template->assign('CHECK_VERSION', true);
@@ -82,8 +84,6 @@ if ($step == 0) {
         } catch (Exception $e) {
             $template->assign('LAST_ERROR_MESSAGE', $e->getMessage());
         }
-    } else {
-        $template->assign('DEV_VERSION', true);
     }
 }
 

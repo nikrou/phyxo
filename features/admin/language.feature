@@ -21,3 +21,8 @@ Feature: Manage languages
     Then I click on the ".state.state-active .languageBox:nth-child(2) a.deactivate" element
     Then I should see 68 ".state.state-active .languageBox" elements
     And I should see 1 ".state.state-inactive .languageBox" elements
+
+  Scenario: Add new languages
+    Given I am logged in as "user1" with password "pass1"
+    When I go to "admin/index.php?page=languages&section=new"
+    Then I should see 1 ".languages tbody .language" elements

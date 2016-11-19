@@ -87,8 +87,6 @@ if (isset($_GET['incompatible_plugins'])) {
 // +-----------------------------------------------------------------------+
 
 $plugins->sortFsPlugins('name');
-$merged_extensions = $plugins->getMergedExtensions();
-$merged_plugins = false;
 $tpl_plugins = array();
 $active_plugins = 0;
 
@@ -116,16 +114,6 @@ foreach($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
         $tpl_plugin['STATE'] = 'inactive';
     }
 
-    if (isset($fs_plugin['extension']) and isset($merged_extensions[$fs_plugin['extension']])) {
-        // Deactivate manually plugin from database
-        $query = 'UPDATE '.PLUGINS_TABLE.' SET state=\'inactive\' WHERE id=\''.$plugin_id.'\'';
-        $conn->db_query($query);
-
-        $tpl_plugin['STATE'] = 'merged';
-        $tpl_plugin['DESC'] = l10n('THIS PLUGIN IS NOW PART OF PHYXO CORE! DELETE IT NOW.');
-        $merged_plugins = true;
-    }
-
     if ($tpl_plugin['STATE'] == 'active') {
         $active_plugins++;
     }
@@ -135,10 +123,6 @@ foreach($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
 
 $template->append('plugin_states', 'active');
 $template->append('plugin_states', 'inactive');
-
-if ($merged_plugins) {
-    $template->append('plugin_states', 'merged');
-}
 
 $missing_plugin_ids = array_diff(
     array_keys($plugins->getDbPlugins()),
@@ -160,7 +144,7 @@ if (count($missing_plugin_ids) > 0) {
 
 // sort plugins by state then by name
 function cmp($a, $b) {
-    $s = array('merged' => 0, 'missing' => 1, 'active' => 2, 'inactive' => 3);
+    $s = array('missing' => 1, 'active' => 2, 'inactive' => 3);
 
     if($a['STATE'] == $b['STATE']) {
         return strcasecmp($a['NAME'], $b['NAME']);

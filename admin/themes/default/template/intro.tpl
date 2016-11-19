@@ -1,10 +1,17 @@
+{combine_script id="jquery.cluetip" load="async" require="jquery" path="themes/default/js/plugins/jquery.cluetip.js"}
+{combine_script id="intro" require="jquery" path="admin/themes/default/js/intro.js"}
+
+{footer_script require="jquery.cluetip"}
+var phyxo_need_update_msg = '<a href="./index.php?page=updates">{'A new version of Phyxo is available.'|translate|@escape:"javascript"}</a>';
+var ext_need_update_msg = '<a href="./index.php?page=updates&amp;tab=ext">{'Some upgrades are available for extensions.'|translate|@escape:"javascript"}</a>';
+{/footer_script}
+
 <h2>{'Phyxo Administration'|translate}</h2>
 <dl style="padding-top: 30px;">
   <dt>{'Phyxo version'|translate}</dt>
   <dd>
     <ul>
-      <li><a href="{$PHPWG_URL}" class="externalLink">Phyxo</a> {$PWG_VERSION}</li>
-      <!-- <li><a href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|translate}</a></li> -->
+      <li><a href="{$PHPWG_URL}" class="externalLink">Phyxo</a> {$PWG_VERSION}&nbsp;(<a id="check-upgrade" href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|translate}</a>)</li>
     </ul>
   </dd>
 
@@ -33,11 +40,11 @@
       <li>{$DB_TAGS} ({$DB_IMAGE_TAG})</li>
       <li>{$DB_USERS}</li>
       <li>{$DB_GROUPS}</li>
-    {if isset($DB_COMMENTS)}
+      {if isset($DB_COMMENTS)}
       <li>
         {$DB_COMMENTS}{if $NB_PENDING_COMMENTS > 0} (<a href="{$U_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
       </li>
-    {/if}
+      {/if}
       <li>{$DB_RATES}</li>
     </ul>
   </dd>

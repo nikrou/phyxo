@@ -21,10 +21,16 @@
 require_once __DIR__.'/../../vendor/autoload.php';
 
 define('PHPWG_ROOT_PATH', './../../');
+define('PEM_URL', 'http://localhost/pem');
+define('PHPWG_VERSION', 'tests');
 
 define('PHPWG_THEMES_PATH', __DIR__.'/fixtures/themes/');
-define('PHPWG_PLUGINS_PATH', __DIR__.'/fixtures/plugins/');
+define('PHPWG_PLUGINS_PATH', __DIR__.'/fixtures/plugins');
 define('PHPWG_LANGUAGES_PATH', __DIR__.'/fixtures/language/');
+
+define('PHPWG_TMP_PATH', __DIR__.'/tmp');
+define('PHPWG_ZIP_PATH', __DIR__.'/fixtures/zip');
+
 define('MASS_UPDATES_SKIP_EMPTY', false);
 
 $conf['admin_theme'] = 'default';

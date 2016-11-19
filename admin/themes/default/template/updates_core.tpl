@@ -57,7 +57,7 @@ li { margin: 5px; }
 </p>
 <form action="" method="post">
 <p><input type="submit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}"></p>
-<p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif" alt=""></p>
+<p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="./themes/default/images/ajax-loader-bar.gif" alt=""></p>
 <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>
 </form>
 {/if}
@@ -86,7 +86,7 @@ li { margin: 5px; }
   {/if}
   <p><input type="submit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}" {if !empty($missing.plugins) or !empty($missing.themes)}disabled="disabled"{/if}>
   </p>
-  <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="admin/themes/default/images/ajax-loader-bar.gif"></p>
+  <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="./themes/default/images/ajax-loader-bar.gif" alt=""></p>
 </fieldset>
 
 <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>

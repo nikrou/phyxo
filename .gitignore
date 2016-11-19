@@ -37,3 +37,6 @@
 
 ;; multisites
 /sites
+
+;; tests
+/tests/units/tmp/

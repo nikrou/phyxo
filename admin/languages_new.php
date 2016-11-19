@@ -49,7 +49,12 @@ if (isset($_GET['revision'])) {
     } else {
         check_pwg_token();
 
-        $install_status = $languages->extractLanguageFiles('install', $_GET['revision']);
+        try {
+            $languages->extractLanguageFiles('install', $_GET['revision']);
+            $install_status = 'ok';
+        } catch (\Exception $e) {
+            $page['errors'] = l10n($e->getMessage());
+        }
 
         redirect(LANGUAGES_BASE_URL.'&section=new&installstatus='.$install_status);
     }
@@ -80,7 +85,7 @@ if (isset($_GET['installstatus'])) {
     default:
         $page['errors'][] = l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
     }
-                                 }
+}
 
 // +-----------------------------------------------------------------------+
 // |                     start template output                             |

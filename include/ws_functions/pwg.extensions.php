@@ -143,8 +143,6 @@ function ws_extensions_update($params, $service) {
         return new Phyxo\Ws\Error(403, "invalid extension type");
     }
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
     $type = $params['type'];
     $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
     $extension_id = $params['id'];
@@ -152,55 +150,42 @@ function ws_extensions_update($params, $service) {
 
     $extension = new $typeClassName($GLOBALS['conn']);
 
-    if ($type == 'plugins') {
-        if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
-            $extension->performAction('deactivate', $extension_id);
+    try {
+        if ($type == 'plugins') {
+            if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
+                $extension->performAction('deactivate', $extension_id);
 
-            redirect(PHPWG_ROOT_PATH
-            . 'ws.php'
-            . '?method=pwg.extensions.update'
-            . '&type=plugins'
-            . '&id=' . $extension_id
-            . '&revision=' . $revision
-            . '&reactivate=true'
-            . '&pwg_token=' . get_pwg_token()
-                            . '&format=json'
-            );
+                redirect(PHPWG_ROOT_PATH
+                         . 'ws.php'
+                         . '?method=pwg.extensions.update'
+                         . '&type=plugins'
+                         . '&id=' . $extension_id
+                         . '&revision=' . $revision
+                         . '&reactivate=true'
+                         . '&pwg_token=' . get_pwg_token()
+                                         . '&format=json'
+                );
+            }
+
+            $errors = $extension->performAction('update', $extension_id, array('revision' => $revision));
+            $extension_name = $extension->getFsPlugins()[$extension_id]['name'];
+
+            if (isset($params['reactivate'])) {
+                $extension->performAction('activate', $extension_id);
+            }
+        } elseif ($type == 'themes') {
+            $extension->extractThemeFiles('upgrade', $revision, $extension_id);
+            $extension_name = $extension->getFsThemes()[$extension_id]['name'];
+        } elseif ($type == 'languages') {
+            $extension->extractLanguageFiles('upgrade', $revision, $extension_id);
+            $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
         }
 
-        list($upgrade_status) = $extension->performAction('update', $extension_id, array('revision' => $revision));
-        $extension_name = $extension->getFsPlugins()[$extension_id]['name'];
-
-        if (isset($params['reactivate'])) {
-            $extension->performAction('activate', $extension_id);
-        }
-    } elseif ($type == 'themes') {
-        $upgrade_status = $extension->extractThemeFiles('upgrade', $revision, $extension_id);
-        $extension_name = $extension->getFsThemes()[$extension_id]['name'];
-    } elseif ($type == 'languages') {
-        $upgrade_status = $extension->extractLanguageFiles('upgrade', $revision, $extension_id);
-        $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
+        $template->delete_compiled_templates();
+        return l10n('%s has been successfully updated.', $extension_name);
+    } catch (\Exception $e) {
+        return $e->getMessage();
     }
-
-    $template->delete_compiled_templates();
-
-    switch ($upgrade_status)
-        {
-        case 'ok':
-            return l10n('%s has been successfully updated.', $extension_name);
-
-        case 'temp_path_error':
-            return new Phyxo\Ws\Error(null, l10n('Can\'t create temporary file.'));
-
-        case 'dl_archive_error':
-            return new Phyxo\Ws\Error(null, l10n('Can\'t download archive.'));
-
-        case 'archive_error':
-            return new Phyxo\Ws\Error(null, l10n('Can\'t read or extract archive.'));
-
-        default:
-            return new Phyxo\Ws\Error(null, l10n('An error occured during extraction (%s).', $upgrade_status));
-        }
 }
 
 /**
@@ -272,11 +257,11 @@ function ws_extensions_checkupdates($params, $service) {
     $update = new Updates($GLOBALS['conn']);
     $result = array();
 
-    if (!isset($_SESSION['need_update'])) {
+    if (!isset($_SESSION['phyxo_need_update'])) {
         $update->checkCoreUpgrade();
     }
 
-    $result['phyxo_need_update'] = $_SESSION['need_update'];
+    $result['phyxo_need_update'] = $_SESSION['phyxo_need_update'];
 
     $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
 
@@ -286,8 +271,8 @@ function ws_extensions_checkupdates($params, $service) {
         $update->checkUpdatedExtensions();
     }
 
-    if (!is_array($_SESSION['extensions_need_update'])) {
-        $result['ext_need_update'] = null;
+    if (!isset($_SESSION['extensions_need_update'])) {
+        $result['ext_need_update'] = false;
     } else {
         $result['ext_need_update'] = !empty($_SESSION['extensions_need_update']);
     }
