@@ -28,7 +28,7 @@ class Extensions
 {
     protected $directory_pattern = '';
 
-    public function getJsonFromServer($url, $params) {
+    public function getJsonFromServer($url, $params=array()) {
         if (empty($params['format']) || $params['format']!=='json') {
             $params['format'] = 'json';
         }
@@ -37,9 +37,11 @@ class Extensions
             $client = new Client();
             $request = $client->createRequest('GET', $url);
             $request->setHeader('User-Agent', 'Phyxo');
-            $query = $request->getQuery();
-            foreach ($params as $key => $value) {
-                $query->set($key, $value);
+            if (!empty($params)) {
+                $query = $request->getQuery();
+                foreach ($params as $key => $value) {
+                    $query->set($key, $value);
+                }
             }
             $response = $client->send($request);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {

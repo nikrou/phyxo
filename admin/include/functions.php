@@ -1559,17 +1559,13 @@ function get_active_menu($menu_page) {
     case 'batch_manager':
         return 0;
 
-    case 'album':
-    case 'cat_list':
-    case 'cat_move':
-    case 'cat_options':
+    case 'albums':
+    case 'albums_options':
     case 'permalinks':
         return 1;
 
-    case 'user_list':
-    case 'user_perm':
-    case 'group_list':
-    case 'group_perm':
+    case 'users':
+    case 'groups':
     case 'notification_by_mail':
         return 2;
 

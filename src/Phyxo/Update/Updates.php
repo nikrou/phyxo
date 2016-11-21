@@ -239,9 +239,9 @@ class Updates
     }
 
     public function checkCoreUpgrade() {
-        $_SESSION['phyxo_need_update'] = false;
+        $_SESSION['need_update'] = false;
 
-        if (preg_match('/(\d+\.\d+)\.(\d+)/', PHPWG_VERSION, $matches)) {
+        if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
             try {
                 $client = new Client();
                 $request = $client->createRequest('GET', PHPWG_URL.'/download/all_versions.php');
@@ -254,7 +254,7 @@ class Updates
             }
 
             $new_version = trim($all_versions[0]['version']);
-            $_SESSION['phyxo_need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
+            $_SESSION['need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
         }
     }
 

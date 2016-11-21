@@ -26,6 +26,9 @@ $(function() {
 		    if (ext_update) {
 			$(".warnings ul").append('<li>'+ext_need_update_msg+'</li>');
 		    }
+		} else {
+		    $("#content").prepend('<div class="infos"><i class="eiw-icon icon-info"></i><ul></ul></div>');
+		    $(".infos ul").append('<li>'+phyxo_is_uptodate_msg+'</li>');
 		}
 	    }
 	});

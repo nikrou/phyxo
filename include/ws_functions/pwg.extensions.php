@@ -257,11 +257,11 @@ function ws_extensions_checkupdates($params, $service) {
     $update = new Updates($GLOBALS['conn']);
     $result = array();
 
-    if (!isset($_SESSION['phyxo_need_update'])) {
+    if (!isset($_SESSION['need_update'])) {
         $update->checkCoreUpgrade();
     }
 
-    $result['phyxo_need_update'] = $_SESSION['phyxo_need_update'];
+    $result['phyxo_need_update'] = $_SESSION['need_update'];
 
     $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
 

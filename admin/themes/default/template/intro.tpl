@@ -4,6 +4,7 @@
 {footer_script require="jquery.cluetip"}
 var phyxo_need_update_msg = '<a href="./index.php?page=updates">{'A new version of Phyxo is available.'|translate|@escape:"javascript"}</a>';
 var ext_need_update_msg = '<a href="./index.php?page=updates&amp;tab=ext">{'Some upgrades are available for extensions.'|translate|@escape:"javascript"}</a>';
+var phyxo_is_uptodate_msg = "{'You are running the latest version of Phyxo.'|translate}";
 {/footer_script}
 
 <h2>{'Phyxo Administration'|translate}</h2>
