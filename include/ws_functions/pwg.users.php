@@ -130,10 +130,6 @@ function ws_users_getList($params, &$service) {
         }
         $query .= $field .' AS '. $name;
     }
-    if (isset($params['display']['groups'])) {
-        /* if (!$first) $query.= ', '; */ //@TODO: try to replace
-        /* $query.= '"" AS groups'; */
-    }
 
     $query.= ' FROM '. USERS_TABLE .' AS u';
     $query .= ' LEFT JOIN '. USER_INFOS_TABLE .' AS ui ON u.'. $conf['user_fields']['id'] .' = ui.user_id';
@@ -156,7 +152,7 @@ function ws_users_getList($params, &$service) {
             $result = $conn->db_query($query);
 
             while ($row = $conn->db_fetch_assoc($result)) {
-                $users[ $row['user_id'] ]['groups'][] = intval($row['group_id']);
+                $users[$row['user_id']]['groups'][] = intval($row['group_id']);
             }
         }
 

@@ -27,5 +27,4 @@ Feature: API
     When I send a POST request to "pwg.images.exist" with values:
       | md5sum_list | ba76685694786b04eb77002248dad3c0 |
     Then the response code should be 200
-    And the response has property "result/ba76685694786b04eb77002248dad3c0" equals to ""
-
+    And the response has no property "result/ba76685694786b04eb77002248dad3c0"

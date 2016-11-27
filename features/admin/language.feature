@@ -25,4 +25,4 @@ Feature: Manage languages
   Scenario: Add new languages
     Given I am logged in as "user1" with password "pass1"
     When I go to "admin/index.php?page=languages&section=new"
-    Then I should see 1 ".languages tbody .language" elements
+    Then I should see 0 ".languages tbody .language" elements

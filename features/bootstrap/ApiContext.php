@@ -201,6 +201,41 @@ class GuzzleApiContext extends BehatContext
     }
 
     /**
+     * @Given /^the response has no property "([^"]*)"$/
+     */
+    public function theResponseHasNoProperty($property) {
+        $data = $this->getJson();
+
+        try {
+            $this->getProperty($data, $property);
+            return false;
+        } catch (\Exception $e) {
+            return true;
+        }
+    }
+
+    /**
+     * @Given /^the response has property "([^"]*)" equals to array "\[([^"]*)\]"$/
+     */
+    public function theResponseHasPropertyEqualsToArray($property, $string_values) {
+        $data = $this->getJson();
+        $values = explode(',', $string_values);
+        foreach ($values as &$value) {
+            $value = preg_replace_callback(
+                '`SAVED:([a-zA-Z0-9_-]*)`',
+                function($matches) {
+                    return $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                },
+                $value
+            );
+        }
+
+        $this->assert
+            ->array($this->getProperty($data, $property))
+            ->isEqualTo($values);
+    }
+
+    /**
      * @Given /^the response has property "([^"]*)" equals to "([^"]*)"$/
      * @Given /^the response has property "([^"]*)" equals to '([^']*)'$/
      * @Then /^the response has property "([^"]*)" equals to "([^"]*)" of type (boolean)$/
@@ -240,11 +275,15 @@ class GuzzleApiContext extends BehatContext
             $data;
             $n = 0;
             while ($n<count($parts)) {
-                if (is_null($data[$parts[$n]]) && ($n+1)==count($parts)) {
-                    $data = '';
+                if (($n+1)===count($parts)) {
+                    if (isset($data[$parts[$n]])) {
+                        return $data[$parts[$n]];
+                    } else {
+                        throw new \Exception("Property '".$property."' is not set!\n");
+                    }
                 } else {
                     if (!isset($data[$parts[$n]])) {
-                        throw new Exception("Complex property '".$property."' is not set!\n");
+                        throw new \Exception("Complex property '".$property."' is not set!\n");
                     }
                     $data = $data[$parts[$n]];
                 }
@@ -254,7 +293,7 @@ class GuzzleApiContext extends BehatContext
         } elseif (isset($data[$property])) {
             return $data[$property];
         } else {
-            throw new Exception("Property '".$property."' is not set!\n");
+            throw new \Exception("Property '".$property."' is not set!\n");
         }
     }
 
@@ -263,7 +302,7 @@ class GuzzleApiContext extends BehatContext
             $this->json_data = json_decode($this->response->getBody(true), true);
 
             if (!$this->json_data) {
-                throw new Exception("Response was not JSON\n" . $this->response->getBody(true));
+                throw new \Exception("Response was not JSON\n" . $this->response->getBody(true));
             }
             $this->json_decoded = true;
             return $this->json_data;
