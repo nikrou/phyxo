@@ -1,8 +1,12 @@
-Phyxo 1.6.0 - 2016-11-19
+Phyxo 1.6.0 - 2016-12-06
 ========================
-* Remove fetchRemote
+* Remove fetchRemote. Mark as deprecated.
 * Refactoring of TabSheet class
 * Refactoring of plugins, themes and languages classes
+* move admin.php to admin/index.php
+* Add sessions class.
+* Remove session_regenerate_id.
+* use non minified js files.
 
 Phyxo 1.5.0 - 2016-02-09
 ========================
