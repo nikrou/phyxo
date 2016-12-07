@@ -754,12 +754,6 @@ function get_pwg_themes($show_mobile=false) {
     $query = 'SELECT id, name FROM '.THEMES_TABLE.' ORDER BY name ASC;';
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
-        if ($row['id'] == $conf['mobile_theme']) {
-            if (!$show_mobile) {
-                continue;
-            }
-            $row['name'] .= ' ('.l10n('Mobile').')';
-        }
         if (check_theme_installed($row['id'])) {
             $themes[ $row['id'] ] = $row['name'];
         }
@@ -1604,25 +1598,13 @@ function get_branch_from_version($version) {
 }
 
 /**
+ * @deprecated
  * return true if mobile theme should be loaded
  *
  * @return bool
  */
 function mobile_theme() {
-    global $conf, $conn;
-
-    if (empty($conf['mobile_theme'])) {
-        return false;
-    }
-
-    if (isset($_GET['mobile'])) {
-        $is_mobile_theme = $conn->get_boolean($_GET['mobile']);
-        $_SESSION['mobile_theme'] = $is_mobile_theme;
-    } else {
-        $is_mobile_theme = $_SESSION['mobile_theme'];
-    }
-
-    return $is_mobile_theme;
+    return false;
 }
 
 /**
