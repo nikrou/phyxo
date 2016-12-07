@@ -1,3 +1,8 @@
+Phyxo 1.6.1 - 2016-12-07
+========================
+* Fix issue #6. Themes were incorrecly retrieved from database.
+* Fix small issue in installation.
+
 Phyxo 1.6.0 - 2016-12-06
 ========================
 * Remove fetchRemote. Mark as deprecated.
