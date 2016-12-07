@@ -48,7 +48,7 @@ class Template
     /** @const string */
     const COMBINED_SCRIPTS_TAG = '<!-- COMBINED_SCRIPTS -->';
     /** @var ScriptLoader */
-    private $scriptLoader;
+    public $scriptLoader;
 
     /** @const string */
     const COMBINED_CSS_TAG = '<!-- COMBINED_CSS -->';
