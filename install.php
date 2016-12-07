@@ -263,9 +263,9 @@ define(\'DB_COLLATE\', \'\');';
          * Automatically activate all core themes in the "themes" directory.
          */
         $themes = new Themes($conn);
-        foreach ($themes->fs_themes as $theme_id => $fs_theme) {
+        foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
             if ($theme_id == 'elegant') {
-                $themes->perform_action('activate', $theme_id);
+                $themes->performAction('activate', $theme_id);
             }
         }
 
