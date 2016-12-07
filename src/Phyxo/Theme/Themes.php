@@ -257,9 +257,9 @@ class Themes extends Extensions
             }
 
             $result = $this->conn->db_query($query);
-            $themes = array();
+            $this->db_themes = array();
             while ($row = $this->conn->db_fetch_assoc($result)) {
-                $themes[] = $row;
+                $this->db_themes[$row['id']] = $row;
             }
             $this->db_themes_retrieved = true;
         }
