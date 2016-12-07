@@ -38,7 +38,7 @@ if (empty($_GET['theme'])) {
 }
 
 $themes = new Themes($conn);
-if (!in_array($_GET['theme'], array_keys($themes->fs_themes))) {
+if (!in_array($_GET['theme'], array_keys($themes->getFsThemes()))) {
     die('Invalid theme');
 }
 
