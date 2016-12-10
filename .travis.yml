@@ -25,8 +25,12 @@ before_script:
   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/database.inc.pgsql.travis.php local/config/database.inc.php;fi"
   - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/phyxo.db;fi"
   - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/database.inc.sqlite.travis.php local/config/database.inc.php;fi"
+
+  - phantomjs --webdriver=127.0.0.1:4444 &
+  - sleep 5
+
   - php tools/install.php
-  - php -S localhost:1080 -t . &
+  - php -S 127.0.0.1:1080 -t . &
 
 script:
   - php ./bin/atoum

@@ -12,7 +12,7 @@ This project use severals librairies that need at least PHP 5.4.0
 
 [![PHP 7 ready](http://php7ready.timesplinter.ch/nikrou/phyxo/master/badge.svg)](https://travis-ci.org/nikrou/phyxo)
 [![Dependency Status](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b)
-
+[![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
 
 Installation
 ------------
@@ -59,7 +59,7 @@ To run tests :
 $ ./bin/atoum
 ```
 
-Tests are automatically runned by travis : [![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
+Tests are automatically runned by travis (see badge above)
 
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)

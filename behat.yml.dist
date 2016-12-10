@@ -1,7 +1,7 @@
 default:
   context:
     parameters:
-      base_url: http://localhost/phyxo/behat
+      base_url: http://127.0.0.1/phyxo/behat
       api_base_url: %behat.mink.base_url%/ws.php
 
       pages:
@@ -19,9 +19,9 @@ default:
   extensions:
     Behat\MinkExtension\Extension:
       goutte: ~
-      base_url: http://localhost/phyxo/behat
+      base_url: http://127.0.0.1/phyxo/behat
       selenium2:
-        wd_host: "http://localhost:8643/wd/hub"
+        wd_host: "http://127.0.0.1:8643/wd/hub"
 
   paths:
     features:  features
