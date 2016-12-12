@@ -2,10 +2,10 @@
 	"name": "nikrou/phyxo",
 	"description": "Simply share your photos",
 	"homepage": "http://www.phyxo.net",
-	"license": "GPL-V2",
+	"license": "GPL-2.0",
 	"authors": [
 		{
-			"name": "Nicolas",
+			"name": "Nicolas Roudaire",
 			"email": "nikrou77@gmail.com"
 		}
 	],
@@ -23,7 +23,6 @@
 		"guzzlehttp/guzzle": "5.*"
 	},
 	"require-dev": {
-		"silex/silex": "~1.2",
 		"zircote/swagger-php": "~0.8,<0.10.0",
 		"jdesrosiers/silex-swagger-provider": "~1.0",
 		"jdesrosiers/silex-cors-provider": "~0.1",

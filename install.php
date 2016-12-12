@@ -67,8 +67,7 @@ if (!empty($_GET['dl']) && file_exists(PHPWG_ROOT_PATH.$conf['data_location'].'p
 }
 
 // all available engines
-include(PHPWG_ROOT_PATH . 'admin/include/functions_install.inc.php');
-$dbengines = available_engines();
+$dbengines = DBLayer::availableEngines();
 
 // Obtain various vars
 $dbhost = (!empty($_POST['dbhost'])) ? $_POST['dbhost'] : 'localhost';
@@ -220,18 +219,16 @@ define(\'DB_COLLATE\', \'\');';
         @fclose($fp);
 
         // tables creation, based on phyxo_structure.sql
-        execute_sqlfile(
+        $conn->executeSqlFile(
             PHPWG_ROOT_PATH.'install/phyxo_structure-'.$dblayer.'.sql',
             DEFAULT_PREFIX_TABLE,
-            $prefixeTable,
-            $dblayer
+            $prefixeTable
         );
-        // We fill the tables with basic informations
-        execute_sqlfile(
+       // We fill the tables with basic informations
+        $conn->executeSqlFile(
             PHPWG_ROOT_PATH.'install/config.sql',
             DEFAULT_PREFIX_TABLE,
-            $prefixeTable,
-            $dblayer
+            $prefixeTable
         );
 
         $query = 'INSERT INTO '.CONFIG_TABLE.' (param,value,comment)';
