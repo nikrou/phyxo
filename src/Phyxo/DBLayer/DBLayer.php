@@ -290,4 +290,68 @@ class DBLayer
         $query .= ' '.$this->in($rows);
         $this->db_query($query);
     }
+
+    /**
+     * Loads a SQL file and executes all queries.
+     * Before executing a query, $replaced is... replaced by $replacing. This is
+     * useful when the SQL file contains generic words. Drop table queries are
+     * not executed.
+     *
+     * @param string $filepath
+     * @param string $replaced
+     * @param string $replacing
+     */
+    public function executeSqlFile($filepath, $replaced, $replacing) {
+        $sql_lines = file($filepath);
+        $query = '';
+        foreach ($sql_lines as $sql_line) {
+            $sql_line = trim($sql_line);
+            if (preg_match('/(^--|^$)/', $sql_line)) {
+                continue;
+            }
+            $query .= ' '.$sql_line;
+            // if we reached the end of query, we execute it and reinitialize the variable "query"
+            if (preg_match('/;$/', $sql_line)) {
+                $query = trim($query);
+                $query = str_replace($replaced, $replacing, $query);
+                // we don't execute "DROP TABLE" queries
+                if (!preg_match('/^DROP TABLE/i', $query)) {
+                    if ($dblayer==='mysql' || $dblayer==='mysqli') {
+                        if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
+                            $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
+                        }
+                    }
+                    $this->conn->db_query($query);
+                }
+                $query = '';
+            }
+        }
+    }
+
+    /**
+     * Search for database engines available
+     *
+     * We search for functions_DATABASE_ENGINE.inc.php
+     * and we check if the connect function for that database exists
+     *
+     * @return array
+     */
+    public static function availableEngines() {
+        $engines = array();
+
+        $pattern = PHPWG_ROOT_PATH. 'src/Phyxo/DBLayer/%sConnection.php';
+        include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
+
+        foreach ($dblayers as $engine_name => $engine) {
+            if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])
+                && function_exists($engine['function_available'])) {
+                $engines[$engine_name] = $engine['engine'];
+            } elseif (file_exists(sprintf($pattern, $engine_name)) && isset($engine['class_available'])
+                      && class_exists($engine['class_available'])) {
+                $engines[$engine_name] = $engine['engine'];
+            }
+        }
+
+        return $engines;
+    }
 }

@@ -30,7 +30,6 @@ use Phyxo\Language\Languages;
 
 require_once(PHPWG_ROOT_PATH.'include/config_default.inc.php');
 require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
-require_once(PHPWG_ROOT_PATH.'admin/include/functions_install.inc.php');
 require_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
 
 require_once(PHPWG_ROOT_PATH.'include/constants.php');
@@ -51,17 +50,15 @@ include(PHPWG_ROOT_PATH . 'include/services.php');
 
 $languages = new Languages($conn, 'utf-8');
 
-execute_sqlfile(
+$conn->executeSqlFile(
     PHPWG_ROOT_PATH.'install/phyxo_structure-'.$conf['dblayer'].'.sql',
     DEFAULT_PREFIX_TABLE,
-    $prefixeTable,
-    $conf['dblayer']
+    $prefixeTable
 );
-execute_sqlfile(
+$conf->executeSqlFile(
     PHPWG_ROOT_PATH.'install/config.sql',
     DEFAULT_PREFIX_TABLE,
-    $prefixeTable,
-    $conf['dblayer']
+    $prefixeTable
 );
 
 $query = 'INSERT INTO '.CONFIG_TABLE.' (param,value,comment)';
