@@ -22,13 +22,14 @@ namespace Phyxo\DBLayer;
 
 class DBLayer
 {
-    protected $layer = null;
+    protected static $layer = null;
     protected $db_link = null;
 
     protected $queries = array();
     protected $queries_time = 0;
 
     public static function init($layer, $host, $user, $password, $database) {
+        self::$layer = $layer;
 		if (file_exists(__DIR__.'/'.$layer.'Connection.php')) {
 			require_once __DIR__.'/'.$layer.'Connection.php';
             $className = sprintf('\Phyxo\DBLayer\%sConnection', $layer);
@@ -316,7 +317,7 @@ class DBLayer
                 $query = str_replace($replaced, $replacing, $query);
                 // we don't execute "DROP TABLE" queries
                 if (!preg_match('/^DROP TABLE/i', $query)) {
-                    if ($dblayer==='mysql' || $dblayer==='mysqli') {
+                    if (self::$layer==='mysql' || self::$layer==='mysqli') {
                         if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
                             $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
                         }
