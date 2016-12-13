@@ -322,7 +322,7 @@ class DBLayer
                             $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
                         }
                     }
-                    $this->conn->db_query($query);
+                    $this->db_query($query);
                 }
                 $query = '';
             }
