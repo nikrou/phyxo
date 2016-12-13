@@ -55,7 +55,7 @@ $conn->executeSqlFile(
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
-$conf->executeSqlFile(
+$conn->executeSqlFile(
     PHPWG_ROOT_PATH.'install/config.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable

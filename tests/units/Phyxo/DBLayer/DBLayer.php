@@ -30,7 +30,7 @@ class DBLayer extends atoum
         $class_name = sprintf('\Phyxo\DBLayer\%sConnection', $dblayer);
 
         // method not overriden
-        $other_methods = array('init', '__construct', 'getQueries', 'getQueriesCount', 'getQueriesTime');
+        $other_methods = array('init', '__construct', 'getQueries', 'getQueriesCount', 'getQueriesTime', 'availableEngines', 'executeSqlFile');
 
         $dblayer_methods = get_class_methods($class_name);
         sort($dblayer_methods);
