@@ -61,9 +61,9 @@ Feature: Tag
 
   Scenario: Add tags can be allowed but not for a status
     Given I am logged in as "user1" with password "pass1"
+    And config for "tags_permission_add" equals to "webmaster"
     When I follow "album 1"
     And I follow "photo 1"
-    When config for "tags_permission_add" equals to "webmaster"
     Then I should not see an ".edit-tags" element
     Given I am logged in as "user2" with password "pass2"
     When I follow "album 1"

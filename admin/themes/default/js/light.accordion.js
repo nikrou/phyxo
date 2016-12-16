@@ -1,8 +1,6 @@
 (function($) {
     'use strict';
     $.fn.lightAccordion = function(options) {
-	console.log('lightAccordion', options);
-
 	var settings = $.extend({
 	    header: 'dt',
 	    content: 'dd',

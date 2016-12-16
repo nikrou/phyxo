@@ -18,18 +18,16 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Gherkin\Node\PyStringNode;
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Post\PostFile;
 
 use mageekguy\atoum\asserter as Atoum;
 
-class GuzzleApiContext extends BehatContext
+class ApiContext extends BaseContext
 {
+    use DbContext;
+
     private $assert;
     private $parameters = array();
     private $baseUrl;
@@ -39,6 +37,7 @@ class GuzzleApiContext extends BehatContext
     // json stuff
     private $json_data = null;
     private $json_decoded = false;
+    private $jar = null;
 
     public function __construct(array $parameters) {
         $this->assert = new Atoum\generator();
@@ -47,102 +46,90 @@ class GuzzleApiContext extends BehatContext
         $this->baseUrl = $parameters['api_base_url'];
         $this->jar = new CookieJar();
 
-        $this->client = new Client(array('defaults' => array('cookies' => $this->jar, 'exceptions' => false)));
+        $this->client = new Client(array('cookies' => $this->jar, 'http_errors' => false));
     }
 
     /**
      * @Given /^I am authenticated for api as "([^"]*)" with password "([^"]*)"$/
      */
     public function iAmAuthenticatedForApiAs($username, $password) {
-        $request = $this->client->createRequest('POST', $this->baseUrl);
-        $body = $request->getBody();
-        $body->setField('method', 'pwg.session.login');
-        $body->setField('format', 'json');
-        $body->setField('username', $username);
-        $body->setField('password', $password);
+        $params = array();
+        $params['method'] = 'pwg.session.login';
+        $params['format'] = 'json';
+        $params['username'] = $username;
+        $params['password'] = $password;
 
+        $this->response = $this->client->request('POST', $this->baseUrl, ['form_params' => $params]);
         $this->json_decoded = false;
-        $this->response = $this->client->send($request);
     }
 
     /**
      * Sends HTTP request to specific relative URL.
      *
      * @param string $method request method
-     * @param string $url    api method
      *
      * @When /^(?:I )?send a ([A-Z]+) request to "([^"]+)"$/
      */
     public function iSendARequest($http_method, $method) {
-        $request = $this->client->createRequest($http_method, $this->baseUrl);
-
+        $params = array();
         if ($http_method=='GET') {
-            $query = $request->getQuery();
-            $query->set('method', $method);
-            $query->set('format', 'json');
+            $params['query'] = array('method' => $method, 'format' => 'json');
         } elseif ($http_method=='POST') {
-            $body = $request->getBody();
-            $body->setField('method', $method);
-            $body->setField('format', 'json');
+            $params['form_data'] = array('method', $method, 'format' => 'json');
         }
 
         $this->json_decoded = false;
-        $this->response = $this->client->send($request);
+        $this->response = $this->client->request($http_method, $this->baseUrl, $params);
     }
 
     /**
      * Sends HTTP request to specific URL with field values from Table.
      *
      * @param string    $method request method
-     * @param string    $url    relative url
-     * @param TableNode $post   table of post values
+     * @param TableNode $values   table of post values
      *
      * @When /^(?:I )?send a ([A-Z]+) request to "([^"]+)" with values:$/
      */
     public function iSendARequestWithValues($http_method, $method, TableNode $values) {
-        $request = $this->client->createRequest($http_method, $this->baseUrl);
-
-        $query = $request->getQuery();
-        $query->set('method', $method);
-        $query->set('format', 'json');
+        $fields_file = array();
+        $request_params = array();
+        $params = array();
+        $params['method'] = $method;
+        $params['format'] = 'json';
 
         if ($http_method=='GET') {
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
-                    $query->set($key, $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]));
+                    $params[$key] = $this->getSaved($matches[1]);
                 } elseif ($key=='pwg_token') {
-                    $query->set(
-                        'pwg_token',
-                        $this->getMainContext()->getSubcontext('db')->get_pwg_token($this->getSessionId())
-                    );
+                    $params['pwg_token'] = $this->get_pwg_token($this->getSessionId());
                 } else {
-                    $query->set($key, $val);
+                    $params[$key] = $val;
                 }
             }
+            $request_params['query'] = $params;
         } elseif ($http_method=='POST') {
-            $body = $request->getBody();
-
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
-                    $value = $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                    $value = $this->getSaved($matches[1]);
 
                     if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
                         $value = '~~'.$value.'~~';
                     }
-                    $body->setField($key, $value);
+                    $params[$key] = $value;
                 } elseif ($key=='pwg_token') {
-                    $body->setField(
-                        'pwg_token',
-                        $this->getMainContext()->getSubcontext('db')->get_pwg_token($this->getSessionId())
-                    );
+                    $params['pwg_token'] = $this->get_pwg_token($this->getSessionId());
                 } elseif (preg_match('`FILE:(.*)$`', $key, $matches)) {
-                    $body->addFile(new PostFile($matches[1], fopen($val, 'r')));
+                    $fields_file[] = array(
+                        'name' => $matches[1],
+                        'contents' => fopen($val, 'r')
+                    );
                 } else {
                     if (preg_match('`\[(.*)]`', $val, $matches)) {
                         $val = array_map('trim', explode(',',  $matches[1]));
                         foreach ($val as &$v) {
                             if (preg_match('`^SAVED:(.*)$`', $v, $matches)) {
-                                $v = $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                                $v = $this->getSaved($matches[1]);
                                 if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
                                     $v = '~~'.$v.'~~';
                                 }
@@ -150,13 +137,24 @@ class GuzzleApiContext extends BehatContext
                         }
                     }
 
-                    $body->setField($key, $val);
+                    $params[$key] = $val;
                 }
+            }
+            if (!empty($fields_file)) {
+                $request_params['multipart'] = $fields_file;
+                foreach ($params as $key => $value) {
+                    $request_params['multipart'][] = array(
+                        'name' => $key,
+                        'contents' => $value
+                    );
+                }
+            } else {
+                $request_params['form_params'] = $params;
             }
         }
 
         $this->json_decoded = false;
-        $this->response = $this->client->send($request);
+        $this->response = $this->client->request($http_method, $this->baseUrl, $request_params);
     }
 
     /**
@@ -224,7 +222,7 @@ class GuzzleApiContext extends BehatContext
             $value = preg_replace_callback(
                 '`SAVED:([a-zA-Z0-9_-]*)`',
                 function($matches) {
-                    return $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                    return $this->getSaved($matches[1]);
                 },
                 $value
             );
@@ -245,7 +243,7 @@ class GuzzleApiContext extends BehatContext
         $value = preg_replace_callback(
             '`SAVED:([a-zA-Z0-9_-]*)`',
             function($matches) {
-                return $this->getMainContext()->getSubcontext('db')->getSaved($matches[1]);
+                return $this->getSaved($matches[1]);
             },
             $value
         );

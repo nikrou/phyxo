@@ -418,12 +418,8 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     $thumb_url = preg_replace('#admin/include/i#', 'i', DerivativeImage::thumb_url($image_infos));
     unset_make_full_url();
 
-    try {
-        $client = new Client();
-        $request = $client->createRequest('GET', $thumb_url);
-        $response = $client->send($request);
-    } catch (\Exception $e) {
-    }
+    $client = new Client(array('http_errors' => false));
+    $response = $client->request('GET', $thumb_url);
 
     return $image_id;
 }

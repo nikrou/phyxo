@@ -18,21 +18,16 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-use Behat\MinkExtension\Context\RawMinkContext;
-use Behat\Behat\Event\SuiteEvent;
-use Behat\Behat\Event\ScenarioEvent;
+use Behat\Testwork\Hook\Scope\HookScope;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 
-class DbContext extends RawMinkContext
+trait DbContext
 {
-    private static $conf_loaded = false;
     public static $prefix = 'phyxo_';
     private $response_params = array();
     private $last_id;
-
-    public function __construct(array $parameters) {
-        $this->parameters = $parameters;
-    }
 
     /**
      * @Given /^a user:$/
@@ -123,7 +118,7 @@ class DbContext extends RawMinkContext
      * @Then /^save "([^"]*)" from property "([^"]*)"$/
      */
     public function saveFromProperty($id, $property) {
-        $this->response_params[$id] = $this->getMainContext()->getSubcontext('api')->theResponseHasProperty($property);
+        $this->response_params[$id] = $this->theResponseHasProperty($property);
     }
 
     public function getSaved($id) {
@@ -184,6 +179,17 @@ class DbContext extends RawMinkContext
      */
     public function groupCanAccess($groupname, $album_name) {
         $this->groupAccess($groupname, $album_name);
+    }
+
+    /**
+     * @When config for :param equals to :value of type :type
+     */
+    public function configForEqualsToOfType($param, $value, $type) {
+        if ($type==='boolean') {
+            $this->configForEqualsTo($param, ($value==='true'));
+        } else {
+            $this->configForEqualsTo($param, $value);
+        }
     }
 
     /**
@@ -264,11 +270,17 @@ class DbContext extends RawMinkContext
         }
     }
 
+    private static function getParametersFromScope(HookScope $scope) {
+        $contexts = $scope->getEnvironment()->getSuite()->getSettings()['contexts'];
+        return array_values($contexts[0])[0]['parameters'];
+    }
+
     /**
      * @BeforeSuite
      */
-    public static function prepareDB(SuiteEvent $event) {
-        $parameters = $event->getContextParameters();
+    public static function prepareDB(BeforeSuiteScope $scope) {
+        $parameters = self::getParametersFromScope($scope);
+
         if (!empty($parameters['sql_init_file']) && !empty($parameters['config_file'])
             && is_readable($parameters['sql_init_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
@@ -294,11 +306,11 @@ class DbContext extends RawMinkContext
     /**
      * @AfterScenario
      */
-    public function cleanDB(ScenarioEvent $event) {
-        $parameters = $event->getContext()->parameters;
+    public function cleanDB(AfterScenarioScope $scope) {
+        $parameters = self::getParametersFromScope($scope);
 
         if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
-        && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
+            && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
             if (!self::$conf_loaded) {
                 self::configDB($parameters);
             }

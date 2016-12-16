@@ -18,35 +18,37 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-namespace Phyxo\Ws\Protocols;
+use Behat\Behat\Context\Context;
+use Behat\MinkExtension\Context\MinkContext;
+use Behat\Mink\Exception\ExpectationException;
 
-use Phyxo\Ws\Error;
-
-class RestRequestHandler extends RequestHandler
+abstract class BaseContext extends MinkContext implements Context
 {
-    function handleRequest(&$service) {
-        $params = array();
+    protected static $conf_loaded = false;
 
-        $param_array = $service->isPost() ? $_POST : $_GET;
-        foreach ($param_array as $name => $value) {
-            if ($name=='format') {
-                continue; // ignore - special keys
-            }
-            if ($name=='method') {
-                $method = $value;
-            } else {
-                $params[$name] = $value;
-            }
-        }
-		if ( empty($method) && isset($_GET['method'])) {
-			$method = $_GET['method'];
-		}
+    /**
+     * example:
+     *     $this->spins(function() use ($text) {
+     *         $this->assertSession()->pageTextContains($text);
+     *     });
+     */
+    public function spins($closure, $tries=3) {
+        for ($i = 0; $i <= $tries; $i++) {
+            try {
+                $closure();
 
-        if (empty($method)) {
-            $service->sendResponse(new Error(WS_ERR_INVALID_METHOD, 'Missing "method" name'));
-            return;
+                return;
+            } catch (\Exception $e) {
+                if ($i == $tries) {
+                    throw $e;
+                }
+            }
+
+            sleep(1);
         }
-        $resp = $service->invoke($method, $params);
-        $service->sendResponse($resp);
+    }
+
+    protected function throwExpectationException($message) {
+        throw new ExpectationException($message, $this->getSession());
     }
 }

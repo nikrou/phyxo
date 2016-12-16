@@ -20,22 +20,22 @@
 		"pclzip/pclzip": "2.8.*",
 		"tedivm/jshrink": "1.1.*",
 		"natxet/CssMin": "3.0.*",
-		"guzzlehttp/guzzle": "5.*"
+		"guzzlehttp/guzzle": "6.2.*"
 	},
 	"require-dev": {
 		"zircote/swagger-php": "~0.8,<0.10.0",
 		"jdesrosiers/silex-swagger-provider": "~1.0",
 		"jdesrosiers/silex-cors-provider": "~0.1",
 		"atoum/atoum": "2.*",
-		"behat/behat": "<3",
-		"behat/common-contexts": "*",
-		"behat/mink": ">=1.4,<1.5-dev",
-		"behat/mink-extension": "*",
-		"behat/mink-goutte-driver": "*",
-		"behat/mink-browserkit-driver": "*",
-		"behat/mink-selenium2-driver": "*",
-		"symfony/dom-crawler": ">=2.0,<2.4-dev",
-		"j4mie/idiorm": "*"
+		"behat/behat": "3.2.*",
+		"behat/common-contexts": "1.2.*",
+		"behat/mink": "1.7.*",
+		"behat/mink-extension": "2.2",
+		"behat/mink-goutte-driver": "1.2.*",
+		"behat/mink-browserkit-driver": "1.3.*",
+		"behat/mink-selenium2-driver": "1.3.1",
+		"symfony/dom-crawler": "3.2.*",
+		"j4mie/idiorm": "1.5.2"
 	},
 	"config": {
 		"bin-dir": "bin/"

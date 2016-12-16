@@ -37,7 +37,7 @@ trigger_notify('loc_begin_identification');
 $redirect_to = '';
 if (!empty($_GET['redirect'])) {
     $redirect_to = urldecode($_GET['redirect']);
-    if ($services['users']->isGuest()) {
+    if ($services['users']->isGuest() && $conf['guest_access']) {
         $page['errors'][] = l10n('You are not authorized to access the requested page');
     }
 }

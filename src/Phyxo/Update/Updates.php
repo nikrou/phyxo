@@ -61,9 +61,8 @@ class Updates
 
     public function getAllVersions() {
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $this->update_url);
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $this->update_url);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 $this->versions = json_decode($response->getBody(), true);
                 return $this->versions;
@@ -87,14 +86,12 @@ class Updates
         @mkgetdir(dirname($zip_file)); // @TODO: remove arobase and use a fs library
 
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $this->getFileURL());
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $this->getFileURL());
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 file_put_contents($zip_file, $response->getBody());
             }
         } catch (\Exception $e) {
-
         }
     }
 
@@ -104,7 +101,6 @@ class Updates
 
     public function upgrade($zip_file) {
         $zip = new PclZip($zip_file);
-        $zip_files = array();
 		$not_writable = array();
         $root = PHPWG_ROOT_PATH;
 
@@ -145,13 +141,8 @@ class Updates
         $url = PEM_URL . '/api/get_version_list.php';
 
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $url);
-            $query = $request->getQuery();
-            foreach ($get_data as $key => $value) {
-                $query->set($key, $value);
-            }
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $url, $get_data);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 $pem_versions = json_decode($response->getBody(), true);
             } else {
@@ -197,13 +188,8 @@ class Updates
         }
 
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $url);
-            $query = $request->getQuery();
-            foreach ($get_data as $key => $value) {
-                $query->set($key, $value);
-            }
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $url, $get_data);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 $pem_exts = json_decode($response->getBody(), true);
             } else {
@@ -243,9 +229,8 @@ class Updates
 
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
             try {
-                $client = new Client();
-                $request = $client->createRequest('GET', PHPWG_URL.'/download/all_versions.php');
-                $response = $client->send($request);
+                $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+                $response = $client->request('GET', PHPWG_URL.'/download/all_versions.php');
                 if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
                 }
@@ -270,7 +255,6 @@ class Updates
 
         foreach ($this->types as $type) {
             $ignore_list = array();
-            $need_upgrade = array();
 
             foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                 if (isset($fs_ext['extension']) and isset($server_ext[$fs_ext['extension']])) {

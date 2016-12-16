@@ -18,19 +18,19 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-use Behat\MinkExtension\Context\MinkContext;
 use Behat\Behat\Exception\PendingException;
-use Behat\Behat\Context\Step\Then;
-use Behat\Behat\Context\Step\When;
 use Behat\Gherkin\Node\PyStringNode;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 use mageekguy\atoum\asserter as Atoum;
 
 /**
  * Features context.
  */
-class FeatureContext extends MinkContext
+class FeatureContext extends BaseContext
 {
+    use DbContext;
+
     /**
      * Initializes context.
      * Every scenario gets its own context object.
@@ -42,9 +42,6 @@ class FeatureContext extends MinkContext
 
         $this->parameters = $parameters;
         $this->pages = $parameters['pages'];
-
-        $this->useContext('db', new DbContext($parameters));
-        $this->useContext('api', new GuzzleApiContext($parameters));
     }
 
     /**
@@ -70,6 +67,13 @@ class FeatureContext extends MinkContext
     }
 
     /**
+     * @Given I visit :page page
+     */
+    public function iVisitPage($page) {
+        $this->visit($this->pages[$page]);
+    }
+
+    /**
      * @Given /^I am on a protected page$/
      * @When /^(?:|I )go to a protected page$/
      */
@@ -81,20 +85,16 @@ class FeatureContext extends MinkContext
      * @Then /^I should not be allowed to go to a protected page$/
      */
     public function iShouldNotBeAllowedToGoToAProtectedPage() {
-        return array(
-            $this->iAmOnAProtectedPage(),
-            new Then('the response status code should be 401'),
-        );
+        $this->iAmOnAProtectedPage();
+        $this->getMink()->assertSession()->statusCodeEquals(401);
     }
 
     /**
      * @Then /^I should be allowed to go to a protected page$/
      */
     public function iShouldBeAllowedToGoToAProtectedPage() {
-        return array(
-            $this->iAmOnAProtectedPage(),
-            new Then('the response status code should be 200'),
-        );
+        $this->iAmOnAProtectedPage();
+        $this->getMink()->assertSession()->statusCodeEquals(200);
     }
 
     /**
@@ -118,12 +118,10 @@ class FeatureContext extends MinkContext
      * @Given /^I should not be allowed to go to album "([^"]*)"$/
      */
     public function iShouldNotBeAllowedToGoToAlbum($album_name) {
-        $album = $this->getSubcontext('db')->getAlbum($album_name);
+        $album = $this->getAlbum($album_name);
 
-        return array(
-            new When(sprintf('I go to "'.$this->pages['album'].'"', $album->id)),
-            new Then('the response status code should be 401'),
-        );
+        $this->getSession()->visit(sprintf($this->pages['album'], $album->id));
+        $this->getMink()->assertSession()->statusCodeEquals(401);
     }
 
     /**

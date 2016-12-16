@@ -34,20 +34,12 @@ class Extensions
         }
 
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $url);
-            $request->setHeader('User-Agent', 'Phyxo');
-            if (!empty($params)) {
-                $query = $request->getQuery();
-                foreach ($params as $key => $value) {
-                    $query->set($key, $value);
-                }
-            }
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $url, $params);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 return json_decode($response->getBody(), true);
             } else {
-                throw new \Exception($e->getMessage());
+                throw new \Exception("Response is not readable");
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
@@ -57,20 +49,12 @@ class Extensions
     public function download($params=array(), $filename) {
         $url = PEM_URL . '/download.php';
         try {
-            $client = new Client();
-            $request = $client->createRequest('GET', $url);
-            $request->setHeader('User-Agent', 'Phyxo');
-            if (!empty($params)) {
-                $query = $request->getQuery();
-                foreach ($params as $key => $value) {
-                    $query->set($key, $value);
-                }
-            }
-            $response = $client->send($request);
+            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $response = $client->request('GET', $url, $params);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 file_put_contents($filename, $response->getBody());
             } else {
-                throw new \Exception($e->getMessage());
+                throw new \Exception("Response is not readable");
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
