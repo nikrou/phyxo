@@ -271,11 +271,11 @@ class Updates
             }
             $conf['updates_ignored'][$type] = $ignore_list;
         }
-        conf_update_param('updates_ignored', pwg_db_real_escape_string(serialize($conf['updates_ignored'])));
+        conf_update_param('updates_ignored', $conf['updates_ignored']);
     }
 
     // Check if extension have been upgraded since last check
-    protected function checkUpdatedExtensions() {
+    public function checkUpdatedExtensions() {
         foreach ($this->types as $type) {
             if (!empty($_SESSION['extensions_need_update'][$type])) {
                 foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {

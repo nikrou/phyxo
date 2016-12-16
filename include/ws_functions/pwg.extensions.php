@@ -22,8 +22,6 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Theme\Themes;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Language\Languages;
@@ -211,7 +209,7 @@ function ws_extensions_ignoreupdate($params, $service) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    $conf['updates_ignored'] = unserialize($conf['updates_ignored']); // @TODO: use json_decode instead
+    $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
     // Reset ignored extension
     if ($params['reset']) {
@@ -225,7 +223,7 @@ function ws_extensions_ignoreupdate($params, $service) {
             );
         }
 
-        conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
+        conf_update_param('updates_ignored', $conf['updates_ignored']);
         unset($_SESSION['extensions_need_update']);
         return true;
     }
@@ -236,10 +234,10 @@ function ws_extensions_ignoreupdate($params, $service) {
 
     // Add or remove extension from ignore list
     if (!in_array($params['id'], $conf['updates_ignored'][ $params['type'] ])) {
-        $conf['updates_ignored'][ $params['type'] ][] = $params['id'];
+        $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
-    conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
+    conf_update_param('updates_ignored', $conf['updates_ignored']);
     unset($_SESSION['extensions_need_update']);
     return true;
 }
@@ -263,7 +261,9 @@ function ws_extensions_checkupdates($params, $service) {
 
     $result['phyxo_need_update'] = $_SESSION['need_update'];
 
-    $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+    if (!empty($conf['updates_ignored'])) {
+        $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
+    }
 
     if (!isset($_SESSION['extensions_need_update'])) {
         $update->checkExtensions();

@@ -27,7 +27,7 @@ use Phyxo\Update\Updates;
 $autoupdate = new Updates($conn, 'themes');
 
 $show_reset = false;
-$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+$conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
 try {
     $autoupdate->getServerExtensions();

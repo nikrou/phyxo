@@ -29,7 +29,7 @@ if (!defined("PLUGINS_BASE_URL")) {
 use Phyxo\Update\Updates;
 
 $show_reset = false;
-$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+$conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
 $autoupdate = new Updates($conn, $page['page']);
 try {
