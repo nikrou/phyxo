@@ -23,9 +23,6 @@
 		"guzzlehttp/guzzle": "6.2.*"
 	},
 	"require-dev": {
-		"zircote/swagger-php": "~0.8,<0.10.0",
-		"jdesrosiers/silex-swagger-provider": "~1.0",
-		"jdesrosiers/silex-cors-provider": "~0.1",
 		"atoum/atoum": "2.*",
 		"behat/behat": "3.2.*",
 		"behat/common-contexts": "1.2.*",
@@ -41,6 +38,6 @@
 		"bin-dir": "bin/"
 	},
 	"autoload": {
-		"psr-0": { "": "src" }
+		"psr-0": { "Phyxo": "src" }
 	}
 }
