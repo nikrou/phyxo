@@ -1,35 +1,44 @@
 default:
-  context:
-    parameters:
-      base_url: http://127.0.0.1:1080
-      api_base_url: %behat.mink.base_url%/ws.php
-
-      pages:
-        identification: identification.php
-        protected_page: profile.php
-        album: index.php?/category/%d
-        picture: picture.php?/%%d/category/%d
-
-      upload_dir: upload/
-      config_file: local/config/database.inc.php
-      sql_init_file: features/sql/db_init.sql
-      sql_cleanup_file: features/sql/db_cleanup.sql
-
   extensions:
-    Behat\MinkExtension\Extension:
+    Behat\MinkExtension\ServiceContainer\MinkExtension:
+    Behat\MinkExtension:
       goutte: ~
       base_url: http://127.0.0.1:1080
       selenium2:
         wd_host: "http://127.0.0.1:8643/wd/hub"
 
-  paths:
-    features:  features
-    bootstrap: features/bootstrap
+  suites:
+    web:
+      paths:
+        - %paths.base%/features/web
+      contexts:
+        - FeatureContext:
+            parameters:
+              base_url: http://127.0.0.1:1080
 
-annotations:
-  paths:
-    features: features/annotations
+              pages:
+                identification: identification.php
+                protected_page: profile.php
+                album: index.php?/category/%d
+                picture: picture.php?/%%d/category/%d
 
-closures:
-  paths:
-    features: features/closures
+              config_file: local/config/database.inc.php
+              upload_dir: upload/
+              data_location: _data/
+              sql_init_file: features/sql/db_init.sql
+              sql_cleanup_file: features/sql/db_cleanup.sql
+
+    api:
+      paths:
+        - %paths.base%/features/api
+      contexts:
+        - ApiContext:
+            parameters:
+              base_url: http://127.0.0.1:1080
+              api_base_url: %mink.base_url%/ws.php
+
+              config_file: local/config/database.inc.php
+              upload_dir: upload/
+              data_location: _data/
+              sql_init_file: features/sql/db_init.sql
+              sql_cleanup_file: features/sql/db_cleanup.sql
