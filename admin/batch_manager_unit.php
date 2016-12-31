@@ -190,7 +190,7 @@ if (count($page['cat_elements_id']) > 0) {
                 'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
                 'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
                 'LEGEND' => $legend,
-                'U_EDIT' => get_root_url().'admin/index.php?page=photo-'.$row['id'],
+                'U_EDIT' => get_root_url().'admin/index.php?page=photo&image_id='.$row['id'],
                 'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
                 'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
                 'LEVEL' => !empty($row['level'])?$row['level']:'0',
