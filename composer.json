@@ -24,7 +24,7 @@
 	},
 	"require-dev": {
 		"atoum/atoum": "2.*",
-		"behat/behat": "3.2.*",
+		"behat/behat": "3.*",
 		"behat/common-contexts": "1.2.*",
 		"behat/mink": "1.7.*",
 		"behat/mink-extension": "2.2",
