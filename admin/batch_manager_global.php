@@ -515,7 +515,7 @@ if (count($page['cat_elements_id']) > 0) {
                 'thumb' => new DerivativeImage($thumb_params, $src_image),
                 'TITLE' => $ttitle,
                 'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                'U_EDIT' => get_root_url().'admin/index.php?page=photo-'.$row['id'],
+                'U_EDIT' => get_root_url().'admin/index.php?page=photo&amp;image_id='.$row['id'],
             ))
         );
     }

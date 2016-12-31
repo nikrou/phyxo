@@ -233,7 +233,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
         $query .= ' WHERE id = '.$category['representative_picture_id'];
         $row = $conn->db_fetch_assoc($conn->db_query($query));
         $src = DerivativeImage::thumb_url($row);
-        $url = get_root_url().'admin/index.php?page=photo-'.$category['representative_picture_id'];
+        $url = get_root_url().'admin/index.php?page=photo&amp;image_id='.$category['representative_picture_id'];
 
         $tpl_representant['picture'] =
             array(
