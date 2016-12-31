@@ -1,6 +1,7 @@
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 {combine_script id='jquery.jgrowl' load='footer' require='jquery' path='admin/themes/default/js/plugins/jquery.jgrowl.js'}
-{combine_script id='jquery.plupload' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/plupload.full.js'}
+{combine_script id='jquery.plupload.moxie' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/moxie.js'}
+{combine_script id='jquery.plupload' load='footer' require='jquery.plupload.moxie' path='admin/themes/default/js/plugins/plupload/plupload.js'}
 {combine_script id='jquery.plupload.queue' load='footer' require='jquery' path='admin/themes/default/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js'}
 {combine_script id='jquery.ui.progressbar' load='footer'}
 
