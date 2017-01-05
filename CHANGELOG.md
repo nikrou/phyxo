@@ -1,3 +1,9 @@
+Phyxo 1.6.2 - 2017-01-05
+========================
+* Fix issue #8. Update plupload
+* Fix links to image in admin area
+* Fix security issue with phpmailer
+
 Phyxo 1.6.1 - 2016-12-07
 ========================
 * Fix issue #6. Themes were incorrecly retrieved from database.
