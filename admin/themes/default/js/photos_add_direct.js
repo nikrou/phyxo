@@ -73,8 +73,8 @@ $(function() {
 		$('#'+file.id).hide();
 		var data = $.parseJSON(info.response);
 		$("#uploadedPhotos").parent("fieldset").show();
-		html = '<a href="./index.php?page=photo-'+data.result.image_id+'">';
-		html += '<img src="'+data.result.src+'" class="thumbnail" title="'+data.result.name+'">';
+		html = '<a href="./index.php?page=photo&image_id='+data.result.image_id+'">';
+		html += '<img src="'+data.result.src+'" class="thumbnail" title="'+data.result.name+'" alt="">';
 		html += '</a> ';
 
 		$("#uploadedPhotos").prepend(html);
@@ -89,7 +89,7 @@ $(function() {
 
 		html = sprintf(
 		    albumSummary_label,
-		    '<a href="./index.php?page=album-'+uploadCategory.id+'">'+uploadCategory.label+'</a>',
+		    '<a href="./index.php?page=album&amp;cat_id='+uploadCategory.id+'">'+uploadCategory.label+'</a>',
 		    parseInt(uploadCategory.nb_photos)
 		);
 		$(".infos ul").append('<li>'+html+'</li>');
