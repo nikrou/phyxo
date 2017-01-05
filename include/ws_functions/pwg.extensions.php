@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -211,7 +211,7 @@ function ws_extensions_ignoreupdate($params, $service) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    $conf['updates_ignored'] = unserialize($conf['updates_ignored']); // @TODO: use json_decode instead
+    $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
     // Reset ignored extension
     if ($params['reset']) {
@@ -225,7 +225,7 @@ function ws_extensions_ignoreupdate($params, $service) {
             );
         }
 
-        conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
+        conf_update_param('updates_ignored', $conf['updates_ignored']);
         unset($_SESSION['extensions_need_update']);
         return true;
     }
@@ -235,11 +235,11 @@ function ws_extensions_ignoreupdate($params, $service) {
     }
 
     // Add or remove extension from ignore list
-    if (!in_array($params['id'], $conf['updates_ignored'][ $params['type'] ])) {
-        $conf['updates_ignored'][ $params['type'] ][] = $params['id'];
+    if (!in_array($params['id'],$conf['updates_ignored'][$params['type']])) {
+        $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
-    conf_update_param('updates_ignored', serialize($conf['updates_ignored'])); // @TODO: use json_encode instead
+    conf_update_param('updates_ignored', $conf['updates_ignored']);
     unset($_SESSION['extensions_need_update']);
     return true;
 }
@@ -252,8 +252,6 @@ function ws_extensions_ignoreupdate($params, $service) {
 function ws_extensions_checkupdates($params, $service) {
     global $conf;
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-
     $update = new Updates($GLOBALS['conn']);
     $result = array();
 
@@ -263,7 +261,7 @@ function ws_extensions_checkupdates($params, $service) {
 
     $result['phyxo_need_update'] = $_SESSION['need_update'];
 
-    $conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+    $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
     if (!isset($_SESSION['extensions_need_update'])) {
         $update->checkExtensions();

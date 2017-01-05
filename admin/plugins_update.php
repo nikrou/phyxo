@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -29,7 +29,7 @@ if (!defined("PLUGINS_BASE_URL")) {
 use Phyxo\Update\Updates;
 
 $show_reset = false;
-$conf['updates_ignored'] = unserialize($conf['updates_ignored']);
+$conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
 $autoupdate = new Updates($conn, $page['page']);
 try {
