@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -233,7 +233,7 @@ function ws_extensions_ignoreupdate($params, $service) {
     }
 
     // Add or remove extension from ignore list
-    if (!in_array($params['id'], $conf['updates_ignored'][ $params['type'] ])) {
+    if (!in_array($params['id'],$conf['updates_ignored'][$params['type']])) {
         $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
@@ -249,8 +249,6 @@ function ws_extensions_ignoreupdate($params, $service) {
  */
 function ws_extensions_checkupdates($params, $service) {
     global $conf;
-
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 
     $update = new Updates($GLOBALS['conn']);
     $result = array();

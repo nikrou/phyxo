@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -130,8 +130,8 @@ final class FileCombiner
                     $output .= "\n";
                 }
                 $output = "/*BEGIN header */\n" . $header . "\n" . $output;
-                mkgetdir( dirname(PHPWG_ROOT_PATH.$file) );
-                file_put_contents( PHPWG_ROOT_PATH.$file, $output );
+                mkgetdir(dirname(PHPWG_ROOT_PATH.$file));
+                file_put_contents(PHPWG_ROOT_PATH.$file, $output);
                 @chmod(PHPWG_ROOT_PATH.$file, 0644);
             }
             $result[] = new Combinable("combi", $file, false);
@@ -164,7 +164,7 @@ final class FileCombiner
                 if ($conf['template_compile_check']) {
                     $key[] = filemtime( PHPWG_ROOT_PATH . $combinable->path );
                 }
-                $file = PWG_COMBINED_DIR . 't' . base_convert(crc32(implode(',',$key)),10,36) . '.' . $this->type;
+                $file = PWG_COMBINED_DIR . 't' . base_convert(crc32(implode(',',$key)), 10, 36) . '.' . $this->type;
                 if (!$force && file_exists(PHPWG_ROOT_PATH.$file)) {
                     $combinable->path = $file;
                     $combinable->version = false;
@@ -186,7 +186,8 @@ final class FileCombiner
             if ($return_content) {
                 return $content;
             }
-            file_put_contents( PHPWG_ROOT_PATH.$file, $content );
+            mkgetdir(dirname(PHPWG_ROOT_PATH.$file));
+            file_put_contents(PHPWG_ROOT_PATH.$file, $content);
             $combinable->path = $file;
         } elseif ($return_content) {
             $content = file_get_contents(PHPWG_ROOT_PATH . $combinable->path);
@@ -263,8 +264,7 @@ final class FileCombiner
             foreach ($matches as $match) {
                 $search[] = $match[0];
 
-                if (
-                    strpos($match[1], '..') !== false // Possible attempt to get out of Piwigo's dir
+                if (strpos($match[1], '..') !== false // Possible attempt to get out of Piwigo's dir
                     or strpos($match[1], '://') !== false // Remote URL
                     or !is_readable(PHPWG_ROOT_PATH . $dir . '/' . $match[1])
                 ) {
