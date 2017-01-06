@@ -18,17 +18,19 @@ $(function() {
 
 		phyxo_update = data.result.phyxo_need_update;
 		ext_update = data.result.ext_need_update;
-		if ((phyxo_update || ext_update) && !$(".warnings").is('div')) {
-		    $("#content").prepend('<div class="warnings"><i class="eiw-icon icon-attention"></i><ul></ul></div>');
-		    if (phyxo_update) {
-			$(".warnings ul").append('<li>'+phyxo_need_update_msg+'</li>');
+		if (!$(".warnings").is('div')) {
+		    if (phyxo_update || ext_update) {
+			$("#content").prepend('<div class="warnings"><i class="eiw-icon icon-attention"></i><ul></ul></div>');
+			if (phyxo_update) {
+			    $(".warnings ul").append('<li>'+phyxo_need_update_msg+'</li>');
+			}
+			if (ext_update) {
+			    $(".warnings ul").append('<li>'+ext_need_update_msg+'</li>');
+			}
+		    } else {
+			$("#content").prepend('<div class="warnings"><i class="eiw-icon icon-attention"></i><ul></ul></div>');
+			$(".warnings ul").append('<li>'+phyxo_is_uptodate_msg+'</li>');
 		    }
-		    if (ext_update) {
-			$(".warnings ul").append('<li>'+ext_need_update_msg+'</li>');
-		    }
-		} else {
-		    $("#content").prepend('<div class="infos"><i class="eiw-icon icon-info"></i><ul></ul></div>');
-		    $(".infos ul").append('<li>'+phyxo_is_uptodate_msg+'</li>');
 		}
 	    }
 	});

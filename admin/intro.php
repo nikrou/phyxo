@@ -46,8 +46,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
     try {
         $client = new Client();
-        $request = $client->createRequest('GET', PHPWG_URL.'/download/');
-        $response = $client->send($request);
+        $response = $client->request('GET', PHPWG_URL.'/download/');
         if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
             $versions = json_decode($response->getBody(), true);
             $latest_version = $versions[0]['version'];
