@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -107,7 +107,7 @@ $template->assign(
         'CATEGORIES_NAV' =>
         get_cat_display_name_from_id(
             $page['cat'],
-            'admin/index.php?page=album-'
+            'admin/index.php?page=album&amp;cat_id='
         ),
         'F_ACTION' => ALBUM_BASE_URL.'&amp;section=notification',
         'PWG_TOKEN' => get_pwg_token(),

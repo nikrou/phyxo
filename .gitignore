@@ -9,15 +9,6 @@
 ;; plugins
 /plugins
 
-;; themes
-/themes
-!/themes/Sylvia
-!/themes/clear/
-!/themes/dark/
-!/themes/default/
-!/themes/elegant/
-
-
 
 ;; conf
 /local/config/config.inc.php

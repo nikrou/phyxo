@@ -42,11 +42,11 @@ use Phyxo\Block\RegisteredBlock;
 function get_cat_display_name($cat_informations, $url='') {
     global $conf;
 
-    //$output = '<a href="'.get_absolute_root_url().$conf['home_page'].'">'.l10n('Home').'</a>';
     $output = '';
-    $is_first=true;
+    $is_first = true;
 
     foreach ($cat_informations as $cat) {
+        // @TODO: find a better way to control input informations
         is_array($cat) or trigger_error(
             'get_cat_display_name wrong type for category ', E_USER_WARNING
         );
@@ -58,7 +58,7 @@ function get_cat_display_name($cat_informations, $url='') {
         );
 
         if ($is_first) {
-            $is_first=false;
+            $is_first = false;
         } else {
             $output .= $conf['level_separator'];
         }
@@ -69,7 +69,7 @@ function get_cat_display_name($cat_informations, $url='') {
             $output.= '<a href="'.make_index_url(array('category' => $cat)).'">';
             $output.= $cat['name'].'</a>';
         } else {
-            $output .= '<a href="'.PHPWG_ROOT_PATH.$url.$cat['id'].'">';
+            $output .= '<a href="'.$url.$cat['id'].'">';
             $output .= $cat['name'].'</a>';
         }
     }
@@ -104,6 +104,8 @@ function get_cat_display_name_cache($uppercats, $url='', $single_link=false, $li
         }
         $output.= '>';
     }
+
+    // @TODO: refactoring with get_cat_display_name
     $is_first = true;
     foreach (explode(',', $uppercats) as $category_id) {
         $cat = $cache['cat_names'][$category_id];
@@ -125,7 +127,7 @@ function get_cat_display_name_cache($uppercats, $url='', $single_link=false, $li
         } elseif ($url == '') {
             $output .= '<a href="'.make_index_url(array('category' => $cat)).'">'.$cat['name'].'</a>';
         } else {
-            $output .= '<a href="'.PHPWG_ROOT_PATH.$url.$category_id.'">'.$cat['name'].'</a>';
+            $output .= '<a href="'.$url.$category_id.'">'.$cat['name'].'</a>';
         }
     }
 

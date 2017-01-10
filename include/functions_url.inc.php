@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -31,13 +31,15 @@
 function get_root_url() {
     global $page;
 
-    if (($root_url = @$page['root_path']) == null) { // @TODO: remove arobase, add test
-        // TODO - add HERE the possibility to call PWG functions from external scripts
+    if (!empty($page['root_path'])) {
+        $root_url = $page['root_path'];
+    } else {
         $root_url = PHPWG_ROOT_PATH;
         if (strncmp($root_url, './', 2) == 0) {
             return substr($root_url, 2);
         }
     }
+
     return $root_url;
 }
 
