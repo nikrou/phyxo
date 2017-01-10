@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -240,9 +240,9 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['parent_id'])) {
-    $navigation.= $conf['level_separator'];
+    $navigation .= $conf['level_separator'];
 
-    $navigation.= get_cat_display_name_from_id(
+    $navigation .= get_cat_display_name_from_id(
         $_GET['parent_id'],
         ALBUMS_BASE_URL.'&amp;section=list&amp;parent_id='
     );
@@ -253,13 +253,13 @@ if (isset($_GET['parent_id'])) {
 
 $form_action = ALBUMS_BASE_URL;
 if (isset($_GET['parent_id'])) {
-    $form_action.= '&amp;parent_id='.$_GET['parent_id'];
+    $form_action .= '&amp;parent_id='.$_GET['parent_id'];
 }
 $sort_orders_checked = array_keys($sort_orders);
 
 $template->assign(array(
-    'CATEGORIES_NAV'=>$navigation,
-    'F_ACTION'=>$form_action,
+    'CATEGORIES_NAV' => $navigation,
+    'F_ACTION' => $form_action,
     'PWG_TOKEN' => get_pwg_token(),
     'sort_orders' => $sort_orders,
     'sort_order_checked' => array_shift($sort_orders_checked),

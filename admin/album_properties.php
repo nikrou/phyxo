@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -128,7 +128,7 @@ $category['has_images'] = $conn->db_num_rows($result)>0 ? true : false;
 // Navigation path
 $navigation = get_cat_display_name_cache(
     $category['uppercats'],
-    get_root_url().'admin/index.php?page=album'
+    ALBUM_BASE_URL.'&amp;section=properties&amp;cat_id='
 );
 
 $form_action = ALBUM_BASE_URL.'&amp;section=properties&amp;cat_id='.$category['id'];

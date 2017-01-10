@@ -290,7 +290,7 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
     <br>
 <% } %>
 
-    <a target="_blank" href="admin/index.php?page=user_perm&amp;user_id=<%- user.id %>" class="icon-lock">{'Permissions'|translate}</a>
+    <a target="_blank" href="./index.php?page=user_perm&amp;user_id=<%- user.id %>" class="icon-lock">{'Permissions'|translate}</a>
 
 <% if (!user.isProtected) { %>
     <br><span class="userDelete"><img class="loading" src="themes/default/images/ajax-loader-small.gif" alt="" style="display:none;"><a href="#" class="icon-trash" data-user_id="<%- user.id %>">{'Delete'|translate}</a></span>
