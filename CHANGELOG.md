@@ -1,5 +1,10 @@
 Phyxo 1.6.3 - 2017-01-05
 ========================
+* Fix one more issue with phpmailer.
+* Fix some admin links.
+
+Phyxo 1.6.3 - 2017-01-05
+========================
 * Fix issue #9. Problem to update.
 
 Phyxo 1.6.2 - 2017-01-05
