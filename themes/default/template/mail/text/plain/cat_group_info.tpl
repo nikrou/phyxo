@@ -1,8 +1,8 @@
-{'Hello,'|@translate}
+{'Hello,'|translate}
 
-{'Discover album:'|@translate} {$CAT_NAME}
+{'Discover album:'|translate} {$CAT_NAME}
 {$LINK}
 
 {$CPL_CONTENT}
 
-{'See you soon.'|@translate}
+{'See you soon.'|translate}

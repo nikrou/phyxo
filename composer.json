@@ -13,14 +13,15 @@
 	"require": {
 		"php": ">=5.5.0",
 		"smarty/smarty": "3.1.*",
-		"phpmailer/phpmailer": "5.2.*",
 		"jdorn/sql-formatter": "1.2.*",
 		"pelago/emogrifier": "1.1.*",
 		"ircmaxell/password-compat": "1.0.*",
 		"pclzip/pclzip": "2.8.*",
 		"tedivm/jshrink": "1.1.*",
 		"natxet/CssMin": "3.0.*",
-		"guzzlehttp/guzzle": "6.2.*"
+		"guzzlehttp/guzzle": "6.2.*",
+		"symfony/routing": "^3.2",
+		"swiftmailer/swiftmailer": "^5.4"
 	},
 	"require-dev": {
 		"atoum/atoum": "2.*",

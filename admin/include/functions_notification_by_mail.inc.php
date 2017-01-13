@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -418,10 +418,12 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
         );
     }
 
-    $page['infos'][] = l10n_dec(
-        '%d user was updated.', '%d users were updated.',
-        $updated_data_count
-    );
+    if ($updated_data_count>0) {
+        $page['infos'][] = l10n_dec(
+            '%d user was updated.', '%d users were updated.',
+            $updated_data_count
+        );
+    }
 
     if ($error_on_updated_data_count != 0) {
         $page['errors'][] = l10n_dec(

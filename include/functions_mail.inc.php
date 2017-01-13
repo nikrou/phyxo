@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -27,6 +27,7 @@
  */
 
 use Pelago\Emogrifier;
+
 
 /**
  * Returns the name of the mail sender
@@ -262,10 +263,10 @@ function switch_lang_to($language) {
         $lang  = array();
 
         // language files
-        load_language('common.lang', '', array('language'=>$language) );
+        load_language('common.lang', '', array('language' => $language) );
         // No test admin because script is checked admin (user selected no)
         // Translations are in admin file too
-        load_language('admin.lang', '', array('language'=>$language) );
+        load_language('admin.lang', '', array('language' => $language) );
 
         // Reload all plugins files (see load_language declaration)
         if (!empty($language_files)) {
@@ -279,7 +280,7 @@ function switch_lang_to($language) {
 
         trigger_notify('loading_lang');
         load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR,
-        array('language'=>$language, 'no_fallback'=>true, 'local'=>true)
+        array('language' => $language, 'no_fallback' => true, 'local' => true)
         );
 
         $switch_lang['language'][$language]['lang_info'] = $lang_info;
@@ -498,7 +499,7 @@ function pwg_mail_group($group_id, $args=array(), $tpl=array()) {
 function pwg_mail($to, $args=array(), $tpl=array()) {
     global $conf, $conf_mail, $lang_info, $page, $services;
 
-    if (empty($to) and empty($args['Cc']) and empty($args['Bcc'])) {
+    if (empty($to) && empty($args['Cc']) && empty($args['Bcc'])) {
         return true;
     }
 
@@ -506,14 +507,13 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
         $conf_mail = get_mail_configuration();
     }
 
-    $mail = new PHPMailer();
-
+    $message = new Swift_Message();
     foreach (get_clean_recipients_list($to) as $recipient) {
-        $mail->addAddress($recipient['email'], $recipient['name']);
+        $message->addTo($recipient['email'], $recipient['name']);
     }
 
-    $mail->WordWrap = 76;
-    $mail->CharSet = 'UTF-8';
+    //$mail->WordWrap = 76;
+    $message->setCharSet('utf-8');
 
     // Compute root_path in order have complete path
     set_make_full_url();
@@ -526,20 +526,20 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
     } else {
         $from = unformat_email($args['from']);
     }
-    $mail->setFrom($from['email'], $from['name']);
-    $mail->addReplyTo($from['email'], $from['name']);
+    $message->setFrom($from['email'], $from['name']);
+    $message->setReplyTo($from['email'], $from['name']);
 
     // Subject
     if (empty($args['subject'])) {
         $args['subject'] = 'Phyxo';
     }
     $args['subject'] = trim(preg_replace('#[\n\r]+#s', '', $args['subject']));
-    $mail->Subject = $args['subject'];
+    $message->setSubject($args['subject']);
 
     // Cc
     if (!empty($args['Cc'])) {
         foreach (get_clean_recipients_list($args['Cc']) as $recipient) {
-            $mail->addCC($recipient['email'], $recipient['name']);
+            $message->addCC($recipient['email'], $recipient['name']);
         }
     }
 
@@ -553,7 +553,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
     }
     if (!empty($Bcc)) {
         foreach ($Bcc as $recipient) {
-            $mail->addBCC($recipient['email'], $recipient['name']);
+            $message->addBCC($recipient['email'], $recipient['name']);
         }
     }
 
@@ -587,7 +587,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
     }
 
     $content_type_list = array();
-    if ($conf_mail['mail_allow_html'] and @$args['email_format'] != 'text/plain') {
+    if ($conf_mail['mail_allow_html'] && (empty($args['email_format']) || $args['email_format'] != 'text/plain')) {
         $content_type_list[] = 'text/html';
     }
     $content_type_list[] = 'text/plain';
@@ -676,32 +676,29 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
                     $template->assign($tpl['assign']);
                 }
                 $template->assign('CONTENT', $mail_content);
-                $contents[$content_type].= $template->parse($tpl['filename'], true);
+                $contents[$content_type] .= $template->parse($tpl['filename'], true);
             } else {
-                $contents[$content_type].= $mail_content;
+                $contents[$content_type] .= $mail_content;
             }
         } else {
             $contents[$content_type].= $mail_content;
         }
 
         // Footer
-        $contents[$content_type].= $template->parse('mail_footer', true);
+        $contents[$content_type] .= $template->parse('mail_footer', true);
     }
 
     // Undo Compute root_path in order have complete path
     unset_make_full_url();
 
-    // Send content to PHPMailer
     if (isset($contents['text/html'])) {
-        $mail->isHTML(true);
-        $mail->Body = move_css_to_body($contents['text/html']);
+        $message->setBody(move_css_to_body($contents['text/html']), 'text/html');
 
         if (isset($contents['text/plain'])) {
-            $mail->AltBody = $contents['text/plain'];
+            $message->addPart($contents['text/plain'], 'text/plain');
         }
     } else {
-        $mail->isHTML(false);
-        $mail->Body = $contents['text/plain'];
+        $message->setBody($contents['text/plain'], 'text/plain');
     }
 
     if ($conf_mail['use_smtp']) {
@@ -713,59 +710,28 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
             $smtp_port = 25;
         }
 
-        $mail->IsSMTP();
-
-        // enables SMTP debug information (for testing) 2 - debug, 0 - no message
-        $mail->SMTPDebug = 0;
-
-        $mail->Host = $smtp_host;
-        $mail->Port = $smtp_port;
-
+        $mail_transport = new Swift_SmtpTransport($smtp_host, $smtp_port);
         if (!empty($conf_mail['smtp_secure']) and in_array($conf_mail['smtp_secure'], array('ssl', 'tls'))) {
-            $mail->SMTPSecure = $conf_mail['smtp_secure'];
+            $mail_transport->setSecurity($conf_mail['smtp_secure']);
         }
 
-        if (!empty($conf_mail['smtp_user'])) {
-            $mail->SMTPAuth = true;
-            $mail->Username = $conf_mail['smtp_user'];
-            $mail->Password = $conf_mail['smtp_password'];
+        if (!empty($conf_mail['smtp_user']) && !empty($conf_mail['smtp_password'])) {
+            $mail_transport->setUsername($conf_mail['smtp_user']);
+            $mail_transport->setPassword($conf_mail['smtp_password']);
         }
-    }
-
-    $ret = true;
-    $pre_result = trigger_change('before_send_mail', true, $to, $args, $mail);
-
-    if ($pre_result) {
-    $ret = $mail->send();
-    if (!$ret and (!ini_get('display_errors') or $services['users']->isAdmin())) {
-        trigger_error('Mailer Error: ' . $mail->ErrorInfo, E_USER_WARNING);
-    }
-    if ($conf['debug_mail']) {
-        pwg_send_mail_test($ret, $mail, $args);
-    }
-    }
-
-    return $ret;
-}
-
-/**
- * @deprecated 2.6
- */
-function pwg_send_mail($result, $to, $subject, $content, $headers) {
-    global $services;
-
-    if ($services['users']->isAdmin()) {
-        trigger_error('pwg_send_mail function is deprecated', E_USER_NOTICE);
-    }
-
-    if (!$result) {
-        return pwg_mail($to, array(
-            'content' => $content,
-            'subject' => $subject,
-        ));
     } else {
-        return $result;
+        $mail_transport = Swift_MailTransport::newInstance();
     }
+
+    try {
+        $mailer = new Swift_Mailer($mail_transport);
+        $pre_result = trigger_change('before_send_mail', true, $to, $args, $mailer);
+        $result = $mailer->send($message);
+    } catch (\Exception $e) {
+        $result = false;
+    }
+
+    return $result;
 }
 
 /**
@@ -780,33 +746,3 @@ function move_css_to_body($content) {
     $e = new Emogrifier($content);
     return @$e->emogrify(); // @TODO: remove arobase
 }
-
-/**
- * Saves a copy of the mail if _data/tmp.
- *
- * @param boolean $success
- * @param PHPMailer $mail
- * @param array $args
- */
-function pwg_send_mail_test($success, $mail, $args) {
-    global $conf, $user, $lang_info;
-
-    $dir = PHPWG_ROOT_PATH.$conf['data_location'].'tmp';
-    if (mkgetdir($dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR)) {
-        $filename = $dir.'/mail.'.stripslashes($user['username']).'.'.$lang_info['code'].'-'.date('YmdHis').($success ? '' : '.ERROR');
-        if ($args['content_format'] == 'text/plain') {
-            $filename .= '.txt';
-        } else {
-            $filename .= '.html';
-        }
-
-        $file = fopen($filename, 'w+');
-        if (!$success) {
-            fwrite($file, "ERROR: " . $mail->ErrorInfo . "\n\n");
-        }
-        fwrite($file, $mail->getSentMIMEMessage());
-        fclose($file);
-    }
-}
-
-trigger_notify('functions_mail_included');
