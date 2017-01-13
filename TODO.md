@@ -2,6 +2,7 @@ Things to do
 ============
 
  * Remove useless arobase in code
+ * Remove stripslashes/addslashes in code
  * Move more code (classes) to Phyxo namespace
  * sanitize notification_by_mail
  * Move install.php, upgrade.php and upgrade_feed.php to admin/

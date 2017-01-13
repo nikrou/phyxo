@@ -290,7 +290,7 @@ define(\'DB_COLLATE\', \'\');';
         $services['users']->createUserInfos(array(1,2), array('language' => $language));
 
         // Available upgrades must be ignored after a fresh installation. To
-        // make PWG avoid upgrading, we must tell it upgrades have already been
+        // make Phyxo avoid upgrading, we must tell it upgrades have already been
         // made.
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         define('CURRENT_DATE', $dbnow);

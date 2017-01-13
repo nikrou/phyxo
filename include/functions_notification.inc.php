@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -415,11 +415,11 @@ function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
 
     for ($i=0; $i<count($dates); $i++) {
         if ($max_elements>0) { // get some thumbnails ...
-            $query = 'SELECT DISTINCT i.* FROM '.IMAGES_TABLE.' i';
+            $query = 'SELECT i.* FROM '.IMAGES_TABLE.' i';
             $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = image_id';
             $query .= ' '.$where_sql;
             $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
-            $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT '.$max_elements.';';
+            $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT '.$max_elements;
             $dates[$i]['elements'] = $conn->query2array($query);
         }
 
@@ -429,7 +429,7 @@ function get_recent_post_dates($max_dates, $max_elements, $max_cats) {
             $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' c ON c.id = category_id';
             $query .= ' '.$where_sql;
             $query .= ' AND date_available=\''.$dates[$i]['date_available'].'\'';
-            $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT '.$max_cats.';';
+            $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT '.$max_cats;
             $dates[$i]['categories'] = $conn->query2array($query);
         }
     }
