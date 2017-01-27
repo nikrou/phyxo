@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -37,15 +37,19 @@ class SessionDbHandler implements \SessionHandlerInterface
     }
 
     public function read($id) {
+        $data = '';
+
         $query = 'SELECT data FROM '.SESSIONS_TABLE;
         $query .= ' WHERE id = \''.$this->conn->db_real_escape_string($id).'\';';
         $result = $this->conn->db_query($query);
         if ($result) {
             $row = $this->conn->db_fetch_assoc($result);
-            return $row['data'];
-        } else {
-            return false;
+            if (!empty($row['data'])) {
+                $data = $row['data'];
+            }
         }
+
+        return $data;
     }
 
     public function write($id, $data) {
