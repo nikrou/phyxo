@@ -67,7 +67,7 @@ To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/func
 Demo
 ----
 
-You can find, discover and play with a [demo](http://demo.phyxo.net/)
+You can find, discover and play with a [demo](https://demo.phyxo.net/)
 
 
 Todo
