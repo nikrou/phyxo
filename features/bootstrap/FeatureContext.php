@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -120,7 +120,7 @@ class FeatureContext extends BaseContext
     public function iShouldNotBeAllowedToGoToAlbum($album_name) {
         $album = $this->getAlbum($album_name);
 
-        $this->getSession()->visit(sprintf($this->pages['album'], $album->id));
+        $this->getSession()->visit(sprintf($this->pages['album'], $album['id']));
         $this->getMink()->assertSession()->statusCodeEquals(401);
     }
 

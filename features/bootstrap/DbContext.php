@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -25,7 +25,7 @@ use Behat\Gherkin\Node\TableNode;
 
 trait DbContext
 {
-    public static $prefix = 'phyxo_';
+    private static $prefix = 'phyxo_';
     private $response_params = array();
     private $last_id;
 
@@ -200,16 +200,21 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $conf = ORM::for_table(self::$prefix.'config')->where('param', $param)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'config WHERE param = :param');
+        $stmt->bindValue(':param', $param);
+        $stmt->execute();
+        $conf = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$conf) {
-            $conf = ORM::for_table(self::$prefix.'config')->create();
-            $conf->param = $param;
-            $conf->value = $value;
-            $conf->save();
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'config (param, value) VALUES(:param, :value)');
+            $stmt->bindValue(':param', $param);
+            $stmt->bindValue(':value', $value);
+            $stmt->execute();
         } else {
-            $conf->value = $value;
-            $conf->save();
+            $stmt = self::$pdo->prepare('UPDATE '.self::$prefix.'config SET value = :value WHERE param = :param');
+            $stmt->bindValue(':param', $param);
+            $stmt->bindValue(':value', $value);
+            $stmt->execute();
         }
     }
 
@@ -218,7 +223,10 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE name = :name');
+        $stmt->bindValue(':name', $album_name);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$album) {
             throw new Exception('Album with name '.$album_name.' does not exist'."\n");
         }
@@ -245,18 +253,25 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('id', $album_id)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE id = :id');
+        $stmt->bindValue(':id', $album_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$album) {
             throw new Exception('Cannot find an album with id "'.$album_id.'"');
         }
-        $image = ORM::for_table(self::$prefix.'images')->where('id', $image_id)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'images WHERE id = :id');
+        $stmt->bindValue(':id', $image_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $image = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$image) {
             throw new Exception('Cannot find an image with id "'.$image_id.'"');
         }
-        $image_album = ORM::for_table(self::$prefix.'image_category')->create();
-        $image_album->category_id = $album_id;
-        $image_album->image_id = $image_id;
-        $image_album->save();
+        $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'image_category (category_id, image_id) VALUES(:category_id, :image_id)');
+        $stmt->bindValue(':category_id', $album_id, PDO::PARAM_INT);
+        $stmt->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     public function get_pwg_token($session_id) {
@@ -264,9 +279,12 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $conf = ORM::for_table(self::$prefix.'config')->where('param', 'secret_key')->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'config WHERE param = :param');
+        $stmt->bindValue(':param', 'secret_key');
+        $stmt->execute();
+        $conf = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($conf) {
-            return hash_hmac('md5', $session_id, $conf->value);
+            return hash_hmac('md5', $session_id, $conf['value']);
         }
     }
 
@@ -286,20 +304,16 @@ trait DbContext
             if (!self::$conf_loaded) {
                 self::configDB($parameters);
             }
-
-            $sql_content = trim(file_get_contents($parameters['sql_init_file']));
-            if (!empty($sql_content)) {
-                ORM::get_db()->exec($sql_content);
-            }
+            self::executeSqlFile($parameters['sql_init_file']);
         }
 
         // in case suite has been stopped before end
-        if (!empty($parameters['sql_cleanup_file']) && !empty($parameters['config_file'])
-            && is_readable($parameters['sql_cleanup_file']) && is_readable($parameters['config_file'])) {
-            $sql_content = trim(file_get_contents($parameters['sql_cleanup_file']));
-            if (!empty($sql_content)) {
-                ORM::get_db()->exec($sql_content);
+        if (!empty($parameters['sql_cleanup_file'])  && !empty($parameters['config_file'])
+            && is_readable($parameters['sql_cleanup_file'])  && is_readable($parameters['config_file'])) {
+            if (!self::$conf_loaded) {
+                self::configDB($parameters);
             }
+            self::executeSqlFile($parameters['sql_cleanup_file']);
         }
     }
 
@@ -315,45 +329,46 @@ trait DbContext
                 self::configDB($parameters);
             }
 
-            $sql_content = trim(file_get_contents($parameters['sql_cleanup_file']));
-            if (!empty($sql_content)) {
-                ORM::get_db()->exec($sql_content);
+            self::executeSqlFile($parameters['sql_cleanup_file']);
+        }
+    }
+
+    private static function executeSqlFile($filepath) {
+        $sql_lines = file($filepath);
+        $query = '';
+        foreach ($sql_lines as $sql_line) {
+            $sql_line = trim($sql_line);
+            if (preg_match('/(^--|^$)/', $sql_line)) {
+                continue;
+            }
+            $query .= ' '.$sql_line;
+            if (preg_match('/;$/', $sql_line)) {
+                $query = trim($query);
+                if (!preg_match('/^DROP TABLE/i', $query)) {
+                    self::$pdo->query($query);
+                }
+                $query = '';
             }
         }
     }
+
 
     private static function configDb($parameters) {
         include($parameters['config_file']);
         self::$prefix = $prefixeTable;
 
         if ($conf['dblayer']=='sqlite') {
-            // @See src/Phyxo/DBLayer/sqliteConnection.php
-            ORM::configure(sprintf('sqlite:%s/db/%s.db', __DIR__.'/../..', $conf['db_base']));
+            self::$pdo = new \PDO(sprintf('sqlite:%s/db/%s.db', __DIR__.'/../..', $conf['db_base']));
         } else {
-            ORM::configure($conf['dblayer'].':host='.$conf['db_host'].';dbname='.$conf['db_base']);
-            ORM::configure('username', $conf['db_user']);
-            ORM::configure('password', $conf['db_password']);
+            self::$pdo = new \PDO(sprintf('%s:host=%s;dbname=%s', $conf['dblayer'], $conf['db_host'], $conf['db_base']), $conf['db_user'], $conf['db_password']);
         }
+        self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-        ORM::configure('logging', true);
 
-        // primary keys
-        ORM::configure(
-            'id_column_overrides',
-            array(
-                self::$prefix.'user_infos' => 'user_id',
-                self::$prefix.'image_category' => array('image_id', 'category_id'),
-                self::$prefix.'user_access' => array('user_id', 'cat_id'),
-                self::$prefix.'group_access' => array('group_id', 'cat_id'),
-                self::$prefix.'user_group' => array('user_id', 'group_id'),
-                self::$prefix.'image_tag' => array('image_id', 'tag_id'),
-                self::$prefix.'config' => 'param',
-            )
-        );
         self::$conf_loaded = true;
     }
 
-    /* ORM methods */
     private function addUser(array $params) {
         if (empty($params['username']) || empty($params['password'])) {
             throw new Exception('Username and Password for user are mandatory'."\n");
@@ -362,34 +377,41 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $user = ORM::for_table(self::$prefix.'users')->where('username', $params['username'])->find_one();
-        if (!$user) {
-            $user = ORM::for_table(self::$prefix.'users')->create();
-            $user->username = $params['username'];
-            $user->password = password_hash($params['password'], PASSWORD_BCRYPT);
-            $user->save();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'users WHERE username = :username');
+        $stmt->bindValue(':username', $params['username']);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $user_info = ORM::for_table(self::$prefix.'user_infos')->create();
-            $user_info->user_id = $user->id;
+        if (!$user) {
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'users (username, password) VALUES(:username, :password)');
+            $stmt->bindValue(':username', $params['username']);
+            $stmt->bindValue(':password', password_hash($params['password'], PASSWORD_BCRYPT));
+            $stmt->execute();
+            $user_id = self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'users'), 'id'));
+
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'user_infos (user_id, status, registration_date, level) VALUES(:user_id, :status, :registration_date, :level)');
+            $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
             if (empty($params['status'])) {
-                $user_info->status = 'normal';
+                $stmt->bindValue(':status', 'normal');
                 $params['status'] = 'normal';
             } else {
-                $user_info->status = $params['status'];
+                $stmt->bindValue(':status', $params['status']);
             }
             $now = new DateTime('now');
-            $user_info->registration_date = $now->format('Y-m-d H:i:s');
+            $stmt->bindValue(':registration_date', $now->format('Y-m-d H:i:s'));
             if ($params['status']=='webmaster') {
                 // to be retrieve from config_default
                 // @see src/Phyxo/Model/Repository/Users.php:createUserInfos
-                $user_info->level = 8;
+                $stmt->bindValue(':level', 8, PDO::PARAM_INT);
             } else {
-                $user_info->level = 0;
+                $stmt->bindValue(':level', 0, PDO::PARAM_INT);
             }
-            $user_info->save();
+            $stmt->execute();
+        } else {
+            $user_id = $user['id'];
         }
 
-        return $user->id;
+        return $user_id;
     }
 
     private function addGroup(array $params) {
@@ -399,13 +421,21 @@ trait DbContext
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
-        $group = ORM::for_table(self::$prefix.'groups')->where('name', $params['name'])->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'groups WHERE name = :name');
+        $stmt->bindValue(':name', $params['name']);
+        $stmt->execute();
+        $group = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$group) {
-            $group = ORM::for_table(self::$prefix.'groups')->create();
-            $group->name = $params['name'];
-            $group->save();
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'groups (name) VALUES(:name)');
+            $stmt->bindValue(':name', $params['name']);
+            $stmt->execute();
+            $group_id = self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'groups'), 'id'));
+        } else {
+            $group_id = $group['id'];
         }
-        return $group->id;
+
+        return $group_id;
     }
 
     private function addImage(array $params) {
@@ -417,7 +447,11 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['album'])->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE name = :name');
+        $stmt->bindValue(':name', $params['album']);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$album) {
             throw new Exception('Album with name '.$params['album'].' does not exist'."\n");
         }
@@ -427,41 +461,44 @@ trait DbContext
         }
         $md5sum = md5($params['file']);
 
-        $image = ORM::for_table(self::$prefix.'images')->create();
-        $image->name = $params['name'];
-        $image->file = basename($params['file']);
+        $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'images (name, file, path, date_creation, date_available, author, md5sum) VALUES(:name, :file, :path, :date_creation, :date_available, :author, :md5sum)');
+        $stmt->bindValue(':name', $params['name']);
+        $stmt->bindValue(':file', basename($params['file']));
 
         $now = new DateTime('now');
         $upload_dir = $this->parameters['upload_dir'].$now->format('Y/m/d');
         $path = $upload_dir . sprintf('/%s-%s.png', $now->format('YmdHis'), substr($md5sum, 0, 8));
 
-        $image->path = $path;
+        $stmt->bindValue(':path', $path);
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0777, true);
         }
         copy($params['file'], $path);
         if (empty($params['date_creation'])) {
-            $image->date_creation = $now->format('Y-m-d H:i:s');
+            $stmt->bindValue(':date_creation', $now->format('Y-m-d H:i:s'));
         } else {
-            $image->date_creation = $params['date_creation'];
+            $stmt->bindValue(':date_creation', $params['date_creation']);
         }
         if (!empty($params['date_available'])) {
-            $image->date_available = $params['date_available'];
+            $stmt->bindValue(':date_available', $params['date_available']);
         } else {
-            $image->date_available = $now->format('Y-m-d H:i:s');
+            $stmt->bindValue(':date_available', $now->format('Y-m-d H:i:s'));
         }
         if (!empty($params['author'])) {
-            $image->author = $params['author'];
+            $stmt->bindValue(':author', $params['author']);
+        } else {
+            $stmt->bindValue(':author', '');
         }
-        $image->md5sum = $md5sum;
-        $image->save();
+        $stmt->bindValue(':md5sum', $md5sum);
+        $stmt->execute();
+        $image_id = self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'images'), 'id'));
 
-        $image_category = ORM::for_table(self::$prefix.'image_category')->create();
-        $image_category->image_id = $image->id;
-        $image_category->category_id = $album->id;
-        $image_category->save();
+        $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'image_category (image_id, category_id) VALUES(:image_id, :category_id)');
+        $stmt->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+        $stmt->bindValue(':category_id', $album['id'], PDO::PARAM_INT);
+        $stmt->execute();
 
-        return $image->id;
+        return $image_id;
     }
 
     private function addAlbum(array $params) {
@@ -473,51 +510,68 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $params['name'])->find_one();
-        if (!$album) {
-            $album = ORM::for_table(self::$prefix.'categories')->create();
-            $album->name = $params['name'];
-            if (!empty($params['status'])) {
-                $album->status = $params['status'];
-            } else {
-                $album->status = 'private';
-            }
-            if (!empty($params['commentable'])) {
-                $album->commentable = (boolean) $params['commentable'];
-            } else {
-                $album->commentable = true;
-            }
-            $album->global_rank = 1;
-            $album->save();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE name = :name');
+        $stmt->bindValue(':name', $params['name']);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $album->uppercats = $album->id;
-            $album->save();
+        if (!$album) {
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'categories (name, status, commentable, global_rank) VALUES(:name, :status, :commentable, 1)');
+            $stmt->bindValue(':name', $params['name']);
+            if (empty($params['status'])) {
+                $params['status'] = 'private';
+            }
+            $stmt->bindValue(':status', $params['status']);
+
+            if (!empty($params['commentable'])) {
+                $commentable = (boolean) $params['commentable'];
+            } else {
+                $commentable = true;
+            }
+            $stmt->bindValue(':commentable', $commentable, PDO::PARAM_BOOL);
+            $stmt->execute();
+            $album_id = self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'categories'), 'id'));
+
+            $stmt = self::$pdo->prepare('UPDATE '.self::$prefix.'categories SET uppercats = :uppercats WHERE id = :id');
+            $stmt->bindValue(':uppercats', $album_id, PDO::PARAM_INT);
+            $stmt->bindValue(':id', $album_id, PDO::PARAM_INT);
+            $stmt->execute();
+        } else {
+            $album_id = $album['id'];
         }
 
-        return $album->id;
+        return $album_id;
     }
 
     private function addUserToGroup($user_id, $group_id) {
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
-        $user = ORM::for_table(self::$prefix.'users')->where('id', $user_id);
+
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'users WHERE id = :id');
+        $stmt->bindValue(':id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
             throw new Exception('User with id "'.$user_id.'" does not exist'."\n");
         }
-        $group = ORM::for_table(self::$prefix.'groups')->where('id', $group_id);
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'groups WHERE id = :id');
+        $stmt->bindValue(':id', $group_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $group = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$group) {
             throw new Exception('Group with id "'.$group_id.'" does not exist'."\n");
         }
-        $user_group = ORM::for_table(self::$prefix.'user_group')
-            ->where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'user_group WHERE user_id = :user_id AND group_id = :group_id');
+        $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':group_id', $group['id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $user_group = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user_group) {
-            $user_group = ORM::for_table(self::$prefix.'user_group')->create();
-            $user_group->user_id = $user_id;
-            $user_group->group_id = $group_id;
-            $user_group->save();
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'user_group (user_id, group_id) VALUES(:user_id, :group_id)');
+            $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+            $stmt->bindValue(':group_id', $group['id'], PDO::PARAM_INT);
+            $stmt->execute();
         }
     }
 
@@ -526,39 +580,48 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE name = :name');
+        $stmt->bindValue(':name', $album_name);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$album) {
             throw new Exception('Album with name '.$album_name.' does not exist'."\n");
         }
 
-        $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'users WHERE username = :username');
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
             throw new Exception('User with username '.$username.' does not exist'."\n");
         }
 
-        $access = ORM::for_table(self::$prefix.'user_access')
-            ->where('user_id', $user->id)
-            ->where('cat_id', $album->id)
-            ->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'user_access WHERE user_id = :user_id AND cat_id = :cat_id');
+        $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':cat_id', $album['id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $access = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if ($remove) {
             if ($access) {
-                ORM::for_table(self::$prefix.'user_access')
-                    ->where('user_id', $user->id)
-                    ->where('cat_id', $album->id)
-                    ->delete_many();
+                $stmt = self::$pdo->prepare('DELETE FROM '.self::$prefix.'user_access WHERE user_id = :user_id AND cat_id = :cat_id');
+                $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+                $stmt->bindValue(':cat_id', $album['id'], PDO::PARAM_INT);
+                $stmt->execute();
             }
         } else {
             if (!$access) {
-                $access = ORM::for_table(self::$prefix.'user_access')->create();
-                $access->user_id = $user->id;
-                $access->cat_id = $album->id;
-                $access->save();
+                $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'user_access (user_id, cat_id) VALUES(:user_id, :cat_id)');
+                $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+                $stmt->bindValue(':cat_id', $album['id'], PDO::PARAM_INT);
+                $stmt->execute();
             }
         }
 
-        $user_cache = ORM::for_table(self::$prefix.'user_cache')
-            ->where('user_id', $user->id)
-            ->delete_many();
+        $stmt = self::$pdo->prepare('DELETE FROM '.self::$prefix.'user_cache WHERE user_id = :user_id');
+        $stmt->bindValue(':user_id', $user['id'], PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     private function groupAccess($groupname, $album_name) {
@@ -566,25 +629,34 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $album = ORM::for_table(self::$prefix.'categories')->where('name', $album_name)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'categories WHERE name = :name');
+        $stmt->bindValue(':name', $album_name);
+        $stmt->execute();
+        $album = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$album) {
             throw new Exception('Album with name '.$album_name.' does not exist'."\n");
         }
 
-        $group = ORM::for_table(self::$prefix.'groups')->where('name', $groupname)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'groups WHERE name = :name');
+        $stmt->bindValue(':name', $groupname);
+        $stmt->execute();
+        $group = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$group) {
             throw new Exception('Group with name '.$groupname.' does not exist'."\n");
         }
 
-        $access = ORM::for_table(self::$prefix.'group_access')
-            ->where('group_id', $group->id)
-            ->where('cat_id', $album->id)
-            ->find_one();
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'group_access WHERE group_id = :group_id AND cat_id = :cat_id');
+        $stmt->bindValue(':group_id', $group['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':cat_id', $album['id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $access = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$access) {
-            $access = ORM::for_table(self::$prefix.'group_access')->create();
-            $access->group_id = $group->id;
-            $access->cat_id = $album->id;
-            $access->save();
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'group_access (group_id, cat_id) VALUES(:group_id, :cat_id)');
+            $stmt->bindValue(':group_id', $group['id'], PDO::PARAM_INT);
+            $stmt->bindValue(':cat_id', $album['id'], PDO::PARAM_INT);
+            $stmt->execute();
         }
     }
 
@@ -593,26 +665,35 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $image = ORM::for_table(self::$prefix.'images')->where('name', $photo_name)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * from '.self::$prefix.'images WHERE name = :name');
+        $stmt->bindValue(':name', $photo_name);
+        $stmt->execute();
+        $image = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$image) {
             throw new Exception('Image with name '.$photo_name.' does not exist'."\n");
         }
-        $user = ORM::for_table(self::$prefix.'users')->where('username', $username)->find_one();
+
+        $stmt = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'users WHERE username = :username');
+        $stmt->bindValue(':username', $username);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$user) {
             throw new Exception('User with username '.$username.' does not exist'."\n");
         }
-        $comment = ORM::for_table(self::$prefix.'comments')->create();
-        $comment->image_id = $image->id;
-        $comment->author = $username;
-        $comment->author_id = $user->id;
-        $comment->content = $content;
+        $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'comments (image_id, author, author_id, content, date, validation_date, validated) VALUES(:image_id, :author, :author_id, :content, :date, :validation_date, :validated)');
+        $stmt->bindValue(':image_id', $image['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':author', $username);
+        $stmt->bindValue(':author_id', $user['id'], PDO::PARAM_INT);
+        $stmt->bindValue(':content', $content);
         $yesterday = (new DateTime('now - 1 day'))->format('Y-m-d H:i:s');
-        $comment->date = $yesterday;
-        $comment->validation_date = $yesterday;
-        $comment->validated = true;
-        $comment->save();
+        $stmt->bindValue(':date', $yesterday);
+        $stmt->bindValue(':validation_date', $yesterday);
+        $stmt->bindValue(':validated', true, PDO::PARAM_BOOL);
+        $stmt->execute();
 
-        return $comment->id;
+        return self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'comments'), 'id'));
     }
 
     private function addTag($tag_name) {
@@ -625,15 +706,20 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
-        $tag = ORM::for_table(self::$prefix.'tags')->where('name', $tag_name)->find_one();
+        $stmt = self::$pdo->prepare('SELECT * from '.self::$prefix.'tags WHERE name = :name');
+        $stmt->bindValue(':name', $tag_name);
+        $stmt->execute();
+        $tag = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$tag) {
-            $tag = ORM::for_table(self::$prefix.'tags')->create();
-            $tag->name = $tag_name;
-            $tag->url_name = str2url($tag_name);
-            $tag->save();
-        }
+            $stmt = self::$pdo->prepare('INSERT INTO '.self::$prefix.'tags (name, url_name) VALUES(:name, :url_name)');
+            $stmt->bindValue(':name', $tag_name);
+            $stmt->bindValue(':url_name', str2url($tag_name));
+            $stmt->execute();
 
-        return $tag->id;
+            return self::$pdo->lastInsertId(sprintf('%s_%s_seq', strtolower(self::$prefix.'tags'), 'id'));
+        } else {
+            return $tag['id'];
+        }
     }
 
     private function dissociateTags($param_tags, $image_id, $validated=true) {
@@ -650,19 +736,27 @@ trait DbContext
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
+
+        $stmt_find = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'image_tag WHERE tag_id = :tag_id AND image_id = :image_id');
+        $stmt_update = self::$pdo->prepare('UPDATE '.self::$prefix.'image_tag SET status = :status, validated = :validated WHERE tag_id = :tag_id AND image_id = :image_id');
+        $stmt_delete = self::$pdo->prepare('DELETE FROM '.self::$prefix.'image_tag WHERE tag_id = :tag_id AND image_id = :image_id');
         foreach ($tags as $tag_name) {
             $tag_id = $this->addTag($tag_name);
-            $image_tag = ORM::for_table(self::$prefix.'image_tag')
-                ->where('tag_id', $tag_id)
-                ->where('image_id', $image_id)
-                ->find_one();
+            $stmt_find->bindValue(':tag_id', $tag_id, PDO::PARAM_INT);
+            $stmt_find->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+            $stmt_find->execute();
+            $image_tag = $stmt_find->fetch(PDO::FETCH_ASSOC);
             if ($image_tag) {
                 if (!$validated) {
-                    $image_tag->status = 0;
-                    $image_tag->validated = $validated;
-                    $image_tag->save();
+                    $stmt_update->bindValue(':tag_id', $tag_id, PDO::PARAM_INT);
+                    $stmt_update->bindValue(':image_id', $image_id);
+                    $stmt_update->bindValue(':status', 0, PDO::PARAM_INT);
+                    $stmt_update->bindValue(':validated', $validated, PDO::PARAM_BOOL);
+                    $stmt_update->execute();
                 } else {
-                    $image_tag->delete();
+                    $stmt_delete->bindValue(':tag_id', $tag_id, PDO::PARAM_INT);
+                    $stmt_delete->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+                    $stmt_delete->execute();
                 }
             }
         }
@@ -683,19 +777,20 @@ trait DbContext
             self::configDB($this->parameters);
         }
 
+        $stmt_find = self::$pdo->prepare('SELECT * FROM '.self::$prefix.'image_tag WHERE tag_id = :tag_id AND image_id = :image_id');
+        $stmt_insert = self::$pdo->prepare('INSERT INTO '.self::$prefix.'image_tag (tag_id, image_id, validated, status) VALUES(:tag_id, :image_id, :validated, :status)');
         foreach ($tags as $tag_name) {
             $tag_id = $this->addTag($tag_name);
-            $image_tag = ORM::for_table(self::$prefix.'image_tag')
-                ->where('tag_id', $tag_id)
-                ->where('image_id', $image_id)
-                ->find_one();
+            $stmt_find->bindValue(':tag_id', $tag_id, PDO::PARAM_INT);
+            $stmt_find->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+            $stmt_find->execute();
+            $image_tag = $stmt_find->fetch(PDO::FETCH_ASSOC);
             if (!$image_tag) {
-                $image_tag = ORM::for_table(self::$prefix.'image_tag')->create();
-                $image_tag->image_id = $image_id;
-                $image_tag->tag_id = $tag_id;
-                $image_tag->validated = $validated;
-                $image_tag->status = 1;
-                $image_tag->save();
+                $stmt_insert->bindValue(':tag_id', $tag_id, PDO::PARAM_INT);
+                $stmt_insert->bindValue(':image_id', $image_id, PDO::PARAM_INT);
+                $stmt_insert->bindValue(':status', 1, PDO::PARAM_INT);
+                $stmt_insert->bindValue(':validated', $validated, PDO::PARAM_BOOL);
+                $stmt_insert->execute();
             }
         }
     }
