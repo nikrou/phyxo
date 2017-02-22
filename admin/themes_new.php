@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -116,7 +116,7 @@ foreach($themes->getServerThemes(true) as $theme) {
 
 $template->assign(
     'default_screenshot',
-    get_root_url().'admin/themes/'.$conf['admin_theme'].'/images/missing_screenshot.png'
+    get_root_url().'admin/theme/images/missing_screenshot.png'
 );
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'themes');

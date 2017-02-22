@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -452,27 +452,28 @@ class Template
             $href = trigger_change('combined_css', $href, $combi);
             $content[] = '<link rel="stylesheet" type="text/css" href="'.$href.'">';
         }
-        $this->output = str_replace(self::COMBINED_CSS_TAG,
-        implode( "\n", $content ),
-        $this->output );
+        $this->output = str_replace(
+            self::COMBINED_CSS_TAG,
+            implode("\n", $content ),
+            $this->output
+        );
         $this->cssLoader->clear();
 
         if (count($this->html_head_elements) || strlen($this->html_style)) {
-            $search = "\n</head>";
-            $pos = strpos( $this->output, $search );
-            if ($pos !== false) {
-                $rep = "\n".implode( "\n", $this->html_head_elements );
+            $search = "</head>";
+            if (($pos = strpos($this->output, $search)) !== false) {
+                $rep = "\n".implode( "\n", $this->html_head_elements )."\n";
                 if (strlen($this->html_style)) {
-                    $rep.='<style type="text/css">'.$this->html_style.'</style>';
+                    $rep .= '<style type="text/css">'.$this->html_style.'</style>'."\n";
                 }
                 $this->output = substr_replace( $this->output, $rep, $pos, 0 );
-            } //else maybe error or warning ?
+            } 
             $this->html_head_elements = array();
             $this->html_style = '';
         }
 
         echo $this->output;
-        $this->output='';
+        $this->output = '';
     }
 
     /**

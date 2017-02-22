@@ -334,7 +334,7 @@ class Themes extends Extensions
                 if (file_exists($screenshot_path)) {
                     $theme['screenshot'] = $screenshot_path;
                 } else {
-                    $theme['screenshot'] = \get_root_url().'admin/themes/'.$conf['admin_theme'].'/images/missing_screenshot.png';
+                    $theme['screenshot'] = \get_root_url().'admin/theme/images/missing_screenshot.png';
                 }
 
                 $admin_file = dirname($themeconf).'/admin/admin.inc.php';

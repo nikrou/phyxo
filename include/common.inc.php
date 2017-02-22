@@ -138,7 +138,7 @@ if ($services['users']->isGuest()) {
 
 // template instance
 if (defined('IN_ADMIN') && IN_ADMIN ) { // Admin template
-    $template = new Template(PHPWG_ROOT_PATH.'admin/themes', $conf['admin_theme']);
+    $template = new Template(PHPWG_ROOT_PATH.'admin/theme', '.');
 } else { // Classic template
     $theme = $user['theme'];
     if (script_basename() != 'ws' and mobile_theme()) {
