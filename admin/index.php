@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -52,34 +52,6 @@ if (isset($_GET['plugins_new_order'])) {
     exit;
 }
 
-// theme changer
-if (isset($_GET['change_theme'])) {
-    $admin_themes = array('roma', 'clear');
-
-    $new_admin_theme = array_pop(
-        array_diff(
-            $admin_themes,
-            array($conf['admin_theme'])
-        )
-    );
-
-    conf_update_param('admin_theme', $new_admin_theme);
-
-    $url_params = array();
-    foreach (array('page', 'tab', 'section') as $url_param) {
-        if (isset($_GET[$url_param])) {
-            $url_params[] = $url_param.'='.$_GET[$url_param];
-        }
-    }
-
-    $redirect_url = 'admin/index.php';
-    if (count($url_params) > 0) {
-        $redirect_url .= '?'.implode('&amp;', $url_params);
-    }
-
-    redirect($redirect_url);
-}
-
 // +-----------------------------------------------------------------------+
 // | Synchronize user informations                                         |
 // +-----------------------------------------------------------------------+
@@ -93,14 +65,8 @@ if ($conf['external_authentification']) {
 // | Variables init                                                        |
 // +-----------------------------------------------------------------------+
 
-$change_theme_url = get_root_url().'admin/index.php?';
 $test_get = $_GET;
 unset($test_get['page'], $test_get['section'], $test_get['tag']);
-
-if (count($test_get) == 0 and !empty($_SERVER['QUERY_STRING'])) {
-    $change_theme_url .= str_replace('&', '&amp;', $_SERVER['QUERY_STRING']).'&amp;';
-}
-$change_theme_url .= 'change_theme=1';
 
 // ?page=plugin-community-pendings is an clean alias of
 // ?page=plugin&section=community/admin.php&tab=pendings
@@ -180,7 +146,6 @@ $template->assign(
         'U_LOGOUT' => get_root_url().'index.php?act=logout',
         'U_PLUGINS' => $link_start.'plugins',
         'U_ADD_PHOTOS' => $link_start.'photos_add',
-        'U_CHANGE_THEME' => $change_theme_url,
         'U_UPDATES' => $link_start.'updates',
         'U_DEV_VERSION' => strpos(PHPWG_VERSION, 'dev')!==false,
         'U_DEV_API' => './api.php',

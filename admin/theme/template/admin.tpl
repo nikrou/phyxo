@@ -6,7 +6,6 @@ $('#menubar').lightAccordion({
 {/footer_script}
 
 <div id="menubar">
-  <div id="adminHome"><a href="{$U_ADMIN}">{'Administration Home'|translate}</a></div>
   <dl>
     <dt><i class="icon-picture"> </i><span>{'Photos'|translate}&nbsp;</span></dt>
     <dd>

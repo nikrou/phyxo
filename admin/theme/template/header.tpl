@@ -46,7 +46,7 @@
 	    
 	    <div id="pwgHead">
 		<h1>
-		    <a href="{$U_RETURN}" title="{'Visit Gallery'|translate}" class="tiptip">
+		    <a href="{$U_ADMIN}" title="{'Visit Gallery'|translate}" class="tiptip">
 			<span class="icon-home" style="font-size:larger"></span>
 			{$GALLERY_TITLE}
 		    </a>
@@ -55,7 +55,6 @@
 		<div id="headActions">
 		    {'Hello'|translate} {$USERNAME} |
 		    <a class="icon-eye" href="{$U_RETURN}">{'Visit Gallery'|translate}</a> |
-		    <a class="icon-brush" href="{$U_CHANGE_THEME}" title="{'Switch to clear or dark colors for administration'|translate}">{'Change Admin Colors'|translate}</a> |
 		    <a class="icon-help-circled" href="{$U_FAQ}" title="{'Instructions to use Phyxo'|translate}">{'Help Me'|translate}</a> |
 		    <a class="icon-logout" href="{$U_LOGOUT}">{'Logout'|translate}</a>
 		</div>
