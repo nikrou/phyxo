@@ -23,7 +23,7 @@
 		"swiftmailer/swiftmailer": "^5.4"
 	},
 	"require-dev": {
-		"atoum/atoum": "2.*",
+		"atoum/atoum": "3.*",
 		"behat/behat": "3.*",
 		"behat/common-contexts": "1.2.*",
 		"behat/mink": "1.7.*",
