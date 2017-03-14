@@ -1,8 +1,6 @@
 (function($) {
     'use strict';
     $.fn.lightAccordion = function(options) {
-	console.log('lightAccordion', options);
-
 	var settings = $.extend({
 	    header: 'dt',
 	    content: 'dd',
@@ -20,7 +18,7 @@
 	    self.on('click', settings.header, function() {
 		var content = $(this).next(settings.content);
 		content.slideDown();
-				contents.not(content).slideUp();
+		contents.not(content).slideUp();
 	    });
 	});
     };

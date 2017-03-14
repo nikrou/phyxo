@@ -1,3 +1,12 @@
+Phyxo 1.6.5 - 2017-01-12
+========================
+* Update dependencies. Fix issue with Guzzle 5.*
+* Backport issue #10 from master. (Warning when session starts)
+
+Phyxo 1.6.4 - 2017-01-12
+========================
+* Fix one more issue with phpmailer.
+
 Phyxo 1.6.3 - 2017-01-05
 ========================
 * Fix one more issue with phpmailer.
