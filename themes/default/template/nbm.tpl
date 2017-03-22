@@ -1,11 +1,14 @@
-{if isset($MENUBAR)}{$MENUBAR}{/if}
-<div id="content" class="content">
+{extends file="index.tpl"}
+
+{block name="content"}
+    <div id="content" class="content">
 	<div class="titrePage">
-		<ul class="categoryActions">
-		</ul>
-		<h2><a href="{$U_HOME}">{'Home'|@translate}</a>{$LEVEL_SEPARATOR}{'Notification'|@translate}</h2>
+	    <ul class="categoryActions">
+	    </ul>
+	    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Notification'|translate}</h2>
 	</div>
 
-{include file='infos_errors.tpl'}
+	{include file='infos_errors.tpl'}
 
-</div>
+    </div>
+{/block}

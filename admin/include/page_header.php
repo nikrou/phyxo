@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
+// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -21,6 +21,11 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
+
+//
+// Start output of page
+//
+$template->set_filenames(array('header'=>'header.tpl'));
 
 trigger_notify('loc_begin_page_header');
 
@@ -86,6 +91,7 @@ if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
 
 trigger_notify('loc_end_page_header');
 
-header('Content-Type: text/html; charset='.get_pwg_charset()); // usefull ?
+header('Content-Type: text/html; charset='.get_pwg_charset());
+$template->parse('header');
 
 trigger_notify('loc_after_page_header');

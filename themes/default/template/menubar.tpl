@@ -1,13 +1,13 @@
 {if !empty($blocks) }
-<div id="menubar">
+    <div id="menubar">
 	{foreach from=$blocks key=id item=block}
-	<dl id="{$id}">
+	    <dl id="{$id}">
 		{if not empty($block->template)}
-		{include file=$block->template|@get_extent:$id }
+		    {include file=$block->template|@get_extent:$id }
 		{else}
-		{$block->raw_content}
+		    {$block->raw_content}
 		{/if}
-	</dl>
+	    </dl>
 	{/foreach}
-</div><div id="menuSwitcher"></div>
+    </div><div id="menuSwitcher"></div>
 {/if}

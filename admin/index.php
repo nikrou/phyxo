@@ -222,9 +222,9 @@ $template->assign('ACTIVE_MENU', get_active_menu($page['page']));
 // Add the Phyxo Official menu
 $template->assign('pwgmenu', pwg_URL());
 
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(__DIR__.'/include/page_header.php');
 
 trigger_notify('loc_end_admin');
 flush_page_messages();
 $template->pparse('admin');
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(__DIR__.'/include/page_tail.php');

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -65,14 +65,12 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     $title= l10n('Your Gallery Customization');
     $page['body_id'] = 'theProfilePage';
     $template->set_filename('profile', 'profile.tpl');
-    $template->set_filename('profile_content', 'profile_content.tpl');
 
     load_profile_in_template(
         get_root_url().'profile.php', // action
         make_index_url(), // for redirect
         $userdata
     );
-    $template->assign_var_from_handle('PROFILE_CONTENT', 'profile_content');
 
     // include menubar
     $themeconf = $template->get_template_vars('themeconf');
@@ -83,8 +81,8 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     include(PHPWG_ROOT_PATH.'include/page_header.php');
     trigger_notify('loc_end_profile');
     flush_page_messages();
-    $template->pparse('profile');
     include(PHPWG_ROOT_PATH.'include/page_tail.php');
+    $template->pparse('profile');
 }
 
 //------------------------------------------------------ update & customization

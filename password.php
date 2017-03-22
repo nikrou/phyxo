@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -276,5 +276,5 @@ if (!isset($themeconf['hide_menu_on']) OR !in_array('thePasswordPage', $themecon
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 trigger_notify('loc_end_password');
 flush_page_messages();
-$template->pparse('password');
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
+$template->pparse('password');

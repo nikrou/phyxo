@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -807,6 +807,7 @@ if ($conf['picture_menu'] AND (!isset($themeconf['hide_menu_on']) OR !in_array('
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 trigger_notify('loc_end_picture');
 flush_page_messages();
+include(PHPWG_ROOT_PATH.'include/page_tail.php');
 if ($page['slideshow'] and $conf['light_slideshow']) {
     $template->pparse('slideshow');
 } else {
@@ -815,4 +816,3 @@ if ($page['slideshow'] and $conf['light_slideshow']) {
 }
 //------------------------------------------------------------ log informations
 pwg_log($picture['current']['id'], 'picture');
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
