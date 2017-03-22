@@ -57,10 +57,18 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
         if ($this->db_link) {
             if (preg_match($truncate_pattern, $query, $matches)) {
+                $start = microtime(true);
                 $query = str_replace('TRUNCATE TABLE', 'DELETE FROM', $query);
                 $result = $this->db_link->exec($query);
+                $time = microtime(true) - $start;
+
+                $this->db_show_query($query, $result, $time);
             } else {
+                $start = microtime(true);
                 $result = $this->db_link->query($query);
+                $time = microtime(true) - $start;
+
+                $this->db_show_query($query, $result, $time);
             }
             if ($result === false) {
                 $e = new dbException($this->db_last_error());

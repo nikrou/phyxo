@@ -44,7 +44,11 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_query($query) {
         if (is_resource($this->db_link)) {
+            $start = microtime(true);
             $result = mysql_query($query, $this->db_link);
+            $time = microtime(true) - $start;
+
+            $this->db_show_query($query, $result, $time);
             if ($result === false) {
                 $e = new dbException($this->db_last_error());
                 $e->query = $query;
