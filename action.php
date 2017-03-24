@@ -156,4 +156,7 @@ if (isset($_GET['download'])) {
 foreach ($http_headers as $header) {
     header($header);
 }
+// Without clean and flush there may be some image download problems, or image can be corrupted after download
+ob_clean();
+flush();
 @readfile($file);
