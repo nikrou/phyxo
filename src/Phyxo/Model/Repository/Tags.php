@@ -643,7 +643,7 @@ class Tags extends BaseRepository
             foreach ($tag_ids as $tag_id) {
                 $updates[] = array('image_id' => $image_id,
                                    'tag_id' => $tag_id,
-                                   'validated' => $conn->boolean_to_db(true)
+                                   'validated' => $this->conn->boolean_to_db(true)
                 );
             }
         }
@@ -654,7 +654,7 @@ class Tags extends BaseRepository
             $updates
         );
         $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE status = 0 AND validated = \''.$conn->boolean_to_db(true).'\'';
+        $query .= ' WHERE status = 0 AND validated = \''.$this->conn->boolean_to_db(true).'\'';
         $this->conn->db_query($query);
         invalidate_user_cache_nb_tags();
     }
