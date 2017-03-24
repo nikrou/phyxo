@@ -811,7 +811,6 @@ include(PHPWG_ROOT_PATH.'include/page_tail.php');
 if ($page['slideshow'] and $conf['light_slideshow']) {
     $template->pparse('slideshow');
 } else {
-    $template->parse_picture_buttons();
     $template->pparse('picture');
 }
 //------------------------------------------------------------ log informations

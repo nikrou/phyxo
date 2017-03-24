@@ -310,7 +310,6 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
 include(PHPWG_ROOT_PATH.'include/page_header.php');
 trigger_notify('loc_end_index');
 flush_page_messages();
-$template->parse_index_buttons();
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
 $template->pparse('index');
 

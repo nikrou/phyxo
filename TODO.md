@@ -13,3 +13,5 @@ Things to do
  * Behat/Mink tests :
    - use ID everywhere instead of names
    - use more friendly assertion (example: see modal instead of see #cboxWrapper)
+
+ * Check modifiers(translation, explode, ternary) in template class

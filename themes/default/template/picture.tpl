@@ -82,7 +82,6 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 			<span class="pwg-icon pwg-icon-save"></span><span class="pwg-button-text">{'Download'|translate}</span>
 		    </a>
 		{/if}
-		{if isset($PLUGIN_PICTURE_BUTTONS)}{foreach from=$PLUGIN_PICTURE_BUTTONS item=button}{$button}{/foreach}{/if}
 		{if isset($PLUGIN_PICTURE_ACTIONS)}{$PLUGIN_PICTURE_ACTIONS}{/if}
 		{if isset($favorite)}
 		    <a href="{$favorite.U_FAVORITE}" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}" class="pwg-state-default pwg-button" rel="nofollow">

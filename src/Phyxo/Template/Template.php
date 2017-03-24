@@ -55,11 +55,6 @@ class Template
     /** @var CssLoader */
     private $cssLoader;
 
-    /** @var array - Runtime buttons on picture page */
-    private $picture_buttons = array();
-    /** @var array - Runtime buttons on index page */
-    private $index_buttons = array();
-
     /**
      * @var string $root
      * @var string $theme
@@ -195,7 +190,6 @@ class Template
         $this->smarty->compile_id = null;
         $this->smarty->clearCompiledTemplate();
         $this->smarty->compile_id = $save_compile_id;
-        file_put_contents($this->smarty->getCompileDir().'/index.htm', 'Not allowed!');
     }
 
     /**
@@ -217,7 +211,7 @@ class Template
      * @return bool
      */
     public function set_filename($handle, $filename) {
-        return $this->set_filenames( array($handle=>$filename) );
+        return $this->set_filenames( array($handle => $filename) );
     }
 
     /**
@@ -230,8 +224,7 @@ class Template
         if (!is_array($filename_array)) {
             return false;
         }
-        reset($filename_array);
-        while(list($handle, $filename) = each($filename_array)) {
+        foreach ($filename_array as $handle => $filename) {
             if (is_null($filename)) {
                 unset($this->files[$handle]);
             } else {
@@ -433,10 +426,10 @@ class Template
                 $scripts = $this->scriptLoader->get_head_scripts();
                 $content = array();
                 foreach ($scripts as $script) {
-                    $content[] = '<script type="text/javascript" src="'. self::make_script_src($script).'"></script>';
+                    $content[] = '<script src="'. self::make_script_src($script).'"></script>';
                 }
 
-                $this->output = substr_replace( $this->output, implode( "\n", $content ), $pos, strlen(self::COMBINED_SCRIPTS_TAG) );
+                $this->output = substr_replace($this->output, implode("\n", $content), $pos, strlen(self::COMBINED_SCRIPTS_TAG) );
             } //else maybe error or warning ?
         }
 
@@ -462,12 +455,12 @@ class Template
         if (count($this->html_head_elements) || strlen($this->html_style)) {
             $search = "</head>";
             if (($pos = strpos($this->output, $search)) !== false) {
-                $rep = "\n".implode( "\n", $this->html_head_elements )."\n";
+                $rep = implode( "\n", $this->html_head_elements );
                 if (strlen($this->html_style)) {
-                    $rep .= '<style type="text/css">'.$this->html_style.'</style>'."\n";
+                    $rep .= '<style type="text/css">'.$this->html_style.'</style>'."\n"; // @TODO: try to avoid inline style
                 }
                 $this->output = substr_replace( $this->output, $rep, $pos, 0 );
-            } 
+            }
             $this->html_head_elements = array();
             $this->html_style = '';
         }
@@ -491,7 +484,7 @@ class Template
                     'AAAA_DEBUG_TOTAL_TIME__' => get_elapsed_time($t2, get_moment())
                 )
             );
-            Smarty_Internal_Debug::display_debug($this->smarty);
+            \Smarty_Internal_Debug::display_debug($this->smarty);
         }
     }
 
@@ -626,7 +619,7 @@ class Template
      * @param array $params (unused)
      * @param string $content
      */
-    public function block_html_style($params, $content) {
+    public function block_html_style($params, $content) { // @TODO: inject as an external stylesheet
         $content = trim($content);
         if (!empty($content)) { // second call
             $this->html_style .= "\n".$content;
@@ -650,7 +643,7 @@ class Template
     public function func_define_derivative($params, $smarty) {
         !empty($params['name']) or fatal_error('define_derivative missing name');
         if (isset($params['type'])) {
-            $derivative = ImageStdParams::get_by_type($params['type']);
+            $derivative = \ImageStdParams::get_by_type($params['type']);
             $smarty->assign($params['name'], $derivative);
             return;
         }
@@ -660,8 +653,8 @@ class Template
         $w = intval($params['width']);
         $h = intval($params['height']);
         $crop = 0;
-        $minw=null;
-        $minh=null;
+        $minw = null;
+        $minh = null;
 
         if (isset($params['crop'])) {
             if (is_bool($params['crop'])) {
@@ -702,8 +695,8 @@ class Template
             switch ($params['load'])
                 {
                 case 'header': break;
-                case 'footer': $load=1; break;
-                case 'async': $load=2; break;
+                case 'footer': $load = 1; break;
+                case 'async': $load = 2; break;
                 default: trigger_error("combine_script: invalid 'load' parameter", E_USER_ERROR);
                 }
         }
@@ -737,13 +730,13 @@ class Template
                 $content[] = '<script type="text/javascript" src="'. self::make_script_src($script).'"></script>';
             }
             if (count($this->scriptLoader->inline_scripts)) {
-                $content[] = '<script type="text/javascript">//<![CDATA[';
+                $content[] = '<script type="text/javascript">//<![CDATA['; // @TODO: remove inline script
                 $content = array_merge($content, $this->scriptLoader->inline_scripts);
                 $content[] = '//]]></script>';
             }
 
-            if (count($scripts[1])) {
-                $content[] = '<script type="text/javascript">';
+            if (count($scripts[1])) { // @TODO: remove inline script
+                $content[] = '<script>';
                 $content[] = '(function() {var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTagName(\'script\').length-1];';
                 foreach ($scripts[1] as $id => $script) {
                     $content[] = 's=document.createElement(\'script\'); s.type=\'text/javascript\'; s.async=true; s.src=\''
@@ -1004,53 +997,5 @@ class Template
             $themeconfs[$dir] = $themeconf;
         }
         return $themeconfs[$dir];
-    }
-
-    /**
-     * Registers a button to be displayed on picture page.
-     *
-     * @param string $content
-     * @param int $rank
-     */
-    public function add_picture_button($content, $rank=BUTTONS_RANK_NEUTRAL) {
-        $this->picture_buttons[$rank][] = $content;
-    }
-
-    /**
-     * Registers a button to be displayed on index pages.
-     *
-     * @param string $content
-     * @param int $rank
-     */
-    public function add_index_button($content, $rank=BUTTONS_RANK_NEUTRAL) {
-        $this->index_buttons[$rank][] = $content;
-    }
-
-    /**
-     * Assigns PLUGIN_PICTURE_BUTTONS template variable with registered picture buttons.
-     */
-    public function parse_picture_buttons() {
-        if (!empty($this->picture_buttons)) {
-            ksort($this->picture_buttons);
-            $buttons = array();
-            foreach ($this->picture_buttons as $k => $row) {
-                $buttons = array_merge($buttons, $row);
-            }
-            $this->assign('PLUGIN_PICTURE_BUTTONS', $buttons);
-        }
-    }
-
-    /**
-     * Assigns PLUGIN_INDEX_BUTTONS template variable with registered index buttons.
-     */
-    public function parse_index_buttons() {
-        if (!empty($this->index_buttons)) {
-            ksort($this->index_buttons);
-            $buttons = array();
-            foreach ($this->index_buttons as $k => $row) {
-                $buttons = array_merge($buttons, $row);
-            }
-            $this->assign('PLUGIN_INDEX_BUTTONS', $buttons);
-        }
     }
 }
