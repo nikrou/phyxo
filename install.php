@@ -261,7 +261,7 @@ define(\'DB_COLLATE\', \'\');';
          */
         $themes = new Themes($conn);
         foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-            if ($theme_id == 'elegant') {
+            if ($theme_id == 'treflez') {
                 $themes->performAction('activate', $theme_id);
             }
         }

@@ -18,10 +18,14 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
+/*
+  default theme is not a real theme and cannot be used as is.
+ */
+
 $themeconf = array(
     'name' => 'default',
     'icon_dir' => 'themes/default/icon',
     'img_dir' => 'themes/default/images',
     'mime_icon_dir' => 'themes/default/icon/mimetypes/',
-    'local_head' => 'local_head.tpl',
+    'local_head' => 'template/local_head.tpl',
 );

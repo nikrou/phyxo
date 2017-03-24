@@ -41,11 +41,8 @@ config: clean
 	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins
 
 	# copy only distrib plugins and themes
-	cp -pr themes/clear \
-		themes/dark \
-		themes/default \
-		themes/elegant \
-		themes/Sylvia $(DIST)/$(APP_NAME)/themes/
+	cp -pr themes/default \
+		themes/treflez $(DIST)/$(APP_NAME)/themes/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum

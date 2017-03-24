@@ -363,6 +363,12 @@ TD.calDayCellFull, TD.calDayCellEmpty {
   margin-bottom:5px;
 }
 
+#downloadSwitchBox ul {
+  margin:0;
+  padding:0;
+  list-style-type:none;
+}
+
 #theImage {
 	text-align: center;
 }
@@ -586,13 +592,6 @@ FIELDSET {
 .tagLevel2 { font-size: 100% !important; }
 .tagLevel1 { font-size: 90%  !important; }
 
-.pending.added {
-      color: #00FF00;
-}
-
-.pending.deleted {
-      color: #0000FF;
-}
 
 /* Popup help page */
 #thePopuphelpPage #copyright {
@@ -604,7 +603,7 @@ FIELDSET {
 }
 
 #thePopuphelpPage DL  {
-	margin: 0 25px 25px;
+	margin: 0 25px 25px; 
 }
 
 TR.tagLine {
@@ -727,7 +726,7 @@ LEGEND {
 	color: inherit; /*for IE*/
 }
 
-#piwigoAbout {width:600px;margin-left:10px;}
+#piwigoAbout {width:600px;margin:0 auto;}
 #linkToPiwigo {text-align:center;}
 
 .message {

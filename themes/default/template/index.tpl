@@ -17,28 +17,35 @@
 		<meta name="description" content="{$PAGE_TITLE}{if isset($INFO_FILE)} - {$INFO_FILE}{/if}">
 	    {/if}
 	{/if}
-
 	<title>{if $PAGE_TITLE!=l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="{$ROOT_URL}{$themeconf.icon_dir}/favicon.ico">
-
 	<link rel="start" title="{'Home'|translate}" href="{$U_HOME}" >
 	<link rel="search" title="{'Search'|translate}" href="{$ROOT_URL}search.php" >
-
-	{if isset($first.U_IMG)   }<link rel="first" title="{'First'|translate}" href="{$first.U_IMG}" >{/if}
-	{if isset($previous.U_IMG)}<link rel="prev" title="{'Previous'|translate}" href="{$previous.U_IMG}" >{/if}
-	{if isset($next.U_IMG)    }<link rel="next" title="{'Next'|translate}" href="{$next.U_IMG}" >{/if}
-	{if isset($last.U_IMG)    }<link rel="last" title="{'Last'|translate}" href="{$last.U_IMG}" >{/if}
-	{if isset($U_UP)          }<link rel="up" title="{'Thumbnails'|translate}" href="{$U_UP}" >{/if}
-
-	{if isset($U_PREFETCH)    }<link rel="prefetch" href="{$U_PREFETCH}">{/if}
-	{if isset($U_CANONICAL)   }<link rel="canonical" href="{$U_CANONICAL}">{/if}
-
+	{if isset($first.U_IMG)}
+	    <link rel="first" title="{'First'|translate}" href="{$first.U_IMG}">
+	{/if}
+	{if isset($previous.U_IMG)}
+	    <link rel="prev" title="{'Previous'|translate}" href="{$previous.U_IMG}">
+	{/if}
+	{if isset($next.U_IMG)}
+	    <link rel="next" title="{'Next'|translate}" href="{$next.U_IMG}">
+	{/if}
+	{if isset($last.U_IMG)}
+	    <link rel="last" title="{'Last'|translate}" href="{$last.U_IMG}">
+	{/if}
+	{if isset($U_UP)}
+	    <link rel="up" title="{'Thumbnails'|translate}" href="{$U_UP}">
+	{/if}
+	{if isset($U_PREFETCH)}
+	    <link rel="prefetch" href="{$U_PREFETCH}">
+	{/if}
+	{if isset($U_CANONICAL)}
+	    <link rel="canonical" href="{$U_CANONICAL}">
+	{/if}
 	{if not empty($page_refresh)}<meta http-equiv="refresh" content="{$page_refresh.TIME};url={$page_refresh.U_REFRESH}">{/if}
-
-	{strip}
-	{foreach from=$themes item=theme}
+	{foreach $themes as $theme}
 	    {if $theme.load_css}
-		{combine_css path="themes/`$theme.id`/theme.css" order=-10}
+		{combine_css path="themes/`$theme.id`/css/style.css" order=-10}
 	    {/if}
 	    {if !empty($theme.local_head)}
 		{include file=$theme.local_head load_css=$theme.load_css}
@@ -46,7 +53,6 @@
 	{/foreach}
 
 	{combine_script id="jquery" load="footer"}
-        {/strip}
 
 	<!-- BEGIN get_combined -->
 	{get_combined_css}
@@ -55,12 +61,12 @@
 	<!-- END get_combined -->
 
 	{if not empty($head_elements)}
-	    {foreach from=$head_elements item=elt}
-		{$elt}
+	    {foreach $head_elements as $element}
+		{$element}
 	    {/foreach}
 	{/if}
     </head>
-    <body id="{$BODY_ID}">
+    <body>
 	<div id="the_page">
 	    {if not empty($header_msgs)}
 		<div class="header_msgs">
