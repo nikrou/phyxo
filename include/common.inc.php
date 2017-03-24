@@ -136,15 +136,17 @@ if ($services['users']->isGuest()) {
     $user['username'] = l10n('guest');
 }
 
-// template instance
-if (defined('IN_ADMIN') && IN_ADMIN ) { // Admin template
-    $template = new Template(PHPWG_ROOT_PATH.'admin/theme', '.');
-} else { // Classic template
-    $theme = $user['theme'];
-    if (script_basename() != 'ws' and mobile_theme()) {
-        $theme = $conf['mobile_theme'];
+if (!defined('IN_WS') || !IN_WS) {
+    // template instance
+    if (defined('IN_ADMIN') && IN_ADMIN ) { // Admin template
+        $template = new Template(PHPWG_ROOT_PATH.'admin/theme', '.');
+    } else { // Classic template
+        $theme = $user['theme'];
+        if (script_basename() != 'ws' and mobile_theme()) {
+            $theme = $conf['mobile_theme'];
+        }
+        $template = new Template(PHPWG_ROOT_PATH.'themes', $theme );
     }
-    $template = new Template(PHPWG_ROOT_PATH.'themes', $theme );
 }
 
 if (!isset($conf['no_photo_yet'])) {
