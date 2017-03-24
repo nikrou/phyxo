@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -733,8 +733,7 @@ function redirect_html( $url, $msg='', $refresh_time=0) {
 function redirect($url, $msg='', $refresh_time=0) {
     global $conf;
 
-    // with RefeshTime <> 0, only html must be used
-    if ($conf['default_redirect_method']=='http' and $refresh_time==0 and !headers_sent()) {
+    if ($conf['default_redirect_method']=='http' && !headers_sent()) {
         redirect_http($url);
     } else {
         redirect_html($url, $msg, $refresh_time);

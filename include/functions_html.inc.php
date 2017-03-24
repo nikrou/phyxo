@@ -230,7 +230,7 @@ function access_denied() {
         echo str_repeat( ' ', 512); //IE6 doesn't error output if below a size
         exit();
     } else {
-        redirect_html($login_url);
+        redirect($login_url);
     }
 }
 
@@ -246,7 +246,7 @@ function page_forbidden($msg, $alternate_url=null) {
     if ($alternate_url==null) {
         $alternate_url = make_index_url();
     }
-    redirect_html(
+    redirect(
         $alternate_url,
         '<div style="text-align:left; margin-left:5em;margin-bottom:5em;"><h1 style="text-align:left; font-size:36px;">'.l10n('Forbidden').'</h1><br>'.$msg.'</div>',
         5
@@ -265,7 +265,7 @@ function bad_request($msg, $alternate_url=null) {
     if ($alternate_url==null) {
         $alternate_url = make_index_url();
     }
-    redirect_html(
+    redirect(
         $alternate_url,
         '<div style="text-align:left; margin-left:5em;margin-bottom:5em;"><h1 style="text-align:left; font-size:36px;">'.l10n('Bad request').'</h1><br>'.$msg.'</div>',
         5
@@ -284,7 +284,7 @@ function page_not_found($msg, $alternate_url=null) {
     if ($alternate_url==null) {
         $alternate_url = make_index_url();
     }
-    redirect_html(
+    redirect(
         $alternate_url,
         '<div style="text-align:left; margin-left:5em;margin-bottom:5em;"><h1 style="text-align:left; font-size:36px;">'.l10n('Page not found').'</h1><br>'.$msg.'</div>',
         5
