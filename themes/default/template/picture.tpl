@@ -3,7 +3,6 @@
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.js'}
 {combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
 {combine_script id='core.switchbox' load='async' require='jquery' path='themes/default/js/switchbox.js'}
-{combine_css id='picture.tags' path="themes/default/css/picture_tags.css"}
 {combine_script id='picture.tags' load='async' require='jquery' path='themes/default/js/picture_tags.js'}
 
 {footer_script require="picture.tags"}
@@ -204,9 +203,11 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 			<div id="Tags" class="imageInfo">
 			    <dt{if $TAGS_PERMISSION_ADD} class="edit-tags"{/if}>{'Tags'|translate}</dt>
 			    <dd>
+				{if !empty($related_tags)}
 				{foreach $related_tags as $tag}
 				    <a {if !$tag.validated}class="pending{if $tag.status==1} added{else} deleted{/if}"{/if} href="{$tag.URL}">{$tag.name}</a>{if !$tag@last},{/if}
 				{/foreach}
+				{/if}
 
 				{if $TAGS_PERMISSION_ADD}
 				    <form action="{$USER_TAGS_UPDATE_SCRIPT}" method="post" id="user-tags-form" class="js-hidden">

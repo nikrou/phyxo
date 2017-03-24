@@ -421,11 +421,11 @@ DIV.thumbHover{ /*only first & last holders are divs*/
 }
 
 .rateButtonStarFull {
-	background: url('icon/rating-stars.gif') no-repeat -16px center; width:16px;
+	background: url('icons/rating-stars.gif') no-repeat -16px center; width:16px;
 }
 
 .rateButtonStarEmpty {
-	background: url('icon/rating-stars.gif') no-repeat 0 center; width:16px;
+	background: url('icons/rating-stars.gif') no-repeat 0 center; width:16px;
 }
 
 /**
@@ -603,7 +603,7 @@ FIELDSET {
 }
 
 #thePopuphelpPage DL  {
-	margin: 0 25px 25px; 
+	margin: 0 25px 25px;
 }
 
 TR.tagLine {
@@ -687,14 +687,14 @@ INPUT[type="radio"], INPUT[type="checkbox"] {
 	font-weight: bold;
 	margin: 5px;
 	border: 1px solid red;
-	background: #ffe1e1 url(icon/errors.png) no-repeat center right;
+	background: #ffe1e1 url(icons/errors.png) no-repeat center right;
 	padding: 10px 50px 10px 10px;
 }
 
 /* Informations box */
 .infos {
 	color: #002000;
-	background: #98fb98 url(icon/infos.png) no-repeat center right;
+	background: #98fb98 url(icons/infos.png) no-repeat center right;
 	margin: 5px;
 	padding: 10px 50px 10px 10px;
 }
@@ -713,7 +713,7 @@ INPUT[type="radio"], INPUT[type="checkbox"] {
 .header_notes {
 	border: 1px solid #aaa;
 	text-align: center;
-	background-image: url(icon/note.png);
+	background-image: url(icons/note.png);
 	background-repeat: no-repeat;
 	background-position: top left;
 	font-weight: bold;
@@ -783,4 +783,19 @@ LEGEND {
 /* Selectize */
 .selectize-dropdown [data-selectable], .selectize-dropdown .optgroup-header {
     padding: 0px 5px !important;
+}
+
+.js-hidden {
+  display: none;
+}
+
+.edit-tags {
+  background: transparent url(icons/edit.png) no-repeat left top;
+  cursor: pointer;
+  padding-left: 20px;
+}
+
+/* @TODO: simplify; no id */
+#imageInfos .imageInfo .edit-tags {
+  padding-left: 20px;
 }

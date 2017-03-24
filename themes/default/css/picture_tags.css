@@ -3,7 +3,7 @@
 }
 
 .edit-tags {
-  background: transparent url(icon/edit.png) no-repeat left top;
+  background: transparent url(icons/edit.png) no-repeat left top;
   cursor: pointer;
   padding-left: 20px;
 }
