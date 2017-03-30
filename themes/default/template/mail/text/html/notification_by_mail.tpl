@@ -37,7 +37,7 @@
 <p>{'Go to'|translate} <a href="{$GOTO_GALLERY_URL}">{$GOTO_GALLERY_TITLE}</a>.</p>
 {/if}
 <p>{'See you soon,'|translate}</p>
-<p style="text-align:center">{$SEND_AS_NAME}</p>
+<p>{$SEND_AS_NAME}</p>
 
 {if not empty($recent_posts)}
 <hr>

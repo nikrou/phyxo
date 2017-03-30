@@ -1,12 +1,8 @@
-<dt>{'Links'|translate}</dt>
-<dd>
-    <ul>{strip}
-	{foreach from=$block->data item=link}
-	    <li>
-		<a href="{$link.URL}" class="external"{if isset($link.new_window)} onclick="window.open(this.href, '{$link.new_window.NAME}','{$link.new_window.FEATURES}'); return false;"{/if}>
-		    {$link.LABEL}
-		</a>
-	    </li>
-	{/foreach}
-	{/strip}</ul>
-</dd>
+<h3>{'Links'|translate}</h3>
+<ul>
+    {foreach $block->data as $link}
+	<li>
+	    <a href="{$link.URL}" rel="external"  class="external">{$link.LABEL}</a>
+	</li>
+    {/foreach}
+</ul>

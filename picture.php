@@ -158,17 +158,10 @@ function default_picture_content($content, $element_info) {
         'unique_derivatives' => $unique_derivatives,
     ), true);
 
-
-    $template->set_filenames(
-        array('default_content'=>'picture_content.tpl')
-    );
-
     $template->assign(array(
         'ALT_IMG' => $element_info['file'],
         'COOKIE_PATH' => cookie_path(),
     ));
-
-  return $template->parse( 'default_content', true);
 }
 
 // +-----------------------------------------------------------------------+

@@ -2,10 +2,10 @@
     {foreach from=$chronology_navigation_bars item=bar}
 	<div class="calendarBar">
 	    {if isset($bar.previous)}
-		<div style="float:left;margin-right:5px">&laquo; <a href="{$bar.previous.URL}">{$bar.previous.LABEL}</a></div>
+		<div class="fleft">&laquo; <a href="{$bar.previous.URL}">{$bar.previous.LABEL}</a></div>
 	    {/if}
 	    {if isset($bar.next)}
-		<div style="float:right;margin-left:5px"><a href="{$bar.next.URL}">{$bar.next.LABEL}</a> &raquo;</div>
+		<div class="fright"><a href="{$bar.next.URL}">{$bar.next.LABEL}</a> &raquo;</div>
 	    {/if}
 	    {if empty($bar.items)}
 		&nbsp;
@@ -49,32 +49,28 @@
 		{/foreach}
 	    </tr>
 	</thead>
-	{html_style}
-	.calMonth TD, .calMonth .calImg{
-	width:{$chronology_calendar.month_view.CELL_WIDTH}px;height:{$chronology_calendar.month_view.CELL_HEIGHT}px
-	}
-{/html_style}
-{foreach from=$chronology_calendar.month_view.weeks item=week}
-    <tr>
- 	{foreach from=$week item=day}
- 	    {if !empty($day)}
- 		{if isset($day.IMAGE)}
- 		    <td class="calDayCellFull">
-	 		<div class="calBackDate">{$day.DAY}</div><div class="calForeDate">{$day.DAY}</div>
-	 		<div class="calImg">
-			    <a href="{$day.U_IMG_LINK}">
- 				<img src="{$day.IMAGE}" alt="{$day.IMAGE_ALT}" title="{$day.NB_ELEMENTS|translate_dec:'%d photo':'%d photos'}">
-			    </a>
-			</div>
- 		{else}
- 			<td class="calDayCellEmpty">{$day.DAY}
- 		{/if}
- 	    {else}{*blank cell first or last row only*}
- 		<td>
- 	    {/if}
- 		</td>
- 	{/foreach}{*day in week*}
-    </tr>
-{/foreach}{*week in month*}
+	{foreach from=$chronology_calendar.month_view.weeks item=week}
+	    <tr>
+ 		{foreach from=$week item=day}
+ 		    {if !empty($day)}
+ 			{if isset($day.IMAGE)}
+ 			    <td class="calDayCellFull">
+	 			<div class="calBackDate">{$day.DAY}</div>
+				<div class="calForeDate">{$day.DAY}</div>
+	 			<div class="calImg">
+				    <a href="{$day.U_IMG_LINK}">
+ 					<img src="{$day.IMAGE}" alt="{$day.IMAGE_ALT}" title="{$day.NB_ELEMENTS|translate_dec:'%d photo':'%d photos'}">
+				    </a>
+				</div>
+ 			{else}
+ 				<td class="calDayCellEmpty">{$day.DAY}
+ 			{/if}
+ 		    {else}{*blank cell first or last row only*}
+ 			<td>
+ 		    {/if}
+ 			</td>
+ 		{/foreach}{*day in week*}
+	    </tr>
+	{/foreach}{*week in month*}
     </table>
 {/if}

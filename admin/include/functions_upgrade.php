@@ -96,12 +96,7 @@ function deactivate_non_standard_plugins() {
 function deactivate_non_standard_themes() {
     global $page, $conf, $conn;
 
-    $standard_themes = array(
-        'clear',
-        'Sylvia',
-        'dark',
-        'elegant',
-    );
+    $standard_themes = array('treflez');
 
     $query = 'SELECT id,name  FROM '.PREFIX_TABLE.'themes';
     $query .= ' WHERE id NOT '.$conn->in($standard_themes);

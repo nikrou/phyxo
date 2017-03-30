@@ -1,17 +1,3 @@
-{strip}{html_style}
-.thumbnailCategory .illustration{ldelim}
-width: {$derivative_params->max_width()+5}px;
-}
-
-.content .thumbnailCategory .description{ldelim}
-height: {$derivative_params->max_height()+5}px;
-}
-{/html_style}
-{/strip}
-{footer_script}
-var error_icon = "{$ROOT_URL}{$themeconf.icon_dir}/errors_small.png", max_requests = {$maxRequests};
-{/footer_script}
-<div class="loader"><img src="{$ROOT_URL}{$themeconf.img_dir}/ajax_loader.gif" alt=""></div>
 <ul class="thumbnailCategories">
     {foreach from=$category_thumbnails item=cat name=cat_loop}
 	{assign var=derivative value=$pwg->derivative($derivative_params, $cat.representative.src_image)}

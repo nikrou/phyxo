@@ -139,10 +139,7 @@ $comments_order = array(
     'DESC' => l10n('Show latest comments first'),
 );
 
-$mail_themes = array(
-    'clear' => 'Clear',
-    'dark' => 'Dark',
-);
+$mail_themes = array('treflez');
 
 //------------------------------ verification and registration of modifications
 if (isset($_POST['submit'])) {

@@ -1,27 +1,23 @@
 {extends file="index.tpl"}
 
 {block name="content"}
-    <div id="content" class="content{if isset($MENUBAR)} contentWithMenu{/if}">
-	<div class="titrePage">
-	    <ul class="categoryActions">
+    <div class="titrePage">
+	<ul class="categoryActions">
+	</ul>
+	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'About'|translate}</h2>
+    </div>
+
+    <div>
+	{$ABOUT_MESSAGE}
+	{if isset($THEME_ABOUT) }
+	    <ul>
+		<li>{$THEME_ABOUT}</li>
 	    </ul>
-	    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'About'|translate}</h2>
-	</div>
-
-	{include file='infos_errors.tpl'}
-
-	<div id="piwigoAbout">
-	    {$ABOUT_MESSAGE}
-	    {if isset($THEME_ABOUT) }
-		<ul>
-		    <li>{$THEME_ABOUT}</li>
-		</ul>
-	    {/if}
-	    {if not empty($about_msgs)}
-		{foreach from=$about_msgs item=elt}
-		    {$elt}
-		{/foreach}
-	    {/if}
-	</div>
+	{/if}
+	{if not empty($about_msgs)}
+	    {foreach $about_msgs as $element}
+		{$element}
+	    {/foreach}
+	{/if}
     </div>
 {/block}
