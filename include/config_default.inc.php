@@ -126,51 +126,7 @@ $conf['meta_ref'] = true;
 
 // links : list of external links to add in the menu. An example is the best
 // than a long explanation :
-//
-// Simple use:
-//  for each link is associated a label
-//  $conf['links'] = array(
-//    'http://piwigo.org' => 'PWG website',
-//    'http://piwigo.org/forum' => 'PWG forum',
-//    );
-//
-// Advanced use:
-//  You can also used special options. Instead to pass a string like parameter value
-//  you can pass a array with different optional parameter values
-//  $conf['links'] = array(
-//    'http://piwigo.org' => array('label' => 'PWG website', 'new_window' => false, 'eval_visible' => 'return true;'),
-//    'http://piwigo.org/forum' => array('label' => 'For ADMIN', 'new_window' => true, 'eval_visible' => 'return Users::isAdmin();'),
-//    'http://piwigo.org/ext' => array('label' => 'For Guest', 'new_window' => true, 'eval_visible' => 'return Users::isGuest();'),
-//    'http://piwigo.org/downloads' =>
-//      array('label' => 'PopUp', 'new_window' => true,
-//      'nw_name' => 'PopUp', 'nw_features' => 'width=800,height=450,location=no,status=no,toolbar=no,scrollbars=no,menubar=no'),
-//    );
-// Parameters:
-//  'label':
-//    Label to display for the link, must be defined
-//  'new_window':
-//    If true open link on tab/window
-//    [Default value is true if it's not defined]
-//  'nw_name':
-//    Name use when new_window is true
-//    [Default value is '' if it's not defined]
-//  'nw_features':
-//    features use when new_window is true
-//    [Default value is '' if it's not defined]
-//  'eval_visible':
-//    It's php code witch must return if the link is visible or not
-//    [Default value is true if it's not defined]
-//
-// Equivalence:
-//  $conf['links'] = array(
-//    'http://piwigo.org' => 'PWG website',
-//    );
-//  $conf['links'] = array(
-//    'http://piwigo.org' => array('label' => 'PWG website', 'new_window' => false, 'visible' => 'return true;'),
-//    );
-//
-// If the array is empty, the "Links" box won't be displayed on the main
-// page.
+// If the array is empty, the "Links" box won't be displayed on the main page.
 $conf['links'] = array();
 
 // random_index_redirect: list of 'internal' links to use when no section is defined on index.php.
@@ -751,7 +707,7 @@ $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 // folders name exluded during synchronization
 $conf['sync_exclude_folders'] = array();
 
-// PEM url (default is http://ext.phyxo.net)
+// PEM url (default is https://ext.phyxo.net)
 $conf['alternative_pem_url'] = '';
 
 // categories ID on PEM
@@ -766,7 +722,7 @@ $conf['upload_form_automatic_rotation'] = true;
 // 0-'auto', 1-'derivative' 2-'script'
 $conf['derivative_url_style'] = 0;
 
-$conf['chmod_value']= substr_compare(PHP_SAPI, 'apa', 0, 3)==0 ? 0777 : 0755;
+$conf['chmod_value'] = substr_compare(PHP_SAPI, 'apa', 0, 3)==0 ? 0777 : 0755;
 
 // 'small', 'medium' or 'large'
 $conf['derivative_default_size'] = 'medium';

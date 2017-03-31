@@ -4,7 +4,7 @@
 <p class="showCreateAlbum" id="notManualOrder">
   <a href="#" id="addAlbumOpen">{'create a new album'|translate}</a>
   {if count($categories)}| <a href="#" id="autoOrderOpen">{'apply automatic sort order'|translate}</a>{/if}
-  {if ($PARENT_EDIT)}| <a href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
+  {if !empty($PARENT_EDIT)}| <a href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
 </p>
 <form id="formCreateAlbum" action="{$F_ACTION}" method="post" style="display:none;">
   <fieldset>

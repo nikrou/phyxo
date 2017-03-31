@@ -56,8 +56,9 @@ if (isset($_GET['image_order'])) {
         )
     );
 }
+
 if (isset($_GET['display'])) {
-    $page['meta_robots']['noindex']=1;
+    $page['meta_robots']['noindex'] = 1;
     if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
         $_SESSION['index_deriv'] = $_GET['display'];
     }

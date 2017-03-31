@@ -55,6 +55,7 @@ $template->assign(
     array(
         'users' => $users,
         'all_users' => join(',', $user_ids),
+        'ACTIVATE_COMMENTS' => $conf['activate_comments'],
         'Double_Password' => $conf['double_password_type_in_admin']
     )
 );
@@ -76,6 +77,7 @@ if ('admin' == $user['status']) {
 
 $template->assign(
     array(
+        'F_ADD_ACTION' => USERS_BASE_URL.'&amp;section=list',
         'PWG_TOKEN' => get_pwg_token(),
         'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
         'RECENT_PERIOD' => $default_user['recent_period'],

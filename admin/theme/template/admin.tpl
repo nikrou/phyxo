@@ -67,10 +67,13 @@ $('#menubar').lightAccordion({
 	<li><a href="{$U_HISTORY_STAT}"><i class="icon-signal"></i>{'History'|translate}</a></li>
 	<li><a href="{$U_MAINTENANCE}"><i class="icon-tools"></i>{'Maintenance'|translate}</a></li>
 	{if isset($U_COMMENTS)}
-	<li><a href="{$U_COMMENTS}"><i class="icon-chat"></i>{'Comments'|translate}
-            {if $NB_PENDING_COMMENTS > 0}
-            <span class="adminMenubarCounter" title="{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}">{$NB_PENDING_COMMENTS}</span>
-            {/if}</a></li>
+	    <li>
+		<a href="{$U_COMMENTS}"><i class="icon-chat"></i>{'Comments'|translate}
+		    {if !empty($NB_PENDING_COMMENTS)}
+			<span class="adminMenubarCounter" title="{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}">{$NB_PENDING_COMMENTS}</span>
+		    {/if}
+		</a>
+	    </li>
 	{/if}
         <li><a href="{$U_UPDATES}"><i class="icon-arrows-cw"></i>{'Updates'|translate}</a></li>
       </ul>

@@ -42,10 +42,10 @@ class ScriptLoader
     private $did_footer;
 
     private static $known_paths = array(
-        'core.scripts' => 'themes/default/js/scripts.js',
-        'jquery' => 'themes/default/js/jquery.js',
-        'jquery.ui' => 'themes/default/js/ui/jquery.ui.core.js',
-        'jquery.ui.effect' => 'themes/default/js/ui/jquery.ui.effect.js',
+        'core.scripts' => 'admin/theme/js/scripts.js',
+        'jquery' => 'admin/theme/js/jquery.js',
+        'jquery.ui' => 'admin/theme/js/ui/jquery.ui.core.js',
+        'jquery.ui.effect' => 'admin/theme/js/ui/jquery.ui.effect.js',
     );
 
     private static $ui_core_dependencies = array(

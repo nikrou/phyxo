@@ -996,3 +996,6 @@ $lang['Show added pending tags to the user who add them'] = "Afficher les tags e
 $lang['A css class is added to tag to show deleted pending tags differently to the user who delete them'] = "Une classe css est ajoutée aux tags pour permettre d'afficher différemment les tags en attente de suppression pour l'utilisateur les ayant supprimés";
 $lang['Created by'] = 'Créé par';
 $lang['Pendings'] = "En attente";
+
+$lang['Development'] = "Développement";
+$lang['Javascript tests'] = "Tests javascript";

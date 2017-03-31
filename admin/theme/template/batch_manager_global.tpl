@@ -1,22 +1,24 @@
-{include file='include/datepicker.inc.tpl' load_mode='async'}
-{include file='include/colorbox.inc.tpl' load_mode='async'}
-{include file='include/add_album.inc.tpl' load_mode='async'}
+{include file="include/datepicker.inc.tpl" load_mode="async"}
+{include file="include/colorbox.inc.tpl" load_mode="async"}
+{include file="include/add_album.inc.tpl" load_mode="async"}
 
-{combine_script id='common' load='footer' path='admin/theme/js/common.js'}
 
-{combine_script id='jquery.ui.slider' require='jquery.ui' load='async' path='admin/theme/js/ui/jquery.ui.slider.js'}
+{combine_css path="admin/theme/js/ui/theme/jquery.ui.core.css"}
 {combine_css path="admin/theme/js/ui/theme/jquery.ui.slider.css"}
-{combine_script id='doubleSlider' load='async' require='jquery.ui.slider' path='admin/theme/js/doubleSlider.js'}
+{combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
 
-{combine_script id='LocalStorageCache' load='footer' path='admin/theme/js/LocalStorageCache.js'}
+{combine_script id="common" load="footer" path="admin/theme/js/common.js"}
+{combine_script id="jquery.ui" path="admin/theme/js/ui/jquery.ui.core.js"}
+{combine_script id="jquery.ui.slider" load="async" path="admin/theme/js/ui/jquery.ui.slider.js"}
+{combine_script id="doubleSlider" load="async" path="admin/theme/js/doubleSlider.js"}
+{combine_script id="LocalStorageCache" load="footer" path="admin/theme/js/LocalStorageCache.js"}
 
-{combine_script id='jquery.selectize' load='footer' path='admin/theme/js/plugins/selectize.js'}
-{combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
+{combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
 
-{combine_script id='jquery.progressBar' load='async' path='admin/theme/js/plugins/jquery.progressbar.js'}
-{combine_script id='jquery.ajaxmanager' load='async' path='admin/theme/js/plugins/jquery.ajaxmanager.js'}
+{combine_script id="jquery.progressBar" load="async" path="admin/theme/js/plugins/jquery.progressbar.js"}
+{combine_script id="jquery.ajaxmanager" load="async" path="admin/theme/js/plugins/jquery.ajaxmanager.js"}
 
-{combine_script id='batchManagerGlobal' load='async' require='jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider' path='admin/theme/js/batchManagerGlobal.js'}
+{combine_script id="batchManagerGlobal" load="async" require="jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider" path="admin/theme/js/batchManagerGlobal.js"}
 
 {footer_script}
 var lang = {
