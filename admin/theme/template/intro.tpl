@@ -43,7 +43,7 @@ var phyxo_is_uptodate_msg = "{'You are running the latest version of Phyxo.'|tra
       <li>{$DB_GROUPS}</li>
       {if isset($DB_COMMENTS)}
       <li>
-        {$DB_COMMENTS}{if $NB_PENDING_COMMENTS > 0} (<a href="{$U_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
+        {$DB_COMMENTS}{if !empty($NB_PENDING_COMMENTS)} (<a href="{$U_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
       </li>
       {/if}
       <li>{$DB_RATES}</li>

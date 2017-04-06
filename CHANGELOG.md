@@ -1,3 +1,9 @@
+Phyxo 1.7.0 - 2017-??-??
+========================
+* Remove template extensions. Use inheritance instead.
+
+
+
 Phyxo 1.6.3 - 2017-01-05
 ========================
 * Fix issue #9. Problem to update.

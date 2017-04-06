@@ -31,7 +31,7 @@
   </fieldset>
 </form>
 
-{if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+{if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
 <table width="99%">
 <tr class="throw">
@@ -93,4 +93,4 @@ function del(node,id,uid,aid){
 }
 {/footer_script}
 
-{if !empty($navbar)}{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+{if !empty($navbar)}{include file="navigation_bar.tpl"}{/if}

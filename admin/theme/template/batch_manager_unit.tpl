@@ -1,11 +1,11 @@
-{include file='include/autosize.inc.tpl'}
-{include file='include/datepicker.inc.tpl'}
-{include file='include/colorbox.inc.tpl'}
+{include file="include/autosize.inc.tpl"}
+{include file="include/datepicker.inc.tpl"}
+{include file="include/colorbox.inc.tpl"}
 
-{combine_script id='LocalStorageCache' load='footer' path='admin/theme/js/LocalStorageCache.js'}
+{combine_script id="LocalStorageCache" load="footer" path="admin/theme/js/LocalStorageCache.js"}
 
-{combine_script id='jquery.selectize' load='footer' path='admin/theme/js/plugins/selectize.js'}
-{combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
+{combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
+{combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
 
 {footer_script}
 (function(){
@@ -46,7 +46,7 @@ jQuery("a.preview-box").colorbox();
 
 </fieldset>
 
-{if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+{if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
 {if !empty($elements) }
 <div><input type="hidden" name="element_ids" value="{$ELEMENT_IDS}"></div>
@@ -110,7 +110,7 @@ jQuery("a.preview-box").colorbox();
 </fieldset>
 {/foreach}
 
-{if !empty($navbar)}{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+{if !empty($navbar)}{include file="navigation_bar.tpl"}{/if}
 
 <p>
   <input type="submit" value="{'Submit'|translate}" name="submit">

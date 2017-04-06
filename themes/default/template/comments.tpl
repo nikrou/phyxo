@@ -2,8 +2,7 @@
 
 {block name="content"}
     <div class="titrePage">
-	<ul class="categoryActions">
-	</ul>
+	<ul class="categoryActions"></ul>
 	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'User comments'|translate}</h2>
     </div>
 
@@ -91,10 +90,10 @@
 	<p><input type="submit" value="{'Filter and display'|translate}"></p>
     </form>
 
-    {if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+    {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
     {if isset($comments)}
 	<div id="comments">
-	    {include file='comment_list.tpl' comment_derivative_params=$derivative_params}
+	    {include file="comment_list.tpl" comment_derivative_params=$derivative_params}
 	</div>
     {/if}
 {/block}

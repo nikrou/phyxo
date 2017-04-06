@@ -4,7 +4,7 @@
 <div class="commentFilter">
   <a href="{$F_ACTION}&amp;filter=all" class="{if $filter == 'all'}commentFilterSelected{/if}">{'All'|translate}</a> ({$nb_total})
   | <a href="{$F_ACTION}&amp;filter=pending" class="{if $filter == 'pending'}commentFilterSelected{/if}">{'Waiting'|translate}</a> ({$nb_pending})
-{if !empty($navbar) }{include file='navigation_bar.tpl'|@get_extent:'navbar'}{/if}
+{if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 </div>
 
 

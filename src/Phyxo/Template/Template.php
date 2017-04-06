@@ -35,8 +35,6 @@ class Template
 
     /** @var string[] - Hash of filenames for each template handle. */
     private $files = array();
-    /** @var string[] - Template extents filenames for each template handle. */
-    private $extents = array();
     /** @var array - Templates prefilter from external sources (plugins) */
     private $external_filters = array();
 
@@ -83,7 +81,6 @@ class Template
         $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', array(__CLASS__, 'modcompiler_translate_dec'));
         $this->smarty->registerPlugin('modifier', 'explode', array(__CLASS__, 'mod_explode'));
         $this->smarty->registerPlugin('modifier', 'ternary', array(__CLASS__, 'mod_ternary'));
-        $this->smarty->registerPlugin('modifier', 'get_extent', array($this, 'get_extent'));
         $this->smarty->registerPlugin('block', 'html_head', array($this, 'block_html_head'));
         $this->smarty->registerPlugin('block', 'html_style', array($this, 'block_html_style'));
         $this->smarty->registerPlugin('function', 'combine_script', array($this, 'func_combine_script'));
@@ -107,6 +104,8 @@ class Template
             $this->set_template_dir($root);
         }
 
+
+        // @TODO: to be removed ?
         if (isset($lang_info['code']) and !isset($lang_info['jquery_code'])) {
             $lang_info['jquery_code'] = $lang_info['code'];
         }
@@ -211,7 +210,7 @@ class Template
      * @return bool
      */
     public function set_filename($handle, $filename) {
-        return $this->set_filenames( array($handle => $filename) );
+        return $this->set_filenames(array($handle => $filename));
     }
 
     /**
@@ -228,77 +227,11 @@ class Template
             if (is_null($filename)) {
                 unset($this->files[$handle]);
             } else {
-                $this->files[$handle] = $this->get_extent($filename, $handle);
+                $this->files[$handle] = $filename;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Sets template extention filename for handles.
-     *
-     * @param string $filename
-     * @param mixed $param
-     * @param string $dir
-     * @param bool $overwrite
-     * @param string $theme
-     * @return bool
-     */
-    public function set_extent($filename, $param, $dir='', $overwrite=true, $theme='N/A') {
-        return $this->set_extents(array($filename => $param), $dir, $overwrite);
-    }
-
-    /**
-     * Sets template extentions filenames for handles.
-     *
-     * @param string[] $filename_array hashmap of handle=>filename
-     * @param string $dir
-     * @param bool $overwrite
-     * @param string $theme
-     * @return bool
-     */
-    public function set_extents($filename_array, $dir='', $overwrite=true, $theme='N/A') {
-        if (!is_array($filename_array)) {
-            return false;
-        }
-        foreach ($filename_array as $filename => $value) {
-            if (is_array($value)) {
-                $handle = $value[0];
-                $param = $value[1];
-                $thm = $value[2];
-            } elseif (is_string($value)) {
-                $handle = $value;
-                $param = 'N/A';
-                $thm = 'N/A';
-            } else {
-                return false;
-            }
-
-            if ((stripos(implode('',array_keys($_GET)), '/'.$param) !== false or $param == 'N/A')
-                and ($thm == $theme or $thm == 'N/A')
-                and (!isset($this->extents[$handle]) or $overwrite)
-                and file_exists($dir . $filename)) {
-                $this->extents[$handle] = realpath($dir . $filename);
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns template extension if exists.
-     *
-     * @param string $filename should be empty!
-     * @param string $handle
-     * @return string
-     */
-    public function get_extent($filename='', $handle='') {
-        if (isset($this->extents[$handle])) {
-            $filename = $this->extents[$handle];
-        }
-
-        return $filename;
     }
 
     /**
@@ -310,7 +243,7 @@ class Template
      * @param mixed $value
      */
     public function assign($tpl_var, $value=null) {
-        $this->smarty->assign($tpl_var, $value );
+        $this->smarty->assign($tpl_var, $value);
     }
 
     /**
@@ -337,7 +270,7 @@ class Template
      * @param bool $merge
      */
     public function append($tpl_var, $value=null, $merge=false) {
-        $this->smarty->append($tpl_var, $value, $merge );
+        $this->smarty->append($tpl_var, $value, $merge);
     }
 
     /**
@@ -357,7 +290,7 @@ class Template
      * @param string $tpl_var
      */
     public function clear_assign($tpl_var) {
-        $this->smarty->clearAssign( $tpl_var );
+        $this->smarty->clearAssign($tpl_var);
     }
 
     /**
@@ -367,7 +300,7 @@ class Template
      * @param string $tpl_var
      */
     public function get_template_vars($tpl_var=null) {
-        return $this->smarty->getTemplateVars( $tpl_var );
+        return $this->smarty->getTemplateVars($tpl_var);
     }
 
     /**
@@ -385,7 +318,7 @@ class Template
             fatal_error("Template->parse(): Couldn't load template file for handle $handle");
         }
 
-        $this->smarty->assign('ROOT_URL', get_root_url() );
+        $this->smarty->assign('ROOT_URL', get_root_url());
 
         $save_compile_id = $this->smarty->compile_id;
         $this->load_external_filters($handle);
@@ -421,7 +354,7 @@ class Template
      */
     public function flush() {
         if (!$this->scriptLoader->did_head()) {
-            $pos = strpos( $this->output, self::COMBINED_SCRIPTS_TAG );
+            $pos = strpos( $this->output, self::COMBINED_SCRIPTS_TAG);
             if ($pos !== false) {
                 $scripts = $this->scriptLoader->get_head_scripts();
                 $content = array();
@@ -429,7 +362,7 @@ class Template
                     $content[] = '<script src="'. self::make_script_src($script).'"></script>';
                 }
 
-                $this->output = substr_replace($this->output, implode("\n", $content), $pos, strlen(self::COMBINED_SCRIPTS_TAG) );
+                $this->output = substr_replace($this->output, implode("\n", $content), $pos, strlen(self::COMBINED_SCRIPTS_TAG));
             } //else maybe error or warning ?
         }
 
@@ -455,7 +388,7 @@ class Template
         if (count($this->html_head_elements) || strlen($this->html_style)) {
             $search = "</head>";
             if (($pos = strpos($this->output, $search)) !== false) {
-                $rep = implode( "\n", $this->html_head_elements );
+                $rep = implode("\n", $this->html_head_elements);
                 if (strlen($this->html_style)) {
                     $rep .= '<style type="text/css">'.$this->html_style.'</style>'."\n"; // @TODO: try to avoid inline style
                 }

@@ -524,7 +524,7 @@ UL.thumbnails SPAN.wrap2 {ldelim}
   <div style="clear:both;">
 
     <div style="float:left">
-    {include file='navigation_bar.tpl'|@get_extent:'navbar'}
+    {include file='navigation_bar.tpl'}
     </div>
 
     <div style="float:right;margin-top:10px;">{'display'|translate}
