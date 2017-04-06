@@ -35,6 +35,25 @@ if (isset($page['category'])) {
     check_restrictions($page['category']['id']);
 }
 
+
+if (!empty($_GET['display'])) {
+    if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
+        $_SESSION['picture_deriv'] = $_GET['display'];
+    }
+}
+
+// direct call
+if (isset($_GET['level'])) {
+    if (in_array($_GET['level'], $conf['available_permission_levels'])) {
+        $query = 'UPDATE '. IMAGES_TABLE;
+        $query .= ' SET level = ' . $conn->db_real_escape_string($_GET['level']);
+        $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['image_id']);
+        $result = $conn->db_query($query);
+
+        redirect(make_picture_url(array('image_id' => $page['image_id'])));
+    }
+}
+
 $page['rank_of'] = array_flip($page['items']);
 
 // if this image_id doesn't correspond to this category, an error message is
@@ -150,7 +169,7 @@ function default_picture_content($content, $element_info) {
     }
 
     if ($show_original) {
-        $template->assign( 'U_ORIGINAL', $element_info['element_url'] );
+        $template->assign('U_ORIGINAL', $element_info['element_url'] );
     }
 
     $template->append('current', array(
@@ -462,7 +481,7 @@ $title_nb = ($page['current_rank'] + 1).'/'.count($page['items']);
 
 // metadata
 $url_metadata = duplicate_picture_url();
-$url_metadata = add_url_params( $url_metadata, array('metadata'=>null) );
+$url_metadata = add_url_params($url_metadata, array('metadata' => null));
 
 // do we have a plugin that can show metadata for something else than images?
 $metadata_showable = trigger_change(
@@ -542,10 +561,7 @@ if ($page['slideshow']) {
 } elseif ($conf['picture_slideshow_icon']) {
     $template->assign(
         array(
-            'U_SLIDESHOW_START' =>
-            add_url_params(
-                $picture['current']['url'],
-                array( 'slideshow'=>''))
+            'U_SLIDESHOW_START' => add_url_params($picture['current']['url'], array( 'slideshow'=>''))
         )
     );
 }
@@ -557,6 +573,7 @@ $template->assign(
         'IS_HOME' => ('categories'==$page['section'] and !isset($page['category'])),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
         'U_UP' => $url_up,
+        'U_UP_SIZE_CSS' => $picture['current']['derivatives']['square']->get_size_css(),
         'DISPLAY_NAV_BUTTONS' => $conf['picture_navigation_icons'],
         'DISPLAY_NAV_THUMB' => $conf['picture_navigation_thumb']
     )
@@ -574,7 +591,7 @@ if ($services['users']->isAdmin()) {
         $template->assign(
             array(
                 'U_SET_AS_REPRESENTATIVE' => add_url_params($url_self,
-                array('action'=>'set_as_representative')
+                array('action' => 'set_as_representative')
                 )
             )
         );
@@ -585,9 +602,7 @@ if ($services['users']->isAdmin()) {
 
     $template->assign(
         array(
-            'U_CADDIE' => add_url_params($url_self,
-            array('action'=>'add_to_caddie')
-            ),
+            'U_CADDIE' => add_url_params($url_self, array('action' => 'add_to_caddie')),
             'U_PHOTO_ADMIN' => $url_admin,
         )
     );
@@ -730,12 +745,12 @@ if (count($related_categories)==1 and isset($page['category']) and $related_cate
     // no need to go to db, we have all the info
     $template->append(
         'related_categories',
-        get_cat_display_name( $page['category']['upper_names'] )
+        get_cat_display_name($page['category']['upper_names'])
     );
 } else { // use only 1 sql query to get names for all related categories
     $ids = array();
     foreach ($related_categories as $category) { // add all uppercats to $ids
-        $ids = array_merge($ids, explode(',', $category['uppercats']) );
+        $ids = array_merge($ids, explode(',', $category['uppercats']));
     }
     $ids = array_unique($ids);
     $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
@@ -743,10 +758,10 @@ if (count($related_categories)==1 and isset($page['category']) and $related_cate
     $cat_map = $conn->query2array($query, 'id');
     foreach ($related_categories as $category) {
         $cats = array();
-        foreach ( explode(',', $category['uppercats']) as $id ) {
+        foreach ( explode(',', $category['uppercats']) as $id) {
             $cats[] = $cat_map[$id];
         }
-        $template->append('related_categories', get_cat_display_name($cats) );
+        $template->append('related_categories', get_cat_display_name($cats));
     }
 }
 
@@ -772,7 +787,8 @@ $template->assign(
     make_picture_url(
         array(
             'image_id' => $picture['current']['id'],
-            'image_file' => $picture['current']['file'])
+            'image_file' => $picture['current']['file']
+        )
     )
 );
 

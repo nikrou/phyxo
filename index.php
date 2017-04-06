@@ -280,7 +280,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         $url = add_url_params(duplicate_index_url(), array('display' => ''));
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
-        $template->clear_assign( 'derivative_params' );
+        $template->clear_assign('derivative_params');
         $type_map = ImageStdParams::get_defined_type_map();
         unset($type_map[IMG_XXLARGE], $type_map[IMG_XLARGE]);
 
@@ -290,7 +290,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
                 array(
                     'DISPLAY' => l10n($params->type),
                     'URL' => $url.$params->type,
-                    'SELECTED' => ($params->type == $selected_type ? true:false),
+                    'SELECTED' => ($params->type === $selected_type),
                 )
             );
         }

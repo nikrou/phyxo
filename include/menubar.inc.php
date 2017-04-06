@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -22,282 +22,269 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-/**
- * @package functions\menubar
- */
-
 use Phyxo\Block\BlockManager;
 
-initialize_menu();
+$menu = new BlockManager('menubar');
+$menu->load_registered_blocks();
+$menu->prepare_display();
 
-/**
- * Setups each block the main menubar.
- */
-function initialize_menu() {
-    global $page, $conf, $user, $template, $filter, $services;
+if (!empty($page['section']) && $page['section']=='search' && isset($page['qsearch_details'])) {
+    $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']) );
+}
 
-    $menu = new BlockManager('menubar');
-    $menu->load_registered_blocks();
-    $menu->prepare_display();
+#--------------------------------------------------------------- external links
+if (($block = $menu->get_block('mbLinks')) && !empty($conf['links'])) {
+    $block->data = array();
+    foreach ($conf['links'] as $url => $url_data) {
+        if (!$is_array($url_data)) {
+            $url_data = array('label' => $url_data);
+        }
 
-    if (!empty($page['section']) && $page['section']=='search' && isset($page['qsearch_details'])) {
-        $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']) );
-    }
+        if ((!isset($url_data['eval_visible'])) || (eval($url_data['eval_visible']))) {
+            $tpl_var = array(
+                'URL' => $url,
+                'LABEL' => $url_data['label']
+            );
 
-    #--------------------------------------------------------------- external links
-    if (($block=$menu->get_block('mbLinks')) && !empty($conf['links'])) {
-        $block->data = array();
-        foreach ($conf['links'] as $url => $url_data) {
-            if (!$is_array($url_data)) {
-                $url_data = array('label' => $url_data);
+            if (!isset($url_data['new_window']) || $url_data['new_window']) {
+                $tpl_var['new_window'] =
+                                       array(
+                                           'NAME' => (isset($url_data['nw_name']) ? $url_data['nw_name'] : ''),
+                                           'FEATURES' => (isset($url_data['nw_features']) ? $url_data['nw_features'] : '')
+                                       );
             }
-
-            if ((!isset($url_data['eval_visible'])) || (eval($url_data['eval_visible']))) {
-                $tpl_var = array(
-                    'URL' => $url,
-                    'LABEL' => $url_data['label']
-                );
-
-                if (!isset($url_data['new_window']) || $url_data['new_window']) {
-                    $tpl_var['new_window'] =
-                        array(
-                            'NAME' => (isset($url_data['nw_name']) ? $url_data['nw_name'] : ''),
-                            'FEATURES' => (isset($url_data['nw_features']) ? $url_data['nw_features'] : '')
-                        );
-                }
-                $block->data[] = $tpl_var;
-            }
-        }
-
-        if (!empty($block->data)) {
-            $block->template = 'menubar_links.tpl';
+            $block->data[] = $tpl_var;
         }
     }
 
-    #-------------------------------------------------------------- categories
-    $block = $menu->get_block('mbCategories');
-    #------------------------------------------------------------------------ filter
-    if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && get_filter_page_value('used')) {
-        if ($filter['enabled']) {
-            $template->assign(
-                'U_STOP_FILTER',
-                add_url_params(make_index_url(array()), array('filter' => 'stop'))
-            );
-        } else {
-            $template->assign(
-                'U_START_FILTER',
-                add_url_params(make_index_url(array()), array('filter' => 'start-recent-'.$user['recent_period']))
-            );
-        }
+    if (!empty($block->data)) {
+        $block->template = 'menubar_links.tpl';
     }
+}
 
-    if ($block!=null) {
-        $block->data = array(
-            'NB_PICTURE' => $user['nb_total_images'],
-            'MENU_CATEGORIES' => get_categories_menu(),
-            'U_CATEGORIES' => make_index_url(array('section' => 'categories')),
-        );
-        $block->template = 'menubar_categories.tpl';
-    }
-
-    #------------------------------------------------------------------------ tags
-    $block = $menu->get_block('mbTags');
-    if ($block!=null && !empty($page['items']) && 'picture' != script_basename()) {
-        if (!empty($page['section']) && 'tags'==$page['section']) {
-            $tags = $services['tags']->getCommonTags(
-                $page['items'],
-                $conf['menubar_tag_cloud_items_number'],
-                $page['tag_ids']
-            );
-            $tags = $services['tags']->addLevelToTags($tags);
-
-            foreach ($tags as $tag) {
-                $block->data[] = array_merge(
-                    $tag,
-                    array(
-                        'U_ADD' => make_index_url(
-                            array(
-                                'tags' => array_merge(
-                                    $page['tags'],
-                                    array($tag)
-                                )
-                            )
-                        ),
-                        'URL' => make_index_url( array( 'tags' => array($tag) )
-                        ),
-                    )
-                );
-            }
-        } else {
-            $selection = array_slice( $page['items'], $page['start'], $page['nb_image_page'] );
-            $tags = $services['tags']->addLevelToTags(
-                $services['tags']->getCommonTags($selection, $conf['content_tag_cloud_items_number'])
-            );
-            foreach ($tags as $tag) {
-                $block->data[] =
-                    array_merge( $tag,
-                    array(
-                        'URL' => make_index_url( array( 'tags' => array($tag) ) ),
-                    )
-                    );
-            }
-        }
-        if (!empty($block->data)) {
-            $block->template = 'menubar_tags.tpl';
-        }
-    }
-
-    #----------------------------------------------------------- special categories
-    if (($block = $menu->get_block('mbSpecials')) != null) {
-        if (!$services['users']->isGuest()) { // favorites
-            $block->data['favorites'] =
-                array(
-                    'URL' => make_index_url(array('section' => 'favorites')),
-                    'TITLE' => l10n('display your favorites photos'),
-                    'NAME' => l10n('Your favorites')
-                );
-        }
-
-        $block->data['most_visited'] =
-            array(
-                'URL' => make_index_url(array('section' => 'most_visited')),
-                'TITLE' => l10n('display most visited photos'),
-                'NAME' => l10n('Most visited')
-            );
-
-        if ($conf['rate']) {
-            $block->data['best_rated'] =
-                array(
-                    'URL' => make_index_url(array('section' => 'best_rated')),
-                    'TITLE' => l10n('display best rated photos'),
-                    'NAME' => l10n('Best rated')
-                );
-        }
-
-        $block->data['recent_pics'] =
-            array(
-                'URL' => make_index_url(array('section' => 'recent_pics')),
-                'TITLE' => l10n('display most recent photos'),
-                'NAME' => l10n('Recent photos'),
-            );
-
-        $block->data['recent_cats'] =
-            array(
-                'URL' => make_index_url(array('section' => 'recent_cats')),
-                'TITLE' => l10n('display recently updated albums'),
-                'NAME' => l10n('Recent albums'),
-            );
-
-        $block->data['random'] =
-            array(
-                'URL' => get_root_url().'random.php',
-                'TITLE' => l10n('display a set of random photos'),
-                'NAME' => l10n('Random photos'),
-                'REL'=> 'rel="nofollow"'
-            );
-
-        $block->data['calendar'] =
-            array(
-                'URL' =>
-                make_index_url(
-                    array(
-                        'chronology_field' => ($conf['calendar_datefield']=='date_available'
-                        ? 'posted' : 'created'),
-                        'chronology_style'=> 'monthly',
-                        'chronology_view' => 'calendar'
-                    )
-                ),
-                'TITLE' => l10n('display each day with photos, month per month'),
-                'NAME' => l10n('Calendar'),
-                'REL'=> 'rel="nofollow"'
-            );
-        $block->template = 'menubar_specials.tpl';
-    }
-
-    #---------------------------------------------------------------------- summary
-    if (($block = $menu->get_block('mbMenu')) != null) {
-        // quick search block will be displayed only if data['qsearch'] is set
-        // to "yes"
-        $block->data['qsearch']=true;
-
-        // tags link
-        $block->data['tags'] =
-            array(
-                'TITLE' => l10n('display available tags'),
-                'NAME' => l10n('Tags'),
-                'URL'=> get_root_url().'tags.php',
-                'COUNTER' => $services['tags']->getNbAvailableTags($user),
-            );
-
-        // search link
-        $block->data['search'] =
-            array(
-                'TITLE'=>l10n('search'),
-                'NAME'=>l10n('Search'),
-                'URL'=> get_root_url().'search.php',
-                'REL'=> 'rel="search"'
-            );
-
-        if ($conf['activate_comments']) {
-            // comments link
-            $block->data['comments'] =
-                array(
-                    'TITLE'=>l10n('display last user comments'),
-                    'NAME'=>l10n('Comments'),
-                    'URL'=> get_root_url().'comments.php',
-                    'COUNTER' => get_nb_available_comments(),
-                );
-        }
-
-        // about link
-        $block->data['about'] =
-            array(
-                'TITLE'     => l10n('About Phyxo'),
-                'NAME'      => l10n('About'),
-                'URL' => get_root_url().'about.php',
-            );
-
-        // notification
-        $block->data['rss'] =
-            array(
-                'TITLE'=>l10n('RSS feed'),
-                'NAME'=>l10n('Notification'),
-                'URL'=> get_root_url().'notification.php',
-                'REL'=> 'rel="nofollow"'
-            );
-        $block->template = 'menubar_menu.tpl';
-    }
-
-
-    #--------------------------------------------------------------- identification
-    if ($services['users']->isGuest()) {
+#-------------------------------------------------------------- categories
+$block = $menu->get_block('mbCategories');
+#------------------------------------------------------------------------ filter
+if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && get_filter_page_value('used')) {
+    if ($filter['enabled']) {
         $template->assign(
-            array(
-                'U_LOGIN' => get_root_url().'identification.php',
-                'U_LOST_PASSWORD' => get_root_url().'password.php',
-                'AUTHORIZE_REMEMBERING' => $conf['authorize_remembering']
-            )
+            'U_STOP_FILTER',
+            add_url_params(make_index_url(array()), array('filter' => 'stop'))
         );
-        if ($conf['allow_user_registration']) {
-            $template->assign( 'U_REGISTER', get_root_url().'register.php');
+    } else {
+        $template->assign(
+            'U_START_FILTER',
+            add_url_params(make_index_url(array()), array('filter' => 'start-recent-'.$user['recent_period']))
+        );
+    }
+}
+
+if ($block!=null) {
+    $block->data = array(
+        'NB_PICTURE' => $user['nb_total_images'],
+        'MENU_CATEGORIES' => get_categories_menu(),
+        'U_CATEGORIES' => make_index_url(array('section' => 'categories')),
+    );
+    $block->template = 'menubar_categories.tpl';
+}
+
+#------------------------------------------------------------------------ tags
+$block = $menu->get_block('mbTags');
+if ($block!=null && !empty($page['items']) && 'picture' != script_basename()) {
+    if (!empty($page['section']) && 'tags'==$page['section']) {
+        $tags = $services['tags']->getCommonTags(
+            $page['items'],
+            $conf['menubar_tag_cloud_items_number'],
+            $page['tag_ids']
+        );
+        $tags = $services['tags']->addLevelToTags($tags);
+
+        foreach ($tags as $tag) {
+            $block->data[] = array_merge(
+                $tag,
+                array(
+                    'U_ADD' => make_index_url(
+                        array(
+                            'tags' => array_merge(
+                                $page['tags'],
+                                array($tag)
+                            )
+                        )
+                    ),
+                    'URL' => make_index_url( array( 'tags' => array($tag) )
+                    ),
+                )
+            );
         }
     } else {
-        $template->assign('USERNAME', stripslashes($user['username']));
-        if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
-            $template->assign('U_PROFILE', get_root_url().'profile.php');
-        }
-
-        // the logout link has no meaning with Apache authentication : it is not
-        // possible to logout with this kind of authentication.
-        if (!$conf['apache_authentication']) {
-            $template->assign('U_LOGOUT', get_root_url().'?act=logout');
-        }
-        if ($services['users']->isAdmin()) {
-            $template->assign('U_ADMIN', get_root_url().'admin/index.php');
+        $selection = array_slice( $page['items'], $page['start'], $page['nb_image_page'] );
+        $tags = $services['tags']->addLevelToTags(
+            $services['tags']->getCommonTags($selection, $conf['content_tag_cloud_items_number'])
+        );
+        foreach ($tags as $tag) {
+            $block->data[] =
+                           array_merge( $tag,
+                                        array(
+                                            'URL' => make_index_url( array( 'tags' => array($tag) ) ),
+                                        )
+                           );
         }
     }
-    if (($block=$menu->get_block('mbIdentification')) != null) {
-        $block->template = 'menubar_identification.tpl';
+    if (!empty($block->data)) {
+        $block->template = 'menubar_tags.tpl';
     }
-    $menu->apply('MENUBAR',  'menubar.tpl');
 }
+
+#----------------------------------------------------------- special categories
+if (($block = $menu->get_block('mbSpecials')) != null) {
+    if (!$services['users']->isGuest()) { // favorites
+        $block->data['favorites'] =
+                                  array(
+                                      'URL' => make_index_url(array('section' => 'favorites')),
+                                      'TITLE' => l10n('display your favorites photos'),
+                                      'NAME' => l10n('Your favorites')
+                                  );
+    }
+
+    $block->data['most_visited'] =
+                                 array(
+                                     'URL' => make_index_url(array('section' => 'most_visited')),
+                                     'TITLE' => l10n('display most visited photos'),
+                                     'NAME' => l10n('Most visited')
+                                 );
+
+    if ($conf['rate']) {
+        $block->data['best_rated'] =
+                                   array(
+                                       'URL' => make_index_url(array('section' => 'best_rated')),
+                                       'TITLE' => l10n('display best rated photos'),
+                                       'NAME' => l10n('Best rated')
+                                   );
+    }
+
+    $block->data['recent_pics'] =
+                                array(
+                                    'URL' => make_index_url(array('section' => 'recent_pics')),
+                                    'TITLE' => l10n('display most recent photos'),
+                                    'NAME' => l10n('Recent photos'),
+                                );
+
+    $block->data['recent_cats'] =
+                                array(
+                                    'URL' => make_index_url(array('section' => 'recent_cats')),
+                                    'TITLE' => l10n('display recently updated albums'),
+                                    'NAME' => l10n('Recent albums'),
+                                );
+
+    $block->data['random'] =
+                           array(
+                               'URL' => get_root_url().'random.php',
+                               'TITLE' => l10n('display a set of random photos'),
+                               'NAME' => l10n('Random photos'),
+                               'REL'=> 'rel="nofollow"'
+                           );
+
+    $block->data['calendar'] =
+                             array(
+                                 'URL' =>
+                                 make_index_url(
+                                     array(
+                                         'chronology_field' => ($conf['calendar_datefield']=='date_available'
+                                                                ? 'posted' : 'created'),
+                                         'chronology_style'=> 'monthly',
+                                         'chronology_view' => 'calendar'
+                                     )
+                                 ),
+                                 'TITLE' => l10n('display each day with photos, month per month'),
+                                 'NAME' => l10n('Calendar'),
+                                 'REL'=> 'rel="nofollow"'
+                             );
+    $block->template = 'menubar_specials.tpl';
+}
+
+#---------------------------------------------------------------------- summary
+if (($block = $menu->get_block('mbMenu')) != null) {
+    // quick search block will be displayed only if data['qsearch'] is set
+    // to "yes"
+    $block->data['qsearch']=true;
+
+    // tags link
+    $block->data['tags'] =
+                         array(
+                             'TITLE' => l10n('display available tags'),
+                             'NAME' => l10n('Tags'),
+                             'URL'=> get_root_url().'tags.php',
+                             'COUNTER' => $services['tags']->getNbAvailableTags($user),
+                         );
+
+    // search link
+    $block->data['search'] =
+                           array(
+                               'TITLE'=>l10n('search'),
+                               'NAME'=>l10n('Search'),
+                               'URL'=> get_root_url().'search.php',
+                               'REL'=> 'rel="search"'
+                           );
+
+    if ($conf['activate_comments']) {
+        // comments link
+        $block->data['comments'] =
+                                 array(
+                                     'TITLE'=>l10n('display last user comments'),
+                                     'NAME'=>l10n('Comments'),
+                                     'URL'=> get_root_url().'comments.php',
+                                     'COUNTER' => get_nb_available_comments(),
+                                 );
+    }
+
+    // about link
+    $block->data['about'] =
+                          array(
+                              'TITLE'     => l10n('About Phyxo'),
+                              'NAME'      => l10n('About'),
+                              'URL' => get_root_url().'about.php',
+                          );
+
+    // notification
+    $block->data['rss'] =
+                        array(
+                            'TITLE'=>l10n('RSS feed'),
+                            'NAME'=>l10n('Notification'),
+                            'URL'=> get_root_url().'notification.php',
+                            'REL'=> 'rel="nofollow"'
+                        );
+    $block->template = 'menubar_menu.tpl';
+}
+
+
+#--------------------------------------------------------------- identification
+if ($services['users']->isGuest()) {
+    $template->assign(
+        array(
+            'U_LOGIN' => get_root_url().'identification.php',
+            'U_LOST_PASSWORD' => get_root_url().'password.php',
+            'AUTHORIZE_REMEMBERING' => $conf['authorize_remembering']
+        )
+    );
+    if ($conf['allow_user_registration']) {
+        $template->assign( 'U_REGISTER', get_root_url().'register.php');
+    }
+} else {
+    $template->assign('USERNAME', stripslashes($user['username']));
+    if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
+        $template->assign('U_PROFILE', get_root_url().'profile.php');
+    }
+
+    // the logout link has no meaning with Apache authentication : it is not
+    // possible to logout with this kind of authentication.
+    if (!$conf['apache_authentication']) {
+        $template->assign('U_LOGOUT', get_root_url().'?act=logout');
+    }
+    if ($services['users']->isAdmin()) {
+        $template->assign('U_ADMIN', get_root_url().'admin/index.php');
+    }
+}
+if (($block=$menu->get_block('mbIdentification')) != null) {
+    $block->template = 'menubar_identification.tpl';
+}
+$menu->apply('MENUBAR',  'menubar.tpl');

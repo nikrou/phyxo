@@ -432,3 +432,4 @@ $lang['Update tags'] = "Mettre à jour les tags";
 $lang['You are not allowed to add nor delete tags'] = "Vous n\êtes pas autorisé à ajouter, ni supprimer de tags";
 $lang['You are not allowed to add tags'] = "Vous n\êtes pas autorisé à ajouter de tags";
 $lang['You are not allowed to delete tags'] = "Vous n\êtes pas autorisé à supprimer de tags";
+$lang['Informations'] = "Informations";
