@@ -111,23 +111,18 @@ if ($block!=null && !empty($page['items']) && 'picture' != script_basename()) {
                             )
                         )
                     ),
-                    'URL' => make_index_url( array( 'tags' => array($tag) )
+                    'URL' => make_index_url(array('tags' => array($tag))
                     ),
                 )
             );
         }
     } else {
-        $selection = array_slice( $page['items'], $page['start'], $page['nb_image_page'] );
+        $selection = array_slice($page['items'], $page['start'], $page['nb_image_page']);
         $tags = $services['tags']->addLevelToTags(
             $services['tags']->getCommonTags($selection, $conf['content_tag_cloud_items_number'])
         );
         foreach ($tags as $tag) {
-            $block->data[] =
-                           array_merge( $tag,
-                                        array(
-                                            'URL' => make_index_url( array( 'tags' => array($tag) ) ),
-                                        )
-                           );
+            $block->data[] = array_merge($tag, array('URL' => make_index_url(array('tags' => array($tag)))));
         }
     }
     if (!empty($block->data)) {
@@ -138,67 +133,58 @@ if ($block!=null && !empty($page['items']) && 'picture' != script_basename()) {
 #----------------------------------------------------------- special categories
 if (($block = $menu->get_block('mbSpecials')) != null) {
     if (!$services['users']->isGuest()) { // favorites
-        $block->data['favorites'] =
-                                  array(
-                                      'URL' => make_index_url(array('section' => 'favorites')),
-                                      'TITLE' => l10n('display your favorites photos'),
-                                      'NAME' => l10n('Your favorites')
-                                  );
+        $block->data['favorites'] = array(
+            'URL' => make_index_url(array('section' => 'favorites')),
+            'TITLE' => l10n('display your favorites photos'),
+            'NAME' => l10n('Your favorites')
+        );
     }
 
-    $block->data['most_visited'] =
-                                 array(
-                                     'URL' => make_index_url(array('section' => 'most_visited')),
-                                     'TITLE' => l10n('display most visited photos'),
-                                     'NAME' => l10n('Most visited')
-                                 );
+    $block->data['most_visited'] = array(
+        'URL' => make_index_url(array('section' => 'most_visited')),
+        'TITLE' => l10n('display most visited photos'),
+        'NAME' => l10n('Most visited')
+    );
 
     if ($conf['rate']) {
-        $block->data['best_rated'] =
-                                   array(
-                                       'URL' => make_index_url(array('section' => 'best_rated')),
-                                       'TITLE' => l10n('display best rated photos'),
-                                       'NAME' => l10n('Best rated')
-                                   );
+        $block->data['best_rated'] = array(
+            'URL' => make_index_url(array('section' => 'best_rated')),
+            'TITLE' => l10n('display best rated photos'),
+            'NAME' => l10n('Best rated')
+        );
     }
 
-    $block->data['recent_pics'] =
-                                array(
-                                    'URL' => make_index_url(array('section' => 'recent_pics')),
-                                    'TITLE' => l10n('display most recent photos'),
-                                    'NAME' => l10n('Recent photos'),
-                                );
+    $block->data['recent_pics'] = array(
+        'URL' => make_index_url(array('section' => 'recent_pics')),
+        'TITLE' => l10n('display most recent photos'),
+        'NAME' => l10n('Recent photos'),
+    );
 
-    $block->data['recent_cats'] =
-                                array(
-                                    'URL' => make_index_url(array('section' => 'recent_cats')),
-                                    'TITLE' => l10n('display recently updated albums'),
-                                    'NAME' => l10n('Recent albums'),
-                                );
+    $block->data['recent_cats'] = array(
+        'URL' => make_index_url(array('section' => 'recent_cats')),
+        'TITLE' => l10n('display recently updated albums'),
+        'NAME' => l10n('Recent albums'),
+    );
 
-    $block->data['random'] =
-                           array(
-                               'URL' => get_root_url().'random.php',
-                               'TITLE' => l10n('display a set of random photos'),
-                               'NAME' => l10n('Random photos'),
-                               'REL'=> 'rel="nofollow"'
-                           );
+    $block->data['random'] = array(
+        'URL' => get_root_url().'random.php',
+        'TITLE' => l10n('display a set of random photos'),
+        'NAME' => l10n('Random photos'),
+        'REL'=> 'rel="nofollow"'
+    );
 
-    $block->data['calendar'] =
-                             array(
-                                 'URL' =>
-                                 make_index_url(
-                                     array(
-                                         'chronology_field' => ($conf['calendar_datefield']=='date_available'
-                                                                ? 'posted' : 'created'),
-                                         'chronology_style'=> 'monthly',
-                                         'chronology_view' => 'calendar'
-                                     )
-                                 ),
-                                 'TITLE' => l10n('display each day with photos, month per month'),
-                                 'NAME' => l10n('Calendar'),
-                                 'REL'=> 'rel="nofollow"'
-                             );
+    $block->data['calendar'] = array(
+        'URL' => make_index_url(
+            array(
+                'chronology_field' => ($conf['calendar_datefield']=='date_available' ? 'posted' : 'created'),
+                'chronology_style'=> 'monthly',
+                'chronology_view' => 'calendar'
+            )
+        ),
+        'TITLE' => l10n('display each day with photos, month per month'),
+        'NAME' => l10n('Calendar'),
+        'REL'=> 'rel="nofollow"'
+    );
     $block->template = 'menubar_specials.tpl';
 }
 
@@ -209,50 +195,45 @@ if (($block = $menu->get_block('mbMenu')) != null) {
     $block->data['qsearch']=true;
 
     // tags link
-    $block->data['tags'] =
-                         array(
-                             'TITLE' => l10n('display available tags'),
-                             'NAME' => l10n('Tags'),
-                             'URL'=> get_root_url().'tags.php',
-                             'COUNTER' => $services['tags']->getNbAvailableTags($user),
-                         );
+    $block->data['tags'] = array(
+        'TITLE' => l10n('display available tags'),
+        'NAME' => l10n('Tags'),
+        'URL'=> get_root_url().'tags.php',
+        'COUNTER' => $services['tags']->getNbAvailableTags($user),
+    );
 
     // search link
-    $block->data['search'] =
-                           array(
-                               'TITLE'=>l10n('search'),
-                               'NAME'=>l10n('Search'),
-                               'URL'=> get_root_url().'search.php',
-                               'REL'=> 'rel="search"'
-                           );
+    $block->data['search'] = array(
+        'TITLE' => l10n('search'),
+        'NAME' => l10n('Search'),
+        'URL' => get_root_url().'search.php',
+        'REL' => 'rel="search"'
+    );
 
     if ($conf['activate_comments']) {
         // comments link
-        $block->data['comments'] =
-                                 array(
-                                     'TITLE'=>l10n('display last user comments'),
-                                     'NAME'=>l10n('Comments'),
-                                     'URL'=> get_root_url().'comments.php',
-                                     'COUNTER' => get_nb_available_comments(),
-                                 );
+        $block->data['comments'] = array(
+            'TITLE' => l10n('display last user comments'),
+            'NAME' => l10n('Comments'),
+            'URL' => get_root_url().'comments.php',
+            'COUNTER' => get_nb_available_comments(),
+        );
     }
 
     // about link
-    $block->data['about'] =
-                          array(
-                              'TITLE'     => l10n('About Phyxo'),
-                              'NAME'      => l10n('About'),
-                              'URL' => get_root_url().'about.php',
-                          );
+    $block->data['about'] = array(
+        'TITLE' => l10n('About Phyxo'),
+        'NAME' => l10n('About'),
+        'URL' => get_root_url().'about.php',
+    );
 
     // notification
-    $block->data['rss'] =
-                        array(
-                            'TITLE'=>l10n('RSS feed'),
-                            'NAME'=>l10n('Notification'),
-                            'URL'=> get_root_url().'notification.php',
-                            'REL'=> 'rel="nofollow"'
-                        );
+    $block->data['rss'] = array(
+        'TITLE' => l10n('RSS feed'),
+        'NAME' => l10n('Notification'),
+        'URL' => get_root_url().'notification.php',
+        'REL' => 'rel="nofollow"'
+    );
     $block->template = 'menubar_menu.tpl';
 }
 
@@ -284,7 +265,9 @@ if ($services['users']->isGuest()) {
         $template->assign('U_ADMIN', get_root_url().'admin/index.php');
     }
 }
-if (($block=$menu->get_block('mbIdentification')) != null) {
+
+if (($block = $menu->get_block('mbIdentification')) != null) {
     $block->template = 'menubar_identification.tpl';
 }
-$menu->apply('MENUBAR',  'menubar.tpl');
+
+$menu->apply($template, 'MENUBAR', 'blocks');

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -169,10 +169,7 @@ class BlockManager
      * @param string $var
      * @param string $file
      */
-    public function apply($var, $file) {
-        global $template;
-
-        $template->set_filename('menubar', $file);
+    public function apply($template, $var_menubar, $var_blocks) {
         trigger_notify('blockmanager_apply', array($this) );
 
         foreach ($this->display_blocks as $id => $block) {
@@ -181,7 +178,7 @@ class BlockManager
             }
         }
         $this->sort_blocks();
-        $template->assign('blocks', $this->display_blocks);
-        $template->assign_var_from_handle($var, 'menubar');
+        $template->assign($var_blocks, $this->display_blocks);
+        $template->assign($var_menubar, true);
     }
 }

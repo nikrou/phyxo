@@ -21,7 +21,7 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 
     <div id="main-image">
 	<div class="wrapper-image">
-	    <img src="{$current.selected_derivative->get_url()}" alt="{$ALT_IMG}" title="{if isset($COMMENT_IMG)}{$COMMENT_IMG|@strip_tags:false|@replace:'"':' '}{else}{$current.TITLE_ESC} - {$ALT_IMG}{/if}">
+	    <img src="{$current.selected_derivative->get_url()}" alt="{$ALT_IMG}" title="{if isset($COMMENT_IMG)}{$COMMENT_IMG|strip_tags:false|replace:'"':' '}{else}{$current.TITLE_ESC} - {$ALT_IMG}{/if}">
 	</div>
 
 	{if isset($COMMENT_IMG)}
@@ -202,7 +202,7 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 		    <form action="{$rating.F_ACTION}" method="post" id="rate-form" name="rate_form">
 			{foreach $rating.marks as $mark}
 			    <label for="rate-{$mark}">{$mark}</label>
-			    <input type="radio" name="rate" id="rate-{$mark}" value="{$mark}"{if isset($rating.USER_RATE) && $mark==$rating.USER_RATE}> class="selected"{/if}>
+			    <input type="radio" name="rate" id="rate-{$mark}" value="{$mark}"{if isset($rating.USER_RATE) && $mark==$rating.USER_RATE} class="selected"{/if}>
 			{/foreach}
 		    </form>
 		</p>

@@ -1,5 +1,7 @@
 {extends file="index.tpl"}
 
+{block name="outer-context"}{/block}
+
 {block name="content"}
     <div class="titrePage">
 	<ul class="categoryActions">
@@ -9,94 +11,74 @@
 
     {include file='infos_errors.tpl'}
 
-    <form method="post" name="profile" action="{$F_ACTION}" id="profile" class="properties">
-	<fieldset>
-	    <legend>{'Registration'|translate}</legend>
+    <form method="post" name="profile" action="{$F_ACTION}" id="profile">
+	<div class="fieldset">
+	    <h3>{'Registration'|translate}</h3>
 	    <input type="hidden" name="redirect" value="{$REDIRECT}">
-	    <ul>
-		<li>
-		    <span class="property">{'Username'|translate}</span>
-		    {$USERNAME}
-		</li>
-		{if not $SPECIAL_USER} {* can modify password + email*}
-		    <li>
-			<span class="property">
-			    <label for="mail_address">{'Email address'|translate}</label>
-			</span>
-			<input type="text" name="mail_address" id="mail_address" value="{$EMAIL}">
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="password">{'Password'|translate}</label>
-			</span>
-			<input type="password" name="password" id="password" value="">
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="use_new_pwd">{'New password'|translate}</label>
-			</span>
-			<input type="password" name="use_new_pwd" id="use_new_pwd" value="">
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="passwordConf">{'Confirm Password'|translate}</label>
-			</span>
-			<input type="password" name="passwordConf" id="passwordConf" value="">
-		    </li>
-		{/if}
-	    </ul>
-	</fieldset>
+	    <p>
+		<span class="label">{'Username'|translate}</span>
+		{$USERNAME}
+	    </p>
+	    {if !$SPECIAL_USER} {* can modify password + email*}
+		<p>
+		    <label for="mail_address">{'Email address'|translate}</label>
+		    <input type="text" name="mail_address" id="mail_address" value="{$EMAIL}">
+		</p>
+		<p>
+		    <label for="password">{'Password'|translate}</label>
+		    <input type="password" name="password" id="password" value="">
+		</p>
+		<p>
+		    <label for="use_new_pwd">{'New password'|translate}</label>
+		    <input type="password" name="use_new_pwd" id="use_new_pwd" value="">
+		</p>
+		<p>
+		    <label for="password-confirmation">{'Confirm Password'|translate}</label>
+		    <input type="password" name="passwordConf" id="password-confirmation" value="">
+		</p>
+	    {/if}
+	</div>
 
 	{if $ALLOW_USER_CUSTOMIZATION}
-	    <fieldset>
-		<legend>{'Preferences'|translate}</legend>
-		<ul>
-		    <li>
-			<span class="property">
-			    <label for="nb_image_page">{'Number of photos per page'|translate}</label>
-			</span>
-			<input type="text" size="4" maxlength="3" name="nb_image_page" id="nb_image_page" value="{$NB_IMAGE_PAGE}">
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="template">{'Theme'|translate}</label>
-			</span>
-			{html_options name=theme options=$template_options selected=$template_selection}
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="Language">{'Language'|translate}</label>
-			</span>
-			{html_options name=language options=$language_options selected=$language_selection}
-		    </li>
-		    <li>
-			<span class="property">
-			    <label for="Recent period">{'Recent period'|translate}</label>
-			</span>
-			<input type="text" size="3" maxlength="2" name="recent_period" id="recent_period" value="{$RECENT_PERIOD}">
-		    </li>
-		    <li>
-			<span class="property">{'Expand all albums'|translate}</span>
-			{html_radios name='expand' options=$radio_options selected=$EXPAND}
-		    </li>
-		    {if $ACTIVATE_COMMENTS}
-			<li>
-			    <span class="property">{'Show number of comments'|translate}</span>
-			    {html_radios name='show_nb_comments' options=$radio_options selected=$NB_COMMENTS}
-			</li>
-		    {/if}
-		    <li>
-			<span class="property">{'Show number of hits'|translate}</span>
-			{html_radios name='show_nb_hits' options=$radio_options selected=$NB_HITS}
-		    </li>
-		</ul>
-	    </fieldset>
+	    <div class="fieldset">
+		<h3>{'Preferences'|translate}</h3>
+		<p>
+		    <label for="nb_image_page">{'Number of photos per page'|translate}</label>
+		    <input type="text" size="4" maxlength="3" name="nb_image_page" id="nb_image_page" value="{$NB_IMAGE_PAGE}">
+		</p>
+		<p>
+		    <label for="template-options">{'Theme'|translate}</label>
+		    {html_options name="theme" options=$template_options selected="$template_selection" id="template-options"}
+		</p>
+		<p>
+		    <label for="language-options">{'Language'|translate}</label>
+		    {html_options name="language" options=$language_options selected="$language_selection" id="language-options"}
+		</p>
+		<p>
+		    <label for="recent-period">{'Recent period'|translate}</label>
+		    <input type="text" size="3" maxlength="2" name="recent_period" id="recent-period" value="{$RECENT_PERIOD}">
+		</p>
+		<p>
+		    <label for="expand">{'Expand all albums'|translate}</label>
+		    {html_radios name="expand" options=$radio_options selected="$EXPAND" id="expand"}
+		</p>
+		{if $ACTIVATE_COMMENTS}
+		    <p>
+			<label for="show-nb-comments">{'Show number of comments'|translate}</label>
+			{html_radios name="show_nb_comments" options=$radio_options selected="$NB_COMMENTS" id="show-nb-comments"}
+		    </p>
+		{/if}
+		<p>
+		    <label for="show-nb-hits">{'Show number of hits'|translate}</label>
+		    {html_radios name="show_nb_hits" options=$radio_options selected="$NB_HITS" id="show-nb-hits"}
+		</p>
+	    </div>
 	{/if}
 
-	<p class="bottomButtons">
+	<p class="bottom-buttons">
 	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
-	    <input class="submit" type="submit" name="validate" value="{'Submit'|translate}">
-	    <input class="submit" type="reset" name="reset" value="{'Reset'|translate}">
+	    <input type="submit" name="validate" value="{'Submit'|translate}">
+	    <input type="reset" name="reset" value="{'Reset'|translate}">
 	    {if $ALLOW_USER_CUSTOMIZATION}
 		<input class="submit" type="submit" name="reset_to_default" value="{'Reset to default values'|translate}">
 	    {/if}

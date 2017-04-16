@@ -1,6 +1,6 @@
 {if !empty($blocks) }
-    {foreach $blocks as $id => $block}
-	{if not empty($block->template)}
+    {foreach $blocks as $block}
+	{if !empty($block->template)}
 	    {include file=$block->template}
 	{else}
 	    {$block->raw_content}

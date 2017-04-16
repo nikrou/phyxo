@@ -166,82 +166,84 @@
 			</aside>
 		    {/block}
 
-		    <aside role="context">
-			{block name="context"}
-			    {if !empty($image_orders)}
-				<div class="infos sort-order">
-				    <h3>{'Sort order'|translate}</h3>
-				    <ul>
-					{foreach $image_orders as $image_order}
-					    <li>
-						<i class="{if !$image_order.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
-						<a href="{$image_order.URL}">{$image_order.DISPLAY}</a>
-					    </li>
-					{/foreach}
-				    </ul>
-				</div>
-			    {/if}
+		    {block name="outer-context"}
+			<aside role="context">
+			    {block name="context"}
+				{if !empty($image_orders)}
+				    <div class="infos sort-order">
+					<h3>{'Sort order'|translate}</h3>
+					<ul>
+					    {foreach $image_orders as $image_order}
+						<li>
+						    <i class="{if !$image_order.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <a href="{$image_order.URL}">{$image_order.DISPLAY}</a>
+						</li>
+					    {/foreach}
+					</ul>
+				    </div>
+				{/if}
 
-			    {if !empty($image_derivatives)}
-				<div class="infos photo-sizes">
-				    <h3>{'Photo sizes'|translate}</h3>
-				    <ul>
-					{foreach $image_derivatives as $image_derivative}
-					    <li>
-						<i class="{if !$image_derivative.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
-						<a href="{$image_derivative.URL}">{$image_derivative.DISPLAY}</a>
-					    </li>
-					{/foreach}
-				    </ul>
-				</div>
-			    {/if}
+				{if !empty($image_derivatives)}
+				    <div class="infos photo-sizes">
+					<h3>{'Photo sizes'|translate}</h3>
+					<ul>
+					    {foreach $image_derivatives as $image_derivative}
+						<li>
+						    <i class="{if !$image_derivative.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <a href="{$image_derivative.URL}">{$image_derivative.DISPLAY}</a>
+						</li>
+					    {/foreach}
+					</ul>
+				    </div>
+				{/if}
 
-			    <ul>
-				{if isset($favorite)}
-				    <li><a href="{$favorite.U_FAVORITE}" title="{'delete all photos from your favorites'|translate}">{'delete all photos from your favorites'|translate}</a></li>
-				{/if}
-				{if isset($U_CADDIE)}
-				    <li><a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">{'Caddie'|translate}</a></li>
-				{/if}
-				{if isset($U_EDIT)}
-				    <li><a href="{$U_EDIT}" title="{'Edit album'|translate}">{'Edit'|translate}</a></li>
-				{/if}
-				{if isset($U_SEARCH_RULES)}
-				    <li><a href="{$U_SEARCH_RULES}" title="{'Search rules'|translate}">(?)</a></li>
-				{/if}
-				{if isset($U_SLIDESHOW)}
-				    <li><a href="{$U_SLIDESHOW}" title="{'slideshow'|translate}">{'slideshow'|translate}</a></li>
-				{/if}
-				{if isset($U_MODE_FLAT)}
-				    <li>{strip}<a href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}">{'display all photos in all sub-albums'|translate}</a></li>
-				{/if}
-				{if isset($U_MODE_NORMAL)}
-				    <li><a href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">{'return to normal view mode'|translate}</a></li>
-				{/if}
-				{if isset($U_MODE_POSTED)}
-				    <li><a href="{$U_MODE_POSTED}" title="{'display a calendar by posted date'|translate}">{'Calendar'|translate}</a></li>
-				{/if}
-				{if isset($U_MODE_CREATED)}
-				    <li><a href="{$U_MODE_CREATED}" title="{'display a calendar by creation date'|translate}">{'Calendar'|translate}</a></li>
-				{/if}
-				{if !empty($PLUGIN_INDEX_ACTIONS)}{$PLUGIN_INDEX_ACTIONS}{/if}
-			    </ul>
+				<ul>
+				    {if isset($favorite)}
+					<li><a href="{$favorite.U_FAVORITE}" title="{'delete all photos from your favorites'|translate}">{'delete all photos from your favorites'|translate}</a></li>
+				    {/if}
+				    {if isset($U_CADDIE)}
+					<li><a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">{'Caddie'|translate}</a></li>
+				    {/if}
+				    {if isset($U_EDIT)}
+					<li><a href="{$U_EDIT}" title="{'Edit album'|translate}">{'Edit'|translate}</a></li>
+				    {/if}
+				    {if isset($U_SEARCH_RULES)}
+					<li><a href="{$U_SEARCH_RULES}" title="{'Search rules'|translate}">(?)</a></li>
+				    {/if}
+				    {if isset($U_SLIDESHOW)}
+					<li><a href="{$U_SLIDESHOW}" title="{'slideshow'|translate}">{'slideshow'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_FLAT)}
+					<li><a href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}">{'display all photos in all sub-albums'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_NORMAL)}
+					<li><a href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">{'return to normal view mode'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_POSTED)}
+					<li><a href="{$U_MODE_POSTED}" title="{'display a calendar by posted date'|translate}">{'Calendar'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_CREATED)}
+					<li><a href="{$U_MODE_CREATED}" title="{'display a calendar by creation date'|translate}">{'Calendar'|translate}</a></li>
+				    {/if}
+				    {if !empty($PLUGIN_INDEX_ACTIONS)}{$PLUGIN_INDEX_ACTIONS}{/if}
+				</ul>
 
-			    {if isset($chronology_views)}
-				<div class="infos calendar">
-				    <h3>{'Calendar'|translate}</h3>
-				    <ul>
-					{foreach $chronology_views as $view}
-					    <li>
-						<i class="{if !$view.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
-						<a href="{$view.VALUE}">{$view.CONTENT}</a>
-					    </li>
-					{/foreach}
-				    </ul>
-				</div>
-			    {/if}
-			{/block}
-		    </aside>
+				{if isset($chronology_views)}
+				    <div class="infos calendar">
+					<h3>{'Calendar'|translate}</h3>
+					<ul>
+					    {foreach $chronology_views as $view}
+						<li>
+						    <i class="{if !$view.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <a href="{$view.VALUE}">{$view.CONTENT}</a>
+						</li>
+					    {/foreach}
+					</ul>
+				    </div>
+				{/if}
+			    {/block}
+			</aside>
+		    {/block}
 		{/block}
 	    </main>
 
@@ -256,7 +258,7 @@
 	    		    {'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME})
 	    		{/if}
 	    		{if isset($CONTACT_MAIL)}
-	    		    - <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|@escape:url}">{'Contact webmaster'|translate}</a>
+	    		    - <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Contact webmaster'|translate}</a>
 	    		{/if}
 		    </div>
 	    	    {if isset($footer_elements)}
