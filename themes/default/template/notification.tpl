@@ -1,5 +1,7 @@
 {extends file="index.tpl"}
 
+{block name="outer-context"}{/block}
+
 {block name="html_head"}
     <link rel="alternate" type="application/rss+xml" title="{'Photos only RSS feed'|translate}" href="{$U_FEED_IMAGE_ONLY}">
     <link rel="alternate" type="application/rss+xml" title="{'Complete RSS feed (photos, comments)'|translate}" href="{$U_FEED}">

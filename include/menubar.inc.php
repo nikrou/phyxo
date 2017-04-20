@@ -29,7 +29,7 @@ $menu->load_registered_blocks();
 $menu->prepare_display();
 
 if (!empty($page['section']) && $page['section']=='search' && isset($page['qsearch_details'])) {
-    $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']) );
+    $template->assign('QUERY_SEARCH', htmlspecialchars($page['qsearch_details']['q']));
 }
 
 #--------------------------------------------------------------- external links
@@ -192,7 +192,7 @@ if (($block = $menu->get_block('mbSpecials')) != null) {
 if (($block = $menu->get_block('mbMenu')) != null) {
     // quick search block will be displayed only if data['qsearch'] is set
     // to "yes"
-    $block->data['qsearch']=true;
+    $block->data['qsearch'] = true;
 
     // tags link
     $block->data['tags'] = array(

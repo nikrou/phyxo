@@ -24,7 +24,7 @@
 
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
+include_once( PHPWG_ROOT_PATH.'include/common.inc.php');
 include(PHPWG_ROOT_PATH.'include/section_init.inc.php');
 
 // Check Access and exit when user status is not ok
@@ -77,7 +77,7 @@ if (count($page['items']) > $page['nb_image_page']) {
     );
 }
 
-$template->assign('thumb_navbar', $page['navigation_bar'] );
+$template->assign('thumb_navbar', $page['navigation_bar']);
 
 // caddie filling :-)
 if (isset($_GET['caddie'])) {
@@ -112,14 +112,14 @@ $template->set_filename('index', 'index.tpl');
 // +-----------------------------------------------------------------------+
 // |  index page (categories, thumbnails, search, calendar, random, etc.)  |
 // +-----------------------------------------------------------------------+
-if ( empty($page['is_external']) or !$page['is_external'] ) {
+if (empty($page['is_external']) or !$page['is_external']) {
     //----------------------------------------------------- template initialization
     $page['body_id'] = 'theCategoryPage';
 
     if (isset($page['flat']) or isset($page['chronology_field'])) {
         $template->assign(
             'U_MODE_NORMAL',
-            duplicate_index_url( array(), array('chronology_field', 'start', 'flat') )
+            duplicate_index_url(array(), array('chronology_field', 'start', 'flat'))
         );
     }
 
@@ -139,14 +139,14 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         if ($conf['index_created_date_icon']) {
             $template->assign(
                 'U_MODE_CREATED',
-                duplicate_index_url( $chronology_params, array('start', 'flat') )
+                duplicate_index_url($chronology_params, array('start', 'flat'))
             );
         }
         if ($conf['index_posted_date_icon']) {
             $chronology_params['chronology_field'] = 'posted';
             $template->assign(
                 'U_MODE_POSTED',
-                duplicate_index_url( $chronology_params, array('start', 'flat') )
+                duplicate_index_url($chronology_params, array('start', 'flat'))
             );
         }
     } else {
@@ -157,7 +157,7 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         }
         if ($conf['index_'.$chronology_field.'_date_icon']) {
             $url = duplicate_index_url(
-                array('chronology_field'=>$chronology_field ),
+                array('chronology_field' => $chronology_field),
                 array('chronology_date', 'start', 'flat')
             );
             $template->assign(
@@ -184,21 +184,22 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
     if ($services['users']->isAdmin() and !empty($page['items'])) {
         $template->assign(
             'U_CADDIE',
-            add_url_params(duplicate_index_url(), array('caddie'=>1) )
+            add_url_params(duplicate_index_url(), array('caddie' => 1))
         );
     }
 
     if ($page['section']=='search' && $page['start']==0 && !isset($page['chronology_field']) && isset($page['qsearch_details'])) {
         $cats = array_merge(
             (array)@$page['qsearch_details']['matching_cats_no_images'],
-            (array)@$page['qsearch_details']['matching_cats'] );
+            (array)@$page['qsearch_details']['matching_cats']
+        );
         if (count($cats)) {
             usort($cats, 'name_compare');
             $hints = array();
             foreach ($cats as $cat) {
-                $hints[] = get_cat_display_name( array($cat), '' );
+                $hints[] = get_cat_display_name(array($cat), '');
             }
-            $template->assign( 'category_search_results', $hints);
+            $template->assign('category_search_results', $hints);
         }
 
         $tags = (array)@$page['qsearch_details']['matching_tags'];
@@ -208,9 +209,9 @@ if ( empty($page['is_external']) or !$page['is_external'] ) {
         }
 
         if (empty($page['items'])) {
-            $template->append( 'no_search_results', htmlspecialchars($page['qsearch_details']['q']));
+            $template->append('no_search_results', htmlspecialchars($page['qsearch_details']['q']));
         } elseif (!empty($page['qsearch_details']['unmatched_terms'])) {
-            $template->assign( 'no_search_results', array_map($page['qsearch_details']['unmatched_terms'], 'htmlspecialchars'));
+            $template->assign('no_search_results', array_map($page['qsearch_details']['unmatched_terms'], 'htmlspecialchars'));
         }
     }
 

@@ -1,5 +1,7 @@
 {extends file="index.tpl"}
 
+{block name="outer-context"}{/block}
+
 {block name="breadcrumb"}
     <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'About'|translate}</h2>
 {/block}

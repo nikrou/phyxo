@@ -38,17 +38,16 @@ function inc_exc_str($is_included) {
 // +-----------------------------------------------------------------------+
 
 define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
+include_once( PHPWG_ROOT_PATH.'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
-include_once( PHPWG_ROOT_PATH.'include/functions_search.inc.php' );
+include_once( PHPWG_ROOT_PATH.'include/functions_search.inc.php');
 
-$page['body_id'] = 'thePopuphelpPage';
-$title = l10n('Piwigo Help');
-$page['page_banner'] = '';
+$title = l10n('Search rules');
 $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
-include(PHPWG_ROOT_PATH.'include/page_header.php');
 
 $template->set_filenames(array('search_rules' => 'search_rules.tpl'));
+
+include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                        Textual rules creation                         |
@@ -196,5 +195,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 
+include(PHPWG_ROOT_PATH.'include/page_header.php');
+flush_page_messages();
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
 $template->pparse('search_rules');
