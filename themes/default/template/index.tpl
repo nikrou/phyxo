@@ -70,20 +70,21 @@
 
 	    <main>
 		{block name="main"}
-		    {if not empty($header_notes)}
-			<div class="notes header">
-			    {foreach $header_notes as $element}
-				<p>{$element}</p>
-			    {/foreach}
-			</div>
-		    {/if}
-		    {if isset($errors) or isset($infos)}
-			<div class="content messages">
-		    	    {include file="infos_errors.tpl"}
-			</div>
-		    {/if}
-
 		    <section role="content">
+			{if !empty($header_notes) or !empty($errors) or !empty($infos)}
+			    <section role="messages">
+				{if !empty($header_notes)}
+				    <div class="notes header">
+					{foreach $header_notes as $element}
+					    <p>{$element}</p>
+					{/foreach}
+				    </div>
+				{/if}
+				{if !empty($errors) or !empty($infos)}
+		    		    {include file="infos_errors.tpl"}
+				{/if}
+			    </section>
+			{/if}
 			<nav role="breadcrumb">
 			    {block name="breadcrumb"}
 				{if !empty($TITLE)}

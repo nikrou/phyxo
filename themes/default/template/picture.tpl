@@ -111,7 +111,7 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 		{foreach $current.unique_derivatives as $derivative_type => $derivative}
 		    <li>
 			<i class="{if $derivative->get_type()!=$current.selected_derivative->get_type()}visually-hidden{/if}">&#x2714;</i>
-			<a href="{$U_CANONICAL}&display={$derivative_type}">{$derivative_type|translate}&nbsp;({$derivative->get_size_hr()})</a>
+			<a href="{$current.U_IMG}&display={$derivative_type}">{$derivative_type|translate}&nbsp;({$derivative->get_size_hr()})</a>
 		    </li>
 		{/foreach}
 	    </ul>
@@ -196,17 +196,15 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 		</p>
 	    {/if}
 
-	    <div class="rating">
-		<span class="key">{if isset($rating.USER_RATE)}{'Update your rating'|translate}{else}{'Rate this photo'|translate}{/if}</span>
-		<p>
-		    <form action="{$rating.F_ACTION}" method="post" id="rate-form" name="rate_form">
-			{foreach $rating.marks as $mark}
-			    <label for="rate-{$mark}">{$mark}</label>
-			    <input type="radio" name="rate" id="rate-{$mark}" value="{$mark}"{if isset($rating.USER_RATE) && $mark==$rating.USER_RATE} class="selected"{/if}>
-			{/foreach}
-		    </form>
-		</p>
-	    </div>
+	    <p class="key">{if isset($rating.USER_RATE)}{'Update your rating'|translate}{else}{'Rate this photo'|translate}{/if}</p>
+	    <p>
+		<form action="{$rating.F_ACTION}" method="post" id="rate-form" name="rate_form" class="rating-form">
+		    {foreach $rating.marks|array_reverse as $mark}
+			<input type="radio" name="rate" id="rate-{$mark}" value="{$mark}">
+			<label for="rate-{$mark}" class="fa fa-star{if empty($rating.USER_RATE) || $mark==$rating.USER_RATE}-o{/if}"><span>{$mark}</span></label>
+		    {/foreach}
+		</form>
+	    </p>
 	</div>
     {/if}
 
@@ -214,11 +212,11 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
     {if $display_info.privacy_level and isset($available_permission_levels)}
 	<div class="infos privacy_level">
 	    <h3>{'Who can see this photo?'|translate}</h3>
-	    <ul class="visually-hiddena">
+	    <ul>
 		{foreach $available_permission_levels as $level => $label}
 		    <li>
 			<i class="{if $level != $current.level} visually-hidden{/if}">&#x2714;</i>
-			<a href="{$U_CANONICAL}&level={$level}">{$label}</a>
+			<a href="{$current.U_IMG}&level={$level}">{$label}</a>
 		    </li>
 		{/foreach}
 	    </ul>
@@ -235,4 +233,47 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 	    {/foreach}
 	</div>
     {/if}
+
+    <div class="infos actions">
+	<h3 class="visually-hidden">{'Picture actions'|translate}</h3>
+	<ul>
+	    {if isset($current.U_DOWNLOAD)}
+		<li>
+		    <a href="{$current.U_DOWNLOAD}" title="{'Download this file'|translate}">
+			<i class="fa fa-save"></i><span class="visually-hidden">{'Download'|translate}</span>
+		    </a>
+		</li>
+	    {/if}
+	    {if isset($PLUGIN_PICTURE_BUTTONS)}{foreach $PLUGIN_PICTURE_BUTTONS as $button}{$button}{/foreach}{/if}
+	    {if isset($PLUGIN_PICTURE_ACTIONS)}{$PLUGIN_PICTURE_ACTIONS}{/if}
+	    {if isset($favorite)}
+		<li>
+		    <a href="{$favorite.U_FAVORITE}" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}">
+			<i class="fa fa-heart{if !$favorite.IS_FAVORITE}-o{/if}"></i><span class="visually-hidden">{'Favorites'|translate}</span>
+		    </a>
+		</li>
+	    {/if}
+	    {if isset($U_SET_AS_REPRESENTATIVE)}
+		<li>
+		    <a href="{$U_SET_AS_REPRESENTATIVE}" title="{'set as album representative'|translate}">
+			<i class="fa fa-star"></i><span class="visually-hidden">{'representative'|translate}</span>
+		    </a>
+		</li>
+	    {/if}
+	    {if isset($U_PHOTO_ADMIN)}
+		<li>
+		    <a href="{$U_PHOTO_ADMIN}" title="{'Edit photo'|translate}">
+			<i class="fa fa-edit"></i><span class="visually-hidden">{'Edit'|translate}</span>
+		    </a>
+		</li>
+	    {/if}
+	    {if isset($U_CADDIE)}
+		<li>
+		    <a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">
+			<i class="fa fa-cart-plus"></i><span class="visually-hidden">{'Caddie'|translate}</span>
+		    </a>
+		</li>
+	    {/if}
+	</ul>
+    </div>
 {/block}

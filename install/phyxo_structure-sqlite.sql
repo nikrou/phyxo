@@ -185,7 +185,6 @@ CREATE TABLE "phyxo_images"
   "representative_ext" VARCHAR(4),
   "date_metadata_update" DATE,
   "rating_score" FLOAT,
-  "has_high" BOOLEAN default false,
   "path" VARCHAR(255) default '' NOT NULL,
   "storage_category_id" INTEGER,
   "level" INTEGER default 0 NOT NULL,

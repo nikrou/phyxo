@@ -333,7 +333,7 @@ var sliders = {
           <option value="{$prefilter.ID}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
           {/foreach}
         </select>
-        <a id="empty_caddie" href="admin/index.php?page=batch_manager&amp;action=empty_caddie" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}display:none{/if}">{'Empty caddie'|translate}</a>
+        <a id="empty_caddie" href="./index.php?page=batch_manager&amp;action=empty_caddie" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}display:none{/if}">{'Empty caddie'|translate}</a>
 
         <span id="duplicates_options" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}display:none{/if}">
           {'based on'|translate}
@@ -412,24 +412,24 @@ var sliders = {
         </blockquote>
       </li>
 
-			<li id="filter_search"{if !isset($filter.search)} style="display:none"{/if}>
-				<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
-				<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{if isset($filter.search)} checked="checked"{/if}>
-				{'Search'|translate}
-				<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
-				{combine_script id='core.scripts' load='async' path='admin/theme/js/scripts.js'}
-				<a href="admin/popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
-				{if (isset($no_search_results))}
-				<div>{'No results for'|translate} :
-				  <em><strong>
-				      {foreach $no_search_results as $res}
-				      {if !$res@first} &mdash; {/if}
-				      {$res}
-				      {/foreach}
-				  </strong></em>
-				</div>
-				{/if}
-			</li>
+      <li id="filter_search"{if !isset($filter.search)} style="display:none"{/if}>
+	  <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+	  <input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{if isset($filter.search)} checked="checked"{/if}>
+	  {'Search'|translate}
+	  <input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
+	  {combine_script id='core.scripts' load='async' path='admin/theme/js/scripts.js'}
+	  <a href="./popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
+	  {if (isset($no_search_results))}
+	      <div>{'No results for'|translate} :
+		  <em><strong>
+		      {foreach $no_search_results as $res}
+			  {if !$res@first} &mdash; {/if}
+			  {$res}
+		      {/foreach}
+		  </strong></em>
+	      </div>
+	  {/if}
+      </li>
 
       <li id="filter_filesize" {if !isset($filter.filesize)}style="display:none"{/if}>
         <a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>

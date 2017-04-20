@@ -152,7 +152,7 @@ function default_picture_content($content, $element_info) {
     $unique_derivatives = array();
     $show_original = isset($element_info['element_url']);
     $added = array();
-    foreach($element_info['derivatives'] as $type => $derivative) {
+    foreach ($element_info['derivatives'] as $type => $derivative) {
         if ($type==IMG_SQUARE || $type==IMG_THUMB) {
             continue;
         }
@@ -189,31 +189,27 @@ function default_picture_content($content, $element_info) {
 
 // caching first_rank, last_rank, current_rank in the displayed
 // section. This should also help in readability.
-$page['first_rank']   = 0;
-$page['last_rank']    = count($page['items']) - 1;
-$page['current_rank'] = $page['rank_of'][ $page['image_id'] ];
+$page['first_rank'] = 0;
+$page['last_rank'] = count($page['items']) - 1;
+$page['current_rank'] = $page['rank_of'][$page['image_id']];
 
 // caching current item : readability purpose
 $page['current_item'] = $page['image_id'];
 
 if ($page['current_rank'] != $page['first_rank']) {
     // caching first & previous item : readability purpose
-    $page['previous_item'] = $page['items'][ $page['current_rank'] - 1 ];
-    $page['first_item'] = $page['items'][ $page['first_rank'] ];
+    $page['previous_item'] = $page['items'][$page['current_rank'] - 1];
+    $page['first_item'] = $page['items'][$page['first_rank']];
 }
 
 if ($page['current_rank'] != $page['last_rank']) {
     // caching next & last item : readability purpose
-    $page['next_item'] = $page['items'][ $page['current_rank'] + 1 ];
-    $page['last_item'] = $page['items'][ $page['last_rank'] ];
+    $page['next_item'] = $page['items'][$page['current_rank'] + 1];
+    $page['last_item'] = $page['items'][$page['last_rank']];
 }
 
 $url_up = duplicate_index_url(
-    array(
-        'start' =>
-        floor($page['current_rank'] / $page['nb_image_page'])
-        * $page['nb_image_page']
-    ),
+    array('start' => floor($page['current_rank'] / $page['nb_image_page']) * $page['nb_image_page']),
     array('start')
 );
 
@@ -406,8 +402,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $row['element_path'] = get_element_path($row);
 
         if ($row['src_image']->is_original()) { // we have a photo
-            // @TODO : real boolean
-            if ($user['enabled_high']=='true') {
+            if (!empty(['enabled_high'])) {
                 $row['element_url'] = $row['src_image']->get_url();
                 $row['download_url'] = get_action_url($row['id'], 'e', true);
             }
@@ -426,7 +421,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
     $picture[$i] = $row;
     $picture[$i]['TITLE'] = render_element_name($row);
-    $picture[$i]['TITLE_ESC'] = str_replace('"', '&quot;', $picture[$i]['TITLE']);
+    $picture[$i]['TITLE_ESC'] = htmlspecialchars($picture[$i]['TITLE'], ENT_COMPAT, 'utf-8');
 
     if ('previous'==$i and $page['previous_item']==$page['first_item']) {
         $picture['first'] = $picture[$i];
@@ -503,7 +498,7 @@ $page['body_id'] = 'thePicturePage';
 $picture = trigger_change('picture_pictures_data', $picture);
 
 //------------------------------------------------------- navigation management
-foreach (array('first','previous','next','last', 'current') as $which_image) {
+foreach (array('first', 'previous', 'next', 'last', 'current') as $which_image) {
     if (isset($picture[$which_image])) {
         $template->assign(
             $which_image,
@@ -511,8 +506,7 @@ foreach (array('first','previous','next','last', 'current') as $which_image) {
                 $picture[$which_image],
                 array(
                     // Params slideshow was transmit to navigation buttons
-                    'U_IMG' =>
-                    add_url_params($picture[$which_image]['url'], $slideshow_url_params),
+                    'U_IMG' => add_url_params($picture[$which_image]['url'], $slideshow_url_params),
                 )
             )
         );
@@ -588,16 +582,10 @@ if ($conf['picture_metadata_icon']) {
 // admin links
 if ($services['users']->isAdmin()) {
     if (isset($page['category'])) {
-        $template->assign(
-            array(
-                'U_SET_AS_REPRESENTATIVE' => add_url_params($url_self,
-                array('action' => 'set_as_representative')
-                )
-            )
-        );
+        $template->assign(array('U_SET_AS_REPRESENTATIVE' => add_url_params($url_self, array('action' => 'set_as_representative'))));
     }
 
-    $url_admin = get_root_url().'admin/index.php?page=photo-'.$page['image_id'];
+    $url_admin = get_root_url().'admin/index.php?page=photo&amp;image_id='.$page['image_id'];
     $url_admin .= (isset($page['category']) ? '&amp;cat_id='.$page['category']['id'] : '');
 
     $template->assign(
