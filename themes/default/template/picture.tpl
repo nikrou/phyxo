@@ -53,8 +53,10 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 			    {/if}
 			    <p><label for="contentid">{'Comment'|translate} ({'mandatory'|translate}) :</label></p>
 			    <p><textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea></p>
-			    <p><input type="hidden" name="key" value="{$comment_add.KEY}">
-				<input type="submit" value="{'Submit'|translate}"></p>
+			    <p>
+				<input type="hidden" name="key" value="{$comment_add.KEY}">
+				<input type="submit" value="{'Submit'|translate}">
+			    </p>
 			</form>
 		    </div>
 		{/if}
@@ -199,10 +201,11 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 	    <p class="key">{if isset($rating.USER_RATE)}{'Update your rating'|translate}{else}{'Rate this photo'|translate}{/if}</p>
 	    <p>
 		<form action="{$rating.F_ACTION}" method="post" id="rate-form" name="rate_form" class="rating-form">
-		    {foreach $rating.marks|array_reverse as $mark}
-			<input type="radio" name="rate" id="rate-{$mark}" value="{$mark}">
-			<label for="rate-{$mark}" class="fa fa-star{if empty($rating.USER_RATE) || $mark==$rating.USER_RATE}-o{/if}"><span>{$mark}</span></label>
+		    {foreach $rating.marks as $mark}
+			<input type="radio" name="rate" id="rate-{$mark}" value="{$mark}"{if !empty($rating.USER_RATE) && $mark==$rating.USER_RATE} checked="checked"{/if}>
+			<label for="rate-{$mark}"><span>{$mark}</span></label>
 		    {/foreach}
+		    <p><input type="submit" name="update_rating" value="{'Submit'|translate}"></p>
 		</form>
 	    </p>
 	</div>
