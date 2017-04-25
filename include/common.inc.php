@@ -179,7 +179,7 @@ if ($conf['check_upgrade_feed']) {
 
 if (count($header_msgs) > 0) {
     $template->assign('header_msgs', $header_msgs);
-    $header_msgs=array();
+    $header_msgs = array();
 }
 
 if (!empty($conf['filter_pages']) and get_filter_page_value('used')) {

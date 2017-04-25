@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -114,8 +114,17 @@ class Tags extends BaseRepository
         );
         $query .= ' AND ('.$this->validatedCondition($user['id']).')';
         $query .= ' GROUP BY tag_id,validated,created_by,status';
+        $result = $this->conn->db_query($query);
 
-        $tag_counters = $this->conn->query2array($query, 'tag_id');
+        // merge tags whether they are validated or not
+        $tag_counters = array();
+        while ($row = $this->conn->db_fetch_assoc($result)) {
+            if (!isset($tag_counters[$row['tag_id']])) {
+                $tag_counters[$row['tag_id']] = $row;
+            } else {
+                $tag_counters[$row['tag_id']]['counter'] += $row['counter'];
+            }
+        }
 
         if (empty($tag_counters)) {
             return array();
