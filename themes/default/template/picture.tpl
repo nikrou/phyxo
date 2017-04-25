@@ -67,10 +67,10 @@ user_tags.tags_updated = '{"Tags updated"|translate}';
 				{if $COMMENT_COUNT > 2}
 				    <a href="{$COMMENTS_ORDER_URL}#comments" rel="nofollow" class="commentsOrder">{$COMMENTS_ORDER_TITLE}</a>
 				{/if}
-				{if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
+				{if !empty($navbar) }{include file="_navigation_bar.tpl"}{/if}
 			    </div>
 			{/if}
-			{include file='comment_list.tpl'}
+			{include file="_comment_list.tpl"}
 		    </div>
 		{/if}
 	    </div>

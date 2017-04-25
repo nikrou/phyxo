@@ -9,7 +9,7 @@
 	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Profile'|translate}</h2>
     </div>
 
-    {include file='infos_errors.tpl'}
+    {include file="_infos_errors.tpl"}
 
     <form method="post" name="profile" action="{$F_ACTION}" id="profile">
 	<div class="fieldset">

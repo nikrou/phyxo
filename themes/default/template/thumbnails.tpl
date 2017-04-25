@@ -15,7 +15,7 @@
 	    {if $SHOW_THUMBNAIL_CAPTION }
 		<span class="thumbName">{$thumbnail.NAME}</span>
 		{if !empty($thumbnail.icon_ts)}
-		    <img title="{$thumbnail.icon_ts.TITLE}" src="{$ROOT_URL}{$themeconf.icon_dir}/recent.png" alt="(!)">
+		    <i class="fa fa-exclamation" title="{$cat.icon_ts.TITLE}"></i>
 		{/if}
 		{if isset($thumbnail.NB_COMMENTS)}
 		    <span class="{if 0==$thumbnail.NB_COMMENTS}zero {/if}nb-comments">

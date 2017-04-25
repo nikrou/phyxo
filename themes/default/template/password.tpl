@@ -8,7 +8,7 @@
 	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{$title}</h2>
     </div>
 
-    {include file='infos_errors.tpl'}
+    {include file="_infos_errors.tpl"}
 
     {if $action ne 'none'}
 	<form id="lostPassword" action="{$form_action}?action={$action}{if isset($key)}&amp;key={$key}{/if}" method="post">
@@ -47,10 +47,9 @@
 			    <input type="password" name="passwordConf" id="passwordConf" value="">
 			</label>
 		    </p>
+		{/if}
 	    </fieldset>
 	    <p class="bottomButtons"><input type="submit" name="submit" value="{'Submit'|translate}"></p>
-		{/if}
-
 	</form>
     {/if}
 {/block}

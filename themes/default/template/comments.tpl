@@ -92,10 +92,10 @@
 	<p><input type="submit" value="{'Filter and display'|translate}"></p>
     </form>
 
-    {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
+    {if !empty($navbar) }{include file="_navigation_bar.tpl"}{/if}
     {if isset($comments)}
 	<div id="comments">
-	    {include file="comment_list.tpl" comment_derivative_params=$derivative_params}
+	    {include file="_comment_list.tpl" comment_derivative_params=$derivative_params}
 	</div>
     {/if}
 {/block}

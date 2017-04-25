@@ -81,7 +81,7 @@
 				    </div>
 				{/if}
 				{if !empty($errors) or !empty($infos)}
-		    		    {include file="infos_errors.tpl"}
+		    		    {include file="_infos_errors.tpl"}
 				{/if}
 			    </section>
 			{/if}
@@ -146,7 +146,7 @@
 				{if !empty($CATEGORIES)}{$CATEGORIES}{/if}
 
 				{if !empty($cats_navbar)}
-				    {include file="navigation_bar.tpl" navbar=$cats_navbar}
+				    {include file="_navigation_bar.tpl" navbar=$cats_navbar}
 				{/if}
 				{if !empty($THUMBNAILS)}
 				    <div class="thumbnails">
@@ -154,7 +154,7 @@
 				    </div>
 				{/if}
 				{if !empty($thumb_navbar)}
-				    {include file="navigation_bar.tpl" navbar=$thumb_navbar}
+				    {include file="_navigation_bar.tpl" navbar=$thumb_navbar}
 				{/if}
 			    {/block}
 			    {if !empty($PLUGIN_INDEX_CONTENT_END)}{$PLUGIN_INDEX_CONTENT_END}{/if}
@@ -163,7 +163,7 @@
 
 		    {block name="menubar"}
 			<aside role="navigation">
-			    {include file="menubar.tpl"}
+			    {include file="_menubar.tpl"}
 			</aside>
 		    {/block}
 
@@ -176,7 +176,7 @@
 					<ul>
 					    {foreach $image_orders as $image_order}
 						<li>
-						    <i class="{if !$image_order.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <i class="fa fa-check{if !$image_order.SELECTED} visually-hidden{/if}"></i>
 						    <a href="{$image_order.URL}">{$image_order.DISPLAY}</a>
 						</li>
 					    {/foreach}
@@ -190,7 +190,7 @@
 					<ul>
 					    {foreach $image_derivatives as $image_derivative}
 						<li>
-						    <i class="{if !$image_derivative.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <i class="fa fa-check{if !$image_derivative.SELECTED} visually-hidden{/if}"></i>
 						    <a href="{$image_derivative.URL}">{$image_derivative.DISPLAY}</a>
 						</li>
 					    {/foreach}
@@ -235,7 +235,7 @@
 					<ul>
 					    {foreach $chronology_views as $view}
 						<li>
-						    <i class="{if !$view.SELECTED}visually-hidden{/if}">&#x2714;</i>&nbsp;
+						    <i class="fa fa-check{if !$view.SELECTED} visually-hidden{/if}"></i>
 						    <a href="{$view.VALUE}">{$view.CONTENT}</a>
 						</li>
 					    {/foreach}

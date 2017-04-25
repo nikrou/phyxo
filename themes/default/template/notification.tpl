@@ -14,7 +14,7 @@
 	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Notification'|translate}</h2>
     </div>
 
-    {include file='infos_errors.tpl'}
+    {include file="_infos_errors.tpl"}
 
     <div class="notification">
 	<p>{'The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'|translate}</p>

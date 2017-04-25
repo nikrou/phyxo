@@ -22,7 +22,7 @@
 	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Tags'|translate}</h2>
     </div>
 
-    {include file='infos_errors.tpl'}
+    {include file="_infos_errors.tpl"}
 
     {if $display_mode == 'cloud' and isset($tags)}
 	<div id="fullTagCloud">
