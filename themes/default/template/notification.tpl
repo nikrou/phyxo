@@ -1,6 +1,6 @@
 {extends file="index.tpl"}
 
-{block name="outer-context"}{/block}
+{block name="context-wrapper"}{/block}
 
 {block name="html_head"}
     <link rel="alternate" type="application/rss+xml" title="{'Photos only RSS feed'|translate}" href="{$U_FEED_IMAGE_ONLY}">

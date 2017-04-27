@@ -72,7 +72,7 @@
 		{block name="main"}
 		    <section role="content">
 			{if !empty($header_notes) or !empty($errors) or !empty($infos)}
-			    <section role="messages">
+			    <section role="log">
 				{if !empty($header_notes)}
 				    <div class="notes header">
 					{foreach $header_notes as $element}
@@ -85,7 +85,7 @@
 				{/if}
 			    </section>
 			{/if}
-			<nav role="breadcrumb">
+			<nav class="breadcrumb">
 			    {block name="breadcrumb"}
 				{if !empty($TITLE)}
 				    <h2>{$TITLE}</h2>
@@ -167,8 +167,8 @@
 			</aside>
 		    {/block}
 
-		    {block name="outer-context"}
-			<aside role="context">
+		    {block name="context-wrapper"}
+			<aside role="complementary">
 			    {block name="context"}
 				{if !empty($image_orders)}
 				    <div class="infos sort-order">

@@ -1,6 +1,6 @@
 {extends file="index.tpl"}
 
-{block name="outer-context"}{/block}
+{block name="context-wrapper"}{/block}
 
 {block name="content"}
     <div class="titrePage">
