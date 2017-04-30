@@ -1,14 +1,14 @@
-{combine_script id='jquery.dataTables' load='footer' path='theme/js/plugins/jquery.dataTables.js'}
+{combine_script id="jquery.dataTables" load="footer" path="admin/theme/js/plugins/jquery.dataTables.js"}
 {html_style}
-.sorting { background: url({$ROOT_URL}theme/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
-.sorting_asc { background: url({$ROOT_URL}theme/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
-.sorting_desc { background: url({$ROOT_URL}theme/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
+.sorting { background: url({$ROOT_URL}admin/theme/js/plugins/datatables/images/sort_both.png) no-repeat center right; cursor:pointer; }
+.sorting_asc { background: url({$ROOT_URL}admin/theme/js/plugins/datatables/images/sort_asc.png) no-repeat center right; }
+.sorting_desc { background: url({$ROOT_URL}admin/theme/js/plugins/datatables/images/sort_desc.png) no-repeat center right; }
 
 .sorting, .sorting_asc, .sorting_desc {
 	padding: 3px 18px 3px 10px;
 }
-.sorting_asc_disabled { background: url({$ROOT_URL}theme/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
-.sorting_desc_disabled { background: url({$ROOT_URL}theme/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
+.sorting_asc_disabled { background: url({$ROOT_URL}admin/theme/js/plugins/datatables/images/sort_asc_disabled.png) no-repeat center right; }
+.sorting_desc_disabled { background: url({$ROOT_URL}admin/theme/js/plugins/datatables/images/sort_desc_disabled.png) no-repeat center right; }
 
 .dtBar {
 	text-align:left;
@@ -37,12 +37,12 @@ body .ui-tooltip {
 
 {/html_style}
 
-<h2>{$ratings|@count} {'Users'|translate}</h2>
+<h2>{$ratings|count} {'Users'|translate}</h2>
 
 <form action="{$F_ACTION}" method="GET">
   <fieldset>
     <noscript>
-      <label>{'Sort by'|@translate}
+      <label>{'Sort by'|translate}
 	<select name="order_by">
 	  {html_options options=$order_by_options selected=$order_by_options_selected}
 	</select>
@@ -61,8 +61,8 @@ body .ui-tooltip {
   </fieldset>
 </form>
 
-{combine_script id='core.scripts' load='async' path='theme/js/scripts.js'}
-{combine_script id='jquery.geoip' load='async' path='admin/theme/js/jquery.geoip.js'}
+{combine_script id="core.scripts" load="async" path="admin/theme/js/scripts.js"}
+{combine_script id="jquery.geoip" load="async" path="admin/theme/js/jquery.geoip.js"}
 {footer_script}
 jQuery('#rateTable').dataTable({
 	dom : '<"dtBar"filp>rt<"dtBar"ilp>',
@@ -119,7 +119,7 @@ function uidFromCell(cell){
 $(function(){
 	$("#rateTable").on( "click", ".del", function(e) {
 		e.preventDefault();
-		if (!confirm('{'Are you sure?'|@translate|@escape:'javascript'}'))
+		if (!confirm('{'Are you sure?'|translate|escape:'javascript'}'))
 			return;
 		var cell = e.target.parentNode,
 			tr = cell;
@@ -128,7 +128,7 @@ $(function(){
 
 		var data=uidFromCell(cell);
 
-		(new PwgWS('{$ROOT_URL|@escape:javascript}')).callService(
+		(new PwgWS('{$ROOT_URL|escape:javascript}')).callService(
 			'pwg.rates.delete', { user_id:data.uid, anonymous_id:data.aid},
 			{
 				method: 'POST',
@@ -154,8 +154,8 @@ $(function(){
 	<th class="dtc_stat">{'Number of rates'|translate}</th>
 	<th class="dtc_stat">{'Average rate'|translate}</th>
 	<th class="dtc_stat">{'Variation'|translate}</th>
-	<th class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'}</th>
-	<th class="dtc_stat">{'Consensus deviation'|translate|@replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</th>
+	<th class="dtc_stat">{'Consensus deviation'|translate|replace:' ':'<br>'}</th>
+	<th class="dtc_stat">{'Consensus deviation'|translate|replace:' ':'<br>'} {$CONSENSUS_TOP_NUMBER}</th>
 {foreach from=$available_rates item=rate}
 	<th class="dtc_rate">{$rate}</th>
 {/foreach}
@@ -166,12 +166,12 @@ $(function(){
 <tr data-usr='{ldelim}"uid":{$rating.uid},"aid":"{$rating.aid}"}'>
 {strip}
 <td class=usr>{$user}</td><td title="First: {$rating.first_date}">{$rating.last_date}</td>
-<td>{$rating.count}</td><td>{$rating.avg|@number_format:2}</td>
-<td>{$rating.cv|@number_format:3}</td><td>{$rating.cd|@number_format:3}</td><td>{if !empty($rating.cdtop)}{$rating.cdtop|@number_format:3}{/if}</td>
+<td>{$rating.count}</td><td>{$rating.avg|number_format:2}</td>
+<td>{$rating.cv|number_format:3}</td><td>{$rating.cd|number_format:3}</td><td>{if !empty($rating.cdtop)}{$rating.cdtop|number_format:3}{/if}</td>
 {foreach from=$rating.rates item=rates key=rate}
 <td>{if !empty($rates)}
 {capture assign=rate_over}{foreach $rates as $rate_arr}{if $rate_arr@index>29}{break}{/if}<img src="{$image_urls[$rate_arr.id].tn}" alt="thumb-{$rate_arr.id}" width="{$TN_WIDTH}" height="{$TN_WIDTH}">{/foreach}{/capture}
-<a title="{$rate_over|@htmlspecialchars}">{$rates|@count}</a>
+<a title="{$rate_over|htmlspecialchars}">{$rates|count}</a>
 {/if}</td>
 {/foreach}
 <td><a class="del icon-trash"></a></td>

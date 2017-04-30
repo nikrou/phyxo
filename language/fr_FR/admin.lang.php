@@ -999,3 +999,6 @@ $lang['Pendings'] = "En attente";
 
 $lang['Development'] = "Développement";
 $lang['Javascript tests'] = "Tests javascript";
+
+$lang['Variation'] = "Variation";
+$lang['Consensus deviation'] = "Consensus deviation";

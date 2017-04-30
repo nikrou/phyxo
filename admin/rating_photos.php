@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -130,7 +130,7 @@ $template->assign('images', array() );
 foreach ($images as $image) {
     $thumbnail_src = DerivativeImage::thumb_url($image);
 
-    $image_url = get_root_url().'admin/index.php?page=photo-'.$image['id'];
+    $image_url = get_root_url().'admin/index.php?page=photo&image_id='.$image['id'];
 
     $query = 'SELECT * FROM '.RATE_TABLE.' AS r';
     $query .= ' WHERE r.element_id='.$image['id']. ' ORDER BY date DESC;';
