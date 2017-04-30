@@ -96,7 +96,7 @@
 			    {/block}
 			</nav>
 			{if !empty($PLUGIN_INDEX_CONTENT_BEFORE)}{$PLUGIN_INDEX_CONTENT_BEFORE}{/if}
-			<div class="content">
+			<div class="main-content">
 			    {if !empty($PLUGIN_INDEX_CONTENT_BEGIN)}{$PLUGIN_INDEX_CONTENT_BEGIN}{/if}
 			    {block name="content"}
 				{if !empty($no_search_results)}
@@ -157,7 +157,83 @@
 				    {include file="_navigation_bar.tpl" navbar=$thumb_navbar}
 				{/if}
 			    {/block}
+
 			    {if !empty($PLUGIN_INDEX_CONTENT_END)}{$PLUGIN_INDEX_CONTENT_END}{/if}
+			</div>
+
+			<div class="toolbar">
+			    {block name="content-toolbar"}
+				<ul>
+				    {if isset($favorite)}
+					<li>
+					    <a href="{$favorite.U_FAVORITE}" title="{'delete all photos from your favorites'|translate}">
+						<i class="fa fa-heart-o"></i><span class="visually-hidden">{'delete all photos from your favorites'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if isset($U_CADDIE)}
+					<li>
+					    <a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">
+						<i class="fa fa-cart-plus"></i><span class="visually-hidden>"{'Caddie'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if isset($U_EDIT)}
+					<li>
+					    <a href="{$U_EDIT}" title="{'Edit album'|translate}">
+						<i class="fa fa-edit"></i><span class="visually-hidden">{'Edit'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if isset($U_SEARCH_RULES)}
+					<li>
+					    <a href="{$U_SEARCH_RULES}" title="{'Search rules'|translate}">(?)</a>
+					</li>
+				    {/if}
+				    {if isset($U_SLIDESHOW)}
+					<li>
+					    <a href="{$U_SLIDESHOW}" title="{'slideshow'|translate}">
+						<i class="fa fa-play"></i><span class="visually-hidden">{'slideshow'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if isset($U_MODE_FLAT)}
+					<li><a href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}">{'display all photos in all sub-albums'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_NORMAL)}
+					<li><a href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">{'return to normal view mode'|translate}</a></li>
+				    {/if}
+				    {if isset($U_MODE_POSTED)}
+					<li>
+					    <a href="{$U_MODE_POSTED}" title="{'display a calendar by posted date'|translate}">
+						<i class="fa fa-calendar-o"></i><span class="visually-hidden">{'Calendar'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if isset($U_MODE_CREATED)}
+					<li>
+					    <a href="{$U_MODE_CREATED}" title="{'display a calendar by creation date'|translate}">
+						<i class="fa fa-calendar"></i><span class="visually-hidden">{'Calendar'|translate}</span>
+					    </a>
+					</li>
+				    {/if}
+				    {if !empty($PLUGIN_INDEX_ACTIONS)}{$PLUGIN_INDEX_ACTIONS}{/if}
+				</ul>
+
+				{if isset($chronology_views)}
+				    <div class="infos calendar">
+					<h3>{'Calendar'|translate}</h3>
+					<ul>
+					    {foreach $chronology_views as $view}
+						<li>
+						    <i class="fa fa-check{if !$view.SELECTED} visually-hidden{/if}"></i>
+						    <a href="{$view.VALUE}">{$view.CONTENT}</a>
+						</li>
+					    {/foreach}
+					</ul>
+				    </div>
+				{/if}
+			    {/block}
 			</div>
 		    </section>
 
@@ -169,6 +245,7 @@
 
 		    {block name="context-wrapper"}
 			<aside role="complementary">
+			    <p><i class="fa fa-times"></i></p>
 			    {block name="context"}
 				{if !empty($image_orders)}
 				    <div class="infos sort-order">
@@ -192,51 +269,6 @@
 						<li>
 						    <i class="fa fa-check{if !$image_derivative.SELECTED} visually-hidden{/if}"></i>
 						    <a href="{$image_derivative.URL}">{$image_derivative.DISPLAY}</a>
-						</li>
-					    {/foreach}
-					</ul>
-				    </div>
-				{/if}
-
-				<ul>
-				    {if isset($favorite)}
-					<li><a href="{$favorite.U_FAVORITE}" title="{'delete all photos from your favorites'|translate}">{'delete all photos from your favorites'|translate}</a></li>
-				    {/if}
-				    {if isset($U_CADDIE)}
-					<li><a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">{'Caddie'|translate}</a></li>
-				    {/if}
-				    {if isset($U_EDIT)}
-					<li><a href="{$U_EDIT}" title="{'Edit album'|translate}">{'Edit'|translate}</a></li>
-				    {/if}
-				    {if isset($U_SEARCH_RULES)}
-					<li><a href="{$U_SEARCH_RULES}" title="{'Search rules'|translate}">(?)</a></li>
-				    {/if}
-				    {if isset($U_SLIDESHOW)}
-					<li><a href="{$U_SLIDESHOW}" title="{'slideshow'|translate}">{'slideshow'|translate}</a></li>
-				    {/if}
-				    {if isset($U_MODE_FLAT)}
-					<li><a href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}">{'display all photos in all sub-albums'|translate}</a></li>
-				    {/if}
-				    {if isset($U_MODE_NORMAL)}
-					<li><a href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">{'return to normal view mode'|translate}</a></li>
-				    {/if}
-				    {if isset($U_MODE_POSTED)}
-					<li><a href="{$U_MODE_POSTED}" title="{'display a calendar by posted date'|translate}">{'Calendar'|translate}</a></li>
-				    {/if}
-				    {if isset($U_MODE_CREATED)}
-					<li><a href="{$U_MODE_CREATED}" title="{'display a calendar by creation date'|translate}">{'Calendar'|translate}</a></li>
-				    {/if}
-				    {if !empty($PLUGIN_INDEX_ACTIONS)}{$PLUGIN_INDEX_ACTIONS}{/if}
-				</ul>
-
-				{if isset($chronology_views)}
-				    <div class="infos calendar">
-					<h3>{'Calendar'|translate}</h3>
-					<ul>
-					    {foreach $chronology_views as $view}
-						<li>
-						    <i class="fa fa-check{if !$view.SELECTED} visually-hidden{/if}"></i>
-						    <a href="{$view.VALUE}">{$view.CONTENT}</a>
 						</li>
 					    {/foreach}
 					</ul>
