@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -123,7 +123,7 @@ function deactivate_non_standard_themes() {
         // if the default theme has just been deactivated, let's set another core theme as default
         if (in_array($default_theme, $theme_ids)) {
             $query = 'UPDATE '.PREFIX_TABLE.'user_infos';
-            $query .= ' SET theme = \'elegant\' WHERE user_id = '.$conn->db_real_escape_string($conf['default_user_id']);
+            $query .= ' SET theme = \'treflez\' WHERE user_id = '.$conn->db_real_escape_string($conf['default_user_id']);
             $conn->db_query($query);
         }
     }

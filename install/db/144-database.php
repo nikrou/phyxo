@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -49,7 +49,7 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query .= '"show_nb_comments" BOOLEAN default false,';
     $query .= '"show_nb_hits" BOOLEAN default false,';
     $query .= '"recent_period" INTEGER default 7 NOT NULL,';
-    $query .= '"theme" VARCHAR(255) default \'elegant\' NOT NULL,';
+    $query .= '"theme" VARCHAR(255) default \'treflez\' NOT NULL,';
     $query .= '"registration_date" TIMESTAMP NOT NULL,';
     $query .= '"enabled_high" BOOLEAN default true,';
     $query .= '"level" INTEGER default 0 NOT NULL,';

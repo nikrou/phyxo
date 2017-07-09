@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -620,12 +620,12 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
             );
 
             if ($content_type == 'text/html') {
-                if ($template->smarty->templateExists('global-mail-css.tpl')) {
+                if ($template->isTemplateExists('global-mail-css.tpl')) {
                     $template->set_filename('global-css', 'global-mail-css.tpl');
                     $template->assign_var_from_handle('GLOBAL_MAIL_CSS', 'global-css');
                 }
 
-                if ($template->smarty->templateExists('mail-css-'. $args['theme'] .'.tpl')) {
+                if ($template->isTemplateExists('mail-css-'. $args['theme'] .'.tpl')) {
                     $template->set_filename('css', 'mail-css-'. $args['theme'] .'.tpl');
                     $template->assign_var_from_handle('MAIL_CSS', 'css');
                 }
@@ -670,7 +670,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
             if (isset($tpl['dirname'])) {
                 $template->set_template_dir($tpl['dirname'] .'/'. $content_type);
             }
-            if ($template->smarty->templateExists($tpl['filename'] .'.tpl')) {
+            if ($template->isTemplateExists($tpl['filename'] .'.tpl')) {
                 $template->set_filename($tpl['filename'], $tpl['filename'] .'.tpl');
                 if (!empty($tpl['assign'])) {
                     $template->assign($tpl['assign']);

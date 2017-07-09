@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -30,7 +30,7 @@ if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
 }
 if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
-    define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
+    define('PHPWG_DEFAULT_TEMPLATE', 'treflez');
 }
 
 if (!defined('PHPWG_THEMES_PATH')) {
@@ -54,10 +54,10 @@ if (!defined('PHPWG_DOMAIN')) {
     define('PHPWG_DOMAIN', 'phyxo.net');
 }
 if (!defined('PHPWG_URL')) {
-    define('PHPWG_URL', 'http://www.phyxo.net');
+    define('PHPWG_URL', 'https://www.phyxo.net');
 }
 if (!defined('PHYXO_UPDATE_URL')) {
-    define('PHYXO_UPDATE_URL', 'http://download.phyxo.net/versions');
+    define('PHYXO_UPDATE_URL', 'https://download.phyxo.net/versions');
 }
 if (!defined('PHYXO_UPDATE_VERSION')) {
 	define('PHYXO_UPDATE_VERSION', 'stable');

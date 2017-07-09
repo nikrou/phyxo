@@ -31,3 +31,6 @@
 
 ;; tests
 /tests/units/tmp/
+
+;;
+/themes/default/build

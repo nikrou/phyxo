@@ -441,7 +441,7 @@ CREATE TABLE "phyxo_user_infos"
   "show_nb_comments" BOOLEAN default false,
   "show_nb_hits" BOOLEAN default false,
   "recent_period" INTEGER default 7 NOT NULL,
-  "theme" VARCHAR(255) default 'elegant' NOT NULL,
+  "theme" VARCHAR(255) default 'treflez' NOT NULL,
   "registration_date" TIMESTAMP NOT NULL,
   "enabled_high" BOOLEAN default true,
   "level" INTEGER default 0 NOT NULL,

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -37,7 +37,7 @@ class Updates
         if (in_array($page, $this->types)) {
             $this->types = array($page);
         }
-        $this->default_themes = array('clear', 'dark', 'Sylvia', 'elegant', 'default');
+        $this->default_themes = array('treflez', 'default');
         $this->default_plugins = array();
         $this->default_languages = array();
 
