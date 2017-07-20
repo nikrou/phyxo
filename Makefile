@@ -13,7 +13,7 @@ dist: config dist-tgz dist-zip
 
 config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
-	cp -pr *.php admin doc include install language src \
+	cp -pr *.php admin include install language src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/

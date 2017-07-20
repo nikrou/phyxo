@@ -144,7 +144,7 @@
     </div> <!-- the_page -->
 
     <div id="the_footer">
-      Copyright &copy; 2016 <a href="http://www.phyxo.net/">Phyxo</a>
+      Copyright &copy; 2017 <a href="https://www.phyxo.net/">Phyxo</a>
     </div> <!-- the_footer -->
   </body>
 </html>
