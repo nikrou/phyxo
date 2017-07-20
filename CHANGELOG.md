@@ -1,7 +1,7 @@
 Phyxo 1.7.0 - 2017-??-??
 ========================
 * Remove template extensions. Use inheritance instead.
-* New core theme  "Treflez".
+* New core theme "Treflez".
 * PHP minimum version is now 7.0.0. PHP 5 reaches end of life and is now only security fixes.
 
 Phyxo 1.6.3 - 2017-01-05

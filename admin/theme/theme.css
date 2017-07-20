@@ -52,15 +52,6 @@ UL.thumbnails li.rank-of-image {
   margin: 4px;
 	overflow: hidden;
 }
-.clipwrapper {
-  position:relative;
-  width: 96px;
-  height: 96px;
-  margin: 3px;
-}
-.clip {
-  position:absolute;
-}
 
 UL.thumbnails SPAN.wrap1 {
   margin: 5px;

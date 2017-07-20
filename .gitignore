@@ -34,3 +34,4 @@
 
 ;;
 /themes/default/build
+/themes/default/*.log

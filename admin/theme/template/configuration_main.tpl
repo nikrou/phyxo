@@ -187,13 +187,13 @@ jQuery("input[name='mail_theme']").change(function() {
         <label>{'Mail theme'|translate}</label>
 
         <div class="themeBoxes font-checkbox">
-        {foreach from=$main.mail_theme_options item=name key=theme}
+        {foreach $main.mail_theme_options as $theme}
           <div class="themeBox {if $main.mail_theme==$theme}themeDefault{/if}">
             <label>
-              <div class="themeName">
+		<div class="themeName">
                 <span class="icon-check"></span>
                 <input type="radio" name="mail_theme" value="{$theme}" {if $main.mail_theme==$theme}checked{/if}>
-                {$name}
+                {$theme}
               </div>
               <div class="themeShot">
                 <img src="./theme/template/mail/screenshot-{$theme}.png" width="150"/>
