@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -68,3 +68,4 @@ $lang['Successfully registered, you will soon receive an email with your connect
 $lang['Please, enter a login'] = 'Please enter a login';
 $lang['Piwigo encountered a non recoverable error'] = 'Piwigo encountered an irrecoverable error';
 $lang['Forgot your password?'] = 'Forgotten your password?';
+$lang['Hide context'] = "Hide context";

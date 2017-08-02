@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -433,3 +433,4 @@ $lang['You are not allowed to add nor delete tags'] = "Vous n\êtes pas autoris�
 $lang['You are not allowed to add tags'] = "Vous n\êtes pas autorisé à ajouter de tags";
 $lang['You are not allowed to delete tags'] = "Vous n\êtes pas autorisé à supprimer de tags";
 $lang['Informations'] = "Informations";
+$lang['Hide context'] = "Masquer le contexte";

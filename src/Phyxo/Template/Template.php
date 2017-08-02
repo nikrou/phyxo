@@ -261,6 +261,10 @@ class Template
         return true;
     }
 
+    public function getVariable($var) {
+        return $this->smarty->getVariable($var);
+    }
+
     /**
      * Appends a new value in a template array variable, the variable is created if needed.
      * @see http://www.smarty.net/manual/en/api.append.php

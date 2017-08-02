@@ -272,34 +272,28 @@ abstract class CalendarBase
         }
         $current_rank = $upper_items_rank[$current];
 
-        $tpl_var = array();
+        $tpl_var = [];
 
         if ($current_rank>0) { // has previous
             $prev = $upper_items[$current_rank-1];
             $chronology_date = explode('-', $prev);
-            $tpl_var['previous'] =
-                array(
-                    'LABEL' => $this->get_date_nice_name($prev),
-                    'URL' => duplicate_index_url(
-                        array('chronology_date'=>$chronology_date), array('start')
-                    )
-                );
+            $tpl_var['previous'] = [
+                'LABEL' => $this->get_date_nice_name($prev),
+                'URL' => duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+            ];
         }
 
         if ($current_rank < count($upper_items)-1) { // has next
             $next = $upper_items[$current_rank+1];
             $chronology_date = explode('-', $next);
-            $tpl_var['next'] =
-                array(
-                    'LABEL' => $this->get_date_nice_name($next),
-                    'URL' => duplicate_index_url(
-                        array('chronology_date'=>$chronology_date), array('start')
-                    )
-                );
+            $tpl_var['next'] = [
+                'LABEL' => $this->get_date_nice_name($next),
+                'URL' => duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+            ];
         }
 
         if (!empty($tpl_var)) {
-            $existing = $template->smarty->getVariable('chronology_navigation_bars');
+            $existing = $template->getVariable('chronology_navigation_bars');
             if (!($existing instanceof \Smarty_Undefined_Variable)) {
                 $existing->value[ sizeof($existing->value)-1 ] = array_merge($existing->value[sizeof($existing->value)-1], $tpl_var);
             } else {

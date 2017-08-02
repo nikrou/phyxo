@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -163,23 +163,23 @@ function add_core_tabs($sheets, $tab_id) {
         case 'help':
             $sheets['add_photos'] = array(
                 'caption' => l10n('Add Photos'),
-                'url' => HELP_BASE_LINK.'&amp;section=add_photos'
+                'url' => HELP_BASE_URL.'&amp;section=add_photos'
             );
             $sheets['permissions'] = array(
                 'caption' => l10n('Permissions'),
-                'url' => HELP_BASE_LINK.'&amp;section=permissions'
+                'url' => HELP_BASE_URL.'&amp;section=permissions'
             );
             $sheets['groups'] = array(
                 'caption' => l10n('Groups'),
-                'url' => HELP_BASE_LINK.'&amp;section=groups'
+                'url' => HELP_BASE_URL.'&amp;section=groups'
             );
             $sheets['virtual_links'] = array(
                 'caption' => l10n('Virtual Links'),
-                'url' => HELP_BASE_LINK.'&amp;section=virtual_links'
+                'url' => HELP_BASE_URL.'&amp;section=virtual_links'
             );
             $sheets['misc'] = array(
                 'caption' => l10n('Miscellaneous'),
-                'url' => HELP_BASE_LINK.'&amp;section=misc'
+                'url' => HELP_BASE_URL.'&amp;section=misc'
             );
             break;
 
