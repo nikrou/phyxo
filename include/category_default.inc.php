@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -143,5 +143,4 @@ $template->assign('thumbnails', $tpl_thumbnails_var);
 
 $template->assign_var_from_handle('THUMBNAILS', 'index_thumbnails');
 unset($pictures, $selection, $tpl_thumbnails_var);
-$template->clear_assign( 'thumbnails' );
-pwg_debug('end include/category_default.inc.php');
+$template->clear_assign('thumbnails');

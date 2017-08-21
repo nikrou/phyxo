@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -42,7 +42,7 @@ function initialize_calendar() {
 
     if ($page['section']=='categories') { // we will regenerate the items by including subcats elements
         $page['items'] = array();
-        $inner_sql .= ' INNER JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+        $inner_sql .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(
@@ -72,8 +72,6 @@ function initialize_calendar() {
     }
 
     //-------------------------------------- initialize the calendar parameters ---
-    pwg_debug('start initialize_calendar');
-
     $fields = array(
         // Created
         'created' => array(
@@ -241,5 +239,4 @@ function initialize_calendar() {
             }
         }
     }
-    pwg_debug('end initialize_calendar');
 }

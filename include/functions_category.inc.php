@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -72,7 +72,7 @@ function get_categories_menu() {
     $query .= 'date_last, max_date_last, count_images, count_categories';
 
     // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
-    $query .= ' FROM '.CATEGORIES_TABLE.' INNER JOIN '.USER_CACHE_CATEGORIES_TABLE;
+    $query .= ' FROM '.CATEGORIES_TABLE.' LEFT JOIN '.USER_CACHE_CATEGORIES_TABLE;
     $query .= ' ON id = cat_id and user_id = '.$user['id'];
 
     // Always expand when filter is activated

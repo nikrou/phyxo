@@ -636,24 +636,6 @@ function transform_date($original, $format_in, $format_out, $default=null) {
 }
 
 /**
- * append a variable to _$debug_ global
- *
- * @param string $string
- */
-function pwg_debug($string) {
-    global $debug,$t2,$page;
-
-    $now = explode( ' ', microtime() );
-    $now2 = explode( '.', $now[0] );
-    $now2 = $now[1].'.'.$now2[1];
-    $time = number_format( $now2 - $t2, 3, '.', ' ').' s';
-    $debug .= '<p>';
-    $debug.= '['.$time.', ';
-    $debug.= $page['count_queries'].' queries] : '.$string;
-    $debug.= "</p>\n";
-}
-
-/**
  * Redirects to the given URL (HTTP method).
  * once this function called, the execution doesn't go further
  * (presence of an exit() instruction.
