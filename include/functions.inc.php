@@ -114,7 +114,7 @@ define('MKGETDIR_DEFAULT', MKGETDIR_RECURSIVE | MKGETDIR_DIE_ON_ERROR | MKGETDIR
  * @param int $flags combination of MKGETDIR_xxx
  * @return bool
  */
-function mkgetdir($dir, $flags=MKGETDIR_DEFAULT) {
+function mkgetdir($dir, $flags=MKGETDIR_NONE) {
     global $conf;
 
     if (!is_dir($dir)) {

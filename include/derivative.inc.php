@@ -448,6 +448,12 @@ final class DerivativeImage
         return $size;
     }
 
+    function get_ratio() {
+        $size = $this->get_size();
+
+        return $size[0]/$size[1];
+    }
+
     /**
      * Returns the scaled size as HTML attributes.
      *

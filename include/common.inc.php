@@ -149,7 +149,7 @@ if (!defined('IN_WS') || !IN_WS) {
     }
 }
 
-if (!isset($conf['no_photo_yet'])) {
+if (!isset($conf['no_photo_yet']) || !$conf['no_photo_yet']) {
     include(PHPWG_ROOT_PATH.'include/no_photo_yet.inc.php');
 }
 

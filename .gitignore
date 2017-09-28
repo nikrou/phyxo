@@ -33,5 +33,6 @@
 /tests/units/tmp/
 
 ;;
-/themes/default/build
-/themes/default/*.log
+/themes/**/build
+/themes/**/node_modules
+/themes/**/*.log
