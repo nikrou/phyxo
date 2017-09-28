@@ -24,6 +24,9 @@
 
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
+
+$template_filename = 'index';
+
 include_once( PHPWG_ROOT_PATH.'include/common.inc.php');
 include(PHPWG_ROOT_PATH.'include/section_init.inc.php');
 
@@ -107,15 +110,11 @@ $template->assign('TITLE', $template_title);
 //-------------------------------------------------------------- menubar
 include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
 
-$template->set_filename('index', 'index.tpl');
-
 // +-----------------------------------------------------------------------+
 // |  index page (categories, thumbnails, search, calendar, random, etc.)  |
 // +-----------------------------------------------------------------------+
 if (empty($page['is_external']) or !$page['is_external']) {
     //----------------------------------------------------- template initialization
-    $page['body_id'] = 'theCategoryPage';
-
     if (isset($page['flat']) or isset($page['chronology_field'])) {
         $template->assign(
             'U_MODE_NORMAL',
@@ -268,20 +267,23 @@ if (empty($page['is_external']) or !$page['is_external']) {
     }
 
     //------------------------------------------------------ main part : thumbnails
-    if (0==$page['start']
-    and !isset($page['flat'])
-    and !isset($page['chronology_field'])
-    and ('recent_cats'==$page['section'] or 'categories'==$page['section'])
-    and (!isset($page['category']['count_categories']) or $page['category']['count_categories']>0)) {
+    if (0==$page['start'] && !isset($page['flat']) && !isset($page['chronology_field']) && ('recent_cats'==$page['section'] or 'categories'==$page['section'])
+        && (!isset($page['category']['count_categories']) || $page['category']['count_categories']>0)) {
         include(PHPWG_ROOT_PATH.'include/category_cats.inc.php');
+
+        $template_filename = 'mainpage_categories';
     }
 
     if (!empty($page['items'])) {
         include(PHPWG_ROOT_PATH.'include/category_default.inc.php');
+
+        if (!isset($page['chronology_field'])) {
+            $template_filename = 'thumbnails';
+        }
         $url = add_url_params(duplicate_index_url(), array('display' => ''));
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
-        $template->clear_assign('derivative_params');
+        //$template->clear_assign('derivative_params');
         $type_map = ImageStdParams::get_defined_type_map();
         unset($type_map[IMG_XXLARGE], $type_map[IMG_XLARGE]);
 
@@ -313,7 +315,9 @@ include(PHPWG_ROOT_PATH.'include/page_header.php');
 trigger_notify('loc_end_index');
 flush_page_messages();
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-$template->pparse('index');
+
+$template->set_filename($template_filename, "$template_filename.tpl");
+$template->pparse($template_filename);
 
 //------------------------------------------------------------ log informations
 pwg_log();

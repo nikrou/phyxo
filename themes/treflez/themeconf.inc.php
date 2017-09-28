@@ -18,9 +18,10 @@
 // | MA 02110-1301 USA.                                                    |
 // +-----------------------------------------------------------------------+
 
-$themeconf = array(
+$themeconf = [
     'name' => 'treflez',
     'parent' => 'default',
-    'load_parent_css' => true,
-    'load_parent_local_head' => true
-);
+    'load_css' => false,
+    'load_parent_css' => false,
+    'load_parent_local_head' => false,
+];

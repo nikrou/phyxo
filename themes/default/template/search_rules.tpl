@@ -1,8 +1,8 @@
-{extends file="index.tpl"}
+{extends file="__layout.tpl"}
 
-{block name="outer-context"}{/block}
+{block name="context_wrapper"}{/block}
 
-{block name="content"}
+{block name="main-content"}
     <div class="titrePage">
 	<h2>{'Search rules'|translate}</h2>
     </div>
@@ -22,8 +22,8 @@
 	    <li>
 		<p>{if 'AND'==$SEARCH_TAGS_MODE}{'All tags'|translate}{else}{'Any tag'|translate}{/if}</p>
 		<ul>
-		    {foreach from=$search_tags item=v}
-			<li>{$v}</li>
+		    {foreach $search_tags as $i => $v}
+			<li>{$v.name}</li>
 		    {/foreach}
 		</ul>
 	    </li>

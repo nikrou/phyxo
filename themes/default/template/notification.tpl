@@ -1,13 +1,13 @@
-{extends file="index.tpl"}
+{extends file="__layout.tpl"}
 
-{block name="context-wrapper"}{/block}
+{block name="context_wrapper"}{/block}
 
-{block name="html_head"}
+{block name="head_html"}
     <link rel="alternate" type="application/rss+xml" title="{'Photos only RSS feed'|translate}" href="{$U_FEED_IMAGE_ONLY}">
     <link rel="alternate" type="application/rss+xml" title="{'Complete RSS feed (photos, comments)'|translate}" href="{$U_FEED}">
 {/block}
 
-{block name="content"}
+{block name="main-content"}
     <div class="titrePage">
 	<ul class="categoryActions">
 	</ul>

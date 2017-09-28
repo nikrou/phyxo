@@ -22,10 +22,6 @@
   default theme is not a real theme and cannot be used as is.
  */
 
-$themeconf = array(
+$themeconf = [
     'name' => 'default',
-    'icon_dir' => 'themes/default/icon',
-    'img_dir' => 'themes/default/images',
-    'mime_icon_dir' => 'themes/default/icon/mimetypes/',
-    'local_head' => 'template/local_head.tpl',
-);
+];

@@ -16,14 +16,16 @@
     </li>
     {'</ul></li>'|str_repeat:($ref_level-$cat.LEVEL)}
 	    {/if}
-	    <li {if $cat.SELECTED}class="selected"{/if}>
-		<a href="{$cat.URL}" {if $cat.IS_UPPERCAT}rel="up"{/if} title="{$cat.TITLE}">{$cat.NAME}</a>
-		{if $cat.count_images > 0}
-		    <span title="{$cat.TITLE}">[{$cat.count_images}]</span>
-		{/if}
-		{if !empty($cat.icon_ts)}
-		    <i class="fa fa-exclamation" title="{$cat.icon_ts.TITLE}"></i>
-		{/if}
+	    <li{if $cat.SELECTED} class="selected"{/if}>
+		<a href="{$cat.URL}" {if $cat.IS_UPPERCAT}rel="up"{/if} title="{$cat.TITLE}">
+		    {$cat.NAME}
+		    {if $cat.count_images > 0}
+			<span class="count" title="{$cat.TITLE}">[{$cat.count_images}]</span>
+		    {/if}
+		    {if !empty($cat.icon_ts)}
+			<i class="fa fa-exclamation" title="{$cat.icon_ts.TITLE}"></i>
+		    {/if}
+		</a>
 		{assign var='ref_level' value=$cat.LEVEL}
 	{/foreach}
 	{'</li></ul>'|str_repeat:$ref_level}

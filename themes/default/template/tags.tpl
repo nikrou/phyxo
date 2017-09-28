@@ -1,8 +1,8 @@
-{extends file="index.tpl"}
+{extends file="__layout.tpl"}
 
-{block name="outer-context"}{/block}
+{block name="context_wrapper"}{/block}
 
-{block name="content"}
+{block name="main-content"}
     <div class="titrePage">
 	<ul class="categoryActions">
 	    {if $display_mode == 'letters'}

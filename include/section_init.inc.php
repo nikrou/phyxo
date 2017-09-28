@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -413,6 +413,8 @@ if ('categories' == $page['section']) {
 // +-----------------------------------------------------------------------+
 if (isset($page['chronology_field'])) {
     unset($page['is_homepage']);
+    $template_filename = 'month_calendar';
+
     include_once( PHPWG_ROOT_PATH.'include/functions_calendar.inc.php' );
     initialize_calendar();
 }

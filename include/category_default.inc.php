@@ -74,9 +74,6 @@ if (count($pictures) > 0) {
     }
 }
 
-// template thumbnail initialization
-$template->set_filenames(array('index_thumbnails' => 'thumbnails.tpl'));
-
 trigger_notify('loc_begin_index_thumbnails', $pictures);
 $tpl_thumbnails_var = array();
 
@@ -140,7 +137,4 @@ $template->assign(
 );
 $tpl_thumbnails_var = trigger_change('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);
 $template->assign('thumbnails', $tpl_thumbnails_var);
-
-$template->assign_var_from_handle('THUMBNAILS', 'index_thumbnails');
 unset($pictures, $selection, $tpl_thumbnails_var);
-$template->clear_assign('thumbnails');

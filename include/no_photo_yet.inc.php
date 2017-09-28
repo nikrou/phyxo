@@ -34,7 +34,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
 
     $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE.';';
     list($nb_photos) = $conn->db_fetch_row($conn->db_query($query));
-    if ($nb_photos == 0) {
+    if ($nb_photos===0) {
         // make sure we don't use the mobile theme, which is not compatible with
         // the "no photo yet" feature
         $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $user['theme']);
@@ -89,6 +89,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
         $template->pparse('no_photo_yet');
         exit();
     } else {
-        conf_update_param('no_photo_yet', 'false');
+        conf_update_param('no_photo_yet', false);
     }
 }

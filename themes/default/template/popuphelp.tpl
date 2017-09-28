@@ -1,18 +1,7 @@
-{extends file="index.tpl"}
+{extends file="__layout.tpl"}
 
-{block name="content"}
-    <div class="titrePage">
-	<ul class="categoryActions">
-	    <li><a href="#" onclick="window.close();" title="{'Close this window'|translate}" class="pwg-state-default pwg-button">
-		<span class="pwg-icon pwg-icon-close">&nbsp;</span><span class="pwg-button-text">exit</span>
-	    </a></li>
-	</ul>
-	<h2><span id="homeLink"><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}</span>{$PAGE_TITLE}</h2>
-    </div>
+{block name="context_wrapper"}{/block}
 
+{block name="main-content"}
     {$HELP_CONTENT}
-
-    <p id="closeLink" class="visually-hidden">
-	<a href="#" onclick="window.close();">{'Close this window'|translate}</a>
-    </p>
 {/block}

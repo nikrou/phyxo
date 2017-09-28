@@ -83,39 +83,3 @@
 	   {/if}{/strip}-->*}
     {/if}
 </div>
-{strip}
-{footer_script}
-document.onkeydown = function(e){ldelim}
-e=e||window.event;
-if (e.altKey) return true;
-var target=e.target||e.srcElement;
-if (target && target.type) return true;{* an input editable element *}
-var keyCode=e.keyCode||e.which, docElem=document.documentElement, url;
-switch(keyCode){ldelim}
-{if isset($next)}
-    case 63235: case 39: if (e.ctrlKey || docElem.scrollLeft==docElem.scrollWidth-docElem.clientWidth)url="{$next.U_IMG}"; break;
-{/if}
-{if isset($previous)}
-    case 63234: case 37: if (e.ctrlKey || docElem.scrollLeft==0)url="{$previous.U_IMG}"; break;
-{/if}
-{if isset($first)}
-    {* Home *}case 36: if (e.ctrlKey)url="{$first.U_IMG}"; break;
-{/if}
-{if isset($last)}
-    {* End *}case 35: if (e.ctrlKey)url="{$last.U_IMG}"; break;
-{/if}
-{if isset($U_UP) and !isset($slideshow)}
-    {* Up *}case 38: if (e.ctrlKey)url="{$U_UP}"; break;
-{/if}
-{if isset($slideshow.U_START_PLAY)}
-    {* Pause *}case 32: url="{$slideshow.U_START_PLAY}"; break;
-{/if}
-{if isset($slideshow.U_STOP_PLAY)}
-    {* Play *}case 32: url="{$slideshow.U_STOP_PLAY}"; break;
-{/if}
-}
-if (url) {ldelim}window.location=url.replace("&amp;","&"); return false;}
-return true;
-}
-{/footer_script}
-{/strip}

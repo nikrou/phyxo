@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -70,7 +70,7 @@ if ($site_is_remote) {
     fatal_error('remote sites not supported');
 } else {
     include_once( PHPWG_ROOT_PATH.'admin/site_reader_local.php');
-    $site_reader = new LocalSiteReader($site_url);
+    $site_reader = new LocalSiteReader(PHPWG_ROOT_PATH.$site_url);
 }
 
 $general_failure = true;
@@ -124,6 +124,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     } else {
         $basedir = preg_replace('#/*$#', '', $site_url);
     }
+    $basedir = PHPWG_ROOT_PATH . $basedir;
 
     // we need to have fulldirs as keys to make efficient comparison
     $db_fulldirs = array_flip($db_fulldirs);

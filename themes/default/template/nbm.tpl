@@ -1,6 +1,6 @@
-{extends file="index.tpl"}
+{extends file="__layout.tpl"}
 
-{block name="content"}
+{block name="main-content"}
     <div class="titrePage">
 	<ul class="categoryActions">
 	</ul>

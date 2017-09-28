@@ -131,6 +131,10 @@ class Template
 
         $themeconf = $this->load_themeconf($root.'/'.$theme);
 
+        if (isset($themeconf['load_css'])) {
+            $load_css = $themeconf['load_css'];
+        }
+
         if (isset($themeconf['parent']) and $themeconf['parent'] != $theme) {
             $this->set_theme(
                 $root,
