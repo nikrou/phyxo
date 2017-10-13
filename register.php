@@ -108,4 +108,4 @@ include(PHPWG_ROOT_PATH.'include/page_header.php');
 trigger_notify('loc_end_register');
 flush_page_messages();
 include(PHPWG_ROOT_PATH.'include/page_tail.php');
-$template->parse('register');
+$template->pparse('register');
