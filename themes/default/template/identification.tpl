@@ -3,61 +3,47 @@
 {block name="context_wrapper"}{/block}
 {block name="menubar"}{/block}
 
+{block name="breadcrumb"}
+    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Identification'|translate}</h2>
+{/block}
+
 {block name="main-content"}
-    <div class="titrePage">
-	<ul class="categoryActions">
-	</ul>
-	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Identification'|translate}</h2>
-    </div>
+    <div class="form-content">
+	{include file="_infos_errors.tpl"}
 
-    {include file="_infos_errors.tpl"}
-
-    <form action="{$F_LOGIN_ACTION}" method="post" name="login_form" class="properties">
-	<fieldset>
-	    <legend>{'Connection settings'|translate}</legend>
-
-	    <ul>
-		<li>
-		    <span class="property">
-			<label for="username">{'Username'|translate}</label>
-		    </span>
+	<form action="{$F_LOGIN_ACTION}" method="post" name="login_form" class="properties">
+	    <div class="fieldset">
+		<h3>{'Connection settings'|translate}</h3>
+		<p>
+		    <label for="username">{'Username'|translate}</label>
 		    <input tabindex="1" class="login" type="text" name="username" id="username" size="25">
-		</li>
+		</p>
 
-		<li>
-		    <span class="property">
-			<label for="password">{'Password'|translate}</label>
-		    </span>
+		<p>
+		    <label for="password">{'Password'|translate}</label>
 		    <input tabindex="2" class="login" type="password" name="password" id="password" size="25">
-		</li>
+		</p>
 
 		{if $authorize_remembering }
-		    <li>
-			<span class="property">
-			    <label for="remember_me">{'Auto login'|translate}</label>
-			</span>
-			<input tabindex="3" type="checkbox" name="remember_me" id="remember_me" value="1">
-		    </li>
+		    <p>
+			<label for="remember_me"><input tabindex="3" type="checkbox" name="remember_me" id="remember_me" value="1">&nbsp;{'Auto login'|translate}</label>
+		    </p>
 		{/if}
-	    </ul>
-	</fieldset>
 
-	<p>
-	    <input type="hidden" name="redirect" value="{$U_REDIRECT|@urlencode}">
-	    <input tabindex="4" type="submit" name="login" value="{'Submit'|translate}">
-	</p>
+		<p>
+		    <input type="hidden" name="redirect" value="{$U_REDIRECT|@urlencode}">
+		    <input tabindex="4" type="submit" name="login" value="{'Submit'|translate}">
+		</p>
+	    </div>
 
-	<p>
-	    {if isset($U_REGISTER)}
-		<a href="{$U_REGISTER}" title="{'Register'|translate}" class="pwg-state-default pwg-button">
-		    <span class="pwg-icon pwg-icon-register">&nbsp;</span><span>{'Register'|translate}</span>
-		</a>
-	    {/if}
-	    {if isset($U_LOST_PASSWORD)}
-		<a href="{$U_LOST_PASSWORD}" title="{'Forgot your password?'|translate}" class="pwg-state-default pwg-button">
-		    <span class="pwg-icon pwg-icon-lost-password">&nbsp;</span><span>{'Forgot your password?'|translate}</span>
-		</a>
-	    {/if}
-	</p>
-    </form>
+	    <p>
+		{if isset($U_REGISTER)}
+		    <a href="{$U_REGISTER}" title="{'Register'|translate}">{'Register'|translate}</a>
+		{/if}
+		{if isset($U_LOST_PASSWORD)}
+		    <a href="{$U_LOST_PASSWORD}" title="{'Forgot your password?'|translate}">{'Forgot your password?'|translate}</a>
+		{/if}
+	    </p>
+	</form>
+    </div>
 {/block}

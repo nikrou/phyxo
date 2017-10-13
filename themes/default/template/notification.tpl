@@ -2,18 +2,16 @@
 
 {block name="context_wrapper"}{/block}
 
+{block name="breadcrumb"}
+    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Notification'|translate}</h2>
+{/block}
+
 {block name="head_html"}
     <link rel="alternate" type="application/rss+xml" title="{'Photos only RSS feed'|translate}" href="{$U_FEED_IMAGE_ONLY}">
     <link rel="alternate" type="application/rss+xml" title="{'Complete RSS feed (photos, comments)'|translate}" href="{$U_FEED}">
 {/block}
 
 {block name="main-content"}
-    <div class="titrePage">
-	<ul class="categoryActions">
-	</ul>
-	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Notification'|translate}</h2>
-    </div>
-
     {include file="_infos_errors.tpl"}
 
     <div class="notification">

@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -164,7 +164,22 @@ class CalendarMonthly extends CalendarBase
      * @return int[]
      */
     protected function get_all_days_in_month($year, $month) {
-        return cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        // cannot use cal_days_in_month(CAL_GREGORIAN, $month, $year); because of params that can be 'any'
+
+        $days_in_month = [1 => 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        if (is_numeric($year) and $month==2) {
+            $nb_days = $days_in_month[2];
+            if (($year%4==0) && (($year%100!=0) || ($year%400!=0))) {
+                $nb_days++;
+            }
+        } elseif (is_numeric($month)) {
+            $nb_days = $days_in_month[$month];
+        } else {
+            $nb_days = 31;
+        }
+
+        return $nb_days;
     }
 
     /**

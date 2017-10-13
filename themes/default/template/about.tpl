@@ -1,6 +1,6 @@
 {extends file="__layout.tpl"}
 
-{block name="wrapper_context"}{/block}
+{block name="context_wrapper"}{/block}
 
 {block name="breadcrumb"}
     <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'About'|translate}</h2>

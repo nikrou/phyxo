@@ -1,10 +1,9 @@
 {block name="menbar-menu"}
     <div class="block">
-	<h3>{'Menu'|translate}</h3>
 	{if isset($block->data.qsearch) and  $block->data.qsearch==true}
 	    <form action="qsearch.php" method="get" id="quicksearch">
 		<p>
-		    <input type="text" name="q" id="qsearchInput" value="{if !empty($QUERY_SEARCH)}{$QUERY_SEARCH}{/if}">
+		    <input type="text" placeholder="{'Quick search'|translate}" name="q" id="qsearchInput" value="{if !empty($QUERY_SEARCH)}{$QUERY_SEARCH}{/if}">
 		</p>
 	    </form>
 	{/if}

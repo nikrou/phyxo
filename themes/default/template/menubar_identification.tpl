@@ -23,40 +23,35 @@
 	</ul>
 	{if isset($U_LOGIN)}
 	    <form method="post" action="{$U_LOGIN}" id="quickconnect">
-		<fieldset>
-		    <legend>{'Quick connect'|translate}</legend>
-		    <div>
-			<label for="username">{'Username'|translate}</label><br>
+		<div class="fieldset">
+		    <h3>{'Quick connect'|translate}</h3>
+		    <p>
+			<label for="username">{'Username'|translate}</label>
 			<input type="text" name="username" id="username" value="">
-		    </div>
+		    </p>
 
-		    <div>
+		    <p>
 			<label for="password">{'Password'|translate}</label>
 			<input type="password" name="password" id="password">
-		    </div>
+		    </p>
 
 		    {if $AUTHORIZE_REMEMBERING}
-			<div>
-			    <label for="remember_me">{'Auto login'|translate}</label>
-			    <input type="checkbox" name="remember_me" id="remember_me" value="1">
-			</div>
+			<p>
+			    <label for="remember_me">{'Auto login'|translate}
+				<input type="checkbox" name="remember_me" id="remember_me" value="1">
+			    </label>
+			</p>
 		    {/if}
 
-		    <div>
+		    <p>
 			<input type="hidden" name="redirect" value="{$smarty.server.REQUEST_URI|@urlencode}">
 			<input type="submit" name="login" value="{'Submit'|translate}">
-			<span class="categoryActions">
-			    {if isset($U_REGISTER)}
-				<a href="{$U_REGISTER}" title="{'Create a new account'|translate}">
-				    <span class="fa fa-register"> </span>
-				</a>
-			    {/if}
-			    <a href="{$U_LOST_PASSWORD}" title="{'Forgot your password?'|translate}">
-				<span class="fa fa-lost-password"> </span>
-			    </a>
-			</span>
-		    </div>
-		</fieldset>
+			{if isset($U_REGISTER)}
+			    <a href="{$U_REGISTER}">{'Create a new account'|translate}</a>
+			{/if}
+			<a href="{$U_LOST_PASSWORD}">{'Forgot your password?'|translate}</a>
+		    </p>
+		</div>
 	    </form>
 	{/if}
     </div>

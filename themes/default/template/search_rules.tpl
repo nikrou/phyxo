@@ -2,11 +2,11 @@
 
 {block name="context_wrapper"}{/block}
 
-{block name="main-content"}
-    <div class="titrePage">
-	<h2>{'Search rules'|translate}</h2>
-    </div>
+{block name="breadcrumb"}
+    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Search rules'|translate}</h2>
+{/block}
 
+{block name="main-content"}
     {if isset($INTRODUCTION)}
 	<p>{$INTRODUCTION}</p>
     {/if}

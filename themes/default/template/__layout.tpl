@@ -2,9 +2,11 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
     <head>
 	{block name="head"}
-	    {block name="head_title"}
-		<title>{if $PAGE_TITLE!=l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
-	    {/block}
+	    <title>
+		{block name="head_title"}
+		    {if $PAGE_TITLE!=l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}
+		{/block}
+	    </title>
 	    {block name="head_meta"}
 		<meta charset="UTF-8">
 		<meta name="generator" content="Phyxo, see https://www.phyxo.net/">
@@ -106,18 +108,27 @@
 				    {block name="breacrumb_wrapper"}
 					<nav class="breadcrumb">
 					    {block name="breadcrumb"}
-						{if !empty($TITLE)}
-						    <h2>{$TITLE}</h2>
-						{/if}
-						{if isset($chronology.TITLE)}
-						    <h2 class="calendarTitle">{$chronology.TITLE}</h2>
-						{/if}
-					{/block}
+						<h2>
+						    {if !empty($TITLE)}
+							{$TITLE}
+						    {/if}
+
+						    {if isset($chronology.TITLE)}
+							{if !empty($TITLE)}&nbsp;/&nbsp;{/if}
+							{$chronology.TITLE}
+						    {/if}
+						    {if !empty($ITEMS)}
+							&nbsp[{$ITEMS}]
+						    {/if}
+						</h2>
+					    {/block}
 					</nav>
 				    {/block}
 				    {block name="content-toolbar_wrapper"}
 					<div class="toolbar">
-					    {block name="content-toolbar"}{/block}
+					    {block name="toolbar"}
+						{include file="_toolbar.tpl"}
+					    {/block}
 					</div>
 				    {/block}
 				</section>
@@ -136,8 +147,9 @@
 
 			    {block name="context_wrapper"}
 				<aside role="complementary" class="context">
+				    <i class="self-slide right hide"></i>
+				    <i class="self-slide close"></i>
 				    {block name="context"}
-					<p><i class="fa fa-close"></i></p>
 					{if !empty($image_orders)}
 					    <div class="infos sort-order">
 						<h3>{'Sort order'|translate}</h3>
@@ -171,6 +183,7 @@
 
 			    {block name="navigation_wrapper"}
 				<aside role="navigation">
+				    <i class="self-slide left hide"></i>
 				    {include file="_menubar.tpl"}
 				</aside>
 			    {/block}

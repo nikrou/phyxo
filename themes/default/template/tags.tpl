@@ -2,6 +2,10 @@
 
 {block name="context_wrapper"}{/block}
 
+{block name="breadcrumb"}
+    <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Tags'|translate}</h2>
+{/block}
+
 {block name="main-content"}
     <div class="titrePage">
 	<ul class="categoryActions">
@@ -19,7 +23,6 @@
 		</li>
 	    {/if}
 	</ul>
-	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Tags'|translate}</h2>
     </div>
 
     {include file="_infos_errors.tpl"}
@@ -27,7 +30,7 @@
     {if $display_mode == 'cloud' and isset($tags)}
 	<div id="fullTagCloud">
 	    {foreach from=$tags item=tag}
-		<span><a href="{$tag.URL}" class="tagLevel{$tag.level}{if !$tag.validated} pending{if $tag.status==1} added{else} deleted{/if}{/if}" title="{$tag.counter|translate_dec:'%d photo':'%d photos'}">{$tag.name}</a></span>
+		<span><a href="{$tag.URL}" class="tag tag-level-{$tag.level}{if !$tag.validated} pending{if $tag.status==1} added{else} deleted{/if}{/if}" title="{$tag.counter|translate_dec:'%d photo':'%d photos'}">{$tag.name}</a></span>
 	    {/foreach}
 	</div>
     {/if}

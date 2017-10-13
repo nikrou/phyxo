@@ -103,7 +103,7 @@ $template->assign('U_CANONICAL', $canonical_url);
 $title = $page['title'];
 $template_title = $page['section_title'];
 if (count($page['items']) > 0) {
-    $template_title .= ' ['.count($page['items']).']';
+    $template->assign('ITEMS', count($page['items']));
 }
 $template->assign('TITLE', $template_title);
 

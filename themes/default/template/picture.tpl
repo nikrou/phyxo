@@ -14,9 +14,7 @@
 {/block}
 
 {block name="breadcrumb"}
-    <span class="section-title">{$SECTION_TITLE}</span>
-    <span class="separator">{$LEVEL_SEPARATOR}</span>
-    <span class="title">{$current.TITLE}</span>
+    <h2>{$SECTION_TITLE}{$LEVEL_SEPARATOR}{$current.TITLE}</h2>
 {/block}
 
 {block name="main-content"}
@@ -30,67 +28,80 @@
 	{/if}
     </div>
 
-    {if !empty($COMMENT_COUNT)}
-	<div id="comments" {if (!isset($comment_add) && ($COMMENT_COUNT == 0))}class="noCommentContent"{else}class="commentContent"{/if}>
-	    <div id="commentsSwitcher"></div>
+    {if isset($COMMENT_COUNT)}
+	<div class="form-content{if (!isset($comment_add) && ($COMMENT_COUNT == 0))}no-comment{else}{/if}">
 	    <h3>{$COMMENT_COUNT|translate_dec:'%d comment':'%d comments'}</h3>
 
-	    <div id="pictureComments">
-		{if isset($comment_add)}
-		    <div id="comment-add">
-			<h4>{'Add a comment'|translate}</h4>
-			<form method="post" action="{$comment_add.F_ACTION}" id="addComment">
-			    {if $comment_add.SHOW_AUTHOR}
-				<p><label for="author">{'Author'|translate}{if $comment_add.AUTHOR_MANDATORY} ({'mandatory'|translate}){/if} :</label></p>
-				<p><input type="text" name="author" id="author" value="{$comment_add.AUTHOR}"></p>
-			    {/if}
-			    {if $comment_add.SHOW_EMAIL}
-				<p><label for="email">{'Email address'|translate}{if $comment_add.EMAIL_MANDATORY} ({'mandatory'|translate}){/if} :</label></p>
-				<p><input type="text" name="email" id="email" value="{$comment_add.EMAIL}"></p>
-			    {/if}
-			    {if $comment_add.SHOW_WEBSITE}
-				<p><label for="website_url">{'Website'|translate} :</label></p>
-				<p><input type="text" name="website_url" id="website_url" value="{$comment_add.WEBSITE_URL}"></p>
-			    {/if}
-			    <p><label for="contentid">{'Comment'|translate} ({'mandatory'|translate}) :</label></p>
-			    <p><textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea></p>
-			    <p>
-				<input type="hidden" name="key" value="{$comment_add.KEY}">
-				<input type="submit" value="{'Submit'|translate}">
-			    </p>
-			</form>
-		    </div>
-		{/if}
-		{if isset($comments)}
-		    <div id="pictureCommentList">
-			{if (($COMMENT_COUNT > 2) || !empty($navbar))}
-			    <div id="pictureCommentNavBar">
-				{if $COMMENT_COUNT > 2}
-				    <a href="{$COMMENTS_ORDER_URL}#comments" rel="nofollow" class="commentsOrder">{$COMMENTS_ORDER_TITLE}</a>
+	    {if isset($comment_add)}
+		<h4>{'Add a comment'|translate}</h4>
+		<form method="post" action="{$comment_add.F_ACTION}" id="addComment">
+		    {if $comment_add.SHOW_AUTHOR}
+			<p>
+			    <label for="author"{if $comment_add.AUTHOR_MANDATORY} class="required"{/if}>
+				{if $comment_add.AUTHOR_MANDATORY}
+				    <abbr title="{'Required field'|translate}">*</abbr>
 				{/if}
-				{if !empty($navbar) }{include file="_navigation_bar.tpl"}{/if}
-			    </div>
-			{/if}
-			{include file="_comment_list.tpl"}
-		    </div>
+				{'Author'|translate}
+			    </label>
+			    <input type="text" name="author" id="author" value="{$comment_add.AUTHOR}">
+			</p>
+		    {/if}
+		    {if $comment_add.SHOW_EMAIL}
+			<p>
+			    <label for="email"{if $comment_add.EMAIL_MANDATORY} class="required"{/if}>
+				{if $comment_add.EMAIL_MANDATORY}
+				    <abbr title="{'Required field'|translate}">*</abbr>
+				    {'Email address'|translate}
+				{/if}
+			    </label>
+			    <input type="text" name="email" id="email" value="{$comment_add.EMAIL}">
+			</p>
+		    {/if}
+		    {if $comment_add.SHOW_WEBSITE}
+			<p>
+			    <label for="website_url">{'Website'|translate}</label>
+			    <input type="text" name="website_url" id="website_url" value="{$comment_add.WEBSITE_URL}">
+			</p>
+		    {/if}
+		    <p>
+			<label for="contentid" class="required">
+			    <abbr title="{'Required field'|translate}">*</abbr>
+			    {'Comment'|translate}
+			</label>
+			<textarea name="content" id="contentid" rows="5" cols="50">{$comment_add.CONTENT}</textarea>
+		    </p>
+		    <p>
+			<input type="hidden" name="key" value="{$comment_add.KEY}">
+			<input type="submit" value="{'Submit'|translate}">
+		    </p>
+		</form>
+	    {/if}
+
+	    {if isset($comments)}
+		{if $comments|count > 2}
+		    <a href="{$COMMENTS_ORDER_URL}#comments" rel="nofollow" class="commentsOrder">{$COMMENTS_ORDER_TITLE}</a>
+		    {include file="_navigation_bar.tpl"}
 		{/if}
-	    </div>
+		{include file="_comment_list.tpl"}
+	    {/if}
 	</div>
     {/if}
 {/block}
 
 {block name="context"}
     {if $DISPLAY_NAV_THUMB}
-	<div class="image-number">{$PHOTO}</div>
 	<div class="infos navigation">
 	    {if isset($previous)}
 		<a class="navigation-thumbnail" href="{$previous.U_IMG}" title="{'Previous'|translate} : {$previous.TITLE_ESC}" rel="prev">
 		    <img src="{$previous.derivatives.square->get_url()}" alt="{$previous.TITLE_ESC}">
 		</a>
 	    {elseif isset($U_UP)}
-		<a class="navigation-thumbnail" href="{$U_UP}" title="{'Thumbnails'|translate}" style="{$U_UP_SIZE_CSS}">
-		    {'First Page'|translate}
-		    {'Go back to the album'|translate}
+		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up" style="{$U_UP_SIZE_CSS}">
+		    <i class="fa fa-angle-up"></i>
+		    <span class="visually-hidden">
+			{'First Page'|translate}
+			{'Go back to the album'|translate}
+		    </span>
 		</a>
 	    {/if}
 	    {if isset($next)}
@@ -98,11 +109,15 @@
 		    <img src="{$next.derivatives.square->get_url()}" alt="{$next.TITLE_ESC}">
 		</a>
 	    {elseif isset($U_UP)}
-		<a class="navigation-thumbnail" href="{$U_UP}" title="{'Thumbnails'|translate}" style="{$U_UP_SIZE_CSS}">
-		    {'Last Page'|translate}
-		    {'Go back to the album'|translate}
+		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up" style="{$U_UP_SIZE_CSS}">
+		    <i class="fa fa-angle-up"></i>
+		    <span class="visually-hidden">
+			{'Last Page'|translate}
+			{'Go back to the album'|translate}
+		    </span>
 		</a>
 	    {/if}
+	    <span class="image-number">{$PHOTO}</span>
 	</div>
     {/if}
 
@@ -239,7 +254,7 @@
     {/if}
 {/block}
 
-{block name="content-toolbar"}
+{block name="toolbar"}
     <ul>
 	{if isset($current.U_DOWNLOAD)}
 	    <li>

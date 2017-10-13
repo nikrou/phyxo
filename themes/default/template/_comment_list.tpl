@@ -1,6 +1,6 @@
-<ul class="commentsList">
-    {foreach from=$comments item=comment name=comment_loop}
-	<li class="commentElement {if $smarty.foreach.comment_loop.index is odd}odd{else}even{/if}">
+<div class="comments">
+    {foreach $comments as $comment}
+	<div class="comment{if $comment@index is odd} odd{else} even{/if}">
 	    {if isset($comment.src_image)}
 		{if isset($comment_derivative_params)}
 		    {assign var=derivative value=$pwg->derivative($comment_derivative_params, $comment.src_image)}
@@ -9,7 +9,7 @@
 		{/if}
 		<div class="illustration">
 		    <a href="{$comment.U_PICTURE}">
-			<img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$comment.ALT}">
+			<img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="./themes/default/images/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$comment.ALT}">
 		    </a>
 		</div>
 	    {/if}
@@ -45,11 +45,16 @@
 		{if isset($comment.IN_EDIT)}
 		    <a name="edit_comment"></a>
 		    <form method="post" action="{$comment.U_EDIT}" id="editComment">
-			<p><label for="contenteditid">{'Edit a comment'|translate} :</label></p>
-			<p><textarea name="content" id="contenteditid" rows="5" cols="80">{$comment.CONTENT|@escape}</textarea></p>
-			<p><label for="website_url">{'Website'|translate} :</label></p>
-			<p><input type="text" name="website_url" id="website_url" value="{$comment.WEBSITE_URL}" size="40"></p>
-			<p><input type="hidden" name="key" value="{$comment.KEY}">
+			<p>
+			    <label for="contenteditid">{'Edit a comment'|translate}</label>
+			    <textarea name="content" id="contenteditid" rows="5" cols="80">{$comment.CONTENT|@escape}</textarea>
+			</p>
+			<p>
+			    <label for="website_url">{'Website'|translate}</label>
+			    <input type="text" name="website_url" id="website_url" value="{$comment.WEBSITE_URL}" size="40">
+			</p>
+			<p>
+			    <input type="hidden" name="key" value="{$comment.KEY}">
 			    <input type="hidden" name="pwg_token" value="{$comment.PWG_TOKEN}">
 			    <input type="hidden" name="image_id" value="{$comment.IMAGE_ID|@default:$current.id}">
 			    <input type="submit" value="{'Submit'|translate}">
@@ -59,6 +64,6 @@
 		    <blockquote><div>{$comment.CONTENT}</div></blockquote>
 		{/if}
 	    </div>
-	</li>
+	</div>
     {/foreach}
-</ul>
+</div>

@@ -1,7 +1,7 @@
 {extends file="__layout.tpl"}
 
 {block name="main-content"}
-    {if $category_thumbnails} {* display sub-albums *}
+    {if !empty($category_thumbnails)} {* display sub-albums *}
 	{include file="_albums.tpl"}
     {/if}
 

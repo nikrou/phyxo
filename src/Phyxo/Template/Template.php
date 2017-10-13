@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -75,6 +75,9 @@ class Template
         $compile_dir = PHPWG_ROOT_PATH.$conf['data_location'].'templates_c';
         mkgetdir($compile_dir);
 
+        $params_url = parse_url($_SERVER['REQUEST_URI']);
+        $this->smarty->assign('BASE_URL', preg_replace('`\/[^/]*$`', '', $params_url['path']));
+
         $this->smarty->setCompileDir($compile_dir);
         $this->smarty->assign('pwg', new TemplateAdapter());
         $this->smarty->registerPlugin('modifiercompiler', 'translate', array(__CLASS__, 'modcompiler_translate'));
@@ -87,6 +90,7 @@ class Template
         $this->smarty->registerPlugin('function', 'get_combined_scripts', array($this, 'func_get_combined_scripts'));
         $this->smarty->registerPlugin('function', 'combine_css', array($this, 'func_combine_css'));
         $this->smarty->registerPlugin('function', 'define_derivative', array($this, 'func_define_derivative'));
+        $this->smarty->registerPlugin('function', 'assets', array($this, 'func_assets'));
         $this->smarty->registerPlugin('compiler', 'get_combined_css', array($this, 'func_get_combined_css'));
         $this->smarty->registerPlugin('block', 'footer_script', array($this, 'block_footer_script'));
         $this->smarty->registerFilter('pre', array(__CLASS__, 'prefilter_white_space'));
@@ -156,6 +160,7 @@ class Template
         if (!isset($themeconf['colorscheme']))  {
             $themeconf['colorscheme'] = $colorscheme;
         }
+
         $this->smarty->append('themes', $tpl_var);
         $this->smarty->append('themeconf', $themeconf, true);
     }
@@ -615,6 +620,26 @@ class Template
         $smarty->assign($params['name'], \ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
     }
 
+    public function func_assets($params, $smarty) {
+        if (empty($params['manifest']) || empty($params['src'])) {
+            return;
+        }
+
+        if (empty($this->manifest_content)) {
+            if (is_readable($params['manifest'])) {
+                $this->manifest_content = json_decode(file_get_contents($params['manifest']), true);
+            } else {
+                return '';
+            }
+        }
+
+        if (!empty($this->manifest_content[$params['src']])) {
+            return $this->manifest_content[$params['src']];
+        } else {
+            return '';
+        }
+    }
+
     /**
      * The "combine_script" functions allows inclusion of a javascript file in the current page.
      * The engine will combine several js files into a single one.
@@ -915,7 +940,7 @@ class Template
         }
 
         if (!empty($css)) {
-            $source = str_replace("{get_combined_css}", implode( "\n", $css )."\n{get_combined_css}", $source);
+            $source = str_replace("{get_combined_css}", implode( "\n", $css )."{get_combined_css}", $source);
         }
 
         return $source;
