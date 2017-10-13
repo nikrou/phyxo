@@ -256,7 +256,6 @@ if (isset($action)) {
 // +-----------------------------------------------------------------------+
 
 $title= l10n('User comments');
-$page['body_id'] = 'theCommentsPage';
 
 $template->set_filenames(array('comments'=>'comments.tpl'));
 $template->assign(
@@ -279,9 +278,9 @@ $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'id', 'vis
 display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
 
 // Filter on recent comments...
-$tpl_var=array();
+$tpl_var = [];
 foreach ($since_options as $id => $option) {
-    $tpl_var[ $id ] = $option['label'];
+    $tpl_var[$id] = $option['label'];
 }
 $template->assign('since_options', $tpl_var);
 $template->assign('since_options_selected', $page['since']);
@@ -297,9 +296,9 @@ $template->assign('sort_order_options_selected', $page['sort_order']);
 
 // Number of items
 $blockname = 'items_number_option';
-$tpl_var=array();
+$tpl_var = [];
 foreach ($items_number as $option) {
-    $tpl_var[ $option ] = is_numeric($option) ? $option : l10n($option);
+    $tpl_var[$option] = is_numeric($option) ? $option : l10n($option);
 }
 $template->assign('item_number_options', $tpl_var);
 $template->assign('item_number_options_selected', $page['items_number']);
@@ -319,9 +318,9 @@ if (isset($_GET['start']) and is_numeric($_GET['start'])) {
 // |                        last comments display                          |
 // +-----------------------------------------------------------------------+
 
-$comments = array();
-$element_ids = array();
-$category_ids = array();
+$comments = [];
+$element_ids = [];
+$category_ids = [];
 
 $query = 'SELECT com.id AS comment_id, com.image_id, ic.category_id, com.author,';
 $query .= 'com.author_id, u.'.$conf['user_fields']['email'].' AS user_email, com.email,';
@@ -331,28 +330,30 @@ $query .= ' LEFT JOIN '.USERS_TABLE.' As u ON u.'.$conf['user_fields']['id'].' =
 $query .= ' WHERE '.implode(' AND ', $page['where_clauses']);
 $query .= ' GROUP BY comment_id, ic.category_id, u.mail_address';
 $query .= ' ORDER BY '.$page['sort_by'].' '.$page['sort_order'];
+
+$result_count = $conn->db_query($query);
+$counter = $conn->db_num_rows($result_count);
+
 if ('all' != $page['items_number']) {
     $query .= ' LIMIT '.$page['items_number'].' OFFSET '.$conn->db_real_escape_string($start);
 }
+
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
     $comments[] = $row;
     $element_ids[] = $row['image_id'];
     $category_ids[] = $row['category_id'];
 }
-list($counter) = $conn->db_num_rows($result);
 
 $url = PHPWG_ROOT_PATH.'comments.php'.get_query_string_diff(array('start','edit','delete','validate','pwg_token'));
-
 $navbar = create_navigation_bar(
     $url,
     $counter,
     $start,
     $page['items_number'],
-    '');
-
+    ''
+);
 $template->assign('navbar', $navbar);
-
 
 if (count($comments) > 0) {
   // retrieving element informations
@@ -450,8 +451,8 @@ if (count($comments) > 0) {
     }
 }
 
-$derivative_params = trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
-$template->assign( 'derivative_params', $derivative_params );
+$derivative_params = trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(IMG_THUMB));
+$template->assign('derivative_params', $derivative_params);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');

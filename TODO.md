@@ -7,6 +7,7 @@ Things to do
  * sanitize notification_by_mail
  * Move install.php, upgrade.php and upgrade_feed.php to admin/
  * Make real redirect and remove all html redirect (with refresh in meta)
+ * Remove/refactoring of action.php script
 
  * Use non minified javascript (in progress)
  * Add more tests (unit and functional)
