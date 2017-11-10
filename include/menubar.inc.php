@@ -36,7 +36,7 @@ if (!empty($page['section']) && $page['section']=='search' && isset($page['qsear
 if (($block = $menu->get_block('mbLinks')) && !empty($conf['links'])) {
     $block->data = array();
     foreach ($conf['links'] as $url => $url_data) {
-        if (!$is_array($url_data)) {
+        if (!is_array($url_data)) {
             $url_data = array('label' => $url_data);
         }
 
@@ -47,11 +47,10 @@ if (($block = $menu->get_block('mbLinks')) && !empty($conf['links'])) {
             );
 
             if (!isset($url_data['new_window']) || $url_data['new_window']) {
-                $tpl_var['new_window'] =
-                                       array(
-                                           'NAME' => (isset($url_data['nw_name']) ? $url_data['nw_name'] : ''),
-                                           'FEATURES' => (isset($url_data['nw_features']) ? $url_data['nw_features'] : '')
-                                       );
+                $tpl_var['new_window'] = array(
+                    'NAME' => (isset($url_data['nw_name']) ? $url_data['nw_name'] : ''),
+                    'FEATURES' => (isset($url_data['nw_features']) ? $url_data['nw_features'] : '')
+                );
             }
             $block->data[] = $tpl_var;
         }
