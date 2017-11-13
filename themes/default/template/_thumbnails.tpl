@@ -1,8 +1,8 @@
 <div class="thumbnails">
     {foreach $thumbnails as $thumbnail}
 	{assign var=derivative value=$pwg->derivative($derivative_params, $thumbnail.src_image)}
-	<div class="wrapper-thumbnail">
-	    <div class="thumbnail">
+	<div class="thumbnail">
+	    <div class="media">
 		<a href="{$thumbnail.URL}">
 		    <img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="./themes/default/images/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}">
 		</a>

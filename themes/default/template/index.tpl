@@ -35,8 +35,6 @@
 	</p>
     {/if}
 
-    {if !empty($CATEGORIES)}{$CATEGORIES}{/if}
-
     {if !empty($cats_navbar)}
 	{include file="_navigation_bar.tpl" navbar=$cats_navbar}
     {/if}

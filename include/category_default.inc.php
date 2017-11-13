@@ -127,10 +127,10 @@ foreach ($pictures as $row) {
     $tpl_thumbnails_var[] = $tpl_var;
 }
 
+$derivative_params = trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB));
 $template->assign(
     array(
-        'derivative_params' => trigger_change('get_index_derivative_params',
-                                              ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB)),
+        'derivative_params' => $derivative_params,
         'maxRequests' => $conf['max_requests'],
         'SHOW_THUMBNAIL_CAPTION' => $conf['show_thumbnail_caption'],
     )

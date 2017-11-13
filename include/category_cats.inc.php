@@ -256,15 +256,14 @@ if (count($categories) > 0) {
         $conf['nb_categories_page']
     );
 
-    $derivative_params = trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB) );
+    $derivative_params = trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB));
     $tpl_thumbnails_var_selection = trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
     $template->assign(array(
-        'maxRequests' =>$conf['max_requests'],
+        'maxRequests' => $conf['max_requests'],
         'category_thumbnails' => $tpl_thumbnails_var_selection,
+        'derivative_album_params' => $derivative_params,
         'derivative_params' => $derivative_params,
     ));
-
-    $template->assign_var_from_handle('CATEGORIES', 'index_category_thumbnails');
 
     // navigation bar
     $page['cats_navigation_bar'] = array();
