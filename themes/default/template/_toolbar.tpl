@@ -10,7 +10,7 @@
 	{if isset($U_CADDIE)}
 	    <li>
 		<a href="{$U_CADDIE}" title="{'Add to caddie'|translate}">
-		    <i class="fa fa-cart-plus"></i><span class="visually-hidden>"{'Caddie'|translate}</span>
+		    <i class="fa fa-cart-plus"></i><span class="visually-hidden">{'Caddie'|translate}</span>
 		</a>
 	    </li>
 	{/if}

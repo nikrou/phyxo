@@ -118,7 +118,7 @@
 							{$chronology.TITLE}
 						    {/if}
 						    {if !empty($ITEMS)}
-							&nbsp[{$ITEMS}]
+							&nbsp;[{$ITEMS}]
 						    {/if}
 						</h2>
 					    {/block}

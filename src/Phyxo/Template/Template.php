@@ -90,7 +90,7 @@ class Template
         $this->smarty->registerPlugin('function', 'get_combined_scripts', array($this, 'func_get_combined_scripts'));
         $this->smarty->registerPlugin('function', 'combine_css', array($this, 'func_combine_css'));
         $this->smarty->registerPlugin('function', 'define_derivative', array($this, 'func_define_derivative'));
-        $this->smarty->registerPlugin('function', 'assets', array($this, 'func_assets'));
+        $this->smarty->registerPlugin('function', 'asset', array($this, 'func_asset'));
         $this->smarty->registerPlugin('compiler', 'get_combined_css', array($this, 'func_get_combined_css'));
         $this->smarty->registerPlugin('block', 'footer_script', array($this, 'block_footer_script'));
         $this->smarty->registerFilter('pre', array(__CLASS__, 'prefilter_white_space'));
@@ -620,7 +620,7 @@ class Template
         $smarty->assign($params['name'], \ImageStdParams::get_custom($w, $h, $crop, $minw, $minh) );
     }
 
-    public function func_assets($params, $smarty) {
+    public function func_asset($params, $smarty) {
         if (empty($params['manifest']) || empty($params['src'])) {
             return;
         }
