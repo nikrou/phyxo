@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License version 2 as     |
@@ -22,28 +22,6 @@ namespace Phyxo\Template;
 
 class TemplateAdapter
 {
-    /**
-     * @deprecated use "translate" modifier
-     */
-    public function l10n($text) {
-        return \l10n($text);
-    }
-
-    /**
-     * @deprecated use "translate_dec" modifier
-     */
-    public function l10n_dec($s, $p, $v) {
-        return \l10n_dec($s, $p, $v);
-    }
-
-    /**
-     * @deprecated use "translate" or "sprintf" modifier
-     */
-    public function sprintf() {
-        $args = func_get_args();
-        return call_user_func_array('sprintf',  $args );
-    }
-
     /**
      * @param string $type
      * @param array $img

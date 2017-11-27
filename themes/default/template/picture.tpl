@@ -127,7 +127,7 @@
 	    <ul>
 		{foreach $current.unique_derivatives as $derivative_type => $derivative}
 		    <li>
-			<i class="{if $derivative->get_type()!=$current.selected_derivative->get_type()}visually-hidden{/if}">&#x2714;</i>
+			<i class="fa fa-check{if $derivative->get_type()!=$current.selected_derivative->get_type()} visually-hidden{/if}"></i>
 			<a href="{$current.U_IMG}&amp;display={$derivative_type}">{$derivative_type|translate}&nbsp;({$derivative->get_size_hr()})</a>
 		    </li>
 		{/foreach}
@@ -232,7 +232,7 @@
 	    <ul>
 		{foreach $available_permission_levels as $level => $label}
 		    <li>
-			<i class="{if $level != $current.level} visually-hidden{/if}">&#x2714;</i>
+			<i class="fa fa-check{if $level != $current.level} visually-hidden{/if}"></i>
 			<a href="{$current.U_IMG}&amp;level={$level}">{$label}</a>
 		    </li>
 		{/foreach}

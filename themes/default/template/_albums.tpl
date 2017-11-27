@@ -2,11 +2,9 @@
     {foreach $category_thumbnails as $cat}
 	{assign var=derivative value=$pwg->derivative($derivative_album_params, $cat.representative.src_image)}
 	<div class="album {if $cat@index is odd}odd{else}even{/if}">
-	    <div class="media">
-		<a href="{$cat.URL}">
-		    <img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="./themes/default/images/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$cat.TN_ALT}" title="{$cat.NAME|@replace:'"':' '|@strip_tags:false} - {'display this album'|translate}">
-		</a>
-	    </div>
+	    <a class="media" href="{$cat.URL}">
+		<img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="./themes/default/images/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$cat.TN_ALT}" title="{$cat.NAME|@replace:'"':' '|@strip_tags:false} - {'display this album'|translate}">
+	    </a>
 	    <div class="caption">
 		<h3>
 		    {$cat.NAME}
