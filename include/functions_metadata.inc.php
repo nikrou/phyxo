@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -124,12 +124,12 @@ function get_exif_data($filename, $map) {
 
     $result = array();
 
-    if (!function_exists('read_exif_data')) {
+    if (!function_exists('exif_read_data')) {
         die('Exif extension not available, admin should disable exif use');
     }
 
     // Read EXIF data
-    if ($exif = @read_exif_data($filename)) {
+    if ($exif = @exif_read_data($filename)) {
         $exif = trigger_change('format_exif_data', $exif, $filename, $map);
 
         // configured fields

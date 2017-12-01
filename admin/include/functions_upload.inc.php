@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
+// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -401,7 +401,7 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     }
 
     // update metadata from the uploaded file (exif/iptc)
-    if ($conf['use_exif'] and !function_exists('read_exif_data')) {
+    if ($conf['use_exif'] and !function_exists('exif_read_data')) {
         $conf['use_exif'] = false;
     }
     sync_metadata(array($image_id));
