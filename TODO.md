@@ -16,3 +16,5 @@ Things to do
    - use more friendly assertion (example: see modal instead of see #cboxWrapper)
 
  * Check modifiers(translation, explode, ternary) in template class
+
+ * Find a way to provide simple menu categories and recursive one but not both

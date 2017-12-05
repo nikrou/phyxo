@@ -62,12 +62,48 @@ function check_restrictions($category_id) {
  *
  * @return array[]
  */
+function get_recursive_categories_menu() {
+    $flat_categories = get_categories_menu();
+
+    $categories = [];
+    foreach ($flat_categories as $category) {
+        if ($category['uppercats']===$category['id']) {
+            $categories[$category['id']] = $category;
+        } else {
+            insert_category($categories, $category, $category['uppercats']);
+        }
+    }
+
+    return $categories;
+}
+
+// insert recursively category in tree
+function insert_category(&$categories, $category, $uppercats) {
+    if ($category['id']!=$uppercats) {
+        $cats = explode(',', $uppercats);
+        $cat = $cats[0];
+
+        $new_uppercats = array_slice($cats, 1);
+        if (count($new_uppercats)===1) {
+            $categories[$cat]['children'][$category['id']] = $category;
+        } else {
+            insert_category($categories[$cat]['children'], $category, implode(',', $new_uppercats));
+        }
+    }
+}
+
+
+/**
+ * Returns template vars for main categories menu.
+ *
+ * @return array[]
+ */
 function get_categories_menu() {
     global $page, $user, $filter, $conf, $conn;
 
     $query = 'SELECT ';
     // From CATEGORIES_TABLE
-    $query .= 'id, name, permalink, nb_images, global_rank,';
+    $query .= 'id, name, permalink, nb_images, global_rank,uppercats,';
     // From USER_CACHE_CATEGORIES_TABLE
     $query .= 'date_last, max_date_last, count_images, count_categories';
 
@@ -95,34 +131,36 @@ function get_categories_menu() {
     $selected_category = isset($page['category']) ? $page['category'] : null;
     while ($row = $conn->db_fetch_assoc($result)) {
         $child_date_last = @$row['max_date_last']> @$row['date_last'];
-        $row = array_merge($row,
-        array(
-            'NAME' => trigger_change(
-                'render_category_name',
-                $row['name'],
-                'get_categories_menu'
-            ),
-            'TITLE' => get_display_images_count(
-                $row['nb_images'],
-                $row['count_images'],
-                $row['count_categories'],
-                false,
-                ' / '
-            ),
-            'URL' => make_index_url(array('category' => $row)),
-            'LEVEL' => substr_count($row['global_rank'], '.') + 1,
-            'SELECTED' => $selected_category['id'] == $row['id'] ? true : false,
-            'IS_UPPERCAT' => $selected_category['id_uppercat'] == $row['id'] ? true : false,
-        ));
+        $row = array_merge(
+            $row,
+            array(
+                'NAME' => trigger_change(
+                    'render_category_name',
+                    $row['name'],
+                    'get_categories_menu'
+                ),
+                'TITLE' => get_display_images_count(
+                    $row['nb_images'],
+                    $row['count_images'],
+                    $row['count_categories'],
+                    false,
+                    ' / '
+                ),
+                'URL' => make_index_url(array('category' => $row)),
+                'LEVEL' => substr_count($row['global_rank'], '.') + 1,
+                'SELECTED' => $selected_category['id'] == $row['id'] ? true : false,
+                'IS_UPPERCAT' => $selected_category['id_uppercat'] == $row['id'] ? true : false,
+            )
+        );
         if ($conf['index_new_icon']) {
             $row['icon_ts'] = get_icon($row['max_date_last'], $child_date_last);
         }
-        $cats[] = $row;
+        $cats[$row['id']] = $row;
         if (!empty($page['category']['id']) && $row['id']==$page['category']['id']) {//save the number of subcats for later optim
             $page['category']['count_categories'] = $row['count_categories'];
         }
     }
-    usort($cats, 'global_rank_compare');
+    uasort($cats, 'global_rank_compare');
 
     // Update filtered data
     if (function_exists('update_cats_with_filtered_data')) {

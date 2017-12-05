@@ -1,3 +1,18 @@
+{function name="menu" level="0"}
+<ul class="level-{$level}">
+    {foreach $data as $entry}
+	{if isset($entry['children'])}
+	    <li>
+		<a href="{$entry.URL}">{$entry.NAME}</a>
+		{call name="menu" data=$entry['children'] level=$level+1}
+	    </li>
+	{else}
+	    <li><a{if $entry.SELECTED} class="active"{/if} href="{$entry.URL}">{$entry['name']}</a></li>
+	{/if}
+    {/foreach}
+</ul>
+{/function}
+
 {block name="menubar-categories"}
     <div class="menu-block">
 	<h3>
@@ -14,28 +29,8 @@
 	    {/if}
 	</h3>
 
-	{assign var='ref_level' value=0}
-	{foreach from=$block->data.MENU_CATEGORIES item=cat}
-	    {if $cat.LEVEL > $ref_level}
-		<ul>
-	    {else}
-    </li>
-    {'</ul></li>'|str_repeat:($ref_level-$cat.LEVEL)}
-	    {/if}
-	    <li{if $cat.SELECTED} class="selected"{/if}>
-		<a href="{$cat.URL}" {if $cat.IS_UPPERCAT}rel="up"{/if} title="{$cat.TITLE}">
-		    {$cat.NAME}
-		    {if $cat.count_images > 0}
-			<span class="count" title="{$cat.TITLE}">[{$cat.count_images}]</span>
-		    {/if}
-		    {if !empty($cat.icon_ts)}
-			<i class="fa fa-exclamation" title="{$cat.icon_ts.TITLE}"></i>
-		    {/if}
-		</a>
-		{assign var='ref_level' value=$cat.LEVEL}
-	{/foreach}
-	{'</li></ul>'|str_repeat:$ref_level}
+	{call name="menu" data=$block->data.MENU_RECURSIVE_CATEGORIES}
 
-		<p class="totalImages">{$block->data.NB_PICTURE|translate_dec:'%d photo':'%d photos'}</p>
+	<p class="totalImages">{$block->data.NB_PICTURE|translate_dec:'%d photo':'%d photos'}</p>
     </div>
 {/block}
