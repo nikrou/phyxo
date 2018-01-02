@@ -1,7 +1,7 @@
 <?php
 // +-----------------------------------------------------------------------+
 // | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
+// | Copyright(C) 2014-2018 Nicolas Roudaire        https://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
@@ -155,7 +155,7 @@ if (!empty($_GET['keyword'])) {
     $page['where_clauses'][] = '('.implode(
         ' AND ',
         array_map(
-            function($s) {return "content LIKE \'%$s%\'";},
+            function($s) {return "content LIKE '%$s%'";},
             preg_split('/[\s,;]+/', $conn->db_real_escape_string($_GET['keyword']))
         )
     ).')';
