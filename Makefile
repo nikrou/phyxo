@@ -8,7 +8,7 @@ all:;
 	@echo "make config or make dist"
 
 
-dist: config dist-tgz dist-zip
+dist: config assets dist-tgz dist-zip
 
 
 config: clean
@@ -21,7 +21,7 @@ config: clean
 	rm $(DIST)/$(APP_NAME)/composer.*
 
 	# remove doc and useless stuff
-	find $(DIST)/vendor -path '*/.git/*'			\
+	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*'	\
 		-o -path '*/Tests/*'				\
 		-o -path '*/tests/*'				\
 		-o -path '*/Test/*'				\
@@ -31,9 +31,6 @@ config: clean
 		-o -path '*/demo/*'				\
 		-o -path '*/documentation/*'			\
 		-o -path '*/examples/*'	| xargs rm -fr ; 	\
-
-	rm -fr $(DIST)/$(APP_NAME)/admin/node_modules \
-		$(DIST)/$(APP_NAME)/admin/bower_components
 
 	# empty dirs
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload \
@@ -46,11 +43,15 @@ config: clean
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
-	rm -fr $(DIST)/phyxo/admin/themes/default/node_modules
+	rm -fr $(DIST)/phyxo/admin/theme/node_modules
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type d -name '.svn' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
+assets:;
+	cd $(DIST)/$(APP_NAME)/themes/treflez ;	\
+	npm run build ;				\
+	rm -fr src node_modules webpack.config.js package.json package-lock.json
 
 dist-tgz: config
 	cd $(DIST); \
@@ -65,7 +66,6 @@ dist-zip: config
 	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
 	zip -v -r9 $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip $(APP_NAME) ; \
 	cd ..
-
 
 clean:
 	rm -fr $(DIST)
