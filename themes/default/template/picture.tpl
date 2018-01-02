@@ -93,27 +93,31 @@
 	<div class="infos navigation">
 	    {if isset($previous)}
 		<a class="navigation-thumbnail" href="{$previous.U_IMG}" title="{'Previous'|translate} : {$previous.TITLE_ESC}" rel="prev">
-		    <img src="{$previous.derivatives.square->get_url()}" alt="{$previous.TITLE_ESC}">
+		    <img src="{$previous.derivatives.square->get_url()}" alt="{$previous.TITLE_ESC}" style="{$U_UP_SIZE_CSS}">
 		</a>
 	    {elseif isset($U_UP)}
-		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up" style="{$U_UP_SIZE_CSS}">
-		    <i class="fa fa-angle-up"></i>
-		    <span class="visually-hidden">
-			{'First Page'|translate}
-			{'Go back to the album'|translate}
+		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up">
+		    <span style="{$U_UP_SIZE_CSS}">
+			<i class="fa fa-angle-up"></i>
+			<span class="visually-hidden">
+			    {'First Page'|translate}
+			    {'Go back to the album'|translate}
+			</span>
 		    </span>
 		</a>
 	    {/if}
 	    {if isset($next)}
 		<a class="navigation-thumbnail" href="{$next.U_IMG}" title="{'Next'|translate} : {$next.TITLE_ESC}" rel="next">
-		    <img src="{$next.derivatives.square->get_url()}" alt="{$next.TITLE_ESC}">
+		    <img src="{$next.derivatives.square->get_url()}" alt="{$next.TITLE_ESC}" style="{$U_UP_SIZE_CSS}">
 		</a>
 	    {elseif isset($U_UP)}
-		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up" style="{$U_UP_SIZE_CSS}">
-		    <i class="fa fa-angle-up"></i>
-		    <span class="visually-hidden">
-			{'Last Page'|translate}
-			{'Go back to the album'|translate}
+		<a class="navigation-thumbnail level-up" href="{$U_UP}" title="{'Thumbnails'|translate}" rel="up">
+		    <span style="{$U_UP_SIZE_CSS}">
+			<i class="fa fa-angle-up"></i>
+			<span class="visually-hidden">
+			    {'Last Page'|translate}
+			    {'Go back to the album'|translate}
+			</span>
 		    </span>
 		</a>
 	    {/if}
