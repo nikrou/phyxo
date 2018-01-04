@@ -9,3 +9,6 @@
 /target
 /Makefile
 /rsync_exclude
+/sites
+/db
+/bin

@@ -3,7 +3,7 @@ Phyxo
 
 Phyxo is web photo gallery. It aims to provide an easy and funny way to share your photos.
 
-That branch is the Phyxo website at http://www.phyxo.net/
+That branch is the Phyxo website at https://www.phyxo.net/
 
 Contributing
 ============
