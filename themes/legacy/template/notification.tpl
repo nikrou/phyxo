@@ -1,0 +1,30 @@
+{extends file="__layout.tpl"}
+
+{html_head}
+<link rel="alternate" type="application/rss+xml" title="{'Photos only RSS feed'|translate}" href="{$U_FEED_IMAGE_ONLY}">
+<link rel="alternate" type="application/rss+xml" title="{'Complete RSS feed (photos, comments)'|translate}" href="{$U_FEED}">
+{/html_head}
+
+{block name="category-actions"}{/block}
+
+{block name="content"}
+    <div class="titrePage">
+	<h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Notification'|translate}</h2>
+    </div>
+
+    {include file='infos_errors.tpl'}
+
+    <div class="notification">
+	<p>{'The RSS notification feed provides notification on news from this website : new photos, updated albums, new comments. Use a RSS feed reader.'|translate}</p>
+
+	<dl>
+	    <dt>
+		<a href="{$U_FEED_IMAGE_ONLY}">{'Photos only RSS feed'|translate}</a><br><br>
+	    </dt>
+	    <dt>
+		<a href="{$U_FEED}">{'Complete RSS feed (photos, comments)'|translate}</a>
+	    </dt>
+	</dl>
+    </div>
+    </div>
+{/block}
