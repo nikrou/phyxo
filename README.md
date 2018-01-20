@@ -8,7 +8,7 @@ This project is based on Piwigo. It aims to provide support for PostgreSQL and S
 Requirements
 ------------
 
-This project use severals librairies that need at least PHP 5.4.0
+This project use severals librairies that need at least PHP 7.0.0
 
 [![PHP 7 ready](http://php7ready.timesplinter.ch/nikrou/phyxo/master/badge.svg)](https://travis-ci.org/nikrou/phyxo)
 [![Dependency Status](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b)
