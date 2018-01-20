@@ -32,7 +32,8 @@
 		"behat/mink-browserkit-driver": "1.3.*",
 		"behat/mink-selenium2-driver": "1.3.1",
 		"symfony/routing": "^3.2",
-		"symfony/dom-crawler": "3.3.*"
+		"symfony/dom-crawler": "3.3.*",
+		"vimeo/psalm": "^0"
 	},
 	"config": {
 		"bin-dir": "bin/"

@@ -1,26 +1,15 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+use Phyxo\Ws\Server;
 
 /**
  * API method
@@ -58,7 +47,7 @@ function ws_users_getList($params, &$service) {
 
     if (!empty($params['min_level'])) {
         if (!in_array($params['min_level'], $conf['available_permission_levels'])) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid level');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
         $where_clauses[] = 'ui.level >= '.$params['min_level'];
     }
@@ -226,7 +215,7 @@ function ws_users_add($params, &$service) {
 
     if ($conf['double_password_type_in_admin']) {
         if ($params['password'] != $params['password_confirm']) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('The passwords do not match'));
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, l10n('The passwords do not match'));
         }
     }
 
@@ -240,7 +229,7 @@ function ws_users_add($params, &$service) {
     );
 
     if (!$user_id) {
-        return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, $errors[0]);
+        return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, $errors[0]);
     }
 
     return $service->invoke('pwg.users.getList', array('user_id'=>$user_id));
@@ -325,23 +314,23 @@ function ws_users_setInfo($params, &$service) {
 
     if (count($params['user_id']) == 1) {
         if (get_username($params['user_id'][0]) === false) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'This user does not exist.');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This user does not exist.');
         }
 
         if (!empty($params['username'])) {
             $user_id = $services['users']->getUserId($params['username']);
             if ($user_id and $user_id != $params['user_id'][0]) {
-                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('this login is already used'));
+                return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, l10n('this login is already used'));
             }
             if ($params['username'] != strip_tags($params['username'])) {
-                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, l10n('html tags are not allowed in login'));
+                return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, l10n('html tags are not allowed in login'));
             }
             $updates[ $conf['user_fields']['username'] ] = $params['username'];
         }
 
         if (!empty($params['email'])) {
             if (($error = $services['users']->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
-                return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, $error);
+                return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, $error);
             }
             $updates[ $conf['user_fields']['email'] ] = $params['email'];
         }
@@ -357,7 +346,7 @@ function ws_users_setInfo($params, &$service) {
         }
 
         if (!in_array($params['status'], array('guest','generic','normal','admin','webmaster'))) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid status');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid status');
         }
 
         $protected_users = array(
@@ -382,21 +371,21 @@ function ws_users_setInfo($params, &$service) {
 
     if (!empty($params['level']) or @$params['level']===0) {
         if (!in_array($params['level'], $conf['available_permission_levels'])) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid level');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
         $updates_infos['level'] = $params['level'];
     }
 
     if (!empty($params['language'])) {
         if (!in_array($params['language'], array_keys(get_languages()))) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid language');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
         }
         $updates_infos['language'] = $params['language'];
     }
 
     if (!empty($params['theme'])) {
         if (!in_array($params['theme'], array_keys(get_pwg_themes()))) {
-            return new Phyxo\Ws\Error(WS_ERR_INVALID_PARAM, 'Invalid theme');
+            return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
         }
         $updates_infos['theme'] = $params['theme'];
     }

@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Ws;
 
@@ -28,6 +19,23 @@ class Server
     public $_responseFormat;
 
     private $_methods = array();
+
+    const WS_PARAM_ACCEPT_ARRAY = 0x010000;
+    const WS_PARAM_FORCE_ARRAY  = 0x030000;
+    const WS_PARAM_OPTIONAL     = 0x040000;
+
+    const WS_TYPE_BOOL     = 0x01;
+    const WS_TYPE_INT      = 0x02;
+    const WS_TYPE_FLOAT    = 0x04;
+    const WS_TYPE_POSITIVE = 0x10;
+    const WS_TYPE_NOTNULL  = 0x20;
+    const WS_TYPE_ID =  self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
+
+    const WS_ERR_INVALID_METHOD = 501;
+    const WS_ERR_MISSING_PARAM  = 1002;
+    const WS_ERR_INVALID_PARAM  = 1003;
+
+    const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
     public function __construct() {
     }
@@ -131,7 +139,7 @@ class Server
                     $data['flags'] = 0;
                 }
                 if (array_key_exists('default', $data)) {
-                    $data['flags'] |= WS_PARAM_OPTIONAL;
+                    $data['flags'] |= self::WS_PARAM_OPTIONAL;
                 }
                 if (!isset($data['type'])) {
                     $data['type'] = 0;
@@ -185,51 +193,51 @@ class Server
     public static function checkType(&$param, $type, $name) {
         $opts = array();
         $msg = '';
-        if (self::hasFlag($type, WS_TYPE_POSITIVE | WS_TYPE_NOTNULL)) {
+        if (self::hasFlag($type, self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL)) {
             $opts['options']['min_range'] = 1;
             $msg = ' positive and not null';
-        } elseif (self::hasFlag($type, WS_TYPE_POSITIVE)) {
+        } elseif (self::hasFlag($type, self::WS_TYPE_POSITIVE)) {
             $opts['options']['min_range'] = 0;
             $msg = ' positive';
         }
 
         if (is_array($param)) {
-            if (self::hasFlag($type, WS_TYPE_BOOL)) {
+            if (self::hasFlag($type, self::WS_TYPE_BOOL)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain booleans');
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain booleans');
                     }
                 }
                 unset($value);
-            } elseif ( self::hasFlag($type, WS_TYPE_INT)) {
+            } elseif ( self::hasFlag($type, self::WS_TYPE_INT)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_INT, $opts)) === false) {
-                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' integers');
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' integers');
                     }
                 }
                 unset($value);
-            } elseif ( self::hasFlag($type, WS_TYPE_FLOAT)) {
+            } elseif ( self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) === false
                     or (isset($opts['options']['min_range']) and $value < $opts['options']['min_range'])) {
-                        return new Error(WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' floats');
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' floats');
                     }
                 }
                 unset($value);
             }
         } elseif ($param !== '') {
-            if (self::hasFlag($type, WS_TYPE_BOOL)) {
+            if (self::hasFlag($type, self::WS_TYPE_BOOL)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be a boolean');
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be a boolean');
                 }
-            } elseif (self::hasFlag($type, WS_TYPE_INT)) {
+            } elseif (self::hasFlag($type, self::WS_TYPE_INT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_INT, $opts)) === false) {
-                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be an'.$msg.' integer');
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be an'.$msg.' integer');
                 }
-            } elseif (self::hasFlag($type, WS_TYPE_FLOAT)) {
+            } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_FLOAT)) === false
                 or (isset($opts['options']['min_range']) and $param < $opts['options']['min_range'])) {
-                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be a'.$msg.' float');
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be a'.$msg.' float');
                 }
             }
         }
@@ -253,7 +261,7 @@ class Server
         $method = @$this->_methods[$methodName];
 
         if ($method == null) {
-            return new Error(WS_ERR_INVALID_METHOD, 'Method name is not valid');
+            return new Error(self::WS_ERR_INVALID_METHOD, 'Method name is not valid');
         }
 
         if (isset($method['options']['post_only']) and $method['options']['post_only'] and !self::isPost()) {
@@ -273,23 +281,23 @@ class Server
 
             // parameter not provided in the request
             if (!array_key_exists($name, $params)) {
-                if (!self::hasFlag($flags, WS_PARAM_OPTIONAL)) {
+                if (!self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) {
                     $missing_params[] = $name;
                 } elseif (array_key_exists('default', $options)) {
                     $params[$name] = $options['default'];
-                    if (self::hasFlag($flags, WS_PARAM_FORCE_ARRAY)) {
+                    if (self::hasFlag($flags, self::WS_PARAM_FORCE_ARRAY)) {
                         self::makeArrayParam($params[$name]);
                     }
                 }
-            } elseif ($params[$name]==='' and !self::hasFlag($flags, WS_PARAM_OPTIONAL)) { // parameter provided but empty
+            } elseif ($params[$name]==='' and !self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) { // parameter provided but empty
                 $missing_params[] = $name;
             } else { // parameter provided - do some basic checks
                 $the_param = $params[$name];
-                if (is_array($the_param) and !self::hasFlag($flags, WS_PARAM_ACCEPT_ARRAY)) {
-                    return new Error(WS_ERR_INVALID_PARAM, $name.' must be scalar' );
+                if (is_array($the_param) and !self::hasFlag($flags, self::WS_PARAM_ACCEPT_ARRAY)) {
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be scalar' );
                 }
 
-                if (self::hasFlag($flags, WS_PARAM_FORCE_ARRAY)) {
+                if (self::hasFlag($flags, self::WS_PARAM_FORCE_ARRAY)) {
                     self::makeArrayParam($the_param);
                 }
 
@@ -308,7 +316,7 @@ class Server
         }
 
         if (count($missing_params)) {
-            return new Error(WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
+            return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
         }
 
         $result = trigger_change('ws_invoke_allowed', true, $methodName, $params);
@@ -341,7 +349,7 @@ class Server
         $methodName = $params['methodName'];
 
         if (!$service->hasMethod($methodName)) {
-            return new Error(WS_ERR_INVALID_PARAM, 'Requested method does not exist');
+            return new Error(self::WS_ERR_INVALID_PARAM, 'Requested method does not exist');
         }
 
         $res = array(
@@ -354,8 +362,8 @@ class Server
         foreach ($service->getMethodSignature($methodName) as $name => $options) {
             $param_data = array(
                 'name' => $name,
-                'optional' => self::hasFlag($options['flags'], WS_PARAM_OPTIONAL),
-                'acceptArray' => self::hasFlag($options['flags'], WS_PARAM_ACCEPT_ARRAY),
+                'optional' => self::hasFlag($options['flags'], self::WS_PARAM_OPTIONAL),
+                'acceptArray' => self::hasFlag($options['flags'], self::WS_PARAM_ACCEPT_ARRAY),
                 'type' => 'mixed',
             );
 
@@ -369,17 +377,17 @@ class Server
                 $param_data['info'] = $options['info'];
             }
 
-            if (self::hasFlag($options['type'], WS_TYPE_BOOL)) {
+            if (self::hasFlag($options['type'], self::WS_TYPE_BOOL)) {
                 $param_data['type'] = 'bool';
-            } elseif ( self::hasFlag($options['type'], WS_TYPE_INT)) {
+            } elseif ( self::hasFlag($options['type'], self::WS_TYPE_INT)) {
                 $param_data['type'] = 'int';
-            } elseif ( self::hasFlag($options['type'], WS_TYPE_FLOAT)) {
+            } elseif ( self::hasFlag($options['type'], self::WS_TYPE_FLOAT)) {
                 $param_data['type'] = 'float';
             }
-            if (self::hasFlag($options['type'], WS_TYPE_POSITIVE)) {
+            if (self::hasFlag($options['type'], self::WS_TYPE_POSITIVE)) {
                 $param_data['type'] .= ' positive';
             }
-            if (self::hasFlag($options['type'], WS_TYPE_NOTNULL)) {
+            if (self::hasFlag($options['type'], self::WS_TYPE_NOTNULL)) {
                 $param_data['type'].= ' notnull';
             }
 
