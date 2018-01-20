@@ -1,8 +1,16 @@
-Phyxo 1.7.0 - 2017-??-??
+Phyxo 1.7.0 - 2018-01-20
 ========================
 * Remove template extensions. Use inheritance instead.
-* New core theme "Treflez".
 * PHP minimum version is now 7.0.0. PHP 5 reaches end of life and is now only security fixes.
+* Switch to Swiftmailer instead of phpmailer
+
+Phyxo 1.6.5 - 2017-03-14
+========================
+* Fix warning in session start
+
+Phyxo 1.6.4 - 2017-01-12
+========================
+* Fix security issue with phpmailer
 
 Phyxo 1.6.3 - 2017-01-05
 ========================

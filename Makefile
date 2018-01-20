@@ -8,7 +8,7 @@ all:;
 	@echo "make config or make dist"
 
 
-dist: config assets dist-tgz dist-zip
+dist: config dist-tgz dist-zip
 
 
 config: clean
@@ -38,8 +38,7 @@ config: clean
 	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins
 
 	# copy only distrib plugins and themes
-	cp -pr themes/default \
-		themes/treflez $(DIST)/$(APP_NAME)/themes/
+	cp -pr themes/default themes/legacy themes/elegant $(DIST)/$(APP_NAME)/themes/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum

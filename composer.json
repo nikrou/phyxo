@@ -2,7 +2,7 @@
 	"name": "nikrou/phyxo",
 	"description": "Simply share your photos",
 	"homepage": "http://www.phyxo.net",
-	"license": "GPL-2.0",
+        "license": "GPL-2.0-only",
 	"authors": [
 		{
 			"name": "Nicolas Roudaire",
