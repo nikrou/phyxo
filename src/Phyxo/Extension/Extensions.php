@@ -1,28 +1,18 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Extension;
 
 use GuzzleHttp\Client;
 use PclZip;
-use Alchemy\Zippy\Zippy;
 
 class Extensions
 {
@@ -34,9 +24,9 @@ class Extensions
         }
 
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
-            $response = $client->request('GET', $url, $params);
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $response = $client->request('GET', $url, ['query' => $params]);
+            if ($response->getStatusCode()===200 && $response->getBody()->isReadable()) {
                 return json_decode($response->getBody(), true);
             } else {
                 throw new \Exception("Response is not readable");
@@ -49,9 +39,9 @@ class Extensions
     public function download($params=array(), $filename) {
         $url = PEM_URL . '/download.php';
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
-            $response = $client->request('GET', $url, $params);
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
+            $response = $client->request('GET', $url, ['query' => $params]);
+            if ($response->getStatusCode()===200 && $response->getBody()->isReadable()) {
                 file_put_contents($filename, $response->getBody());
             } else {
                 throw new \Exception("Response is not readable");
@@ -81,7 +71,8 @@ class Extensions
                     }
                 }
 
-                if ($results = $zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
+                // @TODO: use native zip library ; use arobase before
+                if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
                     $errors = array_filter($results, function($f) { return ($f['status'] !== 'ok' && $f['status']!=='filtered') && $f['status']!=='already_a_directory'; });
                     if (count($errors)>0) {
                         throw new \Exception("Error while extracting some files from archive");

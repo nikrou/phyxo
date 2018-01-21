@@ -53,7 +53,7 @@ if (!defined('PEM_URL')) {
     if (!empty($conf['alternative_pem_url'])) {
         define('PEM_URL', $conf['alternative_pem_url']);
     } else {
-        define('PEM_URL', 'http://ext.'.PHPWG_DOMAIN);
+        define('PEM_URL', 'https://ext.'.PHPWG_DOMAIN);
     }
 }
 

@@ -166,7 +166,6 @@ function ws_extensions_update($params, $service) {
             $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
         }
 
-        $template->delete_compiled_templates();
         return l10n('%s has been successfully updated.', $extension_name);
     } catch (\Exception $e) {
         return $e->getMessage();
