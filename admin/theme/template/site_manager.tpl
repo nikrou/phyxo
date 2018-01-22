@@ -30,7 +30,7 @@ $(function(){
 	</tr>
   {foreach from=$sites item=site name=site}
   <tr style="text-align:left" class="{if $smarty.foreach.site.index is odd}row1{else}row2{/if}"><td>
-    <a href="{$site.NAME}">{$site.NAME}</a><br>({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {$pwg->l10n_dec('%d photo','%d photos',$site.IMAGES)})
+    <a href="{$site.NAME}">{$site.NAME}</a><br>({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {$site.IMAGES|translate_dec:'%d photo':'%d photos'})
   </td><td>
     [<a href="{$site.U_SYNCHRONIZE}" title="{'update the database from files'|translate}">{'Synchronize'|translate}</a>]
     {if isset($site.U_DELETE)}
