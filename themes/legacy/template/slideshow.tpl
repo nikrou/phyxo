@@ -2,6 +2,7 @@
 
 {block name="menubar"}{/block}
 {block name="category-actions"}{/block}
+{assign var="MENUBAR" value=null}
 
 {block name="content"}
     <div id="slideshow">

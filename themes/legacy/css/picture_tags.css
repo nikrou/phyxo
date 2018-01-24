@@ -1,0 +1,24 @@
+.js-hidden {
+    display: none;
+}
+
+.edit-tags {
+    background: transparent url(icon/edit.png) no-repeat left top;
+    cursor: pointer;
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+/* @TODO: simplify; no id */
+#imageInfos .imageInfo .edit-tags {
+    padding-left: 20px;
+}
+
+#user-tags-update {
+    margin-bottom: 10px;
+}
+
+#user-tags-update:not(.disabled):hover {
+    background: #98fb98;
+    color: #000000;
+}

@@ -204,12 +204,30 @@
 			<dd>{$INFO_FILESIZE}</dd>
 		    </div>
 		{/if}
-		{if $display_info.tags and isset($related_tags)}
-		    <div id="Tags" class="imageInfo">
-			<dt>{'Tags'|translate}</dt>
-			<dd>
-			    {foreach from=$related_tags item=tag name=tag_loop}{if !$smarty.foreach.tag_loop.first}, {/if}<a href="{$tag.URL}">{$tag.name}</a>{/foreach}
-			</dd>
+		{if $display_info.tags}
+		    <div class="info-tags">
+			<div{if $TAGS_PERMISSION_ADD} class="edit-tags"{/if}>{'Tags'|translate}</div>
+			<div>
+			    {if !empty($related_tags)}
+				{foreach $related_tags as $tag}
+				    <a {if !$tag.validated}class="pending{if $tag.status==1} added{else} deleted{/if}"{/if} href="{$tag.URL}">{$tag.name}</a>{if !$tag@last},{/if}
+				{/foreach}
+			    {/if}
+
+			    <div class="visually-hidden">
+				{if $TAGS_PERMISSION_ADD}
+				    <form action="{$USER_TAGS_UPDATE_SCRIPT}" method="post" id="user-tags-form" class="js-hidden">
+					<select name="user_tags[]" id="user-tags" multiple="multiple">
+					    {foreach $related_tags as $tag}
+						<option value="~~{$tag.id}~~" selected="selected">{$tag.name}</option>
+					    {/foreach}
+					</select>
+					<input type="hidden" name="image_id" value="{$current.id}">
+					<input id="user-tags-update" name="user_tags_update" type="submit" value="{'Update tags'|translate}">
+				    </form>
+				{/if}
+			    </div>
+			</div>
 		    </div>
 		{/if}
 		{if $display_info.categories and isset($related_categories)}
@@ -387,4 +405,19 @@
     {/if}{*comments*}
 
     {if !empty($PLUGIN_PICTURE_AFTER)}{$PLUGIN_PICTURE_AFTER}{/if}
+
+    {if $TAGS_PERMISSION_DELETE || $TAGS_PERMISSION_ADD}
+	{combine_script id="jquery.selectize" load="footer" path="themes/legacy/js/selectize.js"}
+	{combine_css id="jquery.selectize" path="themes/legacy/css/selectize.{$themeconf.colorscheme}.css"}
+	{combine_css id="picture.tags" path="themes/legacy/css/picture_tags.css"}
+	{combine_script id="picture.tags" load="async" require="jquery" path="themes/legacy/js/picture_tags.js"}
+
+	{footer_script require="picture.tags"}
+	var user_tags = user_tags || {};
+	user_tags.allow_delete = {$TAGS_PERMISSION_DELETE};
+	user_tags.allow_creation = {$TAGS_PERMISSION_ALLOW_CREATION};
+	user_tags.ws_getList = "{$USER_TAGS_WS_GETLIST}";
+	user_tags.tags_updated = "{"Tags updated"|translate}";
+        {/footer_script}
+    {/if}
 {/block}

@@ -35,10 +35,12 @@ if (isset($_POST['submit_elegant'])) {
     conf_update_param('elegant', $config, true);
 
     $page['infos'][] = l10n('Information data registered in database');
+} else {
+    $conf['elegant'] = json_decode($conf['elegant'], true);
 }
 
 $template->set_filenames(array('theme_admin_content' => __DIR__ . '/admin.tpl'));
 
-$template->assign('options', json_decode($conf['elegant'], true));
+$template->assign('options', $conf['elegant']);
 
 $template->assign_var_from_handle('ADMIN_CONTENT', 'theme_admin_content');
