@@ -1,0 +1,11 @@
+{
+  "app.js": "http://localhost:8080/build/js/app.js",
+  "app.js.map": "http://localhost:8080/build/js/app.js.map",
+  "fonts/fontawesome-webfont.eot?v=4.7.0": "http://localhost:8080/build/fonts/fontawesome-webfont-674f50d2.eot",
+  "fonts/fontawesome-webfont.ttf?v=4.7.0": "http://localhost:8080/build/fonts/fontawesome-webfont-b06871f2.ttf",
+  "fonts/fontawesome-webfont.woff2?v=4.7.0": "http://localhost:8080/build/fonts/fontawesome-webfont-af7ae505.woff2",
+  "fonts/fontawesome-webfont.woff?v=4.7.0": "http://localhost:8080/build/fonts/fontawesome-webfont-fee66e71.woff",
+  "images/fontawesome-webfont.svg?v=4.7.0": "http://localhost:8080/build/images/fontawesome-webfont-912ec66d.svg",
+  "vendor.js": "http://localhost:8080/build/js/vendor.js",
+  "vendor.js.map": "http://localhost:8080/build/js/vendor.js.map"
+}
