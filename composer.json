@@ -14,7 +14,7 @@
 		"php": ">=7.0.0",
 		"smarty/smarty": "3.1.*",
 		"jdorn/sql-formatter": "1.2.*",
-		"pelago/emogrifier": "1.1.*",
+		"pelago/emogrifier": "2.*",
 		"ircmaxell/password-compat": "1.0.*",
 		"pclzip/pclzip": "2.8.*",
 		"tedivm/jshrink": "1.2.*",

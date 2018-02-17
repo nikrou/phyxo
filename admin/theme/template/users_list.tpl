@@ -166,8 +166,8 @@ span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border
     <fieldset id="action">
 	<legend>{'Action'|translate}</legend>
 
-	<div id="forbidAction"{if count($selection) != 0} style="display:none"{/if}>{'No user selected, no action possible.'|translate}</div>
-	<div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
+	<div id="forbidAction"{if !empty($selection)} style="display:none"{/if}>{'No user selected, no action possible.'|translate}</div>
+	<div id="permitAction"{if empty($selection)} style="display:none"{/if}>
 
 	    <select name="selectAction">
 		<option value="-1">{'Choose an action'|translate}</option>
