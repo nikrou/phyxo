@@ -49,7 +49,7 @@ INPUT, SELECT, TEXTAREA { border: 1px solid #999; }
 #copyright { color:#777; margin:5px auto 0px 240px; text-align:center;
 padding-bottom: 15px; }
 .header_notes {
-  background: transparent url(../default/icon/note.png) no-repeat right top;
+  background: transparent url(./icon/note.png) no-repeat right top;
   border: none;
   min-height: 48px;
   padding: 15px 60px 0 0;

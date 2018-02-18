@@ -41,20 +41,23 @@
 {combine_script id='jquery.tipTip' load='footer' path='admin/theme/js/plugins/jquery.tipTip.js'}
 {footer_script require='jquery.tipTip'}
 jQuery('.tiptip').tipTip({
-  delay: 0,
-  fadeIn: 200,
-  fadeOut: 200
+delay: 0,
+fadeIn: 200,
+fadeOut: 200
 });
 
 jQuery('a.externalLink').click(function() {
-  window.open(jQuery(this).attr("href"));
-  return false;
+window.open(jQuery(this).attr("href"));
+return false;
 });
 {/footer_script}
 
 <!-- BEGIN get_combined -->
 {get_combined_scripts load='footer'}
 <!-- END get_combined -->
+
+<script src="{asset manifest='theme/build/manifest.json' src='vendor.js'}"></script>
+<script src="{asset manifest='theme/treflez/build/manifest.json' src='app.js'}"></script>
 
 </body>
 </html>

@@ -33,6 +33,11 @@
 /tests/units/tmp/
 
 ;;
+/admin/theme/build
+/admin/theme/node_modules
+/admin/theme/*.log
+
+;;
 /themes/**/build
 /themes/**/node_modules
 /themes/**/*.log
