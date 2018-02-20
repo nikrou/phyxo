@@ -249,15 +249,14 @@ if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings
 }
 
 //----------------------------------------------------- template initialization
-$template->set_filename('config', 'configuration_' . $page['section'] . '.tpl');
 
 $action = get_root_url().'admin/index.php?page=configuration';
 $action .= '&amp;section='.$page['section'];
 
 $template->assign(
     array(
-        'U_HELP' => get_root_url().'admin/popuphelp.php?page=configuration',
-        'F_ACTION'=>$action
+        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=configuration',
+        'F_ACTION' => $action
     )
 );
 
@@ -509,5 +508,4 @@ case 'watermark': {
 }
 }
 
-//----------------------------------------------------------- sending html code
-$template->assign_var_from_handle('ADMIN_CONTENT', 'config');
+$template_filename = 'configuration_' . $page['section'];

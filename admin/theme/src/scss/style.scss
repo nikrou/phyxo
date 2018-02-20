@@ -1,3 +1,18 @@
+//@import "bootstrap-custom";
+
 @import "./theme.css";
 @import "./clear.css";
 @import "./fontello/css/fontello.css";
+
+body {
+    display: flex;
+    flex-flow: column wrap;
+
+    i {
+	margin-right: 0.2rem;
+    }
+}
+
+// .visually-hidden {
+//     @include sr-only();
+// }

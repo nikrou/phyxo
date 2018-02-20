@@ -1,32 +1,36 @@
-<div class="titrePage">
-  <h2>{'Move albums'|translate}</h2>
-</div>
+{extends file="__layout.tpl"}
 
-<form method="post" action="{$F_ACTION}" class="filter" id="catMove">
-  <fieldset>
-    <legend>{'Move albums'|translate}</legend>
+{block name="content"}
+    <div class="titrePage">
+	<h2>{'Move albums'|translate}</h2>
+    </div>
 
-    <label>
-      {'Virtual albums to move'|translate}
+    <form method="post" action="{$F_ACTION}" class="filter" id="catMove">
+	<fieldset>
+	    <legend>{'Move albums'|translate}</legend>
 
-      <select class="categoryList" name="selection[]" multiple="multiple">
-        {html_options options=$category_to_move_options}
-      </select>
-    </label>
+	    <label>
+		{'Virtual albums to move'|translate}
 
-    <label>
-      {'New parent album'|translate}
+		<select class="categoryList" name="selection[]" multiple="multiple">
+		    {html_options options=$category_to_move_options}
+		</select>
+	    </label>
 
-      <select class="categoryDropDown" name="parent">
-        <option value="0">------------</option>
-        {html_options options=$category_parent_options}
-      </select>
-    </label>
+	    <label>
+		{'New parent album'|translate}
 
-  </fieldset>
+		<select class="categoryDropDown" name="parent">
+		    <option value="0">------------</option>
+		    {html_options options=$category_parent_options}
+		</select>
+	    </label>
 
-  <p style="text-align:left;">
-    <input class="submit" type="submit" name="submit" value="{'Submit'|translate}">
-  </p>
+	</fieldset>
 
-</form>
+	<p style="text-align:left;">
+	    <input class="submit" type="submit" name="submit" value="{'Submit'|translate}">
+	</p>
+
+    </form>
+{/block}

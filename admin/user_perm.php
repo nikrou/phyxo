@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 if (!defined('IN_ADMIN')) {
     die('Hacking attempt!');
@@ -62,12 +49,8 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(
-    array(
-        'user_perm' => 'user_perm.tpl',
-        'double_select' => 'double_select.tpl'
-    )
-);
+$template_filename = 'user_perm';
+$template->set_filenames(['double_select' => 'double_select.tpl']);
 
 $template->assign(
     array(
@@ -88,11 +71,13 @@ $template->assign(
 // retrieve category ids authorized to the groups the user belongs to
 $group_authorized = array();
 
-$query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM '.USER_GROUP_TABLE.' AS ug';
-$query .= ' LEFT JOIN '.GROUP_ACCESS_TABLE.' AS ga ON ug.group_id = ga.group_id';
+$query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM '.GROUP_ACCESS_TABLE.' AS ga';
+$query .= ' LEFT JOIN '.USER_GROUP_TABLE.' AS ug ON ug.group_id = ga.group_id';
 $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' AS c ON c.id = ga.cat_id';
 $query .= ' WHERE ug.user_id = '.$page['user'];
 $result = $conn->db_query($query);
+
+
 
 if ($conn->db_num_rows($result) > 0) {
     $cats = array();
@@ -140,4 +125,3 @@ display_select_cat_wrapper($query_false,array(),'category_option_false');
 // +-----------------------------------------------------------------------+
 
 $template->assign_var_from_handle('DOUBLE_SELECT', 'double_select');
-$template->assign_var_from_handle('ADMIN_CONTENT', 'user_perm');

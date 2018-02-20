@@ -1,40 +1,44 @@
-<div class="titrePage">
-  <h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Edit album'|translate} {$TABSHEET_TITLE}</h2>
-</div>
+{extends file="__layout.tpl"}
 
-<form action="{$F_ACTION}" method="post" id="categoryNotify">
+{block name="content"}
+    <div class="titrePage">
+	<h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Edit album'|translate} {$TABSHEET_TITLE}</h2>
+    </div>
 
-<fieldset id="emailCatInfo">
-  <legend>{'Send an information email to group members'|translate}</legend>
+    <form action="{$F_ACTION}" method="post" id="categoryNotify">
 
-{if isset($group_mail_options)}
+	<fieldset id="emailCatInfo">
+	    <legend>{'Send an information email to group members'|translate}</legend>
 
-  <p>
-    <strong>{'Group'|translate}</strong>
-    <br>
-    <select name="group">
-      {html_options options=$group_mail_options}
-    </select>
-  </p>
+	    {if isset($group_mail_options)}
 
-  <p>
-    <strong>{'Complementary mail content'|translate}</strong>
-    <br>
-    <textarea cols="50" rows="5" name="mail_content" id="mail_content" class="description">{$MAIL_CONTENT}</textarea>
-  </p>
+		<p>
+		    <strong>{'Group'|translate}</strong>
+		    <br>
+		    <select name="group">
+			{html_options options=$group_mail_options}
+		    </select>
+		</p>
 
-  <p>
-    <input class="submit" type="submit" value="{'Send'|translate}" name="submitEmail">
-  </p>
+		<p>
+		    <strong>{'Complementary mail content'|translate}</strong>
+		    <br>
+		    <textarea cols="50" rows="5" name="mail_content" id="mail_content" class="description">{$MAIL_CONTENT}</textarea>
+		</p>
 
-{elseif isset($no_group_in_gallery) and $no_group_in_gallery}
-  <p>{'There is no group in this gallery.'|translate} <a href="admin/index.php?page=group_list" class="externalLink">{'Group management'|translate}</a></p>
-{else}
-  <p>
-    {'No group is permitted to see this private album'|translate}.
-    <a href="{$permission_url}" class="externalLink">{'Permission management'|translate}</a>
-  </p>
-{/if}
-</fieldset>
+		<p>
+		    <input class="submit" type="submit" value="{'Send'|translate}" name="submitEmail">
+		</p>
 
-</form>
+	    {elseif isset($no_group_in_gallery) and $no_group_in_gallery}
+		<p>{'There is no group in this gallery.'|translate} <a href="admin/index.php?page=group_list" class="externalLink">{'Group management'|translate}</a></p>
+	    {else}
+		<p>
+		    {'No group is permitted to see this private album'|translate}.
+		    <a href="{$permission_url}" class="externalLink">{'Permission management'|translate}</a>
+		</p>
+	    {/if}
+	</fieldset>
+
+    </form>
+{/block}

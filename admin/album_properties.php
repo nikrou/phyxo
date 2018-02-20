@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
@@ -153,7 +140,7 @@ $template->assign(
         'U_JUMPTO' => make_index_url(array('category' => $category)),
         'U_ADD_PHOTOS_ALBUM' => $base_url.'photos_add&amp;album='.$category['id'],
         'U_CHILDREN' => $cat_list_url.'&amp;parent_id='.$category['id'],
-        'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_modify',
+        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_modify',
         'F_ACTION' => $form_action,
     )
 );
@@ -258,9 +245,6 @@ if ($category['is_virtual']) {
 }
 
 trigger_notify('loc_end_cat_modify');
-
-//----------------------------------------------------------- sending html code
-$template->assign_var_from_handle('ADMIN_CONTENT', 'album');
 
 
 // get_complete_dir returns the concatenation of get_site_url and

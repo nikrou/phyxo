@@ -517,6 +517,3 @@ $template->assign(array(
 ));
 
 trigger_notify('loc_end_element_set_global');
-
-//----------------------------------------------------------- sending html code
-$template->assign_var_from_handle('ADMIN_CONTENT', 'batch_manager');

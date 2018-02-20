@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 if (!defined('PHPWG_ROOT_PATH')) {
     die ("Hacking attempt!");
@@ -134,8 +121,6 @@ default : {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template->set_filenames(array('maintenance' => 'maintenance.tpl'));
-
 $url_format = get_root_url().'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token='.get_pwg_token();
 
 $purge_urls[l10n('All')] = sprintf($url_format, 'derivatives').'&amp;type=all';
@@ -159,7 +144,7 @@ $template->assign(
         'U_MAINT_COMPILED_TEMPLATES' => sprintf($url_format, 'compiled-templates'),
         'U_MAINT_DERIVATIVES' => sprintf($url_format, 'derivatives'),
         'purge_derivatives' => $purge_urls,
-        'U_HELP' => get_root_url().'admin/popuphelp.php?page=maintenance',
+        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=maintenance',
     )
 );
 
@@ -192,8 +177,4 @@ $advanced_features = trigger_change(
 
 $template->assign('advanced_features', $advanced_features);
 
-// +-----------------------------------------------------------------------+
-// |                           sending html code                           |
-// +-----------------------------------------------------------------------+
-
-$template->assign_var_from_handle('ADMIN_CONTENT', 'maintenance');
+$template_filename = 'maintenance';
