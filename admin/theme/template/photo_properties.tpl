@@ -71,12 +71,12 @@
 		    <td class="photoLinks">
 			<ul>
 			    {if isset($U_JUMPTO) }
-				<li><a class="icon-eye" href="{$U_JUMPTO}">{'jump to photo'|translate} →</a></li>
+				<li><a href="{$U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to photo'|translate}</a></li>
 			    {/if}
 			    {if !url_is_remote($PATH)}
-				<li><a class="icon-arrows-cw" href="{$U_SYNC}">{'Synchronize metadata'|translate}</a></li>
+				<li><a href="{$U_SYNC}"><i class="fa fa-exchange"></i> {'Synchronize metadata'|translate}</a></li>
 
-				<li><a class="icon-trash" href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'delete photo'|translate}</a></li>
+				<li><a href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><i class="fa fa-trash"></i> {'delete photo'|translate}</a></li>
 			    {/if}
 			</ul>
 		    </td>
@@ -105,10 +105,10 @@
 		<br>
 		<input type="hidden" name="date_creation" value="{$DATE_CREATION}">
 		<label>
-		    <i class="icon-calendar"></i>
+		    <i class="fa fa-calendar"></i>
 		    <input type="text" data-datepicker="date_creation" data-datepicker-unset="date_creation_unset" readonly>
 		</label>
-		<a href="#" class="icon-cancel-circled" id="date_creation_unset">{'unset'|translate}</a>
+		<a href="#" id="date_creation_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
 	    </p>
 
 	    <p>

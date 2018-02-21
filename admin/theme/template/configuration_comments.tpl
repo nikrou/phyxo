@@ -35,7 +35,7 @@
 		<ul>
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="activate_comments" id="activate_comments"{if ($comments.activate_comments)} checked="checked"{/if}>
 			    {'Activate comments'|translate}
 			</label>
@@ -45,7 +45,7 @@
 		<ul id="comments_param_warp"{if not ($comments.activate_comments)} style="display:none;"{/if}>
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="comments_forall" {if ($comments.comments_forall)}checked="checked"{/if}>
 			    {'Comments for all'|translate}
 			</label>
@@ -69,7 +69,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="comments_validation" {if ($comments.comments_validation)}checked="checked"{/if}>
 			    {'Validation'|translate}
 			</label>
@@ -77,7 +77,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="comments_author_mandatory" {if ($comments.comments_author_mandatory)}checked="checked"{/if}>
 			    {'Username is mandatory'|translate}
 			</label>
@@ -85,7 +85,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="comments_email_mandatory" {if ($comments.comments_email_mandatory)}checked="checked"{/if}>
 			    {'Email address is mandatory'|translate}
 			</label>
@@ -93,7 +93,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="comments_enable_website" {if ($comments.comments_enable_website)}checked="checked"{/if}>
 			    {'Allow users to add a link to their website'|translate}
 			</label>
@@ -101,7 +101,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="user_can_edit_comment" {if ($comments.user_can_edit_comment)}checked="checked"{/if}>
 			    {'Allow users to edit their own comments'|translate}
 			</label>
@@ -109,7 +109,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="user_can_delete_comment" {if ($comments.user_can_delete_comment)}checked="checked"{/if}>
 			    {'Allow users to delete their own comments'|translate}
 			</label>
@@ -119,25 +119,25 @@
 			<strong>{'Notify administrators when a comment is'|translate}</strong>
 
 			<label id="email_admin_on_comment_validation" class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="email_admin_on_comment_validation" {if ($comments.email_admin_on_comment_validation)}checked="checked"{/if}>
 			    {'pending validation'|translate}
 			</label>
 
 			<label class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="email_admin_on_comment" {if ($comments.email_admin_on_comment)}checked="checked"{/if}>
 			    {'added'|translate}
 			</label>
 
 			<label id="email_admin_on_comment_edition" class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="email_admin_on_comment_edition" {if ($comments.email_admin_on_comment_edition)}checked="checked"{/if}>
 			    {'modified'|translate}
 			</label>
 
 			<label id="email_admin_on_comment_deletion" class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check"></i>
 			    <input type="checkbox" name="email_admin_on_comment_deletion" {if ($comments.email_admin_on_comment_deletion)}checked="checked"{/if}>
 			    {'deleted'|translate}
 			</label>

@@ -60,7 +60,7 @@
 				<td>{$rate.rate}</td>
 				<td><b>{$rate.USER}</b></td>
 				<td>{$rate.date}</td>
-				<td><a onclick="return del(this,{$image.id},{$rate.user_id}{if !empty({$rate.anonymous_id})},'{$rate.anonymous_id}'{/if})" class="icon-trash"> </a></td>
+				<td><a onclick="return del(this,{$image.id},{$rate.user_id}{if !empty({$rate.anonymous_id})},'{$rate.anonymous_id}'{/if})"><i class="fa fa-trash"></i> </a></td>
 			    </tr>
 			{/foreach}{*rates*}
 		    </table>

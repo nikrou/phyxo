@@ -58,7 +58,7 @@
 
     {html_style}
     .sizeEnable { width:50px; }
-    .sizeEnable .icon-ok { position:relative; left:2px; }
+    .sizeEnable .fa-ok { position:relative; left:2px; }
     .sizeEditForm { margin:0 0 10px 20px; }
     .sizeEdit { display:none; }
     #sizesConf table { margin:0; }
@@ -86,7 +86,7 @@
 		{else}
 		    <div>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="original_resize" {if ($sizes.original_resize)}checked="checked"{/if}>
 			    {'Resize after upload'|translate}
 			</label>
@@ -132,11 +132,11 @@
 				<label>
 				    {if $d.must_enable}
 					<span class="sizeEnable">
-					    <span class="icon-ok"></span>
+					    <i class="fa fa-check"></i>
 					</span>
 				    {else}
 					<span class="sizeEnable font-checkbox">
-					    <span class="icon-check"></span>
+					    <i class="fa fa-check-square"></i>
 					    <input type="checkbox" name="d[{$type}][enabled]" {if $d.enabled}checked="checked"{/if}>
 					</span>
 				    {/if}
@@ -162,7 +162,7 @@
 					<tr>
 					    <td colspan="2">
 						<label class="font-checkbox">
-						    <span class="icon-check"></span>
+						    <i class="fa fa-check-square"></i>
 						    <input type="checkbox" class="cropToggle" name="d[{$type}][crop]" {if $d.crop}checked="checked"{/if}>
 						    {'Crop'|translate}
 						</label>
@@ -215,7 +215,7 @@
 			    {foreach from=$custom_derivatives item=time key=custom}
 				<tr><td>
 				    <label class="font-checkbox">
-					<span class="icon-check"></span>
+					<i class="fa fa-check-square"></i>
 					<input type="checkbox" name="delete_custom_derivative_{$custom}"> {'Delete'|translate} {$custom} ({'Last hit'|translate}: {$time})
 				    </label>
 				</td></tr>

@@ -99,7 +99,7 @@
 	    <legend>{'Tag selection'|translate}</legend>
 
 	    {if count($all_tags)}
-		<div><label><span class="icon-filter" style="visibility:hidden" id="filterIcon"></span>{'Search'|translate}: <input id="searchInput" type="text" size="12"></label></div>
+		<div><label><i class="fa fa-filter visibility-hidden" id="filterIcon"></i>{'Search'|translate}: <input id="searchInput" type="text" size="12"></label></div>
 	    {/if}
 
 	    <ul class="tagSelection">
@@ -111,7 +111,7 @@
 			<a href="{$tag.U_EDIT}">{'Manage photos'|translate}</a>
 			{if !empty($tag.alt_names)}<br>{$tag.alt_names}{/if}
         {/strip}{/capture}
-        <a class="icon-info-circled-1 showInfo" title="{$smarty.capture.showInfo|@htmlspecialchars}"></a>
+        <a class="showInfo" title="{$smarty.capture.showInfo|@htmlspecialchars}"><i class="fa fa-info-circle"></i></a>
         <label>
             <input type="checkbox" name="tags[]" value="{$tag.id}"> {$tag.name}
         </label>

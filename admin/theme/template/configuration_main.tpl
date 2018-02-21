@@ -112,13 +112,13 @@
 		<ul>
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="rate" {if ($main.rate)}checked="checked"{/if}>
 			    {'Allow rating'|translate}
 			</label>
 
 			<label id="rate_anonymous" class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="rate_anonymous" {if ($main.rate_anonymous)}checked="checked"{/if}>
 			    {'Rating by guests'|translate}
 			</label>
@@ -126,13 +126,13 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="allow_user_registration" {if ($main.allow_user_registration)}checked="checked"{/if}>
 			    {'Allow user registration'|translate}
 			</label>
 
 			<label id="email_admin_on_new_user" class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="email_admin_on_new_user" {if ($main.email_admin_on_new_user)}checked="checked"{/if}>
 			    {'Email admins when a new user registers'|translate}
 			</label>
@@ -140,7 +140,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="allow_user_customization" {if ($main.allow_user_customization)}checked="checked"{/if}>
 			    {'Allow user customization'|translate}
 			</label>
@@ -148,7 +148,7 @@
 
 		    <li>
 			<label class="font-checkbox">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="obligatory_user_mail_address" {if ($main.obligatory_user_mail_address)}checked="checked"{/if}>
 			    {'Mail address is mandatory for registration'|translate}
 			</label>
@@ -168,19 +168,19 @@
 			<strong>{'Save visits in history for'|translate}</strong>
 
 			<label class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="history_guest" {if ($main.history_guest)}checked="checked"{/if}>
 			    {'simple visitors'|translate}
 			</label>
 
 			<label class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="log" {if ($main.log)}checked="checked"{/if}>
 			    {'registered users'|translate}
 			</label>
 
 			<label class="font-checkbox no-bold">
-			    <span class="icon-check"></span>
+			    <i class="fa fa-check-square"></i>
 			    <input type="checkbox" name="history_admin" {if ($main.history_admin)}checked="checked"{/if}>
 			    {'administrators'|translate}
 			</label>
@@ -194,7 +194,7 @@
 				<div class="themeBox {if $main.mail_theme==$theme}themeDefault{/if}">
 				    <label>
 					<div class="themeName">
-					    <span class="icon-check"></span>
+					    <i class="fa fa-check-square"></i>
 					    <input type="radio" name="mail_theme" value="{$theme}" {if $main.mail_theme==$theme}checked{/if}>
 					    {$theme_name}
 					</div>

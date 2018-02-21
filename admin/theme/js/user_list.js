@@ -483,11 +483,11 @@ $(function() {
 	 */
 	$(document).on('click', '#userList tbody td .openUserDetails',  function() {
 		var nTr = this.parentNode.parentNode;
-		if ($(this).hasClass('icon-cancel-circled')) {
+		if ($(this).hasClass('fa-times-circle')) {
 			/* This row is already open - close it */
 			$(this)
-				.removeClass('icon-cancel-circled')
-				.addClass('icon-pencil')
+				.removeClass('fa-times-circle')
+				.addClass('fa-pencil')
 				.attr('title', phyxo_msg.open_user_details)
 				.html(phyxo_msg.edit);
 
@@ -496,8 +496,8 @@ $(function() {
 		else {
 			/* Open this row */
 			$(this)
-				.removeClass('icon-pencil')
-				.addClass('icon-cancel-circled')
+				.removeClass('fa-pencil')
+				.addClass('fa-times-circle')
 				.attr('title', phyxo_msg.close_user_details)
 				.html(phyxo_msg.close);
 
@@ -514,7 +514,7 @@ $(function() {
 		{
 			"mRender": function(data, type, full) {
 				return '<label><input type="checkbox" data-user_id="'+full[0]+'"> '
-					+data+'</label> <a title="'+phyxo_msg.open_user_details+'" class="icon-pencil openUserDetails">'
+					+data+'</label> <a title="'+phyxo_msg.open_user_details+'" class="fa fa-pencil openUserDetails">'
 					+phyxo_msg.edit+'</a>';
 			}
 		}

@@ -20,11 +20,11 @@
 		<li>
 		    <input type="hidden" name="start" value="{$START}">
 		    <label>
-			<i class="icon-calendar"></i>
+			<i class="fa fa-calendar"></i>
 			<input type="text" data-datepicker="start" data-datepicker-end="end" data-datepicker-unset="start_unset" readonly>
 		    </label>
 		    <br>
-		    <a href="#" class="icon-cancel-circled" id="start_unset">{'unset'|translate}</a>
+		    <a href="#" id="start_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
 		</li>
 	    </ul>
 	    <ul>
@@ -32,11 +32,11 @@
 		<li>
 		    <input type="hidden" name="end" value="{$END}">
 		    <label>
-			<i class="icon-calendar"></i>
+			<i class="fa fa-calendar"></i>
 			<input type="text" data-datepicker="end" data-datepicker-start="start" data-datepicker-unset="end_unset" readonly>
 		    </label>
 		    <br>
-		    <a href="#" class="icon-cancel-circled" id="end_unset">{'unset'|translate}</a>
+		    <a href="#" id="end_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
 		</li>
 	    </ul>
 

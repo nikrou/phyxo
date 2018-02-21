@@ -59,7 +59,7 @@
 
 		    <span class="thumb">
 			<a href="{$element.FILE_SRC}" class="preview-box icon-zoom-in" title="{$element.LEGEND|@htmlspecialchars}"><img src="{$element.TN_SRC}" alt=""></a>
-			<a href="{$element.U_EDIT}" class="icon-pencil">{'Edit'|translate}</a>
+			<a href="{$element.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
 		    </span>
 
 		    <table>
@@ -79,10 +79,10 @@
 			    <td>
 				<input type="hidden" name="date_creation-{$element.id}" value="{$element.DATE_CREATION}">
 				<label>
-				    <i class="icon-calendar"></i>
+				    <i class="fa fa-calendar"></i>
 				    <input type="text" data-datepicker="date_creation-{$element.id}" data-datepicker-unset="date_creation_unset-{$element.id}" readonly>
 				</label>
-				<a href="#" class="icon-cancel-circled" id="date_creation_unset-{$element.id}">{'unset'|translate}</a>
+				<a href="#" id="date_creation_unset-{$element.id}"><i class="fa fa-times-circle"></i>{'unset'|translate}</a>
 			    </td>
 			</tr>
 			<tr>

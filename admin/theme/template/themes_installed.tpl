@@ -61,16 +61,16 @@
 	    <div class="themeBox{if $theme.IS_DEFAULT} themeDefault{/if}">
 		<div class="themeName">
 		    {$theme.NAME} {if $theme.IS_DEFAULT}<em>({'default'|translate})</em>{/if} {if $theme.IS_MOBILE}<em>({'Mobile'|translate})</em>{/if}
-		    <a class="icon-info-circled-1 showInfo" title="{if !empty($author)}{'By %s'|translate:$author} | {/if}{'Version'|translate} {$version}<br/>{$theme.DESC|@escape:'html'}"></a>
+		    <a class="showInfo" title="{if !empty($author)}{'By %s'|translate:$author} | {/if}{'Version'|translate} {$version}<br/>{$theme.DESC|@escape:'html'}"><i class="fa fa-info-circle"></i></a>
 		</div>
-		<div class="themeShot"><a href="{$theme.SCREENSHOT}" class="preview-box" title="{$theme.NAME}"><img src="{$theme.SCREENSHOT}" alt=""></a></div>
+		<div class="themeShot"><a href="{$theme.SCREENSHOT}" class="preview-box icon-zoom-in" title="{$theme.NAME}"><img src="{$theme.SCREENSHOT}" alt=""></a></div>
 		<div class="themeActions">
 		    <div>
 			{if $theme.STATE == 'active'}
 			    {if $theme.DEACTIVABLE}
-				<a href="{$deactivate_baseurl}{$theme.ID}" class="tiptip" title="{'Forbid this theme to users'|translate}">{'Deactivate'|translate}</a>
+				<a href="{$deactivate_baseurl}{$theme.ID}" title="{'Forbid this theme to users'|translate}">{'Deactivate'|translate}</a>
 			    {else}
-				<span title="{$theme.DEACTIVATE_TOOLTIP}" class="tiptip">{'Deactivate'|translate}</span>
+				<span title="{$theme.DEACTIVATE_TOOLTIP}">{'Deactivate'|translate}</span>
 			    {/if}
 
 			    {if not $theme.IS_DEFAULT}

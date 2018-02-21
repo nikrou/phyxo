@@ -351,7 +351,7 @@
 			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {if isset($filter.category)}checked="checked"{/if}>
 			{'Album'|translate}
 			<select data-selectize="categories" data-value="{$filter_category_selected|@json_encode|escape:html}"
-				data-default="first" name="filter_category" style="width:600px"></select>
+						data-default="first" name="filter_category" style="width:600px"></select>
 			<label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|translate}</label>
 		    </li>
 
@@ -360,8 +360,8 @@
 			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {if isset($filter.tags)}checked="checked"{/if}>
 			{'Tags'|translate}
 			<select data-selectize="tags" data-value="{$filter_tags|@json_encode|escape:html}"
-				placeholder="{'Type in a search term'|translate}"
-				name="filter_tags[]" multiple style="width:600px;"></select>
+						placeholder="{'Type in a search term'|translate}"
+						name="filter_tags[]" multiple style="width:600px;"></select>
 			<label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|translate}</span></label>
 			<label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|translate}</span></label>
 		    </li>
@@ -421,7 +421,6 @@
 			{'Search'|translate}
 			<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
 			{combine_script id='core.scripts' load='async' path='admin/theme/js/scripts.js'}
-			<a href="./popuphelp.php?page=quick_search" onclick="popuphelp(this.href);return false;" title="{'Help'|translate}"><span class="icon-help-circled"></span></a>
 			{if (isset($no_search_results))}
 			    <div>{'No results for'|translate} :
 				<em><strong>
@@ -510,7 +509,7 @@
 			    <label>
 				<input type="checkbox" name="selection[]" value="{$thumbnail.id}" {if $isSelected}checked="checked"{/if}>
 				<span class="wrap2{if $isSelected} thumbSelected{/if}">
-				    <div class="actions"><a href="{$thumbnail.FILE_SRC}" class="preview-box">{'Zoom'|translate}</a> &middot; <a href="{$thumbnail.U_EDIT}" target="_blank">{'Edit'|translate}</a></div>
+				    <div class="actions"><a href="{$thumbnail.FILE_SRC}" class="preview-box icon-zoom-in">{'Zoom'|translate}</a> &middot; <a href="{$thumbnail.U_EDIT}" target="_blank">{'Edit'|translate}</a></div>
 				    {if $thumbnail.level > 0}
 					<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
 					<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
@@ -548,13 +547,13 @@
 	    <fieldset id="action">
 
 		<legend>{'Action'|translate}</legend>
-		<div id="forbidAction"{if count($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
+		<div id="forbidAction"{if empty($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
 		<div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
 
 		    <select name="selectAction">
 			<option value="-1">{'Choose an action'|translate}</option>
 			<option disabled="disabled">------------------</option>
-			<option value="delete" class="icon-trash">{'Delete selected photos'|translate}</option>
+			<option value="delete">{'Delete selected photos'|translate}</option>
 			<option value="associate">{'Associate to album'|translate}</option>
 			<option value="move">{'Move to album'|translate}</option>
 			{if !empty($associated_categories)}
@@ -567,7 +566,7 @@
 			<option value="author">{'Set author'|translate}</option>
 			<option value="title">{'Set title'|translate}</option>
 			<option value="date_creation">{'Set creation date'|translate}</option>
-			<option value="level" class="icon-lock">{'Who can see these photos?'|translate}</option>
+			<option value="level">{'Who can see these photos?'|translate}</option>
 			<option value="metadata">{'Synchronize metadata'|translate}</option>
 			{if ($IN_CADDIE)}
 			    <option value="remove_from_caddie">{'Remove from caddie'|translate}</option>
@@ -606,21 +605,21 @@
 		    <!-- dissociate -->
 		    <div id="action_dissociate" class="bulkAction">
 			<select data-selectize="categories" placeholder="{'Type in a search term'|translate}"
-				name="dissociate" style="width:600px"></select>
+						name="dissociate" style="width:600px"></select>
 		    </div>
 
 
 		    <!-- add_tags -->
 		    <div id="action_add_tags" class="bulkAction">
 			<select data-selectize="tags" data-create="true" placeholder="{'Type in a search term'|translate}"
-				name="add_tags[]" multiple style="width:400px;"></select>
+						name="add_tags[]" multiple style="width:400px;"></select>
 		    </div>
 
 		    <!-- del_tags -->
 		    <div id="action_del_tags" class="bulkAction">
 			{if !empty($associated_tags)}
 			    <select data-selectize="tags" name="del_tags[]" multiple style="width:400px;"
-						    placeholder="{'Type in a search term'|translate}">
+				    placeholder="{'Type in a search term'|translate}">
 				{foreach from=$associated_tags item=tag}
 				    <option value="{$tag.id}">{$tag.name}</option>
 				{/foreach}
@@ -648,7 +647,7 @@
 			<div id="set_date_creation">
 			    <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
 			    <label>
-				<i class="icon-calendar"></i>
+				<i class="fa fa-calendar"></i>
 				<input type="text" data-datepicker="date_creation" readonly>
 			    </label>
 			</div>

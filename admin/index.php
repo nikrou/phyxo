@@ -199,7 +199,7 @@ if (in_array($page['page'], array('site_manager', 'site_update'))
 trigger_notify('loc_begin_admin_page');
 include(PHPWG_ROOT_PATH.'admin/'.$page['page'].'.php');
 
-$template->assign('ACTIVE_MENU', get_active_menu($page['page']));
+$template->assign('ACTIVE_MENU', $link_start.$page['page']);
 
 // +-----------------------------------------------------------------------+
 // | Sending html code                                                     |

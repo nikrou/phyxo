@@ -18,7 +18,7 @@
 	<!-- END get_combined -->
 
 	{if not empty($head_elements)}
-	    {foreach from=$head_elements item=elt}
+	    {foreach $head_elements as $elt}
 		{$elt}
 	    {/foreach}
 	{/if}
@@ -27,25 +27,21 @@
 	<div id="the_page">
 	    {if not empty($header_msgs)}
 		<div class="header_msgs">
-		    {foreach from=$header_msgs item=elt}
+		    {foreach $header_msgs as $elt}
 			{$elt}
 		    {/foreach}
 		</div>
 	    {/if}
 
 	    <div id="pwgHead">
-		<h1>
-		    <a href="{$U_ADMIN}" title="{'Visit Gallery'|translate}" class="tiptip">
-			<span class="icon-home" style="font-size:larger"></span>
-			{$GALLERY_TITLE}
-		    </a>
-		</h1>
+		<a href="{$U_ADMIN}" title="{'Visit Gallery'|translate}" class="tiptip">
+		    <i class="fa fa-home"></i> {$GALLERY_TITLE}
+		</a>
 
 		<div id="headActions">
 		    {'Hello'|translate} {$USERNAME} |
-		    <a class="icon-eye" href="{$U_RETURN}">{'Visit Gallery'|translate}</a> |
-		    <a class="icon-help-circled" href="{$U_FAQ}" title="{'Instructions to use Phyxo'|translate}">{'Help Me'|translate}</a> |
-		    <a class="icon-logout" href="{$U_LOGOUT}">{'Logout'|translate}</a>
+		    <a class="fa fa-eye" href="{$U_RETURN}">{'Visit Gallery'|translate}</a> |
+		    <a class="fa fa-sign-out" href="{$U_LOGOUT}">{'Logout'|translate}</a>
 		</div>
 	    </div>
 
@@ -53,29 +49,21 @@
 
 	    {if not empty($header_notes)}
 		<div class="header_notes">
-		    {foreach from=$header_notes item=elt}
+		    {foreach $header_notes as $elt}
 			{$elt}
 		    {/foreach}
 		</div>
 	    {/if}
-	    <div id="pwgMain">
-		{include file="_menubar.tpl"}
-
-		<div id="content" class="content">
+	    <main id="pwgMain">
+		<section role="content" id="content" class="content">
 		    {if isset($TABSHEET)}
 			{$TABSHEET}
-		    {/if}
-		    {if isset($U_HELP)}
-			{combine_script id='core.scripts' load='async' path='admin/theme/js/scripts.js'}
-			<ul class="HelpActions">
-			    <li><a href="{$U_HELP}" onclick="popuphelp(this.href); return false;" title="{'Help'|translate}"><img src="./theme/icon/help.png" alt="(?)"></a></li>
-			</ul>
 		    {/if}
 
 		    {if isset($errors)}
 			<div class="errors">
 			    <ul>
-				{foreach from=$errors item=error}
+				{foreach $errors as $error}
 				    <li>{$error}</li>
 				{/foreach}
 			    </ul>
@@ -85,7 +73,7 @@
 		    {if isset($infos)}
 			<div class="infos">
 			    <ul>
-				{foreach from=$infos item=info}
+				{foreach $infos as $info}
 				    <li>{$info}</li>
 				{/foreach}
 			    </ul>
@@ -95,7 +83,7 @@
 		    {if isset($warnings)}
 			<div class="warnings">
 			    <ul>
-				{foreach from=$warnings item=warning}
+				{foreach $warnings as $warning}
 				    <li>{$warning}</li>
 				{/foreach}
 			    </ul>
@@ -103,18 +91,22 @@
 		    {/if}
 
 		    {block name="content"}{/block}
-		</div>
-	    </div>{* <!-- pwgMain --> *}
+		</section>
+
+		<aside role="navigation">
+		    {include file="_menubar.tpl"}
+		</aside>
+	    </main>
 
 	    {if isset($footer_elements)}
-		{foreach from=$footer_elements item=elt}
+		{foreach $footer_elements as $elt}
 		    {$elt}
 		{/foreach}
 	    {/if}
 
 	    {if isset($debug.QUERIES_LIST)}
 		<div id="debug">
-		    {foreach from=$debug.QUERIES_LIST item=query}
+		    {foreach $debug.QUERIES_LIST as $query}
 			{$query.sql}
 		    {/foreach}
 		</div>
@@ -144,25 +136,11 @@
 	    </div>{* <!-- footer --> *}
 	</div>{* <!-- the_page --> *}
 
-	{combine_script id='jquery.tipTip' load='footer' path='admin/theme/js/plugins/jquery.tipTip.js'}
-	{footer_script require='jquery.tipTip'}
-	jQuery('.tiptip').tipTip({
-	delay: 0,
-	fadeIn: 200,
-	fadeOut: 200
-	});
-
-	jQuery('a.externalLink').click(function() {
-	window.open(jQuery(this).attr("href"));
-	return false;
-	});
-        {/footer_script}
-
 	<!-- BEGIN get_combined -->
 	{get_combined_scripts load='footer'}
 	<!-- END get_combined -->
 
 	<script src="{asset manifest='theme/build/manifest.json' src='vendor.js'}"></script>
-	<script src="{asset manifest='theme/treflez/build/manifest.json' src='app.js'}"></script>
+	<script src="{asset manifest='theme/build/build/manifest.json' src='app.js'}"></script>
     </body>
 </html>

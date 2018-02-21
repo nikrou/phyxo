@@ -1,15 +1,15 @@
 $.fn.fontCheckbox = function() {
 	this.find('input[type=checkbox], input[type=radio]').each(function() {
 		if (!$(this).is(':checked')) {
-			$(this).prev().toggleClass('icon-check icon-check-empty');
+			$(this).prev().toggleClass('fa-check-square fa-square-o');
 		}
 	});
 	this.find('input[type=checkbox]').on('change', function() {
-		$(this).prev().toggleClass('icon-check icon-check-empty');
+		$(this).prev().toggleClass('fa-check-square fa-square-o');
 	});
 	this.find('input[type=radio]').on('change', function() {
 		$(this).closest('.font-checkbox').find('input[type=radio][name='+ $(this).attr('name') +']')
-			.prev().toggleClass('icon-check icon-check-empty');
+			.prev().toggleClass('fa-check-square fa-square-o');
 	});
 };
 

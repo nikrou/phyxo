@@ -96,7 +96,7 @@
     </div>
 
     <p class="showCreateAlbum" id="showAddUser">
-	<a href="#" id="addUser" class="icon-plus-circled">{'Add a user'|translate}</a>
+	<a href="#" id="addUser"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>
 	<span class="infos" style="display:none"></span>
     </p>
 
@@ -175,7 +175,7 @@
 		<select name="selectAction">
 		    <option value="-1">{'Choose an action'|translate}</option>
 		    <option disabled="disabled">------------------</option>
-		    <option value="delete" class="icon-trash">{'Delete selected users'|translate}</option>
+		    <option value="delete">{'Delete selected users'|translate}</option>
 		    <option value="status">{'Status'|translate}</option>
 		    <option value="group_associate">{'associate to group'|translate}</option>
 		    <option value="group_dissociate">{'dissociate from group'|translate}</option>
@@ -290,14 +290,14 @@
      <% if (!user.isGuest) { %>
      <span class="changePasswordDone infos" style="display:none">&#x2714; {'Password updated'|translate}</span>
      <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> <a href="#" class="buttonLike updatePassword"><img src="./theme/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a></span>
-     <a class="icon-key changePasswordOpen" href="#">{'Change password'|translate}</a>
+     <a class="changePasswordOpen" href="#"><i class="fa fa-key"></i> {'Change password'|translate}</a>
      <br>
      <% } %>
 
-     <a href="./index.php?page=user_perm&amp;user_id=<%- user.id %>" class="icon-lock">{'Permissions'|translate}</a>
+     <a href="./index.php?page=user_perm&amp;user_id=<%- user.id %>"><i class="fa fa-lock"></i> {'Permissions'|translate}</a>
 
      <% if (!user.isProtected) { %>
-     <br><span class="userDelete"><img class="loading" src="./theme/images/ajax-loader-small.gif" alt="" style="display:none;"><a href="#" class="icon-trash" data-user_id="<%- user.id %>">{'Delete'|translate}</a></span>
+     <br><span class="userDelete"><img class="loading" src="./theme/images/ajax-loader-small.gif" alt="" style="display:none;"><a href="#" data-user_id="<%- user.id %>"><i class="fa fa-trash"></i>{'Delete'|translate}</a></span>
      <% } %>
 
      </div>
@@ -305,7 +305,7 @@
      <span class="changeUsernameOpen"><strong class="username"><%- user.username %></strong>
 
      <% if (!user.isGuest) { %>
-     <a href="#" class="icon-pencil">{'Change username'|translate}</a></span>
+	 <a href="#"><i class="fa fa-pencil"></i> {'Change username'|translate}</a></span>
      <span class="changeUsername" style="display:none">
      <input type="text"> <a href="#" class="buttonLike updateUsername"><img src="./theme/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a>
      <% } %>

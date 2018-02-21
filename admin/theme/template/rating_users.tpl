@@ -176,7 +176,7 @@
 		       <a title="{$rate_over|htmlspecialchars}">{$rates|count}</a>
 		   {/if}</td>
 	       {/foreach}
-	       <td><a class="del icon-trash"></a></td>
+	       <td><a class="del"><i class="fa fa-trash"></i></a></td>
 	   </tr>
         {/strip}
        {/foreach}

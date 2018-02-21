@@ -186,7 +186,7 @@
 		<div id="{$plugin.ID}" class="pluginMiniBox {$plugin.STATE}">
 		    <div class="pluginMiniBoxNameCell">
 			{$plugin.NAME}
-			<a class="icon-info-circled-1 showInfo" title="{if !empty($author)}{'By %s'|translate:$author} | {/if}{'Version'|translate} {$version}<br/>{$plugin.DESC|@escape:'html'}"></a>
+			<a class="showInfo" title="{if !empty($author)}{'By %s'|translate:$author} | {/if}{'Version'|translate} {$version}<br/>{$plugin.DESC|@escape:'html'}"><i class="fa fa-info-circle"></i></a>
 		    </div>
 		    <div class="pluginActions">
 			<div>

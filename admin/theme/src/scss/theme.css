@@ -1,6 +1,4 @@
 /* content.css */
-[class*="icon-"]:before { text-decoration:none !important; }
-
 .showInfo { font-size:15px;cursor:pointer;line-height:15px; }
 
 /* .Content  is on every pages so it is common and it will no longer be a specific css */
@@ -762,17 +760,9 @@ html, body {height:100%; margin:0; padding:0;}
   left: 0;
 }
 
-#menubar dt [class^=icon-] {
-  font-size:120%;
-}
-
-#menubar dd [class^="icon-"]:before {
-    margin-right: 0.5em;
-}
-
 .content {
   padding:0 5px 0 0;
-  margin: 0 5px 0 227px;
+  margin: 0 5px 0 1em;
   z-index:99;
 }
 
@@ -1222,7 +1212,6 @@ a.group_perm {
 
 #userList .openUserDetails {visibility:hidden;}
 #userList tr:hover .openUserDetails {visibility:visible;}
-#userList .icon-cancel-circled {visibility:visible;}
 #userList_length {float:none;}
 #userList_filter {margin-top:-20px;}
 
@@ -1288,16 +1277,6 @@ table.qsearch_help_table td {
   vertical-align:top;
 }
 
-.font-checkbox [class*=icon-check]:before {
-  font-size:16px;
-  line-height:16px;
-  margin-right:0;
-  margin-left:0;
-}
-.font-checkbox .icon-check-empty {
-  position:relative;
-  left:-1px;
-}
 .font-checkbox input[type=checkbox], .font-checkbox input[type=radio] {
   display:none;
 }

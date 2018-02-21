@@ -62,7 +62,7 @@
 		    <li class="categoryLi{if $category.IS_VIRTUAL} virtual_cat{/if}" id="cat_{$category.ID}">
 			<!-- category {$category.ID} -->
 			<p class="albumTitle">
-			    <img src="./theme/icon/cat_move.png" class="drag_button" style="display:none;" alt="{'Drag to re-order'|translate}" title="{'Drag to re-order'|translate}">
+			    <i class="drag_button move visibility-hidden" title="{'Drag to re-order'|translate}"></i>
 			    <strong><a href="{$category.U_CHILDREN}" title="{'manage sub-albums'|translate}">{$category.NAME}</a></strong>
 			    <span class="albumInfos"><span class="userSeparator">&middot;</span> {$category.NB_PHOTOS|translate_dec:'%d photo':'%d photos'} <span class="userSeparator">&middot;</span> {$category.NB_SUB_PHOTOS|translate_dec:'%d photo':'%d photos'} {$category.NB_SUB_ALBUMS|translate_dec:'in %d sub-album':'in %d sub-albums'}</span>
 			</p>
@@ -70,16 +70,16 @@
 			<input type="hidden" name="catOrd[{$category.ID}]" value="{$category.RANK}">
 
 			<p class="albumActions">
-			    <a href="{$category.U_EDIT}"><span class="icon-pencil"></span>{'Edit'|translate}</a>
-			    | <a href="{$category.U_CHILDREN}"><span class="icon-sitemap"></span>{'manage sub-albums'|translate}</a>
+			    <a href="{$category.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
+			    | <a href="{$category.U_CHILDREN}"><i class="fa fa-sitemap"></i>{'manage sub-albums'|translate}</a>
 			    {if isset($category.U_SYNC) }
-				| <a href="{$category.U_SYNC}"><span class="icon-exchange"></span>{'Synchronize'|translate}</a>
+				| <a href="{$category.U_SYNC}"><i class="fa fa-exchange"></i>{'Synchronize'|translate}</a>
 			    {/if}
 			    {if isset($category.U_DELETE) }
-				| <a href="{$category.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><span class="icon-trash"></span>{'delete album'|translate}</a>
+				| <a href="{$category.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><i class="fa fa-trash"></i>{'delete album'|translate}</a>
 			    {/if}
 			    {if cat_admin_access($category.ID)}
-				| <a href="{$category.U_JUMPTO}">{'jump to album'|translate} →</a>
+				| <a href="{$category.U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to album'|translate}</a>
 			    {/if}
 			</p>
 

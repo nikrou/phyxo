@@ -109,7 +109,7 @@
 		<fieldset class="selectFiles" style="display:none">
 		    <legend>{'Select files'|translate}</legend>
 
-		    <button id="addFiles" class="buttonLike icon-plus-circled">{'Add Photos'|translate}</button>
+		    <button id="addFiles" class="buttonLike"><i class="fa fa-plus-circle"></i> {'Add Photos'|translate}</button>
 
 		    {if isset($original_resize_maxheight)}
 			<p class="uploadInfo">{'The picture dimensions will be reduced to %dx%d pixels.'|translate:$original_resize_maxwidth:$original_resize_maxheight}</p>
@@ -117,7 +117,7 @@
 
 		    <p id="uploadWarningsSummary">
 			{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if}
-			<a class="icon-info-circled-1 showInfo" title="{'Learn more'|translate}"></a>
+			<a class="showInfo" title="{'Learn more'|translate}"><i class="fa fa-info-circle"></i></a>
 		    </p>
 
 		    <p id="uploadWarnings">
@@ -135,14 +135,14 @@
 		</fieldset>
 
 		<div id="uploadingActions" style="display:none">
-		    <button id="cancelUpload" class="buttonLike icon-cancel-circled">{'Cancel'|translate}</button>
+		    <button id="cancelUpload" class="buttonLike"><i class="fa fa-times-circle"></i> {'Cancel'|translate}</button>
 
 		    <div class="big-progressbar">
 			<div class="progressbar" style="width:0%"></div>
 		    </div>
 		</div>
 
-		<button id="startUpload" class="buttonLike icon-upload" disabled>{'Start Upload'|translate}</button>
+		<button id="startUpload" class="buttonLike" disabled><i class="fa fa-upload"></i> {'Start Upload'|translate}</button>
 	    </form>
 
 	    <fieldset style="display:none">

@@ -8,7 +8,7 @@
     </div>
 
     <p class="showCreateAlbum" id="showAddGroup">
-	<a class="icon-plus-circled" href="#" id="addGroup">{'Add group'|translate}</a>
+	<a href="#" id="addGroup"><i class="fa fa-plus-circle"></i> {'Add group'|translate}</a>
     </p>
 
     <form method="post" style="display:none" id="addGroupForm" name="add_user" action="{$F_ADD_ACTION}" class="properties">
@@ -39,7 +39,7 @@
 		    <li>
 			<label><p>{$group.NAME}<i><small>{$group.IS_DEFAULT}</small></i><input class="group_selection" name="group_selection[]" type="checkbox" value="{$group.ID}"></p></label>
 			<p class="list_user">{if $group.MEMBERS>0}{$group.MEMBERS}<br>{$group.L_MEMBERS}{else}{$group.MEMBERS}{/if}</p>
-			<a class="icon-lock group_perm" href="{$group.U_PERM}" title="{'Permissions'|translate}">{'Permissions'|translate}</a>
+			<a class="group_perm" href="{$group.U_PERM}" title="{'Permissions'|translate}"><i class="fa fa-lock"></i> {'Permissions'|translate}</a>
 		    </li>
 		{/foreach}
 	    {/if}

@@ -1,8 +1,9 @@
-//@import "bootstrap-custom";
+@import "bootstrap-custom";
+@import "fonts";
 
 @import "./theme.css";
 @import "./clear.css";
-@import "./fontello/css/fontello.css";
+//@import "./fontello/css/fontello.css";
 
 body {
     display: flex;
@@ -13,6 +14,63 @@ body {
     }
 }
 
-// .visually-hidden {
-//     @include sr-only();
-// }
+.visually-hidden {
+    @include sr-only();
+}
+
+.wrapper {
+    flex: 1 0 auto;
+    min-height: 100vh;
+}
+
+main {
+    display: flex;
+    flex: 1 0 auto;
+    flex-flow: row nowrap;
+    padding-top: 2rem;
+}
+
+section[role="content"] {
+    flex: 1 1 auto;
+    order: 2;
+    padding: 0 1rem;
+}
+
+aside[role="navigation"] {
+    flex: 0 0 15em; // do not grow or shrink, stay at 15em
+    order: 1;
+    ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+    }
+
+    padding-left: 0.4rem;
+    .accordion {
+	li {
+	    a {
+		display: block;
+		color: $white;
+		text-decoration: none;
+		border-bottom: 1px solid $gray-100;
+		background-color: $gray-700;
+		padding: 0.3rem;
+
+		&:hover {
+		    opacity: 0.6;
+		}
+
+		&.show {
+		    background-color: $pink;
+		}
+	    }
+
+	    li {
+		a {
+		    padding-left: 1rem;
+		    background-color: $gray-600;
+		}
+	    }
+	}
+    }
+}
