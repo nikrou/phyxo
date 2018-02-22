@@ -1,7 +1,11 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'History'|translate}</a></li>
+    <li class="breadcrumb-item">{'Search'|translate}</li>
+{/block}
 
+{block name="content"}
     {include file='include/datepicker.inc.tpl'}
 
     {footer_script}
@@ -9,8 +13,6 @@
     jQuery('[data-datepicker]').pwgDatepicker();
     });
     {/footer_script}
-
-    <h2>{'History'|translate} {$TABSHEET_TITLE}</h2>
 
     <form class="filter" method="post" name="filter" action="{$F_ACTION}">
 	<fieldset>

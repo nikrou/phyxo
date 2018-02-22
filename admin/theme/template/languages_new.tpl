@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Languages'|translate}</a></li>
+    <li class="breadcrumb-item">{'Add New Language'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='jquery.cluetip' load='async' require='jquery' path='admin/theme/js/plugins/jquery.cluetip.js'}
 
@@ -11,10 +16,6 @@
     });
     });
    {/footer_script}
-
-   <div class="titrePage">
-       <h2>{'Add New Language'|translate}</h2>
-   </div>
 
    {if !empty($languages)}
        <table class="table2 languages">

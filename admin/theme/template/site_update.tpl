@@ -1,11 +1,13 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item">{'Synchronize'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file='include/resize.inc.tpl'}
 
-    <div class="titrePage">
-	<h2>{'Database synchronization with files'|translate}: <a href="{$SITE_URL}">{$SITE_URL}</a></h2>
-    </div>
+    <h2>{'Database synchronization with files'|translate}: <a href="{$SITE_URL}">{$SITE_URL}</a></h2>
 
     {if isset($update_result)}
 	<h3>{$L_RESULT_UPDATE}</h3>

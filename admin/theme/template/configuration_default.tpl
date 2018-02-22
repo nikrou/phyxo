@@ -1,9 +1,12 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Configuration'|translate}</a></li>
+    <li class="breadcrumb-item">{'Guest Settings'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='common' load='footer' path='admin/theme/js/common.js'}
-
-    <h2>{'Phyxo configuration'|translate} {$TABSHEET_TITLE}</h2>
 
     <form method="post" name="profile" action="{$GUEST_F_ACTION}" id="profile" class="properties">
 

@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Updates'|translate}</a></li>
+    <li class="breadcrumb-item">Phyxo</li>
+{/block}
+
 {block name="content"}
     {footer_script}
     jQuery(document).ready(function() {ldelim}
@@ -14,21 +19,6 @@
     });
     });
     {/footer_script}
-
-    {html_head}
-    {literal}
-    <style type="text/css">
-     form { width: 750px; }
-     fieldset { padding-bottom: 30px; }
-     p, form p { text-align: left; margin-left:20px; }
-     li { margin: 5px; }
-    </style>
-    {/literal}
-    {/html_head}
-
-    <div class="titrePage">
-	<h2>{'Updates'|translate}</h2>
-    </div>
 
     {if $STEP == 0}
 	{if $UPGRADE_ERROR}

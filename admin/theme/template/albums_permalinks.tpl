@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Permalinks'|translate}</li>
+{/block}
+
 {block name="content"}
     {footer_script require='jquery.ui.sortable'}{literal}
     jQuery(document).ready(function(){
@@ -23,9 +28,6 @@
     </style>
     {/literal}
 
-    <div class="titrePage">
-	<h2>{'Permalinks'|translate}</h2>
-    </div>
 
     <p id="showAddPermalink"><a href="#" id="addPermalinkOpen">{'Add/delete a permalink'|translate}</a></p>
 

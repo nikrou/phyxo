@@ -32,9 +32,15 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('themes');
+$tabsheet->add('installed', l10n('Installed Themes'), THEMES_BASE_URL.'&amp;section=installed', 'fa-paint-brush');
+$tabsheet->add('update', l10n('Check for updates'), THEMES_BASE_URL.'&amp;section=update', 'fa-refresh');
+$tabsheet->add('new', l10n('Add New Theme'), THEMES_BASE_URL.'&amp;section=new', 'fa-plus-circle');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => THEMES_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

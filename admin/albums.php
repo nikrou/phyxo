@@ -35,9 +35,15 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('albums');
+$tabsheet->add('list', l10n('List'), ALBUMS_BASE_URL.'&amp;section=list', 'fa-bars');
+$tabsheet->add('move', l10n('Move'), ALBUMS_BASE_URL.'&amp;section=move', 'fa-move');
+$tabsheet->add('permalinks', l10n('Permalinks'), ALBUMS_BASE_URL.'&amp;section=permalinks', 'fa-link');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => ALBUMS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

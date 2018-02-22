@@ -1,11 +1,12 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Notification'|translate}</a></li>
+    <li class="breadcrumb-item">{'Subscribe'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file='include/autosize.inc.tpl'}
-
-    <div class="titrePage">
-	<h2>{'Send mail to users'|translate} {$TABSHEET_TITLE}</h2>
-    </div>
 
     <form method="post" name="notification_by_mail" id="notification_by_mail" action="{$F_ACTION}">
 	{if isset($REPOST_SUBMIT_NAME)}

@@ -1,11 +1,11 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'History'|translate}</a></li>
+    <li class="breadcrumb-item">{'Statistics'|translate}</li>
+{/block}
+
 {block name="content"}
-
-    <div class="titrePage">
-	<h2>{'History'|translate} {$TABSHEET_TITLE}</h2>
-    </div>
-
     <h3>{$L_STAT_TITLE}</h3>
 
     <table class="table2" id="dailyStats">

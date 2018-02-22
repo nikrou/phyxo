@@ -1,5 +1,9 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item">{'Site manager'|translate}</li>
+{/block}
+
 {block name="content"}
     {footer_script}{literal}
     $(function(){
@@ -10,10 +14,6 @@
     });
     {/literal}{/footer_script}
 
-
-    <div class="titrePage">
-	<h2>{'Site manager'|translate}</h2>
-    </div>
 
     {if not empty($remote_output)}
 	<div class="remoteOutput">

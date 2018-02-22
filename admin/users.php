@@ -30,9 +30,13 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('users');
+$tabsheet->add('list', l10n('User list'), USERS_BASE_URL.'&amp;section=list', 'fa-users');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => USERS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

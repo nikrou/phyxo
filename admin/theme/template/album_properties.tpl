@@ -1,5 +1,11 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_ALBUMS}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Album'|translate}: {$CATEGORIES_NAV}</li>
+    <li class="breadcrumb-item">{'Properties'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='LocalStorageCache' load='footer' path='admin/theme/js/LocalStorageCache.js'}
 
@@ -32,11 +38,6 @@
     }
     });
    {/footer_script}
-
-
-   <div class="titrePage">
-       <h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Edit album'|translate} {$TABSHEET_TITLE}</h2>
-   </div>
 
    <form class="vertical-form" action="{$F_ACTION}" method="POST" id="catModify">
        <fieldset>

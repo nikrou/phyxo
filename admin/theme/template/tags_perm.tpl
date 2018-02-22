@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Tags'|translate}</a></li>
+    <li class="breadcrumb-item">{'Permissions'|translate}</li>
+{/block}
+
 {block name="content"}
     <form method="post" action="" class="general">
 	<fieldset>

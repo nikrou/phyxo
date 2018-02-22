@@ -43,9 +43,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('history');
+$tabsheet->add('stats', l10n('Statistics'), HISTORY_BASE_URL.'&amp;section=stats', 'fa-signal');
+$tabsheet->add('search', l10n('Search'), HISTORY_BASE_URL.'&amp;section=search', 'fa-search');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => HISTORY_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

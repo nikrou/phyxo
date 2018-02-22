@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Languages'|translate}</a></li>
+    <li class="breadcrumb-item">{'Updates'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.ajaxmanager.js'}
     {combine_script id='jquery.jgrowl' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.jgrowl.js'}
@@ -141,10 +146,6 @@
     checkFieldsets();
     {/literal}
     {/footer_script}
-
-    <div class="titrePage">
-	<h2>{'Updates'|translate}</h2>
-    </div>
 
     <div class="autoupdate_bar">
 	<button id="update_all" onClick="updateAll(); return false;">{'Update All'|translate}</button>

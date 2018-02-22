@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Plugins'|translate}</a></li>
+    <li class="breadcrumb-item">{'Other plugins'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='jquery.sort' load='footer' path='admin/theme/js/plugins/jquery.sort.js'}
 
@@ -57,15 +62,12 @@
     });
     {/literal}{/footer_script}
 
-    <div class="titrePage">
-	{if not empty($plugins)}
-	    <span class="sort">
-		{'Sort order'|translate} :
-		{html_options name="selectOrder" options=$order_options selected=$order_selected}
-	    </span>
-	{/if}
-	<h2>{'Plugins'|translate}</h2>
-    </div>
+    {if not empty($plugins)}
+	<p class="sort">
+	    {'Sort order'|translate} :
+	    {html_options name="selectOrder" options=$order_options selected=$order_selected}
+	</p>
+    {/if}
 
     {if not empty($plugins)}
 	<div id="availablePlugins">

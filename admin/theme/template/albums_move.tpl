@@ -1,9 +1,11 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Move albums'|translate}</li>
+{/block}
+
 {block name="content"}
-    <div class="titrePage">
-	<h2>{'Move albums'|translate}</h2>
-    </div>
 
     <form method="post" action="{$F_ACTION}" class="filter" id="catMove">
 	<fieldset>

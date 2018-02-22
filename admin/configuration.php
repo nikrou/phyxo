@@ -37,9 +37,18 @@ if (isset($_GET['section'])) {
 
 // TabSheet
 $tabsheet = new TabSheet();
-$tabsheet->setId('configuration');
+$tabsheet->add('main', l10n('General'), CONFIGURATION_BASE_URL.'&amp;section=main');
+$tabsheet->add('sizes', l10n('Photo sizes'), CONFIGURATION_BASE_URL.'&amp;section=sizes');
+$tabsheet->add('watermark', l10n('Watermark'), CONFIGURATION_BASE_URL.'&amp;section=watermark');
+$tabsheet->add('display', l10n('Display'), CONFIGURATION_BASE_URL.'&amp;section=display');
+$tabsheet->add('comments', l10n('Comments'), CONFIGURATION_BASE_URL.'&amp;section=comments');
+$tabsheet->add('default', l10n('Guest Settings'), CONFIGURATION_BASE_URL.'&amp;section=default');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => CONFIGURATION_BASE_URL,
+]);
 
 $main_checkboxes = array(
     'allow_user_registration',

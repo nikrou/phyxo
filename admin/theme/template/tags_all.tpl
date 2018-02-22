@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Tags'|translate}</a></li>
+    <li class="breadcrumb-item">{'Manage tags'|translate}</li>
+{/block}
+
 {block name="content"}
     {html_style}
     .showInfo { text-indent:5px; }
@@ -11,10 +16,6 @@
     </script>
     {/html_head}
     {combine_script id="tags" load="footer" path="admin/theme/js/tags.js"}
-
-    <div class="titrePage">
-	<h2>{'Manage tags'|translate}</h2>
-    </div>
 
     <form action="{$F_ACTION}" method="post">
 	{if isset($EDIT_TAGS_LIST)}

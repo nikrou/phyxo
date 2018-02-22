@@ -1,11 +1,12 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Groups'|translate}</a></li>
+    <li class="breadcrumb-item">{'Group management'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="group_list" load="footer" path="admin/theme/js/group_list.js"}
-
-    <div class="titrePage">
-	<h2>{'Group management'|translate}</h2>
-    </div>
 
     <p class="showCreateAlbum" id="showAddGroup">
 	<a href="#" id="addGroup"><i class="fa fa-plus-circle"></i> {'Add group'|translate}</a>

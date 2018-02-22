@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Plugins'|translate}</a></li>
+    <li class="breadcrumb-item">{'Plugin list'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='jquery.ajaxmanager' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.ajaxmanager.js' }
 
@@ -52,46 +57,42 @@
     success: function(data) {
     for (i=0;i<data.length;i++) {
           {/literal}
-				{if $show_details}
-				jQuery('#'+data[i]+' .pluginBoxNameCell').prepend('<a class="warning" title="'+incompatible_msg+'"></a>')
-				{else}
+		  {if $show_details}
+		  jQuery('#'+data[i]+' .pluginBoxNameCell').prepend('<a class="warning" title="'+incompatible_msg+'"></a>')
+		  {else}
     jQuery('#'+data[i]+' .pluginMiniBoxNameCell').prepend('<span class="warning" title="'+incompatible_msg+'"></span>')
-				{/if}
-				{literal}
-				jQuery('#'+data[i]).addClass('incompatible');
-				jQuery('#'+data[i]+' .activate').attr('onClick', 'return confirm(incompatible_msg + activate_msg);');
-				}
-				jQuery('.warning').tipTip({
-				'delay' : 0,
-				'fadeIn' : 200,
-				'fadeOut' : 200,
-				'maxWidth':'250px'
-				});
-				}
-				});
-				});
+		  {/if}
+		  {literal}
+		  jQuery('#'+data[i]).addClass('incompatible');
+		  jQuery('#'+data[i]+' .activate').attr('onClick', 'return confirm(incompatible_msg + activate_msg);');
+		  }
+		  jQuery('.warning').tipTip({
+		  'delay' : 0,
+		  'fadeIn' : 200,
+		  'fadeOut' : 200,
+		  'maxWidth':'250px'
+		  });
+		  }
+		  });
+		  });
 
-				/* TipTips */
-				jQuery('.plugin-restore').tipTip({
-				'delay' : 0,
-				'fadeIn' : 200,
-				'fadeOut' : 200
-				});
-				jQuery('.showInfo').tipTip({
-				'delay' : 0,
-				'fadeIn' : 200,
-				'fadeOut' : 200,
-				'maxWidth':'300px',
-				'keepAlive':true,
-				'activation':'click'
-				});
-				});
+		  /* TipTips */
+		  jQuery('.plugin-restore').tipTip({
+		  'delay' : 0,
+		  'fadeIn' : 200,
+		  'fadeOut' : 200
+		  });
+		  jQuery('.showInfo').tipTip({
+		  'delay' : 0,
+		  'fadeIn' : 200,
+		  'fadeOut' : 200,
+		  'maxWidth':'300px',
+		  'keepAlive':true,
+		  'activation':'click'
+		  });
+		  });
     {/literal}
     {/footer_script}
-
-    <div class="titrePage">
-	<h2>{'Plugins'|translate}</h2>
-    </div>
 
     <div class="showDetails">
 	{if $show_details}

@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Batch Manager'|translate}</a></li>
+    <li class="breadcrumb-item">{'unit mode'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file="include/autosize.inc.tpl"}
     {include file="include/datepicker.inc.tpl"}
@@ -35,8 +40,6 @@
     jQuery("a.preview-box").colorbox();
     }());
     {/footer_script}
-
-    <h2>{'Batch Manager'|translate}</h2>
 
     <form action="{$F_ACTION}" method="POST">
 	<fieldset>

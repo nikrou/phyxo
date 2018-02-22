@@ -44,9 +44,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('batch_manager');
+$tabsheet->add('global', l10n('global mode'), BATCH_MANAGER_BASE_URL.'&amp;section=global');
+$tabsheet->add('unit', l10n('unit mode'), BATCH_MANAGER_BASE_URL.'&amp;section=unit');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => BATCH_MANAGER_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // | specific actions                                                      |

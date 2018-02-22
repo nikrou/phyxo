@@ -43,9 +43,16 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('photos_add');
+$tabsheet->add('direct', l10n('Web Form'), PHOTOS_ADD_BASE_URL.'&amp;section=direct', 'fa-upload');
+if ($conf['enable_synchronization']) {
+    $tabsheet->add('ftp', l10n('FTP + Synchronization'), PHOTOS_ADD_BASE_URL.'&amp;section=ftp', 'fa-exchange');
+}
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => PHOTOS_ADD_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

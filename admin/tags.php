@@ -32,9 +32,15 @@ if (!empty($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('tags');
+$tabsheet->add('all', l10n('All tags'), TAGS_BASE_URL.'&section=all');
+$tabsheet->add('perm', l10n('Permissions'), TAGS_BASE_URL.'&section=perm');
+$tabsheet->add('pending', l10n('Pendings'), TAGS_BASE_URL.'&section=pending');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => TAGS_BASE_URL
+]);
 
 include_once(PHPWG_ROOT_PATH.'admin/tags_'.$page['section'].'.php');
 
@@ -44,9 +50,7 @@ include_once(PHPWG_ROOT_PATH.'admin/tags_'.$page['section'].'.php');
 
 $template_filename = 'tags_'.$page['section'];
 
-$template->assign(
-    array(
-        'F_ACTION' => get_root_url().'admin/index.php?page=tags&amp;section='.$page['section'],
-        'PWG_TOKEN' => get_pwg_token(),
-    )
-);
+$template->assign([
+    'F_ACTION' => get_root_url().'admin/index.php?page=tags&amp;section='.$page['section'],
+    'PWG_TOKEN' => get_pwg_token(),
+]);

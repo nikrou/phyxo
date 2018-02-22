@@ -43,9 +43,17 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('album');
+$tabsheet->add('properties', l10n('Properties'), ALBUM_BASE_URL.'&amp;section=properties', 'fa-pencil');
+$tabsheet->add('sort_order', l10n('Manage photo ranks'), ALBUM_BASE_URL.'&amp;section=sort_order', 'fa-random');
+$tabsheet->add('permissions', l10n('Permissions'), ALBUM_BASE_URL.'&amp;section=permissions', 'fa-lock');
+$tabsheet->add('notification', l10n('Notification'), ALBUM_BASE_URL.'&amp;section=notification', 'fa-envelope');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => ALBUM_BASE_URL,
+    'U_ALBUMS' => get_root_url().'admin/index.php?page=albums',
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

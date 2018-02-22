@@ -67,13 +67,18 @@ if (!empty($_POST)) {
 if (isset($_GET['section'])) {
     $page['section'] = $_GET['section'];
 } else {
-    $page['section'] = 'user';
+    $page['section'] = 'all';
 }
 
 $tabsheet = new tabsheet();
-$tabsheet->setId('comments');
+$tabsheet->add('all', l10n('All'), COMMENTS_BASE_URL.'&amp;section=all');
+$tabsheet->add('pending', l10n('Pendings'), COMMENTS_BASE_URL.'&amp;section=pending');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => COMMENTS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                           comments display                            |
@@ -92,27 +97,21 @@ while ($row = $conn->db_fetch_assoc($result)) {
     }
 }
 
-if (!isset($_GET['filter']) and $nb_pending > 0) {
-    $page['filter'] = 'pending';
+if ($page['section']==='all') {
+    $template->assign([
+        'NB_ELEMENTS' => $nb_total,
+        'TABSHEET_TITLE' => l10n('All'),
+    ]);
 } else {
-    $page['filter'] = 'all';
+    $template->assign([
+        'NB_ELEMENTS' => $nb_pending,
+        'TABSHEET_TITLE' => l10n('Pendings'),
+    ]);
 }
-
-if (isset($_GET['filter']) and 'pending' == $_GET['filter']) {
-    $page['filter'] = $_GET['filter'];
-}
-
-$template->assign(
-    array(
-        'nb_total' => $nb_total,
-        'nb_pending' => $nb_pending,
-        'filter' => $page['filter'],
-    )
-);
 
 $where_clauses = array('1=1');
 
-if ('pending' == $page['filter']) {
+if ('pending' == $page['section']) {
     $where_clauses[] = 'validated=\''.$conn->boolean_to_db(false).'\'';
 }
 
@@ -161,7 +160,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
 $navbar = create_navigation_bar(
     get_root_url().'admin/index.php'.get_query_string_diff(array('start')),
-    ('pending' == $page['filter'] ? $nb_pending : $nb_total),
+    ('pending' == $page['section'] ? $nb_pending : $nb_total),
     $page['start'],
     $conf['comments_page_nb_comments']
 );

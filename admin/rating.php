@@ -34,9 +34,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('rating');
+$tabsheet->add('photos', l10n('Photos'), RATING_BASE_URL.'&amp;section=photos');
+$tabsheet->add('users', l10n('Users'), RATING_BASE_URL.'&amp;section=users');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => RATING_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

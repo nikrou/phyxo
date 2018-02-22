@@ -91,10 +91,9 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
 
 $template->assign(
     array(
-        'CATEGORIES_NAV' =>
-        get_cat_display_name_from_id(
+        'CATEGORIES_NAV' => get_cat_display_name_from_id(
             $page['cat'],
-            'admin/index.php?page=album&amp;cat_id='
+            './index.php?page=album&amp;cat_id='
         ),
         'F_ACTION' => ALBUM_BASE_URL.'&amp;section=notification',
         'PWG_TOKEN' => get_pwg_token(),

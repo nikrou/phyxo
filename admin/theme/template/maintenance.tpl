@@ -1,10 +1,10 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    <div class="titrePage">
-	<h2>{'Maintenance'|translate}</h2>
-    </div>
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item">{'Maintenance'|translate}</li>
+{/block}
 
+{block name="content"}
     <ul>
 	{if (isset($U_MAINT_LOCK_GALLERY))}
 	    <li><a href="{$U_MAINT_LOCK_GALLERY}" onclick="return confirm('{'A locked gallery is only visible to administrators'|translate|@escape:'javascript'}');">{'Lock gallery'|translate}</a></li>

@@ -1,5 +1,9 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'User list'|translate}</a></li>
+{/block}
+
 {block name="content"}
     {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
 
@@ -90,10 +94,6 @@
     .nb_image_page, .recent_period {width:340px;margin-top:5px;}
     #action_recent_period .recent_period {display:inline-block;}
     {/literal}{/html_style}
-
-    <div class="titrePage">
-	<h2>{'User list'|translate}</h2>
-    </div>
 
     <p class="showCreateAlbum" id="showAddUser">
 	<a href="#" id="addUser"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>

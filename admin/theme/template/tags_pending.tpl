@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Tags'|translate}</a></li>
+    <li class="breadcrumb-item">{'Pendings tags'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="pending-tags" load="footer" path="admin/theme/js/phyxo.js"}
     {footer_script}
@@ -7,9 +12,6 @@
     phyxo.checkboxesHelper('#pending-tags');
     });
     {/footer_script}
-    <div class="titrePage">
-	<h2>{'Pendings tags'|translate}</h2>
-    </div>
 
     <form action="{$F_ACTION}" method="post" id="pending-tags">
 	<table class="table2 checkboxes">

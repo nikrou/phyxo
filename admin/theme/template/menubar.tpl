@@ -1,11 +1,11 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item">{'Menu Management'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="menubar" require="jquery.ui.sortable" load="footer" path="admin/theme/js/menubar.js"}
-
-    <div class="titrePage">
-	<h2>{'Menu Management'|translate}</h2>
-    </div>
 
     <form id="menuOrdering" action="{$F_ACTION}" method="post">
 	<ul class="menuUl">
@@ -16,7 +16,7 @@
 			    <strong>{'Hide'|translate} <input type="checkbox" name="hide_{$block.reg->get_id()}" {if $block.pos<0}checked="checked"{/if}></strong>
 			</span>
 
-			<img src="./theme/icon/cat_move.png" class="drag_button" style="display:none;" alt="{'Drag to re-order'|translate}" title="{'Drag to re-order'|translate}">
+			<i class="drag_button fa fa-move visibility-hidden" title="{'Drag to re-order'|translate}"></i>
 			<strong>{$block.reg->get_name()|translate}</strong> ({$block.reg->get_id()})
 		    </p>
 

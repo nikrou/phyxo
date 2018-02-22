@@ -27,9 +27,15 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('plugins');
+$tabsheet->add('installed', l10n('Plugin list'), PLUGINS_BASE_URL.'&amp;section=installed', 'fa-sliders');
+$tabsheet->add('update', l10n('Check for updates'), PLUGINS_BASE_URL.'&amp;section=update', 'fa-refresh');
+$tabsheet->add('new', l10n('Other plugins'), PLUGINS_BASE_URL.'&amp;section=new', 'fa-plus-circle');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => PLUGINS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

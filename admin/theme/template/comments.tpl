@@ -1,16 +1,15 @@
 {extends file="__layout.tpl"}
 
+
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'User comments'|translate}</a></li>
+    <li class="breadcrumb-item">{$NB_ELEMENTS} {$TABSHEET_TITLE}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="comments" load="footer" path="admin/theme/js/comments.js"}
-    <h2>{'User comments'|translate} {$TABSHEET_TITLE}</h2>
 
-    <div class="commentFilter">
-	<a href="{$F_ACTION}&amp;filter=all" class="{if $filter == 'all'}commentFilterSelected{/if}">{'All'|translate}</a> ({$nb_total})
-	| <a href="{$F_ACTION}&amp;filter=pending" class="{if $filter == 'pending'}commentFilterSelected{/if}">{'Waiting'|translate}</a> ({$nb_pending})
-	{if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
-    </div>
-
-
+    {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
     {if !empty($comments) }
 	<form method="post" action="{$F_ACTION}" id="pendingComments">

@@ -44,9 +44,15 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('notification_by_mail');
+$tabsheet->add('params', l10n('Parameters'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=params');
+$tabsheet->add('subscribe', l10n('Subscribe'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=subscribe');
+$tabsheet->add('send', l10n('Send'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=send');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => NOTIFICATION_BY_MAIL_BASE_URL,
+]);
 
 $services['users']->checkStatus(get_tab_status($page['section']));
 

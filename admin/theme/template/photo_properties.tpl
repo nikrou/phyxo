@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Image'|translate}</a></li>
+    <li class="breadcrumb-item">{'Properties'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file='include/autosize.inc.tpl'}
     {include file='include/datepicker.inc.tpl'}
@@ -44,8 +49,6 @@
     jQuery("a.preview-box").colorbox();
     }());
     {/footer_script}
-
-    <h2>{$TITLE} &#8250; {'Edit photo'|translate} {$TABSHEET_TITLE}</h2>
 
     <form action="{$F_ACTION}" method="post" id="catModify">
 
@@ -115,23 +118,23 @@
 		<strong>{'Linked albums'|translate}</strong>
 		<br>
 		<select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
-			placeholder="{'Type in a search term'|translate}"
-			data-default="{$STORAGE_ALBUM}" name="associate[]" multiple style="width:600px;"></select>
+					placeholder="{'Type in a search term'|translate}"
+					data-default="{$STORAGE_ALBUM}" name="associate[]" multiple style="width:600px;"></select>
 	    </p>
 
 	    <p>
 		<label>{'Representation of albums'|translate}
 		    <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
-					    placeholder="{'Type in a search term'|translate}"
-					    name="represent[]" multiple style="width:600px;"></select>
+			    placeholder="{'Type in a search term'|translate}"
+			    name="represent[]" multiple style="width:600px;"></select>
 		</label>
 	    </p>
 
 	    <p>
 		<label>{'Tags'|translate}
 		    <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
-					    placeholder="{'Type in a search term'|translate}"
-					    data-create="true" name="tags[]" multiple style="width:600px;"></select>
+			    placeholder="{'Type in a search term'|translate}"
+			    data-create="true" name="tags[]" multiple style="width:600px;"></select>
 		</label>
 	    </p>
 

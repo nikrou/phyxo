@@ -23,8 +23,23 @@
 	    {/foreach}
 	{/if}
     </head>
-    <body id="{$BODY_ID}">
-	<div id="the_page">
+    <body>
+	<header>
+	    <nav class="navbar navbar-expand-md navbar-dark">
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+		    <span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarCollapse">
+		    <a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
+		    <ul class="navbar-nav ml-auto">
+			<li class="nav-item"><a class="nav-link" href="{$U_RETURN}"><i class="fa fa-eye"></i> {'Visit Gallery'|translate}</a></li>
+			<li class="nav-item"><a class="nav-link" href="{$U_LOGOUT}"><i class="fa fa-sign-out"></i> {'Logout'|translate}  ({$USERNAME})</a></li>
+		    </ul>
+		</div>
+	    </nav>
+	</header>
+
+	<div class="wrapper">
 	    {if not empty($header_msgs)}
 		<div class="header_msgs">
 		    {foreach $header_msgs as $elt}
@@ -33,20 +48,6 @@
 		</div>
 	    {/if}
 
-	    <div id="pwgHead">
-		<a href="{$U_ADMIN}" title="{'Visit Gallery'|translate}" class="tiptip">
-		    <i class="fa fa-home"></i> {$GALLERY_TITLE}
-		</a>
-
-		<div id="headActions">
-		    {'Hello'|translate} {$USERNAME} |
-		    <a class="fa fa-eye" href="{$U_RETURN}">{'Visit Gallery'|translate}</a> |
-		    <a class="fa fa-sign-out" href="{$U_LOGOUT}">{'Logout'|translate}</a>
-		</div>
-	    </div>
-
-	    <div style="clear:both;"></div>
-
 	    {if not empty($header_notes)}
 		<div class="header_notes">
 		    {foreach $header_notes as $elt}
@@ -54,11 +55,28 @@
 		    {/foreach}
 		</div>
 	    {/if}
-	    <main id="pwgMain">
-		<section role="content" id="content" class="content">
-		    {if isset($TABSHEET)}
-			{$TABSHEET}
-		    {/if}
+	    <main>
+		<section role="content">
+		    {block name="breadcrumb"}
+			<nav aria-label="breadcrumb">
+			    <ol class="breadcrumb">
+				<li class="breadcrumb-item active" aria-current="page"><a href="{$U_ADMIN}">{'Home'|translate}</a></li>
+				{block name="breadcrumb-items"}{/block}
+			    </ol>
+			</nav>
+		    {/block}
+
+		    {block name="tabs"}
+			{if !empty($tabsheet)}
+			    <ul class="nav nav-tabs">
+				{foreach $tabsheet as $name => $tab}
+				    <li class="nav-item">
+					<a class="nav-link{if $tab.selected} active{/if}" href="{$tab.url}">{$tab.caption}</a>
+				    </li>
+				{/foreach}
+			    </ul>
+			{/if}
+		    {/block}
 
 		    {if isset($errors)}
 			<div class="errors">
@@ -111,30 +129,24 @@
 		    {/foreach}
 		</div>
 	    {/if}
+	</div>
 
-	    <div id="footer">
-		<div id="piwigoInfos">
-		    {* Please, do not remove this copyright. If you really want to,
-		       contact us on http://www.phyxo.net/ to find a solution on how
-		       to show the origin of the script...
-		     *}
+	<footer>
+	    <div class="copyright">
+		{'Powered by'|translate}
+		<a class="external" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|translate}">Phyxo</a>
+		{$VERSION}
+	    </div>
 
-		    {'Powered by'|translate}
-		    <a class="externalLink" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|translate}">Phyxo</a>
-		    {$VERSION}
-		</div>
+	    <div id="page-infos">
+		{if isset($debug.TIME) }
+		    {'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
+		{/if}
 
-		<div id="pageInfos">
-		    {if isset($debug.TIME) }
-			{'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
-		    {/if}
-
-		    {'Contact'|translate}
-		    <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>
-		</div>{* <!-- pageInfos --> *}
-
-	    </div>{* <!-- footer --> *}
-	</div>{* <!-- the_page --> *}
+		{'Contact'|translate}
+		<a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>
+	    </div>
+	</footer>
 
 	<!-- BEGIN get_combined -->
 	{get_combined_scripts load='footer'}

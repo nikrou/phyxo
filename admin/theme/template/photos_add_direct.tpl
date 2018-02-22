@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Upload Photos'|translate}</a></li>
+    <li class="breadcrumb-item">{'Web Form'|translate}</li>
+{/block}
+
 {block name="content"}
     {html_head}
     <script src="./theme/js/common.js"></script>
@@ -52,11 +57,6 @@
 
     {combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
 
-
-    <div class="titrePage">
-	<h2>{'Upload Photos'|translate} {$TABSHEET_TITLE}</h2>
-    </div>
-
     <div id="photosAddContent">
 
 	<div class="infos" style="display:none"></div>
@@ -91,7 +91,7 @@
 
 		    <span id="albumSelection" style="display:none">
 			<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
-				data-default="first" name="category" style="width:600px"></select>
+						data-default="first" name="category" style="width:600px"></select>
 			<br>{'... or '|translate}</span>
 			<a href="#" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
 		</fieldset>

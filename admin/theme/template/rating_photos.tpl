@@ -1,8 +1,11 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    <h2>{$NB_ELEMENTS} {'Photos'|translate}</h2>
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Rating'|translate}</a></li>
+    <li class="breadcrumb-item">{$NB_ELEMENTS} {'Photos'|translate}</li>
+{/block}
 
+{block name="content"}
     <form action="{$F_ACTION}" method="GET" class="filter">
 	<fieldset>
 	    <legend>{'Filter'|translate}</legend>

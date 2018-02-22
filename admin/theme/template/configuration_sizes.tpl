@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Configuration'|translate}</a></li>
+    <li class="breadcrumb-item">{'Photo sizes'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id='common' load='footer' path='admin/theme/js/common.js'}
 
@@ -67,10 +72,7 @@
     .sizeEditOpen { margin-left:10px; }
     {/html_style}
 
-    <h2>{'Phyxo configuration'|translate} {$TABSHEET_TITLE}</h2>
-
     <form method="post" action="{$F_ACTION}" class="properties">
-
 	<div id="configContent">
 
 	    <fieldset id="sizesConf">

@@ -1,9 +1,13 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Album list management'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="cat_list" require="jquery.ui.sortable" load="footer" path="admin/theme/js/cat_list.js"}
 
-    <h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Album list management'|translate}</h2>
     <p class="showCreateAlbum" id="notManualOrder">
 	<a href="#" id="addAlbumOpen">{'create a new album'|translate}</a>
 	{if count($categories)}| <a href="#" id="autoOrderOpen">{'apply automatic sort order'|translate}</a>{/if}

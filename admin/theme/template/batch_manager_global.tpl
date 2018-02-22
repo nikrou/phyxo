@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Batch Manager'|translate}</a></li>
+    <li class="breadcrumb-item">{'global mode'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file="include/datepicker.inc.tpl" load_mode="async"}
     {include file="include/colorbox.inc.tpl" load_mode="async"}
@@ -317,9 +322,6 @@
     {/footer_script}
 
     <div id="batchManagerGlobal">
-
-	<h2>{'Batch Manager'|translate}</h2>
-
 	<form action="{$F_ACTION}" method="post">
 	    <input type="hidden" name="start" value="{$START}">
 

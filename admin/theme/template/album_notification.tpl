@@ -1,10 +1,12 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    <div class="titrePage">
-	<h2><span style="letter-spacing:0">{$CATEGORIES_NAV}</span> &#8250; {'Edit album'|translate} {$TABSHEET_TITLE}</h2>
-    </div>
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_ALBUMS}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Album'|translate}: {$CATEGORIES_NAV}</li>
+    <li class="breadcrumb-item">{'Notification'|translate}</li>
+{/block}
 
+{block name="content"}
     <form action="{$F_ACTION}" method="post" id="categoryNotify">
 
 	<fieldset id="emailCatInfo">

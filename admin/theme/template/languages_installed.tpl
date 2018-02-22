@@ -1,10 +1,11 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    <div class="titrePage">
-	<h2>{'Installed Languages'|translate}</h2>
-    </div>
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Languages'|translate}</a></li>
+    <li class="breadcrumb-item">{'Installed Languages'|translate}</li>
+{/block}
 
+{block name="content"}
     {foreach from=$language_states item=language_state}
 	<fieldset class="state state-{$language_state}">
 	    <legend>

@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Themes'|translate}</a></li>
+    <li class="breadcrumb-item">{'Add New Theme'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file='include/colorbox.inc.tpl'}
     {footer_script}{literal}
@@ -7,10 +12,6 @@
     $("a.preview-box").colorbox();
     });
     {/literal}{/footer_script}
-    <div class="titrePage">
-	<h2>{'Add New Theme'|translate}</h2>
-    </div>
-
     {if not empty($new_themes)}
 	<div class="themeBoxes">
 	    {foreach $new_themes as $theme}

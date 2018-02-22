@@ -36,9 +36,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('photo');
+$tabsheet->add('properties', l10n('Properties'), PHOTO_BASE_URL.'&amp;section=properties');
+$tabsheet->add('coi', l10n('Center of interest'), PHOTO_BASE_URL.'&amp;section=coi', 'fa-crop');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => PHOTO_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

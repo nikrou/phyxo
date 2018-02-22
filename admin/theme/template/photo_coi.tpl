@@ -1,12 +1,15 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Image'|translate}</a></li>
+    <li class="breadcrumb-item">{'Center of interest'|translate}</li>
+{/block}
+
 {block name="content"}
     {html_head}
-    <link rel="stylesheet" type="text/css" href="admin/theme/js/plugins/jquery.Jcrop.css" />
+    <link rel="stylesheet" type="text/css" href="./theme/js/plugins/jquery.Jcrop.css" />
     {/html_head}
-    {combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.Jcrop.js'}
-
-    <h2>{$TITLE} &#8250; {'Edit photo'|translate} {$TABSHEET_TITLE}</h2>
+    {combine_script id='jquery.jcrop' load='footer' require='jquery' path='./theme/js/plugins/jquery.Jcrop.js'}
 
     <form method="post">
 

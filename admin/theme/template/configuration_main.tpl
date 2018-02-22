@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Configuration'|translate}</a></li>
+    <li class="breadcrumb-item">{'General'|translate}</li>
+{/block}
+
 {block name="content"}
     {include file="include/colorbox.inc.tpl"}
     {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
@@ -64,8 +69,6 @@
     jQuery(this).parents(".themeBox").addClass("themeDefault");
     });
     {/footer_script}
-
-    <h2>{'Phyxo configuration'|translate} {$TABSHEET_TITLE}</h2>
 
     <form method="post" action="{$F_ACTION}" class="properties">
 

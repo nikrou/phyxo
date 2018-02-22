@@ -38,9 +38,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('groups');
+$tabsheet->add('list', l10n('Groups'), GROUPS_BASE_URL.'&amp;section=list', 'fa-group');
+$tabsheet->add('perm', l10n('Permissions'), GROUPS_BASE_URL.'&amp;section=perm', 'fa-lock');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => GROUPS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

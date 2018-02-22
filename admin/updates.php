@@ -32,9 +32,14 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('updates');
+$tabsheet->add('core', l10n('Phyxo Update'), UPDATES_BASE_URL.'&amp;section=core');
+$tabsheet->add('ext', l10n('Extensions Update'), UPDATES_BASE_URL.'&amp;section=ext');
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
+
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => UPDATES_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

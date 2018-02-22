@@ -1,5 +1,10 @@
 {extends file="__layout.tpl"}
 
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Rating'|translate}</a></li>
+    <li class="breadcrumb-item">{$ratings|count} {'Users'|translate}</li>
+{/block}
+
 {block name="content"}
     {combine_script id="jquery.dataTables" load="footer" path="admin/theme/js/plugins/jquery.dataTables.js"}
     {html_style}
@@ -39,7 +44,6 @@
     }
    {/html_style}
 
-   <h2>{$ratings|count} {'Users'|translate}</h2>
 
    <form action="{$F_ACTION}" method="GET">
        <fieldset>

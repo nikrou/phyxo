@@ -1,8 +1,11 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    <h2>{$TITLE}</h2>
+{block name="breadcrumb-items"}
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Groups'|translate}</a></li>
+    <li class="breadcrumb-item">{'Permissions'|translate}</li>
+{/block}
 
+{block name="content"}
     {if not empty($groups)}
 	<ul class="inline-groups">
 	    {foreach from=$groups item=group name=group_loop}

@@ -3,12 +3,13 @@
 
 @import "./theme.css";
 @import "./clear.css";
-//@import "./fontello/css/fontello.css";
 
 body {
     display: flex;
     flex-flow: column wrap;
 
+    margin: 0;
+    padding: 0;
     i {
 	margin-right: 0.2rem;
     }
@@ -23,6 +24,20 @@ body {
     min-height: 100vh;
 }
 
+header {
+    background-color: $gray-600;
+    color: $white;
+
+    a {
+	color: $white;
+    }
+
+    .navbar {
+	font-size: 0.9rem;
+	padding: 0.2rem 1rem;
+    }
+}
+
 main {
     display: flex;
     flex: 1 0 auto;
@@ -34,6 +49,17 @@ section[role="content"] {
     flex: 1 1 auto;
     order: 2;
     padding: 0 1rem;
+
+    .nav.nav-tabs {
+	margin-bottom: 1em;
+    }
+
+    // temporary, until theme.css and clear.css will be removed
+    form {
+	*, *::before, *::after {
+	    box-sizing: content-box;
+	}
+    }
 }
 
 aside[role="navigation"] {
@@ -73,4 +99,15 @@ aside[role="navigation"] {
 	    }
 	}
     }
+}
+
+footer {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: $gray-200;
+    color: $gray-500;
+    font-size: 0.9rem;
 }

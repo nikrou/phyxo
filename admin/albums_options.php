@@ -34,15 +34,20 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->setId('albums_options');
+$tabsheet->add('status', l10n('Public / Private'), ALBUMS_OPTIONS_BASE_URL.'&amp;section=status', 'fa-lock');
+$tabsheet->add('visible', l10n('Lock'), ALBUMS_OPTIONS_BASE_URL.'&amp;section=visible', 'fa-ban');
+if ($conf['activate_comments']) {
+    $tabsheet->add('comments', l10n('Comments'), ALBUMS_OPTIONS_BASE_URL.'&amp;section=comments', 'fa-comments');
+}
+if ($conf['allow_random_representative']) {
+    $tabsheet->add('representative', l10n('Representative'), ALBUMS_OPTIONS_BASE_URL.'&amp;section=representative');
+}
 $tabsheet->select($page['section']);
-$tabsheet->assign($template);
 
-// +-----------------------------------------------------------------------+
-// |                             template init                             |
-// +-----------------------------------------------------------------------+
-
-$template_filename = 'albums_options';
+$template->assign([
+    'tabsheet' => $tabsheet,
+    'U_PAGE' => ALBUMS_OPTIONS_BASE_URL,
+]);
 
 // +-----------------------------------------------------------------------+
 // |                       modification registration                       |
@@ -99,17 +104,6 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
     }
 }
 
-// +-----------------------------------------------------------------------+
-// |                             template init                             |
-// +-----------------------------------------------------------------------+
-
-$template->set_filenames(
-    array(
-        'cat_options' => 'cat_options.tpl',
-        'double_select' => 'double_select.tpl'
-    )
-);
-
 $template->assign(
     array(
         //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_options',
@@ -138,13 +132,12 @@ case 'comments': {
     $query_true .= ' WHERE commentable = \''.$conn->boolean_to_db(true).'\'';
     $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
     $query_false .= ' WHERE commentable = \''.$conn->boolean_to_db(false).'\'';
-    $template->assign(
-        array(
-            'L_SECTION' => l10n('Authorize users to add comments on selected albums'),
-            'L_CAT_OPTIONS_TRUE' => l10n('Authorized'),
-            'L_CAT_OPTIONS_FALSE' => l10n('Forbidden'),
-        )
-    );
+    $template->assign([
+        'L_SECTION' => l10n('Authorize users to add comments on selected albums'),
+        'L_CAT_OPTIONS_TRUE' => l10n('Authorized'),
+        'L_CAT_OPTIONS_FALSE' => l10n('Forbidden'),
+        'TABSHEET_TITLE' => l10n('Comments'),
+    ]);
     break;
 }
 case 'visible': {
@@ -152,38 +145,35 @@ case 'visible': {
     $query_true .= ' WHERE visible = \''.$conn->boolean_to_db(true).'\'';
     $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
     $query_false .= ' WHERE visible = \''.$conn->boolean_to_db(false).'\'';
-    $template->assign(
-        array(
-            'L_SECTION' => l10n('Lock albums'),
-            'L_CAT_OPTIONS_TRUE' => l10n('Unlocked'),
-            'L_CAT_OPTIONS_FALSE' => l10n('Locked'),
-        )
-    );
+    $template->assign([
+        'L_SECTION' => l10n('Lock albums'),
+        'L_CAT_OPTIONS_TRUE' => l10n('Unlocked'),
+        'L_CAT_OPTIONS_FALSE' => l10n('Locked'),
+        'TABSHEET_TITLE' => l10n('Lock'),
+    ]);
     break;
 }
 case 'status': {
     $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE status = \'public\';';
     $query_false = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE status = \'private\';';
-    $template->assign(
-        array(
-            'L_SECTION' => l10n('Manage authorizations for selected albums'),
-            'L_CAT_OPTIONS_TRUE' => l10n('Public'),
-            'L_CAT_OPTIONS_FALSE' => l10n('Private'),
-        )
-    );
+    $template->assign([
+        'L_SECTION' => l10n('Manage authorizations for selected albums'),
+        'L_CAT_OPTIONS_TRUE' => l10n('Public'),
+        'L_CAT_OPTIONS_FALSE' => l10n('Private'),
+        'TABSHEET_TITLE' => l10n('Public / Private'),
+    ]);
     break;
 }
 case 'representative': {
     $query_true = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE representative_picture_id IS NOT NULL;';
     $query_false = 'SELECT DISTINCT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
     $query_false .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id=category_id WHERE representative_picture_id IS NULL;';
-    $template->assign(
-        array(
-            'L_SECTION' => l10n('Representative'),
-            'L_CAT_OPTIONS_TRUE' => l10n('singly represented'),
-            'L_CAT_OPTIONS_FALSE' => l10n('randomly represented')
-        )
-    );
+    $template->assign([
+        'L_SECTION' => l10n('Representative'),
+        'L_CAT_OPTIONS_TRUE' => l10n('singly represented'),
+        'L_CAT_OPTIONS_FALSE' => l10n('randomly represented'),
+        'TABSHEET_TITLE' => l10n('Representative'),
+    ]);
     break;
 }
 }
@@ -194,4 +184,7 @@ display_select_cat_wrapper($query_false,array(),'category_option_false');
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 
+$template_filename = 'albums_options';
+
+$template->set_filenames(['double_select' => 'double_select.tpl']);
 $template->assign_var_from_handle('DOUBLE_SELECT', 'double_select');
