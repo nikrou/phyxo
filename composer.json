@@ -17,7 +17,7 @@
 		"pelago/emogrifier": "2.*",
 		"ircmaxell/password-compat": "1.0.*",
 		"pclzip/pclzip": "2.8.*",
-		"tedivm/jshrink": "1.2.*",
+		"tedivm/jshrink": "1.3.*",
 		"natxet/CssMin": "3.0.*",
 		"guzzlehttp/guzzle": "6.3.*",
 		"swiftmailer/swiftmailer": "6.0.*"
@@ -39,6 +39,11 @@
 		"bin-dir": "bin/"
 	},
 	"autoload": {
-		"psr-0": { "Phyxo": "src" }
+		"psr-4": { "Phyxo\\": "src/Phyxo/" }
+	},
+	"scripts": {
+		"auto-scripts": {
+
+		}
 	}
 }

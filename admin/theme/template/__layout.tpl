@@ -37,11 +37,9 @@
 		    </ul>
 		</div>
 	    </nav>
-	</header>
 
-	<div class="wrapper">
-	    {if not empty($header_msgs)}
-		<div class="header_msgs">
+	    {if !empty($header_msgs)}
+		<div class="alert alert-dark" role="alert">
 		    {foreach $header_msgs as $elt}
 			{$elt}
 		    {/foreach}
@@ -49,12 +47,15 @@
 	    {/if}
 
 	    {if not empty($header_notes)}
-		<div class="header_notes">
+		<div class="alert alert-warning" role="alert">
 		    {foreach $header_notes as $elt}
 			{$elt}
 		    {/foreach}
 		</div>
 	    {/if}
+	</header>
+
+	<div class="wrapper">
 	    <main>
 		<section role="content">
 		    {block name="breadcrumb"}
@@ -79,32 +80,35 @@
 		    {/block}
 
 		    {if isset($errors)}
-			<div class="errors">
-			    <ul>
-				{foreach $errors as $error}
-				    <li>{$error}</li>
-				{/foreach}
-			    </ul>
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			    {foreach $errors as $error}
+				<p>{$error}</p>
+			    {/foreach}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
 			</div>
 		    {/if}
 
 		    {if isset($infos)}
-			<div class="infos">
-			    <ul>
-				{foreach $infos as $info}
-				    <li>{$info}</li>
-				{/foreach}
-			    </ul>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+			    {foreach $infos as $info}
+				<p>{$info}</p>
+			    {/foreach}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
 			</div>
 		    {/if}
 
 		    {if isset($warnings)}
-			<div class="warnings">
-			    <ul>
-				{foreach $warnings as $warning}
-				    <li>{$warning}</li>
-				{/foreach}
-			    </ul>
+			<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			    {foreach $warnings as $warning}
+				<p>{$warning}</p>
+			    {/foreach}
+			    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<i class="fa fa-times"></i>
+			    </button>
 			</div>
 		    {/if}
 
