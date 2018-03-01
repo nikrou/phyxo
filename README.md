@@ -1,9 +1,9 @@
 Phyxo
 ======
 
-[![Join the chat at https://gitter.im/nikrou/phyxo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nikrou/phyxo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Simply share your images.
 
-This project is based on Piwigo. It aims to provide support for PostgreSQL and SQLite engines.
+![alt tag](https://www.phyxo.net/screenshot.png "Phyxo screenshot")
 
 Requirements
 ------------
@@ -13,6 +13,8 @@ This project use severals librairies that need at least PHP 7.1.0
 [![PHP 7 ready](http://php7ready.timesplinter.ch/nikrou/phyxo/master/badge.svg)](https://travis-ci.org/nikrou/phyxo)
 [![Dependency Status](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b)
 [![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
+
+This project uses a database and support Mysql, PostgreSQL and SQLite engines.
 
 Installation
 ------------
@@ -30,7 +32,7 @@ $ curl -sS https://getcomposer.org/installer | php
 
 Update dependencies via composer :
 ```
-$ composer.phar install --dev
+$ composer install
 ```
 
 Install Phyxo through web interface.
@@ -61,6 +63,12 @@ $ ./bin/atoum
 
 Tests are automatically runned by travis (see badge above)
 
+You can also get coverage report for tests by running :
+```
+$ ./bin/atoum -ebpc -c .atoum.coverage.php
+```
+
+
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
 
@@ -75,3 +83,8 @@ Todo
 
  * Add more tests
  * See [TODO file](TODO.md)
+
+Help
+----
+
+[![Join the chat at https://gitter.im/nikrou/phyxo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nikrou/phyxo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

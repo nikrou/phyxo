@@ -68,3 +68,9 @@ dist-zip: config
 
 clean:
 	rm -fr $(DIST)
+
+unit-tests:
+	./bin/atoum
+
+unit-tests-coverage:
+	./bin/atoum -ebpc -c .atoum.coverage.php

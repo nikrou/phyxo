@@ -41,3 +41,6 @@
 /themes/**/build
 /themes/**/node_modules
 /themes/**/*.log
+
+;; atoum
+/coverage
