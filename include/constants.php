@@ -14,7 +14,7 @@ if (!defined('PHPWG_VERSION')) { // can be defined in tests
     define('PHPWG_VERSION', '1.8.0-dev');
 }
 if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
-    define('PHPWG_DEFAULT_LANGUAGE', 'en_UK');
+    define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 }
 if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
     define('PHPWG_DEFAULT_TEMPLATE', 'elegant');

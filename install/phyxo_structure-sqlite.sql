@@ -436,7 +436,7 @@ CREATE TABLE "phyxo_user_infos"
   "user_id" INTEGER default 0 NOT NULL,
   "nb_image_page" INTEGER default 15 NOT NULL,
   "status" VARCHAR(50) default 'guest',
-  "language" VARCHAR(50) default 'en_UK' NOT NULL,
+  "language" VARCHAR(50) default 'en_GB' NOT NULL,
   "expand" BOOLEAN default false,
   "show_nb_comments" BOOLEAN default false,
   "show_nb_hits" BOOLEAN default false,

@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 $lang['(this tag will be deleted)'] = '(this keyword will be deleted)';
 $lang['Add a criteria'] = 'Add a criterion';
@@ -122,11 +109,9 @@ $lang['Add tags'] = 'Add keywords';
 $lang['Add a tag'] = 'Add a keyword';
 $lang['%d albums including'] = '%d albums included';
 $lang['%d album including'] = '%d album included';
-$lang['The Piwigo publish Plug-in allows you to export and synchronize photos from Lightroom directly to your Piwigo photo gallery.'] = 'The Piwigo publish Plug-in allows you to export and synchronise photos from Lightroom directly to your Piwigo photo gallery.';
-$lang['Shotwell is an open source digital photo organizer that runs on Linux. It is the default photo manager in Ubuntu and Fedora.'] = 'Shotwell is an open source digital photo organiser that runs on Linux. It is the default photo manager in Ubuntu and Fedora.';
 $lang['Select a zone with your mouse to define a new center of interest.'] = 'Select a zone with your mouse to define a new centre of interest.';
 $lang['Save Settings'] = 'Save settings';
-$lang['Read Piwigo Documentation'] = 'Read Piwigo documentation';
+$lang['Read Phxyo Documentation'] = 'Read Phyxo documentation';
 $lang['New Version'] = 'New version';
 $lang['Missing Plugins'] = 'Missing plugins';
 $lang['Manage Permissions'] = 'Manage permissions';
@@ -158,7 +143,7 @@ $lang['Impossible to activate this theme, the parent theme is missing: %s'] = 'T
 $lang['Help Me'] = 'Help me';
 $lang['An error occured during extraction (%s).'] = 'An error occurred during the files (%s) extraction.';
 $lang['An error has occured during upgrade.'] = 'An error has occurred during upgrade.';
-$lang['An error has occured during extract. Please check files permissions of your piwigo installation.<br><a href="%s">Click here to show log error</a>.'] = 'An error has occurred during extract. Please check file permissions of your Piwigo installation.<br><a href="%s">Click here to show log error</a>.';
+$lang['An error has occured during extract. Please check files permissions of your Phyxo installation.<br><a href="%s">Click here to show log error</a>.'] = 'An error has occurred during extract. Please check file permissions of your Phyxo installation.<br><a href="%s">Click here to show log error</a>.';
 $lang['Empty caddie'] = 'Empty basket';
 
 $lang['Development'] = "Developement";

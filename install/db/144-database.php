@@ -31,7 +31,7 @@ if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
     $query .= '"user_id" INTEGER default 0 NOT NULL,';
     $query .= '"nb_image_page" INTEGER default 15 NOT NULL,';
     $query .= '"status" VARCHAR(50) default \'guest\',';
-    $query .= '"language" VARCHAR(50) default \'en_UK\' NOT NULL,';
+    $query .= '"language" VARCHAR(50) default \'en_GB\' NOT NULL,';
     $query .= '"expand" BOOLEAN default false,';
     $query .= '"show_nb_comments" BOOLEAN default false,';
     $query .= '"show_nb_hits" BOOLEAN default false,';

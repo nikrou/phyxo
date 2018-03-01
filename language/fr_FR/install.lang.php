@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 $lang['Installation'] = "Installation";
 $lang['Basic configuration'] = "Configuration de base";
@@ -48,13 +35,10 @@ $lang['Password [confirm]'] = "Mot de passe [Confirmer]";
 $lang['verification'] = "vérification";
 $lang['Need help ? Ask your question on <a href="%s">Piwigo message board</a>.'] = "Besoin d'aide ? Posez votre question sur le <a href=\"%s\">forum de Piwigo</a>.";
 $lang['Visitors will be able to contact site administrator with this mail'] = "Les visiteurs pourront contacter l'administrateur du site par ce mail";
-$lang['PHP 5 is required'] = "PHP 5 est requis";
 $lang['It appears your webhost is currently running PHP %s.'] = "Apparemment, la version PHP de votre hébergeur est PHP %s.";
 $lang['Piwigo may try to switch your configuration to PHP 5 by creating or modifying a .htaccess file.'] = "Piwigo va essayer de passer en PHP 5 en créant ou modifiant le fichier .htaccess.";
 $lang['Note you can change your configuration by yourself and restart Piwigo after that.'] = "Notez que vous pouvez modifier vous-même la configuration PHP et re-lancer Piwigo ensuite.";
-$lang['Try to configure PHP 5'] = "Essayer de configurer PHP 5";
 $lang['Sorry!'] = "Désolé!";
-$lang['Piwigo was not able to configure PHP 5.'] = "Piwigo n'a pas pu configurer PHP 5.";
 $lang['You may referer to your hosting provider\'s support and see how you could switch to PHP 5 by yourself.'] = "Il vous faut contacter le support de votre hébergeur pour savoir comment configurer vous-même PHP 5.";
 $lang['Hope to see you back soon.'] = "En espérant vous revoir très prochainement.";
 $lang['Congratulations, Phyxo installation is completed'] = 'Félicitations, l\'installation de Phyxo est terminée';

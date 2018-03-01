@@ -96,7 +96,7 @@ if (isset($_GET['language'])) {
         $language = PHPWG_DEFAULT_LANGUAGE;
     }
 } else {
-    $language = 'en_UK';
+    $language = 'en_GB';
     // Try to get browser language
     foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
         if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {

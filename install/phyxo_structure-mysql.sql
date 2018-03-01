@@ -426,7 +426,7 @@ CREATE TABLE `phyxo_user_infos` (
   `user_id` mediumint(8) unsigned NOT NULL default '0',
   `nb_image_page` smallint(3) unsigned NOT NULL default '15',
   `status` enum('webmaster','admin','normal','generic','guest') NOT NULL default 'guest',
-  `language` varchar(50) NOT NULL default 'en_UK',
+  `language` varchar(50) NOT NULL default 'en_GB',
   `expand` enum('true','false') NOT NULL default 'false',
   `show_nb_comments` enum('true','false') NOT NULL default 'false',
   `show_nb_hits` enum('true','false') NOT NULL default 'false',
