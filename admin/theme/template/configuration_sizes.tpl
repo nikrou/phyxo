@@ -137,10 +137,10 @@
 					    <i class="fa fa-check"></i>
 					</span>
 				    {else}
-					<span class="sizeEnable font-checkbox">
+					<label class="font-checkbox">
 					    <i class="fa fa-check-square"></i>
 					    <input type="checkbox" name="d[{$type}][enabled]" {if $d.enabled}checked="checked"{/if}>
-					</span>
+					</label>
 				    {/if}
 				    {$type|translate}
 				</label>
