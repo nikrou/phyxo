@@ -409,6 +409,9 @@ if (isset($_SESSION['bulk_manager_filter']['search']) && strlen($_SESSION['bulk_
 $filter_sets = trigger_change('batch_manager_perform_filters', $filter_sets, $_SESSION['bulk_manager_filter']);
 
 $current_set = array_shift($filter_sets);
+if (empty($current_set)) {
+    $current_set = [];
+}
 foreach ($filter_sets as $set) {
     $current_set = array_intersect($current_set, $set);
 }
