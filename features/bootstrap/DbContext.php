@@ -1,33 +1,37 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
+use Behat\Behat\Context\Context;
 use Behat\Testwork\Hook\Scope\HookScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 
-trait DbContext
+class DbContext implements Context
 {
     private static $prefix = 'phyxo_';
     private $response_params = array();
     private $last_id;
+    private static $conf_loaded = false, $pdo = null;
+
+    public function __construct(array $parameters) {
+        $this->parameters = $parameters;
+    }
+
+    /** @BeforeScenario */
+    public function gatherContexts(BeforeScenarioScope $scope) {
+        $environment = $scope->getEnvironment();
+        $this->parameters = self::getParametersFromScope($scope);
+    }
 
     /**
      * @Given /^a user:$/
@@ -289,8 +293,7 @@ trait DbContext
     }
 
     private static function getParametersFromScope(HookScope $scope) {
-        $contexts = $scope->getEnvironment()->getSuite()->getSettings()['contexts'];
-        return array_values($contexts[0])[0]['parameters'];
+        return $scope->getEnvironment()->getSuite()->getSettings()['contexts'][6]['DbContext']['parameters'];
     }
 
     /**
@@ -351,7 +354,6 @@ trait DbContext
             }
         }
     }
-
 
     private static function configDb($parameters) {
         include($parameters['config_file']);

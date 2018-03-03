@@ -1,5 +1,8 @@
 sudo: false
 
+addons:
+  chrome: stable
+
 language: php
 php:
   - "7.1"
@@ -14,6 +17,10 @@ env:
   - DB=pgsql
   - DB=sqlite
 
+before_install:
+  # start your web application and listen on `localhost`
+  # - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+
 before_script:
   - composer install
   - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
@@ -25,12 +32,9 @@ before_script:
   - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/phyxo.db;fi"
   - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/database.inc.sqlite.travis.php local/config/database.inc.php;fi"
 
-  - phantomjs --webdriver=127.0.0.1:8643 &
-  - sleep 5
-
   - php tools/install.php
   - php -S 127.0.0.1:1080 -t . &
 
 script:
   - php ./bin/atoum
-  # - php ./bin/behat -c behat.yml.travis.dist
+  # - php ./bin/behat -c behat.travis.yml.dist --suite=web --tags=admin

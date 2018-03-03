@@ -8,27 +8,31 @@
 {block name="content"}
     {combine_script id="cat_list" require="jquery.ui.sortable" load="footer" path="admin/theme/js/cat_list.js"}
 
-    <p class="showCreateAlbum" id="notManualOrder">
-	<a href="#" id="addAlbumOpen">{'create a new album'|translate}</a>
-	{if count($categories)}| <a href="#" id="autoOrderOpen">{'apply automatic sort order'|translate}</a>{/if}
-	{if !empty($PARENT_EDIT)}| <a href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
+    <p>
+	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{'create a new album'|translate}</a>
+	{if !empty($categories)}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{'apply automatic sort order'|translate}</a>{/if}
+	{if !empty($PARENT_EDIT)}<a class="btn btn-edit" href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
     </p>
-    <form id="formCreateAlbum" action="{$F_ACTION}" method="post" style="display:none;">
-	<fieldset>
-	    <legend>{'create a new album'|translate}</legend>
-	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 
-	    <p>
-		<strong>{'Album name'|translate}</strong><br>
-		<input type="text" name="virtual_name" maxlength="255">
-	    </p>
+    <div id="create-album"  class="collapse">
+	<form id="formCreateAlbum" action="{$F_ACTION}" method="post">
+	    <div class="fieldset">
+		<h3>{'create a new album'|translate}</h3>
+		<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 
-	    <p class="actionButtons">
-		<input class="submit" name="submitAdd" type="submit" value="{'Create'|translate}">
-		<a href="#" id="addAlbumClose">{'Cancel'|translate}</a>
-	    </p>
-	</fieldset>
-    </form>
+		<p>
+		    <label for="virtual_name">{'Album name'|translate}</label>
+		    <input type="text" name="virtual_name" id="virtual_name" maxlength="255">
+		</p>
+
+		<p>
+		    <input class="btn btn-submit" name="submitAdd" type="submit" value="{'Create'|translate}">
+		    <a class="btn btn-cancel" href="#create-album" data-toggle="collapse">{'Cancel'|translate}</a>
+		</p>
+	    </div>
+	</form>
+    </div>
+
     {if count($categories)}
 	<form id="formAutoOrder" action="{$F_ACTION}" method="post" style="display:none;">
 	    <fieldset>

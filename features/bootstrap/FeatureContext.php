@@ -1,23 +1,16 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
+use Behat\Behat\Context\Context;
+use Behat\MinkExtension\Context\MinkContext;
 use Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -27,10 +20,8 @@ use mageekguy\atoum\asserter as Atoum;
 /**
  * Features context.
  */
-class FeatureContext extends BaseContext
+class FeatureContext extends MinkContext implements Context
 {
-    use DbContext;
-
     /**
      * Initializes context.
      * Every scenario gets its own context object.
@@ -154,18 +145,26 @@ class FeatureContext extends BaseContext
     }
 
     /**
-     * @Given /^I click on the "([^"]*)" element$/
+     * @Then I should see :count :status languages
      */
-    public function iClickOnTheElement($cssSelector) {
-        $session = $this->getSession();
-        $element = $session->getPage()->find(
-            'xpath',
-            $session->getSelectorsHandler()->selectorToXpath('css', $cssSelector) // just changed xpath to css
-        );
-        if (null === $element) {
-            throw new \InvalidArgumentException(sprintf('Could not evaluate CSS Selector: "%s"', $cssSelector));
-        }
+    public function iShouldSeeActiveLanguages($count, $status) {
+        $container = $this->getSession()->getPage();
+        $languages = $container->findAll('css', ".state.state-${status} .languages .language");
 
-        $element->click();
+        if (intval($count) !== count($languages)) {
+            $message = sprintf('%d %s languages found on the page, but should be %d.', count($languages), $status, $count);
+            throw new ExpectationException($message, $this->session);
+        }
+    }
+
+    /**
+     * @Then I click on deactivate :language language
+     */
+    public function iClickOnDeactivateLanguage($language) {
+        $container = $this->getSession()->getPage();
+        $languages = $container->find('css', '.state.state-active .languages');
+        $div_language = $languages->find('xpath', '//*[contains(text(), "'.$language.'")]');
+        $link = $div_language->getParent()->find('named', ['link', $this->getSession()->getSelectorsHandler()->xpathLiteral('Deactivate')]);
+        $link->click();
     }
 }
