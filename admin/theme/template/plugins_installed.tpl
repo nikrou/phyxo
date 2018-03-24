@@ -137,7 +137,7 @@
 	    {/if}
 
 	    {if $show_details}
-		<div id="{$plugin.ID}" class="pluginBox {$plugin.STATE}">
+		<div id="{$plugin.ID}" class="plugin {$plugin.STATE}">
 		    <table>
 			<tr>
 			    <td class="pluginBoxNameCell">

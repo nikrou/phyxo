@@ -18,7 +18,7 @@
    {/footer_script}
 
    {if !empty($languages)}
-       <table class="table2 languages">
+       <table class="table languages">
 	   <thead>
 	       <tr class="throw">
 		   <td>{'Language'|translate}</td>
@@ -32,10 +32,10 @@
 	       {foreach from=$languages item=language name=languages_loop}
 		   <tr class="language {if $smarty.foreach.languages_loop.index is odd}row1{else}row2{/if}">
 		       <td><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.EXT_DESC|@htmlspecialchars|@nl2br}">{$language.EXT_NAME}</a></td>
-		       <td style="text-align:center;"><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.VER_DESC|@htmlspecialchars|@nl2br}">{$language.VERSION}</a></td>
+		       <td><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.VER_DESC|@htmlspecialchars|@nl2br}">{$language.VERSION}</a></td>
 		       <td>{$language.DATE}</td>
 		       <td>{$language.AUTHOR}</td>
-		       <td style="text-align:center;"><a href="{$language.URL_INSTALL}">{'Install'|translate}</a>
+		       <td><a href="{$language.URL_INSTALL}">{'Install'|translate}</a>
 			   / <a href="{$language.URL_DOWNLOAD}">{'Download'|translate}</a>
 		       </td>
 		   </tr>

@@ -13,6 +13,7 @@ const merge = require('webpack-merge')
 const path = require('path')
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CleanupPlugin = require('clean-webpack-plugin')
 
 const IS_PROD = process.env.NODE_ENV === 'production';
@@ -113,10 +114,6 @@ const MAIN_CONFIG = merge([
 		   'window.$': 'jquery',*/
 		Popper: ['popper.js', 'default'],
 	    }),
-	    new webpack.optimize.CommonsChunkPlugin({
-		name: ['vendor'],
-		minChunks: ({ resource }) => resource && resource.includes('node_modules'),
-	    }),
 	    new webpack.DefinePlugin({
 		'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV) }
 	    }),
@@ -188,10 +185,6 @@ const prodConfig = () => merge([
 	    new webpack.HashedModuleIdsPlugin(),
 	    new ExtractTextPlugin({
 		filename: 'css/[name].[contenthash:8].css',
-		allChunks: true,
-	    }),
-	    new webpack.optimize.UglifyJsPlugin({
-		sourceMap: true,
 	    }),
 	    new CleanupPlugin(PATHS.target),
 	]

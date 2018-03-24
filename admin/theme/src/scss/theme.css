@@ -34,7 +34,6 @@ ul.categoryActions { margin: 0 2px; width: auto; list-style-position:outside;
 /* thumbnails.css */
 UL.thumbnails {
   margin: 0; padding: 0; list-style: none;
-  text-align: center;	/* to center the whole collection in .content */
   float: left;
 }
 UL.thumbnails LI { display: inline }
@@ -332,7 +331,6 @@ PRE { text-align:left; margin-left: 2em; overflow:auto; }
 FORM { padding: 0em; }
 
 FORM P {
-	text-align: center;
         margin:1em;
 }
 

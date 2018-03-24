@@ -65,6 +65,14 @@ section[role="content"] {
 	    box-sizing: content-box;
 	}
     }
+
+    .language, .plugin, .theme {
+	background-color: $gray-200;
+	border-color: $gray-400;
+	padding: 6px;
+	border-radius: 5px;
+	margin: 5px;
+    }
 }
 
 aside[role="navigation"] {
