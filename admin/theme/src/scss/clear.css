@@ -16,31 +16,8 @@
 */
 /* text color */
 
-body, h3, dt, h2, .throw, .content, label , LEGEND  {
-	color:#777;
-}
 
 th { color: #888; }
-INPUT, select, textarea { color:#666; background-color: #ccc; }
-option[disabled] { background-color: #ccc; }
-input[type="radio"], input[type="checkbox"] { background-color: transparent; }
-
-
-
-INPUT[type="text"], INPUT[type="password"], INPUT[type="file"] {
-	background-color: #ddd;
-}
-
-SELECT, TEXTAREA {
-	background-color: #ddd;
-}
-
-INPUT:focus, SELECT:focus, TEXTAREA:focus {
-  background-color: #eee;
-  color: #666;
-}
-
-INPUT, SELECT, TEXTAREA { border: 1px solid #999; }
 
 .showInfo { color:#999; }
 .showInfo:hover { color:#333; }
@@ -93,7 +70,6 @@ TEXTAREA { cursor:text; font-size: 13px; }
 
 ul.thumbnails input { color:#666; font-size:10px; margin:0; background-color:#bbb; text-align: center;}
 .throw  { font-size: 120%; line-height: 26px; padding-top: 10px; font-weight: bold; }
-label { cursor:pointer }
 .categoryLi, .menuLi { background: #ddd }
 .menuLi_hidden { background: #ccc !important; }
 a.Piwigo {
@@ -293,21 +269,6 @@ UL.thumbnails li.rank-of-image {background-color: #ddd;}
 
 .selectedComment {background-color:#C2F5C2;}
 
-#pwgMain {padding-left:0}
-
-.buttonLike, input[type="submit"], input[type="button"], input[type="reset"] {
-  font-size:12px;
-  font-weight:bold;
-  letter-spacing:1px;
-  border:none;
-  background-color:#666;
-  color:#fff;
-  padding:2px 5px;
-  -moz-border-radius:5px;
-  -webkit-border-radius:5px;
-  border-radius:5px;
-  margin-left:0;
-}
 
 .buttonLike:hover, input[type="submit"]:hover, input[type="button"]:hover, input[type="reset"]:hover {
 	cursor: pointer;

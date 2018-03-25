@@ -14,7 +14,7 @@
     {/footer_script}
 
     <form action="{$F_ACTION}" method="post" id="pending-tags">
-	<table class="table2 checkboxes">
+	<table class="table checkboxes">
 	    <thead>
 		<tr>
 		    <th>&nbsp;</th>
@@ -45,8 +45,8 @@
 	</p>
 
 	<p class="formButtons">
-	    <input type="submit" name="validate" value="{'Validate'|translate}">
-	    <input type="submit" name="reject" value="{'Reject'|translate}">
+	    <input type="submit" class="btn btn-submit" name="validate" value="{'Validate'|translate}">
+	    <input type="submit" class="btn btn-cancel" name="reject" value="{'Reject'|translate}">
 	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 	</p>
     </form>

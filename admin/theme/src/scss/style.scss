@@ -64,6 +64,13 @@ section[role="content"] {
 	*, *::before, *::after {
 	    box-sizing: content-box;
 	}
+
+	.fieldset {
+	    border: 2px solid $gray-200;
+	    border-radius: 5px;
+	    padding: 1em;
+	    margin: 1em 0;
+	}
     }
 
     .language, .plugin, .theme {

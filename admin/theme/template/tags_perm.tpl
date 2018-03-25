@@ -7,8 +7,8 @@
 
 {block name="content"}
     <form method="post" action="" class="general">
-	<fieldset>
-	    <legend>{'Who can add tags?'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Who can add tags?'|translate}</h3>
 
 	    <p class="field">
 		<select name="permission_add">
@@ -27,9 +27,10 @@
 		    &nbsp;{'Moderate added tags'|translate}
 		</label>
 	    </p>
-	</fieldset>
-	<fieldset>
-	    <legend>{'Who can delete related tags?'|translate}</legend>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{'Who can delete related tags?'|translate}</h3>
 	    <p class="field">
 		<select name="permission_delete">
 		    {html_options options=$STATUS_OPTIONS selected=$PERMISSIONS.delete}
@@ -45,9 +46,10 @@
 	    <p>
 		{'If a user delete a tag and you "moderate delete tags", then theses tags will be displayed to all users until you validate the deletion.'|translate}
 	    </p>
-	</fieldset>
-	<fieldset>
-	    <legend>{'Display for pending tags'|translate}</legend>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{'Display for pending tags'|translate}</h3>
 	    <p>
 		{'By default, if you allow some users to add tags, theses tags are not shown to them (nor others users). And pending deleted tags are shown.'|translate}
 	    </p>
@@ -60,10 +62,10 @@
 	    <p>
 		{'A css class is added to tag to show deleted pending tags differently to the user who delete them'|translate}
 	    </p>
-	</fieldset>
+	</div>
 	<p>
 	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
-	    <input class="submit" type="submit" name="submit" value="{'Submit'|translate}">
+	    <input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
 	</p>
     </form>
 {/block}
