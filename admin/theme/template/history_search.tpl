@@ -102,9 +102,9 @@
 
     {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
-    <table class="table2" id="detailedStats">
+    <table class="table table-hover table-striped">
 	<thead>
-	    <tr class="throw">
+	    <tr>
 		<th>{'Date'|translate}</th>
 		<th>{'Time'|translate}</th>
 		<th>{'User'|translate}</th>

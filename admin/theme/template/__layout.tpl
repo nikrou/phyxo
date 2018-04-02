@@ -8,9 +8,6 @@
 
 	<link rel="stylesheet" href="{asset manifest='theme/build/manifest.json' src='app.css'}">
 
-	{combine_script id='jquery' path='admin/theme/js/jquery/jquery.js'}
-	{combine_script id='jquery.migrate' path='admin/theme/js/jquery/jquery-migrate-1.2.1.js'}
-
 	<!-- BEGIN get_combined -->
 	{get_combined_css}
 
@@ -22,6 +19,11 @@
 		{$elt}
 	    {/foreach}
 	{/if}
+
+	{block name="head_scripts"}
+	    {combine_script id='jquery' path='admin/theme/js/jquery/jquery.js'}
+	    {combine_script id='jquery.migrate' path='admin/theme/js/jquery/jquery-migrate-1.2.1.js'}
+	{/block}
     </head>
     <body>
 	<header>
@@ -156,7 +158,6 @@
 	{get_combined_scripts load='footer'}
 	<!-- END get_combined -->
 
-	<script src="{asset manifest='theme/build/manifest.json' src='vendor.js'}"></script>
 	<script src="{asset manifest='theme/build/build/manifest.json' src='app.js'}"></script>
     </body>
 </html>

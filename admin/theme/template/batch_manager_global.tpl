@@ -153,10 +153,10 @@
     }
     });
 
-    $(".wrap1 label").click(function (event) {
+    $(".wrapper-label label").click(function (event) {
     $("input[name=setSelected]").prop('checked', false);
 
-    var wrap2 = $(this).children(".wrap2");
+    var wrap2 = $(this).children(".wrapper-thumbnail");
     var checkbox = $(this).children("input[type=checkbox]");
 
     checkbox.triggerHandler("shclick",event);
@@ -180,7 +180,7 @@
 
     function selectPageThumbnails() {
     $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrap2");
+    var wrap2 = $(this).children(".wrapper-thumbnail");
     var checkbox = $(this).children("input[type=checkbox]");
 
     $(checkbox).prop('checked', true);
@@ -192,7 +192,7 @@
     $("input[name=setSelected]").prop('checked', false);
 
     $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrap2");
+    var wrap2 = $(this).children(".wrapper-thumbnail");
     var checkbox = $(this).children("input[type=checkbox]");
 
     $(checkbox).prop('checked', false);
@@ -206,7 +206,7 @@
     $("input[name=setSelected]").prop('checked', false);
 
     $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrap2");
+    var wrap2 = $(this).children(".wrapper-thumbnail");
     var checkbox = $(this).children("input[type=checkbox]");
 
     $(checkbox).prop('checked', !$(checkbox).is(':checked'));
@@ -325,8 +325,8 @@
 	<form action="{$F_ACTION}" method="post">
 	    <input type="hidden" name="start" value="{$START}">
 
-	    <fieldset>
-		<legend>{'Filter'|translate}</legend>
+	    <div class="fieldset">
+		<h3>{'Filter'|translate}</h3>
 
 		<ul id="filterList">
 		    <li id="filter_prefilter" {if !isset($filter.prefilter)}style="display:none"{/if}>
@@ -471,12 +471,10 @@
 		<p class="actionButtons" id="applyFilterBlock">
 		    <input id="applyFilter" class="submit" type="submit" value="{'Refresh photo set'|translate}" name="submitFilter">
 		</p>
+	    </div>
 
-	    </fieldset>
-
-	    <fieldset>
-
-		<legend>{'Selection'|translate}</legend>
+	    <div class="fieldset">
+		<h3>{'Selection'|translate}</h3>
 
 		{if !empty($thumbnails)}
 		    <p id="checkActions">
@@ -495,60 +493,57 @@
 			<input type="checkbox" name="setSelected" style="display:none" {if count($selection) == $nb_thumbs_set}checked="checked"{/if}>
 		    </p>
 
-		    <ul class="thumbnails">
+		    <div class="thumbnails">
 			{html_style}
-			UL.thumbnails SPAN.wrap2{ldelim}
+			.wrapper-thumbnail {ldelim}
 			width: {$thumb_params->max_width()+2}px;
-			}
-			UL.thumbnails SPAN.wrap2 {ldelim}
 			height: {$thumb_params->max_height()+25}px;
 			}
-		{/html_style}
-		{foreach from=$thumbnails item=thumbnail}
-		    {assign var='isSelected' value=$thumbnail.id|@in_array:$selection}
-		    <li>
-			<span class="wrap1">
-			    <label>
-				<input type="checkbox" name="selection[]" value="{$thumbnail.id}" {if $isSelected}checked="checked"{/if}>
-				<span class="wrap2{if $isSelected} thumbSelected{/if}">
-				    <div class="actions"><a href="{$thumbnail.FILE_SRC}" class="preview-box icon-zoom-in">{'Zoom'|translate}</a> &middot; <a href="{$thumbnail.U_EDIT}" target="_blank">{'Edit'|translate}</a></div>
-				    {if $thumbnail.level > 0}
-					<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
-					<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
-				    {/if}
-				    <img src="{$thumbnail.thumb->get_url()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|@escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
+		        {/html_style}
+
+			{foreach from=$thumbnails item=thumbnail}
+			    {assign var='isSelected' value=$thumbnail.id|@in_array:$selection}
+			    <div class="thumbnail{if $isSelected} thumbSelected{/if}">
+				<span class="wrapper-label">
+				    <label>
+					<input type="checkbox" name="selection[]" value="{$thumbnail.id}" {if $isSelected}checked="checked"{/if}>
+					<span class="wrapper-thumbnail">
+					    <div class="actions">
+						<a href="{$thumbnail.FILE_SRC}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{'Zoom'|@translate}</span></a>
+						<a href="{$thumbnail.U_EDIT}" target="_blank"><i class="fa fa-pencil"></i><span class="visually-hidden">{'Edit'|@translate}</span></a>
+					    </div>
+					    {if $thumbnail.level > 0}
+						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
+						<em class="levelIndicatorF" title="{'Who can see these photos?'|@translate} : ">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
+					    {/if}
+					    <img src="{$thumbnail.thumb->get_url()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|@escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
+					</span>
+				    </label>
 				</span>
-			    </label>
-			</span>
-		    </li>
-		{/foreach}
-		    </ul>
+			    </div>
+			{/foreach}
+		    </div>
 
 		    {if !empty($navbar) }
-			<div style="clear:both;">
+			{include file='navigation_bar.tpl'}
 
-			    <div style="float:left">
-				{include file='navigation_bar.tpl'}
-			    </div>
-
-			    <div style="float:right;margin-top:10px;">{'display'|translate}
-				<a href="{$U_DISPLAY}&amp;display=20">20</a>
-				&middot; <a href="{$U_DISPLAY}&amp;display=50">50</a>
-				&middot; <a href="{$U_DISPLAY}&amp;display=100">100</a>
-				&middot; <a href="{$U_DISPLAY}&amp;display=all">{'all'|translate}</a>
-				{'photos per page'|translate}
-			    </div>
+			<div>
+			    {'display'|translate}
+			    <a href="{$U_DISPLAY}&amp;display=20">20</a>
+			    &middot; <a href="{$U_DISPLAY}&amp;display=50">50</a>
+			    &middot; <a href="{$U_DISPLAY}&amp;display=100">100</a>
+			    &middot; <a href="{$U_DISPLAY}&amp;display=all">{'all'|translate}</a>
+			    {'photos per page'|translate}
 			</div>
 		    {/if}
 
 		{else}
 		    <div>{'No photo in the current set.'|translate}</div>
 		{/if}
-	    </fieldset>
+	    </div>
 
-	    <fieldset id="action">
-
-		<legend>{'Action'|translate}</legend>
+	    <div class="fieldset" id="action">
+		<h3>{'Action'|translate}</h3>
 		<div id="forbidAction"{if empty($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
 		<div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
 
@@ -704,10 +699,10 @@
 		    {/if}
 
 		    <p id="applyActionBlock" style="display:none" class="actionButtons">
-			<input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span></p>
-
+			<input id="applyAction" class="btn btn-submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span>
+		    </p>
 		</div> <!-- #permitAction -->
-	    </fieldset>
+	    </div>
 	</form>
     </div> <!-- #batchManagerGlobal -->
 {/block}

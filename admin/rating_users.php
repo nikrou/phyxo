@@ -63,6 +63,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $rating['uid'] = (int)$row['user_id'];
         $rating['aid'] = $usr['anon'] ? $row['anonymous_id'] : '';
         $rating['last_date'] = $rating['first_date'] = $row['date'];
+        $rating['md5sum'] = md5($rating['uid'].$rating['aid']);
     } else {
         $rating['first_date'] = $row['date'];
     }
@@ -172,22 +173,19 @@ if (isset($_GET['order_by']) and is_numeric($_GET['order_by'])) {
     $order_by_index = $_GET['order_by'];
 }
 
-$available_order_by= array(
-    array(l10n('Average rate'), 'avg_compare'),
-    array(l10n('Number of rates'), 'count_compare'),
-    array(l10n('Variation'), 'cv_compare'),
-    array(l10n('Consensus deviation'), 'consensus_dev_compare'),
-    array(l10n('Last'), 'last_rate_compare'),
-);
+$available_order_by= [
+    [l10n('Average rate'), 'avg_compare'],
+    [l10n('Number of rates'), 'count_compare'],
+    [l10n('Variation'), 'cv_compare'],
+    [l10n('Consensus deviation'), 'consensus_dev_compare'],
+    [l10n('Last'), 'last_rate_compare'],
+];
 
 for ($i=0; $i<count($available_order_by); $i++) {
-    $template->append(
-        'order_by_options',
-        $available_order_by[$i][0]
-    );
+    $template->append('order_by_options', $available_order_by[$i][0]);
 }
-$template->assign('order_by_options_selected', array($order_by_index));
 
+$template->assign('order_by_options_selected', array($order_by_index));
 $x = uasort($by_user_ratings, $available_order_by[$order_by_index][1]);
 
 $template->assign(array(

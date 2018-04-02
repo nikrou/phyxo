@@ -75,11 +75,11 @@ jQuery(document).ready(function() {
 						$(input).prop('checked', last_clickedstatus);
 						if (last_clickedstatus)
 						{
-							$(input).siblings("span.wrap2").addClass("thumbSelected");
+							$(input).siblings(".wrapper-thumbnail").addClass("thumbSelected");
 						}
 						else
 						{
-							$(input).siblings("span.wrap2").removeClass("thumbSelected");
+							$(input).siblings(".wrapper-thumbnail").removeClass("thumbSelected");
 						}
 					}
 				}
@@ -96,12 +96,6 @@ jQuery(document).ready(function() {
 });
 
 jQuery("a.preview-box").colorbox();
-
-jQuery('.thumbnails img').tipTip({
-	'delay' : 0,
-	'fadeIn' : 200,
-	'fadeOut' : 200
-});
 
 
 /* ********** Actions*/

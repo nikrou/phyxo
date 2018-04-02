@@ -128,19 +128,18 @@ foreach ($images as $image) {
     $result = $conn->db_query($query);
     $nb_rates = $conn->db_num_rows($result);
 
-    $tpl_image =
-        array(
-            'id' => $image['id'],
-            'U_THUMB' => $thumbnail_src,
-            'U_URL' => $image_url,
-            'SCORE_RATE' => $image['score'],
-            'AVG_RATE' => $image['avg_rates'],
-            'SUM_RATE' => $image['sum_rates'],
-            'NB_RATES' => (int)$image['nb_rates'],
-            'NB_RATES_TOTAL' => (int)$nb_rates,
-            'FILE' => $image['file'],
-            'rates'  => array()
-        );
+    $tpl_image = [
+        'id' => $image['id'],
+        'U_THUMB' => $thumbnail_src,
+        'U_URL' => $image_url,
+        'SCORE_RATE' => $image['score'],
+        'AVG_RATE' => $image['avg_rates'],
+        'SUM_RATE' => $image['sum_rates'],
+        'NB_RATES' => (int)$image['nb_rates'],
+        'NB_RATES_TOTAL' => (int)$nb_rates,
+        'FILE' => $image['file'],
+        'rates'  => array()
+    ];
 
     while ($row = $conn->db_fetch_assoc($result)) {
         if (isset($users[$row['user_id']])) {
@@ -153,6 +152,7 @@ foreach ($images as $image) {
         }
 
         $row['USER'] = $user_rate;
+        $row['md5sum'] = md5($row['user_id'].$row['element_id'].$row['anonymous_id']);
         $tpl_image['rates'][] = $row;
     }
     $template->append('images', $tpl_image);

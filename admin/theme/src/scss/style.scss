@@ -1,8 +1,8 @@
 @import "bootstrap-custom";
 @import "fonts";
 
-@import "./theme.css";
-@import "./clear.css";
+// @import "./theme.css";
+// @import "./clear.css";
 
 body {
     display: flex;
@@ -61,15 +61,113 @@ section[role="content"] {
 
     // temporary, until theme.css and clear.css will be removed
     form {
-	*, *::before, *::after {
-	    box-sizing: content-box;
+	ul {
+	    list-style: none;
 	}
 
-	.fieldset {
+	.fieldset, .form-filter {
 	    border: 2px solid $gray-200;
 	    border-radius: 5px;
 	    padding: 1em;
 	    margin: 1em 0;
+	}
+
+	.font-checkbox input[type="checkbox"], .font-checkbox input[type="radio"] {
+	    display:none;
+	}
+
+	#watermarkPositionBox {
+	    border: 2px solid #ccc;
+	    width: 500px;
+	    padding: 5px;
+	    background-color: #e5e5e5;
+
+	    label {
+		font-weight:normal;
+		display:block;
+		color:#444;
+
+		&.middle {
+		    margin:50px;
+		    text-align:center;
+		}
+
+		&.right {
+		    float:right;
+		}
+	    }
+	}
+    }
+
+    .thumbnails {
+	.thumbnail {
+	    display: inline-block;
+	    margin: 5px;
+	    border-radius: 5px;
+	    background-color: $gray-200;
+	    &:hover {
+		background-color: $pink;
+
+		a {
+		    color: $white;
+		}
+	    }
+	}
+
+	.wrapper-label {
+	    margin: 5px;
+	    display: inline-block;
+	    vertical-align: top;
+	    text-align: center;
+	}
+
+	.wrapper-thumbnail {
+	    margin: 0;
+	    display: table-cell;
+	    vertical-align: middle;
+	    border-radius: 4px;
+	}
+
+	label {
+	    position: relative;
+	    display: block;
+	    border-bottom: none;
+	    cursor: pointer;
+	}
+
+	img {
+	    vertical-align: middle;
+	    margin-top: 12px;
+	}
+
+	.actions {
+	    position: absolute;
+	    top: 3px;
+	    right: 3px;
+	}
+
+	input {
+	    position: absolute;
+	    left: 3px;
+	    top: 3px;
+	}
+
+	.levelIndicatorB {
+	    display: block;
+	    position: absolute;
+	    padding: 7px 0 0 2px;
+	    color: $black;
+	    font-weight: bold;
+	    font-size: 1.2em;
+	}
+
+	.levelIndicatorF {
+	    display: block;
+	    position: absolute;
+	    padding: 8px 0 0 3px;
+	    color: $white;
+	    font-weight: bold;
+	    font-size: 1.2em;
 	}
     }
 

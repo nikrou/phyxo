@@ -137,10 +137,9 @@
 		    [ <a href="{$U_SLIDESHOW_STOP}">{'stop the slideshow'|translate}</a> ]
 		</p>
 	    {/if}
-
-	</div>{*<!-- no significant white space for elegant-->
-	       *}<div id="infoSwitcher"></div>{*<!-- no significant white space for elegant-->
-					       *}<div id="imageInfos">
+	</div>{*
+	*}<div id="infoSwitcher"></div>{*
+	*}<div id="imageInfos">
 	    {if $DISPLAY_NAV_THUMB}
 		<div class="navThumbs">
 		    {if isset($previous)}
@@ -296,8 +295,8 @@
 				    }
 				    {rdelim}
 				    {rdelim}{rdelim} );
-			{/footer_script}
-			{/strip}
+			            {/footer_script}
+			            {/strip}
 				</div>
 			    </form>
 			</dd>
@@ -338,7 +337,6 @@
 			</dd>
 		    </div>
 		{/if}
-{/strip}
 	    </dl>
 
 	    {if isset($metadata)}
@@ -354,7 +352,7 @@
 		    {/foreach}
 		</dl>
 	    {/if}
-					       </div>
+	</div>
     </div>
 
     {if isset($COMMENT_COUNT)}

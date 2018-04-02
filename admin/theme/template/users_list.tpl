@@ -7,6 +7,8 @@
 {block name="content"}
     {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
 
+    {combine_script id='jquery' path='admin/theme/js/jquery/jquery.js'}
+    {combine_script id='jquery.migrate' path='admin/theme/js/jquery/jquery-migrate-1.2.1.js'}
     {combine_script id="jquery.dataTables" load="footer" path="admin/theme/js/plugins/jquery.dataTables.js"}
     {combine_css path="admin/theme/js/plugins/datatables/css/jquery.dataTables.css"}
 
