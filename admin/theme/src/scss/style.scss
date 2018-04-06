@@ -97,6 +97,14 @@ section[role="content"] {
 		}
 	    }
 	}
+
+	.album {
+	    border: 2px solid $gray-200;
+	    border-radius: 5px;
+	    padding: 1em;
+	    margin: 1em 0;
+	    cursor: move;
+	}
     }
 
     .thumbnails {

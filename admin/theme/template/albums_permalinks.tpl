@@ -6,100 +6,89 @@
 {/block}
 
 {block name="content"}
-    {footer_script require='jquery.ui.sortable'}{literal}
-    jQuery(document).ready(function(){
-    jQuery("#addPermalinkOpen").click(function(){
-    jQuery("#addPermalink").show();
-    jQuery("#showAddPermalink").hide();
-    });
+    <p><a href="#addPermalink" class="btn btn-submit" data-toggle="collapse">{'Add/delete a permalink'|translate}</a></p>
 
-    jQuery("#addPermalinkClose").click(function(){
-    jQuery("#addPermalink").hide();
-    jQuery("#showAddPermalink").show();
-    });
-    });
-    {/literal}{/footer_script}
+    <div id="addPermalink" class="collapse">
+	<form method="post" action="">
+	    <div class="fieldset">
+		<h3>{'Add/delete a permalink'|translate}</h3>
+		<p>
+		    <label for="cat-id">{'Album'|translate}</label>
+		    <select name="cat_id" id="cat-id">
+			<option value="0">------</option>
+			{html_options options=$categories selected=$categories_selected}
+		    </select>
+		</p>
 
-    {literal}
-    <style>
-     #showAddPermalink {text-align:left;margin-left:1em;margin-top:0;}
-     form fieldset p {margin:0 0 1em 0;}
-     form fieldset p.actionButtons {margin-bottom:0}
-    </style>
-    {/literal}
+		<p>
+		    <label for="permalink">{'Permalink'|translate}</label>
+		    <input type="text" name="permalink" id="permalink">
+		</p>
 
+		<p>
+		    <label>
+			<input type="checkbox" name="save" checked="checked">
+			<strong>{'Save to permalink history'|translate}</strong>
+		    </label>
+		</p>
 
-    <p id="showAddPermalink"><a href="#" id="addPermalinkOpen">{'Add/delete a permalink'|translate}</a></p>
+		<p>
+		    <input type="submit" class="btn btn-submit" name="set_permalink" value="{'Submit'|translate}">
+		    <a href="#addPermalink" class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</a>
+		</p>
+	    </div>
+	</form>
+    </div>
 
-    <form method="post" action="" id="addPermalink" style="display:none">
-	<fieldset>
-	    <legend>{'Add/delete a permalink'|translate}</legend>
-	    <p>
-		<strong>{'Album'|translate}</strong>
-		<br>
-		<select name="cat_id">
-		    <option value="0">------</option>
-		    {html_options options=$categories selected=$categories_selected}
-		</select>
-	    </p>
-
-	    <p>
-		<strong>{'Permalink'|translate}</strong>
-		<br><input name="permalink">
-	    </p>
-
-	    <p>
-		<label><input type="checkbox" name="save" checked="checked"> <strong>{'Save to permalink history'|translate}</strong></label>
-	    </p>
-
-	    <p class="actionButtons">
-		<input type="submit" class="submit" name="set_permalink" value="{'Submit'|translate}">
-		<a href="#" id="addPermalinkClose">{'Cancel'|translate}</a>
-	    </p>
-	</fieldset>
-    </form>
-
-    <fieldset>
-	<legend>{'Permalinks'|translate}</legend>
-	<table class="table2" style="margin:0">
-	    <tr class="throw">
-		<td>Id {$SORT_ID}</td>
-		<td>{'Album'|translate} {$SORT_NAME}</td>
-		<td>{'Permalink'|translate} {$SORT_PERMALINK}</td>
-	    </tr>
-	    {foreach from=$permalinks item=permalink name="permalink_loop"}
-		<tr class="{if $smarty.foreach.permalink_loop.index is odd}row1{else}row2{/if}" style="line-height:1.5em;">
-		    <td style="text-align:center;">{$permalink.id}</td>
-		    <td>{$permalink.name}</td>
-		    <td>{$permalink.permalink}</td>
+    <div class="fieldset">
+	<h3>{'Permalinks'|translate}</h3>
+	<table class="table table-hover table-striped">
+	    <thead>
+		<tr>
+		    <th>Id</th>
+		    <th>{'Album'|translate}</th>
+		    <th>{'Permalink'|translate}</th>
 		</tr>
-	    {/foreach}
+	    </thead>
+	    <tbody>
+		{foreach $permalinks as $permalink}
+		    <tr>
+			<td>{$permalink.id}</td>
+			<td>{$permalink.name}</td>
+			<td>{$permalink.permalink}</td>
+		    </tr>
+		{/foreach}
+	    </tbody>
 	</table>
-    </fieldset>
+    </div>
 
-    <fieldset>
-	<legend>{'Permalink history'|translate} <a name="old_permalinks"></a></legend>
-	<table class="table2" style="margin:0">
-	    <tr class="throw">
-		<td>Id {$SORT_OLD_CAT_ID}</td>
-		<td>{'Album'|translate}</td>
-		<td>{'Permalink'|translate} {$SORT_OLD_PERMALINK}</td>
-		<td>{'Deleted on'|translate} {$SORT_OLD_DATE_DELETED}</td>
-		<td>{'Last hit'|translate} {$SORT_OLD_LAST_HIT}</td>
-		<td>{'Hit'|translate} {$SORT_OLD_HIT}</td>
-		<td style="width:5px;"></td>
-	    </tr>
-	    {foreach from=$deleted_permalinks item=permalink}
-		<tr style="line-height:1.5em;">
-		    <td style="text-align:center;">{$permalink.cat_id}</td>
-		    <td>{$permalink.name}</td>
-		    <td>{$permalink.permalink}</td>
-		    <td>{$permalink.date_deleted}</td>
-		    <td>{$permalink.last_hit}</td>
-		    <td>{$permalink.hit}</td>
-		    <td><a href="{$permalink.U_DELETE}"><img src="./theme/icon/delete.png" alt="[{'Delete'|translate}]"></a></td>
+    <div class="fieldset">
+	<h3>{'Permalink history'|translate} <a name="old_permalinks"></a></h3>
+	<table class="table table-hover table-striped">
+	    <thead>
+		<tr>
+		    <th>Id</th>
+		    <th>{'Album'|translate}</th>
+		    <th>{'Permalink'|translate}</th>
+		    <th>{'Deleted on'|translate}</th>
+		    <th>{'Last hit'|translate}</th>
+		    <th>{'Hit'|translate}</th>
+		    <th></th>
 		</tr>
-	    {/foreach}
+	    </thead>
+	    <tbody>
+		{foreach $deleted_permalinks as $permalink}
+		    <tr>
+			<td>{$permalink.cat_id}</td>
+			<td>{$permalink.name}</td>
+			<td>{$permalink.permalink}</td>
+			<td>{$permalink.date_deleted}</td>
+			<td>{$permalink.last_hit}</td>
+			<td>{$permalink.hit}</td>
+			<td><a href="{$permalink.U_DELETE}"><i class="fa fa-trash"></i><span class="visually-hidden">{'Delete'|translate}</span></a></td>
+		    </tr>
+		{/foreach}
+	    </tbody>
 	</table>
-    </fieldset>
+    </div>
 {/block}
