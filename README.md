@@ -11,7 +11,6 @@ Requirements
 This project use severals librairies that need at least PHP 7.1.0
 
 [![PHP 7 ready](http://php7ready.timesplinter.ch/nikrou/phyxo/master/badge.svg)](https://travis-ci.org/nikrou/phyxo)
-[![Dependency Status](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5849ce6ca662a500413e7b6b)
 [![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
 
 This project uses a database and support Mysql, PostgreSQL and SQLite engines.

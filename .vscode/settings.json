@@ -1,0 +1,7 @@
+{
+    "files.exclude": {
+        "**/.dist": true,
+        "**/_data": true,
+        "**/target": true
+    }
+}
