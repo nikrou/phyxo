@@ -41,6 +41,7 @@
 /themes/**/build
 /themes/**/node_modules
 /themes/**/*.log
+/themes/simple-responsive
 
 ;; atoum
 /coverage

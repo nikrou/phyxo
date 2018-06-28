@@ -1,40 +1,24 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
-
-/**
- * @package functions\
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-include_once(PHPWG_ROOT_PATH .'include/functions_plugins.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_cookie.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_category.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_html.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/functions_url.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/derivative.inc.php');
-include_once(PHPWG_ROOT_PATH .'include/cache.class.php');
+
+include_once(PHPWG_ROOT_PATH . 'include/functions_plugins.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_cookie.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_category.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_html.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_url.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/derivative_params.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/derivative_std_params.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/derivative.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/cache.class.php');
 
 
 /**
@@ -42,10 +26,11 @@ include_once(PHPWG_ROOT_PATH .'include/cache.class.php');
  *
  * @return int
  */
-function micro_seconds() {
+function micro_seconds()
+{
     $t1 = explode(' ', microtime());
     $t2 = explode('.', $t1[0]);
-    $t2 = $t1[1].substr($t2[1], 0, 6);
+    $t2 = $t1[1] . substr($t2[1], 0, 6);
     return $t2;
 }
 
@@ -56,7 +41,8 @@ function micro_seconds() {
  *
  * @return float
  */
-function get_moment() {
+function get_moment()
+{
     return microtime(true);
 }
 
@@ -68,8 +54,9 @@ function get_moment() {
  * @param float $end
  * @return string "$TIME s"
  */
-function get_elapsed_time($start, $end) {
-    return number_format($end - $start, 3, '.', ' ').' s';
+function get_elapsed_time($start, $end)
+{
+    return number_format($end - $start, 3, '.', ' ') . ' s';
 }
 
 /**
@@ -78,8 +65,9 @@ function get_elapsed_time($start, $end) {
  * @param string $filename
  * @return string
  */
-function get_extension($filename) {
-    return substr(strrchr($filename, '.'), 1, strlen($filename ));
+function get_extension($filename)
+{
+    return substr(strrchr($filename, '.'), 1, strlen($filename));
 }
 
 /**
@@ -89,9 +77,10 @@ function get_extension($filename) {
  * @param string $filename
  * @return string
  */
-function get_filename_wo_extension($filename) {
-    $pos = strrpos( $filename, '.' );
-    return ($pos===false) ? $filename : substr( $filename, 0, $pos);
+function get_filename_wo_extension($filename)
+{
+    $pos = strrpos($filename, '.');
+    return ($pos === false) ? $filename : substr($filename, 0, $pos);
 }
 
 /** no option for mkgetdir() */
@@ -114,7 +103,8 @@ define('MKGETDIR_DEFAULT', MKGETDIR_RECURSIVE | MKGETDIR_DIE_ON_ERROR | MKGETDIR
  * @param int $flags combination of MKGETDIR_xxx
  * @return bool
  */
-function mkgetdir($dir, $flags=MKGETDIR_NONE) {
+function mkgetdir($dir, $flags = MKGETDIR_NONE)
+{
     global $conf;
 
     if (!is_dir($dir)) {
@@ -122,23 +112,23 @@ function mkgetdir($dir, $flags=MKGETDIR_NONE) {
             $dir = str_replace('/', DIRECTORY_SEPARATOR, $dir);
         }
         $umask = umask(0);
-        $mkd = @mkdir($dir, $conf['chmod_value'], ($flags&MKGETDIR_RECURSIVE) ? true:false );
+        $mkd = @mkdir($dir, $conf['chmod_value'], ($flags & MKGETDIR_RECURSIVE) ? true : false);
         umask($umask);
-        if ($mkd==false) {
-            !($flags&MKGETDIR_DIE_ON_ERROR) or fatal_error( "$dir ".l10n('no write access'));
+        if ($mkd == false) {
+            !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . l10n('no write access'));
             return false;
         }
-        if ($flags&MKGETDIR_PROTECT_HTACCESS) {
-            $file = $dir.'/.htaccess';
-            file_exists($file) or @file_put_contents( $file, 'deny from all' );
+        if ($flags & MKGETDIR_PROTECT_HTACCESS) {
+            $file = $dir . '/.htaccess';
+            file_exists($file) or @file_put_contents($file, 'deny from all');
         }
-        if ($flags&MKGETDIR_PROTECT_INDEX) {
-            $file = $dir.'/index.htm';
-            file_exists($file) or @file_put_contents( $file, 'Not allowed!' );
+        if ($flags & MKGETDIR_PROTECT_INDEX) {
+            $file = $dir . '/index.htm';
+            file_exists($file) or @file_put_contents($file, 'Not allowed!');
         }
     }
     if (!is_writable($dir)) {
-        !($flags&MKGETDIR_DIE_ON_ERROR) or fatal_error( "$dir ".l10n('no write access'));
+        !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . l10n('no write access'));
         return false;
     }
     return true;
@@ -150,18 +140,19 @@ function mkgetdir($dir, $flags=MKGETDIR_NONE) {
  * @param string $str
  * @return int *0* if _$str_ is ASCII, *1* if UTF-8, *-1* otherwise
  */
-function qualify_utf8($Str) {
+function qualify_utf8($Str)
+{
     $ret = 0;
-    for ($i=0; $i<strlen($Str); $i++) {
+    for ($i = 0; $i < strlen($Str); $i++) {
         if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
         $ret = 1;
-        if ((ord($Str[$i]) & 0xE0) == 0xC0) $n=1; # 110bbbbb
-        elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n=2; # 1110bbbb
-        elseif ((ord($Str[$i]) & 0xF8) == 0xF0) $n=3; # 11110bbb
-        elseif ((ord($Str[$i]) & 0xFC) == 0xF8) $n=4; # 111110bb
-        elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n=5; # 1111110b
+        if ((ord($Str[$i]) & 0xE0) == 0xC0) $n = 1; # 110bbbbb
+        elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n = 2; # 1110bbbb
+        elseif ((ord($Str[$i]) & 0xF8) == 0xF0) $n = 3; # 11110bbb
+        elseif ((ord($Str[$i]) & 0xFC) == 0xF8) $n = 4; # 111110bb
+        elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n = 5; # 1111110b
         else return -1; # Does not match any model
-        for ($j=0; $j<$n; $j++) { # n bytes matching 10bbbbbb follow ?
+        for ($j = 0; $j < $n; $j++) { # n bytes matching 10bbbbbb follow ?
             if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80))
                 return -1;
         }
@@ -175,7 +166,8 @@ function qualify_utf8($Str) {
  * @param string $string
  * @return string
  */
-function remove_accents($string) {
+function remove_accents($string)
+{
     $utf = qualify_utf8($string);
     if ($utf == 0) {
         return $string; // ascii
@@ -184,119 +176,120 @@ function remove_accents($string) {
     if ($utf > 0) {
         $chars = array(
             // Decompositions for Latin-1 Supplement
-            "\xc3\x80"=>'A', "\xc3\x81"=>'A',
-            "\xc3\x82"=>'A', "\xc3\x83"=>'A',
-            "\xc3\x84"=>'A', "\xc3\x85"=>'A',
-            "\xc3\x87"=>'C', "\xc3\x88"=>'E',
-            "\xc3\x89"=>'E', "\xc3\x8a"=>'E',
-            "\xc3\x8b"=>'E', "\xc3\x8c"=>'I',
-            "\xc3\x8d"=>'I', "\xc3\x8e"=>'I',
-            "\xc3\x8f"=>'I', "\xc3\x91"=>'N',
-            "\xc3\x92"=>'O', "\xc3\x93"=>'O',
-            "\xc3\x94"=>'O', "\xc3\x95"=>'O',
-            "\xc3\x96"=>'O', "\xc3\x99"=>'U',
-            "\xc3\x9a"=>'U', "\xc3\x9b"=>'U',
-            "\xc3\x9c"=>'U', "\xc3\x9d"=>'Y',
-            "\xc3\x9f"=>'s', "\xc3\xa0"=>'a',
-            "\xc3\xa1"=>'a', "\xc3\xa2"=>'a',
-            "\xc3\xa3"=>'a', "\xc3\xa4"=>'a',
-            "\xc3\xa5"=>'a', "\xc3\xa7"=>'c',
-            "\xc3\xa8"=>'e', "\xc3\xa9"=>'e',
-            "\xc3\xaa"=>'e', "\xc3\xab"=>'e',
-            "\xc3\xac"=>'i', "\xc3\xad"=>'i',
-            "\xc3\xae"=>'i', "\xc3\xaf"=>'i',
-            "\xc3\xb1"=>'n', "\xc3\xb2"=>'o',
-            "\xc3\xb3"=>'o', "\xc3\xb4"=>'o',
-            "\xc3\xb5"=>'o', "\xc3\xb6"=>'o',
-            "\xc3\xb9"=>'u', "\xc3\xba"=>'u',
-            "\xc3\xbb"=>'u', "\xc3\xbc"=>'u',
-            "\xc3\xbd"=>'y', "\xc3\xbf"=>'y',
+            "\xc3\x80" => 'A', "\xc3\x81" => 'A',
+            "\xc3\x82" => 'A', "\xc3\x83" => 'A',
+            "\xc3\x84" => 'A', "\xc3\x85" => 'A',
+            "\xc3\x87" => 'C', "\xc3\x88" => 'E',
+            "\xc3\x89" => 'E', "\xc3\x8a" => 'E',
+            "\xc3\x8b" => 'E', "\xc3\x8c" => 'I',
+            "\xc3\x8d" => 'I', "\xc3\x8e" => 'I',
+            "\xc3\x8f" => 'I', "\xc3\x91" => 'N',
+            "\xc3\x92" => 'O', "\xc3\x93" => 'O',
+            "\xc3\x94" => 'O', "\xc3\x95" => 'O',
+            "\xc3\x96" => 'O', "\xc3\x99" => 'U',
+            "\xc3\x9a" => 'U', "\xc3\x9b" => 'U',
+            "\xc3\x9c" => 'U', "\xc3\x9d" => 'Y',
+            "\xc3\x9f" => 's', "\xc3\xa0" => 'a',
+            "\xc3\xa1" => 'a', "\xc3\xa2" => 'a',
+            "\xc3\xa3" => 'a', "\xc3\xa4" => 'a',
+            "\xc3\xa5" => 'a', "\xc3\xa7" => 'c',
+            "\xc3\xa8" => 'e', "\xc3\xa9" => 'e',
+            "\xc3\xaa" => 'e', "\xc3\xab" => 'e',
+            "\xc3\xac" => 'i', "\xc3\xad" => 'i',
+            "\xc3\xae" => 'i', "\xc3\xaf" => 'i',
+            "\xc3\xb1" => 'n', "\xc3\xb2" => 'o',
+            "\xc3\xb3" => 'o', "\xc3\xb4" => 'o',
+            "\xc3\xb5" => 'o', "\xc3\xb6" => 'o',
+            "\xc3\xb9" => 'u', "\xc3\xba" => 'u',
+            "\xc3\xbb" => 'u', "\xc3\xbc" => 'u',
+            "\xc3\xbd" => 'y', "\xc3\xbf" => 'y',
             // Decompositions for Latin Extended-A
-            "\xc4\x80"=>'A', "\xc4\x81"=>'a',
-            "\xc4\x82"=>'A', "\xc4\x83"=>'a',
-            "\xc4\x84"=>'A', "\xc4\x85"=>'a',
-            "\xc4\x86"=>'C', "\xc4\x87"=>'c',
-            "\xc4\x88"=>'C', "\xc4\x89"=>'c',
-            "\xc4\x8a"=>'C', "\xc4\x8b"=>'c',
-            "\xc4\x8c"=>'C', "\xc4\x8d"=>'c',
-            "\xc4\x8e"=>'D', "\xc4\x8f"=>'d',
-            "\xc4\x90"=>'D', "\xc4\x91"=>'d',
-            "\xc4\x92"=>'E', "\xc4\x93"=>'e',
-            "\xc4\x94"=>'E', "\xc4\x95"=>'e',
-            "\xc4\x96"=>'E', "\xc4\x97"=>'e',
-            "\xc4\x98"=>'E', "\xc4\x99"=>'e',
-            "\xc4\x9a"=>'E', "\xc4\x9b"=>'e',
-            "\xc4\x9c"=>'G', "\xc4\x9d"=>'g',
-            "\xc4\x9e"=>'G', "\xc4\x9f"=>'g',
-            "\xc4\xa0"=>'G', "\xc4\xa1"=>'g',
-            "\xc4\xa2"=>'G', "\xc4\xa3"=>'g',
-            "\xc4\xa4"=>'H', "\xc4\xa5"=>'h',
-            "\xc4\xa6"=>'H', "\xc4\xa7"=>'h',
-            "\xc4\xa8"=>'I', "\xc4\xa9"=>'i',
-            "\xc4\xaa"=>'I', "\xc4\xab"=>'i',
-            "\xc4\xac"=>'I', "\xc4\xad"=>'i',
-            "\xc4\xae"=>'I', "\xc4\xaf"=>'i',
-            "\xc4\xb0"=>'I', "\xc4\xb1"=>'i',
-            "\xc4\xb2"=>'IJ', "\xc4\xb3"=>'ij',
-            "\xc4\xb4"=>'J', "\xc4\xb5"=>'j',
-            "\xc4\xb6"=>'K', "\xc4\xb7"=>'k',
-            "\xc4\xb8"=>'k', "\xc4\xb9"=>'L',
-            "\xc4\xba"=>'l', "\xc4\xbb"=>'L',
-            "\xc4\xbc"=>'l', "\xc4\xbd"=>'L',
-            "\xc4\xbe"=>'l', "\xc4\xbf"=>'L',
-            "\xc5\x80"=>'l', "\xc5\x81"=>'L',
-            "\xc5\x82"=>'l', "\xc5\x83"=>'N',
-            "\xc5\x84"=>'n', "\xc5\x85"=>'N',
-            "\xc5\x86"=>'n', "\xc5\x87"=>'N',
-            "\xc5\x88"=>'n', "\xc5\x89"=>'N',
-            "\xc5\x8a"=>'n', "\xc5\x8b"=>'N',
-            "\xc5\x8c"=>'O', "\xc5\x8d"=>'o',
-            "\xc5\x8e"=>'O', "\xc5\x8f"=>'o',
-            "\xc5\x90"=>'O', "\xc5\x91"=>'o',
-            "\xc5\x92"=>'OE', "\xc5\x93"=>'oe',
-            "\xc5\x94"=>'R', "\xc5\x95"=>'r',
-            "\xc5\x96"=>'R', "\xc5\x97"=>'r',
-            "\xc5\x98"=>'R', "\xc5\x99"=>'r',
-            "\xc5\x9a"=>'S', "\xc5\x9b"=>'s',
-            "\xc5\x9c"=>'S', "\xc5\x9d"=>'s',
-            "\xc5\x9e"=>'S', "\xc5\x9f"=>'s',
-            "\xc5\xa0"=>'S', "\xc5\xa1"=>'s',
-            "\xc5\xa2"=>'T', "\xc5\xa3"=>'t',
-            "\xc5\xa4"=>'T', "\xc5\xa5"=>'t',
-            "\xc5\xa6"=>'T', "\xc5\xa7"=>'t',
-            "\xc5\xa8"=>'U', "\xc5\xa9"=>'u',
-            "\xc5\xaa"=>'U', "\xc5\xab"=>'u',
-            "\xc5\xac"=>'U', "\xc5\xad"=>'u',
-            "\xc5\xae"=>'U', "\xc5\xaf"=>'u',
-            "\xc5\xb0"=>'U', "\xc5\xb1"=>'u',
-            "\xc5\xb2"=>'U', "\xc5\xb3"=>'u',
-            "\xc5\xb4"=>'W', "\xc5\xb5"=>'w',
-            "\xc5\xb6"=>'Y', "\xc5\xb7"=>'y',
-            "\xc5\xb8"=>'Y', "\xc5\xb9"=>'Z',
-            "\xc5\xba"=>'z', "\xc5\xbb"=>'Z',
-            "\xc5\xbc"=>'z', "\xc5\xbd"=>'Z',
-            "\xc5\xbe"=>'z', "\xc5\xbf"=>'s',
+            "\xc4\x80" => 'A', "\xc4\x81" => 'a',
+            "\xc4\x82" => 'A', "\xc4\x83" => 'a',
+            "\xc4\x84" => 'A', "\xc4\x85" => 'a',
+            "\xc4\x86" => 'C', "\xc4\x87" => 'c',
+            "\xc4\x88" => 'C', "\xc4\x89" => 'c',
+            "\xc4\x8a" => 'C', "\xc4\x8b" => 'c',
+            "\xc4\x8c" => 'C', "\xc4\x8d" => 'c',
+            "\xc4\x8e" => 'D', "\xc4\x8f" => 'd',
+            "\xc4\x90" => 'D', "\xc4\x91" => 'd',
+            "\xc4\x92" => 'E', "\xc4\x93" => 'e',
+            "\xc4\x94" => 'E', "\xc4\x95" => 'e',
+            "\xc4\x96" => 'E', "\xc4\x97" => 'e',
+            "\xc4\x98" => 'E', "\xc4\x99" => 'e',
+            "\xc4\x9a" => 'E', "\xc4\x9b" => 'e',
+            "\xc4\x9c" => 'G', "\xc4\x9d" => 'g',
+            "\xc4\x9e" => 'G', "\xc4\x9f" => 'g',
+            "\xc4\xa0" => 'G', "\xc4\xa1" => 'g',
+            "\xc4\xa2" => 'G', "\xc4\xa3" => 'g',
+            "\xc4\xa4" => 'H', "\xc4\xa5" => 'h',
+            "\xc4\xa6" => 'H', "\xc4\xa7" => 'h',
+            "\xc4\xa8" => 'I', "\xc4\xa9" => 'i',
+            "\xc4\xaa" => 'I', "\xc4\xab" => 'i',
+            "\xc4\xac" => 'I', "\xc4\xad" => 'i',
+            "\xc4\xae" => 'I', "\xc4\xaf" => 'i',
+            "\xc4\xb0" => 'I', "\xc4\xb1" => 'i',
+            "\xc4\xb2" => 'IJ', "\xc4\xb3" => 'ij',
+            "\xc4\xb4" => 'J', "\xc4\xb5" => 'j',
+            "\xc4\xb6" => 'K', "\xc4\xb7" => 'k',
+            "\xc4\xb8" => 'k', "\xc4\xb9" => 'L',
+            "\xc4\xba" => 'l', "\xc4\xbb" => 'L',
+            "\xc4\xbc" => 'l', "\xc4\xbd" => 'L',
+            "\xc4\xbe" => 'l', "\xc4\xbf" => 'L',
+            "\xc5\x80" => 'l', "\xc5\x81" => 'L',
+            "\xc5\x82" => 'l', "\xc5\x83" => 'N',
+            "\xc5\x84" => 'n', "\xc5\x85" => 'N',
+            "\xc5\x86" => 'n', "\xc5\x87" => 'N',
+            "\xc5\x88" => 'n', "\xc5\x89" => 'N',
+            "\xc5\x8a" => 'n', "\xc5\x8b" => 'N',
+            "\xc5\x8c" => 'O', "\xc5\x8d" => 'o',
+            "\xc5\x8e" => 'O', "\xc5\x8f" => 'o',
+            "\xc5\x90" => 'O', "\xc5\x91" => 'o',
+            "\xc5\x92" => 'OE', "\xc5\x93" => 'oe',
+            "\xc5\x94" => 'R', "\xc5\x95" => 'r',
+            "\xc5\x96" => 'R', "\xc5\x97" => 'r',
+            "\xc5\x98" => 'R', "\xc5\x99" => 'r',
+            "\xc5\x9a" => 'S', "\xc5\x9b" => 's',
+            "\xc5\x9c" => 'S', "\xc5\x9d" => 's',
+            "\xc5\x9e" => 'S', "\xc5\x9f" => 's',
+            "\xc5\xa0" => 'S', "\xc5\xa1" => 's',
+            "\xc5\xa2" => 'T', "\xc5\xa3" => 't',
+            "\xc5\xa4" => 'T', "\xc5\xa5" => 't',
+            "\xc5\xa6" => 'T', "\xc5\xa7" => 't',
+            "\xc5\xa8" => 'U', "\xc5\xa9" => 'u',
+            "\xc5\xaa" => 'U', "\xc5\xab" => 'u',
+            "\xc5\xac" => 'U', "\xc5\xad" => 'u',
+            "\xc5\xae" => 'U', "\xc5\xaf" => 'u',
+            "\xc5\xb0" => 'U', "\xc5\xb1" => 'u',
+            "\xc5\xb2" => 'U', "\xc5\xb3" => 'u',
+            "\xc5\xb4" => 'W', "\xc5\xb5" => 'w',
+            "\xc5\xb6" => 'Y', "\xc5\xb7" => 'y',
+            "\xc5\xb8" => 'Y', "\xc5\xb9" => 'Z',
+            "\xc5\xba" => 'z', "\xc5\xbb" => 'Z',
+            "\xc5\xbc" => 'z', "\xc5\xbd" => 'Z',
+            "\xc5\xbe" => 'z', "\xc5\xbf" => 's',
             // Decompositions for Latin Extended-B
-            "\xc8\x98"=>'S', "\xc8\x99"=>'s',
-            "\xc8\x9a"=>'T', "\xc8\x9b"=>'t',
+            "\xc8\x98" => 'S', "\xc8\x99" => 's',
+            "\xc8\x9a" => 'T', "\xc8\x9b" => 't',
             // Euro Sign
-            "\xe2\x82\xac"=>'E',
+            "\xe2\x82\xac" => 'E',
             // GBP (Pound) Sign
-            "\xc2\xa3"=>'');
+            "\xc2\xa3" => ''
+        );
 
         $string = strtr($string, $chars);
     } else {
         // Assume ISO-8859-1 if not UTF-8
-        $chars['in'] = chr(128).chr(131).chr(138).chr(142).chr(154).chr(158)
-                               .chr(159).chr(162).chr(165).chr(181).chr(192).chr(193).chr(194)
-                               .chr(195).chr(196).chr(197).chr(199).chr(200).chr(201).chr(202)
-                               .chr(203).chr(204).chr(205).chr(206).chr(207).chr(209).chr(210)
-                               .chr(211).chr(212).chr(213).chr(214).chr(216).chr(217).chr(218)
-                               .chr(219).chr(220).chr(221).chr(224).chr(225).chr(226).chr(227)
-                               .chr(228).chr(229).chr(231).chr(232).chr(233).chr(234).chr(235)
-                               .chr(236).chr(237).chr(238).chr(239).chr(241).chr(242).chr(243)
-                               .chr(244).chr(245).chr(246).chr(248).chr(249).chr(250).chr(251)
-                               .chr(252).chr(253).chr(255);
+        $chars['in'] = chr(128) . chr(131) . chr(138) . chr(142) . chr(154) . chr(158)
+            . chr(159) . chr(162) . chr(165) . chr(181) . chr(192) . chr(193) . chr(194)
+            . chr(195) . chr(196) . chr(197) . chr(199) . chr(200) . chr(201) . chr(202)
+            . chr(203) . chr(204) . chr(205) . chr(206) . chr(207) . chr(209) . chr(210)
+            . chr(211) . chr(212) . chr(213) . chr(214) . chr(216) . chr(217) . chr(218)
+            . chr(219) . chr(220) . chr(221) . chr(224) . chr(225) . chr(226) . chr(227)
+            . chr(228) . chr(229) . chr(231) . chr(232) . chr(233) . chr(234) . chr(235)
+            . chr(236) . chr(237) . chr(238) . chr(239) . chr(241) . chr(242) . chr(243)
+            . chr(244) . chr(245) . chr(246) . chr(248) . chr(249) . chr(250) . chr(251)
+            . chr(252) . chr(253) . chr(255);
 
         $chars['out'] = "EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy";
 
@@ -310,21 +303,23 @@ function remove_accents($string) {
 }
 
 if (function_exists('mb_strtolower') && defined('PWG_CHARSET')) {
-  /**
-   * removes accents from a string and converts it to lower case
-   *
-   * @param string $term
-   * @return string
-   */
-    function transliterate($term) {
+    /**
+     * removes accents from a string and converts it to lower case
+     *
+     * @param string $term
+     * @return string
+     */
+    function transliterate($term)
+    {
         return remove_accents(mb_strtolower($term, PWG_CHARSET));
     }
 } else {
     /**
      * @ignore
      */
-    function transliterate($term) {
-        return remove_accents( strtolower($term) );
+    function transliterate($term)
+    {
+        return remove_accents(strtolower($term));
     }
 }
 
@@ -334,14 +329,15 @@ if (function_exists('mb_strtolower') && defined('PWG_CHARSET')) {
  * @param string $str
  * @return string
  */
-function str2url($str) {
+function str2url($str)
+{
     $str = $safe = transliterate($str);
-    $str = preg_replace('/[^\x80-\xffa-z0-9_\s\'\:\/\[\],-]/','',$str);
-    $str = preg_replace('/[\s\'\:\/\[\],-]+/',' ',trim($str));
-    $res = str_replace(' ','_',$str);
+    $str = preg_replace('/[^\x80-\xffa-z0-9_\s\'\:\/\[\],-]/', '', $str);
+    $str = preg_replace('/[\s\'\:\/\[\],-]+/', ' ', trim($str));
+    $res = str_replace(' ', '_', $str);
 
     if (empty($res)) {
-        $res = str_replace(' ','_', $safe);
+        $res = str_replace(' ', '_', $safe);
     }
 
     return $res;
@@ -353,20 +349,21 @@ function str2url($str) {
  * @return string[]
  */
 // @TODO: transform Phyxo\Language\Languages as service and use it
-function get_languages() {
+function get_languages()
+{
     global $conn;
 
-    $query = 'SELECT id, name FROM '.LANGUAGES_TABLE.' ORDER BY name ASC;';
+    $query = 'SELECT id, name FROM ' . LANGUAGES_TABLE . ' ORDER BY name ASC;';
     $result = $conn->db_query($query);
 
     $languages = array();
     while ($row = $conn->db_fetch_assoc($result)) {
-      if (is_dir(PHPWG_ROOT_PATH.'language/'.$row['id'])) {
-          $languages[ $row['id'] ] = $row['name'];
-      }
-  }
+        if (is_dir(PHPWG_ROOT_PATH . 'language/' . $row['id'])) {
+            $languages[$row['id']] = $row['name'];
+        }
+    }
 
-  return $languages;
+    return $languages;
 }
 
 /**
@@ -376,7 +373,8 @@ function get_languages() {
  * @param string $image_type
  * @return bool
  */
-function pwg_log($image_id = null, $image_type = null) {
+function pwg_log($image_id = null, $image_type = null)
+{
     global $conf, $user, $page, $conn, $services;
 
     $do_log = $conf['log'];
@@ -394,20 +392,20 @@ function pwg_log($image_id = null, $image_type = null) {
     }
 
     $tags_string = null;
-    if (!empty($page['section']) && $page['section']=='tags') {
+    if (!empty($page['section']) && $page['section'] == 'tags') {
         $tags_string = implode(',', $page['tag_ids']);
     }
 
-    $query = 'INSERT INTO '.HISTORY_TABLE;
+    $query = 'INSERT INTO ' . HISTORY_TABLE;
     $query .= ' (date,time,user_id,IP,section,category_id,image_id,image_type,tag_ids)';
     $query .= ' VALUES(';
     $query .= ' CURRENT_DATE,CURRENT_TIME,';
-    $query .= $conn->db_real_escape_string($user['id']).',\''.$conn->db_real_escape_string($_SERVER['REMOTE_ADDR']).'\',';
-    $query .= (isset($page['section']) ? "'".$conn->db_real_escape_string($page['section'])."'" : 'NULL').',';
-    $query .= (isset($page['category']['id']) ? $conn->db_real_escape_string($page['category']['id']) : 'NULL').',';
-    $query .= (isset($image_id) ? $conn->db_real_escape_string($image_id) : 'NULL').',';
-    $query .= (isset($image_type) ? "'".$conn->db_real_escape_string($image_type)."'" : 'NULL').',';
-    $query .= (isset($tags_string) ? "'".$conn->db_real_escape_string($tags_string)."'" : 'NULL');
+    $query .= $conn->db_real_escape_string($user['id']) . ',\'' . $conn->db_real_escape_string($_SERVER['REMOTE_ADDR']) . '\',';
+    $query .= (isset($page['section']) ? "'" . $conn->db_real_escape_string($page['section']) . "'" : 'NULL') . ',';
+    $query .= (isset($page['category']['id']) ? $conn->db_real_escape_string($page['category']['id']) : 'NULL') . ',';
+    $query .= (isset($image_id) ? $conn->db_real_escape_string($image_id) : 'NULL') . ',';
+    $query .= (isset($image_type) ? "'" . $conn->db_real_escape_string($image_type) . "'" : 'NULL') . ',';
+    $query .= (isset($tags_string) ? "'" . $conn->db_real_escape_string($tags_string) . "'" : 'NULL');
     $query .= ');';
     $conn->db_query($query);
 
@@ -423,7 +421,8 @@ function pwg_log($image_id = null, $image_type = null) {
  * @param DateTime $date2
  * @return DateInterval|stdClass
  */
-function dateDiff($date1, $date2) {
+function dateDiff($date1, $date2)
+{
     return $date1->diff($date2);
 }
 
@@ -434,7 +433,8 @@ function dateDiff($date1, $date2) {
  * @param string $format input format respecting date() syntax
  * @return DateTime|false
  */
-function str2DateTime($original, $format=null) {
+function str2DateTime($original, $format = null)
+{
     if (empty($original)) {
         return false;
     }
@@ -444,11 +444,11 @@ function str2DateTime($original, $format=null) {
     }
 
     if (!empty($format)) { // from known date format
-        return DateTime::createFromFormat('!'.$format, $original); // ! char to reset fields to UNIX epoch
+        return DateTime::createFromFormat('!' . $format, $original); // ! char to reset fields to UNIX epoch
     } else {
         $t = trim($original, '0123456789');
         if (empty($t)) { // from timestamp
-            return new DateTime('@'.$original);
+            return new DateTime('@' . $original);
         } else { // from unknown date format (assuming something like Y-m-d H:i:s)
             $ymdhms = array();
             $tok = strtok($original, '- :/');
@@ -457,7 +457,7 @@ function str2DateTime($original, $format=null) {
                 $tok = strtok('- :/');
             }
 
-            if (count($ymdhms)<3) {
+            if (count($ymdhms) < 3) {
                 return false;
             }
             if (!isset($ymdhms[3])) {
@@ -487,7 +487,8 @@ function str2DateTime($original, $format=null) {
  * @param string $format input format respecting date() syntax
  * @return string
  */
-function format_date($original, $show=null, $format=null) {
+function format_date($original, $show = null, $format = null)
+{
     global $lang;
 
     $date = str2DateTime($original, $format);
@@ -504,25 +505,25 @@ function format_date($original, $show=null, $format=null) {
 
     $print = '';
     if (in_array('day_name', $show)) {
-        $print.= $lang['day'][ $date->format('w') ].' ';
+        $print .= $lang['day'][$date->format('w')] . ' ';
     }
 
     if (in_array('day', $show)) {
-        $print.= $date->format('j').' ';
+        $print .= $date->format('j') . ' ';
     }
 
     if (in_array('month', $show)) {
-        $print.= $lang['month'][ $date->format('n') ].' ';
+        $print .= $lang['month'][$date->format('n')] . ' ';
     }
 
     if (in_array('year', $show)) {
-        $print.= $date->format('Y').' ';
+        $print .= $date->format('Y') . ' ';
     }
 
     if (in_array('time', $show)) {
         $temp = $date->format('H:i');
         if ($temp != '00:00') {
-            $print.= $temp.' ';
+            $print .= $temp . ' ';
         }
     }
 
@@ -536,7 +537,8 @@ function format_date($original, $show=null, $format=null) {
  * @param boolean $full
  * @return string
  */
-function format_fromto($from, $to, $full=false) {
+function format_fromto($from, $to, $full = false)
+{
     $from = str2DateTime($from);
     $to = str2DateTime($to);
 
@@ -566,7 +568,8 @@ function format_fromto($from, $to, $full=false) {
  * @param bool $with_weeks
  * @return string
  */
-function time_since($original, $stop='minute', $format=null, $with_text=true, $with_week=true) {
+function time_since($original, $stop = 'minute', $format = null, $with_text = true, $with_week = true)
+{
     $date = str2DateTime($original, $format);
 
     if (!$date) {
@@ -588,16 +591,17 @@ function time_since($original, $stop='minute', $format=null, $with_text=true, $w
 
     // DateInterval does not contain the number of weeks
     if ($with_week) {
-        $chunks['week'] = (int)floor($chunks['day']/7);
-        $chunks['day'] = $chunks['day'] - $chunks['week']*7;
+        $chunks['week'] = (int)floor($chunks['day'] / 7);
+        $chunks['day'] = $chunks['day'] - $chunks['week'] * 7;
     }
 
     $j = array_search($stop, array_keys($chunks));
 
-    $print = ''; $i=0;
+    $print = '';
+    $i = 0;
     foreach ($chunks as $name => $value) {
         if ($value != 0) {
-            $print.= ' '.l10n_dec('%d '.$name, '%d '.$name.'s', $value);
+            $print .= ' ' . l10n_dec('%d ' . $name, '%d ' . $name . 's', $value);
         }
         if (!empty($print) && $i >= $j) {
             break;
@@ -627,7 +631,8 @@ function time_since($original, $stop='minute', $format=null, $with_text=true, $w
  * @param string $default if _$original_ is empty
  * @return string
  */
-function transform_date($original, $format_in, $format_out, $default=null) {
+function transform_date($original, $format_in, $format_out, $default = null)
+{
     if (empty($original)) {
         return $default;
     }
@@ -643,17 +648,18 @@ function transform_date($original, $format_in, $format_out, $default=null) {
  * @param string $url
  * @return void
  */
-function redirect_http($url) {
-  if (ob_get_length () !== false) {
-      ob_clean();
-  }
+function redirect_http($url)
+{
+    if (ob_get_length() !== false) {
+        ob_clean();
+    }
 
   // default url is on html format
-  $url = html_entity_decode($url);
-  header('Request-URI: '.$url);
-  header('Content-Location: '.$url);
-  header('Location: '.$url);
-  exit();
+    $url = html_entity_decode($url);
+    header('Request-URI: ' . $url);
+    header('Content-Location: ' . $url);
+    header('Location: ' . $url);
+    exit();
 }
 
 /**
@@ -668,18 +674,19 @@ function redirect_http($url) {
  *
  * @deprecated Deprecated in 1.4.0, to be removed in 1.5.0. Use real redirect
  */
-function redirect_html( $url, $msg='', $refresh_time=0) {
+function redirect_html($url, $msg = '', $refresh_time = 0)
+{
     global $user, $template, $lang_info, $conf, $lang, $t2, $page, $debug, $services;
 
     if (!isset($lang_info) || !isset($template)) {
         $user = $services['users']->buildUser($conf['guest_id'], true);
         load_language('common.lang');
         trigger_notify('loading_lang');
-        load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 'local'=>true) );
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $services['users']->getDefaultTheme());
+        load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
+        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $services['users']->getDefaultTheme());
     } elseif (defined('IN_ADMIN') and IN_ADMIN) {
-		$template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $services['users']->getDefaultTheme());
-	}
+        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $services['users']->getDefaultTheme());
+    }
 
     if (empty($msg)) {
         $msg = nl2br(l10n('Redirection...'));
@@ -691,14 +698,14 @@ function redirect_html( $url, $msg='', $refresh_time=0) {
 
     $template->set_filenames(array('redirect' => 'redirect.tpl'));
 
-    include(PHPWG_ROOT_PATH.'include/page_header.php');
+    include(PHPWG_ROOT_PATH . 'include/page_header.php');
 
-    $template->set_filenames( array( 'redirect' => 'redirect.tpl' ) );
+    $template->set_filenames(array('redirect' => 'redirect.tpl'));
     $template->assign('REDIRECT_MSG', $msg);
 
     $template->parse('redirect');
 
-    include( PHPWG_ROOT_PATH.'include/page_tail.php' );
+    include(PHPWG_ROOT_PATH . 'include/page_tail.php');
     exit();
 }
 
@@ -712,10 +719,11 @@ function redirect_html( $url, $msg='', $refresh_time=0) {
  * @param integer $refresh_time
  * @return void
  */
-function redirect($url, $msg='', $refresh_time=0) {
+function redirect($url, $msg = '', $refresh_time = 0)
+{
     global $conf;
 
-    if ($conf['default_redirect_method']=='http' && !headers_sent()) {
+    if ($conf['default_redirect_method'] == 'http' && !headers_sent()) {
         redirect_http($url);
     } else {
         redirect_html($url, $msg, $refresh_time);
@@ -728,15 +736,16 @@ function redirect($url, $msg='', $refresh_time=0) {
  * @param bool $show_mobile
  * @return array
  */
-function get_pwg_themes($show_mobile=false) {
+function get_pwg_themes($show_mobile = false)
+{
     global $conf, $conn;
 
     $themes = array();
-    $query = 'SELECT id, name FROM '.THEMES_TABLE.' ORDER BY name ASC;';
+    $query = 'SELECT id, name FROM ' . THEMES_TABLE . ' ORDER BY name ASC;';
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         if (check_theme_installed($row['id'])) {
-            $themes[ $row['id'] ] = $row['name'];
+            $themes[$row['id']] = $row['name'];
         }
     }
 
@@ -752,10 +761,11 @@ function get_pwg_themes($show_mobile=false) {
  * @param string $theme_id
  * @return bool
  */
-function check_theme_installed($theme_id) {
+function check_theme_installed($theme_id)
+{
     global $conf;
 
-    return file_exists($conf['themes_dir'].'/'.$theme_id.'/'.'themeconf.inc.php');
+    return file_exists($conf['themes_dir'] . '/' . $theme_id . '/' . 'themeconf.inc.php');
 }
 
 /**
@@ -765,11 +775,12 @@ function check_theme_installed($theme_id) {
  * @param string $representative_ext
  * @return string
  */
-function original_to_representative($path, $representative_ext) {
+function original_to_representative($path, $representative_ext)
+{
     $pos = strrpos($path, '/');
-    $path = substr_replace($path, 'pwg_representative/', $pos+1, 0);
+    $path = substr_replace($path, 'pwg_representative/', $pos + 1, 0);
     $pos = strrpos($path, '.');
-    return substr_replace($path, $representative_ext, $pos+1);
+    return substr_replace($path, $representative_ext, $pos + 1);
 }
 
 /**
@@ -778,10 +789,11 @@ function original_to_representative($path, $representative_ext) {
  * @param array $element_info element information from db (at least 'path')
  * @return string
  */
-function get_element_path($element_info) {
+function get_element_path($element_info)
+{
     $path = $element_info['path'];
     if (!url_is_remote($path)) {
-        $path = PHPWG_ROOT_PATH.$path;
+        $path = PHPWG_ROOT_PATH . $path;
     }
     return $path;
 }
@@ -792,11 +804,12 @@ function get_element_path($element_info) {
  *
  * @param int[] $elements_id
  */
-function fill_caddie($elements_id) {
+function fill_caddie($elements_id)
+{
     global $user, $conn;
 
-    $query = 'SELECT element_id FROM '.CADDIE_TABLE;
-    $query .= ' WHERE user_id = '.$conn->db_real_escape_string($user['id']);
+    $query = 'SELECT element_id FROM ' . CADDIE_TABLE;
+    $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
     $in_caddie = $conn->query2array($query, null, 'element_id');
 
     $caddiables = array_diff($elements_id, $in_caddie);
@@ -811,7 +824,7 @@ function fill_caddie($elements_id) {
     }
 
     if (count($caddiables) > 0) {
-        $conn->mass_inserts(CADDIE_TABLE, array('element_id','user_id'), $datas);
+        $conn->mass_inserts(CADDIE_TABLE, array('element_id', 'user_id'), $datas);
     }
 }
 
@@ -822,8 +835,9 @@ function fill_caddie($elements_id) {
  * @param string $filename
  * @return string name
  */
-function get_name_from_file($filename) {
-    return str_replace('_',' ',get_filename_wo_extension($filename));
+function get_name_from_file($filename)
+{
+    return str_replace('_', ' ', get_filename_wo_extension($filename));
 }
 
 /**
@@ -835,12 +849,13 @@ function get_name_from_file($filename) {
  * @param mixed $args,... optional arguments
  * @return string
  */
-function l10n($key) {
+function l10n($key)
+{
     global $lang, $conf;
 
-    if (($val=@$lang[$key]) === null) {
+    if (($val = @$lang[$key]) === null) {
         if ($conf['debug_l10n'] and !isset($lang[$key]) and !empty($key)) {
-            trigger_error('[l10n] language key "'. $key .'" not defined', E_USER_WARNING);
+            trigger_error('[l10n] language key "' . $key . '" not defined', E_USER_WARNING);
         }
         $val = $key;
     }
@@ -862,16 +877,17 @@ function l10n($key) {
  * @param int $decimal
  * @return string
  */
-function l10n_dec($singular_key, $plural_key, $decimal) {
+function l10n_dec($singular_key, $plural_key, $decimal)
+{
     global $lang_info;
 
     return
         sprintf(
-            l10n((
-                (($decimal > 1) or ($decimal == 0 and $lang_info['zero_plural']))
-                ? $plural_key
-                : $singular_key
-            )), $decimal);
+        l10n(((($decimal > 1) or ($decimal == 0 and $lang_info['zero_plural']))
+            ? $plural_key
+            : $singular_key)),
+        $decimal
+    );
 }
 
 /**
@@ -882,11 +898,12 @@ function l10n_dec($singular_key, $plural_key, $decimal) {
  *   if args is a array, each values are used on sprintf
  * @return string
  */
-function get_l10n_args($key, $args='') {
+function get_l10n_args($key, $args = '')
+{
     if (is_array($args)) {
         $key_arg = array_merge(array($key), $args);
     } else {
-        $key_arg = array($key,  $args);
+        $key_arg = array($key, $args);
     }
     return array('key_args' => $key_arg);
 }
@@ -900,7 +917,8 @@ function get_l10n_args($key, $args='') {
  * @param string $sep used when translated elements are concatened
  * @return string
  */
-function l10n_args($key_args, $sep = "\n") {
+function l10n_args($key_args, $sep = "\n")
+{
     if (is_array($key_args)) {
         foreach ($key_args as $key => $element) {
             if (isset($result)) {
@@ -929,7 +947,8 @@ function l10n_args($key_args, $sep = "\n") {
  * @param string $key
  * @return string
  */
-function get_themeconf($key) {
+function get_themeconf($key)
+{
     global $template;
 
     return $template->get_themeconf($key);
@@ -940,11 +959,12 @@ function get_themeconf($key) {
  *
  * @return string
  */
-function get_webmaster_mail_address() {
+function get_webmaster_mail_address()
+{
     global $conf, $conn;
 
-    $query = 'SELECT '.$conf['user_fields']['email'].' FROM '.USERS_TABLE;
-    $query .= ' WHERE '.$conf['user_fields']['id'].' = '.$conf['webmaster_id'].';';
+    $query = 'SELECT ' . $conf['user_fields']['email'] . ' FROM ' . USERS_TABLE;
+    $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $conf['webmaster_id'] . ';';
     list($email) = $conn->db_fetch_row($conn->db_query($query));
 
     $email = trigger_change('get_webmaster_mail_address', $email);
@@ -958,12 +978,13 @@ function get_webmaster_mail_address() {
  * @param string $condition SQL condition
  * @return void
  */
-function load_conf_from_db($condition = '') {
+function load_conf_from_db($condition = '')
+{
     global $conf, $conn;
 
-    $query = 'SELECT param, value  FROM '.CONFIG_TABLE;
+    $query = 'SELECT param, value  FROM ' . CONFIG_TABLE;
     if (!empty($condition)) {
-        $query .= ' WHERE '.$condition;
+        $query .= ' WHERE ' . $condition;
     }
     $result = $conn->db_query($query);
 
@@ -991,7 +1012,8 @@ function load_conf_from_db($condition = '') {
  * @param callable $parser function to apply to the value before save in database
       (eg: serialize, json_encode) will not be applied to *$conf* if *$parser* is *true*
  */
-function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
+function conf_update_param($param, $value, $updateGlobal = false, $parser = null)
+{
     global $conf, $conn;
 
     if ($parser != null) {
@@ -1002,18 +1024,18 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
         $dbValue = $conn->boolean_to_string($value);
     }
 
-    $query = 'SELECT count(1) FROM '.CONFIG_TABLE;
-    $query .= ' WHERE param = \''.$conn->db_real_escape_string($param).'\'';
+    $query = 'SELECT count(1) FROM ' . CONFIG_TABLE;
+    $query .= ' WHERE param = \'' . $conn->db_real_escape_string($param) . '\'';
 
     list($counter) = $conn->db_fetch_row($conn->db_query($query));
-    if ($counter==0) {
-        $query = 'INSERT INTO '.CONFIG_TABLE.' (param, value)';
-        $query .= ' VALUES(\''.$conn->db_real_escape_string($param).'\', \''.$conn->db_real_escape_string($dbValue).'\')';
+    if ($counter == 0) {
+        $query = 'INSERT INTO ' . CONFIG_TABLE . ' (param, value)';
+        $query .= ' VALUES(\'' . $conn->db_real_escape_string($param) . '\', \'' . $conn->db_real_escape_string($dbValue) . '\')';
         $conn->db_query($query);
     } else {
-        $query = 'UPDATE '.CONFIG_TABLE;
-        $query .= ' SET value = \''.$conn->db_real_escape_string($dbValue).'\'';
-        $query .= ' WHERE param = \''.$conn->db_real_escape_string($param).'\'';
+        $query = 'UPDATE ' . CONFIG_TABLE;
+        $query .= ' SET value = \'' . $conn->db_real_escape_string($dbValue) . '\'';
+        $query .= ' WHERE param = \'' . $conn->db_real_escape_string($param) . '\'';
         $conn->db_query($query);
     }
 
@@ -1028,7 +1050,8 @@ function conf_update_param($param, $value, $updateGlobal=false, $parser=null) {
  *
  * @param string|string[] $params
  */
-function conf_delete_param($params) {
+function conf_delete_param($params)
+{
     global $conf, $conn;
 
     if (!is_array($params)) {
@@ -1038,8 +1061,8 @@ function conf_delete_param($params) {
         return;
     }
 
-    $query = 'DELETE FROM '.CONFIG_TABLE;
-    $query .= ' WHERE param '.$conn->in($params);
+    $query = 'DELETE FROM ' . CONFIG_TABLE;
+    $query .= ' WHERE param ' . $conn->in($params);
     $conn->db_query($query);
 
     foreach ($params as $param) {
@@ -1054,7 +1077,8 @@ function conf_delete_param($params) {
  * @param array|string $value
  * @return array
  */
-function safe_unserialize($value) {
+function safe_unserialize($value)
+{
     return safe_json_decode($value);
 }
 
@@ -1065,12 +1089,13 @@ function safe_unserialize($value) {
  * @param array|string $value
  * @return array
  */
-function safe_json_decode($value) {
+function safe_json_decode($value)
+{
     if (is_string($value)) {
         return json_decode($value, true);
     }
 
-  return $value;
+    return $value;
 }
 
 /**
@@ -1081,10 +1106,13 @@ function safe_json_decode($value) {
  * @param string $append_str
  * @return array
  */
-function prepend_append_array_items($array, $prepend_str, $append_str) {
+function prepend_append_array_items($array, $prepend_str, $append_str)
+{
     array_walk(
         $array,
-        function(&$s) use ($prepend_str, $append_str) { $s = $prepend_str.$s.$append_str; }
+        function (&$s) use ($prepend_str, $append_str) {
+            $s = $prepend_str . $s . $append_str;
+        }
     );
 
     return $array;
@@ -1096,13 +1124,14 @@ function prepend_append_array_items($array, $prepend_str, $append_str) {
  *
  * @return string
  */
-function script_basename() {
+function script_basename()
+{
     global $conf;
 
     foreach (array('SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF') as $value) {
         if (!empty($_SERVER[$value])) {
             $filename = strtolower($_SERVER[$value]);
-            if ($conf['php_extension_in_urls'] and get_extension($filename)!=='php') {
+            if ($conf['php_extension_in_urls'] and get_extension($filename) !== 'php') {
                 continue;
             }
             $basename = basename($filename, '.php');
@@ -1121,7 +1150,8 @@ function script_basename() {
  * @param string $value_name
  * @return mixed
  */
-function get_filter_page_value($value_name) {
+function get_filter_page_value($value_name)
+{
     global $conf;
 
     $page_name = script_basename();
@@ -1139,7 +1169,8 @@ function get_filter_page_value($value_name) {
  * return the character set used by Piwigo
  * @return string
  */
-function get_pwg_charset() {
+function get_pwg_charset()
+{
     $pwg_charset = 'utf-8';
     if (defined('PWG_CHARSET')) {
         $pwg_charset = PWG_CHARSET;
@@ -1156,13 +1187,14 @@ function get_pwg_charset() {
  * @param string $lang_id
  * @return string|null
  */
-function get_parent_language($lang_id=null) {
+function get_parent_language($lang_id = null)
+{
     global $lang_info;
 
     if (empty($lang_id)) {
         return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
     } else {
-        $f = PHPWG_ROOT_PATH.'language/'.$lang_id.'/common.lang.php';
+        $f = PHPWG_ROOT_PATH . 'language/' . $lang_id . '/common.lang.php';
         if (file_exists($f)) {
             include($f);
             return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
@@ -1189,7 +1221,8 @@ function get_parent_language($lang_id=null) {
  *     @option bool local - if true load file from local directory
  * @return boolean|string
  */
-function load_language($filename, $dirname = '', $options = array()) {
+function load_language($filename, $dirname = '', $options = array())
+{
     global $user, $language_files, $services;
 
     // keep trace of plugins loaded files for switch_lang_to() function
@@ -1233,10 +1266,10 @@ function load_language($filename, $dirname = '', $options = array()) {
     $languages = array_unique($languages);
 
     // find first existing
-    $source_file       = '';
+    $source_file = '';
     $selected_language = '';
     foreach ($languages as $language) {
-        $f = @$options['local'] ? $dirname.$language.'.'.$filename : $dirname.$language.'/'.$filename;
+        $f = @$options['local'] ? $dirname . $language . '.' . $filename : $dirname . $language . '/' . $filename;
 
         if (file_exists($f)) {
             $selected_language = $language;
@@ -1300,21 +1333,22 @@ function load_language($filename, $dirname = '', $options = array()) {
  * @param string $source_charset
  * @param string $dest_charset
  */
-function convert_charset($str, $source_charset, $dest_charset) {
-    if ($source_charset==$dest_charset) {
+function convert_charset($str, $source_charset, $dest_charset)
+{
+    if ($source_charset == $dest_charset) {
         return $str;
     }
-    if ($source_charset=='iso-8859-1' and $dest_charset=='utf-8') {
+    if ($source_charset == 'iso-8859-1' and $dest_charset == 'utf-8') {
         return utf8_encode($str);
     }
-    if ($source_charset=='utf-8' and $dest_charset=='iso-8859-1') {
+    if ($source_charset == 'utf-8' and $dest_charset == 'iso-8859-1') {
         return utf8_decode($str);
     }
     if (function_exists('iconv')) {
         return iconv($source_charset, $dest_charset, $str);
     }
     if (function_exists('mb_convert_encoding')) {
-        return mb_convert_encoding( $str, $dest_charset, $source_charset );
+        return mb_convert_encoding($str, $dest_charset, $source_charset);
     }
 
     return $str; // TODO
@@ -1325,11 +1359,12 @@ function convert_charset($str, $source_charset, $dest_charset) {
  *
  * @param string $dir
  */
-function secure_directory($dir) {
-  $file = $dir.'/index.htm';
-  if (!file_exists($file)) {
-      @file_put_contents($file, 'Not allowed!');
-  }
+function secure_directory($dir)
+{
+    $file = $dir . '/index.htm';
+    if (!file_exists($file)) {
+        @file_put_contents($file, 'Not allowed!');
+    }
 }
 
 /**
@@ -1339,15 +1374,17 @@ function secure_directory($dir) {
  * @param string $aditionnal_data_to_hash
  * @return string
  */
-function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash='') {
-	global $conf;
+function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash = '')
+{
+    global $conf;
 
-	$time = round(microtime(true), 1);
-	return $time.':'.$valid_after_seconds.':'
-		.hash_hmac(
-			'md5',
-			$time.substr($_SERVER['REMOTE_ADDR'],0,5).$valid_after_seconds.$aditionnal_data_to_hash,
-			$conf['secret_key']);
+    $time = round(microtime(true), 1);
+    return $time . ':' . $valid_after_seconds . ':'
+        . hash_hmac(
+        'md5',
+        $time . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $valid_after_seconds . $aditionnal_data_to_hash,
+        $conf['secret_key']
+    );
 }
 
 /**
@@ -1357,22 +1394,23 @@ function get_ephemeral_key($valid_after_seconds, $aditionnal_data_to_hash='') {
  * @param string $aditionnal_data_to_hash
  * @return bool
  */
-function verify_ephemeral_key($key, $aditionnal_data_to_hash = '') {
-	global $conf;
+function verify_ephemeral_key($key, $aditionnal_data_to_hash = '')
+{
+    global $conf;
 
-	$time = microtime(true);
-	$key = explode(':', @$key);
-	if (
-        count($key)!=3
-        or $key[0]>$time-(float)$key[1] // page must have been retrieved more than X sec ago
-		or $key[0]<$time-3600 // 60 minutes expiration
-		or hash_hmac(
-            'md5', $key[0].substr($_SERVER['REMOTE_ADDR'],0,5).$key[1].$aditionnal_data_to_hash, $conf['secret_key']
-        ) != $key[2]
-    ) {
-		return false;
-	}
-	return true;
+    $time = microtime(true);
+    $key = explode(':', @$key);
+    if (count($key) != 3
+        or $key[0] > $time - (float)$key[1] // page must have been retrieved more than X sec ago
+    or $key[0] < $time - 3600 // 60 minutes expiration
+    or hash_hmac(
+        'md5',
+        $key[0] . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $key[1] . $aditionnal_data_to_hash,
+        $conf['secret_key']
+    ) != $key[2]) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -1386,12 +1424,13 @@ function verify_ephemeral_key($key, $aditionnal_data_to_hash = '') {
  * @param string $param_name
  * @return array
  */
-function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $clean_url = false, $param_name='start') {
+function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $clean_url = false, $param_name = 'start')
+{
     global $conf;
 
     $navbar = array();
     $pages_around = $conf['paginate_pages_around'];
-    $start_str = $clean_url ? '/'.$param_name.'-' : (strpos($url, '?')===false ? '?':'&amp;').$param_name.'=';
+    $start_str = $clean_url ? '/' . $param_name . '-' : (strpos($url, '?') === false ? '?' : '&amp;') . $param_name . '=';
 
     if (!isset($start) or !is_numeric($start) or (is_numeric($start) and $start < 0)) {
         $start = 0;
@@ -1399,12 +1438,12 @@ function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $cle
 
     // navigation bar useful only if more than one page to display !
     if ($nb_element > $nb_element_page) {
-        $url_start = $url.$start_str;
+        $url_start = $url . $start_str;
 
         $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
         $maximum = ceil($nb_element / $nb_element_page);
 
-        $start = $nb_element_page * round( $start / $nb_element_page );
+        $start = $nb_element_page * round($start / $nb_element_page);
         $previous = $start - $nb_element_page;
         $next = $start + $nb_element_page;
         $last = ($maximum - 1) * $nb_element_page;
@@ -1412,22 +1451,22 @@ function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $cle
         // link to first page and previous page?
         if ($cur_page != 1) {
             $navbar['URL_FIRST'] = $url;
-            $navbar['URL_PREV'] = $previous > 0 ? $url_start.$previous : $url;
+            $navbar['URL_PREV'] = $previous > 0 ? $url_start . $previous : $url;
         }
         // link on next page and last page?
         if ($cur_page != $maximum) {
-            $navbar['URL_NEXT'] = $url_start.($next < $last ? $next : $last);
-            $navbar['URL_LAST'] = $url_start.$last;
+            $navbar['URL_NEXT'] = $url_start . ($next < $last ? $next : $last);
+            $navbar['URL_LAST'] = $url_start . $last;
         }
 
         // pages to display
         $navbar['pages'] = array();
         $navbar['pages'][1] = $url;
-        for ($i=max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum);$i<$stop;$i++) {
-            $navbar['pages'][$i] = $url.$start_str.(($i - 1) * $nb_element_page);
+        for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
+            $navbar['pages'][$i] = $url . $start_str . (($i - 1) * $nb_element_page);
         }
-        $navbar['pages'][$maximum] = $url_start.$last;
-        $navbar['NB_PAGE']=$maximum;
+        $navbar['pages'][$maximum] = $url_start . $last;
+        $navbar['NB_PAGE'] = $maximum;
     }
 
     return $navbar;
@@ -1440,7 +1479,8 @@ function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $cle
  * @param bool $is_child_date
  * @return array
  */
-function get_icon($date, $is_child_date = false) {
+function get_icon($date, $is_child_date = false)
+{
     global $cache, $user, $conn;
 
     if (empty($date)) {
@@ -1480,7 +1520,8 @@ function get_icon($date, $is_child_date = false) {
  *
  * @return void access denied if token given is not equal to server token
  */
-function check_pwg_token() {
+function check_pwg_token()
+{
     if (!empty($_REQUEST['pwg_token'])) {
         if (get_pwg_token() != $_REQUEST['pwg_token']) {
             access_denied();
@@ -1495,7 +1536,8 @@ function check_pwg_token() {
  *
  * @return string
  */
-function get_pwg_token() {
+function get_pwg_token()
+{
     global $conf;
 
     return hash_hmac('md5', session_id(), $conf['secret_key']);
@@ -1511,7 +1553,8 @@ function get_pwg_token() {
  * @param string $pattern
  * @param boolean $mandatory
  */
-function check_input_parameter($param_name, $param_array, $is_array, $pattern, $mandatory=false) {
+function check_input_parameter($param_name, $param_array, $is_array, $pattern, $mandatory = false)
+{
     $param_value = null;
     if (isset($param_array[$param_name])) {
         $param_value = $param_array[$param_name];
@@ -1520,24 +1563,24 @@ function check_input_parameter($param_name, $param_array, $is_array, $pattern, $
     // it's ok if the input parameter is null
     if (empty($param_value)) {
         if ($mandatory) {
-            fatal_error('[Hacking attempt] the input parameter "'.$param_name.'" is not valid');
+            fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
         }
         return true;
     }
 
     if ($is_array) {
         if (!is_array($param_value)) {
-            fatal_error('[Hacking attempt] the input parameter "'.$param_name.'" should be an array');
+            fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" should be an array');
         }
 
         foreach ($param_value as $item_to_check) {
             if (!preg_match($pattern, $item_to_check)) {
-                fatal_error('[Hacking attempt] an item is not valid in input parameter "'.$param_name.'"');
+                fatal_error('[Hacking attempt] an item is not valid in input parameter "' . $param_name . '"');
             }
         }
     } else {
         if (!preg_match($pattern, $param_value)) {
-            fatal_error('[Hacking attempt] the input parameter "'.$param_name.'" is not valid');
+            fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
         }
     }
 }
@@ -1547,7 +1590,8 @@ function check_input_parameter($param_name, $param_array, $is_array, $pattern, $
  *
  * @return string[]
  */
-function get_privacy_level_options() {
+function get_privacy_level_options()
+{
     global $conf;
 
     $options = array();
@@ -1559,7 +1603,7 @@ function get_privacy_level_options() {
             if (strlen($label)) {
                 $label .= ', ';
             }
-            $label .= l10n( sprintf('Level %d', $level) );
+            $label .= l10n(sprintf('Level %d', $level));
         }
         $options[$level] = $label;
     }
@@ -1574,18 +1618,9 @@ function get_privacy_level_options() {
  * @param string $version
  * @return string
  */
-function get_branch_from_version($version) {
+function get_branch_from_version($version)
+{
     return implode('.', array_slice(explode('.', $version), 0, 2));
-}
-
-/**
- * @deprecated
- * return true if mobile theme should be loaded
- *
- * @return bool
- */
-function mobile_theme() {
-    return false;
 }
 
 /**
@@ -1594,8 +1629,9 @@ function mobile_theme() {
  * @param string $url
  * @return bool
  */
-function url_check_format($url) {
-    return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)!==false;
+function url_check_format($url)
+{
+    return filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED) !== false;
 }
 
 /**
@@ -1604,8 +1640,9 @@ function url_check_format($url) {
  * @param string $mail_address
  * @return bool
  */
-function email_check_format($mail_address) {
-    return filter_var($mail_address, FILTER_VALIDATE_EMAIL)!==false;
+function email_check_format($mail_address)
+{
+    return filter_var($mail_address, FILTER_VALIDATE_EMAIL) !== false;
 }
 
 /**
@@ -1613,13 +1650,14 @@ function email_check_format($mail_address) {
  *
  * @return int
  */
-function get_nb_available_comments() {
+function get_nb_available_comments()
+{
     global $user, $conn, $services;
 
-    if (!isset($user['nb_available_comments']))  {
+    if (!isset($user['nb_available_comments'])) {
         $where = array();
         if (!$services['users']->isAdmin())
-            $where[] = 'validated=\''.$conn->boolean_to_db(true).'\'';
+            $where[] = 'validated=\'' . $conn->boolean_to_db(true) . '\'';
         $where[] = get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'category_id',
@@ -1629,15 +1667,15 @@ function get_nb_available_comments() {
             true
         );
 
-        $query = 'SELECT COUNT(DISTINCT(com.id)) FROM '.IMAGE_CATEGORY_TABLE.' AS ic';
-        $query .= ' LEFT JOIN '.COMMENTS_TABLE.' AS com ON ic.image_id = com.image_id';
-        $query .= ' WHERE '.implode(' AND ', $where);
+        $query = 'SELECT COUNT(DISTINCT(com.id)) FROM ' . IMAGE_CATEGORY_TABLE . ' AS ic';
+        $query .= ' LEFT JOIN ' . COMMENTS_TABLE . ' AS com ON ic.image_id = com.image_id';
+        $query .= ' WHERE ' . implode(' AND ', $where);
         list($user['nb_available_comments']) = $conn->db_fetch_row($conn->db_query($query));
 
         $conn->single_update(
             USER_CACHE_TABLE,
-            array('nb_available_comments'=>$user['nb_available_comments']),
-            array('user_id'=>$user['id'])
+            array('nb_available_comments' => $user['nb_available_comments']),
+            array('user_id' => $user['id'])
         );
     }
 
@@ -1654,8 +1692,9 @@ function get_nb_available_comments() {
  * @param string $b
  * @param string $op
  */
-function safe_version_compare($a, $b, $op=null) {
-    $replace_chars = function($m) {
+function safe_version_compare($a, $b, $op = null)
+{
+    $replace_chars = function ($m) {
         return ord(strtolower($m[1]));
     };
 
@@ -1674,14 +1713,16 @@ function safe_version_compare($a, $b, $op=null) {
     }
 }
 
-function addOrderByFields($order_by_string) {
+function addOrderByFields($order_by_string)
+{
     return str_ireplace(array('order by', ' asc', ' desc'), array('', '', ''), $order_by_string);
 }
 
 /**
  * Deletes favorites of the current user if he's not allowed to see them.
  */
-function check_user_favorites() {
+function check_user_favorites()
+{
     global $user, $conn;
 
     if ($user['forbidden_categories'] == '') {
@@ -1692,20 +1733,20 @@ function check_user_favorites() {
     // must be not used because filter <> restriction
     // retrieving images allowed : belonging to at least one authorized
     // category
-    $query = 'SELECT DISTINCT f.image_id FROM '.FAVORITES_TABLE.' AS f';
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON f.image_id = ic.image_id';
-    $query .= ' WHERE f.user_id = '.$user['id'];
-    $query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ');
+    $query = 'SELECT DISTINCT f.image_id FROM ' . FAVORITES_TABLE . ' AS f';
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
+    $query .= ' WHERE f.user_id = ' . $user['id'];
+    $query .= ' ' . get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ');
     $authorizeds = $conn->query2array($query, null, 'image_id');
 
-    $query = 'SELECT image_id FROM '.FAVORITES_TABLE;
-    $query .= ' WHERE user_id = '.$user['id'];
+    $query = 'SELECT image_id FROM ' . FAVORITES_TABLE;
+    $query .= ' WHERE user_id = ' . $user['id'];
     $favorites = $conn->query2array($query, null, 'image_id');
 
     $to_deletes = array_diff($favorites, $authorizeds);
     if (count($to_deletes) > 0) {
-        $query = 'DELETE FROM '.FAVORITES_TABLE;
-        $query .= ' WHERE image_id '.$conn->in($to_deletes).' AND user_id = '.$user['id'];
+        $query = 'DELETE FROM ' . FAVORITES_TABLE;
+        $query .= ' WHERE image_id ' . $conn->in($to_deletes) . ' AND user_id = ' . $user['id'];
         $conn->db_query($query);
     }
 }
@@ -1717,7 +1758,8 @@ function check_user_favorites() {
  * @param string &$lang
  * @return bool
  */
-function get_browser_language(&$lang) {
+function get_browser_language(&$lang)
+{
     $browser_language = substr(@$_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2);
     foreach (get_languages() as $language_code => $language_name) {
         if (substr($language_code, 0, 2) == $browser_language) {
@@ -1742,61 +1784,64 @@ function get_browser_language(&$lang) {
  * @param boolean $force_one_condition use at least "1 = 1"
  * @return string
  */
-function get_sql_condition_FandF($condition_fields, $prefix_condition=null, $force_one_condition=false) {
+function get_sql_condition_FandF($condition_fields, $prefix_condition = null, $force_one_condition = false)
+{
     global $user, $filter, $conn;
 
     $sql_list = array();
 
     foreach ($condition_fields as $condition => $field_name) {
-        switch($condition)
-            {
-            case 'forbidden_categories': {
-                if (!empty($user['forbidden_categories'])) {
-                    $sql_list[] = $field_name.' NOT IN ('.$user['forbidden_categories'].')';
+        switch ($condition) {
+            case 'forbidden_categories':
+                {
+                    if (!empty($user['forbidden_categories'])) {
+                        $sql_list[] = $field_name . ' NOT IN (' . $user['forbidden_categories'] . ')';
+                    }
+                    break;
                 }
-                break;
-            }
-            case 'visible_categories': {
-                if (!empty($filter['visible_categories'])) {
-                    $sql_list[] = $field_name.' IN ('.$filter['visible_categories'].')';
+            case 'visible_categories':
+                {
+                    if (!empty($filter['visible_categories'])) {
+                        $sql_list[] = $field_name . ' IN (' . $filter['visible_categories'] . ')';
+                    }
+                    break;
                 }
-                break;
-            }
             case 'visible_images':
                 if (!empty($filter['visible_images'])) {
-                    $sql_list[] = $field_name.' IN ('.$filter['visible_images'].')';
+                    $sql_list[] = $field_name . ' IN (' . $filter['visible_images'] . ')';
                 }
                 // note there is no break - visible include forbidden
             case 'forbidden_images':
-                if (!empty($user['image_access_list']) or $user['image_access_type']!='NOT IN') {
-                    $table_prefix=null;
-                    if ($field_name=='id') {
+                if (!empty($user['image_access_list']) or $user['image_access_type'] != 'NOT IN') {
+                    $table_prefix = null;
+                    if ($field_name == 'id') {
                         $table_prefix = '';
-                    } elseif ($field_name=='i.id') {
+                    } elseif ($field_name == 'i.id') {
                         $table_prefix = 'i.';
                     }
                     if (isset($table_prefix)) {
-                        $sql_list[] = $table_prefix.'level<='.$user['level'];
+                        $sql_list[] = $table_prefix . 'level<=' . $user['level'];
                     } elseif (!empty($user['image_access_list']) and !empty($user['image_access_type'])) {
-                        $sql_list[] = $field_name.' '.$user['image_access_type'].' ('.$user['image_access_list'].')';
+                        $sql_list[] = $field_name . ' ' . $user['image_access_type'] . ' (' . $user['image_access_list'] . ')';
                     }
                 }
                 break;
-            default: {
-                die('Unknown condition: '.$condition);
-                break;
-            }
-            }
+            default:
+                {
+                    die('Unknown condition: ' . $condition);
+                    break;
+                }
+        }
     }
 
     if (count($sql_list) > 0) {
-        $sql = '('.implode(' AND ', $sql_list).')';
+        $sql = '(' . implode(' AND ', $sql_list) . ')';
     } else {
         $sql = $force_one_condition ? '1 = 1' : '';
     }
 
     if (isset($prefix_condition) and !empty($sql)) {
-        $sql = $prefix_condition.' '.$sql;
+        $sql = $prefix_condition . ' ' . $sql;
     }
 
     return $sql;
@@ -1808,14 +1853,15 @@ function get_sql_condition_FandF($condition_fields, $prefix_condition=null, $for
  * @param string $db_field
  * @return string
  */
-function get_recent_photos_sql($db_field) {
+function get_recent_photos_sql($db_field)
+{
     global $user, $conn;
 
     if (!isset($user['last_photo_date'])) {
         return '0=1';
     }
 
-    return $db_field.'>=LEAST('
-        .$conn->db_get_recent_period_expression($user['recent_period'])
-        .','.$conn->db_get_recent_period_expression(1,$user['last_photo_date']).')';
+    return $db_field . '>=LEAST('
+        . $conn->db_get_recent_period_expression($user['recent_period'])
+        . ',' . $conn->db_get_recent_period_expression(1, $user['last_photo_date']) . ')';
 }

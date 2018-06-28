@@ -153,6 +153,10 @@ class Updates
             throw new \Exception($e->getMessage());
         }
 
+        if (empty($versions_to_check)) {
+            return false;
+        }
+
         // Extensions to check
         $ext_to_check = array();
         foreach ($this->types as $type) {
@@ -172,6 +176,7 @@ class Updates
             'get_nb_downloads' => 'true',
             'format' => 'json'
         ));
+        $url .= '?' . http_build_query($get_data, '', '&');
 
         $post_data = array();
         if (!empty($ext_to_check)) {
@@ -180,7 +185,7 @@ class Updates
 
         try {
             $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
-            $response = $client->request('GET', $url, $get_data);
+            $response = $client->request('POST', $url, $post_data);
             if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
                 $pem_exts = json_decode($response->getBody(), true);
             } else {
@@ -191,7 +196,6 @@ class Updates
             }
 
             $servers = array();
-
             foreach ($pem_exts as $ext) {
                 if (isset($ext_to_check[$ext['extension_id']])) {
                     $type = $ext_to_check[$ext['extension_id']];

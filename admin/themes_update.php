@@ -10,7 +10,7 @@
  */
 
 if (!defined("THEMES_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Update\Updates;
@@ -24,8 +24,8 @@ try {
     $autoupdate->getServerExtensions();
     $server_themes = $autoupdate->getType('themes')->getServerThemes();
 
-    if (count($server_themes)>0) {
-        foreach($autoupdate->getType('themes')->getFsThemes() as $extension_id => $fs_extension) {
+    if (count($server_themes) > 0) {
+        foreach ($autoupdate->getType('themes')->getFsThemes() as $extension_id => $fs_extension) {
             if (!isset($fs_extension['extension']) or !isset($server_themes[$fs_extension['extension']])) {
                 continue;
             }
@@ -40,14 +40,14 @@ try {
                         'REVISION_ID' => $ext_info['revision_id'],
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
-                        'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$ext_info['extension_id'],
+                        'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $ext_info['extension_id'],
                         'EXT_DESC' => trim($ext_info['extension_description'], " \n\r"),
                         'REV_DESC' => trim($ext_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],
                         'NEW_VERSION' => $ext_info['revision_name'],
                         'AUTHOR' => $ext_info['author_name'],
                         'DOWNLOADS' => $ext_info['extension_nb_downloads'],
-                        'URL_DOWNLOAD' => $ext_info['download_url'] . '&amp;origin=piwigo_download',
+                        'URL_DOWNLOAD' => $ext_info['download_url'] . '&amp;origin=phyxo',
                         'IGNORED' => !empty($conf['updates_ignored']['themes']) && in_array($extension_id, $conf['updates_ignored']['themes']),
                     )
                 );

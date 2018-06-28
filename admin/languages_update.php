@@ -10,7 +10,7 @@
  */
 
 if (!defined("LANGUAGES_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Update\Updates;
@@ -24,8 +24,8 @@ try {
     $autoupdate->getServerExtensions();
     $server_languages = $autoupdate->getType('languages')->getServerLanguages();
 
-    if (count($server_languages)>0) {
-        foreach($autoupdate->getType('languages')->getFsLanguages() as $extension_id => $fs_extension) {
+    if (count($server_languages) > 0) {
+        foreach ($autoupdate->getType('languages')->getFsLanguages() as $extension_id => $fs_extension) {
             if (!isset($fs_extension['extension']) or !isset($server_languages[$fs_extension['extension']])) {
                 continue;
             }
@@ -40,14 +40,14 @@ try {
                         'REVISION_ID' => $extension_info['revision_id'],
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
-                        'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$extension_info['extension_id'],
+                        'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $extension_info['extension_id'],
                         'EXT_DESC' => trim($extension_info['extension_description'], " \n\r"),
                         'REV_DESC' => trim($extension_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],
                         'NEW_VERSION' => $extension_info['revision_name'],
                         'AUTHOR' => $extension_info['author_name'],
                         'DOWNLOADS' => $extension_info['extension_nb_downloads'],
-                        'URL_DOWNLOAD' => $extension_info['download_url'] . '&amp;origin=piwigo_download',
+                        'URL_DOWNLOAD' => $extension_info['download_url'] . '&amp;origin=phyxo',
                         'IGNORED' => !empty($conf['updates_ignored']['languages']) && in_array($extension_id, $conf['updates_ignored']['languages']),
                     )
                 );
