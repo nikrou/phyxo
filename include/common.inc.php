@@ -129,9 +129,6 @@ if (!defined('IN_WS') || !IN_WS) {
         $template = new Template(PHPWG_ROOT_PATH.'admin/theme', '.');
     } else { // Classic template
         $theme = $user['theme'];
-        if (script_basename() != 'ws' and mobile_theme()) {
-            $theme = $conf['mobile_theme'];
-        }
         $template = new Template(PHPWG_ROOT_PATH.'themes', $theme );
     }
 }

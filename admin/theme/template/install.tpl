@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
-  <head>
-      <meta http-equiv="Content-Type" content="text/html; charset={$T_CONTENT_ENCODING}">
-      <meta http-equiv="Content-script-type" content="text/javascript">
-      <meta http-equiv="Content-Style-Type" content="text/css">
-      <link rel="shortcut icon" type="image/x-icon" href="./theme/icon/favicon.ico">
-      
-      {get_combined_css}
-      {foreach from=$themes item=theme}
-	  {if $theme.load_css}	    
-	      {combine_css path="admin/theme/theme.css" order=-10}
-	  {/if}
-      {/foreach}
-      <link rel="stylesheet" type="text/css" href="{$ROOT_URL}admin/theme/install.css">
-      
+    <head>
+	<meta http-equiv="Content-Type" content="text/html; charset={$T_CONTENT_ENCODING}">
+	<meta http-equiv="Content-script-type" content="text/javascript">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<link rel="shortcut icon" type="image/x-icon" href="./theme/icon/favicon.ico">
+
+	{get_combined_css}
+
+      	<link rel="stylesheet" href="{asset manifest='theme/build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" type="text/css" href="{$ROOT_URL}admin/theme/install.css">
+
       <!-- BEGIN get_combined_scripts -->
       {get_combined_scripts load='header'}
       <!-- END get_combined_scripts -->
-      
+
       {combine_script id='jquery' path='admin/theme/js/jquery/jquery.js'}
       {combine_script id='jquery-install' path='admin/theme/js/install.js'}
       <script type="text/javascript">
@@ -26,15 +23,15 @@
 	       window.open($(this).attr("href"));
 	       return false;
 	   });
-	   
+
 	   $("#admin_mail").keyup(function() {
 	       $(".adminEmail").text($(this).val());
 	   });
        });
       </script>
-      
+
       {combine_script id="jquery.cluetip" load="async" require="jquery" path="admin/theme/js/plugins/jquery.cluetip.js"}
-      
+
       {footer_script require="jquery.cluetip"}
       jQuery().ready(function(){ldelim}
       jQuery('.cluetip').cluetip({ldelim}
