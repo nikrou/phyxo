@@ -77,221 +77,206 @@
 
     {combine_script id="user_list" load="footer" path="admin/theme/js/user_list.js"}
 
-    {html_style}{literal}
-    .dataTables_wrapper, .dataTables_info {clear:none;}
-    table.dataTable {clear:right;padding-top:10px;}
-    .dataTable td img {margin-bottom: -6px;margin-left: -6px;}
-    .paginate_enabled_previous, .paginate_enabled_previous:hover, .paginate_disabled_previous, .paginate_enabled_next, .paginate_enabled_next:hover, .paginate_disabled_next {background:none;}
-    .paginate_enabled_previous, .paginate_enabled_next {color:#005E89 !important;}
-    .paginate_enabled_previous:hover, .paginate_enabled_next:hover {color:#D54E21 !important; text-decoration:underline !important;}
-
-    .paginate_disabled_next, .paginate_enabled_next {padding-right:3px;}
-    .bulkAction {margin-top:10px;}
-    #addUserForm p {margin-left:0;}
-    #applyActionBlock .actionButtons {margin-left:0;}
-    span.infos, span.errors {background-image:none; padding:2px 5px; margin:0;border-radius:5px;}
-
-    .userStats {margin-top:10px;}
-    .recent_period_infos {margin-left:10px;}
-    .nb_image_page, .recent_period {width:340px;margin-top:5px;}
-    #action_recent_period .recent_period {display:inline-block;}
-    {/literal}{/html_style}
-
-    <p class="showCreateAlbum" id="showAddUser">
-	<a href="#" id="addUser"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>
-	<span class="infos" style="display:none"></span>
+    <p>
+	    <a href="#addUserForm" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>
+	    <span class="infos" style="display:none"></span>
     </p>
 
-    <form id="addUserForm" style="display:none" method="post" name="add_user" action="{$F_ADD_ACTION}">
-	<fieldset>
-	    <legend>{'Add a user'|translate}</legend>
+    <div id="addUserForm" class="collapse">
+    <form method="post" name="add_user" action="{$F_ADD_ACTION}">
+	    <div class="fieldset">
+	        <h3>{'Add a user'|translate}</h3>
 
-	    <p>
-		<strong>{'Username'|translate}</strong><br>
-		<input type="text" name="username" maxlength="50" size="20">
-	    </p>
+            <p>
+                <label>{'Username'|translate}
+                    <input class="form-control" type="text" name="username" maxlength="50" size="20">
+                </label>
+            </p>
 
-	    <p>
-		<strong>{'Password'|translate}</strong><br>
-		<input type="{if $Double_Password}password{else}text{/if}" name="password">
-	    </p>
+            <p>
+                <label>{'Password'|translate}
+                    <input class="form-control" type="{if $Double_Password}password{else}text{/if}" name="password">
+                </label>
+            </p>
 
-	    {if $Double_Password}
-		<p>
-		    <strong>{'Confirm Password'|translate}</strong><br>
-		    <input type="password" name="password_confirm">
-		</p>
-	    {/if}
+            {if $Double_Password}
+            <p>
+                <label>{'Confirm Password'|translate}
+                    <input class="form-control" type="password" name="password_confirm">
+                </label>
+            </p>
+            {/if}
 
-	    <p>
-		<strong>{'Email address'|translate}</strong><br>
-		<input type="text" name="email">
-	    </p>
+            <p>
+                <label>{'Email address'|translate}
+                    <input class="form-control" type="text" name="email">
+                </label>
+            </p>
 
-	    <p>
-		<label><input type="checkbox" name="send_password_by_mail"> <strong>{'Send connection settings by email'|translate}</strong></label>
-	    </p>
+            <p>
+                <label><input type="checkbox" name="send_password_by_mail"> {'Send connection settings by email'|translate}</label>
+            </p>
 
-	    <p class="actionButtons">
-		<input class="submit" name="submit_add" type="submit" value="{'Submit'|translate}">
-		<a href="#" id="addUserClose">{'Cancel'|translate}</a>
-		<span class="loading" style="display:none"><img src="./theme/images/ajax-loader-small.gif" alt=""></span>
-		<span class="errors" style="display:none"></span>
-	    </p>
-	</fieldset>
+            <p>
+                <input class="btn btn-submit" name="submit_add" type="submit" value="{'Submit'|translate}">
+                <button class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</button>
+                <span class="loading" style="display:none"><img src="./theme/images/ajax-loader-small.gif" alt=""></span>
+                <span class="errors" style="display:none"></span>
+            </p>
+    	</div>
     </form>
+    </div>
 
     <form method="post" name="preferences" action="">
+        <table id="userList">
+            <thead>
+            <tr>
+                <th>id</th>
+                <th>{'Username'|translate}</th>
+                <th>{'Status'|translate}</th>
+                <th>{'Email address'|translate}</th>
+                <th>{'Groups'|translate}</th>
+                <th>{'Privacy level'|translate}</th>
+                <th>{'registration date'|translate}</th>
+            </tr>
+            </thead>
+        </table>
 
-	<table id="userList">
-	    <thead>
-		<tr>
-		    <th>id</th>
-		    <th>{'Username'|translate}</th>
-		    <th>{'Status'|translate}</th>
-		    <th>{'Email address'|translate}</th>
-		    <th>{'Groups'|translate}</th>
-		    <th>{'Privacy level'|translate}</th>
-		    <th>{'registration date'|translate}</th>
-		</tr>
-	    </thead>
-	</table>
+        <p class="checkActions">
+            {'Select:'|translate}
+            <a href="#" id="selectAll">{'All'|translate}</a>,
+            <a href="#" id="selectNone">{'None'|translate}</a>,
+            <a href="#" id="selectInvert">{'Invert'|translate}</a>
 
-	<div style="clear:right"></div>
+            <span id="selectedMessage"></span>
+        </p>
 
-	<p class="checkActions">
-	    {'Select:'|translate}
-	    <a href="#" id="selectAll">{'All'|translate}</a>,
-	    <a href="#" id="selectNone">{'None'|translate}</a>,
-	    <a href="#" id="selectInvert">{'Invert'|translate}</a>
+        <div class="fieldset" id="action">
+            <h3>{'Action'|translate}</h3>
 
-	    <span id="selectedMessage"></span>
-	</p>
+            <div id="forbidAction"{if !empty($selection)} style="display:none"{/if}>{'No user selected, no action possible.'|translate}</div>
+            <div id="permitAction"{if empty($selection)} style="display:none"{/if}>
 
-	<fieldset id="action">
-	    <legend>{'Action'|translate}</legend>
+            <select class="custom-select" name="selectAction">
+                <option value="-1">{'Choose an action'|translate}</option>
+                <option disabled="disabled">------------------</option>
+                <option value="delete">{'Delete selected users'|translate}</option>
+                <option value="status">{'Status'|translate}</option>
+                <option value="group_associate">{'associate to group'|translate}</option>
+                <option value="group_dissociate">{'dissociate from group'|translate}</option>
+                <option value="enabled_high">{'High definition enabled'|translate}</option>
+                <option value="level">{'Privacy level'|translate}</option>
+                <option value="nb_image_page">{'Number of photos per page'|translate}</option>
+                <option value="theme">{'Theme'|translate}</option>
+                <option value="language">{'Language'|translate}</option>
+                <option value="recent_period">{'Recent period'|translate}</option>
+                <option value="expand">{'Expand all albums'|translate}</option>
+                {if $ACTIVATE_COMMENTS}
+                <option value="show_nb_comments">{'Show number of comments'|translate}</option>
+                {/if}
+                <option value="show_nb_hits">{'Show number of hits'|translate}</option>
+            </select>
 
-	    <div id="forbidAction"{if !empty($selection)} style="display:none"{/if}>{'No user selected, no action possible.'|translate}</div>
-	    <div id="permitAction"{if empty($selection)} style="display:none"{/if}>
+            {* delete *}
+            <div id="action_delete" class="bulkAction">
+                <p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|translate}</label></p>
+            </div>
 
-		<select name="selectAction">
-		    <option value="-1">{'Choose an action'|translate}</option>
-		    <option disabled="disabled">------------------</option>
-		    <option value="delete">{'Delete selected users'|translate}</option>
-		    <option value="status">{'Status'|translate}</option>
-		    <option value="group_associate">{'associate to group'|translate}</option>
-		    <option value="group_dissociate">{'dissociate from group'|translate}</option>
-		    <option value="enabled_high">{'High definition enabled'|translate}</option>
-		    <option value="level">{'Privacy level'|translate}</option>
-		    <option value="nb_image_page">{'Number of photos per page'|translate}</option>
-		    <option value="theme">{'Theme'|translate}</option>
-		    <option value="language">{'Language'|translate}</option>
-		    <option value="recent_period">{'Recent period'|translate}</option>
-		    <option value="expand">{'Expand all albums'|translate}</option>
-		    {if $ACTIVATE_COMMENTS}
-			<option value="show_nb_comments">{'Show number of comments'|translate}</option>
-		    {/if}
-		    <option value="show_nb_hits">{'Show number of hits'|translate}</option>
-		</select>
+            {* status *}
+            <div id="action_status" class="bulkAction">
+                <select class="custom-select" name="status">
+                {html_options options=$pref_status_options selected=$pref_status_selected}
+                </select>
+            </div>
 
-		{* delete *}
-		<div id="action_delete" class="bulkAction">
-		    <p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|translate}</label></p>
-		</div>
+            {* group_associate *}
+            <div id="action_group_associate" class="bulkAction">
+                {html_options name=associate options=$association_options selected=$associate_selected|default:null}
+            </div>
 
-		{* status *}
-		<div id="action_status" class="bulkAction">
-		    <select name="status">
-			{html_options options=$pref_status_options selected=$pref_status_selected}
-		    </select>
-		</div>
+            {* group_dissociate *}
+            <div id="action_group_dissociate" class="bulkAction">
+                {html_options name=dissociate options=$association_options selected=$dissociate_selected|default:null}
+            </div>
 
-		{* group_associate *}
-		<div id="action_group_associate" class="bulkAction">
-		    {html_options name=associate options=$association_options selected=$associate_selected|default:null}
-		</div>
+            {* enabled_high *}
+            <div id="action_enabled_high" class="bulkAction">
+                <label><input type="radio" name="enabled_high" value="true">{'Yes'|translate}</label>
+                <label><input type="radio" name="enabled_high" value="false" checked="checked">{'No'|translate}</label>
+            </div>
 
-		{* group_dissociate *}
-		<div id="action_group_dissociate" class="bulkAction">
-		    {html_options name=dissociate options=$association_options selected=$dissociate_selected|default:null}
-		</div>
+            {* level *}
+            <div id="action_level" class="bulkAction">
+                <select class="custom-select" name="level" size="1">
+                {html_options options=$level_options selected=$level_selected}
+                </select>
+            </div>
 
-		{* enabled_high *}
-		<div id="action_enabled_high" class="bulkAction">
-		    <label><input type="radio" name="enabled_high" value="true">{'Yes'|translate}</label>
-		    <label><input type="radio" name="enabled_high" value="false" checked="checked">{'No'|translate}</label>
-		</div>
+            {* nb_image_page *}
+            <div id="action_nb_image_page" class="bulkAction">
+                <strong class="nb_image_page_infos"></strong>
+                <div class="nb_image_page"></div>
+                <input type="hidden" name="nb_image_page" value="{$NB_IMAGE_PAGE}">
+            </div>
 
-		{* level *}
-		<div id="action_level" class="bulkAction">
-		    <select name="level" size="1">
-			{html_options options=$level_options selected=$level_selected}
-		    </select>
-		</div>
+            {* theme *}
+            <div id="action_theme" class="bulkAction">
+                <select class="custom-select" name="theme" size="1">
+                {html_options options=$theme_options selected=$theme_selected}
+                </select>
+            </div>
 
-		{* nb_image_page *}
-		<div id="action_nb_image_page" class="bulkAction">
-		    <strong class="nb_image_page_infos"></strong>
-		    <div class="nb_image_page"></div>
-		    <input type="hidden" name="nb_image_page" value="{$NB_IMAGE_PAGE}">
-		</div>
+            {* language *}
+            <div id="action_language" class="bulkAction">
+                <select class="custom-select" name="language" size="1">
+                {html_options options=$language_options selected=$language_selected}
+                </select>
+            </div>
 
-		{* theme *}
-		<div id="action_theme" class="bulkAction">
-		    <select name="theme" size="1">
-			{html_options options=$theme_options selected=$theme_selected}
-		    </select>
-		</div>
+            {* recent_period *}
+            <div id="action_recent_period" class="bulkAction">
+                <div class="recent_period"></div>
+                <span class="recent_period_infos"></span>
+                <input type="hidden" name="recent_period" value="{$RECENT_PERIOD}">
+            </div>
 
-		{* language *}
-		<div id="action_language" class="bulkAction">
-		    <select name="language" size="1">
-			{html_options options=$language_options selected=$language_selected}
-		    </select>
-		</div>
+            {* expand *}
+            <div id="action_expand" class="bulkAction">
+                <label><input type="radio" name="expand" value="true">{'Yes'|translate}</label>
+                <label><input type="radio" name="expand" value="false" checked="checked">{'No'|translate}</label>
+            </div>
 
-		{* recent_period *}
-		<div id="action_recent_period" class="bulkAction">
-		    <div class="recent_period"></div>
-		    <span class="recent_period_infos"></span>
-		    <input type="hidden" name="recent_period" value="{$RECENT_PERIOD}">
-		</div>
+            {* show_nb_comments *}
+            <div id="action_show_nb_comments" class="bulkAction">
+                <label><input type="radio" name="show_nb_comments" value="true">{'Yes'|translate}</label>
+                <label><input type="radio" name="show_nb_comments" value="false" checked="checked">{'No'|translate}</label>
+            </div>
 
-		{* expand *}
-		<div id="action_expand" class="bulkAction">
-		    <label><input type="radio" name="expand" value="true">{'Yes'|translate}</label>
-		    <label><input type="radio" name="expand" value="false" checked="checked">{'No'|translate}</label>
-		</div>
+            {* show_nb_hits *}
+            <div id="action_show_nb_hits" class="bulkAction">
+                <label><input type="radio" name="show_nb_hits" value="true">{'Yes'|translate}</label>
+                <label><input type="radio" name="show_nb_hits" value="false" checked="checked">{'No'|translate}</label>
+            </div>
 
-		{* show_nb_comments *}
-		<div id="action_show_nb_comments" class="bulkAction">
-		    <label><input type="radio" name="show_nb_comments" value="true">{'Yes'|translate}</label>
-		    <label><input type="radio" name="show_nb_comments" value="false" checked="checked">{'No'|translate}</label>
-		</div>
+            <p id="applyActionBlock" style="display:none" class="actionButtons">
+                <input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span>
+                <span id="applyActionLoading" style="display:none"><img src="./theme/images/ajax-loader-small.gif" alt=""></span>
+                <span class="infos" style="display:none">&#x2714; {'Users modified'|translate}</span>
+            </p>
 
-		{* show_nb_hits *}
-		<div id="action_show_nb_hits" class="bulkAction">
-		    <label><input type="radio" name="show_nb_hits" value="true">{'Yes'|translate}</label>
-		    <label><input type="radio" name="show_nb_hits" value="false" checked="checked">{'No'|translate}</label>
-		</div>
-
-		<p id="applyActionBlock" style="display:none" class="actionButtons">
-		    <input id="applyAction" class="submit" type="submit" value="{'Apply action'|translate}" name="submit"> <span id="applyOnDetails"></span>
-		    <span id="applyActionLoading" style="display:none"><img src="./theme/images/ajax-loader-small.gif" alt=""></span>
-		    <span class="infos" style="display:none">&#x2714; {'Users modified'|translate}</span>
-		</p>
-
-	    </div> {* #permitAction *}
-	</fieldset>
+            </div> {* #permitAction *}
+        </div>
     </form>
 
     {* Underscore Template Definition *}
     <script type="text/template" class="userDetails">
      <form>
+     <div class="fieldset">
      <div class="userActions">
      <% if (!user.isGuest) { %>
      <span class="changePasswordDone infos" style="display:none">&#x2714; {'Password updated'|translate}</span>
-     <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> <a href="#" class="buttonLike updatePassword"><img src="./theme/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a></span>
+     <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> 
+     <button class="btn btn-submit text">{'Submit'|translate}</button> <button class="btn btn-cancel cancel">{'Cancel'|translate}</button></span>
      <a class="changePasswordOpen" href="#"><i class="fa fa-key"></i> {'Change password'|translate}</a>
      <br>
      <% } %>
@@ -309,7 +294,8 @@
      <% if (!user.isGuest) { %>
 	 <a href="#"><i class="fa fa-pencil"></i> {'Change username'|translate}</a></span>
      <span class="changeUsername" style="display:none">
-     <input type="text"> <a href="#" class="buttonLike updateUsername"><img src="./theme/images/ajax-loader-small.gif" alt="" style="margin-bottom:-1px;margin-left:1px;display:none;"><span class="text">{'Submit'|translate}</span></a> <a href="#" class="cancel">{'Cancel'|translate}</a>
+     <input type="text"> 
+     <button class="btn btn-submit text">{'Submit'|translate}</button> <button class="btn btn-cancel cancel">{'Cancel'|translate}</button>
      <% } %>
 
      </span>
@@ -319,82 +305,112 @@
      <div class="userPropertiesContainer">
      <input type="hidden" name="user_id" value="<%- user.id %>">
      <div class="userPropertiesSet">
-      <div class="userPropertiesSetTitle">{'Properties'|translate}</div>
+        <h3>{'Properties'|translate}</h3>
 
-      <div class="userProperty"><strong>{'Email address'|translate}</strong>
-        <br>
-     <% if (!user.isGuest) { %>
-        <input name="email" type="text" value="<%- user.email %>">
-     <% } else { %>
-      {'N/A'|translate}
-     <% } %>
+      <div class="userProperty">
+        <label>{'Email address'|translate}
+            <% if (!user.isGuest) { %>
+                <input class="form-control" name="email" type="text" value="<%- user.email %>">
+            <% } else { %>
+            {'N/A'|translate}
+            <% } %>
+        </label>
       </div>
 
-      <div class="userProperty"><strong>{'Status'|translate}</strong>
-        <br>
-     <% if (!user.isProtected) { %>
-        <select name="status">
-     <% _.each( user.statusOptions, function( option ){ %>
-          <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-     <% }); %>
-        </select>
-     <% } else { %>
-        <%- user.statusLabel %>
-     <% } %>
+      <div class="userProperty">
+        <label>{'Status'|translate}        
+        <% if (!user.isProtected) { %>
+            <select class="custom-select" name="status">
+        <% _.each( user.statusOptions, function( option ){ %>
+            <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
+        <% }); %>
+            </select>
+        <% } else { %>
+            <%- user.statusLabel %>
+        <% } %>
+        </label>
       </div>
 
-      <div class="userProperty"><strong>{'Privacy level'|translate}</strong>
-        <br>
-        <select name="level">
-     <% _.each( user.levelOptions, function( option ){ %>
-          <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-     <% }); %>
-        </select>
+      <div class="userProperty">
+        <label>{'Privacy level'|translate}
+            <select class="custom-select" name="level">
+        <% _.each( user.levelOptions, function( option ){ %>
+            <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
+        <% }); %>
+            </select>
+        </label>
       </div>
 
-      <div class="userProperty"><label><input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>> <strong>{'High definition enabled'|translate}</strong></label></div>
+      <div class="userProperty">
+        <label>
+            <input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>> 
+            {'High definition enabled'|translate}
+        </label>
+      </div>
 
-      <div class="userProperty"><strong>{'Groups'|translate}</strong><br>
-        <select data-selectize="groups" placeholder="{'Type in a search term'|translate}"
-          name="group_id[]" multiple style="width:340px;"></select>
+      <div class="userProperty">
+        <label>{'Groups'|translate}
+            <select data-selectize="groups" placeholder="{'Type in a search term'|translate}"
+            name="group_id[]" multiple></select>
+        </label>
       </div>
      </div>
 
      <div class="userPropertiesSet userPrefs">
       <div class="userPropertiesSetTitle">{'Preferences'|translate}</div>
 
-      <div class="userProperty"><strong class="nb_image_page_infos"></strong>
+      <div class="userProperty">
+        <strong class="nb_image_page_infos"></strong>
         <div class="nb_image_page"></div>
         <input type="hidden" name="nb_image_page" value="<%- user.nb_image_page %>">
       </div>
 
-      <div class="userProperty"><strong>{'Theme'|translate}</strong><br>
-        <select name="theme">
-     <% _.each( user.themeOptions, function( option ){ %>
-          <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-     <% }); %>
-        </select>
+      <div class="userProperty">
+        <label>{'Theme'|translate}
+            <select class="custom-select" name="theme">
+        <% _.each( user.themeOptions, function( option ){ %>
+            <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
+        <% }); %>
+            </select>
+        </label>
       </div>
 
-      <div class="userProperty"><strong>{'Language'|translate}</strong><br>
-        <select name="language">
-     <% _.each( user.languageOptions, function( option ){ %>
-          <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
-     <% }); %>
-        </select>
+      <div class="userProperty">
+        <label>{'Language'|translate}
+            <select class="custom-select" name="language">
+        <% _.each( user.languageOptions, function( option ){ %>
+            <option value="<%- option.value%>" <% if (option.isSelected) { %>selected="selected"<% } %>><%- option.label %></option>
+        <% }); %>
+            </select>
+        </label>
       </div>
 
-      <div class="userProperty"><strong>{'Recent period'|translate}</strong> <span class="recent_period_infos"></span>
+      <div class="userProperty">
+        <label>{'Recent period'|translate}</label> <span class="recent_period_infos"></span>
         <div class="recent_period"></div>
         <input type="hidden" name="recent_period" value="<%- user.recent_period %>">
       </div>
 
-      <div class="userProperty"><label><input type="checkbox" name="expand"<% if (user.expand == 'true') { %> checked="checked"<% }%>> <strong>{'Expand all albums'|translate}</strong></label></div>
+      <div class="userProperty">
+        <label>
+            <input type="checkbox" name="expand"<% if (user.expand == 'true') { %> checked="checked"<% }%>> 
+            {'Expand all albums'|translate}
+        </label>
+      </div>
 
-      <div class="userProperty"><label><input type="checkbox" name="show_nb_comments"<% if (user.show_nb_comments == 'true') { %> checked="checked"<% }%>> <strong>{'Show number of comments'|translate}</strong></label></div>
+      <div class="userProperty">
+        <label>
+            <input type="checkbox" name="show_nb_comments"<% if (user.show_nb_comments == 'true') { %> checked="checked"<% }%>> 
+            {'Show number of comments'|translate}
+        </label>
+      </div>
 
-      <div class="userProperty"><label><input type="checkbox" name="show_nb_hits"<% if (user.show_nb_hits == 'true') { %> checked="checked"<% }%>> <strong>{'Show number of hits'|translate}</strong></label></div>
-
+      <div class="userProperty">
+        <label>
+            <input type="checkbox" name="show_nb_hits"<% if (user.show_nb_hits == 'true') { %> checked="checked"<% }%>> 
+            {'Show number of hits'|translate}
+        </label>
+      </div>
      </div>
 
      <div style="clear:both"></div>
@@ -402,8 +418,9 @@
 
      <span class="infos propertiesUpdateDone" style="display:none">&#x2714; <%- user.updateString %></span>
 
-     <input type="submit" value="{'Update user'|translate|escape:html}" style="display:none;" data-user_id="<%- user.id %>">
+     <input class="btn btn-submit" type="submit" value="{'Update user'|translate|escape:html}" style="display:none;" data-user_id="<%- user.id %>">
      <img class="submitWait" src="./theme/images/ajax-loader-small.gif" alt="" style="display:none">
+     </div>
      </form>
     </script>
 {/block}

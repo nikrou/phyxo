@@ -9,20 +9,20 @@
     {html_head}
     <link rel="stylesheet" type="text/css" href="./theme/js/plugins/jquery.Jcrop.css" />
     {/html_head}
-    {combine_script id='jquery.jcrop' load='footer' require='jquery' path='./theme/js/plugins/jquery.Jcrop.js'}
+    {combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.Jcrop.js'}
+    {include file='include/colorbox.inc.tpl'}
 
     <form method="post">
-
-	<fieldset>
-	    <legend>{'Photo sizes with crop'|translate}</legend>
-	    {foreach from=$cropped_derivatives item=deriv}
+	<div class="fieldset">
+	    <h3>{'Photo sizes with crop'|translate}</h3>
+	    {foreach $cropped_derivatives as $deriv}
 		<img src="{$deriv.U_IMG}" alt="{$ALT}" {$deriv.HTM_SIZE}>
 	    {/foreach}
-	</fieldset>
+	</div>
 
-	<fieldset>
-	    <legend>{'Center of interest'|translate}</legend>
-	    <p style="margin:0 0 10px 0;padding:0;">
+	<div class="fieldset">
+	    <h3>{'Center of interest'|translate}</h3>
+	    <p>
 		{'The center of interest is the most meaningful zone in the photo.'|translate}
 		{'For photo sizes with crop, such as "Square", Phyxo will do its best to include the center of interest.'|translate}
 		{'By default, the center of interest is placed in the middle of the photo.'|translate}
@@ -36,9 +36,9 @@
 	    <img id="jcrop" src="{$U_IMG}" alt="{$ALT}">
 
 	    <p>
-		<input type="submit" name="submit" value="{'Submit'|translate}">
+		<input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
 	    </p>
-	</fieldset>
+	</div>
     </form>
 
     {footer_script}

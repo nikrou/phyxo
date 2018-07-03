@@ -11,52 +11,55 @@
 
     <form action="{$F_ACTION}" method="post">
 	{if !empty($thumbnails)}
-	    <p><input type="submit" value="{'Submit'|translate}" name="submit"></p>
-	    <fieldset>
-		<legend>{'Manual order'|translate}</legend>
-		{if !empty($thumbnails)}
-		    <p>{'Drag to re-order'|translate}</p>
-		    <ul class="thumbnails">
+	    <p><input class="btn btn-submit" type="submit" value="{'Submit'|translate}" name="submit"></p>
+	    <div class="fieldset">
+			<h3>{'Manual order'|translate}</h3>
+			<p>{'Drag to re-order'|translate}</p>
+			<ul class="thumbnails sort-order">
 			{foreach from=$thumbnails item=thumbnail}
-			    <li class="rank-of-image">
-				<img src="{$thumbnail.TN_SRC}" class="thumbnail" alt="{$thumbnail.NAME|@replace:'"':' '}" title="{$thumbnail.NAME|@replace:'"':' '}"  style="width:{$thumbnail.SIZE[0]}px; height:{$thumbnail.SIZE[1]}px; ">
-				<input type="text" name="rank_of_image[{$thumbnail.ID}]" value="{$thumbnail.RANK}" style="display:none">
-			    </li>
+				<li class="rank-of-image">
+					<img src="{$thumbnail.TN_SRC}" class="thumbnail" alt="{$thumbnail.NAME|@replace:'"':' '}" title="{$thumbnail.NAME|@replace:'"':' '}"  style="width:{$thumbnail.SIZE[0]}px; height:{$thumbnail.SIZE[1]}px; ">
+					<input type="text" name="rank_of_image[{$thumbnail.ID}]" value="{$thumbnail.RANK}" style="display:none">
+				</li>
 			{/foreach}
-		    </ul>
-		{/if}
-	    </fieldset>
+			</ul>
+	    </div>
 	{/if}
 
-	<fieldset>
-	    <legend>{'Sort order'|translate}</legend>
-	    <p class="field">
-		<input type="radio" name="image_order_choice" id="image_order_default" value="default"{if $image_order_choice=='default'} checked="checked"{/if}>
-		<label for="image_order_default">{'Use the default photo sort order'|translate}</label>
+	<div class="fieldset">
+	    <h3>{'Sort order'|translate}</h3>
+	    <p>
+			<input type="radio" name="image_order_choice" id="image_order_default" value="default"{if $image_order_choice=='default'} checked="checked"{/if}>
+			<label for="image_order_default">{'Use the default photo sort order'|translate}</label>
 	    </p>
-	    <p class="field">
-		<input type="radio" name="image_order_choice" id="image_order_rank" value="rank"{if $image_order_choice=='rank'} checked="checked"{/if}>
-		<label for="image_order_rank">{'manual order'|translate}</label>
+
+	    <p>
+			<input type="radio" name="image_order_choice" id="image_order_rank" value="rank"{if $image_order_choice=='rank'} checked="checked"{/if}>
+			<label for="image_order_rank">{'manual order'|translate}</label>
 	    </p>
-	    <p class="field">
-		<input type="radio" name="image_order_choice" id="image_order_user_define" value="user_define"{if $image_order_choice=='user_define'} checked="checked"{/if}>
-		<label for="image_order_user_define">{'automatic order'|translate}</label>
+
+	    <p>
+			<input type="radio" name="image_order_choice" id="image_order_user_define" value="user_define"{if $image_order_choice=='user_define'} checked="checked"{/if}>
+			<label for="image_order_user_define">{'automatic order'|translate}</label>
+		</p>
+
 		<div id="image_order_user_define_options">
-		    {foreach from=$image_order item=order}
-			<p class="field">
-			    <select name="image_order[]">
+		    {foreach $image_order as $order}
+			<p>
+			    <select class="custom-select" name="image_order[]">
 				{html_options options=$image_order_options selected=$order}
 			    </select>
 			</p>
 		    {/foreach}
 		</div>
-	</fieldset>
+	</div>
+
 	<p>
-	    <input type="submit" value="{'Submit'|translate}" name="submit">
+	    <input class="btn btn-submit" type="submit" value="{'Submit'|translate}" name="submit">
 
 	    <label>
-		<input type="checkbox" name="image_order_subcats" id="image_order_subcats">
-		{'Apply to sub-albums'|translate}
+			<input type="checkbox" name="image_order_subcats" id="image_order_subcats">
+			{'Apply to sub-albums'|translate}
 	    </label>
 	</p>
     </form>

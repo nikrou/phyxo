@@ -10,10 +10,10 @@
  */
 
 if (!defined('ALBUM_BASE_URL')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
@@ -37,7 +37,7 @@ if (!empty($_POST)) {
         //
         // manage groups
         //
-        $query = 'SELECT group_id FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id = '.$conn->db_real_escape_string($page['cat']);
+        $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
         $groups_granted = $conn->query2array($query, null, 'group_id');
 
         if (!isset($_POST['groups'])) {
@@ -51,9 +51,9 @@ if (!empty($_POST)) {
         if (count($deny_groups) > 0) {
             // if you forbid access to an album, all sub-albums become
             // automatically forbidden
-            $query = 'DELETE FROM '.GROUP_ACCESS_TABLE;
-            $query .= ' WHERE group_id '.$conn->in($deny_groups);
-            $query .= ' AND cat_id '.$conn->in(get_subcat_ids(array($page['cat'])));
+            $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
+            $query .= ' WHERE group_id ' . $conn->in($deny_groups);
+            $query .= ' AND cat_id ' . $conn->in(get_subcat_ids(array($page['cat'])));
             $conn->db_query($query);
         }
 
@@ -67,8 +67,8 @@ if (!empty($_POST)) {
                 $cat_ids = array_merge($cat_ids, get_subcat_ids(array($page['cat'])));
             }
 
-            $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-            $query .= ' WHERE id '.$conn->in($cat_ids).' AND status = \'private\';';
+            $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+            $query .= ' WHERE id ' . $conn->in($cat_ids) . ' AND status = \'private\';';
             $private_cats = $conn->query2array($query, null, 'id');
 
             $inserts = array();
@@ -83,7 +83,7 @@ if (!empty($_POST)) {
 
             $conn->mass_inserts(
                 GROUP_ACCESS_TABLE,
-                array('group_id','cat_id'),
+                array('group_id', 'cat_id'),
                 $inserts,
                 array('ignore' => true)
             );
@@ -92,7 +92,7 @@ if (!empty($_POST)) {
         //
         // users
         //
-        $query = 'SELECT user_id FROM '.USER_ACCESS_TABLE.' WHERE cat_id = '.$conn->db_real_escape_string($page['cat']);
+        $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
         $users_granted = $conn->query2array($query, null, 'user_id');
 
         if (!isset($_POST['users'])) {
@@ -106,9 +106,9 @@ if (!empty($_POST)) {
         if (count($deny_users) > 0) {
             // if you forbid access to an album, all sub-album become automatically
             // forbidden
-            $query = 'DELETE FROM '.USER_ACCESS_TABLE;
-            $query .= ' WHERE user_id '.$conn->in($deny_users);
-            $query .= ' AND cat_id '.$conn->in(get_subcat_ids(array($page['cat'])));
+            $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
+            $query .= ' WHERE user_id ' . $conn->in($deny_users);
+            $query .= ' AND cat_id ' . $conn->in(get_subcat_ids(array($page['cat'])));
             $conn->db_query($query);
         }
 
@@ -131,12 +131,12 @@ if (!empty($_POST)) {
 $template->assign(
     array(
         'CATEGORIES_NAV' =>
-        get_cat_display_name_from_id(
+            get_cat_display_name_from_id(
             $page['cat'],
             'admin/index.php?page=album&amp;cat_id='
         ),
         //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_perm',
-        'F_ACTION' => ALBUM_BASE_URL.'&amp;section=permissions',
+        'F_ACTION' => ALBUM_BASE_URL . '&amp;section=permissions',
         'private' => ('private' == $category['status']),
     )
 );
@@ -150,24 +150,24 @@ $template->assign(
 
 $groups = array();
 
-$query = 'SELECT id, name FROM '.GROUPS_TABLE.' ORDER BY name ASC;';
+$query = 'SELECT id, name FROM ' . GROUPS_TABLE . ' ORDER BY name ASC;';
 $groups = $conn->query2array($query, 'id', 'name');
 $template->assign('groups', $groups);
 
 // groups granted to access the category
-$query = 'SELECT group_id FROM '.GROUP_ACCESS_TABLE.' WHERE cat_id = '.$conn->db_real_escape_string($page['cat']);
+$query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
 $group_granted_ids = $conn->query2array($query, null, 'group_id');
 $template->assign('groups_selected', $group_granted_ids);
 
 // users...
 $users = array();
 
-$query = 'SELECT '.$conf['user_fields']['id'].' AS id,';
-$query .= $conf['user_fields']['username'].' AS username FROM '.USERS_TABLE;
+$query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
+$query .= $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
 $users = $conn->query2array($query, 'id', 'username');
 $template->assign('users', $users);
 
-$query = 'SELECT user_id FROM '.USER_ACCESS_TABLE.' WHERE cat_id = '.$conn->db_real_escape_string($page['cat']);
+$query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
 $user_granted_direct_ids = $conn->query2array($query, null, 'user_id');
 $template->assign('users_selected', $user_granted_direct_ids);
 
@@ -175,8 +175,8 @@ $user_granted_indirect_ids = array();
 if (count($group_granted_ids) > 0) {
     $granted_groups = array();
 
-    $query = 'SELECT user_id, group_id FROM '.USER_GROUP_TABLE;
-    $query .= ' WHERE group_id '.$conn->in($group_granted_ids);
+    $query = 'SELECT user_id, group_id FROM ' . USER_GROUP_TABLE;
+    $query .= ' WHERE group_id ' . $conn->in($group_granted_ids);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         if (!isset($granted_groups[$row['group_id']])) {
@@ -199,7 +199,6 @@ if (count($group_granted_ids) > 0) {
     );
 
     $template->assign('nb_users_granted_indirect', count($user_granted_indirect_ids));
-
     foreach ($granted_groups as $group_id => $group_users) {
         $group_usernames = array();
         foreach ($group_users as $user_id) {
@@ -222,7 +221,7 @@ if (count($group_granted_ids) > 0) {
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 $template->assign(array(
-    'PWG_TOKEN' => get_pwg_token(),
-    'INHERIT' => $conf['inheritance_by_default'],
-    'CACHE_KEYS' => get_admin_client_cache_keys(array('groups', 'users')),
+    ' PWG_TOKEN ' => get_pwg_token(),
+    ' INHERIT ' => $conf['inheritance_by_default'],
+    ' CACHE_KEYS ' => get_admin_client_cache_keys(array('groups', 'users')),
 ));

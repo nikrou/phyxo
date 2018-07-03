@@ -86,70 +86,71 @@
 
 
 	    <form id="uploadForm" enctype="multipart/form-data" method="post" action="{$form_action}">
-		<fieldset class="selectAlbum">
-		    <legend>{'Drop into album'|translate}</legend>
+		<div class="fieldset">
+		    <h3>{'Drop into album'|translate}</h3>
 
 		    <span id="albumSelection" style="display:none">
 			<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
 						data-default="first" name="category" style="width:600px"></select>
 			<br>{'... or '|translate}</span>
-			<a href="#" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
-		</fieldset>
+			<button class="btn btn-sm btn-submit" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</button>
+		</div>
 
-		<p class="showFieldset" style="display:none"><a id="showPermissions" href="#">{'Manage Permissions'|translate}</a></p>
+		<p class="showFieldset">
+			<a href="#permissions" class="btn btn-success" data-toggle="collapse">{'Manage Permissions'|translate}</a>
+		</p>
 
-		<fieldset id="permissions" style="display:none">
-		    <legend>{'Who can see these photos?'|translate}</legend>
+		<div class="fieldset collapse" id="permissions">
+		    <h3>{'Who can see these photos?'|translate}</h3>
 
-		    <select name="level" size="1">
-			{html_options options=$level_options selected=$level_options_selected}
+		    <select class="custom-select" name="level" size="1">
+				{html_options options=$level_options selected=$level_options_selected}
 		    </select>
-		</fieldset>
+		</div>
 
-		<fieldset class="selectFiles" style="display:none">
-		    <legend>{'Select files'|translate}</legend>
+		<div class="fieldset selectFiles">
+		    <h3>{'Select files'|translate}</h3>
 
-		    <button id="addFiles" class="buttonLike"><i class="fa fa-plus-circle"></i> {'Add Photos'|translate}</button>
+		    <button id="addFiles" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {'Add Photos'|translate}</button>
 
 		    {if isset($original_resize_maxheight)}
-			<p class="uploadInfo">{'The picture dimensions will be reduced to %dx%d pixels.'|translate:$original_resize_maxwidth:$original_resize_maxheight}</p>
+			<p class="form-text">{'The picture dimensions will be reduced to %dx%d pixels.'|translate:$original_resize_maxwidth:$original_resize_maxheight}</p>
 		    {/if}
 
-		    <p id="uploadWarningsSummary">
-			{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if}
-			<a class="showInfo" title="{'Learn more'|translate}"><i class="fa fa-info-circle"></i></a>
+		    <p class="form-text">
+				{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if}
+				<a class="showInfo" title="{'Learn more'|translate}"><i class="fa fa-info-circle"></i></a>
 		    </p>
 
-		    <p id="uploadWarnings">
-			{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
-			{'Allowed file types: %s.'|translate:$upload_file_types}
-			{if isset($max_upload_resolution)}
-			    {'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
-			{/if}
+		    <p>
+				{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
+				{'Allowed file types: %s.'|translate:$upload_file_types}
+				{if isset($max_upload_resolution)}
+			    	{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
+				{/if}
 		    </p>
 
 		    <div id="uploader">
-			<p>Your browser doesn't have HTML5 support.</p>
+				<p>Your browser doesn't have HTML5 support.</p>
 		    </div>
 
-		</fieldset>
+		</div>
 
 		<div id="uploadingActions" style="display:none">
-		    <button id="cancelUpload" class="buttonLike"><i class="fa fa-times-circle"></i> {'Cancel'|translate}</button>
+		    <button id="cancelUpload" class="btn btn-cancel"><i class="fa fa-times-circle"></i> {'Cancel'|translate}</button>
 
 		    <div class="big-progressbar">
-			<div class="progressbar" style="width:0%"></div>
+				<div class="progressbar" style="width:0%"></div>
 		    </div>
 		</div>
 
-		<button id="startUpload" class="buttonLike" disabled><i class="fa fa-upload"></i> {'Start Upload'|translate}</button>
+		<button id="startUpload" class="btn btn-success" disabled><i class="fa fa-upload"></i> {'Start Upload'|translate}</button>
 	    </form>
 
-	    <fieldset style="display:none">
-		<legend>{'Uploaded Photos'|translate}</legend>
-		<div id="uploadedPhotos"></div>
-	    </fieldset>
-
+	    <div class="fieldset" style="display:none">
+			<h3>{'Uploaded Photos'|translate}</h3>
+			<div id="uploadedPhotos"></div>
+	    </div>
 	{/if} {* $setup_errors *}
     </div> <!-- photosAddContent -->
 {/block}

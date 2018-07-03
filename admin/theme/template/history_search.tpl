@@ -153,12 +153,6 @@
 		       content += ' href="#">show on a Google Map</a>';
 		       }
 
-  		       that.tipTip( {
-  		       content: content,
-		       keepAlive: true,
-		       defaultPosition: "right",
-		       maxWidth: 320,
-  		       }	);
   		       if (that.data("isOver"))
   		       that.trigger("mouseenter");
   		       });

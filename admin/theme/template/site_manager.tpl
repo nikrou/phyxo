@@ -5,16 +5,6 @@
 {/block}
 
 {block name="content"}
-    {footer_script}{literal}
-    $(function(){
-    $("#showCreateSite a").click(function(){
-    $("#showCreateSite").hide();
-    $("#createSite").show();
-    });
-    });
-    {/literal}{/footer_script}
-
-
     {if not empty($remote_output)}
 	<div class="remoteOutput">
 	    <ul>
@@ -26,46 +16,60 @@
     {/if}
 
     {if not empty($sites)}
-	<table class="table2">
-	    <tr class="throw">
-		<td>{'Directory'|translate}</td>
-		<td>{'Actions'|translate}</td>
-	    </tr>
-	    {foreach from=$sites item=site name=site}
-		<tr style="text-align:left" class="{if $smarty.foreach.site.index is odd}row1{else}row2{/if}"><td>
-		    <a href="{$site.NAME}">{$site.NAME}</a><br>({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {$site.IMAGES|translate_dec:'%d photo':'%d photos'})
-		</td><td>
+	<table class="table table-hover table-striped">
+		<thead>
+			<tr>
+				<td>{'Directory'|translate}</td>
+				<td>{'Actions'|translate}</td>
+			</tr>
+		</thead>
+		<tbody>
+	    {foreach $sites as $site}
+		<tr>
+			<td>
+		    	<a href="{$site.NAME}">{$site.NAME}</a><br>
+				({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {$site.IMAGES|translate_dec:'%d photo':'%d photos'})
+		 	</td>
+			<td>
 		    [<a href="{$site.U_SYNCHRONIZE}" title="{'update the database from files'|translate}">{'Synchronize'|translate}</a>]
 		    {if isset($site.U_DELETE)}
-			[<a href="{$site.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|escape:'javascript'}');"
+			[<a href="{$site.U_DELETE}" onClick="return confirm('{'Are you sure?'|translate|escape:'javascript'}');"
 				  title="{'delete this site and all its attached elements'|translate}">{'delete'|translate}</a>]
 		    {/if}
 		    {if not empty($site.plugin_links)}
 			<br>
-			{foreach from=$site.plugin_links item=plugin_link}
+			{foreach $site.plugin_links as $plugin_link}
 			    [<a href="{$plugin_link.U_HREF}" title='{$plugin_link.U_HINT}'>{$plugin_link.U_CAPTION}</a>]
 			{/foreach}
 		    {/if}
-		</td></tr>
+			</td>
+		</tr>
 	    {/foreach}
+		</tbody>	
 	</table>
     {/if}
 
-    <p id="showCreateSite" style="text-align:left;margin-left:1em;">
-	<a href="#">{'create a new site'|translate}</a>
+    <p>
+		<a class="btn btn-submit" data-toggle="collapse" href="#create-site">{'create a new site'|translate}</a>
     </p>
 
-    <form action="{$F_ACTION}" method="post" id="createSite" style="display:none">
-	<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
-	<fieldset>
-	    <legend>{'create a new site'|translate}</legend>
+	<div id="create-site" class="collapse">
+    	<form action="{$F_ACTION}" method="post">
+		    <div class="fieldset">
+				<h3>{'create a new site'|translate}</h3>
 
-	    <p style="margin-top:0;"><strong>{'Directory'|translate}</strong>
-		<br><input type="text" name="galleries_url" id="galleries_url">
-	    </p>
+		    	<p>
+					<label>{'Directory'|translate}
+					<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
+					<input type="text" class="form-control" name="galleries_url" id="galleries_url">
+					</label>
+	    		</p>
 
-	    <p class="actionButtons">
-		<input class="submit" type="submit" name="submit" value="{'Submit'|translate}">
-	    </p>
-    </form>
+	    		<p>
+					<input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
+					<a class="btn btn-cancel" href="#create-site" data-toggle="collapse">{'Cancel'|translate}</a>
+	    		</p>
+			</div>
+    	</form>
+	</div>
 {/block}

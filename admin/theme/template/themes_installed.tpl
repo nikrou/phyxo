@@ -7,25 +7,16 @@
 
 {block name="content"}
     {include file='include/colorbox.inc.tpl'}
-
-    {footer_script}{literal}
-    $(function() {
-    $("a.preview-box").colorbox();
-
-    });
-    {/literal}{/footer_script}
     <div id="themesContent">
+		{assign var='field_name' value='null'} {* <!-- 'counter' for fieldset management --> *}
+		{foreach from=$tpl_themes item=theme}
+		    {if $field_name != $theme.STATE}
+			{if $field_name != 'null'}
+    			</div>
+  				</div>
+			{/if}
 
-	{assign var='field_name' value='null'} {* <!-- 'counter' for fieldset management --> *}
-	{foreach from=$tpl_themes item=theme}
-
-	    {if $field_name != $theme.STATE}
-		{if $field_name != 'null'}
-    </div>
-  </fieldset>
-		{/if}
-
-		<fieldset>
+		<div class="fieldset">
 		    <legend>
 			{if $theme.STATE == 'active'}
 			    {'Active Themes'|translate}
@@ -66,22 +57,22 @@
 			    {/if}
 
 			    {if not $theme.IS_DEFAULT}
-				| <a href="{$set_default_baseurl}{$theme.ID}" class="tiptip" title="{'Set as default theme for unregistered and new users'|translate}">{'Default'|translate}</a>
+				| <a href="{$set_default_baseurl}{$theme.ID}" title="{'Set as default theme for unregistered and new users'|translate}">{'Default'|translate}</a>
 			    {/if}
 			    {if $theme.ADMIN_URI}
-				<br><a href="{$theme.ADMIN_URI}" class="tiptip" title="{'Configuration'|translate}">{'Configuration'|translate}</a>
+				<br><a href="{$theme.ADMIN_URI}" title="{'Configuration'|translate}">{'Configuration'|translate}</a>
 			    {/if}
 			{else}
 			    {if $theme.ACTIVABLE}
-				<a href="{$activate_baseurl}{$theme.ID}" title="{'Make this theme available to users'|translate}" class="tiptip">{'Activate'|translate}</a>
+				<a href="{$activate_baseurl}{$theme.ID}" title="{'Make this theme available to users'|translate}">{'Activate'|translate}</a>
 			    {else}
-				<span title="{$theme.ACTIVATE_TOOLTIP}" class="tiptip">{'Activate'|translate}</span>
+				<span title="{$theme.ACTIVATE_TOOLTIP}">{'Activate'|translate}</span>
 			    {/if}
 			    |
 			    {if $theme.DELETABLE}
 				<a href="{$delete_baseurl}{$theme.ID}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');" title="{'Delete this theme'|translate}">{'Delete'|translate}</a>
 			    {else}
-				<span title="{$theme.DELETE_TOOLTIP}" class="tiptip">{'Delete'|translate}</span>
+				<span title="{$theme.DELETE_TOOLTIP}">{'Delete'|translate}</span>
 			    {/if}
 			{/if}
 		    </div>
@@ -90,7 +81,7 @@
 
 	{/foreach}
 		    </div> <!-- themeBoxes -->
-		</fieldset>
+		</div>
 
     </div> <!-- themesContent -->
 {/block}

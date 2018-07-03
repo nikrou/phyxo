@@ -30,7 +30,7 @@
 		<p>
 		    <label>
 			{'Number of comments per page'|translate}
-			<input type="text" size="3" maxlength="4" name="nb_comment_page" id="nb_comment_page" value="{$comments.NB_COMMENTS_PAGE}">
+			<input class="form-control" type="text" size="3" maxlength="4" name="nb_comment_page" id="nb_comment_page" value="{$comments.NB_COMMENTS_PAGE}">
 		    </label>
 		</p>
 

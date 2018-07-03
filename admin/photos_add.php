@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-if( !defined("PHPWG_ROOT_PATH") ) {
-    die ("Hacking attempt!");
+if (!defined("PHPWG_ROOT_PATH")) {
+    die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
 
-define('PHOTOS_ADD_BASE_URL', get_root_url().'admin/index.php?page=photos_add');
+define('PHOTOS_ADD_BASE_URL', get_root_url() . 'admin/index.php?page=photos_add');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -43,10 +43,12 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('direct', l10n('Web Form'), PHOTOS_ADD_BASE_URL.'&amp;section=direct', 'fa-upload');
+$tabsheet->add('direct', l10n('Web Form'), PHOTOS_ADD_BASE_URL . '&amp;section=direct', 'fa-upload');
+/*
 if ($conf['enable_synchronization']) {
     $tabsheet->add('ftp', l10n('FTP + Synchronization'), PHOTOS_ADD_BASE_URL.'&amp;section=ftp', 'fa-exchange');
 }
+ */
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -58,6 +60,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'photos_add_'.$page['section'];
+$template_filename = 'photos_add_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/photos_add_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/photos_add_' . $page['section'] . '.php');

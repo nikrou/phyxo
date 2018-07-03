@@ -10,97 +10,40 @@
 
     {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
 
-    {footer_script require='jquery'}
-    (function(){
-    var targets = {
-    'input[name="rate"]' : '#rate_anonymous',
-    'input[name="allow_user_registration"]' : '#email_admin_on_new_user'
-    };
-
-    for (selector in targets) {
-    var target = targets[selector];
-
-    jQuery(target).toggle(jQuery(selector).is(':checked'));
-
-    (function(target){
-    jQuery(selector).on('change', function() {
-    jQuery(target).toggle($(this).is(':checked'));
-    });
-    })(target);
-    };
-    }());
-
-    {if !isset($ORDER_BY_IS_CUSTOM)}
-	(function(){
-	var max_fields = Math.ceil({$main.order_by_options|@count}/2);
-
-	function updateFilters() {
-	var $selects = jQuery('#order_filters select');
-
-	jQuery('#order_filters .addFilter').toggle($selects.length <= max_fields);
-	jQuery('#order_filters .removeFilter').css('display', '').filter(':first').css('display', 'none');
-
-	$selects.find('option').removeAttr('disabled');
-	$selects.each(function() {
-	$selects.not(this).find('option[value="'+ jQuery(this).val() +'"]').attr('disabled', 'disabled');
-	});
-	}
-
-	jQuery('#order_filters').on('click', '.removeFilter', function() {
-	jQuery(this).parent('span.filter').remove();
-	updateFilters();
-	});
-
-	jQuery('#order_filters').on('change', 'select', updateFilters);
-
-	jQuery('#order_filters .addFilter').click(function() {
-	jQuery(this).prev('span.filter').clone().insertBefore(jQuery(this));
-	jQuery(this).prev('span.filter').children('select').val('');
-	updateFilters();
-	});
-
-	updateFilters();
-	}());
-    {/if}
-
-    jQuery(".themeBoxes a").colorbox();
-
-    jQuery("input[name='mail_theme']").change(function() {
-    jQuery("input[name='mail_theme']").parents(".themeBox").removeClass("themeDefault");
-    jQuery(this).parents(".themeBox").addClass("themeDefault");
-    });
-    {/footer_script}
-
     <form method="post" action="{$F_ACTION}" class="properties">
 	<div class="fieldset">
 	    <h3>{'Basic settings'|translate}</h3>
 	    <p>
-		<label for="gallery_title">{'Gallery title'|translate}</label>
-		<input type="text" maxlength="255" size="50" name="gallery_title" id="gallery_title" value="{$main.CONF_GALLERY_TITLE}">
+			<label for="gallery_title">{'Gallery title'|translate}</label>
+			<input type="text" class="form-control" maxlength="255" size="50" name="gallery_title" id="gallery_title" value="{$main.CONF_GALLERY_TITLE}">
 	    </p>
 
 	    <p>
-		<label for="page_banner">{'Page banner'|translate}</label>
-		<textarea rows="5" cols="50" class="description" name="page_banner" id="page_banner">{$main.CONF_PAGE_BANNER}</textarea>
+			<label for="page_banner">{'Page banner'|translate}</label>
+			<textarea class="form-control" rows="5" cols="50" class="description" name="page_banner" id="page_banner">{$main.CONF_PAGE_BANNER}</textarea>
 	    </p>
 
-	    <p>
-		<label>{'Default photos order'|translate}</label>
-		{foreach $main.order_by as $order}
-		    <span class="filter {if isset($ORDER_BY_IS_CUSTOM)}transparent{/if}">
-			<select name="order_by[]" {if isset($ORDER_BY_IS_CUSTOM)}disabled{/if}>
-			    {html_options options=$main.order_by_options selected=$order}
-			</select>
-			<a class="removeFilter">{'delete'|translate}</a>
-		    </span>
-		{/foreach}
+	    <div id="order_filters">
+			<h4>{'Default photos order'|translate}</h4>
+			{foreach $main.order_by as $order}
+				<div class="input-group filter {if isset($ORDER_BY_IS_CUSTOM)}transparent{/if}">
+					<select class="custom-select" name="order_by[]" {if isset($ORDER_BY_IS_CUSTOM)}disabled{/if}>
+						{html_options options=$main.order_by_options selected=$order}
+					</select>
+					<div class="input-group-append">
+						{if $order@index==0}
+							<button class="input-group-btn add-filter btn btn-success fa fa-plus"><span class="visually-hidden">{'Add a criteria'|translate}</span></button>
+						{else}
+							<button class="input-group-btn remove-filter btn btn-danger fa fa-minus"><span class="visually-hidden">{'delete'|translate}</span></button>
+						{/if}
+        			</div>
+				</div>
+			{/foreach}
 
-		{if !isset($ORDER_BY_IS_CUSTOM)}
-		    <a class="addFilter">{'Add a criteria'|translate}</a>
-		{else}
-		    <span class="order_by_is_custom">{'You can\'t define a default photo order because you have a custom setting in your local configuration.'|translate}</span>
-		{/if}
-	    </p>
+			{if isset($ORDER_BY_IS_CUSTOM)}
+				<p class="order_by_is_custom">{'You can\'t define a default photo order because you have a custom setting in your local configuration.'|translate}</p>
+			{/if}
+	    </div>
 	</div>
 
 	<div class="fieldset">
@@ -151,7 +94,7 @@
 	    <h3>{'Miscellaneous'|translate}</h3>
 	    <p>
 		<label>{'Week starts on'|translate}
-		    {html_options name="week_starts_on" options=$main.week_starts_on_options selected=$main.week_starts_on_options_selected}
+		    {html_options class="custom-select" name="week_starts_on" options=$main.week_starts_on_options selected=$main.week_starts_on_options_selected}
 		</label>
 	    </p>
 

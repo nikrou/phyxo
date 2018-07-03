@@ -329,18 +329,20 @@
 		<h3>{'Filter'|translate}</h3>
 
 		<ul id="filterList">
-		    <li id="filter_prefilter" {if !isset($filter.prefilter)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="{'remove this filter'|translate}"><span>[x]</span></a>
+		    <li id="filter_prefilter" {if !isset($filter.prefilter)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_prefilter_use" class="useFilterCheckbox" {if isset($filter.prefilter)}checked="checked"{/if}>
 			{'Predefined filter'|translate}
-			<select name="filter_prefilter">
+			<select class="custom-select" name="filter_prefilter">
 			    {foreach from=$prefilters item=prefilter}
 				<option value="{$prefilter.ID}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
 			    {/foreach}
 			</select>
-			<a id="empty_caddie" href="./index.php?page=batch_manager&amp;action=empty_caddie" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}display:none{/if}">{'Empty caddie'|translate}</a>
+			<a id="empty_caddie" href="./index.php?page=batch_manager&amp;action=empty_caddie"
+			   class="btn btn-success {if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}visually-hidden{/if}">{'Empty caddie'|translate}
+			</a>
 
-			<span id="duplicates_options" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}display:none{/if}">
+			<span id="duplicates_options" class="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}visually-hidden{/if}">
 			    {'based on'|translate}
 			    <input type="checkbox" checked="checked" disabled="disabled"> {'file name'|translate}
 			    <label><input type="checkbox" name="filter_duplicates_date" {if isset($filter.duplicates_date) or (isset($filter.prefilter) and $filter.prefilter ne 'duplicates')}checked="checked"{/if}> {'date & time'|translate}</label>
@@ -348,8 +350,8 @@
 			</span>
 		    </li>
 
-		    <li id="filter_category" {if !isset($filter.category)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_category" {if !isset($filter.category)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_category_use" class="useFilterCheckbox" {if isset($filter.category)}checked="checked"{/if}>
 			{'Album'|translate}
 			<select data-selectize="categories" data-value="{$filter_category_selected|@json_encode|escape:html}"
@@ -357,29 +359,34 @@
 			<label><input type="checkbox" name="filter_category_recursive" {if isset($filter.category_recursive)}checked="checked"{/if}> {'include child albums'|translate}</label>
 		    </li>
 
-		    <li id="filter_tags" {if !isset($filter.tags)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_tags" {if !isset($filter.tags)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_tags_use" class="useFilterCheckbox" {if isset($filter.tags)}checked="checked"{/if}>
 			{'Tags'|translate}
 			<select data-selectize="tags" data-value="{$filter_tags|@json_encode|escape:html}"
-						placeholder="{'Type in a search term'|translate}"
-						name="filter_tags[]" multiple style="width:600px;"></select>
-			<label><span><input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}> {'All tags'|translate}</span></label>
-			<label><span><input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}> {'Any tag'|translate}</span></label>
+				placeholder="{'Type in a search term'|translate}" name="filter_tags[]" multiple></select>
+			<label>
+			    <input type="radio" name="tag_mode" value="AND" {if !isset($filter.tag_mode) or $filter.tag_mode eq 'AND'}checked="checked"{/if}>
+			    {'All tags'|translate}
+			</label>
+			<label>
+			    <input type="radio" name="tag_mode" value="OR" {if isset($filter.tag_mode) and $filter.tag_mode eq 'OR'}checked="checked"{/if}>
+			    {'Any tag'|translate}
+			</label>
 		    </li>
 
-		    <li id="filter_level" {if !isset($filter.level)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_level" {if !isset($filter.level)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_level_use" class="useFilterCheckbox" {if isset($filter.level)}checked="checked"{/if}>
 			{'Privacy level'|translate}
-			<select name="filter_level" size="1">
+			<select class="custom-select" name="filter_level" size="1">
 			    {html_options options=$filter_level_options selected=$filter_level_options_selected}
 			</select>
 			<label><input type="checkbox" name="filter_level_include_lower" {if isset($filter.level_include_lower)}checked="checked"{/if}> {'include photos with lower privacy level'|translate}</label>
 		    </li>
 
-		    <li id="filter_dimension" {if !isset($filter.dimension)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_dimension" {if !isset($filter.dimension)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_dimension_use" class="useFilterCheckbox" {if isset($filter.dimension)}checked="checked"{/if}>
 			{'Dimensions'|translate}
 
@@ -417,8 +424,8 @@
 			</blockquote>
 		    </li>
 
-		    <li id="filter_search"{if !isset($filter.search)} style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_search"{if !isset($filter.search)} class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{if isset($filter.search)} checked="checked"{/if}>
 			{'Search'|translate}
 			<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
@@ -435,8 +442,8 @@
 			{/if}
 		    </li>
 
-		    <li id="filter_filesize" {if !isset($filter.filesize)}style="display:none"{/if}>
-			<a href="#" class="removeFilter" title="remove this filter"><span>[x]</span></a>
+		    <li id="filter_filesize" {if !isset($filter.filesize)}class="collapse"{/if}>
+			<button type="button" class="btn btn-sm btn-delete removeFilter" title="{'remove this filter'|translate}"><i class="fa fa-times"></i></button>
 			<input type="checkbox" name="filter_filesize_use" class="useFilterCheckbox" {if isset($filter.filesize)}checked="checked"{/if}>
 			{'Filesize'|translate}
 
@@ -454,7 +461,7 @@
 		</ul>
 
 		<p class="actionButtons">
-		    <select id="addFilter">
+		    <select class="custom-select" id="addFilter">
 			<option value="-1">{'Add a filter'|translate}</option>
 			<option disabled="disabled">------------------</option>
 			<option value="filter_prefilter" {if isset($filter.prefilter)}disabled="disabled"{/if}>{'Predefined filter'|translate}</option>
@@ -465,11 +472,12 @@
 			<option value="filter_filesize" {if isset($filter.filesize)}disabled="disabled"{/if}>{'Filesize'|translate}</option>
 			<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|translate}</option>
 		    </select>
-		    <a id="removeFilters">{'Remove all filters'|translate}</a>
+
+		    <button type="button" class="btn btn-delete" id="removeFilters">{'Remove all filters'|translate}</button>
 		</p>
 
 		<p class="actionButtons" id="applyFilterBlock">
-		    <input id="applyFilter" class="submit" type="submit" value="{'Refresh photo set'|translate}" name="submitFilter">
+		    <input id="applyFilter" class="btn btn-submit" type="submit" value="{'Refresh photo set'|translate}" name="submitFilter">
 		</p>
 	    </div>
 
@@ -547,7 +555,7 @@
 		<div id="forbidAction"{if empty($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
 		<div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
 
-		    <select name="selectAction">
+		    <select class="custom-select" name="selectAction">
 			<option value="-1">{'Choose an action'|translate}</option>
 			<option disabled="disabled">------------------</option>
 			<option value="delete">{'Delete selected photos'|translate}</option>
@@ -628,14 +636,14 @@
 		    <div id="action_author" class="bulkAction">
 			<label><input type="checkbox" name="remove_author"> {'remove author'|translate}</label><br>
 			{assign var='authorDefaultValue' value='Type here the author name'|translate}
-			<input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
+			<input type="text" class="form-control" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
 		    </div>
 
 		    <!-- title -->
 		    <div id="action_title" class="bulkAction">
 			<label><input type="checkbox" name="remove_title"> {'remove title'|translate}</label><br>
 			{assign var='titleDefaultValue' value='Type here the title'|translate}
-			<input type="text" class="large" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
+			<input type="text" class="form-control" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
 		    </div>
 
 		    <!-- date_creation -->
@@ -652,7 +660,7 @@
 
 		    <!-- level -->
 		    <div id="action_level" class="bulkAction">
-			<select name="level" size="1">
+			<select class="custom-select" name="level" size="1">
 			    {html_options options=$level_options selected=$level_options_selected}
 			</select>
 		    </div>

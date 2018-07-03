@@ -9,27 +9,25 @@
 {block name="content"}
     <form action="{$F_ACTION}" method="post" id="categoryNotify">
 
-	<fieldset id="emailCatInfo">
-	    <legend>{'Send an information email to group members'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Send an information email to group members'|translate}</h3>
 
 	    {if isset($group_mail_options)}
-
 		<p>
-		    <strong>{'Group'|translate}</strong>
-		    <br>
-		    <select name="group">
+		    <label>{'Group'|translate}</label>
+		    
+		    <select class="custom-select" name="group">
 			{html_options options=$group_mail_options}
 		    </select>
 		</p>
 
 		<p>
-		    <strong>{'Complementary mail content'|translate}</strong>
-		    <br>
-		    <textarea cols="50" rows="5" name="mail_content" id="mail_content" class="description">{$MAIL_CONTENT}</textarea>
+		    <label>{'Complementary mail content'|translate}</label>
+		    <textarea cols="50" rows="5" name="mail_content" id="mail_content" class="form-control">{$MAIL_CONTENT}</textarea>
 		</p>
 
 		<p>
-		    <input class="submit" type="submit" value="{'Send'|translate}" name="submitEmail">
+		    <input class="btn btn-submit" type="submit" value="{'Send'|translate}" name="submitEmail">
 		</p>
 
 	    {elseif isset($no_group_in_gallery) and $no_group_in_gallery}
@@ -40,7 +38,7 @@
 		    <a href="{$permission_url}" class="externalLink">{'Permission management'|translate}</a>
 		</p>
 	    {/if}
-	</fieldset>
+	</div>
 
     </form>
 {/block}

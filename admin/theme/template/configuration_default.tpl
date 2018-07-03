@@ -15,33 +15,33 @@
 	    {/if}
 
 	    <div class="fieldset">
-		<h3>{'Preferences'|translate}</h3>
-		<input type="hidden" name="redirect" value="{$GUEST_REDIRECT}">
+			<h3>{'Preferences'|translate}</h3>
+			<input type="hidden" name="redirect" value="{$GUEST_REDIRECT}">
 
-		<p>
-		    <label for="nb_image_page">{'Number of photos per page'|translate}</label>
-		    <input type="text" size="4" maxlength="3" name="nb_image_page" id="nb_image_page" value="{$GUEST_NB_IMAGE_PAGE}">
-		</p>
+			<p>
+		    	<label for="nb_image_page">{'Number of photos per page'|translate}</label>
+		    	<input class="form-control" type="text" size="4" maxlength="3" name="nb_image_page" id="nb_image_page" value="{$GUEST_NB_IMAGE_PAGE}">
+			</p>
 
-		<p>
-		    <label for="recent_period">{'Recent period'|translate}</label>
-		    <input type="text" size="3" maxlength="2" name="recent_period" id="recent_period" value="{$GUEST_RECENT_PERIOD}">
-		</p>
-		<p>
-		    <span>{'Expand all albums'|translate}</span>
-		    {html_radios name='expand' options=$radio_options selected=$GUEST_EXPAND}
-		</p>
-		{if $GUEST_ACTIVATE_COMMENTS}
-		    <p>
-			<span>{'Show number of comments'|translate}</span>
-			{html_radios name='show_nb_comments' options=$radio_options selected=$GUEST_NB_COMMENTS}
-		    </p>
-		{/if}
+			<p>
+				<label for="recent_period">{'Recent period'|translate}</label>
+				<input class="form-control" type="text" size="3" maxlength="2" name="recent_period" id="recent_period" value="{$GUEST_RECENT_PERIOD}">
+			</p>
+			<p>
+				<span>{'Expand all albums'|translate}</span>
+				{html_radios name='expand' options=$radio_options selected=$GUEST_EXPAND}
+			</p>
+			{if $GUEST_ACTIVATE_COMMENTS}
+				<p>
+				<span>{'Show number of comments'|translate}</span>
+				{html_radios name='show_nb_comments' options=$radio_options selected=$GUEST_NB_COMMENTS}
+				</p>
+			{/if}
 
-		<p>
-		    <span>{'Show number of hits'|translate}</span>
-		    {html_radios name='show_nb_hits' options=$radio_options selected=$GUEST_NB_HITS}
-		</p>
+			<p>
+				<span>{'Show number of hits'|translate}</span>
+				{html_radios name='show_nb_hits' options=$radio_options selected=$GUEST_NB_HITS}
+			</p>
 	    </div>
 
 	    <p class="bottomButtons">

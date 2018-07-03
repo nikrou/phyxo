@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package functions\mail
@@ -28,13 +15,14 @@
 
 use Pelago\Emogrifier;
 
-
 /**
  * Returns the name of the mail sender
  *
  * @return string
  */
-function get_mail_sender_name() {
+
+function get_mail_sender_name()
+{
     global $conf;
 
     return (empty($conf['mail_sender_name']) ? $conf['gallery_title'] : $conf['mail_sender_name']);
@@ -46,7 +34,8 @@ function get_mail_sender_name() {
  * @since 2.6
  * @return string
  */
-function get_mail_sender_email() {
+function get_mail_sender_email()
+{
     global $conf;
 
     return (empty($conf['mail_sender_email']) ? get_webmaster_mail_address() : $conf['mail_sender_email']);
@@ -66,7 +55,8 @@ function get_mail_sender_email() {
  *
  * @return array
  */
-function get_mail_configuration() {
+function get_mail_configuration()
+{
     global $conf;
 
     $conf_mail = array(
@@ -95,18 +85,19 @@ function get_mail_configuration() {
  * @param string $email
  * @return string
  */
-function format_email($name, $email) {
+function format_email($name, $email)
+{
     $cvt_email = trim(preg_replace('#[\n\r]+#s', '', $email));
     $cvt_name = trim(preg_replace('#[\n\r]+#s', '', $name));
 
-    if ($cvt_name!="") {
-        $cvt_name = '"'.addcslashes($cvt_name,'"').'"'.' ';
+    if ($cvt_name != "") {
+        $cvt_name = '"' . addcslashes($cvt_name, '"') . '"' . ' ';
     }
 
     if (strpos($cvt_email, '<') === false) {
-        return $cvt_name.'<'.$cvt_email.'>';
+        return $cvt_name . '<' . $cvt_email . '>';
     } else {
-        return $cvt_name.$cvt_email;
+        return $cvt_name . $cvt_email;
     }
 }
 
@@ -117,7 +108,8 @@ function format_email($name, $email) {
  * @param string|string[] $input - if is an array must contain email[, name]
  * @return array email, name
  */
-function unformat_email($input) {
+function unformat_email($input)
+{
     if (is_array($input)) {
         if (!isset($input['name'])) {
             $input['name'] = '';
@@ -150,7 +142,8 @@ function unformat_email($input) {
  * @param mixed $data
  * @return string[][]
  */
-function get_clean_recipients_list($data) {
+function get_clean_recipients_list($data)
+{
     if (empty($data)) {
         return array();
     } elseif (is_array($data)) {
@@ -195,7 +188,8 @@ function get_clean_recipients_list($data) {
  * @param string $email_list - comma separated
  * @return string
  */
-function get_strict_email_list($email_list) {
+function get_strict_email_list($email_list)
+{
     $result = array();
     $list = explode(',', $email_list);
 
@@ -215,8 +209,9 @@ function get_strict_email_list($email_list) {
  * @param string $email_format - text/html or text/plain
  * @return Template
  */
-function &get_mail_template($email_format) {
-    $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', 'default', 'template/mail/'.$email_format);
+function &get_mail_template($email_format)
+{
+    $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', 'default', 'template/mail/' . $email_format);
     return $template;
 }
 
@@ -226,7 +221,8 @@ function &get_mail_template($email_format) {
  * @param bool $is_html
  * @return string
  */
-function get_str_email_format($is_html) {
+function get_str_email_format($is_html)
+{
     return ($is_html ? 'text/html' : 'text/plain');
 }
 
@@ -236,7 +232,8 @@ function get_str_email_format($is_html) {
  *
  * @param string $language
  */
-function switch_lang_to($language) {
+function switch_lang_to($language)
+{
     global $switch_lang, $user, $lang, $lang_info, $language_files;
 
     // explanation of switch_lang
@@ -260,13 +257,13 @@ function switch_lang_to($language) {
     if (!isset($switch_lang['language'][$language])) {
         // Re-Init language arrays
         $lang_info = array();
-        $lang  = array();
+        $lang = array();
 
         // language files
-        load_language('common.lang', '', array('language' => $language) );
+        load_language('common.lang', '', array('language' => $language));
         // No test admin because script is checked admin (user selected no)
         // Translations are in admin file too
-        load_language('admin.lang', '', array('language' => $language) );
+        load_language('admin.lang', '', array('language' => $language));
 
         // Reload all plugins files (see load_language declaration)
         if (!empty($language_files)) {
@@ -279,8 +276,10 @@ function switch_lang_to($language) {
         }
 
         trigger_notify('loading_lang');
-        load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR,
-        array('language' => $language, 'no_fallback' => true, 'local' => true)
+        load_language(
+            'lang',
+            PHPWG_ROOT_PATH . PWG_LOCAL_DIR,
+            array('language' => $language, 'no_fallback' => true, 'local' => true)
         );
 
         $switch_lang['language'][$language]['lang_info'] = $lang_info;
@@ -296,7 +295,8 @@ function switch_lang_to($language) {
  * @see switch_lang_to()
  * Language files are not reloaded
  */
-function switch_lang_back() {
+function switch_lang_back()
+{
     global $switch_lang, $user, $lang, $lang_info;
 
     if (count($switch_lang['stack']) > 0) {
@@ -321,7 +321,8 @@ function switch_lang_back() {
  * @param boolean $send_technical_details - send user IP and browser
  * @return boolean
  */
-function pwg_mail_notification_admins($subject, $content, $send_technical_details=true) {
+function pwg_mail_notification_admins($subject, $content, $send_technical_details = true)
+{
     global $conf, $user, $services;
 
     if (empty($subject) or empty($content)) {
@@ -352,7 +353,7 @@ function pwg_mail_notification_admins($subject, $content, $send_technical_detail
 
     return pwg_mail_admins(
         array(
-            'subject' => '['. $conf['gallery_title'] .'] '. $subject,
+            'subject' => '[' . $conf['gallery_title'] . '] ' . $subject,
             'mail_title' => $conf['gallery_title'],
             'mail_subtitle' => $subject,
             'content' => $content,
@@ -375,7 +376,8 @@ function pwg_mail_notification_admins($subject, $content, $send_technical_detail
  * @param array $tpl - as in pwg_mail()
  * @return boolean
  */
-function pwg_mail_admins($args=array(), $tpl=array()) {
+function pwg_mail_admins($args = array(), $tpl = array())
+{
     global $conf, $user, $conn, $services;
 
     if (empty($args['content']) and empty($tpl)) {
@@ -385,12 +387,12 @@ function pwg_mail_admins($args=array(), $tpl=array()) {
     $return = true;
 
     // get admins (except ourself)
-    $query = 'SELECT u.'.$conf['user_fields']['username'].' AS name,';
-    $query .= 'u.'.$conf['user_fields']['email'].' AS email FROM '.USERS_TABLE.' AS u';
-    $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS i ON i.user_id =  u.'.$conf['user_fields']['id'];
+    $query = 'SELECT u.' . $conf['user_fields']['username'] . ' AS name,';
+    $query .= 'u.' . $conf['user_fields']['email'] . ' AS email FROM ' . USERS_TABLE . ' AS u';
+    $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS i ON i.user_id =  u.' . $conf['user_fields']['id'];
     $query .= ' WHERE i.status in (\'webmaster\',  \'admin\')';
-    $query .= ' AND u.'.$conf['user_fields']['email'].' IS NOT NULL';
-    $query .= ' AND i.user_id <> '.$user['id'];
+    $query .= ' AND u.' . $conf['user_fields']['email'] . ' IS NOT NULL';
+    $query .= ' AND i.user_id <> ' . $user['id'];
     $query .= ' ORDER BY name;';
     $admins = $conn->query2array($query);
 
@@ -417,23 +419,24 @@ function pwg_mail_admins($args=array(), $tpl=array()) {
  * @param array $tpl - as in pwg_mail()
  * @return boolean
  */
-function pwg_mail_group($group_id, $args=array(), $tpl=array()) {
+function pwg_mail_group($group_id, $args = array(), $tpl = array())
+{
     global $conf, $conn;
 
-    if (empty($group_id) or ( empty($args['content']) and empty($tpl) )) {
+    if (empty($group_id) or (empty($args['content']) and empty($tpl))) {
         return false;
     }
 
     $return = true;
 
     // get distinct languages of targeted users
-    $query = 'SELECT DISTINCT language FROM '.USER_TABLE.' AS u';
-    $query .= ' LEFT JOIN '.USERS_GROUP_TABLE.' AS ug ON '.$conf['user_fields']['id'].' = ug.user_id';
-    $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON ui.user_id = ug.user_id';
-    $query .= ' WHERE group_id = '.$group_id.' AND '.$conf['user_fields']['email'].' <> ""';
+    $query = 'SELECT DISTINCT language FROM ' . USER_TABLE . ' AS u';
+    $query .= ' LEFT JOIN ' . USERS_GROUP_TABLE . ' AS ug ON ' . $conf['user_fields']['id'] . ' = ug.user_id';
+    $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
+    $query .= ' WHERE group_id = ' . $group_id . ' AND ' . $conf['user_fields']['email'] . ' <> ""';
 
     if (!empty($args['language_selected'])) {
-        $query .= ' AND language = \''.$args['language_selected'].'\'';
+        $query .= ' AND language = \'' . $args['language_selected'] . '\'';
     }
 
     $languages = $conn->query2array($query, 'language');
@@ -444,13 +447,13 @@ function pwg_mail_group($group_id, $args=array(), $tpl=array()) {
 
     foreach ($languages as $language) {
         // get subset of users in this group for a specific language
-        $query = 'SELECT u.'.$conf['user_fields']['username'].' AS name,';
-        $query .= 'u.'.$conf['user_fields']['email'].' AS email';
-        $query .= ' FROM '.USER_TABLE.' AS u';
-        $query .= ' LEFT JOIN '.USERS_GROUP_TABLE.' AS ug ON '.$conf['user_fields']['id'].' = ug.user_id';
-        $query .= ' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON ui.user_id = ug.user_id';
-        $query .= ' WHERE group_id = '.$group_id.' AND '.$conf['user_fields']['email'].' <> ""';
-        $query .= ' AND language = \''.$language.'\';';
+        $query = 'SELECT u.' . $conf['user_fields']['username'] . ' AS name,';
+        $query .= 'u.' . $conf['user_fields']['email'] . ' AS email';
+        $query .= ' FROM ' . USER_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . USERS_GROUP_TABLE . ' AS ug ON ' . $conf['user_fields']['id'] . ' = ug.user_id';
+        $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
+        $query .= ' WHERE group_id = ' . $group_id . ' AND ' . $conf['user_fields']['email'] . ' <> ""';
+        $query .= ' AND language = \'' . $language . '\';';
         $users = $conn->query2array($query);
 
         if (empty($users)) {
@@ -496,7 +499,8 @@ function pwg_mail_group($group_id, $args=array(), $tpl=array()) {
  *
  * @return boolean
  */
-function pwg_mail($to, $args=array(), $tpl=array()) {
+function pwg_mail($to, $args = array(), $tpl = array())
+{
     global $conf, $conf_mail, $lang_info, $page, $services;
 
     if (empty($to) && empty($args['Cc']) && empty($args['Bcc'])) {
@@ -558,7 +562,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
     }
 
     // theme
-    if (empty($args['theme']) or !in_array($args['theme'], array('clear','dark'))) {
+    if (empty($args['theme']) or !in_array($args['theme'], array('clear', 'dark'))) {
         $args['theme'] = $conf_mail['mail_theme'];
     }
 
@@ -569,7 +573,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
 
     // try to decompose subject like "[....] ...."
     if (!isset($args['mail_title']) and !isset($args['mail_subtitle'])) {
-        if (preg_match('#^\[(.*)\](.*)$#',  $args['subject'], $matches)) {
+        if (preg_match('#^\[(.*)\](.*)$#', $args['subject'], $matches)) {
             $args['mail_title'] = $matches[1];
             $args['mail_subtitle'] = $matches[2];
         }
@@ -595,7 +599,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
     $contents = array();
     foreach ($content_type_list as $content_type) {
         // key compose of indexes witch allow to cache mail data
-        $cache_key = $content_type.'-'.$lang_info['code'];
+        $cache_key = $content_type . '-' . $lang_info['code'];
 
         if (!isset($conf_mail[$cache_key])) {
             // instanciate a new Template
@@ -625,8 +629,8 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
                     $template->assign_var_from_handle('GLOBAL_MAIL_CSS', 'global-css');
                 }
 
-                if ($template->isTemplateExists('mail-css-'. $args['theme'] .'.tpl')) {
-                    $template->set_filename('css', 'mail-css-'. $args['theme'] .'.tpl');
+                if ($template->isTemplateExists('mail-css-' . $args['theme'] . '.tpl')) {
+                    $template->set_filename('css', 'mail-css-' . $args['theme'] . '.tpl');
                     $template->assign_var_from_handle('MAIL_CSS', 'css');
                 }
             }
@@ -649,14 +653,14 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
         if ($args['content_format'] == 'text/plain' and $content_type == 'text/html') {
             // convert plain text to html
             $mail_content =
-                '<p>'.
+                '<p>' .
                 nl2br(
-                    preg_replace(
-                        '/(https?:\/\/([-\w\.]+[-\w])+(:\d+)?(\/([\w\/_\.\#-]*(\?\S+)?[^\.\s])?)?)/i',
-                        '<a href="$1">$1</a>',
-                        htmlspecialchars($args['content'])
-                    )
-                ).
+                preg_replace(
+                    '/(https?:\/\/([-\w\.]+[-\w])+(:\d+)?(\/([\w\/_\.\#-]*(\?\S+)?[^\.\s])?)?)/i',
+                    '<a href="$1">$1</a>',
+                    htmlspecialchars($args['content'])
+                )
+            ) .
                 '</p>';
         } elseif ($args['content_format'] == 'text/html' and $content_type == 'text/plain') {
             // convert html text to plain text
@@ -668,10 +672,10 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
         // Runtime template
         if (isset($tpl['filename'])) {
             if (isset($tpl['dirname'])) {
-                $template->set_template_dir($tpl['dirname'] .'/'. $content_type);
+                $template->set_template_dir($tpl['dirname'] . '/' . $content_type);
             }
-            if ($template->isTemplateExists($tpl['filename'] .'.tpl')) {
-                $template->set_filename($tpl['filename'], $tpl['filename'] .'.tpl');
+            if ($template->isTemplateExists($tpl['filename'] . '.tpl')) {
+                $template->set_filename($tpl['filename'], $tpl['filename'] . '.tpl');
                 if (!empty($tpl['assign'])) {
                     $template->assign($tpl['assign']);
                 }
@@ -681,7 +685,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
                 $contents[$content_type] .= $mail_content;
             }
         } else {
-            $contents[$content_type].= $mail_content;
+            $contents[$content_type] .= $mail_content;
         }
 
         // Footer
@@ -720,7 +724,7 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
             $mail_transport->setPassword($conf_mail['smtp_password']);
         }
     } else {
-        $mail_transport = Swift_MailTransport::newInstance();
+        $mail_transport = new Swift_SendmailTransport();
     }
 
     try {
@@ -742,7 +746,8 @@ function pwg_mail($to, $args=array(), $tpl=array()) {
  * @param string $content
  * @return string
  */
-function move_css_to_body($content) {
+function move_css_to_body($content)
+{
     $e = new Emogrifier($content);
     return @$e->emogrify(); // @TODO: remove arobase
 }

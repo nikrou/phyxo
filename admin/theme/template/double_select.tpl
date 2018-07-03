@@ -1,22 +1,17 @@
-
-{include file='include/dbselect.inc.tpl'}
-
-<table class="doubleSelect">
-  <tr>
-    <td>
-      <h3>{$L_CAT_OPTIONS_TRUE}</h3>
-      <select class="categoryList" name="cat_true[]" multiple="multiple" size="30">
+<div class="double-select">
+    <div class="form-select">
+      <label for="cat-true">{$L_CAT_OPTIONS_TRUE}</label>
+      <select class="custom-select" id="cat-true" name="cat_true[]" multiple="multiple">
         {html_options options=$category_option_true selected=$category_option_true_selected}
       </select>
-      <p><input class="submit" type="submit" value="&raquo;" name="falsify" style="font-size:15px;"></p>
-    </td>
+      <p><input class="submit" type="submit" value="&raquo;" name="falsify"></p>
+    </div>
 
-    <td>
-      <h3>{$L_CAT_OPTIONS_FALSE}</h3>
-      <select class="categoryList" name="cat_false[]" multiple="multiple" size="30">
+    <div class="form-select">
+      <label for="cat-false">{$L_CAT_OPTIONS_FALSE}</label>
+      <select class="custom-select" id="cat-false" name="cat_false[]" multiple="multiple">
         {html_options options=$category_option_false selected=$category_option_false_selected}
       </select>
-      <p><input class="submit" type="submit" value="&laquo;" name="trueify" style="font-size:15px;"></p>
-    </td>
-  </tr>
-</table>
+      <p><input class="submit" type="submit" value="&laquo;" name="trueify"></p>
+    </div>
+</div>

@@ -8,30 +8,29 @@
 {block name="content"}
 
     <form method="post" action="{$F_ACTION}" class="filter" id="catMove">
-	<fieldset>
-	    <legend>{'Move albums'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Move albums'|translate}</h3>
 
 	    <label>
-		{'Virtual albums to move'|translate}
+			{'Virtual albums to move'|translate}
 
-		<select class="categoryList" name="selection[]" multiple="multiple">
-		    {html_options options=$category_to_move_options}
-		</select>
+			<select class="custom-select" name="selection[]" multiple="multiple">
+				{html_options options=$category_to_move_options}
+			</select>
 	    </label>
 
 	    <label>
-		{'New parent album'|translate}
+			{'New parent album'|translate}
 
-		<select class="categoryDropDown" name="parent">
-		    <option value="0">------------</option>
-		    {html_options options=$category_parent_options}
-		</select>
+			<select class="custom-select" name="parent">
+				<option value="0">------------</option>
+				{html_options options=$category_parent_options}
+			</select>
 	    </label>
+	</div>
 
-	</fieldset>
-
-	<p style="text-align:left;">
-	    <input class="submit" type="submit" name="submit" value="{'Submit'|translate}">
+	<p>
+	    <input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
 	</p>
 
     </form>

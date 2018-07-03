@@ -1,8 +1,9 @@
-@import "bootstrap-custom";
-@import "fonts";
+@import 'bootstrap-custom';
+@import 'fonts';
+@import 'users_datatables';
 
-// @import "./theme.css";
-// @import "./clear.css";
+//@import './theme.css';
+//@import './clear.css';
 
 body {
     display: flex;
@@ -11,7 +12,7 @@ body {
     margin: 0;
     padding: 0;
     i {
-	margin-right: 0.2rem;
+        margin-right: 0.2rem;
     }
 }
 
@@ -29,17 +30,17 @@ header {
     color: $white;
 
     a {
-	color: $white;
+        color: $white;
     }
 
     .navbar {
-	font-size: 0.9rem;
-	padding: 0.2rem 1rem;
+        font-size: 0.9rem;
+        padding: 0.2rem 1rem;
     }
 
     .alert {
-	margin-left: 1em;
-	margin-right: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
     }
 }
 
@@ -50,180 +51,257 @@ main {
     padding-top: 2rem;
 }
 
-section[role="content"] {
+section[role='content'] {
     flex: 1 1 auto;
     order: 2;
     padding: 0 1rem;
 
     .nav.nav-tabs {
-	margin-bottom: 1em;
+        margin-bottom: 1em;
     }
 
     // temporary, until theme.css and clear.css will be removed
     form {
-	ul {
-	    list-style: none;
-	}
+        ul {
+            list-style: none;
+        }
 
-	.fieldset, .form-filter {
-	    border: 2px solid $gray-200;
-	    border-radius: 5px;
-	    padding: 1em;
-	    margin: 1em 0;
-	}
+        .fieldset,
+        .form-filter {
+            border: 2px solid $gray-200;
+            border-radius: 5px;
+            padding: 1em;
+            margin: 1em 0;
+        }
 
-	.font-checkbox input[type="checkbox"], .font-checkbox input[type="radio"] {
-	    display:none;
-	}
+        .font-checkbox input[type='checkbox'],
+        .font-checkbox input[type='radio'] {
+            display: none;
+        }
 
-	#watermarkPositionBox {
-	    border: 2px solid #ccc;
-	    width: 500px;
-	    padding: 5px;
-	    background-color: #e5e5e5;
+        #watermarkPositionBox {
+            border: 2px solid #ccc;
+            width: 500px;
+            padding: 5px;
+            background-color: #e5e5e5;
 
-	    label {
-		font-weight:normal;
-		display:block;
-		color:#444;
+            label {
+                font-weight: normal;
+                display: block;
+                color: #444;
 
-		&.middle {
-		    margin:50px;
-		    text-align:center;
-		}
+                &.middle {
+                    margin: 50px;
+                    text-align: center;
+                }
 
-		&.right {
-		    float:right;
-		}
-	    }
-	}
+                &.right {
+                    float: right;
+                }
+            }
+        }
 
-	.album {
-	    border: 2px solid $gray-200;
-	    border-radius: 5px;
-	    padding: 1em;
-	    margin: 1em 0;
-	    cursor: move;
-	}
+        .album {
+            border: 2px solid $gray-200;
+            border-radius: 5px;
+            padding: 1em;
+            margin: 1em 0;
+            cursor: move;
+        }
+    }
+
+    // upload form
+    .plupload_header,
+    .plupload_buttons,
+    .plupload_progress {
+        display: none;
+    }
+
+    .menuUl {
+        margin: 0;
+        padding: 0;
+
+        .menuLi {
+            width: 100%;
+            background-color: $gray-200;
+            border: 1px solid #666;
+            padding: 1em;
+            margin-bottom: 5px;
+        }
+    }
+
+    .themeBox {
+        display: inline-block;
+        text-align: center;
+        width: 180px;
+        height: 192px;
+        background-color: #eee;
+        margin: 5px;
+        border-radius: 5px;
+        overflow: hidden;
+
+        img {
+            width: 150px;
+            height: 120px;
+        }
+    }
+
+    .double-select {
+        .form-select {
+            width: 49%;
+            display: inline-block;
+        }
     }
 
     .thumbnails {
-	.thumbnail {
-	    display: inline-block;
-	    margin: 5px;
-	    border-radius: 5px;
-	    background-color: $gray-200;
-	    &:hover {
-		background-color: $pink;
+        .thumbnail {
+            display: inline-block;
+            margin: 5px;
+            border-radius: 5px;
+            background-color: $gray-200;
+            &:hover {
+                background-color: $pink;
 
-		a {
-		    color: $white;
-		}
-	    }
-	}
+                a {
+                    color: $white;
+                }
+            }
+        }
 
-	.wrapper-label {
-	    margin: 5px;
-	    display: inline-block;
-	    vertical-align: top;
-	    text-align: center;
-	}
+        .wrapper-label {
+            margin: 5px;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+        }
 
-	.wrapper-thumbnail {
-	    margin: 0;
-	    display: table-cell;
-	    vertical-align: middle;
-	    border-radius: 4px;
-	}
+        .wrapper-thumbnail {
+            margin: 0;
+            display: table-cell;
+            vertical-align: middle;
+            border-radius: 4px;
+        }
 
-	label {
-	    position: relative;
-	    display: block;
-	    border-bottom: none;
-	    cursor: pointer;
-	}
+        label {
+            position: relative;
+            display: block;
+            border-bottom: none;
+            cursor: pointer;
+        }
 
-	img {
-	    vertical-align: middle;
-	    margin-top: 12px;
-	}
+        img {
+            vertical-align: middle;
+            margin-top: 12px;
+        }
 
-	.actions {
-	    position: absolute;
-	    top: 3px;
-	    right: 3px;
-	}
+        .actions {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+        }
 
-	input {
-	    position: absolute;
-	    left: 3px;
-	    top: 3px;
-	}
+        input {
+            position: absolute;
+            left: 3px;
+            top: 3px;
+        }
 
-	.levelIndicatorB {
-	    display: block;
-	    position: absolute;
-	    padding: 7px 0 0 2px;
-	    color: $black;
-	    font-weight: bold;
-	    font-size: 1.2em;
-	}
+        .levelIndicatorB {
+            display: block;
+            position: absolute;
+            padding: 7px 0 0 2px;
+            color: $black;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
 
-	.levelIndicatorF {
-	    display: block;
-	    position: absolute;
-	    padding: 8px 0 0 3px;
-	    color: $white;
-	    font-weight: bold;
-	    font-size: 1.2em;
-	}
+        .levelIndicatorF {
+            display: block;
+            position: absolute;
+            padding: 8px 0 0 3px;
+            color: $white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
     }
 
-    .language, .plugin, .theme {
-	background-color: $gray-200;
-	border-color: $gray-400;
-	padding: 6px;
-	border-radius: 5px;
-	margin: 5px;
+    .sort-order {
+        @extend .clearfix;
+        .rank-of-image {
+            float: left;
+            display: inline-block;
+            cursor: move;
+        }
+    }
+
+    .language,
+    .plugin,
+    .theme {
+        background-color: $gray-200;
+        border-color: $gray-400;
+        padding: 6px;
+        border-radius: 5px;
+        margin: 5px;
+
+        &.no-details {
+            display: inline-block;
+        }
+
+        &.inactive {
+            background-color: $gray-400;
+        }
+    }
+
+    .filter {
+        margin-bottom: 5px;
     }
 }
 
-aside[role="navigation"] {
+#addAlbumForm {
+    padding: 1em;
+}
+
+aside[role='navigation'] {
     flex: 0 0 15em; // do not grow or shrink, stay at 15em
     order: 1;
     ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+        list-style: none;
+        margin: 0;
+        padding: 0;
     }
 
     padding-left: 0.4rem;
     .accordion {
-	li {
-	    a {
-		display: block;
-		color: $white;
-		text-decoration: none;
-		border-bottom: 1px solid $gray-100;
-		background-color: $gray-700;
-		padding: 0.3rem;
+        li {
+            a {
+                display: block;
+                color: $white;
+                text-decoration: none;
+                border-bottom: 1px solid $gray-100;
+                background-color: $gray-700;
+                padding: 0.3rem;
 
-		&:hover {
-		    opacity: 0.6;
-		}
+                &:hover {
+                    opacity: 0.6;
+                }
 
-		&.show {
-		    background-color: $pink;
-		}
-	    }
+                &.show {
+                    background-color: $pink;
+                }
+            }
 
-	    li {
-		a {
-		    padding-left: 1rem;
-		    background-color: $gray-600;
-		}
-	    }
-	}
+            li {
+                a {
+                    padding-left: 1rem;
+                    background-color: $gray-600;
+                }
+            }
+
+            .counter {
+                margin-left: 5px;
+                font-size: 0.8rem;
+            }
+        }
     }
 }
 

@@ -14,7 +14,7 @@
     {/footer_script}
 
     <form action="{$F_ACTION}" method="post" id="pending-tags">
-	<table class="table checkboxes">
+	<table class="table table-stripped table-hover checkboxes">
 	    <thead>
 		<tr>
 		    <th>&nbsp;</th>

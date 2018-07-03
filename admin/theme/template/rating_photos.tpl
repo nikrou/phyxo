@@ -7,7 +7,7 @@
 
 {block name="content"}
     <form action="{$F_ACTION}" method="GET">
-	<p><a href="#form-filter" data-toggle="collapse">{'Show/Hide form filter'|translate}</a></p>
+	<p><a class="btn btn-submit" href="#form-filter" data-toggle="collapse">{'Show/Hide form filter'|translate}</a></p>
 	<div class="form-filter collapse" id="form-filter">
 	    <h3>{'Filter'|translate}</h3>
 	    <div class="form-group">

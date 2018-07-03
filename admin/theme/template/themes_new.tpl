@@ -7,11 +7,6 @@
 
 {block name="content"}
     {include file='include/colorbox.inc.tpl'}
-    {footer_script}{literal}
-    $(function() {
-    $("a.preview-box").colorbox();
-    });
-    {/literal}{/footer_script}
     {if not empty($new_themes)}
 	<div class="themeBoxes">
 	    {foreach $new_themes as $theme}

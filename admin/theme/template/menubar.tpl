@@ -35,9 +35,9 @@
 		</li>
 	    {/foreach}
 	</ul>
-	<p class="menuSubmit">
-	    <input type="submit" name="submit" value="{'Submit'|translate}">
-	    <input type="submit" name="reset" value="{'Reset'|translate}">
+	<p>
+	    <input type="submit" class="btn btn-submit" name="submit" value="{'Submit'|translate}">
+	    <input type="submit" class="btn btn-reset" name="reset" value="{'Reset'|translate}">
 	</p>
 
     </form>

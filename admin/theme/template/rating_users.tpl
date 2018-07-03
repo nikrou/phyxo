@@ -8,22 +8,22 @@
 {block name="content"}
 
    <form action="{$F_ACTION}" method="GET">
-       <p><a href="#form-filter" data-toggle="collapse">{'Show/Hide form filter'|translate}</a></p>
+       <p><a class="btn btn-submit" href="#form-filter" data-toggle="collapse">{'Show/Hide form filter'|translate}</a></p>
        <div class="form-filter collapse" id="form-filter">
 	   <h3>{'Filter'|translate}</h3>
 	   <div class="form-group">
 	       <label for="order-by">{'Sort by'|translate}</label>
-	       <select name="order_by" id="order-by">
+	       <select class="custom-select" name="order_by" id="order-by">
 		   {html_options options=$order_by_options selected=$order_by_options_selected}
 	       </select>
 	   </div>
 	   <div class="form-group">
 	       <label for="min-rates">{'Number of rates'|translate}&gt;</label>
-	       <input type="text" id="min-rates" size="5" name="f_min_rates" value="{$F_MIN_RATES}">
+	       <input class="form-control" type="text" id="min-rates" size="5" name="f_min_rates" value="{$F_MIN_RATES}">
 	   </div>
 	   <div class="form-group">
 	       <label for="consensus-top-number">{'Consensus deviation'|translate}</label>
-	       <input type="text" size="5" id="consensus-top-number" name="consensus_top_number" value="{$CONSENSUS_TOP_NUMBER}">
+	       <input class="form-control" type="text" size="5" id="consensus-top-number" name="consensus_top_number" value="{$CONSENSUS_TOP_NUMBER}">
 	       {'Best rated'|translate}
 	   </div>
 	   <p>

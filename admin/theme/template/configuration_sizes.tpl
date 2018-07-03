@@ -83,7 +83,7 @@
 			</td>
 
 			<td>
-			    <a href="#sizeEdit-{$type}" data-toggle="collapse">{'edit'|translate}</a>
+			    <a class="btn btn-submit" href="#sizeEdit-{$type}" data-toggle="collapse">{'edit'|translate}</a>
 			</td>
 		    </tr>
 
@@ -101,14 +101,14 @@
 			    <p>
 				<label>
 				    {if $d.must_square or $d.crop}{'Width'|translate}{else}{'Maximum width'|translate}{/if}
-				    <input type="text" name="d[{$type}][w]" maxlength="4" size="4" value="{$d.w}"{if isset($ferrors.$type.w)} class="dError"{/if}> {'pixels'|translate}
+				    <input class="form-control" type="text" name="d[{$type}][w]" maxlength="4" size="4" value="{$d.w}"{if isset($ferrors.$type.w)} class="dError"{/if}> {'pixels'|translate}
 				    {if isset($ferrors.$type.w)}<span class="dErrorDesc" title="{$ferrors.$type.w}">!</span>{/if}
 				</label>
 			    </p>
 			    {if !$d.must_square}
 				<p>
 				    <label>{if $d.crop}{'Height'|translate}{else}{'Maximum height'|translate}{/if}
-					<input type="text" name="d[{$type}][h]" maxlength="4" size="4"  value="{$d.h}"{if isset($ferrors.$type.h)} class="dError"{/if}> {'pixels'|translate}
+					<input class="form-control" type="text" name="d[{$type}][h]" maxlength="4" size="4"  value="{$d.h}"{if isset($ferrors.$type.h)} class="dError"{/if}> {'pixels'|translate}
 					{if isset($ferrors.$type.h)}<span class="dErrorDesc" title="{$ferrors.$type.h}">!</span>{/if}
 				    </label>
 				</p>
@@ -116,7 +116,7 @@
 			    <p>
 				<label>
 				    {'Sharpen'|translate}
-				    <input type="text" name="d[{$type}][sharpen]" maxlength="4" size="4"  value="{$d.sharpen}"{if isset($ferrors.$type.sharpen)} class="dError"{/if}> %
+				    <input class="form-control" type="text" name="d[{$type}][sharpen]" maxlength="4" size="4"  value="{$d.sharpen}"{if isset($ferrors.$type.sharpen)} class="dError"{/if}> %
 				    {if isset($ferrors.$type.sharpen)}<span class="dErrorDesc" title="{$ferrors.$type.sharpen}">!</span>{/if}
 				</label>
 			    </p>
@@ -125,13 +125,13 @@
 		{/foreach}
 	    </table>
 
-	    <p style="margin:10px 0 0 0;{if isset($ferrors)} display:block;{/if}" class="sizeDetails">
+	    <p>
 		{'Image Quality'|translate}
-		<input type="text" name="resize_quality" value="{$resize_quality}" size="3" maxlength="3"{if isset($ferrors.resize_quality)} class="dError"{/if}> %
+		<input class="form-control" type="text" name="resize_quality" value="{$resize_quality}" size="3" maxlength="3"{if isset($ferrors.resize_quality)} class="dError"{/if}> %
 		{if isset($ferrors.resize_quality)}<span class="dErrorDesc" title="{$ferrors.resize_quality}">!</span>{/if}
 	    </p>
-	    <p style="margin:10px 0 0 0;{if isset($ferrors)} display:block;{/if}" class="sizeDetails">
-		<a href="{$F_ACTION}&action=restore_settings" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'Reset to default values'|translate}</a>
+	    <p>
+			<a class="btn btn-reset" href="{$F_ACTION}&amp;action=restore_settings" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'Reset to default values'|translate}</a>
 	    </p>
 	</div>
 

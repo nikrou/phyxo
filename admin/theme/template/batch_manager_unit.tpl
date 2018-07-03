@@ -61,17 +61,17 @@
 
 		    <p>
 			<a href="{$element.FILE_SRC}" class="preview-box icon-zoom-in" title="{$element.LEGEND|@htmlspecialchars}"><img src="{$element.TN_SRC}" alt=""></a>
-			<a href="{$element.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
+			<a class="btn btn-edit" href="{$element.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
 		    </p>
 
 		    <p>
 			<label for="name-{$element.id}">{'Title'|translate}</label>
-			<input type="text" name="name-{$element.id}" id="name-{$element.id}" value="{$element.NAME}">
+			<input class="form-control" type="text" name="name-{$element.id}" id="name-{$element.id}" value="{$element.NAME}">
 		    </p>
 
 		    <p>
 			<label for="author-{$element.id}">{'Author'|translate}</label>
-			<input type="text" name="author-{$element.id}" id="author-{$element.id}" value="{$element.AUTHOR}">
+			<input class="form-control" type="text" name="author-{$element.id}" id="author-{$element.id}" value="{$element.AUTHOR}">
 		    </p>
 
 		    <p>
@@ -94,13 +94,12 @@
 		    <p>
 			<label for="tags-{$element.id}">{'Tags'|translate}</label>
 			<select data-selectize="tags" data-value="{$element.TAGS|@json_encode|escape:html}"
-						placeholder="{'Type in a search term'|translate}"
-						data-create="true" id="tags-{$element.id} name="tags-{$element.id}[]" multiple style="width:500px;"></select>
+				placeholder="{'Type in a search term'|translate}" data-create="true" id="tags-{$element.id} name="tags-{$element.id}[]" multiple></select>
 		    </p>
 
 		    <p>
 			<label for="description-{$element.id}">{'Description'|translate}</label>
-			<textarea cols="50" rows="5" name="description-{$element.id}" id="description-{$element.id}" class="description">{$element.DESCRIPTION}</textarea>
+			<textarea cols="50" rows="5" name="description-{$element.id}" id="description-{$element.id}" class="form-control">{$element.DESCRIPTION}</textarea>
 		    </p>
 		</div>
 	    {/foreach}

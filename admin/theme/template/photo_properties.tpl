@@ -37,125 +37,90 @@
     'Add': '{'Create'|translate}'
     }});
 
-    {* <!-- DATEPICKER --> *}
-    jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
-    jQuery('[data-datepicker]').pwgDatepicker({
-    showTimepicker: true,
-    cancelButton: '{'Cancel'|translate}'
-    });
-    });
-
-    {* <!-- THUMBNAILS --> *}
-    jQuery("a.preview-box").colorbox();
-    }());
     {/footer_script}
 
     <form action="{$F_ACTION}" method="post" id="catModify">
-
-	<fieldset>
-	    <legend>{'Informations'|translate}</legend>
-
-	    <table>
-
-		<tr>
-		    <td id="albumThumbnail">
-			<a href="{$FILE_SRC}" class="preview-box icon-zoom-in" title="{$TITLE|htmlspecialchars}"><img src="{$TN_SRC}" alt="{'Thumbnail'|translate}"></a>
-		    </td>
-		    <td id="albumLinks" style="width:400px;vertical-align:top;">
-			<ul style="padding-left:15px;margin:0;">
-			    <li>{$INTRO.file}</li>
-			    <li>{$INTRO.add_date}</li>
-			    <li>{$INTRO.added_by}</li>
-			    <li>{$INTRO.size}</li>
-			    <li>{$INTRO.stats}</li>
-			    <li>{$INTRO.id}</li>
-			</ul>
-		    </td>
-		    <td class="photoLinks">
-			<ul>
-			    {if isset($U_JUMPTO) }
-				<li><a href="{$U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to photo'|translate}</a></li>
-			    {/if}
-			    {if !url_is_remote($PATH)}
-				<li><a href="{$U_SYNC}"><i class="fa fa-exchange"></i> {'Synchronize metadata'|translate}</a></li>
-
-				<li><a href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><i class="fa fa-trash"></i> {'delete photo'|translate}</a></li>
-			    {/if}
-			</ul>
-		    </td>
-		</tr>
-	    </table>
-
-	</fieldset>
-
-	<fieldset>
-	    <legend>{'Properties'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Informations'|translate}</h3>
 
 	    <p>
-		<strong>{'Title'|translate}</strong>
-		<br>
-		<input type="text" class="large" name="name" value="{$NAME|@escape}">
+		<a href="{$FILE_SRC}" class="preview-box icon-zoom-in" title="{$TITLE|htmlspecialchars}"><img src="{$TN_SRC}" alt="{'Thumbnail'|translate}"></a>
+	    </p>
+
+	    <ul>
+		<li>{$INTRO.file}</li>
+		<li>{$INTRO.add_date}</li>
+		<li>{$INTRO.added_by}</li>
+		<li>{$INTRO.size}</li>
+		<li>{$INTRO.stats}</li>
+		<li>{$INTRO.id}</li>
+	    </ul>
+
+	    <div>
+		{if isset($U_JUMPTO) }
+		    <p><a href="{$U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to photo'|translate}</a></p>
+		{/if}
+		{if !url_is_remote($PATH)}
+		    <p><a class="btn btn-success" href="{$U_SYNC}"><i class="fa fa-exchange"></i> {'Synchronize metadata'|translate}</a></p>
+		    <p>
+				<a class="btn btn-delete" href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">
+				<i class="fa fa-trash"></i> {'delete photo'|translate}</a>
+			</p>
+		{/if}
+	    </ul>
+	</div>
+
+	<div class="fieldset">
+	    <h3>{'Properties'|translate}</h3>
+	    <p>
+			<label>{'Title'|translate}</label>
+		    <input class="form-control" type="text" name="name" value="{$NAME|@escape}">
 	    </p>
 
 	    <p>
-		<strong>{'Author'|translate}</strong>
-		<br>
-		<input type="text" class="large" name="author" value="{$AUTHOR}">
+			<label>{'Author'|translate}</label>
+		    <input class="form-control" type="text" name="author" value="{$AUTHOR}">
 	    </p>
 
 	    <p>
-		<strong>{'Creation date'|translate}</strong>
-		<br>
-		<input type="hidden" name="date_creation" value="{$DATE_CREATION}">
-		<label>
-		    <i class="fa fa-calendar"></i>
-		    <input type="text" data-datepicker="date_creation" data-datepicker-unset="date_creation_unset" readonly>
-		</label>
-		<a href="#" id="date_creation_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
+			<label>{'Creation date'|translate}</label>
+		    <input type="date" name="date_creation" value="{$DATE_CREATION}">
 	    </p>
 
 	    <p>
-		<strong>{'Linked albums'|translate}</strong>
-		<br>
-		<select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
-					placeholder="{'Type in a search term'|translate}"
-					data-default="{$STORAGE_ALBUM}" name="associate[]" multiple style="width:600px;"></select>
+			<label>{'Linked albums'|translate}</label>
+			<select data-selectize="categories" data-value="{$associated_albums|@json_encode|escape:html}"
+				placeholder="{'Type in a search term'|translate}" data-default="{$STORAGE_ALBUM}" name="associate[]" multiple></select>
 	    </p>
 
 	    <p>
-		<label>{'Representation of albums'|translate}
-		    <select data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
-			    placeholder="{'Type in a search term'|translate}"
-			    name="represent[]" multiple style="width:600px;"></select>
-		</label>
+			<label for="album">{'Representation of albums'|translate}</label>
+			<select id="album" data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
+			    placeholder="{'Type in a search term'|translate}" name="represent[]" multiple></select>
+		
 	    </p>
 
 	    <p>
-		<label>{'Tags'|translate}
+		<label>{'Tags'|translate}</label>
 		    <select data-selectize="tags" data-value="{$tag_selection|@json_encode|escape:html}"
-			    placeholder="{'Type in a search term'|translate}"
-			    data-create="true" name="tags[]" multiple style="width:600px;"></select>
-		</label>
+			    placeholder="{'Type in a search term'|translate}" data-create="true" name="tags[]" multiple></select>
 	    </p>
 
 	    <p>
-		<strong>{'Description'|translate}</strong>
-		<br>
-		<textarea name="description" id="description" class="description">{$DESCRIPTION}</textarea>
+		<label for="description">{'Description'|translate}</label>
+		<textarea name="description" id="description" class="form-control">{$DESCRIPTION}</textarea>
 	    </p>
 
 	    <p>
-		<strong>{'Who can see this photo?'|translate}</strong>
-		<br>
-		<select name="level" size="1">
+		<label for="level">{'Who can see this photo?'|translate}</label>
+		<select id="level" class="custom-select" name="level" size="1">
 		    {html_options options=$level_options selected=$level_options_selected}
 		</select>
 	    </p>
 
-	    <p style="margin:40px 0 0 0">
-		<input class="submit" type="submit" value="{'Save Settings'|translate}" name="submit">
+	    <p>
+		<input class="btn btn-submit" type="submit" value="{'Save Settings'|translate}" name="submit">
 	    </p>
-	</fieldset>
-
+	</div>
     </form>
 {/block}

@@ -12,23 +12,24 @@
     {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
     {if !empty($comments) }
-	<form method="post" action="{$F_ACTION}" id="pendingComments">
-
-	    <table>
-		{foreach from=$comments item=comment name=comment}
-		    <tr valign="top" class="{if $smarty.foreach.comment.index is odd}row2{else}row1{/if}">
-			<td style="width:50px;" class="checkComment">
-			    <input type="checkbox" name="comments[]" value="{$comment.ID}">
-			</td>
-			<td>
-			    <div class="comment">
-				<a class="illustration" href="{$comment.U_PICTURE}"><img src="{$comment.TN_SRC}"></a>
-				<p class="commentHeader">{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}{if !empty($comment.IP)}{$comment.IP} - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em></p>
-				<blockquote>{$comment.CONTENT}</blockquote>
-			    </div>
-			</td>
-		    </tr>
-		{/foreach}
+	<form method="post" action="{$F_ACTION}">
+	    <table class="table table-striped">
+			<tbody>
+				{foreach $comments as $comment}
+				<tr>
+					<td style="width:50px;" class="checkComment">
+						<input type="checkbox" name="comments[]" value="{$comment.ID}">
+					</td>
+					<td>
+						<div class="comment">
+							<a href="{$comment.U_PICTURE}"><img src="{$comment.TN_SRC}"></a>
+							<p>{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}{if !empty($comment.IP)}{$comment.IP} - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em></p>
+							<blockquote>{$comment.CONTENT}</blockquote>
+						</div>
+					</td>
+				</tr>
+				{/foreach}
+			</tbody>
 	    </table>
 
 	    <p class="checkActions">

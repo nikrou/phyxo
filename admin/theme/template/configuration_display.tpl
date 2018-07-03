@@ -71,7 +71,7 @@
 		<li>
 		    <label>
 			{'Number of albums per page'|translate}
-			<input type="text" size="3" maxlength="4" name="nb_categories_page" id="nb_categories_page" value="{$display.NB_CATEGORIES_PAGE}">
+			<input class="form-control" type="text" size="3" maxlength="4" name="nb_categories_page" id="nb_categories_page" value="{$display.NB_CATEGORIES_PAGE}">
 		    </label>
 		</li>
 	    </ul>
