@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 define('PHPWG_ROOT_PATH','./');
 include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
@@ -60,13 +47,13 @@ function ts_to_iso8601($ts) {
 // |                            initialization                             |
 // +-----------------------------------------------------------------------+
 
-check_input_parameter('feed', $_GET, false, '/^[0-9a-z]{50}$/i');
+check_input_parameter('feed', $_GET, false, '/^[0-9a-z]*$/i');
 
 $feed_id = isset($_GET['feed']) ? $_GET['feed'] : '';
 $image_only=isset($_GET['image_only']);
 
 if (!empty($feed_id)) {
-    $query = 'SELECT user_id,_check  FROM '.USER_FEED_TABLE;
+    $query = 'SELECT user_id,last_check  FROM '.USER_FEED_TABLE;
     $query .= ' WHERE id = \''.$conn->db_real_escape_string($feed_id).'\'';
     $feed_row = $conn->db_fetch_assoc($conn->db_query($query));
     if (empty($feed_row)) {
@@ -126,7 +113,7 @@ if (!$image_only) {
         $rss->addItem($item);
 
         $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = \''.$dbnow;
-        $query .= '\' id = \''.$conn->db_real_escape_string($feed_id).'\'';
+        $query .= '\' where id = \''.$conn->db_real_escape_string($feed_id).'\'';
         $conn->db_query($query);
     }
 }
