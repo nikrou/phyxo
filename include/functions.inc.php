@@ -446,35 +446,10 @@ function str2DateTime($original, $format = null)
     if (!empty($format)) { // from known date format
         return DateTime::createFromFormat('!' . $format, $original); // ! char to reset fields to UNIX epoch
     } else {
-        $t = trim($original, '0123456789');
-        if (empty($t)) { // from timestamp
-            return new DateTime('@' . $original);
-        } else { // from unknown date format (assuming something like Y-m-d H:i:s)
-            $ymdhms = array();
-            $tok = strtok($original, '- :/');
-            while ($tok !== false) {
-                $ymdhms[] = $tok;
-                $tok = strtok('- :/');
-            }
+        $dt = new DateTime();
+        $dt->setTimestamp(strtotime($original));
 
-            if (count($ymdhms) < 3) {
-                return false;
-            }
-            if (!isset($ymdhms[3])) {
-                $ymdhms[3] = 0;
-            }
-            if (!isset($ymdhms[4])) {
-                $ymdhms[4] = 0;
-            }
-            if (!isset($ymdhms[5])) {
-                $ymdhms[5] = 0;
-            }
-
-            $date = new DateTime();
-            $date->setDate($ymdhms[0], $ymdhms[1], $ymdhms[2]);
-            $date->setTime($ymdhms[3], $ymdhms[4], $ymdhms[5]);
-            return $date;
-        }
+        return $dt;
     }
 }
 
@@ -663,54 +638,7 @@ function redirect_http($url)
 }
 
 /**
- * Redirects to the given URL (HTML method).
- * once this function called, the execution doesn't go further
- * (presence of an exit() instruction.
- *
- * @param string $url
- * @param string $msg
- * @param integer $refresh_time
- * @return void
- *
- * @deprecated Deprecated in 1.4.0, to be removed in 1.5.0. Use real redirect
- */
-function redirect_html($url, $msg = '', $refresh_time = 0)
-{
-    global $user, $template, $lang_info, $conf, $lang, $t2, $page, $debug, $services;
-
-    if (!isset($lang_info) || !isset($template)) {
-        $user = $services['users']->buildUser($conf['guest_id'], true);
-        load_language('common.lang');
-        trigger_notify('loading_lang');
-        load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $services['users']->getDefaultTheme());
-    } elseif (defined('IN_ADMIN') and IN_ADMIN) {
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $services['users']->getDefaultTheme());
-    }
-
-    if (empty($msg)) {
-        $msg = nl2br(l10n('Redirection...'));
-    }
-
-    $refresh = $refresh_time;
-    $url_link = $url;
-    $title = 'redirection';
-
-    $template->set_filenames(array('redirect' => 'redirect.tpl'));
-
-    include(PHPWG_ROOT_PATH . 'include/page_header.php');
-
-    $template->set_filenames(array('redirect' => 'redirect.tpl'));
-    $template->assign('REDIRECT_MSG', $msg);
-
-    $template->parse('redirect');
-
-    include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-    exit();
-}
-
-/**
- * Redirects to the given URL (automatically choose HTTP or HTML method).
+ * Redirects to the given URL
  * once this function called, the execution doesn't go further
  * (presence of an exit() instruction.
  *
@@ -723,10 +651,8 @@ function redirect($url, $msg = '', $refresh_time = 0)
 {
     global $conf;
 
-    if ($conf['default_redirect_method'] == 'http' && !headers_sent()) {
+    if (!headers_sent()) {
         redirect_http($url);
-    } else {
-        redirect_html($url, $msg, $refresh_time);
     }
 }
 
