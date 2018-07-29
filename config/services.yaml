@@ -29,3 +29,10 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    Phyxo\DBLayer\DBLayer:
+      factory: 'Phyxo\DBLayer\DBLayer::initFromDSN'
+      arguments: ['%env(DATABASE_URL)%']
+
+    phyxo.conn:
+      public: true
+      alias: 'Phyxo\DBLayer\DBLayer'

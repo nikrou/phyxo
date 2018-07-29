@@ -41,7 +41,18 @@ class DBLayer
         return new $className($host, $user, $password, $database);
     }
 
-    public function __construct($host, $user='', $password='', $database) {
+    /*
+     * @param dsn: Data Source Name, contains information to connect to the database
+     */
+    public static function initFromDSN($dsn)
+    {
+        $db_params = parse_url($dsn);
+
+        return self::init($db_params['scheme'], $db_params['host'], $db_params['user'], $db_params['pass'], substr($db_params['path'], 1));
+    }
+
+    public function __construct($host, $user = '', $password = '', $database)
+    {
         $this->db_link = $this->db_connect($host, $user, $password, $database);
     }
 
