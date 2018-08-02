@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH','./');
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH.'include/functions_notification.inc.php');
+define('PHPWG_ROOT_PATH', './');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                               functions                               |
@@ -24,7 +24,8 @@ include_once(PHPWG_ROOT_PATH.'include/functions_notification.inc.php');
  * @param string mysql datetime format
  * @return int timestamp
  */
-function datetime_to_ts($datetime) {
+function datetime_to_ts($datetime)
+{
     return strtotime($datetime);
 }
 
@@ -37,10 +38,11 @@ function datetime_to_ts($datetime) {
  * @param int timestamp
  * @return string ISO 8601 date format
  */
-function ts_to_iso8601($ts) {
-    $tz = date('O',$ts);
-    $tz = substr($tz, 0, -2).':'.substr($tz, -2);
-    return date('Y-m-d\\TH:i:s',$ts).$tz;
+function ts_to_iso8601($ts)
+{
+    $tz = date('O', $ts);
+    $tz = substr($tz, 0, -2) . ':' . substr($tz, -2);
+    return date('Y-m-d\\TH:i:s', $ts) . $tz;
 }
 
 // +-----------------------------------------------------------------------+
@@ -50,16 +52,16 @@ function ts_to_iso8601($ts) {
 check_input_parameter('feed', $_GET, false, '/^[0-9a-z]*$/i');
 
 $feed_id = isset($_GET['feed']) ? $_GET['feed'] : '';
-$image_only=isset($_GET['image_only']);
+$image_only = isset($_GET['image_only']);
 
 if (!empty($feed_id)) {
-    $query = 'SELECT user_id,last_check  FROM '.USER_FEED_TABLE;
-    $query .= ' WHERE id = \''.$conn->db_real_escape_string($feed_id).'\'';
+    $query = 'SELECT user_id,last_check  FROM ' . USER_FEED_TABLE;
+    $query .= ' WHERE id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
     $feed_row = $conn->db_fetch_assoc($conn->db_query($query));
     if (empty($feed_row)) {
         page_not_found(l10n('Unknown feed identifier'));
     }
-    if ($feed_row['user_id']!=$user['id']) { // new user
+    if ($feed_row['user_id'] != $user['id']) { // new user
         $user = $services['users']->buildUser($feed_row['user_id'], true);
     }
 } else {
@@ -74,14 +76,11 @@ $services['users']->checkStatus(ACCESS_GUEST);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
-include_once(PHPWG_ROOT_PATH.'include/feedcreator.class.php');
-
 set_make_full_url();
 
 $rss = new UniversalFeedCreator();
-$rss->encoding = get_pwg_charset();
 $rss->title = $conf['gallery_title'];
-$rss->title .= ' (as '.stripslashes($user['username']).')';
+$rss->title .= ' (as ' . stripslashes($user['username']) . ')';
 
 $rss->link = get_gallery_home_url();
 
@@ -95,66 +94,66 @@ if (!$image_only) {
 
     if (count($news) > 0) {
         $item = new FeedItem();
-        $item->title = l10n('New on %s', format_date($dbnow) );
+        $item->title = l10n('New on %s', format_date($dbnow));
         $item->link = get_gallery_home_url();
 
         // content creation
         $item->description = '<ul>';
         foreach ($news as $line) {
-            $item->description.= '<li>'.$line.'</li>';
+            $item->description .= '<li>' . $line . '</li>';
         }
-        $item->description.= '</ul>';
+        $item->description .= '</ul>';
         $item->descriptionHtmlSyndicated = true;
 
         $item->date = ts_to_iso8601(datetime_to_ts($dbnow));
         $item->author = $conf['rss_feed_author'];
-        $item->guid= sprintf('%s', $dbnow);;
+        $item->guid = sprintf('%s', $dbnow);;
 
         $rss->addItem($item);
 
-        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = \''.$dbnow;
-        $query .= '\' where id = \''.$conn->db_real_escape_string($feed_id).'\'';
+        $query = 'UPDATE ' . USER_FEED_TABLE . ' SET last_check = \'' . $dbnow;
+        $query .= '\' where id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
         $conn->db_query($query);
     }
 }
 
 if (!empty($feed_id) and empty($news)) {// update the last check from time to time to avoid deletion by maintenance tasks
-    if (!isset($feed_row['last_check']) or time()-datetime_to_ts($feed_row['last_check']) > 30*24*3600) {
-        $query = 'UPDATE '.USER_FEED_TABLE.' SET last_check = '.$conn->db_get_recent_period_expression(-15, $dbnow);
-        $query .= ' WHERE id = \''.$conn->db_real_escape_string($feed_id).'\'';
+    if (!isset($feed_row['last_check']) or time() - datetime_to_ts($feed_row['last_check']) > 30 * 24 * 3600) {
+        $query = 'UPDATE ' . USER_FEED_TABLE . ' SET last_check = ' . $conn->db_get_recent_period_expression(-15, $dbnow);
+        $query .= ' WHERE id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
         $conn->db_query($query);
     }
 }
 
 $dates = get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
 
-foreach($dates as $date_detail) { // for each recent post date we create a feed item
+foreach ($dates as $date_detail) { // for each recent post date we create a feed item
     $item = new FeedItem();
     $date = $date_detail['date_available'];
     $item->title = get_title_recent_post_date($date_detail);
     $item->link = make_index_url(
         array(
             'chronology_field' => 'posted',
-            'chronology_style'=> 'monthly',
+            'chronology_style' => 'monthly',
             'chronology_view' => 'calendar',
-            'chronology_date' => explode('-', substr($date,0,10) )
+            'chronology_date' => explode('-', substr($date, 0, 10))
         )
     );
 
-    $item->description .= '<a href="'.make_index_url().'">'.$conf['gallery_title'].'</a><br> ';
+    $item->description .= '<a href="' . make_index_url() . '">' . $conf['gallery_title'] . '</a><br> ';
     $item->description .= get_html_description_recent_post_date($date_detail);
 
     $item->descriptionHtmlSyndicated = true;
 
     $item->date = ts_to_iso8601(datetime_to_ts($date));
     $item->author = $conf['rss_feed_author'];
-    $item->guid= sprintf('%s', 'pics-'.$date);;
+    $item->guid = sprintf('%s', 'pics-' . $date);;
 
     $rss->addItem($item);
 }
 
-$fileName = PHPWG_ROOT_PATH.$conf['data_location'].'tmp';
+$fileName = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp';
 mkgetdir($fileName); // just in case
-$fileName .='/feed.xml';
+$fileName .= '/feed.xml';
 // send XML feed
 echo $rss->saveFeed('RSS2.0', $fileName, true);

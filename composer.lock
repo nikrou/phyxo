@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "28819072db02a7f25e329ad759a02952",
+    "content-hash": "b3d88b7715c5f5cd1e7f620e395f3f28",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -436,6 +436,54 @@
                 "minify"
             ],
             "time": "2018-01-09T11:15:01+00:00"
+        },
+        {
+            "name": "openpsa/universalfeedcreator",
+            "version": "v1.8.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/flack/UniversalFeedCreator.git",
+                "reference": "6261e130446d8f787bbfd229a602fb11e6816a4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/flack/UniversalFeedCreator/zipball/6261e130446d8f787bbfd229a602fb11e6816a4e",
+                "reference": "6261e130446d8f787bbfd229a602fb11e6816a4e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Flack",
+                    "email": "flack@contentcontrol-berlin.de",
+                    "homepage": "http://www.contentcontrol-berlin.de/"
+                }
+            ],
+            "description": "RSS and Atom feed generator by Kai Blankenhorn",
+            "keywords": [
+                "atom",
+                "georss",
+                "gpx",
+                "opml",
+                "pie",
+                "rss"
+            ],
+            "time": "2017-05-18T08:28:48+00:00"
         },
         {
             "name": "pclzip/pclzip",
