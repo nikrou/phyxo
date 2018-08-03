@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', './');
+define('PHPWG_ROOT_PATH', '../../');
 define('IN_WS', true);
 
 use Phyxo\Ws\Server;
@@ -19,7 +19,7 @@ use Phyxo\Ws\Protocols\SerialPhpEncoder;
 use Phyxo\Ws\Protocols\RestEncoder;
 use Phyxo\Ws\Protocols\XmlRpcEncoder;
 
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
 
 if (!$conf['allow_web_services']) {
@@ -43,19 +43,17 @@ if (!isset($responseFormat) and isset($requestFormat)) {
 $service = new Server();
 if (!is_null($requestFormat)) {
     $handler = null;
-    switch ($requestFormat)
-        {
+    switch ($requestFormat) {
         case 'rest':
             $handler = new RestRequestHandler();
             break;
-        }
+    }
     $service->setHandler($requestFormat, $handler);
 }
 
 if (!is_null($responseFormat)) {
     $encoder = null;
-    switch ($responseFormat)
-        {
+    switch ($responseFormat) {
         case 'rest':
             $encoder = new RestEncoder();
             break;
@@ -68,7 +66,7 @@ if (!is_null($responseFormat)) {
         case 'xmlrpc':
             $encoder = new XmlRpcEncoder();
             break;
-        }
+    }
     $service->setEncoder($responseFormat, $encoder);
 }
 
@@ -79,22 +77,23 @@ $service->run();
 /**
  * event handler that registers standard methods with the web service
  */
-function ws_addDefaultMethods($arr) {
+function ws_addDefaultMethods($arr)
+{
     global $conf, $user, $services;
 
     $service = &$arr[0];
 
-    include_once(PHPWG_ROOT_PATH.'include/ws_functions.inc.php');
-    $ws_functions_root = PHPWG_ROOT_PATH.'include/ws_functions/';
+    include_once(PHPWG_ROOT_PATH . 'include/ws_functions.inc.php');
+    $ws_functions_root = PHPWG_ROOT_PATH . 'include/ws_functions/';
 
     $f_params = array(
         'f_min_rate' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT),
         'f_max_rate' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT),
-        'f_min_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-        'f_max_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-        'f_min_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT|Server::WS_TYPE_POSITIVE),
-        'f_max_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT|Server::WS_TYPE_POSITIVE),
-        'f_max_level' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+        'f_min_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+        'f_max_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+        'f_min_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE),
+        'f_max_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE),
+        'f_max_level' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
         'f_min_date_available' => array('default' => null),
         'f_max_date_available' => array('default' => null),
         'f_min_date_created' => array('default' => null),
@@ -131,10 +130,10 @@ function ws_addDefaultMethods($arr) {
         'pwg.categories.getImages',
         'ws_categories_getImages',
         array_merge(array(
-            'cat_id' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'cat_id' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'per_page' =>   array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
         ), $f_params),
         'Returns elements for the corresponding categories.<br><b>cat_id</b> can be empty if <b>recursive</b> is true.<br><b>order</b> comma separated fields for sorting',
@@ -144,12 +143,15 @@ function ws_addDefaultMethods($arr) {
     $service->addMethod(
         'pwg.categories.getList',
         'ws_categories_getList',
-        array('cat_id' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE,
-        'info' => 'Parent category. "0" or empty for root.'),
-        'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        'public' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        'tree_output' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        'fullname' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
+        array(
+            'cat_id' => array(
+                'default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE,
+                'info' => 'Parent category. "0" or empty for root.'
+            ),
+            'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
+            'public' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
+            'tree_output' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
+            'fullname' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
         ),
         'Returns a list of categories.',
         $ws_functions_root . 'pwg.categories.php'
@@ -159,11 +161,13 @@ function ws_addDefaultMethods($arr) {
         'pwg.getMissingDerivatives',
         'ws_getMissingDerivatives',
         array_merge(array(
-            'types' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY,
-            'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge'),
+            'types' => array(
+                'default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY,
+                'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge'
+            ),
             'ids' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'max_urls' => array('default' => 200, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'prev_page' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'max_urls' => array('default' => 200, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'prev_page' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
         ), $f_params),
         'Returns a list of derivatives to build.',
         $ws_functions_root . 'pwg.php',
@@ -175,7 +179,7 @@ function ws_addDefaultMethods($arr) {
         'ws_images_addComment',
         array(
             'image_id' => array('type' => Server::WS_TYPE_ID),
-            'author' => array('default' => $services['users']->isGuest()?'guest':$user['username']),
+            'author' => array('default' => $services['users']->isGuest() ? 'guest' : $user['username']),
             'content' => array(),
             'key' => array(),
         ),
@@ -189,8 +193,8 @@ function ws_addDefaultMethods($arr) {
         'ws_images_getInfo',
         array(
             'image_id' => array('type' => Server::WS_TYPE_ID),
-            'comments_page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'comments_per_page' =>  array('default' => $conf['nb_comment_page'], 'maxValue' => 2*$conf['nb_comment_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'comments_page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'comments_per_page' => array('default' => $conf['nb_comment_page'], 'maxValue' => 2 * $conf['nb_comment_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
         ),
         'Returns information about an image.',
         $ws_functions_root . 'pwg.images.php'
@@ -212,8 +216,8 @@ function ws_addDefaultMethods($arr) {
         'ws_images_search',
         array_merge(array(
             'query' => array(),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
         ), $f_params),
         'Returns elements for the corresponding query search.',
@@ -225,7 +229,7 @@ function ws_addDefaultMethods($arr) {
         'ws_images_setPrivacyLevel',
         array(
             'image_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'level' => array('maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'level' => array('maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
         ),
         'Sets the privacy levels for the images.',
         $ws_functions_root . 'pwg.images.php',
@@ -238,7 +242,7 @@ function ws_addDefaultMethods($arr) {
         array(
             'image_id' => array('type' => Server::WS_TYPE_ID),
             'category_id' => array('type' => Server::WS_TYPE_ID),
-            'rank' => array('type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE|Server::WS_TYPE_NOTNULL)
+            'rank' => array('type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL)
         ),
         'Sets the rank of a photo for a given album.',
         $ws_functions_root . 'pwg.images.php',
@@ -250,7 +254,7 @@ function ws_addDefaultMethods($arr) {
         'ws_rates_delete',
         array(
             'user_id' => array('type' => Server::WS_TYPE_ID),
-            'anonymous_id' => array('default' =>null),
+            'anonymous_id' => array('default' => null),
             'image_id' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
         ),
         'Deletes all rates for a user.',
@@ -309,8 +313,8 @@ function ws_addDefaultMethods($arr) {
             'tag_url_name' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY),
             'tag_name' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY),
             'tag_mode_and' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
         ), $f_params),
         'Returns elements for the corresponding tags. Fill at least tag_id, tag_url_name or tag_name.',
@@ -359,7 +363,7 @@ function ws_addDefaultMethods($arr) {
             'comment' => array('default' => null),
             'categories' => array('default' => null, 'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'),
             'tag_ids' => array('default' => null, 'info' => 'Comma separated ids'),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'check_uniqueness' => array('default' => true, 'type' => Server::WS_TYPE_BOOL),
             'image_id' => array('default' => null, 'type' => Server::WS_TYPE_ID),
         ),
@@ -376,7 +380,7 @@ function ws_addDefaultMethods($arr) {
             'name' => array('default' => null),
             'author' => array('default' => null),
             'comment' => array('default' => null),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'tags' => array('default' => null, 'flags' => Server::WS_PARAM_ACCEPT_ARRAY),
             'image_id' => array('default' => null, 'type' => Server::WS_TYPE_ID),
         ),
@@ -391,7 +395,7 @@ function ws_addDefaultMethods($arr) {
         array(
             'name' => array('default' => null),
             'category' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'pwg_token' => array(),
         ),
         'Add an image.<br>Use the <b>$_FILES[image]</b> field for uploading file.<br>Set the form encoding to "form-data".',
@@ -425,7 +429,7 @@ function ws_addDefaultMethods($arr) {
         'ws_categories_add',
         array(
             'name' => array(),
-            'parent' => array('default' => null, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'parent' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'comment' => array('default' => null),
             'visible' => array('default' => true, 'type' => Server::WS_TYPE_BOOL),
             'status' => array('default' => null, 'info' => 'public, private'),
@@ -455,7 +459,7 @@ function ws_addDefaultMethods($arr) {
         'ws_categories_move',
         array(
             'category_id' => array('flags' => Server::WS_PARAM_ACCEPT_ARRAY),
-            'parent' => array('type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'parent' => array('type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'pwg_token' => array(),
         ),
         'Move album(s).
@@ -513,7 +517,7 @@ function ws_addDefaultMethods($arr) {
         array(
             'image_id' => array('type' => Server::WS_TYPE_ID),
             'file_sum' => array('default' => null),
-            'thumbnail_sum' =>  array('default' => null),
+            'thumbnail_sum' => array('default' => null),
             'high_sum' => array('default' => null),
         ),
         'Checks if you have updated version of your files for a given photo, the answer can be "missing", "equals" or "differs".
@@ -553,11 +557,15 @@ function ws_addDefaultMethods($arr) {
             'author' => array('default' => null),
             'date_creation' => array('default' => null),
             'comment' => array('default' => null),
-            'categories' => array('default' => null,
-            'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'),
-            'tag_ids' => array('default' => null,
-            'info' => 'Comma separated ids'),
-            'level' => array('default' => null, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'categories' => array(
+                'default' => null,
+                'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'
+            ),
+            'tag_ids' => array(
+                'default' => null,
+                'info' => 'Comma separated ids'
+            ),
+            'level' => array('default' => null, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'single_value_mode' => array('default' => 'fill_if_empty'),
             'multiple_value_mode' => array('default' => 'append'),
         ),
@@ -658,11 +666,11 @@ function ws_addDefaultMethods($arr) {
         'pwg.groups.getList',
         'ws_groups_getList',
         array(
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL|Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
+            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
             'name' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'order' =>    array('default' => 'name', 'info' => 'id, name, nb_users, is_default'),
+            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'order' => array('default' => 'name', 'info' => 'id, name, nb_users, is_default'),
         ),
         'Retrieves a list of all groups. The list can be filtered.',
         $ws_functions_root . 'pwg.groups.php',
@@ -674,7 +682,7 @@ function ws_addDefaultMethods($arr) {
         'ws_groups_add',
         array(
             'name' => array(),
-            'is_default' => array('default' =>false, 'type' => Server::WS_TYPE_BOOL),
+            'is_default' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
         ),
         'Creates a group and returns the new group record.',
         $ws_functions_root . 'pwg.groups.php',
@@ -725,8 +733,10 @@ function ws_addDefaultMethods($arr) {
         'ws_groups_deleteUser',
         array(
             'group_id' => array('type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY,
-            'type' => Server::WS_TYPE_ID),
+            'user_id' => array(
+                'flags' => Server::WS_PARAM_FORCE_ARRAY,
+                'type' => Server::WS_TYPE_ID
+            ),
             'pwg_token' => array(),
         ),
         'Removes one or more users from a group.',
@@ -738,14 +748,16 @@ function ws_addDefaultMethods($arr) {
         'pwg.users.getList',
         'ws_users_getList',
         array(
-            'user_id' =>    array('flags' => Server::WS_PARAM_OPTIONAL|Server::WS_PARAM_FORCE_ARRAY,
-            'type' => Server::WS_TYPE_ID),
+            'user_id' => array(
+                'flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY,
+                'type' => Server::WS_TYPE_ID
+            ),
             'username' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'),
-            'status' => array('flags' => Server::WS_PARAM_OPTIONAL|Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,generic,normal,admin,webmaster'),
-            'min_level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL|Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'status' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,generic,normal,admin,webmaster'),
+            'min_level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
+            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
+            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'order' => array('default' => 'id', 'info' => 'id, username, level, email'),
             'display' => array('default' => 'basics', 'info' => 'Comma saparated list (see method description)'),
         ),
@@ -762,7 +774,7 @@ function ws_addDefaultMethods($arr) {
             'password' => array('default' => null),
             'password_confirm' => array('flags' => Server::WS_PARAM_OPTIONAL),
             'email' => array('default' => null),
-            'send_password_by_mail' => array('default' =>false, 'type' => Server::WS_TYPE_BOOL),
+            'send_password_by_mail' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
             'pwg_token' => array(),
         ),
         'Registers a new user.',
@@ -791,13 +803,13 @@ function ws_addDefaultMethods($arr) {
             'password' => array('flags' => Server::WS_PARAM_OPTIONAL),
             'email' => array('flags' => Server::WS_PARAM_OPTIONAL),
             'status' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'guest,generic,normal,admin,webmaster'),
-            'level' => array('flags' => Server::WS_PARAM_OPTIONAL, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'level' => array('flags' => Server::WS_PARAM_OPTIONAL, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'language' => array('flags' => Server::WS_PARAM_OPTIONAL),
             'theme' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL|Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT),
+            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT),
             // bellow are parameters removed in a future version
-            'nb_image_page' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE|Server::WS_TYPE_NOTNULL),
-            'recent_period' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT|Server::WS_TYPE_POSITIVE),
+            'nb_image_page' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL),
+            'recent_period' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
             'expand' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
             'show_nb_comments' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
             'show_nb_hits' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
@@ -813,9 +825,9 @@ function ws_addDefaultMethods($arr) {
         'pwg.permissions.getList',
         'ws_permissions_getList',
         array(
-            'cat_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
+            'cat_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
+            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
+            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
         ),
         'Returns permissions: user ids and group ids having access to each album ; this list can be filtered.
 <br>Provide only one parameter!',
@@ -828,9 +840,9 @@ function ws_addDefaultMethods($arr) {
         'ws_permissions_add',
         array(
             'cat_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'group_id' =>   array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'user_id' =>    array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'recursive' => array('default' => false,  'type' => Server::WS_TYPE_BOOL),
+            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
+            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
+            'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
             'pwg_token' => array(),
         ),
         'Adds permissions to an album.',
@@ -842,12 +854,18 @@ function ws_addDefaultMethods($arr) {
         'pwg.permissions.remove',
         'ws_permissions_remove',
         array(
-            'cat_id' =>   array('flags' => Server::WS_PARAM_FORCE_ARRAY,
-            'type' => Server::WS_TYPE_ID),
-            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL,
-            'type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY|Server::WS_PARAM_OPTIONAL,
-            'type' => Server::WS_TYPE_ID),
+            'cat_id' => array(
+                'flags' => Server::WS_PARAM_FORCE_ARRAY,
+                'type' => Server::WS_TYPE_ID
+            ),
+            'group_id' => array(
+                'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
+                'type' => Server::WS_TYPE_ID
+            ),
+            'user_id' => array(
+                'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
+                'type' => Server::WS_TYPE_ID
+            ),
             'pwg_token' => array(),
         ),
         'Removes permissions from an album.',

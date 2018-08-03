@@ -1,34 +1,21 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
 
-define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
-include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+define('PHPWG_ROOT_PATH', '../../');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -48,7 +35,8 @@ trigger_notify('loc_begin_password');
  *
  * @return bool (true if email was sent, false otherwise)
  */
-function process_password_request() {
+function process_password_request()
+{
     global $page, $conf, $conn, $services;
 
     if (empty($_POST['username_or_email'])) {
@@ -99,22 +87,22 @@ function process_password_request() {
     set_make_full_url();
 
     $message = l10n('Someone requested that the password be reset for the following user account:') . "\r\n\r\n";
-    $message.= l10n(
+    $message .= l10n(
         'Username "%s" on gallery %s',
         $userdata['username'],
         get_gallery_home_url()
     );
-    $message.= "\r\n\r\n";
-    $message.= l10n('To reset your password, visit the following address:') . "\r\n";
-    $message.= get_gallery_home_url().'/password.php?key='.$userdata['activation_key']."\r\n\r\n";
-    $message.= l10n('If this was a mistake, just ignore this email and nothing will happen.')."\r\n";
+    $message .= "\r\n\r\n";
+    $message .= l10n('To reset your password, visit the following address:') . "\r\n";
+    $message .= get_gallery_home_url() . '/password.php?key=' . $userdata['activation_key'] . "\r\n\r\n";
+    $message .= l10n('If this was a mistake, just ignore this email and nothing will happen.') . "\r\n";
 
     unset_make_full_url();
 
     $message = trigger_change('render_lost_password_mail_content', $message);
 
     $email_params = array(
-        'subject' => '['.$conf['gallery_title'].'] '.l10n('Password Reset'),
+        'subject' => '[' . $conf['gallery_title'] . '] ' . l10n('Password Reset'),
         'content' => $message,
         'email_format' => 'text/plain',
     );
@@ -135,7 +123,8 @@ function process_password_request() {
  *
  * @return bool (true if password was reset, false otherwise)
  */
-function reset_password() {
+function reset_password()
+{
     global $page, $user, $conf, $conn, $services;
 
     if ($_POST['use_new_pwd'] != $_POST['passwordConf']) {
@@ -168,9 +157,9 @@ function reset_password() {
     $page['infos'][] = l10n('Your password has been reset');
 
     if (isset($_GET['key'])) {
-        $page['infos'][] = '<a href="'.get_root_url().'identification.php">'.l10n('Login').'</a>';
+        $page['infos'][] = '<a href="' . get_root_url() . 'identification.php">' . l10n('Login') . '</a>';
     } else {
-        $page['infos'][] = '<a href="'.get_gallery_home_url().'">'.l10n('Return to home page').'</a>';
+        $page['infos'][] = '<a href="' . get_gallery_home_url() . '">' . l10n('Return to home page') . '</a>';
     }
 
     return true;
@@ -251,11 +240,11 @@ if ('lost' == $page['action']) {
 
 $page['body_id'] = 'thePasswordPage';
 
-$template->set_filenames(array('password'=>'password.tpl'));
+$template->set_filenames(array('password' => 'password.tpl'));
 $template->assign(
     array(
         'title' => $title,
-        'form_action'=> get_root_url().'password.php',
+        'form_action' => get_root_url() . 'password.php',
         'action' => $page['action'],
         'username' => isset($page['username']) ? $page['username'] : $user['username'],
         'PWG_TOKEN' => get_pwg_token(),
@@ -265,16 +254,16 @@ $template->assign(
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('thePasswordPage', $themeconf['hide_menu_on'])) {
-    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+if (!isset($themeconf['hide_menu_on']) or !in_array('thePasswordPage', $themeconf['hide_menu_on'])) {
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
 // +-----------------------------------------------------------------------+
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 trigger_notify('loc_end_password');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('password');

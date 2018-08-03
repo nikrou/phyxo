@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', './');
+define('PHPWG_ROOT_PATH', '../../');
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
@@ -20,28 +20,28 @@ use Phyxo\Template\Template;
 
 // load config file
 include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH. 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH. 'local/config/config.inc.php');
+if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
+    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
 }
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
-if (is_readable(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'config/database.inc.php')) {
-    include(PHPWG_ROOT_PATH.PWG_LOCAL_DIR.'config/database.inc.php');
+if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
+    include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 }
 
 // $conf is not used for users tables - define cannot be re-defined
-define('USERS_TABLE', $prefixeTable.'users');
-include_once(PHPWG_ROOT_PATH.'include/constants.php');
+define('USERS_TABLE', $prefixeTable . 'users');
+include_once(PHPWG_ROOT_PATH . 'include/constants.php');
 define('PREFIX_TABLE', $prefixeTable);
-define('UPGRADES_PATH', PHPWG_ROOT_PATH.'install/db');
+define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 
-include_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions.inc.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
 // |                          database connection                          |
 // +-----------------------------------------------------------------------+
-include_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
@@ -65,17 +65,17 @@ if (isset($_GET['language'])) {
     $language = 'en_GB';
     // Try to get browser language
     foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
-        if (substr($language_code,0,2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"],0,2)) {
+        if (substr($language_code, 0, 2) == @substr($_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2)) {
             $language = $language_code;
             break;
         }
     }
 }
 
-load_language('common.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
-load_language('admin.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
-load_language('install.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
-load_language('upgrade.lang', '', array('language' => $language, 'target_charset'=>'utf-8', 'no_fallback' => true) );
+load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+load_language('upgrade.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
@@ -84,7 +84,7 @@ define('CURRENT_DATE', $dbnow);
 // |                        template initialization                        |
 // +-----------------------------------------------------------------------+
 
-$template = new Template(PHPWG_ROOT_PATH.'admin/themes', 'clear');
+$template = new Template(PHPWG_ROOT_PATH . 'admin/theme', '.');
 $template->set_filenames(array('upgrade' => 'upgrade.tpl'));
 $template->assign(array('RELEASE' => PHPWG_VERSION));
 
@@ -96,10 +96,10 @@ $tables = $conn->db_get_tables(PREFIX_TABLE);
 $columns_of = $conn->db_get_columns_of($tables);
 
 // find the current release
-$query = 'SELECT id FROM '.PREFIX_TABLE.'upgrade;';
+$query = 'SELECT id FROM ' . PREFIX_TABLE . 'upgrade;';
 $applied_upgrades = $conn->query2array($query, null, 'id');
 
-if (in_array('validated', $columns_of[PREFIX_TABLE.'tags'])) {
+if (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
     $current_release = '1.3.0';
 } elseif (!in_array(145, $applied_upgrades)) {
     $current_release = '1.2.0';
@@ -109,7 +109,7 @@ if (in_array('validated', $columns_of[PREFIX_TABLE.'tags'])) {
     // confirm that the database is in the same version as source code files
     conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
 
-    header('Content-Type: text/html; charset='.get_pwg_charset());
+    header('Content-Type: text/html; charset=' . get_pwg_charset());
     echo 'No upgrade required, the database structure is up to date';
     echo '<br><a href="index.php">← back to gallery</a>';
     exit();
@@ -125,7 +125,7 @@ $mysql_changes = array();
 check_upgrade_access_rights();
 
 if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
-    $upgrade_file = PHPWG_ROOT_PATH.'install/upgrade_'.$current_release.'.php';
+    $upgrade_file = PHPWG_ROOT_PATH . 'install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
         $page['upgrade_start'] = get_moment();
         $conf['die_on_sql_error'] = false;
@@ -133,7 +133,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
 
         // Plugins deactivation
-        if (in_array(PREFIX_TABLE.'plugins', $tables)) {
+        if (in_array(PREFIX_TABLE . 'plugins', $tables)) {
             deactivate_non_standard_plugins();
         }
 
@@ -155,7 +155,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
                     3,
                     '.',
                     ' '
-                ).' s',
+                ) . ' s',
                 'NB_QUERIES' => $page['count_queries']
             )
         );
@@ -197,8 +197,8 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
 
     $template->assign('introduction', array(
         'CURRENT_RELEASE' => $current_release,
-        'F_ACTION' => 'upgrade.php?language=' . $language)
-    );
+        'F_ACTION' => 'upgrade.php?language=' . $language
+    ));
 
     if (!check_upgrade()) {
         $template->assign('login', true);

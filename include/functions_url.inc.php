@@ -28,10 +28,13 @@
  * and return an empty string for current path
  * @return string
  */
-function get_root_url() {
+function get_root_url()
+{
     global $page;
 
-    if (!empty($page['root_path'])) {
+    if (!empty($_SERVER['PUBLIC_BASE_PATH'])) {
+        return $_SERVER['PUBLIC_BASE_PATH'] . '/';
+    } elseif (!empty($page['root_path'])) {
         $root_url = $page['root_path'];
     } else {
         $root_url = PHPWG_ROOT_PATH;
@@ -47,13 +50,13 @@ function get_root_url() {
  * returns the absolute url to the root of PWG
  * @param boolean with_scheme if false - does not add http://toto.com
  */
-function get_absolute_root_url($with_scheme=true) {
+function get_absolute_root_url($with_scheme = true)
+{
     // @TODO - add HERE the possibility to call PWG functions from external scripts
     $url = '';
     if ($with_scheme) {
         $is_https = false;
-        if (isset($_SERVER['HTTPS']) &&
-            ((strtolower($_SERVER['HTTPS']) == 'on') or ($_SERVER['HTTPS'] == 1))) {
+        if (isset($_SERVER['HTTPS']) && ((strtolower($_SERVER['HTTPS']) == 'on') or ($_SERVER['HTTPS'] == 1))) {
             $is_https = true;
             $url .= 'https://';
         } else {
@@ -61,8 +64,8 @@ function get_absolute_root_url($with_scheme=true) {
         }
         $url .= $_SERVER['HTTP_HOST'];
         if ((!$is_https && $_SERVER['SERVER_PORT'] != 80)
-            ||($is_https && $_SERVER['SERVER_PORT'] != 443)) {
-            $url_port = ':'.$_SERVER['SERVER_PORT'];
+            || ($is_https && $_SERVER['SERVER_PORT'] != 443)) {
+            $url_port = ':' . $_SERVER['SERVER_PORT'];
             if (strrchr($url, ':') != $url_port) {
                 $url .= $url_port;
             }
@@ -80,20 +83,21 @@ function get_absolute_root_url($with_scheme=true) {
  * @param array params
  * @return string
  */
-function add_url_params($url, $params, $arg_separator='&amp;') {
+function add_url_params($url, $params, $arg_separator = '&amp;')
+{
     if (!empty($params)) {
         assert(is_array($params)); // @TODO: remove assert and use real error or exception
         $is_first = true;
-        foreach($params as $param => $val) {
+        foreach ($params as $param => $val) {
             if ($is_first) {
                 $is_first = false;
-                $url .= ( strpos($url, '?')===false ) ? '?' : $arg_separator;
+                $url .= (strpos($url, '?') === false) ? '?' : $arg_separator;
             } else {
                 $url .= $arg_separator;
             }
             $url .= $param;
             if (isset($val)) {
-                $url .= '='.$val;
+                $url .= '=' . $val;
             }
         }
     }
@@ -107,10 +111,11 @@ function add_url_params($url, $params, $arg_separator='&amp;') {
  * @param array
  * @return string
  */
-function make_index_url($params = array()) {
+function make_index_url($params = array())
+{
     global $conf;
 
-    $url = get_root_url().'index';
+    $url = get_root_url() . 'index';
     if ($conf['php_extension_in_urls']) {
         $url .= '.php';
     }
@@ -120,7 +125,7 @@ function make_index_url($params = array()) {
 
     $url_before_params = $url;
 
-    $url.= make_section_in_url($params);
+    $url .= make_section_in_url($params);
     $url = add_well_known_params_in_url($url, $params);
 
     if ($url == $url_before_params) {
@@ -144,7 +149,8 @@ function make_index_url($params = array()) {
  * @param array removed keys
  * @return string
  */
-function duplicate_index_url($redefined = array(), $removed = array()) {
+function duplicate_index_url($redefined = array(), $removed = array())
+{
     return make_index_url(
         params_for_duplication($redefined, $removed)
     );
@@ -157,7 +163,8 @@ function duplicate_index_url($redefined = array(), $removed = array()) {
  * @param array removed keys
  * @return array
  */
-function params_for_duplication($redefined, $removed) {
+function params_for_duplication($redefined, $removed)
+{
     global $page;
 
     $params = $page;
@@ -181,7 +188,8 @@ function params_for_duplication($redefined, $removed) {
  * @param array removed keys
  * @return string
  */
-function duplicate_picture_url($redefined = array(), $removed = array()) {
+function duplicate_picture_url($redefined = array(), $removed = array())
+{
     return make_picture_url(
         params_for_duplication($redefined, $removed)
     );
@@ -193,38 +201,38 @@ function duplicate_picture_url($redefined = array(), $removed = array()) {
  * @param array
  * @return string
  */
-function make_picture_url($params) {
+function make_picture_url($params)
+{
     global $conf;
 
-    $url = get_root_url().'picture';
+    $url = get_root_url() . 'picture';
     if ($conf['php_extension_in_urls']) {
         $url .= '.php';
     }
     if ($conf['question_mark_in_urls']) {
         $url .= '?';
     }
-    $url.= '/';
-    switch ($conf['picture_url_style'])
-    {
-    case 'id-file':
-        $url .= $params['image_id'];
-        if (isset($params['image_file'])) {
-            $url .= '-'.str2url(get_filename_wo_extension($params['image_file']));
-        }
-        break;
-    case 'file':
-      if (isset($params['image_file'])) {
-          $fname_wo_ext = get_filename_wo_extension($params['image_file']);
-          if (ord($fname_wo_ext)>ord('9') or !preg_match('/^\d+(-|$)/', $fname_wo_ext)) {
-              $url .= $fname_wo_ext;
-              break;
-          }
-      }
-    default:
-        $url .= $params['image_id'];
+    $url .= '/';
+    switch ($conf['picture_url_style']) {
+        case 'id-file':
+            $url .= $params['image_id'];
+            if (isset($params['image_file'])) {
+                $url .= '-' . str2url(get_filename_wo_extension($params['image_file']));
+            }
+            break;
+        case 'file':
+            if (isset($params['image_file'])) {
+                $fname_wo_ext = get_filename_wo_extension($params['image_file']);
+                if (ord($fname_wo_ext) > ord('9') or !preg_match('/^\d+(-|$)/', $fname_wo_ext)) {
+                    $url .= $fname_wo_ext;
+                    break;
+                }
+            }
+        default:
+            $url .= $params['image_id'];
     }
     if (!isset($params['category'])) { // make urls shorter ...
-        unset( $params['flat'] );
+        unset($params['flat']);
     }
     $url .= make_section_in_url($params);
     $url = add_well_known_params_in_url($url, $params);
@@ -234,25 +242,26 @@ function make_picture_url($params) {
 
 /**
  *adds to the url the chronology and start parameters
-*/
-function add_well_known_params_in_url($url, $params) {
+ */
+function add_well_known_params_in_url($url, $params)
+{
     if (isset($params['chronology_field'])) {
-        $url .= '/'. $params['chronology_field'];
-        $url .= '-'. $params['chronology_style'];
+        $url .= '/' . $params['chronology_field'];
+        $url .= '-' . $params['chronology_style'];
         if (isset($params['chronology_view'])) {
-            $url .= '-'. $params['chronology_view'];
+            $url .= '-' . $params['chronology_view'];
         }
         if (!empty($params['chronology_date'])) {
-            $url .= '-'. implode('-', $params['chronology_date'] );
+            $url .= '-' . implode('-', $params['chronology_date']);
         }
     }
 
     if (isset($params['flat'])) {
-        $url.= '/flat';
+        $url .= '/flat';
     }
 
     if (isset($params['start']) and $params['start'] > 0) {
-        $url.= '/start-'.$params['start'];
+        $url .= '/start-' . $params['start'];
     }
 
     return $url;
@@ -266,7 +275,8 @@ function add_well_known_params_in_url($url, $params) {
  * @param array
  * @return string
  */
-function make_section_in_url($params) {
+function make_section_in_url($params)
+{
     global $conf;
 
     $section_string = '';
@@ -274,9 +284,9 @@ function make_section_in_url($params) {
     if (!isset($section)) {
         $section_of = array(
             'category' => 'categories',
-            'tags'     => 'tags',
-            'list'     => 'list',
-            'search'   => 'search',
+            'tags' => 'tags',
+            'list' => 'list',
+            'search' => 'search',
         );
 
         foreach ($section_of as $param => $s) {
@@ -290,71 +300,77 @@ function make_section_in_url($params) {
         }
     }
 
-    switch($section)
-    {
-    case 'categories': {
-        if (!isset($params['category'])) {
-            $section_string .= '/categories';
-        } else {
-            isset($params['category']['name']) or trigger_error(
-                'make_section_in_url category name not set', E_USER_WARNING
-            );
-
-            array_key_exists('permalink', $params['category']) or trigger_error(
-                'make_section_in_url category permalink not set', E_USER_WARNING
-            );
-
-            $section_string.= '/category/';
-            if (empty($params['category']['permalink'])) {
-                $section_string .= $params['category']['id'];
-                if ($conf['category_url_style']=='id-name') {
-                    $section_string .= '-'.str2url($params['category']['name']);
-                }
-            } else {
-                $section_string .= $params['category']['permalink'];
-            }
-        }
-
-        break;
-    }
-    case 'tags': {
-        $section_string .= '/tags';
-
-        foreach ($params['tags'] as $tag) {
-            switch ($conf['tag_url_style'])
+    switch ($section) {
+        case 'categories':
             {
-            case 'id':
-                $section_string .= '/'.$tag['id'];
-                break;
-            case 'tag':
-                if (isset($tag['url_name']) and !is_numeric($tag['url_name'])) {
-                    $section_string .= '/'.$tag['url_name'];
-                    break;
-                }
-            default:
-                $section_string .= '/'.$tag['id'];
-                if (isset($tag['url_name'])) {
-                    $section_string.= '-'.$tag['url_name'];
-                }
-            }
-        }
+                if (!isset($params['category'])) {
+                    $section_string .= '/categories';
+                } else {
+                    isset($params['category']['name']) or trigger_error(
+                        'make_section_in_url category name not set',
+                        E_USER_WARNING
+                    );
 
-        break;
-    }
-    case 'search': {
-        $section_string .= '/search/'.$params['search'];
-        break;
-    }
-    case 'list': {
-        $section_string .= '/list/'.implode(',', $params['list']);
-        break;
-    }
-    case 'none': {
-        break;
-    }
-    default: {
-        $section_string .= '/'.$section;
-    }
+                    array_key_exists('permalink', $params['category']) or trigger_error(
+                        'make_section_in_url category permalink not set',
+                        E_USER_WARNING
+                    );
+
+                    $section_string .= '/category/';
+                    if (empty($params['category']['permalink'])) {
+                        $section_string .= $params['category']['id'];
+                        if ($conf['category_url_style'] == 'id-name') {
+                            $section_string .= '-' . str2url($params['category']['name']);
+                        }
+                    } else {
+                        $section_string .= $params['category']['permalink'];
+                    }
+                }
+
+                break;
+            }
+        case 'tags':
+            {
+                $section_string .= '/tags';
+
+                foreach ($params['tags'] as $tag) {
+                    switch ($conf['tag_url_style']) {
+                        case 'id':
+                            $section_string .= '/' . $tag['id'];
+                            break;
+                        case 'tag':
+                            if (isset($tag['url_name']) and !is_numeric($tag['url_name'])) {
+                                $section_string .= '/' . $tag['url_name'];
+                                break;
+                            }
+                        default:
+                            $section_string .= '/' . $tag['id'];
+                            if (isset($tag['url_name'])) {
+                                $section_string .= '-' . $tag['url_name'];
+                            }
+                    }
+                }
+
+                break;
+            }
+        case 'search':
+            {
+                $section_string .= '/search/' . $params['search'];
+                break;
+            }
+        case 'list':
+            {
+                $section_string .= '/list/' . implode(',', $params['list']);
+                break;
+            }
+        case 'none':
+            {
+                break;
+            }
+        default:
+            {
+                $section_string .= '/' . $section;
+            }
     }
 
     return $section_string;
@@ -370,11 +386,12 @@ function make_section_in_url($params) {
  * @param int the index in the array of url tokens; in/out
  * @return array
  */
-function parse_section_url($tokens, &$next_token) {
+function parse_section_url($tokens, &$next_token)
+{
     global $services;
 
-    $page=array();
-    if (strncmp(@$tokens[$next_token], 'categor', 7)==0) { // @TODO: remove arobase, add test
+    $page = array();
+    if (strncmp(@$tokens[$next_token], 'categor', 7) == 0) { // @TODO: remove arobase, add test
         $page['section'] = 'categories';
         $next_token++;
 
@@ -389,15 +406,15 @@ function parse_section_url($tokens, &$next_token) {
                 $maybe_permalinks = array();
                 $current_token = $next_token;
                 while (isset($tokens[$current_token])
-                       and strpos($tokens[$current_token], 'created-')!==0
-                       and strpos($tokens[$current_token], 'posted-')!==0
-                       and strpos($tokens[$next_token], 'start-')!==0
-                       and strpos($tokens[$next_token], 'startcat-')!==0
-                       and $tokens[$current_token] != 'flat') {
+                    and strpos($tokens[$current_token], 'created-') !== 0
+                    and strpos($tokens[$current_token], 'posted-') !== 0
+                    and strpos($tokens[$next_token], 'start-') !== 0
+                    and strpos($tokens[$next_token], 'startcat-') !== 0
+                    and $tokens[$current_token] != 'flat') {
                     if (empty($maybe_permalinks)) {
                         $maybe_permalinks[] = $tokens[$current_token];
                     } else {
-                        $maybe_permalinks[] = $maybe_permalinks[count($maybe_permalinks)-1].'/'.$tokens[$current_token];
+                        $maybe_permalinks[] = $maybe_permalinks[count($maybe_permalinks) - 1] . '/' . $tokens[$current_token];
                     }
                     $current_token++;
                 }
@@ -405,7 +422,7 @@ function parse_section_url($tokens, &$next_token) {
                 if (count($maybe_permalinks)) {
                     $cat_id = get_cat_id_from_permalinks($maybe_permalinks, $perma_index);
                     if (isset($cat_id)) {
-                        $next_token += $perma_index+1;
+                        $next_token += $perma_index + 1;
                         $page['category'] = $cat_id;
                         $page['hit_by']['cat_permalink'] = $maybe_permalinks[$perma_index];
                     } else {
@@ -420,7 +437,7 @@ function parse_section_url($tokens, &$next_token) {
             if (empty($result)) {
                 page_not_found(l10n('Requested album does not exist'));
             }
-            $page['category']=$result;
+            $page['category'] = $result;
         }
     } elseif ('tags' == @$tokens[$next_token]) { // @TODO: remove arobase, add test
         global $conf;
@@ -435,9 +452,9 @@ function parse_section_url($tokens, &$next_token) {
         $requested_tag_url_names = array();
 
         while (isset($tokens[$i])) {
-            if (strpos($tokens[$i], 'created-')===0
-                or strpos($tokens[$i], 'posted-')===0
-                or strpos($tokens[$i], 'start-')===0) {
+            if (strpos($tokens[$i], 'created-') === 0
+                or strpos($tokens[$i], 'posted-') === 0
+                or strpos($tokens[$i], 'start-') === 0) {
                 break;
             }
 
@@ -456,7 +473,7 @@ function parse_section_url($tokens, &$next_token) {
 
         $page['tags'] = $services['tags']->findTags($requested_tag_ids, $requested_tag_url_names);
         if (empty($page['tags'])) {
-            page_not_found(l10n('Requested tag does not exist'), get_root_url().'tags.php' );
+            page_not_found(l10n('Requested tag does not exist'), get_root_url() . 'tags.php');
         }
     } elseif ('favorites' == @$tokens[$next_token]) { // @TODO: remove arobase, add test
         $page['section'] = 'favorites';
@@ -510,23 +527,24 @@ function parse_section_url($tokens, &$next_token) {
 /**
  * the reverse of add_well_known_params_in_url
  * parses start, flat and chronology from url tokens
-*/
-function parse_well_known_params_url($tokens, &$i) {
+ */
+function parse_well_known_params_url($tokens, &$i)
+{
     $page = array();
     while (isset($tokens[$i])) {
         if ('flat' == $tokens[$i]) {
             // indicate a special list of images
             $page['flat'] = true;
-        } elseif (strpos($tokens[$i], 'created-')===0 or strpos($tokens[$i], 'posted-')===0) {
-            $chronology_tokens = explode('-', $tokens[$i] );
+        } elseif (strpos($tokens[$i], 'created-') === 0 or strpos($tokens[$i], 'posted-') === 0) {
+            $chronology_tokens = explode('-', $tokens[$i]);
             $page['chronology_field'] = $chronology_tokens[0];
 
             array_shift($chronology_tokens);
             $page['chronology_style'] = $chronology_tokens[0];
 
             array_shift($chronology_tokens);
-            if (count($chronology_tokens)>0) {
-                if ('list'==$chronology_tokens[0] or 'calendar'==$chronology_tokens[0]) {
+            if (count($chronology_tokens) > 0) {
+                if ('list' == $chronology_tokens[0] or 'calendar' == $chronology_tokens[0]) {
                     $page['chronology_view'] = $chronology_tokens[0];
                     array_shift($chronology_tokens);
                 }
@@ -548,23 +566,25 @@ function parse_well_known_params_url($tokens, &$i) {
  * @param id image id
  * @param what_part string one of 'e' (element), 'r' (representative)
  */
-function get_action_url($id, $what_part, $download) {
+function get_action_url($id, $what_part, $download)
+{
     $params = array('id' => $id, 'part' => $what_part);
     if ($download) {
         $params['download'] = null;
     }
 
-    return add_url_params(get_root_url().'action.php', $params);
+    return add_url_params(get_root_url() . 'action.php', $params);
 }
 
 /*
  * @param element_info array containing element information from db;
  * at least 'id', 'path' should be present
  */
-function get_element_url($element_info) {
+function get_element_url($element_info)
+{
     $url = $element_info['path'];
     if (!url_is_remote($url)) {
-        $url = embellish_url(get_root_url().$url);
+        $url = embellish_url(get_root_url() . $url);
     }
 
     return $url;
@@ -576,7 +596,8 @@ function get_element_url($element_info) {
  * @param null
  * @return null
  */
-function set_make_full_url() {
+function set_make_full_url()
+{
     global $page;
 
     if (!isset($page['save_root_path'])) {
@@ -596,7 +617,8 @@ function set_make_full_url() {
  * @param null
  * @return null
  */
-function unset_make_full_url() {
+function unset_make_full_url()
+{
     global $page;
 
     if (isset($page['save_root_path'])) {
@@ -619,12 +641,13 @@ function unset_make_full_url() {
  * @param $url
  * @return $url embellished
  */
-function embellish_url($url) {
+function embellish_url($url)
+{
     $url = str_replace('/./', '/', $url);
-    while (($dotdot = strpos($url, '/../', 1) ) !== false) {
-        $before = strrpos($url, '/', -(strlen($url)-$dotdot+1) );
+    while (($dotdot = strpos($url, '/../', 1)) !== false) {
+        $before = strrpos($url, '/', -(strlen($url) - $dotdot + 1));
         if ($before !== false) {
-            $url = substr_replace($url, '', $before, $dotdot-$before+3);
+            $url = substr_replace($url, '', $before, $dotdot - $before + 3);
         } else {
             break;
         }
@@ -636,14 +659,15 @@ function embellish_url($url) {
 /**
  * Returns the 'home page' of this gallery
  */
-function get_gallery_home_url() {
+function get_gallery_home_url()
+{
     global $conf;
 
     if (!empty($conf['gallery_url'])) {
-        if (url_is_remote($conf['gallery_url']) or $conf['gallery_url'][0]=='/' ) {
+        if (url_is_remote($conf['gallery_url']) or $conf['gallery_url'][0] == '/') {
             return $conf['gallery_url'];
         }
-        return get_root_url().$conf['gallery_url'];
+        return get_root_url() . $conf['gallery_url'];
     } else {
         return make_index_url();
     }
@@ -656,7 +680,8 @@ function get_gallery_home_url() {
  * @param boolean $escape escape *&* to *&amp;*
  * @returns string
  */
-function get_query_string_diff($rejects=array(), $escape=true) {
+function get_query_string_diff($rejects = array(), $escape = true)
+{
     if (empty($_SERVER['QUERY_STRING'])) {
         return '';
     }
@@ -674,6 +699,7 @@ function get_query_string_diff($rejects=array(), $escape=true) {
  * @param string $url
  * @returns boolean
  */
-function url_is_remote($url) {
-    return (strncmp($url, 'http://', 7)==0 or strncmp($url, 'https://', 8)==0);
+function url_is_remote($url)
+{
+    return (strncmp($url, 'http://', 7) == 0 or strncmp($url, 'https://', 8) == 0);
 }

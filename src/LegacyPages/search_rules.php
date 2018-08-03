@@ -1,26 +1,22 @@
 <?php
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 // +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
+// |                           initialization                              |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+
+define('PHPWG_ROOT_PATH', '../../');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+$services['users']->checkStatus(ACCESS_FREE);
+include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
 
 /**
  * returns language value 'included' or 'excluded' depending on boolean
@@ -29,25 +25,18 @@
  * @param bool is_included
  * @return string
  */
-function inc_exc_str($is_included) {
+function inc_exc_str($is_included)
+{
     return $is_included ? l10n('included') : l10n('excluded');
 }
 
-// +-----------------------------------------------------------------------+
-// |                           initialization                              |
-// +-----------------------------------------------------------------------+
-
-define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php');
-$services['users']->checkStatus(ACCESS_FREE);
-include_once( PHPWG_ROOT_PATH.'include/functions_search.inc.php');
 
 $title = l10n('Search rules');
 $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 
 $template->set_filenames(array('search_rules' => 'search_rules.tpl'));
 
-include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                        Textual rules creation                         |
@@ -79,8 +68,8 @@ if (isset($search['fields']['allwords'])) {
 if (isset($search['fields']['tags'])) {
     $template->assign('SEARCH_TAGS_MODE', $search['fields']['tags']['mode']);
 
-    $query = 'SELECT name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id '.$conn->in($search['fields']['tags']['words']);
+    $query = 'SELECT name FROM ' . TAGS_TABLE;
+    $query .= ' WHERE id ' . $conn->in($search['fields']['tags']['words']);
     $template->assign(
         'search_tags',
         $conn->query2array($query, 'name')
@@ -105,8 +94,8 @@ if (isset($search['fields']['cat'])) {
         $cat_ids = $search['fields']['cat']['words'];
     }
 
-    $query = 'SELECT id, uppercats, global_rank FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id '.$conn->in($cat_ids);
+    $query = 'SELECT id, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($cat_ids);
     $result = $conn->db_query($query);
 
     $categories = array();
@@ -131,32 +120,32 @@ if (isset($search['fields']['cat'])) {
 foreach (array('date_available', 'date_creation') as $datefield) {
     if ('date_available' == $datefield) {
         $lang_items = array(
-            'date'   => l10n('posted on %s'),
+            'date' => l10n('posted on %s'),
             'period' => l10n('posted between %s (%s) and %s (%s)'),
-            'after'  => l10n('posted after %s (%s)'),
+            'after' => l10n('posted after %s (%s)'),
             'before' => l10n('posted before %s (%s)'),
         );
     } elseif ('date_creation' == $datefield) {
         $lang_items = array(
-            'date'   => l10n('created on %s'),
+            'date' => l10n('created on %s'),
             'period' => l10n('created between %s (%s) and %s (%s)'),
-            'after'  => l10n('created after %s (%s)'),
+            'after' => l10n('created after %s (%s)'),
             'before' => l10n('created before %s (%s)'),
         );
     }
 
     $keys = array(
-        'date'   => $datefield,
-        'after'  => $datefield.'-after',
-        'before' => $datefield.'-before',
+        'date' => $datefield,
+        'after' => $datefield . '-after',
+        'before' => $datefield . '-before',
     );
 
-    if (isset($search['fields'][ $keys['date'] ])) {
+    if (isset($search['fields'][$keys['date']])) {
         $template->assign(
             strtoupper($datefield),
             sprintf(
                 $lang_items['date'],
-                format_date($search['fields'][ $keys['date'] ])
+                format_date($search['fields'][$keys['date']])
             )
         );
     } elseif (isset($search['fields'][$keys['before']]) and isset($search['fields'][$keys['after']])) {
@@ -179,7 +168,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
                 inc_exc_str($search['fields'][$keys['before']]['inc'])
             )
         );
-    } elseif (isset($search['fields'][ $keys['after'] ])) {
+    } elseif (isset($search['fields'][$keys['after']])) {
         $template->assign(
             strtoupper($datefield),
             sprintf(
@@ -195,7 +184,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('search_rules');

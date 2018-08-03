@@ -43,7 +43,7 @@ $template->assign(
         'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
         'CONTENT_ENCODING' => get_pwg_charset(),
         'PAGE_TITLE' => strip_tags($title),
-        'U_HOME' => get_gallery_home_url(),
+        'U_HOME' => get_root_url(),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
     )
 );

@@ -1,32 +1,30 @@
 <?php
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 // +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
+// |                           initialization                              |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+
+define('PHPWG_ROOT_PATH', '../../');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+
+$services['users']->checkStatus(ACCESS_GUEST);
+
+trigger_notify('loc_begin_tags');
 
 // +-----------------------------------------------------------------------+
 // |                             functions                                 |
 // +-----------------------------------------------------------------------+
 
-function counter_compare($a, $b) {
+function counter_compare($a, $b)
+{
     if ($a['counter'] == $b['counter']) {
         return id_compare($a, $b);
     }
@@ -34,26 +32,17 @@ function counter_compare($a, $b) {
     return ($a['counter'] < $b['counter']) ? +1 : -1;
 }
 
-function id_compare($a, $b) {
+function id_compare($a, $b)
+{
     return ($a['id'] < $b['id']) ? -1 : 1;
 }
 
-// +-----------------------------------------------------------------------+
-// |                           initialization                              |
-// +-----------------------------------------------------------------------+
-
-define('PHPWG_ROOT_PATH','./');
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
-
-$services['users']->checkStatus(ACCESS_GUEST);
-
-trigger_notify('loc_begin_tags');
 
 // +-----------------------------------------------------------------------+
 // |                       page header and options                         |
 // +-----------------------------------------------------------------------+
 
-$title= l10n('Tags');
+$title = l10n('Tags');
 $page['body_id'] = 'theTagsPage';
 
 $template->set_filenames(array('tags' => 'tags.tpl'));
@@ -67,12 +56,12 @@ if (isset($_GET['display_mode'])) {
 
 foreach (array('cloud', 'letters') as $mode) {
     $template->assign(
-        'U_'.strtoupper($mode),
-        get_root_url().'tags.php'. ($conf['tags_default_display_mode']==$mode ? '' : '?display_mode='.$mode)
+        'U_' . strtoupper($mode),
+        get_root_url() . 'tags.php' . ($conf['tags_default_display_mode'] == $mode ? '' : '?display_mode=' . $mode)
     );
 }
 
-$template->assign( 'display_mode', $page['display_mode'] );
+$template->assign('display_mode', $page['display_mode']);
 
 // find all tags available for the current user
 $tags = $services['tags']->getAvailableTags();
@@ -95,15 +84,15 @@ if ($page['display_mode'] == 'letters') {
     foreach ($tags as $tag) {
         $tag_letter = mb_strtoupper(mb_substr(transliterate($tag['name']), 0, 1, PWG_CHARSET), PWG_CHARSET);
 
-        if ($current_tag_idx==0) {
+        if ($current_tag_idx == 0) {
             $current_letter = $tag_letter;
             $letter['TITLE'] = $tag_letter;
         }
 
         //lettre precedente differente de la lettre suivante
         if ($tag_letter !== $current_letter) {
-            if ($current_column<$conf['tag_letters_column_number']
-            and $current_tag_idx > $current_column*$nb_tags/$conf['tag_letters_column_number']) {
+            if ($current_column < $conf['tag_letters_column_number']
+                and $current_tag_idx > $current_column * $nb_tags / $conf['tag_letters_column_number']) {
                 $letter['CHANGE_COLUMN'] = true;
                 $current_column++;
             }
@@ -175,12 +164,12 @@ if ($page['display_mode'] == 'letters') {
 }
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('theTagsPage', $themeconf['hide_menu_on'])) {
-    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+if (!isset($themeconf['hide_menu_on']) or !in_array('theTagsPage', $themeconf['hide_menu_on'])) {
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 trigger_notify('loc_end_tags');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('tags');

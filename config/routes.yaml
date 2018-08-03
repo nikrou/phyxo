@@ -1,1 +1,96 @@
-#
+fallback:
+  path:  /{path_info}.{_format}
+  controller: App\Controller\LegacyController::fallback
+  defaults:
+    _format: php
+  requirements:
+    path_info: about|register|password|identification|profile|feed|notification|install|upgrade|upgrade_feed|random|comments|ws|action|tags|search|search_rules
+
+search_results:
+  path:  /search/{search_id}/{page_id}
+  controller: App\Controller\LegacyController::indexSearch
+  defaults:
+    page_id: null
+  requirements:
+    page_id: start-\d+
+
+search_rules:
+  path:  /search_rules/{search_id}
+  controller: App\Controller\LegacyController::searchRules
+
+album:
+  path: /category/{category_id}
+  controller: App\Controller\LegacyController::album
+
+images_by_tags:
+  path: /tags/{tag_id}
+  controller: App\Controller\LegacyController::imagesByTags
+  defaults:
+    path: "%kernel.project_dir%/src/LegacyPages/index.php"
+  requirements:
+    tag_id: .*
+
+index:
+  path:  /{type}/{time_params}/{extra_params}
+  controller: App\Controller\LegacyController::index
+  defaults:
+    time_params: null
+    extra_params: null
+  requirements:
+    type: favorites|most_visited|recent_pics|best_rated|recent_cats|created-monthly-calendar|categories
+
+picture_by_type:
+  path:  /picture.{_format}/{image_id}/{type}/{time_params}{extra_params}
+  controller: App\Controller\LegacyController::imagesByTypes
+  defaults:
+    _format: php
+    time_params: null
+    extra_params: null
+  requirements:
+    type: favorites|most_visited|recent_pics|best_rated|created-monthly-calendar|search|categories
+
+picture:
+  path:  /picture.{_format}/{image_id}/{type}/{element_id}
+  controller: App\Controller\LegacyController::picture
+  defaults:
+    _format: php
+  requirements:
+    type: category|tags|list|search
+
+## calendar
+calendar:
+  path: /{date_type}-monthly-{type}-{year}-{month}-{day}
+  controller: App\Controller\LegacyController::calendar
+  defaults:
+    month: null
+    day: null
+  requirements:
+    date_type: created|posted
+    type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+categories_calendar:
+  path: /categories/{date_type}-monthly-{type}-{year}-{month}-{day}
+  controller: App\Controller\LegacyController::categoriesCalendar
+  defaults:
+    month: null
+    day: null
+  requirements:
+    date_type: created|posted
+    type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+index_random:
+  path:  /list/{list}
+  controller: App\Controller\LegacyController::indexRandom
+
+legacy_index:
+  path:  /{path_info}.{_format}
+  controller: App\Controller\LegacyController::indexLegacy
+  defaults:
+    _format: php
+    path_info: null

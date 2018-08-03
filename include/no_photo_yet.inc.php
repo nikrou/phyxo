@@ -13,10 +13,13 @@
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
-if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
-and script_basename() != 'identification' // keep the ability to login
-and script_basename() != 'ws'             // keep the ability to discuss with web API
-and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
+// no message inside administration 
+// keep the ability to login
+// keep the ability to discuss with web API
+if (!(defined('IN_ADMIN') and IN_ADMIN)
+    and script_basename() != 'identification'
+    and script_basename() != 'ws'
+    and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
 
     $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
     list($nb_photos) = $conn->db_fetch_row($conn->db_query($query));

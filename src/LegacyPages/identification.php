@@ -10,8 +10,8 @@
  */
 
 //--------------------------------------------------------------------- include
-define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
+define('PHPWG_ROOT_PATH', '../../');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -36,7 +36,7 @@ if (isset($_POST['login'])) {
         }
 
         $redirect_to = isset($_POST['redirect']) ? urldecode($_POST['redirect']) : '';
-        $remember_me = isset($_POST['remember_me']) and $_POST['remember_me']==1;
+        $remember_me = isset($_POST['remember_me']) and $_POST['remember_me'] == 1;
 
         if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
             redirect(empty($redirect_to) ? get_gallery_home_url() : $redirect_to);
@@ -53,34 +53,35 @@ if (isset($_POST['login'])) {
 $title = l10n('Identification');
 $page['body_id'] = 'theIdentificationPage';
 
-$template->set_filenames( array('identification'=>'identification.tpl') );
+$template->set_filenames(array('identification' => 'identification.tpl'));
 
 $template->assign(
     array(
         'U_REDIRECT' => $redirect_to,
 
-        'F_LOGIN_ACTION' => get_root_url().'identification.php',
+        'F_LOGIN_ACTION' => get_root_url() . 'identification.php',
         'authorize_remembering' => $conf['authorize_remembering'],
-    ));
+    )
+);
 
 if (!$conf['gallery_locked'] && $conf['allow_user_registration']) {
-    $template->assign('U_REGISTER', get_root_url().'register.php' );
+    $template->assign('U_REGISTER', get_root_url() . 'register.php');
 }
 
 if (!$conf['gallery_locked']) {
-    $template->assign('U_LOST_PASSWORD', get_root_url().'password.php' );
+    $template->assign('U_LOST_PASSWORD', get_root_url() . 'password.php');
 }
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
 if (!$conf['gallery_locked']
     && (!isset($themeconf['hide_menu_on']) || !in_array('theIdentificationPage', $themeconf['hide_menu_on']))) {
-    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
 //----------------------------------------------------------- html code display
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 trigger_notify('loc_end_identification');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('identification');

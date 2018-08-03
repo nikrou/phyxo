@@ -1,32 +1,20 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2018 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
-define('PHPWG_ROOT_PATH','./');
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
+define('PHPWG_ROOT_PATH', '../../');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 if (!$conf['activate_comments']) {
     page_not_found(null);
@@ -37,11 +25,11 @@ if (!$conf['activate_comments']) {
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_GUEST);
 
-$url_self = PHPWG_ROOT_PATH.'comments.php'.get_query_string_diff(array('delete','edit','validate','pwg_token'));
+$url_self = get_root_url() . 'comments.php' . get_query_string_diff(array('delete', 'edit', 'validate', 'pwg_token'));
 
 $sort_order = array(
     'DESC' => l10n('descending'),
-    'ASC'  => l10n('ascending')
+    'ASC' => l10n('ascending')
 );
 
 // sort_by : database fields proposed for sorting comments list
@@ -51,7 +39,7 @@ $sort_by = array(
 );
 
 // items_number : list of number of items to display per page
-$items_number = array(5,10,20,50,'all');
+$items_number = array(5, 10, 20, 50, 'all');
 
 // if the default value is not in the expected values, we add it in the $items_number array
 if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
@@ -74,9 +62,9 @@ if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
 // since when display comments ?
 //
 $since_options = array(
-    1 => array('label' => l10n('today'), 'clause' => 'date > '.$conn->db_get_recent_period_expression(1)),
-    2 => array('label' => l10n('last %d days', 7), 'clause' => 'date > '.$conn->db_get_recent_period_expression(7)),
-    3 => array('label' => l10n('last %d days', 30), 'clause' => 'date > '.$conn->db_get_recent_period_expression(30)),
+    1 => array('label' => l10n('today'), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(1)),
+    2 => array('label' => l10n('last %d days', 7), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(7)),
+    3 => array('label' => l10n('last %d days', 30), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(30)),
     4 => array('label' => l10n('the beginning'), 'clause' => '1=1') // stupid but generic
 );
 
@@ -110,7 +98,7 @@ $page['items_number'] = $conf['comments_page_nb_comments'];
 if (isset($_GET['items_number'])) {
     $page['items_number'] = $_GET['items_number'];
 }
-if (!is_numeric($page['items_number']) and $page['items_number']!='all') {
+if (!is_numeric($page['items_number']) and $page['items_number'] != 'all') {
     $page['items_number'] = 10;
 }
 
@@ -125,13 +113,13 @@ if (isset($_GET['cat']) and 0 != $_GET['cat']) {
         $category_ids = array(-1);
     }
 
-    $page['where_clauses'][] = 'category_id '.$conn->in($category_ids);
+    $page['where_clauses'][] = 'category_id ' . $conn->in($category_ids);
 }
 
 // search a particular author
 if (!empty($_GET['author'])) {
-    $page['where_clauses'][] = '(u.'.$conf['user_fields']['username'].' = \''.$conn->db_real_escape_string($_GET['author'])
-        .'\' OR author = \''.$conn->db_real_escape_string($_GET['author']).'\')';
+    $page['where_clauses'][] = '(u.' . $conf['user_fields']['username'] . ' = \'' . $conn->db_real_escape_string($_GET['author'])
+        . '\' OR author = \'' . $conn->db_real_escape_string($_GET['author']) . '\')';
 }
 
 // search a specific comment (if you're coming directly from an admin
@@ -143,29 +131,31 @@ if (!empty($_GET['comment_id'])) {
     // for management purpose (validate/delete)
     if (!$services['users']->isAdmin()) {
         // double urlencode because redirect makes a decode !!
-        $login_url = get_root_url().'identification.php?redirect='.urlencode(urlencode($_SERVER['REQUEST_URI']));
+        $login_url = get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
         redirect($login_url);
     }
 
-    $page['where_clauses'][] = 'com.id = '.$conn->db_real_escape_string($_GET['comment_id']);
+    $page['where_clauses'][] = 'com.id = ' . $conn->db_real_escape_string($_GET['comment_id']);
 }
 
 // search a substring among comments content
 if (!empty($_GET['keyword'])) {
-    $page['where_clauses'][] = '('.implode(
+    $page['where_clauses'][] = '(' . implode(
         ' AND ',
         array_map(
-            function($s) {return "content LIKE '%$s%'";},
+            function ($s) {
+                return "content LIKE '%$s%'";
+            },
             preg_split('/[\s,;]+/', $conn->db_real_escape_string($_GET['keyword']))
         )
-    ).')';
+    ) . ')';
 }
 
 $page['where_clauses'][] = $since_options[$page['since']]['clause'];
 
 // which status to filter on ?
 if (!$services['users']->isAdmin()) {
-    $page['where_clauses'][] = 'validated = \''.$conn->boolean_to_db(true).'\'';
+    $page['where_clauses'][] = 'validated = \'' . $conn->boolean_to_db(true) . '\'';
 }
 
 $page['where_clauses'][] = get_sql_condition_FandF(
@@ -226,8 +216,7 @@ if (isset($action)) {
                     $_POST['key']
                 );
 
-                switch ($comment_action)
-                    {
+                switch ($comment_action) {
                     case 'moderate':
                         $_SESSION['page_infos'][] = l10n('An administrator must authorize your comment before it is visible.');
                     case 'validate':
@@ -238,8 +227,8 @@ if (isset($action)) {
                         $_SESSION['page_errors'][] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
                         break;
                     default:
-                        trigger_error('Invalid comment action '.$comment_action, E_USER_WARNING);
-                    }
+                        trigger_error('Invalid comment action ' . $comment_action, E_USER_WARNING);
+                }
             }
 
             $edit_comment = $_GET['edit'];
@@ -255,14 +244,14 @@ if (isset($action)) {
 // |                       page header and options                         |
 // +-----------------------------------------------------------------------+
 
-$title= l10n('User comments');
+$title = l10n('User comments');
 
-$template->set_filenames(array('comments'=>'comments.tpl'));
+$template->set_filenames(array('comments' => 'comments.tpl'));
 $template->assign(
     array(
-        'F_ACTION'=>PHPWG_ROOT_PATH.'comments.php',
-        'F_KEYWORD'=> htmlspecialchars(stripslashes(@$_GET['keyword'])),
-        'F_AUTHOR'=> htmlspecialchars(stripslashes(@$_GET['author'])),
+        'F_ACTION' => get_root_url() . 'comments.php',
+        'F_KEYWORD' => htmlspecialchars(stripslashes(@$_GET['keyword'])),
+        'F_AUTHOR' => htmlspecialchars(stripslashes(@$_GET['author'])),
     )
 );
 
@@ -273,8 +262,8 @@ $template->assign(
 // Search in a particular category
 $blockname = 'categories';
 
-$query = 'SELECT id, name, uppercats, global_rank FROM '.CATEGORIES_TABLE;
-$query .= ' '.get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE').';';
+$query = 'SELECT id, name, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
+$query .= ' ' . get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE') . ';';
 display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
 
 // Filter on recent comments...
@@ -323,19 +312,19 @@ $element_ids = [];
 $category_ids = [];
 
 $query = 'SELECT com.id AS comment_id, com.image_id, ic.category_id, com.author,';
-$query .= 'com.author_id, u.'.$conf['user_fields']['email'].' AS user_email, com.email,';
-$query .= 'com.date,com.website_url,com.content,com.validated FROM '.COMMENTS_TABLE.' AS com';
-$query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.image_id = com.image_id';
-$query .= ' LEFT JOIN '.USERS_TABLE.' As u ON u.'.$conf['user_fields']['id'].' = com.author_id';
-$query .= ' WHERE '.implode(' AND ', $page['where_clauses']);
+$query .= 'com.author_id, u.' . $conf['user_fields']['email'] . ' AS user_email, com.email,';
+$query .= 'com.date,com.website_url,com.content,com.validated FROM ' . COMMENTS_TABLE . ' AS com';
+$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = com.image_id';
+$query .= ' LEFT JOIN ' . USERS_TABLE . ' As u ON u.' . $conf['user_fields']['id'] . ' = com.author_id';
+$query .= ' WHERE ' . implode(' AND ', $page['where_clauses']);
 $query .= ' GROUP BY comment_id, ic.category_id, u.mail_address';
-$query .= ' ORDER BY '.$page['sort_by'].' '.$page['sort_order'];
+$query .= ' ORDER BY ' . $page['sort_by'] . ' ' . $page['sort_order'];
 
 $result_count = $conn->db_query($query);
 $counter = $conn->db_num_rows($result_count);
 
 if ('all' != $page['items_number']) {
-    $query .= ' LIMIT '.$page['items_number'].' OFFSET '.$conn->db_real_escape_string($start);
+    $query .= ' LIMIT ' . $page['items_number'] . ' OFFSET ' . $conn->db_real_escape_string($start);
 }
 
 $result = $conn->db_query($query);
@@ -345,7 +334,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $category_ids[] = $row['category_id'];
 }
 
-$url = PHPWG_ROOT_PATH.'comments.php'.get_query_string_diff(array('start','edit','delete','validate','pwg_token'));
+$url = get_root_url() . 'comments.php' . get_query_string_diff(array('start', 'edit', 'delete', 'validate', 'pwg_token'));
 $navbar = create_navigation_bar(
     $url,
     $counter,
@@ -357,13 +346,13 @@ $template->assign('navbar', $navbar);
 
 if (count($comments) > 0) {
   // retrieving element informations
-    $query = 'SELECT * FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id '.$conn->in($element_ids);
+    $query = 'SELECT * FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($element_ids);
     $elements = $conn->query2array($query, 'id');
 
     // retrieving category informations
-    $query = 'SELECT id, name, permalink, uppercats FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id '.$conn->in($category_ids);
+    $query = 'SELECT id, name, permalink, uppercats FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($category_ids);
     $categories = $conn->query2array($query, 'id');
 
     foreach ($comments as $comment) {
@@ -379,7 +368,7 @@ if (count($comments) > 0) {
         // link to the full size picture
         $url = make_picture_url(
             array(
-                'category' => $categories[ $comment['category_id'] ],
+                'category' => $categories[$comment['category_id']],
                 'image_id' => $comment['image_id'],
                 'image_file' => $elements[$comment['image_id']]['file'],
             )
@@ -399,8 +388,8 @@ if (count($comments) > 0) {
             'ALT' => $name,
             'AUTHOR' => trigger_change('render_comment_author', $comment['author']),
             'WEBSITE_URL' => $comment['website_url'],
-            'DATE'=>format_date($comment['date'], array('day_name','day','month','year','time')),
-            'CONTENT'=>trigger_change('render_comment_content',$comment['content']),
+            'DATE' => format_date($comment['date'], array('day_name', 'day', 'month', 'year', 'time')),
+            'CONTENT' => trigger_change('render_comment_content', $comment['content']),
         );
 
         if ($services['users']->isAdmin()) {
@@ -441,7 +430,7 @@ if (count($comments) > 0) {
                 $tpl_comment['U_VALIDATE'] = add_url_params(
                     $url_self,
                     array(
-                        'validate'=> $comment['comment_id'],
+                        'validate' => $comment['comment_id'],
                         'pwg_token' => get_pwg_token(),
                     )
                 );
@@ -456,15 +445,15 @@ $template->assign('derivative_params', $derivative_params);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('theCommentsPage', $themeconf['hide_menu_on'])) {
-    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+if (!isset($themeconf['hide_menu_on']) or !in_array('theCommentsPage', $themeconf['hide_menu_on'])) {
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
 // +-----------------------------------------------------------------------+
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 trigger_notify('loc_end_comments');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('comments');

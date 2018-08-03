@@ -28,7 +28,7 @@
 // +-----------------------------------------------------------------------+
 
 if (!defined('PHPWG_ROOT_PATH')) { //direct script access
-    define('PHPWG_ROOT_PATH','./');
+    define('PHPWG_ROOT_PATH','../../');
     include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
 
     // +-----------------------------------------------------------------------+
