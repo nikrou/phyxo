@@ -14,13 +14,6 @@ function phpWGOpenWindow(theURL,winName,features)
 	newWin = window.open(theURL,winName,features+',left=2,top=1,width=' + width + ',height=' + height);
 }
 
-function popuphelp(url)
-{
-	window.open( url, 'dc_popup',
-		'alwaysRaised=yes,dependent=yes,toolbar=no,height=420,width=500,menubar=no,resizable=yes,scrollbars=yes,status=no'
-	);
-}
-
 function pwgBind(object, method) {
 	var args = Array.prototype.slice.call(arguments,2);
 	return function() {
@@ -151,5 +144,5 @@ function pwgAddEventListener(elem, evt, fn)
 	if (window.addEventListener)
 		elem.addEventListener(evt, fn, false);
 	else
-		elem.attachEvent('on'+evt, fn);		
+		elem.attachEvent('on'+evt, fn);
 }

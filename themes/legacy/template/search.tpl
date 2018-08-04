@@ -18,12 +18,6 @@
    {/footer_script}
 
    <div class="titrePage">
-       <ul class="categoryActions">
-	   {combine_script id='core.scripts' load='async' path='themes/legacy/js/scripts.js'}
-	   <li><a href="{$U_HELP}" onclick="popuphelp(this.href); return false;" title="{'Help'|translate}" class="pwg-state-default pwg-button">
-	       <span class="pwg-icon pwg-icon-help"></span><span class="pwg-button-text">{'Help'|translate}</span>
-	   </a></li>
-       </ul>
        <h2><a href="{$U_HOME}">{'Home'|translate}</a>{$LEVEL_SEPARATOR}{'Search'|translate}</h2>
    </div>
 

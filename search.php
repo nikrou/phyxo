@@ -1,30 +1,17 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 //--------------------------------------------------------------------- include
-define('PHPWG_ROOT_PATH','./');
-include_once( PHPWG_ROOT_PATH.'include/common.inc.php' );
+define('PHPWG_ROOT_PATH', './');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -48,12 +35,12 @@ if (isset($_POST['submit'])) {
         $fields = array_intersect($_POST['fields'], array('name', 'comment', 'file'));
 
         $drop_char_match = array(
-            '-','^','$',';','#','&','(',')','<','>','`','\'','"','|',',','@','_',
-            '?','%','~','.','[',']','{','}',':','\\','/','=','\'','!','*'
+            '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_',
+            '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', '\'', '!', '*'
         );
         $drop_char_replace = array(
-            ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','','',' ',' ',' ',' ','',' ',
-            ' ',' ',' ',' ',' ',' ',' ',' ','' ,' ',' ',' ',' ',' '
+            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', ' ', ' ', ' ', ' ', '', ' ',
+            ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', ' ', ' ', ' ', ' ', ' '
         );
 
         // Split words
@@ -79,7 +66,7 @@ if (isset($_POST['submit'])) {
 
         $search['fields']['tags'] = array(
             'words' => $_POST['tags'],
-            'mode'  => $_POST['tag_mode'],
+            'mode' => $_POST['tag_mode'],
         );
     }
 
@@ -100,7 +87,7 @@ if (isset($_POST['submit'])) {
         check_input_parameter('cat', $_POST, true, PATTERN_ID);
 
         $search['fields']['cat'] = array(
-            'words'   => $_POST['cat'],
+            'words' => $_POST['cat'],
             'sub_inc' => ($_POST['subcats-included'] == 1) ? true : false,
         );
     }
@@ -109,24 +96,24 @@ if (isset($_POST['submit'])) {
     $type_date = $_POST['date_type'];
 
     if (!empty($_POST['start_year'])) {
-        $search['fields'][$type_date.'-after'] = array(
+        $search['fields'][$type_date . '-after'] = array(
             'date' => sprintf(
                 '%d-%02d-%02d',
                 $_POST['start_year'],
                 $_POST['start_month'] != 0 ? $_POST['start_month'] : '01',
-                $_POST['start_day']   != 0 ? $_POST['start_day']   : '01'
+                $_POST['start_day'] != 0 ? $_POST['start_day'] : '01'
             ),
             'inc' => true,
         );
     }
 
     if (!empty($_POST['end_year'])) {
-        $search['fields'][$type_date.'-before'] = array(
+        $search['fields'][$type_date . '-before'] = array(
             'date' => sprintf(
                 '%d-%02d-%02d',
                 $_POST['end_year'],
                 $_POST['end_month'] != 0 ? $_POST['end_month'] : '12',
-                $_POST['end_day']   != 0 ? $_POST['end_day']   : '31'
+                $_POST['end_day'] != 0 ? $_POST['end_day'] : '31'
             ),
             'inc' => true,
         );
@@ -138,7 +125,7 @@ if (isset($_POST['submit'])) {
 
         // register search rules in database, then they will be available on
         // thumbnails page and picture page.
-        $query = 'INSERT INTO '.SEARCH_TABLE.' (rules, last_seen) VALUES (\''.serialize($search).'\', NOW());';
+        $query = 'INSERT INTO ' . SEARCH_TABLE . ' (rules, last_seen) VALUES (\'' . serialize($search) . '\', NOW());';
         $conn->db_query($query);
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
     } else {
@@ -151,7 +138,7 @@ if (isset($_POST['submit']) and count($page['errors']) == 0) {
         make_index_url(
             array(
                 'section' => 'search',
-                'search'  => $search_id,
+                'search' => $search_id,
             )
         )
     );
@@ -161,19 +148,18 @@ if (isset($_POST['submit']) and count($page['errors']) == 0) {
 //
 // Start output of page
 //
-$title= l10n('Search');
+$title = l10n('Search');
 $page['body_id'] = 'theSearchPage';
 
-$template->set_filename('search' ,'search.tpl' );
+$template->set_filename('search', 'search.tpl');
 
 $month_list = $lang['month'];
-$month_list[0]='------------';
+$month_list[0] = '------------';
 ksort($month_list);
 
 $template->assign(
     array(
         'F_SEARCH_ACTION' => 'search.php',
-        'U_HELP' => PHPWG_ROOT_PATH.'popuphelp.php?page=search',
         'month_list' => $month_list,
         'START_DAY_SELECTED' => @$_POST['start_day'],
         'START_MONTH_SELECTED' => @$_POST['start_month'],
@@ -193,9 +179,9 @@ if (count($available_tags) > 0) {
 // authors
 $authors = array();
 
-$query = 'SELECT author, id FROM '.IMAGES_TABLE.' AS i';
-$query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.image_id = i.id';
-$query .= ' '.get_sql_condition_FandF(
+$query = 'SELECT author, id FROM ' . IMAGES_TABLE . ' AS i';
+$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
+$query .= ' ' . get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -227,8 +213,8 @@ foreach ($author_counts as $author => $counter) {
 $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
-$query = 'SELECT id,name,global_rank,uppercats FROM '.CATEGORIES_TABLE;
-$query .= ' '.get_sql_condition_FandF(
+$query = 'SELECT id,name,global_rank,uppercats FROM ' . CATEGORIES_TABLE;
+$query .= ' ' . get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
@@ -239,13 +225,13 @@ display_select_cat_wrapper($query, array(), 'category_options', true);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) OR !in_array('theSearchPage', $themeconf['hide_menu_on'])) {
-    include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+if (!isset($themeconf['hide_menu_on']) or !in_array('theSearchPage', $themeconf['hide_menu_on'])) {
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
 //------------------------------------------------------------ html code display
-include(PHPWG_ROOT_PATH.'include/page_header.php');
+include(PHPWG_ROOT_PATH . 'include/page_header.php');
 trigger_notify('loc_end_search');
 flush_page_messages();
-include(PHPWG_ROOT_PATH.'include/page_tail.php');
+include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('search');

@@ -634,7 +634,6 @@ $conf['filter_pages'] = array
     'feed' => array('used' => false),
     'notification' => array('used' => false),
     'nbm' => array('used' => false),
-    'popuphelp' => array('used' => false),
     'profile' => array('used' => false),
     'ws' => array('used' => false),
     'identification' => array('cancel' => true),

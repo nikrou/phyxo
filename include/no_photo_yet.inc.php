@@ -1,43 +1,29 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
 if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
-    and script_basename() != 'identification' // keep the ability to login
-    and script_basename() != 'ws'             // keep the ability to discuss with web API
-    and script_basename() != 'popuphelp'      // keep the ability to display help popups
-    and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
+and script_basename() != 'identification' // keep the ability to login
+and script_basename() != 'ws'             // keep the ability to discuss with web API
+and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
 
-    $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
     list($nb_photos) = $conn->db_fetch_row($conn->db_query($query));
-    if ($nb_photos===0) {
+    if ($nb_photos === 0) {
         // make sure we don't use the mobile theme, which is not compatible with
         // the "no photo yet" feature
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH.'themes', $user['theme']);
+        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $user['theme']);
 
         if (isset($_GET['no_photo_yet'])) {
             if ('browse' == $_GET['no_photo_yet']) {
@@ -53,13 +39,13 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
             }
         }
 
-        header('Content-Type: text/html; charset='.get_pwg_charset());
-        $template->set_filenames(array('no_photo_yet'=>'no_photo_yet.tpl'));
+        header('Content-Type: text/html; charset=' . get_pwg_charset());
+        $template->set_filenames(array('no_photo_yet' => 'no_photo_yet.tpl'));
 
         if ($services['users']->isAdmin()) {
             $url = $conf['no_photo_yet_url'];
             if (substr($url, 0, 4) != 'http') {
-                $url = get_root_url().$url;
+                $url = get_root_url() . $url;
             }
 
             $template->assign(
@@ -70,7 +56,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
                         $user['username']
                     ),
                     'next_step_url' => $url,
-                    'deactivate_url' => get_root_url().'?no_photo_yet=deactivate',
+                    'deactivate_url' => get_root_url() . '?no_photo_yet=deactivate',
                 )
             );
         } else {
@@ -79,7 +65,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)   // no message inside administration
                 array(
                     'step' => 1,
                     'U_LOGIN' => 'identification.php',
-                    'deactivate_url' => get_root_url().'?no_photo_yet=browse',
+                    'deactivate_url' => get_root_url() . '?no_photo_yet=browse',
                 )
             );
         }
