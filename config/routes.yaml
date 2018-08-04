@@ -7,20 +7,24 @@ fallback:
     path_info: about|register|password|identification|profile|feed|notification|install|upgrade|upgrade_feed|random|comments|ws|action|tags|search|search_rules
 
 search_results:
-  path:  /search/{search_id}/{page_id}
+  path:  /search/{search_id}/{start_id}
   controller: App\Controller\LegacyController::indexSearch
   defaults:
-    page_id: null
+    start_id: null
   requirements:
-    page_id: start-\d+
+    start_id: start-\d+
 
 search_rules:
   path:  /search_rules/{search_id}
   controller: App\Controller\LegacyController::searchRules
 
 album:
-  path: /category/{category_id}
+  path: /category/{category_id}/{start_id}
   controller: App\Controller\LegacyController::album
+  defaults:
+    start_id: null
+  requirements:
+    start_id: start-\d+
 
 images_by_tags:
   path: /tags/{tag_id}
@@ -47,7 +51,8 @@ picture_by_type:
     time_params: null
     extra_params: null
   requirements:
-    type: favorites|most_visited|recent_pics|best_rated|created-monthly-calendar|search|categories
+    type: favorites|most_visited|recent_pics|best_rated|created-monthly-calendar|search|categories|tags
+    time_params: .*
 
 picture:
   path:  /picture.{_format}/{image_id}/{type}/{element_id}

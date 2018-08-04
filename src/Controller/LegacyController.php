@@ -27,15 +27,15 @@ class LegacyController extends Controller
         return $this->doResponse($legacy_file);
     }
 
-    public function indexSearch(Request $request, $search_id, $page_id = null)
+    public function indexSearch(Request $request, $search_id, $start_id = null)
     {
         $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/search/$search_id";
+        $_SERVER['PATH_INFO'] = "/search/$start_id";
 
-        if (!is_null($page_id)) {
-            $_SERVER['PATH_INFO'] .= "/$page_id";
+        if (!is_null($start_id)) {
+            $_SERVER['PATH_INFO'] .= "/$start_id";
         }
 
         return $this->doResponse($legacy_file);
@@ -51,12 +51,16 @@ class LegacyController extends Controller
         return $this->doResponse($legacy_file);
     }
 
-    public function album(Request $request, $category_id)
+    public function album(Request $request, $category_id, $start_id = null)
     {
         $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/category/$category_id";
+
+        if (!is_null($start_id)) {
+            $_SERVER['PATH_INFO'] .= "/$start_id";
+        }
 
         return $this->doResponse($legacy_file);
     }
