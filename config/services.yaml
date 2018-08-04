@@ -36,3 +36,11 @@ services:
     phyxo.conn:
       public: true
       alias: 'Phyxo\DBLayer\DBLayer'
+
+    App\DataCollector\DBLayerCollector:
+      tags:
+        -
+          name: data_collector
+          template: 'data_collector/queries.html.twig'
+          id: 'app.dblayer_collector'
+          public: false
