@@ -10,17 +10,17 @@
  */
 
 if (!defined("PHOTO_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 // represent
-$query = 'SELECT id FROM '.CATEGORIES_TABLE;
-$query .= ' WHERE representative_picture_id = '.(int) $_GET['image_id'];
+$query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+$query .= ' WHERE representative_picture_id = ' . (int)$_GET['image_id'];
 $represented_albums = $conn->query2array($query, 'id');
 
 // +-----------------------------------------------------------------------+
@@ -49,8 +49,8 @@ if (isset($_GET['delete'])) {
         );
     }
 
-    $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id = '.(int) $_GET['image_id'];
+    $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
+    $query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 
     $authorizeds = array_diff(
         $conn->query2array($query, null, 'category_id'),
@@ -76,7 +76,7 @@ if (isset($_GET['delete'])) {
 
 if (isset($_GET['sync_metadata'])) {
     sync_metadata(array(intval($_GET['image_id'])));
-    $page['infos'][] = l10n('Metadata synchronized from file');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
 }
 
 //--------------------------------------------------------- update informations
@@ -137,25 +137,25 @@ if (isset($_POST['submit'])) {
 
     $new_thumbnail_for = array_diff($_POST['represent'], $represented_albums);
     if (count($new_thumbnail_for) > 0) {
-        $query = 'UPDATE '.CATEGORIES_TABLE;
-        $query .= ' SET representative_picture_id = '.(int) $_GET['image_id'];
-        $query .= ' WHERE id '.$conn->in($new_thumbnail_for);
+        $query = 'UPDATE ' . CATEGORIES_TABLE;
+        $query .= ' SET representative_picture_id = ' . (int)$_GET['image_id'];
+        $query .= ' WHERE id ' . $conn->in($new_thumbnail_for);
         $conn->db_query($query);
     }
 
     $represented_albums = $_POST['represent'];
-    $page['infos'][] = l10n('Photo informations updated');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Photo informations updated');
 }
 
 // tags
-$query = 'SELECT id,name FROM '.TAGS_TABLE.' AS t';
-$query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
-$query .= ' WHERE image_id = '.$conn->db_real_escape_string($_GET['image_id']);
-$query .= ' AND validated = \''.$conn->boolean_to_db(true).'\'';
+$query = 'SELECT id,name FROM ' . TAGS_TABLE . ' AS t';
+$query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
+$query .= ' WHERE image_id = ' . $conn->db_real_escape_string($_GET['image_id']);
+$query .= ' AND validated = \'' . $conn->boolean_to_db(true) . '\'';
 $tag_selection = $services['tags']->getTagsList($query);
 
 // retrieving direct information about picture
-$query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id = '.(int) $_GET['image_id'];
+$query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id = ' . (int)$_GET['image_id'];
 $row = $conn->db_fetch_assoc($conn->db_query($query));
 
 $storage_category_id = null;
@@ -169,79 +169,79 @@ $image_file = $row['file'];
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$admin_url_start = PHOTO_BASE_URL.'&amp;section=properties';
-$admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id='.$_GET['cat_id'] : '';
+$admin_url_start = PHOTO_BASE_URL . '&amp;section=properties';
+$admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id=' . $_GET['cat_id'] : '';
 
 $src_image = new SrcImage($row);
 
 $template->assign(
     array(
         'tag_selection' => $tag_selection,
-        'U_SYNC' => $admin_url_start.'&amp;sync_metadata=1',
-        'U_DELETE' => $admin_url_start.'&amp;delete=1&amp;pwg_token='.get_pwg_token(),
+        'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
+        'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . get_pwg_token(),
         'PATH' => $row['path'],
         'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
         'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
         'TITLE' => render_element_name($row),
-        'DIMENSIONS' => @$row['width'].' * '.@$row['height'],
-        'FILESIZE' => @$row['filesize'].' KB',
+        'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],
+        'FILESIZE' => @$row['filesize'] . ' KB',
         'REGISTRATION_DATE' => format_date($row['date_available']),
         'AUTHOR' => htmlspecialchars(isset($_POST['author']) ? stripslashes($_POST['author']) : @$row['author']),
         'DATE_CREATION' => $row['date_creation'],
-        'DESCRIPTION' => htmlspecialchars( isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
-        'F_ACTION' => get_root_url().'admin/index.php'.get_query_string_diff(array('sync_metadata'))
+        'DESCRIPTION' => htmlspecialchars(isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
+        'F_ACTION' => get_root_url() . 'admin/index.php' . get_query_string_diff(array('sync_metadata'))
     )
 );
 
 $added_by = 'N/A';
-$query = 'SELECT '.$conf['user_fields']['username'].' AS username FROM '.USERS_TABLE;
-$query .= ' WHERE '.$conf['user_fields']['id'].' = '.$row['added_by'].';';
+$query = 'SELECT ' . $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
+$query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $row['added_by'] . ';';
 $result = $conn->db_query($query);
 while ($user_row = $conn->db_fetch_assoc($result)) {
     $row['added_by'] = $user_row['username'];
 }
 
 $intro_vars = array(
-    'file' => l10n('Original file : %s', $row['file']),
-    'add_date' => l10n('Posted %s on %s', time_since($row['date_available'], 'year'), format_date($row['date_available'], array('day', 'month', 'year'))),
-    'added_by' => l10n('Added by %s', $row['added_by']),
-    'size' => $row['width'].'&times;'.$row['height'].' pixels, '.sprintf('%.2f', $row['filesize']/1024).'MB',
-    'stats' => l10n('Visited %d times', $row['hit']),
-    'id' => l10n('Numeric identifier : %d', $row['id']),
+    'file' => \Phyxo\Functions\Language::l10n('Original file : %s', $row['file']),
+    'add_date' => \Phyxo\Functions\Language::l10n('Posted %s on %s', time_since($row['date_available'], 'year'), format_date($row['date_available'], array('day', 'month', 'year'))),
+    'added_by' => \Phyxo\Functions\Language::l10n('Added by %s', $row['added_by']),
+    'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
+    'stats' => \Phyxo\Functions\Language::l10n('Visited %d times', $row['hit']),
+    'id' => \Phyxo\Functions\Language::l10n('Numeric identifier : %d', $row['id']),
 );
 
 if ($conf['rate'] and !empty($row['rating_score'])) {
-    $query = 'SELECT COUNT(1) FROM '.RATE_TABLE;
-    $query .= ' WHERE element_id = '.(int) $_GET['image_id'];
+    $query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
+    $query .= ' WHERE element_id = ' . (int)$_GET['image_id'];
     list($row['nb_rates']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $intro_vars['stats'].= ', '.sprintf(l10n('Rated %d times, score : %.2f'), $row['nb_rates'], $row['rating_score']);
+    $intro_vars['stats'] .= ', ' . sprintf(\Phyxo\Functions\Language::l10n('Rated %d times, score : %.2f'), $row['nb_rates'], $row['rating_score']);
 }
 
 $template->assign('INTRO', $intro_vars);
 
-if (in_array(get_extension($row['path']),$conf['picture_ext'])) {
-    $template->assign('U_COI', get_root_url().'admin/index.php?page=picture_coi&amp;image_id='.$_GET['image_id']);
+if (in_array(get_extension($row['path']), $conf['picture_ext'])) {
+    $template->assign('U_COI', get_root_url() . 'admin/index.php?page=picture_coi&amp;image_id=' . $_GET['image_id']);
 }
 
 // image level options
 $selected_level = isset($_POST['level']) ? $_POST['level'] : $row['level'];
 $template->assign(
     array(
-        'level_options'=> get_privacy_level_options(),
+        'level_options' => get_privacy_level_options(),
         'level_options_selected' => array($selected_level)
     )
 );
 
 // categories
-$query = 'SELECT category_id, uppercats FROM '.CATEGORIES_TABLE.' AS c';
-$query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON c.id = ic.category_id';
-$query .= ' WHERE image_id = '.(int) $_GET['image_id'];
+$query = 'SELECT category_id, uppercats FROM ' . CATEGORIES_TABLE . ' AS c';
+$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON c.id = ic.category_id';
+$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $name = get_cat_display_name_cache($row['uppercats'], get_root_url().'admin/index.php?page=album-');
+    $name = get_cat_display_name_cache($row['uppercats'], get_root_url() . 'admin/index.php?page=album-');
 
     if ($row['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);
@@ -258,8 +258,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
 //    linked category
 // 4. if no category reachable, no jumpto link
 
-$query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
-$query .= ' WHERE image_id = '.(int) $_GET['image_id'];
+$query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
+$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 
 $authorizeds = array_diff(
     $conn->query2array($query, null, 'category_id'),
@@ -271,7 +271,7 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
         array(
             'image_id' => $_GET['image_id'],
             'image_file' => $image_file,
-            'category' => $cache['cat_names'][ $_GET['cat_id'] ],
+            'category' => $cache['cat_names'][$_GET['cat_id']],
         )
     );
 } else {
@@ -280,7 +280,7 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
             array(
                 'image_id' => $_GET['image_id'],
                 'image_file' => $image_file,
-                'category' => $cache['cat_names'][ $category ],
+                'category' => $cache['cat_names'][$category],
             )
         );
         break;
@@ -288,13 +288,13 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
 }
 
 if (isset($url_img)) {
-    $template->assign( 'U_JUMPTO', $url_img );
+    $template->assign('U_JUMPTO', $url_img);
 }
 
 // associate to albums
-$query = 'SELECT id FROM '.CATEGORIES_TABLE;
-$query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = category_id';
-$query .= ' WHERE image_id = '.(int) $_GET['image_id'];
+$query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = category_id';
+$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 $associated_albums = $conn->query2array($query, 'id');
 
 $template->assign(array(

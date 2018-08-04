@@ -42,7 +42,7 @@ function id_compare($a, $b)
 // |                       page header and options                         |
 // +-----------------------------------------------------------------------+
 
-$title = l10n('Tags');
+$title = \Phyxo\Functions\Language::l10n('Tags');
 $page['body_id'] = 'theTagsPage';
 
 $template->set_filenames(array('tags' => 'tags.tpl'));

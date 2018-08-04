@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package functions\category
@@ -30,14 +17,16 @@
 /**
  * Callback used for sorting by global_rank
  */
-function global_rank_compare($a, $b) {
+function global_rank_compare($a, $b)
+{
     return strnatcasecmp($a['global_rank'], $b['global_rank']);
 }
 
 /**
  * Callback used for sorting by rank
  */
-function rank_compare($a, $b) {
+function rank_compare($a, $b)
+{
     return $a['rank'] - $b['rank'];
 }
 
@@ -47,7 +36,8 @@ function rank_compare($a, $b) {
  *
  * @param int $category_id
  */
-function check_restrictions($category_id) {
+function check_restrictions($category_id)
+{
     global $user;
 
     // $filter['visible_categories'] and $filter['visible_images']
@@ -62,12 +52,13 @@ function check_restrictions($category_id) {
  *
  * @return array[]
  */
-function get_recursive_categories_menu() {
+function get_recursive_categories_menu()
+{
     $flat_categories = get_categories_menu();
 
     $categories = [];
     foreach ($flat_categories as $category) {
-        if ($category['uppercats']===$category['id']) {
+        if ($category['uppercats'] === $category['id']) {
             $categories[$category['id']] = $category;
         } else {
             insert_category($categories, $category, $category['uppercats']);
@@ -78,13 +69,14 @@ function get_recursive_categories_menu() {
 }
 
 // insert recursively category in tree
-function insert_category(&$categories, $category, $uppercats) {
-    if ($category['id']!=$uppercats) {
+function insert_category(&$categories, $category, $uppercats)
+{
+    if ($category['id'] != $uppercats) {
         $cats = explode(',', $uppercats);
         $cat = $cats[0];
 
         $new_uppercats = array_slice($cats, 1);
-        if (count($new_uppercats)===1) {
+        if (count($new_uppercats) === 1) {
             $categories[$cat]['children'][$category['id']] = $category;
         } else {
             insert_category($categories[$cat]['children'], $category, implode(',', $new_uppercats));
@@ -98,7 +90,8 @@ function insert_category(&$categories, $category, $uppercats) {
  *
  * @return array[]
  */
-function get_categories_menu() {
+function get_categories_menu()
+{
     global $page, $user, $filter, $conf, $conn;
 
     $query = 'SELECT ';
@@ -108,29 +101,29 @@ function get_categories_menu() {
     $query .= 'date_last, max_date_last, count_images, count_categories';
 
     // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
-    $query .= ' FROM '.CATEGORIES_TABLE.' LEFT JOIN '.USER_CACHE_CATEGORIES_TABLE;
-    $query .= ' ON id = cat_id and user_id = '.$user['id'];
+    $query .= ' FROM ' . CATEGORIES_TABLE . ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE;
+    $query .= ' ON id = cat_id and user_id = ' . $user['id'];
 
     // Always expand when filter is activated
     if (!$user['expand'] and !$filter['enabled']) {
         $where = ' (id_uppercat is NULL';
         if (isset($page['category'])) {
-            $where .= ' OR id_uppercat '.$conn->in($page['category']['uppercats']);
+            $where .= ' OR id_uppercat ' . $conn->in($page['category']['uppercats']);
         }
         $where .= ')';
     } else {
-        $where = ' '.get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
+        $where = ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
     }
 
     $where = trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
 
-    $query.= ' WHERE '.$where;
+    $query .= ' WHERE ' . $where;
 
     $result = $conn->db_query($query);
     $cats = array();
     $selected_category = isset($page['category']) ? $page['category'] : null;
     while ($row = $conn->db_fetch_assoc($result)) {
-        $child_date_last = @$row['max_date_last']> @$row['date_last'];
+        $child_date_last = @$row['max_date_last'] > @$row['date_last'];
         $row = array_merge(
             $row,
             array(
@@ -156,7 +149,7 @@ function get_categories_menu() {
             $row['icon_ts'] = get_icon($row['max_date_last'], $child_date_last);
         }
         $cats[$row['id']] = $row;
-        if (!empty($page['category']['id']) && $row['id']==$page['category']['id']) {//save the number of subcats for later optim
+        if (!empty($page['category']['id']) && $row['id'] == $page['category']['id']) {//save the number of subcats for later optim
             $page['category']['count_categories'] = $row['count_categories'];
         }
     }
@@ -176,10 +169,11 @@ function get_categories_menu() {
  * @param int $id
  * @return array
  */
-function get_cat_info($id) {
+function get_cat_info($id)
+{
     global $conn;
 
-    $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$id.';';
+    $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $id . ';';
     $cat = $conn->db_fetch_assoc($conn->db_query($query));
     if (empty($cat)) {
         return null;
@@ -193,7 +187,7 @@ function get_cat_info($id) {
     }
 
     $upper_ids = explode(',', $cat['uppercats']);
-    if (count($upper_ids)==1) { // no need to make a query for level 1
+    if (count($upper_ids) == 1) { // no need to make a query for level 1
         $cat['upper_names'] = array(
             array(
                 'id' => $cat['id'],
@@ -202,8 +196,8 @@ function get_cat_info($id) {
             )
         );
     } else {
-        $query = 'SELECT id, name, permalink FROM '.CATEGORIES_TABLE;
-        $query .= ' WHERE id '.$conn->in($cat['uppercats']);
+        $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($cat['uppercats']);
         $names = $conn->query2array($query, 'id');
 
         // category names must be in the same order than uppercats list
@@ -225,22 +219,23 @@ function get_cat_info($id) {
  *
  * @return array[]
  */
-function get_category_preferred_image_orders() {
+function get_category_preferred_image_orders()
+{
     global $conf, $page, $services;
 
     return trigger_change('get_category_preferred_image_orders', array(
-        array(l10n('Default'),                        '',                     true),
-        array(l10n('Photo title, A &rarr; Z'),        'name ASC',             true),
-        array(l10n('Photo title, Z &rarr; A'),        'name DESC',            true),
-        array(l10n('Date created, new &rarr; old'),   'date_creation DESC',   true),
-        array(l10n('Date created, old &rarr; new'),   'date_creation ASC',    true),
-        array(l10n('Date posted, new &rarr; old'),    'date_available DESC',  true),
-        array(l10n('Date posted, old &rarr; new'),    'date_available ASC',   true),
-        array(l10n('Rating score, high &rarr; low'),  'rating_score DESC',    $conf['rate']),
-        array(l10n('Rating score, low &rarr; high'),  'rating_score ASC',     $conf['rate']),
-        array(l10n('Visits, high &rarr; low'),        'hit DESC',             true),
-        array(l10n('Visits, low &rarr; high'),        'hit ASC',              true),
-        array(l10n('Permissions'),                    'level DESC',           $services['users']->isAdmin()),
+        array(\Phyxo\Functions\Language::l10n('Default'), '', true),
+        array(\Phyxo\Functions\Language::l10n('Photo title, A &rarr; Z'), 'name ASC', true),
+        array(\Phyxo\Functions\Language::l10n('Photo title, Z &rarr; A'), 'name DESC', true),
+        array(\Phyxo\Functions\Language::l10n('Date created, new &rarr; old'), 'date_creation DESC', true),
+        array(\Phyxo\Functions\Language::l10n('Date created, old &rarr; new'), 'date_creation ASC', true),
+        array(\Phyxo\Functions\Language::l10n('Date posted, new &rarr; old'), 'date_available DESC', true),
+        array(\Phyxo\Functions\Language::l10n('Date posted, old &rarr; new'), 'date_available ASC', true),
+        array(\Phyxo\Functions\Language::l10n('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']),
+        array(\Phyxo\Functions\Language::l10n('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']),
+        array(\Phyxo\Functions\Language::l10n('Visits, high &rarr; low'), 'hit DESC', true),
+        array(\Phyxo\Functions\Language::l10n('Visits, low &rarr; high'), 'hit ASC', true),
+        array(\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $services['users']->isAdmin()),
     ));
 }
 
@@ -252,7 +247,8 @@ function get_category_preferred_image_orders() {
  * @param string $blockname variable name in template
  * @param bool $fullname full breadcrumb or not
  */
-function display_select_categories($categories, $selecteds, $blockname, $fullname=true) {
+function display_select_categories($categories, $selecteds, $blockname, $fullname = true)
+{
     global $template;
 
     $tpl_cats = array();
@@ -275,18 +271,19 @@ function display_select_categories($categories, $selecteds, $blockname, $fullnam
                 )
             );
         }
-        $tpl_cats[ $category['id'] ] = $option;
+        $tpl_cats[$category['id']] = $option;
     }
 
-    $template->assign( $blockname, $tpl_cats);
-    $template->assign( $blockname.'_selected', $selecteds);
+    $template->assign($blockname, $tpl_cats);
+    $template->assign($blockname . '_selected', $selecteds);
 }
 
 /**
  * Same as display_select_categories but categories are ordered by rank
  * @see display_select_categories()
  */
-function display_select_cat_wrapper($query, $selecteds, $blockname, $fullname=true) {
+function display_select_cat_wrapper($query, $selecteds, $blockname, $fullname = true)
+{
     global $conn;
 
     $categories = $conn->query2array($query);
@@ -300,22 +297,23 @@ function display_select_cat_wrapper($query, $selecteds, $blockname, $fullname=tr
  * @param int[] $ids
  * @return int[]
  */
-function get_subcat_ids($ids) {
+function get_subcat_ids($ids)
+{
     global $conn;
 
-    $query = 'SELECT DISTINCT(id) FROM '.CATEGORIES_TABLE.' WHERE ';
+    $query = 'SELECT DISTINCT(id) FROM ' . CATEGORIES_TABLE . ' WHERE ';
 
     foreach ($ids as $num => $category_id) {
         is_numeric($category_id)
             or trigger_error(
-                'get_subcat_ids expecting numeric, not '.gettype($category_id),
-                E_USER_WARNING
-            );
+            'get_subcat_ids expecting numeric, not ' . gettype($category_id),
+            E_USER_WARNING
+        );
 
         if ($num > 0) {
-            $query.= ' OR ';
+            $query .= ' OR ';
         }
-        $query.= 'uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$category_id.'(,|$)\'';
+        $query .= 'uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $category_id . '(,|$)\'';
     }
 
     return $conn->query2array($query, null, 'id');
@@ -328,27 +326,28 @@ function get_subcat_ids($ids) {
  * @param int &$idx filled with the index in $permalinks that matches
  * @return int|null
  */
-function get_cat_id_from_permalinks($permalinks, &$idx) {
+function get_cat_id_from_permalinks($permalinks, &$idx)
+{
     global $conn;
 
-    $query ='SELECT cat_id AS id, permalink, 1 AS is_old FROM '.OLD_PERMALINKS_TABLE;
-    $query .= ' WHERE permalink '.$conn->in($permalinks);
+    $query = 'SELECT cat_id AS id, permalink, 1 AS is_old FROM ' . OLD_PERMALINKS_TABLE;
+    $query .= ' WHERE permalink ' . $conn->in($permalinks);
     $query .= ' UNION ';
-    $query .= ' SELECT id, permalink, 0 AS is_old FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE permalink '.$conn->in($permalinks);
+    $query .= ' SELECT id, permalink, 0 AS is_old FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE permalink ' . $conn->in($permalinks);
     $perma_hash = $conn->query2array($query, 'permalink');
 
     if (empty($perma_hash)) {
         return null;
     }
 
-    for ($i=count($permalinks)-1;$i>=0;$i--) {
-        if (isset($perma_hash[ $permalinks[$i] ])) {
+    for ($i = count($permalinks) - 1; $i >= 0; $i--) {
+        if (isset($perma_hash[$permalinks[$i]])) {
             $idx = $i;
-            $cat_id = $perma_hash[ $permalinks[$i] ]['id'];
+            $cat_id = $perma_hash[$permalinks[$i]]['id'];
             if ($perma_hash[$permalinks[$i]]['is_old']) {
-                $query = 'UPDATE '.OLD_PERMALINKS_TABLE.' SET last_hit=NOW(), hit=hit+1';
-                $query .= ' WHERE permalink=\''.$permalinks[$i].'\' AND cat_id='.$cat_id.' LIMIT 1';
+                $query = 'UPDATE ' . OLD_PERMALINKS_TABLE . ' SET last_hit=NOW(), hit=hit+1';
+                $query .= ' WHERE permalink=\'' . $permalinks[$i] . '\' AND cat_id=' . $cat_id . ' LIMIT 1';
                 $conn->db_query($query);
             }
             return $cat_id;
@@ -368,26 +367,27 @@ function get_cat_id_from_permalinks($permalinks, &$idx) {
  * @param string $separator
  * @return string
  */
-function get_display_images_count($cat_nb_images, $cat_count_images, $cat_count_categories, $short_message=true, $separator='\n') {
+function get_display_images_count($cat_nb_images, $cat_count_images, $cat_count_categories, $short_message = true, $separator = '\n')
+{
     $display_text = '';
 
     if ($cat_count_images > 0) {
         if ($cat_nb_images > 0 and $cat_nb_images < $cat_count_images) {
-            $display_text .= get_display_images_count($cat_nb_images, $cat_nb_images, 0, $short_message, $separator).$separator;
+            $display_text .= get_display_images_count($cat_nb_images, $cat_nb_images, 0, $short_message, $separator) . $separator;
             $cat_count_images -= $cat_nb_images;
             $cat_nb_images = 0;
         }
 
         //at least one image direct or indirect
-        $display_text .= l10n_dec('%d photo', '%d photos', $cat_count_images);
+        $display_text .= \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $cat_count_images);
 
         if ($cat_count_categories == 0 or $cat_nb_images == $cat_count_images) {
             //no descendant categories or descendants do not contain images
             if (!$short_message) {
-                $display_text .= ' '.l10n('in this album');
+                $display_text .= ' ' . \Phyxo\Functions\Language::l10n('in this album');
             }
         } else {
-            $display_text .= ' '.l10n_dec('in %d sub-album', 'in %d sub-albums', $cat_count_categories);
+            $display_text .= ' ' . \Phyxo\Functions\Language::l10n_dec('in %d sub-album', 'in %d sub-albums', $cat_count_categories);
         }
     }
 
@@ -401,26 +401,28 @@ function get_display_images_count($cat_nb_images, $cat_count_images, $cat_count_
  * @param bool $recursive
  * @return int|null
  */
-function get_random_image_in_category($category, $recursive=true) {
+function get_random_image_in_category($category, $recursive = true)
+{
     global $conn;
 
     $image_id = null;
-    if ($category['count_images']>0) {
-        $query = 'SELECT image_id FROM '.CATEGORIES_TABLE.' AS c';
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.category_id = c.id WHERE ';
+    if ($category['count_images'] > 0) {
+        $query = 'SELECT image_id FROM ' . CATEGORIES_TABLE . ' AS c';
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.category_id = c.id WHERE ';
         if ($recursive) {
-            $query .= '(c.id='.$category['id'].' OR uppercats LIKE \''.$category['uppercats'].',%\')';
+            $query .= '(c.id=' . $category['id'] . ' OR uppercats LIKE \'' . $category['uppercats'] . ',%\')';
         } else {
-            $query .= ' c.id='.$category['id'];
+            $query .= ' c.id=' . $category['id'];
         }
-        $query .= ' '.get_sql_condition_FandF(array(
-            'forbidden_categories' => 'c.id',
-            'visible_categories' => 'c.id',
-            'visible_images' => 'image_id',
-        ),
-        "\n  AND"
+        $query .= ' ' . get_sql_condition_FandF(
+            array(
+                'forbidden_categories' => 'c.id',
+                'visible_categories' => 'c.id',
+                'visible_images' => 'image_id',
+            ),
+            "\n  AND"
         );
-        $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT 1;';
+        $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
         $result = $conn->db_query($query);
         if ($conn->db_num_rows($result) > 0) {
             list($image_id) = $conn->db_fetch_row($result);
@@ -438,21 +440,22 @@ function get_random_image_in_category($category, $recursive=true) {
  * @param int $filter_days number of recent days to filter on or null
  * @return array
  */
-function get_computed_categories(&$userdata, $filter_days=null) {
+function get_computed_categories(&$userdata, $filter_days = null)
+{
     global $conn;
 
     $query = 'SELECT c.id AS cat_id, id_uppercat';
     // Count by date_available to avoid count null
-    $query .= ', MAX(date_available) AS date_last, COUNT(date_available) AS nb_images FROM '.CATEGORIES_TABLE.' as c';
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON ic.category_id = c.id';
-    $query .= ' LEFT JOIN '.IMAGES_TABLE.' AS i ON ic.image_id = i.id AND i.level<='.$userdata['level'];
+    $query .= ', MAX(date_available) AS date_last, COUNT(date_available) AS nb_images FROM ' . CATEGORIES_TABLE . ' as c';
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.category_id = c.id';
+    $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON ic.image_id = i.id AND i.level<=' . $userdata['level'];
 
     if (isset($filter_days)) {
-        $query .= ' AND i.date_available > '.$conn->db_get_recent_period_expression($filter_days);
+        $query .= ' AND i.date_available > ' . $conn->db_get_recent_period_expression($filter_days);
     }
 
     if (!empty($userdata['forbidden_categories'])) {
-        $query.= ' WHERE c.id NOT IN ('.$userdata['forbidden_categories'].')';
+        $query .= ' WHERE c.id NOT IN (' . $userdata['forbidden_categories'] . ')';
     }
 
     $query .= ' GROUP BY c.id';
@@ -488,7 +491,7 @@ function get_computed_categories(&$userdata, $filter_days=null) {
             continue;
         }
 
-        $parent = & $cats[ $cat['id_uppercat'] ];
+        $parent = &$cats[$cat['id_uppercat']];
         $parent['nb_categories']++;
 
         do {
@@ -502,7 +505,7 @@ function get_computed_categories(&$userdata, $filter_days=null) {
             if (!isset($parent['id_uppercat'])) {
                 break;
             }
-            $parent = & $cats[$parent['id_uppercat']];
+            $parent = &$cats[$parent['id_uppercat']];
         } while (true);
         unset($parent);
     }
@@ -524,14 +527,15 @@ function get_computed_categories(&$userdata, $filter_days=null) {
  * @param array &$cats
  * @param array $cat category to remove
  */
-function remove_computed_category(&$cats, $cat) {
+function remove_computed_category(&$cats, $cat)
+{
     if (isset($cats[$cat['id_uppercat']])) {
-        $parent = &$cats[ $cat['id_uppercat'] ];
+        $parent = &$cats[$cat['id_uppercat']];
         $parent['nb_categories']--;
 
         do {
             $parent['count_images'] -= $cat['nb_images'];
-            $parent['count_categories'] -= 1+$cat['count_categories'];
+            $parent['count_categories'] -= 1 + $cat['count_categories'];
 
             if (!isset($cats[$parent['id_uppercat']])) {
                 break;

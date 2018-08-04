@@ -21,7 +21,8 @@ use Phyxo\Ws\Server;
  * @param string $categories_string - "cat_id[,rank];cat_id[,rank]"
  * @param bool $replace_mode - removes old associations
  */
-function ws_add_image_category_relations($image_id, $categories_string, $replace_mode=false) {
+function ws_add_image_category_relations($image_id, $categories_string, $replace_mode = false)
+{
     global $conn;
 
     // let's add links between the image and the categories
@@ -58,33 +59,35 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
     $cat_ids = array_unique($cat_ids);
 
     if (count($cat_ids) == 0) {
-        return new Phyxo\Ws\Error(500,
-        '[ws_add_image_category_relations] there is no category defined in "'.$categories_string.'"'
+        return new Phyxo\Ws\Error(
+            500,
+            '[ws_add_image_category_relations] there is no category defined in "' . $categories_string . '"'
         );
     }
 
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id '.$conn->in($cat_ids);
+    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($cat_ids);
     $db_cat_ids = $conn->query2array($query, null, 'id');
 
     $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
     if (count($unknown_cat_ids) != 0) {
-        return new Phyxo\Ws\Error(500,
-        '[ws_add_image_category_relations] the following categories are unknown: '.implode(', ', $unknown_cat_ids)
+        return new Phyxo\Ws\Error(
+            500,
+            '[ws_add_image_category_relations] the following categories are unknown: ' . implode(', ', $unknown_cat_ids)
         );
     }
 
     $to_update_cat_ids = array();
 
     // in case of replace mode, we first check the existing associations
-    $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id = '.$image_id.';';
+    $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id = ' . $image_id . ';';
     $existing_cat_ids = $conn->query2array($query, null, 'category_id');
 
     if ($replace_mode) {
         $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
         if (count($to_remove_cat_ids) > 0) {
-            $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE.' WHERE image_id = '.$image_id;
-            $query .= ' AND category_id '.$conn->in($to_remove_cat_ids);
+            $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id = ' . $image_id;
+            $query .= ' AND category_id ' . $conn->in($to_remove_cat_ids);
             $conn->db_query($query);
             update_category($to_remove_cat_ids);
         }
@@ -96,8 +99,8 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
     }
 
     if ($search_current_ranks) {
-        $query = 'SELECT category_id, MAX(rank) AS max_rank FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE rank IS NOT NULL AND category_id '.$conn->in($new_cat_ids);
+        $query = 'SELECT category_id, MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE rank IS NOT NULL AND category_id ' . $conn->in($new_cat_ids);
         $query .= ' GROUP BY category_id;';
         $current_rank_of = $conn->query2array($query, 'category_id', 'max_rank');
 
@@ -128,7 +131,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
         $inserts
     );
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     update_category($new_cat_ids);
 }
 
@@ -138,28 +141,29 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
  * @param string $original_sum
  * @param string $type
  */
-function merge_chunks($output_filepath, $original_sum, $type) {
+function merge_chunks($output_filepath, $original_sum, $type)
+{
     global $conf;
 
-    ws_logfile('[merge_chunks] input parameter $output_filepath : '.$output_filepath);
+    ws_logfile('[merge_chunks] input parameter $output_filepath : ' . $output_filepath);
 
     if (is_file($output_filepath)) {
         unlink($output_filepath);
 
         if (is_file($output_filepath)) {
-            return new Phyxo\Ws\Error(500, '[merge_chunks] error while trying to remove existing '.$output_filepath);
+            return new Phyxo\Ws\Error(500, '[merge_chunks] error while trying to remove existing ' . $output_filepath);
         }
     }
 
-    $upload_dir = $conf['upload_dir'].'/buffer';
-    $pattern = '/'.$original_sum.'-'.$type.'/';
+    $upload_dir = $conf['upload_dir'] . '/buffer';
+    $pattern = '/' . $original_sum . '-' . $type . '/';
     $chunks = array();
 
     if ($handle = opendir($upload_dir)) {
         while (false !== ($file = readdir($handle))) {
             if (preg_match($pattern, $file)) {
                 ws_logfile($file);
-                $chunks[] = $upload_dir.'/'.$file;
+                $chunks[] = $upload_dir . '/' . $file;
             }
         }
         closedir($handle);
@@ -168,7 +172,7 @@ function merge_chunks($output_filepath, $original_sum, $type) {
     sort($chunks);
 
     if (function_exists('memory_get_usage')) {
-        ws_logfile('[merge_chunks] memory_get_usage before loading chunks: '.memory_get_usage());
+        ws_logfile('[merge_chunks] memory_get_usage before loading chunks: ' . memory_get_usage());
     }
 
     $i = 0;
@@ -177,18 +181,18 @@ function merge_chunks($output_filepath, $original_sum, $type) {
         $string = file_get_contents($chunk);
 
         if (function_exists('memory_get_usage')) {
-            ws_logfile('[merge_chunks] memory_get_usage on chunk '.++$i.': '.memory_get_usage());
+            ws_logfile('[merge_chunks] memory_get_usage on chunk ' . ++$i . ': ' . memory_get_usage());
         }
 
         if (!file_put_contents($output_filepath, $string, FILE_APPEND)) {
-            return new Phyxo\Ws\Error(500, '[merge_chunks] error while writting chunks for '.$output_filepath);
+            return new Phyxo\Ws\Error(500, '[merge_chunks] error while writting chunks for ' . $output_filepath);
         }
 
         unlink($chunk);
     }
 
     if (function_exists('memory_get_usage')) {
-        ws_logfile('[merge_chunks] memory_get_usage after loading chunks: '.memory_get_usage());
+        ws_logfile('[merge_chunks] memory_get_usage after loading chunks: ' . memory_get_usage());
     }
 }
 
@@ -204,17 +208,18 @@ function merge_chunks($output_filepath, $original_sum, $type) {
  * will be the biggest (we could remove the thumb, but let's use the same
  * algorithm)
  */
-function remove_chunks($original_sum, $type) {
+function remove_chunks($original_sum, $type)
+{
     global $conf;
 
-    $upload_dir = $conf['upload_dir'].'/buffer';
-    $pattern = '/'.$original_sum.'-'.$type.'/';
+    $upload_dir = $conf['upload_dir'] . '/buffer';
+    $pattern = '/' . $original_sum . '-' . $type . '/';
     $chunks = array();
 
     if ($handle = opendir($upload_dir)) {
         while (false !== ($file = readdir($handle))) {
             if (preg_match($pattern, $file)) {
-                $chunks[] = $upload_dir.'/'.$file;
+                $chunks[] = $upload_dir . '/' . $file;
             }
         }
         closedir($handle);
@@ -239,13 +244,14 @@ function remove_chunks($original_sum, $type) {
  *    @option string content
  *    @option string key
  */
-function ws_images_addComment($params, $service) {
+function ws_images_addComment($params, $service)
+{
     global $conn, $services;
 
-    $query = 'SELECT DISTINCT image_id  FROM '. CATEGORIES_TABLE;
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id=id';
-    $query .= ' WHERE commentable=\''.$conn->boolean_to_db(true).'\'';
-    $query .= ' AND image_id='.$params['image_id'];
+    $query = 'SELECT DISTINCT image_id  FROM ' . CATEGORIES_TABLE;
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id=id';
+    $query .= ' WHERE commentable=\'' . $conn->boolean_to_db(true) . '\'';
+    $query .= ' AND image_id=' . $params['image_id'];
     $query .= get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'id',
@@ -267,22 +273,21 @@ function ws_images_addComment($params, $service) {
 
     $comment_action = $services['comments']->insertUserComment($comm, $params['key'], $infos);
 
-    switch ($comment_action)
-        {
+    switch ($comment_action) {
         case 'reject':
-            $infos[] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
-            return new Phyxo\Ws\Error(403, implode("; ", $infos) );
+            $infos[] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
+            return new Phyxo\Ws\Error(403, implode("; ", $infos));
 
         case 'validate':
         case 'moderate':
             $ret = array(
                 'id' => $comm['id'],
-                'validation' => $comment_action=='validate',
+                'validation' => $comment_action == 'validate',
             );
             return array('comment' => new Phyxo\Ws\NamedStruct($ret));
         default:
-            return new Phyxo\Ws\Error(500, "Unknown comment action ".$comment_action );
-        }
+            return new Phyxo\Ws\Error(500, "Unknown comment action " . $comment_action);
+    }
 }
 
 /**
@@ -293,11 +298,12 @@ function ws_images_addComment($params, $service) {
  *    @option int comments_page
  *    @option int comments_per_page
  */
-function ws_images_getInfo($params, $service) {
+function ws_images_getInfo($params, $service)
+{
     global $user, $conf, $conn, $services;
 
-    $query = 'SELECT * FROM '. IMAGES_TABLE;
-    $query .= ' WHERE id='. $conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT * FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
     $query .= get_sql_condition_FandF(array('visible_images' => 'id'), ' AND ');
     $query .= ' LIMIT 1;';
     $result = $conn->db_query($query);
@@ -310,9 +316,9 @@ function ws_images_getInfo($params, $service) {
     $image_row = array_merge($image_row, ws_std_get_urls($image_row));
 
     //-------------------------------------------------------- related categories
-    $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM '. CATEGORIES_TABLE;
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON category_id = id';
-    $query .= ' WHERE image_id = '. $conn->db_real_escape_string($image_row['id']);
+    $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM ' . CATEGORIES_TABLE;
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id = id';
+    $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($image_row['id']);
     $query .= get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
     $result = $conn->db_query($query);
 
@@ -358,38 +364,38 @@ function ws_images_getInfo($params, $service) {
     }
 
     //------------------------------------------------------------- related rates
-	$rating = array(
+    $rating = array(
         'score' => $image_row['rating_score'],
         'count' => 0,
         'average' => null,
     );
-	if (isset($rating['score'])) {
-		$query = 'SELECT COUNT(rate) AS count, ROUND(AVG(rate),2) AS average FROM '. RATE_TABLE;
-        $query .= ' WHERE element_id = '. $image_row['id'] .';';
-		$row = $conn->db_fetch_assoc($conn->db_query($query));
+    if (isset($rating['score'])) {
+        $query = 'SELECT COUNT(rate) AS count, ROUND(AVG(rate),2) AS average FROM ' . RATE_TABLE;
+        $query .= ' WHERE element_id = ' . $image_row['id'] . ';';
+        $row = $conn->db_fetch_assoc($conn->db_query($query));
 
-		$rating['score'] = (float)$rating['score'];
-		$rating['average'] = (float)$row['average'];
-		$rating['count'] = (int)$row['count'];
-	}
+        $rating['score'] = (float)$rating['score'];
+        $rating['average'] = (float)$row['average'];
+        $rating['count'] = (int)$row['count'];
+    }
 
     //---------------------------------------------------------- related comments
     $related_comments = array();
 
-    $where_comments = 'image_id = '.$image_row['id'];
+    $where_comments = 'image_id = ' . $image_row['id'];
     if (!$services['users']->isAdmin()) {
-        $where_comments .= ' AND validated=\''.$conn->boolean_to_db(true).'\'';
+        $where_comments .= ' AND validated=\'' . $conn->boolean_to_db(true) . '\'';
     }
 
-    $query = 'SELECT COUNT(id) AS nb_comments FROM '. COMMENTS_TABLE .' WHERE '. $where_comments .';';
+    $query = 'SELECT COUNT(id) AS nb_comments FROM ' . COMMENTS_TABLE . ' WHERE ' . $where_comments . ';';
     list($nb_comments) = $conn->query2array($query, null, 'nb_comments');
     $nb_comments = (int)$nb_comments;
 
-    if ($nb_comments>0 and $params['comments_per_page']>0) {
-        $query = 'SELECT id, date, author, content FROM '. COMMENTS_TABLE;
-        $query .= ' WHERE '. $where_comments .' ORDER BY date';
-        $query .= ' LIMIT '. (int)$params['comments_per_page'];
-        $query .= ' OFFSET '. (int)($params['comments_per_page']*$params['comments_page']) .';';
+    if ($nb_comments > 0 and $params['comments_per_page'] > 0) {
+        $query = 'SELECT id, date, author, content FROM ' . COMMENTS_TABLE;
+        $query .= ' WHERE ' . $where_comments . ' ORDER BY date';
+        $query .= ' LIMIT ' . (int)$params['comments_per_page'];
+        $query .= ' OFFSET ' . (int)($params['comments_per_page'] * $params['comments_page']) . ';';
         $result = $conn->db_query($query);
 
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -405,7 +411,7 @@ function ws_images_getInfo($params, $service) {
     }
 
     $ret = $image_row;
-    foreach (array('id','width','height','hit','filesize') as $k) {
+    foreach (array('id', 'width', 'height', 'hit', 'filesize') as $k) {
         if (isset($ret[$k])) {
             $ret[$k] = (int)$ret[$k];
         }
@@ -420,7 +426,7 @@ function ws_images_getInfo($params, $service) {
     $ret['categories'] = new Phyxo\Ws\NamedArray(
         $related_categories,
         'category',
-        array('id','url', 'page_url')
+        array('id', 'url', 'page_url')
     );
     $ret['tags'] = new Phyxo\Ws\NamedArray(
         $related_tags,
@@ -443,14 +449,14 @@ function ws_images_getInfo($params, $service) {
     $ret['comments'] = new Phyxo\Ws\NamedArray(
         $related_comments,
         'comment',
-        array('id','date')
+        array('id', 'date')
     );
 
     if ($service->_responseFormat != 'rest') {
         return $ret; // for backward compatibility only
     } else {
         return array(
-            'image' => new Phyxo\Ws\NamedStruct($ret, null, array('name','comment'))
+            'image' => new Phyxo\Ws\NamedStruct($ret, null, array('name', 'comment'))
         );
     }
 }
@@ -462,12 +468,13 @@ function ws_images_getInfo($params, $service) {
  *    @option int image_id
  *    @option float rate
  */
-function ws_images_rate($params, $service) {
+function ws_images_rate($params, $service)
+{
     global $conf, $conn;
 
-    $query = 'SELECT DISTINCT id FROM '. IMAGES_TABLE;
-    $query .= ' LEFT JOIN '. IMAGE_CATEGORY_TABLE .' ON id=image_id';
-    $query .= ' WHERE id='. $conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT DISTINCT id FROM ' . IMAGES_TABLE;
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
+    $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
     $query .= get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'category_id',
@@ -476,15 +483,15 @@ function ws_images_rate($params, $service) {
         '    AND'
     );
     $query .= ' LIMIT 1;';
-    if ($conn->db_num_rows($conn->db_query($query))==0) {
+    if ($conn->db_num_rows($conn->db_query($query)) == 0) {
         return new Phyxo\Ws\Error(404, 'Invalid image_id or access denied');
     }
 
-    include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
+    include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
     $res = rate_picture($params['image_id'], (int)$params['rate']);
 
-    if ($res==false) {
-        return new Phyxo\Ws\Error(403, 'Forbidden or rate not in '. implode(',', $conf['rate_items']));
+    if ($res == false) {
+        return new Phyxo\Ws\Error(403, 'Forbidden or rate not in ' . implode(',', $conf['rate_items']));
     }
     return $res;
 }
@@ -498,10 +505,11 @@ function ws_images_rate($params, $service) {
  *    @option int page
  *    @option string order (optional)
  */
-function ws_images_search($params, $service) {
+function ws_images_search($params, $service)
+{
     global $conn;
 
-    include_once(PHPWG_ROOT_PATH .'include/functions_search.inc.php');
+    include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
 
     $images = array();
     $where_clauses = ws_std_image_sql_filter($params, 'i.');
@@ -510,7 +518,7 @@ function ws_images_search($params, $service) {
     $super_order_by = false;
     if (!empty($order_by)) {
         global $conf;
-        $conf['order_by'] = 'ORDER BY '.$order_by;
+        $conf['order_by'] = 'ORDER BY ' . $order_by;
         $super_order_by = true; // quick_search_result might be faster
     }
 
@@ -524,13 +532,13 @@ function ws_images_search($params, $service) {
 
     $image_ids = array_slice(
         $search_result['items'],
-        $params['page']*$params['per_page'],
+        $params['page'] * $params['per_page'],
         $params['per_page']
     );
 
     if (count($image_ids)) {
-        $query = 'SELECT * FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id '.$conn->in($image_ids);
+        $query = 'SELECT * FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($image_ids);
         $result = $conn->db_query($query);
         $image_ids = array_flip($image_ids);
 
@@ -546,13 +554,13 @@ function ws_images_search($params, $service) {
             }
 
             $image = array_merge($image, ws_std_get_urls($row));
-            $images[ $image_ids[ $image['id'] ] ] = $image;
+            $images[$image_ids[$image['id']]] = $image;
         }
         ksort($images, SORT_NUMERIC);
         $images = array_values($images);
     }
 
-    return array (
+    return array(
         'paging' => new Phyxo\Ws\NamedStruct(
             array(
                 'page' => $params['page'],
@@ -576,20 +584,21 @@ function ws_images_search($params, $service) {
  *    @option int image_id
  *    @option int level
  */
-function ws_images_setPrivacyLevel($params, $service) {
+function ws_images_setPrivacyLevel($params, $service)
+{
     global $conf, $conn;
 
     if (!in_array($params['level'], $conf['available_permission_levels'])) {
         return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
     }
 
-    $query = 'UPDATE '. IMAGES_TABLE;
-    $query .= ' SET level='. (int)$params['level'];
-    $query .= ' WHERE id '.$conn->in($params['image_id']);
+    $query = 'UPDATE ' . IMAGES_TABLE;
+    $query .= ' SET level=' . (int)$params['level'];
+    $query .= ' WHERE id ' . $conn->in($params['image_id']);
     $result = $conn->db_query($query);
 
     if ($affected_rows = $conn->db_changes($result)) {
-        include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
         invalidate_user_cache();
     }
     return $affected_rows;
@@ -603,29 +612,30 @@ function ws_images_setPrivacyLevel($params, $service) {
  *    @option int category_id
  *    @option int rank
  */
-function ws_images_setRank($params, $service) {
+function ws_images_setRank($params, $service)
+{
     global $conn;
 
     // does the image really exist?
-    $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new Phyxo\Ws\Error(404, 'image_id not found');
     }
 
     // is the image associated to this category?
-    $query = 'SELECT COUNT(1) FROM '.IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
-    $query .= ' AND category_id = '.$conn->db_real_escape_string($params['category_id']);
+    $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
+    $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
+    $query .= ' AND category_id = ' . $conn->db_real_escape_string($params['category_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new Phyxo\Ws\Error(404, 'This image is not associated to this category');
     }
 
     // what is the current higher rank for this category?
-    $query = 'SELECT MAX(rank) AS max_rank FROM '. IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category_id']);
+    $query = 'SELECT MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
+    $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category_id']);
     $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     if (is_numeric($row['max_rank'])) {
@@ -637,16 +647,16 @@ function ws_images_setRank($params, $service) {
     }
 
     // update rank for all other photos in the same category
-    $query = 'UPDATE '. IMAGE_CATEGORY_TABLE;
+    $query = 'UPDATE ' . IMAGE_CATEGORY_TABLE;
     $query .= ' SET rank = rank + 1';
-    $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category_id']);
-    $query .= ' AND rank IS NOT NULL AND rank >= '. $params['rank'] .';';
+    $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category_id']);
+    $query .= ' AND rank IS NOT NULL AND rank >= ' . $params['rank'] . ';';
     $conn->db_query($query);
 
     // set the new rank for the photo
-    $query = 'UPDATE '. IMAGE_CATEGORY_TABLE .' SET rank = '. $params['rank'];
-    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
-    $query .= ' AND category_id = '.$conn->db_real_escape_string($params['category_id']);
+    $query = 'UPDATE ' . IMAGE_CATEGORY_TABLE . ' SET rank = ' . $params['rank'];
+    $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
+    $query .= ' AND category_id = ' . $conn->db_real_escape_string($params['category_id']);
     $conn->db_query($query);
 
     // return data for client
@@ -666,7 +676,8 @@ function ws_images_setRank($params, $service) {
  *    @option string type = 'file'
  *    @option int position
  */
-function ws_images_add_chunk($params, $service) {
+function ws_images_add_chunk($params, $service)
+{
     global $conf;
 
     foreach ($params as $param_key => $param_value) {
@@ -682,10 +693,10 @@ function ws_images_add_chunk($params, $service) {
         );
     }
 
-    $upload_dir = $conf['upload_dir'].'/buffer';
+    $upload_dir = $conf['upload_dir'] . '/buffer';
 
     // create the upload directory tree if not exists
-    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR)) {
+    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR)) {
         return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
@@ -696,16 +707,17 @@ function ws_images_add_chunk($params, $service) {
         $params['position']
     );
 
-    ws_logfile('[ws_images_add_chunk] data length : '.strlen($params['data']));
+    ws_logfile('[ws_images_add_chunk] data length : ' . strlen($params['data']));
 
     $bytes_written = file_put_contents(
-        $upload_dir.'/'.$filename,
+        $upload_dir . '/' . $filename,
         base64_decode($params['data'])
     );
 
     if (false === $bytes_written) {
-        return new Phyxo\Ws\Error(500,
-        'an error has occured while writting chunk '.$params['position'].' for '.$params['type']
+        return new Phyxo\Ws\Error(
+            500,
+            'an error has occured while writting chunk ' . $params['position'] . ' for ' . $params['type']
         );
     }
 }
@@ -718,14 +730,15 @@ function ws_images_add_chunk($params, $service) {
  *    @option string type = 'file'
  *    @option string sum
  */
-function ws_images_addFile($params, $service) {
+function ws_images_addFile($params, $service)
+{
     global $conf, $conn;
 
-    ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
+    ws_logfile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
     // what is the path and other infos about the photo?
-    $query = 'SELECT path, file, md5sum, width, height, filesize FROM '. IMAGES_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT path, file, md5sum, width, height, filesize FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
@@ -746,12 +759,12 @@ function ws_images_addFile($params, $service) {
         $original_type = 'high';
     }
 
-    $file_path = $conf['upload_dir'].'/buffer/'.$image['md5sum'].'-original';
+    $file_path = $conf['upload_dir'] . '/buffer/' . $image['md5sum'] . '-original';
 
     merge_chunks($file_path, $image['md5sum'], $original_type);
     chmod($file_path, 0644);
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
     // if we receive the "file", we only update the original if the "file" is
     // bigger than current original
@@ -798,7 +811,8 @@ function ws_images_addFile($params, $service) {
  *    @option bool check_uniqueness
  *    @option int image_id (optional)
  */
-function ws_images_add($params, $service) {
+function ws_images_add($params, $service)
+{
     global $conf, $user, $conn, $services;
 
     foreach ($params as $param_key => $param_value) {
@@ -812,8 +826,8 @@ function ws_images_add($params, $service) {
     }
 
     if ($params['image_id'] > 0) {
-        $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
             return new Phyxo\Ws\Error(404, 'image_id not found');
@@ -823,13 +837,13 @@ function ws_images_add($params, $service) {
     // does the image already exists ?
     if ($params['check_uniqueness']) {
         if ('md5sum' == $conf['uniqueness_mode']) {
-            $where_clause = 'md5sum = \''.$conn->db_real_escape_string($params['original_sum']).'\'';
+            $where_clause = 'md5sum = \'' . $conn->db_real_escape_string($params['original_sum']) . '\'';
         }
         if ('filename' == $conf['uniqueness_mode']) {
-            $where_clause = 'file = \''.$conn->db_real_escape_string($params['original_filename']).'\'';
+            $where_clause = 'file = \'' . $conn->db_real_escape_string($params['original_filename']) . '\'';
         }
 
-        $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE .' WHERE '. $where_clause .';';
+        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ' WHERE ' . $where_clause . ';';
         list($counter) = $conn->db_fetch_row($conn->db_query($query));
         if ($counter != 0) {
             return new Phyxo\Ws\Error(500, 'file already exists');
@@ -849,12 +863,12 @@ function ws_images_add($params, $service) {
         $original_type = 'file';
     }
 
-    $file_path = $conf['upload_dir'].'/buffer/'.$params['original_sum'].'-original';
+    $file_path = $conf['upload_dir'] . '/buffer/' . $params['original_sum'] . '-original';
 
     merge_chunks($file_path, $params['original_sum'], $original_type);
     chmod($file_path, 0644);
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
     $image_id = add_uploaded_file(
         $file_path,
@@ -896,7 +910,7 @@ function ws_images_add($params, $service) {
         if (preg_match('/^\d+/', $params['categories'], $matches)) {
             $category_id = $matches[0];
 
-            $query = 'SELECT id, name, permalink FROM '. CATEGORIES_TABLE .' WHERE id = '. $category_id .';';
+            $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $category_id . ';';
             $result = $conn->db_query($query);
             $category = $conn->db_fetch_assoc($result);
 
@@ -930,7 +944,8 @@ function ws_images_add($params, $service) {
  *    @option string|string[] tags
  *    @option int image_id (optional)
  */
-function ws_images_addSimple($params, $service) {
+function ws_images_addSimple($params, $service)
+{
     global $conf, $conn, $services;
 
     if (!isset($_FILES['image'])) {
@@ -938,15 +953,15 @@ function ws_images_addSimple($params, $service) {
     }
 
     if ($params['image_id'] > 0) {
-        $query = 'SELECT COUNT(1) FROM '. IMAGES_TABLE;
-        $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
             return new Phyxo\Ws\Error(404, 'image_id not found');
         }
     }
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
     $image_id = add_uploaded_file(
         $_FILES['image']['tmp_name'],
@@ -978,7 +993,7 @@ function ws_images_addSimple($params, $service) {
     );
 
     if (!empty($params['tags'])) {
-        include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
         $tag_ids = array();
         if (is_array($params['tags'])) {
@@ -998,8 +1013,8 @@ function ws_images_addSimple($params, $service) {
     $url_params = array('image_id' => $image_id);
 
     if (!empty($params['category'])) {
-        $query = 'SELECT id, name, permalink FROM '. CATEGORIES_TABLE;
-        $query .= ' WHERE id = '. $conn->db_real_escape_string($params['category'][0]);
+        $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['category'][0]);
         $result = $conn->db_query($query);
         $category = $conn->db_fetch_assoc($result);
 
@@ -1009,7 +1024,7 @@ function ws_images_addSimple($params, $service) {
 
     // update metadata from the uploaded file (exif/iptc), even if the sync
     // was already performed by add_uploaded_file().
-    require_once(PHPWG_ROOT_PATH.'admin/include/functions_metadata.php');
+    require_once(PHPWG_ROOT_PATH . 'admin/include/functions_metadata.php');
     sync_metadata(array($image_id));
 
     return array(
@@ -1030,17 +1045,18 @@ function ws_images_addSimple($params, $service) {
  *    @option string|string[] tags
  *    @option int image_id (optional)
  */
-function ws_images_upload($params, $service) {
+function ws_images_upload($params, $service)
+{
     global $conf, $conn;
 
     if (get_pwg_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    $upload_dir = $conf['upload_dir'].'/buffer';
+    $upload_dir = $conf['upload_dir'] . '/buffer';
 
     // create the upload directory tree if not exists
-    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT&~MKGETDIR_DIE_ON_ERROR)) {
+    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR)) {
         return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
@@ -1053,7 +1069,7 @@ function ws_images_upload($params, $service) {
         $fileName = uniqid("file_");
     }
 
-    $filePath = $upload_dir.DIRECTORY_SEPARATOR.$fileName;
+    $filePath = $upload_dir . DIRECTORY_SEPARATOR . $fileName;
 
     // Chunking might be enabled
     $chunk = isset($_REQUEST["chunk"]) ? intval($_REQUEST["chunk"]) : 0;
@@ -1091,7 +1107,7 @@ function ws_images_upload($params, $service) {
         // Strip the temp .part suffix off
         rename("{$filePath}.part", $filePath);
 
-        include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
+        include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
         $image_id = add_uploaded_file(
             $filePath,
@@ -1101,11 +1117,11 @@ function ws_images_upload($params, $service) {
             null // image_id = not provided, this is a new photo
         );
 
-        $query = 'SELECT id,name,representative_ext,path FROM '.IMAGES_TABLE.' WHERE id = '.$image_id;
+        $query = 'SELECT id,name,representative_ext,path FROM ' . IMAGES_TABLE . ' WHERE id = ' . $image_id;
         $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
-        $query = 'SELECT COUNT(1) AS nb_photos FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id = '.$conn->db_real_escape_string($params['category'][0]);
+        $query = 'SELECT COUNT(1) AS nb_photos FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category'][0]);
         $category_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
         $category_name = get_cat_display_name_from_id($params['category'][0], null);
@@ -1130,10 +1146,11 @@ function ws_images_upload($params, $service) {
  *    @option string md5sum_list (optional)
  *    @option string filename_list (optional)
  */
-function ws_images_exist($params, $service) {
+function ws_images_exist($params, $service)
+{
     global $conf, $conn;
 
-    ws_logfile(__FUNCTION__.' '.var_export($params, true));
+    ws_logfile(__FUNCTION__ . ' ' . var_export($params, true));
 
     $split_pattern = '/[\s,;\|]/';
     $result = array();
@@ -1147,8 +1164,8 @@ function ws_images_exist($params, $service) {
             PREG_SPLIT_NO_EMPTY
         );
 
-        $query = 'SELECT id, md5sum FROM '. IMAGES_TABLE;
-        $query .= ' WHERE md5sum '.$conn->in($md5sums);
+        $query = 'SELECT id, md5sum FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE md5sum ' . $conn->in($md5sums);
         $id_of_md5 = $conn->query2array($query, 'md5sum', 'id');
 
         foreach ($md5sums as $md5sum) {
@@ -1167,8 +1184,8 @@ function ws_images_exist($params, $service) {
             PREG_SPLIT_NO_EMPTY
         );
 
-        $query = 'SELECT id, file FROM '.IMAGES_TABLE;
-        $query .= ' WHERE file '.$conn->in($filenames);
+        $query = 'SELECT id, file FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE file ' . $conn->in($filenames);
         $id_of_filename = $conn->query2array($query, 'file', 'id');
 
         foreach ($filenames as $filename) {
@@ -1189,12 +1206,13 @@ function ws_images_exist($params, $service) {
  *    @option int image_id
  *    @option string file_sum
  */
-function ws_images_checkFiles($params, $service) {
+function ws_images_checkFiles($params, $service)
+{
     global $conn;
 
-    ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
+    ws_logfile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
-    $query = 'SELECT path FROM '. IMAGES_TABLE .' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT path FROM ' . IMAGES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
@@ -1220,15 +1238,15 @@ function ws_images_checkFiles($params, $service) {
     }
 
     if (isset($compare_type)) {
-        ws_logfile(__FUNCTION__.', md5_file($path) = '.md5_file($path));
-        if (md5_file($path) != $params[$compare_type.'_sum']) {
+        ws_logfile(__FUNCTION__ . ', md5_file($path) = ' . md5_file($path));
+        if (md5_file($path) != $params[$compare_type . '_sum']) {
             $ret[$compare_type] = 'differs';
         } else {
             $ret[$compare_type] = 'equals';
         }
     }
 
-    ws_logfile(__FUNCTION__.', output :  '.var_export($ret, true));
+    ws_logfile(__FUNCTION__ . ', output :  ' . var_export($ret, true));
 
     return $ret;
 }
@@ -1239,7 +1257,8 @@ function ws_images_checkFiles($params, $service) {
  * @param mixed[] $params
  *    @option bool sort_by_counter
  */
-function ws_images_setRelatedTags($params, &$service) {
+function ws_images_setRelatedTags($params, &$service)
+{
     global $conf, $conn, $services;
 
     if (!$service->isPost()) {
@@ -1247,60 +1266,61 @@ function ws_images_setRelatedTags($params, &$service) {
     }
 
     if ((empty($conf['tags_permission_add'])
-         || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) &&
-        (empty($conf['tags_permission_delete'])
-         || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
-        return new Phyxo\Ws\Error(403, l10n('You are not allowed to add nor delete tags'));
+        || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) && (empty($conf['tags_permission_delete'])
+        || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
+        return new Phyxo\Ws\Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
     }
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
     $message = '';
     if (empty($params['tags'])) {
         $params['tags'] = array();
     }
 
-    $query = 'SELECT id FROM '.TAGS_TABLE.' AS t';
-    $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
-    $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT id FROM ' . TAGS_TABLE . ' AS t';
+    $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
+    $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
 
     $removed_tags_ids = $new_tags_ids = array();
     $current_tags_ids = $conn->query2array($query, null, 'id');
-    $current_tags = array_map(function($id) { return '~~'.$id.'~~';}, $current_tags_ids);
+    $current_tags = array_map(function ($id) {
+        return '~~' . $id . '~~';
+    }, $current_tags_ids);
     $removed_tags = array_diff($current_tags, $params['tags']);
     $new_tags = array_diff($params['tags'], $current_tags);
 
-    if (count($removed_tags)>0) {
+    if (count($removed_tags) > 0) {
         if (empty($conf['tags_permission_delete'])
             || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
-            return new Phyxo\Ws\Error(403, l10n('You are not allowed to delete tags'));
+            return new Phyxo\Ws\Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to delete tags'));
         }
     }
-    if (count($new_tags)>0) {
+    if (count($new_tags) > 0) {
         if (empty($conf['tags_permission_add'])
             || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
-            return new Phyxo\Ws\Error(403, l10n('You are not allowed to add tags'));
+            return new Phyxo\Ws\Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add tags'));
         }
     }
 
     try {
         if (empty($params['tags'])) { // remove all tags for an image
-            if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately']==0) {
+            if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
                 $services['tags']->toBeValidatedTags(
                     $current_tags_ids,
                     $params['image_id'],
                     array('status' => 0, 'user_id' => $_SESSION['pwg_uid'])
                 );
             } else {
-                $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-                $query .= ' WHERE image_id = '.$conn->db_real_escape_string($params['image_id']);
+                $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+                $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
                 $conn->db_query($query);
             }
         } else {
             // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
-            if (count($removed_tags)>0) {
+            if (count($removed_tags) > 0) {
                 $removed_tags_ids = $services['tags']->getTagsIds($removed_tags);
-                if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately']==0) {
+                if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
                     $services['tags']->toBeValidatedTags(
                         $removed_tags_ids,
                         $params['image_id'],
@@ -1311,9 +1331,9 @@ function ws_images_setRelatedTags($params, &$service) {
                 }
             }
 
-            if (count($new_tags)>0) {
+            if (count($new_tags) > 0) {
                 $new_tags_ids = $services['tags']->getTagsIds($new_tags);
-                if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately']==0) {
+                if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] == 0) {
                     $services['tags']->toBeValidatedTags(
                         $new_tags_ids,
                         $params['image_id'],
@@ -1345,13 +1365,14 @@ function ws_images_setRelatedTags($params, &$service) {
  *    @option string single_value_mode
  *    @option string multiple_value_mode
  */
-function ws_images_setInfo($params, $service) {
+function ws_images_setInfo($params, $service)
+{
     global $conn, $services;
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-    $query = 'SELECT * FROM '. IMAGES_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['image_id']);
+    $query = 'SELECT * FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
     $result = $conn->db_query($query);
 
     if ($conn->db_num_rows($result) == 0) {
@@ -1380,10 +1401,11 @@ function ws_images_setInfo($params, $service) {
             } elseif ('replace' == $params['single_value_mode']) {
                 $update[$key] = $params[$key];
             } else {
-                return new Phyxo\Ws\Error(500,
-                '[ws_images_setInfo]'
-                .' invalid parameter single_value_mode "'.$params['single_value_mode'].'"'
-                .', possible values are {fill_if_empty, replace}.'
+                return new Phyxo\Ws\Error(
+                    500,
+                    '[ws_images_setInfo]'
+                        . ' invalid parameter single_value_mode "' . $params['single_value_mode'] . '"'
+                        . ', possible values are {fill_if_empty, replace}.'
                 );
             }
         }
@@ -1391,8 +1413,9 @@ function ws_images_setInfo($params, $service) {
 
     if (isset($params['file'])) {
         if (!empty($image_row['storage_category_id'])) {
-            return new Phyxo\Ws\Error(500,
-            '[ws_images_setInfo] updating "file" is forbidden on photos added by synchronization'
+            return new Phyxo\Ws\Error(
+                500,
+                '[ws_images_setInfo] updating "file" is forbidden on photos added by synchronization'
             );
         }
 
@@ -1434,10 +1457,11 @@ function ws_images_setInfo($params, $service) {
         } elseif ('append' == $params['multiple_value_mode']) {
             $services['tags']->addTags($tag_ids, array($params['image_id']));
         } else {
-            return new Phyxo\Ws\Error(500,
-            '[ws_images_setInfo]'
-            .' invalid parameter multiple_value_mode "'.$params['multiple_value_mode'].'"'
-            .', possible values are {replace, append}.'
+            return new Phyxo\Ws\Error(
+                500,
+                '[ws_images_setInfo]'
+                    . ' invalid parameter multiple_value_mode "' . $params['multiple_value_mode'] . '"'
+                    . ', possible values are {replace, append}.'
             );
         }
     }
@@ -1452,7 +1476,8 @@ function ws_images_setInfo($params, $service) {
  *    @option int|int[] image_id
  *    @option string pwg_token
  */
-function ws_images_delete($params, $service) {
+function ws_images_delete($params, $service)
+{
     if (get_pwg_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
@@ -1475,7 +1500,7 @@ function ws_images_delete($params, $service) {
         }
     }
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     $number_of_elements_deleted = delete_elements($image_ids, true);
     invalidate_user_cache();
 
@@ -1487,8 +1512,9 @@ function ws_images_delete($params, $service) {
  * Checks if Piwigo is ready for upload
  * @param mixed[] $params
  */
-function ws_images_checkUpload($params, $service) {
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
+function ws_images_checkUpload($params, $service)
+{
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
     $ret['message'] = ready_for_upload_message();
     $ret['ready_for_upload'] = true;

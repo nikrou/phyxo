@@ -74,7 +74,7 @@ if (defined('IN_ADMIN')) {
     try {
         $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
     } catch (Exception $e) {
-        $page['error'][] = l10n($e->getMessage());
+        $page['error'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
     }
 } else {
     $conn = $container->get('phyxo.conn');
@@ -121,17 +121,17 @@ if (isset($conf['order_by_inside_category_custom'])) {
 include(PHPWG_ROOT_PATH . 'include/user.inc.php');
 
 // language files
-load_language('common.lang');
+\Phyxo\Functions\Language::load_language('common.lang');
 
 if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
-    load_language('admin.lang');
+    \Phyxo\Functions\Language::load_language('admin.lang');
 }
 trigger_notify('loading_lang');
-load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
+\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
 
 // only now we can set the localized username of the guest user (and not in include/user.inc.php)
 if ($services['users']->isGuest()) {
-    $user['username'] = l10n('guest');
+    $user['username'] = \Phyxo\Functions\Language::l10n('guest');
 }
 
 if (!defined('IN_WS') || !IN_WS) {
@@ -149,17 +149,17 @@ if (!isset($conf['no_photo_yet']) || !$conf['no_photo_yet']) {
 }
 
 if (isset($user['internal_status']['guest_must_be_guest']) && $user['internal_status']['guest_must_be_guest'] === true) {
-    $header_msgs[] = l10n('Bad status for user "guest", using default status. Please notify the webmaster.');
+    $header_msgs[] = \Phyxo\Functions\Language::l10n('Bad status for user "guest", using default status. Please notify the webmaster.');
 }
 
 if ($conf['gallery_locked']) {
-    $header_msgs[] = l10n('The gallery is locked for maintenance. Please, come back later.');
+    $header_msgs[] = \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.');
 
     if (script_basename() != 'identification' && !$services['users']->isAdmin()) {
         set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
         header('Content-Type: text/html; charset=' . get_pwg_charset());
-        echo '<a href="' . get_absolute_root_url(false) . 'identification.php">' . l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
+        echo '<a href="' . get_absolute_root_url(false) . 'identification.php">' . \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
         echo str_repeat(' ', 512); //IE6 doesn't error output if below a size
         exit();
     }

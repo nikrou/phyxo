@@ -10,7 +10,7 @@
  */
 
 if (!defined('TAGS_BASE_URL')) {
-    die ('Hacking attempt!');
+    die('Hacking attempt!');
 }
 
 // +-----------------------------------------------------------------------+
@@ -18,12 +18,12 @@ if (!defined('TAGS_BASE_URL')) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['edit_submit'])) {
-    $query = 'SELECT name FROM '.TAGS_TABLE.';';
+    $query = 'SELECT name FROM ' . TAGS_TABLE . ';';
     $existing_names = $conn->query2array($query, null, 'name');
 
     $current_name_of = array();
-    $query = 'SELECT id, name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id '.$conn->in($_POST['edit_list']);
+    $query = 'SELECT id, name FROM ' . TAGS_TABLE;
+    $query .= ' WHERE id ' . $conn->in($_POST['edit_list']);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[$row['id']] = $row['name'];
@@ -32,11 +32,11 @@ if (isset($_POST['edit_submit'])) {
     $updates = array();
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
-        $tag_name = $_POST['tag_name-'.$tag_id];
+        $tag_name = $_POST['tag_name-' . $tag_id];
 
         if ($tag_name != $current_name_of[$tag_id]) {
             if (in_array($tag_name, $existing_names)) {
-                $page['errors'][] = l10n('Tag "%s" already exists', $tag_name);
+                $page['errors'][] = \Phyxo\Functions\Language::l10n('Tag "%s" already exists', $tag_name);
             } elseif (!empty($tag_name)) {
                 $updates[] = array(
                     'id' => $tag_id,
@@ -60,11 +60,11 @@ if (isset($_POST['edit_submit'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['duplic_submit'])) {
-    $query = 'SELECT name FROM '.TAGS_TABLE;
+    $query = 'SELECT name FROM ' . TAGS_TABLE;
     $existing_names = $conn->query2array($query, null, 'name');
 
     $current_name_of = array();
-    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['edit_list']);
+    $query = 'SELECT id, name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['edit_list']);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[$row['id']] = $row['name'];
@@ -73,11 +73,11 @@ if (isset($_POST['duplic_submit'])) {
     $updates = array();
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
-        $tag_name = $_POST['tag_name-'.$tag_id];
+        $tag_name = $_POST['tag_name-' . $tag_id];
 
         if ($tag_name != $current_name_of[$tag_id]) {
             if (in_array($tag_name, $existing_names)) {
-                $page['errors'][] = l10n('Tag "%s" already exists', $tag_name);
+                $page['errors'][] = \Phyxo\Functions\Language::l10n('Tag "%s" already exists', $tag_name);
             } elseif (!empty($tag_name)) {
                 $conn->single_insert(
                     TAGS_TABLE,
@@ -87,11 +87,11 @@ if (isset($_POST['duplic_submit'])) {
                     )
                 );
 
-                $query = 'SELECT id FROM '.TAGS_TABLE.' WHERE name = \''.$conn->db_real_escape_string($tag_name).'\'';
+                $query = 'SELECT id FROM ' . TAGS_TABLE . ' WHERE name = \'' . $conn->db_real_escape_string($tag_name) . '\'';
                 $destination_tag = $conn->query2array($query, null, 'id');
                 $destination_tag_id = $destination_tag[0];
 
-                $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($tag_id).';';
+                $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE . ' WHERE tag_id = ' . $conn->db_real_escape_string($tag_id) . ';';
                 $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
 
                 $inserts = array();
@@ -110,7 +110,7 @@ if (isset($_POST['duplic_submit'])) {
                     );
                 }
 
-                $page['infos'][] = l10n(
+                $page['infos'][] = \Phyxo\Functions\Language::l10n(
                     'Tag "%s" is now a duplicate of "%s"',
                     $tag_name,
                     $current_name_of[$tag_id]
@@ -135,14 +135,14 @@ if (isset($_POST['duplic_submit'])) {
 
 if (isset($_POST['merge_submit'])) {
     if (!isset($_POST['destination_tag'])) {
-        $page['errors'][] = l10n('No destination tag selected');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('No destination tag selected');
     } else {
         $destination_tag_id = $_POST['destination_tag'];
         $tag_ids = explode(',', $_POST['merge_list']);
 
         if (is_array($tag_ids) and count($tag_ids) > 1) {
             $name_of_tag = array();
-            $query = 'SELECT id,name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($tag_ids);
+            $query = 'SELECT id,name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($tag_ids);
             $result = $conn->db_query($query);
             while ($row = $conn->db_fetch_assoc($result)) {
                 $name_of_tag[$row['id']] = trigger_change('render_tag_name', $row['name'], $row);
@@ -153,13 +153,13 @@ if (isset($_POST['merge_submit'])) {
                 array($destination_tag_id)
             );
 
-            $query = 'SELECT DISTINCT(image_id)  FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id '.$conn->in($tag_ids_to_delete);
+            $query = 'SELECT DISTINCT(image_id)  FROM ' . IMAGE_TAG_TABLE;
+            $query .= ' WHERE tag_id ' . $conn->in($tag_ids_to_delete);
             $image_ids = $conn->query2array($query, null, 'image_id');
 
             $services['tags']->deleteTags($tag_ids_to_delete);
 
-            $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE.' WHERE tag_id = '.$conn->db_real_escape_string($destination_tag_id);
+            $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE . ' WHERE tag_id = ' . $conn->db_real_escape_string($destination_tag_id);
             $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
 
             $image_ids_to_link = array_diff(
@@ -188,7 +188,7 @@ if (isset($_POST['merge_submit'])) {
                 $tags_deleted[] = $name_of_tag[$tag_id];
             }
 
-            $page['infos'][] = l10n(
+            $page['infos'][] = \Phyxo\Functions\Language::l10n(
                 'Tags <em>%s</em> merged into tag <em>%s</em>',
                 implode(', ', $tags_deleted),
                 $name_of_tag[$destination_tag_id]
@@ -203,15 +203,16 @@ if (isset($_POST['merge_submit'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['delete']) and isset($_POST['tags'])) {
-    $query = 'SELECT name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['tags']);
+    $query = 'SELECT name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['tags']);
     $tag_names = $conn->query2array($query, null, 'name');
 
     $services['tags']->deleteTags($_POST['tags']);
 
-    $page['infos'][] = l10n_dec(
-        'The following tag was deleted', 'The %d following tags were deleted',
+    $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+        'The following tag was deleted',
+        'The %d following tags were deleted',
         count($tag_names)
-    ).' : '.implode(', ', $tag_names);
+    ) . ' : ' . implode(', ', $tag_names);
 }
 
 // +-----------------------------------------------------------------------+
@@ -222,8 +223,8 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
     check_pwg_token();
 
     $services['tags']->deleteOrphanTags();
-    $_SESSION['page_infos'][] = l10n('Orphan tags deleted');
-    redirect(get_root_url().'admin/index.php?page=tags');
+    $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Orphan tags deleted');
+    redirect(get_root_url() . 'admin/index.php?page=tags');
 }
 
 // +-----------------------------------------------------------------------+
@@ -253,10 +254,10 @@ foreach ($orphan_tags as $tag) {
 
 if (count($orphan_tag_names) > 0) {
     $page['warnings'][] = sprintf(
-        l10n('You have %d orphan tags: %s.').' <a href="%s">'.l10n('Delete orphan tags').'</a>',
+        \Phyxo\Functions\Language::l10n('You have %d orphan tags: %s.') . ' <a href="%s">' . \Phyxo\Functions\Language::l10n('Delete orphan tags') . '</a>',
         count($orphan_tag_names),
         implode(', ', $orphan_tag_names),
-        get_root_url().'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token='.get_pwg_token()
+        get_root_url() . 'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token=' . get_pwg_token()
     );
 }
 
@@ -265,11 +266,11 @@ if (count($orphan_tag_names) > 0) {
 // +-----------------------------------------------------------------------+
 
 // tag counters
-$query = 'SELECT tag_id, COUNT(image_id) AS counter FROM '.IMAGE_TAG_TABLE.' GROUP BY tag_id';
+$query = 'SELECT tag_id, COUNT(image_id) AS counter FROM ' . IMAGE_TAG_TABLE . ' GROUP BY tag_id';
 $tag_counters = $conn->query2array($query, 'tag_id', 'counter');
 
 // all tags
-$query = 'SELECT id,name FROM '.TAGS_TABLE;
+$query = 'SELECT id,name FROM ' . TAGS_TABLE;
 $result = $conn->db_query($query);
 $all_tags = array();
 while ($tag = $conn->db_fetch_assoc($result)) {
@@ -281,7 +282,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
         $tag['counter'] = intval($tag_counters[$tag['id']]);
     }
     $tag['U_VIEW'] = make_index_url(array('tags' => array($tag)));
-    $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-'.$tag['id'];
+    $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-' . $tag['id'];
 
     $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
     $alt_names = array_diff(array_unique($alt_names), array($tag['name']));
@@ -304,7 +305,7 @@ if ((isset($_POST['edit']) or isset($_POST['duplicate']) or isset($_POST['merge'
 
     $template->assign($list_name, implode(',', $_POST['tags']));
 
-    $query = 'SELECT id, name FROM '.TAGS_TABLE.' WHERE id '.$conn->in($_POST['tags']);
+    $query = 'SELECT id, name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['tags']);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         $template->append(

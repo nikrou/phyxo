@@ -46,7 +46,7 @@ if ($services['users']->isGuest()) {
 // |                        template initialization                        |
 // +-----------------------------------------------------------------------+
 
-$title = l10n('Notification');
+$title = \Phyxo\Functions\Language::l10n('Notification');
 $page['body_id'] = 'theNotificationPage';
 $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 

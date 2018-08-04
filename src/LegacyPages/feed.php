@@ -59,7 +59,7 @@ if (!empty($feed_id)) {
     $query .= ' WHERE id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
     $feed_row = $conn->db_fetch_assoc($conn->db_query($query));
     if (empty($feed_row)) {
-        page_not_found(l10n('Unknown feed identifier'));
+        page_not_found(\Phyxo\Functions\Language::l10n('Unknown feed identifier'));
     }
     if ($feed_row['user_id'] != $user['id']) { // new user
         $user = $services['users']->buildUser($feed_row['user_id'], true);
@@ -94,7 +94,7 @@ if (!$image_only) {
 
     if (count($news) > 0) {
         $item = new FeedItem();
-        $item->title = l10n('New on %s', format_date($dbnow));
+        $item->title = \Phyxo\Functions\Language::l10n('New on %s', format_date($dbnow));
         $item->link = get_gallery_home_url();
 
         // content creation

@@ -28,14 +28,14 @@ $services['users']->checkStatus(ACCESS_GUEST);
 $url_self = get_root_url() . 'comments.php' . get_query_string_diff(array('delete', 'edit', 'validate', 'pwg_token'));
 
 $sort_order = array(
-    'DESC' => l10n('descending'),
-    'ASC' => l10n('ascending')
+    'DESC' => \Phyxo\Functions\Language::l10n('descending'),
+    'ASC' => \Phyxo\Functions\Language::l10n('ascending')
 );
 
 // sort_by : database fields proposed for sorting comments list
 $sort_by = array(
-    'date' => l10n('comment date'),
-    'image_id' => l10n('photo')
+    'date' => \Phyxo\Functions\Language::l10n('comment date'),
+    'image_id' => \Phyxo\Functions\Language::l10n('photo')
 );
 
 // items_number : list of number of items to display per page
@@ -62,10 +62,10 @@ if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
 // since when display comments ?
 //
 $since_options = array(
-    1 => array('label' => l10n('today'), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(1)),
-    2 => array('label' => l10n('last %d days', 7), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(7)),
-    3 => array('label' => l10n('last %d days', 30), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(30)),
-    4 => array('label' => l10n('the beginning'), 'clause' => '1=1') // stupid but generic
+    1 => array('label' => \Phyxo\Functions\Language::l10n('today'), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(1)),
+    2 => array('label' => \Phyxo\Functions\Language::l10n('last %d days', 7), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(7)),
+    3 => array('label' => \Phyxo\Functions\Language::l10n('last %d days', 30), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(30)),
+    4 => array('label' => \Phyxo\Functions\Language::l10n('the beginning'), 'clause' => '1=1') // stupid but generic
 );
 
 trigger_notify('loc_begin_comments');
@@ -218,13 +218,13 @@ if (isset($action)) {
 
                 switch ($comment_action) {
                     case 'moderate':
-                        $_SESSION['page_infos'][] = l10n('An administrator must authorize your comment before it is visible.');
+                        $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('An administrator must authorize your comment before it is visible.');
                     case 'validate':
-                        $_SESSION['page_infos'][] = l10n('Your comment has been registered');
+                        $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Your comment has been registered');
                         $perform_redirect = true;
                         break;
                     case 'reject':
-                        $_SESSION['page_errors'][] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
+                        $_SESSION['page_errors'][] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
                         break;
                     default:
                         trigger_error('Invalid comment action ' . $comment_action, E_USER_WARNING);
@@ -244,7 +244,7 @@ if (isset($action)) {
 // |                       page header and options                         |
 // +-----------------------------------------------------------------------+
 
-$title = l10n('User comments');
+$title = \Phyxo\Functions\Language::l10n('User comments');
 
 $template->set_filenames(array('comments' => 'comments.tpl'));
 $template->assign(
@@ -287,7 +287,7 @@ $template->assign('sort_order_options_selected', $page['sort_order']);
 $blockname = 'items_number_option';
 $tpl_var = [];
 foreach ($items_number as $option) {
-    $tpl_var[$option] = is_numeric($option) ? $option : l10n($option);
+    $tpl_var[$option] = is_numeric($option) ? $option : \Phyxo\Functions\Language::l10n($option);
 }
 $template->assign('item_number_options', $tpl_var);
 $template->assign('item_number_options_selected', $page['items_number']);

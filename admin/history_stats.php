@@ -10,16 +10,16 @@
  */
 
 if (!defined('HISTORY_BASE_URL')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 // +-----------------------------------------------------------------------+
 // | Refresh summary from details                                          |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT date,'.$conn->db_get_hour('time').' AS hour,MAX(id) AS max_id,';
-$query .= 'COUNT(1) AS nb_pages FROM '.HISTORY_TABLE;
-$query .= ' WHERE summarized = \''.$conn->boolean_to_db(false).'\'';
+$query = 'SELECT date,' . $conn->db_get_hour('time') . ' AS hour,MAX(id) AS max_id,';
+$query .= 'COUNT(1) AS nb_pages FROM ' . HISTORY_TABLE;
+$query .= ' WHERE summarized = \'' . $conn->boolean_to_db(false) . '\'';
 $query .= ' GROUP BY date,hour';
 $query .= ' ORDER BY date ASC,hour ASC;';
 $result = $conn->db_query($query);
@@ -37,7 +37,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
         substr($row['date'], 0, 10),//yyyy-mm-dd
         sprintf(
             '%s-%02u',
-            $row['date'], $row['hour']
+            $row['date'],
+            $row['hour']
         ),
     );
 
@@ -80,9 +81,9 @@ $inserts = array();
 if (isset($first_time_key)) {
     list($year, $month, $day, $hour) = explode('-', $first_time_key);
 
-    $query = 'SELECT * FROM '.HISTORY_SUMMARY_TABLE;
-    $query .= ' WHERE year='.$year;
-    $query .= ' AND ( month IS NULL OR ( month='.$month.' AND ( day is NULL OR (day='.$day.' AND (hour IS NULL OR hour='.$hour.')))));';
+    $query = 'SELECT * FROM ' . HISTORY_SUMMARY_TABLE;
+    $query .= ' WHERE year=' . $year;
+    $query .= ' AND ( month IS NULL OR ( month=' . $month . ' AND ( day is NULL OR (day=' . $day . ' AND (hour IS NULL OR hour=' . $hour . ')))));';
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         $key = sprintf('%4u', $row['year']);
@@ -120,8 +121,8 @@ if (count($updates) > 0) {
     $conn->mass_updates(
         HISTORY_SUMMARY_TABLE,
         array(
-            'primary' => array('year','month','day','hour'),
-            'update'  => array('nb_pages'),
+            'primary' => array('year', 'month', 'day', 'hour'),
+            'update' => array('nb_pages'),
         ),
         $updates
     );
@@ -136,9 +137,9 @@ if (count($inserts) > 0) {
 }
 
 if ($max_id != 0) {
-    $query = 'UPDATE '.HISTORY_TABLE.' SET summarized = \''.$conn->boolean_to_db(true).'\'';
-    $query .= ' WHERE summarized = \''.$conn->boolean_to_db(false).'\'';
-    $query .= ' AND id <= '.$max_id.';';
+    $query = 'UPDATE ' . HISTORY_TABLE . ' SET summarized = \'' . $conn->boolean_to_db(true) . '\'';
+    $query .= ' WHERE summarized = \'' . $conn->boolean_to_db(false) . '\'';
+    $query .= ' AND id <= ' . $max_id . ';';
     $conn->db_query($query);
 }
 
@@ -179,28 +180,28 @@ $title_parts = array();
 
 $url = HISTORY_BASE_URL;
 
-$title_parts[] = '<a href="'.$url.'">'.l10n('Overall').'</a>';
+$title_parts[] = '<a href="' . $url . '">' . \Phyxo\Functions\Language::l10n('Overall') . '</a>';
 
-$period_label = l10n('Year');
+$period_label = \Phyxo\Functions\Language::l10n('Year');
 
 if (isset($page['year'])) {
-    $url .= '&amp;year='.$page['year'];
+    $url .= '&amp;year=' . $page['year'];
 
-    $title_parts[] = '<a href="'.$url.'">'.$page['year'].'</a>';
+    $title_parts[] = '<a href="' . $url . '">' . $page['year'] . '</a>';
 
-    $period_label = l10n('Month');
+    $period_label = \Phyxo\Functions\Language::l10n('Month');
 }
 
 if (isset($page['month'])) {
-    $url .= '&amp;month='.$page['month'];
+    $url .= '&amp;month=' . $page['month'];
 
-    $title_parts[] = '<a href="'.$url.'">'.$lang['month'][$page['month']].'</a>';
+    $title_parts[] = '<a href="' . $url . '">' . $lang['month'][$page['month']] . '</a>';
 
-    $period_label = l10n('Day');
+    $period_label = \Phyxo\Functions\Language::l10n('Day');
 }
 
 if (isset($page['day'])) {
-    $url .= '&amp;day='.$page['day'];
+    $url .= '&amp;day=' . $page['day'];
 
     $time = mktime(12, 0, 0, $page['month'], $page['day'], $page['year']);
 
@@ -210,9 +211,9 @@ if (isset($page['day'])) {
         $lang['day'][date('w', $time)]
     );
 
-    $title_parts[] = '<a href="'.$url.'">'.$day_title.'</a>';
+    $title_parts[] = '<a href="' . $url . '">' . $day_title . '</a>';
 
-    $period_label = l10n('Hour');
+    $period_label = \Phyxo\Functions\Language::l10n('Hour');
 }
 
 $base_url = HISTORY_BASE_URL;
@@ -259,7 +260,7 @@ foreach ($summary_lines as $line) {
         $max_pages = $line['nb_pages'];
     }
 
-    $datas[ $line[$key] ] = $line['nb_pages'];
+    $datas[$line[$key]] = $line['nb_pages'];
 }
 
 if (!isset($min_x) and !isset($max_x) and count($datas) > 0) {
@@ -278,19 +279,19 @@ if (count($datas) > 0) {
         if (isset($page['day'])) {
             $value = sprintf('%02u', $i);
         } elseif (isset($page['month'])) {
-            $url = HISTORY_BASE_URL.'&amp;year='.$page['year'].'&amp;month='.$page['month'].'&amp;day='.$i;
+            $url = HISTORY_BASE_URL . '&amp;year=' . $page['year'] . '&amp;month=' . $page['month'] . '&amp;day=' . $i;
             $time = mktime(12, 0, 0, $page['month'], $i, $page['year']);
-            $value = $i.' ('.$lang['day'][date('w', $time)].')';
+            $value = $i . ' (' . $lang['day'][date('w', $time)] . ')';
         } elseif (isset($page['year'])) {
-            $url = HISTORY_BASE_URL.'&amp;year='.$page['year'].'&amp;month='.$i;
+            $url = HISTORY_BASE_URL . '&amp;year=' . $page['year'] . '&amp;month=' . $i;
             $value = $lang['month'][$i];
         } else { // at least the year is defined
-            $url = HISTORY_BASE_URL.'&amp;year='.$i;
+            $url = HISTORY_BASE_URL . '&amp;year=' . $i;
             $value = $i;
         }
 
         if ($datas[$i] != 0 and isset($url)) {
-            $value = '<a href="'.$url.'">'.$value.'</a>';
+            $value = '<a href="' . $url . '">' . $value . '</a>';
         }
 
         $template->append(
@@ -298,7 +299,7 @@ if (count($datas) > 0) {
             array(
                 'VALUE' => $value,
                 'PAGES' => $datas[$i],
-                'WIDTH' => ceil(($datas[$i] * $max_width) / $max_pages ),
+                'WIDTH' => ceil(($datas[$i] * $max_width) / $max_pages),
             )
         );
     }

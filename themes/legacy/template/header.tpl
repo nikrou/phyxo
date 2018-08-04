@@ -19,7 +19,7 @@
 	    {/if}
 	{/if}
 
-	<title>{if $PAGE_TITLE!=l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
+	<title>{if $PAGE_TITLE!=\Phyxo\Functions\Language::l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="{$ROOT_URL}{$themeconf.icon_dir}/favicon.ico">
 
 	<link rel="start" title="{'Home'|translate}" href="{$U_HOME}" >

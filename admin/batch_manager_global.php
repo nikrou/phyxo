@@ -21,7 +21,7 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
 
 use Phyxo\LocalSiteReader;
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -59,29 +59,29 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     $page['prefilter'] = $_SESSION['bulk_manager_filter']['prefilter'];
 }
 
-$redirect_url = get_root_url().'admin/index.php?page='.$_GET['page'];
+$redirect_url = get_root_url() . 'admin/index.php?page=' . $_GET['page'];
 
 if (isset($_POST['submit'])) {
     // if the user tries to apply an action, it means that there is at least 1
     // photo in the selection
     if (count($collection) == 0) {
-        $page['errors'][] = l10n('Select at least one photo');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one photo');
     }
 
     $action = $_POST['selectAction'];
     $redirect = false;
 
     if ('remove_from_caddie' == $action) {
-        $query = 'DELETE FROM '.CADDIE_TABLE;
-        $query .= ' WHERE element_id '.$conn->in($collection);
-        $query .= ' AND user_id = '.$conn->db_real_escape_string($user['id']);
+        $query = 'DELETE FROM ' . CADDIE_TABLE;
+        $query .= ' WHERE element_id ' . $conn->in($collection);
+        $query .= ' AND user_id = ' . $conn->db_real_escape_string($user['id']);
         $conn->db_query($query);
 
         // remove from caddie action available only in caddie so reload content
         $redirect = true;
     } elseif ('add_tags' == $action) {
         if (empty($_POST['add_tags'])) {
-            $page['errors'][] = l10n('Select at least one tag');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one tag');
         } else {
             $tag_ids = $services['tags']->getTagsIds($_POST['add_tags']);
             $services['tags']->addTags($tag_ids, $collection);
@@ -93,9 +93,9 @@ if (isset($_POST['submit'])) {
     } elseif ('del_tags' == $action) {
         if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0) {
             // @TODO: move delete to src/Phyxo/Model/Repository/Tags::dissociateTags
-            $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE image_id '.$conn->in($collection);
-            $query .= ' AND tag_id '.$conn->in($_POST['del_tags']);
+            $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+            $query .= ' WHERE image_id ' . $conn->in($collection);
+            $query .= ' AND tag_id ' . $conn->in($_POST['del_tags']);
             $conn->db_query($query);
 
             if (isset($_SESSION['bulk_manager_filter']['tags'])
@@ -103,7 +103,7 @@ if (isset($_POST['submit'])) {
                 $redirect = true;
             }
         } else {
-            $page['errors'][] = l10n('Select at least one tag');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one tag');
         }
     }
 
@@ -113,7 +113,7 @@ if (isset($_POST['submit'])) {
             array($_POST['associate'])
         );
 
-        $_SESSION['page_infos'][] = l10n('Information data registered in database');
+        $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
         // let's refresh the page because we the current set might be modified
         if ('no_album' == $page['prefilter']) {
@@ -127,7 +127,7 @@ if (isset($_POST['submit'])) {
     } elseif ('move' == $action) {
         move_images_to_categories($collection, array($_POST['move']));
 
-        $_SESSION['page_infos'][] = l10n('Information data registered in database');
+        $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
         // let's refresh the page because we the current set might be modified
         if ('no_album' == $page['prefilter']) {
@@ -138,26 +138,26 @@ if (isset($_POST['submit'])) {
                 $redirect = true;
             }
         } elseif (isset($_SESSION['bulk_manager_filter']['category'])
-        and $_POST['move'] != $_SESSION['bulk_manager_filter']['category']) {
+            and $_POST['move'] != $_SESSION['bulk_manager_filter']['category']) {
             $redirect = true;
         }
     } elseif ('dissociate' == $action) {
         // physical links must not be broken, so we must first retrieve image_id
         // which create virtual links with the category to "dissociate from".
-        $query = 'SELECT id FROM '.IMAGES_TABLE;
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
-        $query .= ' WHERE category_id = '.$conn->db_real_escape_string($_POST['dissociate']);
-        $query .= ' AND id '.$conn->in($collection);
+        $query = 'SELECT id FROM ' . IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($_POST['dissociate']);
+        $query .= ' AND id ' . $conn->in($collection);
         $query .= ' AND (category_id != storage_category_id OR storage_category_id IS NULL);';
         $dissociables = $conn->query2array($query, null, 'id');
 
         if (!empty($dissociables)) {
-            $query = 'DELETE FROM '.IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id = '.$conn->db_real_escape_string($_POST['dissociate']);
-            $query .= ' AND image_id '.$conn->in($dissociables);
+            $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
+            $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($_POST['dissociate']);
+            $query .= ' AND image_id ' . $conn->in($dissociables);
             $conn->db_query($query);
 
-            $_SESSION['page_infos'][] = l10n('Information data registered in database');
+            $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
             // let's refresh the page because the current set might be modified
             $redirect = true;
@@ -244,41 +244,42 @@ if (isset($_POST['submit'])) {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
             $deleted_count = delete_elements($collection, true);
             if ($deleted_count > 0) {
-                $_SESSION['page_infos'][] = l10n_dec(
-                    '%d photo was deleted', '%d photos were deleted',
+                $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n_dec(
+                    '%d photo was deleted',
+                    '%d photos were deleted',
                     $deleted_count
                 );
 
-                $redirect_url = get_root_url().'admin/index.php?page='.$_GET['page'];
+                $redirect_url = get_root_url() . 'admin/index.php?page=' . $_GET['page'];
                 $redirect = true;
             } else {
-                $page['errors'][] = l10n('No photo can be deleted');
+                $page['errors'][] = \Phyxo\Functions\Language::l10n('No photo can be deleted');
             }
         } else {
-            $page['errors'][] = l10n('You need to confirm deletion');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('You need to confirm deletion');
         }
     } elseif ('metadata' == $action) {
         sync_metadata($collection);
-        $page['infos'][] = l10n('Metadata synchronized from file');
+        $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
     } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
-        $query = 'SELECT path,representative_ext FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id '.$conn->in($collection);
+        $query = 'SELECT path,representative_ext FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($collection);
         $result = $conn->db_query($query);
         while ($info = $conn->db_fetch_assoc($result)) {
-            foreach($_POST['del_derivatives_type'] as $type) {
+            foreach ($_POST['del_derivatives_type'] as $type) {
                 delete_element_derivatives($info, $type);
             }
         }
     } elseif ('generate_derivatives' == $action) {
         if ($_POST['regenerateSuccess'] != '0') {
-            $page['infos'][] = l10n('%s photos have been regenerated', $_POST['regenerateSuccess']);
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('%s photos have been regenerated', $_POST['regenerateSuccess']);
         }
         if ($_POST['regenerateError'] != '0') {
-            $page['warnings'][] = l10n('%s photos can not be regenerated', $_POST['regenerateError']);
+            $page['warnings'][] = \Phyxo\Functions\Language::l10n('%s photos can not be regenerated', $_POST['regenerateError']);
         }
     }
 
-    if (!in_array($action, array('remove_from_caddie','add_to_caddie','delete_derivatives','generate_derivatives'))) {
+    if (!in_array($action, array('remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'))) {
         invalidate_user_cache();
     }
 
@@ -293,20 +294,20 @@ if (isset($_POST['submit'])) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$base_url = get_root_url().'admin/index.php';
+$base_url = get_root_url() . 'admin/index.php';
 
 $prefilters = array(
-    array('ID' => 'caddie', 'NAME' => l10n('Caddie')),
-    array('ID' => 'favorites', 'NAME' => l10n('Your favorites')),
-    array('ID' => 'last_import', 'NAME' => l10n('Last import')),
-    array('ID' => 'no_album', 'NAME' => l10n('With no album')),
-    array('ID' => 'no_tag', 'NAME' => l10n('With no tag')),
-    array('ID' => 'duplicates', 'NAME' => l10n('Duplicates')),
-    array('ID' => 'all_photos', 'NAME' => l10n('All'))
+    array('ID' => 'caddie', 'NAME' => \Phyxo\Functions\Language::l10n('Caddie')),
+    array('ID' => 'favorites', 'NAME' => \Phyxo\Functions\Language::l10n('Your favorites')),
+    array('ID' => 'last_import', 'NAME' => \Phyxo\Functions\Language::l10n('Last import')),
+    array('ID' => 'no_album', 'NAME' => \Phyxo\Functions\Language::l10n('With no album')),
+    array('ID' => 'no_tag', 'NAME' => \Phyxo\Functions\Language::l10n('With no tag')),
+    array('ID' => 'duplicates', 'NAME' => \Phyxo\Functions\Language::l10n('Duplicates')),
+    array('ID' => 'all_photos', 'NAME' => \Phyxo\Functions\Language::l10n('All'))
 );
 
 if ($conf['enable_synchronization']) {
-    $prefilters[] = array('ID' => 'no_virtual_album', 'NAME' => l10n('With no virtual album'));
+    $prefilters[] = array('ID' => 'no_virtual_album', 'NAME' => \Phyxo\Functions\Language::l10n('With no virtual album'));
 }
 
 $prefilters = trigger_change('get_batch_manager_prefilters', $prefilters);
@@ -319,8 +320,8 @@ $template->assign(
         'selection' => $collection,
         'all_elements' => $page['cat_elements_id'],
         'START' => $page['start'],
-        'U_DISPLAY'=>$base_url.get_query_string_diff(array('display')),
-        'F_ACTION'=>$base_url.get_query_string_diff(array('cat','start','tag','filter')),
+        'U_DISPLAY' => $base_url . get_query_string_diff(array('display')),
+        'F_ACTION' => $base_url . get_query_string_diff(array('cat', 'start', 'tag', 'filter')),
     )
 );
 
@@ -336,18 +337,18 @@ $template->assign('IN_CADDIE', 'caddie' == $page['prefilter']);
 
 // privacy level
 foreach ($conf['available_permission_levels'] as $level) {
-    $level_options[$level] = l10n(sprintf('Level %d', $level));
+    $level_options[$level] = \Phyxo\Functions\Language::l10n(sprintf('Level %d', $level));
 
     if (0 == $level) {
-        $level_options[$level] = l10n('Everybody');
+        $level_options[$level] = \Phyxo\Functions\Language::l10n('Everybody');
     }
 }
 $template->assign(
     array(
-        'filter_level_options'=> $level_options,
+        'filter_level_options' => $level_options,
         'filter_level_options_selected' => isset($_SESSION['bulk_manager_filter']['level'])
-        ? $_SESSION['bulk_manager_filter']['level']
-        : 0,
+            ? $_SESSION['bulk_manager_filter']['level']
+            : 0,
     )
 );
 
@@ -355,8 +356,8 @@ $template->assign(
 $filter_tags = array();
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
-    $query = 'SELECT id,name FROM '.TAGS_TABLE;
-    $query .= ' WHERE id '.$conn->in($_SESSION['bulk_manager_filter']['tags']);
+    $query = 'SELECT id,name FROM ' . TAGS_TABLE;
+    $query .= ' WHERE id ' . $conn->in($_SESSION['bulk_manager_filter']['tags']);
 
     $filter_tags = $services['tags']->getTagsList($query);
 }
@@ -370,7 +371,7 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
     $selected_category = array($_SESSION['bulk_manager_filter']['category']);
 } else {
     // we need to know the category in which the last photo was added
-    $query = 'SELECT category_id FROM '.IMAGE_CATEGORY_TABLE;
+    $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
     $query .= ' ORDER BY image_id DESC LIMIT 1';
     $result = $conn->db_query($query);
     if ($conn->db_num_rows($result) > 0) {
@@ -385,9 +386,9 @@ $template->assign('filter_category_selected', $selected_category);
 // represent virtual links. We can't create orphans. Links to physical
 // categories can't be broken.
 if (count($page['cat_elements_id']) > 0) {
-    $query = 'SELECT DISTINCT(category_id) AS id FROM '.IMAGES_TABLE.' AS i';
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON i.id = ic.image_id';
-    $query .= ' WHERE ic.image_id '.$conn->in($page['cat_elements_id']);
+    $query = 'SELECT DISTINCT(category_id) AS id FROM ' . IMAGES_TABLE . ' AS i';
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON i.id = ic.image_id';
+    $query .= ' WHERE ic.image_id ' . $conn->in($page['cat_elements_id']);
     $query .= ' AND (ic.category_id != i.storage_category_id OR i.storage_category_id IS NULL)';
     $template->assign('associated_categories', $conn->query2array($query, 'id', 'id'));
 }
@@ -398,12 +399,12 @@ if (count($page['cat_elements_id']) > 0) {
 }
 
 // creation date
-$template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d').' 00:00:00' : $_POST['date_creation']);
+$template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d') . ' 00:00:00' : $_POST['date_creation']);
 
 // image level options
 $template->assign(
     array(
-        'level_options'=> get_privacy_level_options(),
+        'level_options' => get_privacy_level_options(),
         'level_options_selected' => 0,
     )
 );
@@ -416,11 +417,11 @@ $template->assign(array('used_metadata' => $used_metadata));
 
 //derivatives
 $del_deriv_map = array();
-foreach(ImageStdParams::get_defined_type_map() as $params) {
-    $del_deriv_map[$params->type] = l10n($params->type);
+foreach (ImageStdParams::get_defined_type_map() as $params) {
+    $del_deriv_map[$params->type] = \Phyxo\Functions\Language::l10n($params->type);
 }
 $gen_deriv_map = $del_deriv_map;
-$del_deriv_map[IMG_CUSTOM] = l10n(IMG_CUSTOM);
+$del_deriv_map[IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(IMG_CUSTOM);
 $template->assign(
     array(
         'del_derivatives_types' => $del_deriv_map,
@@ -447,7 +448,7 @@ $nb_thumbs_page = 0;
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = create_navigation_bar(
-        $base_url.get_query_string_diff(array('start')),
+        $base_url . get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
@@ -463,27 +464,27 @@ if (count($page['cat_elements_id']) > 0) {
         $conf['order_by'] = ' ORDER BY file, id';
     }
 
-    $query = 'SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation FROM '.IMAGES_TABLE;
+    $query = 'SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation FROM ' . IMAGES_TABLE;
 
     if ($is_category) {
         $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
 
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {
-            $conf['order_by'] = ' ORDER BY '.$conn->db_real_escape_string($category_info['image_order']);
+            $conf['order_by'] = ' ORDER BY ' . $conn->db_real_escape_string($category_info['image_order']);
         }
 
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
     }
 
-    $query .= ' WHERE id '.$conn->in($page['cat_elements_id']);
+    $query .= ' WHERE id ' . $conn->in($page['cat_elements_id']);
 
     if ($is_category) {
-        $query .= ' AND category_id = '.$conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
+        $query .= ' AND category_id = ' . $conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
     }
 
-    $query .= ' '.$conf['order_by'].' LIMIT '.$conn->db_real_escape_string($page['nb_images']);
-    $query .= ' OFFSET '.$conn->db_real_escape_string($page['start']);
+    $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
+    $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 
     $thumb_params = ImageStdParams::get_by_type(IMG_THUMB);
@@ -494,17 +495,20 @@ if (count($page['cat_elements_id']) > 0) {
 
         $ttitle = render_element_name($row);
         if ($ttitle != get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
-            $ttitle .= ' ('.$row['file'].')';
+            $ttitle .= ' (' . $row['file'] . ')';
         }
 
         $template->append(
-            'thumbnails', array_merge($row,
-            array(
-                'thumb' => new DerivativeImage($thumb_params, $src_image),
-                'TITLE' => $ttitle,
-                'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                'U_EDIT' => get_root_url().'admin/index.php?page=photo&amp;image_id='.$row['id'],
-            ))
+            'thumbnails',
+            array_merge(
+                $row,
+                array(
+                    'thumb' => new DerivativeImage($thumb_params, $src_image),
+                    'TITLE' => $ttitle,
+                    'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
+                    'U_EDIT' => get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
+                )
+            )
         );
     }
     $template->assign('thumb_params', $thumb_params);

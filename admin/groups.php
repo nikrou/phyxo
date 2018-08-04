@@ -13,9 +13,9 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('GROUPS_BASE_URL', get_root_url().'admin/index.php?page=groups');
+define('GROUPS_BASE_URL', get_root_url() . 'admin/index.php?page=groups');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -38,8 +38,8 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('list', l10n('Groups'), GROUPS_BASE_URL.'&amp;section=list', 'fa-group');
-$tabsheet->add('perm', l10n('Permissions'), GROUPS_BASE_URL.'&amp;section=perm', 'fa-lock');
+$tabsheet->add('list', \Phyxo\Functions\Language::l10n('Groups'), GROUPS_BASE_URL . '&amp;section=list', 'fa-group');
+$tabsheet->add('perm', \Phyxo\Functions\Language::l10n('Permissions'), GROUPS_BASE_URL . '&amp;section=perm', 'fa-lock');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -51,6 +51,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'groups_'.$page['section'];
+$template_filename = 'groups_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/groups_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/groups_' . $page['section'] . '.php');

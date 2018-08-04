@@ -10,7 +10,7 @@
  */
 
 if (!defined("LANGUAGES_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Language\Languages;
@@ -22,7 +22,7 @@ if (isset($_GET['action']) and isset($_GET['language'])) {
     $page['errors'] = $languages->performAction($_GET['action'], $_GET['language']);
 
     if (empty($page['errors'])) {
-        redirect(LANGUAGES_BASE_URL.'&section=installed');
+        redirect(LANGUAGES_BASE_URL . '&section=installed');
     }
 }
 
@@ -33,8 +33,8 @@ $default_language = $services['users']->getDefaultLanguage();
 
 $tpl_languages = array();
 
-foreach($languages->getFsLanguages() as $language_id => $language) {
-    $language['u_action'] = add_url_params(LANGUAGES_BASE_URL.'&amp;section=installed', array('language' => $language_id));
+foreach ($languages->getFsLanguages() as $language_id => $language) {
+    $language['u_action'] = add_url_params(LANGUAGES_BASE_URL . '&amp;section=installed', array('language' => $language_id));
 
     if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
         $language['state'] = 'active';
@@ -42,12 +42,12 @@ foreach($languages->getFsLanguages() as $language_id => $language) {
 
         if (count($languages->getDbLanguages()) <= 1) {
             $language['deactivable'] = false;
-            $language['deactivate_tooltip'] = l10n('Impossible to deactivate this language, you need at least one language.');
+            $language['deactivate_tooltip'] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this language, you need at least one language.');
         }
 
         if ($language_id == $default_language) {
             $language['deactivable'] = false;
-            $language['deactivate_tooltip'] = l10n('Impossible to deactivate this language, first set another language as default.');
+            $language['deactivate_tooltip'] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this language, first set another language as default.');
         }
     } else {
         $language['state'] = 'inactive';
@@ -71,11 +71,11 @@ $missing_language_ids = array_diff(
     array_keys($languages->getFsLanguages())
 );
 
-foreach($missing_language_ids as $language_id) {
-    $query = 'UPDATE '.USER_INFOS_TABLE.' SET language = \''.$services['users']->getDefaultLanguage().'\'';
-    $query .= ' WHERE language = \''.$language_id.'\';';
+foreach ($missing_language_ids as $language_id) {
+    $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET language = \'' . $services['users']->getDefaultLanguage() . '\'';
+    $query .= ' WHERE language = \'' . $language_id . '\';';
     $conn->db_query($query);
 
-    $query = 'DELETE FROM '.LANGUAGES_TABLE.' WHERE id= \''.$language_id.'\';';
+    $query = 'DELETE FROM ' . LANGUAGES_TABLE . ' WHERE id= \'' . $language_id . '\';';
     $conn->db_query($query);
 }

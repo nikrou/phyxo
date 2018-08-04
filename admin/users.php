@@ -19,7 +19,7 @@
 
 use Phyxo\TabSheet\TabSheet;
 
-define('USERS_BASE_URL', get_root_url().'admin/index.php?page=users');
+define('USERS_BASE_URL', get_root_url() . 'admin/index.php?page=users');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -30,7 +30,7 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('list', l10n('User list'), USERS_BASE_URL.'&amp;section=list', 'fa-users');
+$tabsheet->add('list', \Phyxo\Functions\Language::l10n('User list'), USERS_BASE_URL . '&amp;section=list', 'fa-users');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -42,6 +42,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'users_'.$page['section'];
+$template_filename = 'users_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/users_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/users_' . $page['section'] . '.php');

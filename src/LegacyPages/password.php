@@ -40,7 +40,7 @@ function process_password_request()
     global $page, $conf, $conn, $services;
 
     if (empty($_POST['username_or_email'])) {
-        $page['errors'][] = l10n('Invalid username or email');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid username or email');
         return false;
     }
 
@@ -51,7 +51,7 @@ function process_password_request()
     }
 
     if (!is_numeric($user_id)) {
-        $page['errors'][] = l10n('Invalid username or email');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid username or email');
         return false;
     }
 
@@ -60,12 +60,12 @@ function process_password_request()
     // password request is not possible for guest/generic users
     $status = $userdata['status'];
     if ($services['users']->isGuest($status) or $services['users']->isGeneric($status)) {
-        $page['errors'][] = l10n('Password reset is not allowed for this user');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Password reset is not allowed for this user');
         return false;
     }
 
     if (empty($userdata['email'])) {
-        $page['errors'][] = l10n(
+        $page['errors'][] = \Phyxo\Functions\Language::l10n(
             'User "%s" has no email address, password reset is not possible',
             $userdata['username']
         );
@@ -86,32 +86,32 @@ function process_password_request()
 
     set_make_full_url();
 
-    $message = l10n('Someone requested that the password be reset for the following user account:') . "\r\n\r\n";
-    $message .= l10n(
+    $message = \Phyxo\Functions\Language::l10n('Someone requested that the password be reset for the following user account:') . "\r\n\r\n";
+    $message .= \Phyxo\Functions\Language::l10n(
         'Username "%s" on gallery %s',
         $userdata['username'],
         get_gallery_home_url()
     );
     $message .= "\r\n\r\n";
-    $message .= l10n('To reset your password, visit the following address:') . "\r\n";
+    $message .= \Phyxo\Functions\Language::l10n('To reset your password, visit the following address:') . "\r\n";
     $message .= get_gallery_home_url() . '/password.php?key=' . $userdata['activation_key'] . "\r\n\r\n";
-    $message .= l10n('If this was a mistake, just ignore this email and nothing will happen.') . "\r\n";
+    $message .= \Phyxo\Functions\Language::l10n('If this was a mistake, just ignore this email and nothing will happen.') . "\r\n";
 
     unset_make_full_url();
 
     $message = trigger_change('render_lost_password_mail_content', $message);
 
     $email_params = array(
-        'subject' => '[' . $conf['gallery_title'] . '] ' . l10n('Password Reset'),
+        'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset'),
         'content' => $message,
         'email_format' => 'text/plain',
     );
 
     if (pwg_mail($userdata['email'], $email_params)) {
-        $page['infos'][] = l10n('Check your email for the confirmation link');
+        $page['infos'][] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
         return true;
     } else {
-        $page['errors'][] = l10n('Error sending email');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Error sending email');
         return false;
     }
 }
@@ -128,20 +128,20 @@ function reset_password()
     global $page, $user, $conf, $conn, $services;
 
     if ($_POST['use_new_pwd'] != $_POST['passwordConf']) {
-        $page['errors'][] = l10n('The passwords do not match');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('The passwords do not match');
         return false;
     }
 
     if (isset($_GET['key'])) {
         $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
         if (!is_numeric($user_id)) {
-            $page['errors'][] = l10n('Invalid key');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid key');
             return false;
         }
     } else {
         // we check the currently logged in user
         if ($services['users']->isGuest() or $services['users']->isGeneric()) {
-            $page['errors'][] = l10n('Password reset is not allowed for this user');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Password reset is not allowed for this user');
             return false;
         }
 
@@ -154,12 +154,12 @@ function reset_password()
         array($conf['user_fields']['id'] => $user_id)
     );
 
-    $page['infos'][] = l10n('Your password has been reset');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your password has been reset');
 
     if (isset($_GET['key'])) {
-        $page['infos'][] = '<a href="' . get_root_url() . 'identification.php">' . l10n('Login') . '</a>';
+        $page['infos'][] = '<a href="' . get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Login') . '</a>';
     } else {
-        $page['infos'][] = '<a href="' . get_gallery_home_url() . '">' . l10n('Return to home page') . '</a>';
+        $page['infos'][] = '<a href="' . get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Return to home page') . '</a>';
     }
 
     return true;
@@ -228,9 +228,9 @@ if ('lost' == $page['action'] and !$services['users']->isGuest()) {
 // | template initialization                                               |
 // +-----------------------------------------------------------------------+
 
-$title = l10n('Password Reset');
+$title = \Phyxo\Functions\Language::l10n('Password Reset');
 if ('lost' == $page['action']) {
-    $title = l10n('Forgot your password?');
+    $title = \Phyxo\Functions\Language::l10n('Forgot your password?');
 
     if (isset($_POST['username_or_email'])) {
         // @TODO: remove that stupid code

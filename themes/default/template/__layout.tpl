@@ -4,7 +4,7 @@
 	{block name="head"}
 	    <title>
 		{block name="head_title"}
-		    {if $PAGE_TITLE!=l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}
+		    {if $PAGE_TITLE!=\Phyxo\Functions\Language::l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}
 		{/block}
 	    </title>
 	    {block name="head_meta"}

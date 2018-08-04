@@ -22,7 +22,7 @@ if (isset($_POST['submit'])) {
         // @TODO: tests
         move_categories($_POST['selection'], $_POST['parent']);
     } else {
-        $page['errors'][] = l10n('Select at least one album');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one album');
     }
 }
 
@@ -33,7 +33,7 @@ if (isset($_POST['submit'])) {
 $template->assign(
     array(
         //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_move',
-        'F_ACTION' => ALBUMS_BASE_URL.'&amp;section=move',
+        'F_ACTION' => ALBUMS_BASE_URL . '&amp;section=move',
     )
 );
 
@@ -41,14 +41,14 @@ $template->assign(
 // |                          Categories display                           |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL;';
+$query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL;';
 display_select_cat_wrapper(
     $query,
     array(),
     'category_to_move_options'
 );
 
-$query = 'SELECT id,name,uppercats,global_rank FROM '.CATEGORIES_TABLE;
+$query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
 
 display_select_cat_wrapper(
     $query,

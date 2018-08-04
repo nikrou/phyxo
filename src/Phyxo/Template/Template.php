@@ -478,7 +478,7 @@ class Template
      * Usage :
      *    - {'Comment'|translate}
      *    - {'%d comments'|translate:$count}
-     * @see l10n()
+     * @see \Phyxo\Functions\Language::l10n()
      *
      * @param array $params
      * @return string
@@ -494,7 +494,7 @@ class Template
                     && isset($lang[$key])) {
                     return var_export($lang[$key], true);
                 }
-                return 'l10n(' . $params[0] . ')';
+                return '\Phyxo\Functions\Language::l10n(' . $params[0] . ')';
 
             default:
                 if ($conf['compiled_template_cache_language']) {
@@ -504,7 +504,7 @@ class Template
                     $ret .= ')';
                     return $ret;
                 }
-                return 'l10n(' . $params[0] . ',' . implode(',', array_slice($params, 1)) . ')';
+                return '\Phyxo\Functions\Language::l10n(' . $params[0] . ',' . implode(',', array_slice($params, 1)) . ')';
         }
     }
 
@@ -512,7 +512,7 @@ class Template
      * "translate_dec" variable modifier.
      * Usage :
      *    - {$count|translate_dec:'%d comment':'%d comments'}
-     * @see l10n_dec()
+     * @see \Phyxo\Functions\Language::l10n_dec()
      *
      * @param array $params
      * @return string
@@ -537,7 +537,7 @@ class Template
             return $ret;
         }
 
-        return 'l10n_dec(' . $params[1] . ',' . $params[2] . ',' . $params[0] . ')';
+        return '\Phyxo\Functions\Language::l10n_dec(' . $params[1] . ',' . $params[2] . ',' . $params[0] . ')';
     }
 
     /**

@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+    /*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 // +-----------------------------------------------------------------------+
 // | Photo selection                                                       |
@@ -39,7 +26,7 @@ if ($upload_max_filesize == get_ini_size('upload_max_filesize')) {
 
 $template->assign(
     array(
-        'F_ADD_ACTION'=> PHOTOS_ADD_BASE_URL,
+        'F_ADD_ACTION' => PHOTOS_ADD_BASE_URL,
         'upload_max_filesize' => $upload_max_filesize,
         'upload_max_filesize_shorthand' => $upload_max_filesize_shorthand,
     )
@@ -49,12 +36,12 @@ $template->assign(
 if (pwg_image::get_library() == 'gd') {
     $fudge_factor = 1.7;
     $available_memory = get_ini_size('memory_limit') - memory_get_usage();
-    $max_upload_width = round(sqrt($available_memory/(2 * $fudge_factor)));
+    $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
     $max_upload_height = round(2 * $max_upload_width / 3);
 
     // we don't want dimensions like 2995x1992 but 3000x2000
-    $max_upload_width = round($max_upload_width/100)*100;
-    $max_upload_height = round($max_upload_height/100)*100;
+    $max_upload_width = round($max_upload_width / 100) * 100;
+    $max_upload_height = round($max_upload_height / 100) * 100;
 
     $max_upload_resolution = floor($max_upload_width * $max_upload_height / (1000000));
 
@@ -113,8 +100,8 @@ if (isset($_GET['album'])) {
     check_input_parameter('album', $_GET, false, PATTERN_ID);
 
     // test if album really exists
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($_GET['album']);
+    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($_GET['album']);
     $result = $conn->db_query($query);
     if ($conn->db_num_rows($result) == 1) {
         $selected_category = array($_GET['album']);
@@ -122,15 +109,15 @@ if (isset($_GET['album'])) {
         // lets put in the session to persist in case of upload method switch
         $_SESSION['selected_category'] = $selected_category;
     } else {
-        fatal_error('[Hacking attempt] the album id = "'.$_GET['album'].'" is not valid');
+        fatal_error('[Hacking attempt] the album id = "' . $_GET['album'] . '" is not valid');
     }
 } elseif (isset($_SESSION['selected_category'])) {
     $selected_category = $_SESSION['selected_category'];
 } else {
     // we need to know the category in which the last photo was added
-    $query = 'SELECT category_id FROM '.IMAGES_TABLE.' AS i';
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON image_id = i.id';
-    $query .= ' LEFT JOIN '.CATEGORIES_TABLE.' AS c ON category_id = c.id';
+    $query = 'SELECT category_id FROM ' . IMAGES_TABLE . ' AS i';
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = i.id';
+    $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' AS c ON category_id = c.id';
     $query .= ' ORDER BY i.id DESC LIMIT 1';
     $result = $conn->db_query($query);
     if ($conn->db_num_rows($result) > 0) {
@@ -147,7 +134,7 @@ $template->assign('selected_category', $selected_category);
 $selected_level = isset($_POST['level']) ? $_POST['level'] : 0;
 $template->assign(
     array(
-        'level_options'=> get_privacy_level_options(),
+        'level_options' => get_privacy_level_options(),
         'level_options_selected' => array($selected_level)
     )
 );
@@ -165,11 +152,11 @@ if (!empty($error_message)) {
 }
 
 if (!function_exists('gd_info')) {
-    $setup_errors[] = l10n('GD library is missing');
+    $setup_errors[] = \Phyxo\Functions\Language::l10n('GD library is missing');
 }
 
 $template->assign(array(
-    'setup_errors'=> $setup_errors,
+    'setup_errors' => $setup_errors,
     'CACHE_KEYS' => get_admin_client_cache_keys(array('categories')),
 ));
 
@@ -182,11 +169,11 @@ if (!isset($_SESSION['upload_hide_warnings'])) {
     $setup_warnings = array();
 
     if ($conf['use_exif'] and !function_exists('exif_read_data')) {
-        $setup_warnings[] = l10n('Exif extension not available, admin should disable exif use');
+        $setup_warnings[] = \Phyxo\Functions\Language::l10n('Exif extension not available, admin should disable exif use');
     }
 
     if (get_ini_size('upload_max_filesize') > get_ini_size('post_max_size')) {
-        $setup_warnings[] = l10n(
+        $setup_warnings[] = \Phyxo\Functions\Language::l10n(
             'In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting',
             get_ini_size('upload_max_filesize', false),
             get_ini_size('post_max_size', false)
@@ -195,7 +182,7 @@ if (!isset($_SESSION['upload_hide_warnings'])) {
     $template->assign(
         array(
             'setup_warnings' => $setup_warnings,
-            'hide_warnings_link' => PHOTOS_ADD_BASE_URL.'&amp;hide_warnings=1'
+            'hide_warnings_link' => PHOTOS_ADD_BASE_URL . '&amp;hide_warnings=1'
         )
     );
 }

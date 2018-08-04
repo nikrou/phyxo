@@ -10,10 +10,10 @@
  */
 
 if (!defined("PHPWG_ROOT_PATH")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-define('LANGUAGES_BASE_URL', get_root_url().'admin/index.php?page=languages');
+define('LANGUAGES_BASE_URL', get_root_url() . 'admin/index.php?page=languages');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -32,9 +32,9 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('installed', l10n('Installed Languages'), LANGUAGES_BASE_URL.'&amp;section=installed', 'fa-language');
-$tabsheet->add('update', l10n('Check for updates'), LANGUAGES_BASE_URL.'&amp;section=update', 'fa-refresh');
-$tabsheet->add('new', l10n('Add New Language'), LANGUAGES_BASE_URL.'&amp;section=new', 'fa-plus-circle');
+$tabsheet->add('installed', \Phyxo\Functions\Language::l10n('Installed Languages'), LANGUAGES_BASE_URL . '&amp;section=installed', 'fa-language');
+$tabsheet->add('update', \Phyxo\Functions\Language::l10n('Check for updates'), LANGUAGES_BASE_URL . '&amp;section=update', 'fa-refresh');
+$tabsheet->add('new', \Phyxo\Functions\Language::l10n('Add New Language'), LANGUAGES_BASE_URL . '&amp;section=new', 'fa-plus-circle');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -46,6 +46,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'languages_'.$page['section'];
+$template_filename = 'languages_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/languages_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/languages_' . $page['section'] . '.php');

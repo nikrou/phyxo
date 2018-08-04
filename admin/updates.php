@@ -10,10 +10,10 @@
  */
 
 if (!defined("PHPWG_ROOT_PATH")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-define('UPDATES_BASE_URL', get_root_url().'admin/index.php?page=updates');
+define('UPDATES_BASE_URL', get_root_url() . 'admin/index.php?page=updates');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -32,8 +32,8 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('core', l10n('Phyxo Update'), UPDATES_BASE_URL.'&amp;section=core');
-$tabsheet->add('ext', l10n('Extensions Update'), UPDATES_BASE_URL.'&amp;section=ext');
+$tabsheet->add('core', \Phyxo\Functions\Language::l10n('Phyxo Update'), UPDATES_BASE_URL . '&amp;section=core');
+$tabsheet->add('ext', \Phyxo\Functions\Language::l10n('Extensions Update'), UPDATES_BASE_URL . '&amp;section=ext');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -45,6 +45,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'updates_'.$page['section'];
+$template_filename = 'updates_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/updates_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/updates_' . $page['section'] . '.php');

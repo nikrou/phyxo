@@ -14,16 +14,16 @@
 // +-----------------------------------------------------------------------+
 
 if (!defined('PHPWG_ROOT_PATH')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/functions_notification_by_mail.inc.php');
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH.'include/functions_notification.inc.php');
-include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions_notification_by_mail.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-define('NOTIFICATION_BY_MAIL_BASE_URL', get_root_url().'admin/index.php?page=notification_by_mail');
+define('NOTIFICATION_BY_MAIL_BASE_URL', get_root_url() . 'admin/index.php?page=notification_by_mail');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -44,9 +44,9 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('params', l10n('Parameters'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=params');
-$tabsheet->add('subscribe', l10n('Subscribe'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=subscribe');
-$tabsheet->add('send', l10n('Send'), NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=send');
+$tabsheet->add('params', \Phyxo\Functions\Language::l10n('Parameters'), NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=params');
+$tabsheet->add('subscribe', \Phyxo\Functions\Language::l10n('Subscribe'), NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=subscribe');
+$tabsheet->add('send', \Phyxo\Functions\Language::l10n('Send'), NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=send');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -63,7 +63,7 @@ add_event_handler('nbm_render_global_customize_mail_content', 'render_global_cus
 trigger_notify('nbm_event_handler_added');
 
 
-if (!isset($_POST) or (count($_POST) ==0)) {
+if (!isset($_POST) or (count($_POST) == 0)) {
     // No insert data in post mode
     insert_new_data_user_mail_notification();
 }
@@ -95,6 +95,6 @@ if ($must_repost) {
 // |                             Load the tab                              |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'notification_by_mail_'.$page['section'];
+$template_filename = 'notification_by_mail_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/notification_by_mail_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/notification_by_mail_' . $page['section'] . '.php');

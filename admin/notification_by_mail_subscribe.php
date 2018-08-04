@@ -10,7 +10,7 @@
  */
 
 if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 if (isset($_POST['falsify']) and isset($_POST['cat_true'])) {
@@ -25,8 +25,8 @@ $template->assign($page['section'], true);
 
 $template->assign(
     array(
-        'L_CAT_OPTIONS_TRUE' => l10n('Subscribed'),
-        'L_CAT_OPTIONS_FALSE' => l10n('Unsubscribed')
+        'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Subscribed'),
+        'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Unsubscribed')
     )
 );
 
@@ -38,12 +38,12 @@ $opt_false = array();
 $opt_false_selected = array();
 foreach ($data_users as $nbm_user) {
     if ($conn->get_boolean($nbm_user['enabled'])) {
-        $opt_true[ $nbm_user['check_key'] ] = stripslashes($nbm_user['username']).'['.$nbm_user['mail_address'].']';
+        $opt_true[$nbm_user['check_key']] = stripslashes($nbm_user['username']) . '[' . $nbm_user['mail_address'] . ']';
         if ((isset($_POST['falsify']) and isset($_POST['cat_true']) and in_array($nbm_user['check_key'], $_POST['cat_true']))) {
             $opt_true_selected[] = $nbm_user['check_key'];
         }
     } else {
-        $opt_false[ $nbm_user['check_key'] ] = stripslashes($nbm_user['username']).'['.$nbm_user['mail_address'].']';
+        $opt_false[$nbm_user['check_key']] = stripslashes($nbm_user['username']) . '[' . $nbm_user['mail_address'] . ']';
         if (isset($_POST['trueify']) and isset($_POST['cat_false']) and in_array($nbm_user['check_key'], $_POST['cat_false'])) {
             $opt_false_selected[] = $nbm_user['check_key'];
         }
@@ -55,7 +55,7 @@ $template->assign(array(
     'category_option_true_selected' => $opt_true_selected,
     'category_option_false' => $opt_false,
     'category_option_false_selected' => $opt_false_selected,
-    'F_ACTION'=> NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=subscribe'
+    'F_ACTION' => NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=subscribe'
 ));
 
 // +-----------------------------------------------------------------------+

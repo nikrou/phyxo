@@ -54,7 +54,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
             $template->assign(
                 array(
                     'step' => 2,
-                    'intro' => l10n(
+                    'intro' => \Phyxo\Functions\Language::l10n(
                         'Hello %s, your Phyxo photo gallery is empty!',
                         $user['username']
                     ),

@@ -10,7 +10,7 @@
  */
 
 if (!defined('HISTORY_BASE_URL')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 if (isset($_GET['start']) and is_numeric($_GET['start'])) {
@@ -22,9 +22,9 @@ if (isset($_GET['start']) and is_numeric($_GET['start'])) {
 $types = array('none', 'picture', 'high', 'other');
 
 $display_thumbnails = array(
-    'no_display_thumbnail' => l10n('No display'),
-    'display_thumbnail_classic' => l10n('Classic display'),
-    'display_thumbnail_hoverbox' => l10n('Hoverbox display')
+    'no_display_thumbnail' => \Phyxo\Functions\Language::l10n('No display'),
+    'display_thumbnail_classic' => \Phyxo\Functions\Language::l10n('Classic display'),
+    'display_thumbnail_hoverbox' => \Phyxo\Functions\Language::l10n('Hoverbox display')
 );
 
 // +-----------------------------------------------------------------------+
@@ -80,7 +80,7 @@ if (isset($_POST['submit'])) {
         $cookie_val = null;
     }
 
-    pwg_set_cookie_var('display_thumbnail', $cookie_val, strtotime('+1 month') );
+    pwg_set_cookie_var('display_thumbnail', $cookie_val, strtotime('+1 month'));
 
     // TODO manage inconsistency of having $_POST['image_id'] and
     // $_POST['filename'] simultaneously
@@ -88,15 +88,15 @@ if (isset($_POST['submit'])) {
     if (!empty($search)) {
         // register search rules in database, then they will be available on
         // thumbnails page and picture page.
-        $query = 'INSERT INTO '.SEARCH_TABLE;
-        $query .= ' (rules) VALUES(\''.serialize($search).'\');';
+        $query = 'INSERT INTO ' . SEARCH_TABLE;
+        $query .= ' (rules) VALUES(\'' . serialize($search) . '\');';
         $conn->db_query($query);
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(HISTORY_BASE_URL.'&section=search&&search_id='.$search_id);
+        redirect(HISTORY_BASE_URL . '&section=search&&search_id=' . $search_id);
     } else {
-        $page['errors'][] = l10n('Empty query. No criteria has been entered.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
     }
 }
 
@@ -107,7 +107,7 @@ if (isset($_POST['submit'])) {
 $template->assign(
     array(
         //'U_HELP' => get_root_url().'admin/popuphelp.php?page=history',
-        'F_ACTION' => HISTORY_BASE_URL.'&amp;section=search'
+        'F_ACTION' => HISTORY_BASE_URL . '&amp;section=search'
     )
 );
 
@@ -117,8 +117,8 @@ $template->assign(
 
 if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     // what are the lines to display in reality ?
-    $query = 'SELECT rules FROM '.SEARCH_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($page['search_id']);
+    $query = 'SELECT rules FROM ' . SEARCH_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['search_id']);
     list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
 
     $page['search'] = unserialize($serialized_rules);
@@ -130,13 +130,13 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $page['search']['fields']['user'] = $_GET['user_id'];
 
-        $query = 'INSERT INTO '.SEARCH_TABLE;
-        $query .= ' (rules) VALUES(\''.serialize($page['search']).'\');';
+        $query = 'INSERT INTO ' . SEARCH_TABLE;
+        $query .= ' (rules) VALUES(\'' . serialize($page['search']) . '\');';
         $conn->db_query($query);
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(HISTORY_BASE_URL.'&section=search&search_id='.$search_id);
+        redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }
 
     /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
@@ -172,9 +172,9 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     // prepare reference data (users, tags, categories...)
     if (count($user_ids) > 0) {
-        $query = 'SELECT '.$conf['user_fields']['id'].' AS id, '.$conf['user_fields']['username'].' AS username';
-        $query .= ' FROM '.USERS_TABLE;
-        $query .= ' WHERE id '.$conn->in(array_keys($user_ids));
+        $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id, ' . $conf['user_fields']['username'] . ' AS username';
+        $query .= ' FROM ' . USERS_TABLE;
+        $query .= ' WHERE id ' . $conn->in(array_keys($user_ids));
         $result = $conn->db_query($query);
 
         $username_of = array();
@@ -184,8 +184,8 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if (count($category_ids) > 0) {
-        $query = 'SELECT id, uppercats FROM '.CATEGORIES_TABLE;
-        $query .= ' WHERE id '.$conn->in(array_keys($category_ids));
+        $query = 'SELECT id, uppercats FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id ' . $conn->in(array_keys($category_ids));
         $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
 
         $name_of_category = array();
@@ -197,18 +197,18 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     if (count($image_ids) > 0) {
         $query = 'SELECT id,name,file,filesize,file,';
-        $query .= 'path,representative_ext FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id '.$conn->in(array_keys($image_ids));
+        $query .= 'path,representative_ext FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id ' . $conn->in(array_keys($image_ids));
         $image_infos = $conn->query2array($query, 'id');
     }
 
     if ($has_tags > 0) {
-        $query = 'SELECT id,name, url_name FROM '.TAGS_TABLE;
+        $query = 'SELECT id,name, url_name FROM ' . TAGS_TABLE;
 
         $name_of_tag = array();
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
-            $name_of_tag[$row['id']] = '<a href="'.make_index_url(array('tags' => array($row))).'">'.trigger_change("render_tag_name", $row['name'], $row).'</a>';
+            $name_of_tag[$row['id']] = '<a href="' . make_index_url(array('tags' => array($row))) . '">' . trigger_change("render_tag_name", $row['name'], $row) . '</a>';
         }
     }
 
@@ -245,16 +245,16 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
             $user_string .= $line['user_id'];
         }
         $user_string .= '&nbsp;<a href="';
-        $user_string .= HISTORY_BASE_URL.'&amp;section=search';
-        $user_string .= '&amp;search_id='.$page['search_id'];
-        $user_string .= '&amp;user_id='.$line['user_id'];
+        $user_string .= HISTORY_BASE_URL . '&amp;section=search';
+        $user_string .= '&amp;search_id=' . $page['search_id'];
+        $user_string .= '&amp;user_id=' . $line['user_id'];
         $user_string .= '">+</a>';
 
         $tags_string = '';
         if (isset($line['tag_ids'])) {
             $tags_string = preg_replace_callback(
                 '/(\d+)/',
-                function($m) use ($name_of_tag) {
+                function ($m) use ($name_of_tag) {
                     return isset($name_of_tag[$m[1]]) ? $name_of_tag[$m[1]] : $m[1];
                 },
                 str_replace(
@@ -281,57 +281,59 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                 $thumbnail_display = 'no_display_thumbnail';
             }
 
-            $image_title = '('.$line['image_id'].')';
+            $image_title = '(' . $line['image_id'] . ')';
 
             if (isset($image_infos[$line['image_id']]['label'])) {
-                $image_title .= ' '.trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
+                $image_title .= ' ' . trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
             } else {
                 $image_title .= ' unknown filename';
             }
 
             $image_string = '';
 
-            switch ($thumbnail_display)
-                {
-                case 'no_display_thumbnail': {
-                    $image_string= '<a href="'.$picture_url.'">'.$image_title.'</a>';
-                    break;
-                }
-                case 'display_thumbnail_classic': {
-                    $image_string =
-                        '<a class="thumbnail" href="'.$picture_url.'">'
-                        .'<span><img src="'.DerivativeImage::thumb_url($element)
-                        .'" alt="'.$image_title.'" title="'.$image_title.'">'
-                        .'</span></a>';
-                    break;
-                }
-                case 'display_thumbnail_hoverbox': {
-                    $image_string =
-                        '<a class="over" href="'.$picture_url.'">'
-                        .'<span><img src="'.DerivativeImage::thumb_url($element)
-                        .'" alt="'.$image_title.'" title="'.$image_title.'">'
-                        .'</span>'.$image_title.'</a>';
-                    break;
-                }
-                }
+            switch ($thumbnail_display) {
+                case 'no_display_thumbnail':
+                    {
+                        $image_string = '<a href="' . $picture_url . '">' . $image_title . '</a>';
+                        break;
+                    }
+                case 'display_thumbnail_classic':
+                    {
+                        $image_string =
+                            '<a class="thumbnail" href="' . $picture_url . '">'
+                            . '<span><img src="' . DerivativeImage::thumb_url($element)
+                            . '" alt="' . $image_title . '" title="' . $image_title . '">'
+                            . '</span></a>';
+                        break;
+                    }
+                case 'display_thumbnail_hoverbox':
+                    {
+                        $image_string =
+                            '<a class="over" href="' . $picture_url . '">'
+                            . '<span><img src="' . DerivativeImage::thumb_url($element)
+                            . '" alt="' . $image_title . '" title="' . $image_title . '">'
+                            . '</span>' . $image_title . '</a>';
+                        break;
+                    }
+            }
         }
 
         $template->append(
             'search_results',
             array(
-                'DATE'      => $line['date'],
-                'TIME'      => $line['time'],
-                'USER'      => $user_string,
-                'IP'        => $line['ip'],
-                'IMAGE'     => $image_string,
-                'TYPE'      => $line['image_type'],
-                'SECTION'   => $line['section'],
-                'CATEGORY'  => isset($line['category_id'])
-                ? ( isset($name_of_category[$line['category_id']])
-                ? $name_of_category[$line['category_id']]
-                : 'deleted '.$line['category_id'] )
-                : '',
-                'TAGS'       => $tags_string,
+                'DATE' => $line['date'],
+                'TIME' => $line['time'],
+                'USER' => $user_string,
+                'IP' => $line['ip'],
+                'IMAGE' => $image_string,
+                'TYPE' => $line['image_type'],
+                'SECTION' => $line['section'],
+                'CATEGORY' => isset($line['category_id'])
+                    ? (isset($name_of_category[$line['category_id']])
+                    ? $name_of_category[$line['category_id']]
+                    : 'deleted ' . $line['category_id'])
+                    : '',
+                'TAGS' => $tags_string,
             )
         );
     }
@@ -349,11 +351,11 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     $member_strings = array();
     foreach ($username_of as $user_id => $user_name) {
-        $member_string = $user_name.'&nbsp;<a href="';
-        $member_string.= HISTORY_BASE_URL.'&amp;section=search';
-        $member_string.= '&amp;search_id='.$page['search_id'];
-        $member_string.= '&amp;user_id='.$user_id;
-        $member_string.= '">+</a>';
+        $member_string = $user_name . '&nbsp;<a href="';
+        $member_string .= HISTORY_BASE_URL . '&amp;section=search';
+        $member_string .= '&amp;search_id=' . $page['search_id'];
+        $member_string .= '&amp;user_id=' . $user_id;
+        $member_string .= '">+</a>';
 
         $member_strings[] = $member_string;
     }
@@ -361,21 +363,24 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     $template->assign(
         'search_summary',
         array(
-            'NB_LINES' => l10n_dec(
-                '%d line filtered', '%d lines filtered',
+            'NB_LINES' => \Phyxo\Functions\Language::l10n_dec(
+                '%d line filtered',
+                '%d lines filtered',
                 $page['nb_lines']
             ),
-            'FILESIZE' => $summary['total_filesize'] != 0 ? ceil($summary['total_filesize']/1024).' MB' : '',
-            'USERS' => l10n_dec(
-                '%d user', '%d users',
+            'FILESIZE' => $summary['total_filesize'] != 0 ? ceil($summary['total_filesize'] / 1024) . ' MB' : '',
+            'USERS' => \Phyxo\Functions\Language::l10n_dec(
+                '%d user',
+                '%d users',
                 $summary['nb_members'] + $summary['nb_guests']
             ),
             'MEMBERS' => sprintf(
-                l10n_dec('%d member', '%d members', $summary['nb_members']).': %s',
+                \Phyxo\Functions\Language::l10n_dec('%d member', '%d members', $summary['nb_members']) . ': %s',
                 implode(', ', $member_strings)
             ),
-            'GUESTS' => l10n_dec(
-                '%d guest', '%d guests',
+            'GUESTS' => \Phyxo\Functions\Language::l10n_dec(
+                '%d guest',
+                '%d guests',
                 $summary['nb_guests']
             ),
         )
@@ -390,7 +395,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
 if (isset($page['search_id'])) {
     $navbar = create_navigation_bar(
-        get_root_url().'admin/index.php'.get_query_string_diff(array('start')),
+        get_root_url() . 'admin/index.php' . get_query_string_diff(array('start')),
         $page['nb_lines'],
         $page['start'],
         $conf['nb_logs_page']
@@ -455,12 +460,12 @@ $template->assign(
 );
 
 
-$query = 'SELECT '.$conf['user_fields']['id'].' AS id,';
-$query .= $conf['user_fields']['username'].' AS username FROM '.USERS_TABLE;
+$query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
+$query .= $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
 $query .= ' ORDER BY username ASC;';
 $template->assign(
     array(
-        'user_options' => $conn->query2array($query, 'id','username'),
+        'user_options' => $conn->query2array($query, 'id', 'username'),
         'user_options_selected' => array(@$form['user'])
     )
 );

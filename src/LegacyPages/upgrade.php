@@ -46,7 +46,7 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
 } catch (Exception $e) {
-    $page['errors'][] = l10n($e->getMessage());
+    $page['errors'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
 }
 
 $page['count_queries'] = 0;
@@ -72,10 +72,10 @@ if (isset($_GET['language'])) {
     }
 }
 
-load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-load_language('upgrade.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+\Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+\Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+\Phyxo\Functions\Language::load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+\Phyxo\Functions\Language::load_language('upgrade.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
@@ -160,7 +160,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
             )
         );
 
-        $page['infos'][] = l10n('Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.');
+        $page['infos'][] = \Phyxo\Functions\Language::l10n('Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.');
 
         // Save $page['infos'] in order to restore after maintenance actions
         $page['infos_sav'] = $page['infos'];

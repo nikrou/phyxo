@@ -29,15 +29,15 @@ trigger_notify('loc_begin_register');
 if (isset($_POST['submit'])) {
     if (empty($_POST['key']) || !verify_ephemeral_key($_POST['key'])) {
         t_status_header(403);
-        $page['errors'][] = l10n('Invalid/expired form key');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid/expired form key');
     }
 
     if (empty($_POST['password'])) {
-        $page['errors'][] = l10n('Password is missing. Please enter the password.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Password is missing. Please enter the password.');
     } elseif (empty($_POST['password_conf'])) {
-        $page['errors'][] = l10n('Password confirmation is missing. Please confirm the chosen password.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Password confirmation is missing. Please confirm the chosen password.');
     } elseif ($_POST['password'] != $_POST['password_conf']) {
-        $page['errors'][] = l10n('The passwords do not match');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('The passwords do not match');
     }
 
     $services['users']->registerUser(
@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
     if (count($page['errors']) == 0) {
         // email notification
         if (isset($_POST['send_password_by_mail']) and email_check_format($_POST['mail_address'])) {
-            $_SESSION['page_infos'][] = l10n('Successfully registered, you will soon receive an email with your connection settings. Welcome!');
+            $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Successfully registered, you will soon receive an email with your connection settings. Welcome!');
         }
 
         // log user and redirect
@@ -72,7 +72,7 @@ $email = !empty($_POST['mail_address']) ? htmlspecialchars(stripslashes($_POST['
 //
 // Start output of page
 //
-$title = l10n('Registration');
+$title = \Phyxo\Functions\Language::l10n('Registration');
 $page['body_id'] = 'theRegisterPage';
 
 $template->set_filenames(array('register' => 'register.tpl'));

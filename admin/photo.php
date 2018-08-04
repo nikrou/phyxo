@@ -10,7 +10,7 @@
  */
 
 if (!defined("PHPWG_ROOT_PATH")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\TabSheet\TabSheet;
@@ -24,7 +24,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
-define('PHOTO_BASE_URL', get_root_url().'admin/index.php?page=photo&amp;image_id='.$_GET['image_id']);
+define('PHOTO_BASE_URL', get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $_GET['image_id']);
 
 // +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
@@ -36,8 +36,8 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('properties', l10n('Properties'), PHOTO_BASE_URL.'&amp;section=properties');
-$tabsheet->add('coi', l10n('Center of interest'), PHOTO_BASE_URL.'&amp;section=coi', 'fa-crop');
+$tabsheet->add('properties', \Phyxo\Functions\Language::l10n('Properties'), PHOTO_BASE_URL . '&amp;section=properties');
+$tabsheet->add('coi', \Phyxo\Functions\Language::l10n('Center of interest'), PHOTO_BASE_URL . '&amp;section=coi', 'fa-crop');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -50,7 +50,7 @@ $template->assign([
 // +-----------------------------------------------------------------------+
 
 if (!empty($_GET['cat_id'])) {
-    $query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.(int) $_GET['cat_id'];
+    $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . (int)$_GET['cat_id'];
     $category = $conn->db_fetch_assoc($conn->db_query($query));
 }
 
@@ -58,6 +58,6 @@ if (!empty($_GET['cat_id'])) {
 // |                             Load the tab                              |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'photo_'.$page['section'];
+$template_filename = 'photo_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/photo_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/photo_' . $page['section'] . '.php');

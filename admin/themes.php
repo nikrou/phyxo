@@ -10,10 +10,10 @@
  */
 
 if (!defined("PHPWG_ROOT_PATH")) {
-  die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
-define('THEMES_BASE_URL', get_root_url().'admin/index.php?page=themes');
+define('THEMES_BASE_URL', get_root_url() . 'admin/index.php?page=themes');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -32,9 +32,9 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('installed', l10n('Installed Themes'), THEMES_BASE_URL.'&amp;section=installed', 'fa-paint-brush');
-$tabsheet->add('update', l10n('Check for updates'), THEMES_BASE_URL.'&amp;section=update', 'fa-refresh');
-$tabsheet->add('new', l10n('Add New Theme'), THEMES_BASE_URL.'&amp;section=new', 'fa-plus-circle');
+$tabsheet->add('installed', \Phyxo\Functions\Language::l10n('Installed Themes'), THEMES_BASE_URL . '&amp;section=installed', 'fa-paint-brush');
+$tabsheet->add('update', \Phyxo\Functions\Language::l10n('Check for updates'), THEMES_BASE_URL . '&amp;section=update', 'fa-refresh');
+$tabsheet->add('new', \Phyxo\Functions\Language::l10n('Add New Theme'), THEMES_BASE_URL . '&amp;section=new', 'fa-plus-circle');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -46,6 +46,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'themes_'.$page['section'];
+$template_filename = 'themes_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/themes_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/themes_' . $page['section'] . '.php');

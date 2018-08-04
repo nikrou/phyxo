@@ -47,7 +47,7 @@ define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
 } catch (Exception $e) {
-    my_error(l10n($e->getMessage(), true));
+    my_error(\Phyxo\Functions\Language::l10n($e->getMessage(), true));
 }
 
 // +-----------------------------------------------------------------------+

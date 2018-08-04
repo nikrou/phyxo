@@ -10,12 +10,12 @@
  */
 
 if (!defined('TAGS_BASE_URL')) {
-    die ('Hacking attempt!');
+    die('Hacking attempt!');
 }
 
 $status_options[null] = '----------';
 foreach ($conn->get_enums(USER_INFOS_TABLE, 'status') as $status) {
-    $status_options[$status] = l10n('user_status_'.$status);
+    $status_options[$status] = \Phyxo\Functions\Language::l10n('user_status_' . $status);
 }
 
 $Permissions = array();
@@ -34,7 +34,7 @@ if (!empty($_POST['submit'])) {
         conf_update_param('tags_permission_add', $Permissions['add']);
     }
 
-    $Permissions['existing_tags_only'] = empty($_POST['existing_tags_only'])?0:1;
+    $Permissions['existing_tags_only'] = empty($_POST['existing_tags_only']) ? 0 : 1;
     conf_update_param('tags_existing_tags_only', $Permissions['existing_tags_only']);
 
     if (isset($_POST['permission_delete']) && isset($status_options[$_POST['permission_delete']])) {
@@ -42,21 +42,21 @@ if (!empty($_POST['submit'])) {
         conf_update_param('tags_permission_delete', $_POST['permission_delete']);
     }
 
-    $Permissions['publish_tags_immediately'] = empty($_POST['publish_tags_immediately'])?1:0;
+    $Permissions['publish_tags_immediately'] = empty($_POST['publish_tags_immediately']) ? 1 : 0;
     conf_update_param('publish_tags_immediately', $Permissions['publish_tags_immediately']);
 
-    $Permissions['delete_tags_immediately'] = empty($_POST['delete_tags_immediately'])?1:0;
+    $Permissions['delete_tags_immediately'] = empty($_POST['delete_tags_immediately']) ? 1 : 0;
     conf_update_param('delete_tags_immediately', $Permissions['delete_tags_immediately']);
 
-    $Permissions['show_pending_added_tags'] = empty($_POST['show_pending_added_tags'])?0:1;
+    $Permissions['show_pending_added_tags'] = empty($_POST['show_pending_added_tags']) ? 0 : 1;
     conf_update_param('show_pending_added_tags', $Permissions['show_pending_added_tags']);
 
-    $Permissions['show_pending_deleted_tags'] = empty($_POST['show_pending_deleted_tags'])?0:1;
+    $Permissions['show_pending_deleted_tags'] = empty($_POST['show_pending_deleted_tags']) ? 0 : 1;
     conf_update_param('show_pending_deleted_tags', $Permissions['show_pending_deleted_tags']);
 
     invalidate_user_cache_nb_tags();
 
-    $page['infos'][] = l10n('Settings have been updated');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Settings have been updated');
 }
 
 $template->assign('PERMISSIONS', $Permissions);

@@ -19,7 +19,8 @@ use Phyxo\Update\Updates;
  * Returns the list of all plugins
  * @param mixed[] $params
  */
-function ws_plugins_getList($params, $service) {
+function ws_plugins_getList($params, $service)
+{
     $plugins = new Plugins($GLOBALS['conn']);
     $plugins->sortFsPlugins('name');
     $plugin_list = array();
@@ -51,7 +52,8 @@ function ws_plugins_getList($params, $service) {
  *    @option string plugin
  *    @option string pwg_token
  */
-function ws_plugins_performAction($params, $service) {
+function ws_plugins_performAction($params, $service)
+{
     global $template;
 
     if (get_pwg_token() != $params['pwg_token']) {
@@ -81,7 +83,8 @@ function ws_plugins_performAction($params, $service) {
  *    @option string theme
  *    @option string pwg_token
  */
-function ws_themes_performAction($params, $service) {
+function ws_themes_performAction($params, $service)
+{
     global $template;
 
     if (get_pwg_token() != $params['pwg_token']) {
@@ -113,11 +116,12 @@ function ws_themes_performAction($params, $service) {
  *    @option string pwg_token
  *    @option bool reactivate (optional - undocumented)
  */
-function ws_extensions_update($params, $service) {
+function ws_extensions_update($params, $service)
+{
     global $template, $services;
 
     if (!$services['users']->isWebmaster()) {
-        return new Phyxo\Ws\Error(401, l10n('Webmaster status is required.'));
+        return new Phyxo\Ws\Error(401, \Phyxo\Functions\Language::l10n('Webmaster status is required.'));
     }
 
     if (get_pwg_token() != $params['pwg_token']) {
@@ -141,15 +145,14 @@ function ws_extensions_update($params, $service) {
                 $extension->performAction('deactivate', $extension_id);
 
                 redirect(PHPWG_ROOT_PATH
-                         . 'ws.php'
-                         . '?method=pwg.extensions.update'
-                         . '&type=plugins'
-                         . '&id=' . $extension_id
-                         . '&revision=' . $revision
-                         . '&reactivate=true'
-                         . '&pwg_token=' . get_pwg_token()
-                                         . '&format=json'
-                );
+                    . 'ws.php'
+                    . '?method=pwg.extensions.update'
+                    . '&type=plugins'
+                    . '&id=' . $extension_id
+                    . '&revision=' . $revision
+                    . '&reactivate=true'
+                    . '&pwg_token=' . get_pwg_token()
+                    . '&format=json');
             }
 
             $errors = $extension->performAction('update', $extension_id, array('revision' => $revision));
@@ -166,7 +169,7 @@ function ws_extensions_update($params, $service) {
             $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
         }
 
-        return l10n('%s has been successfully updated.', $extension_name);
+        return \Phyxo\Functions\Language::l10n('%s has been successfully updated.', $extension_name);
     } catch (\Exception $e) {
         return $e->getMessage();
     }
@@ -181,11 +184,12 @@ function ws_extensions_update($params, $service) {
  *    @option bool reset
  *    @option string pwg_token
  */
-function ws_extensions_ignoreupdate($params, $service) {
+function ws_extensions_ignoreupdate($params, $service)
+{
     global $conf, $services;
 
     define('IN_ADMIN', true);
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
     if (!$services['users']->isWebmaster()) {
         return new Phyxo\Ws\Error(401, 'Access denied');
@@ -219,7 +223,7 @@ function ws_extensions_ignoreupdate($params, $service) {
     }
 
     // Add or remove extension from ignore list
-    if (!in_array($params['id'],$conf['updates_ignored'][$params['type']])) {
+    if (!in_array($params['id'], $conf['updates_ignored'][$params['type']])) {
         $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
@@ -233,7 +237,8 @@ function ws_extensions_ignoreupdate($params, $service) {
  * Checks for updates (core and extensions)
  * @param mixed[] $params
  */
-function ws_extensions_checkupdates($params, $service) {
+function ws_extensions_checkupdates($params, $service)
+{
     global $conf;
 
     $update = new Updates($GLOBALS['conn']);

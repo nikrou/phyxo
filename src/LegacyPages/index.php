@@ -278,7 +278,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
             $template->append(
                 'image_derivatives',
                 array(
-                    'DISPLAY' => l10n($params->type),
+                    'DISPLAY' => \Phyxo\Functions\Language::l10n($params->type),
                     'URL' => $url . $params->type,
                     'SELECTED' => ($params->type === $selected_type),
                 )

@@ -27,11 +27,11 @@ include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
  */
 function inc_exc_str($is_included)
 {
-    return $is_included ? l10n('included') : l10n('excluded');
+    return $is_included ? \Phyxo\Functions\Language::l10n('included') : \Phyxo\Functions\Language::l10n('excluded');
 }
 
 
-$title = l10n('Search rules');
+$title = \Phyxo\Functions\Language::l10n('Search rules');
 $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 
 $template->set_filenames(array('search_rules' => 'search_rules.tpl'));
@@ -51,14 +51,14 @@ if (isset($search['q'])) {
     $template->append('search_words', $search['q']);
 } else {
     $template->assign(
-        array('INTRODUCTION' => 'OR' == $search['mode'] ? l10n('At least one listed rule must be satisfied.') : l10n('Each listed rule must be satisfied.'))
+        array('INTRODUCTION' => 'OR' == $search['mode'] ? \Phyxo\Functions\Language::l10n('At least one listed rule must be satisfied.') : \Phyxo\Functions\Language::l10n('Each listed rule must be satisfied.'))
     );
 }
 
 if (isset($search['fields']['allwords'])) {
     $template->append(
         'search_words',
-        l10n(
+        \Phyxo\Functions\Language::l10n(
             'searched words : %s',
             join(', ', $search['fields']['allwords']['words'])
         )
@@ -79,7 +79,7 @@ if (isset($search['fields']['tags'])) {
 if (isset($search['fields']['author'])) {
     $template->append(
         'search_words',
-        l10n(
+        \Phyxo\Functions\Language::l10n(
             'author(s) : %s',
             join(', ', array_map('strip_tags', $search['fields']['author']['words']))
         )
@@ -120,17 +120,17 @@ if (isset($search['fields']['cat'])) {
 foreach (array('date_available', 'date_creation') as $datefield) {
     if ('date_available' == $datefield) {
         $lang_items = array(
-            'date' => l10n('posted on %s'),
-            'period' => l10n('posted between %s (%s) and %s (%s)'),
-            'after' => l10n('posted after %s (%s)'),
-            'before' => l10n('posted before %s (%s)'),
+            'date' => \Phyxo\Functions\Language::l10n('posted on %s'),
+            'period' => \Phyxo\Functions\Language::l10n('posted between %s (%s) and %s (%s)'),
+            'after' => \Phyxo\Functions\Language::l10n('posted after %s (%s)'),
+            'before' => \Phyxo\Functions\Language::l10n('posted before %s (%s)'),
         );
     } elseif ('date_creation' == $datefield) {
         $lang_items = array(
-            'date' => l10n('created on %s'),
-            'period' => l10n('created between %s (%s) and %s (%s)'),
-            'after' => l10n('created after %s (%s)'),
-            'before' => l10n('created before %s (%s)'),
+            'date' => \Phyxo\Functions\Language::l10n('created on %s'),
+            'period' => \Phyxo\Functions\Language::l10n('created between %s (%s) and %s (%s)'),
+            'after' => \Phyxo\Functions\Language::l10n('created after %s (%s)'),
+            'before' => \Phyxo\Functions\Language::l10n('created before %s (%s)'),
         );
     }
 

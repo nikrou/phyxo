@@ -20,10 +20,10 @@ if (!defined('PHPWG_ROOT_PATH')) {
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/functions_history.inc.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions_history.inc.php');
 
-define('HISTORY_BASE_URL', get_root_url().'admin/index.php?page=history');
+define('HISTORY_BASE_URL', get_root_url() . 'admin/index.php?page=history');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -43,8 +43,8 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('stats', l10n('Statistics'), HISTORY_BASE_URL.'&amp;section=stats', 'fa-signal');
-$tabsheet->add('search', l10n('Search'), HISTORY_BASE_URL.'&amp;section=search', 'fa-search');
+$tabsheet->add('stats', \Phyxo\Functions\Language::l10n('Statistics'), HISTORY_BASE_URL . '&amp;section=stats', 'fa-signal');
+$tabsheet->add('search', \Phyxo\Functions\Language::l10n('Search'), HISTORY_BASE_URL . '&amp;section=search', 'fa-search');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -56,6 +56,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'history_'.$page['section'];
+$template_filename = 'history_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/history_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/history_' . $page['section'] . '.php');

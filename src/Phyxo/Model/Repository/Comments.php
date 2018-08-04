@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Model\Repository;
 
@@ -32,16 +23,17 @@ class Comments extends BaseRepository
      * @param array $comment
      * @return string validate, moderate, reject
      */
-    public function userCommentCheck($action, $comment) {
+    public function userCommentCheck($action, $comment)
+    {
         global $conf, $user, $services;
 
-        if ($action=='reject') {
+        if ($action == 'reject') {
             return $action;
         }
 
-        $my_action = $conf['comment_spam_reject'] ? 'reject':'moderate';
+        $my_action = $conf['comment_spam_reject'] ? 'reject' : 'moderate';
 
-        if ($action==$my_action) {
+        if ($action == $my_action) {
             return $action;
         }
 
@@ -50,13 +42,13 @@ class Comments extends BaseRepository
             return $action;
         }
 
-        $link_count = preg_match_all( '/https?:\/\//', $comment['content'], $matches);
+        $link_count = preg_match_all('/https?:\/\//', $comment['content'], $matches);
 
-        if (strpos($comment['author'], 'http://')!==false) {
+        if (strpos($comment['author'], 'http://') !== false) {
             $link_count++;
         }
 
-        if ($link_count>$conf['comment_spam_max_links']) {
+        if ($link_count > $conf['comment_spam_max_links']) {
             $_POST['cr'][] = 'links';
             return $my_action;
         }
@@ -72,7 +64,8 @@ class Comments extends BaseRepository
      * @param array &$infos output array of error messages
      * @return string validate, moderate, reject
      */
-    public function insertUserComment(&$comm, $key, &$infos) {
+    public function insertUserComment(&$comm, $key, &$infos)
+    {
         global $conf, $user, $services;
 
         $comm = array_merge(
@@ -94,7 +87,7 @@ class Comments extends BaseRepository
         if (!$services['users']->isClassicUser()) {
             if (empty($comm['author'])) {
                 if ($conf['comments_author_mandatory']) {
-                    $infos[] = l10n('Username is mandatory');
+                    $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
                     $comment_action = 'reject';
                 }
                 $comm['author'] = 'guest';
@@ -102,12 +95,12 @@ class Comments extends BaseRepository
             $comm['author_id'] = $conf['guest_id'];
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] != 'guest') {
-                $query = 'SELECT COUNT(1) AS user_exists FROM '.USERS_TABLE;
-                $query .= ' WHERE '.$conf['user_fields']['username']." = '".$this->conn->db_real_escape_string($comm['author'])."'";
+                $query = 'SELECT COUNT(1) AS user_exists FROM ' . USERS_TABLE;
+                $query .= ' WHERE ' . $conf['user_fields']['username'] . " = '" . $this->conn->db_real_escape_string($comm['author']) . "'";
                 $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
                 if ($row['user_exists'] == 1) {
-                    $infos[] = l10n('This login is already used by another user');
-                    $comment_action='reject';
+                    $infos[] = \Phyxo\Functions\Language::l10n('This login is already used by another user');
+                    $comment_action = 'reject';
                 }
             }
         } else {
@@ -132,11 +125,11 @@ class Comments extends BaseRepository
             } else {
                 $comm['website_url'] = strip_tags($comm['website_url']);
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
-                    $comm['website_url'] = 'http://'.$comm['website_url'];
+                    $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
                 if (!url_check_format($comm['website_url'])) {
-                    $infos[] = l10n('Your website URL is invalid');
-                $comment_action = 'reject';
+                    $infos[] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
+                    $comment_action = 'reject';
                 }
             }
         }
@@ -146,11 +139,11 @@ class Comments extends BaseRepository
             if (!empty($user['email'])) {
                 $comm['email'] = $user['email'];
             } elseif ($conf['comments_email_mandatory']) {
-                $infos[] = l10n('Email address is missing. Please specify an email address.');
+                $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
         } elseif (!email_check_format($comm['email'])) {
-            $infos[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+            $infos[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
             $comment_action = 'reject';
         }
 
@@ -161,18 +154,18 @@ class Comments extends BaseRepository
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action!='reject' and $conf['anti-flood_time']>0 and !$services['users']->isAdmin()) { // anti-flood system
+        if ($comment_action != 'reject' and $conf['anti-flood_time'] > 0 and !$services['users']->isAdmin()) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($conf['anti-flood_time']);
 
-            $query = 'SELECT count(1) FROM '.COMMENTS_TABLE;
-            $query .= ' WHERE date > '.$reference_date.' AND author_id = '.$this->conn->db_real_escape_string($comm['author_id']);
+            $query = 'SELECT count(1) FROM ' . COMMENTS_TABLE;
+            $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($comm['author_id']);
             if (!$services['users']->isClassicUser()) {
-                $query .= ' AND anonymous_id LIKE \''.$anonymous_id.'.%\'';
+                $query .= ' AND anonymous_id LIKE \'' . $anonymous_id . '.%\'';
             }
 
             list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
             if ($counter > 0) {
-                $infos[] = l10n('Anti-flood system : please wait for a moment before trying to post another comment');
+                $infos[] = \Phyxo\Functions\Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
                 $_POST['cr'][] = 'flood_time';
             }
@@ -181,16 +174,16 @@ class Comments extends BaseRepository
         // perform more spam check
         $comment_action = trigger_change('user_comment_check', $comment_action, $comm);
 
-        if ($comment_action!='reject') {
-            $query = 'INSERT INTO '.COMMENTS_TABLE;
+        if ($comment_action != 'reject') {
+            $query = 'INSERT INTO ' . COMMENTS_TABLE;
             $query .= ' (author, author_id, anonymous_id, content, date, validated, validation_date, image_id, website_url, email)';
-            $query .= ' VALUES (\''.$comm['author'].'\',';
-            $query .= $this->conn->db_real_escape_string($comm['author_id']).', \''.$comm['ip'].'\',';
-            $query .= '\''.$this->conn->db_real_escape_string($comm['content']).'\', NOW(), \'';
-            $query .= $comment_action=='validate' ? $this->conn->boolean_to_db(true):$this->conn->boolean_to_db(false);
-            $query .= '\', '.($comment_action=='validate' ? 'NOW()':'NULL').','.$comm['image_id'].',';
-            $query .= ' '.(!empty($comm['website_url']) ? '\''.$this->conn->db_real_escape_string($comm['website_url']).'\'' : 'NULL').',';
-            $query .= ' '.(!empty($comm['email']) ? '\''.$this->conn->db_real_escape_string($comm['email']).'\'' : 'NULL').')';
+            $query .= ' VALUES (\'' . $comm['author'] . '\',';
+            $query .= $this->conn->db_real_escape_string($comm['author_id']) . ', \'' . $comm['ip'] . '\',';
+            $query .= '\'' . $this->conn->db_real_escape_string($comm['content']) . '\', NOW(), \'';
+            $query .= $comment_action == 'validate' ? $this->conn->boolean_to_db(true) : $this->conn->boolean_to_db(false);
+            $query .= '\', ' . ($comment_action == 'validate' ? 'NOW()' : 'NULL') . ',' . $comm['image_id'] . ',';
+            $query .= ' ' . (!empty($comm['website_url']) ? '\'' . $this->conn->db_real_escape_string($comm['website_url']) . '\'' : 'NULL') . ',';
+            $query .= ' ' . (!empty($comm['email']) ? '\'' . $this->conn->db_real_escape_string($comm['email']) . '\'' : 'NULL') . ')';
             $this->conn->db_query($query);
 
             $comm['id'] = $this->conn->db_insert_id(COMMENTS_TABLE);
@@ -199,24 +192,24 @@ class Comments extends BaseRepository
 
             if (($conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 or ($conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
-                include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-                $comment_url = get_absolute_root_url().'comments.php?comment_id='.$comm['id'];
+                $comment_url = get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
 
                 $keyargs_content = array(
-                    get_l10n_args('Author: %s', stripslashes($comm['author']) ),
-                    get_l10n_args('Email: %s', stripslashes($comm['email']) ),
-                    get_l10n_args('Comment: %s', stripslashes($comm['content']) ),
-                    get_l10n_args(''),
-                    get_l10n_args('Manage this user comment: %s', $comment_url),
-                        );
+                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($comm['author'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Email: %s', stripslashes($comm['email'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comm['content'])),
+                    \Phyxo\Functions\Language::get_l10n_args(''),
+                    \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
+                );
 
                 if ('moderate' == $comment_action) {
-                    $keyargs_content[] = get_l10n_args('(!) This comment requires validation');
+                    $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation');
                 }
 
                 pwg_mail_notification_admins(
-                    get_l10n_args('Comment by %s', stripslashes($comm['author']) ),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($comm['author'])),
                     $keyargs_content
                 );
             }
@@ -233,31 +226,33 @@ class Comments extends BaseRepository
      * @param int|int[] $comment_id
      * @return bool false if nothing deleted
      */
-    public function deleteUserComment($comment_id) {
+    public function deleteUserComment($comment_id)
+    {
         global $services;
 
         $user_where_clause = '';
         if (!$services['users']->isAdmin()) {
             // @TODO : don't use GLOBALS
-            $user_where_clause = ' AND author_id = \''.$this->conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
+            $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($GLOBALS['user']['id']) . '\'';
         }
 
         if (is_array($comment_id)) {
-            $where_clause = 'id '.$this->conn->in($comment_id);
+            $where_clause = 'id ' . $this->conn->in($comment_id);
         } else {
-            $where_clause = 'id = '.$this->conn->db_real_escape_string($comment_id);
+            $where_clause = 'id = ' . $this->conn->db_real_escape_string($comment_id);
         }
 
-        $query = 'DELETE FROM '.COMMENTS_TABLE;
-        $query .= ' WHERE '.$where_clause.$user_where_clause.';';
+        $query = 'DELETE FROM ' . COMMENTS_TABLE;
+        $query .= ' WHERE ' . $where_clause . $user_where_clause . ';';
 
         if ($this->conn->db_changes($this->conn->db_query($query))) {
             $this->invalidateUserCacheNbComments();
 
             $this->email_admin(
                 'delete',
-                array('author' => $GLOBALS['user']['username'],
-                      'comment_id' => $comment_id
+                array(
+                    'author' => $GLOBALS['user']['username'],
+                    'comment_id' => $comment_id
                 )
             );
             trigger_notify('user_comment_deletion', $comment_id);
@@ -275,9 +270,10 @@ class Comments extends BaseRepository
      * @param bool $die_on_error
      * @return int
      */
-    public function getCommentAuthorId($comment_id, $die_on_error=true) {
-        $query = 'SELECT author_id FROM '.COMMENTS_TABLE;
-        $query .= ' WHERE id = '.$this->conn->db_real_escape_string($comment_id);
+    public function getCommentAuthorId($comment_id, $die_on_error = true)
+    {
+        $query = 'SELECT author_id FROM ' . COMMENTS_TABLE;
+        $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment_id);
         $result = $this->conn->db_query($query);
         if ($this->conn->db_num_rows($result) == 0) {
             if ($die_on_error) {
@@ -301,71 +297,73 @@ class Comments extends BaseRepository
      * @param string $post_key secret key sent back to the browser
      * @return string validate, moderate, reject
      */
-    public function updateUserComment($comment, $post_key) {
+    public function updateUserComment($comment, $post_key)
+    {
         global $conf, $page, $services;
 
         $comment_action = 'validate';
 
         if (!verify_ephemeral_key($post_key, $comment['image_id'])) {
-            $comment_action='reject';
+            $comment_action = 'reject';
         } elseif (!$conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
-            $comment_action='validate'; //one of validate, moderate, reject
+            $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
-            $comment_action='moderate'; //one of validate, moderate, reject
+            $comment_action = 'moderate'; //one of validate, moderate, reject
         }
 
         // perform more spam check
         $comment_action =
             trigger_change(
-                'user_comment_check',
-                $comment_action,
-                array_merge($comment,
-                            array('author' => $GLOBALS['user']['username'])
-                )
-            );
+            'user_comment_check',
+            $comment_action,
+            array_merge(
+                $comment,
+                array('author' => $GLOBALS['user']['username'])
+            )
+        );
 
         // website
         if (!empty($comment['website_url'])) {
             $comm['website_url'] = strip_tags($comm['website_url']);
             if (!preg_match('/^https?/i', $comment['website_url'])) {
-                $comment['website_url'] = 'http://'.$comment['website_url'];
+                $comment['website_url'] = 'http://' . $comment['website_url'];
             }
             if (!url_check_format($comment['website_url'])) {
-                $page['errors'][] = l10n('Your website URL is invalid');
-                $comment_action='reject';
+                $page['errors'][] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
+                $comment_action = 'reject';
             }
         }
 
-        if ($comment_action!='reject') {
+        if ($comment_action != 'reject') {
             $user_where_clause = '';
             if (!$services['users']->isAdmin()) {
-                $user_where_clause = ' AND author_id = \''.	$this->conn->db_real_escape_string($GLOBALS['user']['id']).'\'';
+                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($GLOBALS['user']['id']) . '\'';
             }
 
-            $query = 'UPDATE '.COMMENTS_TABLE;
-            $query .= ' SET content = \''.$comment['content'].'\',';
-            $query .= ' website_url = '.(!empty($comment['website_url']) ? '\''.$this->conn->db_real_escape_string($comment['website_url']).'\'' : 'NULL').',';
-            $query .= ' validated = \''.($comment_action=='validate' ? ''.$this->conn->boolean_to_db(true).'':''.$this->conn->boolean_to_db(false).'').'\',';
-            $query .= ' validation_date = '.($comment_action=='validate' ? 'NOW()':'NULL');
-            $query .= ' WHERE id = '.$this->conn->db_real_escape_string($comment['comment_id']).$user_where_clause.';';
+            $query = 'UPDATE ' . COMMENTS_TABLE;
+            $query .= ' SET content = \'' . $comment['content'] . '\',';
+            $query .= ' website_url = ' . (!empty($comment['website_url']) ? '\'' . $this->conn->db_real_escape_string($comment['website_url']) . '\'' : 'NULL') . ',';
+            $query .= ' validated = \'' . ($comment_action == 'validate' ? '' . $this->conn->boolean_to_db(true) . '' : '' . $this->conn->boolean_to_db(false) . '') . '\',';
+            $query .= ' validation_date = ' . ($comment_action == 'validate' ? 'NOW()' : 'NULL');
+            $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment['comment_id']) . $user_where_clause . ';';
             $result = $this->conn->db_query($query);
 
             // mail admin and ask to validate the comment
             if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
-                include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-                $comment_url = get_absolute_root_url().'comments.php?comment_id='.$comment['comment_id'];
+                $comment_url = get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
                 $keyargs_content = array(
-                    get_l10n_args('Author: %s', stripslashes($GLOBALS['user']['username']) ),
-                    get_l10n_args('Comment: %s', stripslashes($comment['content']) ),
-                    get_l10n_args(''),
-                    get_l10n_args('Manage this user comment: %s', $comment_url),
-                    get_l10n_args('(!) This comment requires validation'),
+                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($GLOBALS['user']['username'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comment['content'])),
+                    \Phyxo\Functions\Language::get_l10n_args(''),
+                    \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
+                    \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation'),
                 );
 
                 pwg_mail_notification_admins(
-                    get_l10n_args('Comment by %s', stripslashes($GLOBALS['user']['username']) ),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($GLOBALS['user']['username'])),
                     $keyargs_content
                 );
             } elseif ($result) {
@@ -382,15 +380,16 @@ class Comments extends BaseRepository
      *
      * @param int|int[] $comment_id
      */
-    public function validateUserComment($comment_id) {
+    public function validateUserComment($comment_id)
+    {
         if (is_array($comment_id)) {
-            $where_clause = 'id '.$this->conn->in($comment_id);
+            $where_clause = 'id ' . $this->conn->in($comment_id);
         } else {
-            $where_clause = 'id = '.$this->conn->db_real_escape_string($comment_id);
+            $where_clause = 'id = ' . $this->conn->db_real_escape_string($comment_id);
         }
 
-        $query = 'UPDATE '.COMMENTS_TABLE;
-        $query .= ' SET validated = \''.$this->conn->boolean_to_db(true).'\', validation_date = NOW() WHERE '.$where_clause.';';
+        $query = 'UPDATE ' . COMMENTS_TABLE;
+        $query .= ' SET validated = \'' . $this->conn->boolean_to_db(true) . '\', validation_date = NOW() WHERE ' . $where_clause . ';';
         $this->conn->db_query($query);
 
         $this->invalidateUserCacheNbComments();
@@ -400,12 +399,13 @@ class Comments extends BaseRepository
     /**
      * Clears cache of nb comments for all users
      */
-    private function invalidateUserCacheNbComments() {
+    private function invalidateUserCacheNbComments()
+    {
         global $user;
 
         unset($user['nb_available_comments']);
 
-        $query = 'UPDATE '.USER_CACHE_TABLE.' SET nb_available_comments = NULL;';
+        $query = 'UPDATE ' . USER_CACHE_TABLE . ' SET nb_available_comments = NULL;';
         $this->conn->db_query($query);
     }
 
@@ -418,28 +418,29 @@ class Comments extends BaseRepository
      *
      * @TODO : move to services notification
      */
-    private function email_admin($action, $comment) {
+    private function email_admin($action, $comment)
+    {
         global $conf;
 
         if (!in_array($action, array('edit', 'delete'))
-            or (($action=='edit') and !$conf['email_admin_on_comment_edition'])
-            or (($action=='delete') and !$conf['email_admin_on_comment_deletion'])) {
+            or (($action == 'edit') and !$conf['email_admin_on_comment_edition'])
+            or (($action == 'delete') and !$conf['email_admin_on_comment_deletion'])) {
             return;
         }
 
-        include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+        include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-        $keyargs_content = array(l10n_args('Author: %s', $comment['author']));
+        $keyargs_content = array(\Phyxo\Functions\Language::l10n_args('Author: %s', $comment['author']));
 
-        if ($action=='delete') {
-            $keyargs_content[] = get_l10n_args('This author removed the comment with id %d', $comment['comment_id']);
+        if ($action == 'delete') {
+            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author removed the comment with id %d', $comment['comment_id']);
         } else {
-            $keyargs_content[] = get_l10n_args('This author modified following comment:');
-            $keyargs_content[] = get_l10n_args('Comment: %s', $comment['content']);
+            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author modified following comment:');
+            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('Comment: %s', $comment['content']);
         }
 
         pwg_mail_notification_admins(
-            get_l10n_args('Comment by %s', $comment['author']),
+            \Phyxo\Functions\Language::get_l10n_args('Comment by %s', $comment['author']),
             $keyargs_content
         );
     }

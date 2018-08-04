@@ -10,13 +10,13 @@
  */
 
 if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 if (isset($_POST['param_submit'])) {
     $updated_param_count = 0;
     // Update param
-    $result = $conn->db_query('select param, value from '.CONFIG_TABLE.' where param like \'nbm\\_%\'');
+    $result = $conn->db_query('select param, value from ' . CONFIG_TABLE . ' where param like \'nbm\\_%\'');
     while ($nbm_user = $conn->db_fetch_assoc($result)) {
         if (isset($_POST[$nbm_user['param']])) {
             $value = $_POST[$nbm_user['param']];
@@ -26,8 +26,9 @@ if (isset($_POST['param_submit'])) {
         }
     }
 
-    $page['infos'][] = l10n_dec(
-        '%d parameter was updated.', '%d parameters were updated.',
+    $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+        '%d parameter was updated.',
+        '%d parameters were updated.',
         $updated_param_count
     );
 
@@ -41,5 +42,5 @@ $template->assign(array(
     'SEND_DETAILED_CONTENT' => $conf['nbm_send_detailed_content'],
     'COMPLEMENTARY_MAIL_CONTENT' => $conf['nbm_complementary_mail_content'],
     'SEND_RECENT_POST_DATES' => $conf['nbm_send_recent_post_dates'],
-    'F_ACTION'=> NOTIFICATION_BY_MAIL_BASE_URL.'&amp;section=params'
+    'F_ACTION' => NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=params'
 ));

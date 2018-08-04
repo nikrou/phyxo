@@ -19,7 +19,7 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -37,26 +37,26 @@ if (isset($_POST['submit'])) {
 
     $datas = array();
 
-    $query = 'SELECT id, date_creation FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id '.$conn->in($collection);
+    $query = 'SELECT id, date_creation FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($collection);
     $result = $conn->db_query($query);
 
     while ($row = $conn->db_fetch_assoc($result)) {
         $data = array();
 
         $data['id'] = $row['id'];
-        $data['name'] = $_POST['name-'.$row['id']];
-        $data['author'] = $_POST['author-'.$row['id']];
-        $data['level'] = $_POST['level-'.$row['id']];
+        $data['name'] = $_POST['name-' . $row['id']];
+        $data['author'] = $_POST['author-' . $row['id']];
+        $data['level'] = $_POST['level-' . $row['id']];
 
         if ($conf['allow_html_descriptions']) {
-            $data['comment'] = @$_POST['description-'.$row['id']]; // @TODO: remove arobase !!
+            $data['comment'] = @$_POST['description-' . $row['id']]; // @TODO: remove arobase !!
         } else {
-            $data['comment'] = strip_tags(@$_POST['description-'.$row['id']]);// @TODO: remove arobase and strip_tags !!
+            $data['comment'] = strip_tags(@$_POST['description-' . $row['id']]);// @TODO: remove arobase and strip_tags !!
         }
 
-        if (!empty($_POST['date_creation-'.$row['id']])) {
-            $data['date_creation'] = $_POST['date_creation-'.$row['id']];
+        if (!empty($_POST['date_creation-' . $row['id']])) {
+            $data['date_creation'] = $_POST['date_creation-' . $row['id']];
         } else {
             $data['date_creation'] = null;
         }
@@ -65,8 +65,8 @@ if (isset($_POST['submit'])) {
 
         // tags management
         $tag_ids = array();
-        if (!empty($_POST['tags-'.$row['id']])) {
-            $tag_ids = $services['tags']->getTagIds($_POST['tags-'.$row['id']]);
+        if (!empty($_POST['tags-' . $row['id']])) {
+            $tag_ids = $services['tags']->getTagIds($_POST['tags-' . $row['id']]);
         }
         $services['tags']->setTags($tag_ids, $row['id']);
     }
@@ -75,12 +75,12 @@ if (isset($_POST['submit'])) {
         IMAGES_TABLE,
         array(
             'primary' => array('id'),
-            'update' => array('name','author','level','comment','date_creation')
+            'update' => array('name', 'author', 'level', 'comment', 'date_creation')
         ),
         $datas
     );
 
-    $page['infos'][] = l10n('Photo informations updated');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Photo informations updated');
     invalidate_user_cache();
 }
 
@@ -88,12 +88,12 @@ if (isset($_POST['submit'])) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$base_url = PHPWG_ROOT_PATH.'admin/index.php';
+$base_url = PHPWG_ROOT_PATH . 'admin/index.php';
 
 $template->assign(
     array(
-        'U_ELEMENTS_PAGE' => $base_url.get_query_string_diff(array('display','start')),
-        'F_ACTION' => $base_url.get_query_string_diff(array()),
+        'U_ELEMENTS_PAGE' => $base_url . get_query_string_diff(array('display', 'start')),
+        'F_ACTION' => $base_url . get_query_string_diff(array()),
         'level_options' => get_privacy_level_options(),
     )
 );
@@ -113,7 +113,7 @@ if (!empty($_GET['display'])) {
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = create_navigation_bar(
-        $base_url.get_query_string_diff(array('start')),
+        $base_url . get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
@@ -131,27 +131,27 @@ if (count($page['cat_elements_id']) > 0) {
         $conf['order_by'] = ' ORDER BY file, id';
     }
 
-    $query = 'SELECT * FROM '.IMAGES_TABLE;
+    $query = 'SELECT * FROM ' . IMAGES_TABLE;
 
     if ($is_category) {
         $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
 
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {
-            $conf['order_by'] = ' ORDER BY '.$category_info['image_order'];
+            $conf['order_by'] = ' ORDER BY ' . $category_info['image_order'];
         }
 
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
     }
 
-    $query .= ' WHERE id '.$conn->in($page['cat_elements_id']);
+    $query .= ' WHERE id ' . $conn->in($page['cat_elements_id']);
 
     if ($is_category) {
-        $query .= ' AND category_id = '.$conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
+        $query .= ' AND category_id = ' . $conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
     }
 
-    $query .= ' '.$conf['order_by'].' LIMIT '.$conn->db_real_escape_string($page['nb_images']);
-    $query .= ' OFFSET '.$conn->db_real_escape_string($page['start']);
+    $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
+    $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 
     // @TODO : query in a loop ???? getTagsList is another query
@@ -160,31 +160,34 @@ if (count($page['cat_elements_id']) > 0) {
 
         $src_image = new SrcImage($row);
 
-        $query = 'SELECT id,name FROM '.TAGS_TABLE.' AS t';
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON t.id = it.tag_id';
-        $query .= ' WHERE image_id = '.$row['id'].';';
+        $query = 'SELECT id,name FROM ' . TAGS_TABLE . ' AS t';
+        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
+        $query .= ' WHERE image_id = ' . $row['id'] . ';';
         $tag_selection = $services['tags']->getTagsList($query);
 
         $legend = render_element_name($row);
         if ($legend != get_name_from_file($row['file'])) {
-            $legend .= ' ('.$row['file'].')';
+            $legend .= ' (' . $row['file'] . ')';
         }
 
         $template->append(
-            'elements', array_merge($row,
-            array(
-                'ID' => $row['id'],
-                'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
-                'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                'LEGEND' => $legend,
-                'U_EDIT' => get_root_url().'admin/index.php?page=photo&image_id='.$row['id'],
-                'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
-                'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
-                'LEVEL' => !empty($row['level'])?$row['level']:'0',
-                'DESCRIPTION' => htmlspecialchars(@$row['comment']), // @TODO: remove arobase
-                'DATE_CREATION' => $row['date_creation'],
-                'TAGS' => $tag_selection,
-            ))
+            'elements',
+            array_merge(
+                $row,
+                array(
+                    'ID' => $row['id'],
+                    'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
+                    'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
+                    'LEGEND' => $legend,
+                    'U_EDIT' => get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['id'],
+                    'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
+                    'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
+                    'LEVEL' => !empty($row['level']) ? $row['level'] : '0',
+                    'DESCRIPTION' => htmlspecialchars(@$row['comment']), // @TODO: remove arobase
+                    'DATE_CREATION' => $row['date_creation'],
+                    'TAGS' => $tag_selection,
+                )
+            )
         );
     }
 

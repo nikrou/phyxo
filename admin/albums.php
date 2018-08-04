@@ -13,9 +13,9 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('ALBUMS_BASE_URL', get_root_url().'admin/index.php?page=albums');
+define('ALBUMS_BASE_URL', get_root_url() . 'admin/index.php?page=albums');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -35,9 +35,9 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('list', l10n('List'), ALBUMS_BASE_URL.'&amp;section=list', 'fa-bars');
-$tabsheet->add('move', l10n('Move'), ALBUMS_BASE_URL.'&amp;section=move', 'fa-move');
-$tabsheet->add('permalinks', l10n('Permalinks'), ALBUMS_BASE_URL.'&amp;section=permalinks', 'fa-link');
+$tabsheet->add('list', \Phyxo\Functions\Language::l10n('List'), ALBUMS_BASE_URL . '&amp;section=list', 'fa-bars');
+$tabsheet->add('move', \Phyxo\Functions\Language::l10n('Move'), ALBUMS_BASE_URL . '&amp;section=move', 'fa-move');
+$tabsheet->add('permalinks', \Phyxo\Functions\Language::l10n('Permalinks'), ALBUMS_BASE_URL . '&amp;section=permalinks', 'fa-link');
 $tabsheet->select($page['section']);
 
 $template->assign([
@@ -49,6 +49,6 @@ $template->assign([
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'albums_'.$page['section'];
+$template_filename = 'albums_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/albums_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/albums_' . $page['section'] . '.php');

@@ -106,9 +106,9 @@ if (isset($_GET['language'])) {
     }
 }
 
-load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
-load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
-load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
+\Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
+\Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
+\Phyxo\Functions\Language::load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
 
 header('Content-Type: text/html; charset=UTF-8');
 //------------------------------------------------- check php version
@@ -129,13 +129,13 @@ include(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 if (isset($_POST['install'])) {
     if ($dblayer != 'sqlite') {
         if (empty($dbuser)) {
-            $errors[] = l10n('Database user is mandatory');
+            $errors[] = \Phyxo\Functions\Language::l10n('Database user is mandatory');
         }
         if (empty($dbpasswd)) {
-            $errors[] = l10n('Database password is mandatory');
+            $errors[] = \Phyxo\Functions\Language::l10n('Database password is mandatory');
         }
         if (empty($dbname)) {
-            $errors[] = l10n('Database name is mandatory');
+            $errors[] = \Phyxo\Functions\Language::l10n('Database name is mandatory');
         }
     }
     if (empty($errors)) {
@@ -145,21 +145,21 @@ if (isset($_POST['install'])) {
 
             include(PHPWG_ROOT_PATH . 'include/services.php');
         } catch (\Exception $e) {
-            $errors[] = l10n($e->getMessage());
+            $errors[] = \Phyxo\Functions\Language::l10n($e->getMessage());
         }
     }
 
     $webmaster = trim(preg_replace('/\s{2,}/', ' ', $admin_name));
     if (empty($webmaster)) {
-        $errors[] = l10n('enter a login for webmaster');
+        $errors[] = \Phyxo\Functions\Language::l10n('enter a login for webmaster');
     } elseif (preg_match('/[\'"]/', $webmaster)) {
-        $errors[] = l10n('webmaster login can\'t contain characters \' or "');
+        $errors[] = \Phyxo\Functions\Language::l10n('webmaster login can\'t contain characters \' or "');
     }
     if ($admin_pass1 != $admin_pass2 || empty($admin_pass1)) {
-        $errors[] = l10n('please enter your password again');
+        $errors[] = \Phyxo\Functions\Language::l10n('please enter your password again');
     }
     if (empty($admin_mail)) {
-        $errors[] = l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+        $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
     } else {
         $error_mail_address = $services['users']->validateMailAddress(null, $admin_mail);
         if (!empty($error_mail_address)) {
@@ -225,8 +225,8 @@ define(\'DB_COLLATE\', \'\');';
         $conn->db_query($query);
 
         conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
-        conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
-        conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . l10n('Welcome to my photo gallery') . '</p>');
+        conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
+        conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
 
         // fill languages table
         $languages->setConnection($conn);
@@ -327,7 +327,7 @@ $template->assign(
 if ($step == 1) {
     $template->assign('install', true);
 } else {
-    $infos[] = l10n('Congratulations, Phyxo installation is completed');
+    $infos[] = \Phyxo\Functions\Language::l10n('Congratulations, Phyxo installation is completed');
 
     if (isset($error_copy)) {
         $errors[] = $error_copy;
@@ -354,22 +354,22 @@ if ($step == 1) {
             include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
             $keyargs_content = array(
-                get_l10n_args('Hello %s,', $admin_name),
-                get_l10n_args('Welcome to your new installation of Phyxo!', ''),
-                get_l10n_args('', ''),
-                get_l10n_args('Here are your connection settings', ''),
-                get_l10n_args('', ''),
-                get_l10n_args('Link: %s', get_absolute_root_url()),
-                get_l10n_args('Username: %s', $admin_name),
-                get_l10n_args('Password: %s', $admin_pass1),
-                get_l10n_args('Email: %s', $admin_mail)
+                \Phyxo\Functions\Language::get_l10n_args('Hello %s,', $admin_name),
+                \Phyxo\Functions\Language::get_l10n_args('Welcome to your new installation of Phyxo!', ''),
+                \Phyxo\Functions\Language::get_l10n_args('', ''),
+                \Phyxo\Functions\Language::get_l10n_args('Here are your connection settings', ''),
+                \Phyxo\Functions\Language::get_l10n_args('', ''),
+                \Phyxo\Functions\Language::get_l10n_args('Link: %s', get_absolute_root_url()),
+                \Phyxo\Functions\Language::get_l10n_args('Username: %s', $admin_name),
+                \Phyxo\Functions\Language::get_l10n_args('Password: %s', $admin_pass1),
+                \Phyxo\Functions\Language::get_l10n_args('Email: %s', $admin_mail)
             );
 
             pwg_mail(
                 $admin_mail,
                 array(
-                    'subject' => l10n('Just another Phyxo gallery'),
-                    'content' => l10n_args($keyargs_content),
+                    'subject' => \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'),
+                    'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                     'content_format' => 'text/plain',
                 )
             );

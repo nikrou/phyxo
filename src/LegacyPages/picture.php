@@ -290,13 +290,13 @@ if (isset($_GET['action'])) {
                         $perform_redirect = false;
                         switch ($comment_action) {
                             case 'moderate':
-                                $_SESSION['page_infos'][] = l10n('An administrator must authorize your comment before it is visible.');
+                                $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('An administrator must authorize your comment before it is visible.');
                             case 'validate':
-                                $_SESSION['page_infos'][] = l10n('Your comment has been registered');
+                                $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Your comment has been registered');
                                 $perform_redirect = true;
                                 break;
                             case 'reject':
-                                $_SESSION['page_errors'][] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
+                                $_SESSION['page_errors'][] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
                                 break;
                             default:
                                 trigger_error('Invalid comment action ' . $comment_action, E_USER_WARNING);
@@ -674,7 +674,7 @@ if ($picture['current']['src_image']->is_original() and isset($picture['current'
 
 // filesize
 if (!empty($picture['current']['filesize'])) {
-    $infos['INFO_FILESIZE'] = l10n('%d Kb', $picture['current']['filesize']);
+    $infos['INFO_FILESIZE'] = \Phyxo\Functions\Language::l10n('%d Kb', $picture['current']['filesize']);
 }
 
 // number of visits

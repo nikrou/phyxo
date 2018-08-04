@@ -10,7 +10,7 @@
  */
 
 if (!defined("THEMES_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Theme\Themes;
@@ -28,7 +28,7 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
         if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
             $template->delete_compiled_templates();
         }
-        redirect(THEMES_BASE_URL.'&section=installed');
+        redirect(THEMES_BASE_URL . '&section=installed');
     }
 }
 
@@ -74,11 +74,11 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
 
         if (count($db_theme_ids) <= 1) {
             $tpl_theme['DEACTIVABLE'] = false;
-            $tpl_theme['DEACTIVATE_TOOLTIP'] = l10n('Impossible to deactivate this theme, you need at least one theme.');
+            $tpl_theme['DEACTIVATE_TOOLTIP'] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
         }
         if ($tpl_theme['IS_DEFAULT']) {
             $tpl_theme['DEACTIVABLE'] = false;
-            $tpl_theme['DEACTIVATE_TOOLTIP'] = l10n('Impossible to deactivate the default theme.');
+            $tpl_theme['DEACTIVATE_TOOLTIP'] = \Phyxo\Functions\Language::l10n('Impossible to deactivate the default theme.');
         }
     } else {
         $tpl_theme['STATE'] = 'inactive';
@@ -86,7 +86,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
         // is the theme "activable" ?
         if (isset($fs_theme['activable']) and !$fs_theme['activable']) {
             $tpl_theme['ACTIVABLE'] = false;
-            $tpl_theme['ACTIVABLE_TOOLTIP'] = l10n('This theme was not designed to be directly activated');
+            $tpl_theme['ACTIVABLE_TOOLTIP'] = \Phyxo\Functions\Language::l10n('This theme was not designed to be directly activated');
         } else {
             $tpl_theme['ACTIVABLE'] = true;
         }
@@ -95,7 +95,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
         if (isset($missing_parent)) {
             $tpl_theme['ACTIVABLE'] = false;
 
-            $tpl_theme['ACTIVABLE_TOOLTIP'] = l10n(
+            $tpl_theme['ACTIVABLE_TOOLTIP'] = \Phyxo\Functions\Language::l10n(
                 'Impossible to activate this theme, the parent theme is missing: %s',
                 $missing_parent
             );
@@ -109,7 +109,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
         if (count($children) > 0) {
             $tpl_theme['DELETABLE'] = false;
 
-            $tpl_theme['DELETE_TOOLTIP'] = l10n(
+            $tpl_theme['DELETE_TOOLTIP'] = \Phyxo\Functions\Language::l10n(
                 'Impossible to delete this theme. Other themes depends on it: %s',
                 implode(', ', $children)
             );
@@ -120,13 +120,14 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
 }
 
 // sort themes by state then by name
-function cmp($a, $b) {
+function cmp($a, $b)
+{
     $s = array('active' => 0, 'inactive' => 1);
 
     if (@$a['IS_DEFAULT']) return -1;
     if (@$b['IS_DEFAULT']) return 1;
 
-    if($a['STATE'] == $b['STATE']) {
+    if ($a['STATE'] == $b['STATE']) {
         return strcasecmp($a['NAME'], $b['NAME']);
     } else {
         return $s[$a['STATE']] >= $s[$b['STATE']];
@@ -136,10 +137,10 @@ usort($tpl_themes, 'cmp');
 
 $template->assign(
     array(
-        'activate_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=activate&amp;theme=',
-        'deactivate_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=deactivate&amp;theme=',
-        'set_default_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=set_default&amp;theme=',
-        'delete_baseurl' => THEMES_BASE_URL.'&amp;section=installed&amp;action=delete&amp;theme=',
+        'activate_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=activate&amp;theme=',
+        'deactivate_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=deactivate&amp;theme=',
+        'set_default_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=set_default&amp;theme=',
+        'delete_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=delete&amp;theme=',
         'tpl_themes' => $tpl_themes,
     )
 );

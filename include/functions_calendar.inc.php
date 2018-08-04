@@ -1,48 +1,36 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Calendar\CalendarMonthly;
 
 
 /** URL keyword for list view */
-define('CAL_VIEW_LIST',     'list');
+define('CAL_VIEW_LIST', 'list');
 /** URL keyword for calendar view */
 define('CAL_VIEW_CALENDAR', 'calendar');
 
 /**
  * Initialize _$page_ and _$template_ vars for calendar view.
  */
-function initialize_calendar() {
+function initialize_calendar()
+{
     global $page, $conf, $user, $template, $persistent_cache, $filter, $conn;
 
     //------------------ initialize the condition on items to take into account ---
     $inner_sql = ' FROM ' . IMAGES_TABLE;
 
-    if ($page['section']=='categories') { // we will regenerate the items by including subcats elements
+    if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
         $page['items'] = array();
-        $inner_sql .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON id = image_id';
+        $inner_sql .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(
@@ -53,33 +41,35 @@ function initialize_calendar() {
             if (empty($sub_ids)) {
                 return; // nothing to do
             }
-            $inner_sql .= ' WHERE category_id '.$conn->in($sub_ids);
-            $inner_sql .= ' '.get_sql_condition_FandF(array('visible_images' => 'id'), 'AND', false);
+            $inner_sql .= ' WHERE category_id ' . $conn->in($sub_ids);
+            $inner_sql .= ' ' . get_sql_condition_FandF(array('visible_images' => 'id'), 'AND', false);
         } else {
-            $inner_sql .= ' '.get_sql_condition_FandF(
+            $inner_sql .= ' ' . get_sql_condition_FandF(
                 array(
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',
                     'visible_images' => 'id'
                 ),
-                'WHERE', true);
+                'WHERE',
+                true
+            );
         }
     } else {
         if (empty($page['items'])) {
             return; // nothing to do
         }
-        $inner_sql .= ' WHERE id '.$conn->in($page['items']);
+        $inner_sql .= ' WHERE id ' . $conn->in($page['items']);
     }
 
     //-------------------------------------- initialize the calendar parameters ---
     $fields = array(
         // Created
         'created' => array(
-            'label' => l10n('Creation date'),
+            'label' => \Phyxo\Functions\Language::l10n('Creation date'),
         ),
         // Posted
         'posted' => array(
-            'label' => l10n('Post date'),
+            'label' => \Phyxo\Functions\Language::l10n('Post date'),
         ),
     );
 
@@ -98,7 +88,7 @@ function initialize_calendar() {
         ),
     );
 
-    $views = array(CAL_VIEW_LIST,CAL_VIEW_CALENDAR);
+    $views = array(CAL_VIEW_LIST, CAL_VIEW_CALENDAR);
 
     // Retrieve calendar field
     isset($fields[$page['chronology_field']]) or fatal_error('bad chronology field');
@@ -108,7 +98,7 @@ function initialize_calendar() {
         $page['chronology_style'] = 'monthly';
     }
     $cal_style = $page['chronology_style'];
-    $classname = 'Phyxo\Calendar\\'.$styles[$cal_style]['classname'];
+    $classname = 'Phyxo\Calendar\\' . $styles[$cal_style]['classname'];
 
     $calendar = new $classname();
 
@@ -118,7 +108,7 @@ function initialize_calendar() {
         $page['chronology_view'] = CAL_VIEW_LIST;
     }
 
-    if (CAL_VIEW_CALENDAR==$page['chronology_view'] && !$styles[$cal_style]['view_calendar']) {
+    if (CAL_VIEW_CALENDAR == $page['chronology_view'] && !$styles[$cal_style]['view_calendar']) {
         $page['chronology_view'] = CAL_VIEW_LIST;
     }
 
@@ -166,10 +156,10 @@ function initialize_calendar() {
 
         foreach ($styles as $style => $style_data) {
             foreach ($views as $view) {
-                if ( $style_data['view_calendar'] or $view != CAL_VIEW_CALENDAR) {
+                if ($style_data['view_calendar'] or $view != CAL_VIEW_CALENDAR) {
                     $selected = false;
 
-                    if ($style!=$cal_style) {
+                    if ($style != $cal_style) {
                         $chronology_date = array();
                         if (isset($page['chronology_date'][0])) {
                             $chronology_date[] = $page['chronology_date'][0];
@@ -185,7 +175,7 @@ function initialize_calendar() {
                         )
                     );
 
-                    if ($style==$cal_style and $view==$page['chronology_view']) {
+                    if ($style == $cal_style and $view == $page['chronology_view']) {
                         $selected = true;
                     }
 
@@ -193,7 +183,7 @@ function initialize_calendar() {
                         'chronology_views',
                         array(
                             'VALUE' => $url,
-                            'CONTENT' => l10n('chronology_'.$style.'_'.$view),
+                            'CONTENT' => \Phyxo\Functions\Language::l10n('chronology_' . $style . '_' . $view),
                             'SELECTED' => $selected,
                         )
                     );
@@ -201,8 +191,8 @@ function initialize_calendar() {
             }
         }
         $url = duplicate_index_url(array(), array('start', 'chronology_date'));
-        $calendar_title = '<a href="'.$url.'">'.$fields[$page['chronology_field']]['label'].'</a>';
-        $calendar_title.= $calendar->get_display_name();
+        $calendar_title = '<a href="' . $url . '">' . $fields[$page['chronology_field']]['label'] . '</a>';
+        $calendar_title .= $calendar->get_display_name();
         $template->assign('chronology', array('TITLE' => $calendar_title));
     } // end category calling
 
@@ -210,8 +200,8 @@ function initialize_calendar() {
         if (isset($page['super_order_by'])) {
             $order_by = $conf['order_by'];
         } else {
-            if (count($page['chronology_date'])==0
-                or in_array('any', $page['chronology_date']) ) {// selected period is very big so we show newest first
+            if (count($page['chronology_date']) == 0
+                or in_array('any', $page['chronology_date'])) {// selected period is very big so we show newest first
                 $order = ' DESC, ';
             } else { // selected period is small (month,week) so we show oldest first
                 $order = ' ASC, ';
@@ -219,19 +209,20 @@ function initialize_calendar() {
 
             $order_by = str_replace(
                 'ORDER BY ',
-                'ORDER BY '.$calendar->date_field.$order, $conf['order_by']
+                'ORDER BY ' . $calendar->date_field . $order,
+                $conf['order_by']
             );
         }
 
-        if ('categories'==$page['section'] && !isset($page['category'])
-            && (count($page['chronology_date'])==0 OR ($page['chronology_date'][0]=='any' && count($page['chronology_date'])==1))) {
-            $cache_key = $persistent_cache->make_key($user['id'].$user['cache_update_time'].$calendar->date_field.$order_by);
+        if ('categories' == $page['section'] && !isset($page['category'])
+            && (count($page['chronology_date']) == 0 or ($page['chronology_date'][0] == 'any' && count($page['chronology_date']) == 1))) {
+            $cache_key = $persistent_cache->make_key($user['id'] . $user['cache_update_time'] . $calendar->date_field . $order_by);
         }
 
         if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
-            $query = 'SELECT DISTINCT id,'.addOrderByFields($order_by);
-            $query .= $calendar->inner_sql.' '.$calendar->get_date_where();
-            $query .= ' '.$order_by;
+            $query = 'SELECT DISTINCT id,' . addOrderByFields($order_by);
+            $query .= $calendar->inner_sql . ' ' . $calendar->get_date_where();
+            $query .= ' ' . $order_by;
 
             $page['items'] = $conn->query2array($query, null, 'id');
             if (isset($cache_key)) {

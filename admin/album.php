@@ -23,7 +23,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 
-$query = 'SELECT * FROM '.CATEGORIES_TABLE.' WHERE id = '.$conn->db_real_escape_string($_GET['cat_id']);
+$query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_GET['cat_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));
 foreach ($category as $k => $v) {
     if ($conn->is_boolean($v)) {
@@ -31,7 +31,7 @@ foreach ($category as $k => $v) {
     }
 }
 
-define('ALBUM_BASE_URL', get_root_url().'admin/index.php?page=album&amp;cat_id='.$category['id']);
+define('ALBUM_BASE_URL', get_root_url() . 'admin/index.php?page=album&amp;cat_id=' . $category['id']);
 
 // +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
@@ -43,22 +43,22 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('properties', l10n('Properties'), ALBUM_BASE_URL.'&amp;section=properties', 'fa-pencil');
-$tabsheet->add('sort_order', l10n('Manage photo ranks'), ALBUM_BASE_URL.'&amp;section=sort_order', 'fa-random');
-$tabsheet->add('permissions', l10n('Permissions'), ALBUM_BASE_URL.'&amp;section=permissions', 'fa-lock');
-$tabsheet->add('notification', l10n('Notification'), ALBUM_BASE_URL.'&amp;section=notification', 'fa-envelope');
+$tabsheet->add('properties', \Phyxo\Functions\Language::l10n('Properties'), ALBUM_BASE_URL . '&amp;section=properties', 'fa-pencil');
+$tabsheet->add('sort_order', \Phyxo\Functions\Language::l10n('Manage photo ranks'), ALBUM_BASE_URL . '&amp;section=sort_order', 'fa-random');
+$tabsheet->add('permissions', \Phyxo\Functions\Language::l10n('Permissions'), ALBUM_BASE_URL . '&amp;section=permissions', 'fa-lock');
+$tabsheet->add('notification', \Phyxo\Functions\Language::l10n('Notification'), ALBUM_BASE_URL . '&amp;section=notification', 'fa-envelope');
 $tabsheet->select($page['section']);
 
 $template->assign([
     'tabsheet' => $tabsheet,
     'U_PAGE' => ALBUM_BASE_URL,
-    'U_ALBUMS' => get_root_url().'admin/index.php?page=albums',
+    'U_ALBUMS' => get_root_url() . 'admin/index.php?page=albums',
 ]);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$template_filename = 'album_'.$page['section'];
+$template_filename = 'album_' . $page['section'];
 
-include(PHPWG_ROOT_PATH.'admin/album_'.$page['section'].'.php');
+include(PHPWG_ROOT_PATH . 'admin/album_' . $page['section'] . '.php');

@@ -62,7 +62,7 @@ try {
     $template->assign('PWG_TOKEN', get_pwg_token());
     $template->assign('EXT_TYPE', $page['page'] == 'updates' ? 'extensions' : $page['page']);
 } catch (\Exception $e) {
-    $page['errors'][] = l10n('Can\'t connect to server.');
+    $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
     $template->append(
         array('error' => $page['error'])
     );

@@ -10,7 +10,7 @@
  */
 
 if (!defined("PLUGINS_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Plugin\Plugins;
@@ -20,7 +20,7 @@ $plugins = new Plugins($conn);
 //------------------------------------------------------automatic installation
 if (isset($_GET['revision']) and isset($_GET['extension'])) {
     if (!$services['users']->isWebmaster()) {
-        $page['errors'][] = l10n('Webmaster status is required.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         check_pwg_token();
 
@@ -31,49 +31,48 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
             $page['errors'] = $e->getMessage();
         }
 
-        redirect(PLUGINS_BASE_URL.'&installstatus='.$install_status.'&plugin_id='.$plugin_id);
+        redirect(PLUGINS_BASE_URL . '&installstatus=' . $install_status . '&plugin_id=' . $plugin_id);
     }
 }
 
 //--------------------------------------------------------------install result
 if (isset($_GET['installstatus'])) {
-    switch ($_GET['installstatus'])
-        {
+    switch ($_GET['installstatus']) {
         case 'ok':
             $activate_url = PLUGINS_BASE_URL
                 . '&amp;plugin=' . $_GET['plugin_id']
                 . '&amp;pwg_token=' . get_pwg_token()
-                                    . '&amp;action=activate';
+                . '&amp;action=activate';
 
-            $page['infos'][] = l10n('Plugin has been successfully copied');
-            $page['infos'][] = '<a href="'. $activate_url . '">' . l10n('Activate it now') . '</a>';
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('Plugin has been successfully copied');
+            $page['infos'][] = '<a href="' . $activate_url . '">' . \Phyxo\Functions\Language::l10n('Activate it now') . '</a>';
             break;
 
         case 'temp_path_error':
-            $page['errors'][] = l10n('Can\'t create temporary file.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t create temporary file.');
             break;
 
         case 'dl_archive_error':
-            $page['errors'][] = l10n('Can\'t download archive.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t download archive.');
             break;
 
         case 'archive_error':
-            $page['errors'][] = l10n('Can\'t read or extract archive.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t read or extract archive.');
             break;
 
         default:
-            $page['errors'][] = l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
-            $page['errors'][] = l10n('Please check "plugins" folder and sub-folders permissions (CHMOD).');
-        }
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Please check "plugins" folder and sub-folders permissions (CHMOD).');
+    }
 }
 
 //---------------------------------------------------------------Order options
 $template->assign('order_options', array(
-    'date' => l10n('Post date'),
-    'revision' => l10n('Last revisions'),
-    'name' => l10n('Name'),
-    'author' => l10n('Author'),
-    'downloads' => l10n('Number of downloads')
+    'date' => \Phyxo\Functions\Language::l10n('Post date'),
+    'revision' => \Phyxo\Functions\Language::l10n('Last revisions'),
+    'name' => \Phyxo\Functions\Language::l10n('Name'),
+    'author' => \Phyxo\Functions\Language::l10n('Author'),
+    'downloads' => \Phyxo\Functions\Language::l10n('Number of downloads')
 ));
 
 // +-----------------------------------------------------------------------+
@@ -81,7 +80,7 @@ $template->assign('order_options', array(
 // +-----------------------------------------------------------------------+
 
 try {
-    if (count($plugins->getServerPlugins(true))>0) {
+    if (count($plugins->getServerPlugins(true)) > 0) {
         /* order plugins */
         if (!empty($_SESSION['plugins_new_order'])) {
             $order_selected = $_SESSION['plugins_new_order'];
@@ -92,7 +91,7 @@ try {
             $template->assign('order_selected', 'date');
         }
 
-        foreach($plugins->getServerPlugins() as $plugin) {
+        foreach ($plugins->getServerPlugins() as $plugin) {
             $ext_desc = trim($plugin['extension_description'], " \n\r");
             list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
 
@@ -100,12 +99,12 @@ try {
                 . '&amp;section=new'
                 . '&amp;revision=' . $plugin['revision_id']
                 . '&amp;extension=' . $plugin['extension_id']
-                . '&amp;pwg_token='.get_pwg_token();
+                . '&amp;pwg_token=' . get_pwg_token();
 
             $template->append('plugins', array(
                 'ID' => $plugin['extension_id'],
                 'EXT_NAME' => $plugin['extension_name'],
-                'EXT_URL' => PEM_URL.'/extension_view.php?eid='.$plugin['extension_id'],
+                'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $plugin['extension_id'],
                 'SMALL_DESC' => trim($small_desc, " \r\n"),
                 'BIG_DESC' => $ext_desc,
                 'VERSION' => $plugin['revision_name'],
@@ -113,9 +112,10 @@ try {
                 'AUTHOR' => $plugin['author_name'],
                 'DOWNLOADS' => $plugin['extension_nb_downloads'],
                 'URL_INSTALL' => $url_auto_install,
-                'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download'));
+                'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download'
+            ));
         }
     }
 } catch (\Exception $e) {
-    $page['errors'][] = l10n('Can\'t connect to server.');
+    $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
 }

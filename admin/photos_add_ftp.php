@@ -10,7 +10,7 @@
  */
 
 if (!defined('PHOTOS_ADD_BASE_URL')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 // +-----------------------------------------------------------------------+
@@ -19,7 +19,7 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
 
 $template->assign(
     'FTP_HELP_CONTENT',
-    load_language(
+    \Phyxo\Functions\Language::load_language(
         'help/photos_add_ftp.html',
         '',
         array('return' => true)

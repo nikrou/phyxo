@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+    /*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
@@ -53,12 +40,12 @@ $pderivatives = $_POST['d'];
 
 // step 1 - sanitize HTML input
 foreach ($pderivatives as $type => &$pderivative) {
-    if ($pderivative['must_square'] = ($type==IMG_SQUARE ? true : false)) {
+    if ($pderivative['must_square'] = ($type == IMG_SQUARE ? true : false)) {
         $pderivative['h'] = $pderivative['w'];
         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
         $pderivative['crop'] = 100;
     }
-    $pderivative['must_enable'] = ($type==IMG_SQUARE || $type==IMG_THUMB || $type==$conf['derivative_default_size'])? true : false;
+    $pderivative['must_enable'] = ($type == IMG_SQUARE || $type == IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
     $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'] ? true : false;
 
     if (isset($pderivative['crop'])) {
@@ -75,7 +62,7 @@ unset($pderivative);
 
 // step 2 - check validity
 $prev_w = $prev_h = 0;
-foreach(ImageStdParams::get_all_types() as $type) {
+foreach (ImageStdParams::get_all_types() as $type) {
     $pderivative = $pderivatives[$type];
     if (!$pderivative['enabled']) {
         continue;
@@ -92,18 +79,18 @@ foreach(ImageStdParams::get_all_types() as $type) {
             $errors[$type]['h'] = '>0';
         }
 
-        if (max($w,$h) <= $prev_w) {
-            $errors[$type]['w'] = $errors[$type]['h'] = '>'.$prev_w;
+        if (max($w, $h) <= $prev_w) {
+            $errors[$type]['w'] = $errors[$type]['h'] = '>' . $prev_w;
         }
     } else {
         $v = intval($pderivative['w']);
         if ($v <= 0 or $v <= $prev_w) {
-            $errors[$type]['w'] = '>'.$prev_w;
+            $errors[$type]['w'] = '>' . $prev_w;
         }
 
         $v = intval($pderivative['h']);
         if ($v <= 0 or $v <= $prev_h) {
-            $errors[$type]['h'] = '>'.$prev_h;
+            $errors[$type]['h'] = '>' . $prev_h;
         }
     }
 
@@ -113,7 +100,7 @@ foreach(ImageStdParams::get_all_types() as $type) {
     }
 
     $v = intval($pderivative['sharpen']);
-    if ($v<0 || $v>100) {
+    if ($v < 0 || $v > 100) {
         $errors[$type]['sharpen'] = '[0..100]';
     }
 }
@@ -132,67 +119,67 @@ if (count($errors) == 0) {
     $changed_types = array();
 
     foreach (ImageStdParams::get_all_types() as $type) {
-    $pderivative = $pderivatives[$type];
+        $pderivative = $pderivatives[$type];
 
-    if ($pderivative['enabled']) {
-        $new_params = new DerivativeParams(
-            new SizingParams(
-                array(intval($pderivative['w']), intval($pderivative['h'])),
-                round($pderivative['crop'] / 100, 2),
-                array(intval($pderivative['minw']), intval($pderivative['minh']))
-            )
-        );
-        $new_params->sharpen = intval($pderivative['sharpen']);
+        if ($pderivative['enabled']) {
+            $new_params = new DerivativeParams(
+                new SizingParams(
+                    array(intval($pderivative['w']), intval($pderivative['h'])),
+                    round($pderivative['crop'] / 100, 2),
+                    array(intval($pderivative['minw']), intval($pderivative['minh']))
+                )
+            );
+            $new_params->sharpen = intval($pderivative['sharpen']);
 
-        ImageStdParams::apply_global($new_params);
+            ImageStdParams::apply_global($new_params);
 
-        if (isset($enabled[$type])) {
-            $old_params = $enabled[$type];
-            $same = true;
-            if (!size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
-            or $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
-                $same = false;
+            if (isset($enabled[$type])) {
+                $old_params = $enabled[$type];
+                $same = true;
+                if (!size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
+                    or $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
+                    $same = false;
+                }
+
+                if ($same
+                    and $new_params->sizing->max_crop != 0
+                    and !size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
+                    $same = false;
+                }
+
+                if ($quality_changed || $new_params->sharpen != $old_params->sharpen) {
+                    $same = false;
+                }
+
+                if (!$same) {
+                    $new_params->last_mod_time = time();
+                    $changed_types[] = $type;
+                } else {
+                    $new_params->last_mod_time = $old_params->last_mod_time;
+                }
+                $enabled[$type] = $new_params;
+            } else { // now enabled, before was disabled
+                $enabled[$type] = $new_params;
+                unset($disabled[$type]);
             }
-
-            if ($same
-            and $new_params->sizing->max_crop != 0
-            and !size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
-                $same = false;
-            }
-
-            if ($quality_changed || $new_params->sharpen != $old_params->sharpen) {
-                $same = false;
-            }
-
-            if (!$same) {
-                $new_params->last_mod_time = time();
+        } else { // disabled
+            if (isset($enabled[$type])) { // now disabled, before was enabled
                 $changed_types[] = $type;
-            } else {
-                $new_params->last_mod_time = $old_params->last_mod_time;
+                $disabled[$type] = $enabled[$type];
+                unset($enabled[$type]);
             }
-            $enabled[$type] = $new_params;
-        } else { // now enabled, before was disabled
-            $enabled[$type] = $new_params;
-            unset($disabled[$type]);
         }
-    } else { // disabled
-        if (isset($enabled[$type])) { // now disabled, before was enabled
-            $changed_types[] = $type;
-            $disabled[$type] = $enabled[$type];
-            unset($enabled[$type]);
-        }
-    }
     }
 
     $enabled_by = array(); // keys ordered by all types
-    foreach(ImageStdParams::get_all_types() as $type) {
+    foreach (ImageStdParams::get_all_types() as $type) {
         if (isset($enabled[$type])) {
             $enabled_by[$type] = $enabled[$type];
         }
     }
 
-    foreach( array_keys(ImageStdParams::$custom) as $custom) {
-        if (isset($_POST['delete_custom_derivative_'.$custom])) {
+    foreach (array_keys(ImageStdParams::$custom) as $custom) {
+        if (isset($_POST['delete_custom_derivative_' . $custom])) {
             $changed_types[] = $custom;
             unset(ImageStdParams::$custom[$custom]);
         }
@@ -210,7 +197,7 @@ if (count($errors) == 0) {
         clear_derivative_cache($changed_types);
     }
 
-    $page['infos'][] = l10n('Your configuration settings are saved');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');
 } else {
     foreach ($original_fields as $field) {
         if (isset($_POST[$field])) {

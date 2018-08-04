@@ -43,10 +43,10 @@ if (isset($_GET['section'])) {
 }
 
 $tabsheet = new TabSheet();
-$tabsheet->add('direct', l10n('Web Form'), PHOTOS_ADD_BASE_URL . '&amp;section=direct', 'fa-upload');
+$tabsheet->add('direct', \Phyxo\Functions\Language::l10n('Web Form'), PHOTOS_ADD_BASE_URL . '&amp;section=direct', 'fa-upload');
 /*
 if ($conf['enable_synchronization']) {
-    $tabsheet->add('ftp', l10n('FTP + Synchronization'), PHOTOS_ADD_BASE_URL.'&amp;section=ftp', 'fa-exchange');
+    $tabsheet->add('ftp', \Phyxo\Functions\Language::l10n('FTP + Synchronization'), PHOTOS_ADD_BASE_URL.'&amp;section=ftp', 'fa-exchange');
 }
  */
 $tabsheet->select($page['section']);

@@ -10,7 +10,7 @@
  */
 
 if (!defined("ALBUMS_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 trigger_notify('loc_begin_cat_list');
@@ -20,12 +20,12 @@ if (!empty($_POST) or isset($_GET['delete'])) {
 }
 
 $sort_orders = array(
-    'name ASC' => l10n('Album name, A &rarr; Z'),
-    'name DESC' => l10n('Album name, Z &rarr; A'),
-    'date_creation DESC' => l10n('Date created, new &rarr; old'),
-    'date_creation ASC' => l10n('Date created, old &rarr; new'),
-    'date_available DESC' => l10n('Date posted, new &rarr; old'),
-    'date_available ASC' => l10n('Date posted, old &rarr; new'),
+    'name ASC' => \Phyxo\Functions\Language::l10n('Album name, A &rarr; Z'),
+    'name DESC' => \Phyxo\Functions\Language::l10n('Album name, Z &rarr; A'),
+    'date_creation DESC' => \Phyxo\Functions\Language::l10n('Date created, new &rarr; old'),
+    'date_creation ASC' => \Phyxo\Functions\Language::l10n('Date created, old &rarr; new'),
+    'date_available DESC' => \Phyxo\Functions\Language::l10n('Date posted, new &rarr; old'),
+    'date_available ASC' => \Phyxo\Functions\Language::l10n('Date posted, old &rarr; new'),
 );
 
 // +-----------------------------------------------------------------------+
@@ -41,7 +41,8 @@ $sort_orders = array(
  * @param array categories
  * @return void
  */
-function save_categories_order($categories) {
+function save_categories_order($categories)
+{
     global $conn;
 
     $current_rank_for_id_uppercat = array();
@@ -70,7 +71,8 @@ function save_categories_order($categories) {
     update_global_rank();
 }
 
-function get_categories_ref_date($ids, $field='date_available', $minmax='max') {
+function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max')
+{
     global $conn;
 
     // we need to work on the whole tree under each category, even if we don't
@@ -78,16 +80,16 @@ function get_categories_ref_date($ids, $field='date_available', $minmax='max') {
     $category_ids = get_subcat_ids($ids);
 
     // search for the reference date of each album
-    $query = 'SELECT category_id,'.$minmax.'('.$field.') as ref_date FROM '.IMAGES_TABLE;
-    $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' ON image_id = id';
-    $query .= ' WHERE category_id '.$conn->in($category_ids);
+    $query = 'SELECT category_id,' . $minmax . '(' . $field . ') as ref_date FROM ' . IMAGES_TABLE;
+    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+    $query .= ' WHERE category_id ' . $conn->in($category_ids);
     $query .= ' GROUP BY category_id;';
     $ref_dates = $conn->query2array($query, 'category_id', 'ref_date');
 
     // the iterate on all albums (having a ref_date or not) to find the
     // reference_date, with a search on sub-albums
-    $query = 'SELECT id,uppercats FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id '.$conn->in($category_ids);
+    $query = 'SELECT id,uppercats FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($category_ids);
     $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
 
     foreach (array_keys($uppercats_of) as $cat_id) {
@@ -95,7 +97,7 @@ function get_categories_ref_date($ids, $field='date_available', $minmax='max') {
         $subcat_ids = array();
 
         foreach ($uppercats_of as $id => $uppercats) {
-            if (preg_match('/(^|,)'.$cat_id.'(,|$)/', $uppercats)) {
+            if (preg_match('/(^|,)' . $cat_id . '(,|$)/', $uppercats)) {
                 $subcat_ids[] = $id;
             }
         }
@@ -131,9 +133,9 @@ check_input_parameter('parent_id', $_GET, false, PATTERN_ID);
 
 $categories = array();
 
-$navigation = '<a href="'.ALBUMS_BASE_URL.'">';
-$navigation.= l10n('Home');
-$navigation.= '</a>';
+$navigation = '<a href="' . ALBUMS_BASE_URL . '">';
+$navigation .= \Phyxo\Functions\Language::l10n('Home');
+$navigation .= '</a>';
 
 
 // +-----------------------------------------------------------------------+
@@ -142,13 +144,13 @@ $navigation.= '</a>';
 // request to delete a virtual category
 if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     delete_categories(array($_GET['delete']));
-    $_SESSION['page_infos'] = array(l10n('Virtual album deleted'));
+    $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Virtual album deleted'));
     update_global_rank();
     invalidate_user_cache();
 
-    $redirect_url = ALBUMS_BASE_URL.'&amp;section=list';
+    $redirect_url = ALBUMS_BASE_URL . '&amp;section=list';
     if (isset($_GET['parent_id'])) {
-        $redirect_url.= '&parent_id='.$_GET['parent_id'];
+        $redirect_url .= '&parent_id=' . $_GET['parent_id'];
     }
     redirect($redirect_url);
 } elseif (isset($_POST['submitAdd'])) { // request to add a virtual category
@@ -167,15 +169,15 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     asort($_POST['catOrd'], SORT_NUMERIC);
     save_categories_order(array_keys($_POST['catOrd']));
 
-    $page['infos'][] = l10n('Album manual order was saved');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Album manual order was saved');
 } elseif (isset($_POST['submitAutoOrder'])) {
     if (!isset($sort_orders[$_POST['order_by']])) {
         die('Invalid sort order');
     }
 
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
+    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
     $query .= ' WHERE id_uppercat ';
-    $query .= !isset($_GET['parent_id']) ? 'IS NULL' : '= '.$conn->db_real_escape_string($_GET['parent_id']);
+    $query .= !isset($_GET['parent_id']) ? 'IS NULL' : '= ' . $conn->db_real_escape_string($_GET['parent_id']);
     $category_ids = $conn->query2array($query, null, 'id');
 
     if (isset($_POST['recursive'])) {
@@ -198,12 +200,12 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
         );
     }
 
-    $query = 'SELECT id, name, id_uppercat FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE id '.$conn->in($category_ids);
+    $query = 'SELECT id, name, id_uppercat FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($category_ids);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         if ($order_by_date) {
-            $sort[] = $ref_dates[ $row['id'] ];
+            $sort[] = $ref_dates[$row['id']];
         } else {
             $sort[] = $row['name'];
         }
@@ -223,7 +225,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
 
     save_categories_order($categories);
 
-    $page['infos'][] = l10n('Albums automatically sorted');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Albums automatically sorted');
 }
 
 // +-----------------------------------------------------------------------+
@@ -235,7 +237,7 @@ if (isset($_GET['parent_id'])) {
 
     $navigation .= get_cat_display_name_from_id(
         $_GET['parent_id'],
-        ALBUMS_BASE_URL.'&amp;section=list&amp;parent_id='
+        ALBUMS_BASE_URL . '&amp;section=list&amp;parent_id='
     );
 }
 // +-----------------------------------------------------------------------+
@@ -244,7 +246,7 @@ if (isset($_GET['parent_id'])) {
 
 $form_action = ALBUMS_BASE_URL;
 if (isset($_GET['parent_id'])) {
-    $form_action .= '&amp;parent_id='.$_GET['parent_id'];
+    $form_action .= '&amp;parent_id=' . $_GET['parent_id'];
 }
 $sort_orders_checked = array_keys($sort_orders);
 
@@ -262,11 +264,11 @@ $template->assign(array(
 
 $categories = array();
 
-$query = 'SELECT id, name, permalink, dir, rank, status FROM '.CATEGORIES_TABLE;
+$query = 'SELECT id, name, permalink, dir, rank, status FROM ' . CATEGORIES_TABLE;
 if (!isset($_GET['parent_id'])) {
     $query .= ' WHERE id_uppercat IS NULL';
 } else {
-    $query .= ' WHERE id_uppercat = '.$conn->db_real_escape_string($_GET['parent_id']);
+    $query .= ' WHERE id_uppercat = ' . $conn->db_real_escape_string($_GET['parent_id']);
 }
 $query .= ' ORDER BY rank ASC;';
 $categories = $conn->query2array($query, 'id');
@@ -274,18 +276,18 @@ $categories = $conn->query2array($query, 'id');
 // get the categories containing images directly
 $categories_with_images = array();
 if (count($categories)) {
-    $query = 'SELECT category_id,COUNT(1) AS nb_photos FROM '.IMAGE_CATEGORY_TABLE;
+    $query = 'SELECT category_id,COUNT(1) AS nb_photos FROM ' . IMAGE_CATEGORY_TABLE;
     $query .= ' GROUP BY category_id;';
 
     $nb_photos_in = $conn->query2array($query, 'category_id', 'nb_photos');
 
-    $query = 'SELECT id,uppercats FROM '.CATEGORIES_TABLE;
+    $query = 'SELECT id,uppercats FROM ' . CATEGORIES_TABLE;
     $all_categories = $conn->query2array($query, 'id', 'uppercats');
     $subcats_of = array();
 
     foreach (array_keys($categories) as $cat_id) {
         foreach ($all_categories as $id => $uppercats) {
-            if (preg_match('/(^|,)'.$cat_id.',/', $uppercats)) {
+            if (preg_match('/(^|,)' . $cat_id . ',/', $uppercats)) {
                 @$subcats_of[$cat_id][] = $id;
             }
         }
@@ -305,17 +307,17 @@ if (count($categories)) {
 }
 
 $template->assign('categories', array());
-$base_url = get_root_url().'admin/index.php?page=';
-$cat_list_url = ALBUMS_BASE_URL.'&amp;section=list';
+$base_url = get_root_url() . 'admin/index.php?page=';
+$cat_list_url = ALBUMS_BASE_URL . '&amp;section=list';
 
 if (isset($_GET['parent_id'])) {
-    $template->assign('PARENT_EDIT', $base_url.'album&amp;cat_id='.$_GET['parent_id']);
+    $template->assign('PARENT_EDIT', $base_url . 'album&amp;cat_id=' . $_GET['parent_id']);
 }
 
 foreach ($categories as $category) {
     $self_url = $cat_list_url;
     if (isset($_GET['parent_id'])) {
-        $self_url .= '&amp;parent_id='.$_GET['parent_id'];
+        $self_url .= '&amp;parent_id=' . $_GET['parent_id'];
     }
 
     $tpl_cat = array(
@@ -324,19 +326,19 @@ foreach ($categories as $category) {
         'NB_SUB_PHOTOS' => isset($nb_sub_photos[$category['id']]) ? $nb_sub_photos[$category['id']] : 0,
         'NB_SUB_ALBUMS' => isset($subcats_of[$category['id']]) ? count($subcats_of[$category['id']]) : 0,
         'ID' => $category['id'],
-        'RANK' => $category['rank']*10,
+        'RANK' => $category['rank'] * 10,
         'U_JUMPTO' => make_index_url(array('category' => $category)),
-        'U_CHILDREN' => $cat_list_url.'&amp;parent_id='.$category['id'],
-        'U_EDIT' => $base_url.'album&amp;cat_id='.$category['id'],
+        'U_CHILDREN' => $cat_list_url . '&amp;parent_id=' . $category['id'],
+        'U_EDIT' => $base_url . 'album&amp;cat_id=' . $category['id'],
         'IS_VIRTUAL' => empty($category['dir'])
     );
 
     if (empty($category['dir'])) {
-        $tpl_cat['U_DELETE'] = $self_url.'&amp;delete='.$category['id'];
-        $tpl_cat['U_DELETE'].= '&amp;pwg_token='.get_pwg_token();
+        $tpl_cat['U_DELETE'] = $self_url . '&amp;delete=' . $category['id'];
+        $tpl_cat['U_DELETE'] .= '&amp;pwg_token=' . get_pwg_token();
     } else {
         if ($conf['enable_synchronization']) {
-            $tpl_cat['U_SYNC'] = $base_url.'site_update&amp;site=1&amp;cat_id='.$category['id'];
+            $tpl_cat['U_SYNC'] = $base_url . 'site_update&amp;site=1&amp;cat_id=' . $category['id'];
         }
     }
 

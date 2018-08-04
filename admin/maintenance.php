@@ -10,12 +10,12 @@
  */
 
 if (!defined('PHPWG_ROOT_PATH')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Template\FileCombiner;
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -33,101 +33,115 @@ if (isset($_GET['action'])) {
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-switch ($action)
-{
-case 'lock_gallery' : {
-    conf_update_param('gallery_locked', 'true');
-    redirect(get_root_url().'admin/index.php?page=maintenance');
-    break;
-}
-case 'unlock_gallery' : {
-    conf_update_param('gallery_locked', 'false');
-    $_SESSION['page_infos'] = array(l10n('Gallery unlocked'));
-    redirect(get_root_url().'admin/index.php?page=maintenance');
-    break;
-}
-case 'categories' : {
-    images_integrity();
-    update_uppercats();
-    update_category('all');
-    update_global_rank();
-    invalidate_user_cache(true);
-    break;
-}
-case 'images' : {
-    images_integrity();
-    update_path();
-    include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
-    update_rating_score();
-    invalidate_user_cache();
-    break;
-}
-case 'delete_orphan_tags' : {
-    $services['tags']->deleteOrphanTags();
-    break;
-}
-case 'user_cache' : {
-    invalidate_user_cache();
-    break;
-}
-case 'history_detail' : {
-    $query = 'DELETE FROM '.HISTORY_TABLE.';';
-    $conn->db_query($query);
-    break;
-}
-case 'history_summary' : {
-    $query = 'DELETE FROM '.HISTORY_SUMMARY_TABLE.';';
-    $conn->db_query($query);
-        break;
-    }
-case 'sessions' : {
+switch ($action) {
+    case 'lock_gallery':
+        {
+            conf_update_param('gallery_locked', 'true');
+            redirect(get_root_url() . 'admin/index.php?page=maintenance');
+            break;
+        }
+    case 'unlock_gallery':
+        {
+            conf_update_param('gallery_locked', 'false');
+            $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Gallery unlocked'));
+            redirect(get_root_url() . 'admin/index.php?page=maintenance');
+            break;
+        }
+    case 'categories':
+        {
+            images_integrity();
+            update_uppercats();
+            update_category('all');
+            update_global_rank();
+            invalidate_user_cache(true);
+            break;
+        }
+    case 'images':
+        {
+            images_integrity();
+            update_path();
+            include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
+            update_rating_score();
+            invalidate_user_cache();
+            break;
+        }
+    case 'delete_orphan_tags':
+        {
+            $services['tags']->deleteOrphanTags();
+            break;
+        }
+    case 'user_cache':
+        {
+            invalidate_user_cache();
+            break;
+        }
+    case 'history_detail':
+        {
+            $query = 'DELETE FROM ' . HISTORY_TABLE . ';';
+            $conn->db_query($query);
+            break;
+        }
+    case 'history_summary':
+        {
+            $query = 'DELETE FROM ' . HISTORY_SUMMARY_TABLE . ';';
+            $conn->db_query($query);
+            break;
+        }
+    case 'sessions':
+        {
     // pwg_session_gc(); @TODO : sessions handler could be files so no db cleanup
-    break;
-}
-case 'feeds' : {
-    $query = 'DELETE FROM '.USER_FEED_TABLE.' WHERE last_check IS NULL;';
-    $conn->db_query($query);
-    break;
-}
-case 'database' : {
-    if ($conn->do_maintenance_all_tables()) {
-        $page['infos'][] = l10n('All optimizations have been successfully completed.');
-    } else {
-        $page['errors'][] = l10n('Optimizations have been completed with some errors.');
-    }
-    break;
-}
-case 'search' : {
-    $query = 'DELETE FROM '.SEARCH_TABLE.';';
-    $conn->db_query($query);
-    break;
-}
-case 'compiled-templates': {
-    $template->delete_compiled_templates();
-    FileCombiner::clear_combined_files();
-    $persistent_cache->purge(true);
-    break;
-}
-case 'derivatives': {
-    clear_derivative_cache($_GET['type']);
-    break;
-}
-default : {
-    break;
-}
+            break;
+        }
+    case 'feeds':
+        {
+            $query = 'DELETE FROM ' . USER_FEED_TABLE . ' WHERE last_check IS NULL;';
+            $conn->db_query($query);
+            break;
+        }
+    case 'database':
+        {
+            if ($conn->do_maintenance_all_tables()) {
+                $page['infos'][] = \Phyxo\Functions\Language::l10n('All optimizations have been successfully completed.');
+            } else {
+                $page['errors'][] = \Phyxo\Functions\Language::l10n('Optimizations have been completed with some errors.');
+            }
+            break;
+        }
+    case 'search':
+        {
+            $query = 'DELETE FROM ' . SEARCH_TABLE . ';';
+            $conn->db_query($query);
+            break;
+        }
+    case 'compiled-templates':
+        {
+            $template->delete_compiled_templates();
+            FileCombiner::clear_combined_files();
+            $persistent_cache->purge(true);
+            break;
+        }
+    case 'derivatives':
+        {
+            clear_derivative_cache($_GET['type']);
+            break;
+        }
+    default:
+        {
+            break;
+        }
 }
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$url_format = get_root_url().'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token='.get_pwg_token();
+$url_format = get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . get_pwg_token();
 
-$purge_urls[l10n('All')] = sprintf($url_format, 'derivatives').'&amp;type=all';
-foreach(ImageStdParams::get_defined_type_map() as $params) {
-    $purge_urls[l10n($params->type)] = sprintf($url_format, 'derivatives').'&amp;type='.$params->type;
+$purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'derivatives') . '&amp;type=all';
+foreach (ImageStdParams::get_defined_type_map() as $params) {
+    $purge_urls[\Phyxo\Functions\Language::l10n($params->type)] = sprintf($url_format, 'derivatives') . '&amp;type=' . $params->type;
 }
-$purge_urls[l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives').'&amp;type='.IMG_CUSTOM;
+$purge_urls[\Phyxo\Functions\Language::l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . IMG_CUSTOM;
 
 $template->assign(
     array(

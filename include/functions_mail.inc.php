@@ -260,23 +260,23 @@ function switch_lang_to($language)
         $lang = array();
 
         // language files
-        load_language('common.lang', '', array('language' => $language));
+        \Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language));
         // No test admin because script is checked admin (user selected no)
         // Translations are in admin file too
-        load_language('admin.lang', '', array('language' => $language));
+        \Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language));
 
-        // Reload all plugins files (see load_language declaration)
+        // Reload all plugins files (see \Phyxo\Functions\Language::load_language declaration)
         if (!empty($language_files)) {
             foreach ($language_files as $dirname => $files) {
                 foreach ($files as $filename => $options) {
                     $options['language'] = $language;
-                    load_language($filename, $dirname, $options);
+                    \Phyxo\Functions\Language::load_language($filename, $dirname, $options);
                 }
             }
         }
 
         trigger_notify('loading_lang');
-        load_language(
+        \Phyxo\Functions\Language::load_language(
             'lang',
             PHPWG_ROOT_PATH . PWG_LOCAL_DIR,
             array('language' => $language, 'no_fallback' => true, 'local' => true)
@@ -333,10 +333,10 @@ function pwg_mail_notification_admins($subject, $content, $send_technical_detail
         switch_lang_to($services['users']->getDefaultLanguage());
 
         if (is_array($subject)) {
-            $subject = l10n_args($subject);
+            $subject = \Phyxo\Functions\Language::l10n_args($subject);
         }
         if (is_array($content)) {
-            $content = l10n_args($content);
+            $content = \Phyxo\Functions\Language::l10n_args($content);
         }
 
         switch_lang_back();

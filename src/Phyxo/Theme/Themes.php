@@ -85,7 +85,7 @@ class Themes extends Extensions
 
                 $missing_parent = $this->missingParentTheme($theme_id);
                 if (isset($missing_parent)) {
-                    $errors[] = l10n(
+                    $errors[] = \Phyxo\Functions\Language::l10n(
                         'Impossible to activate this theme, the parent theme is missing: %s',
                         $missing_parent
                     );
@@ -94,7 +94,7 @@ class Themes extends Extensions
                 }
 
                 if ($this->fs_themes[$theme_id]['mobile'] and !empty($conf['mobile_theme']) and $conf['mobile_theme'] != $theme_id) {
-                    $errors[] = l10n('You can activate only one mobile theme.');
+                    $errors[] = \Phyxo\Functions\Language::l10n('You can activate only one mobile theme.');
                     break;
                 }
 
@@ -121,7 +121,7 @@ class Themes extends Extensions
 
             // you can't deactivate the last theme
                 if (count($this->db_themes) <= 1) {
-                    $errors[] = l10n('Impossible to deactivate this theme, you need at least one theme.');
+                    $errors[] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
                     break;
                 }
 
@@ -163,7 +163,7 @@ class Themes extends Extensions
 
                 $children = $this->getChildrenThemes($theme_id);
                 if (count($children) > 0) {
-                    $errors[] = l10n(
+                    $errors[] = \Phyxo\Functions\Language::l10n(
                         'Impossible to delete this theme. Other themes depends on it: %s',
                         implode(', ', $children)
                     );
@@ -304,7 +304,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \load_language('description.txt', dirname($themeconf) . '/', array('return' => true))) {
+                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', array('return' => true))) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);

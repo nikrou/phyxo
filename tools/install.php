@@ -59,8 +59,8 @@ $query .= '\'a secret key specific to the gallery for internal use\')';
 $conn->db_query($query);
 
 conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
-conf_update_param('gallery_title', l10n('Just another Phyxo gallery'));
-conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
+conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
+conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".\Phyxo\Functions\Language::l10n('Welcome to my photo gallery').'</p>');
 
 // fill languages table
 $languages->setConnection($conn);

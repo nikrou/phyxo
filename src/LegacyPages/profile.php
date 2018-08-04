@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 // customize appearance of the site for a user
 // +-----------------------------------------------------------------------+
@@ -28,8 +15,8 @@
 // +-----------------------------------------------------------------------+
 
 if (!defined('PHPWG_ROOT_PATH')) { //direct script access
-    define('PHPWG_ROOT_PATH','../../');
-    include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
+    define('PHPWG_ROOT_PATH', '../../');
+    include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
     // +-----------------------------------------------------------------------+
     // | Check Access and exit when user status is not ok                      |
@@ -53,8 +40,8 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
         );
 
         // Get the Guest custom settings
-        $query = 'SELECT '.implode(',', $fields).' FROM '.USER_INFOS_TABLE;
-        $query .= ' WHERE user_id = '.$conf['default_user_id'].';';
+        $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . USER_INFOS_TABLE;
+        $query .= ' WHERE user_id = ' . $conf['default_user_id'] . ';';
         $result = $conn->db_query($query);
         $default_user = $conn->db_fetch_assoc($result);
         $userdata = array_merge($userdata, $default_user);
@@ -62,31 +49,32 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
     save_profile_from_post($userdata, $page['errors']);
 
-    $title= l10n('Your Gallery Customization');
+    $title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
     $page['body_id'] = 'theProfilePage';
     $template->set_filename('profile', 'profile.tpl');
 
     load_profile_in_template(
-        get_root_url().'profile.php', // action
+        get_root_url() . 'profile.php', // action
         make_index_url(), // for redirect
         $userdata
     );
 
     // include menubar
     $themeconf = $template->get_template_vars('themeconf');
-    if (!isset($themeconf['hide_menu_on']) OR !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
-        include( PHPWG_ROOT_PATH.'include/menubar.inc.php');
+    if (!isset($themeconf['hide_menu_on']) or !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
+        include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
     }
 
-    include(PHPWG_ROOT_PATH.'include/page_header.php');
+    include(PHPWG_ROOT_PATH . 'include/page_header.php');
     trigger_notify('loc_end_profile');
     flush_page_messages();
-    include(PHPWG_ROOT_PATH.'include/page_tail.php');
+    include(PHPWG_ROOT_PATH . 'include/page_tail.php');
     $template->pparse('profile');
 }
 
 //------------------------------------------------------ update & customization
-function save_profile_from_post($userdata, &$errors) {
+function save_profile_from_post($userdata, &$errors)
+{
     global $conf, $page, $conn, $services;
 
     $errors = array();
@@ -97,12 +85,10 @@ function save_profile_from_post($userdata, &$errors) {
 
     $special_user = in_array($userdata['id'], array($conf['guest_id'], $conf['default_user_id']));
     if ($special_user) {
-        unset(
-            $_POST['username'], $_POST['mail_address'],
+        unset($_POST['username'], $_POST['mail_address'],
             $_POST['password'], $_POST['use_new_pwd'],
             $_POST['passwordConf'], $_POST['theme'],
-            $_POST['language']
-        );
+            $_POST['language']);
         $_POST['theme'] = $services['users']->getDefaultTheme();
         $_POST['language'] = $services['users']->getDefaultLanguage();
     }
@@ -114,12 +100,12 @@ function save_profile_from_post($userdata, &$errors) {
     if ($conf['allow_user_customization'] or defined('IN_ADMIN')) {
         $int_pattern = '/^\d+$/';
         if (empty($_POST['nb_image_page']) || (!preg_match($int_pattern, $_POST['nb_image_page']))) {
-            $errors[] = l10n('The number of photos per page must be a not null scalar');
+            $errors[] = \Phyxo\Functions\Language::l10n('The number of photos per page must be a not null scalar');
         }
 
         // periods must be integer values, they represents number of days
         if (!preg_match($int_pattern, $_POST['recent_period']) or $_POST['recent_period'] < 0) {
-            $errors[] = l10n('Recent period must be a positive integer value') ;
+            $errors[] = \Phyxo\Functions\Language::l10n('Recent period must be a positive integer value');
         }
 
         if (!in_array($_POST['language'], array_keys(get_languages()))) {
@@ -143,23 +129,23 @@ function save_profile_from_post($userdata, &$errors) {
     if (!empty($_POST['use_new_pwd'])) {
         // password must be the same as its confirmation
         if ($_POST['use_new_pwd'] != $_POST['passwordConf']) {
-            $errors[] = l10n('The passwords do not match');
+            $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
         }
 
         if (!defined('IN_ADMIN')) { // changing password requires old password
-            $query = 'SELECT '.$conf['user_fields']['password'].' AS password FROM '.USERS_TABLE;
-            $query .= ' WHERE '.$conf['user_fields']['id'].' = \''.$conn->db_real_escape_string($userdata['id']).'\'';
+            $query = 'SELECT ' . $conf['user_fields']['password'] . ' AS password FROM ' . USERS_TABLE;
+            $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = \'' . $conn->db_real_escape_string($userdata['id']) . '\'';
             list($current_password) = $conn->db_fetch_row($conn->db_query($query));
 
             if (!$conf['password_verify']($_POST['password'], $current_password)) {
-                $errors[] = l10n('Current password is wrong');
+                $errors[] = \Phyxo\Functions\Language::l10n('Current password is wrong');
             }
         }
     }
 
     if (count($errors) == 0) {
         // mass_updates function
-        include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
         if (isset($_POST['mail_address'])) {
             // update common user informations
@@ -179,7 +165,7 @@ function save_profile_from_post($userdata, &$errors) {
             // username is updated only if allowed
             if (!empty($_POST['username'])) {
                 if ($_POST['username'] != $userdata['username'] and $services['users']->getUserId($_POST['username'])) {
-                    $page['errors'][] = l10n('this login is already used');
+                    $page['errors'][] = \Phyxo\Functions\Language::l10n('this login is already used');
                     unset($_POST['redirect']);
                 } else {
                     $fields[] = $conf['user_fields']['username'];
@@ -187,19 +173,19 @@ function save_profile_from_post($userdata, &$errors) {
 
                     // send email to the user
                     if ($_POST['username'] != $userdata['username']) {
-                        include_once(PHPWG_ROOT_PATH.'include/functions_mail.inc.php');
+                        include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
                         switch_lang_to($userdata['language']);
 
                         $keyargs_content = array(
-                            get_l10n_args('Hello', ''),
-                            get_l10n_args('Your username has been successfully changed to : %s', $_POST['username']),
+                            \Phyxo\Functions\Language::get_l10n_args('Hello', ''),
+                            \Phyxo\Functions\Language::get_l10n_args('Your username has been successfully changed to : %s', $_POST['username']),
                         );
 
                         pwg_mail(
                             $_POST['mail_address'],
                             array(
-                                'subject' => '['.$conf['gallery_title'].'] '.l10n('Username modification'),
-                                'content' => l10n_args($keyargs_content),
+                                'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Username modification'),
+                                'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                                 'content_format' => 'text/plain',
                             )
                         );
@@ -245,7 +231,7 @@ function save_profile_from_post($userdata, &$errors) {
                 array($data)
             );
         }
-        trigger_notify( 'save_profile_from_post', $userdata['id'] );
+        trigger_notify('save_profile_from_post', $userdata['id']);
 
         if (!empty($_POST['redirect'])) {
             redirect($_POST['redirect']);
@@ -263,30 +249,31 @@ function save_profile_from_post($userdata, &$errors) {
  * @param string $url_redirect
  * @param array $userdata
  */
-function load_profile_in_template($url_action, $url_redirect, $userdata, $template_prefixe=null) {
+function load_profile_in_template($url_action, $url_redirect, $userdata, $template_prefixe = null)
+{
     global $template, $conf;
 
     $template->assign(
         'radio_options',
         array(
-            'true' => l10n('Yes'),
-            'false' => l10n('No')
+            'true' => \Phyxo\Functions\Language::l10n('Yes'),
+            'false' => \Phyxo\Functions\Language::l10n('No')
         )
     );
 
     $template->assign(
         array(
-            $template_prefixe.'USERNAME'=>stripslashes($userdata['username']),
-            $template_prefixe.'EMAIL'=>@$userdata['email'],
-            $template_prefixe.'ALLOW_USER_CUSTOMIZATION'=>$conf['allow_user_customization'],
-            $template_prefixe.'ACTIVATE_COMMENTS'=>$conf['activate_comments'],
-            $template_prefixe.'NB_IMAGE_PAGE'=>$userdata['nb_image_page'],
-            $template_prefixe.'RECENT_PERIOD'=>$userdata['recent_period'],
-            $template_prefixe.'EXPAND' =>$userdata['expand'] ? 'true' : 'false',
-            $template_prefixe.'NB_COMMENTS'=>$userdata['show_nb_comments'] ? 'true' : 'false',
-            $template_prefixe.'NB_HITS'=>$userdata['show_nb_hits'] ? 'true' : 'false',
-            $template_prefixe.'REDIRECT' => $url_redirect,
-            $template_prefixe.'F_ACTION'=>$url_action,
+            $template_prefixe . 'USERNAME' => stripslashes($userdata['username']),
+            $template_prefixe . 'EMAIL' => @$userdata['email'],
+            $template_prefixe . 'ALLOW_USER_CUSTOMIZATION' => $conf['allow_user_customization'],
+            $template_prefixe . 'ACTIVATE_COMMENTS' => $conf['activate_comments'],
+            $template_prefixe . 'NB_IMAGE_PAGE' => $userdata['nb_image_page'],
+            $template_prefixe . 'RECENT_PERIOD' => $userdata['recent_period'],
+            $template_prefixe . 'EXPAND' => $userdata['expand'] ? 'true' : 'false',
+            $template_prefixe . 'NB_COMMENTS' => $userdata['show_nb_comments'] ? 'true' : 'false',
+            $template_prefixe . 'NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
+            $template_prefixe . 'REDIRECT' => $url_redirect,
+            $template_prefixe . 'F_ACTION' => $url_action,
         )
     );
 
@@ -307,7 +294,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     $template->assign('IN_ADMIN', defined('IN_ADMIN'));
 
     // allow plugins to add their own form data to content
-    trigger_notify( 'load_profile_in_template', $userdata );
+    trigger_notify('load_profile_in_template', $userdata);
 
     $template->assign('PWG_TOKEN', get_pwg_token());
 }

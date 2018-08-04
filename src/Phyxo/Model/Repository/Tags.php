@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Model\Repository;
 
@@ -31,8 +22,9 @@ class Tags extends BaseRepository
      * @param  q string substring of tag to search
      * @return array [id, name, url_name]
      */
-    public function getAllTags($q='') {
-        $query = 'SELECT t.id, name, url_name, lastmodified FROM '.TAGS_TABLE.' AS t';
+    public function getAllTags($q = '')
+    {
+        $query = 'SELECT t.id, name, url_name, lastmodified FROM ' . TAGS_TABLE . ' AS t';
         if (!empty($q)) {
             $query .= sprintf(' WHERE LOWER(name) like \'%%%s%%\'', strtolower($this->conn->db_real_escape_string($q)));
         }
@@ -49,20 +41,21 @@ class Tags extends BaseRepository
         return $tags;
     }
 
-    public function getPendingTags() {
+    public function getPendingTags()
+    {
         $query = 'SELECT t.id, t.name,it.image_id, url_name, created_by,';
-        $query .= ' i.path,u.username, status FROM '.IMAGE_TAG_TABLE.' AS it';
-        $query .= ' LEFT JOIN '.TAGS_TABLE.' AS t ON it.tag_id=t.id';
-        $query .= ' LEFT JOIN '.IMAGES_TABLE.' AS i ON i.id=it.image_id';
-        $query .= ' LEFT JOIN '.USERS_TABLE.' AS u ON u.id=created_by';
-        $query .= ' WHERE validated=\''.$this->conn->boolean_to_db(false).'\'';
+        $query .= ' i.path,u.username, status FROM ' . IMAGE_TAG_TABLE . ' AS it';
+        $query .= ' LEFT JOIN ' . TAGS_TABLE . ' AS t ON it.tag_id=t.id';
+        $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON i.id=it.image_id';
+        $query .= ' LEFT JOIN ' . USERS_TABLE . ' AS u ON u.id=created_by';
+        $query .= ' WHERE validated=\'' . $this->conn->boolean_to_db(false) . '\'';
         $query .= ' AND created_by IS NOT NULL';
 
         $result = $this->conn->db_query($query);
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['thumb_src'] = \DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
-            $row['picture_url'] = get_root_url().'admin/index.php?page=photo-'.$row['image_id'];
+            $row['picture_url'] = get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
@@ -77,7 +70,8 @@ class Tags extends BaseRepository
      *
      * @return int
      */
-    public function getNbAvailableTags($user) {
+    public function getNbAvailableTags($user)
+    {
         if (!isset($user['nb_available_tags'])) {
             $user['nb_available_tags'] = count($this->getAvailableTags());
             $this->conn->single_update(
@@ -97,14 +91,15 @@ class Tags extends BaseRepository
      *
      * @return array [id, name, counter, url_name]
      */
-    public function getAvailableTags() {
+    public function getAvailableTags()
+    {
         global $user;
 
         // we can find top fatter tags among reachable images
         $query = 'SELECT tag_id, validated, status, created_by,';
-        $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM '.IMAGE_CATEGORY_TABLE.' ic';
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON ic.image_id=it.image_id';
-        $query .= ' '.get_sql_condition_FandF(
+        $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM ' . IMAGE_CATEGORY_TABLE . ' ic';
+        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON ic.image_id=it.image_id';
+        $query .= ' ' . get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -112,7 +107,7 @@ class Tags extends BaseRepository
             ),
             ' WHERE '
         );
-        $query .= ' AND ('.$this->validatedCondition($user['id']).')';
+        $query .= ' AND (' . $this->validatedCondition($user['id']) . ')';
         $query .= ' GROUP BY tag_id,validated,created_by,status';
         $result = $this->conn->db_query($query);
 
@@ -130,13 +125,13 @@ class Tags extends BaseRepository
             return array();
         }
 
-        $query = 'SELECT id, name, url_name FROM '.TAGS_TABLE;
+        $query = 'SELECT id, name, url_name FROM ' . TAGS_TABLE;
         $result = $this->conn->db_query($query);
 
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
             if (!empty($tag_counters[$row['id']])) {
-                $row['counter'] = (int) $tag_counters[$row['id']]['counter'];
+                $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
                 $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
                 $row['status'] = $tag_counters[$row['id']]['status'];
                 $row['created_by'] = $tag_counters[$row['id']]['created_by'];
@@ -148,7 +143,8 @@ class Tags extends BaseRepository
         return $tags;
     }
 
-    public function getCommonTags($items, $max_tags, $excluded_tag_ids=array()) {
+    public function getCommonTags($items, $max_tags, $excluded_tag_ids = array())
+    {
         global $user;
 
         if (empty($items)) {
@@ -156,22 +152,22 @@ class Tags extends BaseRepository
         }
 
         $query = 'SELECT id,name,validated,created_by,status,';
-        $query .= ' url_name, count(1) AS counter FROM '.TAGS_TABLE.' AS t';
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON tag_id = id';
-        $query .= ' WHERE image_id '.$this->conn->in($items);
-        $query .= ' AND ('.$this->validatedCondition($user['id']).')';
+        $query .= ' url_name, count(1) AS counter FROM ' . TAGS_TABLE . ' AS t';
+        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' ON tag_id = id';
+        $query .= ' WHERE image_id ' . $this->conn->in($items);
+        $query .= ' AND (' . $this->validatedCondition($user['id']) . ')';
         if (!empty($excluded_tag_ids)) {
-            $query .= ' AND tag_id NOT '.$this->conn->in($excluded_tag_ids);
+            $query .= ' AND tag_id NOT ' . $this->conn->in($excluded_tag_ids);
         }
         $query .= ' GROUP BY validated,created_by,status,t.id';
 
-        if ($max_tags>0) {
-            $query .= ' ORDER BY counter DESC LIMIT '.$max_tags;
+        if ($max_tags > 0) {
+            $query .= ' ORDER BY counter DESC LIMIT ' . $max_tags;
         }
 
         $result = $this->conn->db_query($query);
         $tags = array();
-        while($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $row['validated'] = $this->conn->get_boolean($row['validated']);
             $tags[] = $row;
@@ -189,7 +185,8 @@ class Tags extends BaseRepository
      *    multilingual tags (if ExtendedDescription plugin is active)
      * @return array[] ('id', 'name')
      */
-    public function getTagsList($query, $only_user_language=true) {
+    public function getTagsList($query, $only_user_language = true)
+    {
         $result = $this->conn->db_query($query);
 
         $taglist = array();
@@ -198,18 +195,18 @@ class Tags extends BaseRepository
             $raw_name = $row['name'];
             $name = trigger_change('render_tag_name', $raw_name, $row);
 
-            $taglist[] =  array(
+            $taglist[] = array(
                 'name' => $name,
-                'id' => '~~'.$row['id'].'~~',
+                'id' => '~~' . $row['id'] . '~~',
             );
 
             if (!$only_user_language) {
                 $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
 
                 foreach (array_diff(array_unique($alt_names), array($name)) as $alt) {
-                    $altlist[] =  array(
+                    $altlist[] = array(
                         'name' => $alt,
-                        'id' => '~~'.$row['id'].'~~',
+                        'id' => '~~' . $row['id'] . '~~',
                     );
                 }
             }
@@ -235,7 +232,8 @@ class Tags extends BaseRepository
      * @param boolean $allow_create
      * @return int[]
      */
-    public function getTagsIds($raw_tags, $allow_create=true) {
+    public function getTagsIds($raw_tags, $allow_create = true)
+    {
         $tag_ids = array();
         if (!is_array($raw_tags)) {
             $raw_tags = explode(',', $raw_tags);
@@ -259,7 +257,8 @@ class Tags extends BaseRepository
      * @param string $tag_name
      * @return int
      */
-    public function tagIdFromTagName($tag_name) {
+    public function tagIdFromTagName($tag_name)
+    {
         global $page;
 
         $tag_name = trim($tag_name);
@@ -268,29 +267,28 @@ class Tags extends BaseRepository
         }
 
         // search existing by exact name
-        $query = 'SELECT id FROM '.$this->table;
-        $query .= ' WHERE name = \''.$this->conn->db_real_escape_string($tag_name).'\';';
+        $query = 'SELECT id FROM ' . $this->table;
+        $query .= ' WHERE name = \'' . $this->conn->db_real_escape_string($tag_name) . '\';';
 
         if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
             $url_name = trigger_change('render_tag_url', $tag_name);
             // search existing by url name
-            $query = 'SELECT id FROM '.$this->table;
-            $query .= ' WHERE url_name = \''.$this->conn->db_real_escape_string($url_name).'\';';
+            $query = 'SELECT id FROM ' . $this->table;
+            $query .= ' WHERE url_name = \'' . $this->conn->db_real_escape_string($url_name) . '\';';
             if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
                 // search by extended description (plugin sub name)
                 $sub_name_where = trigger_change('get_tag_name_like_where', array(), $tag_name);
                 if (count($sub_name_where)) {
-                    $query = 'SELECT id FROM '.$this->table;
-                    $query .= ' WHERE '.implode(' OR ', $sub_name_where).';';
+                    $query = 'SELECT id FROM ' . $this->table;
+                    $query .= ' WHERE ' . implode(' OR ', $sub_name_where) . ';';
                     $existing_tags = $this->conn->query2array($query, null, 'id');
-            }
+                }
 
                 if (count($existing_tags) == 0) { // finally create the tag
                     $this->conn->mass_inserts(
                         $this->table,
                         array('name', 'url_name'),
-                        array(array('name' => $tag_name, 'url_name' => $url_name)
-                        )
+                        array(array('name' => $tag_name, 'url_name' => $url_name))
                     );
 
                     $page['tag_id_from_tag_name_cache'][$tag_name] = $this->conn->db_insert_id($this->table);
@@ -313,21 +311,22 @@ class Tags extends BaseRepository
      * @param int[] $tags
      * @param int[] $images
      */
-    public function addTags($tags, $images) {
+    public function addTags($tags, $images)
+    {
         if (count($tags) == 0 or count($images) == 0) {
             return;
         }
 
         // we can't insert twice the same {image_id,tag_id} so we must first
         // delete lines we'll insert later
-        $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id '.$this->conn->in($images);
-        $query .= ' AND tag_id '.$this->conn->in($tags);
+        $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+        $query .= ' WHERE image_id ' . $this->conn->in($images);
+        $query .= ' AND tag_id ' . $this->conn->in($tags);
         $this->conn->db_query($query);
 
         $inserts = array();
         foreach ($images as $image_id) {
-            foreach ( array_unique($tags) as $tag_id) {
+            foreach (array_unique($tags) as $tag_id) {
                 $inserts[] = array(
                     'image_id' => $image_id,
                     'tag_id' => $tag_id,
@@ -349,7 +348,8 @@ class Tags extends BaseRepository
      * @param int[] $tags
      * @param int $image_id
      */
-    public function setTags($tags, $image_id) {
+    public function setTags($tags, $image_id)
+    {
         $this->setTagsOf(array($image_id => $tags));
     }
 
@@ -358,7 +358,8 @@ class Tags extends BaseRepository
      *
      * @param int[] $tag_ids
      */
-    public function deleteTags($tag_ids) {
+    public function deleteTags($tag_ids)
+    {
         if (is_numeric($tag_ids)) {
             $tag_ids = array($tag_ids);
         }
@@ -367,12 +368,12 @@ class Tags extends BaseRepository
             return false;
         }
 
-        $query = 'DELETE  FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE tag_id '.$this->conn->in($tag_ids);
+        $query = 'DELETE  FROM ' . IMAGE_TAG_TABLE;
+        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
         $this->conn->db_query($query);
 
-        $query = 'DELETE FROM '.TAGS_TABLE;
-        $query .= ' WHERE id '.$this->conn->in($tag_ids);
+        $query = 'DELETE FROM ' . TAGS_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($tag_ids);
         $this->conn->db_query($query);
 
         invalidate_user_cache_nb_tags();
@@ -383,10 +384,11 @@ class Tags extends BaseRepository
      *
      * @param array $tags_of - keys are image ids, values are array of tag ids
      */
-    public function setTagsOf($tags_of) {
+    public function setTagsOf($tags_of)
+    {
         if (count($tags_of) > 0) {
-            $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE image_id '.$this->conn->in(array_keys($tags_of));
+            $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+            $query .= ' WHERE image_id ' . $this->conn->in(array_keys($tags_of));
             $this->conn->db_query($query);
 
             $inserts = array();
@@ -423,7 +425,8 @@ class Tags extends BaseRepository
      * @param array $tags at least [id, counter]
      * @return array [..., level]
      */
-    public function addLevelToTags($tags) {
+    public function addLevelToTags($tags)
+    {
         global $conf;
 
         if (count($tags) == 0) {
@@ -473,21 +476,22 @@ class Tags extends BaseRepository
      * @param bool $user_permissions
      * @return array
      */
-    public function getImageIdsForTags($tag_ids, $mode='AND', $extra_images_where_sql='', $order_by='', $use_permissions=true) {
+    public function getImageIdsForTags($tag_ids, $mode = 'AND', $extra_images_where_sql = '', $order_by = '', $use_permissions = true)
+    {
         global $conf;
 
         if (empty($tag_ids)) {
             return array();
         }
 
-        $query = 'SELECT id FROM '.IMAGES_TABLE.' i ';
+        $query = 'SELECT id FROM ' . IMAGES_TABLE . ' i ';
 
         if ($use_permissions) {
-            $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id=ic.image_id';
+            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id=ic.image_id';
         }
 
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' AS it ON id=it.image_id';
-        $query .= ' WHERE tag_id '.$this->conn->in($tag_ids);
+        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON id=it.image_id';
+        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
 
         if ($use_permissions) {
             $query .= get_sql_condition_FandF(
@@ -500,12 +504,12 @@ class Tags extends BaseRepository
             );
         }
 
-        $query .= (empty($extra_images_where_sql) ? '' : " \nAND (".$extra_images_where_sql.')').' GROUP BY id';
+        $query .= (empty($extra_images_where_sql) ? '' : " \nAND (" . $extra_images_where_sql . ')') . ' GROUP BY id';
 
-        if ($mode=='AND' and count($tag_ids)>1) {
-            $query .= ' HAVING COUNT(DISTINCT tag_id)='.count($tag_ids);
+        if ($mode == 'AND' and count($tag_ids) > 1) {
+            $query .= ' HAVING COUNT(DISTINCT tag_id)=' . count($tag_ids);
         }
-        $query .= ' '.(empty($order_by) ? $conf['order_by'] : $order_by);
+        $query .= ' ' . (empty($order_by) ? $conf['order_by'] : $order_by);
 
         return $this->conn->query2array($query, null, 'id');
     }
@@ -518,23 +522,24 @@ class Tags extends BaseRepository
      * @param string[] $names
      * @return array [id, name, url_name]
      */
-    public function findTags($ids=array(), $url_names=array(), $names=array()) {
+    public function findTags($ids = array(), $url_names = array(), $names = array())
+    {
         $where_clauses = array();
         if (!empty($ids)) {
-            $where_clauses[] = 'id '.$this->conn->in($ids);
+            $where_clauses[] = 'id ' . $this->conn->in($ids);
         }
         if (!empty($url_names)) {
-            $where_clauses[] = 'url_name '.$this->conn->in($url_names);
+            $where_clauses[] = 'url_name ' . $this->conn->in($url_names);
         }
         if (!empty($names)) {
-            $where_clauses[] = 'name '.$this->conn->in($names);
+            $where_clauses[] = 'name ' . $this->conn->in($names);
         }
         if (empty($where_clauses)) {
             return array();
         }
 
-        $query = 'SELECT id,name,url_name,lastmodified FROM '.TAGS_TABLE;
-        $query .= ' WHERE '. implode(' OR ', $where_clauses);
+        $query = 'SELECT id,name,url_name,lastmodified FROM ' . TAGS_TABLE;
+        $query .= ' WHERE ' . implode(' OR ', $where_clauses);
 
         return $this->conn->query2array($query);
     }
@@ -542,7 +547,8 @@ class Tags extends BaseRepository
     /**
      * Deletes all tags linked to no photo
      */
-    public function deleteOrphanTags() {
+    public function deleteOrphanTags()
+    {
         $orphan_tags = $this->getOrphanTags();
 
         if (count($orphan_tags) > 0) {
@@ -558,9 +564,10 @@ class Tags extends BaseRepository
     /**
      * Get all tags (id + name) linked to no photo
      */
-    public function getOrphanTags() {
-        $query = 'SELECT id,name FROM '.TAGS_TABLE;
-        $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id = tag_id';
+    public function getOrphanTags()
+    {
+        $query = 'SELECT id,name FROM ' . TAGS_TABLE;
+        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' ON id = tag_id';
         $query .= ' WHERE tag_id IS NULL;';
 
         return $this->conn->query2array($query);
@@ -572,10 +579,11 @@ class Tags extends BaseRepository
      * @param string $tag_name
      * @return array ('id', info') or ('error')
      */
-    public function createTag($tag_name) {
+    public function createTag($tag_name)
+    {
         // does the tag already exists?
-        $query = 'SELECT id FROM '.TAGS_TABLE;
-        $query .= ' WHERE name = \''.$this->conn->db_real_escape_string($tag_name).'\';';
+        $query = 'SELECT id FROM ' . TAGS_TABLE;
+        $query .= ' WHERE name = \'' . $this->conn->db_real_escape_string($tag_name) . '\';';
         $existing_tags = $this->conn->query2array($query, null, 'id');
 
         if (count($existing_tags) == 0) {
@@ -590,15 +598,16 @@ class Tags extends BaseRepository
             $inserted_id = $this->conn->db_insert_id(TAGS_TABLE);
 
             return array(
-                'info' => l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
+                'info' => \Phyxo\Functions\Language::l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
                 'id' => $inserted_id,
             );
         } else {
-            return array('error' => l10n('Tag "%s" already exists', stripslashes($tag_name))); // @TODO: remove stripslashes
+            return array('error' => \Phyxo\Functions\Language::l10n('Tag "%s" already exists', stripslashes($tag_name))); // @TODO: remove stripslashes
         }
     }
 
-    public function associateTags($tag_ids, $image_id) {
+    public function associateTags($tag_ids, $image_id)
+    {
         if (!is_array($tag_ids)) {
             return;
         }
@@ -621,15 +630,17 @@ class Tags extends BaseRepository
     /*
      * @param $elements in an array of tags indexed by image_id
      */
-    public function rejectTags($elements) {
+    public function rejectTags($elements)
+    {
         if (empty($elements)) {
             return;
         }
         $deletes = array();
         foreach ($elements as $image_id => $tag_ids) {
             foreach ($tag_ids as $tag_id) {
-                $deletes[] = array('image_id' => $image_id,
-                                   'tag_id' => $tag_id
+                $deletes[] = array(
+                    'image_id' => $image_id,
+                    'tag_id' => $tag_id
                 );
             }
         }
@@ -643,39 +654,44 @@ class Tags extends BaseRepository
     /*
      * @param $elements in an array of tags indexed by image_id
      */
-    public function validateTags(array $elements) {
+    public function validateTags(array $elements)
+    {
         if (empty($elements)) {
             return;
         }
         $updates = array();
         foreach ($elements as $image_id => $tag_ids) {
             foreach ($tag_ids as $tag_id) {
-                $updates[] = array('image_id' => $image_id,
-                                   'tag_id' => $tag_id,
-                                   'validated' => $this->conn->boolean_to_db(true)
+                $updates[] = array(
+                    'image_id' => $image_id,
+                    'tag_id' => $tag_id,
+                    'validated' => $this->conn->boolean_to_db(true)
                 );
             }
         }
         $this->conn->mass_updates(
             IMAGE_TAG_TABLE,
-            array('primary' => array('tag_id', 'image_id'),
-                  'update' => array('validated')),
+            array(
+                'primary' => array('tag_id', 'image_id'),
+                'update' => array('validated')
+            ),
             $updates
         );
-        $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE status = 0 AND validated = \''.$this->conn->boolean_to_db(true).'\'';
+        $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+        $query .= ' WHERE status = 0 AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
         $this->conn->db_query($query);
         invalidate_user_cache_nb_tags();
     }
 
-    public function dissociateTags($tag_ids, $image_id) {
+    public function dissociateTags($tag_ids, $image_id)
+    {
         if (!is_array($tag_ids)) {
             return;
         }
 
-        $query = 'DELETE FROM '.IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id = '.$image_id;
-        $query .= ' AND tag_id '.$this->conn->in($tag_ids);
+        $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
+        $query .= ' WHERE image_id = ' . $image_id;
+        $query .= ' AND tag_id ' . $this->conn->in($tag_ids);
         $this->conn->db_query($query);
     }
 
@@ -688,19 +704,21 @@ class Tags extends BaseRepository
      *                      status[0|1] - 0 for deletion, 1 for addition
      *                      user_id -id user who add or delete tags
      */
-    public function toBeValidatedTags($tags_ids, $image_id, array $infos) {
+    public function toBeValidatedTags($tags_ids, $image_id, array $infos)
+    {
         $rows = array();
         foreach ($tags_ids as $id) {
-            $rows[] = array('tag_id' => $id,
-                            'image_id' => $image_id,
-                            'status' => $infos['status'],
-                            'created_by' => $infos['user_id'],
-                            'validated' => false
+            $rows[] = array(
+                'tag_id' => $id,
+                'image_id' => $image_id,
+                'status' => $infos['status'],
+                'created_by' => $infos['user_id'],
+                'validated' => false
             );
         }
 
-        if (count($rows)>0) {
-            if ($infos['status']==1) {
+        if (count($rows) > 0) {
+            if ($infos['status'] == 1) {
                 $this->conn->mass_inserts(
                     IMAGE_TAG_TABLE,
                     array_keys($rows[0]),
@@ -709,8 +727,10 @@ class Tags extends BaseRepository
             } else {
                 $this->conn->mass_updates(
                     IMAGE_TAG_TABLE,
-                    array('primary' => array('tag_id', 'image_id'),
-                          'update' => array('status', 'validated', 'created_by')),
+                    array(
+                        'primary' => array('tag_id', 'image_id'),
+                        'update' => array('status', 'validated', 'created_by')
+                    ),
                     $rows
                 );
             }
@@ -719,14 +739,15 @@ class Tags extends BaseRepository
         invalidate_user_cache_nb_tags();
     }
 
-    private function validatedCondition($user_id) {
+    private function validatedCondition($user_id)
+    {
         global $conf;
 
-        $sql = ' ((validated = \''.$this->conn->boolean_to_db(true).'\' AND status = 1)';
-        $sql .= ' OR (validated = \''.$this->conn->boolean_to_db(false).'\' AND status = 0))';
+        $sql = ' ((validated = \'' . $this->conn->boolean_to_db(true) . '\' AND status = 1)';
+        $sql .= ' OR (validated = \'' . $this->conn->boolean_to_db(false) . '\' AND status = 0))';
 
         if (!empty($conf['show_pending_added_tags'])) {
-            $sql .= ' OR (created_by = '.$user_id.')';
+            $sql .= ' OR (created_by = ' . $user_id . ')';
         }
 
         return $sql;

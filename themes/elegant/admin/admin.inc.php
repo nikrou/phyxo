@@ -11,9 +11,9 @@
 
 // Need upgrade?
 global $conf;
-include(__DIR__. '/upgrade.inc.php');
+include(__DIR__ . '/upgrade.inc.php');
 
-load_language('theme.lang', PHPWG_THEMES_PATH.'elegant/');
+\Phyxo\Functions\Language::load_language('theme.lang', PHPWG_THEMES_PATH . 'elegant/');
 
 $config = [
     'p_main_menu' => 'on', //on - off - disabled
@@ -34,7 +34,7 @@ if (isset($_POST['submit_elegant'])) {
 
     conf_update_param('elegant', $config, true);
 
-    $page['infos'][] = l10n('Information data registered in database');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 } else {
     $conf['elegant'] = json_decode($conf['elegant'], true);
 }

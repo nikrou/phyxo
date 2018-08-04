@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * This file is included by the picture page to manage user comments
@@ -38,7 +25,7 @@ foreach ($related_categories as $category) {
 }
 
 
-if ($page['show_comments'] and isset( $_POST['content'])) {
+if ($page['show_comments'] and isset($_POST['content'])) {
     if ($services['users']->isGuest() and !$conf['comments_forall']) {
         die('Session expired'); // TODO : better end of request ; better response
     }
@@ -57,20 +44,19 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
         $comment_action = $services['comments']->insertUserComment($comm, $_POST['key'], $page['errors']);
     }
 
-    switch ($comment_action)
-        {
+    switch ($comment_action) {
         case 'moderate':
-            $page['infos'][] = l10n('An administrator must authorize your comment before it is visible.');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('An administrator must authorize your comment before it is visible.');
         case 'validate':
-            $page['infos'][] = l10n('Your comment has been registered');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('Your comment has been registered');
             break;
         case 'reject':
             set_status_header(403);
-            $page['errors'][] = l10n('Your comment has NOT been registered because it did not pass the validation rules');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
             break;
         default:
-            trigger_error('Invalid comment action '.$comment_action, E_USER_WARNING);
-        }
+            trigger_error('Invalid comment action ' . $comment_action, E_USER_WARNING);
+    }
 
     // allow plugins to notify what's going on
     trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
@@ -81,14 +67,14 @@ if ($page['show_comments'] and isset( $_POST['content'])) {
 
 if ($page['show_comments']) {
     if (!$services['users']->isAdmin()) {
-        $validated_clause = '  AND validated = \''.$conn->boolean_to_db(true).'\'';
+        $validated_clause = '  AND validated = \'' . $conn->boolean_to_db(true) . '\'';
     } else {
         $validated_clause = '';
     }
 
     // number of comments for this picture
-    $query = 'SELECT COUNT(1) AS nb_comments FROM '.COMMENTS_TABLE;
-    $query .= ' WHERE image_id = '.$page['image_id'].$validated_clause.';';
+    $query = 'SELECT COUNT(1) AS nb_comments FROM ' . COMMENTS_TABLE;
+    $query .= ' WHERE image_id = ' . $page['image_id'] . $validated_clause . ';';
     $row = $conn->db_fetch_assoc($conn->db_query($query));
 
     // navigation bar creation
@@ -119,22 +105,22 @@ if ($page['show_comments']) {
         $comments_order = isset($_SESSION['comments_order']) ? $_SESSION['comments_order'] : $conf['comments_order'];
 
         $template->assign(array(
-            'COMMENTS_ORDER_URL' => add_url_params(duplicate_picture_url(), array('comments_order'=> ($comments_order == 'ASC' ? 'DESC' : 'ASC'))),
-            'COMMENTS_ORDER_TITLE' => $comments_order == 'ASC' ? l10n('Show latest comments first') : l10n('Show oldest comments first'),
+            'COMMENTS_ORDER_URL' => add_url_params(duplicate_picture_url(), array('comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC'))),
+            'COMMENTS_ORDER_TITLE' => $comments_order == 'ASC' ? \Phyxo\Functions\Language::l10n('Show latest comments first') : \Phyxo\Functions\Language::l10n('Show oldest comments first'),
         ));
 
-        $query = 'SELECT com.id, author, author_id,u.'.$conf['user_fields']['email'].' AS user_email,';
-        $query .= 'date,image_id,website_url,com.email,content, validated FROM '.COMMENTS_TABLE.' AS com';
-        $query .= ' LEFT JOIN '.USERS_TABLE.' AS u ON u.'.$conf['user_fields']['id'].' = author_id';
-        $query .= ' WHERE image_id = '.$page['image_id'];
-        $query .= ' '.$validated_clause;
-        $query .= ' ORDER BY date '.$comments_order;
-        $query .= ' LIMIT '.$conf['nb_comment_page'].' OFFSET '.$page['start'].';';
+        $query = 'SELECT com.id, author, author_id,u.' . $conf['user_fields']['email'] . ' AS user_email,';
+        $query .= 'date,image_id,website_url,com.email,content, validated FROM ' . COMMENTS_TABLE . ' AS com';
+        $query .= ' LEFT JOIN ' . USERS_TABLE . ' AS u ON u.' . $conf['user_fields']['id'] . ' = author_id';
+        $query .= ' WHERE image_id = ' . $page['image_id'];
+        $query .= ' ' . $validated_clause;
+        $query .= ' ORDER BY date ' . $comments_order;
+        $query .= ' LIMIT ' . $conf['nb_comment_page'] . ' OFFSET ' . $page['start'] . ';';
         $result = $conn->db_query($query);
 
         while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['author'] == 'guest') {
-                $row['author'] = l10n('guest');
+                $row['author'] = \Phyxo\Functions\Language::l10n('guest');
             }
 
             $email = null;
@@ -146,19 +132,19 @@ if ($page['show_comments']) {
 
             $tpl_comment =
                 array(
-                    'ID' => $row['id'],
-                    'AUTHOR' => trigger_change('render_comment_author', $row['author']),
-                    'DATE' => format_date($row['date'], array('day_name','day','month','year','time')),
-                    'CONTENT' => trigger_change('render_comment_content',$row['content']),
-                    'WEBSITE_URL' => $row['website_url'],
-                );
+                'ID' => $row['id'],
+                'AUTHOR' => trigger_change('render_comment_author', $row['author']),
+                'DATE' => format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
+                'CONTENT' => trigger_change('render_comment_content', $row['content']),
+                'WEBSITE_URL' => $row['website_url'],
+            );
 
             if ($services['users']->canManageComment('delete', $row['author_id'])) {
                 $tpl_comment['U_DELETE'] = add_url_params(
                     $url_self,
                     array(
-                        'action'=>'delete_comment',
-                        'comment_to_delete'=>$row['id'],
+                        'action' => 'delete_comment',
+                        'comment_to_delete' => $row['id'],
                         'pwg_token' => get_pwg_token(),
                     )
                 );
@@ -167,8 +153,8 @@ if ($page['show_comments']) {
                 $tpl_comment['U_EDIT'] = add_url_params(
                     $url_self,
                     array(
-                        'action'=>'edit_comment',
-                        'comment_to_edit'=>$row['id'],
+                        'action' => 'edit_comment',
+                        'comment_to_edit' => $row['id'],
                     )
                 );
                 if (isset($edit_comment) and ($row['id'] == $edit_comment)) {
@@ -209,7 +195,7 @@ if ($page['show_comments']) {
     if ($show_add_comment_form) {
         $key = get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
 
-        $tpl_var =  array(
+        $tpl_var = array(
             'F_ACTION' => $url_self,
             'KEY' => $key,
             'CONTENT' => '',
@@ -223,9 +209,9 @@ if ($page['show_comments']) {
             'SHOW_WEBSITE' => $conf['comments_enable_website'],
         );
 
-        if (!empty($comment_action) && $comment_action=='reject') {
-            foreach(array('content', 'author', 'website_url', 'email') as $k) {
-                $tpl_var[strtoupper($k)] = htmlspecialchars( stripslashes(@$_POST[$k]) );
+        if (!empty($comment_action) && $comment_action == 'reject') {
+            foreach (array('content', 'author', 'website_url', 'email') as $k) {
+                $tpl_var[strtoupper($k)] = htmlspecialchars(stripslashes(@$_POST[$k]));
             }
         }
         $template->assign('comment_add', $tpl_var);

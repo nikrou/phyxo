@@ -24,12 +24,12 @@ trigger_notify('loc_begin_identification');
 $redirect_to = '';
 if (!empty($_GET['redirect'])) {
     $redirect_to = urldecode($_GET['redirect']);
-    $page['errors'][] = l10n('You are not authorized to access the requested page');
+    $page['errors'][] = \Phyxo\Functions\Language::l10n('You are not authorized to access the requested page');
 }
 
 if (isset($_POST['login'])) {
     if (!isset($_COOKIE[session_name()])) {
-        $page['errors'][] = l10n('Cookies are blocked or not supported by your browser. You must enable cookies to connect.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Cookies are blocked or not supported by your browser. You must enable cookies to connect.');
     } else {
         if ($conf['insensitive_case_logon'] == true) {
             $_POST['username'] = $services['users']->searchCaseUsername($_POST['username']);
@@ -41,7 +41,7 @@ if (isset($_POST['login'])) {
         if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
             redirect(empty($redirect_to) ? get_gallery_home_url() : $redirect_to);
         } else {
-            $page['errors'][] = l10n('Invalid password!');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         }
     }
 }
@@ -50,7 +50,7 @@ if (isset($_POST['login'])) {
 //
 // Start output of page
 //
-$title = l10n('Identification');
+$title = \Phyxo\Functions\Language::l10n('Identification');
 $page['body_id'] = 'theIdentificationPage';
 
 $template->set_filenames(array('identification' => 'identification.tpl'));

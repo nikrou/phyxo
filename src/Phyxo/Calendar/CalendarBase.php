@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Calendar;
 
@@ -45,16 +36,17 @@ abstract class CalendarBase
      * @param int $max_levels (e.g. 2=only year and month)
      * @return string
      */
-    public abstract function get_date_where($max_levels=3);
+    public abstract function get_date_where($max_levels = 3);
 
     /**
      * Initialize the calendar.
      *
      * @param string $inner_sql
      */
-    public function initialize($inner_sql) {
+    public function initialize($inner_sql)
+    {
         global $page;
-        if ($page['chronology_field']=='posted') {
+        if ($page['chronology_field'] == 'posted') {
             $this->date_field = 'date_available';
         } else {
             $this->date_field = 'date_creation';
@@ -67,21 +59,22 @@ abstract class CalendarBase
      *
      * @return string
      */
-    public function get_display_name() {
+    public function get_display_name()
+    {
         global $conf, $page;
         $res = '';
 
-        for ($i=0; $i<count($page['chronology_date']); $i++) {
+        for ($i = 0; $i < count($page['chronology_date']); $i++) {
             $res .= $conf['level_separator'];
-            if (isset($page['chronology_date'][$i+1])) {
-                $chronology_date = array_slice($page['chronology_date'],0, $i+1);
+            if (isset($page['chronology_date'][$i + 1])) {
+                $chronology_date = array_slice($page['chronology_date'], 0, $i + 1);
                 $url = duplicate_index_url(
-                    array( 'chronology_date'=>$chronology_date ),
-                    array( 'start' )
+                    array('chronology_date' => $chronology_date),
+                    array('start')
                 );
-                $res .= '<a href="'.$url.'">'.$this->get_date_component_label($i, $page['chronology_date'][$i]).'</a>';
+                $res .= '<a href="' . $url . '">' . $this->get_date_component_label($i, $page['chronology_date'][$i]) . '</a>';
             } else {
-                $res .= '<span class="calInHere">'.$this->get_date_component_label($i, $page['chronology_date'][$i]).'</span>';
+                $res .= '<span class="calInHere">' . $this->get_date_component_label($i, $page['chronology_date'][$i]) . '</span>';
             }
         }
         return $res;
@@ -92,12 +85,13 @@ abstract class CalendarBase
      *
      * @return string
      */
-    protected function get_date_component_label($level, $date_component) {
+    protected function get_date_component_label($level, $date_component)
+    {
         $label = $date_component;
         if (isset($this->calendar_levels[$level]['labels'][$date_component])) {
             $label = $this->calendar_levels[$level]['labels'][$date_component];
-        } elseif ('any' === $date_component ) {
-            $label = l10n('All');
+        } elseif ('any' === $date_component) {
+            $label = \Phyxo\Functions\Language::l10n('All');
         }
         return $label;
     }
@@ -108,13 +102,14 @@ abstract class CalendarBase
      * @param string $date
      * @return string
      */
-    protected function get_date_nice_name($date) {
+    protected function get_date_nice_name($date)
+    {
         $date_components = explode('-', $date);
         $res = '';
-        for ($i=count($date_components)-1; $i>=0; $i--) {
+        for ($i = count($date_components) - 1; $i >= 0; $i--) {
             if ('any' !== $date_components[$i]) {
-                $label = $this->get_date_component_label($i, $date_components[$i] );
-                if ($res!='') {
+                $label = $this->get_date_component_label($i, $date_components[$i]);
+                if ($res != '') {
                     $res .= ' ';
                 }
                 $res .= $label;
@@ -133,10 +128,11 @@ abstract class CalendarBase
      * @param array $labels - optional labels for items (e.g. Jan,Feb,...)
      * @return string
      */
-    protected function get_nav_bar_from_items($date_components, $items, $show_any, $show_empty=false, $labels=null) {
+    protected function get_nav_bar_from_items($date_components, $items, $show_any, $show_empty = false, $labels = null)
+    {
         global $conf, $page, $template;
 
-        $nav_bar_datas=array();
+        $nav_bar_datas = array();
 
         if ($conf['calendar_show_empty'] and $show_empty and !empty($labels)) {
             foreach ($labels as $item => $label) {
@@ -152,17 +148,17 @@ abstract class CalendarBase
             if (isset($labels[$item])) {
                 $label = $labels[$item];
             }
-            if ($nb_images==-1) {
-                $tmp_datas=array(
-                    'LABEL'=> $label
+            if ($nb_images == -1) {
+                $tmp_datas = array(
+                    'LABEL' => $label
                 );
             } else {
                 $url = duplicate_index_url(
-                    array('chronology_date'=>array_merge($date_components,array($item))),
-                    array( 'start' )
+                    array('chronology_date' => array_merge($date_components, array($item))),
+                    array('start')
                 );
-                $tmp_datas=array(
-                    'LABEL'=> $label,
+                $tmp_datas = array(
+                    'LABEL' => $label,
                     'URL' => $url
                 );
             }
@@ -173,14 +169,14 @@ abstract class CalendarBase
 
         }
 
-        if ($conf['calendar_show_any'] and $show_any and count($items)>1
-            && count($date_components)<count($this->calendar_levels)-1 ) {
+        if ($conf['calendar_show_any'] and $show_any and count($items) > 1
+            && count($date_components) < count($this->calendar_levels) - 1) {
             $url = duplicate_index_url(
-                array('chronology_date' => array_merge($date_components,array('any'))),
+                array('chronology_date' => array_merge($date_components, array('any'))),
                 array('start')
             );
             $nav_bar_datas[] = array(
-                'LABEL' => l10n('All'),
+                'LABEL' => \Phyxo\Functions\Language::l10n('All'),
                 'URL' => $url
             );
         }
@@ -193,29 +189,30 @@ abstract class CalendarBase
      *
      * @param int $level - 0-year, 1-month/week, 2-day
      */
-    protected function build_nav_bar($level, $labels=null) {
+    protected function build_nav_bar($level, $labels = null)
+    {
         global $template, $conf, $page, $conn;
 
-        $query = 'SELECT DISTINCT('.$this->calendar_levels[$level]['sql'].') as period,';
+        $query = 'SELECT DISTINCT(' . $this->calendar_levels[$level]['sql'] . ') as period,';
         $query .= ' COUNT(DISTINCT id) as nb_images';
-        $query .= ' '.$this->inner_sql;
-        $query .= ' '.$this->get_date_where($level).' GROUP BY period';
+        $query .= ' ' . $this->inner_sql;
+        $query .= ' ' . $this->get_date_where($level) . ' GROUP BY period';
 
         $level_items = $conn->query2array($query, 'period', 'nb_images');
 
-        if (count($level_items)==1 && count($page['chronology_date'])<count($this->calendar_levels)-1) {
+        if (count($level_items) == 1 && count($page['chronology_date']) < count($this->calendar_levels) - 1) {
             if (!isset($page['chronology_date'][$level])) {
                 list($key) = array_keys($level_items);
                 $page['chronology_date'][$level] = (int)$key;
 
-                if ($level<count($page['chronology_date']) && $level!=count($this->calendar_levels)-1) {
+                if ($level < count($page['chronology_date']) && $level != count($this->calendar_levels) - 1) {
                     return;
                 }
             }
         }
 
         $dates = $page['chronology_date'];
-        while ($level<count($dates)) {
+        while ($level < count($dates)) {
             array_pop($dates);
         }
 
@@ -239,24 +236,25 @@ abstract class CalendarBase
      * Assigns the next/previous link to the template with regards to
      * the currently choosen date.
      */
-    protected function build_next_prev() {
+    protected function build_next_prev()
+    {
         global $template, $page, $conn;
 
-        $prev = $next =null;
+        $prev = $next = null;
         if (empty($page['chronology_date'])) {
             return;
         }
 
         $sub_queries = array();
         $nb_elements = count($page['chronology_date']);
-        for ($i=0; $i<$nb_elements; $i++) {
+        for ($i = 0; $i < $nb_elements; $i++) {
             if ('any' === $page['chronology_date'][$i]) {
                 $sub_queries[] = '\'any\'';
             } else {
                 $sub_queries[] = $conn->db_cast_to_text($this->calendar_levels[$i]['sql']);
             }
         }
-        $query = 'SELECT '.$conn->db_concat_ws($sub_queries, '-').' AS period';
+        $query = 'SELECT ' . $conn->db_concat_ws($sub_queries, '-') . ' AS period';
         $query .= $this->inner_sql;
         $query .= ' AND ' . $this->date_field . ' IS NOT NULL GROUP BY period';
 
@@ -274,8 +272,8 @@ abstract class CalendarBase
 
         $tpl_var = [];
 
-        if ($current_rank>0) { // has previous
-            $prev = $upper_items[$current_rank-1];
+        if ($current_rank > 0) { // has previous
+            $prev = $upper_items[$current_rank - 1];
             $chronology_date = explode('-', $prev);
             $tpl_var['previous'] = [
                 'LABEL' => $this->get_date_nice_name($prev),
@@ -283,8 +281,8 @@ abstract class CalendarBase
             ];
         }
 
-        if ($current_rank < count($upper_items)-1) { // has next
-            $next = $upper_items[$current_rank+1];
+        if ($current_rank < count($upper_items) - 1) { // has next
+            $next = $upper_items[$current_rank + 1];
             $chronology_date = explode('-', $next);
             $tpl_var['next'] = [
                 'LABEL' => $this->get_date_nice_name($next),
@@ -295,7 +293,7 @@ abstract class CalendarBase
         if (!empty($tpl_var)) {
             $existing = $template->getVariable('chronology_navigation_bars');
             if (!($existing instanceof \Smarty_Undefined_Variable)) {
-                $existing->value[ sizeof($existing->value)-1 ] = array_merge($existing->value[sizeof($existing->value)-1], $tpl_var);
+                $existing->value[sizeof($existing->value) - 1] = array_merge($existing->value[sizeof($existing->value) - 1], $tpl_var);
             } else {
                 $template->append('chronology_navigation_bars', $tpl_var);
             }

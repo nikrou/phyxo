@@ -10,7 +10,7 @@
  */
 
 if (!defined("PLUGINS_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Plugin\Plugins;
@@ -33,14 +33,14 @@ if (isset($_GET['show_details'])) {
 }
 
 $pwg_token = get_pwg_token();
-$action_url = PLUGINS_BASE_URL.'&amp;section=installed&amp;plugin='.'%s'.'&amp;pwg_token='.$pwg_token;
+$action_url = PLUGINS_BASE_URL . '&amp;section=installed&amp;plugin=' . '%s' . '&amp;pwg_token=' . $pwg_token;
 
 $plugins = new Plugins($conn);
 
 //--------------------------------------------------perform requested actions
 if (isset($_GET['action']) and isset($_GET['plugin'])) {
     if (!$services['users']->isWebmaster()) {
-        $page['errors'][] = l10n('Webmaster status is required.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         check_pwg_token();
 
@@ -51,7 +51,7 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
                 $template->delete_compiled_templates();
                 $persistent_cache->purge(true);
             }
-            redirect(PLUGINS_BASE_URL.'&section=installed');
+            redirect(PLUGINS_BASE_URL . '&section=installed');
         }
     }
 }
@@ -77,7 +77,7 @@ $plugins->sortFsPlugins('name');
 $tpl_plugins = array();
 $active_plugins = 0;
 
-foreach($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
+foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
     if (isset($_SESSION['incompatible_plugins'][$plugin_id])
         && $fs_plugin['version'] != $_SESSION['incompatible_plugins'][$plugin_id]) {
         // Incompatible plugins must be reinitilized
@@ -121,7 +121,7 @@ if (count($missing_plugin_ids) > 0) {
         $tpl_plugins[] = array(
             'NAME' => $plugin_id,
             'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
-            'DESC' => l10n('ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'),
+            'DESC' => \Phyxo\Functions\Language::l10n('ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'),
             'U_ACTION' => sprintf($action_url, $plugin_id),
             'STATE' => 'missing',
         );
@@ -130,10 +130,11 @@ if (count($missing_plugin_ids) > 0) {
 }
 
 // sort plugins by state then by name
-function cmp($a, $b) {
+function cmp($a, $b)
+{
     $s = array('missing' => 1, 'active' => 2, 'inactive' => 3);
 
-    if($a['STATE'] == $b['STATE']) {
+    if ($a['STATE'] == $b['STATE']) {
         return strcasecmp($a['NAME'], $b['NAME']);
     } else {
         return $s[$a['STATE']] >= $s[$b['STATE']];
@@ -146,7 +147,7 @@ $template->assign(
         'plugins' => $tpl_plugins,
         'active_plugins' => $active_plugins,
         'PWG_TOKEN' => $pwg_token,
-        'base_url' => PLUGINS_BASE_URL.'&amp;section=installed',
+        'base_url' => PLUGINS_BASE_URL . '&amp;section=installed',
         'show_details' => $show_details,
     )
 );

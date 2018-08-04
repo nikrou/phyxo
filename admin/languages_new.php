@@ -23,7 +23,7 @@ $languages = new Languages($conn);
 
 $languages_dir = PHPWG_ROOT_PATH . 'language';
 if (!is_writable($languages_dir)) {
-    $page['errors'][] = l10n('Add write access to the "%s" directory', 'language');
+    $page['errors'][] = \Phyxo\Functions\Language::l10n('Add write access to the "%s" directory', 'language');
 }
 
 // +-----------------------------------------------------------------------+
@@ -32,7 +32,7 @@ if (!is_writable($languages_dir)) {
 
 if (isset($_GET['revision'])) {
     if (!$services['users']->isWebmaster()) {
-        $page['errors'][] = l10n('Webmaster status is required.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         check_pwg_token();
 
@@ -40,7 +40,7 @@ if (isset($_GET['revision'])) {
             $languages->extractLanguageFiles('install', $_GET['revision']);
             $install_status = 'ok';
         } catch (\Exception $e) {
-            $page['errors'] = l10n($e->getMessage());
+            $page['errors'] = \Phyxo\Functions\Language::l10n($e->getMessage());
         }
 
         redirect(LANGUAGES_BASE_URL . '&section=new&installstatus=' . $install_status);
@@ -53,23 +53,23 @@ if (isset($_GET['revision'])) {
 if (isset($_GET['installstatus'])) {
     switch ($_GET['installstatus']) {
         case 'ok':
-            $page['infos'][] = l10n('Language has been successfully installed');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('Language has been successfully installed');
             break;
 
         case 'temp_path_error':
-            $page['errors'][] = l10n('Can\'t create temporary file.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t create temporary file.');
             break;
 
         case 'dl_archive_error':
-            $page['errors'][] = l10n('Can\'t download archive.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t download archive.');
             break;
 
         case 'archive_error':
-            $page['errors'][] = l10n('Can\'t read or extract archive.');
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t read or extract archive.');
             break;
 
         default:
-            $page['errors'][] = l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
+            $page['errors'][] = \Phyxo\Functions\Language::l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
     }
 }
 

@@ -115,7 +115,7 @@ function mkgetdir($dir, $flags = MKGETDIR_NONE)
         $mkd = @mkdir($dir, $conf['chmod_value'], ($flags & MKGETDIR_RECURSIVE) ? true : false);
         umask($umask);
         if ($mkd == false) {
-            !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . l10n('no write access'));
+            !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
             return false;
         }
         if ($flags & MKGETDIR_PROTECT_HTACCESS) {
@@ -128,7 +128,7 @@ function mkgetdir($dir, $flags = MKGETDIR_NONE)
         }
     }
     if (!is_writable($dir)) {
-        !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . l10n('no write access'));
+        !($flags & MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
         return false;
     }
     return true;
@@ -469,7 +469,7 @@ function format_date($original, $show = null, $format = null)
     $date = str2DateTime($original, $format);
 
     if (!$date) {
-        return l10n('N/A');
+        return \Phyxo\Functions\Language::l10n('N/A');
     }
 
     if ($show === null || $show === true) {
@@ -529,7 +529,7 @@ function format_fromto($from, $to, $full = false)
         }
         $to_str = format_date($to);
 
-        return l10n('from %s to %s', $from_str, $to_str);
+        return \Phyxo\Functions\Language::l10n('from %s to %s', $from_str, $to_str);
     }
 }
 
@@ -548,7 +548,7 @@ function time_since($original, $stop = 'minute', $format = null, $with_text = tr
     $date = str2DateTime($original, $format);
 
     if (!$date) {
-        return l10n('N/A');
+        return \Phyxo\Functions\Language::l10n('N/A');
     }
 
     $now = new DateTime();
@@ -576,7 +576,7 @@ function time_since($original, $stop = 'minute', $format = null, $with_text = tr
     $i = 0;
     foreach ($chunks as $name => $value) {
         if ($value != 0) {
-            $print .= ' ' . l10n_dec('%d ' . $name, '%d ' . $name . 's', $value);
+            $print .= ' ' . \Phyxo\Functions\Language::l10n_dec('%d ' . $name, '%d ' . $name . 's', $value);
         }
         if (!empty($print) && $i >= $j) {
             break;
@@ -588,9 +588,9 @@ function time_since($original, $stop = 'minute', $format = null, $with_text = tr
 
     if ($with_text) {
         if ($diff->invert) {
-            $print = l10n('%s ago', $print);
+            $print = \Phyxo\Functions\Language::l10n('%s ago', $print);
         } else {
-            $print = l10n('%s in the future', $print);
+            $print = \Phyxo\Functions\Language::l10n('%s in the future', $print);
         }
     }
 
@@ -764,107 +764,6 @@ function fill_caddie($elements_id)
 function get_name_from_file($filename)
 {
     return str_replace('_', ' ', get_filename_wo_extension($filename));
-}
-
-/**
- * translation function.
- * returns the corresponding value from _$lang_ if existing else the key is returned
- * if more than one parameter is provided sprintf is applied
- *
- * @param string $key
- * @param mixed $args,... optional arguments
- * @return string
- */
-function l10n($key)
-{
-    global $lang, $conf;
-
-    if (($val = @$lang[$key]) === null) {
-        if ($conf['debug_l10n'] and !isset($lang[$key]) and !empty($key)) {
-            trigger_error('[l10n] language key "' . $key . '" not defined', E_USER_WARNING);
-        }
-        $val = $key;
-    }
-
-    if (func_num_args() > 1) {
-        $args = func_get_args();
-        $val = vsprintf($val, array_slice($args, 1));
-    }
-
-    return $val;
-}
-
-/**
- * returns the printf value for strings including %d
- * returned value is concorded with decimal value (singular, plural)
- *
- * @param string $singular_key
- * @param string $plural_key
- * @param int $decimal
- * @return string
- */
-function l10n_dec($singular_key, $plural_key, $decimal)
-{
-    global $lang_info;
-
-    return
-        sprintf(
-        l10n(((($decimal > 1) or ($decimal == 0 and $lang_info['zero_plural']))
-            ? $plural_key
-            : $singular_key)),
-        $decimal
-    );
-}
-
-/**
- * returns a single element to use with l10n_args
- *
- * @param string $key translation key
- * @param mixed $args arguments to use on sprintf($key, args)
- *   if args is a array, each values are used on sprintf
- * @return string
- */
-function get_l10n_args($key, $args = '')
-{
-    if (is_array($args)) {
-        $key_arg = array_merge(array($key), $args);
-    } else {
-        $key_arg = array($key, $args);
-    }
-    return array('key_args' => $key_arg);
-}
-
-/**
- * returns a string formated with l10n elements.
- * it is usefull to "prepare" a text and translate it later
- * @see get_l10n_args()
- *
- * @param array $key_args one l10n_args element or array of l10n_args elements
- * @param string $sep used when translated elements are concatened
- * @return string
- */
-function l10n_args($key_args, $sep = "\n")
-{
-    if (is_array($key_args)) {
-        foreach ($key_args as $key => $element) {
-            if (isset($result)) {
-                $result .= $sep;
-            } else {
-                $result = '';
-            }
-
-            if ($key === 'key_args') {
-                array_unshift($element, l10n(array_shift($element))); // translate the key
-                $result .= call_user_func_array('sprintf', $element);
-            } else {
-                $result .= l10n_args($element, $sep);
-            }
-        }
-    } else {
-        fatal_error('l10n_args: Invalid arguments');
-    }
-
-    return $result;
 }
 
 /**
@@ -1131,128 +1030,6 @@ function get_parent_language($lang_id = null)
 }
 
 /**
- * includes a language file or returns the content of a language file
- *
- * tries to load in descending order:
- *   param language, user language, default language
- *
- * @param string $filename
- * @param string $dirname
- * @param mixed options can contain
- *     @option string language - language to load
- *     @option bool return - if true the file content is returned
- *     @option bool no_fallback - if true do not load default language
- *     @option bool|string force_fallback - force pre-loading of another language
- *        default language if *true* or specified language
- *     @option bool local - if true load file from local directory
- * @return boolean|string
- */
-function load_language($filename, $dirname = '', $options = array())
-{
-    global $user, $language_files, $services;
-
-    // keep trace of plugins loaded files for switch_lang_to() function
-    if (!empty($dirname) && !empty($filename) && !@$options['return'] && !isset($language_files[$dirname][$filename])) {
-        $language_files[$dirname][$filename] = $options;
-    }
-
-    if (!@$options['return']) {
-        $filename .= '.php';
-    }
-    if (empty($dirname)) {
-        $dirname = PHPWG_ROOT_PATH;
-    }
-    $dirname .= 'language/';
-
-    $default_language = defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH') ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
-
-    // construct list of potential languages
-    $languages = array();
-    if (!empty($options['language'])) { // explicit language
-        $languages[] = $options['language'];
-    }
-    if (!empty($user['language'])) { // use language
-        $languages[] = $user['language'];
-    }
-    if (($parent = get_parent_language()) != null) { // parent language
-        // this is only for when the "child" language is missing
-        $languages[] = $parent;
-    }
-    if (isset($options['force_fallback'])) { // fallback language
-        // this is only for when the main language is missing
-        if ($options['force_fallback'] === true) {
-            $options['force_fallback'] = $default_language;
-        }
-        $languages[] = $options['force_fallback'];
-    }
-    if (!@$options['no_fallback']) { // default language
-        $languages[] = $default_language;
-    }
-
-    $languages = array_unique($languages);
-
-    // find first existing
-    $source_file = '';
-    $selected_language = '';
-    foreach ($languages as $language) {
-        $f = @$options['local'] ? $dirname . $language . '.' . $filename : $dirname . $language . '/' . $filename;
-
-        if (file_exists($f)) {
-            $selected_language = $language;
-            $source_file = $f;
-            break;
-        }
-    }
-
-    if (!empty($source_file)) {
-        if (!@$options['return']) {
-            // load forced fallback
-            if (isset($options['force_fallback']) && $options['force_fallback'] != $selected_language) {
-                @include(str_replace($selected_language, $options['force_fallback'], $source_file));
-            }
-
-            // load language content
-            @include($source_file);
-            $load_lang = @$lang;
-            $load_lang_info = @$lang_info;
-
-            // access already existing values
-            global $lang, $lang_info;
-            if (!isset($lang)) {
-                $lang = array();
-            }
-            if (!isset($lang_info)) {
-                $lang_info = array();
-            }
-
-            // load parent language content directly in global
-            if (!empty($load_lang_info['parent'])) {
-                $parent_language = $load_lang_info['parent'];
-            } elseif (!empty($lang_info['parent'])) {
-                $parent_language = $lang_info['parent'];
-            } else {
-                $parent_language = null;
-            }
-
-            if (!empty($parent_language) && $parent_language != $selected_language) {
-                @include(str_replace($selected_language, $parent_language, $source_file));
-            }
-
-            // merge contents
-            $lang = array_merge($lang, (array)$load_lang);
-            $lang_info = array_merge($lang_info, (array)$load_lang_info);
-            return true;
-        } else {
-            $content = @file_get_contents($source_file);
-            //Note: target charset is always utf-8 $content = convert_charset($content, 'utf-8', $target_charset);
-            return $content;
-        }
-    }
-
-    return false;
-}
-
-/**
  * converts a string from a character set to another character set
  *
  * @param string $str
@@ -1414,7 +1191,7 @@ function get_icon($date, $is_child_date = false)
     }
 
     if (!isset($cache['get_icon']['title'])) {
-        $cache['get_icon']['title'] = l10n(
+        $cache['get_icon']['title'] = \Phyxo\Functions\Language::l10n(
             'photos posted during the last %d days',
             $user['recent_period']
         );
@@ -1524,12 +1301,12 @@ function get_privacy_level_options()
     $label = '';
     foreach (array_reverse($conf['available_permission_levels']) as $level) {
         if (0 == $level) {
-            $label = l10n('Everybody');
+            $label = \Phyxo\Functions\Language::l10n('Everybody');
         } else {
             if (strlen($label)) {
                 $label .= ', ';
             }
-            $label .= l10n(sprintf('Level %d', $level));
+            $label .= \Phyxo\Functions\Language::l10n(sprintf('Level %d', $level));
         }
         $options[$level] = $label;
     }

@@ -121,7 +121,7 @@ if (!empty($_POST)) {
         }
     }
 
-    $page['infos'][] = l10n('Album updated successfully');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Album updated successfully');
 }
 
 // +-----------------------------------------------------------------------+

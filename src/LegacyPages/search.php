@@ -129,7 +129,7 @@ if (isset($_POST['submit'])) {
         $conn->db_query($query);
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
     } else {
-        $page['errors'][] = l10n('Empty query. No criteria has been entered.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
     }
 }
 //----------------------------------------------------------------- redirection
@@ -148,7 +148,7 @@ if (isset($_POST['submit']) and count($page['errors']) == 0) {
 //
 // Start output of page
 //
-$title = l10n('Search');
+$title = \Phyxo\Functions\Language::l10n('Search');
 $page['body_id'] = 'theSearchPage';
 
 $template->set_filename('search', 'search.tpl');

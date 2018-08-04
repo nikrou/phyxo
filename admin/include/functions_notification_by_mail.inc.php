@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /* nbm_global_var */
 $env_nbm = array(
@@ -40,13 +27,14 @@ if ((!isset($env_nbm['sendmail_timeout'])) or (!is_numeric($env_nbm['sendmail_ti
  *
  * @return string nbm identifier
  */
-function find_available_check_key() {
+function find_available_check_key()
+{
     global $conn;
 
     while (true) {
         $key = generate_key(16);
-        $query = 'SELECT count(1) FROM '.USER_MAIL_NOTIFICATION_TABLE;
-        $query .= ' WHERE check_key = \''.$key.'\';';
+        $query = 'SELECT count(1) FROM ' . USER_MAIL_NOTIFICATION_TABLE;
+        $query .= ' WHERE check_key = \'' . $key . '\';';
 
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count == 0) {
@@ -60,7 +48,8 @@ function find_available_check_key() {
  *
  * @return true, if it's timeout
  */
-function check_sendmail_timeout() {
+function check_sendmail_timeout()
+{
     global $env_nbm;
 
     $env_nbm['is_sendmail_timeout'] = ((get_moment() - $env_nbm['start_time']) > $env_nbm['sendmail_timeout']);
@@ -74,8 +63,11 @@ function check_sendmail_timeout() {
  *
  * @return quoted check key list
  */
-function quote_check_key_list($check_key_list=array()) {
-    return array_map(function($s) {return '\''.$s.'\'';}, $check_key_list);
+function quote_check_key_list($check_key_list = array())
+{
+    return array_map(function ($s) {
+        return '\'' . $s . '\'';
+    }, $check_key_list);
 }
 
 /*
@@ -85,34 +77,35 @@ function quote_check_key_list($check_key_list=array()) {
  *
  * return array of users
  */
-function get_user_notifications($action, $check_key_list=array(), $enabled_filter_value=false) {
+function get_user_notifications($action, $check_key_list = array(), $enabled_filter_value = false)
+{
     global $conf, $conn;
 
     $data_users = array();
 
     if (in_array($action, array('subscribe', 'send'))) {
         $quoted_check_key_list = quote_check_key_list($check_key_list);
-        if (count($check_key_list)>0) {
-            $query_and_check_key = ' AND check_key '.$conn->in($check_key_list);
+        if (count($check_key_list) > 0) {
+            $query_and_check_key = ' AND check_key ' . $conn->in($check_key_list);
         } else {
             $query_and_check_key = '';
         }
 
-        $query = 'SELECT N.user_id,N.check_key,U.'.$conf['user_fields']['username'].' as username,';
-        $query .= 'U.'.$conf['user_fields']['email'].' AS mail_address,N.enabled,N.last_send';
-        $query .= ' FROM '.USER_MAIL_NOTIFICATION_TABLE.' AS N,'.USERS_TABLE.' AS U';
-        $query .= ' WHERE  N.user_id =  U.'.$conf['user_fields']['id'];
+        $query = 'SELECT N.user_id,N.check_key,U.' . $conf['user_fields']['username'] . ' as username,';
+        $query .= 'U.' . $conf['user_fields']['email'] . ' AS mail_address,N.enabled,N.last_send';
+        $query .= ' FROM ' . USER_MAIL_NOTIFICATION_TABLE . ' AS N,' . USERS_TABLE . ' AS U';
+        $query .= ' WHERE  N.user_id =  U.' . $conf['user_fields']['id'];
 
 
         if ($action == 'send') {
             // No mail empty and all users enabled
-            $query .= ' AND N.enabled = \''.$conn->boolean_to_db(true).'\' AND U.'.$conf['user_fields']['email'].' is not null';
+            $query .= ' AND N.enabled = \'' . $conn->boolean_to_db(true) . '\' AND U.' . $conf['user_fields']['email'] . ' is not null';
         }
 
         $query .= $query_and_check_key;
 
         if (!empty($enabled_filter_value)) {
-            $query .= ' AND N.enabled = \''.$conn->boolean_to_db($enabled_filter_value).'\'';
+            $query .= ' AND N.enabled = \'' . $conn->boolean_to_db($enabled_filter_value) . '\'';
         }
 
         $query .= ' ORDER BY';
@@ -140,7 +133,8 @@ function get_user_notifications($action, $check_key_list=array(), $enabled_filte
  *
  * Return none
  */
-function begin_users_env_nbm($is_to_send_mail=false) {
+function begin_users_env_nbm($is_to_send_mail = false)
+{
     global $user, $lang, $lang_info, $conf, $env_nbm;
 
     // Save $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
@@ -160,8 +154,8 @@ function begin_users_env_nbm($is_to_send_mail=false) {
         $env_nbm['error_on_mail_count'] = 0;
         $env_nbm['sent_mail_count'] = 0;
         // Save sendmail message info and error in the original language
-        $env_nbm['msg_info'] = l10n('Mail sent to %s [%s].');
-        $env_nbm['msg_error'] = l10n('Error when sending email to %s [%s].');
+        $env_nbm['msg_info'] = \Phyxo\Functions\Language::l10n('Mail sent to %s [%s].');
+        $env_nbm['msg_error'] = \Phyxo\Functions\Language::l10n('Error when sending email to %s [%s].');
     }
 }
 
@@ -171,7 +165,8 @@ function begin_users_env_nbm($is_to_send_mail=false) {
  *
  * Return none
  */
-function end_users_env_nbm() {
+function end_users_env_nbm()
+{
     global $user, $lang, $lang_info, $env_nbm;
 
     // Restore $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
@@ -200,7 +195,8 @@ function end_users_env_nbm() {
  *
  * Return none
  */
-function set_user_on_env_nbm(&$nbm_user, $is_action_send) {
+function set_user_on_env_nbm(&$nbm_user, $is_action_send)
+{
     global $user, $lang, $lang_info, $env_nbm, $services;
 
     $user = $services['users']->buildUser($nbm_user['user_id'], true);
@@ -218,7 +214,8 @@ function set_user_on_env_nbm(&$nbm_user, $is_action_send) {
  *
  * Return none
  */
-function unset_user_on_env_nbm() {
+function unset_user_on_env_nbm()
+{
     global $env_nbm;
 
     switch_lang_back();
@@ -230,7 +227,8 @@ function unset_user_on_env_nbm() {
  *
  * Return none
  */
-function inc_mail_sent_success($nbm_user) {
+function inc_mail_sent_success($nbm_user)
+{
     global $page, $env_nbm;
 
     $env_nbm['sent_mail_count'] += 1;
@@ -242,7 +240,8 @@ function inc_mail_sent_success($nbm_user) {
  *
  * Return none
  */
-function inc_mail_sent_failed($nbm_user) {
+function inc_mail_sent_failed($nbm_user)
+{
     global $page, $env_nbm;
 
     $env_nbm['error_on_mail_count'] += 1;
@@ -254,34 +253,39 @@ function inc_mail_sent_failed($nbm_user) {
  *
  * Return none
  */
-function display_counter_info() {
+function display_counter_info()
+{
     global $page, $env_nbm;
 
     if ($env_nbm['error_on_mail_count'] != 0) {
-        $page['errors'][] = l10n_dec(
-            '%d mail was not sent.', '%d mails were not sent.',
+        $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
+            '%d mail was not sent.',
+            '%d mails were not sent.',
             $env_nbm['error_on_mail_count']
         );
 
         if ($env_nbm['sent_mail_count'] != 0) {
-            $page['infos'][] = l10n_dec(
-                '%d mail was sent.', '%d mails were sent.',
+            $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+                '%d mail was sent.',
+                '%d mails were sent.',
                 $env_nbm['sent_mail_count']
             );
         }
     } else {
         if ($env_nbm['sent_mail_count'] == 0) {
-            $page['infos'][] = l10n('No mail to send.');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('No mail to send.');
         } else {
-            $page['infos'][] = l10n_dec(
-                '%d mail was sent.', '%d mails were sent.',
+            $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+                '%d mail was sent.',
+                '%d mails were sent.',
                 $env_nbm['sent_mail_count']
             );
         }
     }
 }
 
-function assign_vars_nbm_mail_content($nbm_user) {
+function assign_vars_nbm_mail_content($nbm_user)
+{
     global $env_nbm;
 
     set_make_full_url();
@@ -290,8 +294,8 @@ function assign_vars_nbm_mail_content($nbm_user) {
         array(
             'USERNAME' => stripslashes($nbm_user['username']),
             'SEND_AS_NAME' => $env_nbm['send_as_name'],
-            'UNSUBSCRIBE_LINK' => add_url_params(get_gallery_home_url().'/nbm.php', array('unsubscribe' => $nbm_user['check_key'])),
-            'SUBSCRIBE_LINK' => add_url_params(get_gallery_home_url().'/nbm.php', array('subscribe' => $nbm_user['check_key'])),
+            'UNSUBSCRIBE_LINK' => add_url_params(get_gallery_home_url() . '/nbm.php', array('unsubscribe' => $nbm_user['check_key'])),
+            'SUBSCRIBE_LINK' => add_url_params(get_gallery_home_url() . '/nbm.php', array('subscribe' => $nbm_user['check_key'])),
             'CONTACT_EMAIL' => $env_nbm['send_as_mail_address']
         )
     );
@@ -307,7 +311,8 @@ function assign_vars_nbm_mail_content($nbm_user) {
  *
  * @return check_key list treated
  */
-function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe=false, $check_key_list=array()) {
+function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = array())
+{
     global $conf, $page, $env_nbm, $conf, $conn;
 
     set_make_full_url();
@@ -317,11 +322,11 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
     $error_on_updated_data_count = 0;
 
     if ($is_subscribe) {
-        $msg_info = l10n('User %s [%s] was added to the subscription list.');
-        $msg_error = l10n('User %s [%s] was not added to the subscription list.');
+        $msg_info = \Phyxo\Functions\Language::l10n('User %s [%s] was added to the subscription list.');
+        $msg_error = \Phyxo\Functions\Language::l10n('User %s [%s] was not added to the subscription list.');
     } else {
-        $msg_info = l10n('User %s [%s] was removed from the subscription list.');
-        $msg_error = l10n('User %s [%s] was not removed from the subscription list.');
+        $msg_info = \Phyxo\Functions\Language::l10n('User %s [%s] was removed from the subscription list.');
+        $msg_error = \Phyxo\Functions\Language::l10n('User %s [%s] was not removed from the subscription list.');
     }
 
     if (count($check_key_list) != 0) {
@@ -330,7 +335,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
         $data_users = get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
         // Prepare message after change language
-        $msg_break_timeout = l10n('Time to send mail is limited. Others mails are skipped.');
+        $msg_break_timeout = \Phyxo\Functions\Language::l10n('Time to send mail is limited. Others mails are skipped.');
 
         // Begin nbm users environment
         begin_users_env_nbm(true);
@@ -350,7 +355,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
                 // set env nbm user
                 set_user_on_env_nbm($nbm_user, true);
 
-                $subject = '['.$conf['gallery_title'].'] '.($is_subscribe ? l10n('Subscribe to notification by mail'): l10n('Unsubscribe from notification by mail'));
+                $subject = '[' . $conf['gallery_title'] . '] ' . ($is_subscribe ? \Phyxo\Functions\Language::l10n('Subscribe to notification by mail') : \Phyxo\Functions\Language::l10n('Unsubscribe from notification by mail'));
 
                 // Assign current var for nbm mail
                 assign_vars_nbm_mail_content($nbm_user);
@@ -418,16 +423,18 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
         );
     }
 
-    if ($updated_data_count>0) {
-        $page['infos'][] = l10n_dec(
-            '%d user was updated.', '%d users were updated.',
+    if ($updated_data_count > 0) {
+        $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+            '%d user was updated.',
+            '%d users were updated.',
             $updated_data_count
         );
     }
 
     if ($error_on_updated_data_count != 0) {
-        $page['errors'][] = l10n_dec(
-            '%d user was not updated.', '%d users were not updated.',
+        $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
+            '%d user was not updated.',
+            '%d users were not updated.',
             $error_on_updated_data_count
         );
     }
@@ -444,7 +451,8 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
  *
  * @return check_key list treated
  */
-function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = array()) {
+function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = array())
+{
     return do_subscribe_unsubscribe_notification_by_mail($is_admin_request, false, $check_key_list);
 }
 
@@ -455,7 +463,8 @@ function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = a
  *
  * @return check_key list treated
  */
-function subscribe_notification_by_mail($is_admin_request, $check_key_list = array()) {
+function subscribe_notification_by_mail($is_admin_request, $check_key_list = array())
+{
     return do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
 }
 
@@ -467,7 +476,8 @@ function subscribe_notification_by_mail($is_admin_request, $check_key_list = arr
  * @param check_key_treated: array of check_key treated
  * @return none
  */
-function do_timeout_treatment($post_keyname, $check_key_treated = array()) {
+function do_timeout_treatment($post_keyname, $check_key_treated = array())
+{
     global $env_nbm, $base_url, $page, $must_repost;
 
     if ($env_nbm['is_sendmail_timeout']) {
@@ -482,7 +492,7 @@ function do_timeout_treatment($post_keyname, $check_key_treated = array()) {
             $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
 
             $must_repost = true;
-            $page['errors'][] = l10n_dec(
+            $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
                 'Execution time is out, treatment must be continue [Estimated time: %d second].',
                 'Execution time is out, treatment must be continue [Estimated time: %d seconds].',
                 $time_refresh
@@ -495,10 +505,10 @@ function do_timeout_treatment($post_keyname, $check_key_treated = array()) {
  * Get the authorized_status for each tab
  * return corresponding status
  */
-function get_tab_status($mode) {
+function get_tab_status($mode)
+{
     $result = ACCESS_WEBMASTER;
-    switch ($mode)
-        {
+    switch ($mode) {
         case 'param':
         case 'subscribe':
             $result = ACCESS_WEBMASTER;
@@ -509,28 +519,29 @@ function get_tab_status($mode) {
         default:
             $result = ACCESS_WEBMASTER;
             break;
-        }
+    }
     return $result;
 }
 
 /*
  * Inserting News users
  */
-function insert_new_data_user_mail_notification() {
+function insert_new_data_user_mail_notification()
+{
     global $conf, $page, $env_nbm, $conn;
 
     // Set null mail_address empty
-    $query = 'UPDATE '.USERS_TABLE;
-    $query .= ' SET '.$conf['user_fields']['email'].' = null';
-    $query .= ' WHERE trim('.$conf['user_fields']['email'].') = \'\';'; // @TODO: simplify
+    $query = 'UPDATE ' . USERS_TABLE;
+    $query .= ' SET ' . $conf['user_fields']['email'] . ' = null';
+    $query .= ' WHERE trim(' . $conf['user_fields']['email'] . ') = \'\';'; // @TODO: simplify
     $conn->db_query($query);
 
     // null mail_address are not selected in the list
-    $query = 'SELECT u.'.$conf['user_fields']['id'].' AS user_id,';
-    $query .= ' u.'.$conf['user_fields']['username'].' AS username,';
-    $query .= ' u.'.$conf['user_fields']['email'].' AS mail_address FROM '.USERS_TABLE.' AS u';
-    $query .= ' LEFT JOIN '.USER_MAIL_NOTIFICATION_TABLE.' AS m ON u.'.$conf['user_fields']['id'].' = m.user_id';
-    $query .= ' WHERE u.'.$conf['user_fields']['email'].' is not null';
+    $query = 'SELECT u.' . $conf['user_fields']['id'] . ' AS user_id,';
+    $query .= ' u.' . $conf['user_fields']['username'] . ' AS username,';
+    $query .= ' u.' . $conf['user_fields']['email'] . ' AS mail_address FROM ' . USERS_TABLE . ' AS u';
+    $query .= ' LEFT JOIN ' . USER_MAIL_NOTIFICATION_TABLE . ' AS m ON u.' . $conf['user_fields']['id'] . ' = m.user_id';
+    $query .= ' WHERE u.' . $conf['user_fields']['email'] . ' is not null';
     $query .= ' AND m.user_id is null';
     $query .= ' ORDER BY user_id;';
 
@@ -553,7 +564,7 @@ function insert_new_data_user_mail_notification() {
                 'enabled' => 'false' // By default if false, set to true with specific functions
             );
 
-            $page['infos'][] = l10n(
+            $page['infos'][] = \Phyxo\Functions\Language::l10n(
                 'User %s [%s] added.',
                 stripslashes($nbm_user['username']),
                 $nbm_user['mail_address']
@@ -572,12 +583,12 @@ function insert_new_data_user_mail_notification() {
         // On timeout simulate like tabsheet send
         if ($env_nbm['is_sendmail_timeout']) {
             $quoted_check_key_list = quote_check_key_list(array_diff($check_key_list, $check_key_treated));
-            if (count($check_key_list)>0) {
-                $query = 'DELETE FROM '.USER_MAIL_NOTIFICATION_TABLE;
-                $query .= ' WHERE check_key '.$conn->in($check_key_list);
+            if (count($check_key_list) > 0) {
+                $query = 'DELETE FROM ' . USER_MAIL_NOTIFICATION_TABLE;
+                $query .= ' WHERE check_key ' . $conn->in($check_key_list);
                 $result = $conn->db_query($query);
 
-                redirect($base_url.get_query_string_diff(array(), false), l10n('Operation in progress')."\n".l10n('Please wait...'));
+                redirect($base_url . get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
             }
         }
     }
@@ -587,7 +598,8 @@ function insert_new_data_user_mail_notification() {
  * Apply global functions to mail content
  * return customize mail content rendered
  */
-function render_global_customize_mail_content($customize_mail_content) {
+function render_global_customize_mail_content($customize_mail_content)
+{
     global $conf;
 
     // @TODO : find a better way to detect html or remove test
@@ -605,7 +617,8 @@ function render_global_customize_mail_content($customize_mail_content) {
  * Return list of "selected" users for 'list_to_send'
  * Return list of "treated" check_key for 'send'
  */
-function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = array(), $customize_mail_content = '') {
+function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = array(), $customize_mail_content = '')
+{
     global $conf, $page, $user, $lang_info, $lang, $env_nbm, $conn;
 
     $return_list = array();
@@ -634,9 +647,9 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
 
                 // Prepare message after change language
                 if ($is_action_send) {
-                    $msg_break_timeout = l10n('Time to send mail is limited. Others mails are skipped.');
+                    $msg_break_timeout = \Phyxo\Functions\Language::l10n('Time to send mail is limited. Others mails are skipped.');
                 } else {
-                    $msg_break_timeout = l10n('Prepared time for list of users to send mail is limited. Others users are not listed.');
+                    $msg_break_timeout = \Phyxo\Functions\Language::l10n('Prepared time for list of users to send mail is limited. Others users are not listed.');
                 }
 
                 // Begin nbm users environment
@@ -670,7 +683,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                         }
 
                         if ($exist_data) {
-                            $subject = '['.$conf['gallery_title'].'] '.l10n('New photos added');
+                            $subject = '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('New photos added');
 
                             // Assign current var for nbm mail
                             assign_vars_nbm_mail_content($nbm_user);
@@ -694,9 +707,10 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                                 $env_nbm['mail_template']->assign('global_new_lines', $news);
                             }
 
-                            $nbm_user_customize_mail_content =  trigger_change(
+                            $nbm_user_customize_mail_content = trigger_change(
                                 'nbm_render_user_customize_mail_content',
-                                $customize_mail_content, $nbm_user
+                                $customize_mail_content,
+                                $nbm_user
                             );
                             if (!empty($nbm_user_customize_mail_content)) {
                                 $env_nbm['mail_template']->assign('custom_mail_content', $nbm_user_customize_mail_content);
@@ -704,7 +718,8 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
 
                             if ($conf['nbm_send_html_mail'] and $conf['nbm_send_recent_post_dates']) {
                                 $recent_post_dates = get_recent_post_dates_array(
-                                    $conf['recent_post_dates']['NBM']);
+                                    $conf['recent_post_dates']['NBM']
+                                );
                                 foreach ($recent_post_dates as $date_detail) {
                                     $env_nbm['mail_template']->append(
                                         'recent_posts',
@@ -779,7 +794,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                 }
             } else {
                 if ($is_action_send) {
-                    $page['errors'][] = l10n('No user to send notifications by mail.');
+                    $page['errors'][] = \Phyxo\Functions\Language::l10n('No user to send notifications by mail.');
                 }
             }
         } else {

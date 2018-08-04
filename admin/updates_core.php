@@ -10,7 +10,7 @@
  */
 
 if (!defined("UPDATES_BASE_URL")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use Phyxo\Update\Updates;
@@ -21,7 +21,7 @@ STEP:
 1 = new version on same branch AND new branch are available => user may choose upgrade.
 2 = upgrade on same branch
 3 = upgrade on different branch
-*/
+ */
 $step = isset($_GET['step']) ? $_GET['step'] : 0;
 $upgrade_to = isset($_GET['to']) ? $_GET['to'] : '';
 
@@ -89,17 +89,17 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 if ($step == 2 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        $zip = PHPWG_ROOT_PATH.$conf['data_location'].'update'.'/'.$_POST['upgrade_to'].'.zip';
+        $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
 
         try {
             $updater->upgrade($zip);
 
-            deltree(PHPWG_ROOT_PATH.$conf['data_location'].'update');
+            deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
             invalidate_user_cache(true);
             $template->delete_compiled_templates();
-            $page['infos'][] = l10n('Update Complete');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
             $page['infos'][] = $upgrade_to;
             $step = -1;
         } catch (Exception $e) {
@@ -119,17 +119,17 @@ if ($step == 2 and $services['users']->isWebmaster()) {
 // +-----------------------------------------------------------------------+
 if ($step == 3 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        $zip = PHPWG_ROOT_PATH.$conf['data_location'].'update'.'/'.$_POST['upgrade_to'].'.zip';
+        $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
 
         try {
             $updater->upgrade($zip);
 
-            deltree(PHPWG_ROOT_PATH.$conf['data_location'].'update');
+            deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
             invalidate_user_cache(true);
             $template->delete_compiled_templates();
-            redirect(PHPWG_ROOT_PATH.'upgrade.php?now=');
+            redirect(PHPWG_ROOT_PATH . 'upgrade.php?now=');
         } catch (Exception $e) {
             $step = 0;
             $message = $e->getMessage();
@@ -147,12 +147,12 @@ if ($step == 3 and $services['users']->isWebmaster()) {
 // +-----------------------------------------------------------------------+
 
 if (!$services['users']->isWebmaster()) {
-    $page['errors'][] = l10n('Webmaster status is required.');
+    $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
 }
 
 $template->assign(array(
-    'STEP'          => $step,
+    'STEP' => $step,
     'PHPWG_VERSION' => PHPWG_VERSION,
-    'UPGRADE_TO'    => $upgrade_to,
-    'RELEASE_URL'   => PHPWG_URL.'/releases/'.$upgrade_to,
+    'UPGRADE_TO' => $upgrade_to,
+    'RELEASE_URL' => PHPWG_URL . '/releases/' . $upgrade_to,
 ));

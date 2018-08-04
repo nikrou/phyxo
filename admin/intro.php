@@ -10,15 +10,15 @@
  */
 
 if (!defined('PHPWG_ROOT_PATH')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 use GuzzleHttp\Client;
 
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
-include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
+include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -33,8 +33,8 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
     try {
         $client = new Client();
-        $response = $client->request('GET', PHPWG_URL.'/download/');
-        if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+        $response = $client->request('GET', PHPWG_URL . '/download/');
+        if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
             $versions = json_decode($response->getBody(), true);
             $latest_version = $versions[0]['version'];
         } else {
@@ -42,14 +42,14 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
         }
 
         if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
-            $page['infos'][] = l10n('You are running on development sources, no check possible.');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('You are running on development sources, no check possible.');
         } elseif (version_compare(PHPWG_VERSION, $latest_version) < 0) {
-            $page['infos'][] = l10n('A new version of Phyxo is available.');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('A new version of Phyxo is available.');
         } else {
-            $page['infos'][] = l10n('You are running the latest version of Phyxo.');
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('You are running the latest version of Phyxo.');
         }
     } catch (\Exception $e) {
-        $page['errors'][] = l10n('Unable to check for upgrade.');
+        $page['errors'][] = \Phyxo\Functions\Language::l10n('Unable to check for upgrade.');
     }
 } elseif (isset($_GET['action']) and 'phpinfo' == $_GET['action']) {
     // Show phpinfo() output
@@ -65,34 +65,34 @@ $php_current_timestamp = date("Y-m-d H:i:s");
 $db_version = $conn->db_version();
 list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
 
-$query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
 list($nb_elements) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE;
 list($nb_categories) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL';
+$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL';
 list($nb_virtual) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE.' WHERE dir IS NOT NULL';
+$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL';
 list($nb_physical) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.IMAGE_CATEGORY_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
 list($nb_image_category) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.TAGS_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . TAGS_TABLE;
 list($nb_tags) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.IMAGE_TAG_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE;
 list($nb_image_tag) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.USERS_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . USERS_TABLE;
 list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.GROUPS_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
 list($nb_groups) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM '.RATE_TABLE;
+$query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
 list($nb_rates) = $conn->db_fetch_row($conn->db_query($query));
 
 $template->assign(
@@ -103,46 +103,45 @@ $template->assign(
         'PHP_VERSION' => phpversion(),
         'DB_ENGINE' => $dblayers[$conf['dblayer']]['engine'],
         'DB_VERSION' => $db_version,
-        'DB_ELEMENTS' => l10n_dec('%d photo', '%d photos', $nb_elements),
+        'DB_ELEMENTS' => \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $nb_elements),
         'DB_CATEGORIES' =>
-        l10n_dec('%d album including', '%d albums including', $nb_categories).
-        l10n_dec('%d physical', '%d physicals', $nb_physical).
-        l10n_dec(' and %d virtual', ' and %d virtuals', $nb_virtual),
-        'DB_IMAGE_CATEGORY' => l10n_dec('%d association', '%d associations', $nb_image_category),
-        'DB_TAGS' => l10n_dec('%d tag', '%d tags', $nb_tags),
-        'DB_IMAGE_TAG' => l10n_dec('%d association', '%d associations', $nb_image_tag),
-        'DB_USERS' => l10n_dec('%d user', '%d users', $nb_users),
-        'DB_GROUPS' => l10n_dec('%d group', '%d groups', $nb_groups),
-        'DB_RATES' => ($nb_rates == 0) ? l10n('no rate') : l10n('%d rates', $nb_rates),
-        'U_CHECK_UPGRADE' => get_root_url().'admin/index.php?action=check_upgrade',
-        'U_PHPINFO' => get_root_url().'admin/index.php?action=phpinfo',
+            \Phyxo\Functions\Language::l10n_dec('%d album including', '%d albums including', $nb_categories) .
+            \Phyxo\Functions\Language::l10n_dec('%d physical', '%d physicals', $nb_physical) .
+            \Phyxo\Functions\Language::l10n_dec(' and %d virtual', ' and %d virtuals', $nb_virtual),
+        'DB_IMAGE_CATEGORY' => \Phyxo\Functions\Language::l10n_dec('%d association', '%d associations', $nb_image_category),
+        'DB_TAGS' => \Phyxo\Functions\Language::l10n_dec('%d tag', '%d tags', $nb_tags),
+        'DB_IMAGE_TAG' => \Phyxo\Functions\Language::l10n_dec('%d association', '%d associations', $nb_image_tag),
+        'DB_USERS' => \Phyxo\Functions\Language::l10n_dec('%d user', '%d users', $nb_users),
+        'DB_GROUPS' => \Phyxo\Functions\Language::l10n_dec('%d group', '%d groups', $nb_groups),
+        'DB_RATES' => ($nb_rates == 0) ? \Phyxo\Functions\Language::l10n('no rate') : \Phyxo\Functions\Language::l10n('%d rates', $nb_rates),
+        'U_CHECK_UPGRADE' => get_root_url() . 'admin/index.php?action=check_upgrade',
+        'U_PHPINFO' => get_root_url() . 'admin/index.php?action=phpinfo',
         'PHP_DATATIME' => $php_current_timestamp,
         'DB_DATATIME' => $db_current_date,
     )
 );
 
 if ($conf['activate_comments']) {
-    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ';';
     list($nb_comments) = $conn->db_fetch_row($conn->db_query($query));
-    $template->assign('DB_COMMENTS', l10n_dec('%d comment', '%d comments', $nb_comments));
+    $template->assign('DB_COMMENTS', \Phyxo\Functions\Language::l10n_dec('%d comment', '%d comments', $nb_comments));
 }
 
 if ($nb_elements > 0) {
-    $query = 'SELECT MIN(date_available) FROM '.IMAGES_TABLE.';';
+    $query = 'SELECT MIN(date_available) FROM ' . IMAGES_TABLE . ';';
     list($first_date) = $conn->db_fetch_row($conn->db_query($query));
 
     $template->assign(
         'first_added',
         array(
             'DB_DATE' =>
-            l10n('first photo added on %s', format_date($first_date))
+                \Phyxo\Functions\Language::l10n('first photo added on %s', format_date($first_date))
         )
     );
 }
 
 // graphics library
-switch (pwg_image::get_library())
-    {
+switch (pwg_image::get_library()) {
     case 'imagick':
         $library = 'ImageMagick';
         $img = new Imagick();
@@ -155,7 +154,7 @@ switch (pwg_image::get_library())
 
     case 'ext_imagick':
         $library = 'External ImageMagick';
-        exec($conf['ext_imagick_dir'].'convert -version', $returnarray);
+        exec($conf['ext_imagick_dir'] . 'convert -version', $returnarray);
         if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match)) {
             $library .= ' ' . $match[1];
         }
@@ -164,8 +163,8 @@ switch (pwg_image::get_library())
 
     case 'gd':
         $gd_info = gd_info();
-        $template->assign('GRAPHICS_LIBRARY', 'GD '.@$gd_info['GD Version']);
+        $template->assign('GRAPHICS_LIBRARY', 'GD ' . @$gd_info['GD Version']);
         break;
-    }
+}
 
 $template_filename = 'intro';

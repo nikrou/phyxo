@@ -43,12 +43,12 @@
 
 // picture_ext : file extensions for picture file, must be a subset of
 // file_ext
-$conf['picture_ext'] = array('jpg','JPG','jpeg','JPEG','png','PNG','gif','GIF');
+$conf['picture_ext'] = array('jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'gif', 'GIF');
 
 // file_ext : file extensions (case sensitive) authorized
 $conf['file_ext'] = array_merge(
-    $conf['picture_ext'],
-    array('tiff', 'tif', 'mpg','zip','avi','mp3','ogg','pdf')
+  $conf['picture_ext'],
+  array('tiff', 'tif', 'mpg', 'zip', 'avi', 'mp3', 'ogg', 'pdf')
 );
 
 // top_number : number of element to display for "best rated" and "most
@@ -131,7 +131,7 @@ $conf['random_index_redirect'] = array();
 
 // List of notes to display on all header page
 // example $conf['header_notes']  = array('Test', 'Hello');
-$conf['header_notes']  = array();
+$conf['header_notes'] = array();
 
 // show_thumbnail_caption : on thumbnails page, show thumbnail captions ?
 $conf['show_thumbnail_caption'] = true;
@@ -170,7 +170,7 @@ $conf['representative_cache_on_subcats'] = true;
 $conf['allow_html_descriptions'] = true;
 
 // image level permissions available in the admin interface
-$conf['available_permission_levels'] = array(0,1,2,4,8);
+$conf['available_permission_levels'] = array(0, 1, 2, 4, 8);
 
 // check_upgrade_feed: check if there are database upgrade required. Set to
 // true, a message will strongly encourage you to upgrade your database if
@@ -181,7 +181,7 @@ $conf['available_permission_levels'] = array(0,1,2,4,8);
 $conf['check_upgrade_feed'] = true;
 
 // rate_items: available rates for a picture
-$conf['rate_items'] = array(0,1,2,3,4,5);
+$conf['rate_items'] = array(0, 1, 2, 3, 4, 5);
 
 // Define using double password type in admin's users management panel
 $conf['double_password_type_in_admin'] = false;
@@ -257,11 +257,11 @@ $conf['show_iptc'] = false;
 // To know how to associated iptc_field with their meaning, use
 // tools/metadata.php
 $conf['show_iptc_mapping'] = array(
-  'iptc_keywords'        => '2#025',
-  'iptc_caption_writer'  => '2#122',
-  'iptc_byline_title'    => '2#085',
-  'iptc_caption'         => '2#120'
-  );
+  'iptc_keywords' => '2#025',
+  'iptc_caption_writer' => '2#122',
+  'iptc_byline_title' => '2#085',
+  'iptc_caption' => '2#120'
+);
 
 // use_iptc: Use IPTC data during database synchronization with files
 // metadata
@@ -271,12 +271,12 @@ $conf['use_iptc'] = false;
 // information ? This setting is used during metadata synchronisation. It
 // associates a phyxo_images column name to a IPTC key
 $conf['use_iptc_mapping'] = array(
-  'keywords'        => '2#025',
-  'date_creation'   => '2#055',
-  'author'          => '2#122',
-  'name'            => '2#005',
-  'comment'         => '2#120'
-  );
+  'keywords' => '2#025',
+  'date_creation' => '2#055',
+  'author' => '2#122',
+  'name' => '2#005',
+  'comment' => '2#120'
+);
 
 // show_exif: Show EXIF metadata on picture.php (table or line presentation
 // avalaible)
@@ -299,7 +299,7 @@ $conf['show_exif_fields'] = array(
   'Model',
   'DateTimeOriginal',
   'COMPUTED;ApertureFNumber'
-  );
+);
 
 // use_exif: Use EXIF data during database synchronization with files
 // metadata
@@ -308,7 +308,7 @@ $conf['use_exif'] = true;
 // use_exif_mapping: same behaviour as use_iptc_mapping
 $conf['use_exif_mapping'] = array(
   'date_creation' => 'DateTimeOriginal'
-  );
+);
 
 // allow_html_in_metadata: in case the origin of the photo is unsecure (user
 // upload), we remove HTML tags to avoid XSS (malicious execution of
@@ -450,7 +450,7 @@ $conf['user_fields'] = array(
   'username' => 'username',
   'password' => 'password',
   'email' => 'mail_address'
-  );
+);
 
 // password_hash: function hash the clear user password to store it in the
 // database. The function takes only one parameter: the clear password.
@@ -577,7 +577,7 @@ $conf['nbm_treatment_timeout_default'] = 20;
 $conf['recent_post_dates'] = array(
   'RSS' => array('max_dates' => 5, 'max_elements' => 6, 'max_cats' => 6),
   'NBM' => array('max_dates' => 7, 'max_elements' => 3, 'max_cats' => 9)
-  );
+);
 
 // the author shown in the RSS feed <author> element
 $conf['rss_feed_author'] = 'Phyxo notifier';
@@ -620,27 +620,27 @@ $conf['ws_max_users_per_page'] = 1000;
 //   o Empty configuration in order to disable completely filter functions
 //     No filter, No icon,...
 //     $conf['filter_pages'] = array();
-$conf['filter_pages'] = array
-  (
+$conf['filter_pages'] = array(
     // Default page
-    'default' => array(
-      'used' => true, 'cancel' => false, 'add_notes' => false),
+  'default' => array(
+    'used' => true, 'cancel' => false, 'add_notes' => false
+  ),
     // Real pages
-    'index' => array('add_notes' => true),
-    'tags' => array('add_notes' => true),
-    'search' => array('add_notes' => true),
-    'comments' => array('add_notes' => true),
-    'admin' => array('used' => false),
-    'feed' => array('used' => false),
-    'notification' => array('used' => false),
-    'nbm' => array('used' => false),
-    'profile' => array('used' => false),
-    'ws' => array('used' => false),
-    'identification' => array('cancel' => true),
-    'install' => array('cancel' => true),
-    'password' => array('cancel' => true),
-    'register' => array('cancel' => true),
-  );
+  'index' => array('add_notes' => true),
+  'tags' => array('add_notes' => true),
+  'search' => array('add_notes' => true),
+  'comments' => array('add_notes' => true),
+  'admin' => array('used' => false),
+  'feed' => array('used' => false),
+  'notification' => array('used' => false),
+  'nbm' => array('used' => false),
+  'profile' => array('used' => false),
+  'ws' => array('used' => false),
+  'identification' => array('cancel' => true),
+  'install' => array('cancel' => true),
+  'password' => array('cancel' => true),
+  'register' => array('cancel' => true),
+);
 
 // +-----------------------------------------------------------------------+
 // | Slideshow                                                             |
@@ -679,7 +679,7 @@ $conf['upload_dir'] = './upload';
 $conf['no_photo_yet_url'] = 'admin/index.php?page=photos_add';
 
 // directory with themes inside
-$conf['themes_dir'] = PHPWG_ROOT_PATH.'themes';
+$conf['themes_dir'] = PHPWG_ROOT_PATH . 'themes';
 
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = true;
@@ -705,7 +705,7 @@ $conf['upload_form_automatic_rotation'] = true;
 // 0-'auto', 1-'derivative' 2-'script'
 $conf['derivative_url_style'] = 0;
 
-$conf['chmod_value'] = substr_compare(PHP_SAPI, 'apa', 0, 3)==0 ? 0777 : 0755;
+$conf['chmod_value'] = substr_compare(PHP_SAPI, 'apa', 0, 3) == 0 ? 0777 : 0755;
 
 // 'small', 'medium' or 'large'
 $conf['derivative_default_size'] = 'medium';

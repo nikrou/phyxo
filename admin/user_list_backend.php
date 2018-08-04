@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH','../');
+define('PHPWG_ROOT_PATH', '../');
 define('IN_ADMIN', true);
 
-include_once(PHPWG_ROOT_PATH.'include/common.inc.php');
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -39,7 +39,7 @@ $aColumns = trigger_change('user_list_columns', $aColumns);
 $sIndexColumn = 'user_id';
 
 /* DB table to use */
-$sTable = USERS_TABLE.' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON '.$conf['user_fields']['id'].' = ui.user_id';
+$sTable = USERS_TABLE . ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ' . $conf['user_fields']['id'] . ' = ui.user_id';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * If you just want to use the basic configuration for DataTables with PHP server-side, there is
@@ -51,9 +51,10 @@ $sTable = USERS_TABLE.' LEFT JOIN '.USER_INFOS_TABLE.' AS ui ON '.$conf['user_fi
  */
 $sLimit = '';
 if (isset($_REQUEST['iDisplayStart']) && $_REQUEST['iDisplayLength'] != '-1') {
-    $sLimit = sprintf('LIMIT %d OFFSET %d',
-    $conn->db_real_escape_string($_REQUEST['iDisplayLength']),
-    $conn->db_real_escape_string($_REQUEST['iDisplayStart'])
+    $sLimit = sprintf(
+        'LIMIT %d OFFSET %d',
+        $conn->db_real_escape_string($_REQUEST['iDisplayLength']),
+        $conn->db_real_escape_string($_REQUEST['iDisplayStart'])
     );
 }
 
@@ -62,10 +63,10 @@ if (isset($_REQUEST['iDisplayStart']) && $_REQUEST['iDisplayLength'] != '-1') {
  */
 if (isset($_REQUEST['iSortCol_0'])) {
     $sOrder = 'ORDER BY  ';
-    for ($i=0;$i<intval($_REQUEST['iSortingCols']);$i++) {
-        if ($_REQUEST['bSortable_'.intval($_REQUEST['iSortCol_'.$i])] == 'true') {
-            $sOrder .= $aColumns[ intval( $_REQUEST['iSortCol_'.$i] ) ];
-            $sOrder .= ' '.$conn->db_real_escape_string($_REQUEST['sSortDir_'.$i]) .', ';
+    for ($i = 0; $i < intval($_REQUEST['iSortingCols']); $i++) {
+        if ($_REQUEST['bSortable_' . intval($_REQUEST['iSortCol_' . $i])] == 'true') {
+            $sOrder .= $aColumns[intval($_REQUEST['iSortCol_' . $i])];
+            $sOrder .= ' ' . $conn->db_real_escape_string($_REQUEST['sSortDir_' . $i]) . ', ';
         }
     }
 
@@ -85,22 +86,22 @@ if (isset($_REQUEST['iSortCol_0'])) {
 $sWhere = '';
 if ($_REQUEST['sSearch'] != '') {
     $sWhere = "WHERE (";
-    for ($i=0;$i<count($aColumns);$i++) {
-        $sWhere .= $aColumns[$i]." LIKE '%".$conn->db_real_escape_string( $_REQUEST['sSearch'] )."%' OR ";
+    for ($i = 0; $i < count($aColumns); $i++) {
+        $sWhere .= $aColumns[$i] . " LIKE '%" . $conn->db_real_escape_string($_REQUEST['sSearch']) . "%' OR ";
     }
-    $sWhere = substr_replace( $sWhere, "", -3 );
+    $sWhere = substr_replace($sWhere, "", -3);
     $sWhere .= ')';
 }
 
 /* Individual column filtering */
-for ( $i=0;$i<count($aColumns);$i++) {
-    if (isset($_REQUEST['bSearchable_'.$i]) && isset($_REQUEST['sSearch_'.$i]) && $_REQUEST['bSearchable_'.$i] == "true" && $_REQUEST['sSearch_'.$i] != '') {
+for ($i = 0; $i < count($aColumns); $i++) {
+    if (isset($_REQUEST['bSearchable_' . $i]) && isset($_REQUEST['sSearch_' . $i]) && $_REQUEST['bSearchable_' . $i] == "true" && $_REQUEST['sSearch_' . $i] != '') {
         if ($sWhere == '') {
             $sWhere = 'WHERE ';
         } else {
             $sWhere .= ' AND ';
         }
-        $sWhere .= $aColumns[$i]." LIKE '%".$conn->db_real_escape_string($_REQUEST['sSearch_'.$i])."%' ";
+        $sWhere .= $aColumns[$i] . " LIKE '%" . $conn->db_real_escape_string($_REQUEST['sSearch_' . $i]) . "%' ";
     }
 }
 
@@ -109,15 +110,15 @@ for ( $i=0;$i<count($aColumns);$i++) {
  * SQL queries
  * Get data to display
  */
-$sQuery = 'SELECT '.str_replace(' , ', ' ', implode(', ', $aColumns)). ' FROM '. $sTable;
-$sQuery .= $sWhere .' '. $sOrder.' '. $sLimit;
+$sQuery = 'SELECT ' . str_replace(' , ', ' ', implode(', ', $aColumns)) . ' FROM ' . $sTable;
+$sQuery .= $sWhere . ' ' . $sOrder . ' ' . $sLimit;
 $rResult = $conn->db_query($sQuery);
 
 /* Data set length after filtering */
 $iFilteredTotal = 0;
 
 /* Total data set length */
-$sQuery = "SELECT COUNT(".$sIndexColumn.") FROM   $sTable";
+$sQuery = "SELECT COUNT(" . $sIndexColumn . ") FROM   $sTable";
 $rResultTotal = $conn->db_query($sQuery);
 $aResultTotal = $conn->db_fetch_row($rResultTotal);
 $iTotal = $aResultTotal[0];
@@ -139,12 +140,12 @@ while ($aRow = $conn->db_fetch_assoc($rResult)) {
     $user_ids[] = $aRow[$conf['user_fields']['id']];
 
     $row = array();
-    for ($i=0;$i<count($aColumns);$i++) {
+    for ($i = 0; $i < count($aColumns); $i++) {
         if ($aColumns[$i] == 'status') {
-            $row[] = l10n('user_status_'.$aRow[ $aColumns[$i] ]);
-        } elseif ( $aColumns[$i] == 'level') {
-            $row[] = $aRow[$aColumns[$i]] == 0 ? '' : l10n(sprintf('Level %d', $aRow[ $aColumns[$i] ]));
-        } elseif ( $aColumns[$i] != ' ' ) {
+            $row[] = \Phyxo\Functions\Language::l10n('user_status_' . $aRow[$aColumns[$i]]);
+        } elseif ($aColumns[$i] == 'level') {
+            $row[] = $aRow[$aColumns[$i]] == 0 ? '' : \Phyxo\Functions\Language::l10n(sprintf('Level %d', $aRow[$aColumns[$i]]));
+        } elseif ($aColumns[$i] != ' ') {
             /* General output */
             $colname = $aColumns[$i];
             foreach ($conf['user_fields'] as $real_name => $alias) {
@@ -162,9 +163,9 @@ while ($aRow = $conn->db_fetch_assoc($rResult)) {
 if (count($user_ids) > 0) {
     $groups_of_user = array();
 
-    $query = 'SELECT user_id, name FROM '.USER_GROUP_TABLE;
-    $query .= ' LEFT JOIN '.GROUPS_TABLE.' ON id = group_id';
-    $query .= ' WHERE user_id '.$conn->in($user_ids);
+    $query = 'SELECT user_id, name FROM ' . USER_GROUP_TABLE;
+    $query .= ' LEFT JOIN ' . GROUPS_TABLE . ' ON id = group_id';
+    $query .= ' WHERE user_id ' . $conn->in($user_ids);
 
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {

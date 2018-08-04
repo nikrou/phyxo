@@ -1,29 +1,16 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+    /*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH.'admin/include/image.class.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
 
 use GuzzleHttp\Client;
 
@@ -31,7 +18,8 @@ use GuzzleHttp\Client;
 add_event_handler('upload_image_resize', 'pwg_image_resize');
 add_event_handler('upload_thumbnail_resize', 'pwg_image_resize');
 
-function get_upload_form_config() {
+function get_upload_form_config()
+{
     // default configuration for upload
     $upload_form_config = array(
         'original_resize' => array(
@@ -45,7 +33,7 @@ function get_upload_form_config() {
             'max' => 20000,
             'pattern' => '/^\d+$/',
             'can_be_null' => false,
-            'error_message' => l10n('The original maximum width must be a number between %d and %d'),
+            'error_message' => \Phyxo\Functions\Language::l10n('The original maximum width must be a number between %d and %d'),
         ),
 
         'original_resize_maxheight' => array(
@@ -54,7 +42,7 @@ function get_upload_form_config() {
             'max' => 20000,
             'pattern' => '/^\d+$/',
             'can_be_null' => false,
-            'error_message' => l10n('The original maximum height must be a number between %d and %d'),
+            'error_message' => \Phyxo\Functions\Language::l10n('The original maximum height must be a number between %d and %d'),
         ),
 
         'original_resize_quality' => array(
@@ -63,14 +51,15 @@ function get_upload_form_config() {
             'max' => 98,
             'pattern' => '/^\d+$/',
             'can_be_null' => false,
-            'error_message' => l10n('The original image quality must be a number between %d and %d'),
+            'error_message' => \Phyxo\Functions\Language::l10n('The original image quality must be a number between %d and %d'),
         ),
     );
 
     return $upload_form_config;
 }
 
-function save_upload_form_config($data, &$errors=array(), &$form_errors=array()) {
+function save_upload_form_config($data, &$errors = array(), &$form_errors = array())
+{
     global $conn;
 
     if (!is_array($data) or empty($data)) {
@@ -113,10 +102,11 @@ function save_upload_form_config($data, &$errors=array(), &$form_errors=array())
             } else {
                 $errors[] = sprintf(
                     $upload_form_config[$field]['error_message'],
-                    $min, $max
+                    $min,
+                    $max
                 );
 
-                $form_errors[$field] = '['.$min.' .. '.$max.']';
+                $form_errors[$field] = '[' . $min . ' .. ' . $max . ']';
             }
         }
     }
@@ -136,7 +126,8 @@ function save_upload_form_config($data, &$errors=array(), &$form_errors=array())
     return false;
 }
 
-function add_uploaded_file($source_filepath, $original_filename=null, $categories=null, $level=null, $image_id=null, $original_md5sum=null) {
+function add_uploaded_file($source_filepath, $original_filename = null, $categories = null, $level = null, $image_id = null, $original_md5sum = null)
+{
     global $conn;
 
     // 1) move uploaded file to upload/2010/01/22/20100122003814-449ada00.jpg
@@ -160,15 +151,15 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     $is_tiff = false;
 
     if (isset($image_id)) { // this photo already exists, we update it
-        $query = 'SELECT path FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id = '.$conn->db_real_escape_string($image_id);
+        $query = 'SELECT path FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id = ' . $conn->db_real_escape_string($image_id);
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
             $file_path = $row['path'];
         }
 
         if (!isset($file_path)) {
-            throw new Exception('['.__FUNCTION__.'] this photo does not exist in the database');
+            throw new Exception('[' . __FUNCTION__ . '] this photo does not exist in the database');
         }
 
         // delete all physical files related to the photo (thumbnail, web site, HD)
@@ -181,7 +172,7 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
         // upload directory hierarchy
         $upload_dir = sprintf(
-            PHPWG_ROOT_PATH.$conf['upload_dir'].'/%s/%s/%s',
+            PHPWG_ROOT_PATH . $conf['upload_dir'] . '/%s/%s/%s',
             $year,
             $month,
             $day
@@ -190,8 +181,8 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
         // compute file path
         $date_string = preg_replace('/[^\d]/', '', $dbnow);
         $random_string = substr($md5sum, 0, 8);
-        $filename_wo_ext = $date_string.'-'.$random_string;
-        $file_path = $upload_dir.'/'.$filename_wo_ext.'.';
+        $filename_wo_ext = $date_string . '-' . $random_string;
+        $file_path = $upload_dir . '/' . $filename_wo_ext . '.';
 
         list($width, $height, $type) = getimagesize($source_filepath);
 
@@ -228,35 +219,35 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
     if ($is_tiff and pwg_image::get_library() == 'ext_imagick') {
         // move the uploaded file to pwg_representative sub-directory
-        $representative_file_path = dirname($file_path).'/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)).'.';
+        $representative_file_path = dirname($file_path) . '/pwg_representative/';
+        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = $conf['tiff_representative_ext'];
-        $representative_file_path.= $representative_ext;
+        $representative_file_path .= $representative_ext;
 
         prepare_directory(dirname($representative_file_path));
 
-        $exec = $conf['ext_imagick_dir'].'convert';
+        $exec = $conf['ext_imagick_dir'] . 'convert';
 
         if ('jpg' == $conf['tiff_representative_ext']) {
             $exec .= ' -quality 98';
         }
 
-        $exec .= ' "'.realpath($file_path).'"';
+        $exec .= ' "' . realpath($file_path) . '"';
 
         $dest = pathinfo($representative_file_path);
-        $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'"';
+        $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
 
         $exec .= ' 2>&1';
         @exec($exec, $returnarray);
 
         // sometimes ImageMagick creates file-0.jpg (full size) + file-1.jpg
         // (thumbnail). I don't know how to avoid it.
-        $representative_file_abspath = realpath($dest['dirname']).'/'.$dest['basename'];
+        $representative_file_abspath = realpath($dest['dirname']) . '/' . $dest['basename'];
         if (!file_exists($representative_file_abspath)) {
             $first_file_abspath = preg_replace(
-                '/\.'.$representative_ext.'$/',
-                '-0.'.$representative_ext,
+                '/\.' . $representative_ext . '$/',
+                '-0.' . $representative_ext,
                 $representative_file_abspath
             );
 
@@ -270,13 +261,13 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     // generate pwg_representative in case of video
     //
     $ffmpeg_video_exts = array( // extensions tested with FFmpeg
-        'wmv','mov','mkv','mp4','mpg','flv','asf','xvid','divx','mpeg',
-        'avi','rm',
+        'wmv', 'mov', 'mkv', 'mp4', 'mpg', 'flv', 'asf', 'xvid', 'divx', 'mpeg',
+        'avi', 'rm',
     );
 
     if (isset($original_extension) and in_array($original_extension, $ffmpeg_video_exts)) {
-        $representative_file_path = dirname($file_path).'/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)).'.';
+        $representative_file_path = dirname($file_path) . '/pwg_representative/';
+        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = 'jpg';
         $representative_file_path .= $representative_ext;
@@ -285,11 +276,11 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
 
         $second = 1;
 
-        $ffmpeg = $conf['ffmpeg_dir'].'ffmpeg';
-        $ffmpeg .= ' -i "'.$file_path.'"';
-        $ffmpeg .= ' -an -ss '.$second;
+        $ffmpeg = $conf['ffmpeg_dir'] . 'ffmpeg';
+        $ffmpeg .= ' -i "' . $file_path . '"';
+        $ffmpeg .= ' -an -ss ' . $second;
         $ffmpeg .= ' -t 1 -r 1 -y -vcodec mjpeg -f mjpeg';
-        $ffmpeg .= ' "'.$representative_file_path.'"';
+        $ffmpeg .= ' "' . $representative_file_path . '"';
         @exec($ffmpeg);
 
         if (!file_exists($representative_file_path)) {
@@ -298,20 +289,20 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     }
 
     if (isset($original_extension) and 'pdf' == $original_extension and pwg_image::get_library() == 'ext_imagick') {
-        $representative_file_path = dirname($file_path).'/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)).'.';
+        $representative_file_path = dirname($file_path) . '/pwg_representative/';
+        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = 'jpg';
         $representative_file_path .= $representative_ext;
 
         prepare_directory(dirname($representative_file_path));
 
-        $exec = $conf['ext_imagick_dir'].'convert';
+        $exec = $conf['ext_imagick_dir'] . 'convert';
         $exec .= ' -quality 98';
-        $exec .= ' "'.realpath($file_path).'"[0]';
+        $exec .= ' "' . realpath($file_path) . '"[0]';
 
         $dest = pathinfo($representative_file_path);
-        $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'"';
+        $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
         $exec .= ' 2>&1';
         @exec($exec, $returnarray);
     }
@@ -371,7 +362,7 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
             'file' => $file,
             'name' => get_name_from_file($file),
             'date_available' => $dbnow,
-            'path' => preg_replace('#^'.preg_quote(PHPWG_ROOT_PATH).'#', '', $file_path),
+            'path' => preg_replace('#^' . preg_quote(PHPWG_ROOT_PATH) . '#', '', $file_path),
             'filesize' => $file_infos['filesize'],
             'width' => $file_infos['width'],
             'height' => $file_infos['height'],
@@ -409,8 +400,8 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     invalidate_user_cache();
 
     // cache thumbnail
-    $query = 'SELECT id,path FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($image_id);
+    $query = 'SELECT id,path FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($image_id);
     $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
     set_make_full_url();
@@ -424,7 +415,8 @@ function add_uploaded_file($source_filepath, $original_filename=null, $categorie
     return $image_id;
 }
 
-function prepare_directory($directory) {
+function prepare_directory($directory)
+{
     if (!is_dir($directory)) {
         if (substr(PHP_OS, 0, 3) == 'WIN') {
             $directory = str_replace('/', DIRECTORY_SEPARATOR, $directory);
@@ -432,7 +424,7 @@ function prepare_directory($directory) {
         umask(0000);
         $recursive = true;
         if (!@mkdir($directory, 0777, $recursive)) {
-            throw new Exception('[prepare_directory] cannot create directory "'.$directory.'"');
+            throw new Exception('[prepare_directory] cannot create directory "' . $directory . '"');
         }
     }
 
@@ -441,14 +433,15 @@ function prepare_directory($directory) {
         @chmod($directory, 0777);
 
         if (!is_writable($directory)) {
-            throw new Exception('[prepare_directory] directory "'.$directory.'" has no write access');
+            throw new Exception('[prepare_directory] directory "' . $directory . '" has no write access');
         }
     }
 
     secure_directory($directory);
 }
 
-function need_resize($image_filepath, $max_width, $max_height) {
+function need_resize($image_filepath, $max_width, $max_height)
+{
     // TODO : the resize check should take the orientation into account. If a
     // rotation must be applied to the resized photo, then we should test
     // invert width and height.
@@ -461,18 +454,20 @@ function need_resize($image_filepath, $max_width, $max_height) {
     return false;
 }
 
-function pwg_image_infos($path) {
+function pwg_image_infos($path)
+{
     list($width, $height) = getimagesize($path);
-    $filesize = floor(filesize($path)/1024);
+    $filesize = floor(filesize($path) / 1024);
 
     return array(
-        'width'  => $width,
+        'width' => $width,
         'height' => $height,
         'filesize' => $filesize,
     );
 }
 
-function is_valid_image_extension($extension) {
+function is_valid_image_extension($extension)
+{
     global $conf;
 
     if (isset($conf['upload_form_all_types']) and $conf['upload_form_all_types']) {
@@ -484,31 +479,33 @@ function is_valid_image_extension($extension) {
     return array_unique(array_map('strtolower', $extensions));
 }
 
-function file_upload_error_message($error_code) {
+function file_upload_error_message($error_code)
+{
     switch ($error_code) {
-    case UPLOAD_ERR_INI_SIZE:
-        return sprintf(
-            l10n('The uploaded file exceeds the upload_max_filesize directive in php.ini: %sB'),
-            get_ini_size('upload_max_filesize', false)
-        );
-    case UPLOAD_ERR_FORM_SIZE:
-        return l10n('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form');
-    case UPLOAD_ERR_PARTIAL:
-        return l10n('The uploaded file was only partially uploaded');
-    case UPLOAD_ERR_NO_FILE:
-        return l10n('No file was uploaded');
-    case UPLOAD_ERR_NO_TMP_DIR:
-        return l10n('Missing a temporary folder');
-    case UPLOAD_ERR_CANT_WRITE:
-        return l10n('Failed to write file to disk');
-    case UPLOAD_ERR_EXTENSION:
-        return l10n('File upload stopped by extension');
-    default:
-        return l10n('Unknown upload error');
+        case UPLOAD_ERR_INI_SIZE:
+            return sprintf(
+                \Phyxo\Functions\Language::l10n('The uploaded file exceeds the upload_max_filesize directive in php.ini: %sB'),
+                get_ini_size('upload_max_filesize', false)
+            );
+        case UPLOAD_ERR_FORM_SIZE:
+            return \Phyxo\Functions\Language::l10n('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form');
+        case UPLOAD_ERR_PARTIAL:
+            return \Phyxo\Functions\Language::l10n('The uploaded file was only partially uploaded');
+        case UPLOAD_ERR_NO_FILE:
+            return \Phyxo\Functions\Language::l10n('No file was uploaded');
+        case UPLOAD_ERR_NO_TMP_DIR:
+            return \Phyxo\Functions\Language::l10n('Missing a temporary folder');
+        case UPLOAD_ERR_CANT_WRITE:
+            return \Phyxo\Functions\Language::l10n('Failed to write file to disk');
+        case UPLOAD_ERR_EXTENSION:
+            return \Phyxo\Functions\Language::l10n('File upload stopped by extension');
+        default:
+            return \Phyxo\Functions\Language::l10n('Unknown upload error');
     }
 }
 
-function get_ini_size($ini_key, $in_bytes=true) {
+function get_ini_size($ini_key, $in_bytes = true)
+{
     $size = ini_get($ini_key);
 
     if ($in_bytes) {
@@ -518,40 +515,43 @@ function get_ini_size($ini_key, $in_bytes=true) {
     return $size;
 }
 
-function convert_shorthand_notation_to_bytes($value) {
+function convert_shorthand_notation_to_bytes($value)
+{
     $suffix = substr($value, -1);
     $multiply_by = null;
 
     if ('K' == $suffix) {
         $multiply_by = 1024;
     } elseif ('M' == $suffix) {
-        $multiply_by = 1024*1024;
+        $multiply_by = 1024 * 1024;
     } elseif ('G' == $suffix) {
-        $multiply_by = 1024*1024*1024;
+        $multiply_by = 1024 * 1024 * 1024;
     }
 
     if (isset($multiply_by)) {
         $value = substr($value, 0, -1);
-        $value*= $multiply_by;
+        $value *= $multiply_by;
     }
 
     return $value;
 }
 
-function add_upload_error($upload_id, $error_message) {
+function add_upload_error($upload_id, $error_message)
+{
     $_SESSION['uploads_error'][$upload_id][] = $error_message;
 }
 
-function ready_for_upload_message() {
+function ready_for_upload_message()
+{
     global $conf;
 
-    $relative_dir = preg_replace('#^'.realpath(PHPWG_ROOT_PATH).'#', '', $conf['upload_dir']);
-    $absolute_dir = realpath(PHPWG_ROOT_PATH).'/'.$conf['upload_dir'];
+    $relative_dir = preg_replace('#^' . realpath(PHPWG_ROOT_PATH) . '#', '', $conf['upload_dir']);
+    $absolute_dir = realpath(PHPWG_ROOT_PATH) . '/' . $conf['upload_dir'];
 
     if (!is_dir($absolute_dir)) {
         if (!is_writable(dirname($absolute_dir))) {
             return sprintf(
-                l10n('Create the "%s" directory at the root of your Phyxo installation'),
+                \Phyxo\Functions\Language::l10n('Create the "%s" directory at the root of your Phyxo installation'),
                 $relative_dir
             );
         }
@@ -561,7 +561,7 @@ function ready_for_upload_message() {
 
             if (!is_writable($absolute_dir)) {
                 return sprintf(
-                    l10n('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'),
+                    \Phyxo\Functions\Language::l10n('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'),
                     $relative_dir
                 );
             }
