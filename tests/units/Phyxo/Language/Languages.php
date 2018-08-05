@@ -29,7 +29,8 @@ define('LANGUAGES_TABLE', 'languages');
 
 class Languages extends atoum
 {
-    private function getLocalLanguages() {
+    private function getLocalLanguages()
+    {
         return array(
             'aa_AA' => array(
                 'name' => 'AA Language [AA]',
@@ -64,15 +65,26 @@ class Languages extends atoum
                 'author' => 'Arthur',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '99'
+            ),
+            'en_GB' => array(
+                'name' => 'English [GB]',
+                'code' => 'en_GB',
+                'version' => '1.9.0',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=61',
+                'author' => 'Nicolas Roudaire',
+                'author uri' => 'https://www.phyxo.net',
+                'extension' => '61'
             )
         );
     }
 
-    public function testFsLanguages() {
+    public function testFsLanguages()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $languages = new \Phyxo\Language\Languages($conn);
 
         $this

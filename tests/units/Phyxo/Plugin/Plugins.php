@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace tests\units\Phyxo\Plugin;
 
@@ -33,38 +24,45 @@ define('PLUGINS_TABLE', 'plugins');
 
 class Plugins extends atoum
 {
-    private $plugins_dir = ''; private $fs = null;
+    private $plugins_dir = '';
+    private $fs = null;
 
-    public function setUp() {
+    public function setUp()
+    {
         $this->fs = new Filesystem();
 
-        $this->fs->remove(PHPWG_TMP_PATH.'/plugins'); // in case tearDown has not been called
-        $this->fs->mkdir(PHPWG_TMP_PATH.'/plugins');
-        $this->fs->mirror(PHPWG_PLUGINS_PATH, PHPWG_TMP_PATH.'/plugins/');
+        $this->fs->remove(PHPWG_TMP_PATH . '/plugins'); // in case tearDown has not been called
+        $this->fs->mkdir(PHPWG_TMP_PATH . '/plugins');
+        $this->fs->mirror(PHPWG_PLUGINS_PATH, PHPWG_TMP_PATH . '/plugins/');
     }
 
-    public function tearDown() {
-        $this->fs->remove(PHPWG_TMP_PATH.'/plugins');
+    public function tearDown()
+    {
+        $this->fs->remove(PHPWG_TMP_PATH . '/plugins');
     }
 
-    public function testFsPlugins() {
+    public function testFsPlugins()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins =  new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH.'/plugins/');
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
 
         $this
             ->array($plugins->getFsPlugins())
             ->isEqualTo($this->getLocalPlugins());
     }
 
-    public function testSortPlugins($sort_type, $order) {
+    public function testSortPlugins($sort_type, $order)
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins =  new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH.'/plugins/');
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
 
         $plugins->sortFsPlugins($sort_type);
 
@@ -76,31 +74,36 @@ class Plugins extends atoum
             ->keys->isEqualTo($order);
     }
 
-    public function testExtractPluginWithEmptyOrInvalidArchive() {
+    public function testExtractPluginWithEmptyOrInvalidArchive()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins =  new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH.'/plugins/');
-        $this->calling($plugins)->download = function() {
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $this->calling($plugins)->download = function () {
             // copy archive in right place
         };
 
         $plugin_id = 'myPlugin';
         $this->exception(
-            function() use ($plugins, $plugin_id) {
+            function () use ($plugins, $plugin_id) {
                 $plugins->extractPluginFiles('install', 10, 'myPlugin', $plugin_id);
-            })
-             ->hasMessage("Can't read or extract archive.");
+            }
+        )
+            ->hasMessage("Can't read or extract archive.");
     }
 
-    public function testExtractPlugin() {
+    public function testExtractPlugin()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins =  new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH.'/plugins/');
-        $this->calling($plugins)->download = function($get_data, $archive) {
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
         };
@@ -127,14 +130,16 @@ class Plugins extends atoum
             ->isEqualTo(array_merge($myPlugin1, $this->getLocalPlugins()));
     }
 
-    public function testExtractPluginWithUpdate() {
+    public function testExtractPluginWithUpdate()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins =  new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH.'/plugins/');
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
 
-        $this->calling($plugins)->download = function($get_data, $archive) {
+        $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
         };
@@ -160,7 +165,7 @@ class Plugins extends atoum
             ->array($plugins->getFsPlugins())
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
 
-        $this->calling($plugins)->download = function($get_data, $archive) {
+        $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.2.0.zip', $archive);
         };
@@ -177,7 +182,8 @@ class Plugins extends atoum
             ->isEqualTo(array_merge($new_plugin, $this->getLocalPlugins()));
     }
 
-    protected function testSortPluginsDataProvider() {
+    protected function testSortPluginsDataProvider()
+    {
         return array(
             array('author', array('plugin2', 'plugin3', 'plugin4', 'plugin1')),
             array('id', array('plugin1', 'plugin2', 'plugin3', 'plugin4')),
@@ -186,7 +192,8 @@ class Plugins extends atoum
         );
     }
 
-    private function getLocalPlugins() {
+    private function getLocalPlugins()
+    {
         return array(
             'plugin1' => array(
                 'name' => 'A simple plugin',

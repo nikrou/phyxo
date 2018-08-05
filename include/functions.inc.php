@@ -1005,31 +1005,6 @@ function get_pwg_charset()
 }
 
 /**
- * returns the parent (fallback) language of a language.
- * if _$lang_id_ is null it applies to the current language
- * @since 2.6
- *
- * @param string $lang_id
- * @return string|null
- */
-function get_parent_language($lang_id = null)
-{
-    global $lang_info;
-
-    if (empty($lang_id)) {
-        return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
-    } else {
-        $f = PHPWG_ROOT_PATH . 'language/' . $lang_id . '/common.lang.php';
-        if (file_exists($f)) {
-            include($f);
-            return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
-        }
-    }
-
-    return null;
-}
-
-/**
  * converts a string from a character set to another character set
  *
  * @param string $str

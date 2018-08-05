@@ -22,7 +22,7 @@
 /*
 Plugin Name: My Plugin
 Version: 2.1.0
-Description: Another plugin
+Description: Fake description replace by ones in description.txt file
 Plugin URI: http://ext.phyxo.net/extension_view.php?eid=40
 Author: Jean
 Author URI: http://www.phyxo.net/

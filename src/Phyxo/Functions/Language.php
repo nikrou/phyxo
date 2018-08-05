@@ -114,6 +114,30 @@ class Language
     }
 
     /**
+     * returns the parent (fallback) language of a language.
+     * if _$lang_id_ is null it applies to the current language
+     *
+     * @param string $lang_id
+     * @return string|null
+     */
+    public static function get_parent_language($lang_id = null)
+    {
+        global $lang_info;
+
+        if (empty($lang_id)) {
+            return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
+        } else {
+            $f = PHPWG_ROOT_PATH . 'language/' . $lang_id . '/common.lang.php';
+            if (file_exists($f)) {
+                include($f);
+                return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * includes a language file or returns the content of a language file
      *
      * tries to load in descending order:
@@ -132,55 +156,68 @@ class Language
      */
     public static function load_language($filename, $dirname = '', $options = array())
     {
-        global $user, $language_files, $services;
+        global $user, $language_files, $services, $lang, $lang_info;
+
+        $default_options = [
+            'return' => false,
+            'no_fallback' => false,
+            'force_fallback' => false,
+            'local' => false,
+        ];
+
+        $options = array_merge($default_options, $options);
 
         // keep trace of plugins loaded files for switch_lang_to() function
-        if (!empty($dirname) && !empty($filename) && !@$options['return'] && !isset($language_files[$dirname][$filename])) {
+        if (!empty($dirname) && !empty($filename) && !$options['return'] && !isset($language_files[$dirname][$filename])) {
             $language_files[$dirname][$filename] = $options;
         }
 
-        if (!@$options['return']) {
+        if (!$options['return']) {
             $filename .= '.php';
         }
+
         if (empty($dirname)) {
             $dirname = PHPWG_ROOT_PATH;
         }
-        $dirname .= 'language/';
 
-        $default_language = defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH') ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
+        $dirname .= 'language/';
+        $default_language = (defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH')) ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
 
         // construct list of potential languages
         $languages = array();
         if (!empty($options['language'])) { // explicit language
             $languages[] = $options['language'];
         }
+
         if (!empty($user['language'])) { // use language
             $languages[] = $user['language'];
         }
-        if (($parent = get_parent_language()) != null) { // parent language
+
+        if (($parent = self::get_parent_language()) !== null) { // parent language
             // this is only for when the "child" language is missing
             $languages[] = $parent;
         }
-        if (isset($options['force_fallback'])) { // fallback language
-            // this is only for when the main language is missing
-            if ($options['force_fallback'] === true) {
-                $options['force_fallback'] = $default_language;
-            }
-            $languages[] = $options['force_fallback'];
-        }
-        if (!@$options['no_fallback']) { // default language
+
+        if ($options['force_fallback']) { // fallback language
             $languages[] = $default_language;
         }
 
-        $languages = array_unique($languages);
+        if (!$options['no_fallback']) { // default language
+            $languages[] = $default_language;
+        }
+
+        if (!empty($languages)) {
+            $languages = array_unique($languages);
+        }
 
         // find first existing
         $source_file = '';
         $selected_language = '';
-        foreach ($languages as $language) {
-            $f = @$options['local'] ? $dirname . $language . '.' . $filename : $dirname . $language . '/' . $filename;
 
-            if (file_exists($f)) {
+        foreach ($languages as $language) {
+            $f = $options['local'] ? $dirname . $language . '.' . $filename : $dirname . $language . '/' . $filename;
+
+            if (is_readable($f)) {
                 $selected_language = $language;
                 $source_file = $f;
                 break;
@@ -188,22 +225,22 @@ class Language
         }
 
         if (!empty($source_file)) {
-            if (!@$options['return']) {
+            if (!$options['return']) {
                 // load forced fallback
-                if (isset($options['force_fallback']) && $options['force_fallback'] != $selected_language) {
-                    @include(str_replace($selected_language, $options['force_fallback'], $source_file));
+                if ($options['force_fallback']) {
+                    include(str_replace($selected_language, $options['force_fallback'], $source_file));
                 }
 
                 // load language content
-                @include($source_file);
-                $load_lang = @$lang;
-                $load_lang_info = @$lang_info;
+                include($source_file);
+                $load_lang = $lang;
+                $load_lang_info = $lang_info;
 
                 // access already existing values
-                global $lang, $lang_info;
                 if (!isset($lang)) {
                     $lang = array();
                 }
+
                 if (!isset($lang_info)) {
                     $lang_info = array();
                 }
@@ -218,15 +255,16 @@ class Language
                 }
 
                 if (!empty($parent_language) && $parent_language != $selected_language) {
-                    @include(str_replace($selected_language, $parent_language, $source_file));
+                    include(str_replace($selected_language, $parent_language, $source_file));
                 }
 
                 // merge contents
                 $lang = array_merge($lang, (array)$load_lang);
                 $lang_info = array_merge($lang_info, (array)$load_lang_info);
+
                 return true;
             } else {
-                $content = @file_get_contents($source_file);
+                $content = file_get_contents($source_file);
                 return $content;
             }
         }
