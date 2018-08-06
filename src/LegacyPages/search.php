@@ -135,7 +135,7 @@ if (isset($_POST['submit'])) {
 //----------------------------------------------------------------- redirection
 if (isset($_POST['submit']) and count($page['errors']) == 0) {
     redirect(
-        make_index_url(
+        \Phyxo\Functions\URL::make_index_url(
             array(
                 'section' => 'search',
                 'search' => $search_id,

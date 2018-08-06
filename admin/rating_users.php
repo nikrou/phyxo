@@ -86,7 +86,7 @@ if (count($image_ids) > 0) {
     while ($row = $conn->db_fetch_assoc($result)) {
         $image_urls[$row['id']] = array(
             'tn' => DerivativeImage::url($params, $row),
-            'page' => make_picture_url(array('image_id' => $row['id'], 'image_file' => $row['file'])),
+            'page' => \Phyxo\Functions\URL::make_picture_url(array('image_id' => $row['id'], 'image_file' => $row['file'])),
         );
     }
 }
@@ -199,7 +199,7 @@ $template->assign('order_by_options_selected', array($order_by_index));
 $x = uasort($by_user_ratings, $available_order_by[$order_by_index][1]);
 
 $template->assign(array(
-    'F_ACTION' => get_root_url() . 'admin/index.php',
+    'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php',
     'F_MIN_RATES' => $filter_min_rates,
     'CONSENSUS_TOP_NUMBER' => $consensus_top_number,
     'available_rates' => $conf['rate_items'],

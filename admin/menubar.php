@@ -94,7 +94,7 @@ foreach ($mb_conf as $id => $pos) {
     );
 }
 
-$action = get_root_url() . 'admin/index.php?page=menubar';
+$action = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=menubar';
 $template->assign(array('F_ACTION' => $action));
 
 $template_filename = 'menubar';

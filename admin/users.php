@@ -19,7 +19,7 @@
 
 use Phyxo\TabSheet\TabSheet;
 
-define('USERS_BASE_URL', get_root_url() . 'admin/index.php?page=users');
+define('USERS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=users');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 

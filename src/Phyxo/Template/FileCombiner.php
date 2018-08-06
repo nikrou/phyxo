@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Template;
 
@@ -40,21 +31,23 @@ final class FileCombiner
      * @param string $type 'js' or 'css'
      * @param Combinable[] $combinables
      */
-    public function __construct($type, $combinables=array()) {
+    public function __construct($type, $combinables = array())
+    {
         $this->type = $type;
-        $this->is_css = $type=='css';
+        $this->is_css = $type == 'css';
         $this->combinables = $combinables;
     }
 
     /**
      * Deletes all combined files from cache directory.
      */
-    public static function clear_combined_files() {
+    public static function clear_combined_files()
+    {
         // @TODO: use glob
-        $dir = opendir(PHPWG_ROOT_PATH.PWG_COMBINED_DIR);
+        $dir = opendir(PHPWG_ROOT_PATH . PWG_COMBINED_DIR);
         while ($file = readdir($dir)) {
-            if (get_extension($file)=='js' || get_extension($file)=='css') {
-                unlink(PHPWG_ROOT_PATH.PWG_COMBINED_DIR.$file);
+            if (get_extension($file) == 'js' || get_extension($file) == 'css') {
+                unlink(PHPWG_ROOT_PATH . PWG_COMBINED_DIR . $file);
             }
         }
         closedir($dir);
@@ -63,7 +56,8 @@ final class FileCombiner
     /**
      * @param Combinable|Combinable[] $combinable
      */
-    public function add($combinable) {
+    public function add($combinable)
+    {
         if (is_array($combinable)) {
             $this->combinables = array_merge($this->combinables, $combinable);
         } else {
@@ -74,7 +68,8 @@ final class FileCombiner
     /**
      * @return Combinable[]
      */
-    public function combine() {
+    public function combine()
+    {
         global $conf, $services;
 
         $force = false;
@@ -85,7 +80,7 @@ final class FileCombiner
 
         $result = array();
         $pending = array();
-        $ini_key = $this->is_css ? array(get_absolute_root_url(false)): array(); //because for css we modify bg url;
+        $ini_key = $this->is_css ? array(\Phyxo\Functions\URL::get_absolute_root_url(false)) : array(); //because for css we modify bg url;
         $key = $ini_key;
 
         foreach ($this->combinables as $combinable) {
@@ -102,7 +97,7 @@ final class FileCombiner
             $key[] = $combinable->path;
             $key[] = $combinable->version;
             if ($conf['template_compile_check']) {
-                $key[] = filemtime( PHPWG_ROOT_PATH . $combinable->path );
+                $key[] = filemtime(PHPWG_ROOT_PATH . $combinable->path);
             }
             $pending[] = $combinable;
         }
@@ -118,11 +113,12 @@ final class FileCombiner
      * @param string[] $key
      * @param bool $force
      */
-    private function flush_pending(&$result, &$pending, $key, $force) {
-        if (count($pending)>1) {
+    private function flush_pending(&$result, &$pending, $key, $force)
+    {
+        if (count($pending) > 1) {
             $key = join('>', $key);
-            $file = PWG_COMBINED_DIR . base_convert(crc32($key),10,36) . '.' . $this->type;
-            if ($force || !file_exists(PHPWG_ROOT_PATH.$file)) {
+            $file = PWG_COMBINED_DIR . base_convert(crc32($key), 10, 36) . '.' . $this->type;
+            if ($force || !file_exists(PHPWG_ROOT_PATH . $file)) {
                 $output = '';
                 foreach ($pending as $combinable) {
                     $output .= "/*BEGIN $combinable->path */\n";
@@ -130,12 +126,12 @@ final class FileCombiner
                     $output .= "\n";
                 }
                 $output = "/*BEGIN header */\n" . $header . "\n" . $output;
-                mkgetdir(dirname(PHPWG_ROOT_PATH.$file));
-                file_put_contents(PHPWG_ROOT_PATH.$file, $output);
-                @chmod(PHPWG_ROOT_PATH.$file, 0644);
+                mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
+                file_put_contents(PHPWG_ROOT_PATH . $file, $output);
+                @chmod(PHPWG_ROOT_PATH . $file, 0644);
             }
             $result[] = new Combinable("combi", $file, false);
-        } elseif (count($pending)==1) {
+        } elseif (count($pending) == 1) {
             $header = '';
             $this->process_combinable($pending[0], false, $force, $header);
             $result[] = $pending[0];
@@ -155,25 +151,26 @@ final class FileCombiner
      *                       $return_content===true)
      * @return null|string
      */
-    private function process_combinable($combinable, $return_content, $force, &$header) {
+    private function process_combinable($combinable, $return_content, $force, &$header)
+    {
         global $conf, $template;
 
         if ($combinable->is_template) {
             if (!$return_content) {
                 $key = array($combinable->path, $combinable->version);
                 if ($conf['template_compile_check']) {
-                    $key[] = filemtime( PHPWG_ROOT_PATH . $combinable->path );
+                    $key[] = filemtime(PHPWG_ROOT_PATH . $combinable->path);
                 }
-                $file = PWG_COMBINED_DIR . 't' . base_convert(crc32(implode(',',$key)), 10, 36) . '.' . $this->type;
-                if (!$force && file_exists(PHPWG_ROOT_PATH.$file)) {
+                $file = PWG_COMBINED_DIR . 't' . base_convert(crc32(implode(',', $key)), 10, 36) . '.' . $this->type;
+                if (!$force && file_exists(PHPWG_ROOT_PATH . $file)) {
                     $combinable->path = $file;
                     $combinable->version = false;
                     return;
                 }
             }
 
-            $handle = $this->type. '.' .$combinable->id;
-            $template->set_filename($handle, realpath(PHPWG_ROOT_PATH.$combinable->path));
+            $handle = $this->type . '.' . $combinable->id;
+            $template->set_filename($handle, realpath(PHPWG_ROOT_PATH . $combinable->path));
             trigger_notify('combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
             $content = $template->parse($handle, true);
 
@@ -186,8 +183,8 @@ final class FileCombiner
             if ($return_content) {
                 return $content;
             }
-            mkgetdir(dirname(PHPWG_ROOT_PATH.$file));
-            file_put_contents(PHPWG_ROOT_PATH.$file, $content);
+            mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
+            file_put_contents(PHPWG_ROOT_PATH . $file, $content);
             $combinable->path = $file;
         } elseif ($return_content) {
             $content = file_get_contents(PHPWG_ROOT_PATH . $combinable->path);
@@ -207,13 +204,15 @@ final class FileCombiner
      * @param string $file
      * @return string
      */
-    private static function process_js($js, $file) {
-        if (strpos($file, '.min')===false and strpos($file, '.packed')===false ) {
+    private static function process_js($js, $file)
+    {
+        if (strpos($file, '.min') === false and strpos($file, '.packed') === false) {
             try {
                 $js = JShrink\Minifier::minify($js);
-            } catch(Exception $e) {}
+            } catch (Exception $e) {
+            }
         }
-        return trim($js, " \t\r\n;").";\n";
+        return trim($js, " \t\r\n;") . ";\n";
     }
 
     /**
@@ -225,10 +224,11 @@ final class FileCombiner
      *                       the minified file
      * @return string
      */
-    private static function process_css($css, $file, &$header) {
+    private static function process_css($css, $file, &$header)
+    {
         $css = self::process_css_rec($css, dirname($file), $header);
-        if (strpos($file, '.min')===false and version_compare(PHP_VERSION, '5.2.4', '>=')) {
-            $css = CssMin::minify($css, array('Variables'=>false));
+        if (strpos($file, '.min') === false and version_compare(PHP_VERSION, '5.2.4', '>=')) {
+            $css = CssMin::minify($css, array('Variables' => false));
         }
         $css = trigger_change('combined_css_postfilter', $css);
         return $css;
@@ -243,17 +243,18 @@ final class FileCombiner
      *                       the minified file.
      * @return string
      */
-    private static function process_css_rec($css, $dir, &$header) {
+    private static function process_css_rec($css, $dir, &$header)
+    {
         static $PATTERN_URL = "#url\(\s*['|\"]{0,1}(.*?)['|\"]{0,1}\s*\)#";
         static $PATTERN_IMPORT = "#@import\s*['|\"]{0,1}(.*?)['|\"]{0,1};#";
 
         if (preg_match_all($PATTERN_URL, $css, $matches, PREG_SET_ORDER)) {
             $search = $replace = array();
             foreach ($matches as $match) {
-                if (!url_is_remote($match[1]) && $match[1][0] != '/' && strpos($match[1], 'data:image/')===false) {
+                if (!\Phyxo\Functions\URL::url_is_remote($match[1]) && $match[1][0] != '/' && strpos($match[1], 'data:image/') === false) {
                     $relative = $dir . "/$match[1]";
                     $search[] = $match[0];
-                    $replace[] = 'url('.embellish_url(get_absolute_root_url(false).$relative).')';
+                    $replace[] = 'url(' . \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url(false) . $relative) . ')';
                 }
             }
             $css = str_replace($search, $replace, $css);
@@ -265,9 +266,8 @@ final class FileCombiner
                 $search[] = $match[0];
 
                 if (strpos($match[1], '..') !== false // Possible attempt to get out of Piwigo's dir
-                    or strpos($match[1], '://') !== false // Remote URL
-                    or !is_readable(PHPWG_ROOT_PATH . $dir . '/' . $match[1])
-                ) {
+                or strpos($match[1], '://') !== false // Remote URL
+                or !is_readable(PHPWG_ROOT_PATH . $dir . '/' . $match[1])) {
                     // If anything is suspicious, don't try to process the
                     // @import. Since @import need to be first and we are
                     // concatenating several CSS files, remove it from here and return

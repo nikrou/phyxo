@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('TAGS_BASE_URL', get_root_url() . 'admin/index.php?page=tags');
+define('TAGS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -51,6 +51,6 @@ include_once(PHPWG_ROOT_PATH . 'admin/tags_' . $page['section'] . '.php');
 $template_filename = 'tags_' . $page['section'];
 
 $template->assign([
-    'F_ACTION' => get_root_url() . 'admin/index.php?page=tags&amp;section=' . $page['section'],
+    'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags&amp;section=' . $page['section'],
     'PWG_TOKEN' => get_pwg_token(),
 ]);

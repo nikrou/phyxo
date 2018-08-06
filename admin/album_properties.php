@@ -122,7 +122,7 @@ $form_action = ALBUM_BASE_URL . '&amp;section=properties&amp;cat_id=' . $categor
 
 //----------------------------------------------------- template initialization
 
-$base_url = get_root_url() . 'admin/index.php?page=';
+$base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=';
 $cat_list_url = $base_url . 'albums';
 
 $self_url = $cat_list_url;
@@ -137,10 +137,10 @@ $template->assign(
         'CAT_NAME' => @htmlspecialchars($category['name']), // @TODO: remove arobase
         'CAT_COMMENT' => @htmlspecialchars($category['comment']), // @TODO: remove arobase
         'CAT_VISIBLE' => $conn->boolean_to_string($category['visible']),
-        'U_JUMPTO' => make_index_url(array('category' => $category)),
+        'U_JUMPTO' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
         'U_ADD_PHOTOS_ALBUM' => $base_url . 'photos_add&amp;album=' . $category['id'],
         'U_CHILDREN' => $cat_list_url . '&amp;parent_id=' . $category['id'],
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_modify',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_modify',
         'F_ACTION' => $form_action,
     )
 );
@@ -220,7 +220,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
         $query .= ' WHERE id = ' . $category['representative_picture_id'];
         $row = $conn->db_fetch_assoc($conn->db_query($query));
         $src = DerivativeImage::thumb_url($row);
-        $url = get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
+        $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
 
         $tpl_representant['picture'] =
             array(

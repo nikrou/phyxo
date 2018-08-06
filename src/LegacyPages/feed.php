@@ -76,13 +76,13 @@ $services['users']->checkStatus(ACCESS_GUEST);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
-set_make_full_url();
+\Phyxo\Functions\URL::set_make_full_url();
 
 $rss = new UniversalFeedCreator();
 $rss->title = $conf['gallery_title'];
 $rss->title .= ' (as ' . stripslashes($user['username']) . ')';
 
-$rss->link = get_gallery_home_url();
+$rss->link = \Phyxo\Functions\URL::get_gallery_home_url();
 
 // +-----------------------------------------------------------------------+
 // |                            Feed creation                              |
@@ -95,7 +95,7 @@ if (!$image_only) {
     if (count($news) > 0) {
         $item = new FeedItem();
         $item->title = \Phyxo\Functions\Language::l10n('New on %s', format_date($dbnow));
-        $item->link = get_gallery_home_url();
+        $item->link = \Phyxo\Functions\URL::get_gallery_home_url();
 
         // content creation
         $item->description = '<ul>';
@@ -131,7 +131,7 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
     $item = new FeedItem();
     $date = $date_detail['date_available'];
     $item->title = get_title_recent_post_date($date_detail);
-    $item->link = make_index_url(
+    $item->link = \Phyxo\Functions\URL::make_index_url(
         array(
             'chronology_field' => 'posted',
             'chronology_style' => 'monthly',
@@ -140,7 +140,7 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
         )
     );
 
-    $item->description .= '<a href="' . make_index_url() . '">' . $conf['gallery_title'] . '</a><br> ';
+    $item->description .= '<a href="' . \Phyxo\Functions\URL::make_index_url() . '">' . $conf['gallery_title'] . '</a><br> ';
     $item->description .= get_html_description_recent_post_date($date_detail);
 
     $item->descriptionHtmlSyndicated = true;

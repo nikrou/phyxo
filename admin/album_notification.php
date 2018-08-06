@@ -28,7 +28,7 @@ $page['cat'] = $category['id'];
 
 // info by email to an access granted group of category informations
 if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
 
     /* @TODO: if $category['representative_picture_id']
        is empty find child representative_picture_id */
@@ -41,7 +41,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
             $element = $conn->db_fetch_assoc($result);
 
             $img_url = '<a href="' .
-                make_picture_url(array(
+                \Phyxo\Functions\URL::make_picture_url(array(
                 'image_id' => $element['id'],
                 'image_file' => $element['file'],
                 'category' => $category
@@ -65,7 +65,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
             'assign' => array(
                 'IMG_URL' => $img_url,
                 'CAT_NAME' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
-                'LINK' => make_index_url(array(
+                'LINK' => \Phyxo\Functions\URL::make_index_url(array(
                     'category' => array(
                         'id' => $category['id'],
                         'name' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
@@ -77,7 +77,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
         )
     );
 
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 
     $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_POST['group']);
     list($group_name) = $conn->db_fetch_row($conn->db_query($query));

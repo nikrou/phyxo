@@ -18,7 +18,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_GUEST);
 
 if (empty($_GET['q'])) {
-    redirect(make_index_url());
+    redirect(\Phyxo\Functions\URL::make_index_url());
 }
 
 $search = array();
@@ -37,7 +37,7 @@ if (!empty($search_id)) {
 }
 
 redirect(
-    make_index_url(
+    \Phyxo\Functions\URL::make_index_url(
         array(
             'section' => 'search',
             'search' => $search_id,

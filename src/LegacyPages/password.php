@@ -84,20 +84,20 @@ function process_password_request()
         $userdata['activation_key'] = $activation_key;
     }
 
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
 
     $message = \Phyxo\Functions\Language::l10n('Someone requested that the password be reset for the following user account:') . "\r\n\r\n";
     $message .= \Phyxo\Functions\Language::l10n(
         'Username "%s" on gallery %s',
         $userdata['username'],
-        get_gallery_home_url()
+        \Phyxo\Functions\URL::get_gallery_home_url()
     );
     $message .= "\r\n\r\n";
     $message .= \Phyxo\Functions\Language::l10n('To reset your password, visit the following address:') . "\r\n";
-    $message .= get_gallery_home_url() . '/password.php?key=' . $userdata['activation_key'] . "\r\n\r\n";
+    $message .= \Phyxo\Functions\URL::get_gallery_home_url() . '/password.php?key=' . $userdata['activation_key'] . "\r\n\r\n";
     $message .= \Phyxo\Functions\Language::l10n('If this was a mistake, just ignore this email and nothing will happen.') . "\r\n";
 
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 
     $message = trigger_change('render_lost_password_mail_content', $message);
 
@@ -157,9 +157,9 @@ function reset_password()
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your password has been reset');
 
     if (isset($_GET['key'])) {
-        $page['infos'][] = '<a href="' . get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Login') . '</a>';
+        $page['infos'][] = '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Login') . '</a>';
     } else {
-        $page['infos'][] = '<a href="' . get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Return to home page') . '</a>';
+        $page['infos'][] = '<a href="' . \Phyxo\Functions\URL::get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Return to home page') . '</a>';
     }
 
     return true;
@@ -217,11 +217,11 @@ if (!isset($page['action'])) {
 }
 
 if ('reset' == $page['action'] and !isset($_GET['key']) and ($services['users']->isGuest() or $services['users']->isGeneric())) {
-    redirect(get_gallery_home_url());
+    redirect(\Phyxo\Functions\URL::get_gallery_home_url());
 }
 
 if ('lost' == $page['action'] and !$services['users']->isGuest()) {
-    redirect(get_gallery_home_url());
+    redirect(\Phyxo\Functions\URL::get_gallery_home_url());
 }
 
 // +-----------------------------------------------------------------------+
@@ -244,7 +244,7 @@ $template->set_filenames(array('password' => 'password.tpl'));
 $template->assign(
     array(
         'title' => $title,
-        'form_action' => get_root_url() . 'password.php',
+        'form_action' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
         'action' => $page['action'],
         'username' => isset($page['username']) ? $page['username'] : $user['username'],
         'PWG_TOKEN' => get_pwg_token(),

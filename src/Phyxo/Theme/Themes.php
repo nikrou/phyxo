@@ -334,12 +334,12 @@ class Themes extends Extensions
                 if (file_exists($screenshot_path)) {
                     $theme['screenshot'] = $screenshot_path;
                 } else {
-                    $theme['screenshot'] = \get_root_url() . 'admin/theme/images/missing_screenshot.png';
+                    $theme['screenshot'] = \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png';
                 }
 
                 $admin_file = dirname($themeconf) . '/admin/admin.inc.php';
                 if (file_exists($admin_file)) {
-                    $theme['admin_uri'] = \get_root_url() . 'admin/index.php?page=theme&theme=' . $theme_dir;
+                    $theme['admin_uri'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=theme&theme=' . $theme_dir;
                 }
 
                 $this->fs_themes[$theme_dir] = $theme;

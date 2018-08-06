@@ -21,7 +21,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('BATCH_MANAGER_BASE_URL', get_root_url() . 'admin/index.php?page=batch_manager');
+define('BATCH_MANAGER_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -63,7 +63,7 @@ if (isset($_GET['action'])) {
         $conn->db_query($query);
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
-        redirect(get_root_url() . 'admin/index.php?page=' . $_GET['page']);
+        redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page']);
     }
 }
 

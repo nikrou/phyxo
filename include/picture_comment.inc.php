@@ -83,7 +83,7 @@ if ($page['show_comments']) {
     }
 
     $navigation_bar = create_navigation_bar(
-        duplicate_picture_url(array(), array('start')),
+        \Phyxo\Functions\URL::duplicate_picture_url(array(), array('start')),
         $row['nb_comments'],
         $page['start'],
         $conf['nb_comment_page'],
@@ -105,7 +105,10 @@ if ($page['show_comments']) {
         $comments_order = isset($_SESSION['comments_order']) ? $_SESSION['comments_order'] : $conf['comments_order'];
 
         $template->assign(array(
-            'COMMENTS_ORDER_URL' => add_url_params(duplicate_picture_url(), array('comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC'))),
+            'COMMENTS_ORDER_URL' => \Phyxo\Functions\URL::add_url_params(
+                \Phyxo\Functions\URL::duplicate_picture_url(),
+                array('comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC'))
+            ),
             'COMMENTS_ORDER_TITLE' => $comments_order == 'ASC' ? \Phyxo\Functions\Language::l10n('Show latest comments first') : \Phyxo\Functions\Language::l10n('Show oldest comments first'),
         ));
 
@@ -140,7 +143,7 @@ if ($page['show_comments']) {
             );
 
             if ($services['users']->canManageComment('delete', $row['author_id'])) {
-                $tpl_comment['U_DELETE'] = add_url_params(
+                $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
                     array(
                         'action' => 'delete_comment',
@@ -150,7 +153,7 @@ if ($page['show_comments']) {
                 );
             }
             if ($services['users']->canManageComment('edit', $row['author_id'])) {
-                $tpl_comment['U_EDIT'] = add_url_params(
+                $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
                     array(
                         'action' => 'edit_comment',
@@ -170,7 +173,7 @@ if ($page['show_comments']) {
                 $tpl_comment['EMAIL'] = $email;
 
                 if ($row['validated'] != 'true') {
-                    $tpl_comment['U_VALIDATE'] = add_url_params(
+                    $tpl_comment['U_VALIDATE'] = \Phyxo\Functions\URL::add_url_params(
                         $url_self,
                         array(
                             'action' => 'validate_comment',

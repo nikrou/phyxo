@@ -27,7 +27,7 @@ if (isset($page['category'])) {
 }
 
 if ($page['start'] > 0 && $page['start'] >= count($page['items'])) {
-    page_not_found('', duplicate_index_url(array('start' => 0)));
+    page_not_found('', \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)));
 }
 
 trigger_notify('loc_begin_index');
@@ -40,7 +40,7 @@ if (isset($_GET['image_order'])) {
         unset($_SESSION['image_order']);
     }
     redirect(
-        duplicate_index_url(
+        \Phyxo\Functions\URL::duplicate_index_url(
             array(),        // nothing to redefine
             array('start')  // changing display order goes back to section first page
         )
@@ -59,7 +59,7 @@ if (isset($_GET['display'])) {
 $page['navigation_bar'] = array();
 if (count($page['items']) > $page['nb_image_page']) {
     $page['navigation_bar'] = create_navigation_bar(
-        duplicate_index_url(array(), array('start')),
+        \Phyxo\Functions\URL::duplicate_index_url(array(), array('start')),
         count($page['items']),
         $page['start'],
         $page['nb_image_page'],
@@ -73,17 +73,17 @@ $template->assign('thumb_navbar', $page['navigation_bar']);
 // caddie filling :-)
 if (isset($_GET['caddie'])) {
     fill_caddie($page['items']);
-    redirect(duplicate_index_url());
+    redirect(\Phyxo\Functions\URL::duplicate_index_url());
 }
 
 if (isset($page['is_homepage']) and $page['is_homepage']) {
-    $canonical_url = get_gallery_home_url();
+    $canonical_url = \Phyxo\Functions\URL::get_gallery_home_url();
 } else {
     $start = $page['nb_image_page'] * round($page['start'] / $page['nb_image_page']);
     if ($start > 0 && $start >= count($page['items'])) {
         $start -= $page['nb_image_page'];
     }
-    $canonical_url = duplicate_index_url(array('start' => $start));
+    $canonical_url = \Phyxo\Functions\URL::duplicate_index_url(array('start' => $start));
 }
 $template->assign('U_CANONICAL', $canonical_url);
 
@@ -106,14 +106,14 @@ if (empty($page['is_external']) or !$page['is_external']) {
     if (isset($page['flat']) or isset($page['chronology_field'])) {
         $template->assign(
             'U_MODE_NORMAL',
-            duplicate_index_url(array(), array('chronology_field', 'start', 'flat'))
+            \Phyxo\Functions\URL::duplicate_index_url(array(), array('chronology_field', 'start', 'flat'))
         );
     }
 
     if ($conf['index_flat_icon'] and !isset($page['flat']) and 'categories' == $page['section']) {
         $template->assign(
             'U_MODE_FLAT',
-            duplicate_index_url(array('flat' => ''), array('start', 'chronology_field'))
+            \Phyxo\Functions\URL::duplicate_index_url(array('flat' => ''), array('start', 'chronology_field'))
         );
     }
 
@@ -126,14 +126,14 @@ if (empty($page['is_external']) or !$page['is_external']) {
         if ($conf['index_created_date_icon']) {
             $template->assign(
                 'U_MODE_CREATED',
-                duplicate_index_url($chronology_params, array('start', 'flat'))
+                \Phyxo\Functions\URL::duplicate_index_url($chronology_params, array('start', 'flat'))
             );
         }
         if ($conf['index_posted_date_icon']) {
             $chronology_params['chronology_field'] = 'posted';
             $template->assign(
                 'U_MODE_POSTED',
-                duplicate_index_url($chronology_params, array('start', 'flat'))
+                \Phyxo\Functions\URL::duplicate_index_url($chronology_params, array('start', 'flat'))
             );
         }
     } else {
@@ -143,7 +143,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
             $chronology_field = 'created';
         }
         if ($conf['index_' . $chronology_field . '_date_icon']) {
-            $url = duplicate_index_url(
+            $url = \Phyxo\Functions\URL::duplicate_index_url(
                 array('chronology_field' => $chronology_field),
                 array('chronology_date', 'start', 'flat')
             );
@@ -157,21 +157,21 @@ if (empty($page['is_external']) or !$page['is_external']) {
     if ($page['section'] == 'search') {
         $template->assign(
             'U_SEARCH_RULES',
-            get_root_url() . 'search_rules.php?search_id=' . $page['search']
+            \Phyxo\Functions\URL::get_root_url() . 'search_rules.php?search_id=' . $page['search']
         );
     }
 
     if (isset($page['category']) and $services['users']->isAdmin()) {
         $template->assign(
             'U_EDIT',
-            get_root_url() . 'admin/index.php?page=album-' . $page['category']['id']
+            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-' . $page['category']['id']
         );
     }
 
     if ($services['users']->isAdmin() and !empty($page['items'])) {
         $template->assign(
             'U_CADDIE',
-            add_url_params(duplicate_index_url(), array('caddie' => 1))
+            \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), array('caddie' => 1))
         );
     }
 
@@ -191,7 +191,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
 
         $tags = (array)@$page['qsearch_details']['matching_tags'];
         foreach ($tags as $tag) {
-            $tag['URL'] = make_index_url(array('tags' => array($tag)));
+            $tag['URL'] = \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)));
             $template->append('tag_search_results', $tag);
         }
 
@@ -217,8 +217,8 @@ if (empty($page['is_external']) or !$page['is_external']) {
         }
         $first_order = trim($first_order);
 
-        $url = add_url_params(
-            duplicate_index_url(),
+        $url = \Phyxo\Functions\URL::add_url_params(
+            \Phyxo\Functions\URL::duplicate_index_url(),
             array('image_order' => '')
         );
         $tpl_orders = array();
@@ -268,7 +268,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
         if (!isset($page['chronology_field'])) {
             $template_filename = 'thumbnails';
         }
-        $url = add_url_params(duplicate_index_url(), array('display' => ''));
+        $url = \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), array('display' => ''));
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
         $type_map = ImageStdParams::get_defined_type_map();

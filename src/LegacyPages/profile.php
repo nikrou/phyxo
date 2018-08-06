@@ -54,8 +54,8 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     $template->set_filename('profile', 'profile.tpl');
 
     load_profile_in_template(
-        get_root_url() . 'profile.php', // action
-        make_index_url(), // for redirect
+        \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
+        \Phyxo\Functions\URL::make_index_url(), // for redirect
         $userdata
     );
 

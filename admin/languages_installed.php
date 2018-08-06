@@ -34,7 +34,7 @@ $default_language = $services['users']->getDefaultLanguage();
 $tpl_languages = array();
 
 foreach ($languages->getFsLanguages() as $language_id => $language) {
-    $language['u_action'] = add_url_params(LANGUAGES_BASE_URL . '&amp;section=installed', array('language' => $language_id));
+    $language['u_action'] = \Phyxo\Functions\URL::add_url_params(LANGUAGES_BASE_URL . '&amp;section=installed', array('language' => $language_id));
 
     if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
         $language['state'] = 'active';

@@ -13,7 +13,7 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-define('THEMES_BASE_URL', get_root_url() . 'admin/index.php?page=themes');
+define('THEMES_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=themes');
 
 use Phyxo\TabSheet\TabSheet;
 

@@ -520,7 +520,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
     $message->setCharSet('utf-8');
 
     // Compute root_path in order have complete path
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
 
     if (empty($args['from'])) {
         $from = array(
@@ -614,7 +614,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
 
             $template->assign(
                 array(
-                    'GALLERY_URL' => get_gallery_home_url(),
+                    'GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                     'GALLERY_TITLE' => isset($page['gallery_title']) ? $page['gallery_title'] : $conf['gallery_title'],
                     'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
                     'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
@@ -693,7 +693,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
     }
 
     // Undo Compute root_path in order have complete path
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 
     if (isset($contents['text/html'])) {
         $message->setBody(move_css_to_body($contents['text/html']), 'text/html');

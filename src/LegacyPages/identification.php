@@ -39,7 +39,7 @@ if (isset($_POST['login'])) {
         $remember_me = isset($_POST['remember_me']) and $_POST['remember_me'] == 1;
 
         if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
-            redirect(empty($redirect_to) ? get_gallery_home_url() : $redirect_to);
+            redirect(empty($redirect_to) ? \Phyxo\Functions\URL::get_gallery_home_url() : $redirect_to);
         } else {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         }
@@ -59,17 +59,17 @@ $template->assign(
     array(
         'U_REDIRECT' => $redirect_to,
 
-        'F_LOGIN_ACTION' => get_root_url() . 'identification.php',
+        'F_LOGIN_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'identification.php',
         'authorize_remembering' => $conf['authorize_remembering'],
     )
 );
 
 if (!$conf['gallery_locked'] && $conf['allow_user_registration']) {
-    $template->assign('U_REGISTER', get_root_url() . 'register.php');
+    $template->assign('U_REGISTER', \Phyxo\Functions\URL::get_root_url() . 'register.php');
 }
 
 if (!$conf['gallery_locked']) {
-    $template->assign('U_LOST_PASSWORD', get_root_url() . 'password.php');
+    $template->assign('U_LOST_PASSWORD', \Phyxo\Functions\URL::get_root_url() . 'password.php');
 }
 
 // include menubar

@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace tests\units\Phyxo\Theme;
 
@@ -29,7 +20,8 @@ define('THEMES_TABLE', 'themes');
 
 class Themes extends atoum
 {
-    private function getLocalThemes() {
+    private function getLocalThemes()
+    {
         return array(
             'theme1' => array(
                 'id' => 'theme1',
@@ -41,7 +33,7 @@ class Themes extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \get_root_url().'admin/theme/images/missing_screenshot.png'
+                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
             ),
             'theme2' => array(
                 'id' => 'theme2',
@@ -52,7 +44,7 @@ class Themes extends atoum
                 'description' => 'Theme mobile without author uri',
                 'author' => 'Arthur',
                 'mobile' => true,
-                'screenshot' => \get_root_url().'admin/theme/images/missing_screenshot.png'
+                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
             ),
             'theme3' => array(
                 'id' => 'theme3',
@@ -64,7 +56,7 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \get_root_url().'admin/theme/images/missing_screenshot.png'
+                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
             ),
             'theme4' => array(
                 'id' => 'theme4',
@@ -76,16 +68,18 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \get_root_url().'admin/theme/images/missing_screenshot.png'
+                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
             ),
         );
     }
 
-    public function testFsThemes() {
+    public function testFsThemes()
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \Phyxo\Theme\Themes($conn);
 
         $this
@@ -93,11 +87,13 @@ class Themes extends atoum
             ->isEqualTo($this->getLocalThemes());
     }
 
-    public function testSortThemes($sort_type, $order) {
+    public function testSortThemes($sort_type, $order)
+    {
         $controller = new \atoum\mock\controller();
-		$controller->__construct = function() {};
+        $controller->__construct = function () {
+        };
 
-		$conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
+        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \Phyxo\Theme\Themes($conn);
 
         $themes->sortFsThemes($sort_type);
@@ -110,7 +106,8 @@ class Themes extends atoum
             ->keys->isEqualTo($order);
     }
 
-    protected function testSortThemesDataProvider() {
+    protected function testSortThemesDataProvider()
+    {
         return array(
             array('author', array('theme2', 'theme3', 'theme4', 'theme1')),
             array('id', array('theme1', 'theme2', 'theme3', 'theme4')),

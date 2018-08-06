@@ -25,7 +25,7 @@ if (!$conf['activate_comments']) {
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_GUEST);
 
-$url_self = get_root_url() . 'comments.php' . get_query_string_diff(array('delete', 'edit', 'validate', 'pwg_token'));
+$url_self = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(array('delete', 'edit', 'validate', 'pwg_token'));
 
 $sort_order = array(
     'DESC' => \Phyxo\Functions\Language::l10n('descending'),
@@ -131,7 +131,7 @@ if (!empty($_GET['comment_id'])) {
     // for management purpose (validate/delete)
     if (!$services['users']->isAdmin()) {
         // double urlencode because redirect makes a decode !!
-        $login_url = get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
+        $login_url = \Phyxo\Functions\URL::get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
         redirect($login_url);
     }
 
@@ -249,7 +249,7 @@ $title = \Phyxo\Functions\Language::l10n('User comments');
 $template->set_filenames(array('comments' => 'comments.tpl'));
 $template->assign(
     array(
-        'F_ACTION' => get_root_url() . 'comments.php',
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
         'F_KEYWORD' => htmlspecialchars(stripslashes(@$_GET['keyword'])),
         'F_AUTHOR' => htmlspecialchars(stripslashes(@$_GET['author'])),
     )
@@ -334,7 +334,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $category_ids[] = $row['category_id'];
 }
 
-$url = get_root_url() . 'comments.php' . get_query_string_diff(array('start', 'edit', 'delete', 'validate', 'pwg_token'));
+$url = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start', 'edit', 'delete', 'validate', 'pwg_token'));
 $navbar = create_navigation_bar(
     $url,
     $counter,
@@ -366,7 +366,7 @@ if (count($comments) > 0) {
         $src_image = new SrcImage($elements[$comment['image_id']]);
 
         // link to the full size picture
-        $url = make_picture_url(
+        $url = \Phyxo\Functions\URL::make_picture_url(
             array(
                 'category' => $categories[$comment['category_id']],
                 'image_id' => $comment['image_id'],
@@ -397,7 +397,7 @@ if (count($comments) > 0) {
         }
 
         if ($services['users']->canManageComment('delete', $comment['author_id'])) {
-            $tpl_comment['U_DELETE'] = add_url_params(
+            $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
                 array(
                     'delete' => $comment['comment_id'],
@@ -407,7 +407,7 @@ if (count($comments) > 0) {
         }
 
         if ($services['users']->canManageComment('edit', $comment['author_id'])) {
-            $tpl_comment['U_EDIT'] = add_url_params(
+            $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
                 array(
                     'edit' => $comment['comment_id']
@@ -427,7 +427,7 @@ if (count($comments) > 0) {
 
         if ($services['users']->canManageComment('validate', $comment['author_id'])) {
             if ($conn->is_boolean($comment['validated']) && !$conn->get_boolean($comment['validated'])) {
-                $tpl_comment['U_VALIDATE'] = add_url_params(
+                $tpl_comment['U_VALIDATE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
                     array(
                         'validate' => $comment['comment_id'],

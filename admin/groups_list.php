@@ -225,7 +225,7 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
 $template->assign(
     array(
         'F_ADD_ACTION' => GROUPS_BASE_URL . '&amp;section=list',
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=group_list',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=group_list',
         'PWG_TOKEN' => get_pwg_token(),
     )
 );

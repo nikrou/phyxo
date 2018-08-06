@@ -93,7 +93,7 @@ if (script_basename() == 'picture') {
     }
 }
 
-$page = array_merge($page, parse_section_url($tokens, $next_token));
+$page = array_merge($page, \Phyxo\Functions\URL::parse_section_url($tokens, $next_token));
 
 if (!isset($page['section'])) {
     $page['section'] = 'categories';
@@ -123,7 +123,7 @@ if (!isset($page['section'])) {
     }
 }
 
-$page = array_merge($page, parse_well_known_params_url($tokens, $next_token));
+$page = array_merge($page, \Phyxo\Functions\URL::parse_well_known_params_url($tokens, $next_token));
 
 //access a picture only by id, file or id-file without given section
 if (script_basename() == 'picture' and 'categories' == $page['section']
@@ -271,7 +271,7 @@ if ('categories' == $page['section']) {
             $page,
             array(
                 'items' => $search_result['items'],
-                'title' => '<a href="' . duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Search results') . '</a>'
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Search results') . '</a>'
             )
         );
     } elseif ($page['section'] == 'favorites') {
@@ -285,7 +285,7 @@ if ('categories' == $page['section']) {
         if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
             $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE user_id = ' . $user['id'] . ';';
             $conn->db_query($query);
-            redirect(make_index_url(array('section' => 'favorites')));
+            redirect(\Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')));
         } else {
             $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . FAVORITES_TABLE . ' ON image_id = id';
@@ -298,8 +298,8 @@ if ('categories' == $page['section']) {
                 $template->assign(
                     'favorite',
                     array(
-                        'U_FAVORITE' => add_url_params(
-                            make_index_url(array('section' => 'favorites')),
+                        'U_FAVORITE' => \Phyxo\Functions\URL::add_url_params(
+                            \Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')),
                             array('action' => 'remove_all_from_favorites')
                         ),
                     )
@@ -325,7 +325,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'title' => '<a href="' . duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
                 'items' => $conn->query2array($query, null, 'id')
             )
         );
@@ -350,7 +350,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'title' => '<a href="' . duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
             )
         );
@@ -369,7 +369,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'title' => '<a href="' . duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
             )
         );
@@ -386,7 +386,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'title' => '<a href="' . duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
             )
         );
@@ -406,7 +406,7 @@ if (isset($page['chronology_field'])) {
 
 // title update
 if (isset($page['title'])) {
-    $page['section_title'] = '<a href="' . get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a>';
+    $page['section_title'] = '<a href="' . \Phyxo\Functions\URL::get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a>';
     if (!empty($page['title'])) {
         $page['section_title'] .= $conf['level_separator'] . $page['title'];
     } else {
@@ -447,7 +447,7 @@ if ('categories' == $page['section'] and isset($page['category'])) {
     }
 
     if ($need_redirect) {
-        $redirect_url = script_basename() == 'picture' ? duplicate_picture_url() : duplicate_index_url();
+        $redirect_url = script_basename() == 'picture' ? \Phyxo\Functions\URL::duplicate_picture_url() : \Phyxo\Functions\URL::duplicate_index_url();
 
         if (!headers_sent()) { // this is a permanent redirection
             set_status_header(301);

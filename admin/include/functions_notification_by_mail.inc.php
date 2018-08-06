@@ -288,19 +288,19 @@ function assign_vars_nbm_mail_content($nbm_user)
 {
     global $env_nbm;
 
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
 
     $env_nbm['mail_template']->assign(
         array(
             'USERNAME' => stripslashes($nbm_user['username']),
             'SEND_AS_NAME' => $env_nbm['send_as_name'],
-            'UNSUBSCRIBE_LINK' => add_url_params(get_gallery_home_url() . '/nbm.php', array('unsubscribe' => $nbm_user['check_key'])),
-            'SUBSCRIBE_LINK' => add_url_params(get_gallery_home_url() . '/nbm.php', array('subscribe' => $nbm_user['check_key'])),
+            'UNSUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', array('unsubscribe' => $nbm_user['check_key'])),
+            'SUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', array('subscribe' => $nbm_user['check_key'])),
             'CONTACT_EMAIL' => $env_nbm['send_as_mail_address']
         )
     );
 
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 }
 
 /*
@@ -315,7 +315,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
 {
     global $conf, $page, $env_nbm, $conf, $conn;
 
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
 
     $check_key_treated = array();
     $updated_data_count = 0;
@@ -366,7 +366,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
                     array(
                         $section_action_by => true,
                         'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
-                        'GOTO_GALLERY_URL' => get_gallery_home_url(),
+                        'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                     )
                 );
 
@@ -439,7 +439,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
         );
     }
 
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 
     return $check_key_treated;
 }
@@ -588,7 +588,7 @@ function insert_new_data_user_mail_notification()
                 $query .= ' WHERE check_key ' . $conn->in($check_key_list);
                 $result = $conn->db_query($query);
 
-                redirect($base_url . get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
+                redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
             }
         }
     }
@@ -671,7 +671,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                     set_user_on_env_nbm($nbm_user, $is_action_send);
 
                     if ($is_action_send) {
-                        set_make_full_url();
+                        \Phyxo\Functions\URL::set_make_full_url();
                         // Fill return list of "treated" check_key for 'send'
                         $return_list[] = $nbm_user['check_key'];
 
@@ -734,7 +734,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                             $env_nbm['mail_template']->assign(
                                 array(
                                     'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
-                                    'GOTO_GALLERY_URL' => get_gallery_home_url(),
+                                    'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                                     'SEND_AS_NAME' => $env_nbm['send_as_name'],
                                 )
                             );
@@ -764,7 +764,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                                 inc_mail_sent_failed($nbm_user);
                             }
 
-                            unset_make_full_url();
+                            \Phyxo\Functions\URL::unset_make_full_url();
                         }
                     } else {
                         if (news_exists($nbm_user['last_send'], $dbnow)) {

@@ -58,7 +58,7 @@ if (isset($_POST['submit'])) {
         // log user and redirect
         $user_id = $services['users']->getUserId($_POST['login']);
         $services['users']->logUser($user_id, false);
-        redirect(make_index_url());
+        redirect(\Phyxo\Functions\URL::make_index_url());
     }
     $registration_post_key = get_ephemeral_key(2);
 } else {
@@ -77,7 +77,7 @@ $page['body_id'] = 'theRegisterPage';
 
 $template->set_filenames(array('register' => 'register.tpl'));
 $template->assign(array(
-    'U_HOME' => make_index_url(),
+    'U_HOME' => \Phyxo\Functions\URL::make_index_url(),
     'F_KEY' => $registration_post_key,
     'F_ACTION' => 'register.php',
     'F_LOGIN' => $login,

@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Phyxo\Block\BlockManager;
 
@@ -68,12 +55,12 @@ if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && get_filter_
     if ($filter['enabled']) {
         $template->assign(
             'U_STOP_FILTER',
-            add_url_params(make_index_url(array()), array('filter' => 'stop'))
+            \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::make_index_url(array()), array('filter' => 'stop'))
         );
     } else {
         $template->assign(
             'U_START_FILTER',
-            add_url_params(make_index_url(array()), array('filter' => 'start-recent-' . $user['recent_period']))
+            \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::make_index_url(array()), array('filter' => 'start-recent-' . $user['recent_period']))
         );
     }
 }
@@ -83,7 +70,7 @@ if ($block != null) {
         'NB_PICTURE' => $user['nb_total_images'],
         'MENU_CATEGORIES' => get_categories_menu(),
         'MENU_RECURSIVE_CATEGORIES' => get_recursive_categories_menu(),
-        'U_CATEGORIES' => make_index_url(array('section' => 'categories')),
+        'U_CATEGORIES' => \Phyxo\Functions\URL::make_index_url(array('section' => 'categories')),
     );
     $block->template = 'menubar_categories.tpl';
 }
@@ -103,7 +90,7 @@ if ($block != null && !empty($page['items']) && 'picture' != script_basename()) 
             $block->data[] = array_merge(
                 $tag,
                 array(
-                    'U_ADD' => make_index_url(
+                    'U_ADD' => \Phyxo\Functions\URL::make_index_url(
                         array(
                             'tags' => array_merge(
                                 $page['tags'],
@@ -111,7 +98,7 @@ if ($block != null && !empty($page['items']) && 'picture' != script_basename()) 
                             )
                         )
                     ),
-                    'URL' => make_index_url(array('tags' => array($tag))),
+                    'URL' => \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag))),
                 )
             );
         }
@@ -121,7 +108,7 @@ if ($block != null && !empty($page['items']) && 'picture' != script_basename()) 
             $services['tags']->getCommonTags($selection, $conf['content_tag_cloud_items_number'])
         );
         foreach ($tags as $tag) {
-            $block->data[] = array_merge($tag, array('URL' => make_index_url(array('tags' => array($tag)))));
+            $block->data[] = array_merge($tag, array('URL' => \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)))));
         }
     }
     if (!empty($block->data)) {
@@ -133,47 +120,47 @@ if ($block != null && !empty($page['items']) && 'picture' != script_basename()) 
 if (($block = $menu->get_block('mbSpecials')) != null) {
     if (!$services['users']->isGuest()) { // favorites
         $block->data['favorites'] = array(
-            'URL' => make_index_url(array('section' => 'favorites')),
+            'URL' => \Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')),
             'TITLE' => \Phyxo\Functions\Language::l10n('display your favorites photos'),
             'NAME' => \Phyxo\Functions\Language::l10n('Your favorites')
         );
     }
 
     $block->data['most_visited'] = array(
-        'URL' => make_index_url(array('section' => 'most_visited')),
+        'URL' => \Phyxo\Functions\URL::make_index_url(array('section' => 'most_visited')),
         'TITLE' => \Phyxo\Functions\Language::l10n('display most visited photos'),
         'NAME' => \Phyxo\Functions\Language::l10n('Most visited')
     );
 
     if ($conf['rate']) {
         $block->data['best_rated'] = array(
-            'URL' => make_index_url(array('section' => 'best_rated')),
+            'URL' => \Phyxo\Functions\URL::make_index_url(array('section' => 'best_rated')),
             'TITLE' => \Phyxo\Functions\Language::l10n('display best rated photos'),
             'NAME' => \Phyxo\Functions\Language::l10n('Best rated')
         );
     }
 
     $block->data['recent_pics'] = array(
-        'URL' => make_index_url(array('section' => 'recent_pics')),
+        'URL' => \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_pics')),
         'TITLE' => \Phyxo\Functions\Language::l10n('display most recent photos'),
         'NAME' => \Phyxo\Functions\Language::l10n('Recent photos'),
     );
 
     $block->data['recent_cats'] = array(
-        'URL' => make_index_url(array('section' => 'recent_cats')),
+        'URL' => \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_cats')),
         'TITLE' => \Phyxo\Functions\Language::l10n('display recently updated albums'),
         'NAME' => \Phyxo\Functions\Language::l10n('Recent albums'),
     );
 
     $block->data['random'] = array(
-        'URL' => get_root_url() . 'random.php',
+        'URL' => \Phyxo\Functions\URL::get_root_url() . 'random.php',
         'TITLE' => \Phyxo\Functions\Language::l10n('display a set of random photos'),
         'NAME' => \Phyxo\Functions\Language::l10n('Random photos'),
         'REL' => 'rel="nofollow"'
     );
 
     $block->data['calendar'] = array(
-        'URL' => make_index_url(
+        'URL' => \Phyxo\Functions\URL::make_index_url(
             array(
                 'chronology_field' => ($conf['calendar_datefield'] == 'date_available' ? 'posted' : 'created'),
                 'chronology_style' => 'monthly',
@@ -197,7 +184,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
     $block->data['tags'] = array(
         'TITLE' => \Phyxo\Functions\Language::l10n('display available tags'),
         'NAME' => \Phyxo\Functions\Language::l10n('Tags'),
-        'URL' => get_root_url() . 'tags.php',
+        'URL' => \Phyxo\Functions\URL::get_root_url() . 'tags.php',
         'COUNTER' => $services['tags']->getNbAvailableTags($user),
     );
 
@@ -205,7 +192,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
     $block->data['search'] = array(
         'TITLE' => \Phyxo\Functions\Language::l10n('search'),
         'NAME' => \Phyxo\Functions\Language::l10n('Search'),
-        'URL' => get_root_url() . 'search.php',
+        'URL' => \Phyxo\Functions\URL::get_root_url() . 'search.php',
         'REL' => 'rel="search"'
     );
 
@@ -214,7 +201,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
         $block->data['comments'] = array(
             'TITLE' => \Phyxo\Functions\Language::l10n('display last user comments'),
             'NAME' => \Phyxo\Functions\Language::l10n('Comments'),
-            'URL' => get_root_url() . 'comments.php',
+            'URL' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
             'COUNTER' => get_nb_available_comments(),
         );
     }
@@ -223,14 +210,14 @@ if (($block = $menu->get_block('mbMenu')) != null) {
     $block->data['about'] = array(
         'TITLE' => \Phyxo\Functions\Language::l10n('About Phyxo'),
         'NAME' => \Phyxo\Functions\Language::l10n('About'),
-        'URL' => get_root_url() . 'about.php',
+        'URL' => \Phyxo\Functions\URL::get_root_url() . 'about.php',
     );
 
     // notification
     $block->data['rss'] = array(
         'TITLE' => \Phyxo\Functions\Language::l10n('RSS feed'),
         'NAME' => \Phyxo\Functions\Language::l10n('Notification'),
-        'URL' => get_root_url() . 'notification.php',
+        'URL' => \Phyxo\Functions\URL::get_root_url() . 'notification.php',
         'REL' => 'rel="nofollow"'
     );
     $block->template = 'menubar_menu.tpl';
@@ -241,27 +228,27 @@ if (($block = $menu->get_block('mbMenu')) != null) {
 if ($services['users']->isGuest()) {
     $template->assign(
         array(
-            'U_LOGIN' => get_root_url() . 'identification.php',
-            'U_LOST_PASSWORD' => get_root_url() . 'password.php',
+            'U_LOGIN' => \Phyxo\Functions\URL::get_root_url() . 'identification.php',
+            'U_LOST_PASSWORD' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
             'AUTHORIZE_REMEMBERING' => $conf['authorize_remembering']
         )
     );
     if ($conf['allow_user_registration']) {
-        $template->assign('U_REGISTER', get_root_url() . 'register.php');
+        $template->assign('U_REGISTER', \Phyxo\Functions\URL::get_root_url() . 'register.php');
     }
 } else {
     $template->assign('USERNAME', stripslashes($user['username']));
     if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
-        $template->assign('U_PROFILE', get_root_url() . 'profile.php');
+        $template->assign('U_PROFILE', \Phyxo\Functions\URL::get_root_url() . 'profile.php');
     }
 
     // the logout link has no meaning with Apache authentication : it is not
     // possible to logout with this kind of authentication.
     if (!$conf['apache_authentication']) {
-        $template->assign('U_LOGOUT', get_root_url() . '?act=logout');
+        $template->assign('U_LOGOUT', \Phyxo\Functions\URL::get_root_url() . '?act=logout');
     }
     if ($services['users']->isAdmin()) {
-        $template->assign('U_ADMIN', get_root_url() . 'admin/index.php');
+        $template->assign('U_ADMIN', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php');
     }
 }
 

@@ -41,7 +41,7 @@ if (isset($_GET['delete'])) {
 
     if (!empty($_GET['cat_id'])) {
         redirect(
-            make_index_url(
+            \Phyxo\Functions\URL::make_index_url(
                 array(
                     'category' => get_cat_info($_GET['cat_id'])
                 )
@@ -59,7 +59,7 @@ if (isset($_GET['delete'])) {
 
     foreach ($authorizeds as $category_id) {
         redirect(
-            make_index_url(
+            \Phyxo\Functions\URL::make_index_url(
                 array(
                     'category' => get_cat_info($category_id)
                 )
@@ -67,7 +67,7 @@ if (isset($_GET['delete'])) {
         );
     }
 
-    redirect(make_index_url());
+    redirect(\Phyxo\Functions\URL::make_index_url());
 }
 
 // +-----------------------------------------------------------------------+
@@ -190,7 +190,7 @@ $template->assign(
         'AUTHOR' => htmlspecialchars(isset($_POST['author']) ? stripslashes($_POST['author']) : @$row['author']),
         'DATE_CREATION' => $row['date_creation'],
         'DESCRIPTION' => htmlspecialchars(isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
-        'F_ACTION' => get_root_url() . 'admin/index.php' . get_query_string_diff(array('sync_metadata'))
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('sync_metadata'))
     )
 );
 
@@ -222,7 +222,7 @@ if ($conf['rate'] and !empty($row['rating_score'])) {
 $template->assign('INTRO', $intro_vars);
 
 if (in_array(get_extension($row['path']), $conf['picture_ext'])) {
-    $template->assign('U_COI', get_root_url() . 'admin/index.php?page=picture_coi&amp;image_id=' . $_GET['image_id']);
+    $template->assign('U_COI', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=picture_coi&amp;image_id=' . $_GET['image_id']);
 }
 
 // image level options
@@ -241,7 +241,7 @@ $query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $name = get_cat_display_name_cache($row['uppercats'], get_root_url() . 'admin/index.php?page=album-');
+    $name = get_cat_display_name_cache($row['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
 
     if ($row['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);
@@ -267,7 +267,7 @@ $authorizeds = array_diff(
 );
 
 if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
-    $url_img = make_picture_url(
+    $url_img = \Phyxo\Functions\URL::make_picture_url(
         array(
             'image_id' => $_GET['image_id'],
             'image_file' => $image_file,
@@ -276,7 +276,7 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
     );
 } else {
     foreach ($authorizeds as $category) {
-        $url_img = make_picture_url(
+        $url_img = \Phyxo\Functions\URL::make_picture_url(
             array(
                 'image_id' => $_GET['image_id'],
                 'image_file' => $image_file,

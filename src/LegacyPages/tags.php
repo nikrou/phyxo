@@ -57,7 +57,7 @@ if (isset($_GET['display_mode'])) {
 foreach (array('cloud', 'letters') as $mode) {
     $template->assign(
         'U_' . strtoupper($mode),
-        get_root_url() . 'tags.php' . ($conf['tags_default_display_mode'] == $mode ? '' : '?display_mode=' . $mode)
+        \Phyxo\Functions\URL::get_root_url() . 'tags.php' . ($conf['tags_default_display_mode'] == $mode ? '' : '?display_mode=' . $mode)
     );
 }
 
@@ -113,7 +113,7 @@ if ($page['display_mode'] == 'letters') {
         $letter['tags'][] = array_merge(
             $tag,
             array(
-                'URL' => make_index_url(array('tags' => array($tag))),
+                'URL' => \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag))),
             )
         );
 
@@ -152,7 +152,7 @@ if ($page['display_mode'] == 'letters') {
             array_merge(
                 $tag,
                 array(
-                    'URL' => make_index_url(
+                    'URL' => \Phyxo\Functions\URL::make_index_url(
                         array(
                             'tags' => array($tag),
                         )

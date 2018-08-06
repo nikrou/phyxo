@@ -122,8 +122,8 @@ if ($_GET['part'] == 'e') {
 $http_headers = array();
 
 $ctype = null;
-if (!url_is_remote($file)) {
-    if (!@is_readable($file)) {
+if (!\Phyxo\Functions\URL::url_is_remote($file)) {
+    if (!is_readable($file)) {
         do_error(404, "Requested file not found - $file");
     }
     $http_headers[] = 'Content-Length: ' . @filesize($file);

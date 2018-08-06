@@ -404,10 +404,10 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
     $query .= ' WHERE id = ' . $conn->db_real_escape_string($image_id);
     $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
-    set_make_full_url();
+    \Phyxo\Functions\URL::set_make_full_url();
     // in case we are on uploadify.php, we have to replace the false path
     $thumb_url = preg_replace('#admin/include/i#', 'i', DerivativeImage::thumb_url($image_infos));
-    unset_make_full_url();
+    \Phyxo\Functions\URL::unset_make_full_url();
 
     $client = new Client(array('http_errors' => false));
     $response = $client->request('GET', $thumb_url);

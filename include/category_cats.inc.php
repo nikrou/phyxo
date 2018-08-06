@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * This file is included by the main page to show subcategories of a category
@@ -31,19 +18,19 @@
 
 // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
 $query = 'SELECT c.*, user_representative_picture_id, nb_images, date_last, max_date_last,';
-$query .= 'count_images,nb_categories,count_categories FROM '.CATEGORIES_TABLE.' c';
-$query .= ' LEFT JOIN '.USER_CACHE_CATEGORIES_TABLE.' ucc ON id = cat_id AND user_id = '.$user['id'];
+$query .= 'count_images,nb_categories,count_categories FROM ' . CATEGORIES_TABLE . ' c';
+$query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ucc ON id = cat_id AND user_id = ' . $user['id'];
 
 if ('recent_cats' == $page['section']) {
-  $query .= ' WHERE '.get_recent_photos_sql('date_last');
+    $query .= ' WHERE ' . get_recent_photos_sql('date_last');
 } else {
-  $query .= ' WHERE id_uppercat '.(!isset($page['category']) ? 'is NULL' : '='.$page['category']['id']);
+    $query .= ' WHERE id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$query .= ' '.get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
+$query .= ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
 
 if ('recent_cats' != $page['section']) {
-  $query.= ' ORDER BY rank';
+    $query .= ' ORDER BY rank';
 }
 
 $result = $conn->db_query($query);
@@ -54,7 +41,7 @@ $user_representative_updates_for = array();
 
 while ($row = $conn->db_fetch_assoc($result)) {
     // TODO remove arobases ; need tests ?
-    $row['is_child_date_last'] = @$row['max_date_last']>@$row['date_last'];
+    $row['is_child_date_last'] = @$row['max_date_last'] > @$row['date_last'];
 
     if (!empty($row['user_representative_picture_id'])) {
         $image_id = $row['user_representative_picture_id'];
@@ -62,13 +49,13 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $image_id = $row['representative_picture_id'];
     } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
         $image_id = get_random_image_in_category($row);
-    } elseif ($row['count_categories']>0 and $row['count_images']>0) { // searching a random representant among representant of sub-categories
-        $query = 'SELECT representative_picture_id FROM '.CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN '.USER_CACHE_CATEGORIES_TABLE.' ON id = cat_id and user_id = '.$user['id'];
-        $query .= ' WHERE uppercats LIKE \''.$row['uppercats'].',%\'';
+    } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
+        $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
+        $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id = cat_id and user_id = ' . $user['id'];
+        $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\'';
         $query .= ' AND representative_picture_id IS NOT NULL';
-        $query .= get_sql_condition_FandF(array('visible_categories' => 'id',),"\n  AND");
-        $query .= ' ORDER BY '.$conn::RANDOM_FUNCTION.'() LIMIT 1;';
+        $query .= get_sql_condition_FandF(array('visible_categories' => 'id', ), "\n  AND");
+        $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
         $subresult = $conn->db_query($query);
         if ($conn->db_num_rows($subresult) > 0) {
             list($image_id) = $conn->db_fetch_row($subresult);
@@ -91,16 +78,16 @@ while ($row = $conn->db_fetch_assoc($result)) {
 if ($conf['display_fromto']) {
     if (count($category_ids) > 0) {
         $query = 'SELECT category_id, MIN(date_creation) AS _from,';
-        $query .= ' MAX(date_creation) AS _to FROM '.IMAGE_CATEGORY_TABLE;
-        $query .= ' LEFT JOIN '.IMAGES_TABLE.' ON image_id = id';
-        $query .= ' WHERE category_id '.$conn->in($category_ids);
-        $query .= get_sql_condition_FandF(array('visible_categories' => 'category_id','visible_images' => 'id'),'AND');
+        $query .= ' MAX(date_creation) AS _to FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id ' . $conn->in($category_ids);
+        $query .= get_sql_condition_FandF(array('visible_categories' => 'category_id', 'visible_images' => 'id'), 'AND');
         $query .= ' GROUP BY category_id;';
         $dates_of_category = $conn->query2array($query, 'category_id');
     }
 }
 
-if ($page['section']=='recent_cats') {
+if ($page['section'] == 'recent_cats') {
     usort($categories, 'global_rank_compare');
 }
 
@@ -108,8 +95,8 @@ if (count($categories) > 0) {
     $infos_of_image = array();
     $new_image_ids = array();
 
-    $query = 'SELECT * FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id '.$conn->in($image_ids);
+    $query = 'SELECT * FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($image_ids);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['level'] <= $user['level']) {
@@ -133,7 +120,7 @@ if (count($categories) > 0) {
                     }
 
                     if ($conf['representative_cache_on_level']) {
-                        $user_representative_updates_for[ $category['id'] ] = $image_id;
+                        $user_representative_updates_for[$category['id']] = $image_id;
                     }
 
                     $category['representative_picture_id'] = $image_id;
@@ -144,8 +131,8 @@ if (count($categories) > 0) {
     }
 
     if (count($new_image_ids) > 0) {
-        $query = 'SELECT * FROM '.IMAGES_TABLE;
-        $query .= ' WHERE id '.$conn->in($new_image_ids);
+        $query = 'SELECT * FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($new_image_ids);
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
             $infos_of_image[$row['id']] = $row;
@@ -173,7 +160,7 @@ if (count($user_representative_updates_for)) {
         USER_CACHE_CATEGORIES_TABLE,
         array(
             'primary' => array('user_id', 'cat_id'),
-            'update'  => array('user_representative_picture_id')
+            'update' => array('user_representative_picture_id')
         ),
         $updates
     );
@@ -202,19 +189,19 @@ if (count($categories) > 0) {
             'subcatify_category_name'
         );
 
-        if ($page['section']=='recent_cats') {
+        if ($page['section'] == 'recent_cats') {
             $name = get_cat_display_name_cache($category['uppercats'], null);
         } else {
             $name = $category['name'];
         }
 
-        $representative_infos = $infos_of_image[ $category['representative_picture_id'] ];
+        $representative_infos = $infos_of_image[$category['representative_picture_id']];
 
         $tpl_var = array_merge($category, array(
             'ID' => $category['id'] /*obsolete*/,
             'representative' => $representative_infos,
             'TN_ALT' => strip_tags($category['name']),
-            'URL' => make_index_url(array('category' => $category)),
+            'URL' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
             'CAPTION_NB_IMAGES' => get_display_images_count(
                 $category['nb_images'],
                 $category['count_images'],
@@ -226,9 +213,8 @@ if (count($categories) > 0) {
                 'render_category_literal_description',
                 trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
             ),
-            'NAME'  => $name,
-        )
-        );
+            'NAME' => $name,
+        ));
         if ($conf['index_new_icon']) {
             $tpl_var['icon_ts'] = get_icon($category['max_date_last'], $category['is_child_date_last']);
         }
@@ -269,13 +255,14 @@ if (count($categories) > 0) {
     $page['cats_navigation_bar'] = array();
     if ($page['total_categories'] > $conf['nb_categories_page']) {
         $page['cats_navigation_bar'] = create_navigation_bar(
-            duplicate_index_url(array(), array('startcat')),
+            \Phyxo\Functions\URL::duplicate_index_url(array(), array('startcat')),
             $page['total_categories'],
             $page['startcat'],
             $conf['nb_categories_page'],
-            true, 'startcat'
+            true,
+            'startcat'
         );
     }
 
-    $template->assign('cats_navbar', $page['cats_navigation_bar'] );
+    $template->assign('cats_navbar', $page['cats_navigation_bar']);
 }

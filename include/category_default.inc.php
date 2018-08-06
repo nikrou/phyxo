@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * This file is included by the main page to show thumbnails for the default
@@ -41,10 +28,10 @@ $selection = trigger_change('loc_index_thumbnails_selection', $selection);
 if (count($selection) > 0) {
     $rank_of = array_flip($selection);
 
-    $query = 'SELECT * FROM '.IMAGES_TABLE.' WHERE id '.$conn->in($selection);
+    $query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($selection);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
-        $row['rank'] = $rank_of[ $row['id'] ];
+        $row['rank'] = $rank_of[$row['id']];
         $pictures[] = $row;
     }
 
@@ -55,20 +42,20 @@ if (count($selection) > 0) {
 if (count($pictures) > 0) {
     // define category slideshow url
     $row = reset($pictures);
-    $page['cat_slideshow_url'] = add_url_params(
-        duplicate_picture_url(
+    $page['cat_slideshow_url'] = \Phyxo\Functions\URL::add_url_params(
+        \Phyxo\Functions\URL::duplicate_picture_url(
             array(
                 'image_id' => $row['id'],
                 'image_file' => $row['file']
             ),
             array('start')
         ),
-        array('slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '' ))
+        array('slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : ''))
     );
 
     if ($conf['activate_comments'] and $user['show_nb_comments']) {
-        $query = 'SELECT image_id, COUNT(1) AS nb_comments FROM '.COMMENTS_TABLE;
-        $query .= ' WHERE validated = \''.$conn->boolean_to_db(true).'\' AND image_id '.$conn->in($selection);
+        $query = 'SELECT image_id, COUNT(1) AS nb_comments FROM ' . COMMENTS_TABLE;
+        $query .= ' WHERE validated = \'' . $conn->boolean_to_db(true) . '\' AND image_id ' . $conn->in($selection);
         $query .= ' GROUP BY image_id;';
         $nb_comments_of = $conn->query2array($query, 'image_id', 'nb_comments');
     }
@@ -79,7 +66,7 @@ $tpl_thumbnails_var = array();
 
 foreach ($pictures as $row) {
     // link on picture.php page
-    $url = duplicate_picture_url(
+    $url = \Phyxo\Functions\URL::duplicate_picture_url(
         array(
             'image_id' => $row['id'],
             'image_file' => $row['file']
@@ -94,7 +81,7 @@ foreach ($pictures as $row) {
     $name = render_element_name($row);
     $desc = render_element_description($row, 'main_page_element_description');
 
-    $tpl_var = array_merge( $row, array(
+    $tpl_var = array_merge($row, array(
         'TN_ALT' => htmlspecialchars(strip_tags($name)),
         'TN_TITLE' => get_thumbnail_title($row, $name, $desc),
         'URL' => $url,
@@ -110,19 +97,20 @@ foreach ($pictures as $row) {
         $tpl_var['NB_HITS'] = $row['hit'];
     }
 
-    switch ($page['section'])
-        {
-        case 'best_rated': {
-            $name = '('.$row['rating_score'].') '.$name;
-            break;
-        }
-        case 'most_visited': {
-            if (!$user['show_nb_hits']) {
-                $name = '('.$row['hit'].') '.$name;
+    switch ($page['section']) {
+        case 'best_rated':
+            {
+                $name = '(' . $row['rating_score'] . ') ' . $name;
+                break;
             }
-            break;
-        }
-        }
+        case 'most_visited':
+            {
+                if (!$user['show_nb_hits']) {
+                    $name = '(' . $row['hit'] . ') ' . $name;
+                }
+                break;
+            }
+    }
     $tpl_var['NAME'] = $name;
     $tpl_thumbnails_var[] = $tpl_var;
 }

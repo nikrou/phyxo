@@ -63,7 +63,7 @@ $template->assign(
         'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),
 
         'F_ACTION' =>
-            get_root_url() . 'admin/index.php?page=user_perm&amp;user_id=' . $page['user']
+            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_perm&amp;user_id=' . $page['user']
     )
 );
 

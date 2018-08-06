@@ -31,7 +31,7 @@ foreach ($category as $k => $v) {
     }
 }
 
-define('ALBUM_BASE_URL', get_root_url() . 'admin/index.php?page=album&amp;cat_id=' . $category['id']);
+define('ALBUM_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album&amp;cat_id=' . $category['id']);
 
 // +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
@@ -52,7 +52,7 @@ $tabsheet->select($page['section']);
 $template->assign([
     'tabsheet' => $tabsheet,
     'U_PAGE' => ALBUM_BASE_URL,
-    'U_ALBUMS' => get_root_url() . 'admin/index.php?page=albums',
+    'U_ALBUMS' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=albums',
 ]);
 
 // +-----------------------------------------------------------------------+

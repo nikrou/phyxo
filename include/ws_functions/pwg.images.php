@@ -328,8 +328,8 @@ function ws_images_getInfo($params, $service)
         $is_commentable = $conn->get_boolean($row['commentable']);
         unset($row['commentable']);
 
-        $row['url'] = make_index_url(array('category' => $row));
-        $row['page_url'] = make_picture_url(
+        $row['url'] = \Phyxo\Functions\URL::make_index_url(array('category' => $row));
+        $row['page_url'] = \Phyxo\Functions\URL::make_picture_url(
             array(
                 'image_id' => $image_row['id'],
                 'image_file' => $image_row['file'],
@@ -349,8 +349,8 @@ function ws_images_getInfo($params, $service)
   //-------------------------------------------------------------- related tags
     $related_tags = $services['tags']->getCommonTags(array($image_row['id']), -1);
     foreach ($related_tags as $i => $tag) {
-        $tag['url'] = make_index_url(array('tags' => array($tag)));
-        $tag['page_url'] = make_picture_url(
+        $tag['url'] = \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)));
+        $tag['page_url'] = \Phyxo\Functions\URL::make_picture_url(
             array(
                 'image_id' => $image_row['id'],
                 'image_file' => $image_row['file'],
@@ -928,7 +928,7 @@ function ws_images_add($params, $service)
 
     return array(
         'image_id' => $image_id,
-        'url' => make_picture_url($url_params),
+        'url' => \Phyxo\Functions\URL::make_picture_url($url_params),
     );
 }
 
@@ -1029,7 +1029,7 @@ function ws_images_addSimple($params, $service)
 
     return array(
         'image_id' => $image_id,
-        'url' => make_picture_url($url_params),
+        'url' => \Phyxo\Functions\URL::make_picture_url($url_params),
     );
 }
 

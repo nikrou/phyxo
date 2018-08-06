@@ -350,7 +350,7 @@ class Template
             fatal_error("Template->parse(): Couldn't load template file for handle $handle");
         }
 
-        $this->smarty->assign('ROOT_URL', get_root_url());
+        $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
 
         $save_compile_id = $this->smarty->compile_id;
         $this->load_external_filters($handle);
@@ -404,7 +404,7 @@ class Template
 
         $content = array();
         foreach ($css as $combi) {
-            $href = embellish_url(get_root_url() . $combi->path);
+            $href = \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_root_url() . $combi->path);
             if ($combi->version !== false) {
                 $href .= '?v' . ($combi->version ? $combi->version : PHPWG_VERSION);
             }
@@ -769,7 +769,7 @@ class Template
         if ($script->is_remote()) {
             $ret = $script->path;
         } else {
-            $ret = get_root_url() . $script->path;
+            $ret = \Phyxo\Functions\URL::get_root_url() . $script->path;
             if ($script->version !== false) {
                 $ret .= '?v' . ($script->version ? $script->version : PHPWG_VERSION);
             }
@@ -777,7 +777,7 @@ class Template
         // trigger the event for eventual use of a cdn
         $ret = trigger_change('combined_script', $ret, $script);
 
-        return embellish_url($ret);
+        return \Phyxo\Functions\URL::embellish_url($ret);
     }
 
     /**

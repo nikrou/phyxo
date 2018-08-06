@@ -42,4 +42,4 @@ $query .= ' LIMIT ' . min(50, $conf['top_number'], $user['nb_image_page']) . ';'
 // |                                redirect                               |
 // +-----------------------------------------------------------------------+
 
-redirect(make_index_url(array('list' => $conn->query2array($query, null, 'id'))));
+redirect(\Phyxo\Functions\URL::make_index_url(array('list' => $conn->query2array($query, null, 'id'))));

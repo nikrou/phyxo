@@ -34,7 +34,8 @@
  * @param array $map
  * @return array
  */
-function get_iptc_data($filename, $map, $array_sep=',') {
+function get_iptc_data($filename, $map, $array_sep = ',')
+{
     global $conf;
 
     $result = array();
@@ -51,7 +52,7 @@ function get_iptc_data($filename, $map, $array_sep=',') {
             foreach (array_keys($rmap) as $iptc_key) {
                 if (isset($iptc[$iptc_key][0])) {
                     if ($iptc_key == '2#025') {
-                        $value = implode($array_sep, array_map('clean_iptc_value',$iptc[$iptc_key]));
+                        $value = implode($array_sep, array_map('clean_iptc_value', $iptc[$iptc_key]));
                     } else {
                         $value = clean_iptc_value($iptc[$iptc_key][0]);
                     }
@@ -79,9 +80,10 @@ function get_iptc_data($filename, $map, $array_sep=',') {
  * @param string $value
  * @return string
  */
-function clean_iptc_value($value) {
+function clean_iptc_value($value)
+{
     // strip leading zeros (weird Kodak Scanner software)
-    while ( isset($value[0]) and $value[0] == chr(0)) {
+    while (isset($value[0]) and $value[0] == chr(0)) {
         $value = substr($value, 1);
     }
     // remove binary nulls
@@ -92,7 +94,7 @@ function clean_iptc_value($value) {
         // how to detect it so a plugin should do the trick.
         $value = trigger_change('clean_iptc_value', $value);
         if (($qual = qualify_utf8($value)) != 0) { // has non ascii chars
-            if ($qual>0) {
+            if ($qual > 0) {
                 $input_encoding = 'utf-8';
             } else {
                 $input_encoding = 'iso-8859-1';
@@ -119,7 +121,8 @@ function clean_iptc_value($value) {
  * @param array $map
  * @return array
  */
-function get_exif_data($filename, $map) {
+function get_exif_data($filename, $map)
+{
     global $conf;
 
     $result = array();
@@ -129,7 +132,7 @@ function get_exif_data($filename, $map) {
     }
 
     // Read EXIF data
-    if ($exif = @exif_read_data($filename)) {
+    if (is_readable($filename) && $exif = @exif_read_data($filename)) {
         $exif = trigger_change('format_exif_data', $exif, $filename, $map);
 
         // configured fields
@@ -149,8 +152,8 @@ function get_exif_data($filename, $map) {
         // GPS data
         $gps_exif = array_intersect_key($exif, array_flip(array('GPSLatitudeRef', 'GPSLatitude', 'GPSLongitudeRef', 'GPSLongitude')));
         if (count($gps_exif) == 4) {
-            if (is_array($gps_exif['GPSLatitude'])  and in_array($gps_exif['GPSLatitudeRef'], array('S', 'N'))
-                &&  is_array($gps_exif['GPSLongitude']) and in_array($gps_exif['GPSLongitudeRef'], array('W', 'E'))) {
+            if (is_array($gps_exif['GPSLatitude']) and in_array($gps_exif['GPSLatitudeRef'], array('S', 'N'))
+                && is_array($gps_exif['GPSLongitude']) and in_array($gps_exif['GPSLongitudeRef'], array('W', 'E'))) {
                 $result['latitude'] = parse_exif_gps_data($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
                 $result['longitude'] = parse_exif_gps_data($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
             }
@@ -180,14 +183,15 @@ function get_exif_data($filename, $map) {
  * @param string $ref 'S', 'N', 'E', 'W'. eg: 'N'
  * @return float eg: 41.905468
  */
-function parse_exif_gps_data($raw, $ref) {
+function parse_exif_gps_data($raw, $ref)
+{
     foreach ($raw as &$i) {
         $i = explode('/', $i);
-        $i = $i[1]==0 ? 0 : $i[0]/$i[1];
+        $i = $i[1] == 0 ? 0 : $i[0] / $i[1];
     }
     unset($i);
 
-    $v = $raw[0] + $raw[1]/60 + $raw[2]/3600;
+    $v = $raw[0] + $raw[1] / 60 + $raw[2] / 3600;
 
     $ref = strtoupper($ref);
     if ($ref == 'S' or $ref == 'W') {

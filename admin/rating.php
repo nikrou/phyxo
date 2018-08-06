@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('RATING_BASE_URL', get_root_url() . 'admin/index.php?page=rating');
+define('RATING_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=rating');
 
 use Phyxo\TabSheet\TabSheet;
 

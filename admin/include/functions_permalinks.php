@@ -38,7 +38,7 @@ function parse_sort_variables($sortable_by, $default_field, $get_param, $get_rej
 
         if ($field !== @$_GET[$get_param]) {
             if (!isset($default_field) or $default_field != $field) { // the first should be the default
-                $url = add_url_params($url, array($get_param => $field));
+                $url = \Phyxo\Functions\URL::add_url_params($url, array($get_param => $field));
             } elseif (isset($default_field) and !isset($_GET[$get_param])) {
                 $ret[] = $field;
                 $disp = '<em>' . $disp . '</em>';

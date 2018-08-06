@@ -60,7 +60,7 @@
 		{if isset($U_JUMPTO) }
 		    <p><a href="{$U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to photo'|translate}</a></p>
 		{/if}
-		{if !url_is_remote($PATH)}
+		{if !\Phyxo\Functions\URL::url_is_remote($PATH)}
 		    <p><a class="btn btn-success" href="{$U_SYNC}"><i class="fa fa-exchange"></i> {'Synchronize metadata'|translate}</a></p>
 		    <p>
 				<a class="btn btn-delete" href="{$U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">

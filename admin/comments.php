@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('COMMENTS_BASE_URL', get_root_url() . 'admin/index.php?page=comments');
+define('COMMENTS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -142,7 +142,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $template->append(
         'comments',
         array(
-            'U_PICTURE' => get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'],
+            'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'],
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
             'AUTHOR' => trigger_change('render_comment_author', $author_name),
@@ -161,7 +161,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // +-----------------------------------------------------------------------+
 
 $navbar = create_navigation_bar(
-    get_root_url() . 'admin/index.php' . get_query_string_diff(array('start')),
+    \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
     ('pending' == $page['section'] ? $nb_pending : $nb_total),
     $page['start'],
     $conf['comments_page_nb_comments']
@@ -175,4 +175,4 @@ $template->assign('navbar', $navbar);
 
 $template_filename = 'comments';
 
-$template->assign(array('F_ACTION' => get_root_url() . 'admin/index.php?page=comments'));
+$template->assign(array('F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments'));

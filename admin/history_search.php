@@ -106,7 +106,7 @@ if (isset($_POST['submit'])) {
 
 $template->assign(
     array(
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=history',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=history',
         'F_ACTION' => HISTORY_BASE_URL . '&amp;section=search'
     )
 );
@@ -208,7 +208,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         $name_of_tag = array();
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
-            $name_of_tag[$row['id']] = '<a href="' . make_index_url(array('tags' => array($row))) . '">' . trigger_change("render_tag_name", $row['name'], $row) . '</a>';
+            $name_of_tag[$row['id']] = '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($row))) . '">' . trigger_change("render_tag_name", $row['name'], $row) . '</a>';
         }
     }
 
@@ -267,7 +267,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $image_string = '';
         if (isset($line['image_id'])) {
-            $picture_url = make_picture_url(array('image_id' => $line['image_id']));
+            $picture_url = \Phyxo\Functions\URL::make_picture_url(array('image_id' => $line['image_id']));
 
             if (isset($image_infos[$line['image_id']])) {
                 $element = array(
@@ -395,7 +395,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
 if (isset($page['search_id'])) {
     $navbar = create_navigation_bar(
-        get_root_url() . 'admin/index.php' . get_query_string_diff(array('start')),
+        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         $page['nb_lines'],
         $page['start'],
         $conf['nb_logs_page']

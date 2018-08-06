@@ -33,7 +33,7 @@ $page['feed'] = md5(uniqid(true));
 $query = 'INSERT INTO ' . USER_FEED_TABLE . ' (id, user_id, last_check) VALUES (\'' . $page['feed'] . '\', ' . $user['id'] . ', NULL);';
 $conn->db_query($query);
 
-$feed_url = get_root_url() . 'feed.php';
+$feed_url = \Phyxo\Functions\URL::get_root_url() . 'feed.php';
 if ($services['users']->isGuest()) {
     $feed_image_only_url = $feed_url;
     $feed_url .= '?feed=' . $page['feed'];

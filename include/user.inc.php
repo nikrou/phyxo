@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 // by default we start with guest
 $user['id'] = $conf['guest_id'];
@@ -28,14 +15,14 @@ $user['id'] = $conf['guest_id'];
 if (isset($_COOKIE[session_name()])) {
     if (isset($_GET['act']) and $_GET['act'] == 'logout') { // logout
         $services['users']->logoutUser();
-        redirect(get_gallery_home_url());
+        redirect(\Phyxo\Functions\URL::get_gallery_home_url());
     } elseif (!empty($_SESSION['pwg_uid'])) {
         $user['id'] = $_SESSION['pwg_uid'];
     }
 }
 
 // Now check the auto-login
-if ( $user['id']==$conf['guest_id'] ) {
+if ($user['id'] == $conf['guest_id']) {
     $services['users']->autoLogin();
 }
 
@@ -56,7 +43,7 @@ if ($conf['apache_authentication']) {
     }
 }
 
-$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN ) ? false : true); // use cache ?
+$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
 
 if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {
     get_browser_language($user['language']);

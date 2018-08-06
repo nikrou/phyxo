@@ -37,14 +37,14 @@ switch ($action) {
     case 'lock_gallery':
         {
             conf_update_param('gallery_locked', 'true');
-            redirect(get_root_url() . 'admin/index.php?page=maintenance');
+            redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
     case 'unlock_gallery':
         {
             conf_update_param('gallery_locked', 'false');
             $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Gallery unlocked'));
-            redirect(get_root_url() . 'admin/index.php?page=maintenance');
+            redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
     case 'categories':
@@ -135,7 +135,7 @@ switch ($action) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$url_format = get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . get_pwg_token();
+$url_format = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . get_pwg_token();
 
 $purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'derivatives') . '&amp;type=all';
 foreach (ImageStdParams::get_defined_type_map() as $params) {
@@ -158,7 +158,7 @@ $template->assign(
         'U_MAINT_COMPILED_TEMPLATES' => sprintf($url_format, 'compiled-templates'),
         'U_MAINT_DERIVATIVES' => sprintf($url_format, 'derivatives'),
         'purge_derivatives' => $purge_urls,
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=maintenance',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=maintenance',
     )
 );
 

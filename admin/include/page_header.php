@@ -15,11 +15,11 @@ trigger_notify('loc_begin_page_header');
 $template->assign(
     array(
         'GALLERY_TITLE' =>
-        isset($page['gallery_title']) ?
-        $page['gallery_title'] : $conf['gallery_title'],
+            isset($page['gallery_title']) ?
+            $page['gallery_title'] : $conf['gallery_title'],
 
         'PAGE_BANNER' =>
-        trigger_change(
+            trigger_change(
             'render_page_banner',
             str_replace(
                 '%gallery_title%',
@@ -31,7 +31,7 @@ $template->assign(
         'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
         'CONTENT_ENCODING' => get_pwg_charset(),
         'PAGE_TITLE' => strip_tags($title),
-        'U_HOME' => get_gallery_home_url(),
+        'U_HOME' => \Phyxo\Functions\URL::get_gallery_home_url(),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
     )
 );
@@ -39,7 +39,7 @@ $template->assign(
 
 // Header notes
 if (!empty($header_notes)) {
-    $template->assign('header_notes',$header_notes);
+    $template->assign('header_notes', $header_notes);
 }
 
 // No referencing is required
@@ -52,12 +52,12 @@ if (!empty($page['meta_robots'])) {
     $template->append(
         'head_elements',
         '<meta name="robots" content="'
-        .implode(',', array_keys($page['meta_robots']))
-        .'">'
+            . implode(',', array_keys($page['meta_robots']))
+            . '">'
     );
 }
 if (!isset($page['meta_robots']['noindex'])) {
-    $template->assign('meta_ref',1);
+    $template->assign('meta_ref', 1);
 }
 
 // refresh

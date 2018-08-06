@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Template;
 
@@ -36,7 +27,8 @@ class Combinable
      * @param string $path
      * @param string $version
      */
-    public function __construct($id, $path, $version=0) {
+    public function __construct($id, $path, $version = 0)
+    {
         $this->id = $id;
         $this->set_path($path);
         $this->version = $version;
@@ -46,7 +38,8 @@ class Combinable
     /**
      * @param string $path
      */
-    public function set_path($path) {
+    public function set_path($path)
+    {
         if (!empty($path)) {
             $this->path = $path;
         }
@@ -55,7 +48,8 @@ class Combinable
     /**
      * @return bool
      */
-    public function is_remote() {
-        return url_is_remote($this->path) || strncmp($this->path, '//', 2)==0;
+    public function is_remote()
+    {
+        return \Phyxo\Functions\URL::url_is_remote($this->path) || strncmp($this->path, '//', 2) == 0;
     }
 }

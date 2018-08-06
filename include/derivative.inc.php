@@ -1,24 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package Derivatives
@@ -43,14 +32,15 @@ final class SrcImage
     /** @var int */
     public $rotation = 0;
     /** @var int[] */
-    private $size=null;
+    private $size = null;
     /** @var int */
-    private $flags=0;
+    private $flags = 0;
 
     /**
      * @param array $infos assoc array of data from images table
      */
-    function __construct($infos) {
+    function __construct($infos)
+    {
         global $conf;
 
         $this->id = $infos['id'];
@@ -62,13 +52,13 @@ final class SrcImage
             $this->rel_path = original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
-            $this->rel_path = trigger_change('get_mimetype_location', get_themeconf('mime_icon_dir').$ext.'.png', $ext );
+            $this->rel_path = trigger_change('get_mimetype_location', get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
             $this->flags |= self::IS_MIMETYPE;
-            if (($size=@getimagesize(PHPWG_ROOT_PATH.$this->rel_path)) === false) {
+            if (($size = @getimagesize(PHPWG_ROOT_PATH . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';
-                $size = getimagesize(PHPWG_ROOT_PATH.$this->rel_path);
+                $size = getimagesize(PHPWG_ROOT_PATH . $this->rel_path);
             }
-            $this->size = array($size[0],$size[1]);
+            $this->size = array($size[0], $size[1]);
         }
 
         if (!$this->size) {
@@ -94,46 +84,52 @@ final class SrcImage
     /**
      * @return bool
      */
-    function is_original() {
+    function is_original()
+    {
         return $this->flags & self::IS_ORIGINAL;
     }
 
     /**
      * @return bool
      */
-    function is_mimetype() {
+    function is_mimetype()
+    {
         return $this->flags & self::IS_MIMETYPE;
     }
 
     /**
      * @return string
      */
-    function get_path() {
-        return PHPWG_ROOT_PATH.$this->rel_path;
+    function get_path()
+    {
+        return PHPWG_ROOT_PATH . $this->rel_path;
     }
 
     /**
      * @return string
      */
-    function get_url() {
-        $url = get_root_url().$this->rel_path;
+    function get_url()
+    {
+        $url = \Phyxo\Functions\URL::get_root_url() . $this->rel_path;
         if (!($this->flags & self::IS_MIMETYPE)) {
             $url = trigger_change('get_src_image_url', $url, $this);
         }
-        return embellish_url($url);
+        return \Phyxo\Functions\URL::embellish_url($url);
     }
 
     /**
      * @return bool
      */
-    function has_size() {
+    function has_size()
+    {
         return $this->size != null;
     }
 
     /**
      * @return int[]|null 0=width, 1=height or null if fail to compute size
      */
-    function get_size() {
+    function get_size()
+    {
         global $conn;
 
         if ($this->size == null) {
@@ -141,8 +137,8 @@ final class SrcImage
                 fatal_error('SrcImage dimensions required but not provided');
             // probably not metadata synced
             if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
-                $this->size = array($size[0],$size[1]);
-                $conn->db_query('UPDATE '.IMAGES_TABLE.' SET width='.$size[0].', height='.$size[1].' WHERE id='.$this->id);
+                $this->size = array($size[0], $size[1]);
+                $conn->db_query('UPDATE ' . IMAGES_TABLE . ' SET width=' . $size[0] . ', height=' . $size[1] . ' WHERE id=' . $this->id);
             }
         }
         return $this->size;
@@ -166,14 +162,15 @@ final class DerivativeImage
     /** @var string */
     private $rel_url;
     /** @var bool */
-    private $is_cached=true;
+    private $is_cached = true;
 
     /**
      * @param string|DerivativeParams $type standard derivative param type (e.g. IMG_*)
      *    or a DerivativeParams object
      * @param SrcImage $src_image the source image of this derivative
      */
-    function __construct($type, SrcImage $src_image) {
+    function __construct($type, SrcImage $src_image)
+    {
         $this->src_image = $src_image;
         if (is_string($type)) {
             $this->params = ImageStdParams::get_by_type($type);
@@ -190,7 +187,8 @@ final class DerivativeImage
      * @param array|SrcImage $infos array of info from db or SrcImage
      * @return string
      */
-    static function thumb_url($infos) {
+    static function thumb_url($infos)
+    {
         return self::url(IMG_THUMB, $infos);
     }
 
@@ -202,17 +200,21 @@ final class DerivativeImage
      * @param array|SrcImage $infos array of info from db or SrcImage
      * @return string
      */
-    static function url($type, $infos) {
+    static function url($type, $infos)
+    {
         $src_image = is_object($infos) ? $infos : new SrcImage($infos);
         $params = is_string($type) ? ImageStdParams::get_by_type($type) : $type;
         self::build($src_image, $params, $rel_path, $rel_url);
         if ($params == null) {
             return $src_image->get_url();
         }
-        return embellish_url(
-            trigger_change('get_derivative_url',
-            get_root_url().$rel_url,
-            $params, $src_image, $rel_url
+        return \Phyxo\Functions\URL::embellish_url(
+            trigger_change(
+                'get_derivative_url',
+                \Phyxo\Functions\URL::get_root_url() . $rel_url,
+                $params,
+                $src_image,
+                $rel_url
             )
         );
     }
@@ -227,7 +229,8 @@ final class DerivativeImage
      * @param array|SrcImage $src_image array of info from db or SrcImage
      * @return DerivativeImage[]
      */
-    static function get_all($src_image) {
+    static function get_all($src_image)
+    {
         if (!is_object($src_image)) {
             $src_image = new SrcImage($src_image);
         }
@@ -254,7 +257,8 @@ final class DerivativeImage
      * @param array|SrcImage $src_image array of info from db or SrcImage
      * @return DerivativeImage|null null if $type not found
      */
-    static function get_one($type, $src_image) {
+    static function get_one($type, $src_image)
+    {
         if (!is_object($src_image)) {
             $src_image = new SrcImage($src_image);
         }
@@ -266,7 +270,7 @@ final class DerivativeImage
 
         $undefined = ImageStdParams::get_undefined_type_map();
         if (isset($undefined[$type])) {
-            return new DerivativeImage($defined[ $undefined[$type] ], $src_image);
+            return new DerivativeImage($defined[$undefined[$type]], $src_image);
         }
 
         return null;
@@ -275,7 +279,8 @@ final class DerivativeImage
     /**
      * @TODO : documentation of DerivativeImage::build
      */
-    private static function build($src, &$params, &$rel_path, &$rel_url, &$is_cached=null) {
+    private static function build($src, &$params, &$rel_path, &$rel_url, &$is_cached = null)
+    {
         global $conf;
 
         if ($src->has_size() && $params->is_identity($src->get_size())) {
@@ -287,11 +292,11 @@ final class DerivativeImage
                 return;
             }
             $defined_types = array_keys(ImageStdParams::get_defined_type_map());
-            for ($i=0; $i<count($defined_types); $i++) {
+            for ($i = 0; $i < count($defined_types); $i++) {
                 if ($defined_types[$i] == $params->type) {
-                    for ($i--; $i>=0; $i--) {
+                    for ($i--; $i >= 0; $i--) {
                         $smaller = ImageStdParams::get_by_type($defined_types[$i]);
-                        if ($smaller->sizing->max_crop==$params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
+                        if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
                             $params = $smaller;
                             self::build($src, $params, $rel_path, $rel_url, $is_cached);
                             return;
@@ -302,27 +307,27 @@ final class DerivativeImage
             }
         }
 
-        $tokens=array();
+        $tokens = array();
         $tokens[] = substr($params->type, 0, 2);
 
-        if ($params->type==IMG_CUSTOM) {
+        if ($params->type == IMG_CUSTOM) {
             $params->add_url_tokens($tokens);
         }
 
         $loc = $src->rel_path;
-        if (substr_compare($loc, './', 0, 2)==0) {
+        if (substr_compare($loc, './', 0, 2) == 0) {
             $loc = substr($loc, 2);
-        } elseif (substr_compare($loc, '../', 0, 3)==0) {
+        } elseif (substr_compare($loc, '../', 0, 3) == 0) {
             $loc = substr($loc, 3);
         }
-        $loc = substr_replace($loc, '-'.implode('_', $tokens), strrpos($loc, '.'), 0 );
+        $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
 
-        $rel_path = PWG_DERIVATIVE_DIR.$loc;
+        $rel_path = PWG_DERIVATIVE_DIR . $loc;
 
-        $url_style=$conf['derivative_url_style'];
+        $url_style = $conf['derivative_url_style'];
         if (!$url_style) {
-            $mtime = @filemtime(PHPWG_ROOT_PATH.$rel_path);
-            if ($mtime===false or $mtime < $params->last_mod_time) {
+            $mtime = @filemtime(PHPWG_ROOT_PATH . $rel_path);
+            if ($mtime === false or $mtime < $params->last_mod_time) {
                 $is_cached = false;
                 $url_style = 2;
             } else {
@@ -334,7 +339,7 @@ final class DerivativeImage
             $rel_url = 'i';
             if ($conf['php_extension_in_urls']) $rel_url .= '.php';
             if ($conf['question_mark_in_urls']) $rel_url .= '?';
-            $rel_url .= '/'.$loc;
+            $rel_url .= '/' . $loc;
         } else {
             $rel_url = $rel_path;
         }
@@ -343,36 +348,43 @@ final class DerivativeImage
     /**
      * @return string
      */
-    function get_path() {
-        return PHPWG_ROOT_PATH.$this->rel_path;
+    function get_path()
+    {
+        return PHPWG_ROOT_PATH . $this->rel_path;
     }
 
     /**
      * @return string
      */
-    function get_url() {
+    function get_url()
+    {
         if ($this->params == null) {
             return $this->src_image->get_url();
         }
-        return embellish_url(
-            trigger_change('get_derivative_url',
-            get_root_url().$this->rel_url,
-            $this->params, $this->src_image, $this->rel_url
-          )
+        return \Phyxo\Functions\URL::embellish_url(
+            trigger_change(
+                'get_derivative_url',
+                \Phyxo\Functions\URL::get_root_url() . $this->rel_url,
+                $this->params,
+                $this->src_image,
+                $this->rel_url
+            )
         );
     }
 
     /**
      * @return bool
      */
-    function same_as_source() {
+    function same_as_source()
+    {
         return $this->params == null;
     }
 
     /**
      * @return string one if IMG_* or 'Original'
      */
-    function get_type() {
+    function get_type()
+    {
         if ($this->params == null) {
             return 'Original';
         }
@@ -382,7 +394,8 @@ final class DerivativeImage
     /**
      * @return int[]
      */
-    function get_size() {
+    function get_size()
+    {
         if ($this->params == null) {
             return $this->src_image->get_size();
         }
@@ -394,10 +407,11 @@ final class DerivativeImage
      *
      * @return string
      */
-    function get_size_css() {
+    function get_size_css()
+    {
         $size = $this->get_size();
         if ($size) {
-            return 'width:'.$size[0].'px; height:'.$size[1].'px';
+            return 'width:' . $size[0] . 'px; height:' . $size[1] . 'px';
         }
     }
 
@@ -406,10 +420,11 @@ final class DerivativeImage
      *
      * @return string
      */
-    function get_size_htm() {
+    function get_size_htm()
+    {
         $size = $this->get_size();
         if ($size) {
-            return 'width="'.$size[0].'" height="'.$size[1].'"';
+            return 'width="' . $size[0] . '" height="' . $size[1] . '"';
         }
     }
 
@@ -418,10 +433,11 @@ final class DerivativeImage
      *
      * @return string
      */
-    function get_size_hr() {
+    function get_size_hr()
+    {
         $size = $this->get_size();
         if ($size) {
-            return $size[0].' x '.$size[1];
+            return $size[0] . ' x ' . $size[1];
         }
     }
 
@@ -430,12 +446,13 @@ final class DerivativeImage
      * @param int $mawh
      * @return int[]
      */
-    function get_scaled_size($maxw, $maxh) {
+    function get_scaled_size($maxw, $maxh)
+    {
         $size = $this->get_size();
         if ($size) {
             $ratio_w = $size[0] / $maxw;
             $ratio_h = $size[1] / $maxh;
-            if ($ratio_w>1 || $ratio_h>1) {
+            if ($ratio_w > 1 || $ratio_h > 1) {
                 if ($ratio_w > $ratio_h) {
                     $size[0] = $maxw;
                     $size[1] = floor($size[1] / $ratio_w);
@@ -448,10 +465,11 @@ final class DerivativeImage
         return $size;
     }
 
-    function get_ratio() {
+    function get_ratio()
+    {
         $size = $this->get_size();
 
-        return $size[0]/$size[1];
+        return $size[0] / $size[1];
     }
 
     /**
@@ -461,17 +479,19 @@ final class DerivativeImage
      * @param int $mawh
      * @return string
      */
-    function get_scaled_size_htm($maxw=9999, $maxh=9999) {
+    function get_scaled_size_htm($maxw = 9999, $maxh = 9999)
+    {
         $size = $this->get_scaled_size($maxw, $maxh);
         if ($size) {
-            return 'width="'.$size[0].'" height="'.$size[1].'"';
+            return 'width="' . $size[0] . '" height="' . $size[1] . '"';
         }
     }
 
     /**
      * @return bool
      */
-    function is_cached() {
+    function is_cached()
+    {
         return $this->is_cached;
     }
 }

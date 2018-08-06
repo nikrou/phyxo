@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
 
 $template->assign(
     array(
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_move',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_move',
         'F_ACTION' => ALBUMS_BASE_URL . '&amp;section=move',
     )
 );

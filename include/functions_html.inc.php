@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package functions\html
@@ -68,7 +55,7 @@ function get_cat_display_name($cat_informations, $url = '')
         if (!isset($url)) {
             $output .= $cat['name'];
         } elseif ($url == '') {
-            $output .= '<a href="' . make_index_url(array('category' => $cat)) . '">';
+            $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('category' => $cat)) . '">';
             $output .= $cat['name'] . '</a>';
         } else {
             $output .= '<a href="' . $url . $cat['id'] . '">';
@@ -100,7 +87,7 @@ function get_cat_display_name_cache($uppercats, $url = '', $single_link = false,
 
     $output = '';
     if ($single_link) {
-        $single_url = get_root_url() . $url . array_pop(explode(',', $uppercats));
+        $single_url = \Phyxo\Functions\URL::get_root_url() . $url . array_pop(explode(',', $uppercats));
         $output .= '<a href="' . $single_url . '"';
         if (isset($link_class)) {
             $output .= ' class="' . $link_class . '"';
@@ -128,7 +115,7 @@ function get_cat_display_name_cache($uppercats, $url = '', $single_link = false,
         if (!isset($url) or $single_link) {
             $output .= $cat['name'];
         } elseif ($url == '') {
-            $output .= '<a href="' . make_index_url(array('category' => $cat)) . '">' . $cat['name'] . '</a>';
+            $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('category' => $cat)) . '">' . $cat['name'] . '</a>';
         } else {
             $output .= '<a href="' . $url . $category_id . '">' . $cat['name'] . '</a>';
         }
@@ -227,14 +214,14 @@ function access_denied()
 {
     global $user, $services;
 
-    $login_url = get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
+    $login_url = \Phyxo\Functions\URL::get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
 
     set_status_header(401);
     if (isset($user) and !$services['users']->isGuest()) {
         echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
         echo '<div style="text-align:center;">' . \Phyxo\Functions\Language::l10n('You are not authorized to access the requested page') . '<br>';
-        echo '<a href="' . get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Identification') . '</a>&nbsp;';
-        echo '<a href="' . make_index_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a></div>';
+        echo '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Identification') . '</a>&nbsp;';
+        echo '<a href="' . \Phyxo\Functions\URL::make_index_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a></div>';
         echo str_repeat(' ', 512); //IE6 doesn't error output if below a size
         exit();
     } else {
@@ -253,7 +240,7 @@ function page_forbidden($msg, $alternate_url = null)
 {
     set_status_header(403);
     if ($alternate_url == null) {
-        $alternate_url = make_index_url();
+        $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
     redirect(
         $alternate_url,
@@ -273,7 +260,7 @@ function bad_request($msg, $alternate_url = null)
 {
     set_status_header(400);
     if ($alternate_url == null) {
-        $alternate_url = make_index_url();
+        $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
     redirect(
         $alternate_url,
@@ -293,7 +280,7 @@ function page_not_found($msg, $alternate_url = null)
 {
     set_status_header(404);
     if ($alternate_url == null) {
-        $alternate_url = make_index_url();
+        $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
     redirect(
         $alternate_url,
@@ -354,13 +341,13 @@ function get_tags_content_title()
 {
     global $page;
 
-    $title = '<a href="' . get_root_url() . 'tags.php" title="' . \Phyxo\Functions\Language::l10n('display available tags') . '">';
+    $title = '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'tags.php" title="' . \Phyxo\Functions\Language::l10n('display available tags') . '">';
     $title .= \Phyxo\Functions\Language::l10n(count($page['tags']) > 1 ? 'Tags' : 'Tag');
     $title .= '</a>&nbsp;';
 
     for ($i = 0; $i < count($page['tags']); $i++) {
         $title .= $i > 0 ? ' + ' : '';
-        $title .= '<a href="' . make_index_url(array('tags' => array($page['tags'][$i]))) . '"';
+        $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($page['tags'][$i]))) . '"';
         $title .= ' title="' . \Phyxo\Functions\Language::l10n('display photos linked to this tag') . '">';
         $title .= trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
         $title .= '</a>';
@@ -368,12 +355,12 @@ function get_tags_content_title()
         if (count($page['tags']) > 2) {
             $other_tags = $page['tags'];
             unset($other_tags[$i]);
-            $remove_url = make_index_url(array('tags' => $other_tags));
+            $remove_url = \Phyxo\Functions\URL::make_index_url(array('tags' => $other_tags));
 
             $title .= '<a href="' . $remove_url . '" style="border:none;" title="';
             $title .= \Phyxo\Functions\Language::l10n('remove this tag from the list');
             $title .= '"><img src="';
-            $title .= get_root_url() . get_themeconf('icon_dir') . '/remove_s.png';
+            $title .= \Phyxo\Functions\URL::get_root_url() . get_themeconf('icon_dir') . '/remove_s.png';
             $title .= '" alt="x" style="vertical-align:bottom;">';
             $title .= '</a>';
         }
@@ -549,7 +536,7 @@ function get_thumbnail_title($info, $title, $comment = '')
  */
 function get_src_image_url_protection_handler($url, $src_image)
 {
-    return get_action_url($src_image->id, $src_image->is_original() ? 'e' : 'r', false);
+    return \Phyxo\Functions\URL::get_action_url($src_image->id, $src_image->is_original() ? 'e' : 'r', false);
 }
 
 /**
@@ -571,7 +558,7 @@ function get_element_url_protection_handler($url, $infos)
         }
     }
 
-    return get_action_url($infos['id'], 'e', false);
+    return \Phyxo\Functions\URL::get_action_url($infos['id'], 'e', false);
 }
 
 /**

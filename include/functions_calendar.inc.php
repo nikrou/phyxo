@@ -167,7 +167,7 @@ function initialize_calendar()
                     } else {
                         $chronology_date = $page['chronology_date'];
                     }
-                    $url = duplicate_index_url(
+                    $url = \Phyxo\Functions\URL::duplicate_index_url(
                         array(
                             'chronology_style' => $style,
                             'chronology_view' => $view,
@@ -190,7 +190,7 @@ function initialize_calendar()
                 }
             }
         }
-        $url = duplicate_index_url(array(), array('start', 'chronology_date'));
+        $url = \Phyxo\Functions\URL::duplicate_index_url(array(), array('start', 'chronology_date'));
         $calendar_title = '<a href="' . $url . '">' . $fields[$page['chronology_field']]['label'] . '</a>';
         $calendar_title .= $calendar->get_display_name();
         $template->assign('chronology', array('TITLE' => $calendar_title));

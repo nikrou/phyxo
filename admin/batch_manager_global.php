@@ -59,7 +59,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     $page['prefilter'] = $_SESSION['bulk_manager_filter']['prefilter'];
 }
 
-$redirect_url = get_root_url() . 'admin/index.php?page=' . $_GET['page'];
+$redirect_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page'];
 
 if (isset($_POST['submit'])) {
     // if the user tries to apply an action, it means that there is at least 1
@@ -250,7 +250,7 @@ if (isset($_POST['submit'])) {
                     $deleted_count
                 );
 
-                $redirect_url = get_root_url() . 'admin/index.php?page=' . $_GET['page'];
+                $redirect_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page'];
                 $redirect = true;
             } else {
                 $page['errors'][] = \Phyxo\Functions\Language::l10n('No photo can be deleted');
@@ -294,7 +294,7 @@ if (isset($_POST['submit'])) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$base_url = get_root_url() . 'admin/index.php';
+$base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
 
 $prefilters = array(
     array('ID' => 'caddie', 'NAME' => \Phyxo\Functions\Language::l10n('Caddie')),
@@ -320,8 +320,8 @@ $template->assign(
         'selection' => $collection,
         'all_elements' => $page['cat_elements_id'],
         'START' => $page['start'],
-        'U_DISPLAY' => $base_url . get_query_string_diff(array('display')),
-        'F_ACTION' => $base_url . get_query_string_diff(array('cat', 'start', 'tag', 'filter')),
+        'U_DISPLAY' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('display')),
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('cat', 'start', 'tag', 'filter')),
     )
 );
 
@@ -448,7 +448,7 @@ $nb_thumbs_page = 0;
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = create_navigation_bar(
-        $base_url . get_query_string_diff(array('start')),
+        $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
@@ -506,7 +506,7 @@ if (count($page['cat_elements_id']) > 0) {
                     'thumb' => new DerivativeImage($thumb_params, $src_image),
                     'TITLE' => $ttitle,
                     'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
-                    'U_EDIT' => get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
+                    'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
                 )
             )
         );

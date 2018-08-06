@@ -135,7 +135,7 @@ $template->assign(
             $page['cat'],
             'admin/index.php?page=album&amp;cat_id='
         ),
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_perm',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_perm',
         'F_ACTION' => ALBUM_BASE_URL . '&amp;section=permissions',
         'private' => ('private' == $category['status']),
     )

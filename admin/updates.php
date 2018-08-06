@@ -13,7 +13,7 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-define('UPDATES_BASE_URL', get_root_url() . 'admin/index.php?page=updates');
+define('UPDATES_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=updates');
 
 use Phyxo\TabSheet\TabSheet;
 

@@ -139,7 +139,7 @@ function get_categories_menu()
                     false,
                     ' / '
                 ),
-                'URL' => make_index_url(array('category' => $row)),
+                'URL' => \Phyxo\Functions\URL::make_index_url(array('category' => $row)),
                 'LEVEL' => substr_count($row['global_rank'], '.') + 1,
                 'SELECTED' => $selected_category['id'] == $row['id'] ? true : false,
                 'IS_UPPERCAT' => $selected_category['id_uppercat'] == $row['id'] ? true : false,

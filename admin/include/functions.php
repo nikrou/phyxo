@@ -165,7 +165,7 @@ function delete_element_files($ids)
     $query .= ' WHERE id ' . $conn->in($ids);
     $result = $conn->db_query($query);
     while ($row = $conn->db_fetch_assoc($result)) {
-        if (url_is_remote($row['path'])) {
+        if (\Phyxo\Functions\URL::url_is_remote($row['path'])) {
             continue;
         }
 
@@ -1385,7 +1385,7 @@ function cat_admin_access($category_id)
 function fetchRemote($src, &$dest, $get_data = array(), $post_data = array(), $user_agent = 'Phyxo', $step = 0)
 {
     // Try to retrieve data from local file?
-    if (!url_is_remote($src)) {
+    if (!\Phyxo\Functions\URL::url_is_remote($src)) {
         $content = @file_get_contents($src);
         if ($content !== false) {
             is_resource($dest) ? @fwrite($dest, $content) : $dest = $content;
@@ -1921,7 +1921,7 @@ function get_admin_client_cache_keys($requested = array())
     }
 
     $keys = array(
-        '_hash' => md5(get_absolute_root_url()),
+        '_hash' => md5(\Phyxo\Functions\URL::get_absolute_root_url()),
     );
 
     foreach ($requested as $item) {

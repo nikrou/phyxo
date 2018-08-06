@@ -61,12 +61,12 @@ list($nb_images) = $conn->db_fetch_row($conn->db_query($query));
 $template->assign(
     array(
         'navbar' => create_navigation_bar(
-            get_root_url() . 'admin/index.php' . get_query_string_diff(array('start', 'del')),
+            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start', 'del')),
             $nb_images,
             $start,
             $elements_per_page
         ),
-        'F_ACTION' => get_root_url() . 'admin/index.php',
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php',
         'DISPLAY' => $elements_per_page,
         'NB_ELEMENTS' => $nb_images,
     )
@@ -121,7 +121,7 @@ $template->assign('images', array());
 foreach ($images as $image) {
     $thumbnail_src = DerivativeImage::thumb_url($image);
 
-    $image_url = get_root_url() . 'admin/index.php?page=photo&image_id=' . $image['id'];
+    $image_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $image['id'];
 
     $query = 'SELECT * FROM ' . RATE_TABLE . ' AS r';
     $query .= ' WHERE r.element_id=' . $image['id'] . ' ORDER BY date DESC;';

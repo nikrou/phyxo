@@ -79,7 +79,7 @@ if (isset($_POST['submit'])) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$base_url = get_root_url() . 'admin/index.php';
+$base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
 
 $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($page['category_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));
@@ -93,13 +93,13 @@ if ($category['image_order'] == 'rank ASC') {
 // Navigation path
 $navigation = get_cat_display_name_cache(
     $category['uppercats'],
-    get_root_url() . 'admin/index.php?page=album-'
+    \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-'
 );
 
 $template->assign(
     array(
         'CATEGORIES_NAV' => $navigation,
-        'F_ACTION' => $base_url . get_query_string_diff(array()),
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array()),
     )
 );
 

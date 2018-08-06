@@ -38,7 +38,7 @@ $template_filename = 'site_manager';
 // |                        new site creation form                         |
 // +-----------------------------------------------------------------------+
 if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
-    $is_remote = url_is_remote($_POST['galleries_url']);
+    $is_remote = \Phyxo\Functions\URL::url_is_remote($_POST['galleries_url']);
     if ($is_remote) {
         fatal_error('remote sites not supported');
     }
@@ -85,7 +85,7 @@ if (isset($_GET['action']) and isset($page['site'])) {
 
 $template->assign(
     array(
-        'F_ACTION' => get_root_url() . 'admin/index.php' . get_query_string_diff(array('action', 'site', 'pwg_token')),
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('action', 'site', 'pwg_token')),
         'PWG_TOKEN' => get_pwg_token(),
     )
 );
@@ -99,14 +99,14 @@ $query = 'SELECT * FROM ' . SITES_TABLE;
 $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $is_remote = url_is_remote($row['galleries_url']);
-    $base_url = get_root_url() . 'admin/index.php';
+    $is_remote = \Phyxo\Functions\URL::url_is_remote($row['galleries_url']);
+    $base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
     $base_url .= '?page=site_manager';
     $base_url .= '&amp;site=' . $row['id'];
     $base_url .= '&amp;pwg_token=' . get_pwg_token();
     $base_url .= '&amp;action=';
 
-    $update_url = get_root_url() . 'admin/index.php';
+    $update_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
     $update_url .= '?page=site_update';
     $update_url .= '&amp;site=' . $row['id'];
 

@@ -353,7 +353,7 @@ function news($start = null, $end = null, $exclude_img_cats = false, $add_url = 
             nb_new_elements($start, $end),
             '%d new photo',
             '%d new photos',
-            make_index_url(array('section' => 'recent_pics')),
+            \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_pics')),
             $add_url
         );
     }
@@ -364,7 +364,7 @@ function news($start = null, $end = null, $exclude_img_cats = false, $add_url = 
             nb_updated_categories($start, $end),
             '%d album updated',
             '%d albums updated',
-            make_index_url(array('section' => 'recent_cats')),
+            \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_cats')),
             $add_url
         );
     }
@@ -374,7 +374,7 @@ function news($start = null, $end = null, $exclude_img_cats = false, $add_url = 
         nb_new_comments($start, $end),
         '%d new comment',
         '%d new comments',
-        get_root_url() . 'comments.php',
+        \Phyxo\Functions\URL::get_root_url() . 'comments.php',
         $add_url
     );
 
@@ -384,7 +384,7 @@ function news($start = null, $end = null, $exclude_img_cats = false, $add_url = 
             nb_unvalidated_comments($start, $end),
             '%d comment to validate',
             '%d comments to validate',
-            get_root_url() . 'admin/index.php?page=comments',
+            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments',
             $add_url
         );
 
@@ -393,7 +393,7 @@ function news($start = null, $end = null, $exclude_img_cats = false, $add_url = 
             nb_new_users($start, $end),
             '%d new user',
             '%d new users',
-            get_root_url() . 'admin/index.php?page=user_list',
+            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_list',
             $add_url
         );
     }
@@ -486,7 +486,7 @@ function get_html_description_recent_post_date($date_detail)
         '<li>'
         . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
         . ' ('
-        . '<a href="' . make_index_url(array('section' => 'recent_pics')) . '">'
+        . '<a href="' . \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_pics')) . '">'
         . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>'
         . ')'
         . '</li><br>';
@@ -494,7 +494,7 @@ function get_html_description_recent_post_date($date_detail)
     foreach ($date_detail['elements'] as $element) {
         $tn_src = DerivativeImage::thumb_url($element);
         $description .= '<a href="' .
-            make_picture_url(array(
+            \Phyxo\Functions\URL::make_picture_url(array(
             'image_id' => $element['id'],
             'image_file' => $element['file'],
         )) . '"><img src="' . $tn_src . '"></a>';

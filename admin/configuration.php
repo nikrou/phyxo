@@ -16,7 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
-define('CONFIGURATION_BASE_URL', get_root_url() . 'admin/index.php?page=configuration');
+define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -264,12 +264,12 @@ if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings
 
 //----------------------------------------------------- template initialization
 
-$action = get_root_url() . 'admin/index.php?page=configuration';
+$action = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration';
 $action .= '&amp;section=' . $page['section'];
 
 $template->assign(
     array(
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=configuration',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=configuration',
         'F_ACTION' => $action
     )
 );

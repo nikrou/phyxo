@@ -92,8 +92,8 @@ $base_url = PHPWG_ROOT_PATH . 'admin/index.php';
 
 $template->assign(
     array(
-        'U_ELEMENTS_PAGE' => $base_url . get_query_string_diff(array('display', 'start')),
-        'F_ACTION' => $base_url . get_query_string_diff(array()),
+        'U_ELEMENTS_PAGE' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('display', 'start')),
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array()),
         'level_options' => get_privacy_level_options(),
     )
 );
@@ -113,7 +113,7 @@ if (!empty($_GET['display'])) {
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = create_navigation_bar(
-        $base_url . get_query_string_diff(array('start')),
+        $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
@@ -179,7 +179,7 @@ if (count($page['cat_elements_id']) > 0) {
                     'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
                     'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
                     'LEGEND' => $legend,
-                    'U_EDIT' => get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['id'],
+                    'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['id'],
                     'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
                     'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
                     'LEVEL' => !empty($row['level']) ? $row['level'] : '0',

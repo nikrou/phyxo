@@ -101,5 +101,5 @@ foreach ($themes->getServerThemes(true) as $theme) {
 
 $template->assign(
     'default_screenshot',
-    get_root_url() . 'admin/theme/images/missing_screenshot.png'
+    \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
 );

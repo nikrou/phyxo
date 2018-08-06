@@ -14,7 +14,6 @@ include_once(PHPWG_ROOT_PATH . 'include/functions_plugins.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_cookie.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_category.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_html.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_url.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative_params.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative_std_params.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative.inc.php');
@@ -718,7 +717,7 @@ function original_to_representative($path, $representative_ext)
 function get_element_path($element_info)
 {
     $path = $element_info['path'];
-    if (!url_is_remote($path)) {
+    if (!\Phyxo\Functions\URL::url_is_remote($path)) {
         $path = PHPWG_ROOT_PATH . $path;
     }
     return $path;

@@ -68,7 +68,7 @@ abstract class CalendarBase
             $res .= $conf['level_separator'];
             if (isset($page['chronology_date'][$i + 1])) {
                 $chronology_date = array_slice($page['chronology_date'], 0, $i + 1);
-                $url = duplicate_index_url(
+                $url = \Phyxo\Functions\URL::duplicate_index_url(
                     array('chronology_date' => $chronology_date),
                     array('start')
                 );
@@ -153,7 +153,7 @@ abstract class CalendarBase
                     'LABEL' => $label
                 );
             } else {
-                $url = duplicate_index_url(
+                $url = \Phyxo\Functions\URL::duplicate_index_url(
                     array('chronology_date' => array_merge($date_components, array($item))),
                     array('start')
                 );
@@ -171,7 +171,7 @@ abstract class CalendarBase
 
         if ($conf['calendar_show_any'] and $show_any and count($items) > 1
             && count($date_components) < count($this->calendar_levels) - 1) {
-            $url = duplicate_index_url(
+            $url = \Phyxo\Functions\URL::duplicate_index_url(
                 array('chronology_date' => array_merge($date_components, array('any'))),
                 array('start')
             );
@@ -277,7 +277,7 @@ abstract class CalendarBase
             $chronology_date = explode('-', $prev);
             $tpl_var['previous'] = [
                 'LABEL' => $this->get_date_nice_name($prev),
-                'URL' => duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+                'URL' => \Phyxo\Functions\URL::duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
             ];
         }
 
@@ -286,7 +286,7 @@ abstract class CalendarBase
             $chronology_date = explode('-', $next);
             $tpl_var['next'] = [
                 'LABEL' => $this->get_date_nice_name($next),
-                'URL' => duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+                'URL' => \Phyxo\Functions\URL::duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
             ];
         }
 

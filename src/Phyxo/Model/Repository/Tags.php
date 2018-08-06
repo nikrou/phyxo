@@ -55,7 +55,7 @@ class Tags extends BaseRepository
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['thumb_src'] = \DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
-            $row['picture_url'] = get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
+            $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }

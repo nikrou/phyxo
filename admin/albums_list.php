@@ -307,7 +307,7 @@ if (count($categories)) {
 }
 
 $template->assign('categories', array());
-$base_url = get_root_url() . 'admin/index.php?page=';
+$base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=';
 $cat_list_url = ALBUMS_BASE_URL . '&amp;section=list';
 
 if (isset($_GET['parent_id'])) {
@@ -327,7 +327,7 @@ foreach ($categories as $category) {
         'NB_SUB_ALBUMS' => isset($subcats_of[$category['id']]) ? count($subcats_of[$category['id']]) : 0,
         'ID' => $category['id'],
         'RANK' => $category['rank'] * 10,
-        'U_JUMPTO' => make_index_url(array('category' => $category)),
+        'U_JUMPTO' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
         'U_CHILDREN' => $cat_list_url . '&amp;parent_id=' . $category['id'],
         'U_EDIT' => $base_url . 'album&amp;cat_id=' . $category['id'],
         'IS_VIRTUAL' => empty($category['dir'])

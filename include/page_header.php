@@ -1,37 +1,24 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 trigger_notify('loc_begin_page_header');
 
 $template->assign(
     array(
         'GALLERY_TITLE' =>
-        isset($page['gallery_title']) ?
-        $page['gallery_title'] : $conf['gallery_title'],
+            isset($page['gallery_title']) ?
+            $page['gallery_title'] : $conf['gallery_title'],
 
         'PAGE_BANNER' =>
-        trigger_change(
+            trigger_change(
             'render_page_banner',
             str_replace(
                 '%gallery_title%',
@@ -43,7 +30,7 @@ $template->assign(
         'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
         'CONTENT_ENCODING' => get_pwg_charset(),
         'PAGE_TITLE' => strip_tags($title),
-        'U_HOME' => get_root_url(),
+        'U_HOME' => \Phyxo\Functions\URL::get_root_url(),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
     )
 );
@@ -51,7 +38,7 @@ $template->assign(
 
 // Header notes
 if (!empty($header_notes)) {
-    $template->assign('header_notes',$header_notes);
+    $template->assign('header_notes', $header_notes);
 }
 
 // No referencing is required
@@ -64,12 +51,12 @@ if (!empty($page['meta_robots'])) {
     $template->append(
         'head_elements',
         '<meta name="robots" content="'
-        .implode(',', array_keys($page['meta_robots']))
-        .'">'
+            . implode(',', array_keys($page['meta_robots']))
+            . '">'
     );
 }
 if (!isset($page['meta_robots']['noindex'])) {
-    $template->assign('meta_ref',1);
+    $template->assign('meta_ref', 1);
 }
 
 // refresh
@@ -86,6 +73,6 @@ if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
 
 trigger_notify('loc_end_page_header');
 
-header('Content-Type: text/html; charset='.get_pwg_charset()); // usefull ?
+header('Content-Type: text/html; charset=' . get_pwg_charset()); // usefull ?
 
 trigger_notify('loc_after_page_header');

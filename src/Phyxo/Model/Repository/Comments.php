@@ -194,7 +194,7 @@ class Comments extends BaseRepository
                 or ($conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
                 include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-                $comment_url = get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
+                $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
 
                 $keyargs_content = array(
                     \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($comm['author'])),
@@ -352,7 +352,7 @@ class Comments extends BaseRepository
             if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
                 include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-                $comment_url = get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
+                $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
                 $keyargs_content = array(
                     \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($GLOBALS['user']['username'])),

@@ -70,7 +70,7 @@ if (!is_null($responseFormat)) {
     $service->setEncoder($responseFormat, $encoder);
 }
 
-set_make_full_url();
+\Phyxo\Functions\URL::set_make_full_url();
 $service->run();
 
 

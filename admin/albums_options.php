@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('ALBUMS_OPTIONS_BASE_URL', get_root_url() . 'admin/index.php?page=albums_options');
+define('ALBUMS_OPTIONS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=albums_options');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -114,7 +114,7 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
 
 $template->assign(
     array(
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=cat_options',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_options',
         'F_ACTION' => ALBUMS_OPTIONS_BASE_URL . '&amp;section=' . $page['section']
     )
 );

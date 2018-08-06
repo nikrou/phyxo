@@ -114,8 +114,8 @@ $template->assign(
         'DB_USERS' => \Phyxo\Functions\Language::l10n_dec('%d user', '%d users', $nb_users),
         'DB_GROUPS' => \Phyxo\Functions\Language::l10n_dec('%d group', '%d groups', $nb_groups),
         'DB_RATES' => ($nb_rates == 0) ? \Phyxo\Functions\Language::l10n('no rate') : \Phyxo\Functions\Language::l10n('%d rates', $nb_rates),
-        'U_CHECK_UPGRADE' => get_root_url() . 'admin/index.php?action=check_upgrade',
-        'U_PHPINFO' => get_root_url() . 'admin/index.php?action=phpinfo',
+        'U_CHECK_UPGRADE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?action=check_upgrade',
+        'U_PHPINFO' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?action=phpinfo',
         'PHP_DATATIME' => $php_current_timestamp,
         'DB_DATATIME' => $db_current_date,
     )

@@ -31,13 +31,13 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         if (isset($_GET['no_photo_yet'])) {
             if ('browse' == $_GET['no_photo_yet']) {
                 $_SESSION['no_photo_yet'] = 'browse';
-                redirect(make_index_url());
+                redirect(\Phyxo\Functions\URL::make_index_url());
                 exit();
             }
 
             if ('deactivate' == $_GET['no_photo_yet']) {
                 conf_update_param('no_photo_yet', 'false');
-                redirect(make_index_url());
+                redirect(\Phyxo\Functions\URL::make_index_url());
                 exit();
             }
         }
@@ -48,7 +48,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         if ($services['users']->isAdmin()) {
             $url = $conf['no_photo_yet_url'];
             if (substr($url, 0, 4) != 'http') {
-                $url = get_root_url() . $url;
+                $url = \Phyxo\Functions\URL::get_root_url() . $url;
             }
 
             $template->assign(
@@ -59,7 +59,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
                         $user['username']
                     ),
                     'next_step_url' => $url,
-                    'deactivate_url' => get_root_url() . '?no_photo_yet=deactivate',
+                    'deactivate_url' => \Phyxo\Functions\URL::get_root_url() . '?no_photo_yet=deactivate',
                 )
             );
         } else {
@@ -68,7 +68,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
                 array(
                     'step' => 1,
                     'U_LOGIN' => 'identification.php',
-                    'deactivate_url' => get_root_url() . '?no_photo_yet=browse',
+                    'deactivate_url' => \Phyxo\Functions\URL::get_root_url() . '?no_photo_yet=browse',
                 )
             );
         }

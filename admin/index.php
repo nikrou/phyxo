@@ -90,7 +90,7 @@ if (isset($_GET['page']) and preg_match('/^[a-z_]*$/', $_GET['page']) and is_fil
     $page['page'] = 'intro';
 }
 
-$link_start = get_root_url() . 'admin/index.php?page=';
+$link_start = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=';
 $conf_link = $link_start . 'configuration&amp;section=';
 
 // +-----------------------------------------------------------------------+
@@ -126,9 +126,9 @@ $template->assign(
         'U_USERS' => $link_start . 'users',
         'U_GROUPS' => $link_start . 'groups',
         'U_NOTIFICATION_BY_MAIL' => $link_start . 'notification_by_mail',
-        'U_RETURN' => get_gallery_home_url(),
-        'U_ADMIN' => get_root_url() . 'admin/index.php',
-        'U_LOGOUT' => get_root_url() . 'index.php?act=logout',
+        'U_RETURN' => \Phyxo\Functions\URL::get_gallery_home_url(),
+        'U_ADMIN' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php',
+        'U_LOGOUT' => \Phyxo\Functions\URL::get_root_url() . 'index.php?act=logout',
         'U_PLUGINS' => $link_start . 'plugins',
         'U_ADD_PHOTOS' => $link_start . 'photos_add',
         'U_UPDATES' => $link_start . 'updates',

@@ -23,7 +23,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-define('NOTIFICATION_BY_MAIL_BASE_URL', get_root_url() . 'admin/index.php?page=notification_by_mail');
+define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');
 
 use Phyxo\TabSheet\TabSheet;
 
@@ -75,7 +75,7 @@ if (!isset($_POST) or (count($_POST) == 0)) {
 
 $template->set_filenames(['double_select' => 'double_select.tpl']);
 
-//$template->assign(array('U_HELP' => get_root_url().'admin/popuphelp.php?page=notification_by_mail'));
+//$template->assign(array('U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=notification_by_mail'));
 
 if ($must_repost) {
     // Get name of submit button

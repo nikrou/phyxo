@@ -224,7 +224,7 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
 
     $services['tags']->deleteOrphanTags();
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Orphan tags deleted');
-    redirect(get_root_url() . 'admin/index.php?page=tags');
+    redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
 }
 
 // +-----------------------------------------------------------------------+
@@ -257,7 +257,7 @@ if (count($orphan_tag_names) > 0) {
         \Phyxo\Functions\Language::l10n('You have %d orphan tags: %s.') . ' <a href="%s">' . \Phyxo\Functions\Language::l10n('Delete orphan tags') . '</a>',
         count($orphan_tag_names),
         implode(', ', $orphan_tag_names),
-        get_root_url() . 'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token=' . get_pwg_token()
+        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token=' . get_pwg_token()
     );
 }
 
@@ -281,7 +281,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     } else {
         $tag['counter'] = intval($tag_counters[$tag['id']]);
     }
-    $tag['U_VIEW'] = make_index_url(array('tags' => array($tag)));
+    $tag['U_VIEW'] = \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)));
     $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-' . $tag['id'];
 
     $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);

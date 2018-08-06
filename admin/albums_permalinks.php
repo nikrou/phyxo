@@ -81,11 +81,11 @@ $result = $conn->db_query($query);
 $deleted_permalinks = array();
 while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = get_cat_display_name_cache($row['cat_id']);
-    $row['U_DELETE'] = add_url_params(
+    $row['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
         $url_del_base,
         array('delete_permanent' => $row['permalink'])
     );
     $deleted_permalinks[] = $row;
 }
 $template->assign('deleted_permalinks', $deleted_permalinks);
-//$template->assign('U_HELP', get_root_url().'admin/popuphelp.php?page=permalinks');
+//$template->assign('U_HELP', \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=permalinks');

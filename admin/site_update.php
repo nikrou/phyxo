@@ -37,7 +37,7 @@ list($site_url) = $conn->db_fetch_row($conn->db_query($query));
 if (!isset($site_url)) {
     die('site ' . $site_id . ' does not exist');
 }
-$site_is_remote = url_is_remote($site_url);
+$site_is_remote = \Phyxo\Functions\URL::url_is_remote($site_url);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
@@ -659,11 +659,11 @@ if ($site_is_remote and !isset($_POST['submit'])) {
 $template->assign(
     array(
         'SITE_URL' => $site_url,
-        'U_SITE_MANAGER' => get_root_url() . 'admin/index.php?page=site_manager',
+        'U_SITE_MANAGER' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=site_manager',
         'L_RESULT_UPDATE' => $result_title . \Phyxo\Functions\Language::l10n('Search for new images in the directories'),
         'L_RESULT_METADATA' => $result_title . \Phyxo\Functions\Language::l10n('Metadata synchronization results'),
         'METADATA_LIST' => $used_metadata,
-        //'U_HELP' => get_root_url().'admin/popuphelp.php?page=synchronize',
+        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=synchronize',
     )
 );
 

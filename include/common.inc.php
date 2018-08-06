@@ -87,7 +87,7 @@ load_conf_from_db();
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != get_branch_from_version(PHPWG_VERSION)) {
-        redirect(get_root_url() . 'upgrade.php');
+        redirect(\Phyxo\Functions\URL::get_root_url() . 'upgrade.php');
     }
 }
 
@@ -159,7 +159,7 @@ if ($conf['gallery_locked']) {
         set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
         header('Content-Type: text/html; charset=' . get_pwg_charset());
-        echo '<a href="' . get_absolute_root_url(false) . 'identification.php">' . \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
+        echo '<a href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'identification.php">' . \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
         echo str_repeat(' ', 512); //IE6 doesn't error output if below a size
         exit();
     }
@@ -168,7 +168,7 @@ if ($conf['gallery_locked']) {
 if ($conf['check_upgrade_feed']) {
     include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
     if (check_upgrade_feed()) {
-        $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . get_absolute_root_url(false) . 'upgrade_feed.php">upgrade now</a>';
+        $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'upgrade_feed.php">upgrade now</a>';
     }
 }
 

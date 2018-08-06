@@ -359,7 +359,7 @@ if ($step == 1) {
                 \Phyxo\Functions\Language::get_l10n_args('', ''),
                 \Phyxo\Functions\Language::get_l10n_args('Here are your connection settings', ''),
                 \Phyxo\Functions\Language::get_l10n_args('', ''),
-                \Phyxo\Functions\Language::get_l10n_args('Link: %s', get_absolute_root_url()),
+                \Phyxo\Functions\Language::get_l10n_args('Link: %s', \Phyxo\Functions\URL::get_absolute_root_url()),
                 \Phyxo\Functions\Language::get_l10n_args('Username: %s', $admin_name),
                 \Phyxo\Functions\Language::get_l10n_args('Password: %s', $admin_pass1),
                 \Phyxo\Functions\Language::get_l10n_args('Email: %s', $admin_mail)

@@ -15,7 +15,7 @@ if (!defined("PHPWG_ROOT_PATH")) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-define('GROUPS_BASE_URL', get_root_url() . 'admin/index.php?page=groups');
+define('GROUPS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=groups');
 
 use Phyxo\TabSheet\TabSheet;
 

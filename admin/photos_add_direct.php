@@ -10,7 +10,7 @@
  */
 
 if (!defined('PHOTOS_ADD_BASE_URL')) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 // +-----------------------------------------------------------------------+
@@ -20,7 +20,7 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
 if (isset($_GET['batch'])) {
     check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
 
-    $query = 'DELETE FROM '.CADDIE_TABLE.' WHERE user_id = '.$conn->db_real_escape_string($user['id']);
+    $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
     $conn->db_query($query);
 
     $inserts = array();
@@ -36,14 +36,14 @@ if (isset($_GET['batch'])) {
         $inserts
     );
 
-    redirect(get_root_url().'admin/index.php?page=batch_manager&filter=prefilter-caddie');
+    redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager&filter=prefilter-caddie');
 }
 
 // +-----------------------------------------------------------------------+
 // |                             prepare form                              |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH.'admin/include/photos_add_direct_prepare.inc.php');
+include_once(PHPWG_ROOT_PATH . 'admin/include/photos_add_direct_prepare.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

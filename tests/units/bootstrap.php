@@ -27,19 +27,6 @@ define('MASS_UPDATES_SKIP_EMPTY', false);
 
 $conf['admin_theme'] = 'default';
 
-// copy from include/functions_url.inc.php
-function get_root_url()
-{
-    global $page;
-    if (($root_url = @$page['root_path']) == null) {
-        $root_url = PHPWG_ROOT_PATH;
-        if (strncmp($root_url, './', 2) == 0) {
-            return substr($root_url, 2);
-        }
-    }
-    return $root_url;
-}
-
 // copy from include/functions_html.inc.php
 function name_compare($a, $b)
 {
