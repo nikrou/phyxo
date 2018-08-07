@@ -16,6 +16,7 @@ require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
+use Phyxo\Cache\PersistentFileCache;
 
 // container
 if (!empty($_SERVER['CONTAINER'])) {

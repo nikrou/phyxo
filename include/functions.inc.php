@@ -17,8 +17,6 @@ include_once(PHPWG_ROOT_PATH . 'include/functions_html.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative_params.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative_std_params.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/derivative.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/cache.class.php');
-
 
 /**
  * returns the current microsecond since Unix epoch
