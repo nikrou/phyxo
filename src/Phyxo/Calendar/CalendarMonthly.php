@@ -12,6 +12,9 @@
 namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\ImageStdParams;
 
 /**
  * Monthly calendar style (composed of years/months and days)
@@ -330,7 +333,7 @@ class CalendarMonthly extends CalendarBase
             unset($page['chronology_date'][self::CDAY]);
 
             $row = $conn->db_fetch_assoc($conn->db_query($query));
-            $derivative = new \DerivativeImage(IMG_SQUARE, new \SrcImage($row));
+            $derivative = new DerivativeImage(IMG_SQUARE, new SrcImage($row));
             $items[$day]['derivative'] = $derivative;
             $items[$day]['file'] = $row['file'];
             $items[$day]['dow'] = $row['dow'];
@@ -356,7 +359,7 @@ class CalendarMonthly extends CalendarBase
                 $wday_labels[] = array_shift($wday_labels);
             }
 
-            list($cell_width, $cell_height) = \ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size;
+            list($cell_width, $cell_height) = ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size;
 
             $tpl_weeks = array();
             $tpl_crt_week = array();

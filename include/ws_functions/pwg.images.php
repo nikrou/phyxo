@@ -1128,7 +1128,7 @@ function ws_images_upload($params, $service)
 
         return array(
             'image_id' => $image_id,
-            'src' => DerivativeImage::thumb_url($image_infos),
+            'src' => \Phyxo\Image\DerivativeImage::thumb_url($image_infos),
             'name' => $image_infos['name'],
             'category' => array(
                 'id' => $params['category'][0],

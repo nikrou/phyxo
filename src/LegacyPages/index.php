@@ -49,7 +49,7 @@ if (isset($_GET['image_order'])) {
 
 if (isset($_GET['display'])) {
     $page['meta_robots']['noindex'] = 1;
-    if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
+    if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
         $_SESSION['index_deriv'] = $_GET['display'];
     }
 }
@@ -271,7 +271,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
         $url = \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), array('display' => ''));
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
-        $type_map = ImageStdParams::get_defined_type_map();
+        $type_map = \Phyxo\Image\ImageStdParams::get_defined_type_map();
         unset($type_map[IMG_XXLARGE], $type_map[IMG_XLARGE]);
 
         foreach ($type_map as $params) {

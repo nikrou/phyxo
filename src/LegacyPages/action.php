@@ -97,7 +97,7 @@ $file = '';
 switch ($_GET['part']) {
     case 'e':
         if (!$user['enabled_high']) {
-            $deriv = new DerivativeImage(IMG_XXLARGE, new SrcImage($element_info));
+            $deriv = new \Phyxo\Image\DerivativeImage(IMG_XXLARGE, new \Phyxo\Image\SrcImage($element_info));
             if (!$deriv->same_as_source()) {
                 do_error(401, 'Access denied e');
             }

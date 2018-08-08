@@ -301,7 +301,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                     {
                         $image_string =
                             '<a class="thumbnail" href="' . $picture_url . '">'
-                            . '<span><img src="' . DerivativeImage::thumb_url($element)
+                            . '<span><img src="' . \Phyxo\Image\DerivativeImage::thumb_url($element)
                             . '" alt="' . $image_title . '" title="' . $image_title . '">'
                             . '</span></a>';
                         break;
@@ -310,7 +310,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                     {
                         $image_string =
                             '<a class="over" href="' . $picture_url . '">'
-                            . '<span><img src="' . DerivativeImage::thumb_url($element)
+                            . '<span><img src="' . \Phyxo\Image\DerivativeImage::thumb_url($element)
                             . '" alt="' . $image_title . '" title="' . $image_title . '">'
                             . '</span>' . $image_title . '</a>';
                         break;

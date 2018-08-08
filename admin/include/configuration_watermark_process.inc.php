@@ -93,7 +93,7 @@ if ($v <= 0 or $v > 100) {
 
 // step 3 - save data
 if (count($errors) == 0) {
-    $watermark = new WatermarkParams();
+    $watermark = new \Phyxo\Image\WatermarkParams();
     $watermark->file = $pwatermark['file'];
     $watermark->xpos = intval($pwatermark['xpos']);
     $watermark->ypos = intval($pwatermark['ypos']);
@@ -101,7 +101,7 @@ if (count($errors) == 0) {
     $watermark->opacity = intval($pwatermark['opacity']);
     $watermark->min_size = array(intval($pwatermark['minw']), intval($pwatermark['minh']));
 
-    $old_watermark = ImageStdParams::get_watermark();
+    $old_watermark = \Phyxo\Image\ImageStdParams::get_watermark();
     $watermark_changed =
         $watermark->file != $old_watermark->file
         || $watermark->xpos != $old_watermark->xpos
@@ -110,14 +110,14 @@ if (count($errors) == 0) {
         || $watermark->opacity != $old_watermark->opacity;
 
     // save the new watermark configuration
-    ImageStdParams::set_watermark($watermark);
+    \Phyxo\Image\ImageStdParams::set_watermark($watermark);
 
     // do we have to regenerate the derivatives (and which types)?
     $changed_types = array();
 
-    foreach (ImageStdParams::get_defined_type_map() as $type => $params) {
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
         $old_use_watermark = $params->use_watermark;
-        ImageStdParams::apply_global($params);
+        \Phyxo\Image\ImageStdParams::apply_global($params);
 
         $changed = $params->use_watermark != $old_use_watermark;
         if (!$changed and $params->use_watermark) {
@@ -135,7 +135,7 @@ if (count($errors) == 0) {
         }
     }
 
-    ImageStdParams::save();
+    \Phyxo\Image\ImageStdParams::save();
 
     if (count($changed_types)) {
         clear_derivative_cache($changed_types);

@@ -155,13 +155,13 @@ function parse_custom_params($tokens)
         }
 
         $token = array_shift($tokens);
-        $crop = char_to_fraction($token);
+        $crop = \Phyxo\Image\DerivativeParams::char_to_fraction($token);
 
         $token = array_shift($tokens);
         $min_size = url_to_size($token);
     }
 
-    return new DerivativeParams(new SizingParams($size, $crop, $min_size));
+    return new \Phyxo\Image\DerivativeParams(new \Phyxo\Image\SizingParams($size, $crop, $min_size));
 }
 
 function parse_request()
@@ -202,8 +202,8 @@ function parse_request()
     $req = substr($req, 0, $pos);
 
     $deriv = explode('_', $deriv);
-    foreach (ImageStdParams::get_defined_type_map() as $type => $params) {
-        if (derivative_to_url($type) == $deriv[0]) {
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url($type) == $deriv[0]) {
             $page['derivative_type'] = $type;
             $page['derivative_params'] = $params;
             break;
@@ -211,7 +211,7 @@ function parse_request()
     }
 
     if (!isset($page['derivative_type'])) {
-        if (derivative_to_url(IMG_CUSTOM) == $deriv[0]) {
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) == $deriv[0]) {
             $page['derivative_type'] = IMG_CUSTOM;
         } else {
             ierror('Unknown parsing type', 400);
@@ -221,7 +221,7 @@ function parse_request()
 
     if ($page['derivative_type'] == IMG_CUSTOM) {
         $params = $page['derivative_params'] = parse_custom_params($deriv);
-        ImageStdParams::apply_global($params);
+        \Phyxo\Image\ImageStdParams::apply_global($params);
 
         if ($params->sizing->ideal_size[0] < 20 or $params->sizing->ideal_size[1] < 20) {
             ierror('Invalid size', 400);
@@ -229,12 +229,12 @@ function parse_request()
         if ($params->sizing->max_crop < 0 or $params->sizing->max_crop > 1) {
             ierror('Invalid crop', 400);
         }
-        $greatest = ImageStdParams::get_by_type(IMG_XXLARGE);
+        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(IMG_XXLARGE);
 
         $key = array();
         $params->add_url_tokens($key);
         $key = implode('_', $key);
-        if (!isset(ImageStdParams::$custom[$key])) {
+        if (!isset(\Phyxo\Image\ImageStdParams::$custom[$key])) {
             ierror('Size not allowed', 403);
         }
     }
@@ -250,7 +250,7 @@ function parse_request()
     $page['src_url'] = $page['root_path'] . $page['src_location'];
 }
 
-function try_switch_source(DerivativeParams $params, $original_mtime)
+function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtime)
 {
     global $page;
 
@@ -272,7 +272,7 @@ function try_switch_source(DerivativeParams $params, $original_mtime)
     }
 
     $candidates = array();
-    foreach (ImageStdParams::get_defined_type_map() as $candidate) {
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $candidate) {
         if ($candidate->type == $params->type) {
             continue;
         }
@@ -304,7 +304,7 @@ function try_switch_source(DerivativeParams $params, $original_mtime)
 
     foreach (array_reverse($candidates) as $candidate) {
         $candidate_path = $page['derivative_path'];
-        $candidate_path = str_replace('-' . derivative_to_url($params->type), '-' . derivative_to_url($candidate->type), $candidate_path);
+        $candidate_path = str_replace('-' . \Phyxo\Image\DerivativeParams::derivative_to_url($params->type), '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($candidate->type), $candidate_path);
         $candidate_mtime = @filemtime($candidate_path);
         if ($candidate_mtime === false || $candidate_mtime < $original_mtime || $candidate_mtime < $candidate->last_mod_time) {
             continue;
@@ -368,9 +368,6 @@ foreach (explode(',', 'load,rotate,crop,scale,sharpen,watermark,save,send') as $
     $timing[$k] = '';
 }
 
-include_once(PHPWG_ROOT_PATH . '/include/derivative_params.inc.php');
-include_once(PHPWG_ROOT_PATH . '/include/derivative_std_params.inc.php');
-
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
 } catch (Exception $e) {
@@ -379,7 +376,7 @@ try {
 
 $query = 'SELECT value FROM ' . $prefixeTable . 'config WHERE param=\'derivatives\'';
 list($conf['derivatives']) = $conn->db_fetch_row($conn->db_query($query));
-ImageStdParams::load_from_db();
+\Phyxo\Image\ImageStdParams::load_from_db();
 
 parse_request();
 $params = $page['derivative_params'];
@@ -455,10 +452,10 @@ $conn->db_close();
 
 if (!try_switch_source($params, $src_mtime) && $params->type == IMG_CUSTOM) {
     $sharpen = 0;
-    foreach (ImageStdParams::get_defined_type_map() as $std_params) {
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $std_params) {
         $sharpen += $std_params->sharpen;
     }
-    $params->sharpen = round($sharpen / count(ImageStdParams::get_defined_type_map()));
+    $params->sharpen = round($sharpen / count(\Phyxo\Image\ImageStdParams::get_defined_type_map()));
 }
 
 if (!mkgetdir(dirname($page['derivative_path']))) {
@@ -502,11 +499,11 @@ if ($params->sharpen) {
 }
 
 if ($params->will_watermark($d_size)) {
-    $wm = ImageStdParams::get_watermark();
+    $wm = \Phyxo\Image\ImageStdParams::get_watermark();
     $wm_image = new pwg_image(PHPWG_ROOT_PATH . $wm->file);
     $wm_size = array($wm_image->get_width(), $wm_image->get_height());
     if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
-        $wm_scaling_params = SizingParams::classic($d_size[0], $d_size[1]);
+        $wm_scaling_params = \Phyxo\Image\SizingParams::classic($d_size[0], $d_size[1]);
         $wm_scaling_params->compute($wm_size, null, $tmp, $wm_scaled_size);
         $wm_size = $wm_scaled_size;
         $wm_image->resize($wm_scaled_size[0], $wm_scaled_size[1]);
@@ -545,7 +542,7 @@ if ($d_size[0] * $d_size[1] < $conf['derivatives_strip_metadata_threshold']) {//
     $image->strip();
 }
 
-$image->set_compression_quality(ImageStdParams::$quality);
+$image->set_compression_quality(\Phyxo\Image\ImageStdParams::$quality);
 $image->write($page['derivative_path']);
 $image->destroy();
 @chmod($page['derivative_path'], 0644);

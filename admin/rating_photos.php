@@ -119,7 +119,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
 $template->assign('images', array());
 foreach ($images as $image) {
-    $thumbnail_src = DerivativeImage::thumb_url($image);
+    $thumbnail_src = \Phyxo\Image\DerivativeImage::thumb_url($image);
 
     $image_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $image['id'];
 

@@ -172,7 +172,7 @@ $image_file = $row['file'];
 $admin_url_start = PHOTO_BASE_URL . '&amp;section=properties';
 $admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id=' . $_GET['cat_id'] : '';
 
-$src_image = new SrcImage($row);
+$src_image = new \Phyxo\Image\SrcImage($row);
 
 $template->assign(
     array(
@@ -180,8 +180,8 @@ $template->assign(
         'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
         'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . get_pwg_token(),
         'PATH' => $row['path'],
-        'TN_SRC' => DerivativeImage::url(IMG_THUMB, $src_image),
-        'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
+        'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
+        'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
         'TITLE' => render_element_name($row),
         'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],

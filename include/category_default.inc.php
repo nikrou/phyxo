@@ -86,7 +86,7 @@ foreach ($pictures as $row) {
         'TN_TITLE' => get_thumbnail_title($row, $name, $desc),
         'URL' => $url,
         'DESCRIPTION' => $desc,
-        'src_image' => new SrcImage($row),
+        'src_image' => new \Phyxo\Image\SrcImage($row),
     ));
 
     if ($conf['index_new_icon']) {
@@ -115,7 +115,10 @@ foreach ($pictures as $row) {
     $tpl_thumbnails_var[] = $tpl_var;
 }
 
-$derivative_params = trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB));
+$derivative_params = trigger_change(
+    'get_index_derivative_params',
+    \Phyxo\Image\ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB)
+);
 $template->assign(
     array(
         'derivative_params' => $derivative_params,

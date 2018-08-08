@@ -219,7 +219,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
         $query = 'SELECT id,representative_ext,path FROM ' . IMAGES_TABLE;
         $query .= ' WHERE id = ' . $category['representative_picture_id'];
         $row = $conn->db_fetch_assoc($conn->db_query($query));
-        $src = DerivativeImage::thumb_url($row);
+        $src = \Phyxo\Image\DerivativeImage::thumb_url($row);
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
 
         $tpl_representant['picture'] =

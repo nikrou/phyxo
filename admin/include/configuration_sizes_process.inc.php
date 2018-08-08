@@ -62,7 +62,7 @@ unset($pderivative);
 
 // step 2 - check validity
 $prev_w = $prev_h = 0;
-foreach (ImageStdParams::get_all_types() as $type) {
+foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
     $pderivative = $pderivatives[$type];
     if (!$pderivative['enabled']) {
         continue;
@@ -107,10 +107,10 @@ foreach (ImageStdParams::get_all_types() as $type) {
 
 // step 3 - save data
 if (count($errors) == 0) {
-    $quality_changed = ImageStdParams::$quality != intval($_POST['resize_quality']);
-    ImageStdParams::$quality = intval($_POST['resize_quality']);
+    $quality_changed = \Phyxo\Image\ImageStdParams::$quality != intval($_POST['resize_quality']);
+    \Phyxo\Image\ImageStdParams::$quality = intval($_POST['resize_quality']);
 
-    $enabled = ImageStdParams::get_defined_type_map();
+    $enabled = \Phyxo\Image\ImageStdParams::get_defined_type_map();
     if (!empty($conf['disabled_derivatives'])) {
         $disabled = unserialize($conf['disabled_derivatives']);
     } else {
@@ -118,12 +118,12 @@ if (count($errors) == 0) {
     }
     $changed_types = array();
 
-    foreach (ImageStdParams::get_all_types() as $type) {
+    foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
         $pderivative = $pderivatives[$type];
 
         if ($pderivative['enabled']) {
-            $new_params = new DerivativeParams(
-                new SizingParams(
+            $new_params = new \Phyxo\Image\DerivativeParams(
+                new \Phyxo\Image\SizingParams(
                     array(intval($pderivative['w']), intval($pderivative['h'])),
                     round($pderivative['crop'] / 100, 2),
                     array(intval($pderivative['minw']), intval($pderivative['minh']))
@@ -131,19 +131,19 @@ if (count($errors) == 0) {
             );
             $new_params->sharpen = intval($pderivative['sharpen']);
 
-            ImageStdParams::apply_global($new_params);
+            \Phyxo\Image\ImageStdParams::apply_global($new_params);
 
             if (isset($enabled[$type])) {
                 $old_params = $enabled[$type];
                 $same = true;
-                if (!size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
+                if (!\Phyxo\Image\DerivativeParams::size_equals($old_params->sizing->ideal_size, $new_params->sizing->ideal_size)
                     or $old_params->sizing->max_crop != $new_params->sizing->max_crop) {
                     $same = false;
                 }
 
                 if ($same
                     and $new_params->sizing->max_crop != 0
-                    and !size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
+                    and !\Phyxo\Image\DerivativeParams::size_equals($old_params->sizing->min_size, $new_params->sizing->min_size)) {
                     $same = false;
                 }
 
@@ -172,20 +172,20 @@ if (count($errors) == 0) {
     }
 
     $enabled_by = array(); // keys ordered by all types
-    foreach (ImageStdParams::get_all_types() as $type) {
+    foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
         if (isset($enabled[$type])) {
             $enabled_by[$type] = $enabled[$type];
         }
     }
 
-    foreach (array_keys(ImageStdParams::$custom) as $custom) {
+    foreach (array_keys(\Phyxo\Image\ImageStdParams::$custom) as $custom) {
         if (isset($_POST['delete_custom_derivative_' . $custom])) {
             $changed_types[] = $custom;
-            unset(ImageStdParams::$custom[$custom]);
+            unset(\Phyxo\Image\ImageStdParams::$custom[$custom]);
         }
     }
 
-    ImageStdParams::set_and_save($enabled_by);
+    \Phyxo\Image\ImageStdParams::set_and_save($enabled_by);
     if (count($disabled) == 0) {
         conf_delete_param('disabled_derivatives');
     } else {

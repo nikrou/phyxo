@@ -417,7 +417,7 @@ $template->assign(array('used_metadata' => $used_metadata));
 
 //derivatives
 $del_deriv_map = array();
-foreach (ImageStdParams::get_defined_type_map() as $params) {
+foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     $del_deriv_map[$params->type] = \Phyxo\Functions\Language::l10n($params->type);
 }
 $gen_deriv_map = $del_deriv_map;
@@ -487,11 +487,11 @@ if (count($page['cat_elements_id']) > 0) {
     $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 
-    $thumb_params = ImageStdParams::get_by_type(IMG_THUMB);
+    $thumb_params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB);
     // template thumbnail initialization
     while ($row = $conn->db_fetch_assoc($result)) {
         $nb_thumbs_page++;
-        $src_image = new SrcImage($row);
+        $src_image = new \Phyxo\Image\SrcImage($row);
 
         $ttitle = render_element_name($row);
         if ($ttitle != get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
@@ -503,9 +503,9 @@ if (count($page['cat_elements_id']) > 0) {
             array_merge(
                 $row,
                 array(
-                    'thumb' => new DerivativeImage($thumb_params, $src_image),
+                    'thumb' => new \Phyxo\Image\DerivativeImage($thumb_params, $src_image),
                     'TITLE' => $ttitle,
-                    'FILE_SRC' => DerivativeImage::url(IMG_LARGE, $src_image),
+                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
                     'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
                 )
             )

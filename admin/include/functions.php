@@ -14,8 +14,6 @@
  */
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_metadata.php');
-include_once(PHPWG_ROOT_PATH . 'include/derivative.inc.php');
-
 
 /**
  * Generates a pseudo random string.
@@ -1723,7 +1721,7 @@ function get_admins($include_webmaster = true)
 function clear_derivative_cache($types = 'all')
 {
     if ($types === 'all') {
-        $types = ImageStdParams::get_all_types();
+        $types = \Phyxo\Image\ImageStdParams::get_all_types();
         $types[] = IMG_CUSTOM;
     } elseif (!is_array($types)) {
         $types = array($types);
@@ -1732,11 +1730,11 @@ function clear_derivative_cache($types = 'all')
     for ($i = 0; $i < count($types); $i++) {
         $type = $types[$i];
         if ($type == IMG_CUSTOM) {
-            $type = derivative_to_url($type) . '[a-zA-Z0-9]+';
-        } elseif (in_array($type, ImageStdParams::get_all_types())) {
-            $type = derivative_to_url($type);
+            $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
+        } elseif (in_array($type, \Phyxo\Image\ImageStdParams::get_all_types())) {
+            $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type);
         } else { //assume a custom type
-            $type = derivative_to_url(IMG_CUSTOM) . '_' . $type;
+            $type = \Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) . '_' . $type;
         }
         $types[$i] = $type;
     }
@@ -1819,7 +1817,7 @@ function delete_element_derivatives($infos, $type = 'all')
     if ($type == 'all') {
         $pattern = '-*';
     } else {
-        $pattern = '-' . derivative_to_url($type) . '*';
+        $pattern = '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '*';
     }
     $path = substr_replace($path, $pattern, $dot, 0);
     if (($glob = glob(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $path)) !== false) {

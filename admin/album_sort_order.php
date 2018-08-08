@@ -115,9 +115,9 @@ $result = $conn->db_query($query);
 if ($conn->db_num_rows($result) > 0) {
 	// template thumbnail initialization
     $current_rank = 1;
-    $derivativeParams = ImageStdParams::get_by_type(IMG_SQUARE);
+    $derivativeParams = \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
-        $derivative = new DerivativeImage($derivativeParams, new SrcImage($row));
+        $derivative = new \Phyxo\Image\DerivativeImage($derivativeParams, new \Phyxo\Image\SrcImage($row));
 
         if (!empty($row['name'])) {
             $thumbnail_name = $row['name'];

@@ -282,7 +282,7 @@ function ws_categories_getList($params, &$service)
 
         while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['level'] <= $user['level']) {
-                $thumbnail_src_of[$row['id']] = DerivativeImage::thumb_url($row);
+                $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
             } else {
                 // problem: we must not display the thumbnail of a photo which has a
                 // higher privacy level than user privacy level
@@ -316,7 +316,7 @@ function ws_categories_getList($params, &$service)
             $result = $conn->db_query($query);
 
             while ($row = $conn->db_fetch_assoc($result)) {
-                $thumbnail_src_of[$row['id']] = DerivativeImage::thumb_url($row);
+                $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
             }
         }
     }

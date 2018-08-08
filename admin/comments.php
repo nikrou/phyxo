@@ -128,7 +128,7 @@ $query .= ' LIMIT ' . $conf['comments_page_nb_comments'] . ' OFFSET ' . $page['s
 
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
-    $thumb = DerivativeImage::thumb_url(
+    $thumb = \Phyxo\Image\DerivativeImage::thumb_url(
         array(
             'id' => $row['image_id'],
             'path' => $row['path'],

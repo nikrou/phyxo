@@ -138,7 +138,7 @@ switch ($action) {
 $url_format = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . get_pwg_token();
 
 $purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'derivatives') . '&amp;type=all';
-foreach (ImageStdParams::get_defined_type_map() as $params) {
+foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     $purge_urls[\Phyxo\Functions\Language::l10n($params->type)] = sprintf($url_format, 'derivatives') . '&amp;type=' . $params->type;
 }
 $purge_urls[\Phyxo\Functions\Language::l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . IMG_CUSTOM;

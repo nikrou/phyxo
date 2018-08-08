@@ -45,7 +45,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
                 'image_id' => $element['id'],
                 'image_file' => $element['file'],
                 'category' => $category
-            )) . '" class="thumblnk"><img src="' . DerivativeImage::url(IMG_THUMB, $element) . '"></a>';
+            )) . '" class="thumblnk"><img src="' . \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $element) . '"></a>';
         }
     }
 

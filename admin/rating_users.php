@@ -82,10 +82,10 @@ if (count($image_ids) > 0) {
     $query = 'SELECT id, name, file, path, representative_ext, level FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id ' . $conn->in(array_keys($image_ids));
     $result = $conn->db_query($query);
-    $params = ImageStdParams::get_by_type(IMG_SQUARE);
+    $params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
         $image_urls[$row['id']] = array(
-            'tn' => DerivativeImage::url($params, $row),
+            'tn' => \Phyxo\Image\DerivativeImage::url($params, $row),
             'page' => \Phyxo\Functions\URL::make_picture_url(array('image_id' => $row['id'], 'image_file' => $row['file'])),
         );
     }
@@ -205,5 +205,5 @@ $template->assign(array(
     'available_rates' => $conf['rate_items'],
     'ratings' => $by_user_ratings,
     'image_urls' => $image_urls,
-    'TN_WIDTH' => ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size[0],
+    'TN_WIDTH' => \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size[0],
 ));

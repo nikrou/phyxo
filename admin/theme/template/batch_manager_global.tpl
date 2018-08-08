@@ -472,7 +472,8 @@
 			<option value="filter_filesize" {if isset($filter.filesize)}disabled="disabled"{/if}>{'Filesize'|translate}</option>
 			<option value="filter_search"{if isset($filter.search)} disabled="disabled"{/if}>{'Search'|translate}</option>
 		    </select>
-
+		</p>
+		<p>
 		    <button type="button" class="btn btn-delete" id="removeFilters">{'Remove all filters'|translate}</button>
 		</p>
 

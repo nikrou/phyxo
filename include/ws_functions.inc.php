@@ -133,7 +133,7 @@ function ws_std_get_urls($image_row)
         )
     );
 
-    $src_image = new SrcImage($image_row);
+    $src_image = new \Phyxo\Image\SrcImage($image_row);
 
     if ($src_image->is_original()) { // we have a photo
         if ($user['enabled_high']) {
@@ -143,7 +143,7 @@ function ws_std_get_urls($image_row)
         $ret['element_url'] = \Phyxo\Functions\URL::get_element_url($image_row);
     }
 
-    $derivatives = DerivativeImage::get_all($src_image);
+    $derivatives = \Phyxo\Image\DerivativeImage::get_all($src_image);
     $derivatives_arr = array();
     foreach ($derivatives as $type => $derivative) {
         $size = $derivative->get_size();

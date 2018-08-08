@@ -363,7 +363,7 @@ if (count($comments) > 0) {
         }
 
         // source of the thumbnail picture
-        $src_image = new SrcImage($elements[$comment['image_id']]);
+        $src_image = new \Phyxo\Image\SrcImage($elements[$comment['image_id']]);
 
         // link to the full size picture
         $url = \Phyxo\Functions\URL::make_picture_url(
@@ -440,7 +440,7 @@ if (count($comments) > 0) {
     }
 }
 
-$derivative_params = trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(IMG_THUMB));
+$derivative_params = trigger_change('get_comments_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
 $template->assign('derivative_params', $derivative_params);
 
 // include menubar

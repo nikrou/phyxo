@@ -406,7 +406,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
 
     \Phyxo\Functions\URL::set_make_full_url();
     // in case we are on uploadify.php, we have to replace the false path
-    $thumb_url = preg_replace('#admin/include/i#', 'i', DerivativeImage::thumb_url($image_infos));
+    $thumb_url = preg_replace('#admin/include/i#', 'i', \Phyxo\Image\DerivativeImage::thumb_url($image_infos));
     \Phyxo\Functions\URL::unset_make_full_url();
 
     $client = new Client(array('http_errors' => false));

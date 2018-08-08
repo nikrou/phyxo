@@ -16,6 +16,7 @@ use Smarty;
 use Phyxo\Template\TemplateAdapter;
 use Phyxo\Template\ScriptLoader;
 use Phyxo\Template\CssLoader;
+use Phyxo\Image\ImageStdParams;
 
 class Template
 {
@@ -617,7 +618,7 @@ class Template
     {
         !empty($params['name']) or fatal_error('define_derivative missing name');
         if (isset($params['type'])) {
-            $derivative = \ImageStdParams::get_by_type($params['type']);
+            $derivative = ImageStdParams::get_by_type($params['type']);
             $smarty->assign($params['name'], $derivative);
             return;
         }
@@ -645,7 +646,7 @@ class Template
             }
         }
 
-        $smarty->assign($params['name'], \ImageStdParams::get_custom($w, $h, $crop, $minw, $minh));
+        $smarty->assign($params['name'], ImageStdParams::get_custom($w, $h, $crop, $minw, $minh));
     }
 
     public function func_asset($params, $smarty)

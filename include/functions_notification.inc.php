@@ -492,7 +492,7 @@ function get_html_description_recent_post_date($date_detail)
         . '</li><br>';
 
     foreach ($date_detail['elements'] as $element) {
-        $tn_src = DerivativeImage::thumb_url($element);
+        $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element);
         $description .= '<a href="' .
             \Phyxo\Functions\URL::make_picture_url(array(
             'image_id' => $element['id'],

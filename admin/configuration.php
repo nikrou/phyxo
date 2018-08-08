@@ -255,7 +255,7 @@ if (isset($_POST['submit'])) {
 
 // restore default derivatives settings
 if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings' == $_GET['action']) {
-    ImageStdParams::set_and_save(ImageStdParams::get_default_sizes());
+    \Phyxo\Image\ImageStdParams::set_and_save(\Phyxo\Image\ImageStdParams::get_default_sizes());
     conf_delete_param('disabled_derivatives');
     clear_derivative_cache();
 
@@ -423,7 +423,7 @@ switch ($page['section']) {
                 }
 
         // derivatives = multiple size
-                $enabled = ImageStdParams::get_defined_type_map();
+                $enabled = \Phyxo\Image\ImageStdParams::get_defined_type_map();
                 if (!empty($conf['disabled_derivatives'])) {
                     $disabled = unserialize($conf['disabled_derivatives']);
                 } else {
@@ -431,7 +431,7 @@ switch ($page['section']) {
                 }
 
                 $tpl_vars = array();
-                foreach (ImageStdParams::get_all_types() as $type) {
+                foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
                     $tpl_var = array();
 
                     $tpl_var['must_square'] = ($type == IMG_SQUARE ? true : false);
@@ -456,11 +456,11 @@ switch ($page['section']) {
                     $tpl_vars[$type] = $tpl_var;
                 }
                 $template->assign('derivatives', $tpl_vars);
-                $template->assign('resize_quality', ImageStdParams::$quality);
+                $template->assign('resize_quality', \Phyxo\Image\ImageStdParams::$quality);
 
                 $tpl_vars = array();
                 $now = time();
-                foreach (ImageStdParams::$custom as $custom => $time) {
+                foreach (\Phyxo\Image\ImageStdParams::$custom as $custom => $time) {
                     $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? \Phyxo\Functions\Language::l10n('today') : time_since($time, 'day');
                 }
                 $template->assign('custom_derivatives', $tpl_vars);
@@ -487,7 +487,7 @@ switch ($page['section']) {
             $template->assign('watermark_files', $watermark_filemap);
 
             if ($template->get_template_vars('watermark') === null) {
-                $wm = ImageStdParams::get_watermark();
+                $wm = \Phyxo\Image\ImageStdParams::get_watermark();
 
                 $position = 'custom';
                 if ($wm->xpos == 0 and $wm->ypos == 0) {

@@ -11,6 +11,8 @@
 
 namespace Phyxo\Model\Repository;
 
+use Phyxo\Image\DerivativeImage;
+
 class Tags extends BaseRepository
 {
     protected $conn;
@@ -54,7 +56,7 @@ class Tags extends BaseRepository
         $result = $this->conn->db_query($query);
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
-            $row['thumb_src'] = \DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
+            $row['thumb_src'] = DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;

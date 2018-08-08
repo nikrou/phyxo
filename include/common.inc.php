@@ -92,7 +92,7 @@ if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     }
 }
 
-ImageStdParams::load_from_db();
+\Phyxo\Image\ImageStdParams::load_from_db();
 
 if (isset($conf['session_save_handler']) && ($conf['session_save_handler'] == 'db') && defined('PHPWG_INSTALLED')) {
     session_set_save_handler(new SessionDbHandler($conn), true);

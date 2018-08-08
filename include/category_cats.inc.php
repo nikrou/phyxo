@@ -140,7 +140,7 @@ if (count($categories) > 0) {
     }
 
     foreach ($infos_of_image as &$info) {
-        $info['src_image'] = new SrcImage($info);
+        $info['src_image'] = new \Phyxo\Image\SrcImage($info);
     }
     unset($info);
 }
@@ -242,7 +242,7 @@ if (count($categories) > 0) {
         $conf['nb_categories_page']
     );
 
-    $derivative_params = trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(IMG_THUMB));
+    $derivative_params = trigger_change('get_index_album_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
     $tpl_thumbnails_var_selection = trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
     $template->assign(array(
         'maxRequests' => $conf['max_requests'],

@@ -24,7 +24,7 @@ if (isset($page['category'])) {
 
 
 if (!empty($_GET['display'])) {
-    if (array_key_exists($_GET['display'], ImageStdParams::get_defined_type_map())) {
+    if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
         $_SESSION['picture_deriv'] = $_GET['display'];
     }
 }
@@ -131,7 +131,7 @@ function default_picture_content($content, $element_info)
     }
 
     if (isset($_COOKIE['picture_deriv'])) {
-        if (array_key_exists($_COOKIE['picture_deriv'], ImageStdParams::get_defined_type_map())) {
+        if (array_key_exists($_COOKIE['picture_deriv'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
             $_SESSION['picture_deriv'] = $_COOKIE['picture_deriv'];
         }
         setcookie('picture_deriv', false, 0, cookie_path());
@@ -146,7 +146,7 @@ function default_picture_content($content, $element_info)
         if ($type == IMG_SQUARE || $type == IMG_THUMB) {
             continue;
         }
-        if (!array_key_exists($type, ImageStdParams::get_defined_type_map())) {
+        if (!array_key_exists($type, \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
             continue;
         }
         $url = $derivative->get_url();
@@ -397,8 +397,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $i = 'current';
     }
 
-    $row['src_image'] = new SrcImage($row);
-    $row['derivatives'] = DerivativeImage::get_all($row['src_image']);
+    $row['src_image'] = new \Phyxo\Image\SrcImage($row);
+    $row['derivatives'] = \Phyxo\Image\DerivativeImage::get_all($row['src_image']);
 
     if ($i == 'current') {
         $row['element_path'] = get_element_path($row);

@@ -20,20 +20,21 @@ use Phyxo\Ws\Server;
  *    @option int max_urls
  *    @option int prev_page (optional)
  */
-function ws_getMissingDerivatives($params, &$service) {
+function ws_getMissingDerivatives($params, &$service)
+{
     global $conf, $conn;
 
     if (empty($params['types'])) {
-        $types = array_keys(ImageStdParams::get_defined_type_map());
+        $types = array_keys(\Phyxo\Image\ImageStdParams::get_defined_type_map());
     } else {
-        $types = array_intersect(array_keys(ImageStdParams::get_defined_type_map()), $params['types']);
-        if (count($types)==0) {
+        $types = array_intersect(array_keys(\Phyxo\Image\ImageStdParams::get_defined_type_map()), $params['types']);
+        if (count($types) == 0) {
             return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, "Invalid types");
         }
     }
 
     $max_urls = $params['max_urls'];
-    $query = 'SELECT MAX(id)+1, COUNT(1) FROM '. IMAGES_TABLE;
+    $query = 'SELECT MAX(id)+1, COUNT(1) FROM ' . IMAGES_TABLE;
     list($max_id, $image_count) = $conn->db_fetch_row($conn->db_query($query));
 
     if (0 == $image_count) {
@@ -41,25 +42,25 @@ function ws_getMissingDerivatives($params, &$service) {
     }
 
     $start_id = $params['prev_page'];
-    if ($start_id<=0) {
+    if ($start_id <= 0) {
         $start_id = $max_id;
     }
 
-    $uid = '&b='.time();
+    $uid = '&b=' . time();
 
     $conf['question_mark_in_urls'] = $conf['php_extension_in_urls'] = true;
     $conf['derivative_url_style'] = 2; //script
 
-    $qlimit = min(5000, ceil(max($image_count/500, $max_urls/count($types))));
-    $where_clauses = ws_std_image_sql_filter( $params, '' );
+    $qlimit = min(5000, ceil(max($image_count / 500, $max_urls / count($types))));
+    $where_clauses = ws_std_image_sql_filter($params, '');
     $where_clauses[] = 'id<start_id';
 
     if (!empty($params['ids'])) {
-        $where_clauses[] = 'id '.$conn->in($params['ids']);
+        $where_clauses[] = 'id ' . $conn->in($params['ids']);
     }
 
-    $query_model = 'SELECT id, path, representative_ext, width, height, rotation FROM '. IMAGES_TABLE;
-    $query_model .= ' WHERE '. implode(' AND ', $where_clauses) .' ORDER BY id DESC LIMIT '. $qlimit;
+    $query_model = 'SELECT id, path, representative_ext, width, height, rotation FROM ' . IMAGES_TABLE;
+    $query_model .= ' WHERE ' . implode(' AND ', $where_clauses) . ' ORDER BY id DESC LIMIT ' . $qlimit;
 
     $urls = array();
     do {
@@ -68,29 +69,29 @@ function ws_getMissingDerivatives($params, &$service) {
 
         while ($row = $conn->db_fetch_assoc($result)) {
             $start_id = $row['id'];
-            $src_image = new SrcImage($row);
+            $src_image = new \Phyxo\Image\SrcImage($row);
             if ($src_image->is_mimetype()) {
                 continue;
             }
 
-            foreach($types as $type) {
-                $derivative = new DerivativeImage($type, $src_image);
+            foreach ($types as $type) {
+                $derivative = new \Phyxo\Image\DerivativeImage($type, $src_image);
                 if ($type != $derivative->get_type()) {
                     continue;
                 }
-                if (@filemtime($derivative->get_path())===false) {
-                    $urls[] = $derivative->get_url().$uid;
+                if (@filemtime($derivative->get_path()) === false) {
+                    $urls[] = $derivative->get_url() . $uid;
                 }
             }
 
-            if (count($urls)>=$max_urls and !$is_last) {
+            if (count($urls) >= $max_urls and !$is_last) {
                 break;
             }
         }
         if ($is_last) {
             $start_id = 0;
         }
-    } while (count($urls)<$max_urls and $start_id);
+    } while (count($urls) < $max_urls and $start_id);
 
     $ret = array();
     if ($start_id) {
@@ -105,7 +106,8 @@ function ws_getMissingDerivatives($params, &$service) {
  * Returns Phyxo version
  * @param mixed[] $params
  */
-function ws_getVersion($params, &$service) {
+function ws_getVersion($params, &$service)
+{
     return PHPWG_VERSION;
 }
 
@@ -114,50 +116,51 @@ function ws_getVersion($params, &$service) {
  * Returns general informations about the installation
  * @param mixed[] $params
  */
-function ws_getInfos($params, &$service) {
+function ws_getInfos($params, &$service)
+{
     global $conn;
 
     $infos['version'] = PHPWG_VERSION;
 
-    $query = 'SELECT COUNT(1) FROM '.IMAGES_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
     list($infos['nb_elements']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ';';
     list($infos['nb_categories']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE.' WHERE dir IS NULL;';
+    $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL;';
     list($infos['nb_virtual']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.CATEGORIES_TABLE.' WHERE dir IS NOT NULL;';
+    $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL;';
     list($infos['nb_physical']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.IMAGE_CATEGORY_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE . ';';
     list($infos['nb_image_category']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.TAGS_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . TAGS_TABLE . ';';
     list($infos['nb_tags']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.IMAGE_TAG_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE . ';';
     list($infos['nb_image_tag']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.USERS_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . USERS_TABLE . ';';
     list($infos['nb_users']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.GROUPS_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE . ';';
     list($infos['nb_groups']) = $conn->db_fetch_row($conn->db_query($query));
 
-    $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.';';
+    $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ';';
     list($infos['nb_comments']) = $conn->db_fetch_row($conn->db_query($query));
 
     // first element
     if ($infos['nb_elements'] > 0) {
-        $query = 'SELECT MIN(date_available) FROM '.IMAGES_TABLE.';';
+        $query = 'SELECT MIN(date_available) FROM ' . IMAGES_TABLE . ';';
         list($infos['first_date']) = $conn->db_fetch_row($conn->db_query($query));
     }
 
     // unvalidated comments
     if ($infos['nb_comments'] > 0) {
-        $query = 'SELECT COUNT(1) FROM '.COMMENTS_TABLE.' WHERE validated=\''.$conn->boolean_to_db(false).'\'';
+        $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ' WHERE validated=\'' . $conn->boolean_to_db(false) . '\'';
         list($infos['nb_unvalidated_comments']) = $conn->db_fetch_row($conn->db_query($query));
     }
 
@@ -177,12 +180,13 @@ function ws_getInfos($params, &$service) {
  * @param mixed[] $params
  *    @option int[] image_id
  */
-function ws_caddie_add($params, &$service) {
+function ws_caddie_add($params, &$service)
+{
     global $user, $conn;
 
-    $query = 'SELECT id FROM '. IMAGES_TABLE;
-    $query .= ' LEFT JOIN '. CADDIE_TABLE .' ON id=element_id AND user_id='. $user['id'];
-    $query .= ' WHERE id '.$conn->in($params['image_id']).' AND element_id IS NULL';
+    $query = 'SELECT id FROM ' . IMAGES_TABLE;
+    $query .= ' LEFT JOIN ' . CADDIE_TABLE . ' ON id=element_id AND user_id=' . $user['id'];
+    $query .= ' WHERE id ' . $conn->in($params['image_id']) . ' AND element_id IS NULL';
     $result = $conn->query2array($query, null, 'id');
 
     $datas = array();
@@ -195,7 +199,7 @@ function ws_caddie_add($params, &$service) {
     if (count($datas)) {
         $conn->mass_inserts(
             CADDIE_TABLE,
-            array('element_id','user_id'),
+            array('element_id', 'user_id'),
             $datas
         );
     }
@@ -210,21 +214,22 @@ function ws_caddie_add($params, &$service) {
  *    @option int user_id
  *    @option string anonymous_id (optional)
  */
-function ws_rates_delete($params, &$service) {
+function ws_rates_delete($params, &$service)
+{
     global $conn;
 
-    $query = 'DELETE FROM '. RATE_TABLE .' WHERE user_id='. $conn->db_real_escape_string($params['user_id']);
+    $query = 'DELETE FROM ' . RATE_TABLE . ' WHERE user_id=' . $conn->db_real_escape_string($params['user_id']);
 
     if (!empty($params['anonymous_id'])) {
-        $query .= ' AND anonymous_id=\''.$conn->db_real_escape_string($params['anonymous_id']).'\'';
+        $query .= ' AND anonymous_id=\'' . $conn->db_real_escape_string($params['anonymous_id']) . '\'';
     }
     if (!empty($params['image_id'])) {
-        $query .= ' AND element_id='.$conn->db_real_escape_string($params['image_id']);
+        $query .= ' AND element_id=' . $conn->db_real_escape_string($params['image_id']);
     }
 
     $changes = $conn->db_changes($conn->db_query($query));
     if ($changes) {
-        include_once(PHPWG_ROOT_PATH.'include/functions_rate.inc.php');
+        include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
         update_rating_score();
     }
 
@@ -238,7 +243,8 @@ function ws_rates_delete($params, &$service) {
  *    @option string username
  *    @option string password
  */
-function ws_session_login($params, &$service) {
+function ws_session_login($params, &$service)
+{
     global $conn, $services;
 
     if ($services['users']->tryLogUser($params['username'], $params['password'], false)) {
@@ -254,7 +260,8 @@ function ws_session_login($params, &$service) {
  * Performs a logout
  * @param mixed[] $params
  */
-function ws_session_logout($params, &$service) {
+function ws_session_logout($params, &$service)
+{
     global $services;
 
     if (!$services['users']->isGuest()) {
@@ -269,11 +276,12 @@ function ws_session_logout($params, &$service) {
  * Returns info about the current user
  * @param mixed[] $params
  */
-function ws_session_getStatus($params, &$service) {
+function ws_session_getStatus($params, &$service)
+{
     global $user, $conf, $conn, $services;
 
     $res['username'] = $services['users']->isGuest() ? 'guest' : stripslashes($user['username']);
-    foreach ( array('status', 'theme', 'language') as $k ) {
+    foreach (array('status', 'theme', 'language') as $k) {
         $res[$k] = $user[$k];
     }
     $res['pwg_token'] = get_pwg_token();
