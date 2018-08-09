@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', '../../');
+define('PHPWG_ROOT_PATH', './');
 define('IN_WS', true);
 
 use Phyxo\Ws\Server;

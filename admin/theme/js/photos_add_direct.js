@@ -1,4 +1,7 @@
 $(function() {
+    $('#uploadedPhotos')
+        .parent()
+        .hide();
     $('#uploadWarningsSummary a.showInfo').click(function() {
         $('#uploadWarningsSummary').hide();
         $('#uploadWarnings').show();
@@ -62,7 +65,7 @@ $(function() {
                 $('#' + file.id).hide();
                 var data = $.parseJSON(info.response);
                 $('#uploadedPhotos')
-                    .parent('fieldset')
+                    .parent()
                     .show();
                 html = '<a href="./index.php?page=photo&image_id=' + data.result.image_id + '">';
                 html += '<img src="' + data.result.src + '" class="thumbnail" title="' + data.result.name + '" alt="">';
