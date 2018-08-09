@@ -41,7 +41,7 @@ if (isset($_POST['edit_submit'])) {
                 $updates[] = array(
                     'id' => $tag_id,
                     'name' => $tag_name,
-                    'url_name' => trigger_change('render_tag_url', $tag_name),
+                    'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
                 );
             }
         }
@@ -83,7 +83,7 @@ if (isset($_POST['duplic_submit'])) {
                     TAGS_TABLE,
                     array(
                         'name' => $tag_name,
-                        'url_name' => trigger_change('render_tag_url', $tag_name),
+                        'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
                     )
                 );
 
@@ -145,7 +145,7 @@ if (isset($_POST['merge_submit'])) {
             $query = 'SELECT id,name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($tag_ids);
             $result = $conn->db_query($query);
             while ($row = $conn->db_fetch_assoc($result)) {
-                $name_of_tag[$row['id']] = trigger_change('render_tag_name', $row['name'], $row);
+                $name_of_tag[$row['id']] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $row['name'], $row);
             }
 
             $tag_ids_to_delete = array_diff(
@@ -249,7 +249,7 @@ $orphan_tags = $services['tags']->getOrphanTags();
 
 $orphan_tag_names = array();
 foreach ($orphan_tags as $tag) {
-    $orphan_tag_names[] = trigger_change('render_tag_name', $tag['name'], $tag);
+    $orphan_tag_names[] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
 }
 
 if (count($orphan_tag_names) > 0) {
@@ -275,7 +275,7 @@ $result = $conn->db_query($query);
 $all_tags = array();
 while ($tag = $conn->db_fetch_assoc($result)) {
     $raw_name = $tag['name'];
-    $tag['name'] = trigger_change('render_tag_name', $raw_name, $tag);
+    $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $raw_name, $tag);
     if (empty($tag_counters[$tag['id']])) {
         $tag['counter'] = 0;
     } else {
@@ -284,7 +284,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     $tag['U_VIEW'] = \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)));
     $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-' . $tag['id'];
 
-    $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
+    $alt_names = \Phyxo\Functions\Plugin::trigger_change('get_tag_alt_names', array(), $raw_name);
     $alt_names = array_diff(array_unique($alt_names), array($tag['name']));
     if (count($alt_names)) {
         $tag['alt_names'] = implode(', ', $alt_names);

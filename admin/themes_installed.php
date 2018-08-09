@@ -145,4 +145,4 @@ $template->assign(
     )
 );
 
-trigger_notify('loc_end_themes_installed');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_themes_installed');

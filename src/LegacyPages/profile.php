@@ -29,7 +29,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
     $userdata = $user;
 
-    trigger_notify('loc_begin_profile');
+    \Phyxo\Functions\Plugin::trigger_notify('loc_begin_profile');
 
     // Reset to default (Guest) custom settings
     if (isset($_POST['reset_to_default'])) {
@@ -66,7 +66,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     }
 
     include(PHPWG_ROOT_PATH . 'include/page_header.php');
-    trigger_notify('loc_end_profile');
+    \Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
     flush_page_messages();
     include(PHPWG_ROOT_PATH . 'include/page_tail.php');
     $template->pparse('profile');
@@ -231,7 +231,7 @@ function save_profile_from_post($userdata, &$errors)
                 array($data)
             );
         }
-        trigger_notify('save_profile_from_post', $userdata['id']);
+        \Phyxo\Functions\Plugin::trigger_notify('save_profile_from_post', $userdata['id']);
 
         if (!empty($_POST['redirect'])) {
             redirect($_POST['redirect']);
@@ -294,7 +294,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     $template->assign('IN_ADMIN', defined('IN_ADMIN'));
 
     // allow plugins to add their own form data to content
-    trigger_notify('load_profile_in_template', $userdata);
+    \Phyxo\Functions\Plugin::trigger_notify('load_profile_in_template', $userdata);
 
     $template->assign('PWG_TOKEN', get_pwg_token());
 }

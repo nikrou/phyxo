@@ -185,7 +185,7 @@ function ws_users_getList($params, &$service)
         }
     }
 
-    $users = trigger_change('ws_users_getList', $users);
+    $users = \Phyxo\Functions\Plugin::trigger_change('ws_users_getList', $users);
 
     return array(
         'paging' => new Phyxo\Ws\NamedStruct(

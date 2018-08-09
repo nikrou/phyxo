@@ -18,7 +18,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_FREE);
 
-trigger_notify('loc_begin_identification');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_identification');
 
 //-------------------------------------------------------------- identification
 $redirect_to = '';
@@ -81,7 +81,7 @@ if (!$conf['gallery_locked']
 
 //----------------------------------------------------------- html code display
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_identification');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_identification');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('identification');

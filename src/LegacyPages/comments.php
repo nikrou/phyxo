@@ -68,7 +68,7 @@ $since_options = array(
     4 => array('label' => \Phyxo\Functions\Language::l10n('the beginning'), 'clause' => '1=1') // stupid but generic
 );
 
-trigger_notify('loc_begin_comments');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_comments');
 
 if (!empty($_GET['since']) && is_numeric($_GET['since'])) {
     $page['since'] = $_GET['since'];
@@ -386,10 +386,10 @@ if (count($comments) > 0) {
             'U_PICTURE' => $url,
             'src_image' => $src_image,
             'ALT' => $name,
-            'AUTHOR' => trigger_change('render_comment_author', $comment['author']),
+            'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $comment['author']),
             'WEBSITE_URL' => $comment['website_url'],
             'DATE' => format_date($comment['date'], array('day_name', 'day', 'month', 'year', 'time')),
-            'CONTENT' => trigger_change('render_comment_content', $comment['content']),
+            'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $comment['content']),
         );
 
         if ($services['users']->isAdmin()) {
@@ -440,7 +440,7 @@ if (count($comments) > 0) {
     }
 }
 
-$derivative_params = trigger_change('get_comments_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
+$derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
 $template->assign('derivative_params', $derivative_params);
 
 // include menubar
@@ -453,7 +453,7 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theCommentsPage', $themecon
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_comments');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_comments');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('comments');

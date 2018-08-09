@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Phyxo\Search\QSearchScope;
 use Phyxo\Search\QExpression;
@@ -36,14 +23,15 @@ use Phyxo\Search\QResults;
  * @param int $search_id
  * @return array
  */
-function get_search_array($search_id) {
+function get_search_array($search_id)
+{
     global $conn;
 
     if (!is_numeric($search_id)) {
         die('Search id must be an integer');
     }
 
-    $query = 'SELECT rules FROM '.SEARCH_TABLE.' WHERE id = '.$conn->db_real_escape_string($search_id);
+    $query = 'SELECT rules FROM ' . SEARCH_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($search_id);
     list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
 
     return unserialize($serialized_rules); // @TODO: remove unserialize
@@ -56,28 +44,29 @@ function get_search_array($search_id) {
  * @param array $search
  * @return string
  */
-function get_sql_search_clause($search) {
+function get_sql_search_clause($search)
+{
     global $conn;
 
     // SQL where clauses are stored in $clauses array during query
     // construction
     $clauses = array();
 
-    foreach (array('file','name','comment','author') as $textfield) {
+    foreach (array('file', 'name', 'comment', 'author') as $textfield) {
         if (isset($search['fields'][$textfield])) {
             $local_clauses = array();
             foreach ($search['fields'][$textfield]['words'] as $word) {
-                if ($textfield=='author') {
-                    $local_clauses[] = $textfield." = '".$conn->db_real_escape_string($word)."'";
+                if ($textfield == 'author') {
+                    $local_clauses[] = $textfield . " = '" . $conn->db_real_escape_string($word) . "'";
                 } else {
-                    $local_clauses[] = $textfield." LIKE '%".$conn->db_real_escape_string($word)."%'";
+                    $local_clauses[] = $textfield . " LIKE '%" . $conn->db_real_escape_string($word) . "%'";
                 }
             }
 
             // adds brackets around where clauses
             $local_clauses = prepend_append_array_items($local_clauses, '(', ')');
 
-            $clauses[] = implode(' '.$search['fields'][$textfield]['mode'].' ', $local_clauses);
+            $clauses[] = implode(' ' . $search['fields'][$textfield]['mode'] . ' ', $local_clauses);
         }
     }
 
@@ -99,7 +88,7 @@ function get_sql_search_clause($search) {
         foreach ($search['fields']['allwords']['words'] as $word) {
             $field_clauses = array();
             foreach ($fields as $field) {
-                $field_clauses[] = $field." LIKE '%".$conn->db_real_escape_string($word)."%'";
+                $field_clauses[] = $field . " LIKE '%" . $conn->db_real_escape_string($word) . "%'";
             }
             // adds brackets around where clauses
             $word_clauses[] = implode(' OR ', $field_clauses);
@@ -107,7 +96,9 @@ function get_sql_search_clause($search) {
 
         array_walk(
             $word_clauses,
-            function(&$s) { $s = '('.$s.')';}
+            function (&$s) {
+                $s = '(' . $s . ')';
+            }
         );
 
         // make sure the "mode" is either OR or AND
@@ -115,20 +106,20 @@ function get_sql_search_clause($search) {
             $search['fields']['allwords']['mode'] = 'AND';
         }
 
-        $clauses[] = ' '.implode(' '.$search['fields']['allwords']['mode'].' ', $word_clauses);
+        $clauses[] = ' ' . implode(' ' . $search['fields']['allwords']['mode'] . ' ', $word_clauses);
     }
 
     foreach (array('date_available', 'date_creation') as $datefield) {
         if (isset($search['fields'][$datefield])) {
-            $clauses[] = $datefield." = '".$search['fields'][$datefield]['date']."'";
+            $clauses[] = $datefield . " = '" . $search['fields'][$datefield]['date'] . "'";
         }
 
-        foreach (array('after','before') as $suffix) {
-            $key = $datefield.'-'.$suffix;
+        foreach (array('after', 'before') as $suffix) {
+            $key = $datefield . '-' . $suffix;
 
             if (isset($search['fields'][$key])) {
-                $clauses[] = $datefield.($suffix == 'after' ? ' >' : ' <'). ($search['fields'][$key]['inc'] ? '='  : '').
-                    " '".$search['fields'][$key]['date']."'";
+                $clauses[] = $datefield . ($suffix == 'after' ? ' >' : ' <') . ($search['fields'][$key]['inc'] ? '=' : '') .
+                    " '" . $search['fields'][$key]['date'] . "'";
             }
         }
     }
@@ -141,14 +132,14 @@ function get_sql_search_clause($search) {
             $cat_ids = $search['fields']['cat']['words'];
         }
 
-        $local_clause = 'category_id '.$conn->in($cat_ids);
+        $local_clause = 'category_id ' . $conn->in($cat_ids);
         $clauses[] = $local_clause;
     }
 
     // adds brackets around where clauses
     $clauses = prepend_append_array_items($clauses, '(', ')');
 
-    $where_separator = implode(' '.$search['mode'].' ', $clauses);
+    $where_separator = implode(' ' . $search['mode'] . ' ', $clauses);
 
     $search_clause = $where_separator;
 
@@ -162,7 +153,8 @@ function get_sql_search_clause($search) {
  * @param string $images_where optional additional restriction on images table
  * @return array
  */
-function get_regular_search_results($search, $images_where='') {
+function get_regular_search_results($search, $images_where = '')
+{
     global $conf, $conn, $services;
 
     $forbidden = get_sql_condition_FandF(
@@ -177,74 +169,74 @@ function get_regular_search_results($search, $images_where='') {
     $items = array();
     $tag_items = array();
 
-  if (isset($search['fields']['tags'])) {
-      $tag_items = $services['tags']->getImageIdsForTags(
-          $search['fields']['tags']['words'],
-          $search['fields']['tags']['mode']
-      );
-  }
+    if (isset($search['fields']['tags'])) {
+        $tag_items = $services['tags']->getImageIdsForTags(
+            $search['fields']['tags']['words'],
+            $search['fields']['tags']['mode']
+        );
+    }
 
-  $search_clause = get_sql_search_clause($search);
+    $search_clause = get_sql_search_clause($search);
 
-  if (!empty($search_clause)) {
-      $query = 'SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']);
-      $query .= ' FROM '.IMAGES_TABLE.' AS i';
-      $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
-      $query .= ' WHERE '.$search_clause;
+    if (!empty($search_clause)) {
+        $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']);
+        $query .= ' FROM ' . IMAGES_TABLE . ' AS i';
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
+        $query .= ' WHERE ' . $search_clause;
 
-      if (!empty($images_where)) {
-          $query .= ' AND '.$images_where;
-      }
-      $query .= $forbidden.' '.$conf['order_by'];
-      $items = $conn->query2array($query, null, 'id');
-  }
+        if (!empty($images_where)) {
+            $query .= ' AND ' . $images_where;
+        }
+        $query .= $forbidden . ' ' . $conf['order_by'];
+        $items = $conn->query2array($query, null, 'id');
+    }
 
-  if (!empty($tag_items)) {
-      switch ($search['mode'])
-          {
-          case 'AND':
-              if (empty($search_clause)) {
-                  $items = $tag_items;
-              } else {
-                  $items = array_values(array_intersect($items, $tag_items));
-              }
-              break;
-          case 'OR':
-              $before_count = count($items);
-              $items = array_unique(
-                  array_merge(
-                      $items,
-                      $tag_items
-                  )
-              );
-              break;
-          }
-  }
+    if (!empty($tag_items)) {
+        switch ($search['mode']) {
+            case 'AND':
+                if (empty($search_clause)) {
+                    $items = $tag_items;
+                } else {
+                    $items = array_values(array_intersect($items, $tag_items));
+                }
+                break;
+            case 'OR':
+                $before_count = count($items);
+                $items = array_unique(
+                    array_merge(
+                        $items,
+                        $tag_items
+                    )
+                );
+                break;
+        }
+    }
 
-  return $items;
+    return $items;
 }
 
-function qsearch_get_text_token_search_sql($token, $fields) {
+function qsearch_get_text_token_search_sql($token, $fields)
+{
     global $conn;
 
     $clauses = array();
     $variants = array_merge(array($token->term), $token->variants);
     $fts = array();
     foreach ($variants as $variant) {
-        $use_ft = mb_strlen($variant)>3;
+        $use_ft = mb_strlen($variant) > 3;
         if ($token->modifier & QSearchScope::QST_WILDCARD_BEGIN) {
             $use_ft = false;
         }
-        if ($token->modifier & (QSearchScope::QST_QUOTED|QSearchScope::QST_WILDCARD_END) == (QSearchScope::QST_QUOTED|QSearchScope::QST_WILDCARD_END)) {
+        if ($token->modifier & (QSearchScope::QST_QUOTED | QSearchScope::QST_WILDCARD_END) == (QSearchScope::QST_QUOTED | QSearchScope::QST_WILDCARD_END)) {
             $use_ft = false;
         }
 
         if ($use_ft) {
             $max = max(array_map(
                 'mb_strlen',
-                preg_split('/['.preg_quote('-\'!"#$%&()*+,./:;<=>?@[\]^`{|}~','/').']+/', $variant))
-            );
-            if ($max<4) {
+                preg_split('/[' . preg_quote('-\'!"#$%&()*+,./:;<=>?@[\]^`{|}~', '/') . ']+/', $variant)
+            ));
+            if ($max < 4) {
                 $use_ft = false;
             }
         }
@@ -253,13 +245,13 @@ function qsearch_get_text_token_search_sql($token, $fields) {
         if (!$use_ft) {
             $pre = ($token->modifier & QSearchScope::QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
             $post = ($token->modifier & QSearchScope::QST_WILDCARD_END) ? '' : '[[:>:]]';
-            foreach( $fields as $field) {
-                $clauses[] = $field.' '.$conn::REGEX_OPERATOR.' \''.$pre.$conn->db_real_escape_string(preg_quote($variant)).$post.'\'';
+            foreach ($fields as $field) {
+                $clauses[] = $field . ' ' . $conn::REGEX_OPERATOR . ' \'' . $pre . $conn->db_real_escape_string(preg_quote($variant)) . $post . '\'';
             }
         } else {
             $ft = $variant;
             if ($token->modifier & QSearchScope::QST_QUOTED) {
-                $ft = '"'.$ft.'"';
+                $ft = '"' . $ft . '"';
             }
             if ($token->modifier & QSearchScope::QST_WILDCARD_END) {
                 $ft .= '*';
@@ -275,26 +267,26 @@ function qsearch_get_text_token_search_sql($token, $fields) {
     return $clauses;
 }
 
-function qsearch_get_images(QExpression $expr, QResults $qsr) {
+function qsearch_get_images(QExpression $expr, QResults $qsr)
+{
     global $conn;
 
     $qsr->images_iids = array_fill(0, count($expr->stokens), array());
 
-    $query_base = 'SELECT id from '.IMAGES_TABLE.' i WHERE ';
-    for ($i=0; $i<count($expr->stokens); $i++) {
+    $query_base = 'SELECT id from ' . IMAGES_TABLE . ' i WHERE ';
+    for ($i = 0; $i < count($expr->stokens); $i++) {
         $token = $expr->stokens[$i];
         $scope_id = isset($token->scope) ? $token->scope->id : 'photo';
         $clauses = array();
 
         $like = $conn->db_real_escape_string($token->term);
-        $like = str_replace( array('%','_'), array('\\%','\\_'), $like); // escape LIKE specials %_
-        $file_like = 'file LIKE \'%'.$like.'%\'';
+        $like = str_replace(array('%', '_'), array('\\%', '\\_'), $like); // escape LIKE specials %_
+        $file_like = 'file LIKE \'%' . $like . '%\'';
 
-        switch ($scope_id)
-            {
+        switch ($scope_id) {
             case 'photo':
                 $clauses[] = $file_like;
-                $clauses = array_merge($clauses, qsearch_get_text_token_search_sql($token, array('name','comment')));
+                $clauses = array_merge($clauses, qsearch_get_text_token_search_sql($token, array('name', 'comment')));
                 break;
 
             case 'file':
@@ -331,23 +323,24 @@ function qsearch_get_images(QExpression $expr, QResults $qsr) {
 
             default:
                 // allow plugins to have their own scope with columns added in db by themselves
-                $clauses = trigger_change('qsearch_get_images_sql_scopes', $clauses, $token, $expr);
+                $clauses = \Phyxo\Functions\Plugin::trigger_change('qsearch_get_images_sql_scopes', $clauses, $token, $expr);
                 break;
-            }
+        }
         if (!empty($clauses)) {
-            $query = $query_base.'('.implode(' OR ', $clauses).')';
-            $qsr->images_iids[$i] = $conn->query2array($query,null,'id');
+            $query = $query_base . '(' . implode(' OR ', $clauses) . ')';
+            $qsr->images_iids[$i] = $conn->query2array($query, null, 'id');
         }
     }
 }
 
-function qsearch_get_tags(QExpression $expr, QResults $qsr) {
+function qsearch_get_tags(QExpression $expr, QResults $qsr)
+{
     global $conn;
 
     $token_tag_ids = $qsr->tag_iids = array_fill(0, count($expr->stokens), array());
     $all_tags = array();
 
-    for ($i=0; $i<count($expr->stokens); $i++) {
+    for ($i = 0; $i < count($expr->stokens); $i++) {
         $token = $expr->stokens[$i];
         if (isset($token->scope) && 'tag' != $token->scope->id) {
             continue;
@@ -356,8 +349,8 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr) {
             continue;
         }
 
-        $clauses = qsearch_get_text_token_search_sql( $token, array('name'));
-        $query = 'SELECT * FROM '.TAGS_TABLE.' WHERE ('. implode("\n OR ",$clauses) .')';
+        $clauses = qsearch_get_text_token_search_sql($token, array('name'));
+        $query = 'SELECT * FROM ' . TAGS_TABLE . ' WHERE (' . implode("\n OR ", $clauses) . ')';
         $result = $conn->db_query($query);
         while ($tag = $conn->db_fetch_assoc($result)) {
             $token_tag_ids[$i][] = $tag['id'];
@@ -366,80 +359,81 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr) {
     }
 
     // check adjacent short words
-    for ($i=0; $i<count($expr->stokens)-1; $i++) {
-        if ((strlen($expr->stokens[$i]->term)<=3 || strlen($expr->stokens[$i+1]->term)<=3)
-        && (($expr->stoken_modifiers[$i] & (QSearchScope::QST_QUOTED|QSearchScope::QST_WILDCARD)) == 0)
-        && (($expr->stoken_modifiers[$i+1] & (QSearchScope::QST_BREAK|QSearchScope::QST_QUOTED|QSearchScope::QST_WILDCARD)) == 0)) {
-            $common = array_intersect( $token_tag_ids[$i], $token_tag_ids[$i+1] );
+    for ($i = 0; $i < count($expr->stokens) - 1; $i++) {
+        if ((strlen($expr->stokens[$i]->term) <= 3 || strlen($expr->stokens[$i + 1]->term) <= 3)
+            && (($expr->stoken_modifiers[$i] & (QSearchScope::QST_QUOTED | QSearchScope::QST_WILDCARD)) == 0)
+            && (($expr->stoken_modifiers[$i + 1] & (QSearchScope::QST_BREAK | QSearchScope::QST_QUOTED | QSearchScope::QST_WILDCARD)) == 0)) {
+            $common = array_intersect($token_tag_ids[$i], $token_tag_ids[$i + 1]);
             if (count($common)) {
-                $token_tag_ids[$i] = $token_tag_ids[$i+1] = $common;
+                $token_tag_ids[$i] = $token_tag_ids[$i + 1] = $common;
             }
         }
     }
 
     // get images
     $positive_ids = $not_ids = array();
-    for ($i=0; $i<count($expr->stokens); $i++) {
+    for ($i = 0; $i < count($expr->stokens); $i++) {
         $tag_ids = $token_tag_ids[$i];
         $token = $expr->stokens[$i];
 
         if (!empty($tag_ids)) {
-            $query = 'SELECT image_id FROM '.IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id '.$conn->in($tag_ids);
+            $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE;
+            $query .= ' WHERE tag_id ' . $conn->in($tag_ids);
             $query .= ' GROUP BY image_id';
             $qsr->tag_iids[$i] = $conn->query2array($query, null, 'image_id');
-            if ($expr->stoken_modifiers[$i]&QSearchScope::QST_NOT) {
+            if ($expr->stoken_modifiers[$i] & QSearchScope::QST_NOT) {
                 $not_ids = array_merge($not_ids, $tag_ids);
             } else {
-                if (strlen($token->term)>2 || count($expr->stokens)==1
-                || isset($token->scope) || ($token->modifier&(QSearchScope::QST_WILDCARD|QSearchScope::QST_QUOTED))) {
+                if (strlen($token->term) > 2 || count($expr->stokens) == 1
+                    || isset($token->scope) || ($token->modifier & (QSearchScope::QST_WILDCARD | QSearchScope::QST_QUOTED))) {
                     // add tag ids to list only if the word is not too short (such as de / la /les ...)
                     $positive_ids = array_merge($positive_ids, $tag_ids);
                 }
             }
-        } elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term)==0) {
+        } elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term) == 0) {
             if ($token->modifier & QSearchScope::QST_WILDCARD) { // eg. 'tag:*' returns all tagged images
-                $qsr->tag_iids[$i] = $conn->query2array('SELECT DISTINCT image_id FROM '.IMAGE_TAG_TABLE, null, 'image_id');
+                $qsr->tag_iids[$i] = $conn->query2array('SELECT DISTINCT image_id FROM ' . IMAGE_TAG_TABLE, null, 'image_id');
             } else { // eg. 'tag:' returns all untagged images
-                $query = 'SELECT id FROM '.IMAGES_TABLE;
-                $query .= ' LEFT JOIN '.IMAGE_TAG_TABLE.' ON id=image_id WHERE image_id IS NULL';
+                $query = 'SELECT id FROM ' . IMAGES_TABLE;
+                $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' ON id=image_id WHERE image_id IS NULL';
                 $qsr->tag_iids[$i] = $conn->query2array($query, null, 'id');
             }
         }
     }
 
-    $all_tags = array_intersect_key($all_tags, array_flip( array_diff($positive_ids, $not_ids) ) );
+    $all_tags = array_intersect_key($all_tags, array_flip(array_diff($positive_ids, $not_ids)));
     usort($all_tags, 'tag_alpha_compare');
-    foreach ( $all_tags as &$tag) {
-        $tag['name'] = trigger_change('render_tag_name', $tag['name'], $tag);
+    foreach ($all_tags as &$tag) {
+        $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
     }
     $qsr->all_tags = $all_tags;
     $qsr->tag_ids = $token_tag_ids;
 }
 
-function qsearch_eval(QMultipleToken $expr, QResults $qsr, &$qualifies, &$ignored_terms) {
+function qsearch_eval(QMultipleToken $expr, QResults $qsr, &$qualifies, &$ignored_terms)
+{
     $qualifies = false; // until we find at least one positive term
     $ignored_terms = array();
 
     $ids = $not_ids = array();
 
-    for ($i=0; $i<count($expr->tokens); $i++) {
+    for ($i = 0; $i < count($expr->tokens); $i++) {
         $crt = $expr->tokens[$i];
         if ($crt->is_single) {
-            $crt_ids = $qsr->iids[$crt->idx] = array_unique( array_merge($qsr->images_iids[$crt->idx], $qsr->tag_iids[$crt->idx]));
-            $crt_qualifies = count($crt_ids)>0 || count($qsr->tag_ids[$crt->idx])>0;
-            $crt_ignored_terms = $crt_qualifies ? array() : array((string) $crt);
+            $crt_ids = $qsr->iids[$crt->idx] = array_unique(array_merge($qsr->images_iids[$crt->idx], $qsr->tag_iids[$crt->idx]));
+            $crt_qualifies = count($crt_ids) > 0 || count($qsr->tag_ids[$crt->idx]) > 0;
+            $crt_ignored_terms = $crt_qualifies ? array() : array((string)$crt);
         } else {
             $crt_ids = qsearch_eval($crt, $qsr, $crt_qualifies, $crt_ignored_terms);
         }
 
         $modifier = $crt->modifier;
         if ($modifier & QSearchScope::QST_NOT) {
-            $not_ids = array_unique( array_merge($not_ids, $crt_ids));
+            $not_ids = array_unique(array_merge($not_ids, $crt_ids));
         } else {
             $ignored_terms = array_merge($ignored_terms, $crt_ignored_terms);
             if ($modifier & QSearchScope::QST_OR) {
-                $ids = array_unique( array_merge($ids, $crt_ids) );
+                $ids = array_unique(array_merge($ids, $crt_ids));
                 $qualifies |= $crt_qualifies;
             } elseif ($crt_qualifies) {
                 if ($qualifies) {
@@ -479,14 +473,15 @@ function qsearch_eval(QMultipleToken $expr, QResults $qsr, &$qualifies, &$ignore
  * @param string $images_where optional additional restriction on images table
  * @return array
  */
-function get_quick_search_results($q, $options) {
+function get_quick_search_results($q, $options)
+{
     global $persistent_cache, $conf, $user;
 
     $cache_key = $persistent_cache->make_key(
         array(
             strtolower($q),
             $conf['order_by'],
-            $user['id'],$user['cache_update_time'],
+            $user['id'], $user['cache_update_time'],
             isset($options['permissions']) ? (boolean)$options['permissions'] : true,
             isset($options['images_where']) ? $options['images_where'] : '',
         )
@@ -507,7 +502,8 @@ function get_quick_search_results($q, $options) {
 /**
  * @see get_quick_search_results but without result caching
  */
-function get_quick_search_results_no_cache($q, $options) {
+function get_quick_search_results_no_cache($q, $options)
+{
     global $conf, $template, $conn, $services;
 
     $q = trim(stripslashes($q));
@@ -516,7 +512,7 @@ function get_quick_search_results_no_cache($q, $options) {
         'qs' => array('q' => $q)
     );
 
-    $q = trigger_change('qsearch_pre', $q);
+    $q = \Phyxo\Functions\Plugin::trigger_change('qsearch_pre', $q);
 
     $scopes = array();
     $scopes[] = new QSearchScope('tag', array('tags'));
@@ -542,32 +538,32 @@ function get_quick_search_results_no_cache($q, $options) {
     $scopes[] = new QDateRangeScope('posted', $postedDateAliases);
 
     // allow plugins to add their own scopes
-    $scopes = trigger_change('qsearch_get_scopes', $scopes);
+    $scopes = \Phyxo\Functions\Plugin::trigger_change('qsearch_get_scopes', $scopes);
     $expression = new QExpression($q, $scopes);
 
     // get inflections for terms
     $inflector = null;
     $lang_code = substr($services['users']->getDefaultLanguage(), 0, 2);
-    @include_once(PHPWG_ROOT_PATH.'include/inflectors/'.$lang_code.'.php');
-    $class_name = 'Inflector_'.$lang_code;
+    @include_once(PHPWG_ROOT_PATH . 'include/inflectors/' . $lang_code . '.php');
+    $class_name = 'Inflector_' . $lang_code;
     if (class_exists($class_name)) {
         $inflector = new $class_name;
-        foreach( $expression->stokens as $token) {
+        foreach ($expression->stokens as $token) {
             if (isset($token->scope) && !$token->scope->is_text) {
                 continue;
             }
-            if (strlen($token->term)>2
-                && ($token->modifier & (QSearchScope::QST_QUOTED|QSearchScope::QST_WILDCARD))==0
+            if (strlen($token->term) > 2
+                && ($token->modifier & (QSearchScope::QST_QUOTED | QSearchScope::QST_WILDCARD)) == 0
                 && strcspn($token->term, '\'0123456789') == strlen($token->term)) {
-                $token->variants = array_unique( array_diff( $inflector->get_variants($token->term), array($token->term) ) );
+                $token->variants = array_unique(array_diff($inflector->get_variants($token->term), array($token->term)));
             }
         }
     }
 
 
-    trigger_notify('qsearch_expression_parsed', $expression);
+    \Phyxo\Functions\Plugin::trigger_notify('qsearch_expression_parsed', $expression);
 
-    if (count($expression->stokens)==0) {
+    if (count($expression->stokens) == 0) {
         return $search_results;
     }
     $qsr = new QResults;
@@ -575,26 +571,26 @@ function get_quick_search_results_no_cache($q, $options) {
     qsearch_get_images($expression, $qsr);
 
     // allow plugins to evaluate their own scopes
-    trigger_notify('qsearch_before_eval', $expression, $qsr);
+    \Phyxo\Functions\Plugin::trigger_notify('qsearch_before_eval', $expression, $qsr);
 
     $ids = qsearch_eval($expression, $qsr, $tmp, $search_results['qs']['unmatched_terms']);
 
-    $debug[] = "<!--\nparsed: ".$expression;
-    $debug[] = count($expression->stokens).' tokens';
-    for ($i=0; $i<count($expression->stokens); $i++) {
-        $debug[] = $expression->stokens[$i].': '.count($qsr->tag_ids[$i]).' tags, '.count($qsr->tag_iids[$i]).' tiids, '.count($qsr->images_iids[$i]).' iiids, '.count($qsr->iids[$i]).' iids'
-            .' modifier:'.dechex($expression->stoken_modifiers[$i])
-                         .( !empty($expression->stokens[$i]->variants) ? ' variants: '.implode(', ',$expression->stokens[$i]->variants): '');
+    $debug[] = "<!--\nparsed: " . $expression;
+    $debug[] = count($expression->stokens) . ' tokens';
+    for ($i = 0; $i < count($expression->stokens); $i++) {
+        $debug[] = $expression->stokens[$i] . ': ' . count($qsr->tag_ids[$i]) . ' tags, ' . count($qsr->tag_iids[$i]) . ' tiids, ' . count($qsr->images_iids[$i]) . ' iiids, ' . count($qsr->iids[$i]) . ' iids'
+            . ' modifier:' . dechex($expression->stoken_modifiers[$i])
+            . (!empty($expression->stokens[$i]->variants) ? ' variants: ' . implode(', ', $expression->stokens[$i]->variants) : '');
     }
-    $debug[] = 'before perms '.count($ids);
+    $debug[] = 'before perms ' . count($ids);
 
     $search_results['qs']['matching_tags'] = $qsr->all_tags;
-    $search_results = trigger_change('qsearch_results', $search_results, $expression, $qsr);
+    $search_results = \Phyxo\Functions\Plugin::trigger_change('qsearch_results', $search_results, $expression, $qsr);
 
     if (empty($ids)) {
         $debug[] = '-->';
         if ($template->smarty->debugging) {
-            $template->append('footer_elements', implode("\n", $debug) );
+            $template->append('footer_elements', implode("\n", $debug));
         }
         return $search_results;
     }
@@ -602,9 +598,9 @@ function get_quick_search_results_no_cache($q, $options) {
     $permissions = !isset($options['permissions']) ? true : $options['permissions'];
 
     $where_clauses = array();
-    $where_clauses[] = 'i.id '.$conn->in($ids);
+    $where_clauses[] = 'i.id ' . $conn->in($ids);
     if (!empty($options['images_where'])) {
-        $where_clauses[]='('.$options['images_where'].')';
+        $where_clauses[] = '(' . $options['images_where'] . ')';
     }
     if ($permissions) {
         $where_clauses[] = get_sql_condition_FandF(
@@ -612,20 +608,21 @@ function get_quick_search_results_no_cache($q, $options) {
                 'forbidden_categories' => 'category_id',
                 'forbidden_images' => 'i.id'
             ),
-            null,true
+            null,
+            true
         );
     }
 
-    $query = 'SELECT DISTINCT(id),'.addOrderByFields($conf['order_by']).' FROM '.IMAGES_TABLE.' i';
+    $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE . ' i';
     if ($permissions) {
-        $query .= ' LEFT JOIN '.IMAGE_CATEGORY_TABLE.' AS ic ON id = ic.image_id';
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
     }
-    $query .= ' WHERE '.implode("\n AND ", $where_clauses).' '.$conf['order_by'];
+    $query .= ' WHERE ' . implode("\n AND ", $where_clauses) . ' ' . $conf['order_by'];
 
     $ids = $conn->query2array($query, null, 'id');
 
-    $debug[] = count($ids).' final photo count -->';
-    $template->append('footer_elements', implode("\n", $debug) );
+    $debug[] = count($ids) . ' final photo count -->';
+    $template->append('footer_elements', implode("\n", $debug));
 
     $search_results['items'] = $ids;
     return $search_results;
@@ -640,12 +637,13 @@ function get_quick_search_results_no_cache($q, $options) {
  * @param string $images_where optional aditional restriction on images table
  * @return array
  */
-function get_search_results($search_id, $super_order_by, $images_where='') {
+function get_search_results($search_id, $super_order_by, $images_where = '')
+{
     $search = get_search_array($search_id);
     if (!isset($search['q'])) {
         $result['items'] = get_regular_search_results($search, $images_where);
         return $result;
     } else {
-        return get_quick_search_results($search['q'], array('super_order_by'=>$super_order_by, 'images_where'=>$images_where));
+        return get_quick_search_results($search['q'], array('super_order_by' => $super_order_by, 'images_where' => $images_where));
     }
 }

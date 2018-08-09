@@ -379,7 +379,7 @@ function pwg_log($image_id = null, $image_type = null)
         $do_log = $conf['history_guest'];
     }
 
-    $do_log = trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
+    $do_log = \Phyxo\Functions\Plugin::trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
 
     if (!$do_log) {
         return false;
@@ -670,7 +670,7 @@ function get_pwg_themes($show_mobile = false)
     }
 
     // plugins want remove some themes based on user status maybe?
-    $themes = trigger_change('get_pwg_themes', $themes);
+    $themes = \Phyxo\Functions\Plugin::trigger_change('get_pwg_themes', $themes);
 
     return $themes;
 }
@@ -786,7 +786,7 @@ function get_webmaster_mail_address()
     $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $conf['webmaster_id'] . ';';
     list($email) = $conn->db_fetch_row($conn->db_query($query));
 
-    $email = trigger_change('get_webmaster_mail_address', $email);
+    $email = \Phyxo\Functions\Plugin::trigger_change('get_webmaster_mail_address', $email);
 
     return $email;
 }
@@ -819,7 +819,7 @@ function load_conf_from_db($condition = '')
         $conf[$row['param']] = $val;
     }
 
-    trigger_notify('load_conf', $condition);
+    \Phyxo\Functions\Plugin::trigger_notify('load_conf', $condition);
 }
 
 /**

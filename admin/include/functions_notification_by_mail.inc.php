@@ -643,7 +643,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                     $customize_mail_content = $conf['nbm_complementary_mail_content'];
                 }
 
-                $customize_mail_content = trigger_change('nbm_render_global_customize_mail_content', $customize_mail_content);
+                $customize_mail_content = \Phyxo\Functions\Plugin::trigger_change('nbm_render_global_customize_mail_content', $customize_mail_content);
 
                 // Prepare message after change language
                 if ($is_action_send) {
@@ -707,7 +707,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                                 $env_nbm['mail_template']->assign('global_new_lines', $news);
                             }
 
-                            $nbm_user_customize_mail_content = trigger_change(
+                            $nbm_user_customize_mail_content = \Phyxo\Functions\Plugin::trigger_change(
                                 'nbm_render_user_customize_mail_content',
                                 $customize_mail_content,
                                 $nbm_user

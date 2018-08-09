@@ -174,7 +174,7 @@ if (count($categories) > 0) {
 
     $template->set_filename('index_category_thumbnails', 'mainpage_categories.tpl');
 
-    trigger_notify('loc_begin_index_category_thumbnails', $categories);
+    \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_category_thumbnails', $categories);
 
     $tpl_thumbnails_var = array();
 
@@ -183,7 +183,7 @@ if (count($categories) > 0) {
             continue;
         }
 
-        $category['name'] = trigger_change(
+        $category['name'] = \Phyxo\Functions\Plugin::trigger_change(
             'render_category_name',
             $category['name'],
             'subcatify_category_name'
@@ -209,9 +209,9 @@ if (count($categories) > 0) {
                 true,
                 '<br>'
             ),
-            'DESCRIPTION' => trigger_change(
+            'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
                 'render_category_literal_description',
-                trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
+                \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
             ),
             'NAME' => $name,
         ));
@@ -242,8 +242,8 @@ if (count($categories) > 0) {
         $conf['nb_categories_page']
     );
 
-    $derivative_params = trigger_change('get_index_album_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
-    $tpl_thumbnails_var_selection = trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+    $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
+    $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
     $template->assign(array(
         'maxRequests' => $conf['max_requests'],
         'category_thumbnails' => $tpl_thumbnails_var_selection,

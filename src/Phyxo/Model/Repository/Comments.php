@@ -11,6 +11,8 @@
 
 namespace Phyxo\Model\Repository;
 
+use Phyxo\Functions\Plugin;
+
 class Comments extends BaseRepository
 {
     protected $conn;
@@ -172,7 +174,7 @@ class Comments extends BaseRepository
         }
 
         // perform more spam check
-        $comment_action = trigger_change('user_comment_check', $comment_action, $comm);
+        $comment_action = Plugin::trigger_change('user_comment_check', $comment_action, $comm);
 
         if ($comment_action != 'reject') {
             $query = 'INSERT INTO ' . COMMENTS_TABLE;
@@ -255,7 +257,7 @@ class Comments extends BaseRepository
                     'comment_id' => $comment_id
                 )
             );
-            trigger_notify('user_comment_deletion', $comment_id);
+            Plugin::trigger_notify('user_comment_deletion', $comment_id);
 
             return true;
         }
@@ -313,7 +315,7 @@ class Comments extends BaseRepository
 
         // perform more spam check
         $comment_action =
-            trigger_change(
+            Plugin::trigger_change(
             'user_comment_check',
             $comment_action,
             array_merge(
@@ -393,7 +395,7 @@ class Comments extends BaseRepository
         $this->conn->db_query($query);
 
         $this->invalidateUserCacheNbComments();
-        trigger_notify('user_comment_validation', $comment_id);
+        Plugin::trigger_notify('user_comment_validation', $comment_id);
     }
 
     /**

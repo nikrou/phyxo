@@ -23,7 +23,7 @@ $selection = array_slice(
     $page['nb_image_page']
 );
 
-$selection = trigger_change('loc_index_thumbnails_selection', $selection);
+$selection = \Phyxo\Functions\Plugin::trigger_change('loc_index_thumbnails_selection', $selection);
 
 if (count($selection) > 0) {
     $rank_of = array_flip($selection);
@@ -61,7 +61,7 @@ if (count($pictures) > 0) {
     }
 }
 
-trigger_notify('loc_begin_index_thumbnails', $pictures);
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_thumbnails', $pictures);
 $tpl_thumbnails_var = array();
 
 foreach ($pictures as $row) {
@@ -115,7 +115,7 @@ foreach ($pictures as $row) {
     $tpl_thumbnails_var[] = $tpl_var;
 }
 
-$derivative_params = trigger_change(
+$derivative_params = \Phyxo\Functions\Plugin::trigger_change(
     'get_index_derivative_params',
     \Phyxo\Image\ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB)
 );
@@ -126,6 +126,6 @@ $template->assign(
         'SHOW_THUMBNAIL_CAPTION' => $conf['show_thumbnail_caption'],
     )
 );
-$tpl_thumbnails_var = trigger_change('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);
+$tpl_thumbnails_var = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_thumbnails', $tpl_thumbnails_var, $pictures);
 $template->assign('thumbnails', $tpl_thumbnails_var);
 unset($pictures, $selection, $tpl_thumbnails_var);

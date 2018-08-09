@@ -1,24 +1,15 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-if(!defined("PHPWG_ROOT_PATH")) {
+if (!defined("PHPWG_ROOT_PATH")) {
     die('Hacking attempt!');
 }
 
@@ -32,16 +23,18 @@ $services['comments'] = new Comments($conn, 'Phyxo\Model\Entity\Comment', COMMEN
 $services['users'] = new Users($conn, 'Phyxo\Model\Entity\User', USERS_TABLE);
 
 // @TODO : find a better place
-add_event_handler('user_comment_check', array($services['comments'], 'userCommentCheck'));
+\Phyxo\Functions\Plugin::add_event_handler('user_comment_check', array($services['comments'], 'userCommentCheck'));
 
 // temporary hack for password_*
-function pwg_password_verify($password, $hash, $user_id=null) {
+function pwg_password_verify($password, $hash, $user_id = null)
+{
     global $services;
 
     return $services['users']->passwordVerify($password, $hash, $user_id);
 }
 
-function pwg_password_hash($password) {
+function pwg_password_hash($password)
+{
     global $services;
 
     return $services['users']->passwordHash($password);

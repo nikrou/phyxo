@@ -28,9 +28,6 @@ include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 
-function trigger_notify()
-{
-}
 function get_extension($filename)
 {
     return substr(strrchr($filename, '.'), 1, strlen($filename));

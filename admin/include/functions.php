@@ -140,7 +140,7 @@ function delete_categories($ids, $photo_deletion_mode = 'no_delete')
     $query = 'DELETE FROM ' . USER_CACHE_CATEGORIES_TABLE . ' WHERE cat_id ' . $conn->in($ids);
     $conn->db_query($query);
 
-    trigger_notify('delete_categories', $ids);
+    \Phyxo\Functions\Plugin::trigger_notify('delete_categories', $ids);
 }
 
 /**
@@ -215,7 +215,7 @@ function delete_elements($ids, $physical_deletion = false)
     if (count($ids) == 0) {
         return 0;
     }
-    trigger_notify('begin_delete_elements', $ids);
+    \Phyxo\Functions\Plugin::trigger_notify('begin_delete_elements', $ids);
 
     if ($physical_deletion) {
         $ids = delete_element_files($ids);
@@ -259,7 +259,7 @@ function delete_elements($ids, $physical_deletion = false)
         update_category($category_ids);
     }
 
-    trigger_notify('delete_elements', $ids);
+    \Phyxo\Functions\Plugin::trigger_notify('delete_elements', $ids);
 
     return count($ids);
 }
@@ -309,7 +309,7 @@ function delete_user($user_id)
     $query = 'DELETE FROM ' . USERS_TABLE . ' WHERE ' . $conf['user_fields']['id'] . ' = ' . (int)$user_id . ';';
     $conn->db_query($query);
 
-    trigger_notify('delete_user', $user_id);
+    \Phyxo\Functions\Plugin::trigger_notify('delete_user', $user_id);
 }
 
 /**
@@ -1312,7 +1312,7 @@ function invalidate_user_cache($full = true)
         $query = 'UPDATE ' . USER_CACHE_TABLE . ' SET need_update = \'' . $conn->boolean_to_db(true) . '\'';
         $conn->db_query($query);
     }
-    trigger_notify('invalidate_user_cache', $full);
+    \Phyxo\Functions\Plugin::trigger_notify('invalidate_user_cache', $full);
 }
 
 /**

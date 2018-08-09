@@ -23,7 +23,7 @@ include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
 $services['users']->checkStatus(ACCESS_FREE);
 
-trigger_notify('loc_begin_password');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_password');
 
 // +-----------------------------------------------------------------------+
 // | Functions                                                             |
@@ -99,7 +99,7 @@ function process_password_request()
 
     \Phyxo\Functions\URL::unset_make_full_url();
 
-    $message = trigger_change('render_lost_password_mail_content', $message);
+    $message = \Phyxo\Functions\Plugin::trigger_change('render_lost_password_mail_content', $message);
 
     $email_params = array(
         'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset'),
@@ -263,7 +263,7 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('thePasswordPage', $themecon
 // +-----------------------------------------------------------------------+
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_password');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_password');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('password');

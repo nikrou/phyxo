@@ -40,7 +40,7 @@ function get_cat_display_name($cat_informations, $url = '')
             E_USER_WARNING
         );
 
-        $cat['name'] = trigger_change(
+        $cat['name'] = \Phyxo\Functions\Plugin::trigger_change(
             'render_category_name',
             $cat['name'],
             'get_cat_display_name'
@@ -100,7 +100,7 @@ function get_cat_display_name_cache($uppercats, $url = '', $single_link = false,
     foreach (explode(',', $uppercats) as $category_id) {
         $cat = $cache['cat_names'][$category_id];
 
-        $cat['name'] = trigger_change(
+        $cat['name'] = \Phyxo\Functions\Plugin::trigger_change(
             'render_category_name',
             $cat['name'],
             'get_cat_display_name_cache'
@@ -349,7 +349,7 @@ function get_tags_content_title()
         $title .= $i > 0 ? ' + ' : '';
         $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($page['tags'][$i]))) . '"';
         $title .= ' title="' . \Phyxo\Functions\Language::l10n('display photos linked to this tag') . '">';
-        $title .= trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
+        $title .= \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
         $title .= '</a>';
 
         if (count($page['tags']) > 2) {
@@ -419,7 +419,7 @@ function set_status_header($code, $text = '')
     }
 
     header("$protocol $code $text", true, $code);
-    trigger_notify('set_status_header', $code, $text);
+    \Phyxo\Functions\Plugin::trigger_notify('set_status_header', $code, $text);
 }
 
 /**
@@ -464,7 +464,7 @@ function register_default_menubar_blocks($menu_ref_arr)
 function render_element_name($info)
 {
     if (!empty($info['name'])) {
-        return trigger_change('render_element_name', $info['name']);
+        return \Phyxo\Functions\Plugin::trigger_change('render_element_name', $info['name']);
     }
 
     return get_name_from_file($info['file']);
@@ -480,7 +480,7 @@ function render_element_name($info)
 function render_element_description($info, $param = '')
 {
     if (!empty($info['comment'])) {
-        return trigger_change('render_element_description', $info['comment'], $param);
+        return \Phyxo\Functions\Plugin::trigger_change('render_element_description', $info['comment'], $param);
     }
 
     return '';
@@ -522,7 +522,7 @@ function get_thumbnail_title($info, $title, $comment = '')
     }
 
     $title = htmlspecialchars(strip_tags($title));
-    $title = trigger_change('get_thumbnail_title', $title, $info);
+    $title = \Phyxo\Functions\Plugin::trigger_change('get_thumbnail_title', $title, $info);
 
     return $title;
 }

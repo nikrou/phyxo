@@ -115,7 +115,7 @@ function get_categories_menu()
         $where = ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
     }
 
-    $where = trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
+    $where = \Phyxo\Functions\Plugin::trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
 
     $query .= ' WHERE ' . $where;
 
@@ -127,7 +127,7 @@ function get_categories_menu()
         $row = array_merge(
             $row,
             array(
-                'NAME' => trigger_change(
+                'NAME' => \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_name',
                     $row['name'],
                     'get_categories_menu'
@@ -223,7 +223,7 @@ function get_category_preferred_image_orders()
 {
     global $conf, $page, $services;
 
-    return trigger_change('get_category_preferred_image_orders', array(
+    return \Phyxo\Functions\Plugin::trigger_change('get_category_preferred_image_orders', array(
         array(\Phyxo\Functions\Language::l10n('Default'), '', true),
         array(\Phyxo\Functions\Language::l10n('Photo title, A &rarr; Z'), 'name ASC', true),
         array(\Phyxo\Functions\Language::l10n('Photo title, Z &rarr; A'), 'name DESC', true),
@@ -264,7 +264,7 @@ function display_select_categories($categories, $selecteds, $blockname, $fullnam
             $option = str_repeat('&nbsp;', (3 * substr_count($category['global_rank'], '.')));
             $option .= '- ';
             $option .= strip_tags(
-                trigger_change(
+                \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_name',
                     $category['name'],
                     'display_select_categories'

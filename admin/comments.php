@@ -145,9 +145,9 @@ while ($row = $conn->db_fetch_assoc($result)) {
             'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'],
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
-            'AUTHOR' => trigger_change('render_comment_author', $author_name),
+            'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),
             'DATE' => format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
-            'CONTENT' => trigger_change('render_comment_content', $row['content']),
+            'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
             'IS_PENDING' => $conn->get_boolean($row['validated']) === false,
             'IP' => $row['anonymous_id'],
         )

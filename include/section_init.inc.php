@@ -182,7 +182,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'comment' => trigger_change(
+                'comment' => \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_description',
                     $page['category']['comment'],
                     'main_page_category_description'
@@ -458,4 +458,4 @@ if ('categories' == $page['section'] and isset($page['category'])) {
     unset($need_redirect, $page['hit_by']);
 }
 
-trigger_notify('loc_end_section_init');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_section_init');

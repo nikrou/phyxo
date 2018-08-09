@@ -18,7 +18,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_GUEST);
 
-trigger_notify('loc_begin_search');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_search');
 
 //------------------------------------------------------------------ form check
 $search = array();
@@ -231,7 +231,7 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theSearchPage', $themeconf[
 
 //------------------------------------------------------------ html code display
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_search');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_search');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('search');

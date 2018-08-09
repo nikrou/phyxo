@@ -13,7 +13,7 @@
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
-// no message inside administration 
+// no message inside administration
 // keep the ability to login
 // keep the ability to discuss with web API
 if (!(defined('IN_ADMIN') and IN_ADMIN)
@@ -73,7 +73,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
             );
         }
 
-        trigger_notify('loc_end_no_photo_yet');
+        \Phyxo\Functions\Plugin::trigger_notify('loc_end_no_photo_yet');
 
         $template->pparse('no_photo_yet');
         exit();

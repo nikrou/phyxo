@@ -17,7 +17,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 $services['users']->checkStatus(ACCESS_GUEST);
 
-trigger_notify('loc_begin_tags');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_tags');
 
 // +-----------------------------------------------------------------------+
 // |                             functions                                 |
@@ -169,7 +169,7 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theTagsPage', $themeconf['h
 }
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_tags');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_tags');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('tags');

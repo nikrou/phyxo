@@ -22,7 +22,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_GUEST);
 
-trigger_notify('loc_begin_notification');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_notification');
 
 // +-----------------------------------------------------------------------+
 // |                          new feed creation                            |
@@ -68,7 +68,7 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theNotificationPage', $them
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_notification');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_notification');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('notification');

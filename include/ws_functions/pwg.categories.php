@@ -206,7 +206,7 @@ function ws_categories_getList($params, &$service)
             $row['name'] = strip_tags(get_cat_display_name_cache($row['uppercats'], null));
         } else {
             $row['name'] = strip_tags(
-                trigger_change(
+                \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_name',
                     $row['name'],
                     'ws_categories_getList'
@@ -215,7 +215,7 @@ function ws_categories_getList($params, &$service)
         }
 
         $row['comment'] = strip_tags(
-            trigger_change(
+            \Phyxo\Functions\Plugin::trigger_change(
                 'render_category_description',
                 $row['comment'],
                 'ws_categories_getList'
@@ -395,7 +395,7 @@ function ws_categories_getAdminList($params, &$service)
         $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
 
         $row['name'] = strip_tags(
-            trigger_change(
+            \Phyxo\Functions\Plugin::trigger_change(
                 'render_category_name',
                 $row['name'],
                 'ws_categories_getAdminList'
@@ -408,7 +408,7 @@ function ws_categories_getAdminList($params, &$service)
             )
         );
         $row['comment'] = strip_tags(
-            trigger_change(
+            \Phyxo\Functions\Plugin::trigger_change(
                 'render_category_description',
                 $row['comment'],
                 'ws_categories_getAdminList'
@@ -649,7 +649,7 @@ function ws_categories_move($params, &$service)
         // we break on error at first physical category detected
         if (!empty($row['dir'])) {
             $row['name'] = strip_tags(
-                trigger_change(
+                \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_name',
                     $row['name'],
                     'ws_categories_move'

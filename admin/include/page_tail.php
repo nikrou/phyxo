@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-trigger_notify('loc_begin_page_tail');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_page_tail');
 
 $template->assign(
     array(
@@ -22,7 +22,8 @@ $template->assign(
 
 if (!$services['users']->isGuest()) {
     $template->assign(
-        'CONTACT_MAIL', get_webmaster_mail_address()
+        'CONTACT_MAIL',
+        get_webmaster_mail_address()
     );
 }
 
@@ -46,13 +47,15 @@ if ($conf['show_gt']) {
     if (!empty($conn)) {
         $debug_vars = array_merge(
             $debug_vars,
-            array('TIME' => $time,
-            'NB_QUERIES' => $conn->getQueriesCount(),
-            'SQL_TIME' => number_format($conn->getQueriesTime(), 3, '.', ' ').' s')
+            array(
+                'TIME' => $time,
+                'NB_QUERIES' => $conn->getQueriesCount(),
+                'SQL_TIME' => number_format($conn->getQueriesTime(), 3, '.', ' ') . ' s'
+            )
         );
     }
 }
 
 $template->assign('debug', $debug_vars);
 
-trigger_notify('loc_end_page_tail');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_page_tail');

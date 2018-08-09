@@ -59,7 +59,7 @@ if ($page['show_comments'] and isset($_POST['content'])) {
     }
 
     // allow plugins to notify what's going on
-    trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
+    \Phyxo\Functions\Plugin::trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
 } elseif (isset($_POST['content'])) {
     set_status_header(403);
     die('ugly spammer');
@@ -136,9 +136,9 @@ if ($page['show_comments']) {
             $tpl_comment =
                 array(
                 'ID' => $row['id'],
-                'AUTHOR' => trigger_change('render_comment_author', $row['author']),
+                'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
                 'DATE' => format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
-                'CONTENT' => trigger_change('render_comment_content', $row['content']),
+                'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
                 'WEBSITE_URL' => $row['website_url'],
             );
 

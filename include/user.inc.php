@@ -48,4 +48,4 @@ $user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_A
 if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {
     get_browser_language($user['language']);
 }
-trigger_notify('user_init', $user);
+\Phyxo\Functions\Plugin::trigger_notify('user_init', $user);

@@ -30,7 +30,7 @@ if ($page['start'] > 0 && $page['start'] >= count($page['items'])) {
     page_not_found('', \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)));
 }
 
-trigger_notify('loc_begin_index');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_index');
 
 //---------------------------------------------- change of image display order
 if (isset($_GET['image_order'])) {
@@ -299,7 +299,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
 
 //------------------------------------------------------------ end
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_index');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_index');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 

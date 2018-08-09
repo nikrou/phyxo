@@ -29,7 +29,7 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-trigger_notify('loc_begin_element_set_global');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_global');
 
 check_input_parameter('del_tags', $_POST, true, PATTERN_ID);
 check_input_parameter('associate', $_POST, false, PATTERN_ID);
@@ -283,7 +283,7 @@ if (isset($_POST['submit'])) {
         invalidate_user_cache();
     }
 
-    trigger_notify('element_set_global_action', $action, $collection);
+    \Phyxo\Functions\Plugin::trigger_notify('element_set_global_action', $action, $collection);
 
     if ($redirect) {
         redirect($redirect_url);
@@ -310,7 +310,7 @@ if ($conf['enable_synchronization']) {
     $prefilters[] = array('ID' => 'no_virtual_album', 'NAME' => \Phyxo\Functions\Language::l10n('With no virtual album'));
 }
 
-$prefilters = trigger_change('get_batch_manager_prefilters', $prefilters);
+$prefilters = \Phyxo\Functions\Plugin::trigger_change('get_batch_manager_prefilters', $prefilters);
 usort($prefilters, 'UC_name_compare');
 
 $template->assign(
@@ -520,4 +520,4 @@ $template->assign(array(
     'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
 ));
 
-trigger_notify('loc_end_element_set_global');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_element_set_global');

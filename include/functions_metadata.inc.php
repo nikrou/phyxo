@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package functions\metadata
@@ -92,7 +79,7 @@ function clean_iptc_value($value)
     if (preg_match('/[\x80-\xff]/', $value)) {
         // apparently mac uses some MacRoman crap encoding. I don't know
         // how to detect it so a plugin should do the trick.
-        $value = trigger_change('clean_iptc_value', $value);
+        $value = \Phyxo\Functions\Plugin::trigger_change('clean_iptc_value', $value);
         if (($qual = qualify_utf8($value)) != 0) { // has non ascii chars
             if ($qual > 0) {
                 $input_encoding = 'utf-8';
@@ -133,7 +120,7 @@ function get_exif_data($filename, $map)
 
     // Read EXIF data
     if (is_readable($filename) && $exif = @exif_read_data($filename)) {
-        $exif = trigger_change('format_exif_data', $exif, $filename, $map);
+        $exif = \Phyxo\Functions\Plugin::trigger_change('format_exif_data', $exif, $filename, $map);
 
         // configured fields
         foreach ($map as $key => $field) {

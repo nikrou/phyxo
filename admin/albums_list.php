@@ -13,7 +13,7 @@ if (!defined("ALBUMS_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-trigger_notify('loc_begin_cat_list');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_cat_list');
 
 if (!empty($_POST) or isset($_GET['delete'])) {
     check_pwg_token();
@@ -321,7 +321,7 @@ foreach ($categories as $category) {
     }
 
     $tpl_cat = array(
-        'NAME' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
+        'NAME' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
         'NB_PHOTOS' => isset($nb_photos_in[$category['id']]) ? $nb_photos_in[$category['id']] : 0,
         'NB_SUB_PHOTOS' => isset($nb_sub_photos[$category['id']]) ? $nb_sub_photos[$category['id']] : 0,
         'NB_SUB_ALBUMS' => isset($subcats_of[$category['id']]) ? count($subcats_of[$category['id']]) : 0,
@@ -345,4 +345,4 @@ foreach ($categories as $category) {
     $template->append('categories', $tpl_cat);
 }
 
-trigger_notify('loc_end_cat_list');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_cat_list');

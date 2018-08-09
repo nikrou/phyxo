@@ -11,6 +11,8 @@
 
 namespace Phyxo\Ws;
 
+use Phyxo\Functions\Plugin;
+
 class Server
 {
     private $_requestHandler;
@@ -21,30 +23,32 @@ class Server
     private $_methods = array();
 
     const WS_PARAM_ACCEPT_ARRAY = 0x010000;
-    const WS_PARAM_FORCE_ARRAY  = 0x030000;
-    const WS_PARAM_OPTIONAL     = 0x040000;
+    const WS_PARAM_FORCE_ARRAY = 0x030000;
+    const WS_PARAM_OPTIONAL = 0x040000;
 
-    const WS_TYPE_BOOL     = 0x01;
-    const WS_TYPE_INT      = 0x02;
-    const WS_TYPE_FLOAT    = 0x04;
+    const WS_TYPE_BOOL = 0x01;
+    const WS_TYPE_INT = 0x02;
+    const WS_TYPE_FLOAT = 0x04;
     const WS_TYPE_POSITIVE = 0x10;
-    const WS_TYPE_NOTNULL  = 0x20;
-    const WS_TYPE_ID =  self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
+    const WS_TYPE_NOTNULL = 0x20;
+    const WS_TYPE_ID = self::WS_TYPE_INT | self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL;
 
     const WS_ERR_INVALID_METHOD = 501;
-    const WS_ERR_MISSING_PARAM  = 1002;
-    const WS_ERR_INVALID_PARAM  = 1003;
+    const WS_ERR_MISSING_PARAM = 1002;
+    const WS_ERR_INVALID_PARAM = 1003;
 
     const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
      *  Initializes the request handler.
      */
 
-    public function setHandler($requestFormat, &$requestHandler) {
+    public function setHandler($requestFormat, &$requestHandler)
+    {
         $this->_requestHandler = &$requestHandler;
         $this->_requestFormat = $requestFormat;
     }
@@ -52,7 +56,8 @@ class Server
     /**
      *  Initializes the request handler.
      */
-    public function setEncoder($responseFormat, &$encoder) {
+    public function setEncoder($responseFormat, &$encoder)
+    {
         $this->_responseEncoder = &$encoder;
         $this->_responseFormat = $responseFormat;
     }
@@ -61,17 +66,18 @@ class Server
      * Runs the web service call (handler and response encoder should have been
      * created)
      */
-    public function run() {
+    public function run()
+    {
         if (is_null($this->_responseEncoder)) {
             set_status_header(400);
             @header("Content-Type: text/plain");
-            echo ("Cannot process your request. Unknown response format. Request format: ".@$this->_requestFormat." Response format: ".@$this->_responseFormat."\n");
+            echo ("Cannot process your request. Unknown response format. Request format: " . @$this->_requestFormat . " Response format: " . @$this->_responseFormat . "\n");
             var_export($this);
             die(0);
         }
 
         if (is_null($this->_requestHandler)) {
-            $this->sendResponse(new Error(400, 'Unknown request format') );
+            $this->sendResponse(new Error(400, 'Unknown request format'));
             return;
         }
 
@@ -86,21 +92,22 @@ class Server
             array('methodName')
         );
 
-        trigger_notify('ws_add_methods', array(&$this) );
-        uksort( $this->_methods, 'strnatcmp' );
+        Plugin::trigger_notify('ws_add_methods', array(&$this));
+        uksort($this->_methods, 'strnatcmp');
         $this->_requestHandler->handleRequest($this);
     }
 
     /**
      * Encodes a response and sends it back to the browser.
      */
-    public function sendResponse($response) {
+    public function sendResponse($response)
+    {
         $encodedResponse = $this->_responseEncoder->encodeResponse($response);
         $contentType = $this->_responseEncoder->getContentType();
 
-        @header('Content-Type: '.$contentType.'; charset='.get_pwg_charset());
+        @header('Content-Type: ' . $contentType . '; charset=' . get_pwg_charset());
         print_r($encodedResponse);
-        trigger_notify('sendResponse', $encodedResponse );
+        Plugin::trigger_notify('sendResponse', $encodedResponse);
     }
 
     /**
@@ -122,7 +129,8 @@ class Server
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    public function addMethod($methodName, $callback, $params=array(), $description='', $include_file='', $options=array()) {
+    public function addMethod($methodName, $callback, $params = array(), $description = '', $include_file = '', $options = array())
+    {
         if (!is_array($params)) {
             $params = array();
         }
@@ -131,7 +139,7 @@ class Server
             $params = array_flip($params);
         }
 
-        foreach($params as $param => $data) {
+        foreach ($params as $param => $data) {
             if (!is_array($data)) {
                 $params[$param] = array('flags' => 0, 'type' => 0);
             } else {
@@ -149,39 +157,45 @@ class Server
         }
 
         $this->_methods[$methodName] = array(
-            'callback'    => $callback,
+            'callback' => $callback,
             'description' => $description,
-            'signature'   => $params,
-            'include'     => $include_file,
-            'options'     => $options,
+            'signature' => $params,
+            'include' => $include_file,
+            'options' => $options,
         );
     }
 
-    public function hasMethod($methodName) {
+    public function hasMethod($methodName)
+    {
         return isset($this->_methods[$methodName]);
     }
 
-    public function getMethodDescription($methodName) {
+    public function getMethodDescription($methodName)
+    {
         $desc = @$this->_methods[$methodName]['description'];
         return isset($desc) ? $desc : '';
     }
 
-    public function getMethodSignature($methodName) {
+    public function getMethodSignature($methodName)
+    {
         $signature = @$this->_methods[$methodName]['signature'];
         return isset($signature) ? $signature : array();
     }
 
-    function getMethodOptions($methodName) {
+    function getMethodOptions($methodName)
+    {
         $options = @$this->_methods[$methodName]['options'];
         return isset($options) ? $options : array();
     }
 
-    public static function isPost() {
+    public static function isPost()
+    {
         return isset($HTTP_RAW_POST_DATA) or !empty($_POST); // @TODO: remove $HTTP_RAW_POST_DATA
     }
 
-    public static function makeArrayParam(&$param) {
-        if ($param==null) {
+    public static function makeArrayParam(&$param)
+    {
+        if ($param == null) {
             $param = array();
         } else {
             if (!is_array($param)) {
@@ -190,7 +204,8 @@ class Server
         }
     }
 
-    public static function checkType(&$param, $type, $name) {
+    public static function checkType(&$param, $type, $name)
+    {
         $opts = array();
         $msg = '';
         if (self::hasFlag($type, self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL)) {
@@ -205,22 +220,22 @@ class Server
             if (self::hasFlag($type, self::WS_TYPE_BOOL)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain booleans');
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain booleans');
                     }
                 }
                 unset($value);
-            } elseif ( self::hasFlag($type, self::WS_TYPE_INT)) {
+            } elseif (self::hasFlag($type, self::WS_TYPE_INT)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_INT, $opts)) === false) {
-                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' integers');
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain' . $msg . ' integers');
                     }
                 }
                 unset($value);
-            } elseif ( self::hasFlag($type, self::WS_TYPE_FLOAT)) {
+            } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 foreach ($param as &$value) {
                     if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) === false
-                    or (isset($opts['options']['min_range']) and $value < $opts['options']['min_range'])) {
-                        return new Error(self::WS_ERR_INVALID_PARAM, $name.' must only contain'.$msg.' floats');
+                        or (isset($opts['options']['min_range']) and $value < $opts['options']['min_range'])) {
+                        return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must only contain' . $msg . ' floats');
                     }
                 }
                 unset($value);
@@ -228,16 +243,16 @@ class Server
         } elseif ($param !== '') {
             if (self::hasFlag($type, self::WS_TYPE_BOOL)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be a boolean');
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be a boolean');
                 }
             } elseif (self::hasFlag($type, self::WS_TYPE_INT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_INT, $opts)) === false) {
-                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be an'.$msg.' integer');
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be an' . $msg . ' integer');
                 }
             } elseif (self::hasFlag($type, self::WS_TYPE_FLOAT)) {
                 if (($param = filter_var($param, FILTER_VALIDATE_FLOAT)) === false
-                or (isset($opts['options']['min_range']) and $param < $opts['options']['min_range'])) {
-                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be a'.$msg.' float');
+                    or (isset($opts['options']['min_range']) and $param < $opts['options']['min_range'])) {
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be a' . $msg . ' float');
                 }
             }
         }
@@ -245,7 +260,8 @@ class Server
         return null;
     }
 
-    public static function hasFlag($val, $flag) {
+    public static function hasFlag($val, $flag)
+    {
         return ($val & $flag) == $flag;
     }
 
@@ -255,7 +271,8 @@ class Server
      *  @param methodName string the name of the method to invoke
      *  @param params array array of parameters to pass to the invoked method
      */
-    public function invoke($methodName, $params) {
+    public function invoke($methodName, $params)
+    {
         global $services;
 
         $method = @$this->_methods[$methodName];
@@ -289,12 +306,12 @@ class Server
                         self::makeArrayParam($params[$name]);
                     }
                 }
-            } elseif ($params[$name]==='' and !self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) { // parameter provided but empty
+            } elseif ($params[$name] === '' and !self::hasFlag($flags, self::WS_PARAM_OPTIONAL)) { // parameter provided but empty
                 $missing_params[] = $name;
             } else { // parameter provided - do some basic checks
                 $the_param = $params[$name];
                 if (is_array($the_param) and !self::hasFlag($flags, self::WS_PARAM_ACCEPT_ARRAY)) {
-                    return new Error(self::WS_ERR_INVALID_PARAM, $name.' must be scalar' );
+                    return new Error(self::WS_ERR_INVALID_PARAM, $name . ' must be scalar');
                 }
 
                 if (self::hasFlag($flags, self::WS_PARAM_FORCE_ARRAY)) {
@@ -307,7 +324,7 @@ class Server
                     }
                 }
 
-                if (isset($options['maxValue']) and $the_param>$options['maxValue']) {
+                if (isset($options['maxValue']) and $the_param > $options['maxValue']) {
                     $the_param = $options['maxValue'];
                 }
 
@@ -316,16 +333,16 @@ class Server
         }
 
         if (count($missing_params)) {
-            return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: '.implode(',',$missing_params));
+            return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: ' . implode(',', $missing_params));
         }
 
-        $result = trigger_change('ws_invoke_allowed', true, $methodName, $params);
+        $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
 
         if (@get_class($result) != 'Phyxo\Ws\Error') {
             if (!empty($method['include'])) {
                 include_once($method['include']);
             }
-            $result = call_user_func_array($method['callback'], array($params, &$this) );
+            $result = call_user_func_array($method['callback'], array($params, &$this));
         }
 
         return $result;
@@ -334,18 +351,22 @@ class Server
     /**
      * WS reflection method implementation: lists all available methods
      */
-    public static function ws_getMethodList($params, &$service) {
+    public static function ws_getMethodList($params, &$service)
+    {
         $methods = array_filter(
             $service->_methods,
-            function($m) { return empty($m['options']['hidden']) || !$m['options']['hidden'];}
+            function ($m) {
+                return empty($m['options']['hidden']) || !$m['options']['hidden'];
+            }
         );
-        return array('methods' => new NamedArray( array_keys($methods),'method'));
+        return array('methods' => new NamedArray(array_keys($methods), 'method'));
     }
 
     /**
      * WS reflection method implementation: gets information about a given method
      */
-    public static function ws_getMethodDetails($params, &$service) {
+    public static function ws_getMethodDetails($params, &$service)
+    {
         $methodName = $params['methodName'];
 
         if (!$service->hasMethod($methodName)) {
@@ -379,16 +400,16 @@ class Server
 
             if (self::hasFlag($options['type'], self::WS_TYPE_BOOL)) {
                 $param_data['type'] = 'bool';
-            } elseif ( self::hasFlag($options['type'], self::WS_TYPE_INT)) {
+            } elseif (self::hasFlag($options['type'], self::WS_TYPE_INT)) {
                 $param_data['type'] = 'int';
-            } elseif ( self::hasFlag($options['type'], self::WS_TYPE_FLOAT)) {
+            } elseif (self::hasFlag($options['type'], self::WS_TYPE_FLOAT)) {
                 $param_data['type'] = 'float';
             }
             if (self::hasFlag($options['type'], self::WS_TYPE_POSITIVE)) {
                 $param_data['type'] .= ' positive';
             }
             if (self::hasFlag($options['type'], self::WS_TYPE_NOTNULL)) {
-                $param_data['type'].= ' notnull';
+                $param_data['type'] .= ' notnull';
             }
 
             $res['params'][] = $param_data;

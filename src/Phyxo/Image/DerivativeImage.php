@@ -13,6 +13,7 @@ namespace Phyxo\Image;
 
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStdParams;
+use Phyxo\Functions\Plugin;
 
 /**
  * Holds information (path, url, dimensions) about a derivative image.
@@ -77,7 +78,7 @@ class DerivativeImage
             return $src_image->get_url();
         }
         return \Phyxo\Functions\URL::embellish_url(
-            trigger_change(
+            Plugin::trigger_change(
                 'get_derivative_url',
                 \Phyxo\Functions\URL::get_root_url() . $rel_url,
                 $params,
@@ -230,7 +231,7 @@ class DerivativeImage
             return $this->src_image->get_url();
         }
         return \Phyxo\Functions\URL::embellish_url(
-            trigger_change(
+            Plugin::trigger_change(
                 'get_derivative_url',
                 \Phyxo\Functions\URL::get_root_url() . $this->rel_url,
                 $this->params,

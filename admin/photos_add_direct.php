@@ -48,4 +48,4 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/photos_add_direct_prepare.inc.php'
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
-trigger_notify('loc_end_photo_add_direct');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_photo_add_direct');

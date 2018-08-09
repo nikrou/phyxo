@@ -11,6 +11,8 @@
 
 namespace Phyxo\Image;
 
+use Phyxo\Functions\Plugin;
+
 /**
  * A source image is used to get a derivative image. It is either
  * the original file for a jpg/png/... or a 'representative' image
@@ -49,7 +51,7 @@ class SrcImage
             $this->rel_path = original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
-            $this->rel_path = trigger_change('get_mimetype_location', get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
+            $this->rel_path = Plugin::trigger_change('get_mimetype_location', get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
             $this->flags |= self::IS_MIMETYPE;
             if (($size = @getimagesize(PHPWG_ROOT_PATH . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';
@@ -109,7 +111,7 @@ class SrcImage
     {
         $url = \Phyxo\Functions\URL::get_root_url() . $this->rel_path;
         if (!($this->flags & self::IS_MIMETYPE)) {
-            $url = trigger_change('get_src_image_url', $url, $this);
+            $url = Plugin::trigger_change('get_src_image_url', $url, $this);
         }
         return \Phyxo\Functions\URL::embellish_url($url);
     }

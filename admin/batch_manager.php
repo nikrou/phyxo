@@ -141,7 +141,7 @@ if (isset($_POST['submitFilter'])) {
         $_SESSION['bulk_manager_filter']['search']['q'] = $_POST['q'];
     }
 
-    $_SESSION['bulk_manager_filter'] = trigger_change('batch_manager_register_filters', $_SESSION['bulk_manager_filter']);
+    $_SESSION['bulk_manager_filter'] = \Phyxo\Functions\Plugin::trigger_change('batch_manager_register_filters', $_SESSION['bulk_manager_filter']);
 } elseif (isset($_GET['filter'])) { // filters from url
     if (!is_array($_GET['filter'])) {
         $_GET['filter'] = explode(',', $_GET['filter']);
@@ -204,7 +204,7 @@ if (isset($_POST['submitFilter'])) {
                 break;
 
             default:
-                $_SESSION['bulk_manager_filter'] = trigger_change('batch_manager_url_filter', $_SESSION['bulk_manager_filter'], $filter);
+                $_SESSION['bulk_manager_filter'] = \Phyxo\Functions\Plugin::trigger_change('batch_manager_url_filter', $_SESSION['bulk_manager_filter'], $filter);
                 break;
         }
     }
@@ -305,7 +305,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         default:
-            $filter_sets = trigger_change(
+            $filter_sets = \Phyxo\Functions\Plugin::trigger_change(
                 'perform_batch_manager_prefilters',
                 $filter_sets,
                 $_SESSION['bulk_manager_filter']['prefilter']
@@ -407,7 +407,7 @@ if (isset($_SESSION['bulk_manager_filter']['search']) && strlen($_SESSION['bulk_
     $filter_sets[] = $res['items'];
 }
 
-$filter_sets = trigger_change('batch_manager_perform_filters', $filter_sets, $_SESSION['bulk_manager_filter']);
+$filter_sets = \Phyxo\Functions\Plugin::trigger_change('batch_manager_perform_filters', $filter_sets, $_SESSION['bulk_manager_filter']);
 
 $current_set = array_shift($filter_sets);
 if (empty($current_set)) {

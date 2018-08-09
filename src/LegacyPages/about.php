@@ -25,7 +25,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 $title = \Phyxo\Functions\Language::l10n('About Phyxo');
 $page['body_id'] = 'theAboutPage';
 
-trigger_notify('loc_begin_about');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_about');
 
 $template->set_filename('about', 'about.tpl');
 

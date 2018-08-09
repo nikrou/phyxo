@@ -100,7 +100,7 @@ if (isset($_POST['submit'])) {
         $data['date_creation'] = null;
     }
 
-    $data = trigger_change('picture_modify_before_update', $data);
+    $data = \Phyxo\Functions\Plugin::trigger_change('picture_modify_before_update', $data);
 
     $conn->single_update(
         IMAGES_TABLE,
@@ -304,4 +304,4 @@ $template->assign(array(
     'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
 ));
 
-trigger_notify('loc_end_picture_modify');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_picture_modify');

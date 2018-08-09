@@ -18,6 +18,8 @@ use Phyxo\Template\ScriptLoader;
 use Phyxo\Template\CssLoader;
 use Phyxo\Image\ImageStdParams;
 
+use Phyxo\Functions\Plugin;
+
 class Template
 {
     /** @var Smarty */
@@ -410,7 +412,7 @@ class Template
                 $href .= '?v' . ($combi->version ? $combi->version : PHPWG_VERSION);
             }
             // trigger the event for eventual use of a cdn
-            $href = trigger_change('combined_css', $href, $combi);
+            $href = Plugin::trigger_change('combined_css', $href, $combi);
             $content[] = '<link rel="stylesheet" type="text/css" href="' . $href . '">';
         }
         $this->output = str_replace(
@@ -776,7 +778,7 @@ class Template
             }
         }
         // trigger the event for eventual use of a cdn
-        $ret = trigger_change('combined_script', $ret, $script);
+        $ret = Plugin::trigger_change('combined_script', $ret, $script);
 
         return \Phyxo\Functions\URL::embellish_url($ret);
     }

@@ -33,7 +33,7 @@ $aColumns = array(
     'registration_date'
 );
 
-$aColumns = trigger_change('user_list_columns', $aColumns);
+$aColumns = \Phyxo\Functions\Plugin::trigger_change('user_list_columns', $aColumns);
 
 /* Indexed column (used for fast and accurate table cardinality) */
 $sIndexColumn = 'user_id';
@@ -185,6 +185,6 @@ if (count($user_ids) > 0) {
     }
 }
 
-$output = trigger_change('after_render_user_list', $output);
+$output = \Phyxo\Functions\Plugin::trigger_change('after_render_user_list', $output);
 
 echo json_encode($output);

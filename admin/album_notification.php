@@ -56,7 +56,11 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
     pwg_mail_group(
         $_POST['group'],
         array(
-            'subject' => \Phyxo\Functions\Language::l10n('[%s] Visit album %s', $conf['gallery_title'], trigger_change('render_category_name', $category['name'], 'admin_cat_list')),
+            'subject' => \Phyxo\Functions\Language::l10n(
+                '[%s] Visit album %s',
+                $conf['gallery_title'],
+                \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list')
+            ),
             // @TODO : change this language variable to 'Visit album %s'
             // @TODO : 'language_selected' => ....
         ),
@@ -64,11 +68,11 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
             'filename' => 'cat_group_info',
             'assign' => array(
                 'IMG_URL' => $img_url,
-                'CAT_NAME' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
+                'CAT_NAME' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
                 'LINK' => \Phyxo\Functions\URL::make_index_url(array(
                     'category' => array(
                         'id' => $category['id'],
-                        'name' => trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
+                        'name' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
                         'permalink' => $category['permalink']
                     )
                 )),

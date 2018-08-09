@@ -59,8 +59,8 @@ $services['users']->checkStatus(get_tab_status($page['section']));
 // +-----------------------------------------------------------------------+
 // | Add event handler                                                     |
 // +-----------------------------------------------------------------------+
-add_event_handler('nbm_render_global_customize_mail_content', 'render_global_customize_mail_content');
-trigger_notify('nbm_event_handler_added');
+\Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', 'render_global_customize_mail_content');
+\Phyxo\Functions\Plugin::trigger_notify('nbm_event_handler_added');
 
 
 if (!isset($_POST) or (count($_POST) == 0)) {

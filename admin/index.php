@@ -20,7 +20,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_plugins.inc.php');
 
-trigger_notify('loc_begin_admin');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_admin');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -167,7 +167,7 @@ if ($nb_photos_in_caddie > 0) {
 // | Plugin menu                                                           |
 // +-----------------------------------------------------------------------+
 
-$plugin_menu_links = trigger_change('get_admin_plugin_menu_links', array());
+$plugin_menu_links = \Phyxo\Functions\Plugin::trigger_change('get_admin_plugin_menu_links', array());
 
 function UC_name_compare($a, $b)
 {
@@ -196,7 +196,7 @@ if (in_array($page['page'], array('site_manager', 'site_update'))
 // | Include specific page                                                 |
 // +-----------------------------------------------------------------------+
 
-trigger_notify('loc_begin_admin_page');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_admin_page');
 include(PHPWG_ROOT_PATH . 'admin/' . $page['page'] . '.php');
 
 $template->assign('ACTIVE_MENU', $link_start . $page['page']);
@@ -210,6 +210,6 @@ include(__DIR__ . '/include/page_tail.php');
 
 $template->set_filenames(['admin' => "${template_filename}.tpl"]);
 
-trigger_notify('loc_end_admin');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_admin');
 flush_page_messages();
 $template->pparse('admin');

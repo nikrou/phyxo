@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-trigger_notify('loc_begin_page_header');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_page_header');
 
 $template->assign(
     array(
@@ -18,7 +18,7 @@ $template->assign(
             $page['gallery_title'] : $conf['gallery_title'],
 
         'PAGE_BANNER' =>
-            trigger_change(
+            \Phyxo\Functions\Plugin::trigger_change(
             'render_page_banner',
             str_replace(
                 '%gallery_title%',
@@ -71,8 +71,8 @@ if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
     );
 }
 
-trigger_notify('loc_end_page_header');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_page_header');
 
 header('Content-Type: text/html; charset=' . get_pwg_charset()); // usefull ?
 
-trigger_notify('loc_after_page_header');
+\Phyxo\Functions\Plugin::trigger_notify('loc_after_page_header');

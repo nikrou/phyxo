@@ -115,11 +115,11 @@ if (isset($_GET['metadata'])) {
 }
 
 // add default event handler for rendering element content
-add_event_handler('render_element_content', 'default_picture_content');
+\Phyxo\Functions\Plugin::add_event_handler('render_element_content', 'default_picture_content');
 // add default event handler for rendering element description
-add_event_handler('render_element_description', 'nl2br');
+\Phyxo\Functions\Plugin::add_event_handler('render_element_description', 'nl2br');
 
-trigger_notify('loc_begin_picture');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_picture');
 
 // this is the default handler that generates the display for the element
 function default_picture_content($content, $element_info)
@@ -354,7 +354,7 @@ if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
 }
 
 // don't increment if adding a comment
-if (trigger_change('allow_increment_element_hit_count', $inc_hit_count, $page['image_id'])) {
+if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count', $inc_hit_count, $page['image_id'])) {
     // avoiding auto update of "lastmodified" field
     $query = 'UPDATE ' . IMAGES_TABLE . ' SET hit = hit+1, lastmodified = lastmodified WHERE id = ' . $page['image_id'] . ';';
     $conn->db_query($query);
@@ -481,7 +481,7 @@ $url_metadata = \Phyxo\Functions\URL::duplicate_picture_url();
 $url_metadata = \Phyxo\Functions\URL::add_url_params($url_metadata, array('metadata' => null));
 
 // do we have a plugin that can show metadata for something else than images?
-$metadata_showable = trigger_change(
+$metadata_showable = \Phyxo\Functions\Plugin::trigger_change(
     'get_element_metadata_available',
     (($conf['show_exif'] or $conf['show_iptc'])
         and !$picture['current']['src_image']->is_mimetype()),
@@ -495,7 +495,7 @@ if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
 $page['body_id'] = 'thePicturePage';
 
 // allow plugins to change what we computed before passing data to template
-$picture = trigger_change('picture_pictures_data', $picture);
+$picture = \Phyxo\Functions\Plugin::trigger_change('picture_pictures_data', $picture);
 
 //------------------------------------------------------- navigation management
 foreach (array('first', 'previous', 'next', 'last', 'current') as $which_image) {
@@ -625,7 +625,7 @@ if (!$services['users']->isGuest() and $conf['picture_favorite_icon']) {
 if (!empty($picture['current']['comment'])) {
     $template->assign(
         'COMMENT_IMG',
-        trigger_change(
+        \Phyxo\Functions\Plugin::trigger_change(
             'render_element_description',
             $picture['current']['comment'],
             'picture_page_element_description'
@@ -759,7 +759,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
 
 // maybe someone wants a special display (call it before page_header so that
 // they can add stylesheets)
-$element_content = trigger_change(
+$element_content = \Phyxo\Functions\Plugin::trigger_change(
     'render_element_content',
     '',
     $picture['current']
@@ -806,7 +806,7 @@ if ($conf['picture_menu'] and (!isset($themeconf['hide_menu_on']) or !in_array('
 }
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-trigger_notify('loc_end_picture');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
 flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 if ($page['slideshow'] and $conf['light_slideshow']) {

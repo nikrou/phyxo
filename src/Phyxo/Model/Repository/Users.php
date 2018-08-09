@@ -11,6 +11,8 @@
 
 namespace Phyxo\Model\Repository;
 
+use Phyxo\Functions\Plugin;
+
 class Users extends BaseRepository
 {
     protected $conn;
@@ -19,7 +21,7 @@ class Users extends BaseRepository
     {
         parent::__construct($conn, $model, $table);
 
-        add_event_handler('try_log_user', array($this, 'login'));
+        Plugin::add_event_handler('try_log_user', array($this, 'login'));
     }
 
     /**
@@ -150,7 +152,7 @@ class Users extends BaseRepository
             }
         }
 
-        $errors = trigger_change(
+        $errors = Plugin::trigger_change(
             'register_user_check',
             $errors,
             array(
@@ -238,7 +240,7 @@ class Users extends BaseRepository
                 );
             }
 
-            trigger_notify(
+            Plugin::trigger_notify(
                 'register_user',
                 array(
                     'id' => $user_id,
@@ -315,7 +317,7 @@ class Users extends BaseRepository
 
         $_SESSION['pwg_uid'] = (int)$user_id;
         $user['id'] = $_SESSION['pwg_uid'];
-        trigger_notify('user_login', $user['id']);
+        Plugin::trigger_notify('user_login', $user['id']);
     }
 
     /**
@@ -337,7 +339,7 @@ class Users extends BaseRepository
                 $key = $this->calculateAutoLoginKey($cookie[0], $cookie[1], $username);
                 if ($key !== false and $key === $cookie[2]) {
                     $this->logUser($cookie[0], true);
-                    trigger_notify('login_success', stripslashes($username));
+                    Plugin::trigger_notify('login_success', stripslashes($username));
                     return true;
                 }
             }
@@ -357,7 +359,7 @@ class Users extends BaseRepository
      */
     public function tryLogUser($username, $password, $remember_me)
     {
-        return trigger_change('try_log_user', false, $username, $password, $remember_me);
+        return Plugin::trigger_change('try_log_user', false, $username, $password, $remember_me);
     }
 
     /**
@@ -388,10 +390,10 @@ class Users extends BaseRepository
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
         if ($conf['password_verify']($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
-            trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes
+            Plugin::trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes
             return true;
         }
-        trigger_notify('login_failure', stripslashes($username));  // @TODO: remove stripslashes
+        Plugin::trigger_notify('login_failure', stripslashes($username));  // @TODO: remove stripslashes
 
         return false;
     }
@@ -403,7 +405,7 @@ class Users extends BaseRepository
     {
         global $conf;
 
-        trigger_notify('user_logout', isset($_SESSION['pwg_uid']) ? $_SESSION['pwg_uid'] : null);
+        Plugin::trigger_notify('user_logout', isset($_SESSION['pwg_uid']) ? $_SESSION['pwg_uid'] : null);
 
         $_SESSION = array();
         session_unset();

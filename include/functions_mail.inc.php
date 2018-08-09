@@ -275,7 +275,7 @@ function switch_lang_to($language)
             }
         }
 
-        trigger_notify('loading_lang');
+        \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
         \Phyxo\Functions\Language::load_language(
             'lang',
             PHPWG_ROOT_PATH . PWG_LOCAL_DIR,
@@ -605,7 +605,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
             // instanciate a new Template
             if (!isset($conf_mail[$cache_key]['theme'])) {
                 $conf_mail[$cache_key]['theme'] = get_mail_template($content_type);
-                trigger_notify('before_parse_mail_template', $cache_key, $content_type);
+                \Phyxo\Functions\Plugin::trigger_notify('before_parse_mail_template', $cache_key, $content_type);
             }
             $template = &$conf_mail[$cache_key]['theme'];
 
@@ -729,7 +729,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
 
     try {
         $mailer = new Swift_Mailer($mail_transport);
-        $pre_result = trigger_change('before_send_mail', true, $to, $args, $mailer);
+        $pre_result = \Phyxo\Functions\Plugin::trigger_change('before_send_mail', true, $to, $args, $mailer);
         $result = $mailer->send($message);
     } catch (\Exception $e) {
         $result = false;

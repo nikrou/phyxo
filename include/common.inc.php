@@ -71,7 +71,7 @@ include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 $persistent_cache = new PersistentFileCache();
 
 // Database connection
-if (defined('IN_ADMIN')) {
+if (defined('IN_ADMIN') || defined('IN_WS')) {
     try {
         $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
     } catch (Exception $e) {
@@ -109,7 +109,7 @@ session_set_cookie_params(0, cookie_path());
 register_shutdown_function('session_write_close');
 session_name($conf['session_name']);
 session_start();
-load_plugins();
+\Phyxo\Functions\Plugin::load_plugins();
 
 // users can have defined a custom order pattern, incompatible with GUI form
 if (isset($conf['order_by_custom'])) {
@@ -127,7 +127,7 @@ include(PHPWG_ROOT_PATH . 'include/user.inc.php');
 if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     \Phyxo\Functions\Language::load_language('admin.lang');
 }
-trigger_notify('loading_lang');
+\Phyxo\Functions\Plugin::trigger_notify('loading_lang');
 \Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
 
 // only now we can set the localized username of the guest user (and not in include/user.inc.php)
@@ -189,17 +189,17 @@ if (isset($conf['header_notes'])) {
 }
 
 // default event handlers
-add_event_handler('render_category_literal_description', 'render_category_literal_description');
+\Phyxo\Functions\Plugin::add_event_handler('render_category_literal_description', 'render_category_literal_description');
 if (!$conf['allow_html_descriptions']) {
-    add_event_handler('render_category_description', 'nl2br');
+    \Phyxo\Functions\Plugin::add_event_handler('render_category_description', 'nl2br');
 }
-add_event_handler('render_comment_content', 'render_comment_content');
-add_event_handler('render_comment_author', 'strip_tags');
-add_event_handler('render_tag_url', 'str2url');
-add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', EVENT_HANDLER_PRIORITY_NEUTRAL - 1);
+\Phyxo\Functions\Plugin::add_event_handler('render_comment_content', 'render_comment_content');
+\Phyxo\Functions\Plugin::add_event_handler('render_comment_author', 'strip_tags');
+\Phyxo\Functions\Plugin::add_event_handler('render_tag_url', 'str2url');
+\Phyxo\Functions\Plugin::add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL - 1);
 
 if (!empty($conf['original_url_protection'])) {
-    add_event_handler('get_element_url', 'get_element_url_protection_handler');
-    add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler');
+    \Phyxo\Functions\Plugin::add_event_handler('get_element_url', 'get_element_url_protection_handler');
+    \Phyxo\Functions\Plugin::add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler');
 }
-trigger_notify('init');
+\Phyxo\Functions\Plugin::trigger_notify('init');

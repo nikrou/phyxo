@@ -1,26 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 // +-----------------------------------------------------------------------+
 // |                           Image Interface                             |
@@ -59,10 +46,11 @@ class pwg_image
     public $image, $library = '', $source_filepath = '';
     public static $ext_imagick_version = '';
 
-    public function __construct($source_filepath, $library=null) {
+    public function __construct($source_filepath, $library = null)
+    {
         $this->source_filepath = $source_filepath;
 
-        trigger_notify('load_image_library', array(&$this) );
+        \Phyxo\Functions\Plugin::trigger_notify('load_image_library', array(&$this));
 
         if (is_object($this->image)) {
             return; // A plugin may have load its own library
@@ -78,21 +66,23 @@ class pwg_image
             die('No image library available on your server.');
         }
 
-        $class = 'image_'.$this->library;
+        $class = 'image_' . $this->library;
         $this->image = new $class($source_filepath);
     }
 
     // Unknow methods will be redirected to image object
-    function __call($method, $arguments) {
+    function __call($method, $arguments)
+    {
         return call_user_func_array(array($this->image, $method), $arguments);
     }
 
     // Piwigo resize function
-    function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation=true, $strip_metadata=false, $crop=false, $follow_orientation=true) {
+    function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
+    {
         $starttime = get_moment();
 
         // width/height
-        $source_width  = $this->image->get_width();
+        $source_width = $this->image->get_width();
         $source_height = $this->image->get_height();
 
         $rotation = null;
@@ -132,8 +122,15 @@ class pwg_image
         return $this->get_resize_result($destination_filepath, $resize_dimensions['width'], $resize_dimensions['height'], $starttime);
     }
 
-    public static function get_resize_dimensions($width, $height, $max_width, $max_height,
-                                                 $rotation=null, $crop=false, $follow_orientation=true) {
+    public static function get_resize_dimensions(
+        $width,
+        $height,
+        $max_width,
+        $max_height,
+        $rotation = null,
+        $crop = false,
+        $follow_orientation = true
+    ) {
 
         $rotate_for_dimensions = false;
         if (isset($rotation) and in_array(abs($rotation), array(90, 270))) {
@@ -155,18 +152,18 @@ class pwg_image
             $img_ratio = $width / $height;
             $dest_ratio = $max_width / $max_height;
 
-            if($dest_ratio > $img_ratio) {
+            if ($dest_ratio > $img_ratio) {
                 $destHeight = round($width * $max_height / $max_width);
-                $y = round(($height - $destHeight) / 2 );
+                $y = round(($height - $destHeight) / 2);
                 $height = $destHeight;
             } elseif ($dest_ratio < $img_ratio) {
                 $destWidth = round($height * $max_width / $max_height);
-                $x = round(($width - $destWidth) / 2 );
+                $x = round(($width - $destWidth) / 2);
                 $width = $destWidth;
             }
         }
 
-        $ratio_width  = $width / $max_width;
+        $ratio_width = $width / $max_width;
         $ratio_height = $height / $max_height;
         $destination_width = $width;
         $destination_height = $height;
@@ -188,7 +185,7 @@ class pwg_image
 
         $result = array(
             'width' => $destination_width,
-            'height'=> $destination_height,
+            'height' => $destination_height,
         );
 
         if ($crop and ($x or $y)) {
@@ -202,7 +199,8 @@ class pwg_image
         return $result;
     }
 
-    public static function get_rotation_angle($source_filepath) {
+    public static function get_rotation_angle($source_filepath)
+    {
         list($width, $height, $type) = getimagesize($source_filepath);
         if (IMAGETYPE_JPEG != $type) {
             return null;
@@ -230,42 +228,51 @@ class pwg_image
         return $rotation;
     }
 
-    public static function get_rotation_code_from_angle($rotation_angle) {
-        switch($rotation_angle)
-        {
-        case 0:   return 0;
-        case 90:  return 1;
-        case 180: return 2;
-        case 270: return 3;
+    public static function get_rotation_code_from_angle($rotation_angle)
+    {
+        switch ($rotation_angle) {
+            case 0:
+                return 0;
+            case 90:
+                return 1;
+            case 180:
+                return 2;
+            case 270:
+                return 3;
         }
     }
 
-    public static function get_rotation_angle_from_code($rotation_code) {
-        switch($rotation_code%4)
-        {
-        case 0: return 0;
-        case 1: return 90;
-        case 2: return 180;
-        case 3: return 270;
+    public static function get_rotation_angle_from_code($rotation_code)
+    {
+        switch ($rotation_code % 4) {
+            case 0:
+                return 0;
+            case 1:
+                return 90;
+            case 2:
+                return 180;
+            case 3:
+                return 270;
         }
     }
 
     /** Returns a normalized convolution kernel for sharpening*/
-    public static function get_sharpen_matrix($amount) {
+    public static function get_sharpen_matrix($amount)
+    {
         // Amount should be in the range of 48-10
         $amount = round(abs(-48 + ($amount * 0.38)), 2);
 
         $matrix = array(
-            array(-1,   -1,    -1),
+            array(-1, -1, -1),
             array(-1, $amount, -1),
-            array(-1,   -1,    -1),
+            array(-1, -1, -1),
         );
 
         $norm = array_sum(array_map('array_sum', $matrix));
 
-        for ($i=0; $i<3; $i++) {
-            $line = & $matrix[$i];
-            for ($j=0; $j<3; $j++) {
+        for ($i = 0; $i < 3; $i++) {
+            $line = &$matrix[$i];
+            for ($j = 0; $j < 3; $j++) {
                 $line[$j] /= $norm;
             }
         }
@@ -273,29 +280,32 @@ class pwg_image
         return $matrix;
     }
 
-    private function get_resize_result($destination_filepath, $width, $height, $time=null) {
+    private function get_resize_result($destination_filepath, $width, $height, $time = null)
+    {
         return array(
-            'source'      => $this->source_filepath,
+            'source' => $this->source_filepath,
             'destination' => $destination_filepath,
-            'width'       => $width,
-            'height'      => $height,
-            'size'        => floor(filesize($destination_filepath) / 1024).' KB',
-            'time'        => $time ? number_format((get_moment() - $time) * 1000, 2, '.', ' ').' ms' : null,
-            'library'     => $this->library,
+            'width' => $width,
+            'height' => $height,
+            'size' => floor(filesize($destination_filepath) / 1024) . ' KB',
+            'time' => $time ? number_format((get_moment() - $time) * 1000, 2, '.', ' ') . ' ms' : null,
+            'library' => $this->library,
         );
     }
 
-    public static function is_imagick() {
+    public static function is_imagick()
+    {
         return (extension_loaded('imagick') and class_exists('Imagick'));
     }
 
-    public static function is_ext_imagick() {
+    public static function is_ext_imagick()
+    {
         global $conf;
 
         if (!function_exists('exec')) {
             return false;
         }
-        @exec($conf['ext_imagick_dir'].'convert -version', $returnarray);
+        @exec($conf['ext_imagick_dir'] . 'convert -version', $returnarray);
         if (is_array($returnarray) and !empty($returnarray[0]) and preg_match('/ImageMagick/i', $returnarray[0])) {
             if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match)) {
                 self::$ext_imagick_version = $match[1];
@@ -305,11 +315,13 @@ class pwg_image
         return false;
     }
 
-    public static function is_gd() {
+    public static function is_gd()
+    {
         return function_exists('gd_info');
     }
 
-    public static function get_library($library=null, $extension=null) {
+    public static function get_library($library = null, $extension = null)
+    {
         global $conf;
 
         if (is_null($library)) {
@@ -317,31 +329,31 @@ class pwg_image
         }
 
         // Choose image library
-        switch (strtolower($library))
-        {
-        case 'auto':
-        case 'imagick':
-            if ($extension != 'gif' and self::is_imagick()) {
-                return 'imagick';
-            }
-        case 'ext_imagick':
-            if ($extension != 'gif' and self::is_ext_imagick()) {
-                return 'ext_imagick';
-            }
-        case 'gd':
-            if (self::is_gd()) {
-                return 'gd';
-            }
-        default:
-            if ($library != 'auto') {
+        switch (strtolower($library)) {
+            case 'auto':
+            case 'imagick':
+                if ($extension != 'gif' and self::is_imagick()) {
+                    return 'imagick';
+                }
+            case 'ext_imagick':
+                if ($extension != 'gif' and self::is_ext_imagick()) {
+                    return 'ext_imagick';
+                }
+            case 'gd':
+                if (self::is_gd()) {
+                    return 'gd';
+                }
+            default:
+                if ($library != 'auto') {
                 // Requested library not available. Try another library
-                return self::get_library('auto', $extension);
-            }
+                    return self::get_library('auto', $extension);
+                }
         }
         return false;
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         if (method_exists($this->image, 'destroy')) {
             return $this->image->destroy();
         }
@@ -357,54 +369,64 @@ class image_imagick implements imageInterface
 {
     var $image;
 
-    public function __construct($source_filepath) {
+    public function __construct($source_filepath)
+    {
         // A bug cause that Imagick class can not be extended
         $this->image = new Imagick($source_filepath);
     }
 
-    public function get_width() {
+    public function get_width()
+    {
         return $this->image->getImageWidth();
     }
 
-    public function get_height() {
+    public function get_height()
+    {
         return $this->image->getImageHeight();
     }
 
-    public function set_compression_quality($quality) {
+    public function set_compression_quality($quality)
+    {
         return $this->image->setImageCompressionQuality($quality);
     }
 
-    public function crop($width, $height, $x, $y) {
+    public function crop($width, $height, $x, $y)
+    {
         return $this->image->cropImage($width, $height, $x, $y);
     }
 
-    public function strip() {
+    public function strip()
+    {
         return $this->image->stripImage();
     }
 
-    public function rotate($rotation) {
+    public function rotate($rotation)
+    {
         $this->image->rotateImage(new ImagickPixel(), -$rotation);
         $this->image->setImageOrientation(Imagick::ORIENTATION_TOPLEFT);
         return true;
     }
 
-    public function resize($width, $height) {
+    public function resize($width, $height)
+    {
         $this->image->setInterlaceScheme(Imagick::INTERLACE_LINE);
 
         // @TODO need to explain this condition
-        if ($this->get_width()%2 == 0 && $this->get_height()%2 == 0 && $this->get_width() > 3*$width) {
-            $this->image->scaleImage($this->get_width()/2, $this->get_height()/2);
+        if ($this->get_width() % 2 == 0 && $this->get_height() % 2 == 0 && $this->get_width() > 3 * $width) {
+            $this->image->scaleImage($this->get_width() / 2, $this->get_height() / 2);
         }
 
         return $this->image->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 0.9);
     }
 
-    public function sharpen($amount) {
+    public function sharpen($amount)
+    {
         $m = pwg_image::get_sharpen_matrix($amount);
-        return  $this->image->convolveImage($m);
+        return $this->image->convolveImage($m);
     }
 
-    public function compose($overlay, $x, $y, $opacity) {
+    public function compose($overlay, $x, $y, $opacity)
+    {
         $ioverlay = $overlay->image->image;
         /*if ($ioverlay->getImageAlphaChannel() !== Imagick::ALPHACHANNEL_OPAQUE)
           {
@@ -413,7 +435,7 @@ class image_imagick implements imageInterface
           }*/
 
         global $dirty_trick_xrepeat;
-        if ( !isset($dirty_trick_xrepeat) && $opacity < 100) {
+        if (!isset($dirty_trick_xrepeat) && $opacity < 100) {
             // NOTE: Using setImageOpacity will destroy current alpha channels!
             $ioverlay->evaluateImage(Imagick::EVALUATE_MULTIPLY, $opacity / 100, Imagick::CHANNEL_ALPHA);
             $dirty_trick_xrepeat = true;
@@ -422,9 +444,10 @@ class image_imagick implements imageInterface
         return $this->image->compositeImage($ioverlay, Imagick::COMPOSITE_DISSOLVE, $x, $y);
     }
 
-    public function write($destination_filepath) {
+    public function write($destination_filepath)
+    {
         // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
-        $this->image->setSamplingFactors( array(2,1) );
+        $this->image->setSamplingFactors(array(2, 1));
         return $this->image->writeImage($destination_filepath);
     }
 }
@@ -441,7 +464,8 @@ class image_ext_imagick implements imageInterface
     var $height = '';
     var $commands = array();
 
-    public function __construct($source_filepath) {
+    public function __construct($source_filepath)
+    {
         global $conf;
         $this->source_filepath = $source_filepath;
         $this->imagickdir = $conf['ext_imagick_dir'];
@@ -450,9 +474,9 @@ class image_ext_imagick implements imageInterface
             @putenv('MAGICK_THREAD_LIMIT=1');
         }
 
-        $command = $this->imagickdir.'identify -format "%wx%h" "'.realpath($source_filepath).'"';
+        $command = $this->imagickdir . 'identify -format "%wx%h" "' . realpath($source_filepath) . '"';
         @exec($command, $returnarray);
-        if(!is_array($returnarray) or empty($returnarray[0]) or !preg_match('/^(\d+)x(\d+)$/', $returnarray[0], $match)) {
+        if (!is_array($returnarray) or empty($returnarray[0]) or !preg_match('/^(\d+)x(\d+)$/', $returnarray[0], $match)) {
             die("[External ImageMagick] Corrupt image\n" . var_export($returnarray, true));
         }
 
@@ -460,38 +484,44 @@ class image_ext_imagick implements imageInterface
         $this->height = $match[2];
     }
 
-    public function add_command($command, $params=null) {
+    public function add_command($command, $params = null)
+    {
         $this->commands[$command] = $params;
     }
 
-    public function get_width() {
+    public function get_width()
+    {
         return $this->width;
     }
 
-    public function get_height() {
+    public function get_height()
+    {
         return $this->height;
     }
 
-    public function crop($width, $height, $x, $y) {
+    public function crop($width, $height, $x, $y)
+    {
         $this->width = $width;
         $this->height = $height;
 
-        $this->add_command('crop', $width.'x'.$height.'+'.$x.'+'.$y);
+        $this->add_command('crop', $width . 'x' . $height . '+' . $x . '+' . $y);
 
         return true;
     }
 
-    public function strip() {
+    public function strip()
+    {
         $this->add_command('strip');
         return true;
     }
 
-    public function rotate($rotation) {
+    public function rotate($rotation)
+    {
         if (empty($rotation)) {
             return true;
         }
 
-        if ($rotation==90 || $rotation==270) {
+        if ($rotation == 90 || $rotation == 270) {
             $tmp = $this->width;
             $this->width = $this->height;
             $this->height = $tmp;
@@ -501,25 +531,28 @@ class image_ext_imagick implements imageInterface
         return true;
     }
 
-    public function set_compression_quality($quality) {
+    public function set_compression_quality($quality)
+    {
         $this->add_command('quality', $quality);
         return true;
     }
 
-    public function resize($width, $height) {
+    public function resize($width, $height)
+    {
         $this->width = $width;
         $this->height = $height;
 
         $this->add_command('filter', 'Lanczos');
-        $this->add_command('resize', $width.'x'.$height.'!');
+        $this->add_command('resize', $width . 'x' . $height . '!');
 
         return true;
     }
 
-    public function sharpen($amount) {
+    public function sharpen($amount)
+    {
         $m = pwg_image::get_sharpen_matrix($amount);
 
-        $param ='convolve "'.count($m).':';
+        $param = 'convolve "' . count($m) . ':';
         foreach ($m as $line) {
             $param .= ' ';
             $param .= implode(',', $line);
@@ -529,16 +562,18 @@ class image_ext_imagick implements imageInterface
         return true;
     }
 
-    public function compose($overlay, $x, $y, $opacity) {
-        $param = 'compose dissolve -define compose:args='.$opacity;
-        $param .= ' '.escapeshellarg(realpath($overlay->image->source_filepath));
-        $param .= ' -gravity NorthWest -geometry +'.$x.'+'.$y;
+    public function compose($overlay, $x, $y, $opacity)
+    {
+        $param = 'compose dissolve -define compose:args=' . $opacity;
+        $param .= ' ' . escapeshellarg(realpath($overlay->image->source_filepath));
+        $param .= ' -gravity NorthWest -geometry +' . $x . '+' . $y;
         $param .= ' -composite';
         $this->add_command($param);
         return true;
     }
 
-    public function write($destination_filepath) {
+    public function write($destination_filepath)
+    {
         $this->add_command('interlace', 'line'); // progressive rendering
         // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
         //
@@ -548,31 +583,31 @@ class image_ext_imagick implements imageInterface
         // option
         //
         if (version_compare(pwg_image::$ext_imagick_version, '6.6') > 0) {
-            $this->add_command('sampling-factor', '4:2:2' );
+            $this->add_command('sampling-factor', '4:2:2');
         }
 
-        $exec = $this->imagickdir.'convert';
-        $exec .= ' "'.realpath($this->source_filepath).'"';
+        $exec = $this->imagickdir . 'convert';
+        $exec .= ' "' . realpath($this->source_filepath) . '"';
 
         foreach ($this->commands as $command => $params) {
-            $exec .= ' -'.$command;
+            $exec .= ' -' . $command;
             if (!empty($params)) {
-                $exec .= ' '.$params;
+                $exec .= ' ' . $params;
             }
         }
 
         $dest = pathinfo($destination_filepath);
-        $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'" 2>&1';
+        $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '" 2>&1';
         @exec($exec, $returnarray);
 
         if (function_exists('ilog')) {
             ilog($exec);
         }
-        if (is_array($returnarray) && (count($returnarray)>0)) {
+        if (is_array($returnarray) && (count($returnarray) > 0)) {
             if (function_exists('ilog')) {
                 ilog('ERROR', $returnarray);
             }
-            foreach($returnarray as $line) {
+            foreach ($returnarray as $line) {
                 trigger_error($line, E_USER_WARNING);
             }
         }
@@ -589,7 +624,8 @@ class image_gd implements imageInterface
     var $image;
     var $quality = 95;
 
-    public function __construct($source_filepath) {
+    public function __construct($source_filepath)
+    {
         $gd_info = gd_info();
         $extension = strtolower(get_extension($source_filepath));
 
@@ -604,15 +640,18 @@ class image_gd implements imageInterface
         }
     }
 
-    public function get_width() {
+    public function get_width()
+    {
         return imagesx($this->image);
     }
 
-    public function get_height() {
+    public function get_height()
+    {
         return imagesy($this->image);
     }
 
-    public function crop($width, $height, $x, $y) {
+    public function crop($width, $height, $x, $y)
+    {
         $dest = imagecreatetruecolor($width, $height);
 
         imagealphablending($dest, false);
@@ -632,23 +671,27 @@ class image_gd implements imageInterface
         return $result;
     }
 
-    public function strip() {
+    public function strip()
+    {
         return true;
     }
 
-    public function rotate($rotation) {
+    public function rotate($rotation)
+    {
         $dest = imagerotate($this->image, $rotation, 0);
         imagedestroy($this->image);
         $this->image = $dest;
         return true;
     }
 
-    public function set_compression_quality($quality) {
+    public function set_compression_quality($quality)
+    {
         $this->quality = $quality;
         return true;
     }
 
-    public function resize($width, $height) {
+    public function resize($width, $height)
+    {
         $dest = imagecreatetruecolor($width, $height);
 
         imagealphablending($dest, false);
@@ -668,12 +711,14 @@ class image_gd implements imageInterface
         return $result;
     }
 
-    public function sharpen($amount) {
+    public function sharpen($amount)
+    {
         $m = pwg_image::get_sharpen_matrix($amount);
         return imageconvolution($this->image, $m, 1, 0);
     }
 
-    public function compose($overlay, $x, $y, $opacity) {
+    public function compose($overlay, $x, $y, $opacity)
+    {
         $ioverlay = $overlay->image->image;
         /* A replacement for php's imagecopymerge() function that supports the alpha channel
            See php bug #23815:  http://bugs.php.net/bug.php?id=23815 */
@@ -682,19 +727,20 @@ class image_gd implements imageInterface
         $oh = imagesy($ioverlay);
 
 		// Create a new blank image the site of our source image
-		$cut = imagecreatetruecolor($ow, $oh);
+        $cut = imagecreatetruecolor($ow, $oh);
 
 		// Copy the blank image into the destination image where the source goes
-		imagecopy($cut, $this->image, 0, 0, $x, $y, $ow, $oh);
+        imagecopy($cut, $this->image, 0, 0, $x, $y, $ow, $oh);
 
 		// Place the source image in the destination image
-		imagecopy($cut, $ioverlay, 0, 0, 0, 0, $ow, $oh);
-		imagecopymerge($this->image, $cut, $x, $y, 0, 0, $ow, $oh, $opacity);
+        imagecopy($cut, $ioverlay, 0, 0, 0, 0, $ow, $oh);
+        imagecopymerge($this->image, $cut, $x, $y, 0, 0, $ow, $oh, $opacity);
         imagedestroy($cut);
         return true;
     }
 
-    public function write($destination_filepath) {
+    public function write($destination_filepath)
+    {
         $extension = strtolower(get_extension($destination_filepath));
 
         if ($extension == 'png') {
@@ -706,7 +752,8 @@ class image_gd implements imageInterface
         }
     }
 
-    public function destroy() {
+    public function destroy()
+    {
         imagedestroy($this->image);
     }
 }

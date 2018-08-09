@@ -12,6 +12,7 @@
 namespace Phyxo\Model\Repository;
 
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Functions\Plugin;
 
 class Tags extends BaseRepository
 {
@@ -34,7 +35,7 @@ class Tags extends BaseRepository
         $result = $this->conn->db_query($query);
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
-            $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
+            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
 
@@ -58,7 +59,7 @@ class Tags extends BaseRepository
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['thumb_src'] = DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
-            $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
+            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
 
@@ -134,7 +135,7 @@ class Tags extends BaseRepository
         while ($row = $this->conn->db_fetch_assoc($result)) {
             if (!empty($tag_counters[$row['id']])) {
                 $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
-                $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
+                $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
                 $row['status'] = $tag_counters[$row['id']]['status'];
                 $row['created_by'] = $tag_counters[$row['id']]['created_by'];
                 $row['validated'] = $this->conn->get_boolean($tag_counters[$row['id']]['validated']);
@@ -170,7 +171,7 @@ class Tags extends BaseRepository
         $result = $this->conn->db_query($query);
         $tags = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
-            $row['name'] = trigger_change('render_tag_name', $row['name'], $row);
+            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $row['validated'] = $this->conn->get_boolean($row['validated']);
             $tags[] = $row;
         }
@@ -195,7 +196,7 @@ class Tags extends BaseRepository
         $altlist = array();
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $raw_name = $row['name'];
-            $name = trigger_change('render_tag_name', $raw_name, $row);
+            $name = Plugin::trigger_change('render_tag_name', $raw_name, $row);
 
             $taglist[] = array(
                 'name' => $name,
@@ -203,7 +204,7 @@ class Tags extends BaseRepository
             );
 
             if (!$only_user_language) {
-                $alt_names = trigger_change('get_tag_alt_names', array(), $raw_name);
+                $alt_names = Plugin::trigger_change('get_tag_alt_names', array(), $raw_name);
 
                 foreach (array_diff(array_unique($alt_names), array($name)) as $alt) {
                     $altlist[] = array(
@@ -273,13 +274,13 @@ class Tags extends BaseRepository
         $query .= ' WHERE name = \'' . $this->conn->db_real_escape_string($tag_name) . '\';';
 
         if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
-            $url_name = trigger_change('render_tag_url', $tag_name);
+            $url_name = Plugin::trigger_change('render_tag_url', $tag_name);
             // search existing by url name
             $query = 'SELECT id FROM ' . $this->table;
             $query .= ' WHERE url_name = \'' . $this->conn->db_real_escape_string($url_name) . '\';';
             if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
                 // search by extended description (plugin sub name)
-                $sub_name_where = trigger_change('get_tag_name_like_where', array(), $tag_name);
+                $sub_name_where = Plugin::trigger_change('get_tag_name_like_where', array(), $tag_name);
                 if (count($sub_name_where)) {
                     $query = 'SELECT id FROM ' . $this->table;
                     $query .= ' WHERE ' . implode(' OR ', $sub_name_where) . ';';
@@ -593,7 +594,7 @@ class Tags extends BaseRepository
                 TAGS_TABLE,
                 array(
                     'name' => $tag_name,
-                    'url_name' => trigger_change('render_tag_url', $tag_name),
+                    'url_name' => Plugin::trigger_change('render_tag_url', $tag_name),
                 )
             );
 

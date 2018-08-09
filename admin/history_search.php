@@ -140,7 +140,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
-    $data = trigger_change('get_history', array(), $page['search'], $types);
+    $data = \Phyxo\Functions\Plugin::trigger_change('get_history', array(), $page['search'], $types);
     usort($data, 'history_compare');
 
     $page['nb_lines'] = count($data);
@@ -208,7 +208,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         $name_of_tag = array();
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
-            $name_of_tag[$row['id']] = '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($row))) . '">' . trigger_change("render_tag_name", $row['name'], $row) . '</a>';
+            $name_of_tag[$row['id']] = '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($row))) . '">' . \Phyxo\Functions\Plugin::trigger_change("render_tag_name", $row['name'], $row) . '</a>';
         }
     }
 
@@ -284,7 +284,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
             $image_title = '(' . $line['image_id'] . ')';
 
             if (isset($image_infos[$line['image_id']]['label'])) {
-                $image_title .= ' ' . trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
+                $image_title .= ' ' . \Phyxo\Functions\Plugin::trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
             } else {
                 $image_title .= ' unknown filename';
             }

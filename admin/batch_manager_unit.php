@@ -26,7 +26,7 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-trigger_notify('loc_begin_element_set_unit');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_unit');
 
 // +-----------------------------------------------------------------------+
 // |                        unit mode form submission                      |
@@ -197,4 +197,4 @@ if (count($page['cat_elements_id']) > 0) {
     ));
 }
 
-trigger_notify('loc_end_element_set_unit');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_element_set_unit');

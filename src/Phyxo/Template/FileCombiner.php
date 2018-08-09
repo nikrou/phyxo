@@ -15,6 +15,8 @@ use Phyxo\Template\Combinable;
 use JShrink;
 use CssMin;
 
+use Phyxo\Functions\Plugin;
+
 /**
  * Allows merging of javascript and css files into a single one.
  */
@@ -171,7 +173,7 @@ final class FileCombiner
 
             $handle = $this->type . '.' . $combinable->id;
             $template->set_filename($handle, realpath(PHPWG_ROOT_PATH . $combinable->path));
-            trigger_notify('combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
+            Plugin::trigger_notify('combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
             $content = $template->parse($handle, true);
 
             if ($this->is_css) {
@@ -230,7 +232,7 @@ final class FileCombiner
         if (strpos($file, '.min') === false and version_compare(PHP_VERSION, '5.2.4', '>=')) {
             $css = CssMin::minify($css, array('Variables' => false));
         }
-        $css = trigger_change('combined_css_postfilter', $css);
+        $css = Plugin::trigger_change('combined_css_postfilter', $css);
         return $css;
     }
 

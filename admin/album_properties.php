@@ -15,7 +15,7 @@ if (!defined('ALBUM_BASE_URL')) {
 
 include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
-trigger_notify('loc_begin_cat_modify');
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_cat_modify');
 
 //---------------------------------------------------------------- verification
 if (!isset($_GET['cat_id']) || !is_numeric($_GET['cat_id'])) {
@@ -244,7 +244,7 @@ if ($category['is_virtual']) {
     $template->assign('parent_category', empty($category['id_uppercat']) ? array() : array($category['id_uppercat']));
 }
 
-trigger_notify('loc_end_cat_modify');
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_cat_modify');
 
 
 // get_complete_dir returns the concatenation of get_site_url and
