@@ -134,7 +134,7 @@ function default_picture_content($content, $element_info)
         if (array_key_exists($_COOKIE['picture_deriv'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
             $_SESSION['picture_deriv'] = $_COOKIE['picture_deriv'];
         }
-        setcookie('picture_deriv', false, 0, cookie_path());
+        setcookie('picture_deriv', false, 0, \Phyxo\Functions\Utils::cookie_path());
     }
     $deriv_type = isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size'];
     $selected_derivative = $element_info['derivatives'][$deriv_type];
@@ -173,7 +173,7 @@ function default_picture_content($content, $element_info)
 
     $template->assign(array(
         'ALT_IMG' => $element_info['file'],
-        'COOKIE_PATH' => cookie_path(),
+        'COOKIE_PATH' => \Phyxo\Functions\Utils::cookie_path(),
     ));
 
     return $template->parse('default_content', true);

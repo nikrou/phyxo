@@ -42,7 +42,7 @@ function rate_picture($image_id, $rate)
     $anonymous_id = implode('.', $ip_components);
 
     if ($user_anonymous) {
-        $save_anonymous_id = pwg_get_cookie_var('anonymous_rater', $anonymous_id);
+        $save_anonymous_id = isset($_COOKIE['anonymous_rater']) ? $_COOKIE['anonymous_rater'] : $anonymous_id;
 
         if ($anonymous_id != $save_anonymous_id) { // client has changed his IP adress or he's trying to fool us
             $query = 'SELECT element_id FROM ' . RATE_TABLE;
@@ -62,7 +62,7 @@ function rate_picture($image_id, $rate)
             $conn->db_query($query);
         } // end client changed ip
 
-        pwg_set_cookie_var('anonymous_rater', $anonymous_id);
+        set_cookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
     } // end anonymous user
 
     $query = 'DELETE FROM ' . RATE_TABLE;

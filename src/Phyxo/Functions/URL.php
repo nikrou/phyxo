@@ -136,7 +136,7 @@ class URL
                 }
             }
         }
-        $url .= cookie_path();
+        $url .= \Phyxo\Functions\Utils::cookie_path();
 
         return $url;
     }

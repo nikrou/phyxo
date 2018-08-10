@@ -80,7 +80,7 @@ if (isset($_POST['submit'])) {
         $cookie_val = null;
     }
 
-    pwg_set_cookie_var('display_thumbnail', $cookie_val, strtotime('+1 month'));
+    set_cookie('display_thumbnail', $cookie_val, strtotime('+1 month'), \Phyxo\Functions\Utils::cookie_path());
 
     // TODO manage inconsistency of having $_POST['image_id'] and
     // $_POST['filename'] simultaneously
@@ -433,12 +433,11 @@ if (isset($page['search'])) {
 
     $form['display_thumbnail'] = @$page['search']['fields']['display_thumbnail'];
 } else {
-    // by default, at page load, we want the selected date to be the current
-    // date
+    // by default, at page load, we want the selected date to be the current date
     $form['start'] = $form['end'] = date('Y-m-d');
     $form['types'] = $types;
     // Hoverbox by default
-    $form['display_thumbnail'] = pwg_get_cookie_var('display_thumbnail', 'no_display_thumbnail');
+    $form['display_thumbnail'] = isset($_COOKIE['display_thumbnail']) ? $_COOKIE['display_thumbnail'] : 'no_display_thumbnail';
 }
 
 

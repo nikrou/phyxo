@@ -12,6 +12,7 @@
 namespace Phyxo\Model\Repository;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\Functions\Utils;
 
 class Users extends BaseRepository
 {
@@ -302,14 +303,14 @@ class Users extends BaseRepository
                     $conf['remember_me_name'],
                     $cookie,
                     time() + $conf['remember_me_length'],
-                    cookie_path(),
+                    Utils::cookie_path(),
                     ini_get('session.cookie_domain'),
                     ini_get('session.cookie_secure'),
                     ini_get('session.cookie_httponly')
                 );
             }
         } else { // make sure we clean any remember me ...
-            setcookie($conf['remember_me_name'], '', 0, cookie_path(), ini_get('session.cookie_domain'));
+            setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
         }
 
         //session_name($conf['session_name']);
@@ -343,7 +344,7 @@ class Users extends BaseRepository
                     return true;
                 }
             }
-            setcookie($conf['remember_me_name'], '', 0, cookie_path(), ini_get('session.cookie_domain'));
+            setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
         }
 
         return false;
@@ -411,7 +412,7 @@ class Users extends BaseRepository
         session_unset();
         session_destroy();
         setcookie(session_name($conf['session_name']), '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
-        setcookie($conf['remember_me_name'], '', 0, cookie_path(), ini_get('session.cookie_domain'));
+        setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
     }
 
     /**

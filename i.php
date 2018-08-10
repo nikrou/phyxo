@@ -322,8 +322,6 @@ function send_derivative($expires)
     global $page;
 
     if (isset($_GET['ajaxload']) and $_GET['ajaxload'] == 'true') {
-        include_once(PHPWG_ROOT_PATH . 'include/functions_cookie.inc.php');
-
         echo json_encode(array('url' => \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $page['derivative_path'])));
         return;
     }

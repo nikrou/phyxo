@@ -105,7 +105,7 @@ if (function_exists('ini_set')) {
     ini_set('session.cookie_httponly', 1);
 }
 
-session_set_cookie_params(0, cookie_path());
+session_set_cookie_params(0, \Phyxo\Functions\Utils::cookie_path());
 register_shutdown_function('session_write_close');
 session_name($conf['session_name']);
 session_start();

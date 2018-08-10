@@ -343,7 +343,7 @@ if ($step == 1) {
             ini_set('session.cookie_httponly', 1);
         }
         session_name($conf['session_name']);
-        session_set_cookie_params(0, cookie_path());
+        session_set_cookie_params(0, \Phyxo\Functions\Utils::cookie_path());
         register_shutdown_function('session_write_close');
 
         $user = $services['users']->buildUser(1, true);
