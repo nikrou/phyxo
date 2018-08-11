@@ -414,7 +414,7 @@ class URL
                     }
 
                     if (count($maybe_permalinks)) {
-                        $cat_id = get_cat_id_from_permalinks($maybe_permalinks, $perma_index);
+                        $cat_id = \Phyxo\Functions\Category::get_cat_id_from_permalinks($maybe_permalinks, $perma_index);
                         if (isset($cat_id)) {
                             $next_token += $perma_index + 1;
                             $page['category'] = $cat_id;
@@ -427,7 +427,7 @@ class URL
             }
 
             if (isset($page['category'])) {
-                $result = get_cat_info($page['category']);
+                $result = \Phyxo\Functions\Category::get_cat_info($page['category']);
                 if (empty($result)) {
                     page_not_found(\Phyxo\Functions\Language::l10n('Requested album does not exist'));
                 }

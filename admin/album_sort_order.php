@@ -64,7 +64,7 @@ if (isset($_POST['submit'])) {
     $conn->db_query($query);
 
     if (isset($_POST['image_order_subcats'])) {
-        $cat_info = get_cat_info($page['category_id']);
+        $cat_info = \Phyxo\Functions\Category::get_cat_info($page['category_id']);
 
         $query = 'UPDATE ' . CATEGORIES_TABLE;
         $query .= ' SET image_order = ' . (isset($image_order) ? '\'' . $conn->db_real_escape_string($image_order) . '\'' : 'NULL');
@@ -91,7 +91,7 @@ if ($category['image_order'] == 'rank ASC') {
 }
 
 // Navigation path
-$navigation = get_cat_display_name_cache(
+$navigation = \Phyxo\Functions\Category::get_cat_display_name_cache(
     $category['uppercats'],
     \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-'
 );

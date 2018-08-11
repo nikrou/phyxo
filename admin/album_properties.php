@@ -44,7 +44,7 @@ if (isset($_POST['submit'])) {
         array('id' => $data['id'])
     );
     if (!empty($_POST['apply_commentable_on_sub'])) {
-        $subcats = get_subcat_ids(array('id' => $data['id']));
+        $subcats = \Phyxo\Functions\Category::get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE ' . CATEGORIES_TABLE;
         $query .= ' SET commentable = \'' . $conn->boolean_to_db($data['commentable']) . '\'';
         $query .= ' WHERE id ' . $conn->in($subcats);
@@ -52,7 +52,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (!empty($_POST['apply_commentable_on_sub'])) {
-        $subcats = get_subcat_ids(array('id' => $data['id']));
+        $subcats = \Phyxo\Functions\Category::get_subcat_ids(array('id' => $data['id']));
         $query = 'UPDATE ' . CATEGORIES_TABLE;
         $query .= ' SET commentable = \'' . $conn->boolean_to_db($data['commentable']) . '\'';
         $query .= ' WHERE id ' . $conn->in($subcats);
@@ -60,13 +60,13 @@ if (isset($_POST['submit'])) {
     }
 
     // retrieve cat infos before continuing (following updates are expensive)
-    $cat_info = get_cat_info($_GET['cat_id']);
+    $cat_info = \Phyxo\Functions\Category::get_cat_info($_GET['cat_id']);
 
     if (!empty($_POST['visible'])) {
         if ($_POST['visible'] == 'true_sub') {
-            set_cat_visible(array($_GET['cat_id']), true, true);
+            \Phyxo\Functions\Category::set_cat_visible(array($_GET['cat_id']), true, true);
         } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
-            set_cat_visible(array($_GET['cat_id']), $conn->get_boolean($_POST['visible']));
+            \Phyxo\Functions\Category::set_cat_visible(array($_GET['cat_id']), $conn->get_boolean($_POST['visible']));
         }
     }
 
@@ -113,7 +113,7 @@ $result = $conn->db_query($query);
 $category['has_images'] = $conn->db_num_rows($result) > 0 ? true : false;
 
 // Navigation path
-$navigation = get_cat_display_name_cache(
+$navigation = \Phyxo\Functions\Category::get_cat_display_name_cache(
     $category['uppercats'],
     ALBUM_BASE_URL . '&amp;section=properties&amp;cat_id='
 );

@@ -9,5 +9,4 @@
  * file that was distributed with this source code.
  */
 
-include_once(PHPWG_ROOT_PATH . 'include/functions_category.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_html.inc.php');

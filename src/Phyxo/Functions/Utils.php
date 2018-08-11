@@ -701,7 +701,7 @@ class Utils
     public static function redirect($url, $msg = '', $refresh_time = 0)
     {
         if (!headers_sent()) {
-            redirect_http($url);
+            self::redirect_http($url);
         }
     }
 
@@ -832,4 +832,36 @@ class Utils
         }
     }
 
+    /**
+     * Callback used for sorting by global_rank
+     */
+    public static function global_rank_compare($a, $b)
+    {
+        return strnatcasecmp($a['global_rank'], $b['global_rank']);
+    }
+
+    /**
+     * Callback used for sorting by rank
+     */
+    public static function rank_compare($a, $b)
+    {
+        return $a['rank'] - $b['rank'];
+    }
+
+    /**
+     * Is the category accessible to the connected user ?
+     * If the user is not authorized to see this category, script exits
+     *
+     * @param int $category_id
+     */
+    public static function check_restrictions($category_id)
+    {
+        global $user;
+
+        // $filter['visible_categories'] and $filter['visible_images']
+       // are not used because it's not necessary (filter <> restriction)
+        if (in_array($category_id, explode(',', $user['forbidden_categories']))) {
+            access_denied();
+        }
+    }
 }

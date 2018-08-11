@@ -43,7 +43,7 @@ if (isset($_GET['delete'])) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 array(
-                    'category' => get_cat_info($_GET['cat_id'])
+                    'category' => \Phyxo\Functions\Category::get_cat_info($_GET['cat_id'])
                 )
             )
         );
@@ -61,7 +61,7 @@ if (isset($_GET['delete'])) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 array(
-                    'category' => get_cat_info($category_id)
+                    'category' => \Phyxo\Functions\Category::get_cat_info($category_id)
                 )
             )
         );
@@ -245,7 +245,7 @@ $query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 $result = $conn->db_query($query);
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $name = get_cat_display_name_cache($row['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
+    $name = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
 
     if ($row['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);

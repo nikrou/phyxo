@@ -29,7 +29,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
         // if you forbid access to a category, all sub-categories become
         // automatically forbidden
-        $subcats = get_subcat_ids($_POST['cat_true']);
+        $subcats = \Phyxo\Functions\Category::get_subcat_ids($_POST['cat_true']);
         $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
         $query .= ' WHERE group_id = ' . $page['group'] . ' AND cat_id ' . $conn->in($subcats);
         $conn->db_query($query);
@@ -93,7 +93,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
     $query_true .= ' LEFT JOIN ' . GROUP_ACCESS_TABLE . ' ON cat_id = id';
     $query_true .= ' WHERE status = \'private\' AND group_id = ' . $conn->db_real_escape_string($page['group']);
-    display_select_cat_wrapper($query_true, array(), 'category_option_true');
+    \Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
 
     $result = $conn->db_query($query_true);
     $authorized_ids = array();
@@ -105,7 +105,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     if (count($authorized_ids) > 0) {
         $query_false .= ' AND id NOT ' . $conn->in($authorized_ids);
     }
-    display_select_cat_wrapper($query_false, array(), 'category_option_false');
+    \Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
 
     // +-----------------------------------------------------------------------+
     // |                           html code display                           |

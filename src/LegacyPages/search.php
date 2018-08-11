@@ -221,7 +221,7 @@ $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
     ),
     'WHERE'
 );
-display_select_cat_wrapper($query, array(), 'category_options', true);
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, array(), 'category_options', true);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');

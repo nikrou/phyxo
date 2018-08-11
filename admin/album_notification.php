@@ -95,7 +95,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
 
 $template->assign(
     array(
-        'CATEGORIES_NAV' => get_cat_display_name_from_id(
+        'CATEGORIES_NAV' => \Phyxo\Functions\Category::get_cat_display_name_from_id(
             $page['cat'],
             './index.php?page=album&amp;cat_id='
         ),

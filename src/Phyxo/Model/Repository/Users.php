@@ -507,13 +507,13 @@ class Users extends BaseRepository
                 list($userdata['nb_total_images']) = $this->conn->db_fetch_row($this->conn->db_query($query));
 
                 // now we update user cache categories
-                $user_cache_cats = get_computed_categories($userdata, null);
+                $user_cache_cats = \Phyxo\Functions\Category::get_computed_categories($userdata, null);
                 if (!$this->isAdmin($userdata['status'])) { // for non admins we forbid categories with no image (feature 1053)
                     $forbidden_ids = array();
                     foreach ($user_cache_cats as $cat) {
                         if ($cat['count_images'] == 0) {
                             $forbidden_ids[] = $cat['cat_id'];
-                            remove_computed_category($user_cache_cats, $cat);
+                            \Phyxo\Functions\Category::remove_computed_category($user_cache_cats, $cat);
                         }
                     }
                     if (!empty($forbidden_ids)) {

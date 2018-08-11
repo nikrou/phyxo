@@ -34,7 +34,7 @@ if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
 }
 
 $query = 'SELECT id,permalink,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-display_select_cat_wrapper($query, $selected_cat, 'categories', false);
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, $selected_cat, 'categories', false);
 
 // --- generate display of active permalinks -----------------------------------
 $sort_by = parse_sort_variables(
@@ -52,12 +52,12 @@ if ($sort_by[0] == 'id' or $sort_by[0] == 'permalink') {
 $categories = array();
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
-    $row['name'] = get_cat_display_name_cache($row['uppercats']);
+    $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats']);
     $categories[] = $row;
 }
 
 if ($sort_by[0] == 'name') {
-    usort($categories, 'global_rank_compare');
+    usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
 }
 $template->assign('permalinks', $categories);
 
@@ -80,7 +80,7 @@ if (count($sort_by)) {
 $result = $conn->db_query($query);
 $deleted_permalinks = array();
 while ($row = $conn->db_fetch_assoc($result)) {
-    $row['name'] = get_cat_display_name_cache($row['cat_id']);
+    $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['cat_id']);
     $row['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
         $url_del_base,
         array('delete_permanent' => $row['permalink'])

@@ -191,7 +191,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         $name_of_category = array();
 
         foreach ($uppercats_of as $category_id => $uppercats) {
-            $name_of_category[$category_id] = get_cat_display_name_cache($uppercats);
+            $name_of_category[$category_id] = \Phyxo\Functions\Category::get_cat_display_name_cache($uppercats);
         }
     }
 

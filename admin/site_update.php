@@ -343,7 +343,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
     if (count($to_delete) > 0) {
         if (!$simulate) {
-            delete_categories($to_delete);
+            \Phyxo\Functions\Category::delete_categories($to_delete);
             foreach ($to_delete_derivative_dirs as $to_delete_dir) {
                 if (is_dir($to_delete_dir)) {
                     clear_derivative_cache_rec($to_delete_dir, '#.+#');
@@ -480,7 +480,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == 'files') and !$general_failure) {
     if (!$simulate) {
         $start = microtime(true);
-        update_category('all');
+        \Phyxo\Functions\Category::update_category('all');
         $template->append('footer_elements', '<!-- update_category(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
         $start = microtime(true);
         update_global_rank();
@@ -715,7 +715,7 @@ $template->assign('introduction', $tpl_introduction);
 
 $query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
 $query .= ' WHERE site_id = ' . $site_id;
-display_select_cat_wrapper($query, $cat_selected, 'category_options', false);
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, $cat_selected, 'category_options', false);
 
 if (count($errors) > 0) {
     foreach ($errors as $error) {

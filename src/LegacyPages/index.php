@@ -23,7 +23,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 
 // access authorization check
 if (isset($page['category'])) {
-    check_restrictions($page['category']['id']);
+    \Phyxo\Functions\Utils::check_restrictions($page['category']['id']);
 }
 
 if ($page['start'] > 0 && $page['start'] >= count($page['items'])) {
@@ -184,7 +184,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
             usort($cats, 'name_compare');
             $hints = array();
             foreach ($cats as $cat) {
-                $hints[] = get_cat_display_name(array($cat), '');
+                $hints[] = \Phyxo\Functions\Category::get_cat_display_name(array($cat), '');
             }
             $template->assign('category_search_results', $hints);
         }
@@ -207,7 +207,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
         and count($page['items']) > 0
         and $page['section'] != 'most_visited'
         and $page['section'] != 'best_rated') {
-        $preferred_image_orders = get_category_preferred_image_orders();
+        $preferred_image_orders = \Phyxo\Functions\Category::get_category_preferred_image_orders();
         $order_idx = isset($_SESSION['image_order']) ? $_SESSION['image_order'] : 0;
 
         // get first order field and direction

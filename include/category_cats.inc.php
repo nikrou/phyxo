@@ -48,7 +48,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
         $image_id = $row['representative_picture_id'];
     } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-        $image_id = get_random_image_in_category($row);
+        $image_id = \Phyxo\Functions\Category::get_random_image_in_category($row);
     } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
         $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
         $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id = cat_id and user_id = ' . $user['id'];
@@ -88,7 +88,7 @@ if ($conf['display_fromto']) {
 }
 
 if ($page['section'] == 'recent_cats') {
-    usort($categories, 'global_rank_compare');
+    usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
 }
 
 if (count($categories) > 0) {
@@ -113,7 +113,7 @@ if (count($categories) > 0) {
             foreach ($categories as &$category) {
                 if ($row['id'] == $category['representative_picture_id']) {
                     // searching a random representant among elements in sub-categories
-                    $image_id = get_random_image_in_category($category);
+                    $image_id = \Phyxo\Functions\Category::get_random_image_in_category($category);
 
                     if (isset($image_id) and !in_array($image_id, $image_ids)) {
                         $new_image_ids[] = $image_id;
@@ -190,7 +190,7 @@ if (count($categories) > 0) {
         );
 
         if ($page['section'] == 'recent_cats') {
-            $name = get_cat_display_name_cache($category['uppercats'], null);
+            $name = \Phyxo\Functions\Category::get_cat_display_name_cache($category['uppercats'], null);
         } else {
             $name = $category['name'];
         }
@@ -202,7 +202,7 @@ if (count($categories) > 0) {
             'representative' => $representative_infos,
             'TN_ALT' => strip_tags($category['name']),
             'URL' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
-            'CAPTION_NB_IMAGES' => get_display_images_count(
+            'CAPTION_NB_IMAGES' => \Phyxo\Functions\Category::get_display_images_count(
                 $category['nb_images'],
                 $category['count_images'],
                 $category['count_categories'],

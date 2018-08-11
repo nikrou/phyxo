@@ -29,7 +29,7 @@ if (!empty($_POST)) {
     \Phyxo\Functions\Utils::check_token();
 
     if ($category['status'] != $_POST['status']) {
-        set_cat_status(array($page['cat']), $_POST['status']);
+        \Phyxo\Functions\Category::set_cat_status(array($page['cat']), $_POST['status']);
         $category['status'] = $_POST['status'];
     }
 
@@ -53,7 +53,7 @@ if (!empty($_POST)) {
             // automatically forbidden
             $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
             $query .= ' WHERE group_id ' . $conn->in($deny_groups);
-            $query .= ' AND cat_id ' . $conn->in(get_subcat_ids(array($page['cat'])));
+            $query .= ' AND cat_id ' . $conn->in(\Phyxo\Functions\Category::get_subcat_ids(array($page['cat'])));
             $conn->db_query($query);
         }
 
@@ -64,7 +64,7 @@ if (!empty($_POST)) {
         if (count($grant_groups) > 0) {
             $cat_ids = get_uppercat_ids(array($page['cat']));
             if (isset($_POST['apply_on_sub'])) {
-                $cat_ids = array_merge($cat_ids, get_subcat_ids(array($page['cat'])));
+                $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids(array($page['cat'])));
             }
 
             $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -108,7 +108,7 @@ if (!empty($_POST)) {
             // forbidden
             $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
             $query .= ' WHERE user_id ' . $conn->in($deny_users);
-            $query .= ' AND cat_id ' . $conn->in(get_subcat_ids(array($page['cat'])));
+            $query .= ' AND cat_id ' . $conn->in(\Phyxo\Functions\Category::get_subcat_ids(array($page['cat'])));
             $conn->db_query($query);
         }
 
@@ -131,7 +131,7 @@ if (!empty($_POST)) {
 $template->assign(
     array(
         'CATEGORIES_NAV' =>
-            get_cat_display_name_from_id(
+            \Phyxo\Functions\Category::get_cat_display_name_from_id(
             $page['cat'],
             'admin/index.php?page=album&amp;cat_id='
         ),

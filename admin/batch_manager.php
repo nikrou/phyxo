@@ -318,7 +318,7 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
     $categories = array();
 
     if (isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
-        $categories = get_subcat_ids(array($_SESSION['bulk_manager_filter']['category']));
+        $categories = \Phyxo\Functions\Category::get_subcat_ids(array($_SESSION['bulk_manager_filter']['category']));
     } else {
         $categories = array($_SESSION['bulk_manager_filter']['category']);
     }

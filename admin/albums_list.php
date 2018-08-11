@@ -77,7 +77,7 @@ function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max
 
     // we need to work on the whole tree under each category, even if we don't
     // want to sort sub categories
-    $category_ids = get_subcat_ids($ids);
+    $category_ids = \Phyxo\Functions\Category::get_subcat_ids($ids);
 
     // search for the reference date of each album
     $query = 'SELECT category_id,' . $minmax . '(' . $field . ') as ref_date FROM ' . IMAGES_TABLE;
@@ -143,7 +143,7 @@ $navigation .= '</a>';
 // +-----------------------------------------------------------------------+
 // request to delete a virtual category
 if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
-    delete_categories(array($_GET['delete']));
+    \Phyxo\Functions\Category::delete_categories(array($_GET['delete']));
     $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Virtual album deleted'));
     update_global_rank();
     invalidate_user_cache();
@@ -181,7 +181,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     $category_ids = $conn->query2array($query, null, 'id');
 
     if (isset($_POST['recursive'])) {
-        $category_ids = get_subcat_ids($category_ids);
+        $category_ids = \Phyxo\Functions\Category::get_subcat_ids($category_ids);
     }
 
     $categories = array();
@@ -235,7 +235,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
 if (isset($_GET['parent_id'])) {
     $navigation .= $conf['level_separator'];
 
-    $navigation .= get_cat_display_name_from_id(
+    $navigation .= \Phyxo\Functions\Category::get_cat_display_name_from_id(
         $_GET['parent_id'],
         ALBUMS_BASE_URL . '&amp;section=list&amp;parent_id='
     );

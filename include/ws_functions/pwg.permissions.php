@@ -134,7 +134,7 @@ function ws_permissions_add($params, &$service)
     if (!empty($params['group_id'])) {
         $cat_ids = get_uppercat_ids($params['cat_id']);
         if ($params['recursive']) {
-            $cat_ids = array_merge($cat_ids, get_subcat_ids($params['cat_id']));
+            $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']));
         }
 
         $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -185,7 +185,7 @@ function ws_permissions_remove($params, &$service)
 
     include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-    $cat_ids = get_subcat_ids($params['cat_id']);
+    $cat_ids = \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']);
 
     if (!empty($params['group_id'])) {
         $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;

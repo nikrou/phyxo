@@ -89,7 +89,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
             $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id = ' . $image_id;
             $query .= ' AND category_id ' . $conn->in($to_remove_cat_ids);
             $conn->db_query($query);
-            update_category($to_remove_cat_ids);
+            \Phyxo\Functions\Category::update_category($to_remove_cat_ids);
         }
     }
 
@@ -132,7 +132,7 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
     );
 
     include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    update_category($new_cat_ids);
+    \Phyxo\Functions\Category::update_category($new_cat_ids);
 }
 
 /**
@@ -340,7 +340,7 @@ function ws_images_getInfo($params, $service)
         $row['id'] = (int)$row['id'];
         $related_categories[] = $row;
     }
-    usort($related_categories, 'global_rank_compare');
+    usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
     if (empty($related_categories)) {
         return new Phyxo\Ws\Error(401, 'Access denied');
@@ -1124,7 +1124,7 @@ function ws_images_upload($params, $service)
         $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category'][0]);
         $category_infos = $conn->db_fetch_assoc($conn->db_query($query));
 
-        $category_name = get_cat_display_name_from_id($params['category'][0], null);
+        $category_name = \Phyxo\Functions\Category::get_cat_display_name_from_id($params['category'][0], null);
 
         return array(
             'image_id' => $image_id,

@@ -53,7 +53,7 @@ if ($filter['enabled']) {
             'date' => date('Ymd')
         );
 
-        $filter['categories'] = get_computed_categories($user, (int)$filter['recent_period']);
+        $filter['categories'] = \Phyxo\Functions\Category::get_computed_categories($user, (int)$filter['recent_period']);
 
         $filter['visible_categories'] = implode(',', array_keys($filter['categories']));
         if (empty($filter['visible_categories'])) {

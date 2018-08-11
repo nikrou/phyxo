@@ -203,7 +203,7 @@ function ws_categories_getList($params, &$service)
         }
 
         if ($params['fullname']) {
-            $row['name'] = strip_tags(get_cat_display_name_cache($row['uppercats'], null));
+            $row['name'] = strip_tags(\Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats'], null));
         } else {
             $row['name'] = strip_tags(
                 \Phyxo\Functions\Plugin::trigger_change(
@@ -239,7 +239,7 @@ function ws_categories_getList($params, &$service)
             $image_id = $row['representative_picture_id'];
         } elseif ($conf['allow_random_representative']) {
             // searching a random representant among elements in sub-categories
-            $image_id = get_random_image_in_category($row);
+            $image_id = \Phyxo\Functions\Category::get_random_image_in_category($row);
         } else { // searching a random representant among representant of sub-categories
             if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
                 $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
@@ -269,7 +269,7 @@ function ws_categories_getList($params, &$service)
 
         $cats[] = $row;
     }
-    usort($cats, 'global_rank_compare');
+    usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
 
     // management of the album thumbnail -- starts here
     if (count($categories) > 0) {
@@ -294,7 +294,7 @@ function ws_categories_getList($params, &$service)
                 foreach ($categories as &$category) {
                     if ($row['id'] == $category['representative_picture_id']) {
                         // searching a random representant among elements in sub-categories
-                        $image_id = get_random_image_in_category($category);
+                        $image_id = \Phyxo\Functions\Category::get_random_image_in_category($category);
 
                         if (isset($image_id) and !in_array($image_id, $image_ids)) {
                             $new_image_ids[] = $image_id;
@@ -402,7 +402,7 @@ function ws_categories_getAdminList($params, &$service)
             )
         );
         $row['fullname'] = strip_tags(
-            get_cat_display_name_cache(
+            \Phyxo\Functions\Category::get_cat_display_name_cache(
                 $row['uppercats'],
                 null
             )
@@ -418,7 +418,7 @@ function ws_categories_getAdminList($params, &$service)
         $cats[] = $row;
     }
 
-    usort($cats, 'global_rank_compare');
+    usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
     return array(
         'categories' => new Phyxo\Ws\NamedArray(
             $cats,
@@ -596,7 +596,7 @@ function ws_categories_delete($params, &$service)
     }
 
     include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    delete_categories($category_ids, $params['photo_deletion_mode']);
+    \Phyxo\Functions\Category::delete_categories($category_ids, $params['photo_deletion_mode']);
     update_global_rank();
 }
 
@@ -677,7 +677,7 @@ function ws_categories_move($params, &$service)
     // move_categories function, not here
     // 0 as parent means "move categories at gallery root"
     if (0 != $params['parent']) {
-        $subcat_ids = get_subcat_ids(array($params['parent']));
+        $subcat_ids = \Phyxo\Functions\Category::get_subcat_ids(array($params['parent']));
         if (count($subcat_ids) == 0) {
             return new Phyxo\Ws\Error(403, 'Unknown parent category id');
         }

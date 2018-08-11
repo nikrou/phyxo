@@ -34,7 +34,7 @@ function initialize_calendar()
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(
-                get_subcat_ids(array($page['category']['id'])),
+                \Phyxo\Functions\Category::get_subcat_ids(array($page['category']['id'])),
                 explode(',', $user['forbidden_categories'])
             );
 

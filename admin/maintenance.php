@@ -51,7 +51,7 @@ switch ($action) {
         {
             images_integrity();
             update_uppercats();
-            update_category('all');
+            \Phyxo\Functions\Category::update_category('all');
             update_global_rank();
             invalidate_user_cache(true);
             break;

@@ -58,90 +58,13 @@ function delete_site($id)
     // destruction of the categories of the site
     $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE site_id = ' . $conn->db_real_escape_string($id);
     $category_ids = $conn->query2array($query, null, 'id');
-    delete_categories($category_ids);
+    \Phyxo\Functions\Category::delete_categories($category_ids);
 
     // destruction of the site
     $query = 'DELETE FROM ' . SITES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($id);
     $conn->db_query($query);
 }
 
-/**
- * Recursively deletes one or more categories.
- * It also deletes :
- *    - all the elements physically linked to the category (with delete_elements)
- *    - all the links between elements and this category
- *    - all the restrictions linked to the category
- *
- * @param int[] $ids
- * @param string $photo_deletion_mode
- *    - no_delete : delete no photo, may create orphans
- *    - delete_orphans : delete photos that are no longer linked to any category
- *    - force_delete : delete photos even if they are linked to another category
- */
-function delete_categories($ids, $photo_deletion_mode = 'no_delete')
-{
-    global $conn;
-
-    if (count($ids) == 0) {
-        return;
-    }
-
-    // add sub-category ids to the given ids : if a category is deleted, all
-    // sub-categories must be so
-    $ids = get_subcat_ids($ids);
-
-    // destruction of all photos physically linked to the category
-    $query = 'SELECT id FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE storage_category_id ' . $conn->in($ids);
-    $element_ids = $conn->query2array($query, null, 'id');
-    delete_elements($element_ids);
-
-    // now, should we delete photos that are virtually linked to the category?
-    if ('delete_orphans' == $photo_deletion_mode or 'force_delete' == $photo_deletion_mode) {
-        $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id ' . $conn->in($ids);
-        $image_ids_linked = $conn->query2array($query, null, 'image_id');
-
-        if (count($image_ids_linked) > 0) {
-            if ('delete_orphans' == $photo_deletion_mode) {
-                $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-                $query .= ' WHERE image_id ' . $conn->in($image_ids_linked);
-                $query .= ' AND category_id NOT ' . $conn->in($ids);
-                $image_ids_not_orphans = $conn->query2array($query, null, 'image_id');
-                $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
-            }
-
-            if ('force_delete' == $photo_deletion_mode) {
-                $image_ids_to_delete = $image_ids_linked;
-            }
-
-            delete_elements($image_ids_to_delete, true);
-        }
-    }
-
-    // destruction of the links between images and this category
-    $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE category_id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    // destruction of the access linked to the category
-    $query = 'DELETE FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    // destruction of the category
-    $query = 'DELETE FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    $query = 'DELETE FROM ' . OLD_PERMALINKS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    $query = 'DELETE FROM ' . USER_CACHE_CATEGORIES_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-    $conn->db_query($query);
-
-    \Phyxo\Functions\Plugin::trigger_notify('delete_categories', $ids);
-}
 
 /**
  * Deletes all files (on disk) related to given image ids.
@@ -256,7 +179,7 @@ function delete_elements($ids, $physical_deletion = false)
     $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE representative_picture_id ' . $conn->in($ids);
     $category_ids = $conn->query2array($query, null, 'id');
     if (count($category_ids) > 0) {
-        update_category($category_ids);
+        \Phyxo\Functions\Category::update_category($category_ids);
     }
 
     \Phyxo\Functions\Plugin::trigger_notify('delete_elements', $ids);
@@ -310,58 +233,6 @@ function delete_user($user_id)
     $conn->db_query($query);
 
     \Phyxo\Functions\Plugin::trigger_notify('delete_user', $user_id);
-}
-
-/**
- * Verifies that the representative picture really exists in the db and
- * picks up a random representative if possible and based on config.
- *
- * @param 'all'|int|int[] $ids
- */
-function update_category($ids = 'all')
-{
-    global $conf, $conn;
-
-    if ($ids == 'all') {
-        $where_cats = '1=1';
-    } elseif (!is_array($ids)) {
-        $where_cats = '%s=' . $ids;
-    } else {
-        if (count($ids) == 0) {
-            return false;
-        }
-        $where_cats = '%s ' . $conn->in($ids);
-    }
-
-    // find all categories where the setted representative is not possible :
-    // the picture does not exist
-    $query = 'SELECT DISTINCT c.id FROM ' . CATEGORIES_TABLE . ' AS c';
-    $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON c.representative_picture_id = i.id';
-    $query .= ' WHERE representative_picture_id IS NOT NULL';
-    $query .= ' AND ' . sprintf($where_cats, 'c.id') . ' AND i.id IS NULL;';
-    $wrong_representant = $conn->query2array($query, null, 'id');
-
-    if (count($wrong_representant) > 0) {
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET representative_picture_id = NULL';
-        $query .= ' WHERE id ' . $conn->in($wrong_representant);
-        $conn->db_query($query);
-    }
-
-    if (!$conf['allow_random_representative']) {
-        // If the random representant is not allowed, we need to find
-        // categories with elements and with no representant. Those categories
-        // must be added to the list of categories to set to a random
-        // representant.
-        $query = 'SELECT DISTINCT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = category_id';
-        $query .= ' WHERE representative_picture_id IS NULL';
-        $query .= ' AND ' . sprintf($where_cats, 'category_id');
-        $to_rand = $conn->query2array($query, null, 'id');
-        if (count($to_rand) > 0) {
-            set_random_representant($to_rand);
-        }
-    }
 }
 
 /**
@@ -496,186 +367,6 @@ function update_global_rank()
     );
 
     return count($datas);
-}
-
-/**
- * Change the **visible** property on a set of categories.
- *
- * @param int[] $categories
- * @param boolean|string $value
- * @param boolean $unlock_child optional   default false
- */
-function set_cat_visible($categories, $value, $unlock_child = false)
-{
-    global $conn;
-
-    if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-        trigger_error("set_cat_visible invalid param $value", E_USER_WARNING);
-        return false;
-    }
-
-    // unlocking a category => all its parent categories become unlocked
-    if ($value) {
-        $cats = get_uppercat_ids($categories);
-        if ($unlock_child) {
-            $cats = array_merge($cats, get_subcat_ids($categories));
-        }
-
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET visible = \'' . $conn->boolean_to_db(true) . '\'';
-        $query .= ' WHERE id ' . $conn->in($cats);
-        $conn->db_query($query);
-    } else { // locking a category   => all its child categories become locked
-        $subcats = get_subcat_ids($categories);
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET visible = \'' . $conn->boolean_to_db(false) . '\'';
-        $query .= ' WHERE id ' . $conn->in($subcats);
-        $conn->db_query($query);
-    }
-}
-
-/**
- * Change the **status** property on a set of categories : private or public.
- *
- * @param int[] $categories
- * @param string $value
- */
-function set_cat_status($categories, $value)
-{
-    global $conn;
-
-    if (!in_array($value, array('public', 'private'))) {
-        trigger_error("set_cat_status invalid param $value", E_USER_WARNING);
-        return false;
-    }
-
-    // make public a category => all its parent categories become public
-    if ($value == 'public') {
-        $uppercats = get_uppercat_ids($categories);
-        $query = 'UPDATE ' . CATEGORIES_TABLE . ' SET status = \'public\'';
-        $query .= ' WHERE id ' . $conn->in($uppercats);
-        $conn->db_query($query);
-    }
-
-    // make a category private => all its child categories become private
-    if ($value == 'private') {
-        $subcats = get_subcat_ids($categories);
-
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET status = \'private\'';
-        $query .= ' WHERE id ' . $conn->in($subcats);
-        $conn->db_query($query);
-
-        // @TODO: add unit tests for that
-        // We have to keep permissions consistant: a sub-album can't be
-        // permitted to a user or group if its parent album is not permitted to
-        // the same user or group. Let's remove all permissions on sub-albums if
-        // it is not consistant. Let's take the following example:
-        //
-        // A1        permitted to U1,G1
-        // A1/A2     permitted to U1,U2,G1,G2
-        // A1/A2/A3  permitted to U3,G1
-        // A1/A2/A4  permitted to U2
-        // A1/A5     permitted to U4
-        // A6        permitted to U4
-        // A6/A7     permitted to G1
-        //
-        // (we consider that it can be possible to start with inconsistant
-        // permission, given that public albums can have hidden permissions,
-        // revealed once the album returns to private status)
-        //
-        // The admin selects A2,A3,A4,A5,A6,A7 to become private (all but A1,
-        // which is private, which can be true if we're moving A2 into A1). The
-        // result must be:
-        //
-        // A2 permission removed to U2,G2
-        // A3 permission removed to U3
-        // A4 permission removed to U2
-        // A5 permission removed to U2
-        // A6 permission removed to U4
-        // A7 no permission removed
-        //
-        // 1) we must extract "top albums": A2, A5 and A6
-        // 2) for each top album, decide which album is the reference for permissions
-        // 3) remove all inconsistant permissions from sub-albums of each top-album
-
-        // step 1, search top albums
-        $top_categories = array();
-        $parent_ids = array();
-
-        $query = 'SELECT id,name,id_uppercat,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($categories);
-        $all_categories = $conn->query2array($query);
-        usort($all_categories, 'global_rank_compare');
-
-        foreach ($all_categories as $cat) {
-            $is_top = true;
-
-            if (!empty($cat['id_uppercat'])) {
-                foreach (explode(',', $cat['uppercats']) as $id_uppercat) {
-                    if (isset($top_categories[$id_uppercat])) {
-                        $is_top = false;
-                        break;
-                    }
-                }
-            }
-
-            if ($is_top) {
-                $top_categories[$cat['id']] = $cat;
-
-                if (!empty($cat['id_uppercat'])) {
-                    $parent_ids[] = $cat['id_uppercat'];
-                }
-            }
-        }
-
-        // step 2, search the reference album for permissions
-        //
-        // to find the reference of each top album, we will need the parent albums
-        $parent_cats = array();
-
-        if (count($parent_ids) > 0) {
-            $query = 'SELECT id,status FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($parent_ids);
-            $parent_cats = $conn->query2array($query, 'id');
-        }
-
-        $tables = array(
-            USER_ACCESS_TABLE => 'user_id',
-            GROUP_ACCESS_TABLE => 'group_id'
-        );
-
-        foreach ($top_categories as $top_category) {
-            // what is the "reference" for list of permissions? The parent album
-            // if it is private, else the album itself
-            $ref_cat_id = $top_category['id'];
-
-            if (!empty($top_category['id_uppercat'])
-                and isset($parent_cats[$top_category['id_uppercat']])
-                and 'private' == $parent_cats[$top_category['id_uppercat']]['status']) {
-                $ref_cat_id = $top_category['id_uppercat'];
-            }
-
-            $subcats = get_subcat_ids(array($top_category['id']));
-
-            foreach ($tables as $table => $field) {
-                // what are the permissions user/group of the reference album
-                $query = 'SELECT ' . $field . ' FROM ' . $table;
-                $query .= ' WHERE cat_id = ' . $conn->db_real_escape_string($ref_cat_id);
-                $ref_access = $conn->query2array($query, null, $field);
-
-                if (count($ref_access) == 0) {
-                    $ref_access[] = -1;
-                }
-
-                // step 3, remove the inconsistant permissions from sub-albums
-                $query = 'DELETE FROM ' . $table;
-                $query .= ' WHERE ' . $field . ' NOT ' . $conn->in($ref_access);
-                $query .= ' AND cat_id ' . $conn->in($subcats);
-                $conn->db_query($query);
-            }
-        }
-    }
 }
 
 /**
@@ -1021,7 +712,7 @@ function move_categories($category_ids, $new_parent = -1)
     }
 
     if ('private' == $parent_status) {
-        set_cat_status(array_keys($categories), 'private');
+        \Phyxo\Functions\Category::set_cat_status(array_keys($categories), 'private');
     }
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
@@ -1220,7 +911,7 @@ function associate_images_to_categories($images, $categories)
             $inserts
         );
 
-        update_category($categories);
+        \Phyxo\Functions\Category::update_category($categories);
     }
 }
 
@@ -1661,7 +1352,7 @@ function add_permission_on_category($category_ids, $user_ids)
     // make sure categories are private and select uppercats or subcats
     $cat_ids = get_uppercat_ids($category_ids);
     if (isset($_POST['apply_on_sub'])) {
-        $cat_ids = array_merge($cat_ids, get_subcat_ids($category_ids));
+        $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids($category_ids));
     }
 
     $query = 'SELECT id  FROM ' . CATEGORIES_TABLE;

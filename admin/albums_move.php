@@ -42,7 +42,7 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 $query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL;';
-display_select_cat_wrapper(
+\Phyxo\Functions\Category::display_select_cat_wrapper(
     $query,
     array(),
     'category_to_move_options'
@@ -50,7 +50,7 @@ display_select_cat_wrapper(
 
 $query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
 
-display_select_cat_wrapper(
+\Phyxo\Functions\Category::display_select_cat_wrapper(
     $query,
     array(),
     'category_parent_options'

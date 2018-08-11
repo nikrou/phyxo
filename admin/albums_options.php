@@ -65,12 +65,12 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
             }
         case 'visible':
             {
-                set_cat_visible($_POST['cat_true'], 'false');
+                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_true'], 'false');
                 break;
             }
         case 'status':
             {
-                set_cat_status($_POST['cat_true'], 'private');
+                \Phyxo\Functions\Category::set_cat_status($_POST['cat_true'], 'private');
                 break;
             }
         case 'representative':
@@ -94,19 +94,19 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
             }
         case 'visible':
             {
-                set_cat_visible($_POST['cat_false'], 'true');
+                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_false'], 'true');
                 break;
             }
         case 'status':
             {
-                set_cat_status($_POST['cat_false'], 'public');
+                \Phyxo\Functions\Category::set_cat_status($_POST['cat_false'], 'public');
                 break;
             }
         case 'representative':
             {
-        // theoretically, all categories in $_POST['cat_false'] contain at
-        // least one element, so Phyxo can find a representant.
-                set_random_representant($_POST['cat_false']);
+                // theoretically, all categories in $_POST['cat_false'] contain at
+                // least one element, so Phyxo can find a representant.
+                \Phyxo\Functions\Category::set_random_representant($_POST['cat_false']);
                 break;
             }
     }
@@ -189,8 +189,8 @@ switch ($page['section']) {
             break;
         }
 }
-display_select_cat_wrapper($query_true, array(), 'category_option_true');
-display_select_cat_wrapper($query_false, array(), 'category_option_false');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

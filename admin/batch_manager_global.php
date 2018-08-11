@@ -119,7 +119,7 @@ if (isset($_POST['submit'])) {
         if ('no_album' == $page['prefilter']) {
             $redirect = true;
         } elseif ('no_virtual_album' == $page['prefilter']) {
-            $category_info = get_cat_info($_POST['associate']);
+            $category_info = \Phyxo\Functions\Category::get_cat_info($_POST['associate']);
             if (empty($category_info['dir'])) {
                 $redirect = true;
             }
@@ -133,7 +133,7 @@ if (isset($_POST['submit'])) {
         if ('no_album' == $page['prefilter']) {
             $redirect = true;
         } elseif ('no_virtual_album' == $page['prefilter']) {
-            $category_info = get_cat_info($_POST['move']);
+            $category_info = \Phyxo\Functions\Category::get_cat_info($_POST['move']);
             if (empty($category_info['dir'])) {
                 $redirect = true;
             }
@@ -467,7 +467,7 @@ if (count($page['cat_elements_id']) > 0) {
     $query = 'SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation FROM ' . IMAGES_TABLE;
 
     if ($is_category) {
-        $category_info = get_cat_info($_SESSION['bulk_manager_filter']['category']);
+        $category_info = \Phyxo\Functions\Category::get_cat_info($_SESSION['bulk_manager_filter']['category']);
 
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {

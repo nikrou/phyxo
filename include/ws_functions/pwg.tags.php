@@ -215,7 +215,7 @@ function ws_tags_getImages($params, &$service)
         $images = $tmp;
         unset($tmp);
 
-        usort($images, 'rank_compare');
+        usort($images, '\Phyxo\Functions\Utils::rank_compare');
         unset($rank_of);
     }
 

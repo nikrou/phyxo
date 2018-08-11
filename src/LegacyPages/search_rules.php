@@ -89,7 +89,7 @@ if (isset($search['fields']['author'])) {
 if (isset($search['fields']['cat'])) {
     if ($search['fields']['cat']['sub_inc']) {
         // searching all the categories id of sub-categories
-        $cat_ids = get_subcat_ids($search['fields']['cat']['words']);
+        $cat_ids = \Phyxo\Functions\Category::get_subcat_ids($search['fields']['cat']['words']);
     } else {
         $cat_ids = $search['fields']['cat']['words'];
     }
@@ -104,14 +104,14 @@ if (isset($search['fields']['cat'])) {
             $categories[] = $row;
         }
     }
-    usort($categories, 'global_rank_compare');
+    usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
     foreach ($categories as $category) {
         $template->append(
             'search_categories',
-            get_cat_display_name_cache(
+            \Phyxo\Functions\Category::get_cat_display_name_cache(
                 $category['uppercats'],
-                null                      // no url on category names
+                null // no url on category names
             )
         );
     }

@@ -19,7 +19,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 
 // access authorization check
 if (isset($page['category'])) {
-    check_restrictions($page['category']['id']);
+    \Phyxo\Functions\Utils::check_restrictions($page['category']['id']);
 }
 
 
@@ -366,7 +366,7 @@ $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' ON category_id = id';
 $query .= ' WHERE image_id = ' . $page['image_id'];
 $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), ' AND ') . ';';
 $related_categories = $conn->query2array($query);
-usort($related_categories, 'global_rank_compare');
+usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
 $picture = array();
 
@@ -737,7 +737,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
     // no need to go to db, we have all the info
     $template->append(
         'related_categories',
-        get_cat_display_name($page['category']['upper_names'])
+        \Phyxo\Functions\Category::get_cat_display_name($page['category']['upper_names'])
     );
 } else { // use only 1 sql query to get names for all related categories
     $ids = array();
@@ -753,7 +753,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
         foreach (explode(',', $category['uppercats']) as $id) {
             $cats[] = $cat_map[$id];
         }
-        $template->append('related_categories', get_cat_display_name($cats));
+        $template->append('related_categories', \Phyxo\Functions\Category::get_cat_display_name($cats));
     }
 }
 

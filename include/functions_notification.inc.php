@@ -510,7 +510,7 @@ function get_html_description_recent_post_date($date_detail)
     foreach ($date_detail['categories'] as $cat) {
         $description .=
             '<li>'
-            . get_cat_display_name_cache($cat['uppercats'])
+            . \Phyxo\Functions\Category::get_cat_display_name_cache($cat['uppercats'])
             . ' (' .
             \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
             . '</li>';

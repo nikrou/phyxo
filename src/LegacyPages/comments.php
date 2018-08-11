@@ -108,7 +108,7 @@ $page['where_clauses'] = array();
 if (isset($_GET['cat']) and 0 != $_GET['cat']) {
     \Phyxo\Functions\Utils::check_input_parameter('cat', $_GET, false, PATTERN_ID);
 
-    $category_ids = get_subcat_ids(array($_GET['cat']));
+    $category_ids = \Phyxo\Functions\Category::get_subcat_ids(array($_GET['cat']));
     if (empty($category_ids)) {
         $category_ids = array(-1);
     }
@@ -264,7 +264,7 @@ $blockname = 'categories';
 
 $query = 'SELECT id, name, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
 $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE') . ';';
-display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
 
 // Filter on recent comments...
 $tpl_var = [];

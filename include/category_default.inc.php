@@ -35,7 +35,7 @@ if (count($selection) > 0) {
         $pictures[] = $row;
     }
 
-    usort($pictures, 'rank_compare');
+    usort($pictures, '\Phyxo\Functions\Utils::rank_compare');
     unset($rank_of);
 }
 

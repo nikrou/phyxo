@@ -37,7 +37,7 @@ if (isset($_GET['user_id']) and is_numeric($_GET['user_id'])) {
 if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
     // if you forbid access to a category, all sub-categories become
     // automatically forbidden
-    $subcats = get_subcat_ids($_POST['cat_true']);
+    $subcats = \Phyxo\Functions\Category::get_subcat_ids($_POST['cat_true']);
     $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
     $query .= ' WHERE user_id = ' . $page['user'] . ' AND cat_id ' . $conn->in($subcats);
     $conn->db_query($query);
@@ -85,12 +85,12 @@ if ($conn->db_num_rows($result) > 0) {
         $cats[] = $row;
         $group_authorized[] = $row['cat_id'];
     }
-    usort($cats, 'global_rank_compare');
+    usort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
 
     foreach ($cats as $category) {
         $template->append(
             'categories_because_of_groups',
-            get_cat_display_name_cache($category['uppercats'], null)
+            \Phyxo\Functions\Category::get_cat_display_name_cache($category['uppercats'], null)
         );
     }
 }
@@ -102,7 +102,7 @@ $query_true .= ' WHERE status = \'private\' AND user_id = ' . $page['user'];
 if (count($group_authorized) > 0) {
     $query_true .= ' AND cat_id NOT ' . $conn->in($group_authorized);
 }
-display_select_cat_wrapper($query_true, array(), 'category_option_true');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
 
 $result = $conn->db_query($query_true);
 $authorized_ids = array();
@@ -118,7 +118,7 @@ if (count($authorized_ids) > 0) {
 if (count($group_authorized) > 0) {
     $query_false .= ' AND id NOT ' . $conn->in($group_authorized);
 }
-display_select_cat_wrapper($query_false, array(), 'category_option_false');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |
