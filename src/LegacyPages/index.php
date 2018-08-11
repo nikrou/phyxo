@@ -39,7 +39,7 @@ if (isset($_GET['image_order'])) {
     } else {
         unset($_SESSION['image_order']);
     }
-    redirect(
+    \Phyxo\Functions\Utils::redirect(
         \Phyxo\Functions\URL::duplicate_index_url(
             array(),        // nothing to redefine
             array('start')  // changing display order goes back to section first page
@@ -58,7 +58,7 @@ if (isset($_GET['display'])) {
 // navigation bar
 $page['navigation_bar'] = array();
 if (count($page['items']) > $page['nb_image_page']) {
-    $page['navigation_bar'] = create_navigation_bar(
+    $page['navigation_bar'] = \Phyxo\Functions\Utils::create_navigation_bar(
         \Phyxo\Functions\URL::duplicate_index_url(array(), array('start')),
         count($page['items']),
         $page['start'],
@@ -72,8 +72,8 @@ $template->assign('thumb_navbar', $page['navigation_bar']);
 
 // caddie filling :-)
 if (isset($_GET['caddie'])) {
-    fill_caddie($page['items']);
-    redirect(\Phyxo\Functions\URL::duplicate_index_url());
+    \Phyxo\Functions\Utils::fill_caddie($page['items']);
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::duplicate_index_url());
 }
 
 if (isset($page['is_homepage']) and $page['is_homepage']) {
@@ -290,7 +290,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
     // execute after init thumbs in order to have all picture informations
     if (!empty($page['cat_slideshow_url'])) {
         if (isset($_GET['slideshow'])) {
-            redirect($page['cat_slideshow_url']);
+            \Phyxo\Functions\Utils::redirect($page['cat_slideshow_url']);
         } elseif ($conf['index_slideshow_icon']) {
             $template->assign('U_SLIDESHOW', $page['cat_slideshow_url']);
         }
@@ -307,4 +307,4 @@ $template->set_filename($template_filename, "$template_filename.tpl");
 $template->pparse($template_filename);
 
 //------------------------------------------------------------ log informations
-pwg_log();
+\Phyxo\Functions\Utils::log();

@@ -56,7 +56,7 @@ function ws_plugins_performAction($params, $service)
 {
     global $template;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -87,7 +87,7 @@ function ws_themes_performAction($params, $service)
 {
     global $template;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -124,7 +124,7 @@ function ws_extensions_update($params, $service)
         return new Phyxo\Ws\Error(401, \Phyxo\Functions\Language::l10n('Webmaster status is required.'));
     }
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -144,14 +144,14 @@ function ws_extensions_update($params, $service)
             if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
                 $extension->performAction('deactivate', $extension_id);
 
-                redirect(PHPWG_ROOT_PATH
+                \Phyxo\Functions\Utils::redirect(PHPWG_ROOT_PATH
                     . 'ws.php'
                     . '?method=pwg.extensions.update'
                     . '&type=plugins'
                     . '&id=' . $extension_id
                     . '&revision=' . $revision
                     . '&reactivate=true'
-                    . '&pwg_token=' . get_pwg_token()
+                    . '&pwg_token=' . \Phyxo\Functions\Utils::get_token()
                     . '&format=json');
             }
 
@@ -195,7 +195,7 @@ function ws_extensions_ignoreupdate($params, $service)
         return new Phyxo\Ws\Error(401, 'Access denied');
     }
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -213,7 +213,7 @@ function ws_extensions_ignoreupdate($params, $service)
             );
         }
 
-        conf_update_param('updates_ignored', $conf['updates_ignored']);
+        \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
         unset($_SESSION['extensions_need_update']);
         return true;
     }
@@ -227,7 +227,7 @@ function ws_extensions_ignoreupdate($params, $service)
         $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
-    conf_update_param('updates_ignored', $conf['updates_ignored']);
+    \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
     unset($_SESSION['extensions_need_update']);
     return true;
 }

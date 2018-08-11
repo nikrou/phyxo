@@ -56,7 +56,7 @@ class pwg_image
             return; // A plugin may have load its own library
         }
 
-        $extension = strtolower(get_extension($source_filepath));
+        $extension = strtolower(\Phyxo\Functions\Utils::get_extension($source_filepath));
 
         if (!in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
             die('[Image] unsupported file extension');
@@ -79,7 +79,7 @@ class pwg_image
     // Piwigo resize function
     function pwg_resize($destination_filepath, $max_width, $max_height, $quality, $automatic_rotation = true, $strip_metadata = false, $crop = false, $follow_orientation = true)
     {
-        $starttime = get_moment();
+        $starttime = microtime(true);
 
         // width/height
         $source_width = $this->image->get_width();
@@ -288,7 +288,7 @@ class pwg_image
             'width' => $width,
             'height' => $height,
             'size' => floor(filesize($destination_filepath) / 1024) . ' KB',
-            'time' => $time ? number_format((get_moment() - $time) * 1000, 2, '.', ' ') . ' ms' : null,
+            'time' => $time ? number_format((microtime(true) - $time) * 1000, 2, '.', ' ') . ' ms' : null,
             'library' => $this->library,
         );
     }
@@ -627,7 +627,7 @@ class image_gd implements imageInterface
     public function __construct($source_filepath)
     {
         $gd_info = gd_info();
-        $extension = strtolower(get_extension($source_filepath));
+        $extension = strtolower(\Phyxo\Functions\Utils::get_extension($source_filepath));
 
         if (in_array($extension, array('jpg', 'jpeg'))) {
             $this->image = imagecreatefromjpeg($source_filepath);
@@ -741,7 +741,7 @@ class image_gd implements imageInterface
 
     public function write($destination_filepath)
     {
-        $extension = strtolower(get_extension($destination_filepath));
+        $extension = strtolower(\Phyxo\Functions\Utils::get_extension($destination_filepath));
 
         if ($extension == 'png') {
             imagepng($this->image, $destination_filepath);

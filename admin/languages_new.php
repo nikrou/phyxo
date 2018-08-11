@@ -34,7 +34,7 @@ if (isset($_GET['revision'])) {
     if (!$services['users']->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
-        check_pwg_token();
+        \Phyxo\Functions\Utils::check_token();
 
         try {
             $languages->extractLanguageFiles('install', $_GET['revision']);
@@ -43,7 +43,7 @@ if (isset($_GET['revision'])) {
             $page['errors'] = \Phyxo\Functions\Language::l10n($e->getMessage());
         }
 
-        redirect(LANGUAGES_BASE_URL . '&section=new&installstatus=' . $install_status);
+        \Phyxo\Functions\Utils::redirect(LANGUAGES_BASE_URL . '&section=new&installstatus=' . $install_status);
     }
 }
 
@@ -80,7 +80,7 @@ if (isset($_GET['installstatus'])) {
 foreach ($languages->getServerLanguages(true) as $language) {
     list($date, ) = explode(' ', $language['revision_date']);
 
-    $url_auto_install = LANGUAGES_BASE_URL . '&amp;section=new&amp;revision=' . $language['revision_id'] . '&amp;pwg_token=' . get_pwg_token();
+    $url_auto_install = LANGUAGES_BASE_URL . '&amp;section=new&amp;revision=' . $language['revision_id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
     $template->append('languages', array(
         'EXT_NAME' => $language['extension_name'],

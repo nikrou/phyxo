@@ -20,12 +20,12 @@ $default_config = [
 ];
 
 if (!isset($conf['elegant'])) {
-    conf_update_param('elegant', $default_config, true);
+    \Phyxo\Functions\Conf::conf_update_param('elegant', $default_config, true);
 } else {
     $config = json_decode($conf['elegant'], true);
-    if (count($config)!=3) {
+    if (count($config) != 3) {
         $new_config = array_merge($default_config, $config);
 
-        conf_update_param('elegant', $new_config, true);
+        \Phyxo\Functions\Conf::conf_update_param('elegant', $new_config, true);
     }
 }

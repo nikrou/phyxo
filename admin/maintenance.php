@@ -24,7 +24,7 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (isset($_GET['action'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 
 // +-----------------------------------------------------------------------+
@@ -36,15 +36,15 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 switch ($action) {
     case 'lock_gallery':
         {
-            conf_update_param('gallery_locked', 'true');
-            redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
+            \Phyxo\Functions\Conf::conf_update_param('gallery_locked', 'true');
+            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
     case 'unlock_gallery':
         {
-            conf_update_param('gallery_locked', 'false');
+            \Phyxo\Functions\Conf::conf_update_param('gallery_locked', 'false');
             $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Gallery unlocked'));
-            redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
+            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
     case 'categories':
@@ -135,7 +135,7 @@ switch ($action) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$url_format = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . get_pwg_token();
+$url_format = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
 $purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'derivatives') . '&amp;type=all';
 foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {

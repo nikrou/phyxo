@@ -22,7 +22,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     if (!$services['users']->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
-        check_pwg_token();
+        \Phyxo\Functions\Utils::check_token();
 
         try {
             $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
@@ -31,7 +31,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
             $page['errors'] = $e->getMessage();
         }
 
-        redirect(PLUGINS_BASE_URL . '&installstatus=' . $install_status . '&plugin_id=' . $plugin_id);
+        \Phyxo\Functions\Utils::redirect(PLUGINS_BASE_URL . '&installstatus=' . $install_status . '&plugin_id=' . $plugin_id);
     }
 }
 
@@ -41,7 +41,7 @@ if (isset($_GET['installstatus'])) {
         case 'ok':
             $activate_url = PLUGINS_BASE_URL
                 . '&amp;plugin=' . $_GET['plugin_id']
-                . '&amp;pwg_token=' . get_pwg_token()
+                . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token()
                 . '&amp;action=activate';
 
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Plugin has been successfully copied');
@@ -99,7 +99,7 @@ try {
                 . '&amp;section=new'
                 . '&amp;revision=' . $plugin['revision_id']
                 . '&amp;extension=' . $plugin['extension_id']
-                . '&amp;pwg_token=' . get_pwg_token();
+                . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
             $template->append('plugins', array(
                 'ID' => $plugin['extension_id'],

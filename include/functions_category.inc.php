@@ -112,7 +112,7 @@ function get_categories_menu()
         }
         $where .= ')';
     } else {
-        $where = ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
+        $where = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
     }
 
     $where = \Phyxo\Functions\Plugin::trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
@@ -146,7 +146,7 @@ function get_categories_menu()
             )
         );
         if ($conf['index_new_icon']) {
-            $row['icon_ts'] = get_icon($row['max_date_last'], $child_date_last);
+            $row['icon_ts'] = \Phyxo\Functions\Utils::get_icon($row['max_date_last'], $child_date_last);
         }
         $cats[$row['id']] = $row;
         if (!empty($page['category']['id']) && $row['id'] == $page['category']['id']) {//save the number of subcats for later optim
@@ -414,7 +414,7 @@ function get_random_image_in_category($category, $recursive = true)
         } else {
             $query .= ' c.id=' . $category['id'];
         }
-        $query .= ' ' . get_sql_condition_FandF(
+        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'c.id',
                 'visible_categories' => 'c.id',

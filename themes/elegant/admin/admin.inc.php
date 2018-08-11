@@ -32,7 +32,7 @@ if (isset($_POST['submit_elegant'])) {
         $config['p_pict_comment'] = $_POST['p_pict_comment'];
     }
 
-    conf_update_param('elegant', $config, true);
+    \Phyxo\Functions\Conf::conf_update_param('elegant', $config, true);
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 } else {

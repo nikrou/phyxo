@@ -11,7 +11,7 @@
 
 /* nbm_global_var */
 $env_nbm = array(
-    'start_time' => get_moment(),
+    'start_time' => microtime(true),
     'sendmail_timeout' => (intval(ini_get('max_execution_time')) * $conf['nbm_max_treatment_timeout_percent']),
     'is_sendmail_timeout' => false
 );
@@ -52,7 +52,7 @@ function check_sendmail_timeout()
 {
     global $env_nbm;
 
-    $env_nbm['is_sendmail_timeout'] = ((get_moment() - $env_nbm['start_time']) > $env_nbm['sendmail_timeout']);
+    $env_nbm['is_sendmail_timeout'] = ((microtime(true) - $env_nbm['start_time']) > $env_nbm['sendmail_timeout']);
 
     return $env_nbm['is_sendmail_timeout'];
 }
@@ -148,7 +148,7 @@ function begin_users_env_nbm($is_to_send_mail = false)
         // Init mail configuration
         $env_nbm['email_format'] = get_str_email_format($conf['nbm_send_html_mail']);
         $env_nbm['send_as_name'] = !empty($conf['nbm_send_mail_as']) ? $conf['nbm_send_mail_as'] : get_mail_sender_name();
-        $env_nbm['send_as_mail_address'] = get_webmaster_mail_address();
+        $env_nbm['send_as_mail_address'] = \Phyxo\Functions\Utils::get_webmaster_mail_address();
         $env_nbm['send_as_mail_formated'] = format_email($env_nbm['send_as_name'], $env_nbm['send_as_mail_address']);
         // Init mail counter
         $env_nbm['error_on_mail_count'] = 0;
@@ -485,7 +485,7 @@ function do_timeout_treatment($post_keyname, $check_key_treated = array())
             $post_count = count($_POST[$post_keyname]);
             $treated_count = count($check_key_treated);
             if ($treated_count != 0) {
-                $time_refresh = ceil((get_moment() - $env_nbm['start_time']) * $post_count / $treated_count);
+                $time_refresh = ceil((microtime(true) - $env_nbm['start_time']) * $post_count / $treated_count);
             } else {
                 $time_refresh = 0;
             }
@@ -588,7 +588,7 @@ function insert_new_data_user_mail_notification()
                 $query .= ' WHERE check_key ' . $conn->in($check_key_list);
                 $result = $conn->db_query($query);
 
-                redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
+                \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
             }
         }
     }

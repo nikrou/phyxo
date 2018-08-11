@@ -32,19 +32,3 @@ function name_compare($a, $b)
 {
     return strcmp(strtolower($a['name']), strtolower($b['name']));
 }
-
-// copy from include/functions.inc.php
-function get_pwg_charset()
-{
-    $pwg_charset = 'utf-8';
-    if (defined('PWG_CHARSET')) {
-        $pwg_charset = PWG_CHARSET;
-    }
-
-    return $pwg_charset;
-}
-
-function convert_charset($str, $source_charset, $dest_charset)
-{
-    return $str;
-}

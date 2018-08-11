@@ -16,7 +16,7 @@
 //  List of visible categories (count(visible) < count(forbidden) more often)
 // $filter['visible_images']: List of visible images
 
-if (!get_filter_page_value('cancel')) {
+if (!\Phyxo\Functions\Utils::get_filter_page_value('cancel')) {
     if (isset($_GET['filter'])) {
         $filter['matches'] = array();
         $filter['enabled'] = preg_match('/^start-recent-(\d+)$/', $_GET['filter'], $filter['matches']) === 1;
@@ -91,7 +91,7 @@ if ($filter['enabled']) {
         $filter['visible_images'] = isset($_SESSION['filter_visible_images']) ? $_SESSION['filter_visible_images'] : '';
     }
     unset($filter_key);
-    if (get_filter_page_value('add_notes')) {
+    if (\Phyxo\Functions\Utils::get_filter_page_value('add_notes')) {
         $header_notes[] = \Phyxo\Functions\Language::l10n_dec(
             'Photos posted within the last %d day.',
             'Photos posted within the last %d days.',

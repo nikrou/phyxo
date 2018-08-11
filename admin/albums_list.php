@@ -16,7 +16,7 @@ if (!defined("ALBUMS_BASE_URL")) {
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_cat_list');
 
 if (!empty($_POST) or isset($_GET['delete'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 
 $sort_orders = array(
@@ -129,7 +129,7 @@ function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max
 // |                            initialization                             |
 // +-----------------------------------------------------------------------+
 
-check_input_parameter('parent_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('parent_id', $_GET, false, PATTERN_ID);
 
 $categories = array();
 
@@ -152,7 +152,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     if (isset($_GET['parent_id'])) {
         $redirect_url .= '&parent_id=' . $_GET['parent_id'];
     }
-    redirect($redirect_url);
+    \Phyxo\Functions\Utils::redirect($redirect_url);
 } elseif (isset($_POST['submitAdd'])) { // request to add a virtual category
     $output_create = create_virtual_category(
         $_POST['virtual_name'],
@@ -253,7 +253,7 @@ $sort_orders_checked = array_keys($sort_orders);
 $template->assign(array(
     'CATEGORIES_NAV' => $navigation,
     'F_ACTION' => $form_action,
-    'PWG_TOKEN' => get_pwg_token(),
+    'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
     'sort_orders' => $sort_orders,
     'sort_order_checked' => array_shift($sort_orders_checked),
 ));
@@ -335,7 +335,7 @@ foreach ($categories as $category) {
 
     if (empty($category['dir'])) {
         $tpl_cat['U_DELETE'] = $self_url . '&amp;delete=' . $category['id'];
-        $tpl_cat['U_DELETE'] .= '&amp;pwg_token=' . get_pwg_token();
+        $tpl_cat['U_DELETE'] .= '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
     } else {
         if ($conf['enable_synchronization']) {
             $tpl_cat['U_SYNC'] = $base_url . 'site_update&amp;site=1&amp;cat_id=' . $category['id'];

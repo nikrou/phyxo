@@ -170,7 +170,7 @@ class ImageStdParams
             'w' => self::$watermark,
             'c' => self::$custom,
         ));
-        conf_update_param('derivatives', $ser);
+        \Phyxo\Functions\Conf::conf_update_param('derivatives', $ser);
     }
 
     /**

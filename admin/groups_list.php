@@ -226,7 +226,7 @@ $template->assign(
     array(
         'F_ADD_ACTION' => GROUPS_BASE_URL . '&amp;section=list',
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=group_list',
-        'PWG_TOKEN' => get_pwg_token(),
+        'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
     )
 );
 
@@ -259,9 +259,9 @@ while ($row = $conn->db_fetch_assoc($result)) {
             'NB_MEMBERS' => count($members),
             'L_MEMBERS' => implode(' <span class="userSeparator">&middot;</span> ', $members),
             'MEMBERS' => \Phyxo\Functions\Language::l10n_dec('%d member', '%d members', count($members)),
-            'U_DELETE' => $del_url . $row['id'] . '&amp;pwg_token=' . get_pwg_token(),
+            'U_DELETE' => $del_url . $row['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
             'U_PERM' => $perm_url . $row['id'],
-            'U_ISDEFAULT' => $toggle_is_default_url . $row['id'] . '&amp;pwg_token=' . get_pwg_token(),
+            'U_ISDEFAULT' => $toggle_is_default_url . $row['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
         )
     );
 }

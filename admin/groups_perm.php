@@ -84,7 +84,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
             ),
             'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
             'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),
-            'PWG_TOKEN' => get_pwg_token(),
+            'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
             'F_ACTION' => GROUPS_BASE_URL . '&amp;section=perm&amp;group_id=' . $page['group']
         )
     );

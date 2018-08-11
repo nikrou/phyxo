@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', __DIR__.'/../');
+define('PHPWG_ROOT_PATH', __DIR__ . '/../');
 
-require_once(PHPWG_ROOT_PATH.'vendor/autoload.php');
+require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
 
 // @TODO: refactoring between that script and web install through ../install.php
 
@@ -19,13 +19,13 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 
-require_once(PHPWG_ROOT_PATH.'include/config_default.inc.php');
-require_once(PHPWG_ROOT_PATH.'local/config/database.inc.php');
-require_once(PHPWG_ROOT_PATH.'admin/include/functions_upgrade.php');
+require_once(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+require_once(PHPWG_ROOT_PATH . 'local/config/database.inc.php');
+require_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
-require_once(PHPWG_ROOT_PATH.'include/constants.php');
-require_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
-require_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
+require_once(PHPWG_ROOT_PATH . 'include/constants.php');
+require_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
+require_once(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
@@ -42,25 +42,25 @@ include(PHPWG_ROOT_PATH . 'include/services.php');
 $languages = new Languages($conn, 'utf-8');
 
 $conn->executeSqlFile(
-    PHPWG_ROOT_PATH.'install/phyxo_structure-'.$conf['dblayer'].'.sql',
+    PHPWG_ROOT_PATH . 'install/phyxo_structure-' . $conf['dblayer'] . '.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
 $conn->executeSqlFile(
-    PHPWG_ROOT_PATH.'install/config.sql',
+    PHPWG_ROOT_PATH . 'install/config.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
 
-$query = 'INSERT INTO '.CONFIG_TABLE.' (param,value,comment)';
+$query = 'INSERT INTO ' . CONFIG_TABLE . ' (param,value,comment)';
 $query .= 'VALUES (\'secret_key\',';
-$query .= 'md5('.$conn->db_cast_to_text($conn::RANDOM_FUNCTION.'()').'),';
+$query .= 'md5(' . $conn->db_cast_to_text($conn::RANDOM_FUNCTION . '()') . '),';
 $query .= '\'a secret key specific to the gallery for internal use\')';
 $conn->db_query($query);
 
-conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
-conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
-conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".\Phyxo\Functions\Language::l10n('Welcome to my photo gallery').'</p>');
+\Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
+\Phyxo\Functions\Conf::conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
+\Phyxo\Functions\Conf::conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
 
 // fill languages table
 $languages->setConnection($conn);
@@ -68,7 +68,7 @@ foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
     $languages->performAction('activate', $language_code);
 }
 
-load_conf_from_db();
+\Phyxo\Functions\Conf::load_conf_from_db();
 if (!defined('PWG_CHARSET')) {
     define('PWG_CHARSET', 'utf-8');
 }
@@ -80,10 +80,10 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
     }
 }
 
-$insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH.'galleries/');
+$insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/');
 $conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
-if ($conf['dblayer']=='pgsql') {
-    $conn->db_query('ALTER SEQUENCE '.strtolower(SITES_TABLE).'_id_seq RESTART WITH 2');
+if ($conf['dblayer'] == 'pgsql') {
+    $conn->db_query('ALTER SEQUENCE ' . strtolower(SITES_TABLE) . '_id_seq RESTART WITH 2');
 }
 
 $inserts = array(
@@ -99,11 +99,11 @@ $inserts = array(
     ),
 );
 $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
-if ($conf['dblayer']=='pgsql') {
-    $conn->db_query('ALTER SEQUENCE '.strtolower(USERS_TABLE).'_id_seq RESTART WITH 3');
+if ($conf['dblayer'] == 'pgsql') {
+    $conn->db_query('ALTER SEQUENCE ' . strtolower(USERS_TABLE) . '_id_seq RESTART WITH 3');
 }
 
-$services['users']->createUserInfos(array(1,2), array('language' => 'en'));
+$services['users']->createUserInfos(array(1, 2), array('language' => 'en'));
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
@@ -120,12 +120,12 @@ $conn->mass_inserts(
     array_keys($datas[0]),
     $datas
 );
-if (!is_dir(PHPWG_ROOT_PATH.$conf['data_location'])) {
-    mkdir(PHPWG_ROOT_PATH.$conf['data_location']);
+if (!is_dir(PHPWG_ROOT_PATH . $conf['data_location'])) {
+    mkdir(PHPWG_ROOT_PATH . $conf['data_location']);
 }
-if (!is_dir(PHPWG_ROOT_PATH.$conf['upload_dir'])) {
-    mkdir(PHPWG_ROOT_PATH.$conf['upload_dir']);
+if (!is_dir(PHPWG_ROOT_PATH . $conf['upload_dir'])) {
+    mkdir(PHPWG_ROOT_PATH . $conf['upload_dir']);
 }
 chmod($conf['data_location'], 0777);
 chmod($conf['upload_dir'], 0777);
-chmod(PHPWG_ROOT_PATH.'db', 0777);
+chmod(PHPWG_ROOT_PATH . 'db', 0777);

@@ -135,7 +135,7 @@ if ($nb_elements > 0) {
         'first_added',
         array(
             'DB_DATE' =>
-                \Phyxo\Functions\Language::l10n('first photo added on %s', format_date($first_date))
+                \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($first_date))
         )
     );
 }

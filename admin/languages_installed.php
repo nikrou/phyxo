@@ -22,7 +22,7 @@ if (isset($_GET['action']) and isset($_GET['language'])) {
     $page['errors'] = $languages->performAction($_GET['action'], $_GET['language']);
 
     if (empty($page['errors'])) {
-        redirect(LANGUAGES_BASE_URL . '&section=installed');
+        \Phyxo\Functions\Utils::redirect(LANGUAGES_BASE_URL . '&section=installed');
     }
 }
 

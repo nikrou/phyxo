@@ -108,7 +108,7 @@ class Themes extends Extensions
                     $this->conn->db_query($query);
 
                     if ($this->fs_themes[$theme_id]['mobile']) {
-                        \conf_update_param('mobile_theme', $theme_id);
+                        \Phyxo\Functions\Conf::conf_update_param('mobile_theme', $theme_id);
                     }
                 }
                 break;
@@ -147,7 +147,7 @@ class Themes extends Extensions
                 $this->conn->db_query($query);
 
                 if ($this->fs_themes[$theme_id]['mobile']) {
-                    \conf_update_param('mobile_theme', '');
+                    \Phyxo\Functions\Conf::conf_update_param('mobile_theme', '');
                 }
                 break;
 
@@ -397,7 +397,7 @@ class Themes extends Extensions
                 if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                     $version = $pem_versions[0]['name'];
                 }
-                $branch = \get_branch_from_version($version);
+                $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
                 foreach ($pem_versions as $pem_version) {
                     if (strpos($pem_version['name'], $branch) === 0) {
                         $versions_to_check[] = $pem_version['id'];

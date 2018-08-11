@@ -27,7 +27,7 @@ if (!$conf['allow_user_registration']) {
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_register');
 
 if (isset($_POST['submit'])) {
-    if (empty($_POST['key']) || !verify_ephemeral_key($_POST['key'])) {
+    if (empty($_POST['key']) || !\Phyxo\Functions\Utils::verify_ephemeral_key($_POST['key'])) {
         t_status_header(403);
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid/expired form key');
     }
@@ -51,18 +51,18 @@ if (isset($_POST['submit'])) {
 
     if (count($page['errors']) == 0) {
         // email notification
-        if (isset($_POST['send_password_by_mail']) and email_check_format($_POST['mail_address'])) {
+        if (isset($_POST['send_password_by_mail']) && \Phyxo\Functions\Utils::email_check_format($_POST['mail_address'])) {
             $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Successfully registered, you will soon receive an email with your connection settings. Welcome!');
         }
 
         // log user and redirect
         $user_id = $services['users']->getUserId($_POST['login']);
         $services['users']->logUser($user_id, false);
-        redirect(\Phyxo\Functions\URL::make_index_url());
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
     }
-    $registration_post_key = get_ephemeral_key(2);
+    $registration_post_key = \Phyxo\Functions\Utils::get_ephemeral_key(2);
 } else {
-    $registration_post_key = get_ephemeral_key(6);
+    $registration_post_key = \Phyxo\Functions\Utils::get_ephemeral_key(6);
 }
 
 $login = !empty($_POST['login']) ? htmlspecialchars(stripslashes($_POST['login'])) : '';

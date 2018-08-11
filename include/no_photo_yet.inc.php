@@ -17,8 +17,8 @@
 // keep the ability to login
 // keep the ability to discuss with web API
 if (!(defined('IN_ADMIN') and IN_ADMIN)
-    and script_basename() != 'identification'
-    and script_basename() != 'ws'
+    and \Phyxo\Functions\Utils::script_basename() != 'identification'
+    and \Phyxo\Functions\Utils::script_basename() != 'ws'
     and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
 
     $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
@@ -31,18 +31,18 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         if (isset($_GET['no_photo_yet'])) {
             if ('browse' == $_GET['no_photo_yet']) {
                 $_SESSION['no_photo_yet'] = 'browse';
-                redirect(\Phyxo\Functions\URL::make_index_url());
+                \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
                 exit();
             }
 
             if ('deactivate' == $_GET['no_photo_yet']) {
-                conf_update_param('no_photo_yet', 'false');
-                redirect(\Phyxo\Functions\URL::make_index_url());
+                \Phyxo\Functions\Conf::conf_update_param('no_photo_yet', 'false');
+                \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
                 exit();
             }
         }
 
-        header('Content-Type: text/html; charset=' . get_pwg_charset());
+        header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
         $template->set_filenames(array('no_photo_yet' => 'no_photo_yet.tpl'));
 
         if ($services['users']->isAdmin()) {
@@ -78,6 +78,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         $template->pparse('no_photo_yet');
         exit();
     } else {
-        conf_update_param('no_photo_yet', false);
+        \Phyxo\Functions\Conf::conf_update_param('no_photo_yet', false);
     }
 }

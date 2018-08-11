@@ -28,15 +28,16 @@ class DBLayer
     protected $queries = array();
     protected $queries_time = 0;
 
-    public static function init($layer, $host, $user, $password, $database) {
+    public static function init($layer, $host, $user, $password, $database)
+    {
         self::$layer = $layer;
-		if (file_exists(__DIR__.'/'.$layer.'Connection.php')) {
-			require_once __DIR__.'/'.$layer.'Connection.php';
+        if (file_exists(__DIR__ . '/' . $layer . 'Connection.php')) {
+            require_once __DIR__ . '/' . $layer . 'Connection.php';
             $className = sprintf('\Phyxo\DBLayer\%sConnection', $layer);
-		} else {
-			trigger_error('Unable to load DBLayer for '.$layer, E_USER_ERROR);
-			exit(1);
-		}
+        } else {
+            trigger_error('Unable to load DBLayer for ' . $layer, E_USER_ERROR);
+            exit(1);
+        }
 
         return new $className($host, $user, $password, $database);
     }
@@ -56,11 +57,12 @@ class DBLayer
         $this->db_link = $this->db_connect($host, $user, $password, $database);
     }
 
-    protected function db_show_query($query, $result, $query_time) {
+    protected function db_show_query($query, $result, $query_time)
+    {
         $this->queries_time += $query_time;
 
         $query2show = false;
-        if ($result!=null) {
+        if ($result != null) {
             $this_query = array(
                 'sql' => \SqlFormatter::format($query),
                 'time' => $query_time
@@ -78,27 +80,31 @@ class DBLayer
         }
     }
 
-    public function getQueries() {
+    public function getQueries()
+    {
         return $this->queries;
     }
 
-    public function getQueriesCount() {
+    public function getQueriesCount()
+    {
         return count($this->queries);
     }
 
-    public function getQueriesTime() {
+    public function getQueriesTime()
+    {
         return $this->queries_time;
     }
 
     /**
      * return an IN clause where @params are escaped
      */
-    public function in($params) {
+    public function in($params)
+    {
         if (empty($params)) {
             return '';
         }
         if (!is_array($params)) {
-            if (strpos($params, ',')!==false) {
+            if (strpos($params, ',') !== false) {
                 $params = explode(',', $params);
             } else {
                 $params = array($params);
@@ -109,7 +115,7 @@ class DBLayer
             $param = $this->db_real_escape_string($param);
         }
 
-        return ' IN(\''. implode('\',\'', $params) .'\') ';
+        return ' IN(\'' . implode('\',\'', $params) . '\') ';
     }
 
     /**
@@ -147,7 +153,8 @@ class DBLayer
      * @param string $value_name
      * @return array
      */
-    public function query2array($query, $key_name=null, $value_name=null) {
+    public function query2array($query, $key_name = null, $value_name = null)
+    {
         $result = $this->db_query($query);
         $data = array();
 
@@ -182,9 +189,10 @@ class DBLayer
      * @param string $table_name
      * @param array $data
      */
-    public function single_insert($table_name, $data) {
+    public function single_insert($table_name, $data)
+    {
         if (count($data) != 0) {
-            $query = 'INSERT INTO '.$table_name.' ('.implode(',', array_keys($data)).')';
+            $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', array_keys($data)) . ')';
             $query .= ' VALUES(';
 
             $is_first = true;
@@ -196,11 +204,11 @@ class DBLayer
                 }
 
                 if (is_bool($value)) {
-                    $query .= '\''.$this->boolean_to_db($value).'\'';
+                    $query .= '\'' . $this->boolean_to_db($value) . '\'';
                 } elseif ($value === '') {
                     $query .= 'NULL';
                 } else {
-                    $query .= '\''.$this->db_real_escape_string($value).'\'';
+                    $query .= '\'' . $this->db_real_escape_string($value) . '\'';
                 }
             }
             $query .= ')';
@@ -217,23 +225,24 @@ class DBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update($tablename, $datas, $where, $flags=0) { // @TODO: need refactoring between mass_* and single_*
+    public function single_update($tablename, $datas, $where, $flags = 0)
+    { // @TODO: need refactoring between mass_* and single_*
         if (count($datas) == 0) {
             return;
         }
 
         $is_first = true;
 
-        $query = 'UPDATE '.$tablename.' SET ';
+        $query = 'UPDATE ' . $tablename . ' SET ';
 
         foreach ($datas as $key => $value) {
             $separator = $is_first ? '' : ', ';
 
             if (isset($value) && $value !== '') {
                 if (is_bool($value)) {
-                    $query .= $separator.$key.' = \''.$this->boolean_to_db($value).'\'';
+                    $query .= $separator . $key . ' = \'' . $this->boolean_to_db($value) . '\'';
                 } elseif ($value !== '') {
-                    $query .= $separator.$key.' = \''.$this->db_real_escape_string($value).'\'';
+                    $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($value) . '\'';
                 }
             } else {
                 if ($flags & MASS_UPDATES_SKIP_EMPTY) {
@@ -247,18 +256,18 @@ class DBLayer
         if (!$is_first) { // only if one field at least updated
             $is_first = true;
 
-            $query.= ' WHERE ';
+            $query .= ' WHERE ';
 
             foreach ($where as $key => $value) {
                 if (!$is_first) {
-                    $query.= ' AND ';
+                    $query .= ' AND ';
                 }
                 if (isset($value) && is_bool($value)) {
-                    $query.= $key.' = \''.$this->boolean_to_db($value).'\'';
+                    $query .= $key . ' = \'' . $this->boolean_to_db($value) . '\'';
                 } elseif (!isset($value) || $value === '') {
-                    $query.= $key.' IS NULL';
+                    $query .= $key . ' IS NULL';
                 } else {
-                    $query.= $key.' = \''.$this->db_real_escape_string($value).'\'';
+                    $query .= $key . ' = \'' . $this->db_real_escape_string($value) . '\'';
                 }
                 $is_first = false;
             }
@@ -275,12 +284,13 @@ class DBLayer
      * @param array datas
      * @return void
      */
-    public function mass_deletes($tablename, array $dbfields, array $datas) {
+    public function mass_deletes($tablename, array $dbfields, array $datas)
+    {
         if (empty($dbfields) || empty($datas)) {
             return;
         }
-        $query = 'DELETE FROM '.$tablename;
-        $query .= ' WHERE ('.implode(',', $dbfields).')';
+        $query = 'DELETE FROM ' . $tablename;
+        $query .= ' WHERE (' . implode(',', $dbfields) . ')';
 
         $rows = array();
         foreach ($datas as $data) {
@@ -291,15 +301,15 @@ class DBLayer
                 } elseif (!isset($data[$dbfield]) or $data[$dbfield] === '') {
                     $elements[] = 'NULL';
                 } else {
-                    $elements[] = '\''.$this->db_real_escape_string($data[$dbfield]).'\'';
+                    $elements[] = '\'' . $this->db_real_escape_string($data[$dbfield]) . '\'';
                 }
             }
-            $rows[] = '('.implode(',', $elements).')';
+            $rows[] = '(' . implode(',', $elements) . ')';
         }
         if (empty($rows)) {
             return;
         }
-        $query .= ' '.$this->in($rows);
+        $query .= ' ' . $this->in($rows);
         $this->db_query($query);
     }
 
@@ -313,7 +323,8 @@ class DBLayer
      * @param string $replaced
      * @param string $replacing
      */
-    public function executeSqlFile($filepath, $replaced, $replacing) {
+    public function executeSqlFile($filepath, $replaced, $replacing)
+    {
         $sql_lines = file($filepath);
         $query = '';
         foreach ($sql_lines as $sql_line) {
@@ -321,16 +332,16 @@ class DBLayer
             if (preg_match('/(^--|^$)/', $sql_line)) {
                 continue;
             }
-            $query .= ' '.$sql_line;
+            $query .= ' ' . $sql_line;
             // if we reached the end of query, we execute it and reinitialize the variable "query"
             if (preg_match('/;$/', $sql_line)) {
                 $query = trim($query);
                 $query = str_replace($replaced, $replacing, $query);
                 // we don't execute "DROP TABLE" queries
                 if (!preg_match('/^DROP TABLE/i', $query)) {
-                    if (self::$layer==='mysql' || self::$layer==='mysqli') {
+                    if (self::$layer === 'mysql' || self::$layer === 'mysqli') {
                         if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
-                            $query = $matches[1].' DEFAULT CHARACTER SET utf8'.';';
+                            $query = $matches[1] . ' DEFAULT CHARACTER SET utf8' . ';';
                         }
                     }
                     $this->db_query($query);
@@ -341,6 +352,20 @@ class DBLayer
     }
 
     /**
+     * returns temporary table from regulary table
+     *
+     * @return string
+     */
+    public function getTemporaryTable(string $table)
+    {
+        $t1 = explode(' ', microtime());
+        $t2 = explode('.', $t1[0]);
+        $t2 = $t1[1] . substr($t2[1], 0, 6);
+
+        return "$table_$t2";
+    }
+
+    /**
      * Search for database engines available
      *
      * We search for functions_DATABASE_ENGINE.inc.php
@@ -348,18 +373,19 @@ class DBLayer
      *
      * @return array
      */
-    public static function availableEngines() {
+    public static function availableEngines()
+    {
         $engines = array();
 
-        $pattern = PHPWG_ROOT_PATH. 'src/Phyxo/DBLayer/%sConnection.php';
-        include_once PHPWG_ROOT_PATH. 'include/dblayers.inc.php';
+        $pattern = PHPWG_ROOT_PATH . 'src/Phyxo/DBLayer/%sConnection.php';
+        include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
         foreach ($dblayers as $engine_name => $engine) {
             if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])
                 && function_exists($engine['function_available'])) {
                 $engines[$engine_name] = $engine['engine'];
             } elseif (file_exists(sprintf($pattern, $engine_name)) && isset($engine['class_available'])
-                      && class_exists($engine['class_available'])) {
+                && class_exists($engine['class_available'])) {
                 $engines[$engine_name] = $engine['engine'];
             }
         }

@@ -22,7 +22,7 @@ use Phyxo\TabSheet\TabSheet;
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (!empty($_POST)) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 
 if (!empty($_GET['section'])) {
@@ -52,5 +52,5 @@ $template_filename = 'tags_' . $page['section'];
 
 $template->assign([
     'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags&amp;section=' . $page['section'],
-    'PWG_TOKEN' => get_pwg_token(),
+    'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
 ]);

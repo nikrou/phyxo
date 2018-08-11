@@ -94,7 +94,7 @@ if (isset($_POST['submit'])) {
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(HISTORY_BASE_URL . '&section=search&&search_id=' . $search_id);
+        \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&&search_id=' . $search_id);
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
     }
@@ -136,7 +136,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $search_id = $conn->db_insert_id(SEARCH_TABLE);
 
-        redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
+        \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }
 
     /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
@@ -394,7 +394,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 // +-----------------------------------------------------------------------+
 
 if (isset($page['search_id'])) {
-    $navbar = create_navigation_bar(
+    $navbar = \Phyxo\Functions\Utils::create_navigation_bar(
         \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         $page['nb_lines'],
         $page['start'],

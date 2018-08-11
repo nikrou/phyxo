@@ -84,11 +84,11 @@ if (defined('IN_ADMIN') || defined('IN_WS')) {
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');
 
-load_conf_from_db();
+\Phyxo\Functions\Conf::load_conf_from_db();
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
-    if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != get_branch_from_version(PHPWG_VERSION)) {
-        redirect(\Phyxo\Functions\URL::get_root_url() . 'upgrade.php');
+    if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'upgrade.php');
     }
 }
 
@@ -156,10 +156,10 @@ if (isset($user['internal_status']['guest_must_be_guest']) && $user['internal_st
 if ($conf['gallery_locked']) {
     $header_msgs[] = \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.');
 
-    if (script_basename() != 'identification' && !$services['users']->isAdmin()) {
+    if (\Phyxo\Functions\Utils::script_basename() != 'identification' && !$services['users']->isAdmin()) {
         set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
-        header('Content-Type: text/html; charset=' . get_pwg_charset());
+        header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
         echo '<a href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'identification.php">' . \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
         echo str_repeat(' ', 512); //IE6 doesn't error output if below a size
         exit();
@@ -178,7 +178,7 @@ if (count($header_msgs) > 0) {
     $header_msgs = array();
 }
 
-if (!empty($conf['filter_pages']) and get_filter_page_value('used')) {
+if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_value('used')) {
     include(PHPWG_ROOT_PATH . 'include/filter.inc.php');
 } else {
     $filter['enabled'] = false;
@@ -195,7 +195,7 @@ if (!$conf['allow_html_descriptions']) {
 }
 \Phyxo\Functions\Plugin::add_event_handler('render_comment_content', 'render_comment_content');
 \Phyxo\Functions\Plugin::add_event_handler('render_comment_author', 'strip_tags');
-\Phyxo\Functions\Plugin::add_event_handler('render_tag_url', 'str2url');
+\Phyxo\Functions\Plugin::add_event_handler('render_tag_url', '\Phyxo\Functions\Language::str2url');
 \Phyxo\Functions\Plugin::add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL - 1);
 
 if (!empty($conf['original_url_protection'])) {

@@ -67,7 +67,7 @@ $next_token = 0;
 // |                             picture page                              |
 // +-----------------------------------------------------------------------+
 // the first token must be the identifier for the picture
-if (script_basename() == 'picture') {
+if (\Phyxo\Functions\Utils::script_basename() == 'picture') {
     $token = $tokens[$next_token];
     $next_token++;
     if (is_numeric($token)) {
@@ -98,7 +98,7 @@ $page = array_merge($page, \Phyxo\Functions\URL::parse_section_url($tokens, $nex
 if (!isset($page['section'])) {
     $page['section'] = 'categories';
 
-    switch (script_basename()) {
+    switch (\Phyxo\Functions\Utils::script_basename()) {
         case 'picture':
             break;
         case 'index':
@@ -112,21 +112,21 @@ if (!isset($page['section'])) {
                         }
                     }
                     if (!empty($random_index_redirect)) {
-                        redirect($random_index_redirect[mt_rand(0, count($random_index_redirect) - 1)]);
+                        \Phyxo\Functions\Utils::redirect($random_index_redirect[mt_rand(0, count($random_index_redirect) - 1)]);
                     }
                 }
                 $page['is_homepage'] = true;
                 break;
             }
         default:
-            trigger_error('script_basename "' . script_basename() . '" unknown', E_USER_WARNING);
+            trigger_error('script_basename "' . \Phyxo\Functions\Utils::script_basename() . '" unknown', E_USER_WARNING);
     }
 }
 
 $page = array_merge($page, \Phyxo\Functions\URL::parse_well_known_params_url($tokens, $next_token));
 
 //access a picture only by id, file or id-file without given section
-if (script_basename() == 'picture' and 'categories' == $page['section']
+if (\Phyxo\Functions\Utils::script_basename() == 'picture' and 'categories' == $page['section']
     and !isset($page['category']) and !isset($page['chronology_field'])) {
     $page['flat'] = true;
 }
@@ -165,7 +165,7 @@ if (!empty($_SESSION['image_order']) && $_SESSION['image_order'] > 0) {
     }
 }
 
-$forbidden = get_sql_condition_FandF(
+$forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -207,13 +207,13 @@ if ('categories' == $page['section']) {
             if (isset($page['category'])) {
                 $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
                 $query .= ' WHERE uppercats LIKE \'' . $page['category']['uppercats'] . ',%\' ';
-                $query .= ' ' . get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'AND');
+                $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'AND');
 
                 $subcat_ids = $conn->query2array($query, null, 'id');
                 $subcat_ids[] = $page['category']['id'];
                 $where_sql = 'category_id ' . $conn->in($subcat_ids);
                 // remove categories from forbidden because just checked above
-                $forbidden = get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
+                $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
             } else {
                 $cache_key = $persistent_cache->make_key('all_iids' . $user['id'] . $user['cache_update_time'] . $conf['order_by']);
                 unset($page['is_homepage']);
@@ -225,7 +225,7 @@ if ('categories' == $page['section']) {
 
         if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
             // main query
-            $query = 'SELECT DISTINCT(image_id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
+            $query = 'SELECT DISTINCT(image_id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
             $query .= ' WHERE ' . $where_sql . ' ' . $forbidden . ' ' . $conf['order_by'];
 
@@ -278,19 +278,19 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         // |                           favorite section                            |
         // +-----------------------------------------------------------------------+
-        check_user_favorites();
+        \Phyxo\Functions\Utils::check_user_favorites();
 
         $page = array_merge($page, array('title' => \Phyxo\Functions\Language::l10n('Favorites')));
 
         if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
             $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE user_id = ' . $user['id'] . ';';
             $conn->db_query($query);
-            redirect(\Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')));
+            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')));
         } else {
             $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . FAVORITES_TABLE . ' ON image_id = id';
             $query .= ' WHERE user_id = ' . $user['id'];
-            $query .= ' ' . get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
+            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
             $query .= ' ' . $conf['order_by'];
             $page = array_merge($page, array('items' => $conn->query2array($query, null, 'image_id')));
 
@@ -318,9 +318,9 @@ if ('categories' == $page['section']) {
             );
         }
 
-        $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
+        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE ' . get_recent_photos_sql('date_available') . ' ' . $forbidden . ' ' . $conf['order_by'];
+        $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos_sql('date_available') . ' ' . $forbidden . ' ' . $conf['order_by'];
 
         $page = array_merge(
             $page,
@@ -341,7 +341,7 @@ if ('categories' == $page['section']) {
         $page['super_order_by'] = true;
         $conf['order_by'] = ' ORDER BY hit DESC, id DESC';
 
-        $query = 'SELECT DISTINCT(id), ' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
+        $query = 'SELECT DISTINCT(id), ' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         $query .= ' WHERE hit > 0';
         $query .= ' ' . $forbidden;
@@ -361,7 +361,7 @@ if ('categories' == $page['section']) {
         $page['super_order_by'] = true;
         $conf['order_by'] = ' ORDER BY rating_score DESC, id DESC';
 
-        $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
+        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         $query .= ' WHERE rating_score IS NOT NULL';
         $query .= ' ' . $forbidden;
@@ -377,7 +377,7 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         // |                             list section                              |
         // +-----------------------------------------------------------------------+
-        $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
+        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         $query .= ' WHERE image_id ' . $conn->in($page['list']);
         $query .= ' ' . $forbidden;
@@ -437,7 +437,7 @@ if ($filter['enabled']) {
 if ('categories' == $page['section'] and isset($page['category'])) {
     $need_redirect = false;
     if (empty($page['category']['permalink'])) {
-        if ($conf['category_url_style'] == 'id-name' and @$page['hit_by']['cat_url_name'] !== str2url($page['category']['name'])) {
+        if ($conf['category_url_style'] == 'id-name' and @$page['hit_by']['cat_url_name'] !== \Phyxo\Functions\Language::str2url($page['category']['name'])) {
             $need_redirect = true;
         }
     } else {
@@ -447,13 +447,10 @@ if ('categories' == $page['section'] and isset($page['category'])) {
     }
 
     if ($need_redirect) {
-        $redirect_url = script_basename() == 'picture' ? \Phyxo\Functions\URL::duplicate_picture_url() : \Phyxo\Functions\URL::duplicate_index_url();
+        $redirect_url = \Phyxo\Functions\Utils::script_basename() == 'picture' ? \Phyxo\Functions\URL::duplicate_picture_url() : \Phyxo\Functions\URL::duplicate_index_url();
 
-        if (!headers_sent()) { // this is a permanent redirection
-            set_status_header(301);
-            redirect_http($redirect_url);
-        }
-        redirect($redirect_url);
+        set_status_header(301);
+        \Phyxo\Functions\Utils::redirect($redirect_url);
     }
     unset($need_redirect, $page['hit_by']);
 }

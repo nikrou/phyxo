@@ -284,8 +284,8 @@ function ws_session_getStatus($params, &$service)
     foreach (array('status', 'theme', 'language') as $k) {
         $res[$k] = $user[$k];
     }
-    $res['pwg_token'] = get_pwg_token();
-    $res['charset'] = get_pwg_charset();
+    $res['pwg_token'] = \Phyxo\Functions\Utils::get_token();
+    $res['charset'] = \Phyxo\Functions\Utils::get_charset();
 
     list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
     $res['current_datetime'] = $dbnow;

@@ -220,11 +220,11 @@ if (isset($_POST['delete']) and isset($_POST['tags'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 
     $services['tags']->deleteOrphanTags();
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Orphan tags deleted');
-    redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
 }
 
 // +-----------------------------------------------------------------------+
@@ -257,7 +257,7 @@ if (count($orphan_tag_names) > 0) {
         \Phyxo\Functions\Language::l10n('You have %d orphan tags: %s.') . ' <a href="%s">' . \Phyxo\Functions\Language::l10n('Delete orphan tags') . '</a>',
         count($orphan_tag_names),
         implode(', ', $orphan_tag_names),
-        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token=' . get_pwg_token()
+        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags&amp;action=delete_orphans&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token()
     );
 }
 

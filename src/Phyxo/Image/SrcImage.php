@@ -12,6 +12,7 @@
 namespace Phyxo\Image;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\Functions\Utils;
 
 /**
  * A source image is used to get a derivative image. It is either
@@ -43,15 +44,15 @@ class SrcImage
         global $conf;
 
         $this->id = $infos['id'];
-        $ext = get_extension($infos['path']);
+        $ext = Utils::get_extension($infos['path']);
         if (in_array($ext, $conf['picture_ext'])) {
             $this->rel_path = $infos['path'];
             $this->flags |= self::IS_ORIGINAL;
         } elseif (!empty($infos['representative_ext'])) {
-            $this->rel_path = original_to_representative($infos['path'], $infos['representative_ext']);
+            $this->rel_path = \Phyxo\Functions\Utils::original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
-            $this->rel_path = Plugin::trigger_change('get_mimetype_location', get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
+            $this->rel_path = Plugin::trigger_change('get_mimetype_location', \Phyxo\Functions\Theme::get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
             $this->flags |= self::IS_MIMETYPE;
             if (($size = @getimagesize(PHPWG_ROOT_PATH . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';

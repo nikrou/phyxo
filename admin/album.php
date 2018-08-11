@@ -20,7 +20,7 @@ use Phyxo\TabSheet\TabSheet;
 // +-----------------------------------------------------------------------+
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 
 $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_GET['cat_id']);

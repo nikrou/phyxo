@@ -69,12 +69,12 @@ if ('admin' == $user['status']) {
 $template->assign(
     array(
         'F_ADD_ACTION' => USERS_BASE_URL . '&amp;section=list',
-        'PWG_TOKEN' => get_pwg_token(),
+        'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
         'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
         'RECENT_PERIOD' => $default_user['recent_period'],
-        'theme_options' => get_pwg_themes(),
+        'theme_options' => \Phyxo\Functions\Theme::get_themes(),
         'theme_selected' => $services['users']->getDefaultTheme(),
-        'language_options' => get_languages(),
+        'language_options' => \Phyxo\Functions\Language::get_languages(),
         'language_selected' => $services['users']->getDefaultLanguage(),
         'association_options' => $groups,
         'protected_users' => implode(',', array_unique($protected_users)),

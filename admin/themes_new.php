@@ -34,7 +34,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
     if (!$services['users']->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
-        check_pwg_token();
+        \Phyxo\Functions\Utils::check_token();
 
         try {
             $themes->extractThemeFiles('install', $_GET['revision'], $_GET['extension']);
@@ -43,7 +43,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
             $page['errors'] = $e->getMessage();
         }
 
-        redirect(THEMES_BASE_URL . '&section=new&installstatus=' . $install_status);
+        \Phyxo\Functions\Utils::redirect(THEMES_BASE_URL . '&section=new&installstatus=' . $install_status);
     }
 }
 
@@ -86,7 +86,7 @@ foreach ($themes->getServerThemes(true) as $theme) {
         . '&amp;section=new'
         . '&amp;revision=' . $theme['revision_id']
         . '&amp;extension=' . $theme['extension_id']
-        . '&amp;pwg_token=' . get_pwg_token();
+        . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
     $template->append(
         'new_themes',

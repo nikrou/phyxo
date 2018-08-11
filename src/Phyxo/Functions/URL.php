@@ -88,12 +88,12 @@ class URL
             case 'id-file':
                 $url .= $params['image_id'];
                 if (isset($params['image_file'])) {
-                    $url .= '-' . str2url(get_filename_wo_extension($params['image_file']));
+                    $url .= '-' . \Phyxo\Functions\Language::str2url(\Phyxo\Functions\Utils::get_filename_wo_extension($params['image_file']));
                 }
                 break;
             case 'file':
                 if (isset($params['image_file'])) {
-                    $fname_wo_ext = get_filename_wo_extension($params['image_file']);
+                    $fname_wo_ext = \Phyxo\Functions\Utils::get_filename_wo_extension($params['image_file']);
                     if (ord($fname_wo_ext) > ord('9') or !preg_match('/^\d+(-|$)/', $fname_wo_ext)) {
                         $url .= $fname_wo_ext;
                         break;
@@ -225,7 +225,7 @@ class URL
      * @param array removed keys
      * @return string
      */
-    function duplicate_picture_url($redefined = array(), $removed = array())
+    public static function duplicate_picture_url($redefined = array(), $removed = array())
     {
         return self::make_picture_url(
             self::params_for_duplication($redefined, $removed)
@@ -314,7 +314,7 @@ class URL
                         if (empty($params['category']['permalink'])) {
                             $section_string .= $params['category']['id'];
                             if ($conf['category_url_style'] == 'id-name') {
-                                $section_string .= '-' . str2url($params['category']['name']);
+                                $section_string .= '-' . \Phyxo\Functions\Language::str2url($params['category']['name']);
                             }
                         } else {
                             $section_string .= $params['category']['permalink'];

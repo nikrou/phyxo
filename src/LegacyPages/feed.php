@@ -49,7 +49,7 @@ function ts_to_iso8601($ts)
 // |                            initialization                             |
 // +-----------------------------------------------------------------------+
 
-check_input_parameter('feed', $_GET, false, '/^[0-9a-z]*$/i');
+\Phyxo\Functions\Utils::check_input_parameter('feed', $_GET, false, '/^[0-9a-z]*$/i');
 
 $feed_id = isset($_GET['feed']) ? $_GET['feed'] : '';
 $image_only = isset($_GET['image_only']);
@@ -153,7 +153,7 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
 }
 
 $fileName = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp';
-mkgetdir($fileName); // just in case
+\Phyxo\Functions\Utils::mkgetdir($fileName); // just in case
 $fileName .= '/feed.xml';
 // send XML feed
 echo $rss->saveFeed('RSS2.0', $fileName, true);

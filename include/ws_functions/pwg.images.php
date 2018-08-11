@@ -252,7 +252,7 @@ function ws_images_addComment($params, $service)
     $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id=id';
     $query .= ' WHERE commentable=\'' . $conn->boolean_to_db(true) . '\'';
     $query .= ' AND image_id=' . $params['image_id'];
-    $query .= get_sql_condition_FandF(
+    $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'id',
             'visible_categories' => 'id',
@@ -304,7 +304,7 @@ function ws_images_getInfo($params, $service)
 
     $query = 'SELECT * FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
-    $query .= get_sql_condition_FandF(array('visible_images' => 'id'), ' AND ');
+    $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), ' AND ');
     $query .= ' LIMIT 1;';
     $result = $conn->db_query($query);
 
@@ -319,7 +319,7 @@ function ws_images_getInfo($params, $service)
     $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM ' . CATEGORIES_TABLE;
     $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id = id';
     $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($image_row['id']);
-    $query .= get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
+    $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
     $result = $conn->db_query($query);
 
     $is_commentable = false;
@@ -407,7 +407,7 @@ function ws_images_getInfo($params, $service)
     $comment_post_data = null;
     if ($is_commentable && (!$services['users']->isGuest() || ($services['users']->isGuest() && $conf['comments_forall']))) {
         $comment_post_data['author'] = stripslashes($user['username']);
-        $comment_post_data['key'] = get_ephemeral_key(2, $params['image_id']);
+        $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id']);
     }
 
     $ret = $image_row;
@@ -475,7 +475,7 @@ function ws_images_rate($params, $service)
     $query = 'SELECT DISTINCT id FROM ' . IMAGES_TABLE;
     $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
     $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
-    $query .= get_sql_condition_FandF(
+    $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'category_id',
             'forbidden_images' => 'id',
@@ -696,7 +696,7 @@ function ws_images_add_chunk($params, $service)
     $upload_dir = $conf['upload_dir'] . '/buffer';
 
     // create the upload directory tree if not exists
-    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR)) {
+    if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
         return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
@@ -1049,14 +1049,14 @@ function ws_images_upload($params, $service)
 {
     global $conf, $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $upload_dir = $conf['upload_dir'] . '/buffer';
 
     // create the upload directory tree if not exists
-    if (!mkgetdir($upload_dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR)) {
+    if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
         return new Phyxo\Ws\Error(500, 'error during buffer directory creation');
     }
 
@@ -1478,7 +1478,7 @@ function ws_images_setInfo($params, $service)
  */
 function ws_images_delete($params, $service)
 {
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 

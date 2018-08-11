@@ -31,7 +31,7 @@ try {
 
             $extension_info = $server_plugins[$fs_extension['extension']];
 
-            if (!safe_version_compare($fs_extension['version'], $extension_info['revision_name'], '>=')) {
+            if (!version_compare($fs_extension['version'], $extension_info['revision_name'], '>=')) {
                 $template->append(
                     'update_plugins',
                     array(
@@ -59,11 +59,11 @@ try {
     }
 
     $template->assign('SHOW_RESET', $show_reset);
-    $template->assign('PWG_TOKEN', get_pwg_token());
+    $template->assign('PWG_TOKEN', \Phyxo\Functions\Utils::get_token());
     $template->assign('EXT_TYPE', $page['page'] == 'updates' ? 'extensions' : $page['page']);
 } catch (\Exception $e) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
     $template->append(
-        array('error' => $page['error'])
+        array('error' => $page['errors'])
     );
 }

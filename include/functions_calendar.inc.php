@@ -42,9 +42,9 @@ function initialize_calendar()
                 return; // nothing to do
             }
             $inner_sql .= ' WHERE category_id ' . $conn->in($sub_ids);
-            $inner_sql .= ' ' . get_sql_condition_FandF(array('visible_images' => 'id'), 'AND', false);
+            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND', false);
         } else {
-            $inner_sql .= ' ' . get_sql_condition_FandF(
+            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
                 array(
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',
@@ -145,7 +145,7 @@ function initialize_calendar()
     $calendar->initialize($inner_sql);
 
     $must_show_list = true; // true until calendar generates its own display
-    if (script_basename() != 'picture') { // basename without file extention
+    if (\Phyxo\Functions\Utils::script_basename() != 'picture') { // basename without file extention
         if ($calendar->generate_category_content()) {
             $page['items'] = array();
             $must_show_list = false;
@@ -220,7 +220,7 @@ function initialize_calendar()
         }
 
         if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
-            $query = 'SELECT DISTINCT id,' . addOrderByFields($order_by);
+            $query = 'SELECT DISTINCT id,' . \Phyxo\Functions\SQL::addOrderByFields($order_by);
             $query .= $calendar->inner_sql . ' ' . $calendar->get_date_where();
             $query .= ' ' . $order_by;
 

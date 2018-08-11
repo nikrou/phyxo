@@ -39,7 +39,7 @@ if (isset($_POST['login'])) {
         $remember_me = isset($_POST['remember_me']) and $_POST['remember_me'] == 1;
 
         if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
-            redirect(empty($redirect_to) ? \Phyxo\Functions\URL::get_gallery_home_url() : $redirect_to);
+            \Phyxo\Functions\Utils::redirect(empty($redirect_to) ? \Phyxo\Functions\URL::get_gallery_home_url() : $redirect_to);
         } else {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         }

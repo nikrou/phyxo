@@ -39,7 +39,7 @@ if (!empty($_POST)) {
     if (empty($_POST['comments'])) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one comment');
     } else {
-        check_input_parameter('comments', $_POST, true, PATTERN_ID);
+        \Phyxo\Functions\Utils::check_input_parameter('comments', $_POST, true, PATTERN_ID);
 
         if (isset($_POST['validate'])) {
             $services['comments']->validateUserComment($_POST['comments']);
@@ -146,7 +146,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
             'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),
-            'DATE' => format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
+            'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
             'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
             'IS_PENDING' => $conn->get_boolean($row['validated']) === false,
             'IP' => $row['anonymous_id'],
@@ -160,7 +160,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // |                            navigation bar                             |
 // +-----------------------------------------------------------------------+
 
-$navbar = create_navigation_bar(
+$navbar = \Phyxo\Functions\Utils::create_navigation_bar(
     \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
     ('pending' == $page['section'] ? $nb_pending : $nb_total),
     $page['start'],

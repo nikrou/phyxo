@@ -64,7 +64,7 @@ function get_sql_search_clause($search)
             }
 
             // adds brackets around where clauses
-            $local_clauses = prepend_append_array_items($local_clauses, '(', ')');
+            $local_clauses = \Phyxo\Functions\Utils::prepend_append_array_items($local_clauses, '(', ')');
 
             $clauses[] = implode(' ' . $search['fields'][$textfield]['mode'] . ' ', $local_clauses);
         }
@@ -137,7 +137,7 @@ function get_sql_search_clause($search)
     }
 
     // adds brackets around where clauses
-    $clauses = prepend_append_array_items($clauses, '(', ')');
+    $clauses = \Phyxo\Functions\Utils::prepend_append_array_items($clauses, '(', ')');
 
     $where_separator = implode(' ' . $search['mode'] . ' ', $clauses);
 
@@ -157,7 +157,7 @@ function get_regular_search_results($search, $images_where = '')
 {
     global $conf, $conn, $services;
 
-    $forbidden = get_sql_condition_FandF(
+    $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'category_id',
             'visible_categories' => 'category_id',
@@ -179,7 +179,7 @@ function get_regular_search_results($search, $images_where = '')
     $search_clause = get_sql_search_clause($search);
 
     if (!empty($search_clause)) {
-        $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']);
+        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']);
         $query .= ' FROM ' . IMAGES_TABLE . ' AS i';
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         $query .= ' WHERE ' . $search_clause;
@@ -603,7 +603,7 @@ function get_quick_search_results_no_cache($q, $options)
         $where_clauses[] = '(' . $options['images_where'] . ')';
     }
     if ($permissions) {
-        $where_clauses[] = get_sql_condition_FandF(
+        $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'category_id',
                 'forbidden_images' => 'i.id'
@@ -613,7 +613,7 @@ function get_quick_search_results_no_cache($q, $options)
         );
     }
 
-    $query = 'SELECT DISTINCT(id),' . addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE . ' i';
+    $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE . ' i';
     if ($permissions) {
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
     }

@@ -22,7 +22,8 @@ class Updates
     private $versions = array(), $version = array();
     private $types = array();
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn=null, $page='updates') {
+    public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, $page = 'updates')
+    {
         $this->types = array('plugins', 'themes', 'languages');
 
         if (in_array($page, $this->types)) {
@@ -38,11 +39,13 @@ class Updates
         }
     }
 
-    public function setUpdateUrl($url) {
+    public function setUpdateUrl($url)
+    {
         $this->update_url = $url;
     }
 
-    public function getType($type) {
+    public function getType($type)
+    {
         if (!in_array($type, $this->types)) {
             return null;
         }
@@ -50,11 +53,12 @@ class Updates
         return $this->$type;
     }
 
-    public function getAllVersions() {
+    public function getAllVersions()
+    {
         try {
             $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
             $response = $client->request('GET', $this->update_url);
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $this->versions = json_decode($response->getBody(), true);
                 return $this->versions;
             } else {
@@ -65,46 +69,49 @@ class Updates
         }
     }
 
-    public function upgradeTo($version, $release='stable') {
+    public function upgradeTo($version, $release = 'stable')
+    {
         foreach ($this->versions as $v) {
-            if ($v['version']==$version && $v['release']==$release) {
+            if ($v['version'] == $version && $v['release'] == $release) {
                 $this->version = $v;
             }
         }
     }
 
-    public function download($zip_file) {
-        @mkgetdir(dirname($zip_file)); // @TODO: remove arobase and use a fs library
+    public function download($zip_file)
+    {
+        @\Phyxo\Functions\Utils::mkgetdir(dirname($zip_file)); // @TODO: remove arobase and use a fs library
 
         try {
             $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
             $response = $client->request('GET', $this->getFileURL());
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 file_put_contents($zip_file, $response->getBody());
             }
         } catch (\Exception $e) {
         }
     }
 
-    public function getFileURL() {
+    public function getFileURL()
+    {
         return $this->version['href'];
     }
 
-    public function upgrade($zip_file) {
+    public function upgrade($zip_file)
+    {
         $zip = new PclZip($zip_file);
-		$not_writable = array();
+        $not_writable = array();
         $root = PHPWG_ROOT_PATH;
 
         foreach ($zip->listContent() as $file) {
             $filename = str_replace('phyxo/', '', $file['filename']);
-            $dest = $dest_dir = $root.'/'.$filename;
-			while (!is_dir($dest_dir = dirname($dest_dir)));
+            $dest = $dest_dir = $root . '/' . $filename;
+            while (!is_dir($dest_dir = dirname($dest_dir)));
 
-			if ((file_exists($dest) && !is_writable($dest)) ||
-                (!file_exists($dest) && !is_writable($dest_dir))) {
-				$not_writable[] = $filename;
-				continue;
-			}
+            if ((file_exists($dest) && !is_writable($dest)) || (!file_exists($dest) && !is_writable($dest_dir))) {
+                $not_writable[] = $filename;
+                continue;
+            }
         }
         if (!empty($not_writable)) {
             $e = new \Exception('Some files or directories are not writable');
@@ -113,14 +120,19 @@ class Updates
         }
 
         // @TODO: remove arobase ; extract try to make a touch on every file but sometimes failed.
-        $result = @$zip->extract(PCLZIP_OPT_PATH, PHPWG_ROOT_PATH,
-                                 PCLZIP_OPT_REMOVE_PATH, 'phyxo',
-                                 PCLZIP_OPT_SET_CHMOD, 0755,
-                                 PCLZIP_OPT_REPLACE_NEWER
+        $result = @$zip->extract(
+            PCLZIP_OPT_PATH,
+            PHPWG_ROOT_PATH,
+            PCLZIP_OPT_REMOVE_PATH,
+            'phyxo',
+            PCLZIP_OPT_SET_CHMOD,
+            0755,
+            PCLZIP_OPT_REPLACE_NEWER
         );
     }
 
-    public function getServerExtensions($version=PHPWG_VERSION) {
+    public function getServerExtensions($version = PHPWG_VERSION)
+    {
         global $user;
 
         $get_data = array(
@@ -134,7 +146,7 @@ class Updates
         try {
             $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
             $response = $client->request('GET', $url, $get_data);
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $pem_versions = json_decode($response->getBody(), true);
             } else {
                 throw new \Exception("Reponse from server is not readable");
@@ -143,7 +155,7 @@ class Updates
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = get_branch_from_version($version);
+            $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
                 if (strpos($pem_version['name'], $branch) === 0) {
                     $versions_to_check[] = $pem_version['id'];
@@ -186,7 +198,7 @@ class Updates
         try {
             $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
             $response = $client->request('POST', $url, $post_data);
-            if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $pem_exts = json_decode($response->getBody(), true);
             } else {
                 throw new \Exception("Reponse from server is not readable");
@@ -219,14 +231,15 @@ class Updates
         return array();
     }
 
-    public function checkCoreUpgrade() {
+    public function checkCoreUpgrade()
+    {
         $_SESSION['need_update'] = false;
 
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
             try {
                 $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
-                $response = $client->request('GET', PHPWG_URL.'/download/all_versions.php');
-                if ($response->getStatusCode()==200 && $response->getBody()->isReadable()) {
+                $response = $client->request('GET', PHPWG_URL . '/download/all_versions.php');
+                if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
                 }
             } catch (\Exception $e) {
@@ -239,7 +252,8 @@ class Updates
     }
 
     // Check all extensions upgrades
-    public function checkExtensions() {
+    public function checkExtensions()
+    {
         global $conf;
 
         if (!$this->getServerExtensions()) {
@@ -251,11 +265,11 @@ class Updates
         foreach ($this->types as $type) {
             $ignore_list = array();
 
-            foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
+            foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                 if (isset($fs_ext['extension']) and isset($server_ext[$fs_ext['extension']])) {
                     $ext_info = $server_ext[$fs_ext['extension']];
 
-                    if (!safe_version_compare($fs_ext['version'], $ext_info['revision_name'], '>=')) {
+                    if (!version_compare($fs_ext['version'], $ext_info['revision_name'], '>=')) {
                         if (in_array($ext_id, $conf['updates_ignored'][$type])) {
                             $ignore_list[] = $ext_id;
                         } else {
@@ -266,16 +280,17 @@ class Updates
             }
             $conf['updates_ignored'][$type] = $ignore_list;
         }
-        conf_update_param('updates_ignored', $conf['updates_ignored']);
+        \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
     }
 
     // Check if extension have been upgraded since last check
-    public function checkUpdatedExtensions() {
+    public function checkUpdatedExtensions()
+    {
         foreach ($this->types as $type) {
             if (!empty($_SESSION['extensions_need_update'][$type])) {
-                foreach($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
+                foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                     if (isset($_SESSION['extensions_need_update'][$type][$ext_id])
-                        and safe_version_compare($fs_ext['version'], $_SESSION['extensions_need_update'][$type][$ext_id], '>=')) {
+                        && version_compare($fs_ext['version'], $_SESSION['extensions_need_update'][$type][$ext_id], '>=')) {
                         // Extension have been upgraded
                         $this->checkExtensions();
                         break;
@@ -285,9 +300,10 @@ class Updates
         }
     }
 
-    protected function checkMissingExtensions($missing) {
+    protected function checkMissingExtensions($missing)
+    {
         foreach ($missing as $id => $type) {
-            $default = 'default_'.$type;
+            $default = 'default_' . $type;
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $ext) {
                 if (isset($ext['extension']) and $id == $ext['extension']
                     and !in_array($ext_id, $this->$default)) {

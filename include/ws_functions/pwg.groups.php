@@ -18,25 +18,26 @@ use Phyxo\Ws\Server;
  *    @option int[] group_id (optional)
  *    @option string name (optional)
  */
-function ws_groups_getList($params, &$service) {
+function ws_groups_getList($params, &$service)
+{
     global $conn;
 
     $where_clauses = array('1=1');
 
     if (!empty($params['name'])) {
-        $where_clauses[] = 'LOWER(name) LIKE \''. $conn->db_real_escape_string($params['name']) .'\'';
+        $where_clauses[] = 'LOWER(name) LIKE \'' . $conn->db_real_escape_string($params['name']) . '\'';
     }
 
     if (!empty($params['group_id'])) {
-        $where_clauses[] = 'id '.$conn->in($params['group_id']);
+        $where_clauses[] = 'id ' . $conn->in($params['group_id']);
     }
 
-    $query = 'SELECT g.*, COUNT(user_id) AS nb_users FROM '. GROUPS_TABLE .' AS g';
-    $query .= ' LEFT JOIN '. USER_GROUP_TABLE .' AS ug ON ug.group_id = g.id';
-    $query .= ' WHERE '. implode(' AND ', $where_clauses);
+    $query = 'SELECT g.*, COUNT(user_id) AS nb_users FROM ' . GROUPS_TABLE . ' AS g';
+    $query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON ug.group_id = g.id';
+    $query .= ' WHERE ' . implode(' AND ', $where_clauses);
     $query .= ' GROUP BY id';
-    $query .= ' ORDER BY '. $params['order'];
-    $query .= ' LIMIT '. (int) $params['per_page'] .' OFFSET '. (int) ($params['per_page']*$params['page']) .';';
+    $query .= ' ORDER BY ' . $params['order'];
+    $query .= ' LIMIT ' . (int)$params['per_page'] . ' OFFSET ' . (int)($params['per_page'] * $params['page']) . ';';
 
     $groups = $conn->query2array($query);
 
@@ -57,12 +58,13 @@ function ws_groups_getList($params, &$service) {
  *    @option string name
  *    @option bool is_default
  */
-function ws_groups_add($params, &$service) {
+function ws_groups_add($params, &$service)
+{
     global $conn;
 
     // is the name not already used ?
-    $query = 'SELECT COUNT(1) FROM '.GROUPS_TABLE;
-    $query .= ' WHERE name = \''.$conn->db_real_escape_string($params['name']).'\'';
+    $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
+    $query .= ' WHERE name = \'' . $conn->db_real_escape_string($params['name']) . '\'';
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count != 0) {
         return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
@@ -87,29 +89,30 @@ function ws_groups_add($params, &$service) {
  *    @option int[] group_id
  *    @option string pwg_token
  */
-function ws_groups_delete($params, &$service) {
+function ws_groups_delete($params, &$service)
+{
     global $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // destruction of the access linked to the group
-    $query = 'DELETE FROM '. GROUP_ACCESS_TABLE .' WHERE group_id '.$conn->in($params['group_id']);
+    $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id ' . $conn->in($params['group_id']);
     $conn->db_query($query);
 
     // destruction of the users links for this group
-    $query = 'DELETE FROM '. USER_GROUP_TABLE .' WHERE group_id '.$conn->in($params['group_id']);
+    $query = 'DELETE FROM ' . USER_GROUP_TABLE . ' WHERE group_id ' . $conn->in($params['group_id']);
     $conn->db_query($query);
 
-    $query = 'SELECT name FROM '. GROUPS_TABLE .' WHERE id '.$conn->in($params['group_id']);
+    $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id ' . $conn->in($params['group_id']);
     $groupnames = $conn->query2array($query, null, 'name');
 
     // destruction of the group
-    $query = 'DELETE FROM '. GROUPS_TABLE .' WHERE id '.$conn->in($params['group_id']);
+    $query = 'DELETE FROM ' . GROUPS_TABLE . ' WHERE id ' . $conn->in($params['group_id']);
     $conn->db_query($query);
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     invalidate_user_cache();
 
     return new Phyxo\Ws\NamedArray($groupnames, 'group_deleted');
@@ -123,17 +126,18 @@ function ws_groups_delete($params, &$service) {
  *    @option string name (optional)
  *    @option bool is_default (optional)
  */
-function ws_groups_setInfo($params, &$service) {
+function ws_groups_setInfo($params, &$service)
+{
     global $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     $updates = array();
 
     // does the group exist ?
-    $query = 'SELECT COUNT(1) '. GROUPS_TABLE .' WHERE id = '. $conn->db_real_escape_string($params['group_id']);
+    $query = 'SELECT COUNT(1) ' . GROUPS_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
@@ -141,8 +145,8 @@ function ws_groups_setInfo($params, &$service) {
 
     if (!empty($params['name'])) {
         // is the name not already used ?
-        $query = 'SELECT COUNT(1) FROM '. GROUPS_TABLE;
-        $query .= ' WHERE name = \''. $conn->db_real_escape_string($params['name']).'\'';
+        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
+        $query .= ' WHERE name = \'' . $conn->db_real_escape_string($params['name']) . '\'';
         list($count) = $conn->db_fetch_row($conn->db_query($query));
         if ($count != 0) {
             return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
@@ -151,7 +155,7 @@ function ws_groups_setInfo($params, &$service) {
         $updates['name'] = $params['name'];
     }
 
-    if (!empty($params['is_default']) or @$params['is_default']===false) {
+    if (!empty($params['is_default']) or @$params['is_default'] === false) {
         $updates['is_default'] = $conn->boolean_to_string($params['is_default']);
     }
 
@@ -171,16 +175,17 @@ function ws_groups_setInfo($params, &$service) {
  *    @option int group_id
  *    @option int[] user_id
  */
-function ws_groups_addUser($params, &$service) {
+function ws_groups_addUser($params, &$service)
+{
     global $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // does the group exist ?
-    $query = 'SELECT COUNT(1) FROM '. GROUPS_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['group_id']);
+    $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
@@ -200,7 +205,7 @@ function ws_groups_addUser($params, &$service) {
         $inserts
     );
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     invalidate_user_cache();
 
     return $service->invoke('pwg.groups.getList', array('group_id' => $params['group_id']));
@@ -213,27 +218,28 @@ function ws_groups_addUser($params, &$service) {
  *    @option int group_id
  *    @option int[] user_id
  */
-function ws_groups_deleteUser($params, &$service) {
+function ws_groups_deleteUser($params, &$service)
+{
     global $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
     // does the group exist ?
-    $query = 'SELECT COUNT(1) FROM '.GROUPS_TABLE;
-    $query .= ' WHERE id = '.$conn->db_real_escape_string($params['group_id']);
+    $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
+    $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
     list($count) = $conn->db_fetch_row($conn->db_query($query));
     if ($count == 0) {
         return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
     }
 
-    $query = 'DELETE FROM '. USER_GROUP_TABLE;
-    $query .= ' WHERE group_id = '.$conn->db_real_escape_string($params['group_id']);
-    $query .= ' AND user_id '.$conn->in($params['user_id']);
+    $query = 'DELETE FROM ' . USER_GROUP_TABLE;
+    $query .= ' WHERE group_id = ' . $conn->db_real_escape_string($params['group_id']);
+    $query .= ' AND user_id ' . $conn->in($params['user_id']);
     $conn->db_query($query);
 
-    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     invalidate_user_cache();
 
     return $service->invoke('pwg.groups.getList', array('group_id' => $params['group_id']));

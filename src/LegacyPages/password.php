@@ -169,7 +169,7 @@ function reset_password()
 // | Process form                                                          |
 // +-----------------------------------------------------------------------+
 if (isset($_POST['submit'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 
     if ('lost' == $_GET['action']) {
         if (process_password_request()) {
@@ -217,11 +217,11 @@ if (!isset($page['action'])) {
 }
 
 if ('reset' == $page['action'] and !isset($_GET['key']) and ($services['users']->isGuest() or $services['users']->isGeneric())) {
-    redirect(\Phyxo\Functions\URL::get_gallery_home_url());
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_gallery_home_url());
 }
 
 if ('lost' == $page['action'] and !$services['users']->isGuest()) {
-    redirect(\Phyxo\Functions\URL::get_gallery_home_url());
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_gallery_home_url());
 }
 
 // +-----------------------------------------------------------------------+
@@ -247,7 +247,7 @@ $template->assign(
         'form_action' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
         'action' => $page['action'],
         'username' => isset($page['username']) ? $page['username'] : $user['username'],
-        'PWG_TOKEN' => get_pwg_token(),
+        'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
     )
 );
 

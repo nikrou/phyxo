@@ -37,7 +37,7 @@ function ws_categories_getImages($params, &$service)
     if (!empty($where_clauses)) {
         $where_clauses = array('(' . implode(' OR ', $where_clauses) . ')');
     }
-    $where_clauses[] = get_sql_condition_FandF(
+    $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
         array('forbidden_categories' => 'id'),
         null,
         true
@@ -57,7 +57,7 @@ function ws_categories_getImages($params, &$service)
     if (!empty($cats)) {
         $where_clauses = ws_std_image_sql_filter($params, 'i.');
         $where_clauses[] = 'category_id ' . $conn->in(array_keys($cats));
-        $where_clauses[] = get_sql_condition_FandF(
+        $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
             array('visible_images' => 'i.id'),
             null,
             true
@@ -245,7 +245,7 @@ function ws_categories_getList($params, &$service)
                 $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
                 $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id=cat_id AND user_id=' . $user['id'];
                 $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\' AND representative_picture_id IS NOT NULL';
-                $query .= ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), "\n  AND");
+                $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id'), "\n  AND");
                 $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
                 $subresult = $conn->db_query($query);
 
@@ -552,7 +552,7 @@ function ws_categories_delete($params, &$service)
 {
     global $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -612,7 +612,7 @@ function ws_categories_move($params, &$service)
 {
     global $page, $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 

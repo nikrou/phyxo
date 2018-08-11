@@ -12,9 +12,10 @@
 namespace Phyxo\Cache;
 
 use Phyxo\Cache\PersistentCache;
+use Phyxo\Functions\Utils;
 
 /**
-   Implementation of a persistent cache using files.
+ *  Implementation of a persistent cache using files.
  */
 class PersistentFileCache extends PersistentCache
 {
@@ -55,7 +56,7 @@ class PersistentFileCache extends PersistentCache
         ));
 
         if (false === @file_put_contents($this->dir . $key . '.cache', $serialized)) {
-            mkgetdir($this->dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR);
+            Utils::mkgetdir($this->dir, Utils::MKGETDIR_DEFAULT & ~Utils::MKGETDIR_DIE_ON_ERROR);
             if (false === @file_put_contents($this->dir . $key . '.cache', $serialized)) {
                 return false;
             }

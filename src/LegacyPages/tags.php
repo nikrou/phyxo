@@ -82,7 +82,7 @@ if ($page['display_mode'] == 'letters') {
     $letter = array('tags' => array());
 
     foreach ($tags as $tag) {
-        $tag_letter = mb_strtoupper(mb_substr(transliterate($tag['name']), 0, 1, PWG_CHARSET), PWG_CHARSET);
+        $tag_letter = mb_strtoupper(mb_substr(\Phyxo\Functions\Language::transliterate($tag['name']), 0, 1, PWG_CHARSET), PWG_CHARSET);
 
         if ($current_tag_idx == 0) {
             $current_letter = $tag_letter;

@@ -25,7 +25,7 @@ use Phyxo\TabSheet\TabSheet;
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (!empty($_POST) or isset($_GET['delete']) or isset($_GET['toggle_is_default'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 // +-----------------------------------------------------------------------+
 // | tabs                                                                  |

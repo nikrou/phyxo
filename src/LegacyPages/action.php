@@ -85,7 +85,7 @@ if (empty($element_info)) {
 $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
 $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id = id';
 $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($_GET['id']);
-$query .= get_sql_condition_FandF(array('forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'), ' AND ');
+$query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'), ' AND ');
 $query .= ' LIMIT 1';
 
 if ($conn->db_num_rows($conn->db_query($query)) == 0) {
@@ -102,10 +102,10 @@ switch ($_GET['part']) {
                 do_error(401, 'Access denied e');
             }
         }
-        $file = get_element_path($element_info);
+        $file = \Phyxo\Functions\Utils::get_element_path($element_info);
         break;
     case 'r':
-        $file = original_to_representative(get_element_path($element_info), $element_info['representative_ext']);
+        $file = \Phyxo\Functions\Utils::original_to_representative(\Phyxo\Functions\Utils::get_element_path($element_info), $element_info['representative_ext']);
         break;
 }
 
@@ -114,9 +114,9 @@ if (empty($file)) {
 }
 
 if ($_GET['part'] == 'e') {
-    pwg_log($_GET['id'], 'high');
+    \Phyxo\Functions\Utils::log($_GET['id'], 'high');
 } elseif ($_GET['part'] == 'e') {
-    pwg_log($_GET['id'], 'other');
+    \Phyxo\Functions\Utils::log($_GET['id'], 'other');
 }
 
 $http_headers = array();
@@ -150,7 +150,7 @@ if (!\Phyxo\Functions\URL::url_is_remote($file)) {
 }
 
 if (!isset($ctype)) { // give it a guess
-    $ctype = guess_mime_type(get_extension($file));
+    $ctype = guess_mime_type(\Phyxo\Functions\Utils::get_extension($file));
 }
 
 $http_headers[] = 'Content-Type: ' . $ctype;

@@ -24,7 +24,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     $services['users']->checkStatus(ACCESS_CLASSIC);
 
     if (!empty($_POST)) {
-        check_pwg_token();
+        \Phyxo\Functions\Utils::check_token();
     }
 
     $userdata = $user;
@@ -108,11 +108,11 @@ function save_profile_from_post($userdata, &$errors)
             $errors[] = \Phyxo\Functions\Language::l10n('Recent period must be a positive integer value');
         }
 
-        if (!in_array($_POST['language'], array_keys(get_languages()))) {
+        if (!in_array($_POST['language'], array_keys(\Phyxo\Functions\Language::get_languages()))) {
             die('Hacking attempt, incorrect language value');
         }
 
-        if (!in_array($_POST['theme'], array_keys(get_pwg_themes()))) {
+        if (!in_array($_POST['theme'], array_keys(\Phyxo\Functions\Theme::get_themes()))) {
             die('Hacking attempt, incorrect theme value');
         }
     }
@@ -234,7 +234,7 @@ function save_profile_from_post($userdata, &$errors)
         \Phyxo\Functions\Plugin::trigger_notify('save_profile_from_post', $userdata['id']);
 
         if (!empty($_POST['redirect'])) {
-            redirect($_POST['redirect']);
+            \Phyxo\Functions\Utils::redirect($_POST['redirect']);
         }
     }
 
@@ -278,9 +278,9 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     );
 
     $template->assign('template_selection', $userdata['theme']);
-    $template->assign('template_options', get_pwg_themes());
+    $template->assign('template_options', \Phyxo\Functions\Theme::get_themes());
 
-    foreach (get_languages() as $language_code => $language_name) {
+    foreach (\Phyxo\Functions\Language::get_languages() as $language_code => $language_name) {
         if (isset($_POST['submit']) or $userdata['language'] == $language_code) {
             $template->assign('language_selection', $language_code);
         }
@@ -296,5 +296,5 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     // allow plugins to add their own form data to content
     \Phyxo\Functions\Plugin::trigger_notify('load_profile_in_template', $userdata);
 
-    $template->assign('PWG_TOKEN', get_pwg_token());
+    $template->assign('PWG_TOKEN', \Phyxo\Functions\Utils::get_token());
 }

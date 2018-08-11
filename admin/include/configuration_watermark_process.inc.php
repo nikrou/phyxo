@@ -26,8 +26,8 @@ if (isset($_FILES['watermarkImage']) and !empty($_FILES['watermarkImage']['tmp_n
         );
     } else {
         $upload_dir = PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'watermarks';
-        if (mkgetdir($upload_dir, MKGETDIR_DEFAULT & ~MKGETDIR_DIE_ON_ERROR)) {
-            $new_name = get_filename_wo_extension($_FILES['watermarkImage']['name']) . '.png';
+        if (\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
+            $new_name = \Phyxo\Functions\Utils::get_filename_wo_extension($_FILES['watermarkImage']['name']) . '.png';
             $file_path = $upload_dir . '/' . $new_name;
 
             if (move_uploaded_file($_FILES['watermarkImage']['tmp_name'], $file_path)) {

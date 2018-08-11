@@ -16,10 +16,10 @@ if (!defined("PHPWG_ROOT_PATH")) {
 $edit_user = $services['users']->buildUser($_GET['user_id'], false);
 
 if (!empty($_POST)) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 
-include_once(PHPWG_ROOT_PATH . 'profile.php');
+include_once(PHPWG_ROOT_PATH . 'src/LegacyPages/profile.php');
 
 $errors = array();
 save_profile_from_post($edit_user, $errors);

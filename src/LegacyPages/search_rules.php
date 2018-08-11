@@ -145,7 +145,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
             strtoupper($datefield),
             sprintf(
                 $lang_items['date'],
-                format_date($search['fields'][$keys['date']])
+                \Phyxo\Functions\DateTime::format_date($search['fields'][$keys['date']])
             )
         );
     } elseif (isset($search['fields'][$keys['before']]) and isset($search['fields'][$keys['after']])) {
@@ -153,9 +153,9 @@ foreach (array('date_available', 'date_creation') as $datefield) {
             strtoupper($datefield),
             sprintf(
                 $lang_items['period'],
-                format_date($search['fields'][$keys['after']]['date']),
+                \Phyxo\Functions\DateTime::format_date($search['fields'][$keys['after']]['date']),
                 inc_exc_str($search['fields'][$keys['after']]['inc']),
-                format_date($search['fields'][$keys['before']]['date']),
+                \Phyxo\Functions\DateTime::format_date($search['fields'][$keys['before']]['date']),
                 inc_exc_str($search['fields'][$keys['before']]['inc'])
             )
         );
@@ -164,7 +164,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
             strtoupper($datefield),
             sprintf(
                 $lang_items['before'],
-                format_date($search['fields'][$keys['before']]['date']),
+                \Phyxo\Functions\DateTime::format_date($search['fields'][$keys['before']]['date']),
                 inc_exc_str($search['fields'][$keys['before']]['inc'])
             )
         );
@@ -173,7 +173,7 @@ foreach (array('date_available', 'date_creation') as $datefield) {
             strtoupper($datefield),
             sprintf(
                 $lang_items['after'],
-                format_date($search['fields'][$keys['after']]['date']),
+                \Phyxo\Functions\DateTime::format_date($search['fields'][$keys['after']]['date']),
                 inc_exc_str($search['fields'][$keys['after']]['inc'])
             )
         );

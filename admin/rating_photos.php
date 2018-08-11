@@ -60,7 +60,7 @@ list($nb_images) = $conn->db_fetch_row($conn->db_query($query));
 
 $template->assign(
     array(
-        'navbar' => create_navigation_bar(
+        'navbar' => \Phyxo\Functions\Utils::create_navigation_bar(
             \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start', 'del')),
             $nb_images,
             $start,

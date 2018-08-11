@@ -28,7 +28,7 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
         if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
             $template->delete_compiled_templates();
         }
-        redirect(THEMES_BASE_URL . '&section=installed');
+        \Phyxo\Functions\Utils::redirect(THEMES_BASE_URL . '&section=installed');
     }
 }
 

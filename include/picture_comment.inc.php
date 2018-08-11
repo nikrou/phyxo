@@ -82,7 +82,7 @@ if ($page['show_comments']) {
         $page['start'] = 0;
     }
 
-    $navigation_bar = create_navigation_bar(
+    $navigation_bar = \Phyxo\Functions\Utils::create_navigation_bar(
         \Phyxo\Functions\URL::duplicate_picture_url(array(), array('start')),
         $row['nb_comments'],
         $page['start'],
@@ -137,7 +137,7 @@ if ($page['show_comments']) {
                 array(
                 'ID' => $row['id'],
                 'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
-                'DATE' => format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
+                'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
                 'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
                 'WEBSITE_URL' => $row['website_url'],
             );
@@ -148,7 +148,7 @@ if ($page['show_comments']) {
                     array(
                         'action' => 'delete_comment',
                         'comment_to_delete' => $row['id'],
-                        'pwg_token' => get_pwg_token(),
+                        'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                     )
                 );
             }
@@ -162,10 +162,10 @@ if ($page['show_comments']) {
                 );
                 if (isset($edit_comment) and ($row['id'] == $edit_comment)) {
                     $tpl_comment['IN_EDIT'] = true;
-                    $key = get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
+                    $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
                     $tpl_comment['KEY'] = $key;
                     $tpl_comment['CONTENT'] = $row['content'];
-                    $tpl_comment['PWG_TOKEN'] = get_pwg_token();
+                    $tpl_comment['PWG_TOKEN'] = \Phyxo\Functions\Utils::get_token();
                     $tpl_comment['U_CANCEL'] = $url_self;
                 }
             }
@@ -178,7 +178,7 @@ if ($page['show_comments']) {
                         array(
                             'action' => 'validate_comment',
                             'comment_to_validate' => $row['id'],
-                            'pwg_token' => get_pwg_token(),
+                            'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                         )
                     );
                 }
@@ -196,7 +196,7 @@ if ($page['show_comments']) {
     }
 
     if ($show_add_comment_form) {
-        $key = get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
+        $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
 
         $tpl_var = array(
             'F_ACTION' => $url_self,

@@ -130,7 +130,7 @@ function get_history($data, $search, $types)
         $clauses[] = 'ip LIKE \'' . $search['fields']['ip'] . '\'';
     }
 
-    $clauses = prepend_append_array_items($clauses, '(', ')');
+    $clauses = \Phyxo\Functions\Utils::prepend_append_array_items($clauses, '(', ')');
 
     $where_separator = implode(' AND ', $clauses);
 

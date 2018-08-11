@@ -94,7 +94,7 @@ $template->assign(
     array(
         'U_ELEMENTS_PAGE' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('display', 'start')),
         'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array()),
-        'level_options' => get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
     )
 );
 
@@ -112,7 +112,7 @@ if (!empty($_GET['display'])) {
 
 
 if (count($page['cat_elements_id']) > 0) {
-    $nav_bar = create_navigation_bar(
+    $nav_bar = \Phyxo\Functions\Utils::create_navigation_bar(
         $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
@@ -166,7 +166,7 @@ if (count($page['cat_elements_id']) > 0) {
         $tag_selection = $services['tags']->getTagsList($query);
 
         $legend = render_element_name($row);
-        if ($legend != get_name_from_file($row['file'])) {
+        if ($legend != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) {
             $legend .= ' (' . $row['file'] . ')';
         }
 

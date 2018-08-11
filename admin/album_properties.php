@@ -95,7 +95,7 @@ if (isset($_POST['submit'])) {
 }
 
 if (isset($redirect)) {
-    redirect(ALBUM_BASE_URL . '&amp;section=properties&amp;cat_id=' . $category['id']);
+    \Phyxo\Functions\Utils::redirect(ALBUM_BASE_URL . '&amp;section=properties&amp;cat_id=' . $category['id']);
 }
 
 // nullable fields
@@ -165,14 +165,14 @@ if ($category['has_images']) {
         $intro = \Phyxo\Functions\Language::l10n(
             'This album contains %d photos, added on %s.',
             $image_count,
-            format_date($min_date)
+            \Phyxo\Functions\DateTime::format_date($min_date)
         );
     } else {
         $intro = \Phyxo\Functions\Language::l10n(
             'This album contains %d photos, added between %s and %s.',
             $image_count,
-            format_date($min_date),
-            format_date($max_date)
+            \Phyxo\Functions\DateTime::format_date($min_date),
+            \Phyxo\Functions\DateTime::format_date($max_date)
         );
     }
 } else {
@@ -190,7 +190,7 @@ $template->assign(array(
 if ($category['is_virtual']) {
     $template->assign(
         array(
-            'U_DELETE' => $self_url . '&amp;delete=' . $category['id'] . '&amp;pwg_token=' . get_pwg_token(),
+            'U_DELETE' => $self_url . '&amp;delete=' . $category['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
         )
     );
 } else {

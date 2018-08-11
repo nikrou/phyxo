@@ -29,7 +29,8 @@ class ApiContext implements Context
     private $json_decoded = false;
     private $jar = null;
 
-    public function __construct(array $parameters) {
+    public function __construct(array $parameters)
+    {
         $this->assert = new Atoum\generator();
 
         $this->parameters = $parameters;
@@ -42,7 +43,8 @@ class ApiContext implements Context
     /**
      * @Given /^I am authenticated for api as "([^"]*)" with password "([^"]*)"$/
      */
-    public function iAmAuthenticatedForApiAs($username, $password) {
+    public function iAmAuthenticatedForApiAs($username, $password)
+    {
         $params = array();
         $params['method'] = 'pwg.session.login';
         $params['format'] = 'json';
@@ -60,11 +62,12 @@ class ApiContext implements Context
      *
      * @When /^(?:I )?send a ([A-Z]+) request to "([^"]+)"$/
      */
-    public function iSendARequest($http_method, $method) {
+    public function iSendARequest($http_method, $method)
+    {
         $params = array();
-        if ($http_method=='GET') {
+        if ($http_method == 'GET') {
             $params['query'] = array('method' => $method, 'format' => 'json');
-        } elseif ($http_method=='POST') {
+        } elseif ($http_method == 'POST') {
             $params['form_data'] = array('method', $method, 'format' => 'json');
         }
 
@@ -80,35 +83,36 @@ class ApiContext implements Context
      *
      * @When /^(?:I )?send a ([A-Z]+) request to "([^"]+)" with values:$/
      */
-    public function iSendARequestWithValues($http_method, $method, TableNode $values) {
+    public function iSendARequestWithValues($http_method, $method, TableNode $values)
+    {
         $fields_file = array();
         $request_params = array();
         $params = array();
         $params['method'] = $method;
         $params['format'] = 'json';
 
-        if ($http_method=='GET') {
+        if ($http_method == 'GET') {
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
                     $params[$key] = $this->getSaved($matches[1]);
-                } elseif ($key=='pwg_token') {
-                    $params['pwg_token'] = $this->get_pwg_token($this->getSessionId());
+                } elseif ($key == 'pwg_token') {
+                    $params['pwg_token'] = $this->get_token($this->getSessionId());
                 } else {
                     $params[$key] = $val;
                 }
             }
             $request_params['query'] = $params;
-        } elseif ($http_method=='POST') {
+        } elseif ($http_method == 'POST') {
             foreach ($values->getRowsHash() as $key => $val) {
                 if (preg_match('`^SAVED:(.*)$`', $val, $matches)) {
                     $value = $this->getSaved($matches[1]);
 
-                    if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
-                        $value = '~~'.$value.'~~';
+                    if ($key == 'tags') { // @TODO: find a better way to add ~~ around tags id
+                        $value = '~~' . $value . '~~';
                     }
                     $params[$key] = $value;
-                } elseif ($key=='pwg_token') {
-                    $params['pwg_token'] = $this->get_pwg_token($this->getSessionId());
+                } elseif ($key == 'pwg_token') {
+                    $params['pwg_token'] = $this->get_token($this->getSessionId());
                 } elseif (preg_match('`FILE:(.*)$`', $key, $matches)) {
                     $fields_file[] = array(
                         'name' => $matches[1],
@@ -116,12 +120,12 @@ class ApiContext implements Context
                     );
                 } else {
                     if (preg_match('`\[(.*)]`', $val, $matches)) {
-                        $val = array_map('trim', explode(',',  $matches[1]));
+                        $val = array_map('trim', explode(',', $matches[1]));
                         foreach ($val as &$v) {
                             if (preg_match('`^SAVED:(.*)$`', $v, $matches)) {
                                 $v = $this->getSaved($matches[1]);
-                                if ($key=='tags') { // @TODO: find a better way to add ~~ around tags id
-                                    $v = '~~'.$v.'~~';
+                                if ($key == 'tags') { // @TODO: find a better way to add ~~ around tags id
+                                    $v = '~~' . $v . '~~';
                                 }
                             }
                         }
@@ -150,8 +154,9 @@ class ApiContext implements Context
     /**
      * @Given /^the response has property "([^"]*)" equals to PHYXO_VERSION$/
      */
-    public function theResponseHasPropertyEqualsToPhyxoVersion($version) {
-        $conf_content = file_get_contents(__DIR__.'/../../include/constants.php');
+    public function theResponseHasPropertyEqualsToPhyxoVersion($version)
+    {
+        $conf_content = file_get_contents(__DIR__ . '/../../include/constants.php');
         if (preg_match("`define\('PHPWG_VERSION', '([^\'])'\)`", $conf_content, $matches)) {
             $this->assert
                 ->string($matches[1])
@@ -166,23 +171,26 @@ class ApiContext implements Context
      *
      * @Then /^(?:the )?response code should be (\d+)$/
      */
-    public function theResponseCodeShouldBe($code) {
+    public function theResponseCodeShouldBe($code)
+    {
         $this->assert
-            ->integer((int) $code)
+            ->integer((int)$code)
             ->isEqualTo($this->response->getStatusCode());
     }
 
     /**
      * @Given /^the response is JSON$/
      */
-    public function theResponseIsJson() {
+    public function theResponseIsJson()
+    {
         $this->getJson();
     }
 
     /**
      * @Given /^the response has property "([^"]*)"$/
      */
-    public function theResponseHasProperty($property) {
+    public function theResponseHasProperty($property)
+    {
         $data = $this->getJson();
 
         return $this->getProperty($data, $property);
@@ -191,7 +199,8 @@ class ApiContext implements Context
     /**
      * @Given /^the response has no property "([^"]*)"$/
      */
-    public function theResponseHasNoProperty($property) {
+    public function theResponseHasNoProperty($property)
+    {
         $data = $this->getJson();
 
         try {
@@ -205,13 +214,14 @@ class ApiContext implements Context
     /**
      * @Given /^the response has property "([^"]*)" equals to array "\[([^"]*)\]"$/
      */
-    public function theResponseHasPropertyEqualsToArray($property, $string_values) {
+    public function theResponseHasPropertyEqualsToArray($property, $string_values)
+    {
         $data = $this->getJson();
         $values = explode(',', $string_values);
         foreach ($values as &$value) {
             $value = preg_replace_callback(
                 '`SAVED:([a-zA-Z0-9_-]*)`',
-                function($matches) {
+                function ($matches) {
                     return $this->getSaved($matches[1]);
                 },
                 $value
@@ -228,17 +238,18 @@ class ApiContext implements Context
      * @Given /^the response has property "([^"]*)" equals to '([^']*)'$/
      * @Then /^the response has property "([^"]*)" equals to "([^"]*)" of type (boolean)$/
      */
-    public function theResponseHasPropertyEqualsTo($property, $value, $type='') {
+    public function theResponseHasPropertyEqualsTo($property, $value, $type = '')
+    {
         $data = $this->getJson();
         $value = preg_replace_callback(
             '`SAVED:([a-zA-Z0-9_-]*)`',
-            function($matches) {
+            function ($matches) {
                 return $this->getSaved($matches[1]);
             },
             $value
         );
-        if (!empty($type) && $type=='boolean') {
-            $value = ($value=='true');
+        if (!empty($type) && $type == 'boolean') {
+            $value = ($value == 'true');
         }
 
         $this->assert
@@ -249,7 +260,8 @@ class ApiContext implements Context
     /**
      * @Given /^the response has property "([^"]*)" with size (\d+)$/
      */
-    public function theResponseHasPropertyWithSize($property, $size) {
+    public function theResponseHasPropertyWithSize($property, $size)
+    {
         $data = $this->getJson();
 
         $this->assert
@@ -257,21 +269,22 @@ class ApiContext implements Context
             ->hasSize($size);
     }
 
-    private function getProperty($data, $property) {
-        if (strrpos($property, '/')!==false) {
+    private function getProperty($data, $property)
+    {
+        if (strrpos($property, '/') !== false) {
             $parts = explode('/', $property);
             $data;
             $n = 0;
-            while ($n<count($parts)) {
-                if (($n+1)===count($parts)) {
+            while ($n < count($parts)) {
+                if (($n + 1) === count($parts)) {
                     if (isset($data[$parts[$n]])) {
                         return $data[$parts[$n]];
                     } else {
-                        throw new \Exception("Property '".$property."' is not set!\n");
+                        throw new \Exception("Property '" . $property . "' is not set!\n");
                     }
                 } else {
                     if (!isset($data[$parts[$n]])) {
-                        throw new \Exception("Complex property '".$property."' is not set!\n");
+                        throw new \Exception("Complex property '" . $property . "' is not set!\n");
                     }
                     $data = $data[$parts[$n]];
                 }
@@ -281,11 +294,12 @@ class ApiContext implements Context
         } elseif (isset($data[$property])) {
             return $data[$property];
         } else {
-            throw new \Exception("Property '".$property."' is not set!\n");
+            throw new \Exception("Property '" . $property . "' is not set!\n");
         }
     }
 
-    private function getJson() {
+    private function getJson()
+    {
         if (!$this->json_decoded) {
             $this->json_data = json_decode($this->response->getBody(true), true);
 
@@ -299,9 +313,10 @@ class ApiContext implements Context
         }
     }
 
-    private function getSessionId() {
+    private function getSessionId()
+    {
         foreach ($this->jar->toArray() as $cookie) {
-            if ($cookie['Name']=='phyxo_id') { // @TODO: retrieve name from conf
+            if ($cookie['Name'] == 'phyxo_id') { // @TODO: retrieve name from conf
                 return $cookie['Value'];
             }
         }
@@ -312,7 +327,8 @@ class ApiContext implements Context
     /**
      * @Then /^print JSON$/
      */
-    public function printJson() {
+    public function printJson()
+    {
         print_r($this->getJson());
     }
 }

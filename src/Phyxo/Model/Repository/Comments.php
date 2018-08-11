@@ -114,7 +114,7 @@ class Comments extends BaseRepository
             $comment_action = 'reject';
         }
 
-        if (!verify_ephemeral_key($key, $comm['image_id'])) {
+        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($key, $comm['image_id'])) {
             $comment_action = 'reject';
             $_POST['cr'][] = 'key'; // @TODO: remove ? rvelices: I use this outside to see how spam robots work
         }
@@ -129,7 +129,7 @@ class Comments extends BaseRepository
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
-                if (!url_check_format($comm['website_url'])) {
+                if (!\Phyxo\Functions\Utils::url_check_format($comm['website_url'])) {
                     $infos[] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
                     $comment_action = 'reject';
                 }
@@ -144,7 +144,7 @@ class Comments extends BaseRepository
                 $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
-        } elseif (!email_check_format($comm['email'])) {
+        } elseif (!\Phyxo\Functions\Utils::email_check_format($comm['email'])) {
             $infos[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
             $comment_action = 'reject';
         }
@@ -305,7 +305,7 @@ class Comments extends BaseRepository
 
         $comment_action = 'validate';
 
-        if (!verify_ephemeral_key($post_key, $comment['image_id'])) {
+        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action = 'reject';
         } elseif (!$conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
@@ -330,7 +330,7 @@ class Comments extends BaseRepository
             if (!preg_match('/^https?/i', $comment['website_url'])) {
                 $comment['website_url'] = 'http://' . $comment['website_url'];
             }
-            if (!url_check_format($comment['website_url'])) {
+            if (!\Phyxo\Functions\Utils::url_check_format($comment['website_url'])) {
                 $page['errors'][] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
                 $comment_action = 'reject';
             }

@@ -22,12 +22,12 @@ $query .= 'count_images,nb_categories,count_categories FROM ' . CATEGORIES_TABLE
 $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ucc ON id = cat_id AND user_id = ' . $user['id'];
 
 if ('recent_cats' == $page['section']) {
-    $query .= ' WHERE ' . get_recent_photos_sql('date_last');
+    $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos_sql('date_last');
 } else {
     $query .= ' WHERE id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$query .= ' ' . get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
 
 if ('recent_cats' != $page['section']) {
     $query .= ' ORDER BY rank';
@@ -54,7 +54,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id = cat_id and user_id = ' . $user['id'];
         $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\'';
         $query .= ' AND representative_picture_id IS NOT NULL';
-        $query .= get_sql_condition_FandF(array('visible_categories' => 'id', ), "\n  AND");
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id', ), "\n  AND");
         $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
         $subresult = $conn->db_query($query);
         if ($conn->db_num_rows($subresult) > 0) {
@@ -81,7 +81,7 @@ if ($conf['display_fromto']) {
         $query .= ' MAX(date_creation) AS _to FROM ' . IMAGE_CATEGORY_TABLE;
         $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' ON image_id = id';
         $query .= ' WHERE category_id ' . $conn->in($category_ids);
-        $query .= get_sql_condition_FandF(array('visible_categories' => 'category_id', 'visible_images' => 'id'), 'AND');
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'category_id', 'visible_images' => 'id'), 'AND');
         $query .= ' GROUP BY category_id;';
         $dates_of_category = $conn->query2array($query, 'category_id');
     }
@@ -216,7 +216,7 @@ if (count($categories) > 0) {
             'NAME' => $name,
         ));
         if ($conf['index_new_icon']) {
-            $tpl_var['icon_ts'] = get_icon($category['max_date_last'], $category['is_child_date_last']);
+            $tpl_var['icon_ts'] = \Phyxo\Functions\Utils::get_icon($category['max_date_last'], $category['is_child_date_last']);
         }
 
         if ($conf['display_fromto']) {
@@ -225,7 +225,7 @@ if (count($categories) > 0) {
                 $to = $dates_of_category[$category['id']]['_to'];
 
                 if (!empty($from)) {
-                    $tpl_var['INFO_DATES'] = format_fromto($from, $to);
+                    $tpl_var['INFO_DATES'] = \Phyxo\Functions\DateTime::format_fromto($from, $to);
                 }
             }
         }
@@ -254,7 +254,7 @@ if (count($categories) > 0) {
     // navigation bar
     $page['cats_navigation_bar'] = array();
     if ($page['total_categories'] > $conf['nb_categories_page']) {
-        $page['cats_navigation_bar'] = create_navigation_bar(
+        $page['cats_navigation_bar'] = \Phyxo\Functions\Utils::create_navigation_bar(
             \Phyxo\Functions\URL::duplicate_index_url(array(), array('startcat')),
             $page['total_categories'],
             $page['startcat'],

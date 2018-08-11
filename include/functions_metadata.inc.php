@@ -80,7 +80,7 @@ function clean_iptc_value($value)
         // apparently mac uses some MacRoman crap encoding. I don't know
         // how to detect it so a plugin should do the trick.
         $value = \Phyxo\Functions\Plugin::trigger_change('clean_iptc_value', $value);
-        if (($qual = qualify_utf8($value)) != 0) { // has non ascii chars
+        if (($qual = \Phyxo\Functions\Language::qualify_utf8($value)) != 0) { // has non ascii chars
             if ($qual > 0) {
                 $input_encoding = 'utf-8';
             } else {
@@ -95,7 +95,7 @@ function clean_iptc_value($value)
                 }
             }
 
-            $value = convert_charset($value, $input_encoding, get_pwg_charset());
+            $value = \Phyxo\Functions\Utils::convert_charset($value, $input_encoding, \Phyxo\Functions\Utils::get_charset());
         }
     }
     return $value;

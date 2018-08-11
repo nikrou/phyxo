@@ -37,11 +37,11 @@ class Users extends BaseRepository
         global $conf;
 
         if (empty($mail_address)
-            and !($conf['obligatory_user_mail_address'] and in_array(script_basename(), array('register', 'profile')))) {
+            and !($conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), array('register', 'profile')))) {
             return '';
         }
 
-        if (!email_check_format($mail_address)) {
+        if (!\Phyxo\Functions\Utils::email_check_format($mail_address)) {
             return \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
         }
 
@@ -193,7 +193,7 @@ class Users extends BaseRepository
 
             $override = null;
             if ($notify_admin and $conf['browser_language']) {
-                if (!get_browser_language($override['language'])) {
+                if (!\Phyxo\Functions\Language::get_browser_language($override['language'])) {
                     $override = null;
                 }
             }
@@ -216,7 +216,7 @@ class Users extends BaseRepository
                 );
             }
 
-            if ($notify_user and email_check_format($mail_address)) {
+            if ($notify_user && \Phyxo\Functions\Utils::email_check_format($mail_address)) {
                 include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
                 $keyargs_content = array(
@@ -228,7 +228,10 @@ class Users extends BaseRepository
                     \Phyxo\Functions\Language::get_l10n_args('Password: %s', stripslashes($password)),
                     \Phyxo\Functions\Language::get_l10n_args('Email: %s', $mail_address),
                     \Phyxo\Functions\Language::get_l10n_args('', ''),
-                    \Phyxo\Functions\Language::get_l10n_args('If you think you\'ve received this email in error, please contact us at %s', get_webmaster_mail_address()),
+                    \Phyxo\Functions\Language::get_l10n_args(
+                        'If you think you\'ve received this email in error, please contact us at %s',
+                        \Phyxo\Functions\Utils::get_webmaster_mail_address()
+                    ),
                 );
 
                 pwg_mail(
@@ -726,12 +729,12 @@ class Users extends BaseRepository
     public function getDefaultTheme()
     {
         $theme = $this->getDefaultUserValue('theme', PHPWG_DEFAULT_TEMPLATE);
-        if (check_theme_installed($theme)) {
+        if (\Phyxo\Functions\Theme::check_theme_installed($theme)) {
             return $theme;
         }
 
         // let's find the first available theme
-        $active_themes = array_keys(get_pwg_themes());
+        $active_themes = array_keys(\Phyxo\Functions\Theme::get_themes());
         return $active_themes[0];
     }
 

@@ -107,9 +107,9 @@ if (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
     $current_release = '1.0.0';
 } else {
     // confirm that the database is in the same version as source code files
-    conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
+    \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
 
-    header('Content-Type: text/html; charset=' . get_pwg_charset());
+    header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
     echo 'No upgrade required, the database structure is up to date';
     echo '<br><a href="index.php">← back to gallery</a>';
     exit();
@@ -127,10 +127,10 @@ check_upgrade_access_rights();
 if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
     $upgrade_file = PHPWG_ROOT_PATH . 'install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
-        $page['upgrade_start'] = get_moment();
+        $page['upgrade_start'] = microtime(true);
         $conf['die_on_sql_error'] = false;
         include($upgrade_file);
-        conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
+        \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE . 'plugins', $tables)) {
@@ -140,13 +140,13 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         deactivate_non_standard_themes();
         deactivate_templates();
 
-        $page['upgrade_end'] = get_moment();
+        $page['upgrade_end'] = microtime(true);
 
         $template->assign(
             'upgrade',
             array(
                 'VERSION' => $current_release,
-                'TOTAL_TIME' => get_elapsed_time(
+                'TOTAL_TIME' => \Phyxo\Functions\Utils::get_elapsed_time(
                     $page['upgrade_start'],
                     $page['upgrade_end']
                 ),

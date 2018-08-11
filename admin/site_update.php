@@ -88,7 +88,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
 
 if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == 'files') and !$general_failure) {
-    $start = get_moment();
+    $start = microtime(true);
     // which categories to update ?
     $query = 'SELECT id, uppercats, global_rank, status, visible FROM ' . CATEGORIES_TABLE;
     $query .= ' WHERE dir IS NOT NULL AND site_id = ' . $conn->db_real_escape_string($site_id);
@@ -353,18 +353,18 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
         $counts['del_categories'] = count($to_delete);
     }
 
-    $template->append('footer_elements', '<!-- scanning dirs : ' . get_elapsed_time($start, get_moment()) . ' -->');
+    $template->append('footer_elements', '<!-- scanning dirs : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
 }
 
 // +-----------------------------------------------------------------------+
 // |                           files / elements                            |
 // +-----------------------------------------------------------------------+
 if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure) {
-    $start_files = get_moment();
+    $start_files = microtime(true);
     $start = $start_files;
 
     $fs = $site_reader->get_elements($basedir);
-    $template->append('footer_elements', '<!-- get_elements: ' . get_elapsed_time($start, get_moment()) . ' -->');
+    $template->append('footer_elements', '<!-- get_elements: ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
 
     $cat_ids = array_diff(array_keys($db_categories), $to_delete);
 
@@ -379,7 +379,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
     // next element id available
     $next_element_id = $conn->db_nextval('id', IMAGES_TABLE);
 
-    $start = get_moment();
+    $start = microtime(true);
 
     $inserts = array();
     $insert_links = array();
@@ -404,7 +404,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
         $insert = array(
             'id' => $next_element_id++,
             'file' => $filename,
-            'name' => get_name_from_file($filename),
+            'name' => \Phyxo\Functions\Utils::get_name_from_file($filename),
             'date_available' => CURRENT_DATE,
             'path' => $path,
             'representative_ext' => $fs[$path]['representative_ext'],
@@ -449,7 +449,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 
             // add new photos to caddie
             if (isset($_POST['add_to_caddie']) and $_POST['add_to_caddie'] == 1) {
-                fill_caddie($caddiables);
+                \Phyxo\Functions\Utils::fill_caddie($caddiables);
             }
         }
         $counts['new_elements'] = count($inserts);
@@ -471,7 +471,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
         $counts['del_elements'] = count($to_delete_elements);
     }
 
-    $template->append('footer_elements', '<!-- scanning files : ' . get_elapsed_time($start_files, get_moment()) . ' -->');
+    $template->append('footer_elements', '<!-- scanning files : ' . \Phyxo\Functions\Utils::get_elapsed_time($start_files, microtime(true)) . ' -->');
 }
 
 // +-----------------------------------------------------------------------+
@@ -479,16 +479,16 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 // +-----------------------------------------------------------------------+
 if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == 'files') and !$general_failure) {
     if (!$simulate) {
-        $start = get_moment();
+        $start = microtime(true);
         update_category('all');
-        $template->append('footer_elements', '<!-- update_category(all) : ' . get_elapsed_time($start, get_moment()) . ' -->');
-        $start = get_moment();
+        $template->append('footer_elements', '<!-- update_category(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
+        $start = microtime(true);
         update_global_rank();
-        $template->append('footer_elements', '<!-- ordering categories : ' . get_elapsed_time($start, get_moment()) . ' -->');
+        $template->append('footer_elements', '<!-- ordering categories : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
     }
 
     if ($_POST['sync'] == 'files') {
-        $start = get_moment();
+        $start = microtime(true);
         $opts['category_id'] = '';
         $opts['recursive'] = true;
         if (isset($_POST['cat'])) {
@@ -498,8 +498,8 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
             }
         }
         $files = get_filelist($opts['category_id'], $site_id, $opts['recursive'], false);
-        $template->append('footer_elements', '<!-- get_filelist : ' . get_elapsed_time($start, get_moment()) . ' -->');
-        $start = get_moment();
+        $template->append('footer_elements', '<!-- get_filelist : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
+        $start = microtime(true);
 
         $datas = array();
         foreach ($files as $id => $file) {
@@ -525,7 +525,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 $datas
             );
         }
-        $template->append('footer_elements', '<!-- update files : ' . get_elapsed_time($start, get_moment()) . ' -->');
+        $template->append('footer_elements', '<!-- update files : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
     }// end if sync files
 }
 
@@ -562,7 +562,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
             $opts['recursive'] = false;
         }
     }
-    $start = get_moment();
+    $start = microtime(true);
     $files = get_filelist(
         $opts['category_id'],
         $site_id,
@@ -570,9 +570,9 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
         $opts['only_new']
     );
 
-    $template->append('footer_elements', '<!-- get_filelist : ' . get_elapsed_time($start, get_moment()) . ' -->');
+    $template->append('footer_elements', '<!-- get_filelist : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
 
-    $start = get_moment();
+    $start = microtime(true);
     $datas = array();
     $tags_of = array();
 
@@ -628,7 +628,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
         $services['tags']->setTagsOf($tags_of);
     }
 
-    $template->append('footer_elements', '<!-- metadata update : ' . get_elapsed_time($start, get_moment()) . ' -->');
+    $template->append('footer_elements', '<!-- metadata update : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
 
     $template->assign(
         'metadata_result',
@@ -702,14 +702,14 @@ if (isset($_POST['submit'])) {
     $cat_selected = array();
 
     if (isset($_GET['cat_id'])) {
-        check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
+        \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
         $cat_selected = array($_GET['cat_id']);
         $tpl_introduction['sync'] = 'files';
     }
 }
 
-$tpl_introduction['privacy_level_options'] = get_privacy_level_options();
+$tpl_introduction['privacy_level_options'] = \Phyxo\Functions\Utils::get_privacy_level_options();
 
 $template->assign('introduction', $tpl_introduction);
 

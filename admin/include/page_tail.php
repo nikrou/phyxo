@@ -23,7 +23,7 @@ $template->assign(
 if (!$services['users']->isGuest()) {
     $template->assign(
         'CONTACT_MAIL',
-        get_webmaster_mail_address()
+        \Phyxo\Functions\Utils::get_webmaster_mail_address()
     );
 }
 
@@ -42,7 +42,7 @@ if ($conf['show_gt']) {
         $page['count_queries'] = 0;
         $page['queries_time'] = 0;
     }
-    $time = get_elapsed_time($t2, get_moment());
+    $time = \Phyxo\Functions\Utils::get_elapsed_time($t2, microtime(true));
 
     if (!empty($conn)) {
         $debug_vars = array_merge(

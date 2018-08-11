@@ -19,6 +19,7 @@ use Phyxo\Template\CssLoader;
 use Phyxo\Image\ImageStdParams;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\Functions\Utils;
 
 class Template
 {
@@ -68,7 +69,7 @@ class Template
         $this->smarty->compile_check = $conf['template_compile_check'];
         $this->smarty->force_compile = $conf['template_force_compile'];
         $compile_dir = PHPWG_ROOT_PATH . $conf['data_location'] . 'templates_c';
-        mkgetdir($compile_dir);
+        Utils::mkgetdir($compile_dir);
 
         $params_url = parse_url($_SERVER['REQUEST_URI']);
         $this->smarty->assign('BASE_URL', preg_replace('`\/[^/]*$`', '', $params_url['path']));
@@ -452,7 +453,7 @@ class Template
         if ($this->smarty->debugging) {
             $this->smarty->assign(
                 array(
-                    'AAAA_DEBUG_TOTAL_TIME__' => get_elapsed_time($t2, get_moment())
+                    'AAAA_DEBUG_TOTAL_TIME__' => Utils::get_elapsed_time($t2, microtime(true))
                 )
             );
             $this->smarty->_debug->display_debug($this->smarty);

@@ -15,8 +15,8 @@ if (!defined("PHOTO_BASE_URL")) {
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
-check_input_parameter('image_id', $_GET, false, PATTERN_ID);
-check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 // represent
 $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -28,7 +28,7 @@ $represented_albums = $conn->query2array($query, 'id');
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['delete'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 
     delete_elements(array($_GET['image_id']), true);
     invalidate_user_cache();
@@ -40,7 +40,7 @@ if (isset($_GET['delete'])) {
     // 3. redirect to gallery root
 
     if (!empty($_GET['cat_id'])) {
-        redirect(
+        \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 array(
                     'category' => get_cat_info($_GET['cat_id'])
@@ -58,7 +58,7 @@ if (isset($_GET['delete'])) {
     );
 
     foreach ($authorizeds as $category_id) {
-        redirect(
+        \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 array(
                     'category' => get_cat_info($category_id)
@@ -67,7 +67,7 @@ if (isset($_GET['delete'])) {
         );
     }
 
-    redirect(\Phyxo\Functions\URL::make_index_url());
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
 }
 
 // +-----------------------------------------------------------------------+
@@ -119,7 +119,7 @@ if (isset($_POST['submit'])) {
     if (!isset($_POST['associate'])) {
         $_POST['associate'] = array();
     }
-    check_input_parameter('associate', $_POST, true, PATTERN_ID);
+    \Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, true, PATTERN_ID);
     move_images_to_categories(array($_GET['image_id']), $_POST['associate']);
 
     invalidate_user_cache();
@@ -128,7 +128,7 @@ if (isset($_POST['submit'])) {
     if (!isset($_POST['represent'])) {
         $_POST['represent'] = array();
     }
-    check_input_parameter('represent', $_POST, true, PATTERN_ID);
+    \Phyxo\Functions\Utils::check_input_parameter('represent', $_POST, true, PATTERN_ID);
 
     $no_longer_thumbnail_for = array_diff($represented_albums, $_POST['represent']);
     if (count($no_longer_thumbnail_for) > 0) {
@@ -178,7 +178,7 @@ $template->assign(
     array(
         'tag_selection' => $tag_selection,
         'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
-        'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . get_pwg_token(),
+        'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
         'PATH' => $row['path'],
         'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
         'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
@@ -186,7 +186,7 @@ $template->assign(
         'TITLE' => render_element_name($row),
         'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],
         'FILESIZE' => @$row['filesize'] . ' KB',
-        'REGISTRATION_DATE' => format_date($row['date_available']),
+        'REGISTRATION_DATE' => \Phyxo\Functions\DateTime::format_date($row['date_available']),
         'AUTHOR' => htmlspecialchars(isset($_POST['author']) ? stripslashes($_POST['author']) : @$row['author']),
         'DATE_CREATION' => $row['date_creation'],
         'DESCRIPTION' => htmlspecialchars(isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
@@ -204,7 +204,11 @@ while ($user_row = $conn->db_fetch_assoc($result)) {
 
 $intro_vars = array(
     'file' => \Phyxo\Functions\Language::l10n('Original file : %s', $row['file']),
-    'add_date' => \Phyxo\Functions\Language::l10n('Posted %s on %s', time_since($row['date_available'], 'year'), format_date($row['date_available'], array('day', 'month', 'year'))),
+    'add_date' => \Phyxo\Functions\Language::l10n(
+        'Posted %s on %s',
+        \Phyxo\Functions\DateTime::time_since($row['date_available'], 'year'),
+        \Phyxo\Functions\DateTime::format_date($row['date_available'], array('day', 'month', 'year'))
+    ),
     'added_by' => \Phyxo\Functions\Language::l10n('Added by %s', $row['added_by']),
     'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
     'stats' => \Phyxo\Functions\Language::l10n('Visited %d times', $row['hit']),
@@ -221,7 +225,7 @@ if ($conf['rate'] and !empty($row['rating_score'])) {
 
 $template->assign('INTRO', $intro_vars);
 
-if (in_array(get_extension($row['path']), $conf['picture_ext'])) {
+if (in_array(\Phyxo\Functions\Utils::get_extension($row['path']), $conf['picture_ext'])) {
     $template->assign('U_COI', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=picture_coi&amp;image_id=' . $_GET['image_id']);
 }
 
@@ -229,7 +233,7 @@ if (in_array(get_extension($row['path']), $conf['picture_ext'])) {
 $selected_level = isset($_POST['level']) ? $_POST['level'] : $row['level'];
 $template->assign(
     array(
-        'level_options' => get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
         'level_options_selected' => array($selected_level)
     )
 );

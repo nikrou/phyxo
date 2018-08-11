@@ -70,7 +70,7 @@ if ($conf['original_resize']) {
 $template->assign(
     array(
         'form_action' => PHOTOS_ADD_BASE_URL,
-        'pwg_token' => get_pwg_token(),
+        'pwg_token' => \Phyxo\Functions\Utils::get_token(),
     )
 );
 
@@ -97,7 +97,7 @@ $selected_category = array();
 
 if (isset($_GET['album'])) {
     // set the category from get url or ...
-    check_input_parameter('album', $_GET, false, PATTERN_ID);
+    \Phyxo\Functions\Utils::check_input_parameter('album', $_GET, false, PATTERN_ID);
 
     // test if album really exists
     $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -134,7 +134,7 @@ $template->assign('selected_category', $selected_category);
 $selected_level = isset($_POST['level']) ? $_POST['level'] : 0;
 $template->assign(
     array(
-        'level_options' => get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
         'level_options_selected' => array($selected_level)
     )
 );

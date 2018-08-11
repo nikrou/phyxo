@@ -25,7 +25,7 @@ class Plugin
      * @param string $include_path file to include before executing the callback
      * @return bool false if handler already exists
      */
-    public static function add_event_handler($event, callable $func, $priority = self::EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path = null)
+    public static function add_event_handler($event, $func, $priority = self::EVENT_HANDLER_PRIORITY_NEUTRAL, $include_path = null)
     {
         global $pwg_event_handlers;
 
@@ -230,7 +230,7 @@ class Plugin
 
         // if version is auto (dev) or superior
         if ($fs_version != null && ($fs_version == 'auto' || $plugin['version'] == 'auto' ||
-            safe_version_compare($plugin['version'], $fs_version, '<'))) {
+            version_compare($plugin['version'], $fs_version, '<'))) {
             $plugin['version'] = $fs_version;
 
             $maintain_file = PHPWG_PLUGINS_PATH . '/' . $plugin['id'] . '/maintain.class.php';

@@ -129,7 +129,7 @@ if ($step == 3 and $services['users']->isWebmaster()) {
             deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
             invalidate_user_cache(true);
             $template->delete_compiled_templates();
-            redirect(PHPWG_ROOT_PATH . 'upgrade.php?now=');
+            \Phyxo\Functions\Utils::redirect(PHPWG_ROOT_PATH . 'upgrade.php?now=');
         } catch (Exception $e) {
             $step = 0;
             $message = $e->getMessage();

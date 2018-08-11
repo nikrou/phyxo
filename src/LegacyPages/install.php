@@ -39,7 +39,7 @@ defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
 // download database config file if exists
-check_input_parameter('dl', $_GET, false, '/^[a-f0-9]{32}$/');
+\Phyxo\Functions\Utils::check_input_parameter('dl', $_GET, false, '/^[a-f0-9]{32}$/');
 
 if (!empty($_GET['dl']) && file_exists(PHPWG_ROOT_PATH . $conf['data_location'] . 'pwg_' . $_GET['dl'])) {
     $filename = PHPWG_ROOT_PATH . $conf['data_location'] . 'pwg_' . $_GET['dl'];
@@ -186,9 +186,6 @@ define(\'DB_COLLATE\', \'\');';
         @umask(0111);
         // writing the configuration file
         if (!($fp = @fopen($config_file, 'w'))) {
-            // make sure nobody can list files of _data directory
-            secure_directory(PHPWG_ROOT_PATH . $conf['data_location']);
-
             $tmp_filename = md5(uniqid(time()));
             $fh = @fopen(PHPWG_ROOT_PATH . $conf['data_location'] . 'pwg_' . $tmp_filename, 'w');
             @fputs($fh, $file_content, strlen($file_content));
@@ -224,9 +221,9 @@ define(\'DB_COLLATE\', \'\');';
         $query .= '\'a secret key specific to the gallery for internal use\')';
         $conn->db_query($query);
 
-        conf_update_param('phyxo_db_version', get_branch_from_version(PHPWG_VERSION));
-        conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
-        conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
+        \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
+        \Phyxo\Functions\Conf::conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
+        \Phyxo\Functions\Conf::conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
 
         // fill languages table
         $languages->setConnection($conn);
@@ -235,7 +232,7 @@ define(\'DB_COLLATE\', \'\');';
         }
 
         // fill $conf global array
-        load_conf_from_db();
+        \Phyxo\Functions\Conf::load_conf_from_db();
 
         // PWG_CHARSET is required for building the fs_themes array in the
         // themes class

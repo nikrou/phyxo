@@ -168,10 +168,10 @@ function delete_element_files($ids)
         }
 
         $files = array();
-        $files[] = get_element_path($row);
+        $files[] = \Phyxo\Functions\Utils::get_element_path($row);
 
         if (!empty($row['representative_ext'])) {
-            $files[] = original_to_representative($files[0], $row['representative_ext']);
+            $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $row['representative_ext']);
         }
 
         $ok = true;
@@ -819,7 +819,7 @@ function get_fs($path, $recursive = true)
                 }
 
                 if (is_file($path . '/' . $node)) {
-                    $extension = get_extension($node);
+                    $extension = \Phyxo\Functions\Utils::get_extension($node);
 
                     if (isset($conf['flip_picture_ext'][$extension])) {
                         if (basename($path) == 'thumbnail') {
@@ -1808,7 +1808,7 @@ function delete_element_derivatives($infos, $type = 'all')
 {
     $path = $infos['path'];
     if (!empty($infos['representative_ext'])) {
-        $path = original_to_representative($path, $infos['representative_ext']);
+        $path = \Phyxo\Functions\Utils::original_to_representative($path, $infos['representative_ext']);
     }
     if (substr_compare($path, '../', 0, 3) == 0) {
         $path = substr($path, 3);
@@ -1874,7 +1874,10 @@ function deltree($path, $trash_path = null)
             return true;
         } elseif (!empty($trash_path)) {
             if (!is_dir($trash_path)) {
-                @mkgetdir($trash_path, MKGETDIR_RECURSIVE | MKGETDIR_DIE_ON_ERROR | MKGETDIR_PROTECT_HTACCESS);
+                @\Phyxo\Functions\Utils::mkgetdir(
+                    $trash_path,
+                    \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE | \Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR | \Phyxo\Functions\Utils::MKGETDIR_PROTECT_HTACCESS
+                );
             }
             while ($r = $trash_path . '/' . md5(uniqid(rand(), true))) {
                 if (!is_dir($r)) {

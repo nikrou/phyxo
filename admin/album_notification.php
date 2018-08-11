@@ -100,7 +100,7 @@ $template->assign(
             './index.php?page=album&amp;cat_id='
         ),
         'F_ACTION' => ALBUM_BASE_URL . '&amp;section=notification',
-        'PWG_TOKEN' => get_pwg_token(),
+        'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
     )
 );
 

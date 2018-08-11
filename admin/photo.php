@@ -21,8 +21,8 @@ use Phyxo\TabSheet\TabSheet;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
-check_input_parameter('image_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
 define('PHOTO_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $_GET['image_id']);
 

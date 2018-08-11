@@ -143,7 +143,7 @@ function get_cat_display_name_from_id($cat_id, $url = '')
 }
 
 /**
- * Apply basic markdown transformations to a text.
+ * Apply basic markdown formations to a text.
  * newlines becomes br tags
  * _word_ becomes underline
  * /word/ becomes italic
@@ -200,7 +200,7 @@ function tag_alpha_compare($a, $b)
 
     foreach (array($a, $b) as $tag) {
         if (!isset($cache[__FUNCTION__][$tag['name']])) {
-            $cache[__FUNCTION__][$tag['name']] = transliterate($tag['name']);
+            $cache[__FUNCTION__][$tag['name']] = \Phyxo\Functions\Language::transliterate($tag['name']);
         }
     }
 
@@ -225,7 +225,7 @@ function access_denied()
         echo str_repeat(' ', 512); //IE6 doesn't error output if below a size
         exit();
     } else {
-        redirect($login_url);
+        \Phyxo\Functions\Utils::redirect($login_url);
     }
 }
 
@@ -242,7 +242,7 @@ function page_forbidden($msg, $alternate_url = null)
     if ($alternate_url == null) {
         $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
-    redirect(
+    \Phyxo\Functions\Utils::redirect(
         $alternate_url,
         '<div><h1>' . \Phyxo\Functions\Language::l10n('Forbidden') . '</h1><br>' . $msg . '</div>',
         5
@@ -262,7 +262,7 @@ function bad_request($msg, $alternate_url = null)
     if ($alternate_url == null) {
         $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
-    redirect(
+    \Phyxo\Functions\Utils::redirect(
         $alternate_url,
         '<div><h1>' . \Phyxo\Functions\Language::l10n('Bad request') . '</h1><br>' . $msg . '</div>',
         5
@@ -282,7 +282,7 @@ function page_not_found($msg, $alternate_url = null)
     if ($alternate_url == null) {
         $alternate_url = \Phyxo\Functions\URL::make_index_url();
     }
-    redirect(
+    \Phyxo\Functions\Utils::redirect(
         $alternate_url,
         '<div><h1>' . \Phyxo\Functions\Language::l10n('Page not found') . '</h1><br>' . $msg . '</div>',
         5
@@ -360,7 +360,7 @@ function get_tags_content_title()
             $title .= '<a href="' . $remove_url . '" style="border:none;" title="';
             $title .= \Phyxo\Functions\Language::l10n('remove this tag from the list');
             $title .= '"><img src="';
-            $title .= \Phyxo\Functions\URL::get_root_url() . get_themeconf('icon_dir') . '/remove_s.png';
+            $title .= \Phyxo\Functions\URL::get_root_url() . \Phyxo\Functions\Theme::get_themeconf('icon_dir') . '/remove_s.png';
             $title .= '" alt="x" style="vertical-align:bottom;">';
             $title .= '</a>';
         }
@@ -467,7 +467,7 @@ function render_element_name($info)
         return \Phyxo\Functions\Plugin::trigger_change('render_element_name', $info['name']);
     }
 
-    return get_name_from_file($info['file']);
+    return \Phyxo\Functions\Utils::get_name_from_file($info['file']);
 }
 
 /**
@@ -552,7 +552,7 @@ function get_element_url_protection_handler($url, $infos)
 
     if ('images' == $conf['original_url_protection']) {
         // protect only images and not other file types (for example large movies that we don't want to send through our file proxy)
-        $ext = get_extension($infos['path']);
+        $ext = \Phyxo\Functions\Utils::get_extension($infos['path']);
         if (!in_array($ext, $conf['picture_ext'])) {
             return $url;
         }

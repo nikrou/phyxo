@@ -32,7 +32,7 @@ if (isset($_GET['show_details'])) {
     $show_details = false;
 }
 
-$pwg_token = get_pwg_token();
+$pwg_token = \Phyxo\Functions\Utils::get_token();
 $action_url = PLUGINS_BASE_URL . '&amp;section=installed&amp;plugin=' . '%s' . '&amp;pwg_token=' . $pwg_token;
 
 $plugins = new Plugins($conn);
@@ -42,7 +42,7 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
     if (!$services['users']->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
-        check_pwg_token();
+        \Phyxo\Functions\Utils::check_token();
 
         $page['errors'] = $plugins->performAction($_GET['action'], $_GET['plugin']);
 
@@ -51,7 +51,7 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
                 $template->delete_compiled_templates();
                 $persistent_cache->purge(true);
             }
-            redirect(PLUGINS_BASE_URL . '&section=installed');
+            \Phyxo\Functions\Utils::redirect(PLUGINS_BASE_URL . '&section=installed');
         }
     }
 }

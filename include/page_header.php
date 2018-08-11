@@ -28,7 +28,7 @@ $template->assign(
         ),
 
         'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
-        'CONTENT_ENCODING' => get_pwg_charset(),
+        'CONTENT_ENCODING' => \Phyxo\Functions\Utils::get_charset(),
         'PAGE_TITLE' => strip_tags($title),
         'U_HOME' => \Phyxo\Functions\URL::get_root_url(),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
@@ -73,6 +73,6 @@ if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_page_header');
 
-header('Content-Type: text/html; charset=' . get_pwg_charset()); // usefull ?
+header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset()); // usefull ?
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_after_page_header');

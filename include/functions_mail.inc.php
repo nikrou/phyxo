@@ -38,7 +38,7 @@ function get_mail_sender_email()
 {
     global $conf;
 
-    return (empty($conf['mail_sender_email']) ? get_webmaster_mail_address() : $conf['mail_sender_email']);
+    return (empty($conf['mail_sender_email']) ? \Phyxo\Functions\Utils::get_webmaster_mail_address() : $conf['mail_sender_email']);
 }
 
 /**
@@ -551,7 +551,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
     $Bcc = get_clean_recipients_list(@$args['Bcc']);
     if ($conf_mail['send_bcc_mail_webmaster']) {
         $Bcc[] = array(
-            'email' => get_webmaster_mail_address(),
+            'email' => \Phyxo\Functions\Utils::get_webmaster_mail_address(),
             'name' => '',
         );
     }
@@ -618,7 +618,7 @@ function pwg_mail($to, $args = array(), $tpl = array())
                     'GALLERY_TITLE' => isset($page['gallery_title']) ? $page['gallery_title'] : $conf['gallery_title'],
                     'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
                     'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
-                    'CONTENT_ENCODING' => get_pwg_charset(),
+                    'CONTENT_ENCODING' => \Phyxo\Functions\Utils::get_charset(),
                     'CONTACT_MAIL' => $conf_mail['email_webmaster'],
                 )
             );

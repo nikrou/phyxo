@@ -102,7 +102,7 @@ class Tags extends BaseRepository
         $query = 'SELECT tag_id, validated, status, created_by,';
         $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM ' . IMAGE_CATEGORY_TABLE . ' ic';
         $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON ic.image_id=it.image_id';
-        $query .= ' ' . get_sql_condition_FandF(
+        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
             array(
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -497,7 +497,7 @@ class Tags extends BaseRepository
         $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
 
         if ($use_permissions) {
-            $query .= get_sql_condition_FandF(
+            $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
                 array(
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',

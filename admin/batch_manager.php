@@ -30,7 +30,7 @@ use Phyxo\TabSheet\TabSheet;
 // +-----------------------------------------------------------------------+
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-check_input_parameter('selection', $_POST, true, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('selection', $_POST, true, PATTERN_ID);
 
 
 // +-----------------------------------------------------------------------+
@@ -63,7 +63,7 @@ if (isset($_GET['action'])) {
         $conn->db_query($query);
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
-        redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page']);
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page']);
     }
 }
 

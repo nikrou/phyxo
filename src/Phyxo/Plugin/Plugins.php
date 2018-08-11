@@ -118,7 +118,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     $errors = $this->performAction('install', $plugin_id);
                     list($crt_db_plugin) = $this->getDbPlugins(null, $plugin_id);
-                    \load_conf_from_db();
+                    \Phyxo\Functions\Conf::load_conf_from_db();
                 } elseif ($crt_db_plugin['state'] == 'active') {
                     break;
                 }
@@ -323,7 +323,7 @@ class Plugins extends Extensions
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
-            $branch = \get_branch_from_version($version);
+            $branch = \Phyxo\Functions\Utils::get_branch_from_version($version);
             foreach ($pem_versions as $pem_version) {
                 if (strpos($pem_version['name'], $branch) === 0) {
                     $versions_to_check[] = $pem_version['id'];

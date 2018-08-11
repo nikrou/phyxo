@@ -196,7 +196,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
         } elseif (IMAGETYPE_JPEG == $type) {
             $file_path .= 'jpg';
         } elseif (isset($conf['upload_form_all_types']) and $conf['upload_form_all_types']) {
-            $original_extension = strtolower(get_extension($original_filename));
+            $original_extension = strtolower(\Phyxo\Functions\Utils::get_extension($original_filename));
 
             if (in_array($original_extension, $conf['file_ext'])) {
                 $file_path .= $original_extension;
@@ -220,7 +220,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
     if ($is_tiff and pwg_image::get_library() == 'ext_imagick') {
         // move the uploaded file to pwg_representative sub-directory
         $representative_file_path = dirname($file_path) . '/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
+        $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = $conf['tiff_representative_ext'];
         $representative_file_path .= $representative_ext;
@@ -267,7 +267,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
 
     if (isset($original_extension) and in_array($original_extension, $ffmpeg_video_exts)) {
         $representative_file_path = dirname($file_path) . '/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
+        $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = 'jpg';
         $representative_file_path .= $representative_ext;
@@ -290,7 +290,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
 
     if (isset($original_extension) and 'pdf' == $original_extension and pwg_image::get_library() == 'ext_imagick') {
         $representative_file_path = dirname($file_path) . '/pwg_representative/';
-        $representative_file_path .= get_filename_wo_extension(basename($file_path)) . '.';
+        $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
 
         $representative_ext = 'jpg';
         $representative_file_path .= $representative_ext;
@@ -360,7 +360,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
         $file = $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
         $insert = array(
             'file' => $file,
-            'name' => get_name_from_file($file),
+            'name' => \Phyxo\Functions\Utils::get_name_from_file($file),
             'date_available' => $dbnow,
             'path' => preg_replace('#^' . preg_quote(PHPWG_ROOT_PATH) . '#', '', $file_path),
             'filesize' => $file_infos['filesize'],
@@ -436,8 +436,6 @@ function prepare_directory($directory)
             throw new Exception('[prepare_directory] directory "' . $directory . '" has no write access');
         }
     }
-
-    secure_directory($directory);
 }
 
 function need_resize($image_filepath, $max_width, $max_height)

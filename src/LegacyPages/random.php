@@ -27,7 +27,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 
 $query = 'SELECT id FROM ' . IMAGES_TABLE;
 $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-$query .= ' ' . get_sql_condition_FandF(
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -42,4 +42,4 @@ $query .= ' LIMIT ' . min(50, $conf['top_number'], $user['nb_image_page']) . ';'
 // |                                redirect                               |
 // +-----------------------------------------------------------------------+
 
-redirect(\Phyxo\Functions\URL::make_index_url(array('list' => $conn->query2array($query, null, 'id'))));
+\Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(array('list' => $conn->query2array($query, null, 'id'))));

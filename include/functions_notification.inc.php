@@ -25,7 +25,7 @@
  */
 function get_std_sql_where_restrict_filter($prefix_condition, $img_field = 'ic.image_id', $force_one_condition = false)
 {
-    return get_sql_condition_FandF(
+    return \Phyxo\Functions\SQL::get_sql_condition_FandF(
         array(
             'forbidden_categories' => 'ic.category_id',
             'visible_categories' => 'ic.category_id',

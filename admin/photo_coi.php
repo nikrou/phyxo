@@ -13,7 +13,7 @@ if (!defined("PHOTO_BASE_URL")) {
     die('Hacking attempt!');
 }
 
-check_input_parameter('image_id', $_GET, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
 if (isset($_POST['submit'])) {
     $query = 'UPDATE ' . IMAGES_TABLE;

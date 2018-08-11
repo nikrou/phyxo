@@ -30,7 +30,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (isset($_POST['search_allwords']) && !preg_match('/^\s*$/', $_POST['search_allwords'])) {
-        check_input_parameter('mode', $_POST, false, '/^(OR|AND)$/');
+        \Phyxo\Functions\Utils::check_input_parameter('mode', $_POST, false, '/^(OR|AND)$/');
 
         $fields = array_intersect($_POST['fields'], array('name', 'comment', 'file'));
 
@@ -61,8 +61,8 @@ if (isset($_POST['submit'])) {
     }
 
     if (isset($_POST['tags'])) {
-        check_input_parameter('tags', $_POST, true, PATTERN_ID);
-        check_input_parameter('tag_mode', $_POST, false, '/^(OR|AND)$/');
+        \Phyxo\Functions\Utils::check_input_parameter('tags', $_POST, true, PATTERN_ID);
+        \Phyxo\Functions\Utils::check_input_parameter('tag_mode', $_POST, false, '/^(OR|AND)$/');
 
         $search['fields']['tags'] = array(
             'words' => $_POST['tags'],
@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (isset($_POST['cat'])) {
-        check_input_parameter('cat', $_POST, true, PATTERN_ID);
+        \Phyxo\Functions\Utils::check_input_parameter('cat', $_POST, true, PATTERN_ID);
 
         $search['fields']['cat'] = array(
             'words' => $_POST['cat'],
@@ -134,7 +134,7 @@ if (isset($_POST['submit'])) {
 }
 //----------------------------------------------------------------- redirection
 if (isset($_POST['submit']) and count($page['errors']) == 0) {
-    redirect(
+    \Phyxo\Functions\Utils::redirect(
         \Phyxo\Functions\URL::make_index_url(
             array(
                 'section' => 'search',
@@ -181,7 +181,7 @@ $authors = array();
 
 $query = 'SELECT author, id FROM ' . IMAGES_TABLE . ' AS i';
 $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
-$query .= ' ' . get_sql_condition_FandF(
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -214,7 +214,7 @@ $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
 $query = 'SELECT id,name,global_rank,uppercats FROM ' . CATEGORIES_TABLE;
-$query .= ' ' . get_sql_condition_FandF(
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'

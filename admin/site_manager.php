@@ -26,7 +26,7 @@ if (!$conf['enable_synchronization']) {
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (!empty($_POST) or isset($_GET['action'])) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 }
 
 // +-----------------------------------------------------------------------+
@@ -86,7 +86,7 @@ if (isset($_GET['action']) and isset($page['site'])) {
 $template->assign(
     array(
         'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('action', 'site', 'pwg_token')),
-        'PWG_TOKEN' => get_pwg_token(),
+        'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
     )
 );
 
@@ -103,7 +103,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
     $base_url .= '?page=site_manager';
     $base_url .= '&amp;site=' . $row['id'];
-    $base_url .= '&amp;pwg_token=' . get_pwg_token();
+    $base_url .= '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
     $base_url .= '&amp;action=';
 
     $update_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';

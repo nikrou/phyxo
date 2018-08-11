@@ -106,7 +106,7 @@ $page['where_clauses'] = array();
 
 // which category to filter on ?
 if (isset($_GET['cat']) and 0 != $_GET['cat']) {
-    check_input_parameter('cat', $_GET, false, PATTERN_ID);
+    \Phyxo\Functions\Utils::check_input_parameter('cat', $_GET, false, PATTERN_ID);
 
     $category_ids = get_subcat_ids(array($_GET['cat']));
     if (empty($category_ids)) {
@@ -125,14 +125,14 @@ if (!empty($_GET['author'])) {
 // search a specific comment (if you're coming directly from an admin
 // notification email)
 if (!empty($_GET['comment_id'])) {
-    check_input_parameter('comment_id', $_GET, false, PATTERN_ID);
+    \Phyxo\Functions\Utils::check_input_parameter('comment_id', $_GET, false, PATTERN_ID);
 
     // currently, the $_GET['comment_id'] is only used by admins from email
     // for management purpose (validate/delete)
     if (!$services['users']->isAdmin()) {
         // double urlencode because redirect makes a decode !!
         $login_url = \Phyxo\Functions\URL::get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
-        redirect($login_url);
+        \Phyxo\Functions\Utils::redirect($login_url);
     }
 
     $page['where_clauses'][] = 'com.id = ' . $conn->db_real_escape_string($_GET['comment_id']);
@@ -158,7 +158,7 @@ if (!$services['users']->isAdmin()) {
     $page['where_clauses'][] = 'validated = \'' . $conn->boolean_to_db(true) . '\'';
 }
 
-$page['where_clauses'][] = get_sql_condition_FandF(
+$page['where_clauses'][] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
     array(
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -179,7 +179,7 @@ $actions = array('delete', 'validate', 'edit');
 foreach ($actions as $loop_action) {
     if (isset($_GET[$loop_action])) {
         $action = $loop_action;
-        check_input_parameter($action, $_GET, false, PATTERN_ID);
+        \Phyxo\Functions\Utils::check_input_parameter($action, $_GET, false, PATTERN_ID);
         $comment_id = $_GET[$action];
         break;
     }
@@ -192,20 +192,20 @@ if (isset($action)) {
         $perform_redirect = false;
 
         if ('delete' == $action) {
-            check_pwg_token();
+            \Phyxo\Functions\Utils::check_token();
             $services['comments']->deleteUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('validate' == $action) {
-            check_pwg_token();
+            \Phyxo\Functions\Utils::check_token();
             $services['comments']->validateUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('edit' == $action) {
             if (!empty($_POST['content'])) {
-                check_pwg_token();
+                \Phyxo\Functions\Utils::check_token();
                 $comment_action = $services['comments']->updateUserComment(
                     array(
                         'comment_id' => $_GET['edit'],
@@ -235,7 +235,7 @@ if (isset($action)) {
         }
 
         if ($perform_redirect) {
-            redirect($url_self);
+            \Phyxo\Functions\Utils::redirect($url_self);
         }
     }
 }
@@ -263,7 +263,7 @@ $template->assign(
 $blockname = 'categories';
 
 $query = 'SELECT id, name, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
-$query .= ' ' . get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE') . ';';
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE') . ';';
 display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
 
 // Filter on recent comments...
@@ -335,7 +335,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 }
 
 $url = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start', 'edit', 'delete', 'validate', 'pwg_token'));
-$navbar = create_navigation_bar(
+$navbar = \Phyxo\Functions\Utils::create_navigation_bar(
     $url,
     $counter,
     $start,
@@ -359,7 +359,7 @@ if (count($comments) > 0) {
         if (!empty($elements[$comment['image_id']]['name'])) {
             $name = $elements[$comment['image_id']]['name'];
         } else {
-            $name = get_name_from_file($elements[$comment['image_id']]['file']);
+            $name = \Phyxo\Functions\Utils::get_name_from_file($elements[$comment['image_id']]['file']);
         }
 
         // source of the thumbnail picture
@@ -388,7 +388,7 @@ if (count($comments) > 0) {
             'ALT' => $name,
             'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $comment['author']),
             'WEBSITE_URL' => $comment['website_url'],
-            'DATE' => format_date($comment['date'], array('day_name', 'day', 'month', 'year', 'time')),
+            'DATE' => \Phyxo\Functions\DateTime::format_date($comment['date'], array('day_name', 'day', 'month', 'year', 'time')),
             'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $comment['content']),
         );
 
@@ -401,7 +401,7 @@ if (count($comments) > 0) {
                 $url_self,
                 array(
                     'delete' => $comment['comment_id'],
-                    'pwg_token' => get_pwg_token(),
+                    'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                 )
             );
         }
@@ -416,11 +416,11 @@ if (count($comments) > 0) {
 
             if (isset($edit_comment) and ($comment['comment_id'] == $edit_comment)) {
                 $tpl_comment['IN_EDIT'] = true;
-                $key = get_ephemeral_key($conf['key_comment_valid_time'], $comment['image_id']);
+                $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $comment['image_id']);
                 $tpl_comment['KEY'] = $key;
                 $tpl_comment['IMAGE_ID'] = $comment['image_id'];
                 $tpl_comment['CONTENT'] = $comment['content'];
-                $tpl_comment['PWG_TOKEN'] = get_pwg_token();
+                $tpl_comment['PWG_TOKEN'] = \Phyxo\Functions\Utils::get_token();
                 $tpl_comment['U_CANCEL'] = $url_self;
             }
         }
@@ -431,7 +431,7 @@ if (count($comments) > 0) {
                     $url_self,
                     array(
                         'validate' => $comment['comment_id'],
-                        'pwg_token' => get_pwg_token(),
+                        'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                     )
                 );
             }

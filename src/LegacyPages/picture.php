@@ -37,7 +37,7 @@ if (isset($_GET['level'])) {
         $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['image_id']);
         $result = $conn->db_query($query);
 
-        redirect(\Phyxo\Functions\URL::make_picture_url(array('image_id' => $page['image_id'])));
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_picture_url(array('image_id' => $page['image_id'])));
     }
 }
 
@@ -80,7 +80,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
             $query .= ' WHERE id=' . $page['image_id'];
-            $query .= ' ' . get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
+            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
             $query .= ' LIMIT 1';
             if ($conn->db_num_rows($conn->db_query($query)) == 0) {
                 access_denied();
@@ -98,7 +98,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
                         )
                     );
                     set_status_header('recent_pics' == $page['section'] ? 301 : 302);
-                    redirect_http($url);
+                    \Phyxo\Functions\Utils::redirect($url);
                 }
             }
         }
@@ -229,7 +229,7 @@ if (isset($_GET['action'])) {
                 $query = 'INSERT INTO ' . FAVORITES_TABLE . ' (image_id,user_id) VALUES(' . $page['image_id'] . ',' . $user['id'] . ');';
                 $conn->db_query($query);
 
-                redirect($url_self);
+                \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
         case 'remove_from_favorites':
@@ -238,9 +238,9 @@ if (isset($_GET['action'])) {
                 $conn->db_query($query);
 
                 if ('favorites' == $page['section']) {
-                    redirect($url_up);
+                    \Phyxo\Functions\Utils::redirect($url_up);
                 } else {
-                    redirect($url_self);
+                    \Phyxo\Functions\Utils::redirect($url_self);
                 }
                 break;
             }
@@ -254,29 +254,29 @@ if (isset($_GET['action'])) {
                     include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
                     invalidate_user_cache();
                 }
-                redirect($url_self);
+                \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
         case 'add_to_caddie':
             {
-                fill_caddie(array($page['image_id']));
-                redirect($url_self);
+                \Phyxo\Functions\Utils::fill_caddie(array($page['image_id']));
+                \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
         case 'rate':
             {
                 include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
                 rate_picture($page['image_id'], $_POST['rate']);
-                redirect($url_self);
+                \Phyxo\Functions\Utils::redirect($url_self);
             }
         case 'edit_comment':
             {
-                check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
+                \Phyxo\Functions\Utils::check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
                 $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_edit']);
 
                 if ($services['users']->canManageComment('edit', $author_id)) {
                     if (!empty($_POST['content'])) {
-                        check_pwg_token();
+                        \Phyxo\Functions\Utils::check_token();
                         $comment_action = $services['comments']->updateUserComment(
                             array(
                                 'comment_id' => $_GET['comment_to_edit'],
@@ -303,7 +303,7 @@ if (isset($_GET['action'])) {
                         }
 
                         if ($perform_redirect) {
-                            redirect($url_self);
+                            \Phyxo\Functions\Utils::redirect($url_self);
                         }
                         unset($_POST['content']);
                     }
@@ -314,8 +314,8 @@ if (isset($_GET['action'])) {
             }
         case 'delete_comment':
             {
-                check_pwg_token();
-                check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
+                \Phyxo\Functions\Utils::check_token();
+                \Phyxo\Functions\Utils::check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
                 $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_delete']);
 
                 if ($services['users']->canManageComment('delete', $author_id)) {
@@ -323,18 +323,18 @@ if (isset($_GET['action'])) {
                     delete_user_comment($_GET['comment_to_delete']);
                 }
 
-                redirect($url_self);
+                \Phyxo\Functions\Utils::redirect($url_self);
             }
         case 'validate_comment':
             {
-                check_pwg_token();
-                check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
+                \Phyxo\Functions\Utils::check_token();
+                \Phyxo\Functions\Utils::check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
                 $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_validate']);
 
                 if ($services['users']->canManageComment('validate', $author_id)) {
                     $services['comments']->validateUserComment($_GET['comment_to_validate']);
                 }
-                redirect($url_self);
+                \Phyxo\Functions\Utils::redirect($url_self);
             }
     }
 }
@@ -364,7 +364,7 @@ if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count',
 $query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM ' . IMAGE_CATEGORY_TABLE;
 $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' ON category_id = id';
 $query .= ' WHERE image_id = ' . $page['image_id'];
-$query .= get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), ' AND ') . ';';
+$query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), ' AND ') . ';';
 $related_categories = $conn->query2array($query);
 usort($related_categories, 'global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
@@ -401,7 +401,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $row['derivatives'] = \Phyxo\Image\DerivativeImage::get_all($row['src_image']);
 
     if ($i == 'current') {
-        $row['element_path'] = get_element_path($row);
+        $row['element_path'] = \Phyxo\Functions\Utils::get_element_path($row);
 
         if ($row['src_image']->is_original()) { // we have a photo
             if (!empty(['enabled_high'])) {
@@ -597,7 +597,7 @@ if ($services['users']->isAdmin()) {
         )
     );
 
-    $template->assign('available_permission_levels', get_privacy_level_options());
+    $template->assign('available_permission_levels', \Phyxo\Functions\Utils::get_privacy_level_options());
 }
 
 // favorite manipulation
@@ -640,7 +640,7 @@ if (!empty($picture['current']['author'])) {
 
 // creation date
 if (!empty($picture['current']['date_creation'])) {
-    $val = format_date($picture['current']['date_creation']);
+    $val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_creation']);
     $url = \Phyxo\Functions\URL::make_index_url(
         array(
             'chronology_field' => 'created',
@@ -653,7 +653,7 @@ if (!empty($picture['current']['date_creation'])) {
 }
 
 // date of availability
-$val = format_date($picture['current']['date_available']);
+$val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_available']);
 $url = \Phyxo\Functions\URL::make_index_url(
     array(
         'chronology_field' => 'posted',
@@ -815,4 +815,4 @@ if ($page['slideshow'] and $conf['light_slideshow']) {
     $template->pparse('picture');
 }
 //------------------------------------------------------------ log informations
-pwg_log($picture['current']['id'], 'picture');
+\Phyxo\Functions\Utils::log($picture['current']['id'], 'picture');

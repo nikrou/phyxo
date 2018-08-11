@@ -18,7 +18,7 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['batch'])) {
-    check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
+    \Phyxo\Functions\Utils::check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
 
     $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
     $conn->db_query($query);
@@ -36,7 +36,7 @@ if (isset($_GET['batch'])) {
         $inserts
     );
 
-    redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager&filter=prefilter-caddie');
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager&filter=prefilter-caddie');
 }
 
 // +-----------------------------------------------------------------------+

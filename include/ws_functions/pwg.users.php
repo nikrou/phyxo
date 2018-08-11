@@ -148,13 +148,13 @@ function ws_users_getList($params, &$service)
 
         if (isset($params['display']['registration_date_string'])) {
             foreach ($users as $cur_user) {
-                $users[$cur_user['id']]['registration_date_string'] = format_date($cur_user['registration_date'], array('day', 'month', 'year'));
+                $users[$cur_user['id']]['registration_date_string'] = \Phyxo\Functions\DateTime::format_date($cur_user['registration_date'], array('day', 'month', 'year'));
             }
         }
 
         if (isset($params['display']['registration_date_since'])) {
             foreach ($users as $cur_user) {
-                $users[$cur_user['id']]['registration_date_since'] = time_since($cur_user['registration_date'], 'month');
+                $users[$cur_user['id']]['registration_date_since'] = \Phyxo\Functions\DateTime::time_since($cur_user['registration_date'], 'month');
             }
         }
 
@@ -175,11 +175,11 @@ function ws_users_getList($params, &$service)
                 $users[$row['user_id']]['last_visit'] = $last_visit;
 
                 if (isset($params['display']['last_visit_string'])) {
-                    $users[$row['user_id']]['last_visit_string'] = format_date($last_visit, array('day', 'month', 'year'));
+                    $users[$row['user_id']]['last_visit_string'] = \Phyxo\Functions\DateTime::format_date($last_visit, array('day', 'month', 'year'));
                 }
 
                 if (isset($params['display']['last_visit_since'])) {
-                    $users[$row['user_id']]['last_visit_since'] = time_since($last_visit, 'day');
+                    $users[$row['user_id']]['last_visit_since'] = \Phyxo\Functions\DateTime::time_since($last_visit, 'day');
                 }
             }
         }
@@ -211,7 +211,7 @@ function ws_users_add($params, &$service)
 {
     global $conf, $services;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -248,7 +248,7 @@ function ws_users_delete($params, &$service)
 {
     global $conf, $user, $conn;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -308,7 +308,7 @@ function ws_users_setInfo($params, &$service)
 {
     global $conf, $user, $conn, $services;
 
-    if (get_pwg_token() != $params['pwg_token']) {
+    if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
@@ -382,14 +382,14 @@ function ws_users_setInfo($params, &$service)
     }
 
     if (!empty($params['language'])) {
-        if (!in_array($params['language'], array_keys(get_languages()))) {
+        if (!in_array($params['language'], array_keys(\Phyxo\Functions\Language::get_languages()))) {
             return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
         }
         $updates_infos['language'] = $params['language'];
     }
 
     if (!empty($params['theme'])) {
-        if (!in_array($params['theme'], array_keys(get_pwg_themes()))) {
+        if (!in_array($params['theme'], array_keys(\Phyxo\Functions\Theme::get_themes()))) {
             return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
         }
         $updates_infos['theme'] = $params['theme'];

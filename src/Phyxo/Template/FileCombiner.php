@@ -16,6 +16,7 @@ use JShrink;
 use CssMin;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\Functions\Utils;
 
 /**
  * Allows merging of javascript and css files into a single one.
@@ -48,7 +49,7 @@ final class FileCombiner
         // @TODO: use glob
         $dir = opendir(PHPWG_ROOT_PATH . PWG_COMBINED_DIR);
         while ($file = readdir($dir)) {
-            if (get_extension($file) == 'js' || get_extension($file) == 'css') {
+            if (Utils::get_extension($file) == 'js' || Utils::get_extension($file) == 'css') {
                 unlink(PHPWG_ROOT_PATH . PWG_COMBINED_DIR . $file);
             }
         }
@@ -128,7 +129,7 @@ final class FileCombiner
                     $output .= "\n";
                 }
                 $output = "/*BEGIN header */\n" . $header . "\n" . $output;
-                mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
+                Utils::mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
                 file_put_contents(PHPWG_ROOT_PATH . $file, $output);
                 @chmod(PHPWG_ROOT_PATH . $file, 0644);
             }
@@ -185,7 +186,7 @@ final class FileCombiner
             if ($return_content) {
                 return $content;
             }
-            mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
+            Utils::mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
             file_put_contents(PHPWG_ROOT_PATH . $file, $content);
             $combinable->path = $file;
         } elseif ($return_content) {

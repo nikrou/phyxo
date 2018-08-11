@@ -26,7 +26,7 @@ $page['cat'] = $category['id'];
 // +-----------------------------------------------------------------------+
 
 if (!empty($_POST)) {
-    check_pwg_token();
+    \Phyxo\Functions\Utils::check_token();
 
     if ($category['status'] != $_POST['status']) {
         set_cat_status(array($page['cat']), $_POST['status']);
@@ -221,7 +221,7 @@ if (count($group_granted_ids) > 0) {
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 $template->assign(array(
-    ' PWG_TOKEN ' => get_pwg_token(),
+    ' PWG_TOKEN ' => \Phyxo\Functions\Utils::get_token(),
     ' INHERIT ' => $conf['inheritance_by_default'],
     ' CACHE_KEYS ' => get_admin_client_cache_keys(array('groups', 'users')),
 ));

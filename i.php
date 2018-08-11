@@ -28,38 +28,6 @@ include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 
-function get_extension($filename)
-{
-    return substr(strrchr($filename, '.'), 1, strlen($filename));
-}
-
-function mkgetdir($dir)
-{
-    global $conf;
-
-    if (!is_dir($dir)) {
-        if (substr(PHP_OS, 0, 3) == 'WIN') {
-            $dir = str_replace('/', DIRECTORY_SEPARATOR, $dir);
-        }
-        $umask = umask(0);
-        $mkd = @mkdir($dir, $conf['chmod_value'], true);
-        umask($umask);
-        /* retest existence because of potential concurrent i.php with slow file systems*/
-        if ($mkd == false && !is_dir($dir)) {
-            return false;
-        }
-
-        $file = $dir . '/index.htm';
-        file_exists($file) or @file_put_contents($file, 'Not allowed!');
-    }
-
-    if (!is_writable($dir)) {
-        return false;
-    }
-
-    return true;
-}
-
 // end fast bootstrap
 
 function ilog()
@@ -79,7 +47,7 @@ function ilog()
     }
     $file = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp/i.log';
     if (false == file_put_contents($file, $line . "\n", FILE_APPEND)) {
-        mkgetdir(dirname($file));
+        \Phyxo\Functions\Utils::mkgetdir(dirname($file));
     }
 }
 
@@ -453,7 +421,7 @@ if (!try_switch_source($params, $src_mtime) && $params->type == IMG_CUSTOM) {
     $params->sharpen = round($sharpen / count(\Phyxo\Image\ImageStdParams::get_defined_type_map()));
 }
 
-if (!mkgetdir(dirname($page['derivative_path']))) {
+if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']))) {
     ierror("dir create error", 500);
 }
 

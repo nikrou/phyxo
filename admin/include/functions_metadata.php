@@ -1,33 +1,20 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
-// | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
-// | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License as published by  |
-// | the Free Software Foundation                                          |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
-// | USA.                                                                  |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 /**
  * @package functions\admin\metadata
  */
 
 
-include_once(PHPWG_ROOT_PATH.'/include/functions_metadata.inc.php');
+include_once(PHPWG_ROOT_PATH . '/include/functions_metadata.inc.php');
 
 /**
  * Returns IPTC metadata to sync from a file, depending on IPTC mapping.
@@ -36,7 +23,8 @@ include_once(PHPWG_ROOT_PATH.'/include/functions_metadata.inc.php');
  * @param string $file
  * @return array
  */
-function get_sync_iptc_data($file) {
+function get_sync_iptc_data($file)
+{
     global $conf;
 
     $map = $conf['use_iptc_mapping'];
@@ -56,7 +44,7 @@ function get_sync_iptc_data($file) {
                     $day = 1;
                 }
 
-                $iptc[$pwg_key] = $year.'-'.$month.'-'.$day;
+                $iptc[$pwg_key] = $year . '-' . $month . '-' . $day;
             }
         }
     }
@@ -91,7 +79,8 @@ function get_sync_iptc_data($file) {
  * @param string $file
  * @return array
  */
-function get_sync_exif_data($file) {
+function get_sync_exif_data($file)
+{
     global $conf;
 
     $exif = get_exif_data($file, $conf['use_exif_mapping']);
@@ -99,14 +88,14 @@ function get_sync_exif_data($file) {
     foreach ($exif as $pwg_key => $value) {
         if (in_array($pwg_key, array('date_creation', 'date_available'))) {
             if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
-                if ($matches[1]!='0000' && $matches[2]!='00' && $matches[3]!='00'
-                    && $matches[4]!='00' && $matches[5]!='00' && $matches[6]!='00') {
-                    $exif[$pwg_key] = $matches[1].'-'.$matches[2].'-'.$matches[3].' '.$matches[4].':'.$matches[5].':'.$matches[6];
+                if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
+                    && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
+                    $exif[$pwg_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
                 } else {
                     unset($exif[$pwg_key]);
                 }
             } elseif (preg_match('/^(\d{4}).(\d{2}).(\d{2})/', $value, $matches)) {
-                $exif[$pwg_key] = $matches[1].'-'.$matches[2].'-'.$matches[3];
+                $exif[$pwg_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             } else {
                 unset($exif[$pwg_key]);
                 continue;
@@ -125,7 +114,8 @@ function get_sync_exif_data($file) {
  *
  * @return string[]
  */
-function get_sync_metadata_attributes() {
+function get_sync_metadata_attributes()
+{
     global $conf;
 
     $update_fields = array('filesize', 'width', 'height');
@@ -133,18 +123,18 @@ function get_sync_metadata_attributes() {
     if ($conf['use_exif']) {
         $update_fields =
             array_merge(
-                $update_fields,
-                array_keys($conf['use_exif_mapping']),
-                array('latitude', 'longitude')
-            );
+            $update_fields,
+            array_keys($conf['use_exif_mapping']),
+            array('latitude', 'longitude')
+        );
     }
 
     if ($conf['use_iptc']) {
         $update_fields =
             array_merge(
-                $update_fields,
-                array_keys($conf['use_iptc_mapping'])
-            );
+            $update_fields,
+            array_keys($conf['use_iptc_mapping'])
+        );
     }
 
     return array_unique($update_fields);
@@ -156,20 +146,21 @@ function get_sync_metadata_attributes() {
  * @param array $infos - (path[, representative_ext])
  * @return array - includes data provided in $infos
  */
-function get_sync_metadata($infos) {
+function get_sync_metadata($infos)
+{
     global $conf;
 
-    $file = PHPWG_ROOT_PATH.$infos['path'];
+    $file = PHPWG_ROOT_PATH . $infos['path'];
     $fs = @filesize($file);
 
-    if ($fs===false) {
+    if ($fs === false) {
         return false;
     }
 
-    $infos['filesize'] = floor($fs/1024);
+    $infos['filesize'] = floor($fs / 1024);
 
     if (isset($infos['representative_ext'])) {
-        $file = original_to_representative($file, $infos['representative_ext']);
+        $file = \Phyxo\Functions\Utils::original_to_representative($file, $infos['representative_ext']);
     }
 
     if ($image_size = @getimagesize($file)) {
@@ -196,7 +187,8 @@ function get_sync_metadata($infos) {
  *
  * @param int[] $ids
  */
-function sync_metadata($ids) {
+function sync_metadata($ids)
+{
     global $conf, $conn, $services;
 
     if (!defined('CURRENT_DATE')) {
@@ -206,8 +198,8 @@ function sync_metadata($ids) {
     $datas = array();
     $tags_of = array();
 
-    $query = 'SELECT id, path, representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE id '.$conn->in($ids);
+    $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE id ' . $conn->in($ids);
 
     $result = $conn->db_query($query);
     while ($data = $conn->db_fetch_assoc($result)) {
@@ -247,7 +239,7 @@ function sync_metadata($ids) {
             IMAGES_TABLE,
             array(
                 'primary' => array('id'),
-                'update'  => $update_fields
+                'update' => $update_fields
             ),
             $datas,
             MASS_UPDATES_SKIP_EMPTY
@@ -267,19 +259,20 @@ function sync_metadata($ids) {
  * @param boolean $only_new
  * @return array
  */
-function get_filelist($category_id = '', $site_id=1, $recursive = false, $only_new = false) {
+function get_filelist($category_id = '', $site_id = 1, $recursive = false, $only_new = false)
+{
     global $conn;
 
     // filling $cat_ids : all categories required
     $cat_ids = array();
 
-    $query = 'SELECT id FROM '.CATEGORIES_TABLE;
-    $query .= ' WHERE site_id = '.$site_id.' AND dir IS NOT NULL';
+    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+    $query .= ' WHERE site_id = ' . $site_id . ' AND dir IS NOT NULL';
     if (is_numeric($category_id)) {
         if ($recursive) {
-            $query.= ' AND uppercats '.$conn::REGEX_OPERATOR.' \'(^|,)'.$category_id.'(,|$)\'';
+            $query .= ' AND uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $category_id . '(,|$)\'';
         } else {
-            $query.= ' AND id = '.$category_id;
+            $query .= ' AND id = ' . $category_id;
         }
     }
     $result = $conn->db_query($query);
@@ -291,10 +284,10 @@ function get_filelist($category_id = '', $site_id=1, $recursive = false, $only_n
         return array();
     }
 
-    $query = 'SELECT id, path, representative_ext FROM '.IMAGES_TABLE;
-    $query .= ' WHERE storage_category_id '.$conn->in($cat_ids);
+    $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
+    $query .= ' WHERE storage_category_id ' . $conn->in($cat_ids);
     if ($only_new) {
-        $query.= ' AND date_metadata_update IS NULL';
+        $query .= ' AND date_metadata_update IS NULL';
     }
 
     return $conn->query2array($query, 'id');

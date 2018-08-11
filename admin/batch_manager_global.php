@@ -31,10 +31,10 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_global');
 
-check_input_parameter('del_tags', $_POST, true, PATTERN_ID);
-check_input_parameter('associate', $_POST, false, PATTERN_ID);
-check_input_parameter('move', $_POST, false, PATTERN_ID);
-check_input_parameter('dissociate', $_POST, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('del_tags', $_POST, true, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('move', $_POST, false, PATTERN_ID);
+\Phyxo\Functions\Utils::check_input_parameter('dissociate', $_POST, false, PATTERN_ID);
 
 // +-----------------------------------------------------------------------+
 // |                            current selection                          |
@@ -239,7 +239,7 @@ if (isset($_POST['submit'])) {
             }
         }
     } elseif ('add_to_caddie' == $action) {
-        fill_caddie($collection);
+        \Phyxo\Functions\Utils::fill_caddie($collection);
     } elseif ('delete' == $action) {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
             $deleted_count = delete_elements($collection, true);
@@ -286,7 +286,7 @@ if (isset($_POST['submit'])) {
     \Phyxo\Functions\Plugin::trigger_notify('element_set_global_action', $action, $collection);
 
     if ($redirect) {
-        redirect($redirect_url);
+        \Phyxo\Functions\Utils::redirect($redirect_url);
     }
 }
 
@@ -404,7 +404,7 @@ $template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d'
 // image level options
 $template->assign(
     array(
-        'level_options' => get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
         'level_options_selected' => 0,
     )
 );
@@ -447,7 +447,7 @@ if (!empty($_GET['display'])) {
 $nb_thumbs_page = 0;
 
 if (count($page['cat_elements_id']) > 0) {
-    $nav_bar = create_navigation_bar(
+    $nav_bar = \Phyxo\Functions\Utils::create_navigation_bar(
         $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
         count($page['cat_elements_id']),
         $page['start'],
@@ -494,7 +494,7 @@ if (count($page['cat_elements_id']) > 0) {
         $src_image = new \Phyxo\Image\SrcImage($row);
 
         $ttitle = render_element_name($row);
-        if ($ttitle != get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
+        if ($ttitle != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
             $ttitle .= ' (' . $row['file'] . ')';
         }
 

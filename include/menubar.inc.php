@@ -51,7 +51,7 @@ if (($block = $menu->get_block('mbLinks')) && !empty($conf['links'])) {
 #-------------------------------------------------------------- categories
 $block = $menu->get_block('mbCategories');
 #------------------------------------------------------------------------ filter
-if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && get_filter_page_value('used')) {
+if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && \Phyxo\Functions\Utils::get_filter_page_value('used')) {
     if ($filter['enabled']) {
         $template->assign(
             'U_STOP_FILTER',
@@ -77,7 +77,7 @@ if ($block != null) {
 
 #------------------------------------------------------------------------ tags
 $block = $menu->get_block('mbTags');
-if ($block != null && !empty($page['items']) && 'picture' != script_basename()) {
+if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Utils::script_basename()) {
     if (!empty($page['section']) && 'tags' == $page['section']) {
         $tags = $services['tags']->getCommonTags(
             $page['items'],
@@ -202,7 +202,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
             'TITLE' => \Phyxo\Functions\Language::l10n('display last user comments'),
             'NAME' => \Phyxo\Functions\Language::l10n('Comments'),
             'URL' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
-            'COUNTER' => get_nb_available_comments(),
+            'COUNTER' => \Phyxo\Functions\Utils::get_nb_available_comments(),
         );
     }
 

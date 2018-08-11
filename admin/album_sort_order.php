@@ -122,7 +122,7 @@ if ($conn->db_num_rows($result) > 0) {
         if (!empty($row['name'])) {
             $thumbnail_name = $row['name'];
         } else {
-            $file_wo_ext = get_filename_wo_extension($row['file']);
+            $file_wo_ext = \Phyxo\Functions\Utils::get_filename_wo_extension($row['file']);
             $thumbnail_name = str_replace('_', ' ', $file_wo_ext);
         }
         $current_rank++;
