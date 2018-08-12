@@ -25,7 +25,6 @@ require_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
 require_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-require_once(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 

@@ -27,7 +27,7 @@ if (isset($page['category'])) {
 }
 
 if ($page['start'] > 0 && $page['start'] >= count($page['items'])) {
-    page_not_found('', \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)));
+    \Phyxo\Functions\HTTP::page_not_found('', \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)));
 }
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index');
@@ -181,7 +181,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
             (array)@$page['qsearch_details']['matching_cats']
         );
         if (count($cats)) {
-            usort($cats, 'name_compare');
+            usort($cats, '\Phyxo\Functions\Utils::name_compare');
             $hints = array();
             foreach ($cats as $cat) {
                 $hints[] = \Phyxo\Functions\Category::get_cat_display_name(array($cat), '');
@@ -300,7 +300,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
 //------------------------------------------------------------ end
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_index');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 
 $template->set_filename($template_filename, "$template_filename.tpl");

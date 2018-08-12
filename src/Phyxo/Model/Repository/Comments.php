@@ -279,7 +279,7 @@ class Comments extends BaseRepository
         $result = $this->conn->db_query($query);
         if ($this->conn->db_num_rows($result) == 0) {
             if ($die_on_error) {
-                fatal_error('Unknown comment identifier');
+                \Phyxo\Functions\HTTP::fatal_error('Unknown comment identifier');
             } else {
                 return false;
             }

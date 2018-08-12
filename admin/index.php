@@ -167,12 +167,7 @@ if ($nb_photos_in_caddie > 0) {
 // +-----------------------------------------------------------------------+
 
 $plugin_menu_links = \Phyxo\Functions\Plugin::trigger_change('get_admin_plugin_menu_links', array());
-
-function UC_name_compare($a, $b)
-{
-    return strcmp(strtolower($a['NAME']), strtolower($b['NAME']));
-}
-usort($plugin_menu_links, 'UC_name_compare');
+usort($plugin_menu_links, '\Phyxo\Functions\Utils::name_compare');
 $template->assign('plugin_menu_items', $plugin_menu_links);
 
 // +-----------------------------------------------------------------------+
@@ -210,5 +205,5 @@ include(__DIR__ . '/include/page_tail.php');
 $template->set_filenames(['admin' => "${template_filename}.tpl"]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_admin');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 $template->pparse('admin');

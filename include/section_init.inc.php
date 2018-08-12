@@ -73,7 +73,7 @@ if (\Phyxo\Functions\Utils::script_basename() == 'picture') {
     if (is_numeric($token)) {
         $page['image_id'] = $token;
         if ($page['image_id'] == 0) {
-            bad_request('invalid picture identifier');
+            \Phyxo\Functions\HTTP::bad_request('invalid picture identifier');
         }
     } else {
         preg_match('/^(\d+-)?(.*)?$/', $token, $matches);
@@ -87,7 +87,7 @@ if (\Phyxo\Functions\Utils::script_basename() == 'picture') {
             if (!empty($matches[2])) {
                 $page['image_file'] = $matches[2];
             } else {
-                bad_request('picture identifier is missing');
+                \Phyxo\Functions\HTTP::bad_request('picture identifier is missing');
             }
         }
     }
@@ -251,7 +251,7 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             array(
-                'title' => get_tags_content_title(),
+                'title' => \Phyxo\Functions\Utils::get_tags_content_title(),
                 'items' => $items,
             )
         );
@@ -449,7 +449,7 @@ if ('categories' == $page['section'] and isset($page['category'])) {
     if ($need_redirect) {
         $redirect_url = \Phyxo\Functions\Utils::script_basename() == 'picture' ? \Phyxo\Functions\URL::duplicate_picture_url() : \Phyxo\Functions\URL::duplicate_index_url();
 
-        set_status_header(301);
+        \Phyxo\Functions\HTTP::set_status_header(301);
         \Phyxo\Functions\Utils::redirect($redirect_url);
     }
     unset($need_redirect, $page['hit_by']);

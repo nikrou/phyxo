@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Template;
 
@@ -54,11 +45,13 @@ class ScriptLoader
         'jquery.ui.mouse' => array('jquery', 'jquery.ui', 'jquery.ui.widget'),
     );
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->clear();
     }
 
-    public function clear() {
+    public function clear()
+    {
         $this->registered_scripts = array();
         $this->inline_scripts = array();
         $this->head_done_scripts = array();
@@ -68,14 +61,16 @@ class ScriptLoader
     /**
      * @return bool
      */
-    public function did_head() {
+    public function did_head()
+    {
         return $this->did_head;
     }
 
     /**
      * @return Script[]
      */
-    public function get_all() {
+    public function get_all()
+    {
         return $this->registered_scripts;
     }
 
@@ -83,16 +78,17 @@ class ScriptLoader
      * @param string $code
      * @param string[] $require
      */
-    public function add_inline($code, $require) {
+    public function add_inline($code, $require)
+    {
         !$this->did_footer || trigger_error("Attempt to add inline script but the footer has been written", E_USER_WARNING);
-        if(!empty($require)) {
+        if (!empty($require)) {
             foreach ($require as $id) {
-                if(!isset($this->registered_scripts[$id])) {
-                    $this->load_known_required_script($id, 1) or fatal_error("inline script not found require $id");
+                if (!isset($this->registered_scripts[$id])) {
+                    $this->load_known_required_script($id, 1) || \Phyxo\Functions\HTTP::fatal_error("inline script not found require $id");
                 }
                 $s = $this->registered_scripts[$id];
-                if ($s->load_mode==2) {
-                    $s->load_mode=1; // until now the implementation does not allow executing inline script depending on another async script
+                if ($s->load_mode == 2) {
+                    $s->load_mode = 1; // until now the implementation does not allow executing inline script depending on another async script
                 }
             }
         }
@@ -106,13 +102,14 @@ class ScriptLoader
      * @param string $path
      * @param string $version
      */
-    public function add($id, $load_mode, $require, $path, $version=0, $is_template=false) {
-        if ($this->did_head && $load_mode==0) {
+    public function add($id, $load_mode, $require, $path, $version = 0, $is_template = false)
+    {
+        if ($this->did_head && $load_mode == 0) {
             trigger_error("Attempt to add script $id but the head has been written", E_USER_WARNING);
         } elseif ($this->did_footer) {
             trigger_error("Attempt to add script $id but the footer has been written", E_USER_WARNING);
         }
-        if (! isset( $this->registered_scripts[$id] )) {
+        if (!isset($this->registered_scripts[$id])) {
             $script = new Script($load_mode, $id, $path, $version, $require);
             $script->is_template = $is_template;
             self::fill_well_known($id, $script);
@@ -134,10 +131,10 @@ class ScriptLoader
         } else {
             $script = $this->registered_scripts[$id];
             if (count($require)) {
-                $script->precedents = array_unique( array_merge($script->precedents, $require) );
+                $script->precedents = array_unique(array_merge($script->precedents, $require));
             }
             $script->set_path($path);
-            if ($version && version_compare($script->version, $version)<0) {
+            if ($version && version_compare($script->version, $version) < 0) {
                 $script->version = $version;
             }
             if ($load_mode < $script->load_mode) {
@@ -151,20 +148,21 @@ class ScriptLoader
      *
      * @return Combinable[]
      */
-    public function get_head_scripts() {
+    public function get_head_scripts()
+    {
         self::check_load_dep($this->registered_scripts);
-        foreach(array_keys($this->registered_scripts) as $id) {
+        foreach (array_keys($this->registered_scripts) as $id) {
             $this->compute_script_topological_order($id);
         }
 
-        uasort($this->registered_scripts, array(__CLASS__, 'cmp_by_mode_and_order'));
+        uasort($this->registered_scripts, array(__class__, 'cmp_by_mode_and_order'));
 
-        foreach($this->registered_scripts as $id => $script) {
+        foreach ($this->registered_scripts as $id => $script) {
             if ($script->load_mode > 0) {
                 break;
             }
             if (!empty($script->path)) {
-                    $this->head_done_scripts[$id] = $script;
+                $this->head_done_scripts[$id] = $script;
             } else {
                 trigger_error("Script $id has an undefined path", E_USER_WARNING);
             }
@@ -178,7 +176,8 @@ class ScriptLoader
      *
      * @return Combinable[]
      */
-    public function get_footer_scripts() {
+    public function get_footer_scripts()
+    {
         if (!$this->did_head) {
             self::check_load_dep($this->registered_scripts);
         }
@@ -194,13 +193,13 @@ class ScriptLoader
             $this->compute_script_topological_order($id);
         }
 
-        uasort($todo, array(__CLASS__, 'cmp_by_mode_and_order'));
+        uasort($todo, array(__class__, 'cmp_by_mode_and_order'));
 
-        $result = array( array(), array());
+        $result = array(array(), array());
         foreach ($todo as $id => $script) {
-            $result[$script->load_mode-1][$id] = $script;
+            $result[$script->load_mode - 1][$id] = $script;
         }
-        return array(self::do_combine($result[0],1), self::do_combine($result[1],2));
+        return array(self::do_combine($result[0], 1), self::do_combine($result[1], 2));
     }
 
     /**
@@ -208,7 +207,8 @@ class ScriptLoader
      * @param int $load_mode
      * @return Combinable[]
      */
-    private static function do_combine($scripts, $load_mode) {
+    private static function do_combine($scripts, $load_mode)
+    {
         $combiner = new FileCombiner('js', $scripts);
         return $combiner->combine();
     }
@@ -219,7 +219,8 @@ class ScriptLoader
      *
      * @param Script[] $scripts
      */
-    private static function check_load_dep($scripts) {
+    private static function check_load_dep($scripts)
+    {
         global $conf;
 
         do {
@@ -234,7 +235,7 @@ class ScriptLoader
                         $scripts[$precedent]->load_mode = $load;
                         $changed = true;
                     }
-                    if ($load==2 && $scripts[$precedent]->load_mode==2 && ($scripts[$precedent]->is_remote() or !$conf['template_combine_files'])) {// we are async -> a predecessor cannot be async unlesss it can be merged; otherwise script execution order is not guaranteed
+                    if ($load == 2 && $scripts[$precedent]->load_mode == 2 && ($scripts[$precedent]->is_remote() or !$conf['template_combine_files'])) {// we are async -> a predecessor cannot be async unlesss it can be merged; otherwise script execution order is not guaranteed
                         $scripts[$precedent]->load_mode = 1;
                         $changed = true;
                     }
@@ -249,26 +250,27 @@ class ScriptLoader
      * @param string $id in FileCombiner::$known_paths
      * @param Script $script
      */
-    private static function fill_well_known($id, $script) {
+    private static function fill_well_known($id, $script)
+    {
         if (empty($script->path) && isset(self::$known_paths[$id])) {
             $script->path = self::$known_paths[$id];
         }
-        if (strncmp($id, 'jquery.', 7)==0) {
+        if (strncmp($id, 'jquery.', 7) == 0) {
             $required_ids = array('jquery');
 
-            if (strncmp($id, 'jquery.ui.effect-', 17)==0) {
+            if (strncmp($id, 'jquery.ui.effect-', 17) == 0) {
                 $required_ids = array('jquery', 'jquery.ui.effect');
 
                 if (empty($script->path)) {
-                    $script->path = dirname(self::$known_paths['jquery.ui.effect'])."/$id.js";
+                    $script->path = dirname(self::$known_paths['jquery.ui.effect']) . "/$id.js";
                 }
-            } elseif (strncmp($id, 'jquery.ui.', 10)==0) {
+            } elseif (strncmp($id, 'jquery.ui.', 10) == 0) {
                 if (!isset(self::$ui_core_dependencies[$id])) {
                     $required_ids = array_merge(array('jquery', 'jquery.ui'), array_keys(self::$ui_core_dependencies));
                 }
 
                 if (empty($script->path)) {
-                    $script->path = dirname(self::$known_paths['jquery.ui'])."/$id.js";
+                    $script->path = dirname(self::$known_paths['jquery.ui']) . "/$id.js";
                 }
             }
 
@@ -287,8 +289,9 @@ class ScriptLoader
      * @param int $load_mode
      * @return bool
      */
-    private function load_known_required_script($id, $load_mode) {
-        if (isset(self::$known_paths[$id]) or strncmp($id, 'jquery.ui.', 10)==0) {
+    private function load_known_required_script($id, $load_mode)
+    {
+        if (isset(self::$known_paths[$id]) or strncmp($id, 'jquery.ui.', 10) == 0) {
             $this->add($id, $load_mode, array(), null);
             return true;
         }
@@ -304,12 +307,13 @@ class ScriptLoader
      * @param int $recursion_limiter
      * @return int
      */
-    private function compute_script_topological_order($script_id, $recursion_limiter=0) {
+    private function compute_script_topological_order($script_id, $recursion_limiter = 0)
+    {
         if (!isset($this->registered_scripts[$script_id])) {
             trigger_error("Undefined script $script_id is required by someone", E_USER_WARNING);
             return 0;
         }
-        $recursion_limiter<5 or fatal_error("combined script circular dependency");
+        $recursion_limiter < 5 || \Phyxo\Functions\HTTP::fatal_error("combined script circular dependency");
         $script = $this->registered_scripts[$script_id];
         if (isset($script->extra['order'])) {
             return $script->extra['order'];
@@ -318,8 +322,8 @@ class ScriptLoader
             return ($script->extra['order'] = 0);
         }
         $max = 0;
-        foreach( $script->precedents as $precedent) {
-            $max = max($max, $this->compute_script_topological_order($precedent, $recursion_limiter+1));
+        foreach ($script->precedents as $precedent) {
+            $max = max($max, $this->compute_script_topological_order($precedent, $recursion_limiter + 1));
         }
         $max++;
         return ($script->extra['order'] = $max);
@@ -328,7 +332,8 @@ class ScriptLoader
     /**
      * Callback for scripts sorter.
      */
-    private static function cmp_by_mode_and_order($s1, $s2) {
+    private static function cmp_by_mode_and_order($s1, $s2)
+    {
         $ret = $s1->load_mode - $s2->load_mode;
         if ($ret) {
             return $ret;
@@ -339,9 +344,9 @@ class ScriptLoader
             return $ret;
         }
 
-        if ($s1->extra['order']==0 and ($s1->is_remote() xor $s2->is_remote())) {
+        if ($s1->extra['order'] == 0 and ($s1->is_remote() xor $s2->is_remote())) {
             return $s1->is_remote() ? -1 : 1;
         }
-        return strcmp($s1->id,$s2->id);
+        return strcmp($s1->id, $s2->id);
     }
 }

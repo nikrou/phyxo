@@ -78,12 +78,12 @@ foreach ($pictures as $row) {
         $row['NB_COMMENTS'] = $row['nb_comments'] = (int)@$nb_comments_of[$row['id']];
     }
 
-    $name = render_element_name($row);
-    $desc = render_element_description($row, 'main_page_element_description');
+    $name = \Phyxo\Functions\Utils::render_element_name($row);
+    $desc = \Phyxo\Functions\Utils::render_element_description($row, 'main_page_element_description');
 
     $tpl_var = array_merge($row, array(
         'TN_ALT' => htmlspecialchars(strip_tags($name)),
-        'TN_TITLE' => get_thumbnail_title($row, $name, $desc),
+        'TN_TITLE' => \Phyxo\Functions\Utils::get_thumbnail_title($row, $name, $desc),
         'URL' => $url,
         'DESCRIPTION' => $desc,
         'src_image' => new \Phyxo\Image\SrcImage($row),

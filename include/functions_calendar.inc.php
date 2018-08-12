@@ -91,7 +91,7 @@ function initialize_calendar()
     $views = array(CAL_VIEW_LIST, CAL_VIEW_CALENDAR);
 
     // Retrieve calendar field
-    isset($fields[$page['chronology_field']]) or fatal_error('bad chronology field');
+    isset($fields[$page['chronology_field']]) || \Phyxo\Functions\HTTP::fatal_error('bad chronology field');
 
     // Retrieve style
     if (!isset($styles[$page['chronology_style']])) {

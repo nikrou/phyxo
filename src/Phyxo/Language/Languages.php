@@ -168,7 +168,7 @@ class Languages extends Extensions
 
                 $this->fs_languages[$language_dir] = $language;
             }
-            uasort($this->fs_languages, '\name_compare');
+            uasort($this->fs_languages, '\Phyxo\Functions\Utils::name_compare');
 
             $this->fs_languages_retrieved = true;
         }

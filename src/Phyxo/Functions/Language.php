@@ -107,7 +107,7 @@ class Language
                 }
             }
         } else {
-            fatal_error('l10n_args: Invalid arguments');
+            \Phyxo\Functions\HTTP::fatal_error('l10n_args: Invalid arguments');
         }
 
         return $result;

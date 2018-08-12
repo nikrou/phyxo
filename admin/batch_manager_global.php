@@ -297,21 +297,21 @@ if (isset($_POST['submit'])) {
 $base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
 
 $prefilters = array(
-    array('ID' => 'caddie', 'NAME' => \Phyxo\Functions\Language::l10n('Caddie')),
-    array('ID' => 'favorites', 'NAME' => \Phyxo\Functions\Language::l10n('Your favorites')),
-    array('ID' => 'last_import', 'NAME' => \Phyxo\Functions\Language::l10n('Last import')),
-    array('ID' => 'no_album', 'NAME' => \Phyxo\Functions\Language::l10n('With no album')),
-    array('ID' => 'no_tag', 'NAME' => \Phyxo\Functions\Language::l10n('With no tag')),
-    array('ID' => 'duplicates', 'NAME' => \Phyxo\Functions\Language::l10n('Duplicates')),
-    array('ID' => 'all_photos', 'NAME' => \Phyxo\Functions\Language::l10n('All'))
+    array('id' => 'caddie', 'name' => \Phyxo\Functions\Language::l10n('Caddie')),
+    array('id' => 'favorites', 'name' => \Phyxo\Functions\Language::l10n('Your favorites')),
+    array('id' => 'last_import', 'name' => \Phyxo\Functions\Language::l10n('Last import')),
+    array('id' => 'no_album', 'name' => \Phyxo\Functions\Language::l10n('With no album')),
+    array('id' => 'no_tag', 'name' => \Phyxo\Functions\Language::l10n('With no tag')),
+    array('id' => 'duplicates', 'name' => \Phyxo\Functions\Language::l10n('Duplicates')),
+    array('id' => 'all_photos', 'name' => \Phyxo\Functions\Language::l10n('All'))
 );
 
 if ($conf['enable_synchronization']) {
-    $prefilters[] = array('ID' => 'no_virtual_album', 'NAME' => \Phyxo\Functions\Language::l10n('With no virtual album'));
+    $prefilters[] = array('id' => 'no_virtual_album', 'name' => \Phyxo\Functions\Language::l10n('With no virtual album'));
 }
 
 $prefilters = \Phyxo\Functions\Plugin::trigger_change('get_batch_manager_prefilters', $prefilters);
-usort($prefilters, 'UC_name_compare');
+usort($prefilters, '\Phyxo\Functions\Utils::name_compare');
 
 $template->assign(
     array(
@@ -493,7 +493,7 @@ if (count($page['cat_elements_id']) > 0) {
         $nb_thumbs_page++;
         $src_image = new \Phyxo\Image\SrcImage($row);
 
-        $ttitle = render_element_name($row);
+        $ttitle = \Phyxo\Functions\Utils::render_element_name($row);
         if ($ttitle != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
             $ttitle .= ' (' . $row['file'] . ')';
         }

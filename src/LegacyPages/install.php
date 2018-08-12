@@ -36,8 +36,6 @@ if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
 }
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
-include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
-
 // download database config file if exists
 \Phyxo\Functions\Utils::check_input_parameter('dl', $_GET, false, '/^[a-f0-9]{32}$/');
 

@@ -40,7 +40,7 @@ $template_filename = 'site_manager';
 if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
     $is_remote = \Phyxo\Functions\URL::url_is_remote($_POST['galleries_url']);
     if ($is_remote) {
-        fatal_error('remote sites not supported');
+        \Phyxo\Functions\HTTP::fatal_error('remote sites not supported');
     }
     $url = preg_replace('/[\/]*$/', '', $_POST['galleries_url']);
     $url .= '/';

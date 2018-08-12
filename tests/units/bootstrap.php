@@ -26,9 +26,3 @@ define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 define('MASS_UPDATES_SKIP_EMPTY', false);
 
 $conf['admin_theme'] = 'default';
-
-// copy from include/functions_html.inc.php
-function name_compare($a, $b)
-{
-    return strcmp(strtolower($a['name']), strtolower($b['name']));
-}

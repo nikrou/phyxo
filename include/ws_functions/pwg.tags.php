@@ -52,7 +52,7 @@ function tagsList($tags, $params)
             }
         );
     } else {
-        usort($tags, 'tag_alpha_compare');
+        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
     }
 
     for ($i = 0; $i < count($tags); $i++) {

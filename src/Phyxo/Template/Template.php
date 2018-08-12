@@ -351,7 +351,7 @@ class Template
         global $conf, $lang_info;
 
         if (!isset($this->files[$handle])) {
-            fatal_error("Template->parse(): Couldn't load template file for handle $handle");
+            \Phyxo\Functions\HTTP::fatal_error("Template->parse(): Couldn't load template file for handle $handle");
         }
 
         $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
@@ -619,14 +619,14 @@ class Template
      */
     public function func_define_derivative($params, $smarty)
     {
-        !empty($params['name']) or fatal_error('define_derivative missing name');
+        !empty($params['name']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing name');
         if (isset($params['type'])) {
             $derivative = ImageStdParams::get_by_type($params['type']);
             $smarty->assign($params['name'], $derivative);
             return;
         }
-        !empty($params['width']) or fatal_error('define_derivative missing width');
-        !empty($params['height']) or fatal_error('define_derivative missing height');
+        !empty($params['width']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing width');
+        !empty($params['height']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing height');
 
         $w = intval($params['width']);
         $h = intval($params['height']);
@@ -643,9 +643,9 @@ class Template
 
             if ($crop) {
                 $minw = empty($params['min_width']) ? $w : intval($params['min_width']);
-                $minw <= $w or fatal_error('define_derivative invalid min_width');
+                $minw <= $w || \Phyxo\Functions\HTTP::fatal_error('define_derivative invalid min_width');
                 $minh = empty($params['min_height']) ? $h : intval($params['min_height']);
-                $minh <= $h or fatal_error('define_derivative invalid min_height');
+                $minh <= $h || \Phyxo\Functions\HTTP::fatal_error('define_derivative invalid min_height');
             }
         }
 
@@ -816,7 +816,7 @@ class Template
     public function func_combine_css($params)
     {
         if (empty($params['path'])) {
-            fatal_error('combine_css missing path');
+            \Phyxo\Functions\HTTP::fatal_error('combine_css missing path');
         }
 
         if (!isset($params['id'])) {

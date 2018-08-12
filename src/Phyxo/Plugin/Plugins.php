@@ -297,7 +297,7 @@ class Plugins extends Extensions
         }
         switch ($order) {
             case 'name':
-                uasort($this->fs_plugins, '\name_compare');
+                uasort($this->fs_plugins, '\Phyxo\Functions\Utils::name_compare');
                 break;
             case 'status':
                 $this->sortPluginsByState();
@@ -546,7 +546,7 @@ class Plugins extends Extensions
     {
         $r = strcasecmp($a['author'], $b['author']);
         if ($r == 0) {
-            return \name_compare($a, $b);
+            return \Phyxo\Functions\Utils::name_compare($a, $b);
         } else {
             return $r;
         }
@@ -567,7 +567,7 @@ class Plugins extends Extensions
             $this->getFsPlugins();
         }
 
-        uasort($this->fs_plugins, '\name_compare');
+        uasort($this->fs_plugins, '\Phyxo\Functions\Utils::name_compare');
 
         $active_plugins = array();
         $inactive_plugins = array();

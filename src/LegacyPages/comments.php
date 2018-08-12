@@ -17,7 +17,7 @@ define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 if (!$conf['activate_comments']) {
-    page_not_found(null);
+    \Phyxo\Functions\HTTP::page_not_found(null);
 }
 
 // +-----------------------------------------------------------------------+
@@ -454,6 +454,6 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theCommentsPage', $themecon
 // +-----------------------------------------------------------------------+
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_comments');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('comments');

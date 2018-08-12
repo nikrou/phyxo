@@ -69,7 +69,7 @@ class Server
     public function run()
     {
         if (is_null($this->_responseEncoder)) {
-            set_status_header(400);
+            \Phyxo\Functions\HTTP::set_status_header(400);
             @header("Content-Type: text/plain");
             echo ("Cannot process your request. Unknown response format. Request format: " . @$this->_requestFormat . " Response format: " . @$this->_responseFormat . "\n");
             var_export($this);

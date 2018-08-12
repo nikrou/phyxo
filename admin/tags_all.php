@@ -291,7 +291,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     }
     $all_tags[] = $tag;
 }
-usort($all_tags, 'tag_alpha_compare');
+usort($all_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
 $template->assign(array('all_tags' => $all_tags));
 

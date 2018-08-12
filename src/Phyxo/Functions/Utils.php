@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use Phyxo\Block\RegisteredBlock;
+
 class Utils
 {
     /** no option for mkgetdir() */
@@ -382,10 +384,10 @@ class Utils
     {
         if (!empty($_REQUEST['pwg_token'])) {
             if (self::get_token() != $_REQUEST['pwg_token']) {
-                access_denied();
+                \Phyxo\Functions\HTTP::access_denied();
             }
         } else {
-            bad_request('missing token');
+            \Phyxo\Functions\HTTP::bad_request('missing token');
         }
     }
 
@@ -420,7 +422,7 @@ class Utils
             $mkd = @mkdir($dir, $conf['chmod_value'], ($flags & self::MKGETDIR_RECURSIVE) ? true : false);
             umask($umask);
             if ($mkd == false) {
-                !($flags & self::MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
+                !($flags & self::MKGETDIR_DIE_ON_ERROR) || \Phyxo\Functions\HTTP::fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
                 return false;
             }
             if ($flags & self::MKGETDIR_PROTECT_HTACCESS) {
@@ -433,7 +435,7 @@ class Utils
             }
         }
         if (!is_writable($dir)) {
-            !($flags & self::MKGETDIR_DIE_ON_ERROR) or fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
+            !($flags & self::MKGETDIR_DIE_ON_ERROR) || \Phyxo\Functions\HTTP::fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
             return false;
         }
 
@@ -606,24 +608,24 @@ class Utils
         // it's ok if the input parameter is null
         if (empty($param_value)) {
             if ($mandatory) {
-                fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
+                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
             }
             return true;
         }
 
         if ($is_array) {
             if (!is_array($param_value)) {
-                fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" should be an array');
+                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" should be an array');
             }
 
             foreach ($param_value as $item_to_check) {
                 if (!preg_match($pattern, $item_to_check)) {
-                    fatal_error('[Hacking attempt] an item is not valid in input parameter "' . $param_name . '"');
+                    \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] an item is not valid in input parameter "' . $param_name . '"');
                 }
             }
         } else {
             if (!preg_match($pattern, $param_value)) {
-                fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
+                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
             }
         }
     }
@@ -849,6 +851,30 @@ class Utils
     }
 
     /**
+     * Callback used for sorting by name.
+     */
+    public static function name_compare($a, $b)
+    {
+        return strcmp(strtolower($a['name']), strtolower($b['name']));
+    }
+
+    /**
+     * Callback used for sorting by name (slug) with cache.
+     */
+    public static function tag_alpha_compare($a, $b)
+    {
+        global $cache;
+
+        foreach (array($a, $b) as $tag) {
+            if (!isset($cache[__FUNCTION__][$tag['name']])) {
+                $cache[__FUNCTION__][$tag['name']] = \Phyxo\Functions\Language::transliterate($tag['name']);
+            }
+        }
+
+        return strcmp($cache[__FUNCTION__][$a['name']], $cache[__FUNCTION__][$b['name']]);
+    }
+
+    /**
      * Is the category accessible to the connected user ?
      * If the user is not authorized to see this category, script exits
      *
@@ -861,7 +887,199 @@ class Utils
         // $filter['visible_categories'] and $filter['visible_images']
        // are not used because it's not necessary (filter <> restriction)
         if (in_array($category_id, explode(',', $user['forbidden_categories']))) {
-            access_denied();
+            \Phyxo\Functions\HTTP::access_denied();
         }
     }
+
+    /**
+     * Apply basic markdown formations to a text.
+     * newlines becomes br tags
+     * _word_ becomes underline
+     * /word/ becomes italic
+     * *word* becomes bolded
+     * urls becomes a tags
+     *
+     * @param string $content
+     * @return string
+     */
+    public static function render_comment_content($content)
+    {
+        $content = htmlspecialchars($content);
+        $pattern = '/(https?:\/\/\S*)/';
+        $replacement = '<a href="$1" rel="nofollow">$1</a>';
+        $content = preg_replace($pattern, $replacement, $content);
+
+        $content = nl2br($content);
+
+        // replace _word_ by an underlined word
+        $pattern = '/\b_(\S*)_\b/';
+        $replacement = '<span style="text-decoration:underline;">$1</span>';
+        $content = preg_replace($pattern, $replacement, $content);
+
+        // replace *word* by a bolded word
+        $pattern = '/\b\*(\S*)\*\b/';
+        $replacement = '<span style="font-weight:bold;">$1</span>';
+        $content = preg_replace($pattern, $replacement, $content);
+
+        // replace /word/ by an italic word
+        $pattern = "/\/(\S*)\/(\s)/";
+        $replacement = '<span style="font-style:italic;">$1$2</span>';
+        $content = preg_replace($pattern, $replacement, $content);
+
+        // @TODO : add a trigger
+
+        return $content;
+    }
+
+    /**
+     * Returns the breadcrumb to be displayed above thumbnails on tag page.
+     *
+     * @return string
+     */
+    public static function get_tags_content_title()
+    {
+        global $page;
+
+        $title = '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'tags.php" title="' . \Phyxo\Functions\Language::l10n('display available tags') . '">';
+        $title .= \Phyxo\Functions\Language::l10n(count($page['tags']) > 1 ? 'Tags' : 'Tag');
+        $title .= '</a>&nbsp;';
+
+        for ($i = 0; $i < count($page['tags']); $i++) {
+            $title .= $i > 0 ? ' + ' : '';
+            $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($page['tags'][$i]))) . '"';
+            $title .= ' title="' . \Phyxo\Functions\Language::l10n('display photos linked to this tag') . '">';
+            $title .= \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
+            $title .= '</a>';
+
+            if (count($page['tags']) > 2) {
+                $other_tags = $page['tags'];
+                unset($other_tags[$i]);
+                $remove_url = \Phyxo\Functions\URL::make_index_url(array('tags' => $other_tags));
+
+                $title .= '<a href="' . $remove_url . '" style="border:none;" title="';
+                $title .= \Phyxo\Functions\Language::l10n('remove this tag from the list');
+                $title .= '"><img src="';
+                $title .= \Phyxo\Functions\URL::get_root_url() . \Phyxo\Functions\Theme::get_themeconf('icon_dir') . '/remove_s.png';
+                $title .= '" alt="x" style="vertical-align:bottom;">';
+                $title .= '</a>';
+            }
+        }
+
+        return $title;
+    }
+
+    /**
+     * Add known menubar blocks.
+     * This method is called by a trigger_change()
+     *
+     * @param BlockManager[] $menu_ref_arr
+     */
+    public static function register_default_menubar_blocks($menu_ref_arr)
+    {
+        $menu = &$menu_ref_arr[0];
+        if ($menu->get_id() != 'menubar') {
+            return;
+        }
+        $menu->register_block(new RegisteredBlock('mbLinks', 'Links', 'core'));
+        $menu->register_block(new RegisteredBlock('mbCategories', 'Albums', 'core'));
+        $menu->register_block(new RegisteredBlock('mbTags', 'Related tags', 'core'));
+        $menu->register_block(new RegisteredBlock('mbSpecials', 'Specials', 'core'));
+        $menu->register_block(new RegisteredBlock('mbMenu', 'Menu', 'core'));
+        $menu->register_block(new RegisteredBlock('mbIdentification', 'Identification', 'core'));
+    }
+
+    /**
+     * Returns display name for an element.
+     * Returns 'name' if exists of name from 'file'.
+     *
+     * @param array $info at least file or name
+     * @return string
+     */
+    public static function render_element_name($info)
+    {
+        if (!empty($info['name'])) {
+            return \Phyxo\Functions\Plugin::trigger_change('render_element_name', $info['name']);
+        }
+
+        return \Phyxo\Functions\Utils::get_name_from_file($info['file']);
+    }
+
+    /**
+     * Returns display description for an element.
+     *
+     * @param array $info at least comment
+     * @param string $param used to identify the trigger
+     * @return string
+     */
+    public static function render_element_description($info, $param = '')
+    {
+        if (!empty($info['comment'])) {
+            return \Phyxo\Functions\Plugin::trigger_change('render_element_description', $info['comment'], $param);
+        }
+
+        return '';
+    }
+
+    /**
+     * Add info to the title of the thumbnail based on photo properties.
+     *
+     * @param array $info hit, rating_score, nb_comments
+     * @param string $title
+     * @param string $comment
+     * @return string
+     */
+    public static function get_thumbnail_title($info, $title, $comment = '')
+    {
+        global $conf, $user;
+
+        $details = array();
+
+        if (!empty($info['hit'])) {
+            $details[] = $info['hit'] . ' ' . strtolower(\Phyxo\Functions\Language::l10n('Visits'));
+        }
+
+        if ($conf['rate'] and !empty($info['rating_score'])) {
+            $details[] = strtolower(\Phyxo\Functions\Language::l10n('Rating score')) . ' ' . $info['rating_score'];
+        }
+
+        if (isset($info['nb_comments']) and $info['nb_comments'] != 0) {
+            $details[] = \Phyxo\Functions\Language::l10n_dec('%d comment', '%d comments', $info['nb_comments']);
+        }
+
+        if (count($details) > 0) {
+            $title .= ' (' . implode(', ', $details) . ')';
+        }
+
+        if (!empty($comment)) {
+            $comment = strip_tags($comment);
+            $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
+        }
+
+        $title = htmlspecialchars(strip_tags($title));
+        $title = \Phyxo\Functions\Plugin::trigger_change('get_thumbnail_title', $title, $info);
+
+        return $title;
+    }
+
+    /**
+     * Sends to the template all messages stored in $page and in the session.
+     */
+    public static function flush_page_messages()
+    {
+        global $template, $page;
+
+        if ($template->get_template_vars('page_refresh') === null) {
+            foreach (array('errors', 'infos', 'warnings') as $mode) {
+                if (isset($_SESSION['page_' . $mode])) {
+                    $page[$mode] = array_merge($page[$mode], $_SESSION['page_' . $mode]);
+                    unset($_SESSION['page_' . $mode]);
+                }
+
+                if (count($page[$mode]) != 0) {
+                    $template->assign($mode, $page[$mode]);
+                }
+            }
+        }
+    }
+
 }

@@ -402,7 +402,7 @@ function qsearch_get_tags(QExpression $expr, QResults $qsr)
     }
 
     $all_tags = array_intersect_key($all_tags, array_flip(array_diff($positive_ids, $not_ids)));
-    usort($all_tags, 'tag_alpha_compare');
+    usort($all_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
     foreach ($all_tags as &$tag) {
         $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
     }

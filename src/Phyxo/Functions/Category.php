@@ -932,4 +932,16 @@ class Category
         }
     }
 
+    /**
+     * Returns the category comment for rendering in html textual mode (subcatify)
+     * This method is called by a trigger_notify()
+     *
+     * @param string $desc
+     * @return string
+     */
+    public static function render_category_literal_description($desc)
+    {
+        return strip_tags($desc, '<span><p><a><br><b><i><small><big><strong><em>');
+    }
+
 }

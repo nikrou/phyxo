@@ -56,7 +56,7 @@ $errors = array();
 $infos = array();
 
 if ($site_is_remote) {
-    fatal_error('remote sites not supported');
+    \Phyxo\Functions\HTTP::fatal_error('remote sites not supported');
 } else {
     $site_reader = new LocalSiteReader(PHPWG_ROOT_PATH . $site_url);
 }

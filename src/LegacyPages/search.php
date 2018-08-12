@@ -171,7 +171,7 @@ $template->assign(
 $available_tags = $services['tags']->getAvailableTags();
 
 if (count($available_tags) > 0) {
-    usort($available_tags, 'tag_alpha_compare');
+    usort($available_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
     $template->assign('TAGS', $available_tags);
 }
@@ -232,6 +232,6 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theSearchPage', $themeconf[
 //------------------------------------------------------------ html code display
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_search');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('search');

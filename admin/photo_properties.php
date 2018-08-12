@@ -183,7 +183,7 @@ $template->assign(
         'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
         'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
-        'TITLE' => render_element_name($row),
+        'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
         'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],
         'FILESIZE' => @$row['filesize'] . ' KB',
         'REGISTRATION_DATE' => \Phyxo\Functions\DateTime::format_date($row['date_available']),

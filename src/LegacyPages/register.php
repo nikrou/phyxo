@@ -21,7 +21,7 @@ $services['users']->checkStatus(ACCESS_FREE);
 //----------------------------------------------------------- user registration
 
 if (!$conf['allow_user_registration']) {
-    page_forbidden('User registration closed');
+    \Phyxo\Functions\HTTP::page_forbidden('User registration closed');
 }
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_register');
@@ -93,6 +93,6 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theRegisterPage', $themecon
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_register');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('register');

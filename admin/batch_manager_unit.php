@@ -165,7 +165,7 @@ if (count($page['cat_elements_id']) > 0) {
         $query .= ' WHERE image_id = ' . $row['id'] . ';';
         $tag_selection = $services['tags']->getTagsList($query);
 
-        $legend = render_element_name($row);
+        $legend = \Phyxo\Functions\Utils::render_element_name($row);
         if ($legend != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) {
             $legend .= ' (' . $row['file'] . ')';
         }

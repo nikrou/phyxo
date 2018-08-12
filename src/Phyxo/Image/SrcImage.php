@@ -133,8 +133,9 @@ class SrcImage
         global $conn;
 
         if ($this->size == null) {
-            if ($this->flags & self::DIM_NOT_GIVEN)
-                fatal_error('SrcImage dimensions required but not provided');
+            if ($this->flags & self::DIM_NOT_GIVEN) {
+                \Phyxo\Functions\HTTP::fatal_error('SrcImage dimensions required but not provided');
+            }
             // probably not metadata synced
             if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
                 $this->size = array($size[0], $size[1]);

@@ -420,7 +420,7 @@ class URL
                             $page['category'] = $cat_id;
                             $page['hit_by']['cat_permalink'] = $maybe_permalinks[$perma_index];
                         } else {
-                            page_not_found(\Phyxo\Functions\Language::l10n('Permalink for album not found'));
+                            \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Permalink for album not found'));
                         }
                     }
                 }
@@ -429,7 +429,7 @@ class URL
             if (isset($page['category'])) {
                 $result = \Phyxo\Functions\Category::get_cat_info($page['category']);
                 if (empty($result)) {
-                    page_not_found(\Phyxo\Functions\Language::l10n('Requested album does not exist'));
+                    \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Requested album does not exist'));
                 }
                 $page['category'] = $result;
             }
@@ -462,12 +462,12 @@ class URL
             $next_token = $i;
 
             if (empty($requested_tag_ids) && empty($requested_tag_url_names)) {
-                bad_request('at least one tag required');
+                \Phyxo\Functions\HTTP::bad_request('at least one tag required');
             }
 
             $page['tags'] = $services['tags']->findTags($requested_tag_ids, $requested_tag_url_names);
             if (empty($page['tags'])) {
-                page_not_found(\Phyxo\Functions\Language::l10n('Requested tag does not exist'), self::get_root_url() . 'tags.php');
+                \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Requested tag does not exist'), self::get_root_url() . 'tags.php');
             }
         } elseif ('favorites' == @$tokens[$next_token]) { // @TODO: remove arobase, add test
             $page['section'] = 'favorites';
@@ -490,7 +490,7 @@ class URL
 
             preg_match('/(\d+)/', @$tokens[$next_token], $matches); // @TODO: remove arobase, add test
             if (!isset($matches[1])) {
-                bad_request('search identifier is missing');
+                \Phyxo\Functions\HTTP::bad_request('search identifier is missing');
             }
             $page['search'] = $matches[1];
             $next_token++;
@@ -506,7 +506,7 @@ class URL
                 $page['list'][] = -1;
             } else { // With pictures list
                 if (!preg_match('/^\d+(,\d+)*$/', $tokens[$next_token])) {
-                    bad_request('wrong format on list GET parameter');
+                    \Phyxo\Functions\HTTP::bad_request('wrong format on list GET parameter');
                 }
                 foreach (explode(',', $tokens[$next_token]) as $image_id) {
                     $page['list'][] = $image_id;
@@ -695,6 +695,40 @@ class URL
     public static function url_is_remote($url)
     {
         return (strncmp($url, 'http://', 7) == 0 or strncmp($url, 'https://', 8) == 0);
+    }
+
+    /**
+     * Event handler to protect src image urls.
+     *
+     * @param string $url
+     * @param SrcImage $src_image
+     * @return string
+     */
+    public static function get_src_image_url_protection_handler($url, $src_image)
+    {
+        return \Phyxo\Functions\URL::get_action_url($src_image->id, $src_image->is_original() ? 'e' : 'r', false);
+    }
+
+    /**
+     * Event handler to protect element urls.
+     *
+     * @param string $url
+     * @param array $infos id, path
+     * @return string
+     */
+    public static function get_element_url_protection_handler($url, $infos)
+    {
+        global $conf;
+
+        if ('images' == $conf['original_url_protection']) {
+        // protect only images and not other file types (for example large movies that we don't want to send through our file proxy)
+            $ext = \Phyxo\Functions\Utils::get_extension($infos['path']);
+            if (!in_array($ext, $conf['picture_ext'])) {
+                return $url;
+            }
+        }
+
+        return \Phyxo\Functions\URL::get_action_url($infos['id'], 'e', false);
     }
 
 }

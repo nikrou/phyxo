@@ -264,6 +264,6 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('thePasswordPage', $themecon
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_password');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('password');

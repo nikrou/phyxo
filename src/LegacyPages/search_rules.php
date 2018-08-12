@@ -185,6 +185,6 @@ foreach (array('date_available', 'date_creation') as $datefield) {
 // +-----------------------------------------------------------------------+
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('search_rules');

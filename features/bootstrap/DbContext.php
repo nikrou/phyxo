@@ -738,7 +738,6 @@ class DbContext implements Context
         if (!defined('PHPWG_ROOT_PATH')) {
             define('PHPWG_ROOT_PATH', __DIR__ . '/../../');
         }
-        include_once(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);

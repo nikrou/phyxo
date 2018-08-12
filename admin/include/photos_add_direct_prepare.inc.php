@@ -109,7 +109,7 @@ if (isset($_GET['album'])) {
         // lets put in the session to persist in case of upload method switch
         $_SESSION['selected_category'] = $selected_category;
     } else {
-        fatal_error('[Hacking attempt] the album id = "' . $_GET['album'] . '" is not valid');
+        \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the album id = "' . $_GET['album'] . '" is not valid');
     }
 } elseif (isset($_SESSION['selected_category'])) {
     $selected_category = $_SESSION['selected_category'];

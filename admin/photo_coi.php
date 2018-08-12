@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
 }
 
 $tpl_var = array(
-    'TITLE' => render_element_name($row),
+    'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
     'ALT' => $row['file'],
     'U_IMG' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $row),
 );

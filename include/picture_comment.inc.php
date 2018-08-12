@@ -51,7 +51,7 @@ if ($page['show_comments'] and isset($_POST['content'])) {
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Your comment has been registered');
             break;
         case 'reject':
-            set_status_header(403);
+            \Phyxo\Functions\HTTP::set_status_header(403);
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
             break;
         default:
@@ -61,7 +61,7 @@ if ($page['show_comments'] and isset($_POST['content'])) {
     // allow plugins to notify what's going on
     \Phyxo\Functions\Plugin::trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
 } elseif (isset($_POST['content'])) {
-    set_status_header(403);
+    \Phyxo\Functions\HTTP::set_status_header(403);
     die('ugly spammer');
 }
 

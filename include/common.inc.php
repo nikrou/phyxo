@@ -66,7 +66,6 @@ if (!empty($conf['show_php_errors'])) {
 }
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
-include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
 
 $persistent_cache = new PersistentFileCache();
 
@@ -157,7 +156,7 @@ if ($conf['gallery_locked']) {
     $header_msgs[] = \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.');
 
     if (\Phyxo\Functions\Utils::script_basename() != 'identification' && !$services['users']->isAdmin()) {
-        set_status_header(503, 'Service Unavailable');
+        \Phyxo\Functions\HTTP::set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
         header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
         echo '<a href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'identification.php">' . \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.') . '</a>';
@@ -189,17 +188,21 @@ if (isset($conf['header_notes'])) {
 }
 
 // default event handlers
-\Phyxo\Functions\Plugin::add_event_handler('render_category_literal_description', 'render_category_literal_description');
+\Phyxo\Functions\Plugin::add_event_handler('render_category_literal_description', '\Phyxo\Functions\Category::render_category_literal_description');
 if (!$conf['allow_html_descriptions']) {
     \Phyxo\Functions\Plugin::add_event_handler('render_category_description', 'nl2br');
 }
-\Phyxo\Functions\Plugin::add_event_handler('render_comment_content', 'render_comment_content');
+\Phyxo\Functions\Plugin::add_event_handler('render_comment_content', '\Phyxo\Functions\Utils::render_comment_content');
 \Phyxo\Functions\Plugin::add_event_handler('render_comment_author', 'strip_tags');
 \Phyxo\Functions\Plugin::add_event_handler('render_tag_url', '\Phyxo\Functions\Language::str2url');
-\Phyxo\Functions\Plugin::add_event_handler('blockmanager_register_blocks', 'register_default_menubar_blocks', \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL - 1);
+\Phyxo\Functions\Plugin::add_event_handler(
+    'blockmanager_register_blocks',
+    '\Phyxo\Functions\Utils::register_default_menubar_blocks',
+    \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL - 1
+);
 
 if (!empty($conf['original_url_protection'])) {
-    \Phyxo\Functions\Plugin::add_event_handler('get_element_url', 'get_element_url_protection_handler');
-    \Phyxo\Functions\Plugin::add_event_handler('get_src_image_url', 'get_src_image_url_protection_handler');
+    \Phyxo\Functions\Plugin::add_event_handler('get_element_url', '\Phyxo\Functions\URL::get_element_url_protection_handler');
+    \Phyxo\Functions\Plugin::add_event_handler('get_src_image_url', '\Phyxo\Functions\URL::get_src_image_url_protection_handler');
 }
 \Phyxo\Functions\Plugin::trigger_notify('init');

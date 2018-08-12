@@ -39,7 +39,7 @@ class Tags extends BaseRepository
             $tags[] = $row;
         }
 
-        usort($tags, 'tag_alpha_compare');
+        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
         return $tags;
     }
@@ -63,7 +63,7 @@ class Tags extends BaseRepository
             $tags[] = $row;
         }
 
-        usort($tags, 'tag_alpha_compare');
+        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
         return $tags;
     }
@@ -175,7 +175,7 @@ class Tags extends BaseRepository
             $row['validated'] = $this->conn->get_boolean($row['validated']);
             $tags[] = $row;
         }
-        usort($tags, 'tag_alpha_compare');
+        usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
         return $tags;
     }
@@ -214,9 +214,9 @@ class Tags extends BaseRepository
                 }
             }
         }
-        usort($taglist, 'tag_alpha_compare');
+        usort($taglist, '\Phyxo\Functions\Utils::tag_alpha_compare');
         if (count($altlist)) {
-            usort($altlist, 'tag_alpha_compare');
+            usort($altlist, '\Phyxo\Functions\Utils::tag_alpha_compare');
             $taglist = array_merge($taglist, $altlist);
         }
 

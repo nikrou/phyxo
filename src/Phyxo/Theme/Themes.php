@@ -361,7 +361,7 @@ class Themes extends Extensions
 
         switch ($order) {
             case 'name':
-                uasort($this->fs_themes, '\name_compare');
+                uasort($this->fs_themes, '\Phyxo\Functions\Utils::name_compare');
                 break;
             case 'status':
                 $this->sortThemesByState();
@@ -542,7 +542,7 @@ class Themes extends Extensions
     {
         $r = strcasecmp($a['author'], $b['author']);
         if ($r == 0) {
-            return \name_compare($a, $b);
+            return \Phyxo\Functions\Utils::name_compare($a, $b);
         } else {
             return $r;
         }
@@ -559,7 +559,7 @@ class Themes extends Extensions
 
     public function sortThemesByState()
     {
-        uasort($this->fs_themes, '\name_compare');
+        uasort($this->fs_themes, '\Phyxo\Functions\Utils::name_compare');
 
         $active_themes = array();
         $inactive_themes = array();

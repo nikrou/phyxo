@@ -30,7 +30,7 @@ class Conf
         $result = $conn->db_query($query);
 
         if (($conn->db_num_rows($result) == 0) and !empty($condition)) {
-            fatal_error('No configuration data');
+            \Phyxo\Functions\HTTP::fatal_error('No configuration data');
         }
 
         while ($row = $conn->db_fetch_assoc($result)) {

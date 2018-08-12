@@ -72,7 +72,7 @@ $tags = $services['tags']->getAvailableTags();
 
 if ($page['display_mode'] == 'letters') {
     // we want tags diplayed in alphabetic order
-    usort($tags, 'tag_alpha_compare');
+    usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
     $current_letter = null;
     $nb_tags = count($tags);
@@ -143,7 +143,7 @@ if ($page['display_mode'] == 'letters') {
     $tags = $services['tags']->addLevelToTags($tags);
 
     // we want tags diplayed in alphabetic order
-    usort($tags, 'tag_alpha_compare');
+    usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
     // display sorted tags
     foreach ($tags as $tag) {
@@ -170,6 +170,6 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theTagsPage', $themeconf['h
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_tags');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 $template->pparse('tags');

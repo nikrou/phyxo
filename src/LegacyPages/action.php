@@ -62,7 +62,7 @@ function guess_mime_type($ext)
 
 function do_error($code, $str)
 {
-    set_status_header($code);
+    \Phyxo\Functions\HTTP::set_status_header($code);
     echo $str;
     exit();
 }
@@ -141,7 +141,7 @@ if (!\Phyxo\Functions\URL::url_is_remote($file)) {
        $http_headers[] = 'Cache-Control: private, must-revalidate, max-age='.$max_age;*/
 
     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-        set_status_header(304);
+        \Phyxo\Functions\HTTP::set_status_header(304);
         foreach ($http_headers as $header) {
             header($header);
         }

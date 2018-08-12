@@ -23,7 +23,7 @@ include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
 
 if (!$conf['allow_web_services']) {
-    page_forbidden('Web services are disabled');
+    \Phyxo\Functions\HTTP::page_forbidden('Web services are disabled');
 }
 
 \Phxyo\Functions\Plugin::add_event_handler('ws_add_methods', 'ws_addDefaultMethods');

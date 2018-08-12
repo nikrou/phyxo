@@ -934,7 +934,7 @@ class Users extends BaseRepository
     public function checkStatus($access_type, $user_status = '')
     {
         if (!$this->isAuthorizeStatus($access_type, $user_status)) {
-            access_denied();
+            \Phyxo\Functions\HTTP::access_denied();
         }
     }
 

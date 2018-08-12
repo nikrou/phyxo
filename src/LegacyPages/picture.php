@@ -56,26 +56,26 @@ if (!isset($page['rank_of'][$page['image_id']])) {
         $query .= '.%\' ESCAPE \'/\' LIMIT 1';
     }
     if (!($row = $conn->db_fetch_assoc($conn->db_query($query)))) { // element does not exist
-        page_not_found(
+        \Phyxo\Functions\HTTP::page_not_found(
             'The requested image does not exist',
             \Phyxo\Functions\URL::duplicate_index_url()
         );
     }
     if ($row['level'] > $user['level']) {
-        access_denied();
+        \Phyxo\Functions\HTTP::access_denied();
     }
 
     $page['image_id'] = $row['id'];
     $page['image_file'] = $row['file'];
     if (!isset($page['rank_of'][$page['image_id']])) { // the image can still be non accessible (filter/cat perm) and/or not in the set
         if (!empty($filter['visible_images']) and !in_array($page['image_id'], explode(',', $filter['visible_images']))) {
-            page_not_found(
+            \Phyxo\Functions\HTTP::page_not_found(
                 'The requested image is filtered',
                 \Phyxo\Functions\URL::duplicate_index_url()
             );
         }
         if ('categories' == $page['section'] and !isset($page['category'])) { // flat view - all items
-            access_denied();
+            \Phyxo\Functions\HTTP::access_denied();
         } else { // try to see if we can access it differently
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
@@ -83,7 +83,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
             $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
             $query .= ' LIMIT 1';
             if ($conn->db_num_rows($conn->db_query($query)) == 0) {
-                access_denied();
+                \Phyxo\Functions\HTTP::access_denied();
             } else {
                 if ('best_rated' == $page['section']) {
                     $page['rank_of'][$page['image_id']] = count($page['items']);
@@ -97,7 +97,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
                             'flat' => true,
                         )
                     );
-                    set_status_header('recent_pics' == $page['section'] ? 301 : 302);
+                    \Phyxo\Functions\HTTP::set_status_header('recent_pics' == $page['section'] ? 301 : 302);
                     \Phyxo\Functions\Utils::redirect($url);
                 }
             }
@@ -422,7 +422,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     );
 
     $picture[$i] = $row;
-    $picture[$i]['TITLE'] = render_element_name($row);
+    $picture[$i]['TITLE'] = \Phyxo\Functions\Utils::render_element_name($row);
     $picture[$i]['TITLE_ESC'] = htmlspecialchars($picture[$i]['TITLE'], ENT_COMPAT, 'utf-8');
 
     if ('previous' == $i and $page['previous_item'] == $page['first_item']) {
@@ -807,7 +807,7 @@ if ($conf['picture_menu'] and (!isset($themeconf['hide_menu_on']) or !in_array('
 
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
-flush_page_messages();
+\Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 if ($page['slideshow'] and $conf['light_slideshow']) {
     $template->pparse('slideshow');
