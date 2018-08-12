@@ -11,7 +11,6 @@
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                               functions                               |
@@ -90,11 +89,11 @@ $rss->link = \Phyxo\Functions\URL::get_gallery_home_url();
 
 $news = array();
 if (!$image_only) {
-    $news = news($feed_row['last_check'], $dbnow, true, true);
+    $news = \Phyxo\Functions\Notification::news($feed_row['last_check'], $dbnow, true, true);
 
     if (count($news) > 0) {
         $item = new FeedItem();
-        $item->title = \Phyxo\Functions\Language::l10n('New on %s', format_date($dbnow));
+        $item->title = \Phyxo\Functions\Language::l10n('New on %s', \Phyxo\Functions\DateTime::format_date($dbnow));
         $item->link = \Phyxo\Functions\URL::get_gallery_home_url();
 
         // content creation
@@ -125,12 +124,12 @@ if (!empty($feed_id) and empty($news)) {// update the last check from time to ti
     }
 }
 
-$dates = get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
+$dates = \Phyxo\Functions\Notification::get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
 
 foreach ($dates as $date_detail) { // for each recent post date we create a feed item
     $item = new FeedItem();
     $date = $date_detail['date_available'];
-    $item->title = get_title_recent_post_date($date_detail);
+    $item->title = \Phyxo\Functions\Notification::get_title_recent_post_date($date_detail);
     $item->link = \Phyxo\Functions\URL::make_index_url(
         array(
             'chronology_field' => 'posted',
@@ -141,7 +140,7 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
     );
 
     $item->description .= '<a href="' . \Phyxo\Functions\URL::make_index_url() . '">' . $conf['gallery_title'] . '</a><br> ';
-    $item->description .= get_html_description_recent_post_date($date_detail);
+    $item->description .= \Phyxo\Functions\Notification::get_html_description_recent_post_date($date_detail);
 
     $item->descriptionHtmlSyndicated = true;
 

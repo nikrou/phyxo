@@ -114,4 +114,26 @@ class SQL
             . ',' . $conn->db_get_recent_period_expression(1, $user['last_photo_date']) . ')';
     }
 
+    /**
+     * Get standard sql where in order to restrict and filter categories and images.
+     * IMAGE_CATEGORY_TABLE must be named "ic" in the query
+     *
+     * @param string $prefix_condition
+     * @param string $img_field
+     * @param bool $force_one_condition
+     * @return string
+     */
+    public static function get_std_sql_where_restrict_filter($prefix_condition, $img_field = 'ic.image_id', $force_one_condition = false)
+    {
+        return self::get_sql_condition_FandF(
+            array(
+                'forbidden_categories' => 'ic.category_id',
+                'visible_categories' => 'ic.category_id',
+                'visible_images' => $img_field
+            ),
+            $prefix_condition,
+            $force_one_condition
+        );
+    }
+
 }

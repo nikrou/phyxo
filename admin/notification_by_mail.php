@@ -18,13 +18,22 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions_notification_by_mail.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
 
 define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');
 
 use Phyxo\TabSheet\TabSheet;
+
+/* nbm_global_var */
+$env_nbm = array(
+    'start_time' => microtime(true),
+    'sendmail_timeout' => (intval(ini_get('max_execution_time')) * $conf['nbm_max_treatment_timeout_percent']),
+    'is_sendmail_timeout' => false
+);
+
+if ((!isset($env_nbm['sendmail_timeout'])) or (!is_numeric($env_nbm['sendmail_timeout'])) or ($env_nbm['sendmail_timeout'] <= 0)) {
+    $env_nbm['sendmail_timeout'] = $conf['nbm_treatment_timeout_default'];
+}
 
 $must_repost = false;
 
@@ -53,18 +62,16 @@ $template->assign([
     'U_PAGE' => NOTIFICATION_BY_MAIL_BASE_URL,
 ]);
 
-$services['users']->checkStatus(get_tab_status($page['section']));
-
 // +-----------------------------------------------------------------------+
 // | Add event handler                                                     |
 // +-----------------------------------------------------------------------+
-\Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', 'render_global_customize_mail_content');
+\Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', '\Phyxo\Functions\Notification::render_global_customize_mail_content');
 \Phyxo\Functions\Plugin::trigger_notify('nbm_event_handler_added');
 
 
 if (!isset($_POST) or (count($_POST) == 0)) {
     // No insert data in post mode
-    insert_new_data_user_mail_notification();
+    \Phyxo\Functions\Notification::insert_new_data_user_mail_notification();
 }
 
 // +-----------------------------------------------------------------------+

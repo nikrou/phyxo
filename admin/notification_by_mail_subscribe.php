@@ -14,11 +14,11 @@ if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
 }
 
 if (isset($_POST['falsify']) and isset($_POST['cat_true'])) {
-    $check_key_treated = unsubscribe_notification_by_mail(true, $_POST['cat_true']);
-    do_timeout_treatment('cat_true', $check_key_treated);
+    $check_key_treated = \Phyxo\Functions\Notification::unsubscribe_notification_by_mail(true, $_POST['cat_true']);
+    \Phyxo\Functions\Notification::do_timeout_treatment('cat_true', $check_key_treated);
 } elseif (isset($_POST['trueify']) and isset($_POST['cat_false'])) {
-    $check_key_treated = subscribe_notification_by_mail(true, $_POST['cat_false']);
-    do_timeout_treatment('cat_false', $check_key_treated);
+    $check_key_treated = \Phyxo\Functions\Notification::subscribe_notification_by_mail(true, $_POST['cat_false']);
+    \Phyxo\Functions\Notification::do_timeout_treatment('cat_false', $check_key_treated);
 }
 
 $template->assign($page['section'], true);
@@ -30,7 +30,7 @@ $template->assign(
     )
 );
 
-$data_users = get_user_notifications('subscribe');
+$data_users = \Phyxo\Functions\Notification::get_user_notifications('subscribe');
 
 $opt_true = array();
 $opt_true_selected = array();

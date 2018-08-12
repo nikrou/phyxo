@@ -186,7 +186,7 @@ class Mail
      */
     public static function get_mail_template($email_format)
     {
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', 'default', 'template/mail/' . $email_format);
+        $template = new \Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', 'default', 'template/mail/' . $email_format);
         return $template;
     }
 
@@ -485,7 +485,7 @@ class Mail
             $conf_mail = self::get_mail_configuration();
         }
 
-        $message = new Swift_Message();
+        $message = new \Swift_Message();
         foreach (self::get_clean_recipients_list($to) as $recipient) {
             $message->addTo($recipient['email'], $recipient['name']);
         }
@@ -578,7 +578,7 @@ class Mail
             if (!isset($conf_mail[$cache_key])) {
                 // instanciate a new Template
                 if (!isset($conf_mail[$cache_key]['theme'])) {
-                    $conf_mail[$cache_key]['theme'] = get_mail_template($content_type);
+                    $conf_mail[$cache_key]['theme'] = self::get_mail_template($content_type);
                     \Phyxo\Functions\Plugin::trigger_notify('before_parse_mail_template', $cache_key, $content_type);
                 }
                 $template = &$conf_mail[$cache_key]['theme'];
@@ -688,7 +688,7 @@ class Mail
                 $smtp_port = 25;
             }
 
-            $mail_transport = new Swift_SmtpTransport($smtp_host, $smtp_port);
+            $mail_transport = new \Swift_SmtpTransport($smtp_host, $smtp_port);
             if (!empty($conf_mail['smtp_secure']) and in_array($conf_mail['smtp_secure'], array('ssl', 'tls'))) {
                 $mail_transport->setSecurity($conf_mail['smtp_secure']);
             }
@@ -698,11 +698,11 @@ class Mail
                 $mail_transport->setPassword($conf_mail['smtp_password']);
             }
         } else {
-            $mail_transport = new Swift_SendmailTransport();
+            $mail_transport = new \Swift_SendmailTransport();
         }
 
         try {
-            $mailer = new Swift_Mailer($mail_transport);
+            $mailer = new \Swift_Mailer($mail_transport);
             $pre_result = \Phyxo\Functions\Plugin::trigger_change('before_send_mail', true, $to, $args, $mailer);
             $result = $mailer->send($message);
         } catch (\Exception $e) {
