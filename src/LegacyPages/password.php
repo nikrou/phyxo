@@ -15,7 +15,6 @@
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -107,7 +106,7 @@ function process_password_request()
         'email_format' => 'text/plain',
     );
 
-    if (pwg_mail($userdata['email'], $email_params)) {
+    if (\Phyxo\Functions\Mail::mail($userdata['email'], $email_params)) {
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
         return true;
     } else {

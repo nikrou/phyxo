@@ -13,8 +13,6 @@ if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_cat_modify');
 
 //---------------------------------------------------------------- verification

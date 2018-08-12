@@ -194,8 +194,6 @@ class Comments extends BaseRepository
 
             if (($conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 or ($conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
-                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
 
                 $keyargs_content = array(
@@ -210,7 +208,7 @@ class Comments extends BaseRepository
                     $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation');
                 }
 
-                pwg_mail_notification_admins(
+                \Phyxo\Functions\Mail::mail_notification_admins(
                     \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($comm['author'])),
                     $keyargs_content
                 );
@@ -352,8 +350,6 @@ class Comments extends BaseRepository
 
             // mail admin and ask to validate the comment
             if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
-                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
                 $keyargs_content = array(
@@ -364,7 +360,7 @@ class Comments extends BaseRepository
                     \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation'),
                 );
 
-                pwg_mail_notification_admins(
+                \Phyxo\Functions\Mail::mail_notification_admins(
                     \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($GLOBALS['user']['username'])),
                     $keyargs_content
                 );
@@ -413,7 +409,7 @@ class Comments extends BaseRepository
 
     /**
      * Notifies admins about updated or deleted comment.
-     * Only used when no validation is needed, otherwise pwg_mail_notification_admins() is used.
+     * Only used when no validation is needed, otherwise \Phyxo\Functions\Mail::mail_notification_admins() is used.
      *
      * @param string $action edit, delete
      * @param array $comment
@@ -430,8 +426,6 @@ class Comments extends BaseRepository
             return;
         }
 
-        include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
         $keyargs_content = array(\Phyxo\Functions\Language::l10n_args('Author: %s', $comment['author']));
 
         if ($action == 'delete') {
@@ -441,7 +435,7 @@ class Comments extends BaseRepository
             $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('Comment: %s', $comment['content']);
         }
 
-        pwg_mail_notification_admins(
+        \Phyxo\Functions\Mail::mail_notification_admins(
             \Phyxo\Functions\Language::get_l10n_args('Comment by %s', $comment['author']),
             $keyargs_content
         );

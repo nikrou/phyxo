@@ -13,7 +13,6 @@ if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 // +-----------------------------------------------------------------------+
@@ -53,7 +52,7 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
         $img_url = '';
     }
 
-    pwg_mail_group(
+    \Phyxo\Functions\Mail::mail_group(
         $_POST['group'],
         array(
             'subject' => \Phyxo\Functions\Language::l10n(

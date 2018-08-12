@@ -173,15 +173,14 @@ function save_profile_from_post($userdata, &$errors)
 
                     // send email to the user
                     if ($_POST['username'] != $userdata['username']) {
-                        include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-                        switch_lang_to($userdata['language']);
+                        \Phyxo\Functions\Mail::switch_lang_to($userdata['language']);
 
                         $keyargs_content = array(
                             \Phyxo\Functions\Language::get_l10n_args('Hello', ''),
                             \Phyxo\Functions\Language::get_l10n_args('Your username has been successfully changed to : %s', $_POST['username']),
                         );
 
-                        pwg_mail(
+                        \Phyxo\Functions\Mail::mail(
                             $_POST['mail_address'],
                             array(
                                 'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Username modification'),
@@ -190,7 +189,7 @@ function save_profile_from_post($userdata, &$errors)
                             )
                         );
 
-                        switch_lang_back();
+                        \Phyxo\Functions\Mail::switch_lang_back();
                     }
                 }
             }

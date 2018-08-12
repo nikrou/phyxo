@@ -21,7 +21,6 @@ include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_notification_by_mail.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include_once(PHPWG_ROOT_PATH . 'include/functions_notification.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
 
 define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');
 

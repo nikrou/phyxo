@@ -346,8 +346,6 @@ if ($step == 1) {
 
         // email notification
         if (isset($_POST['send_password_by_mail'])) {
-            include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
             $keyargs_content = array(
                 \Phyxo\Functions\Language::get_l10n_args('Hello %s,', $admin_name),
                 \Phyxo\Functions\Language::get_l10n_args('Welcome to your new installation of Phyxo!', ''),
@@ -360,7 +358,7 @@ if ($step == 1) {
                 \Phyxo\Functions\Language::get_l10n_args('Email: %s', $admin_mail)
             );
 
-            pwg_mail(
+            \Phyxo\Functions\Mail::mail(
                 $admin_mail,
                 array(
                     'subject' => \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'),

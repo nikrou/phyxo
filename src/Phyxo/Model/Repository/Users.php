@@ -200,7 +200,6 @@ class Users extends BaseRepository
             $this->createUserInfos($user_id, $override);
 
             if ($notify_admin and $conf['email_admin_on_new_user']) {
-                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
                 $admin_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'admin/index.php?page=user_list&username=' . $login;
 
                 $keyargs_content = array(
@@ -210,15 +209,13 @@ class Users extends BaseRepository
                     \Phyxo\Functions\Language::get_l10n_args('Admin: %s', $admin_url),
                 );
 
-                pwg_mail_notification_admins(
+                \Phyxo\Functions\Mail::mail_notification_admins(
                     \Phyxo\Functions\Language::get_l10n_args('Registration of %s', stripslashes($login)),
                     $keyargs_content
                 );
             }
 
             if ($notify_user && \Phyxo\Functions\Utils::email_check_format($mail_address)) {
-                include_once(PHPWG_ROOT_PATH . 'include/functions_mail.inc.php');
-
                 $keyargs_content = array(
                     \Phyxo\Functions\Language::get_l10n_args('Hello %s,', stripslashes($login)),
                     \Phyxo\Functions\Language::get_l10n_args('Thank you for registering at %s!', $conf['gallery_title']),
@@ -234,7 +231,7 @@ class Users extends BaseRepository
                     ),
                 );
 
-                pwg_mail(
+                \Phyxo\Functions\Mail::mail(
                     $mail_address,
                     array(
                         'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Registration'),

@@ -140,16 +140,16 @@ function begin_users_env_nbm($is_to_send_mail = false)
     // Save $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
     $env_nbm['save_user'] = $user;
     // Save current language to stack, necessary because $user change during NBM
-    switch_lang_to($user['language']);
+    \Phyxo\Functions\Mail::switch_lang_to($user['language']);
 
     $env_nbm['is_to_send_mail'] = $is_to_send_mail;
 
     if ($is_to_send_mail) {
         // Init mail configuration
-        $env_nbm['email_format'] = get_str_email_format($conf['nbm_send_html_mail']);
-        $env_nbm['send_as_name'] = !empty($conf['nbm_send_mail_as']) ? $conf['nbm_send_mail_as'] : get_mail_sender_name();
+        $env_nbm['email_format'] = \Phyxo\Functions\Mail::get_str_email_format($conf['nbm_send_html_mail']);
+        $env_nbm['send_as_name'] = !empty($conf['nbm_send_mail_as']) ? $conf['nbm_send_mail_as'] : \Phyxo\Functions\Mail::get_mail_sender_name();
         $env_nbm['send_as_mail_address'] = \Phyxo\Functions\Utils::get_webmaster_mail_address();
-        $env_nbm['send_as_mail_formated'] = format_email($env_nbm['send_as_name'], $env_nbm['send_as_mail_address']);
+        $env_nbm['send_as_mail_formated'] = \Phyxo\Functions\Mail::format_email($env_nbm['send_as_name'], $env_nbm['send_as_mail_address']);
         // Init mail counter
         $env_nbm['error_on_mail_count'] = 0;
         $env_nbm['sent_mail_count'] = 0;
@@ -172,7 +172,7 @@ function end_users_env_nbm()
     // Restore $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
     $user = $env_nbm['save_user'];
     // Restore current language to stack, necessary because $user change during NBM
-    switch_lang_back();
+    \Phyxo\Functions\Mail::switch_lang_back();
 
     if ($env_nbm['is_to_send_mail']) {
         unset($env_nbm['email_format']);
@@ -201,10 +201,10 @@ function set_user_on_env_nbm(&$nbm_user, $is_action_send)
 
     $user = $services['users']->buildUser($nbm_user['user_id'], true);
 
-    switch_lang_to($user['language']);
+    \Phyxo\Functions\Mail::switch_lang_to($user['language']);
 
     if ($is_action_send) {
-        $env_nbm['mail_template'] = get_mail_template($env_nbm['email_format']);
+        $env_nbm['mail_template'] = \Phyxo\Functions\Mail::get_mail_template($env_nbm['email_format']);
         $env_nbm['mail_template']->set_filename('notification_by_mail', 'notification_by_mail.tpl');
     }
 }
@@ -218,7 +218,7 @@ function unset_user_on_env_nbm()
 {
     global $env_nbm;
 
-    switch_lang_back();
+    \Phyxo\Functions\Mail::switch_lang_back();
     unset($env_nbm['mail_template']);
 }
 
@@ -370,7 +370,7 @@ function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_su
                     )
                 );
 
-                $ret = pwg_mail(
+                $ret = \Phyxo\Functions\Mail::mail(
                     array(
                         'name' => stripslashes($nbm_user['username']),
                         'email' => $nbm_user['mail_address'],
@@ -739,7 +739,7 @@ function do_action_send_mail_notification($action = 'list_to_send', $check_key_l
                                 )
                             );
 
-                            $ret = pwg_mail(
+                            $ret = \Phyxo\Functions\Mail::mail(
                                 array(
                                     'name' => stripslashes($nbm_user['username']),
                                     'email' => $nbm_user['mail_address'],
