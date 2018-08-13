@@ -487,12 +487,12 @@ function ws_images_rate($params, $service)
         return new Phyxo\Ws\Error(404, 'Invalid image_id or access denied');
     }
 
-    include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
-    $res = rate_picture($params['image_id'], (int)$params['rate']);
+    $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
 
     if ($res == false) {
         return new Phyxo\Ws\Error(403, 'Forbidden or rate not in ' . implode(',', $conf['rate_items']));
     }
+
     return $res;
 }
 

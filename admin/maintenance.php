@@ -60,8 +60,7 @@ switch ($action) {
         {
             images_integrity();
             update_path();
-            include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
-            update_rating_score();
+            \Phyxo\Functions\Rate::update_rating_score();
             invalidate_user_cache();
             break;
         }

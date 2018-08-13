@@ -229,8 +229,7 @@ function ws_rates_delete($params, &$service)
 
     $changes = $conn->db_changes($conn->db_query($query));
     if ($changes) {
-        include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
-        update_rating_score();
+        \Phyxo\Functions\Rate::update_rating_score();
     }
 
     return $changes;

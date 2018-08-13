@@ -264,8 +264,7 @@ if (isset($_GET['action'])) {
             }
         case 'rate':
             {
-                include_once(PHPWG_ROOT_PATH . 'include/functions_rate.inc.php');
-                rate_picture($page['image_id'], $_POST['rate']);
+                \Phyxo\Functions\Rate::rate_picture($page['image_id'], $_POST['rate']);
                 \Phyxo\Functions\Utils::redirect($url_self);
             }
         case 'edit_comment':

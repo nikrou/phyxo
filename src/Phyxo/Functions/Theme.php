@@ -27,7 +27,7 @@ class Theme
         $query = 'SELECT id, name FROM ' . THEMES_TABLE . ' ORDER BY name ASC;';
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
-            if (check_theme_installed($row['id'])) {
+            if (self::check_theme_installed($row['id'])) {
                 $themes[$row['id']] = $row['name'];
             }
         }
