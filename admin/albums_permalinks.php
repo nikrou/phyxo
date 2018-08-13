@@ -13,15 +13,13 @@ if (!defined("ALBUMS_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions_permalinks.php');
-
 $selected_cat = array();
 if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
     $permalink = $_POST['permalink'];
     if (empty($permalink)) {
-        delete_cat_permalink($_POST['cat_id'], isset($_POST['save']));
+        \Phyxo\Functions\Permalink::delete_cat_permalink($_POST['cat_id'], isset($_POST['save']));
     } else {
-        set_cat_permalink($_POST['cat_id'], $permalink, isset($_POST['save']));
+        \Phyxo\Functions\Permalink::set_cat_permalink($_POST['cat_id'], $permalink, isset($_POST['save']));
     }
     $selected_cat = array($_POST['cat_id']);
 } elseif (isset($_GET['delete_permanent'])) {
@@ -37,7 +35,7 @@ $query = 'SELECT id,permalink,name,uppercats,global_rank FROM ' . CATEGORIES_TAB
 \Phyxo\Functions\Category::display_select_cat_wrapper($query, $selected_cat, 'categories', false);
 
 // --- generate display of active permalinks -----------------------------------
-$sort_by = parse_sort_variables(
+$sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
     array('id', 'name', 'permalink'),
     'name',
     'psf',
@@ -63,7 +61,7 @@ $template->assign('permalinks', $categories);
 
 // --- generate display of old permalinks --------------------------------------
 
-$sort_by = parse_sort_variables(
+$sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
     array('cat_id', 'permalink', 'date_deleted', 'last_hit', 'hit'),
     null,
     'dpsf',

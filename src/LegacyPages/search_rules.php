@@ -16,7 +16,6 @@
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
-include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
 
 /**
  * returns language value 'included' or 'excluded' depending on boolean
