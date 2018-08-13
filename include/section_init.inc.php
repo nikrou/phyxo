@@ -259,9 +259,7 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         // |                           search section                              |
         // +-----------------------------------------------------------------------+
-        include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
-
-        $search_result = get_search_results($page['search'], @$page['super_order_by']);
+        $search_result = \Phyxo\Functions\Search::get_search_results($page['search'], @$page['super_order_by']);
         //save the details of the query search
         if (isset($search_result['qs'])) {
             $page['qsearch_details'] = $search_result['qs'];

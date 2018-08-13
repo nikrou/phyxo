@@ -159,7 +159,7 @@ ksort($month_list);
 
 $template->assign(
     array(
-        'F_SEARCH_ACTION' => 'search.php',
+        'F_SEARCH_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'search.php',
         'month_list' => $month_list,
         'START_DAY_SELECTED' => @$_POST['start_day'],
         'START_MONTH_SELECTED' => @$_POST['start_month'],

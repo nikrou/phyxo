@@ -137,7 +137,7 @@ class DateTime
             return \Phyxo\Functions\Language::l10n('N/A');
         }
 
-        $now = new DateTime();
+        $now = new \DateTime();
         $diff = $now->diff($date);
 
         $chunks = array(

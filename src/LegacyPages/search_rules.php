@@ -45,7 +45,7 @@ include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 // Rules are stored in database, serialized in an array. This array must be
 // transformed into a list of textual rules.
 
-$search = get_search_array($_GET['search_id']);
+$search = \Phyxo\Functions\Search::get_search_array($_GET['search_id']);
 
 if (isset($search['q'])) {
     $template->append('search_words', $search['q']);

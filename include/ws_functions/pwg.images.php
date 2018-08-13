@@ -509,8 +509,6 @@ function ws_images_search($params, $service)
 {
     global $conn;
 
-    include_once(PHPWG_ROOT_PATH . 'include/functions_search.inc.php');
-
     $images = array();
     $where_clauses = ws_std_image_sql_filter($params, 'i.');
     $order_by = ws_std_image_sql_order($params, 'i.');
@@ -522,7 +520,7 @@ function ws_images_search($params, $service)
         $super_order_by = true; // quick_search_result might be faster
     }
 
-    $search_result = get_quick_search_results(
+    $search_result = \Phyxo\Functions\Search::get_quick_search_results(
         $params['query'],
         array(
             'super_order_by' => $super_order_by,

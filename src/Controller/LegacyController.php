@@ -32,7 +32,7 @@ class LegacyController extends Controller
         $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/search/$start_id";
+        $_SERVER['PATH_INFO'] = "/search/$search_id";
 
         if (!is_null($start_id)) {
             $_SERVER['PATH_INFO'] .= "/$start_id";
@@ -71,6 +71,16 @@ class LegacyController extends Controller
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type . '/' . $element_id;
+
+        return $this->doResponse($legacy_file);
+    }
+
+    public function imagesBySearch(Request $request, $image_id, $search_id)
+    {
+        $legacy_file = sprintf('%s/picture.php', $this->container->getParameter('legacy_base_dir'));
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = '/' . $image_id . '/search' . $search_id;
 
         return $this->doResponse($legacy_file);
     }
