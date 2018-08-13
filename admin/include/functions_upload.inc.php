@@ -395,7 +395,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
     if ($conf['use_exif'] and !function_exists('exif_read_data')) {
         $conf['use_exif'] = false;
     }
-    sync_metadata(array($image_id));
+    \Phyxo\Functions\Metadata::sync_metadata(array($image_id));
 
     invalidate_user_cache();
 

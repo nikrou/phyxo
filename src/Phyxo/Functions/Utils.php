@@ -1082,4 +1082,47 @@ class Utils
         }
     }
 
+    /**
+     * Returns an array associating element id (images.id) with its complete
+     * path in the filesystem
+     *
+     * @param int $category_id
+     * @param int $site_id
+     * @param boolean $recursive
+     * @param boolean $only_new
+     * @return array
+     */
+    public static function get_filelist($category_id = '', $site_id = 1, $recursive = false, $only_new = false)
+    {
+        global $conn;
+
+        // filling $cat_ids : all categories required
+        $cat_ids = array();
+
+        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE site_id = ' . $site_id . ' AND dir IS NOT NULL';
+        if (is_numeric($category_id)) {
+            if ($recursive) {
+                $query .= ' AND uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $category_id . '(,|$)\'';
+            } else {
+                $query .= ' AND id = ' . $category_id;
+            }
+        }
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            $cat_ids[] = $row['id'];
+        }
+
+        if (count($cat_ids) == 0) {
+            return array();
+        }
+
+        $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE storage_category_id ' . $conn->in($cat_ids);
+        if ($only_new) {
+            $query .= ' AND date_metadata_update IS NULL';
+        }
+
+        return $conn->query2array($query, 'id');
+    }
 }

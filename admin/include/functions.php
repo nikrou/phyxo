@@ -13,8 +13,6 @@
  * @package functions\admin\
  */
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions_metadata.php');
-
 /**
  * Generates a pseudo random string.
  * Characters used are a-z A-Z and numerical values.

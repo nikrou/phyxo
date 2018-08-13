@@ -135,13 +135,13 @@ class LocalSiteReader
     // metadata update/synchronization according to configuration
     public function get_metadata_attributes()
     {
-        return get_sync_metadata_attributes();
+        return \Phyxo\Functions\Metadata::get_sync_metadata_attributes();
     }
 
     // returns a hash of attributes (metadata+filesize+width,...) for file
     public function get_element_metadata($infos)
     {
-        return get_sync_metadata($infos);
+        return \Phyxo\Functions\Metadata::get_sync_metadata($infos);
     }
 
     //-------------------------------------------------- private functions --------

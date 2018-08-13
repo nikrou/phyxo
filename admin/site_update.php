@@ -497,7 +497,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 $opts['recursive'] = false;
             }
         }
-        $files = get_filelist($opts['category_id'], $site_id, $opts['recursive'], false);
+        $files = \Phyxo\Functions\Utils::get_filelist($opts['category_id'], $site_id, $opts['recursive'], false);
         $template->append('footer_elements', '<!-- get_filelist : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
         $start = microtime(true);
 
@@ -563,7 +563,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
         }
     }
     $start = microtime(true);
-    $files = get_filelist(
+    $files = \Phyxo\Functions\Utils::get_filelist(
         $opts['category_id'],
         $site_id,
         $opts['recursive'],

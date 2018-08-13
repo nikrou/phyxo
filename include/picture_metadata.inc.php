@@ -14,15 +14,13 @@
  *
  */
 
-
-include_once(PHPWG_ROOT_PATH . '/include/functions_metadata.inc.php');
 if (($conf['show_exif']) and (function_exists('exif_read_data'))) {
     $exif_mapping = array();
     foreach ($conf['show_exif_fields'] as $field) {
         $exif_mapping[$field] = $field;
     }
 
-    $exif = get_exif_data($picture['current']['src_image']->get_path(), $exif_mapping);
+    $exif = \Phyxo\Functions\Metadata::get_exif_data($picture['current']['src_image']->get_path(), $exif_mapping);
 
     if (count($exif) > 0) {
         $tpl_meta = array(
@@ -55,7 +53,7 @@ if (($conf['show_exif']) and (function_exists('exif_read_data'))) {
 }
 
 if ($conf['show_iptc']) {
-    $iptc = get_iptc_data($picture['current']['src_image']->get_path(), $conf['show_iptc_mapping'], ', ');
+    $iptc = \Phyxo\Functions\Metadata::get_iptc_data($picture['current']['src_image']->get_path(), $conf['show_iptc_mapping'], ', ');
 
     if (count($iptc) > 0) {
         $tpl_meta = array(

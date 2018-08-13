@@ -1024,8 +1024,7 @@ function ws_images_addSimple($params, $service)
 
     // update metadata from the uploaded file (exif/iptc), even if the sync
     // was already performed by add_uploaded_file().
-    require_once(PHPWG_ROOT_PATH . 'admin/include/functions_metadata.php');
-    sync_metadata(array($image_id));
+    \Phyxo\Functions\Metadata::sync_metadata(array($image_id));
 
     return array(
         'image_id' => $image_id,

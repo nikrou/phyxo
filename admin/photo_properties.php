@@ -75,7 +75,7 @@ if (isset($_GET['delete'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['sync_metadata'])) {
-    sync_metadata(array(intval($_GET['image_id'])));
+    \Phyxo\Functions\Metadata::sync_metadata(array(intval($_GET['image_id'])));
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
 }
 

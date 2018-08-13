@@ -259,7 +259,7 @@ if (isset($_POST['submit'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('You need to confirm deletion');
         }
     } elseif ('metadata' == $action) {
-        sync_metadata($collection);
+        \Phyxo\Functions\Metadata::sync_metadata($collection);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
     } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
         $query = 'SELECT path,representative_ext FROM ' . IMAGES_TABLE;
