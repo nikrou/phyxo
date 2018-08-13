@@ -12,7 +12,6 @@
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include(PHPWG_ROOT_PATH . 'include/section_init.inc.php');
-include_once(PHPWG_ROOT_PATH . 'include/functions_picture.inc.php');
 
 // Check Access and exit when user status is not ok
 $services['users']->checkStatus(ACCESS_GUEST);
@@ -440,8 +439,8 @@ if (isset($_GET['slideshow'])) {
     $page['slideshow'] = true;
     $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
 
-    $slideshow_params = decode_slideshow_params($_GET['slideshow']);
-    $slideshow_url_params['slideshow'] = encode_slideshow_params($slideshow_params);
+    $slideshow_params = \Phyxo\Functions\Utils::decode_slideshow_params($_GET['slideshow']);
+    $slideshow_url_params['slideshow'] = \Phyxo\Functions\Utils::encode_slideshow_params($slideshow_params);
 
     if ($slideshow_params['play']) {
         $id_pict_redirect = '';
@@ -532,13 +531,13 @@ if ($page['slideshow']) {
 
         $tpl_slideshow[$var_name] = \Phyxo\Functions\URL::add_url_params(
             $picture['current']['url'],
-            array('slideshow' => encode_slideshow_params(array_merge($slideshow_params, array($p => !$slideshow_params[$p]))))
+            array('slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params(array_merge($slideshow_params, array($p => !$slideshow_params[$p]))))
         );
     }
 
     foreach (array('dec', 'inc') as $op) {
         $new_period = $slideshow_params['period'] + ((($op == 'dec') ? -1 : 1) * $conf['slideshow_period_step']);
-        $new_slideshow_params = correct_slideshow_params(
+        $new_slideshow_params = \Phyxo\Functions\Utils::correct_slideshow_params(
             array_merge(
                 $slideshow_params,
                 array('period' => $new_period)
@@ -549,7 +548,7 @@ if ($page['slideshow']) {
             $var_name = 'U_' . strtoupper($op) . '_PERIOD';
             $tpl_slideshow[$var_name] = \Phyxo\Functions\URL::add_url_params(
                 $picture['current']['url'],
-                array('slideshow' => encode_slideshow_params($new_slideshow_params))
+                array('slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params($new_slideshow_params))
             );
         }
     }
