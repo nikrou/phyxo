@@ -13,8 +13,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -78,7 +76,7 @@ if (isset($_GET['action']) and isset($page['site'])) {
     $query = 'SELECT galleries_url FROM ' . SITES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($page['site']);
     list($galleries_url) = $conn->db_fetch_row($conn->db_query($query));
     if ($_GET['action'] == 'delete') {
-        delete_site($page['site']);
+        \Phyxo\Functions\Utils::delete_site($page['site']);
         $page['infos'][] = $galleries_url . ' ' . \Phyxo\Functions\Language::l10n('deleted');
     }
 }

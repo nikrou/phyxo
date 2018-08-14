@@ -17,7 +17,6 @@ require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\Theme\Themes;
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (empty($_GET['theme'])) {

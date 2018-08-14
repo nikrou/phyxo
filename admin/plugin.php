@@ -13,7 +13,6 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 $sections = explode('/', $_GET['section'] );

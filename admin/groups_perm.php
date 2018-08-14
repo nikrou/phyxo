@@ -13,8 +13,6 @@ if (!defined("GROUPS_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // |                            variables init                             |
 // +-----------------------------------------------------------------------+
@@ -34,7 +32,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         $query .= ' WHERE group_id = ' . $page['group'] . ' AND cat_id ' . $conn->in($subcats);
         $conn->db_query($query);
     } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
-        $uppercats = get_uppercat_ids($_POST['cat_false']);
+        $uppercats = \Phyxo\Functions\Category::get_uppercat_ids($_POST['cat_false']);
         $private_uppercats = array();
 
         $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -66,7 +64,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         }
 
         $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $inserts);
-        invalidate_user_cache();
+        \Phyxo\Functions\Utils::invalidate_user_cache();
     }
 
     // +-----------------------------------------------------------------------+
@@ -80,7 +78,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
             'TITLE' =>
                 \Phyxo\Functions\Language::l10n(
                 'Manage permissions for group "%s"',
-                get_groupname($page['group'])
+                \Phyxo\Functions\Utils::get_groupname($page['group'])
             ),
             'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
             'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),

@@ -98,7 +98,7 @@ class Languages extends Extensions
                 $query .= ' WHERE language = \'' . $language_id . '\';';
                 $this->conn->db_query($query);
 
-                deltree(PHPWG_ROOT_PATH . 'language/' . $language_id, PHPWG_ROOT_PATH . 'language/trash');
+                \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . 'language/' . $language_id, PHPWG_ROOT_PATH . 'language/trash');
                 break;
 
             case 'set_default':

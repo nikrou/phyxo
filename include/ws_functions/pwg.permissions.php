@@ -129,10 +129,8 @@ function ws_permissions_add($params, &$service)
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     if (!empty($params['group_id'])) {
-        $cat_ids = get_uppercat_ids($params['cat_id']);
+        $cat_ids = \Phyxo\Functions\Category::get_uppercat_ids($params['cat_id']);
         if ($params['recursive']) {
             $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']));
         }
@@ -161,7 +159,7 @@ function ws_permissions_add($params, &$service)
 
     if (!empty($params['user_id'])) {
         if ($params['recursive']) $_POST['apply_on_sub'] = true;
-        add_permission_on_category($params['cat_id'], $params['user_id']);
+        \Phyxo\Functions\Category::add_permission_on_category($params['cat_id'], $params['user_id']);
     }
 
     return $service->invoke('pwg.permissions.getList', array('cat_id' => $params['cat_id']));
@@ -182,8 +180,6 @@ function ws_permissions_remove($params, &$service)
     if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
-
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
     $cat_ids = \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']);
 

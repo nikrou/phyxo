@@ -138,7 +138,7 @@ if (count($errors) == 0) {
     \Phyxo\Image\ImageStdParams::save();
 
     if (count($changed_types)) {
-        clear_derivative_cache($changed_types);
+        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);
     }
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');

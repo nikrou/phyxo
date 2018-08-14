@@ -13,7 +13,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
@@ -257,7 +256,7 @@ if (isset($_POST['submit'])) {
 if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings' == $_GET['action']) {
     \Phyxo\Image\ImageStdParams::set_and_save(\Phyxo\Image\ImageStdParams::get_default_sizes());
     \Phyxo\Functions\Conf::conf_delete_param('disabled_derivatives');
-    clear_derivative_cache();
+    \Phyxo\Functions\Utils::clear_derivative_cache();
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');
 }

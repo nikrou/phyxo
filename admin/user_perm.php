@@ -13,8 +13,6 @@ if (!defined('IN_ADMIN')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -42,7 +40,7 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
     $query .= ' WHERE user_id = ' . $page['user'] . ' AND cat_id ' . $conn->in($subcats);
     $conn->db_query($query);
 } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
-    add_permission_on_category($_POST['cat_false'], $page['user']);
+    \Phyxo\Functions\Category::add_permission_on_category($_POST['cat_false'], $page['user']);
 }
 
 // +-----------------------------------------------------------------------+
@@ -57,7 +55,7 @@ $template->assign(
         'TITLE' =>
             \Phyxo\Functions\Language::l10n(
             'Manage permissions for user "%s"',
-            get_username($page['user'])
+            \Phyxo\Functions\Utils::get_username($page['user'])
         ),
         'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
         'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),

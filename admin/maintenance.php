@@ -15,8 +15,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\Template\FileCombiner;
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -49,19 +47,19 @@ switch ($action) {
         }
     case 'categories':
         {
-            images_integrity();
-            update_uppercats();
+            \Phyxo\Functions\Utils::images_integrity();
+            \Phyxo\Functions\Category::update_uppercats();
             \Phyxo\Functions\Category::update_category('all');
-            update_global_rank();
-            invalidate_user_cache(true);
+            \Phyxo\Functions\Utils::update_global_rank();
+            \Phyxo\Functions\Utils::invalidate_user_cache(true);
             break;
         }
     case 'images':
         {
-            images_integrity();
-            update_path();
+            \Phyxo\Functions\Utils::images_integrity();
+            \Phyxo\Functions\Utils::update_path();
             \Phyxo\Functions\Rate::update_rating_score();
-            invalidate_user_cache();
+            \Phyxo\Functions\Utils::invalidate_user_cache();
             break;
         }
     case 'delete_orphan_tags':
@@ -71,7 +69,7 @@ switch ($action) {
         }
     case 'user_cache':
         {
-            invalidate_user_cache();
+            \Phyxo\Functions\Utils::invalidate_user_cache();
             break;
         }
     case 'history_detail':
@@ -121,7 +119,7 @@ switch ($action) {
         }
     case 'derivatives':
         {
-            clear_derivative_cache($_GET['type']);
+            \Phyxo\Functions\Utils::clear_derivative_cache($_GET['type']);
             break;
         }
     default:

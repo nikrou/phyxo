@@ -17,7 +17,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');

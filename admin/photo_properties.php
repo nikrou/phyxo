@@ -13,8 +13,6 @@ if (!defined("PHOTO_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
@@ -30,8 +28,8 @@ $represented_albums = $conn->query2array($query, 'id');
 if (isset($_GET['delete'])) {
     \Phyxo\Functions\Utils::check_token();
 
-    delete_elements(array($_GET['image_id']), true);
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::delete_elements(array($_GET['image_id']), true);
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     // where to redirect the user now?
     //
@@ -120,9 +118,9 @@ if (isset($_POST['submit'])) {
         $_POST['associate'] = array();
     }
     \Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, true, PATTERN_ID);
-    move_images_to_categories(array($_GET['image_id']), $_POST['associate']);
+    \Phyxo\Functions\Category::move_images_to_categories(array($_GET['image_id']), $_POST['associate']);
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     // thumbnail for albums
     if (!isset($_POST['represent'])) {
@@ -132,7 +130,7 @@ if (isset($_POST['submit'])) {
 
     $no_longer_thumbnail_for = array_diff($represented_albums, $_POST['represent']);
     if (count($no_longer_thumbnail_for) > 0) {
-        set_random_representant($no_longer_thumbnail_for);
+        \Phyxo\Functions\Utils::set_random_representant($no_longer_thumbnail_for);
     }
 
     $new_thumbnail_for = array_diff($_POST['represent'], $represented_albums);
@@ -305,7 +303,7 @@ $template->assign(array(
     'associated_albums' => $associated_albums,
     'represented_albums' => $represented_albums,
     'STORAGE_ALBUM' => $storage_category_id,
-    'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags', 'categories')),
 ));
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture_modify');

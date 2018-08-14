@@ -13,7 +13,6 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
 
 define('PHOTOS_ADD_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photos_add');

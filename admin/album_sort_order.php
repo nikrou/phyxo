@@ -18,8 +18,6 @@ if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 $page['category_id'] = $category['id'];
 
 // +-----------------------------------------------------------------------+

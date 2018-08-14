@@ -246,8 +246,6 @@ function ws_tags_add($params, &$service)
 {
     global $services;
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $creation_output = $services['tags']->createTag($params['name']);
 
     if (isset($creation_output['error'])) {

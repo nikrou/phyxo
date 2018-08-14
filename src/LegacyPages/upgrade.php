@@ -35,8 +35,6 @@ include_once(PHPWG_ROOT_PATH . 'include/constants.php');
 define('PREFIX_TABLE', $prefixeTable);
 define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // |                          database connection                          |
 // +-----------------------------------------------------------------------+
@@ -166,7 +164,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         $page['infos'] = array();
 
         // Delete cache data
-        invalidate_user_cache(true);
+        \Phyxo\Functions\Utils::invalidate_user_cache(true);
         $template->delete_compiled_templates();
 
         // Tables Maintenance

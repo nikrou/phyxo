@@ -57,7 +57,7 @@ class LocalSiteReader
     // retrieve file system sub-directories fulldirs
     public function get_full_directories($basedir)
     {
-        $fs_fulldirs = get_fs_directories($basedir);
+        $fs_fulldirs = \Phyxo\Functions\Utils::get_fs_directories($basedir);
         return $fs_fulldirs;
     }
 

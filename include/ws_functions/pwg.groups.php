@@ -112,8 +112,7 @@ function ws_groups_delete($params, &$service)
     $query = 'DELETE FROM ' . GROUPS_TABLE . ' WHERE id ' . $conn->in($params['group_id']);
     $conn->db_query($query);
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return new Phyxo\Ws\NamedArray($groupnames, 'group_deleted');
 }
@@ -205,8 +204,7 @@ function ws_groups_addUser($params, &$service)
         $inserts
     );
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return $service->invoke('pwg.groups.getList', array('group_id' => $params['group_id']));
 }
@@ -239,8 +237,7 @@ function ws_groups_deleteUser($params, &$service)
     $query .= ' AND user_id ' . $conn->in($params['user_id']);
     $conn->db_query($query);
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return $service->invoke('pwg.groups.getList', array('group_id' => $params['group_id']));
 }

@@ -194,7 +194,7 @@ if (count($errors) == 0) {
     $conf['disabled_derivatives'] = serialize($disabled);
 
     if (count($changed_types)) {
-        clear_derivative_cache($changed_types);
+        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);
     }
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');

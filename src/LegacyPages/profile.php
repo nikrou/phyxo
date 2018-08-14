@@ -145,8 +145,6 @@ function save_profile_from_post($userdata, &$errors)
 
     if (count($errors) == 0) {
         // mass_updates function
-        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
         if (isset($_POST['mail_address'])) {
             // update common user informations
             $fields = array($conf['user_fields']['email']);

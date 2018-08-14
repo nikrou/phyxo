@@ -15,8 +15,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\LocalSiteReader;
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -104,7 +102,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
     // get categort full directories in an array for comparison with file
     // system directory tree
-    $db_fulldirs = get_fulldirs(array_keys($db_categories));
+    $db_fulldirs = \Phyxo\Functions\Category::get_fulldirs(array_keys($db_categories));
 
     // what is the base directory to search file system sub-directories ?
     if (isset($_POST['cat']) and is_numeric($_POST['cat'])) {
@@ -303,7 +301,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                                 );
                             }
                         }
-                        foreach (get_admins() as $granted_user) {
+                        foreach (\Phyxo\Functions\Utils::get_admins() as $granted_user) {
                             $insert_granted_users[] = array(
                                 'user_id' => $granted_user,
                                 'cat_id' => $ids
@@ -315,7 +313,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 $insert_granted_users = array_unique($insert_granted_users, SORT_REGULAR);
                 $conn->mass_inserts(USER_ACCESS_TABLE, array('user_id', 'cat_id'), $insert_granted_users);
             } else {
-                add_permission_on_category($category_ids, get_admins());
+                \Phyxo\Functions\Category::add_permission_on_category($category_ids, \Phyxo\Functions\Utils::get_admins());
             }
         }
 
@@ -346,7 +344,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
             \Phyxo\Functions\Category::delete_categories($to_delete);
             foreach ($to_delete_derivative_dirs as $to_delete_dir) {
                 if (is_dir($to_delete_dir)) {
-                    clear_derivative_cache_rec($to_delete_dir, '#.+#');
+                    \Phyxo\Functions\Utils::clear_derivative_cache_rec($to_delete_dir, '#.+#');
                 }
             }
         }
@@ -466,7 +464,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
     }
     if (count($to_delete_elements) > 0) {
         if (!$simulate) {
-            delete_elements($to_delete_elements);
+            \Phyxo\Functions\Utils::delete_elements($to_delete_elements);
         }
         $counts['del_elements'] = count($to_delete_elements);
     }
@@ -483,7 +481,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
         \Phyxo\Functions\Category::update_category('all');
         $template->append('footer_elements', '<!-- update_category(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
         $start = microtime(true);
-        update_global_rank();
+        \Phyxo\Functions\Utils::update_global_rank();
         $template->append('footer_elements', '<!-- ordering categories : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
     }
 

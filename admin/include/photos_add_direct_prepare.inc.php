@@ -157,7 +157,7 @@ if (!function_exists('gd_info')) {
 
 $template->assign(array(
     'setup_errors' => $setup_errors,
-    'CACHE_KEYS' => get_admin_client_cache_keys(array('categories')),
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('categories')),
 ));
 
 // Warnings

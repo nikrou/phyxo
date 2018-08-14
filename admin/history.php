@@ -20,7 +20,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions_history.inc.php');
 
 define('HISTORY_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=history');

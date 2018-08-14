@@ -13,8 +13,6 @@ if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
 // +-----------------------------------------------------------------------+

@@ -296,7 +296,7 @@ class Tags extends BaseRepository
 
                     $page['tag_id_from_tag_name_cache'][$tag_name] = $this->conn->db_insert_id($this->table);
 
-                    \invalidate_user_cache_nb_tags();
+                    \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
 
                     return $page['tag_id_from_tag_name_cache'][$tag_name];
                 }
@@ -341,7 +341,7 @@ class Tags extends BaseRepository
             array_keys($inserts[0]),
             $inserts
         );
-        invalidate_user_cache_nb_tags();
+        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
     /**
@@ -379,7 +379,7 @@ class Tags extends BaseRepository
         $query .= ' WHERE id ' . $this->conn->in($tag_ids);
         $this->conn->db_query($query);
 
-        invalidate_user_cache_nb_tags();
+        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
     /**
@@ -413,7 +413,7 @@ class Tags extends BaseRepository
                 );
             }
 
-            invalidate_user_cache_nb_tags();
+            \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
         }
     }
 
@@ -627,7 +627,7 @@ class Tags extends BaseRepository
             array_keys($inserts[0]),
             $inserts
         );
-        invalidate_user_cache_nb_tags();
+        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
     /*
@@ -683,7 +683,7 @@ class Tags extends BaseRepository
         $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
         $query .= ' WHERE status = 0 AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
         $this->conn->db_query($query);
-        invalidate_user_cache_nb_tags();
+        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
     public function dissociateTags($tag_ids, $image_id)
@@ -739,7 +739,7 @@ class Tags extends BaseRepository
             }
         }
 
-        invalidate_user_cache_nb_tags();
+        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
     private function validatedCondition($user_id)

@@ -1219,4 +1219,826 @@ class Utils
         return $result;
     }
 
+    /**
+     * Generates a pseudo random string.
+     * Characters used are a-z A-Z and numerical values.
+     *
+     * @param int $size
+     * @return string
+     */
+    public static function generate_key($size)
+    {
+        return openssl_random_pseudo_bytes($size);
+    }
+
+    /**
+     * Deletes a site and call delete_categories for each primary category of the site
+     *
+     * @param int $id
+     */
+    public static function delete_site($id)
+    {
+        global $conn;
+
+        // destruction of the categories of the site
+        $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE site_id = ' . $conn->db_real_escape_string($id);
+        $category_ids = $conn->query2array($query, null, 'id');
+        \Phyxo\Functions\Category::delete_categories($category_ids);
+
+        // destruction of the site
+        $query = 'DELETE FROM ' . SITES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($id);
+        $conn->db_query($query);
+    }
+
+    /**
+     * Deletes all files (on disk) related to given image ids.
+     *
+     * @param int[] $ids
+     * @return 0|int[] image ids where files were successfully deleted
+     */
+    public static function delete_element_files($ids)
+    {
+        global $conf, $conn;
+
+        if (count($ids) == 0) {
+            return 0;
+        }
+
+        $new_ids = array();
+
+        $query = 'SELECT id,path,representative_ext FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($ids);
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            if (\Phyxo\Functions\URL::url_is_remote($row['path'])) {
+                continue;
+            }
+
+            $files = array();
+            $files[] = \Phyxo\Functions\Utils::get_element_path($row);
+
+            if (!empty($row['representative_ext'])) {
+                $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $row['representative_ext']);
+            }
+
+            $ok = true;
+            if (!isset($conf['never_delete_originals'])) {
+                foreach ($files as $path) {
+                    if (is_file($path) and !unlink($path)) {
+                        $ok = false;
+                        trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
+                        break;
+                    }
+                }
+            }
+
+            if ($ok) {
+                self::delete_element_derivatives($row);
+                $new_ids[] = $row['id'];
+            } else {
+                break;
+            }
+        }
+
+        return $new_ids;
+    }
+
+    /**
+     * Deletes elements from database.
+     * It also deletes :
+     *    - all the comments related to elements
+     *    - all the links between categories/tags and elements
+     *    - all the favorites/rates associated to elements
+     *    - removes elements from caddie
+     *
+     * @param int[] $ids
+     * @param bool $physical_deletion
+     * @return int number of deleted elements
+     */
+    public static function delete_elements($ids, $physical_deletion = false)
+    {
+        global $conn;
+
+        if (count($ids) == 0) {
+            return 0;
+        }
+        \Phyxo\Functions\Plugin::trigger_notify('begin_delete_elements', $ids);
+
+        if ($physical_deletion) {
+            $ids = self::delete_element_files($ids);
+            if (count($ids) == 0) {
+                return 0;
+            }
+        }
+
+        // destruction of the comments on the image
+        $query = 'DELETE FROM ' . COMMENTS_TABLE . ' WHERE image_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the links between images and categories
+        $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the links between images and tags
+        $query = 'DELETE FROM ' . IMAGE_TAG_TABLE . ' WHERE image_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the favorites associated with the picture
+        $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE image_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the rates associated to this element
+        $query = 'DELETE FROM ' . RATE_TABLE . ' WHERE element_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the caddie associated to this element
+        $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE element_id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // destruction of the image
+        $query = 'DELETE FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($ids);
+        $conn->db_query($query);
+
+        // are the photo used as category representant?
+        $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE representative_picture_id ' . $conn->in($ids);
+        $category_ids = $conn->query2array($query, null, 'id');
+        if (count($category_ids) > 0) {
+            \Phyxo\Functions\Category::update_category($category_ids);
+        }
+
+        \Phyxo\Functions\Plugin::trigger_notify('delete_elements', $ids);
+
+        return count($ids);
+    }
+
+    /**
+     * Deletes an user.
+     * It also deletes all related data (accesses, favorites, permissions, etc.)
+     * @todo : accept array input
+     *
+     * @param int $user_id
+     */
+    public static function delete_user($user_id)
+    {
+        global $conf, $conn;
+
+        $tables = array(
+            // destruction of the access linked to the user
+            USER_ACCESS_TABLE,
+            // destruction of data notification by mail for this user
+            USER_MAIL_NOTIFICATION_TABLE,
+            // destruction of data RSS notification for this user
+            USER_FEED_TABLE,
+            // deletion of calculated permissions linked to the user
+            USER_CACHE_TABLE,
+            // deletion of computed cache data linked to the user
+            USER_CACHE_CATEGORIES_TABLE,
+            // destruction of the group links for this user
+            USER_GROUP_TABLE,
+            // destruction of the favorites associated with the user
+            FAVORITES_TABLE,
+            // destruction of the caddie associated with the user
+            CADDIE_TABLE,
+            // deletion of phyxo specific informations
+            USER_INFOS_TABLE,
+        );
+
+        foreach ($tables as $table) {
+            $query = 'DELETE FROM ' . $table . ' WHERE user_id = ' . $user_id . ';';
+            $conn->db_query($query);
+        }
+
+        // purge of sessions
+        $query = 'DELETE FROM ' . SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';
+        $conn->db_query($query);
+
+        // destruction of the user
+        $query = 'DELETE FROM ' . USERS_TABLE . ' WHERE ' . $conf['user_fields']['id'] . ' = ' . (int)$user_id . ';';
+        $conn->db_query($query);
+
+        \Phyxo\Functions\Plugin::trigger_notify('delete_user', $user_id);
+    }
+
+    /**
+     * Checks and repairs IMAGE_CATEGORY_TABLE integrity.
+     * Removes all entries from the table which correspond to a deleted image.
+     */
+    public static function images_integrity()
+    {
+        global $conn;
+
+        $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id WHERE id IS NULL;';
+        $result = $conn->db_query($query);
+        $orphan_image_ids = $conn->query2array($query, null, 'image_id');
+
+        if (count($orphan_image_ids) > 0) {
+            $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
+            $query .= ' WHERE image_id ' . $conn->in($orphan_image_ids);
+            $conn->db_query($query);
+        }
+    }
+
+    /**
+     * Returns an array containing sub-directories which are potentially
+     * a category.
+     * Directories named ".svn", "thumbnail", "pwg_high" or "pwg_representative"
+     * are omitted.
+     *
+     * @param string $basedir (eg: ./galleries)
+     * @return string[]
+     */
+    public static function get_fs_directories($path, $recursive = true)
+    {
+        global $conf;
+
+        $dirs = array();
+        $path = rtrim($path, '/');
+
+        $exclude_folders = array_merge(
+            $conf['sync_exclude_folders'],
+            array(
+                '.', '..', '.svn',
+                'thumbnail', 'pwg_high',
+                'pwg_representative',
+            )
+        );
+        $exclude_folders = array_flip($exclude_folders);
+
+
+        // @TODO: use glob !!!
+        if (is_dir($path)) {
+            if ($contents = opendir($path)) {
+                while (($node = readdir($contents)) !== false) {
+                    if (is_dir($path . '/' . $node) and !isset($exclude_folders[$node])) {
+                        $dirs[] = $path . '/' . $node;
+                        if ($recursive) {
+                            $dirs = array_merge($dirs, self::get_fs_directories($path . '/' . $node));
+                        }
+                    }
+                }
+                closedir($contents);
+            }
+        }
+
+        return $dirs;
+    }
+
+    /**
+     * Orders categories (update categories.rank and global_rank database fields)
+     * so that rank field are consecutive integers starting at 1 for each child.
+     */
+    public static function update_global_rank()
+    {
+        global $cat_map, $conn;
+
+        $query = 'SELECT id, id_uppercat, uppercats, rank, global_rank FROM ' . CATEGORIES_TABLE;
+        $query .= ' ORDER BY id_uppercat,rank,name';
+
+        $cat_map = array();
+
+        $current_rank = 0;
+        $current_uppercat = '';
+
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            if ($row['id_uppercat'] != $current_uppercat) {
+                $current_rank = 0;
+                $current_uppercat = $row['id_uppercat'];
+            }
+            ++$current_rank;
+            $cat = array(
+                'rank' => $current_rank,
+                'rank_changed' => $current_rank != $row['rank'],
+                'global_rank' => $row['global_rank'],
+                'uppercats' => $row['uppercats'],
+            );
+            $cat_map[$row['id']] = $cat;
+        }
+
+        $datas = array();
+
+        $cat_map_callback = function ($m) use ($cat_map) {
+            return $cat_map[$m[1]]['rank'];
+        };
+
+        foreach ($cat_map as $id => $cat) {
+            $new_global_rank = preg_replace_callback(
+                '/(\d+)/',
+                $cat_map_callback,
+                str_replace(',', '.', $cat['uppercats'])
+            );
+
+            if ($cat['rank_changed'] || $new_global_rank != $cat['global_rank']) {
+                $datas[] = array(
+                    'id' => $id,
+                    'rank' => $cat['rank'],
+                    'global_rank' => $new_global_rank,
+                );
+            }
+        }
+
+        unset($cat_map);
+
+        $conn->mass_updates(
+            CATEGORIES_TABLE,
+            array(
+                'primary' => array('id'),
+                'update' => array('rank', 'global_rank')
+            ),
+            $datas
+        );
+
+        return count($datas);
+    }
+
+    /**
+     * Set a new random representant to the categories.
+     *
+     * @param int[] $categories
+     */
+    public static function set_random_representant($categories)
+    {
+        global $conn;
+
+        $datas = array();
+        foreach ($categories as $category_id) {
+            $query = 'SELECT image_id FROM ' . IMAGE_CATEGORY_TABLE;
+            $query .= ' WHERE category_id = ' . $category_id;
+            $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '()  LIMIT 1;';
+            list($representative) = $conn->db_fetch_row($conn->db_query($query));
+
+            $datas[] = array(
+                'id' => $category_id,
+                'representative_picture_id' => $representative,
+            );
+        }
+
+        $conn->mass_updates(
+            CATEGORIES_TABLE,
+            array(
+                'primary' => array('id'),
+                'update' => array('representative_picture_id')
+            ),
+            $datas
+        );
+    }
+
+    /**
+     * Returns an array with all file system files according to $conf['file_ext']
+     *
+     * @param string $path
+     * @param bool $recursive
+     * @return array
+     */
+    public static function get_fs($path, $recursive = true)
+    {
+        global $conf;
+
+        // because isset is faster than in_array...
+        if (!isset($conf['flip_picture_ext'])) {
+            $conf['flip_picture_ext'] = array_flip($conf['picture_ext']);
+        }
+        if (!isset($conf['flip_file_ext'])) {
+            $conf['flip_file_ext'] = array_flip($conf['file_ext']);
+        }
+
+        $fs['elements'] = array();
+        $fs['thumbnails'] = array();
+        $fs['representatives'] = array();
+        $subdirs = array();
+
+        // @TODO: use glob
+        if (is_dir($path)) {
+            if ($contents = opendir($path)) {
+                while (($node = readdir($contents)) !== false) {
+                    if ($node == '.' or $node == '..') {
+                        continue;
+                    }
+
+                    if (is_file($path . '/' . $node)) {
+                        $extension = \Phyxo\Functions\Utils::get_extension($node);
+
+                        if (isset($conf['flip_picture_ext'][$extension])) {
+                            if (basename($path) == 'thumbnail') {
+                                $fs['thumbnails'][] = $path . '/' . $node;
+                            } elseif (basename($path) == 'pwg_representative') {
+                                $fs['representatives'][] = $path . '/' . $node;
+                            } else {
+                                $fs['elements'][] = $path . '/' . $node;
+                            }
+                        } elseif (isset($conf['flip_file_ext'][$extension])) {
+                            $fs['elements'][] = $path . '/' . $node;
+                        }
+                    } elseif (is_dir($path . '/' . $node) and $node != 'pwg_high' and $recursive) {
+                        $subdirs[] = $node;
+                    }
+                }
+            }
+            closedir($contents);
+
+            foreach ($subdirs as $subdir) {
+                $tmp_fs = self::get_fs($path . '/' . $subdir);
+                $fs['elements'] = array_merge($fs['elements'], $tmp_fs['elements']);
+                $fs['thumbnails'] = array_merge($fs['thumbnails'], $tmp_fs['thumbnails']);
+                $fs['representatives'] = array_merge($fs['representatives'], $tmp_fs['representatives']);
+            }
+        }
+
+        return $fs;
+    }
+
+    /**
+     * Synchronize base users list and related users list.
+     *
+     * Compares and synchronizes base users table (USERS_TABLE) with its child
+     * tables (USER_INFOS_TABLE, USER_ACCESS, USER_CACHE, USER_GROUP) : each
+     * base user must be present in child tables, users in child tables not
+     * present in base table must be deleted.
+     */
+    public static function sync_users()
+    {
+        global $conf, $conn, $services;
+
+        $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id FROM ' . USERS_TABLE;
+        $base_users = $conn->query2array($query, null, 'id');
+
+        $query = 'SELECT user_id FROM ' . USER_INFOS_TABLE;
+        $infos_users = $conn->query2array($query, null, 'user_id');
+
+        // users present in $base_users and not in $infos_users must be added
+        $to_create = array_diff($base_users, $infos_users);
+
+        if (count($to_create) > 0) {
+            $services['users']->createUserInfos($to_create);
+        }
+
+        // users present in user related tables must be present in the base user table
+        $tables = array(
+            USER_MAIL_NOTIFICATION_TABLE,
+            USER_FEED_TABLE,
+            USER_INFOS_TABLE,
+            USER_ACCESS_TABLE,
+            USER_CACHE_TABLE,
+            USER_CACHE_CATEGORIES_TABLE,
+            USER_GROUP_TABLE
+        );
+
+        foreach ($tables as $table) {
+            $query = 'SELECT DISTINCT user_id FROM ' . $table;
+            $to_delete = array_diff(
+                $conn->query2array($query, null, 'user_id'),
+                $base_users
+            );
+
+            if (count($to_delete) > 0) {
+                $query = 'DELETE FROM ' . $table;
+                $query .= ' WHERE user_id ' . $conn->in($to_delete);
+                $conn->db_query($query);
+            }
+        }
+    }
+
+    /**
+     * Update images.path field base on images.file and storage categories fulldirs.
+     */
+    public static function update_path()
+    {
+        global $conn;
+
+        $query = 'SELECT DISTINCT(storage_category_id) FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE storage_category_id IS NOT NULL';
+        $cat_ids = $conn->query2array($query, null, 'storage_category_id');
+        $fulldirs = \Phyxo\Functions\Category::get_fulldirs($cat_ids);
+
+        foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
+            $query = 'UPDATE ' . IMAGES_TABLE;
+            $query .= ' SET path = ' . $conn->db_concat(array("'" . $fulldirs[$cat_id] . "/'", 'file'));
+            $query .= ' WHERE storage_category_id = ' . $conn->db_real_escape_string($cat_id);
+            $conn->db_query($query);
+        }
+    }
+
+    /**
+     * Invalidates cached data (permissions and category counts) for all users.
+     */
+    public static function invalidate_user_cache($full = true)
+    {
+        global $conn;
+
+        if ($full) {
+            $query = 'TRUNCATE TABLE ' . USER_CACHE_CATEGORIES_TABLE . ';';
+            $conn->db_query($query);
+            $query = 'TRUNCATE TABLE ' . USER_CACHE_TABLE . ';';
+            $conn->db_query($query);
+        } else {
+            $query = 'UPDATE ' . USER_CACHE_TABLE . ' SET need_update = \'' . $conn->boolean_to_db(true) . '\'';
+            $conn->db_query($query);
+        }
+        \Phyxo\Functions\Plugin::trigger_notify('invalidate_user_cache', $full);
+    }
+
+    /**
+     * Invalidates cached tags counter for all users.
+     */
+    public static function invalidate_user_cache_nb_tags()
+    {
+        global $user, $conn;
+
+        unset($user['nb_available_tags']);
+
+        $query = 'UPDATE ' . USER_CACHE_TABLE;
+        $query .= ' SET nb_available_tags = NULL';
+        $conn->db_query($query);
+    }
+
+    /**
+     * Returns the groupname corresponding to the given group identifier if exists.
+     *
+     * @param int $group_id
+     * @return string|false
+     */
+    public static function get_groupname($group_id)
+    {
+        global $conn;
+
+        $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id = ' . intval($group_id) . ';';
+        $result = $conn->db_query($query);
+        if ($conn->db_num_rows($result) > 0) {
+            list($groupname) = $conn->db_fetch_row($result);
+        } else {
+            return false;
+        }
+
+        return $groupname;
+    }
+
+    /**
+     * Returns the username corresponding to the given user identifier if exists.
+     *
+     * @param int $user_id
+     * @return string|false
+     */
+    public static function get_username($user_id)
+    {
+        global $conf, $conn;
+
+        $query = 'SELECT ' . $conf['user_fields']['username'] . ' FROM ' . USERS_TABLE;
+        $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . intval($user_id) . ';';
+        $result = $conn->db_query($query);
+        if ($conn->db_num_rows($result) > 0) {
+            list($username) = $conn->db_fetch_row($result);
+        } else {
+            return false;
+        }
+
+        // @TODO: why stripslashes ?
+        return stripslashes($username);
+    }
+
+    /**
+     * Returns the argument_ids array with new sequenced keys based on related
+     * names. Sequence is not case sensitive.
+     * Warning: By definition, this function breaks original keys.
+     *
+     * @param int[] $elements_ids
+     * @param string[] $name - names of elements, indexed by ids
+     * @return int[]
+     */
+    public static function order_by_name($element_ids, $name)
+    {
+        $ordered_element_ids = array();
+        foreach ($element_ids as $k_id => $element_id) {
+            $key = strtolower($name[$element_id]) . '-' . $name[$element_id] . '-' . $k_id;
+            $ordered_element_ids[$key] = $element_id;
+        }
+        ksort($ordered_element_ids);
+        return $ordered_element_ids;
+    }
+
+    /**
+     * Returns the list of admin users.
+     *
+     * @param boolean $include_webmaster
+     * @return int[]
+     */
+    public static function get_admins($include_webmaster = true)
+    {
+        global $conn;
+
+        $status_list = array('admin');
+
+        if ($include_webmaster) {
+            $status_list[] = 'webmaster';
+        }
+
+        $query = 'SELECT user_id  FROM ' . USER_INFOS_TABLE;
+        $query .= ' WHERE status ' . $conn->in($status_list);
+
+        return $conn->query2array($query, null, 'user_id');
+    }
+
+    /**
+     * Delete all derivative files for one or several types
+     *
+     * @param 'all'|int[] $types
+     */
+    public static function clear_derivative_cache($types = 'all')
+    {
+        if ($types === 'all') {
+            $types = \Phyxo\Image\ImageStdParams::get_all_types();
+            $types[] = IMG_CUSTOM;
+        } elseif (!is_array($types)) {
+            $types = array($types);
+        }
+
+        for ($i = 0; $i < count($types); $i++) {
+            $type = $types[$i];
+            if ($type == IMG_CUSTOM) {
+                $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
+            } elseif (in_array($type, \Phyxo\Image\ImageStdParams::get_all_types())) {
+                $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type);
+            } else { //assume a custom type
+                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) . '_' . $type;
+            }
+            $types[$i] = $type;
+        }
+
+        $pattern = '#.*-';
+        if (count($types) > 1) {
+            $pattern .= '(' . implode('|', $types) . ')';
+        } else {
+            $pattern .= $types[0];
+        }
+        $pattern .= '\.[a-zA-Z0-9]{3,4}$#';
+
+        // @TODO: use glob
+        if ($contents = @opendir(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR)) {
+            while (($node = readdir($contents)) !== false) {
+                if ($node != '.' and $node != '..' and is_dir(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $node)) {
+                    self::clear_derivative_cache_rec(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $node, $pattern);
+                }
+            }
+            closedir($contents);
+        }
+    }
+
+    /**
+     * Used by clear_derivative_cache()
+     * @ignore
+     */
+    public static function clear_derivative_cache_rec($path, $pattern)
+    {
+        $rmdir = true;
+        $rm_index = false;
+
+        // @TODO: use glob
+        if ($contents = opendir($path)) {
+            while (($node = readdir($contents)) !== false) {
+                if ($node == '.' or $node == '..') {
+                    continue;
+                }
+                if (is_dir($path . '/' . $node)) {
+                    $rmdir = self::clear_derivative_cache_rec($path . '/' . $node, $pattern);
+                } else {
+                    if (preg_match($pattern, $node)) {
+                        unlink($path . '/' . $node);
+                    } elseif ($node == 'index.htm') {
+                        $rm_index = true;
+                    } else {
+                        $rmdir = false;
+                    }
+                }
+            }
+            closedir($contents);
+
+            if ($rmdir) {
+                if ($rm_index) {
+                    unlink($path . '/index.htm');
+                }
+                clearstatcache();
+                @rmdir($path);
+            }
+            return $rmdir;
+        }
+    }
+
+    /**
+     * Deletes derivatives of a particular element
+     *
+     * @param array $infos ('path'[, 'representative_ext'])
+     * @param 'all'|int $type
+     */
+    public static function delete_element_derivatives($infos, $type = 'all')
+    {
+        $path = $infos['path'];
+        if (!empty($infos['representative_ext'])) {
+            $path = \Phyxo\Functions\Utils::original_to_representative($path, $infos['representative_ext']);
+        }
+        if (substr_compare($path, '../', 0, 3) == 0) {
+            $path = substr($path, 3);
+        }
+        $dot = strrpos($path, '.');
+        if ($type == 'all') {
+            $pattern = '-*';
+        } else {
+            $pattern = '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '*';
+        }
+        $path = substr_replace($path, $pattern, $dot, 0);
+        if (($glob = glob(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $path)) !== false) {
+            foreach ($glob as $file) {
+                unlink($file);
+            }
+        }
+    }
+
+    /**
+     * Recursively delete a directory.
+     *
+     * @param string $path
+     * @param string $trash_path, try to move the directory to this path if it cannot be delete
+     */
+    public static function deltree($path, $trash_path = null)
+    {
+        if (is_dir($path)) {
+            $fh = opendir($path);
+            while ($file = readdir($fh)) {
+                if ($file != '.' and $file != '..') {
+                    $pathfile = $path . '/' . $file;
+                    if (is_dir($pathfile)) {
+                        self::deltree($pathfile, $trash_path);
+                    } else {
+                        @unlink($pathfile);
+                    }
+                }
+            }
+            closedir($fh);
+
+            if (@rmdir($path)) {
+                return true;
+            } elseif (!empty($trash_path)) {
+                if (!is_dir($trash_path)) {
+                    @\Phyxo\Functions\Utils::mkgetdir(
+                        $trash_path,
+                        \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE | \Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR | \Phyxo\Functions\Utils::MKGETDIR_PROTECT_HTACCESS
+                    );
+                }
+                while ($r = $trash_path . '/' . md5(uniqid(rand(), true))) {
+                    if (!is_dir($r)) {
+                        @rename($path, $r);
+                        break;
+                    }
+                }
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Returns keys to identify the state of main tables. A key consists of the
+     * last modification timestamp and the total of items (separated by a _).
+     * Additionally returns the hash of root path.
+     * Used to invalidate LocalStorage cache on admin pages.
+     *
+     * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
+     * @return string[]
+     */
+    public static function get_admin_client_cache_keys($requested = array())
+    {
+        global $conn;
+
+        $tables = array(
+            'categories' => CATEGORIES_TABLE,
+            'groups' => GROUPS_TABLE,
+            'images' => IMAGES_TABLE,
+            'tags' => TAGS_TABLE,
+            'users' => USER_INFOS_TABLE
+        );
+
+        if (!is_array($requested)) {
+            $requested = array($requested);
+        }
+        if (empty($requested)) {
+            $requested = array_keys($tables);
+        } else {
+            $requested = array_intersect($requested, array_keys($tables));
+        }
+
+        $keys = array(
+            '_hash' => md5(\Phyxo\Functions\URL::get_absolute_root_url()),
+        );
+
+        foreach ($requested as $item) {
+           // @TODO : add _ between timestamp and count -> pwg_concat ??
+            $query = 'SELECT ' . $conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+            $query .= ' FROM ' . $tables[$item] . ';';
+            $result = $conn->db_query($query);
+            $row = $conn->db_fetch_row($result);
+
+            $keys[$item] = sprintf('%s_%s', $row[0], $row[1]);
+        }
+
+        return $keys;
+    }
 }

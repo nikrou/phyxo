@@ -96,8 +96,8 @@ if ($step == 2 and $services['users']->isWebmaster()) {
         try {
             $updater->upgrade($zip);
 
-            deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
-            invalidate_user_cache(true);
+            \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
+            \Phyxo\Functions\Utils::invalidate_user_cache(true);
             $template->delete_compiled_templates();
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
             $page['infos'][] = $upgrade_to;
@@ -126,8 +126,8 @@ if ($step == 3 and $services['users']->isWebmaster()) {
         try {
             $updater->upgrade($zip);
 
-            deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
-            invalidate_user_cache(true);
+            \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
+            \Phyxo\Functions\Utils::invalidate_user_cache(true);
             $template->delete_compiled_templates();
             \Phyxo\Functions\Utils::redirect(PHPWG_ROOT_PATH . 'upgrade.php?now=');
         } catch (Exception $e) {

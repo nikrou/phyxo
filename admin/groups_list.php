@@ -216,7 +216,7 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
             $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" updated', $groupname);
         }
     }
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

@@ -21,8 +21,6 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
 
 use Phyxo\LocalSiteReader;
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -108,7 +106,7 @@ if (isset($_POST['submit'])) {
     }
 
     if ('associate' == $action) {
-        associate_images_to_categories(
+        \Phyxo\Functions\Category::associate_images_to_categories(
             $collection,
             array($_POST['associate'])
         );
@@ -125,7 +123,7 @@ if (isset($_POST['submit'])) {
             }
         }
     } elseif ('move' == $action) {
-        move_images_to_categories($collection, array($_POST['move']));
+        \Phyxo\Functions\Category::move_images_to_categories($collection, array($_POST['move']));
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
@@ -242,7 +240,7 @@ if (isset($_POST['submit'])) {
         \Phyxo\Functions\Utils::fill_caddie($collection);
     } elseif ('delete' == $action) {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
-            $deleted_count = delete_elements($collection, true);
+            $deleted_count = \Phyxo\Functions\Utils::delete_elements($collection, true);
             if ($deleted_count > 0) {
                 $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n_dec(
                     '%d photo was deleted',
@@ -267,7 +265,7 @@ if (isset($_POST['submit'])) {
         $result = $conn->db_query($query);
         while ($info = $conn->db_fetch_assoc($result)) {
             foreach ($_POST['del_derivatives_type'] as $type) {
-                delete_element_derivatives($info, $type);
+                \Phyxo\Functions\Utils::delete_element_derivatives($info, $type);
             }
         }
     } elseif ('generate_derivatives' == $action) {
@@ -280,7 +278,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (!in_array($action, array('remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'))) {
-        invalidate_user_cache();
+        \Phyxo\Functions\Utils::invalidate_user_cache();
     }
 
     \Phyxo\Functions\Plugin::trigger_notify('element_set_global_action', $action, $collection);
@@ -517,7 +515,7 @@ if (count($page['cat_elements_id']) > 0) {
 $template->assign(array(
     'nb_thumbs_page' => $nb_thumbs_page,
     'nb_thumbs_set' => count($page['cat_elements_id']),
-    'CACHE_KEYS' => get_admin_client_cache_keys(array('tags', 'categories')),
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags', 'categories')),
 ));
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_element_set_global');

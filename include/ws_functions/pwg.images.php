@@ -131,7 +131,6 @@ function ws_add_image_category_relations($image_id, $categories_string, $replace
         $inserts
     );
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     \Phyxo\Functions\Category::update_category($new_cat_ids);
 }
 
@@ -596,8 +595,7 @@ function ws_images_setPrivacyLevel($params, $service)
     $result = $conn->db_query($query);
 
     if ($affected_rows = $conn->db_changes($result)) {
-        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-        invalidate_user_cache();
+        \Phyxo\Functions\Utils::invalidate_user_cache();
     }
     return $affected_rows;
 }
@@ -922,7 +920,7 @@ function ws_images_add($params, $service)
         $services['tags']->setTags(explode(',', $params['tag_ids']), $image_id);
     }
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return array(
         'image_id' => $image_id,
@@ -991,8 +989,6 @@ function ws_images_addSimple($params, $service)
     );
 
     if (!empty($params['tags'])) {
-        include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
         $tag_ids = array();
         if (is_array($params['tags'])) {
             foreach ($params['tags'] as $tag_name) {
@@ -1268,8 +1264,6 @@ function ws_images_setRelatedTags($params, &$service)
         return new Phyxo\Ws\Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $message = '';
     if (empty($params['tags'])) {
         $params['tags'] = array();
@@ -1366,8 +1360,6 @@ function ws_images_setInfo($params, $service)
 {
     global $conn, $services;
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $query = 'SELECT * FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
     $result = $conn->db_query($query);
@@ -1463,7 +1455,7 @@ function ws_images_setInfo($params, $service)
         }
     }
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 
 /**
@@ -1497,9 +1489,8 @@ function ws_images_delete($params, $service)
         }
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    $number_of_elements_deleted = delete_elements($image_ids, true);
-    invalidate_user_cache();
+    $number_of_elements_deleted = \Phyxo\Functions\Utils::delete_elements($image_ids, true);
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return $number_of_elements_deleted;
 }

@@ -189,7 +189,6 @@ function ws_extensions_ignoreupdate($params, $service)
     global $conf, $services;
 
     define('IN_ADMIN', true);
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
     if (!$services['users']->isWebmaster()) {
         return new Phyxo\Ws\Error(401, 'Access denied');

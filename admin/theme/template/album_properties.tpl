@@ -60,10 +60,10 @@
 				{/if}
 				{/if}
 			</p>
-			
+
 			<p>{$INTRO}</p>
 		    <ul>
-			   {if cat_admin_access($CAT_ID)}
+			   {if \Phyxo\Functions\Category::cat_admin_access($CAT_ID)}
 			       <li><a href="{$U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to album'|translate} →</a></li>
 			   {/if}
 

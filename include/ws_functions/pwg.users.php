@@ -252,8 +252,6 @@ function ws_users_delete($params, &$service)
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $protected_users = array(
         $user['id'],
         $conf['guest_id'],
@@ -274,7 +272,7 @@ function ws_users_delete($params, &$service)
     $counter = 0;
 
     foreach ($params['user_id'] as $user_id) {
-        delete_user($user_id);
+        \Phyxo\Functions\Utils::delete_user($user_id);
         $counter++;
     }
 
@@ -312,13 +310,11 @@ function ws_users_setInfo($params, &$service)
         return new Phyxo\Ws\Error(403, 'Invalid security token');
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $updates = $updates_infos = array();
     $update_status = null;
 
     if (count($params['user_id']) == 1) {
-        if (get_username($params['user_id'][0]) === false) {
+        if (\Phyxo\Functions\Utils::get_username($params['user_id'][0]) === false) {
             return new Phyxo\Ws\Error(Server::WS_ERR_INVALID_PARAM, 'This user does not exist.');
         }
 
@@ -483,7 +479,7 @@ function ws_users_setInfo($params, &$service)
         }
     }
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return $service->invoke('pwg.users.getList', array(
         'user_id' => $params['user_id'],

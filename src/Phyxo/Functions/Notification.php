@@ -530,9 +530,9 @@ class Notification
         global $conn;
 
         while (true) {
-            $key = generate_key(16);
+            $key = \Phyxo\Functions\Utils::generate_key(16);
             $query = 'SELECT count(1) FROM ' . USER_MAIL_NOTIFICATION_TABLE;
-            $query .= ' WHERE check_key = \'' . $key . '\';';
+            $query .= ' WHERE check_key = \'' . $conn->db_real_escape_string($key) . '\';';
 
             list($count) = $conn->db_fetch_row($conn->db_query($query));
             if ($count == 0) {

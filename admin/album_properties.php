@@ -77,13 +77,13 @@ if (isset($_POST['submit'])) {
 
     // only move virtual albums
     if (empty($cat_info['dir']) and $cat_info['id_uppercat'] != $_POST['parent']) {
-        move_categories(array($_GET['cat_id']), $_POST['parent']);
+        \Phyxo\Functions\Category::move_categories(array($_GET['cat_id']), $_POST['parent']);
     }
 
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Album updated successfully');
     $redirect = true;
 } elseif (isset($_POST['set_random_representant'])) {
-    set_random_representant(array($_GET['cat_id']));
+    \Phyxo\Functions\Utils::set_random_representant(array($_GET['cat_id']));
     $redirect = true;
 } elseif (isset($_POST['delete_representant'])) {
     $query = 'UPDATE ' . CATEGORIES_TABLE;
@@ -182,7 +182,7 @@ $intro .= '<br>' . \Phyxo\Functions\Language::l10n('Numeric identifier : %d', $c
 $template->assign(array(
     'INTRO' => $intro,
     'U_MANAGE_RANKS' => $base_url . 'element_set_ranks&amp;cat_id=' . $category['id'],
-    'CACHE_KEYS' => get_admin_client_cache_keys(array('categories')),
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('categories')),
 ));
 
 if ($category['is_virtual']) {

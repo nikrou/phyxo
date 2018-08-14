@@ -20,7 +20,7 @@ if (!defined('ALBUMS_BASE_URL')) {
 if (isset($_POST['submit'])) {
     if (count($_POST['selection']) > 0) {
         // @TODO: tests
-        move_categories($_POST['selection'], $_POST['parent']);
+        \Phyxo\Functions\Category::move_categories($_POST['selection'], $_POST['parent']);
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one album');
     }

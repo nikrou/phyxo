@@ -83,7 +83,6 @@ if (is_readable($config_file)) {
 }
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
-include(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 $languages = new Languages(null, 'utf-8');
 

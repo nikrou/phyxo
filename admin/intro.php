@@ -15,7 +15,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use GuzzleHttp\Client;
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
 // +-----------------------------------------------------------------------+

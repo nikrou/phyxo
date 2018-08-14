@@ -22,9 +22,7 @@ use Phyxo\Language\Languages;
 require_once(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 require_once(PHPWG_ROOT_PATH . 'local/config/database.inc.php');
 require_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
-
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
-require_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 

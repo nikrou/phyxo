@@ -17,7 +17,6 @@ define('PHPWG_ROOT_PATH', '../');
 define('IN_ADMIN', true);
 
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_admin');
 
@@ -43,7 +42,7 @@ if (isset($_GET['plugins_new_order'])) {
 
 // sync_user() is only useful when external authentication is activated
 if ($conf['external_authentification']) {
-    sync_users();
+    \Phyxo\Functions\Utils::sync_users();
 }
 
 // +-----------------------------------------------------------------------+
@@ -183,7 +182,7 @@ if (in_array($page['page'], array('site_manager', 'site_update'))
     'user_list',    // group assoc; user level
     'user_perm',
 )))) {
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 
 // +-----------------------------------------------------------------------+

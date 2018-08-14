@@ -85,7 +85,7 @@
 			    {if isset($category.U_DELETE) }
 				| <a href="{$category.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><i class="fa fa-trash"></i>{'delete album'|translate}</a>
 			    {/if}
-			    {if cat_admin_access($category.ID)}
+			    {if \Phyxo\Functions\Category::cat_admin_access($category.ID)}
 				| <a href="{$category.U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to album'|translate}</a>
 			    {/if}
 			</p>

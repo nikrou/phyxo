@@ -36,10 +36,10 @@ $row = $conn->db_fetch_assoc($conn->db_query($query));
 if (isset($_POST['submit'])) {
     foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
         if ($params->sizing->max_crop != 0) {
-            delete_element_derivatives($row, $params->type);
+            \Phyxo\Functions\Utils::delete_element_derivatives($row, $params->type);
         }
     }
-    delete_element_derivatives($row, IMG_CUSTOM);
+    \Phyxo\Functions\Utils::delete_element_derivatives($row, IMG_CUSTOM);
     $uid = '&b=' . time();
     $conf['question_mark_in_urls'] = $conf['php_extension_in_urls'] = true;
     if ($conf['derivative_url_style'] == 1) {

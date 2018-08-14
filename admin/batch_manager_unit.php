@@ -19,8 +19,6 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
     die('Hacking attempt!');
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -81,7 +79,7 @@ if (isset($_POST['submit'])) {
     );
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Photo informations updated');
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 
 // +-----------------------------------------------------------------------+
@@ -193,7 +191,7 @@ if (count($page['cat_elements_id']) > 0) {
 
     $template->assign(array(
         'ELEMENT_IDS' => implode(',', $element_ids),
-        'CACHE_KEYS' => get_admin_client_cache_keys(array('tags')),
+        'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags')),
     ));
 }
 

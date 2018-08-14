@@ -13,8 +13,6 @@ if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
 // +-----------------------------------------------------------------------+
@@ -62,7 +60,7 @@ if (!empty($_POST)) {
         //
         $grant_groups = $_POST['groups'];
         if (count($grant_groups) > 0) {
-            $cat_ids = get_uppercat_ids(array($page['cat']));
+            $cat_ids = \Phyxo\Functions\Category::get_uppercat_ids(array($page['cat']));
             if (isset($_POST['apply_on_sub'])) {
                 $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids(array($page['cat'])));
             }
@@ -117,7 +115,7 @@ if (!empty($_POST)) {
         //
         $grant_users = $_POST['users'];
         if (count($grant_users) > 0) {
-            add_permission_on_category($page['cat'], $grant_users);
+            \Phyxo\Functions\Category::add_permission_on_category($page['cat'], $grant_users);
         }
     }
 
@@ -223,5 +221,5 @@ if (count($group_granted_ids) > 0) {
 $template->assign(array(
     ' PWG_TOKEN ' => \Phyxo\Functions\Utils::get_token(),
     ' INHERIT ' => $conf['inheritance_by_default'],
-    ' CACHE_KEYS ' => get_admin_client_cache_keys(array('groups', 'users')),
+    ' CACHE_KEYS ' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('groups', 'users')),
 ));

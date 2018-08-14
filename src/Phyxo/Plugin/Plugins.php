@@ -174,7 +174,7 @@ class Plugins extends Extensions
                     break;
                 }
 
-                \deltree(self::$plugins_root_path . $plugin_id, self::$plugins_root_path . 'trash');
+                \Phyxo\Functions\Utils::deltree(self::$plugins_root_path . $plugin_id, self::$plugins_root_path . 'trash');
                 break;
         }
 

@@ -250,8 +250,7 @@ if (isset($_GET['action'])) {
                     $query .= ' SET representative_picture_id = ' . $page['image_id'] . ' WHERE id = ' . $page['category']['id'] . ';';
                     $conn->db_query($query);
 
-                    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-                    invalidate_user_cache();
+                    \Phyxo\Functions\Utils::invalidate_user_cache();
                 }
                 \Phyxo\Functions\Utils::redirect($url_self);
                 break;

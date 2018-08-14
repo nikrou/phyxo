@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
 use GuzzleHttp\Client;
 
 // add default event handler for image and thumbnail resize
@@ -162,7 +160,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
         }
 
         // delete all physical files related to the photo (thumbnail, web site, HD)
-        delete_element_files(array($image_id));
+        \Phyxo\Functions\Utils::delete_element_files(array($image_id));
     } else {
         // this photo is new
         // current date
@@ -384,7 +382,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
     }
 
     if (isset($categories) and count($categories) > 0) {
-        associate_images_to_categories(
+        \Phyxo\Functions\Category::associate_images_to_categories(
             array($image_id),
             $categories
         );
@@ -395,8 +393,7 @@ function add_uploaded_file($source_filepath, $original_filename = null, $categor
         $conf['use_exif'] = false;
     }
     \Phyxo\Functions\Metadata::sync_metadata(array($image_id));
-
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     // cache thumbnail
     $query = 'SELECT id,path FROM ' . IMAGES_TABLE;

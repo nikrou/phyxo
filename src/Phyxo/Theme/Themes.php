@@ -172,7 +172,7 @@ class Themes extends Extensions
 
                 $theme_maintain->delete();
 
-                \deltree(PHPWG_THEMES_PATH . $theme_id, PHPWG_THEMES_PATH . 'trash');
+                \Phyxo\Functions\Utils::deltree(PHPWG_THEMES_PATH . $theme_id, PHPWG_THEMES_PATH . 'trash');
                 break;
 
             case 'set_default':

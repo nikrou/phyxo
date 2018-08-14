@@ -68,7 +68,7 @@ function save_categories_order($categories)
     $fields = array('primary' => array('id'), 'update' => array('rank'));
     $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
 
-    update_global_rank();
+    \Phyxo\Functions\Utils::update_global_rank();
 }
 
 function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max')
@@ -145,8 +145,8 @@ $navigation .= '</a>';
 if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     \Phyxo\Functions\Category::delete_categories(array($_GET['delete']));
     $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Virtual album deleted'));
-    update_global_rank();
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::update_global_rank();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     $redirect_url = ALBUMS_BASE_URL . '&amp;section=list';
     if (isset($_GET['parent_id'])) {
@@ -154,12 +154,12 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     }
     \Phyxo\Functions\Utils::redirect($redirect_url);
 } elseif (isset($_POST['submitAdd'])) { // request to add a virtual category
-    $output_create = create_virtual_category(
+    $output_create = \Phyxo\Functions\Category::create_virtual_category(
         $_POST['virtual_name'],
         @$_GET['parent_id']
     );
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
     if (isset($output_create['error'])) {
         $page['errors'][] = $output_create['error'];
     } else {

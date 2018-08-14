@@ -424,7 +424,7 @@ class Category
         $query = 'SELECT id FROM ' . IMAGES_TABLE;
         $query .= ' WHERE storage_category_id ' . $conn->in($ids);
         $element_ids = $conn->query2array($query, null, 'id');
-        delete_elements($element_ids);
+        \Phyxo\Functions\Utils::delete_elements($element_ids);
 
         // now, should we delete photos that are virtually linked to the category?
         if ('delete_orphans' == $photo_deletion_mode or 'force_delete' == $photo_deletion_mode) {
@@ -445,7 +445,7 @@ class Category
                     $image_ids_to_delete = $image_ids_linked;
                 }
 
-                delete_elements($image_ids_to_delete, true);
+                \Phyxo\Functions\Utils::delete_elements($image_ids_to_delete, true);
             }
         }
 
@@ -520,7 +520,7 @@ class Category
             $query .= ' AND ' . sprintf($where_cats, 'category_id');
             $to_rand = $conn->query2array($query, null, 'id');
             if (count($to_rand) > 0) {
-                set_random_representant($to_rand);
+                \Phyxo\Functions\Utils::set_random_representant($to_rand);
             }
         }
     }
@@ -770,7 +770,7 @@ class Category
 
         // unlocking a category => all its parent categories become unlocked
         if ($value) {
-            $cats = get_uppercat_ids($categories);
+            $cats = self::get_uppercat_ids($categories);
             if ($unlock_child) {
                 $cats = array_merge($cats, self::get_subcat_ids($categories));
             }
@@ -805,7 +805,7 @@ class Category
 
         // make public a category => all its parent categories become public
         if ($value == 'public') {
-            $uppercats = get_uppercat_ids($categories);
+            $uppercats = self::get_uppercat_ids($categories);
             $query = 'UPDATE ' . CATEGORIES_TABLE . ' SET status = \'public\'';
             $query .= ' WHERE id ' . $conn->in($uppercats);
             $conn->db_query($query);
@@ -942,6 +942,517 @@ class Category
     public static function render_category_literal_description($desc)
     {
         return strip_tags($desc, '<span><p><a><br><b><i><small><big><strong><em>');
+    }
+
+    /**
+     * Returns all uppercats category ids of the given category ids.
+     *
+     * @param int[] $cat_ids
+     * @return int[]
+     */
+    public static function get_uppercat_ids($cat_ids)
+    {
+        global $conn;
+
+        if (!is_array($cat_ids) or count($cat_ids) < 1) {
+            return array();
+        }
+
+        $uppercats = array();
+
+        $query = 'SELECT uppercats FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($cat_ids);
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            $uppercats = array_merge($uppercats, explode(',', $row['uppercats']));
+        }
+        $uppercats = array_unique($uppercats);
+
+        return $uppercats;
+    }
+
+    /**
+     * Grant access to a list of categories for a list of users.
+     *
+     * @param int[] $category_ids
+     * @param int[] $user_ids
+     */
+    function add_permission_on_category($category_ids, $user_ids)
+    {
+        global $conn;
+
+        if (!is_array($category_ids)) {
+            $category_ids = array($category_ids);
+        }
+        if (!is_array($user_ids)) {
+            $user_ids = array($user_ids);
+        }
+
+        // check for emptiness
+        if (count($category_ids) == 0 or count($user_ids) == 0) {
+            return;
+        }
+
+        // make sure categories are private and select uppercats or subcats
+        $cat_ids = self::get_uppercat_ids($category_ids);
+        if (isset($_POST['apply_on_sub'])) {
+            $cat_ids = array_merge($cat_ids, self::get_subcat_ids($category_ids));
+        }
+
+        $query = 'SELECT id  FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($cat_ids);
+        $query .= ' AND status = \'private\';';
+        $private_cats = $conn->query2array($query, null, 'id');
+
+        if (count($private_cats) == 0) {
+            return;
+        }
+
+        $inserts = array();
+        foreach ($private_cats as $cat_id) {
+            foreach ($user_ids as $user_id) {
+                $inserts[] = array(
+                    'user_id' => $user_id,
+                    'cat_id' => $cat_id
+                );
+            }
+        }
+
+        $conn->mass_inserts(
+            USER_ACCESS_TABLE,
+            array('user_id', 'cat_id'),
+            $inserts,
+            array('ignore' => true)
+        );
+    }
+
+    /**
+     * Create a virtual category.
+     *
+     * @param string $category_name
+     * @param int $parent_id
+     * @param array $options
+     *    - boolean commentable
+     *    - boolean visible
+     *    - string status
+     *    - string comment
+     *    - boolean inherit
+     * @return array ('info', 'id') or ('error')
+     */
+    public static function create_virtual_category($category_name, $parent_id = null, $options = array())
+    {
+        global $conf, $user, $conn;
+
+        // is the given category name only containing blank spaces ?
+        if (preg_match('/^\s*$/', $category_name)) {
+            return array('error' => \Phyxo\Functions\Language::l10n('The name of an album must not be empty'));
+        }
+
+        $insert = array(
+            'name' => $category_name,
+            'rank' => 0,
+            'global_rank' => 0,
+        );
+
+        // is the album commentable?
+        if (isset($options['commentable']) and is_bool($options['commentable'])) {
+            $insert['commentable'] = $options['commentable'];
+        } else {
+            $insert['commentable'] = $conf['newcat_default_commentable'];
+        }
+        $insert['commentable'] = $conn->boolean_to_string($insert['commentable']);
+
+        // is the album temporarily locked? (only visible by administrators,
+        // whatever permissions) (may be overwritten if parent album is not visible)
+        if (isset($options['visible']) and is_bool($options['visible'])) {
+            $insert['visible'] = $options['visible'];
+        } else {
+            $insert['visible'] = $conf['newcat_default_visible'];
+        }
+        $insert['visible'] = $conn->boolean_to_string($insert['visible']);
+
+        // is the album private? (may be overwritten if parent album is private)
+        if (isset($options['status']) and 'private' == $options['status']) {
+            $insert['status'] = 'private';
+        } else {
+            $insert['status'] = $conf['newcat_default_status'];
+        }
+
+        // any description for this album?
+        if (isset($options['comment'])) {
+            $insert['comment'] = $conf['allow_html_descriptions'] ? $options['comment'] : strip_tags($options['comment']);
+        }
+
+        if (!empty($parent_id) and is_numeric($parent_id)) {
+            $query = 'SELECT id, uppercats, global_rank, visible, status FROM ' . CATEGORIES_TABLE;
+            $query .= ' WHERE id = ' . $parent_id . ';';
+            $parent = $conn->db_fetch_assoc($conn->db_query($query));
+
+            $insert['id_uppercat'] = (int)$parent['id'];
+            $insert['global_rank'] = $parent['global_rank'] . '.' . $insert['rank'];
+
+            // at creation, must a category be visible or not ? Warning : if the
+            // parent category is invisible, the category is automatically create
+            // invisible. (invisible = locked)
+            if ($conn->get_boolean($parent['visible']) === false) {
+                $insert['visible'] = 'false';
+            }
+
+            // at creation, must a category be public or private ? Warning : if the
+            // parent category is private, the category is automatically create private.
+            if ('private' == $parent['status']) {
+                $insert['status'] = 'private';
+            }
+
+            $uppercats_prefix = $parent['uppercats'] . ',';
+        } else {
+            $uppercats_prefix = '';
+        }
+
+        // we have then to add the virtual category
+        $conn->single_insert(CATEGORIES_TABLE, $insert);
+        $inserted_id = $conn->db_insert_id(CATEGORIES_TABLE);
+
+        $conn->single_update(
+            CATEGORIES_TABLE,
+            array('uppercats' => $uppercats_prefix . $inserted_id),
+            array('id' => $inserted_id)
+        );
+
+        \Phyxo\Functions\Utils::update_global_rank();
+
+        if ('private' == $insert['status'] and !empty($insert['id_uppercat'])
+            and ((isset($options['inherit']) and $options['inherit']) or $conf['inheritance_by_default'])) {
+            $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE;
+            $query .= ' WHERE cat_id = ' . $insert['id_uppercat'];
+            $granted_grps = $conn->query2array($query, null, 'group_id');
+            $inserts = array();
+            foreach ($granted_grps as $granted_grp) {
+                $inserts[] = array('group_id' => $granted_grp, 'cat_id' => $inserted_id);
+            }
+            $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $inserts);
+
+            $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $insert['id_uppercat'];
+            $granted_users = $conn->query2array($query, null, 'user_id');
+            add_permission_on_category(
+                $inserted_id,
+                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), array($user['id']), $granted_users))
+            );
+        } elseif ('private' == $insert['status']) {
+            add_permission_on_category(
+                $inserted_id,
+                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), array($user['id'])))
+            );
+        }
+
+        return array(
+            'info' => \Phyxo\Functions\Language::l10n('Virtual album added'),
+            'id' => $inserted_id,
+        );
+    }
+
+    /**
+     * Returns the fulldir for each given category id.
+     *
+     * @param int[] intcat_ids
+     * @return string[]
+     */
+    public static function get_fulldirs($cat_ids)
+    {
+        global $cat_dirs, $conn;
+
+        if (count($cat_ids) == 0) {
+            return array();
+        }
+
+        // caching directories of existing categories
+        $query = 'SELECT id, dir  FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL;';
+        $cat_dirs = $conn->query2array($query, 'id', 'dir');
+
+        // caching galleries_url
+        $query = 'SELECT id, galleries_url FROM ' . SITES_TABLE;
+        $galleries_url = $conn->query2array($query, 'id', 'galleries_url');
+
+        // categories : id, site_id, uppercats
+        $query = 'SELECT id, uppercats, site_id FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE dir IS NOT NULL';
+        $query .= ' AND id ' . $conn->in($cat_ids);
+        $categories = $conn->query2array($query);
+
+        // filling $cat_fulldirs
+        $cat_dirs_callback = function ($m) use ($cat_dirs) {
+            return $cat_dirs[$m[1]];
+        };
+
+        $cat_fulldirs = array();
+        foreach ($categories as $category) {
+            $uppercats = str_replace(',', '/', $category['uppercats']);
+            $cat_fulldirs[$category['id']] = $galleries_url[$category['site_id']];
+            $cat_fulldirs[$category['id']] .= preg_replace_callback(
+                '/(\d+)/',
+                $cat_dirs_callback,
+                $uppercats
+            );
+        }
+
+        unset($cat_dirs);
+
+        return $cat_fulldirs;
+    }
+
+    /**
+     * Updates categories.uppercats field based on categories.id + categories.id_uppercat
+     */
+    public static function update_uppercats()
+    {
+        global $conn;
+
+        $query = 'SELECT id, id_uppercat, uppercats FROM ' . CATEGORIES_TABLE;
+        $cat_map = $conn->query2array($query, 'id');
+
+        $datas = array();
+        foreach ($cat_map as $id => $cat) {
+            $upper_list = array();
+
+            $uppercat = $id;
+            while ($uppercat) {
+                $upper_list[] = $uppercat;
+                $uppercat = $cat_map[$uppercat]['id_uppercat'];
+            }
+
+            $new_uppercats = implode(',', array_reverse($upper_list));
+            if ($new_uppercats != $cat['uppercats']) {
+                $datas[] = array(
+                    'id' => $id,
+                    'uppercats' => $new_uppercats
+                );
+            }
+        }
+        $fields = array('primary' => array('id'), 'update' => array('uppercats'));
+        $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
+    }
+
+    /**
+     * Change the parent category of the given categories. The categories are
+     * supposed virtual.
+     *
+     * @param int[] $category_ids
+     * @param int $new_parent (-1 for root)
+     */
+    public static function move_categories($category_ids, $new_parent = -1)
+    {
+        global $page, $conn;
+
+        if (count($category_ids) == 0) {
+            return;
+        }
+
+        $new_parent = $new_parent < 1 ? 'NULL' : $new_parent;
+        $categories = array();
+
+        $query = 'SELECT id, id_uppercat, status, uppercats FROM ' . CATEGORIES_TABLE;
+        $query .= ' WHERE id ' . $conn->in($category_ids);
+        $result = $conn->db_query($query);
+        while ($row = $conn->db_fetch_assoc($result)) {
+            $categories[$row['id']] = array(
+                'parent' => empty($row['id_uppercat']) ? 'NULL' : $row['id_uppercat'],
+                'status' => $row['status'],
+                'uppercats' => $row['uppercats']
+            );
+        }
+
+        // is the movement possible? The movement is impossible if you try to move
+        // a category in a sub-category or itself
+        if ('NULL' != $new_parent) {
+            $query = 'SELECT uppercats FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $new_parent . ';';
+            list($new_parent_uppercats) = $conn->db_fetch_row($conn->db_query($query));
+
+            foreach ($categories as $category) {
+            // technically, you can't move a category with uppercats 12,125,13,14
+            // into a new parent category with uppercats 12,125,13,14,24
+                if (preg_match('/^' . $category['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
+                    $page['errors'][] = \Phyxo\Functions\Language::l10n('You cannot move an album in its own sub album');
+                    return;
+                }
+            }
+        }
+
+        $tables = array(
+            USER_ACCESS_TABLE => 'user_id',
+            GROUP_ACCESS_TABLE => 'group_id'
+        );
+
+        $query = 'UPDATE ' . CATEGORIES_TABLE;
+        $query .= ' SET id_uppercat = ' . $new_parent;
+        $query .= ' WHERE id ' . $conn->in($category_ids);
+        $conn->db_query($query);
+
+        self::update_uppercats();
+        \Phyxo\Functions\Utils::update_global_rank();
+
+        // status and related permissions management
+        if ('NULL' == $new_parent) {
+            $parent_status = 'public';
+        } else {
+            $query = 'SELECT status FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $new_parent . ';';
+            list($parent_status) = $conn->db_fetch_row($conn->db_query($query));
+        }
+
+        if ('private' == $parent_status) {
+            self::set_cat_status(array_keys($categories), 'private');
+        }
+
+        $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+            '%d album moved',
+            '%d albums moved',
+            count($categories)
+        );
+    }
+
+    /**
+     * Associate a list of images to a list of categories.
+     * The function will not duplicate links and will preserve ranks.
+     *
+     * @param int[] $images
+     * @param int[] $categories
+     */
+    public static function associate_images_to_categories($images, $categories)
+    {
+        global $conn;
+
+        if (count($images) == 0 || count($categories) == 0) {
+            return false;
+        }
+
+        // get existing associations
+        $query = 'SELECT image_id,category_id FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE image_id ' . $conn->in($images);
+        $query .= ' AND category_id ' . $conn->in($categories);
+        $result = $conn->db_query($query);
+
+        $existing = array();
+        while ($row = $conn->db_fetch_assoc($result)) {
+            $existing[$row['category_id']][] = $row['image_id'];
+        }
+
+        // get max rank of each categories
+        $query = 'SELECT category_id,MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE rank IS NOT NULL';
+        $query .= ' AND category_id ' . $conn->in($categories);
+        $query .= ' GROUP BY category_id;';
+
+        $current_rank_of = $conn->query2array(
+            $query,
+            'category_id',
+            'max_rank'
+        );
+
+        // associate only not already associated images
+        $inserts = array();
+        foreach ($categories as $category_id) {
+            if (!isset($current_rank_of[$category_id])) {
+                $current_rank_of[$category_id] = 0;
+            }
+            if (!isset($existing[$category_id])) {
+                $existing[$category_id] = array();
+            }
+
+            foreach ($images as $image_id) {
+                if (!in_array($image_id, $existing[$category_id])) {
+                    $rank = ++$current_rank_of[$category_id];
+
+                    $inserts[] = array(
+                        'image_id' => $image_id,
+                        'category_id' => $category_id,
+                        'rank' => $rank,
+                    );
+                }
+            }
+        }
+
+        if (count($inserts)) {
+            $conn->mass_inserts(
+                IMAGE_CATEGORY_TABLE,
+                array_keys($inserts[0]),
+                $inserts
+            );
+
+            \Phyxo\Functions\Category::update_category($categories);
+        }
+    }
+
+    /**
+     * Dissociate images from all old categories except their storage category and
+     * associate to new categories.
+     * This function will preserve ranks.
+     *
+     * @param int[] $images
+     * @param int[] $categories
+     */
+    public static function move_images_to_categories($images, $categories)
+    {
+        global $conn;
+
+        if (count($images) == 0) {
+            return false;
+        }
+
+        // let's first break links with all old albums but their "storage album"
+        $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id in (';
+        $query .= ' SELECT id FROM ' . IMAGES_TABLE;
+        $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT ' . $conn->in($categories) . ')';
+        $query .= ')';
+        $query .= ' AND image_id ' . $conn->in($images);
+
+        $conn->db_query($query);
+
+        if (is_array($categories) and count($categories) > 0) {
+            self::associate_images_to_categories($images, $categories);
+        }
+    }
+
+    /**
+     * Associate images associated to a list of source categories to a list of
+     * destination categories.
+     *
+     * @param int[] $sources
+     * @param int[] $destinations
+     */
+    public static function associate_categories_to_categories($sources, $destinations)
+    {
+        global $conn;
+
+        if (count($sources) == 0) {
+            return false;
+        }
+
+        $query = 'SELECT image_id FROM ' . IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id ' . $conn->in($sources);
+        $images = $conn->query2array($query, null, 'image_id');
+
+        self::associate_images_to_categories($images, $destinations);
+    }
+
+    /**
+     * Is the category accessible to the (Admin) user ?
+     * Note : if the user is not authorized to see this category, category jump
+     * will be replaced by admin cat_modify page
+     *
+     * @param int $category_id
+     * @return bool
+     */
+    public static function cat_admin_access($category_id)
+    {
+        global $user;
+
+        // $filter['visible_categories'] and $filter['visible_images']
+        // are not used because it's not necessary (filter <> restriction)
+        if (in_array($category_id, explode(',', $user['forbidden_categories']))) {
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -441,8 +441,6 @@ function ws_categories_getAdminList($params, &$service)
  */
 function ws_categories_add($params, &$service)
 {
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-
     $options = array();
     if (!empty($params['status']) and in_array($params['status'], array('private', 'public'))) {
         $options['status'] = $params['status'];
@@ -452,7 +450,7 @@ function ws_categories_add($params, &$service)
         $options['comment'] = $params['comment'];
     }
 
-    $creation_output = create_virtual_category(
+    $creation_output = \Phyxo\Functions\Category::create_virtual_category(
         $params['name'],
         $params['parent'],
         $options
@@ -462,7 +460,7 @@ function ws_categories_add($params, &$service)
         return new Phyxo\Ws\Error(500, $creation_output['error']);
     }
 
-    invalidate_user_cache();
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     return $creation_output;
 }
@@ -595,9 +593,8 @@ function ws_categories_delete($params, &$service)
         return;
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
     \Phyxo\Functions\Category::delete_categories($category_ids, $params['photo_deletion_mode']);
-    update_global_rank();
+    \Phyxo\Functions\Utils::update_global_rank();
 }
 
 /**
@@ -686,9 +683,8 @@ function ws_categories_move($params, &$service)
     $page['infos'] = array();
     $page['errors'] = array();
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-    move_categories($category_ids, $params['parent']);
-    invalidate_user_cache();
+    \Phyxo\Functions\Category::move_categories($category_ids, $params['parent']);
+    \Phyxo\Functions\Utils::invalidate_user_cache();
 
     if (count($page['errors']) != 0) {
         return new Phyxo\Ws\Error(403, implode('; ', $page['errors']));
