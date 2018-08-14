@@ -15,9 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use GuzzleHttp\Client;
 
-
 include_once(PHPWG_ROOT_PATH . 'admin/include/functions.php');
-include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
 // +-----------------------------------------------------------------------+
@@ -141,8 +139,8 @@ if ($nb_elements > 0) {
 }
 
 // graphics library
-switch (pwg_image::get_library()) {
-    case 'imagick':
+switch (\Phyxo\Image\Image::get_library()) {
+    case 'Imagick':
         $library = 'ImageMagick';
         $img = new Imagick();
         $version = $img->getVersion();
@@ -152,7 +150,7 @@ switch (pwg_image::get_library()) {
         $template->assign('GRAPHICS_LIBRARY', $library);
         break;
 
-    case 'ext_imagick':
+    case 'ExtImagick':
         $library = 'External ImageMagick';
         exec($conf['ext_imagick_dir'] . 'convert -version', $returnarray);
         if (preg_match('/Version: ImageMagick (\d+\.\d+\.\d+-?\d*)/', $returnarray[0], $match)) {
@@ -161,7 +159,7 @@ switch (pwg_image::get_library()) {
         $template->assign('GRAPHICS_LIBRARY', $library);
         break;
 
-    case 'gd':
+    case 'GD':
         $gd_info = gd_info();
         $template->assign('GRAPHICS_LIBRARY', 'GD ' . @$gd_info['GD Version']);
         break;

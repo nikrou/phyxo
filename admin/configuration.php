@@ -401,7 +401,7 @@ switch ($page['section']) {
     // we only load the derivatives if it was not already loaded: it occurs
     // when submitting the form and an error remains
             if (!isset($page['sizes_loaded_in_tpl'])) {
-                $is_gd = (pwg_image::get_library() == 'gd') ? true : false;
+                $is_gd = (\Phyxo\Image\Image::get_library() === 'GD') ? true : false;
                 $template->assign('is_gd', $is_gd);
                 $template->assign(
                     'sizes',

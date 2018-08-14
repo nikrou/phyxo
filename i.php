@@ -376,7 +376,6 @@ if (!$need_generate) {
     exit;
 }
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/image.class.php');
 $page['coi'] = null;
 if (strpos($page['src_location'], '/pwg_representative/') === false
     && strpos($page['src_location'], 'themes/') === false && strpos($page['src_location'], 'plugins/') === false) {
@@ -391,15 +390,15 @@ if (strpos($page['src_location'], '/pwg_representative/') === false
             $page['coi'] = $row['coi'];
 
             if (!isset($row['rotation'])) {
-                $page['rotation_angle'] = pwg_image::get_rotation_angle($page['src_path']);
+                $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle($page['src_path']);
 
                 $conn->single_update(
                     $prefixeTable . 'images',
-                    array('rotation' => pwg_image::get_rotation_code_from_angle($page['rotation_angle'])),
+                    array('rotation' => \Phyxo\Image\Image::get_rotation_code_from_angle($page['rotation_angle'])),
                     array('id' => $row['id'])
                 );
             } else {
-                $page['rotation_angle'] = pwg_image::get_rotation_angle_from_code($row['rotation']);
+                $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle_from_code($row['rotation']);
             }
         }
         if (!$row) {
@@ -428,7 +427,7 @@ if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']))) {
 ignore_user_abort(true);
 @set_time_limit(0);
 
-$image = new pwg_image($page['src_path']);
+$image = new \Phyxo\Image\Image($page['src_path']);
 $timing['load'] = time_step($step);
 
 $changes = 0;
@@ -463,7 +462,7 @@ if ($params->sharpen) {
 
 if ($params->will_watermark($d_size)) {
     $wm = \Phyxo\Image\ImageStdParams::get_watermark();
-    $wm_image = new pwg_image(PHPWG_ROOT_PATH . $wm->file);
+    $wm_image = new \Phyxo\Image\Image(PHPWG_ROOT_PATH . $wm->file);
     $wm_size = array($wm_image->get_width(), $wm_image->get_height());
     if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
         $wm_scaling_params = \Phyxo\Image\SizingParams::classic($d_size[0], $d_size[1]);

@@ -26,8 +26,8 @@ if (!$conf['allow_web_services']) {
     \Phyxo\Functions\HTTP::page_forbidden('Web services are disabled');
 }
 
-\Phxyo\Functions\Plugin::add_event_handler('ws_add_methods', 'ws_addDefaultMethods');
-\Phxyo\Functions\Plugin::add_event_handler('ws_invoke_allowed', 'ws_isInvokeAllowed', \Phxyo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
+\Phyxo\Functions\Plugin::add_event_handler('ws_add_methods', 'ws_addDefaultMethods');
+\Phyxo\Functions\Plugin::add_event_handler('ws_invoke_allowed', 'ws_isInvokeAllowed', \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
 
 $requestFormat = 'rest';
 $responseFormat = null;
