@@ -760,14 +760,12 @@ function ws_images_addFile($params, $service)
     merge_chunks($file_path, $image['md5sum'], $original_type);
     chmod($file_path, 0644);
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
-
     // if we receive the "file", we only update the original if the "file" is
     // bigger than current original
     if ('file' == $params['type']) {
         $do_update = false;
 
-        $infos = pwg_image_infos($file_path);
+        $infos = \Phyxo\Functions\Upload::image_infos($file_path);
 
         foreach (array('width', 'height', 'filesize') as $image_info) {
             if ($infos[$image_info] > $image[$image_info]) {
@@ -781,7 +779,7 @@ function ws_images_addFile($params, $service)
         }
     }
 
-    $image_id = add_uploaded_file(
+    $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
         $file_path,
         $image['file'],
         null,
@@ -864,9 +862,7 @@ function ws_images_add($params, $service)
     merge_chunks($file_path, $params['original_sum'], $original_type);
     chmod($file_path, 0644);
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
-
-    $image_id = add_uploaded_file(
+    $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
         $file_path,
         $params['original_filename'],
         null, // categories
@@ -957,9 +953,7 @@ function ws_images_addSimple($params, $service)
         }
     }
 
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
-
-    $image_id = add_uploaded_file(
+    $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
         $_FILES['image']['tmp_name'],
         $_FILES['image']['name'],
         $params['category'],
@@ -1100,9 +1094,7 @@ function ws_images_upload($params, $service)
         // Strip the temp .part suffix off
         rename("{$filePath}.part", $filePath);
 
-        include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
-
-        $image_id = add_uploaded_file(
+        $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
             $filePath,
             $params['name'],
             $params['category'],
@@ -1502,9 +1494,7 @@ function ws_images_delete($params, $service)
  */
 function ws_images_checkUpload($params, $service)
 {
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upload.inc.php');
-
-    $ret['message'] = ready_for_upload_message();
+    $ret['message'] = \Phyxo\Functions\Upload::ready_for_upload_message();
     $ret['ready_for_upload'] = true;
     if (!empty($ret['message'])) {
         $ret['ready_for_upload'] = false;

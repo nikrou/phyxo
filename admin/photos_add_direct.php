@@ -39,6 +39,10 @@ if (isset($_GET['batch'])) {
     \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager&filter=prefilter-caddie');
 }
 
+// add default event handler for image and thumbnail resize
+\Phyxo\Functions\Plugin::add_event_handler('upload_image_resize', 'pwg_image_resize');
+\Phyxo\Functions\Plugin::add_event_handler('upload_thumbnail_resize', 'pwg_image_resize');
+
 // +-----------------------------------------------------------------------+
 // |                             prepare form                              |
 // +-----------------------------------------------------------------------+

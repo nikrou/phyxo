@@ -14,14 +14,14 @@
 // +-----------------------------------------------------------------------+
 
 $upload_max_filesize = min(
-    get_ini_size('upload_max_filesize'),
-    get_ini_size('post_max_size')
+    \Phyxo\Functions\Upload::get_ini_size('upload_max_filesize'),
+    \Phyxo\Functions\Upload::get_ini_size('post_max_size')
 );
 
-if ($upload_max_filesize == get_ini_size('upload_max_filesize')) {
-    $upload_max_filesize_shorthand = get_ini_size('upload_max_filesize', false);
+if ($upload_max_filesize == \Phyxo\Functions\Upload::get_ini_size('upload_max_filesize')) {
+    $upload_max_filesize_shorthand = \Phyxo\Functions\Upload::get_ini_size('upload_max_filesize', false);
 } else {
-    $upload_max_filesize_shorthand = get_ini_size('post_max_filesize', false);
+    $upload_max_filesize_shorthand = \Phyxo\Functions\Upload::get_ini_size('post_max_filesize', false);
 }
 
 $template->assign(
@@ -35,7 +35,7 @@ $template->assign(
 // what is the maximum number of pixels permitted by the memory_limit?
 if (\Phyxo\Image\Image::get_library() === 'GD') {
     $fudge_factor = 1.7;
-    $available_memory = get_ini_size('memory_limit') - memory_get_usage();
+    $available_memory = \Phyxo\Functions\Upload::get_ini_size('memory_limit') - memory_get_usage();
     $max_upload_width = round(sqrt($available_memory / (2 * $fudge_factor)));
     $max_upload_height = round(2 * $max_upload_width / 3);
 
@@ -146,7 +146,7 @@ $template->assign(
 // Errors
 $setup_errors = array();
 
-$error_message = ready_for_upload_message();
+$error_message = \Phyxo\Functions\Upload::ready_for_upload_message();
 if (!empty($error_message)) {
     $setup_errors[] = $error_message;
 }
@@ -172,11 +172,11 @@ if (!isset($_SESSION['upload_hide_warnings'])) {
         $setup_warnings[] = \Phyxo\Functions\Language::l10n('Exif extension not available, admin should disable exif use');
     }
 
-    if (get_ini_size('upload_max_filesize') > get_ini_size('post_max_size')) {
+    if (\Phyxo\Functions\Upload::get_ini_size('upload_max_filesize') > \Phyxo\Functions\Upload::get_ini_size('post_max_size')) {
         $setup_warnings[] = \Phyxo\Functions\Language::l10n(
             'In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting',
-            get_ini_size('upload_max_filesize', false),
-            get_ini_size('post_max_size', false)
+            \Phyxo\Functions\Upload::get_ini_size('upload_max_filesize', false),
+            \Phyxo\Functions\Upload::get_ini_size('post_max_size', false)
         );
     }
     $template->assign(
