@@ -27,6 +27,8 @@ $display_thumbnails = array(
     'display_thumbnail_hoverbox' => \Phyxo\Functions\Language::l10n('Hoverbox display')
 );
 
+\Phyxo\Functions\Plugin::add_event_handler('get_history', '\Phyxo\Functions\History::get_history');
+
 // +-----------------------------------------------------------------------+
 // | Build search criteria and redirect to results                         |
 // +-----------------------------------------------------------------------+
@@ -141,7 +143,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
     $data = \Phyxo\Functions\Plugin::trigger_change('get_history', array(), $page['search'], $types);
-    usort($data, 'history_compare');
+    usort($data, '\Phyxo\Functions\History::history_compare');
 
     $page['nb_lines'] = count($data);
 

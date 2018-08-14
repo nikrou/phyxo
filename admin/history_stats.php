@@ -165,7 +165,7 @@ if (isset($page['month'])) {
     }
 }
 
-$summary_lines = get_summary(
+$summary_lines = \Phyxo\Functions\History::get_summary(
     @$page['year'],
     @$page['month'],
     @$page['day']
