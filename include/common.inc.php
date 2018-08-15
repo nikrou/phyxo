@@ -166,8 +166,7 @@ if ($conf['gallery_locked']) {
 }
 
 if ($conf['check_upgrade_feed']) {
-    include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
-    if (check_upgrade_feed()) {
+    if (\Phyxo\Functions\Upgrade::check_upgrade_feed()) {
         $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'upgrade_feed.php">upgrade now</a>';
     }
 }

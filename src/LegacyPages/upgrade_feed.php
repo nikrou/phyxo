@@ -23,9 +23,6 @@ defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
 include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
-
-
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when it is not ok                               |
 // +-----------------------------------------------------------------------+
@@ -34,7 +31,7 @@ if (!$conf['check_upgrade_feed']) {
     die("upgrade feed is not active");
 }
 
-prepare_conf_upgrade();
+\Phyxo\Functions\Upload::prepare_conf_upgrade();
 
 define('PREFIX_TABLE', $prefixeTable);
 define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
@@ -57,7 +54,7 @@ $query = 'SELECT id FROM ' . PREFIX_TABLE . 'upgrade;';
 $applied = $conn->query2array($query, null, 'id');
 
 // retrieve existing upgrades
-$existing = get_available_upgrade_ids();
+$existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);

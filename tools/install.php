@@ -21,7 +21,6 @@ use Phyxo\Language\Languages;
 
 require_once(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 require_once(PHPWG_ROOT_PATH . 'local/config/database.inc.php');
-require_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
@@ -105,7 +104,7 @@ $services['users']->createUserInfos(array(1, 2), array('language' => 'en'));
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 $datas = array();
-foreach (get_available_upgrade_ids() as $upgrade_id) {
+foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
     $datas[] = array(
         'id' => $upgrade_id,
         'applied' => CURRENT_DATE,

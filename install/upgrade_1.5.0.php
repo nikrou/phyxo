@@ -1,28 +1,19 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 if (!defined('PHPWG_ROOT_PATH')) {
-    die ('This page cannot be loaded directly, load upgrade.php');
+    die('This page cannot be loaded directly, load upgrade.php');
 } else {
     if (!defined('PHPWG_IN_UPGRADE') or !PHPWG_IN_UPGRADE) {
-        die ('Hacking attempt!');
+        die('Hacking attempt!');
     }
 }
 
@@ -31,11 +22,11 @@ $first_id = 146;
 $last_id = 146;
 
 // retrieve already applied upgrades
-$query = 'SELECT id  FROM '.PREFIX_TABLE.'upgrade;';
+$query = 'SELECT id  FROM ' . PREFIX_TABLE . 'upgrade;';
 $applied = $conn->query2array($query, null, 'id');
 
 // retrieve existing upgrades
-$existing = get_available_upgrade_ids();
+$existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);
@@ -63,8 +54,8 @@ if (!empty($inserts)) {
 ob_start();
 echo '<pre>';
 
-for ($upgrade_id=$first_id;$upgrade_id<=$last_id;$upgrade_id++) {
-    if (!file_exists(UPGRADES_PATH.'/'.$upgrade_id.'-database.php')) {
+for ($upgrade_id = $first_id; $upgrade_id <= $last_id; $upgrade_id++) {
+    if (!file_exists(UPGRADES_PATH . '/' . $upgrade_id . '-database.php')) {
         continue;
     }
 
@@ -77,17 +68,17 @@ for ($upgrade_id=$first_id;$upgrade_id<=$last_id;$upgrade_id++) {
     unset($upgrade_description);
 
     echo "\n\n";
-    echo '=== upgrade '.$upgrade_id."\n";
+    echo '=== upgrade ' . $upgrade_id . "\n";
 
     // include & execute upgrade script. Each upgrade script must contain
     // $upgrade_description variable which describe briefly what the upgrade
     // script does.
-    include(UPGRADES_PATH.'/'.$upgrade_id.'-database.php');
+    include(UPGRADES_PATH . '/' . $upgrade_id . '-database.php');
 
     // notify upgrade (TODO change on each release)
-    $query = 'INSERT INTO '.PREFIX_TABLE.'upgrade (id, applied, description)';
+    $query = 'INSERT INTO ' . PREFIX_TABLE . 'upgrade (id, applied, description)';
     $query .= ' VALUES';
-    $query.= '(\''.$upgrade_id.'\', NOW(), \'[migration from '.$release_from.' to '.PHPWG_VERSION.'] '.$upgrade_description.'\');';
+    $query .= '(\'' . $upgrade_id . '\', NOW(), \'[migration from ' . $release_from . ' to ' . PHPWG_VERSION . '] ' . $upgrade_description . '\');';
     $conn->db_query($query);
 }
 

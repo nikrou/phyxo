@@ -121,8 +121,6 @@ if (!isset($step)) {
 }
 
 //---------------------------------------------------------------- form analyze
-include(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
-
 if (isset($_POST['install'])) {
     if ($dblayer != 'sqlite') {
         if (empty($dbuser)) {
@@ -276,7 +274,7 @@ define(\'DB_COLLATE\', \'\');';
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         define('CURRENT_DATE', $dbnow);
         $datas = array();
-        foreach (get_available_upgrade_ids() as $upgrade_id) {
+        foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
             $datas[] = array(
                 'id' => $upgrade_id,
                 'applied' => CURRENT_DATE,

@@ -38,8 +38,6 @@ define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 // +-----------------------------------------------------------------------+
 // |                          database connection                          |
 // +-----------------------------------------------------------------------+
-include_once(PHPWG_ROOT_PATH . 'admin/include/functions_upgrade.php');
-
 try {
     $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
 } catch (Exception $e) {
@@ -103,6 +101,7 @@ if (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
 } elseif (!in_array(142, $applied_upgrades)) {
     $current_release = '1.0.0';
 } else {
+    // @TODO: add a template ; not display a almost blank page
     // confirm that the database is in the same version as source code files
     \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
 
@@ -119,9 +118,9 @@ $page['infos'] = array();
 $page['errors'] = array();
 $mysql_changes = array();
 
-check_upgrade_access_rights();
+\Phyxo\Functions\Upgrade::check_upgrade_access_rights();
 
-if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
+if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade::check_upgrade()) {
     $upgrade_file = PHPWG_ROOT_PATH . 'install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
         $page['upgrade_start'] = microtime(true);
@@ -131,11 +130,10 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE . 'plugins', $tables)) {
-            deactivate_non_standard_plugins();
+            \Phyxo\Functions\Upgrade::deactivate_non_standard_plugins();
         }
 
-        deactivate_non_standard_themes();
-        deactivate_templates();
+        \Phyxo\Functions\Upgrade::deactivate_non_standard_themes();
 
         $page['upgrade_end'] = microtime(true);
 
@@ -197,7 +195,7 @@ if ((isset($_POST['submit']) or isset($_GET['now'])) and check_upgrade()) {
         'F_ACTION' => 'upgrade.php?language=' . $language
     ));
 
-    if (!check_upgrade()) {
+    if (!\Phyxo\Functions\Upgrade::check_upgrade()) {
         $template->assign('login', true);
     }
 }
