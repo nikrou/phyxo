@@ -135,12 +135,18 @@ if ($services['users']->isGuest()) {
 }
 
 if (!defined('IN_WS') || !IN_WS) {
-    // template instance
     if (defined('IN_ADMIN') && IN_ADMIN) { // Admin template
-        $template = new Template(PHPWG_ROOT_PATH . 'admin/theme', '.');
-    } else { // Classic template
+        $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
+        $compile_dir = PHPWG_ROOT_PATH . $conf['data_location'] . 'templates_c';
+        \Phyxo\Functions\Utils::mkgetdir($compile_dir);
+        $template->setCompileDir($compile_dir);
+        $template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
+    } else {
+        $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
+        $compile_dir = $container->getParameter('kernel.cache_dir').'/smarty';
+        $template->setCompileDir($compile_dir);
         $theme = $user['theme'];
-        $template = new Template(PHPWG_ROOT_PATH . 'themes', $theme);
+        $template->set_theme(PHPWG_ROOT_PATH . 'themes', $theme);
     }
 }
 

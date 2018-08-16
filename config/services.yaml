@@ -44,3 +44,11 @@ services:
           template: 'data_collector/queries.html.twig'
           id: 'app.dblayer_collector'
           public: false
+
+    Phyxo\Template\Template:
+      factory: 'Phyxo\Template\Template::init'
+      arguments: ['%kernel.cache_dir%/smarty']
+
+    phyxo.template:
+      public: true
+      alias: 'Phyxo\Template\Template'

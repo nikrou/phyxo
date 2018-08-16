@@ -53,31 +53,40 @@ class Template
      * @var string $theme
      * @var string $path
      */
-    public function __construct($root = '.', $theme = '', $path = 'template')
+    private $options = [];
+
+    public function __construct(array $options = [])
     {
-        global $conf, $lang_info;
+        $this->options = array_merge(
+            ['conf' => [], 'lang' => [], 'lang_info' => []],
+            $options
+        );
 
         SmartyException::$escape = false;
 
         $this->scriptLoader = new ScriptLoader();
         $this->cssLoader = new CssLoader();
         $this->smarty = new Smarty();
-        $this->smarty->debugging = $conf['debug_template'];
+
+        if (!empty($this->options['conf']['debug_template'])) {
+            $this->smarty->debugging = $this->options['conf']['debug_template'];
+        }
+
         if (!$this->smarty->debugging) {
             $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
         }
-        $this->smarty->compile_check = $conf['template_compile_check'];
-        $this->smarty->force_compile = $conf['template_force_compile'];
-        $compile_dir = PHPWG_ROOT_PATH . $conf['data_location'] . 'templates_c';
-        Utils::mkgetdir($compile_dir);
 
-        $params_url = parse_url($_SERVER['REQUEST_URI']);
-        $this->smarty->assign('BASE_URL', preg_replace('`\/[^/]*$`', '', $params_url['path']));
+        if (!empty($this->options['conf']['template_compile_check'])) {
+            $this->smarty->compile_check = $this->options['conf']['template_compile_check'];
+        }
 
-        $this->smarty->setCompileDir($compile_dir);
+        if (!empty($this->options['conf']['template_force_compile'])) {
+            $this->smarty->force_compile = $this->options['conf']['template_force_compile'];
+        }
+
         $this->smarty->assign('pwg', new TemplateAdapter());
-        $this->smarty->registerPlugin('modifiercompiler', 'translate', array(__class__, 'modcompiler_translate'));
-        $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', array(__class__, 'modcompiler_translate_dec'));
+        $this->smarty->registerPlugin('modifiercompiler', 'translate', array($this, 'modcompiler_translate'));
+        $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', array($this, 'modcompiler_translate_dec'));
         $this->smarty->registerPlugin('modifier', 'explode', array(__class__, 'mod_explode'));
         $this->smarty->registerPlugin('modifier', 'ternary', array(__class__, 'mod_ternary'));
         $this->smarty->registerPlugin('block', 'html_head', array($this, 'block_html_head'));
@@ -90,31 +99,33 @@ class Template
         $this->smarty->registerPlugin('compiler', 'get_combined_css', array($this, 'func_get_combined_css'));
         $this->smarty->registerPlugin('block', 'footer_script', array($this, 'block_footer_script'));
         $this->smarty->registerFilter('pre', array(__class__, 'prefilter_white_space'));
-        if ($conf['compiled_template_cache_language']) {
+        if (!empty($this->options['conf']['compiled_template_cache_language'])) {
             $this->smarty->registerFilter('post', array(__class__, 'postfilter_language'));
         }
 
-        $this->smarty->setTemplateDir(array());
-        if (!empty($theme)) {
-            $this->set_theme($root, $theme, $path);
-            if (!defined('IN_ADMIN')) {
-                $this->set_prefilter('header', array(__class__, 'prefilter_local_css'));
-            }
-        } else {
-            $this->set_template_dir($root);
-        }
-
-
         // @TODO: to be removed ?
-        if (isset($lang_info['code']) and !isset($lang_info['jquery_code'])) {
-            $lang_info['jquery_code'] = $lang_info['code'];
+        if (isset($this->options['lang_info']['code']) && !isset($this->options['lang_info']['jquery_code'])) {
+            $this->options['lang_info']['jquery_code'] = $this->options['lang_info']['code'];
         }
 
-        if (isset($lang_info['jquery_code']) and !isset($lang_info['plupload_code'])) {
-            $lang_info['plupload_code'] = str_replace('-', '_', $lang_info['jquery_code']);
+        if (isset($this->options['lang_info']['jquery_code']) && !isset($this->options['lang_info']['plupload_code'])) {
+            $this->options['lang_info']['plupload_code'] = str_replace('-', '_', $this->options['lang_info']['jquery_code']);
         }
 
-        $this->smarty->assign('lang_info', $lang_info);
+        $this->smarty->assign('lang_info', $this->options['lang_info']);
+    }
+
+    public static function init($compile_dir)
+    {
+        $template = new Template();
+        $template->setCompileDir($compile_dir);
+
+        return $template;
+    }
+
+    public function setCompileDir($compile_dir)
+    {
+        $this->smarty->setCompileDir($compile_dir);
     }
 
     /**
@@ -126,21 +137,27 @@ class Template
      * @param bool $load_css
      * @param bool $load_local_head
      */
-    public function set_theme($root, $theme, $path, $load_css = true, $load_local_head = true, $colorscheme = 'dark')
+    public function set_theme($root, $theme = '', $template = 'template', $load_css = true, $load_local_head = true, $colorscheme = 'dark')
     {
-        $this->set_template_dir($root . '/' . $theme . '/' . $path);
-
+        if (!empty($theme)) {
+            $this->set_template_dir($root . '/' . $theme . '/' . $template);
+            if (!defined('IN_ADMIN')) {
+                $this->set_prefilter('header', array(__class__, 'prefilter_local_css'));
+            }
+        } else {
+            $this->set_template_dir($root);
+        }
         $themeconf = $this->load_themeconf($root . '/' . $theme);
 
         if (isset($themeconf['load_css'])) {
             $load_css = $themeconf['load_css'];
         }
 
-        if (isset($themeconf['parent']) and $themeconf['parent'] != $theme) {
+        if (isset($themeconf['parent']) && $themeconf['parent'] != $theme) {
             $this->set_theme(
                 $root,
                 $themeconf['parent'],
-                $path,
+                $template,
                 isset($themeconf['load_parent_css']) ? $themeconf['load_parent_css'] : $load_css,
                 isset($themeconf['load_parent_local_head']) ? $themeconf['load_parent_local_head'] : $load_local_head
             );
@@ -348,8 +365,6 @@ class Template
      */
     public function parse($handle, $return = false)
     {
-        global $conf, $lang_info;
-
         if (!isset($this->files[$handle])) {
             \Phyxo\Functions\HTTP::fatal_error("Template->parse(): Couldn't load template file for handle $handle");
         }
@@ -359,7 +374,7 @@ class Template
         $save_compile_id = $this->smarty->compile_id;
         $this->load_external_filters($handle);
 
-        if ($conf['compiled_template_cache_language'] and isset($lang_info['code'])) {
+        if (!empty($this->options['conf']['compiled_template_cache_language']) && isset($this->options['lang_info']['code'])) {
             $this->smarty->compile_id .= '_' . $lang_info['code'];
         }
 
@@ -389,7 +404,7 @@ class Template
     /**
      * Load and compile JS & CSS into the template and sends the output to the browser.
      */
-    public function flush()
+    public function flush($return = false)
     {
         if (!$this->scriptLoader->did_head()) {
             $pos = strpos($this->output, self::COMBINED_SCRIPTS_TAG);
@@ -436,6 +451,10 @@ class Template
             $this->html_style = '';
         }
 
+        if ($return) {
+            return $this->output;
+        }
+
         echo $this->output;
         $this->output = '';
     }
@@ -453,7 +472,7 @@ class Template
         if ($this->smarty->debugging) {
             $this->smarty->assign(
                 array(
-                    'AAAA_DEBUG_TOTAL_TIME__' => Utils::get_elapsed_time($t2, microtime(true))
+                    'DEBUG_TOTAL_TIME__' => Utils::get_elapsed_time($t2, microtime(true))
                 )
             );
             $this->smarty->_debug->display_debug($this->smarty);
@@ -487,21 +506,19 @@ class Template
      * @param array $params
      * @return string
      */
-    public static function modcompiler_translate($params)
+    public function modcompiler_translate($params)
     {
-        global $conf, $lang;
-
         switch (count($params)) {
             case 1:
-                if ($conf['compiled_template_cache_language']
+                if (!empty($this->options['conf']['compiled_template_cache_language'])
                     && ($key = self::get_php_str_val($params[0])) !== null
-                    && isset($lang[$key])) {
-                    return var_export($lang[$key], true);
+                    && isset($this->options['lang'][$key])) {
+                    return var_export($this->options['lang'][$key], true);
                 }
                 return '\Phyxo\Functions\Language::l10n(' . $params[0] . ')';
 
             default:
-                if ($conf['compiled_template_cache_language']) {
+                if (!empty($this->options['conf']['compiled_template_cache_language'])) {
                     $ret = 'sprintf(';
                     $ret .= self::modcompiler_translate(array($params[0]));
                     $ret .= ',' . implode(',', array_slice($params, 1));
@@ -521,21 +538,19 @@ class Template
      * @param array $params
      * @return string
      */
-    public static function modcompiler_translate_dec($params)
+    public function modcompiler_translate_dec($params)
     {
-        global $conf, $lang, $lang_info;
-
-        if ($conf['compiled_template_cache_language']) {
+        if (!empty($this->options['conf']['compiled_template_cache_language'])) {
             $ret = 'sprintf(';
-            if ($lang_info['zero_plural']) {
+            if ($this->options['lang_info']['zero_plural']) {
                 $ret .= '($tmp=(' . $params[0] . '))>1||$tmp==0';
             } else {
                 $ret .= '($tmp=(' . $params[0] . '))>1';
             }
             $ret .= '?';
-            $ret .= self::modcompiler_translate(array($params[2]));
+            $ret .= $this->modcompiler_translate(array($params[2]));
             $ret .= ':';
-            $ret .= self::modcompiler_translate(array($params[1]));
+            $ret .= $this->modcompiler_translate(array($params[1]));
             $ret .= ',$tmp';
             $ret .= ')';
             return $ret;
@@ -710,9 +725,9 @@ class Template
             $params['id'],
             $load,
             empty($params['require']) ? array() : explode(',', $params['require']),
-            @$params['path'],
+            isset($params['path']) ? $params['path'] : '',
             isset($params['version']) ? $params['version'] : 0,
-            @$params['template']
+            isset($params['template']) ? $params['template'] : false
         );
     }
 
@@ -827,8 +842,8 @@ class Template
             $params['id'],
             $params['path'],
             isset($params['version']) ? $params['version'] : 0,
-            (int)@$params['order'],
-            (bool)@$params['template']
+            isset($param['order']) ? (int)$params['order'] : 0,
+            isset($params['template']) ? (bool)$params['template'] : false
         );
     }
 
@@ -1013,7 +1028,7 @@ class Template
      */
     public function load_themeconf($dir)
     {
-        global $themeconfs, $conf;
+        global $themeconfs;
 
         $dir = realpath($dir);
         if (!isset($themeconfs[$dir])) {
