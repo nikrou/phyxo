@@ -168,9 +168,7 @@ if (count($user_representative_updates_for)) {
 
 if (count($categories) > 0) {
     // Update filtered data
-    if (function_exists('update_cats_with_filtered_data')) {
-        update_cats_with_filtered_data($categories);
-    }
+    \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
 
     $template->set_filename('index_category_thumbnails', 'mainpage_categories.tpl');
 

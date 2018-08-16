@@ -184,7 +184,7 @@ class LegacyController extends Controller
         $_SERVER['CONTAINER'] = $this->container;
 
         try {
-            global $conf, $conn, $services, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));
