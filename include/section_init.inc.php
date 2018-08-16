@@ -318,7 +318,7 @@ if ('categories' == $page['section']) {
 
         $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos_sql('date_available') . ' ' . $forbidden . ' ' . $conf['order_by'];
+        $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos('date_available') . ' ' . $forbidden . ' ' . $conf['order_by'];
 
         $page = array_merge(
             $page,

@@ -22,7 +22,7 @@ $query .= 'count_images,nb_categories,count_categories FROM ' . CATEGORIES_TABLE
 $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ucc ON id = cat_id AND user_id = ' . $user['id'];
 
 if ('recent_cats' == $page['section']) {
-    $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos_sql('date_last');
+    $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos('date_last');
 } else {
     $query .= ' WHERE id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
