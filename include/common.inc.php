@@ -70,7 +70,7 @@ include(PHPWG_ROOT_PATH . 'include/constants.php');
 $persistent_cache = new PersistentFileCache();
 
 // Database connection
-if (defined('IN_ADMIN') || defined('IN_WS')) {
+if (defined('IN_WS')) {
     try {
         $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
     } catch (Exception $e) {

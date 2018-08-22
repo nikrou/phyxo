@@ -1228,7 +1228,15 @@ class Utils
      */
     public static function generate_key($size)
     {
-        return openssl_random_pseudo_bytes($size);
+        return substr(
+            str_replace(
+                array('+', '/'),
+                '',
+                base64_encode(openssl_random_pseudo_bytes($size))
+            ),
+            0,
+            $size
+        );
     }
 
     /**

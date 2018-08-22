@@ -1,2 +1,6 @@
+admin_routes:
+  resource: routes/admin.yaml
+  prefix: /admin
+
 legacy_routes:
   resource: routes/legacy_routes.yaml

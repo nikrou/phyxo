@@ -6,7 +6,7 @@
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
-	<link rel="stylesheet" href="{asset manifest='theme/build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" href="{asset manifest='../../admin/theme/build/manifest.json' src='app.css'}">
 
 	<!-- BEGIN get_combined -->
 	{get_combined_css}
@@ -158,6 +158,6 @@
 	{get_combined_scripts load='footer'}
 	<!-- END get_combined -->
 
-	<script src="{asset manifest='theme/build/build/manifest.json' src='app.js'}"></script>
+	<script src="{asset manifest='../../admin/theme/build/build/manifest.json' src='app.js'}"></script>
     </body>
 </html>

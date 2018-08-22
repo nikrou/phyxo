@@ -13,7 +13,7 @@
 // | Basic constants and includes                                          |
 // +-----------------------------------------------------------------------+
 
-define('PHPWG_ROOT_PATH', '../');
+define('PHPWG_ROOT_PATH', '../../');
 define('IN_ADMIN', true);
 
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -198,8 +198,8 @@ $template->assign('ACTIVE_MENU', $link_start . $page['page']);
 // | Sending html code                                                     |
 // +-----------------------------------------------------------------------+
 
-include(__DIR__ . '/include/page_header.php');
-include(__DIR__ . '/include/page_tail.php');
+include(PHPWG_ROOT_PATH . '/admin/include/page_header.php');
+include(PHPWG_ROOT_PATH . '/admin/include/page_tail.php');
 
 $template->set_filenames(['admin' => "${template_filename}.tpl"]);
 

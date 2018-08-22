@@ -1,0 +1,15 @@
+legacy_home:
+  path:  /index.{extension}
+  defaults:
+    extension: php
+  controller: App\Controller\AdminController::index
+
+home:
+  path:  /
+  controller: App\Controller\AdminController::index
+
+user_list_backend:
+  path:  /user_list_backend.{extension}
+  defaults:
+    extension: php
+  controller: App\Controller\AdminController::user_list_backend
