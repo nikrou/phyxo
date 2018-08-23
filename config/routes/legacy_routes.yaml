@@ -4,7 +4,7 @@ fallback:
   defaults:
     extension: php
   requirements:
-    path_info: about|register|password|identification|profile|feed|notification|install|upgrade|upgrade_feed|random|comments|ws|action|tags|search|qsearch|search_rules
+    path_info: about|register|password|identification|profile|feed|notification|upgrade|upgrade_feed|random|comments|ws|action|tags|search|qsearch|search_rules
 
 search_results:
   path:  /search/{search_id}/{start_id}

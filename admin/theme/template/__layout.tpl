@@ -26,36 +26,38 @@
 	{/block}
     </head>
     <body>
-	<header>
-	    <nav class="navbar navbar-expand-md navbar-dark">
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
-		    <span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarCollapse">
-		    <a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
-		    <ul class="navbar-nav ml-auto">
-			<li class="nav-item"><a class="nav-link" href="{$U_RETURN}"><i class="fa fa-eye"></i> {'Visit Gallery'|translate}</a></li>
-			<li class="nav-item"><a class="nav-link" href="{$U_LOGOUT}"><i class="fa fa-sign-out"></i> {'Logout'|translate}  ({$USERNAME})</a></li>
-		    </ul>
-		</div>
-	    </nav>
+	{block name="header"}
+	    <header>
+		<nav class="navbar navbar-expand-md navbar-dark">
+		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
+			<span class="navbar-toggler-icon"></span>
+		    </button>
+		    <div class="collapse navbar-collapse" id="navbarCollapse">
+			<a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
+			<ul class="navbar-nav ml-auto">
+			    <li class="nav-item"><a class="nav-link" href="{$U_RETURN}"><i class="fa fa-eye"></i> {'Visit Gallery'|translate}</a></li>
+			    <li class="nav-item"><a class="nav-link" href="{$U_LOGOUT}"><i class="fa fa-sign-out"></i> {'Logout'|translate}  ({$USERNAME})</a></li>
+			</ul>
+		    </div>
+		</nav>
 
-	    {if !empty($header_msgs)}
-		<div class="alert alert-dark" role="alert">
-		    {foreach $header_msgs as $elt}
-			{$elt}
-		    {/foreach}
-		</div>
-	    {/if}
+		{if !empty($header_msgs)}
+		    <div class="alert alert-dark" role="alert">
+			{foreach $header_msgs as $elt}
+			    {$elt}
+			{/foreach}
+		    </div>
+		{/if}
 
-	    {if not empty($header_notes)}
-		<div class="alert alert-warning" role="alert">
-		    {foreach $header_notes as $elt}
-			{$elt}
-		    {/foreach}
-		</div>
-	    {/if}
-	</header>
+		{if not empty($header_notes)}
+		    <div class="alert alert-warning" role="alert">
+			{foreach $header_notes as $elt}
+			    {$elt}
+			{/foreach}
+		    </div>
+		{/if}
+	    </header>
+	{/block}
 
 	<div class="wrapper">
 	    <main>
@@ -117,9 +119,11 @@
 		    {block name="content"}{/block}
 		</section>
 
-		<aside role="navigation">
-		    {include file="_menubar.tpl"}
-		</aside>
+		{block name="aside"}
+		    <aside role="navigation">
+			{include file="_menubar.tpl"}
+		    </aside>
+		{/block}
 	    </main>
 
 	    {if isset($footer_elements)}

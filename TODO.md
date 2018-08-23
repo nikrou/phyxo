@@ -4,7 +4,7 @@
 -   Remove stripslashes/addslashes in code
 -   Move more code (classes) to Phyxo namespace
 -   sanitize notification_by_mail
--   Move install.php, upgrade.php and upgrade_feed.php to admin/
+-   Move upgrade.php and upgrade_feed.php to admin/
 -   Remove/refactoring of action.php script
 
 -   Add more tests (unit and functional)

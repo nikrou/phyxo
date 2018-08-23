@@ -11,6 +11,7 @@
 
 //----------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
+define('IN_ADMIN', true);
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
@@ -19,8 +20,6 @@ use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
-
-//----------------------------------------------------- variable initialization
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
@@ -108,13 +107,10 @@ if (isset($_GET['language'])) {
 \Phyxo\Functions\Language::load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
 
 header('Content-Type: text/html; charset=UTF-8');
-//------------------------------------------------- check php version
-if (version_compare(PHP_VERSION, REQUIRED_PHP_VERSION, '<')) {
-    include(PHPWG_ROOT_PATH . 'install/php5_apache_configuration.php');
-}
 
-//----------------------------------------------------- template initialization
-$template = new Template(PHPWG_ROOT_PATH . 'admin/theme', '.');
+$template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
+$template->setCompileDir($container->getParameter('kernel.cache_dir') . '/smarty');
+$template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
 $template->set_filenames(array('install' => 'install.tpl'));
 if (!isset($step)) {
     $step = 1;
@@ -300,6 +296,8 @@ $template->assign('language_options', $languages_options);
 
 $template->assign(
     array(
+        'GALLERY_TITLE' => 'Phyxo',
+        'PAGE_TITLE' => \Phyxo\Functions\Language::l10n('Installation'),
         'T_CONTENT_ENCODING' => 'utf-8',
         'RELEASE' => PHPWG_VERSION,
         'F_ACTION' => 'install.php?language=' . $language,

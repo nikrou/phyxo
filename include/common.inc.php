@@ -56,7 +56,7 @@ if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
     include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 }
 if (!defined('PHPWG_INSTALLED')) {
-    header('Location: install.php');
+    header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
     exit();
 }
 
@@ -137,17 +137,14 @@ if ($services['users']->isGuest()) {
 if (!defined('IN_WS') || !IN_WS) {
     if (defined('IN_ADMIN') && IN_ADMIN) { // Admin template
         $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
-        $compile_dir = PHPWG_ROOT_PATH . $conf['data_location'] . 'templates_c';
-        \Phyxo\Functions\Utils::mkgetdir($compile_dir);
-        $template->setCompileDir($compile_dir);
         $template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
     } else {
         $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
-        $compile_dir = $container->getParameter('kernel.cache_dir') . '/smarty';
-        $template->setCompileDir($compile_dir);
         $theme = $user['theme'];
         $template->set_theme(PHPWG_ROOT_PATH . 'themes', $theme);
     }
+    $compile_dir = $container->getParameter('kernel.cache_dir') . '/smarty';
+    $template->setCompileDir($compile_dir);
 }
 
 if (!isset($conf['no_photo_yet']) || !$conf['no_photo_yet']) {

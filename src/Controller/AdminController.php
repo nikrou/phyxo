@@ -17,6 +17,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminController extends Controller
 {
+    public function install(Request $request)
+    {
+        $legacy_file = sprintf('%s/install.php', $this->container->getParameter('legacy_base_dir'));
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = '/install.php';
+
+        return $this->doResponse($legacy_file);
+    }
+
     public function index(Request $request)
     {
         $legacy_file = sprintf('%s/admin.php', $this->container->getParameter('legacy_base_dir'));

@@ -1,3 +1,9 @@
+install:
+  path:  /install.{extension}
+  defaults:
+    extension: php
+  controller: App\Controller\AdminController::install
+
 legacy_home:
   path:  /index.{extension}
   defaults:
