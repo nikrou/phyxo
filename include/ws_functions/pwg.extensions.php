@@ -212,7 +212,6 @@ function ws_extensions_ignoreupdate($params, $service)
             );
         }
 
-        \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
         unset($_SESSION['extensions_need_update']);
         return true;
     }
@@ -226,7 +225,6 @@ function ws_extensions_ignoreupdate($params, $service)
         $conf['updates_ignored'][$params['type']][] = $params['id'];
     }
 
-    \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
     unset($_SESSION['extensions_need_update']);
     return true;
 }

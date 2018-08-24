@@ -19,8 +19,8 @@ use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
 
 // container
-if (!empty($_SERVER['CONTAINER'])) {
-    $container = $_SERVER['CONTAINER'];
+if (!empty($GLOBALS['CONTAINER'])) {
+    $container = $GLOBALS['CONTAINER'];
 }
 
 // determine the initial instant to indicate the generation time of this page
@@ -29,7 +29,10 @@ $t2 = microtime(true);
 // Define some basic configuration arrays this also prevents malicious
 // rewriting of language and otherarray values via URI params
 //
-$conf = array();
+$conf = $container->get('phyxo.conf');
+// @TODO: move it in symfony configuration. Needed because of constants
+$prefixeTable = 'phyxo_';
+
 $debug = '';
 $page = array(
     'infos' => array(),
@@ -45,10 +48,9 @@ $header_msgs = array();
 $header_notes = array();
 $filter = array();
 
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-}
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+include(PHPWG_ROOT_PATH . 'include/constants.php');
 
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
@@ -65,7 +67,6 @@ if (!empty($conf['show_php_errors'])) {
     @ini_set('display_errors', true);
 }
 
-include(PHPWG_ROOT_PATH . 'include/constants.php');
 
 $persistent_cache = new PersistentFileCache();
 
@@ -83,7 +84,7 @@ if (defined('IN_WS')) {
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');
 
-\Phyxo\Functions\Conf::load_conf_from_db();
+$conf->loadFromDB();
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {

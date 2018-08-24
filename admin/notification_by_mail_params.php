@@ -21,7 +21,7 @@ if (isset($_POST['param_submit'])) {
         if (isset($_POST[$nbm_user['param']])) {
             $value = $_POST[$nbm_user['param']];
 
-            \Phyxo\Functions\Conf::conf_update_param($nbm_user['param'], $value);
+            $conf[$nbm_user['param']] = $value;
             $updated_param_count += 1;
         }
     }
@@ -33,7 +33,7 @@ if (isset($_POST['param_submit'])) {
     );
 
     // Reload conf with new values
-    \Phyxo\Functions\Conf::load_conf_from_db('param like \'nbm\\_%\'');
+    $conf->loadFromDB('param like \'nbm\\_%\'');
 }
 
 $template->assign(array(

@@ -280,7 +280,6 @@ class Updates
             }
             $conf['updates_ignored'][$type] = $ignore_list;
         }
-        \Phyxo\Functions\Conf::conf_update_param('updates_ignored', $conf['updates_ignored']);
     }
 
     // Check if extension have been upgraded since last check

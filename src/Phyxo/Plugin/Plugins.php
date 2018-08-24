@@ -61,6 +61,8 @@ class Plugins extends Extensions
      */
     public function performAction($action, $plugin_id, $options = array())
     {
+        global $conf;
+
         if (!$this->db_plugins_retrieved) {
             $this->getDbPlugins();
         }
@@ -118,7 +120,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     $errors = $this->performAction('install', $plugin_id);
                     list($crt_db_plugin) = $this->getDbPlugins(null, $plugin_id);
-                    \Phyxo\Functions\Conf::load_conf_from_db();
+                    $conf->loadFromDB();
                 } elseif ($crt_db_plugin['state'] == 'active') {
                     break;
                 }

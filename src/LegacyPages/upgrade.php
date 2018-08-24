@@ -103,7 +103,7 @@ if (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
 } else {
     // @TODO: add a template ; not display a almost blank page
     // confirm that the database is in the same version as source code files
-    \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
+    $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
 
     header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
     echo 'No upgrade required, the database structure is up to date';
@@ -126,7 +126,7 @@ if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade
         $page['upgrade_start'] = microtime(true);
         $conf['die_on_sql_error'] = false;
         include($upgrade_file);
-        \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
+        $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE . 'plugins', $tables)) {

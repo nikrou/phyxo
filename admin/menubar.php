@@ -52,7 +52,7 @@ foreach ($mb_conf as $id => $pos) {
 
 if (isset($_POST['reset'])) {
     $mb_conf = array();
-    \Phyxo\Functions\Conf::conf_update_param('blk_' . $menu->get_id(), '');
+    $conf['blk_' . $menu->get_id()] = '';
 }
 
 $idx = 1;
@@ -77,7 +77,7 @@ if (isset($_POST['submit'])) {
     make_consecutive($mb_conf);
 
     $mb_conf_db = $mb_conf;
-    \Phyxo\Functions\Conf::conf_update_param('blk_' . $menu->get_id(), json_encode($mb_conf_db));
+    $conf['blk_' . $menu->get_id()] = json_encode($mb_conf_db);
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Order of menubar items has been updated successfully.');
 }

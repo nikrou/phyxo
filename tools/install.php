@@ -19,7 +19,6 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 
-require_once(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 require_once(PHPWG_ROOT_PATH . 'local/config/database.inc.php');
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
 
@@ -35,6 +34,10 @@ try {
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');
 
+$dblayer = $conf['dblayer'];
+$conf = new Conf($conn);
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$conf['dblayer'] = $dblayer;
 $languages = new Languages($conn, 'utf-8');
 
 $conn->executeSqlFile(
@@ -54,9 +57,9 @@ $query .= 'md5(' . $conn->db_cast_to_text($conn::RANDOM_FUNCTION . '()') . '),';
 $query .= '\'a secret key specific to the gallery for internal use\')';
 $conn->db_query($query);
 
-\Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
-\Phyxo\Functions\Conf::conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
-\Phyxo\Functions\Conf::conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
+$conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
+$conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
+$conf['page_banner'] = '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
 // fill languages table
 $languages->setConnection($conn);
@@ -64,7 +67,7 @@ foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
     $languages->performAction('activate', $language_code);
 }
 
-\Phyxo\Functions\Conf::load_conf_from_db();
+$conf->loadFromDB();
 if (!defined('PWG_CHARSET')) {
     define('PWG_CHARSET', 'utf-8');
 }

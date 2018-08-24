@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 $upgrade_description = 'Use json functions instead of serialize ones';
 
-\Phyxo\Functions\Conf::load_conf_from_db();
+$conf->loadFromDB();
 
 $params = array(
     'picture_informations',
@@ -23,7 +23,7 @@ $params = array(
 );
 
 foreach ($params as $param) {
-    \Phyxo\Functions\Conf::conf_update_param($param, unserialize($conf[$param]));
+    $conf[$param] = unserialize($conf[$param]);
 }
 
 echo "\n" . $upgrade_description . "\n";

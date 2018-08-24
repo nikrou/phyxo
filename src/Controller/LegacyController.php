@@ -181,7 +181,8 @@ class LegacyController extends Controller
         $_SERVER['PHP_SELF'] = $legacy_file;
         $_SERVER['SCRIPT_NAME'] = $legacy_file;
         $_SERVER['SCRIPT_FILENAME'] = $legacy_file;
-        $_SERVER['CONTAINER'] = $this->container;
+
+        $container = $this->container; // allow accessing container as global variable
 
         try {
             global $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;

@@ -16,6 +16,7 @@ define('IN_ADMIN', true);
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 
 use Phyxo\DBLayer\DBLayer;
+use Phyxo\Conf;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
@@ -152,9 +153,8 @@ if (isset($_POST['install'])) {
     if (empty($admin_mail)) {
         $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
     } else {
-        $error_mail_address = $services['users']->validateMailAddress(null, $admin_mail);
-        if (!empty($error_mail_address)) {
-            $errors[] = $error_mail_address;
+        if (!\Phyxo\Functions\Utils::email_check_format($admin_mail)) {
+            $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
         }
     }
 
@@ -206,15 +206,21 @@ define(\'DB_COLLATE\', \'\');';
             $prefixeTable
         );
 
+        // load configuration
+        $conf = new Conf($conn);
+        $conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+        $conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+        $conf['dblayer'] = $dblayer;
+
         $query = 'INSERT INTO ' . CONFIG_TABLE . ' (param,value,comment)';
         $query .= 'VALUES (\'secret_key\',';
         $query .= 'md5(' . $conn->db_cast_to_text($conn::RANDOM_FUNCTION . '()') . '),';
         $query .= '\'a secret key specific to the gallery for internal use\')';
         $conn->db_query($query);
 
-        \Phyxo\Functions\Conf::conf_update_param('phyxo_db_version', \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION));
-        \Phyxo\Functions\Conf::conf_update_param('gallery_title', \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'));
-        \Phyxo\Functions\Conf::conf_update_param('page_banner', '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>');
+        $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
+        $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
+        $conf['page_banner'] = '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
         // fill languages table
         $languages->setConnection($conn);
@@ -223,7 +229,7 @@ define(\'DB_COLLATE\', \'\');';
         }
 
         // fill $conf global array
-        \Phyxo\Functions\Conf::load_conf_from_db();
+        $conf->loadFromDB();
 
         // PWG_CHARSET is required for building the fs_themes array in the
         // themes class

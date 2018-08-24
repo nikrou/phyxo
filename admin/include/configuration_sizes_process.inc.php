@@ -187,11 +187,10 @@ if (count($errors) == 0) {
 
     \Phyxo\Image\ImageStdParams::set_and_save($enabled_by);
     if (count($disabled) == 0) {
-        \Phyxo\Functions\Conf::conf_delete_param('disabled_derivatives');
+        unset($conf['disabled_derivatives']);
     } else {
-        \Phyxo\Functions\Conf::conf_update_param('disabled_derivatives', serialize($disabled));
+        $conf['disabled_derivatives'] = serialize($disabled);
     }
-    $conf['disabled_derivatives'] = serialize($disabled);
 
     if (count($changed_types)) {
         \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);

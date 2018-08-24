@@ -31,28 +31,28 @@ $Permissions['show_pending_deleted_tags'] = $conf['show_pending_deleted_tags'];
 if (!empty($_POST['submit'])) {
     if (isset($_POST['permission_add']) && isset($status_options[$_POST['permission_add']])) {
         $Permissions['add'] = $_POST['permission_add'];
-        \Phyxo\Functions\Conf::conf_update_param('tags_permission_add', $Permissions['add']);
+        $conf['tags_permission_add'] = $Permissions['add'];
     }
 
     $Permissions['existing_tags_only'] = empty($_POST['existing_tags_only']) ? 0 : 1;
-    \Phyxo\Functions\Conf::conf_update_param('tags_existing_tags_only', $Permissions['existing_tags_only']);
+    $conf['tags_existing_tags_only'] = $Permissions['existing_tags_only'];
 
     if (isset($_POST['permission_delete']) && isset($status_options[$_POST['permission_delete']])) {
         $Permissions['delete'] = $_POST['permission_delete'];
-        \Phyxo\Functions\Conf::conf_update_param('tags_permission_delete', $_POST['permission_delete']);
+        $conf['tags_permission_delete'] = $_POST['permission_delete'];
     }
 
     $Permissions['publish_tags_immediately'] = empty($_POST['publish_tags_immediately']) ? 1 : 0;
-    \Phyxo\Functions\Conf::conf_update_param('publish_tags_immediately', $Permissions['publish_tags_immediately']);
+    $conf['publish_tags_immediately'] = $Permissions['publish_tags_immediately'];
 
     $Permissions['delete_tags_immediately'] = empty($_POST['delete_tags_immediately']) ? 1 : 0;
-    \Phyxo\Functions\Conf::conf_update_param('delete_tags_immediately', $Permissions['delete_tags_immediately']);
+    $conf['delete_tags_immediately'] = $Permissions['delete_tags_immediately'];
 
     $Permissions['show_pending_added_tags'] = empty($_POST['show_pending_added_tags']) ? 0 : 1;
-    \Phyxo\Functions\Conf::conf_update_param('show_pending_added_tags', $Permissions['show_pending_added_tags']);
+    $conf['show_pending_added_tags'] = $Permissions['show_pending_added_tags'];
 
     $Permissions['show_pending_deleted_tags'] = empty($_POST['show_pending_deleted_tags']) ? 0 : 1;
-    \Phyxo\Functions\Conf::conf_update_param('show_pending_deleted_tags', $Permissions['show_pending_deleted_tags']);
+    $conf['show_pending_deleted_tags'] = $Permissions['show_pending_deleted_tags'];
 
     \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
 

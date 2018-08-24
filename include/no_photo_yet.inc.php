@@ -36,7 +36,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
             }
 
             if ('deactivate' == $_GET['no_photo_yet']) {
-                \Phyxo\Functions\Conf::conf_update_param('no_photo_yet', 'false');
+                $conf['no_photo_yet'] = false;
                 \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
                 exit();
             }
@@ -78,6 +78,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         $template->pparse('no_photo_yet');
         exit();
     } else {
-        \Phyxo\Functions\Conf::conf_update_param('no_photo_yet', false);
+        $conf['no_photo_yet'] = false;
     }
 }

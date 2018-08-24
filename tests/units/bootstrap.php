@@ -18,11 +18,13 @@ define('PHPWG_VERSION', 'tests');
 define('PHPWG_THEMES_PATH', __DIR__ . '/fixtures/themes/');
 define('PHPWG_PLUGINS_PATH', __DIR__ . '/fixtures/plugins');
 define('PHPWG_LANGUAGES_PATH', __DIR__ . '/fixtures/language/');
+define('TESTS_CONFIG_PATH', __DIR__ . '/fixtures/config/');
 
 define('PHPWG_TMP_PATH', __DIR__ . '/tmp');
 define('PHPWG_ZIP_PATH', __DIR__ . '/fixtures/zip');
 define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 
 define('MASS_UPDATES_SKIP_EMPTY', false);
+define('CONFIG_TABLE', 'config');
 
 $conf['admin_theme'] = 'default';

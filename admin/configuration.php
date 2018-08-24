@@ -240,20 +240,20 @@ if (isset($_POST['submit'])) {
                     }
                 }
 
-                \Phyxo\Functions\Conf::conf_update_param($row['param'], $value);
+                $row['param'] = $value;
             }
         }
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
     }
 
     //------------------------------------------------------ $conf reinitialization
-    \Phyxo\Functions\Conf::load_conf_from_db();
+    $conf->loadFromDB();
 }
 
 // restore default derivatives settings
 if ('sizes' == $page['section'] and isset($_GET['action']) and 'restore_settings' == $_GET['action']) {
     \Phyxo\Image\ImageStdParams::set_and_save(\Phyxo\Image\ImageStdParams::get_default_sizes());
-    \Phyxo\Functions\Conf::conf_delete_param('disabled_derivatives');
+    unset($conf['disabled_derivatives']);
     \Phyxo\Functions\Utils::clear_derivative_cache();
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');

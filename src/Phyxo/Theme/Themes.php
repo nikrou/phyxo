@@ -106,10 +106,6 @@ class Themes extends Extensions
                     $query .= ' \'' . $this->fs_themes[$theme_id]['version'] . '\',';
                     $query .= ' \'' . $this->fs_themes[$theme_id]['name'] . '\');';
                     $this->conn->db_query($query);
-
-                    if ($this->fs_themes[$theme_id]['mobile']) {
-                        \Phyxo\Functions\Conf::conf_update_param('mobile_theme', $theme_id);
-                    }
                 }
                 break;
 
@@ -145,10 +141,6 @@ class Themes extends Extensions
 
                 $query = 'DELETE FROM ' . THEMES_TABLE . ' WHERE id= \'' . $theme_id . '\';';
                 $this->conn->db_query($query);
-
-                if ($this->fs_themes[$theme_id]['mobile']) {
-                    \Phyxo\Functions\Conf::conf_update_param('mobile_theme', '');
-                }
                 break;
 
             case 'delete':

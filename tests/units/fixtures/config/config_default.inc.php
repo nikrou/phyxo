@@ -9,12 +9,8 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
-$upgrade_description = 'add "comments_enable_website" parameter';
-
-$conf['comments_enable_website'] = true;
-
-echo "\n" . $upgrade_description . "\n";
+$conf['simple_value'] = 'value';
+$conf['boolean_true'] = true;
+$conf['boolean_false'] = false;
+$conf['array'] = ['one', 'two', 'three'];
+$conf['hash'] = ['key1' => 'value1', 'key2' => 'value2'];

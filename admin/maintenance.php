@@ -34,13 +34,13 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 switch ($action) {
     case 'lock_gallery':
         {
-            \Phyxo\Functions\Conf::conf_update_param('gallery_locked', 'true');
+            $conf['gallery_locked'] = true;
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
     case 'unlock_gallery':
         {
-            \Phyxo\Functions\Conf::conf_update_param('gallery_locked', 'false');
+            $conf['gallery_locked'] = false;
             $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Gallery unlocked'));
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;

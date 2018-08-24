@@ -121,7 +121,7 @@
 	</form>
     {else}
 	<p>
-	    <a class="btn btn-success" href="/.php">{'Visit Gallery'|translate}</a>
+	    <a class="btn btn-success" href="../">{'Visit Gallery'|translate}</a>
 	</p>
     {/if}
 {/block}
