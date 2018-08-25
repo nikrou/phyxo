@@ -15,7 +15,7 @@ $(function() {
         chunk_size: '500kb',
         filters: {
             max_file_size: '1000mb',
-            mime_types: [{ title: 'Image files', extensions: upload_file_types }]
+            mime_types: [{ title: 'Image files', extensions: file_exts }]
         },
         dragdrop: true,
         preinit: {

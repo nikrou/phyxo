@@ -15,10 +15,7 @@
     <script src="./theme/js/LocalStorageCache.js"></script>
     <script src="./theme/js/plugins/selectize.js"></script>
     <script src="./theme/js/photos_add_direct.js"></script>
-    {assign var="plupload_i18n" value="./theme/js/plugins/plupload/i18n/`$lang_info.plupload_code`.js"}
-    {if "PHPWG_ROOT_PATH"|@constant|@cat:$plupload_i18n|@file_exists}
-	<script src="{{$plupload_i18n}}"></script>
-    {/if}
+    <script src="./theme/js/plugins/plupload/i18n/{$lang_info.plupload_code}.js"></script>
     {/html_head}
     {footer_script}
     {* <!-- CATEGORIES --> *}
@@ -45,6 +42,7 @@
     var batch_Label = "{'Manage this set of %d photos'|translate}";
     var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
     var upload_file_types = "{$upload_file_types}";
+    var file_exts = "{$file_exts}";
     var uploadedPhotos = [];
     var uploadCategory = null;
 
@@ -97,14 +95,14 @@
 		</div>
 
 		<p class="showFieldset">
-			<a href="#permissions" class="btn btn-success" data-toggle="collapse">{'Manage Permissions'|translate}</a>
+		    <a href="#permissions" class="btn btn-success" data-toggle="collapse">{'Manage Permissions'|translate}</a>
 		</p>
 
 		<div class="fieldset collapse" id="permissions">
 		    <h3>{'Who can see these photos?'|translate}</h3>
 
 		    <select class="custom-select" name="level" size="1">
-				{html_options options=$level_options selected=$level_options_selected}
+			{html_options options=$level_options selected=$level_options_selected}
 		    </select>
 		</div>
 
@@ -118,20 +116,20 @@
 		    {/if}
 
 		    <p class="form-text">
-				{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if}
-				<a class="showInfo" title="{'Learn more'|translate}"><i class="fa fa-info-circle"></i></a>
+			{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if}
+			<a class="showInfo" title="{'Learn more'|translate}"><i class="fa fa-info-circle"></i></a>
 		    </p>
 
 		    <p>
-				{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
-				{'Allowed file types: %s.'|translate:$upload_file_types}
-				{if isset($max_upload_resolution)}
-			    	{'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
-				{/if}
+			{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
+			{'Allowed file types: %s.'|translate:$upload_file_types}
+			{if isset($max_upload_resolution)}
+			    {'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
+			{/if}
 		    </p>
 
 		    <div id="uploader">
-				<p>Your browser doesn't have HTML5 support.</p>
+			<p>Your browser doesn't have HTML5 support.</p>
 		    </div>
 
 		</div>
@@ -140,7 +138,7 @@
 		    <button id="cancelUpload" class="btn btn-cancel"><i class="fa fa-times-circle"></i> {'Cancel'|translate}</button>
 
 		    <div class="big-progressbar">
-				<div class="progressbar" style="width:0%"></div>
+			<div class="progressbar" style="width:0%"></div>
 		    </div>
 		</div>
 
@@ -148,8 +146,8 @@
 	    </form>
 
 	    <div class="fieldset" style="display:none">
-			<h3>{'Uploaded Photos'|translate}</h3>
-			<div id="uploadedPhotos"></div>
+		<h3>{'Uploaded Photos'|translate}</h3>
+		<div id="uploadedPhotos"></div>
 	    </div>
 	{/if} {* $setup_errors *}
     </div> <!-- photosAddContent -->

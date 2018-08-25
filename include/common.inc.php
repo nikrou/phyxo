@@ -14,6 +14,7 @@ defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
 
 use Phyxo\DBLayer\DBLayer;
+use Phyxo\Conf;
 use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
@@ -26,10 +27,6 @@ if (!empty($GLOBALS['CONTAINER'])) {
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
 
-// Define some basic configuration arrays this also prevents malicious
-// rewriting of language and otherarray values via URI params
-//
-$conf = $container->get('phyxo.conf');
 // @TODO: move it in symfony configuration. Needed because of constants
 $prefixeTable = 'phyxo_';
 
@@ -48,15 +45,13 @@ $header_msgs = array();
 $header_notes = array();
 $filter = array();
 
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-include(PHPWG_ROOT_PATH . 'include/constants.php');
-
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
 if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
     include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 }
+
+// @TODO: find another way to determine if Phyxo is installed
 if (!defined('PHPWG_INSTALLED')) {
     header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
     exit();
@@ -67,9 +62,6 @@ if (!empty($conf['show_php_errors'])) {
     @ini_set('display_errors', true);
 }
 
-
-$persistent_cache = new PersistentFileCache();
-
 // Database connection
 if (defined('IN_WS')) {
     try {
@@ -77,9 +69,17 @@ if (defined('IN_WS')) {
     } catch (Exception $e) {
         $page['error'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
     }
+
+    $conf = new Conf($conn);
 } else {
     $conn = $container->get('phyxo.conn');
+    $conf = $container->get('phyxo.conf');
 }
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+include(PHPWG_ROOT_PATH . 'include/constants.php');
+
+$persistent_cache = new PersistentFileCache();
 
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');

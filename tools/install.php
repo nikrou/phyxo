@@ -16,32 +16,34 @@ require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
 // @TODO: refactoring between that script and web install through ../install.php
 
 use Phyxo\DBLayer\DBLayer;
+use Phyxo\Conf;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
+use Symfony\Component\Dotenv\Dotenv;
 
-require_once(PHPWG_ROOT_PATH . 'local/config/database.inc.php');
-require_once(PHPWG_ROOT_PATH . 'include/constants.php');
+(new Dotenv())->load(__DIR__ . '/../.env');
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
+$prefixeTable = 'phyxo_';
 
 try {
-    $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
+    $conn = DBLayer::initFromDSN($_SERVER['DATABASE_URL']);
     $conn->db_check_version();
 } catch (Exception $e) {
     die($e->getMessage());
 }
 
+$conf = new Conf($conn);
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$languages = new Languages($conn, 'utf-8');
+
+require_once(PHPWG_ROOT_PATH . 'include/constants.php');
+
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');
 
-$dblayer = $conf['dblayer'];
-$conf = new Conf($conn);
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-$conf['dblayer'] = $dblayer;
-$languages = new Languages($conn, 'utf-8');
-
 $conn->executeSqlFile(
-    PHPWG_ROOT_PATH . 'install/phyxo_structure-' . $conf['dblayer'] . '.sql',
+    PHPWG_ROOT_PATH . 'install/phyxo_structure-' . $conn->getLayer() . '.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
