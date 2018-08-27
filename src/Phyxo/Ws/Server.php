@@ -12,6 +12,7 @@
 namespace Phyxo\Ws;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\Ws\Error;
 
 class Server
 {
@@ -20,7 +21,7 @@ class Server
     private $_responseEncoder;
     public $_responseFormat;
 
-    private $_methods = array();
+    private $_methods = [];
 
     const WS_PARAM_ACCEPT_ARRAY = 0x010000;
     const WS_PARAM_FORCE_ARRAY = 0x030000;
@@ -46,7 +47,6 @@ class Server
     /**
      *  Initializes the request handler.
      */
-
     public function setHandler($requestFormat, &$requestHandler)
     {
         $this->_requestHandler = &$requestHandler;
@@ -84,15 +84,15 @@ class Server
         // add reflection methods
         $this->addMethod(
             'reflection.getMethodList',
-            array('Phyxo\Ws\Server', 'ws_getMethodList')
+            ['Phyxo\Ws\Server', 'getMethodList']
         );
         $this->addMethod(
             'reflection.getMethodDetails',
-            array('Phyxo\Ws\Server', 'ws_getMethodDetails'),
-            array('methodName')
+            ['Phyxo\Ws\Server', 'getMethodDetails'],
+            ['methodName']
         );
 
-        Plugin::trigger_notify('ws_add_methods', array(&$this));
+        Plugin::trigger_notify('ws_add_methods', [&$this]);
         uksort($this->_methods, 'strnatcmp');
         $this->_requestHandler->handleRequest($this);
     }
@@ -123,16 +123,15 @@ class Server
      *                       WS_TYPE_POSITIVE, WS_TYPE_NOTNULL
      *    @option int|float maxValue (optional)
      * @param description string - a description of the method.
-     * @param include_file string - a file to be included befaore the callback is executed
      * @param options array
      *    @option bool hidden (optional) - if true, this method won't be visible by reflection.getMethodList
      *    @option bool admin_only (optional)
      *    @option bool post_only (optional)
      */
-    public function addMethod($methodName, $callback, $params = array(), $description = '', $include_file = '', $options = array())
+    public function addMethod($methodName, $callback, $params = [], $description = '', $options = [])
     {
         if (!is_array($params)) {
-            $params = array();
+            $params = [];
         }
 
         if (range(0, count($params) - 1) === array_keys($params)) {
@@ -141,7 +140,7 @@ class Server
 
         foreach ($params as $param => $data) {
             if (!is_array($data)) {
-                $params[$param] = array('flags' => 0, 'type' => 0);
+                $params[$param] = ['flags' => 0, 'type' => 0];
             } else {
                 if (!isset($data['flags'])) {
                     $data['flags'] = 0;
@@ -156,13 +155,12 @@ class Server
             }
         }
 
-        $this->_methods[$methodName] = array(
+        $this->_methods[$methodName] = [
             'callback' => $callback,
             'description' => $description,
             'signature' => $params,
-            'include' => $include_file,
             'options' => $options,
-        );
+        ];
     }
 
     public function hasMethod($methodName)
@@ -179,13 +177,13 @@ class Server
     public function getMethodSignature($methodName)
     {
         $signature = @$this->_methods[$methodName]['signature'];
-        return isset($signature) ? $signature : array();
+        return isset($signature) ? $signature : [];
     }
 
     function getMethodOptions($methodName)
     {
         $options = @$this->_methods[$methodName]['options'];
-        return isset($options) ? $options : array();
+        return isset($options) ? $options : [];
     }
 
     public static function isPost()
@@ -196,17 +194,17 @@ class Server
     public static function makeArrayParam(&$param)
     {
         if ($param == null) {
-            $param = array();
+            $param = [];
         } else {
             if (!is_array($param)) {
-                $param = array($param);
+                $param = [$param];
             }
         }
     }
 
     public static function checkType(&$param, $type, $name)
     {
-        $opts = array();
+        $opts = [];
         $msg = '';
         if (self::hasFlag($type, self::WS_TYPE_POSITIVE | self::WS_TYPE_NOTNULL)) {
             $opts['options']['min_range'] = 1;
@@ -291,7 +289,7 @@ class Server
 
         // parameter check and data correction
         $signature = $method['signature'];
-        $missing_params = array();
+        $missing_params = [];
 
         foreach ($signature as $name => $options) {
             $flags = $options['flags'];
@@ -339,10 +337,7 @@ class Server
         $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
 
         if (@get_class($result) != 'Phyxo\Ws\Error') {
-            if (!empty($method['include'])) {
-                include_once($method['include']);
-            }
-            $result = call_user_func_array($method['callback'], array($params, &$this));
+            $result = call_user_func_array($method['callback'], [$params, &$this]);
         }
 
         return $result;
@@ -351,7 +346,7 @@ class Server
     /**
      * WS reflection method implementation: lists all available methods
      */
-    public static function ws_getMethodList($params, &$service)
+    public static function getMethodList($params, &$service)
     {
         $methods = array_filter(
             $service->_methods,
@@ -359,13 +354,13 @@ class Server
                 return empty($m['options']['hidden']) || !$m['options']['hidden'];
             }
         );
-        return array('methods' => new NamedArray(array_keys($methods), 'method'));
+        return ['methods' => new NamedArray(array_keys($methods), 'method')];
     }
 
     /**
      * WS reflection method implementation: gets information about a given method
      */
-    public static function ws_getMethodDetails($params, &$service)
+    public static function getMethodDetails($params, &$service)
     {
         $methodName = $params['methodName'];
 
@@ -373,20 +368,20 @@ class Server
             return new Error(self::WS_ERR_INVALID_PARAM, 'Requested method does not exist');
         }
 
-        $res = array(
+        $res = [
             'name' => $methodName,
             'description' => $service->getMethodDescription($methodName),
-            'params' => array(),
+            'params' => [],
             'options' => $service->getMethodOptions($methodName),
-        );
+        ];
 
         foreach ($service->getMethodSignature($methodName) as $name => $options) {
-            $param_data = array(
+            $param_data = [
                 'name' => $name,
                 'optional' => self::hasFlag($options['flags'], self::WS_PARAM_OPTIONAL),
                 'acceptArray' => self::hasFlag($options['flags'], self::WS_PARAM_ACCEPT_ARRAY),
                 'type' => 'mixed',
-            );
+            ];
 
             if (isset($options['default'])) {
                 $param_data['defaultValue'] = $options['default'];

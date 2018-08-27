@@ -26,8 +26,13 @@ if (!$conf['allow_web_services']) {
     \Phyxo\Functions\HTTP::page_forbidden('Web services are disabled');
 }
 
-\Phyxo\Functions\Plugin::add_event_handler('ws_add_methods', 'ws_addDefaultMethods');
-\Phyxo\Functions\Plugin::add_event_handler('ws_invoke_allowed', 'ws_isInvokeAllowed', \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL, 3);
+\Phyxo\Functions\Plugin::add_event_handler('ws_add_methods', 'addDefaultMethods');
+\Phyxo\Functions\Plugin::add_event_handler(
+    'ws_invoke_allowed',
+    '\Phyxo\Functions\Ws\Main::isInvokeAllowed',
+    \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL,
+    3
+);
 
 $requestFormat = 'rest';
 $responseFormat = null;
@@ -73,803 +78,742 @@ if (!is_null($responseFormat)) {
 \Phyxo\Functions\URL::set_make_full_url();
 $service->run();
 
-
 /**
  * event handler that registers standard methods with the web service
  */
-function ws_addDefaultMethods($arr)
+function addDefaultMethods($arr)
 {
     global $conf, $user, $services;
 
     $service = &$arr[0];
 
-    include_once(PHPWG_ROOT_PATH . 'include/ws_functions.inc.php');
-    $ws_functions_root = PHPWG_ROOT_PATH . 'include/ws_functions/';
-
-    $f_params = array(
-        'f_min_rate' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT),
-        'f_max_rate' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT),
-        'f_min_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        'f_max_hit' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        'f_min_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE),
-        'f_max_ratio' => array('default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE),
-        'f_max_level' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        'f_min_date_available' => array('default' => null),
-        'f_max_date_available' => array('default' => null),
-        'f_min_date_created' => array('default' => null),
-        'f_max_date_created' => array('default' => null),
-    );
+    $f_params = [
+        'f_min_rate' => ['default' => null, 'type' => Server::WS_TYPE_FLOAT],
+        'f_max_rate' => ['default' => null, 'type' => Server::WS_TYPE_FLOAT],
+        'f_min_hit' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        'f_max_hit' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        'f_min_ratio' => ['default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE],
+        'f_max_ratio' => ['default' => null, 'type' => Server::WS_TYPE_FLOAT | Server::WS_TYPE_POSITIVE],
+        'f_max_level' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        'f_min_date_available' => ['default' => null],
+        'f_max_date_available' => ['default' => null],
+        'f_min_date_created' => ['default' => null],
+        'f_max_date_created' => ['default' => null],
+    ];
 
     $service->addMethod(
         'pwg.getVersion',
-        'ws_getVersion',
+        '\Phyxo\Functions\Ws\Main::getVersion',
         null,
-        'Returns the Piwigo version.',
-        $ws_functions_root . 'pwg.php'
+        'Returns the Piwigo version.'
     );
 
     $service->addMethod(
         'pwg.getInfos',
-        'ws_getInfos',
+        '\Phyxo\Functions\Ws\Main::getInfos',
         null,
         'Returns general informations.',
-        $ws_functions_root . 'pwg.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.caddie.add',
-        'ws_caddie_add',
-        array('image_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID)),
+        '\Phyxo\Functions\Ws\Caddie::add',
+        ['image_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID]],
         'Adds elements to the caddie. Returns the number of elements added.',
-        $ws_functions_root . 'pwg.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.getImages',
-        'ws_categories_getImages',
-        array_merge(array(
-            'cat_id' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
-        ), $f_params),
-        'Returns elements for the corresponding categories.<br><b>cat_id</b> can be empty if <b>recursive</b> is true.<br><b>order</b> comma separated fields for sorting',
-        $ws_functions_root . 'pwg.categories.php'
+        '\Phyxo\Functions\Ws\Categorie::getImages',
+        array_merge([
+            'cat_id' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'per_page' => ['default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'order' => ['default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'],
+        ], $f_params),
+        'Returns elements for the corresponding categories.<br><b>cat_id</b> can be empty if <b>recursive</b> is true.<br><b>order</b> comma separated fields for sorting'
     );
 
     $service->addMethod(
         'pwg.categories.getList',
-        'ws_categories_getList',
-        array(
-            'cat_id' => array(
+        '\Phyxo\Functions\Ws\Categorie::getList',
+        [
+            'cat_id' => [
                 'default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE,
                 'info' => 'Parent category. "0" or empty for root.'
-            ),
-            'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'public' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'tree_output' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'fullname' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        ),
-        'Returns a list of categories.',
-        $ws_functions_root . 'pwg.categories.php'
+            ],
+            'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'public' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'tree_output' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'fullname' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+        ],
+        'Returns a list of categories.'
     );
 
     $service->addMethod(
         'pwg.getMissingDerivatives',
-        'ws_getMissingDerivatives',
-        array_merge(array(
-            'types' => array(
+        '\Phyxo\Functions\Ws\Main::getMissingDerivatives',
+        array_merge([
+            'types' => [
                 'default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY,
                 'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge'
-            ),
-            'ids' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'max_urls' => array('default' => 200, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'prev_page' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        ), $f_params),
+            ],
+            'ids' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'max_urls' => ['default' => 200, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'prev_page' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        ], $f_params),
         'Returns a list of derivatives to build.',
-        $ws_functions_root . 'pwg.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.addComment',
-        'ws_images_addComment',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'author' => array('default' => $services['users']->isGuest() ? 'guest' : $user['username']),
-            'content' => array(),
-            'key' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Image::addComment',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'author' => ['default' => $services['users']->isGuest() ? 'guest' : $user['username']],
+            'content' => [],
+            'key' => [],
+        ],
         'Adds a comment to an image.',
-        $ws_functions_root . 'pwg.images.php',
-        array('post_only' => true)
+        ['post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.getInfo',
-        'ws_images_getInfo',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'comments_page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'comments_per_page' => array('default' => $conf['nb_comment_page'], 'maxValue' => 2 * $conf['nb_comment_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        ),
-        'Returns information about an image.',
-        $ws_functions_root . 'pwg.images.php'
+        '\Phyxo\Functions\Ws\Image::getInfo',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'comments_page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'comments_per_page' => ['default' => $conf['nb_comment_page'], 'maxValue' => 2 * $conf['nb_comment_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        ],
+        'Returns information about an image.'
     );
 
     $service->addMethod(
         'pwg.images.rate',
-        'ws_images_rate',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'rate' => array('type' => Server::WS_TYPE_FLOAT),
-        ),
-        'Rates an image.',
-        $ws_functions_root . 'pwg.images.php'
+        '\Phyxo\Functions\Ws\Image::rate',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'rate' => ['type' => Server::WS_TYPE_FLOAT],
+        ],
+        'Rates an image.'
     );
 
     $service->addMethod(
         'pwg.images.search',
-        'ws_images_search',
-        array_merge(array(
-            'query' => array(),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
-        ), $f_params),
-        'Returns elements for the corresponding query search.',
-        $ws_functions_root . 'pwg.images.php'
+        '\Phyxo\Functions\Ws\Image::search',
+        array_merge([
+            'query' => [],
+            'per_page' => ['default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'order' => ['default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'],
+        ], $f_params),
+        'Returns elements for the corresponding query search.'
     );
 
     $service->addMethod(
         'pwg.images.setPrivacyLevel',
-        'ws_images_setPrivacyLevel',
-        array(
-            'image_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'level' => array('maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-        ),
+        '\Phyxo\Functions\Ws\Image::setPrivacyLevel',
+        [
+            'image_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'level' => ['maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+        ],
         'Sets the privacy levels for the images.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.setRank',
-        'ws_images_setRank',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'category_id' => array('type' => Server::WS_TYPE_ID),
-            'rank' => array('type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL)
-        ),
+        '\Phyxo\Functions\Ws\Image::setRank',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'category_id' => ['type' => Server::WS_TYPE_ID],
+            'rank' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL]
+        ],
         'Sets the rank of a photo for a given album.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.rates.delete',
-        'ws_rates_delete',
-        array(
-            'user_id' => array('type' => Server::WS_TYPE_ID),
-            'anonymous_id' => array('default' => null),
-            'image_id' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-        ),
+        '\Phyxo\Functions\Ws\Rate::delete',
+        [
+            'user_id' => ['type' => Server::WS_TYPE_ID],
+            'anonymous_id' => ['default' => null],
+            'image_id' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+        ],
         'Deletes all rates for a user.',
-        $ws_functions_root . 'pwg.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.session.getStatus',
-        'ws_session_getStatus',
+        '\Phyxo\Functions\Ws\Session::getStatus',
         null,
-        'Gets information about the current session. Also provides a token useable with admin methods.',
-        $ws_functions_root . 'pwg.php'
+        'Gets information about the current session. Also provides a token useable with admin methods.'
     );
 
     $service->addMethod(
         'pwg.session.login',
-        'ws_session_login',
-        array('username', 'password'),
+        '\Phyxo\Functions\Ws\Session::login',
+        ['username', 'password'],
         'Tries to login the user.',
-        $ws_functions_root . 'pwg.php',
-        array('post_only' => true)
+        ['post_only' => true]
     );
 
     $service->addMethod(
         'pwg.session.logout',
-        'ws_session_logout',
+        '\Phyxo\Functions\Ws\Session::logout',
         null,
-        'Ends the current session.',
-        $ws_functions_root . 'pwg.php'
+        'Ends the current session.'
     );
 
     $service->addMethod(
-        'pwg.tags.getFilteredList',
-        'ws_tags_getFilteredList',
-        array('q' => array('default' => '')),
-        'Retrieves a filtered list of all available tags.',
-        $ws_functions_root . 'pwg.tags.php'
+        'pwg.taglteredList',
+        '\Phyxo\Functions\Ws\Tag::getFilteredList',
+        ['q' => ['default' => '']],
+        'Retrieves a filtered list of all available tags.'
     );
 
     $service->addMethod(
         'pwg.tags.getList',
-        'ws_tags_getList',
-        array(
-            'sort_by_counter' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        ),
-        'Retrieves a list of available tags.',
-        $ws_functions_root . 'pwg.tags.php'
+        '\Phyxo\Functions\Ws\Tag::getList',
+        [
+            'sort_by_counter' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+        ],
+        'Retrieves a list of available tags.'
     );
 
     $service->addMethod(
         'pwg.tags.getImages',
-        'ws_tags_getImages',
-        array_merge(array(
-            'tag_id' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'tag_url_name' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY),
-            'tag_name' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY),
-            'tag_mode_and' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'order' => array('default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'),
-        ), $f_params),
-        'Returns elements for the corresponding tags. Fill at least tag_id, tag_url_name or tag_name.',
-        $ws_functions_root . 'pwg.tags.php'
+        '\Phyxo\Functions\Ws\Tag::getImages',
+        array_merge([
+            'tag_id' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'tag_url_name' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY],
+            'tag_name' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY],
+            'tag_mode_and' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'per_page' => ['default' => 100, 'maxValue' => $conf['ws_max_images_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'order' => ['default' => null, 'info' => 'id, file, name, hit, rating_score, date_creation, date_available, random'],
+        ], $f_params),
+        'Returns elements for the corresponding tags. Fill at least tag_id, tag_url_name or tag_name.'
     );
 
     $service->addMethod(
         'pwg.images.addChunk',
-        'ws_images_add_chunk',
-        array(
-            'data' => array(),
-            'original_sum' => array(),
-            'type' => array('default' => 'file', 'info' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'),
-            'position' => array()
-        ),
+        '\Phyxo\Functions\Ws\Image::addChunk',
+        [
+            'data' => [],
+            'original_sum' => [],
+            'type' => ['default' => 'file', 'info' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'],
+            'position' => []
+        ],
         'Add a chunk of a file.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.addFile',
-        'ws_images_addFile',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'type' => array('default' => 'file', 'info ' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'),
-            'sum' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Image::addFile',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'type' => ['default' => 'file', 'info ' => 'Must be "file", for backward compatiblity "high" and "thumb" are allowed.'],
+            'sum' => [],
+        ],
         'Add or update a file for an existing photo.<br>pwg.images.addChunk must have been called before (maybe several times).',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
 
     $service->addMethod(
         'pwg.images.add',
-        'ws_images_add',
-        array(
-            'thumbnail_sum' => array('default' => null),
-            'high_sum' => array('default' => null),
-            'original_sum' => array(),
-            'original_filename' => array('default' => null, 'Provide it if "check_uniqueness" is true and $conf["uniqueness_mode"] is "filename".'),
-            'name' => array('default' => null),
-            'author' => array('default' => null),
-            'date_creation' => array('default' => null),
-            'comment' => array('default' => null),
-            'categories' => array('default' => null, 'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'),
-            'tag_ids' => array('default' => null, 'info' => 'Comma separated ids'),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'check_uniqueness' => array('default' => true, 'type' => Server::WS_TYPE_BOOL),
-            'image_id' => array('default' => null, 'type' => Server::WS_TYPE_ID),
-        ),
+        '\Phyxo\Functions\Ws\Image::add',
+        [
+            'thumbnail_sum' => ['default' => null],
+            'high_sum' => ['default' => null],
+            'original_sum' => [],
+            'original_filename' => ['default' => null, 'Provide it if "check_uniqueness" is true and $conf["uniqueness_mode"] is "filename".'],
+            'name' => ['default' => null],
+            'author' => ['default' => null],
+            'date_creation' => ['default' => null],
+            'comment' => ['default' => null],
+            'categories' => ['default' => null, 'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'],
+            'tag_ids' => ['default' => null, 'info' => 'Comma separated ids'],
+            'level' => ['default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'check_uniqueness' => ['default' => true, 'type' => Server::WS_TYPE_BOOL],
+            'image_id' => ['default' => null, 'type' => Server::WS_TYPE_ID],
+        ],
         'Add an image.<br>pwg.images.addChunk must have been called before (maybe several times).<br>Don\'t use "thumbnail_sum" and "high_sum", these parameters are here for backward compatibility.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.addSimple',
-        'ws_images_addSimple',
-        array(
-            'category' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'name' => array('default' => null),
-            'author' => array('default' => null),
-            'comment' => array('default' => null),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'tags' => array('default' => null, 'flags' => Server::WS_PARAM_ACCEPT_ARRAY),
-            'image_id' => array('default' => null, 'type' => Server::WS_TYPE_ID),
-        ),
+        '\Phyxo\Functions\Ws\Image::addSimple',
+        [
+            'category' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'name' => ['default' => null],
+            'author' => ['default' => null],
+            'comment' => ['default' => null],
+            'level' => ['default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'tags' => ['default' => null, 'flags' => Server::WS_PARAM_ACCEPT_ARRAY],
+            'image_id' => ['default' => null, 'type' => Server::WS_TYPE_ID],
+        ],
         'Add an image.<br>Use the <b>$_FILES[image]</b> field for uploading file.<br>Set the form encoding to "form-data".<br>You can update an existing photo if you define an existing image_id.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.upload',
-        'ws_images_upload',
-        array(
-            'name' => array('default' => null),
-            'category' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Image::upload',
+        [
+            'name' => ['default' => null],
+            'category' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'level' => ['default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'pwg_token' => [],
+        ],
         'Add an image.<br>Use the <b>$_FILES[image]</b> field for uploading file.<br>Set the form encoding to "form-data".',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.delete',
-        'ws_images_delete',
-        array(
-            'image_id' => array('flags' => Server::WS_PARAM_ACCEPT_ARRAY),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Image::delete',
+        [
+            'image_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
+            'pwg_token' => [],
+        ],
         'Deletes image(s).',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.getAdminList',
-        'ws_categories_getAdminList',
+        '\Phyxo\Functions\Ws\Categorie::getAdminList',
         null,
         'Get albums list as displayed on admin page.',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.add',
-        'ws_categories_add',
-        array(
-            'name' => array(),
-            'parent' => array('default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'comment' => array('default' => null),
-            'visible' => array('default' => true, 'type' => Server::WS_TYPE_BOOL),
-            'status' => array('default' => null, 'info' => 'public, private'),
-            'commentable' => array('default' => true, 'type' => Server::WS_TYPE_BOOL),
-        ),
+        '\Phyxo\Functions\Ws\Categorie::add',
+        [
+            'name' => [],
+            'parent' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'comment' => ['default' => null],
+            'visible' => ['default' => true, 'type' => Server::WS_TYPE_BOOL],
+            'status' => ['default' => null, 'info' => 'public, private'],
+            'commentable' => ['default' => true, 'type' => Server::WS_TYPE_BOOL],
+        ],
         'Adds an album.',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.delete',
-        'ws_categories_delete',
-        array(
-            'category_id' => array('flags' => Server::WS_PARAM_ACCEPT_ARRAY),
-            'photo_deletion_mode' => array('default' => 'delete_orphans'),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Categorie::delete',
+        [
+            'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
+            'photo_deletion_mode' => ['default' => 'delete_orphans'],
+            'pwg_token' => [],
+        ],
         'Deletes album(s).<br><b>photo_deletion_mode</b> can be "no_delete" (may create orphan photos), "delete_orphans"
 (default mode, only deletes photos linked to no other album) or "force_delete" (delete all photos, even those linked to other albums)',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.move',
-        'ws_categories_move',
-        array(
-            'category_id' => array('flags' => Server::WS_PARAM_ACCEPT_ARRAY),
-            'parent' => array('type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Categorie::move',
+        [
+            'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
+            'parent' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'pwg_token' => [],
+        ],
         'Move album(s).
 <br>Set parent as 0 to move to gallery root. Only virtual categories can be moved.',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.setRepresentative',
-        'ws_categories_setRepresentative',
-        array(
-            'category_id' => array('type' => Server::WS_TYPE_ID),
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-        ),
+        '\Phyxo\Functions\Ws\Categorie::setRepresentative',
+        [
+            'category_id' => ['type' => Server::WS_TYPE_ID],
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+        ],
         'Sets the representative photo for an album. The photo doesn\'t have to belong to the album.',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.tags.getAdminList',
-        'ws_tags_getAdminList',
+        '\Phyxo\Functions\Ws\Tag::getAdminList',
         null,
         '<b>Admin only.</b>',
-        $ws_functions_root . 'pwg.tags.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
-    $service->addMethod( // TODO: create multiple tags
+    $service->addMethod( // @TODO: create multiple tags
         'pwg.tags.add',
-        'ws_tags_add',
-        array('name'),
+        '\Phyxo\Functions\Ws\Tag::add',
+        ['name'],
         'Adds a new tag.',
-        $ws_functions_root . 'pwg.tags.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.exist',
-        'ws_images_exist',
-        array(
-            'md5sum_list' => array('default' => null),
-            'filename_list' => array('default' => null),
-        ),
+        '\Phyxo\Functions\Ws\Image::exist',
+        [
+            'md5sum_list' => ['default' => null],
+            'filename_list' => ['default' => null],
+        ],
         'Checks existence of images.
 <br>Give <b>md5sum_list</b> if $conf[uniqueness_mode]==md5sum. Give <b>filename_list</b> if $conf[uniqueness_mode]==filename.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.checkFiles',
-        'ws_images_checkFiles',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'file_sum' => array('default' => null),
-            'thumbnail_sum' => array('default' => null),
-            'high_sum' => array('default' => null),
-        ),
+        '\Phyxo\Functions\Ws\Image::checkFiles',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'file_sum' => ['default' => null],
+            'thumbnail_sum' => ['default' => null],
+            'high_sum' => ['default' => null],
+        ],
         'Checks if you have updated version of your files for a given photo, the answer can be "missing", "equals" or "differs".
 <br>Don\'t use "thumbnail_sum" and "high_sum", these parameters are here for backward compatibility.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.checkUpload',
-        'ws_images_checkUpload',
+        '\Phyxo\Functions\Ws\Image::checkUpload',
         null,
         'Checks if Piwigo is ready for upload.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.setRelatedTags',
-        'ws_images_setRelatedTags',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'tags' => array('default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY),
-        ),
+        '\Phyxo\Functions\Ws\Image::setRelatedTags',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'tags' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY],
+        ],
         'Add/update/delete tags associated to an existing image. Actions availables depend on permissions.',
-        $ws_functions_root . 'pwg.images.php',
-        array('post_only' => true)
+        ['post_only' => true]
     );
 
     $service->addMethod(
         'pwg.images.setInfo',
-        'ws_images_setInfo',
-        array(
-            'image_id' => array('type' => Server::WS_TYPE_ID),
-            'file' => array('default' => null),
-            'name' => array('default' => null),
-            'author' => array('default' => null),
-            'date_creation' => array('default' => null),
-            'comment' => array('default' => null),
-            'categories' => array(
+        '\Phyxo\Functions\Ws\Image::setInfo',
+        [
+            'image_id' => ['type' => Server::WS_TYPE_ID],
+            'file' => ['default' => null],
+            'name' => ['default' => null],
+            'author' => ['default' => null],
+            'date_creation' => ['default' => null],
+            'comment' => ['default' => null],
+            'categories' => [
                 'default' => null,
                 'info' => 'String list "category_id[,rank];category_id[,rank]".<br>The rank is optional and is equivalent to "auto" if not given.'
-            ),
-            'tag_ids' => array(
+            ],
+            'tag_ids' => [
                 'default' => null,
                 'info' => 'Comma separated ids'
-            ),
-            'level' => array('default' => null, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'single_value_mode' => array('default' => 'fill_if_empty'),
-            'multiple_value_mode' => array('default' => 'append'),
-        ),
+            ],
+            'level' => ['default' => null, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'single_value_mode' => ['default' => 'fill_if_empty'],
+            'multiple_value_mode' => ['default' => 'append'],
+        ],
         'Changes properties of an image.
 <br><b>single_value_mode</b> can be "fill_if_empty" (only use the input value if the corresponding values is currently empty) or "replace"
 (overwrite any existing value) and applies to single values properties like name/author/date_creation/comment.
 <br><b>multiple_value_mode</b> can be "append" (no change on existing values, add the new values) or "replace" and applies to multiple values properties like tag_ids/categories.',
-        $ws_functions_root . 'pwg.images.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.categories.setInfo',
-        'ws_categories_setInfo',
-        array(
-            'category_id' => array('type' => Server::WS_TYPE_ID),
-            'name' => array('default' => null),
-            'comment' => array('default' => null),
-        ),
+        '\Phyxo\Functions\Ws\Categorie::setInfo',
+        [
+            'category_id' => ['type' => Server::WS_TYPE_ID],
+            'name' => ['default' => null],
+            'comment' => ['default' => null],
+        ],
         'Changes properties of an album.',
-        $ws_functions_root . 'pwg.categories.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.plugins.getList',
-        'ws_plugins_getList',
+        '\Phyxo\Functions\Ws\Plugin::getList',
         null,
         'Gets the list of plugins with id, name, version, state and description.',
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.plugins.performAction',
-        'ws_plugins_performAction',
-        array(
-            'action' => array('info' => 'install, activate, deactivate, uninstall, delete'),
-            'plugin' => array(),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Plugin::performAction',
+        [
+            'action' => ['info' => 'install, activate, deactivate, uninstall, delete'],
+            'plugin' => [],
+            'pwg_token' => [],
+        ],
         null,
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.themes.performAction',
-        'ws_themes_performAction',
-        array(
-            'action' => array('info' => 'activate, deactivate, delete, set_default'),
-            'theme' => array(),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Theme::performAction',
+        [
+            'action' => ['info' => 'activate, deactivate, delete, set_default'],
+            'theme' => [],
+            'pwg_token' => [],
+        ],
         null,
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.extensions.update',
-        'ws_extensions_update',
-        array(
-            'type' => array('info' => 'plugins, languages, themes'),
-            'id' => array(),
-            'revision' => array(),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Extension::update',
+        [
+            'type' => ['info' => 'plugins, languages, themes'],
+            'id' => [],
+            'revision' => [],
+            'pwg_token' => [],
+        ],
         '<b>Webmaster only.</b>',
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.extensions.ignoreUpdate',
-        'ws_extensions_ignoreupdate',
-        array(
-            'type' => array('default' => null, 'info' => 'plugins, languages, themes'),
-            'id' => array('default' => null),
-            'reset' => array('default' => false, 'type' => Server::WS_TYPE_BOOL, 'info' => 'If true, all ignored extensions will be reinitilized.'),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Extension::ignoreupdate',
+        [
+            'type' => ['default' => null, 'info' => 'plugins, languages, themes'],
+            'id' => ['default' => null],
+            'reset' => ['default' => false, 'type' => Server::WS_TYPE_BOOL, 'info' => 'If true, all ignored extensions will be reinitilized.'],
+            'pwg_token' => [],
+        ],
         '<b>Webmaster only.</b> Ignores an extension if it needs update.',
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.extensions.checkUpdates',
-        'ws_extensions_checkupdates',
+        '\Phyxo\Functions\Ws\Extension::checkupdates',
         null,
         'Checks if phyxo or extensions are up to date.',
-        $ws_functions_root . 'pwg.extensions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.getList',
-        'ws_groups_getList',
-        array(
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'name' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'order' => array('default' => 'name', 'info' => 'id, name, nb_users, is_default'),
-        ),
+        '\Phyxo\Functions\Ws\Group::getList',
+        [
+            'group_id' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'name' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'],
+            'per_page' => ['default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'order' => ['default' => 'name', 'info' => 'id, name, nb_users, is_default'],
+        ],
         'Retrieves a list of all groups. The list can be filtered.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.add',
-        'ws_groups_add',
-        array(
-            'name' => array(),
-            'is_default' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-        ),
+        '\Phyxo\Functions\Ws\Group::add',
+        [
+            'name' => [],
+            'is_default' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+        ],
         'Creates a group and returns the new group record.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.delete',
-        'ws_groups_delete',
-        array(
-            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Group::delete',
+        [
+            'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'pwg_token' => [],
+        ],
         'Deletes a or more groups. Users and photos are not deleted.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.setInfo',
-        'ws_groups_setInfo',
-        array(
-            'group_id' => array('type' => Server::WS_TYPE_ID),
-            'name' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'is_default' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Group::setInfo',
+        [
+            'group_id' => ['type' => Server::WS_TYPE_ID],
+            'name' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'is_default' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
+            'pwg_token' => [],
+        ],
         'Updates a group. Leave a field blank to keep the current value.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.addUser',
-        'ws_groups_addUser',
-        array(
-            'group_id' => array('type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Group::addUser',
+        [
+            'group_id' => ['type' => Server::WS_TYPE_ID],
+            'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'pwg_token' => [],
+        ],
         'Adds one or more users to a group.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.groups.deleteUser',
-        'ws_groups_deleteUser',
-        array(
-            'group_id' => array('type' => Server::WS_TYPE_ID),
-            'user_id' => array(
+        '\Phyxo\Functions\Ws\Group::deleteUser',
+        [
+            'group_id' => ['type' => Server::WS_TYPE_ID],
+            'user_id' => [
                 'flags' => Server::WS_PARAM_FORCE_ARRAY,
                 'type' => Server::WS_TYPE_ID
-            ),
-            'pwg_token' => array(),
-        ),
+            ],
+            'pwg_token' => [],
+        ],
         'Removes one or more users from a group.',
-        $ws_functions_root . 'pwg.groups.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.users.getList',
-        'ws_users_getList',
-        array(
-            'user_id' => array(
+        '\Phyxo\Functions\Ws\User::getList',
+        [
+            'user_id' => [
                 'flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY,
                 'type' => Server::WS_TYPE_ID
-            ),
-            'username' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'),
-            'status' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,generic,normal,admin,webmaster'),
-            'min_level' => array('default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'per_page' => array('default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'page' => array('default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'order' => array('default' => 'id', 'info' => 'id, username, level, email'),
-            'display' => array('default' => 'basics', 'info' => 'Comma saparated list (see method description)'),
-        ),
+            ],
+            'username' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'],
+            'status' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,generic,normal,admin,webmaster'],
+            'min_level' => ['default' => 0, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'group_id' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'per_page' => ['default' => 100, 'maxValue' => $conf['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'page' => ['default' => 0, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'order' => ['default' => 'id', 'info' => 'id, username, level, email'],
+            'display' => ['default' => 'basics', 'info' => 'Comma saparated list (see method description)'],
+        ],
         'Retrieves a list of all the users.<br><br><b>display</b> controls which data are returned, possible values are:<br>all, basics, none,<br>username, email, status, level, groups,<br>language, theme, nb_image_page, recent_period, expand, show_nb_comments, show_nb_hits,<br>enabled_high, registration_date, registration_date_string, registration_date_since, last_visit, last_visit_string, last_visit_since<br><b>basics</b> stands for "username,email,status,level,groups"',
-        $ws_functions_root . 'pwg.users.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.users.add',
-        'ws_users_add',
-        array(
-            'username' => array(),
-            'password' => array('default' => null),
-            'password_confirm' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'email' => array('default' => null),
-            'send_password_by_mail' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\User::add',
+        [
+            'username' => [],
+            'password' => ['default' => null],
+            'password_confirm' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'email' => ['default' => null],
+            'send_password_by_mail' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'pwg_token' => [],
+        ],
         'Registers a new user.',
-        $ws_functions_root . 'pwg.users.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.users.delete',
-        'ws_users_delete',
-        array(
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\User::delete',
+        [
+            'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'pwg_token' => [],
+        ],
         'Deletes on or more users. Photos owned by this user are not deleted.',
-        $ws_functions_root . 'pwg.users.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.users.setInfo',
-        'ws_users_setInfo',
-        array(
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'username' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'password' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'email' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'status' => array('flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'guest,generic,normal,admin,webmaster'),
-            'level' => array('flags' => Server::WS_PARAM_OPTIONAL, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'language' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'theme' => array('flags' => Server::WS_PARAM_OPTIONAL),
-            'group_id' => array('flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT),
+        '\Phyxo\Functions\Ws\User::setInfo',
+        [
+            'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'username' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'password' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'email' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'status' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'guest,generic,normal,admin,webmaster'],
+            'level' => ['flags' => Server::WS_PARAM_OPTIONAL, 'maxValue' => max($conf['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'language' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'theme' => ['flags' => Server::WS_PARAM_OPTIONAL],
+            'group_id' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT],
             // bellow are parameters removed in a future version
-            'nb_image_page' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL),
-            'recent_period' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE),
-            'expand' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
-            'show_nb_comments' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
-            'show_nb_hits' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
-            'enabled_high' => array('flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL),
-            'pwg_token' => array(),
-        ),
+            'nb_image_page' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE | Server::WS_TYPE_NOTNULL],
+            'recent_period' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
+            'expand' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
+            'show_nb_comments' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
+            'show_nb_hits' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
+            'enabled_high' => ['flags' => Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_BOOL],
+            'pwg_token' => [],
+        ],
         'Updates a user. Leave a field blank to keep the current value.<br>"username", "password" and "email" are ignored if "user_id" is an array.<br>set "group_id" to -1 if you want to dissociate users from all groups',
-        $ws_functions_root . 'pwg.users.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.permissions.getList',
-        'ws_permissions_getList',
-        array(
-            'cat_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-        ),
+        '\Phyxo\Functions\Ws\Permission::getList',
+        [
+            'cat_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+            'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+            'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+        ],
         'Returns permissions: user ids and group ids having access to each album ; this list can be filtered.
 <br>Provide only one parameter!',
-        $ws_functions_root . 'pwg.permissions.php',
-        array('admin_only' => true)
+        ['admin_only' => true]
     );
 
     $service->addMethod(
         'pwg.permissions.add',
-        'ws_permissions_add',
-        array(
-            'cat_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID),
-            'group_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'user_id' => array('flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID),
-            'recursive' => array('default' => false, 'type' => Server::WS_TYPE_BOOL),
-            'pwg_token' => array(),
-        ),
+        '\Phyxo\Functions\Ws\Permission::add',
+        [
+            'cat_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
+            'group_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+            'user_id' => ['flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL, 'type' => Server::WS_TYPE_ID],
+            'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
+            'pwg_token' => [],
+        ],
         'Adds permissions to an album.',
-        $ws_functions_root . 'pwg.permissions.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 
     $service->addMethod(
         'pwg.permissions.remove',
-        'ws_permissions_remove',
-        array(
-            'cat_id' => array(
+        '\Phyxo\Functions\Ws\Permission::remove',
+        [
+            'cat_id' => [
                 'flags' => Server::WS_PARAM_FORCE_ARRAY,
                 'type' => Server::WS_TYPE_ID
-            ),
-            'group_id' => array(
+            ],
+            'group_id' => [
                 'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
                 'type' => Server::WS_TYPE_ID
-            ),
-            'user_id' => array(
+            ],
+            'user_id' => [
                 'flags' => Server::WS_PARAM_FORCE_ARRAY | Server::WS_PARAM_OPTIONAL,
                 'type' => Server::WS_TYPE_ID
-            ),
-            'pwg_token' => array(),
-        ),
+            ],
+            'pwg_token' => [],
+        ],
         'Removes permissions from an album.',
-        $ws_functions_root . 'pwg.permissions.php',
-        array('admin_only' => true, 'post_only' => true)
+        ['admin_only' => true, 'post_only' => true]
     );
 }
