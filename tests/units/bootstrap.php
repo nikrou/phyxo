@@ -28,3 +28,11 @@ define('MASS_UPDATES_SKIP_EMPTY', false);
 define('CONFIG_TABLE', 'config');
 
 $conf['admin_theme'] = 'default';
+
+// Access codes
+define('ACCESS_FREE', 0);
+define('ACCESS_GUEST', 1);
+define('ACCESS_CLASSIC', 2);
+define('ACCESS_ADMINISTRATOR', 3);
+define('ACCESS_WEBMASTER', 4);
+define('ACCESS_CLOSED', 5);

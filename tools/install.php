@@ -25,6 +25,8 @@ use Symfony\Component\Dotenv\Dotenv;
 
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 $prefixeTable = 'phyxo_';
+$user = [];
+$cache = [];
 
 try {
     $conn = DBLayer::initFromDSN($_SERVER['DATABASE_URL']);
@@ -76,45 +78,45 @@ if (!defined('PWG_CHARSET')) {
 
 $themes = new Themes($conn);
 foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-    if (in_array($theme_id, array('elegant'))) {
+    if (in_array($theme_id, ['elegant'])) {
         $themes->performAction('activate', $theme_id);
     }
 }
 
-$insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/');
-$conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
+$insert = ['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/'];
+$conn->mass_inserts(SITES_TABLE, array_keys($insert), [$insert]);
 if ($conf['dblayer'] == 'pgsql') {
     $conn->db_query('ALTER SEQUENCE ' . strtolower(SITES_TABLE) . '_id_seq RESTART WITH 2');
 }
 
-$inserts = array(
-    array(
+$inserts = [
+    [
         'id' => 1,
         'username' => 'admin',
         'password' => password_hash(openssl_random_pseudo_bytes(15), PASSWORD_BCRYPT), // don't care, don't want access
         'mail_address' => 'nikrou77@gmail.com',
-    ),
-    array(
+    ],
+    [
         'id' => 2,
         'username' => 'guest',
-    ),
-);
+    ],
+];
 $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
 if ($conf['dblayer'] == 'pgsql') {
     $conn->db_query('ALTER SEQUENCE ' . strtolower(USERS_TABLE) . '_id_seq RESTART WITH 3');
 }
 
-$services['users']->createUserInfos(array(1, 2), array('language' => 'en'));
+$services['users']->createUserInfos([1, 2], ['language' => 'en']);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
-$datas = array();
+$datas = [];
 foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
-    $datas[] = array(
+    $datas[] = [
         'id' => $upgrade_id,
         'applied' => CURRENT_DATE,
         'description' => 'upgrade included in installation',
-    );
+    ];
 }
 $conn->mass_inserts(
     UPGRADE_TABLE,

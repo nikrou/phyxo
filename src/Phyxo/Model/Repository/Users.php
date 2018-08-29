@@ -39,9 +39,9 @@ class Users
      */
     public function validateMailAddress($user_id, $mail_address)
     {
-        if (empty($mail_address)
-            and !($this->conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
-            return '';
+        if (empty($mail_address) && !($this->conf['obligatory_user_mail_address']
+            && in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
+            return;
         }
 
         if (!\Phyxo\Functions\Utils::email_check_format($mail_address)) {
@@ -785,11 +785,8 @@ class Users
      */
     public function checkPasswordResetKey($key)
     {
-        global $page;
-
         if (!preg_match('/^[a-z0-9]{20}$/i', $key)) {
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid key');
-            return false;
+            throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
         }
 
         $query = 'SELECT user_id, status FROM ' . USER_INFOS_TABLE;
@@ -797,15 +794,13 @@ class Users
         $result = $conn->db_query($query);
 
         if ($conn->db_num_rows($result) == 0) {
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid key');
-            return false;
+            throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
         }
 
         $userdata = $conn->db_fetch_assoc($result);
 
         if ($this->isGuest($userdata['status']) or $this->isGeneric($userdata['status'])) {
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Password reset is not allowed for this user');
-            return false;
+            throw new \Exception(\Phyxo\Functions\Language::l10n('Password reset is not allowed for this user'));
         }
 
         return $userdata['user_id'];

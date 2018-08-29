@@ -132,10 +132,10 @@ function reset_password()
     }
 
     if (isset($_GET['key'])) {
-        $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
-        if (!is_numeric($user_id)) {
+        try {
+            $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
+        } catch (\Exception $e) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid key');
-            return false;
         }
     } else {
         // we check the currently logged in user
@@ -193,8 +193,8 @@ if (isset($_GET['key']) and !$services['users']->isGuest()) {
 }
 
 if (isset($_GET['key'])) {
-    $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
-    if (is_numeric($user_id)) {
+    try {
+        $user_id = $services['users']->checkPasswordResetKey($_GET['key']);
         $userdata = $services['users']->getUserData($user_id, false);
         $page['username'] = $userdata['username'];
         $template->assign('key', $_GET['key']);
@@ -202,7 +202,9 @@ if (isset($_GET['key'])) {
         if (!isset($page['action'])) {
             $page['action'] = 'reset';
         }
-    } else {
+
+    } catch (\Exception $e) {
+        $page['errors'][] = $e->getMessage();
         $page['action'] = 'none';
     }
 }
