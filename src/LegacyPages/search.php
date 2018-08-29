@@ -21,7 +21,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_search');
 
 //------------------------------------------------------------------ form check
-$search = array();
+$search = [];
 if (isset($_POST['submit'])) {
     foreach ($_POST as $post_key => $post_value) {
         if (!is_array($post_value)) {
@@ -32,19 +32,19 @@ if (isset($_POST['submit'])) {
     if (isset($_POST['search_allwords']) && !preg_match('/^\s*$/', $_POST['search_allwords'])) {
         \Phyxo\Functions\Utils::check_input_parameter('mode', $_POST, false, '/^(OR|AND)$/');
 
-        $fields = array_intersect($_POST['fields'], array('name', 'comment', 'file'));
+        $fields = array_intersect($_POST['fields'], ['name', 'comment', 'file']);
 
-        $drop_char_match = array(
+        $drop_char_match = [
             '-', '^', '$', ';', '#', '&', '(', ')', '<', '>', '`', '\'', '"', '|', ',', '@', '_',
             '?', '%', '~', '.', '[', ']', '{', '}', ':', '\\', '/', '=', '\'', '!', '*'
-        );
-        $drop_char_replace = array(
+        ];
+        $drop_char_replace = [
             ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', '', ' ', ' ', ' ', ' ', '', ' ',
             ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '', ' ', ' ', ' ', ' ', ' '
-        );
+        ];
 
         // Split words
-        $search['fields']['allwords'] = array(
+        $search['fields']['allwords'] = [
             'words' => array_unique(
                 preg_split(
                     '/\s+/',
@@ -57,46 +57,46 @@ if (isset($_POST['submit'])) {
             ),
             'mode' => $_POST['mode'],
             'fields' => $fields,
-        );
+        ];
     }
 
     if (isset($_POST['tags'])) {
         \Phyxo\Functions\Utils::check_input_parameter('tags', $_POST, true, PATTERN_ID);
         \Phyxo\Functions\Utils::check_input_parameter('tag_mode', $_POST, false, '/^(OR|AND)$/');
 
-        $search['fields']['tags'] = array(
+        $search['fields']['tags'] = [
             'words' => $_POST['tags'],
             'mode' => $_POST['tag_mode'],
-        );
+        ];
     }
 
     if (isset($_POST['authors']) && is_array($_POST['authors']) && count($_POST['authors']) > 0) {
-        $authors = array();
+        $authors = [];
 
         foreach ($_POST['authors'] as $author) {
             $authors[] = strip_tags($author);
         }
 
-        $search['fields']['author'] = array(
+        $search['fields']['author'] = [
             'words' => $authors,
             'mode' => 'OR',
-        );
+        ];
     }
 
     if (isset($_POST['cat'])) {
         \Phyxo\Functions\Utils::check_input_parameter('cat', $_POST, true, PATTERN_ID);
 
-        $search['fields']['cat'] = array(
+        $search['fields']['cat'] = [
             'words' => $_POST['cat'],
             'sub_inc' => ($_POST['subcats-included'] == 1) ? true : false,
-        );
+        ];
     }
 
     // dates
     $type_date = $_POST['date_type'];
 
     if (!empty($_POST['start_year'])) {
-        $search['fields'][$type_date . '-after'] = array(
+        $search['fields'][$type_date . '-after'] = [
             'date' => sprintf(
                 '%d-%02d-%02d',
                 $_POST['start_year'],
@@ -104,11 +104,11 @@ if (isset($_POST['submit'])) {
                 $_POST['start_day'] != 0 ? $_POST['start_day'] : '01'
             ),
             'inc' => true,
-        );
+        ];
     }
 
     if (!empty($_POST['end_year'])) {
-        $search['fields'][$type_date . '-before'] = array(
+        $search['fields'][$type_date . '-before'] = [
             'date' => sprintf(
                 '%d-%02d-%02d',
                 $_POST['end_year'],
@@ -116,7 +116,7 @@ if (isset($_POST['submit'])) {
                 $_POST['end_day'] != 0 ? $_POST['end_day'] : '31'
             ),
             'inc' => true,
-        );
+        ];
     }
 
     if (!empty($search)) {
@@ -136,10 +136,10 @@ if (isset($_POST['submit'])) {
 if (isset($_POST['submit']) and count($page['errors']) == 0) {
     \Phyxo\Functions\Utils::redirect(
         \Phyxo\Functions\URL::make_index_url(
-            array(
+            [
                 'section' => 'search',
                 'search' => $search_id,
-            )
+            ]
         )
     );
 }
@@ -158,17 +158,17 @@ $month_list[0] = '------------';
 ksort($month_list);
 
 $template->assign(
-    array(
+    [
         'F_SEARCH_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'search.php',
         'month_list' => $month_list,
         'START_DAY_SELECTED' => @$_POST['start_day'],
         'START_MONTH_SELECTED' => @$_POST['start_month'],
         'END_DAY_SELECTED' => @$_POST['end_day'],
         'END_MONTH_SELECTED' => @$_POST['end_month'],
-    )
+    ]
 );
 
-$available_tags = $services['tags']->getAvailableTags();
+$available_tags = $services['tags']->getAvailableTags($user);
 
 if (count($available_tags) > 0) {
     usort($available_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
@@ -177,23 +177,23 @@ if (count($available_tags) > 0) {
 }
 
 // authors
-$authors = array();
+$authors = [];
 
 $query = 'SELECT author, id FROM ' . IMAGES_TABLE . ' AS i';
 $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
 $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-    array(
+    [
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
         'visible_images' => 'id'
-    ),
+    ],
     ' WHERE '
 );
 $query .= ' AND author IS NOT NULL';
 $query .= ' GROUP BY author, id';
 $query .= ' ORDER BY author;';
 
-$author_counts = array();
+$author_counts = [];
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($author_counts[$row['author']])) {
@@ -204,10 +204,10 @@ while ($row = $conn->db_fetch_assoc($result)) {
 }
 
 foreach ($author_counts as $author => $counter) {
-    $authors[] = array(
+    $authors[] = [
         'author' => $author,
         'counter' => $counter,
-    );
+    ];
 }
 
 $template->assign('AUTHORS', $authors);
@@ -215,13 +215,13 @@ $template->assign('AUTHORS', $authors);
 //------------------------------------------------------------- categories form
 $query = 'SELECT id,name,global_rank,uppercats FROM ' . CATEGORIES_TABLE;
 $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-    array(
+    [
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
-    ),
+    ],
     'WHERE'
 );
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, array(), 'category_options', true);
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, [], 'category_options', true);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');

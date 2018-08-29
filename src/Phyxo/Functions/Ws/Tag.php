@@ -40,9 +40,9 @@ class Tag
      */
     public static function getList($params, &$service)
     {
-        global $services;
+        global $services, $user;
 
-        return self::tagsList($services['tags']->getAvailableTags(), $params);
+        return self::tagsList($services['tags']->getAvailableTags($user), $params);
     }
 
     /**

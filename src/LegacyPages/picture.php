@@ -36,7 +36,7 @@ if (isset($_GET['level'])) {
         $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['image_id']);
         $result = $conn->db_query($query);
 
-        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_picture_url(array('image_id' => $page['image_id'])));
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_picture_url(['image_id' => $page['image_id']]));
     }
 }
 
@@ -51,7 +51,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
         $query .= 'id = ' . $page['image_id'];
     } else { // url given by file name
         assert(!empty($page['image_file'])); // @TODO: remove and throw error/exception
-        $query .= 'file LIKE \'' . str_replace(array('_', '%'), array('/_', '/%'), $page['image_file']);
+        $query .= 'file LIKE \'' . str_replace(['_', '%'], ['/_', '/%'], $page['image_file']);
         $query .= '.%\' ESCAPE \'/\' LIMIT 1';
     }
     if (!($row = $conn->db_fetch_assoc($conn->db_query($query)))) { // element does not exist
@@ -79,7 +79,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
             $query .= ' WHERE id=' . $page['image_id'];
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'category_id'), ' AND ');
+            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id'], ' AND ');
             $query .= ' LIMIT 1';
             if ($conn->db_num_rows($conn->db_query($query)) == 0) {
                 \Phyxo\Functions\HTTP::access_denied();
@@ -89,12 +89,12 @@ if (!isset($page['rank_of'][$page['image_id']])) {
                     $page['items'][] = $page['image_id'];
                 } else {
                     $url = \Phyxo\Functions\URL::make_picture_url(
-                        array(
+                        [
                             'image_id' => $page['image_id'],
                             'image_file' => $page['image_file'],
                             'section' => 'categories',
                             'flat' => true,
-                        )
+                        ]
                     );
                     \Phyxo\Functions\HTTP::set_status_header('recent_pics' == $page['section'] ? 301 : 302);
                     \Phyxo\Functions\Utils::redirect($url);
@@ -138,9 +138,9 @@ function default_picture_content($content, $element_info)
     $deriv_type = isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size'];
     $selected_derivative = $element_info['derivatives'][$deriv_type];
 
-    $unique_derivatives = array();
+    $unique_derivatives = [];
     $show_original = isset($element_info['element_url']);
-    $added = array();
+    $added = [];
     foreach ($element_info['derivatives'] as $type => $derivative) {
         if ($type == IMG_SQUARE || $type == IMG_THUMB) {
             continue;
@@ -161,19 +161,19 @@ function default_picture_content($content, $element_info)
         $template->assign('U_ORIGINAL', $element_info['element_url']);
     }
 
-    $template->append('current', array(
+    $template->append('current', [
         'selected_derivative' => $selected_derivative,
         'unique_derivatives' => $unique_derivatives,
-    ), true);
+    ], true);
 
     $template->set_filenames(
-        array('default_content' => 'picture_content.tpl')
+        ['default_content' => 'picture_content.tpl']
     );
 
-    $template->assign(array(
+    $template->assign([
         'ALT_IMG' => $element_info['file'],
         'COOKIE_PATH' => \Phyxo\Functions\Utils::cookie_path(),
-    ));
+    ]);
 
     return $template->parse('default_content', true);
 }
@@ -204,8 +204,8 @@ if ($page['current_rank'] != $page['last_rank']) {
 }
 
 $url_up = \Phyxo\Functions\URL::duplicate_index_url(
-    array('start' => floor($page['current_rank'] / $page['nb_image_page']) * $page['nb_image_page']),
-    array('start')
+    ['start' => floor($page['current_rank'] / $page['nb_image_page']) * $page['nb_image_page']],
+    ['start']
 );
 
 $url_self = \Phyxo\Functions\URL::duplicate_picture_url();
@@ -257,7 +257,7 @@ if (isset($_GET['action'])) {
             }
         case 'add_to_caddie':
             {
-                \Phyxo\Functions\Utils::fill_caddie(array($page['image_id']));
+                \Phyxo\Functions\Utils::fill_caddie([$page['image_id']]);
                 \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
@@ -275,12 +275,12 @@ if (isset($_GET['action'])) {
                     if (!empty($_POST['content'])) {
                         \Phyxo\Functions\Utils::check_token();
                         $comment_action = $services['comments']->updateUserComment(
-                            array(
+                            [
                                 'comment_id' => $_GET['comment_to_edit'],
                                 'image_id' => $page['image_id'],
                                 'content' => $_POST['content'],
                                 'website_url' => @$_POST['website_url'],
-                            ),
+                            ],
                             $_POST['key']
                         );
 
@@ -361,13 +361,13 @@ if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count',
 $query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM ' . IMAGE_CATEGORY_TABLE;
 $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' ON category_id = id';
 $query .= ' WHERE image_id = ' . $page['image_id'];
-$query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), ' AND ') . ';';
+$query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], ' AND ') . ';';
 $related_categories = $conn->query2array($query);
 usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
-$picture = array();
+$picture = [];
 
-$ids = array($page['image_id']);
+$ids = [$page['image_id']];
 if (isset($page['previous_item'])) {
     $ids[] = $page['previous_item'];
     $ids[] = $page['first_item'];
@@ -411,11 +411,11 @@ while ($row = $conn->db_fetch_assoc($result)) {
     }
 
     $row['url'] = \Phyxo\Functions\URL::duplicate_picture_url(
-        array(
+        [
             'image_id' => $row['id'],
             'image_file' => $row['file'],
-        ),
-        array('start')
+        ],
+        ['start']
     );
 
     $picture[$i] = $row;
@@ -430,12 +430,12 @@ while ($row = $conn->db_fetch_assoc($result)) {
     }
 }
 
-$slideshow_params = array();
-$slideshow_url_params = array();
+$slideshow_params = [];
+$slideshow_url_params = [];
 
 if (isset($_GET['slideshow'])) {
     $page['slideshow'] = true;
-    $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+    $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 
     $slideshow_params = \Phyxo\Functions\Utils::decode_slideshow_params($_GET['slideshow']);
     $slideshow_url_params['slideshow'] = \Phyxo\Functions\Utils::encode_slideshow_params($slideshow_params);
@@ -465,9 +465,9 @@ if (isset($_GET['slideshow'])) {
 }
 
 if ($page['slideshow'] and $conf['light_slideshow']) {
-    $template->set_filenames(array('slideshow' => 'slideshow.tpl'));
+    $template->set_filenames(['slideshow' => 'slideshow.tpl']);
 } else {
-    $template->set_filenames(array('picture' => 'picture.tpl'));
+    $template->set_filenames(['picture' => 'picture.tpl']);
 }
 
 $title = $picture['current']['TITLE'];
@@ -475,7 +475,7 @@ $title_nb = ($page['current_rank'] + 1) . '/' . count($page['items']);
 
 // metadata
 $url_metadata = \Phyxo\Functions\URL::duplicate_picture_url();
-$url_metadata = \Phyxo\Functions\URL::add_url_params($url_metadata, array('metadata' => null));
+$url_metadata = \Phyxo\Functions\URL::add_url_params($url_metadata, ['metadata' => null]);
 
 // do we have a plugin that can show metadata for something else than images?
 $metadata_showable = \Phyxo\Functions\Plugin::trigger_change(
@@ -486,7 +486,7 @@ $metadata_showable = \Phyxo\Functions\Plugin::trigger_change(
 );
 
 if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
-    $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+    $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 }
 
 $page['body_id'] = 'thePicturePage';
@@ -495,50 +495,50 @@ $page['body_id'] = 'thePicturePage';
 $picture = \Phyxo\Functions\Plugin::trigger_change('picture_pictures_data', $picture);
 
 //------------------------------------------------------- navigation management
-foreach (array('first', 'previous', 'next', 'last', 'current') as $which_image) {
+foreach (['first', 'previous', 'next', 'last', 'current'] as $which_image) {
     if (isset($picture[$which_image])) {
         $template->assign(
             $which_image,
             array_merge(
                 $picture[$which_image],
-                array(
+                [
                     // Params slideshow was transmit to navigation buttons
                     'U_IMG' => \Phyxo\Functions\URL::add_url_params($picture[$which_image]['url'], $slideshow_url_params),
-                )
+                ]
             )
         );
     }
 }
 
 if ($conf['picture_download_icon'] and !empty($picture['current']['download_url'])) {
-    $template->append('current', array('U_DOWNLOAD' => $picture['current']['download_url']), true);
+    $template->append('current', ['U_DOWNLOAD' => $picture['current']['download_url']], true);
 }
 
 if ($page['slideshow']) {
-    $tpl_slideshow = array();
+    $tpl_slideshow = [];
 
     //slideshow end
     $template->assign(
-        array(
+        [
             'U_SLIDESHOW_STOP' => $picture['current']['url'],
-        )
+        ]
     );
 
-    foreach (array('repeat', 'play') as $p) {
+    foreach (['repeat', 'play'] as $p) {
         $var_name = 'U_' . ($slideshow_params[$p] ? 'STOP_' : 'START_') . strtoupper($p);
 
         $tpl_slideshow[$var_name] = \Phyxo\Functions\URL::add_url_params(
             $picture['current']['url'],
-            array('slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params(array_merge($slideshow_params, array($p => !$slideshow_params[$p]))))
+            ['slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params(array_merge($slideshow_params, [$p => !$slideshow_params[$p]]))]
         );
     }
 
-    foreach (array('dec', 'inc') as $op) {
+    foreach (['dec', 'inc'] as $op) {
         $new_period = $slideshow_params['period'] + ((($op == 'dec') ? -1 : 1) * $conf['slideshow_period_step']);
         $new_slideshow_params = \Phyxo\Functions\Utils::correct_slideshow_params(
             array_merge(
                 $slideshow_params,
-                array('period' => $new_period)
+                ['period' => $new_period]
             )
         );
 
@@ -546,21 +546,21 @@ if ($page['slideshow']) {
             $var_name = 'U_' . strtoupper($op) . '_PERIOD';
             $tpl_slideshow[$var_name] = \Phyxo\Functions\URL::add_url_params(
                 $picture['current']['url'],
-                array('slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params($new_slideshow_params))
+                ['slideshow' => \Phyxo\Functions\Utils::encode_slideshow_params($new_slideshow_params)]
             );
         }
     }
     $template->assign('slideshow', $tpl_slideshow);
 } elseif ($conf['picture_slideshow_icon']) {
     $template->assign(
-        array(
-            'U_SLIDESHOW_START' => \Phyxo\Functions\URL::add_url_params($picture['current']['url'], array('slideshow' => ''))
-        )
+        [
+            'U_SLIDESHOW_START' => \Phyxo\Functions\URL::add_url_params($picture['current']['url'], ['slideshow' => ''])
+        ]
     );
 }
 
 $template->assign(
-    array(
+    [
         'SECTION_TITLE' => $page['section_title'],
         'PHOTO' => $title_nb,
         'IS_HOME' => ('categories' == $page['section'] and !isset($page['category'])),
@@ -569,7 +569,7 @@ $template->assign(
         'U_UP_SIZE_CSS' => $picture['current']['derivatives']['square']->get_size_css(),
         'DISPLAY_NAV_BUTTONS' => $conf['picture_navigation_icons'],
         'DISPLAY_NAV_THUMB' => $conf['picture_navigation_thumb']
-    )
+    ]
 );
 
 if ($conf['picture_metadata_icon']) {
@@ -581,17 +581,17 @@ if ($conf['picture_metadata_icon']) {
 // admin links
 if ($services['users']->isAdmin()) {
     if (isset($page['category'])) {
-        $template->assign(array('U_SET_AS_REPRESENTATIVE' => \Phyxo\Functions\URL::add_url_params($url_self, array('action' => 'set_as_representative'))));
+        $template->assign(['U_SET_AS_REPRESENTATIVE' => \Phyxo\Functions\URL::add_url_params($url_self, ['action' => 'set_as_representative'])]);
     }
 
     $url_admin = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $page['image_id'];
     $url_admin .= (isset($page['category']) ? '&amp;cat_id=' . $page['category']['id'] : '');
 
     $template->assign(
-        array(
-            'U_CADDIE' => \Phyxo\Functions\URL::add_url_params($url_self, array('action' => 'add_to_caddie')),
+        [
+            'U_CADDIE' => \Phyxo\Functions\URL::add_url_params($url_self, ['action' => 'add_to_caddie']),
             'U_PHOTO_ADMIN' => $url_admin,
-        )
+        ]
     );
 
     $template->assign('available_permission_levels', \Phyxo\Functions\Utils::get_privacy_level_options());
@@ -607,13 +607,13 @@ if (!$services['users']->isGuest() and $conf['picture_favorite_icon']) {
 
     $template->assign(
         'favorite',
-        array(
+        [
             'IS_FAVORITE' => $is_favorite,
             'U_FAVORITE' => \Phyxo\Functions\URL::add_url_params(
                 $url_self,
-                array('action' => !$is_favorite ? 'add_to_favorites' : 'remove_from_favorites')
+                ['action' => !$is_favorite ? 'add_to_favorites' : 'remove_from_favorites']
             )
-        )
+        ]
     );
 }
 
@@ -639,12 +639,12 @@ if (!empty($picture['current']['author'])) {
 if (!empty($picture['current']['date_creation'])) {
     $val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_creation']);
     $url = \Phyxo\Functions\URL::make_index_url(
-        array(
+        [
             'chronology_field' => 'created',
             'chronology_style' => 'monthly',
             'chronology_view' => 'list',
             'chronology_date' => explode('-', substr($picture['current']['date_creation'], 0, 10))
-        )
+        ]
     );
     $infos['INFO_CREATION_DATE'] = '<a href="' . $url . '" rel="nofollow">' . $val . '</a>';
 }
@@ -652,7 +652,7 @@ if (!empty($picture['current']['date_creation'])) {
 // date of availability
 $val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_available']);
 $url = \Phyxo\Functions\URL::make_index_url(
-    array(
+    [
         'chronology_field' => 'posted',
         'chronology_style' => 'monthly',
         'chronology_view' => 'list',
@@ -660,7 +660,7 @@ $url = \Phyxo\Functions\URL::make_index_url(
             '-',
             substr($picture['current']['date_available'], 0, 10)
         )
-    )
+    ]
 );
 $infos['INFO_POSTED_DATE'] = '<a href="' . $url . '" rel="nofollow">' . $val . '</a>';
 
@@ -684,22 +684,22 @@ $template->assign($infos);
 $template->assign('display_info', json_decode($conf['picture_informations'], true));
 
 // related tags
-$tags = $services['tags']->getCommonTags(array($page['image_id']), -1);
+$tags = $services['tags']->getCommonTags($user, [$page['image_id']], -1);
 if (count($tags)) {
     foreach ($tags as $tag) {
         $template->append(
             'related_tags',
             array_merge(
                 $tag,
-                array(
-                    'URL' => \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag))),
+                [
+                    'URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]),
                     'U_TAG_IMAGE' => \Phyxo\Functions\URL::duplicate_picture_url(
-                        array(
+                        [
                             'section' => 'tags',
-                            'tags' => array($tag)
-                        )
+                            'tags' => [$tag]
+                        ]
                     )
-                )
+                ]
             )
         );
     }
@@ -737,7 +737,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
         \Phyxo\Functions\Category::get_cat_display_name($page['category']['upper_names'])
     );
 } else { // use only 1 sql query to get names for all related categories
-    $ids = array();
+    $ids = [];
     foreach ($related_categories as $category) { // add all uppercats to $ids
         $ids = array_merge($ids, explode(',', $category['uppercats']));
     }
@@ -746,7 +746,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
     $query .= ' WHERE id ' . $conn->in($ids);
     $cat_map = $conn->query2array($query, 'id');
     foreach ($related_categories as $category) {
-        $cats = array();
+        $cats = [];
         foreach (explode(',', $category['uppercats']) as $id) {
             $cats[] = $cat_map[$id];
         }
@@ -774,10 +774,10 @@ if (isset($picture['next']) and $picture['next']['src_image']->is_original() and
 $template->assign(
     'U_CANONICAL',
     \Phyxo\Functions\URL::make_picture_url(
-        array(
+        [
             'image_id' => $picture['current']['id'],
             'image_file' => $picture['current']['file']
-        )
+        ]
     )
 );
 

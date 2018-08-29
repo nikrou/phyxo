@@ -130,7 +130,7 @@ class Image
         }
 
         //-------------------------------------------------------------- related tags
-        $related_tags = $services['tags']->getCommonTags([$image_row['id']], -1);
+        $related_tags = $services['tags']->getCommonTags($user, [$image_row['id']], -1);
         foreach ($related_tags as $i => $tag) {
             $tag['url'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
             $tag['page_url'] = \Phyxo\Functions\URL::make_picture_url(

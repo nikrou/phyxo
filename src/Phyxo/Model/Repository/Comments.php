@@ -12,10 +12,20 @@
 namespace Phyxo\Model\Repository;
 
 use Phyxo\Functions\Plugin;
+use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Conf;
 
-class Comments extends BaseRepository
+class Comments
 {
-    protected $conn;
+    private $conn, $conf;
+
+    public function __construct(iDBLayer $conn, Conf $conf)
+    {
+        $this->conn = $conn;
+        $this->conf = $conf;
+
+        \Phyxo\Functions\Plugin::add_event_handler('user_comment_check', [$this, 'userCommentCheck']);
+    }
 
     /**
      * Does basic check on comment and returns action to perform.
@@ -27,13 +37,13 @@ class Comments extends BaseRepository
      */
     public function userCommentCheck($action, $comment)
     {
-        global $conf, $user, $services;
+        global $user, $services;
 
         if ($action == 'reject') {
             return $action;
         }
 
-        $my_action = $conf['comment_spam_reject'] ? 'reject' : 'moderate';
+        $my_action = $this->conf['comment_spam_reject'] ? 'reject' : 'moderate';
 
         if ($action == $my_action) {
             return $action;
@@ -50,7 +60,7 @@ class Comments extends BaseRepository
             $link_count++;
         }
 
-        if ($link_count > $conf['comment_spam_max_links']) {
+        if ($link_count > $this->conf['comment_spam_max_links']) {
             $_POST['cr'][] = 'links';
             return $my_action;
         }
@@ -68,18 +78,18 @@ class Comments extends BaseRepository
      */
     public function insertUserComment(&$comm, $key, &$infos)
     {
-        global $conf, $user, $services;
+        global $user, $services;
 
         $comm = array_merge(
             $comm,
-            array(
+            [
                 'ip' => $_SERVER['REMOTE_ADDR'],
                 'agent' => $_SERVER['HTTP_USER_AGENT']
-            )
+            ]
         );
 
-        $infos = array();
-        if (!$conf['comments_validation'] or $services['users']->isAdmin()) {
+        $infos = [];
+        if (!$this->conf['comments_validation'] || $services['users']->isAdmin()) {
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
@@ -88,17 +98,17 @@ class Comments extends BaseRepository
         // display author field if the user status is guest or generic
         if (!$services['users']->isClassicUser()) {
             if (empty($comm['author'])) {
-                if ($conf['comments_author_mandatory']) {
+                if ($this->conf['comments_author_mandatory']) {
                     $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
                     $comment_action = 'reject';
                 }
                 $comm['author'] = 'guest';
             }
-            $comm['author_id'] = $conf['guest_id'];
+            $comm['author_id'] = $this->conf['guest_id'];
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] != 'guest') {
                 $query = 'SELECT COUNT(1) AS user_exists FROM ' . USERS_TABLE;
-                $query .= ' WHERE ' . $conf['user_fields']['username'] . " = '" . $this->conn->db_real_escape_string($comm['author']) . "'";
+                $query .= ' WHERE ' . $this->conf['user_fields']['username'] . " = '" . $this->conn->db_real_escape_string($comm['author']) . "'";
                 $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
                 if ($row['user_exists'] == 1) {
                     $infos[] = \Phyxo\Functions\Language::l10n('This login is already used by another user');
@@ -121,7 +131,7 @@ class Comments extends BaseRepository
 
         // website
         if (!empty($comm['website_url'])) {
-            if (!$conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
+            if (!$this->conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
                 $comment_action = 'reject';
                 $_POST['cr'][] = 'website_url';
             } else {
@@ -140,7 +150,7 @@ class Comments extends BaseRepository
         if (empty($comm['email'])) {
             if (!empty($user['email'])) {
                 $comm['email'] = $user['email'];
-            } elseif ($conf['comments_email_mandatory']) {
+            } elseif ($this->conf['comments_email_mandatory']) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
@@ -156,8 +166,8 @@ class Comments extends BaseRepository
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action != 'reject' and $conf['anti-flood_time'] > 0 and !$services['users']->isAdmin()) { // anti-flood system
-            $reference_date = $this->conn->db_get_flood_period_expression($conf['anti-flood_time']);
+        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 and !$services['users']->isAdmin()) { // anti-flood system
+            $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
 
             $query = 'SELECT count(1) FROM ' . COMMENTS_TABLE;
             $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($comm['author_id']);
@@ -192,17 +202,17 @@ class Comments extends BaseRepository
 
             $this->invalidateUserCacheNbComments();
 
-            if (($conf['email_admin_on_comment'] && 'validate' == $comment_action)
-                or ($conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
+            if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
+                || ($this->conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
 
-                $keyargs_content = array(
+                $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($comm['author'])),
                     \Phyxo\Functions\Language::get_l10n_args('Email: %s', stripslashes($comm['email'])),
                     \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comm['content'])),
                     \Phyxo\Functions\Language::get_l10n_args(''),
                     \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
-                );
+                ];
 
                 if ('moderate' == $comment_action) {
                     $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation');
@@ -228,12 +238,11 @@ class Comments extends BaseRepository
      */
     public function deleteUserComment($comment_id)
     {
-        global $services;
+        global $user, $services;
 
         $user_where_clause = '';
         if (!$services['users']->isAdmin()) {
-            // @TODO : don't use GLOBALS
-            $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($GLOBALS['user']['id']) . '\'';
+            $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($user['id']) . '\'';
         }
 
         if (is_array($comment_id)) {
@@ -250,10 +259,10 @@ class Comments extends BaseRepository
 
             $this->email_admin(
                 'delete',
-                array(
-                    'author' => $GLOBALS['user']['username'],
+                [
+                    'author' => $user['username'],
                     'comment_id' => $comment_id
-                )
+                ]
             );
             Plugin::trigger_notify('user_comment_deletion', $comment_id);
 
@@ -299,13 +308,13 @@ class Comments extends BaseRepository
      */
     public function updateUserComment($comment, $post_key)
     {
-        global $conf, $page, $services;
+        global $page, $user, $services;
 
         $comment_action = 'validate';
 
         if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action = 'reject';
-        } elseif (!$conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
+        } elseif (!$this->conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
@@ -318,7 +327,7 @@ class Comments extends BaseRepository
             $comment_action,
             array_merge(
                 $comment,
-                array('author' => $GLOBALS['user']['username'])
+                ['author' => $user['username']]
             )
         );
 
@@ -337,7 +346,7 @@ class Comments extends BaseRepository
         if ($comment_action != 'reject') {
             $user_where_clause = '';
             if (!$services['users']->isAdmin()) {
-                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($GLOBALS['user']['id']) . '\'';
+                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($user['id']) . '\'';
             }
 
             $query = 'UPDATE ' . COMMENTS_TABLE;
@@ -349,24 +358,24 @@ class Comments extends BaseRepository
             $result = $this->conn->db_query($query);
 
             // mail admin and ask to validate the comment
-            if ($result and $conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
+            if ($result && $this->conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
-                $keyargs_content = array(
-                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($GLOBALS['user']['username'])),
+                $keyargs_content = [
+                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($user['username'])),
                     \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comment['content'])),
                     \Phyxo\Functions\Language::get_l10n_args(''),
                     \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
                     \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation'),
-                );
+                ];
 
                 \Phyxo\Functions\Mail::mail_notification_admins(
-                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($GLOBALS['user']['username'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($user['username'])),
                     $keyargs_content
                 );
             } elseif ($result) {
                 // just mail admin
-                $this->email_admin('edit', array('author' => $GLOBALS['user']['username'], 'content' => stripslashes($comment['content'])));
+                $this->email_admin('edit', ['author' => $user['username'], 'content' => stripslashes($comment['content'])]);
             }
         }
 
@@ -418,15 +427,13 @@ class Comments extends BaseRepository
      */
     private function email_admin($action, $comment)
     {
-        global $conf;
-
-        if (!in_array($action, array('edit', 'delete'))
-            or (($action == 'edit') and !$conf['email_admin_on_comment_edition'])
-            or (($action == 'delete') and !$conf['email_admin_on_comment_deletion'])) {
+        if (!in_array($action, ['edit', 'delete'])
+            && (($action == 'edit') && !$this->conf['email_admin_on_comment_edition'])
+            && (($action == 'delete') && !$this->conf['email_admin_on_comment_deletion'])) {
             return;
         }
 
-        $keyargs_content = array(\Phyxo\Functions\Language::l10n_args('Author: %s', $comment['author']));
+        $keyargs_content = [\Phyxo\Functions\Language::l10n_args('Author: %s', $comment['author'])];
 
         if ($action == 'delete') {
             $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author removed the comment with id %d', $comment['comment_id']);

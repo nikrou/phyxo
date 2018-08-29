@@ -273,7 +273,7 @@ function addDefaultMethods($arr)
     );
 
     $service->addMethod(
-        'pwg.taglteredList',
+        'pwg.tags.getFilteredList',
         '\Phyxo\Functions\Ws\Tag::getFilteredList',
         ['q' => ['default' => '']],
         'Retrieves a filtered list of all available tags.'

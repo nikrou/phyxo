@@ -13,10 +13,18 @@ namespace Phyxo\Model\Repository;
 
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Functions\Plugin;
+use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Conf;
 
-class Tags extends BaseRepository
+class Tags
 {
-    protected $conn;
+    private $conn;
+
+    public function __construct(iDBLayer $conn, Conf $conf)
+    {
+        $this->conn = $conn;
+        $this->conf = $conf;
+    }
 
     /**
      * Returns all tags even associated to no image.
@@ -33,7 +41,7 @@ class Tags extends BaseRepository
         }
 
         $result = $this->conn->db_query($query);
-        $tags = array();
+        $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
@@ -55,9 +63,9 @@ class Tags extends BaseRepository
         $query .= ' AND created_by IS NOT NULL';
 
         $result = $this->conn->db_query($query);
-        $tags = array();
+        $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
-            $row['thumb_src'] = DerivativeImage::thumb_url(array('id' => $row['image_id'], 'path' => $row['path']));
+            $row['thumb_src'] = DerivativeImage::thumb_url(['id' => $row['image_id'], 'path' => $row['path']]);
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
@@ -76,11 +84,11 @@ class Tags extends BaseRepository
     public function getNbAvailableTags($user)
     {
         if (!isset($user['nb_available_tags'])) {
-            $user['nb_available_tags'] = count($this->getAvailableTags());
+            $user['nb_available_tags'] = count($this->getAvailableTags($user));
             $this->conn->single_update(
                 USER_CACHE_TABLE,
-                array('nb_available_tags' => $user['nb_available_tags']),
-                array('user_id' => $user['id'])
+                ['nb_available_tags' => $user['nb_available_tags']],
+                ['user_id' => $user['id']]
             );
         }
 
@@ -94,20 +102,18 @@ class Tags extends BaseRepository
      *
      * @return array [id, name, counter, url_name]
      */
-    public function getAvailableTags()
+    public function getAvailableTags($user)
     {
-        global $user;
-
         // we can find top fatter tags among reachable images
         $query = 'SELECT tag_id, validated, status, created_by,';
         $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM ' . IMAGE_CATEGORY_TABLE . ' ic';
         $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON ic.image_id=it.image_id';
         $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-            array(
+            [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
                 'visible_images' => 'ic.image_id'
-            ),
+            ],
             ' WHERE '
         );
         $query .= ' AND (' . $this->validatedCondition($user['id']) . ')';
@@ -115,7 +121,7 @@ class Tags extends BaseRepository
         $result = $this->conn->db_query($query);
 
         // merge tags whether they are validated or not
-        $tag_counters = array();
+        $tag_counters = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             if (!isset($tag_counters[$row['tag_id']])) {
                 $tag_counters[$row['tag_id']] = $row;
@@ -125,13 +131,13 @@ class Tags extends BaseRepository
         }
 
         if (empty($tag_counters)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT id, name, url_name FROM ' . TAGS_TABLE;
         $result = $this->conn->db_query($query);
 
-        $tags = array();
+        $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             if (!empty($tag_counters[$row['id']])) {
                 $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
@@ -146,12 +152,10 @@ class Tags extends BaseRepository
         return $tags;
     }
 
-    public function getCommonTags($items, $max_tags, $excluded_tag_ids = array())
+    public function getCommonTags($user, $items, $max_tags, $excluded_tag_ids = [])
     {
-        global $user;
-
         if (empty($items)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT id,name,validated,created_by,status,';
@@ -169,7 +173,7 @@ class Tags extends BaseRepository
         }
 
         $result = $this->conn->db_query($query);
-        $tags = array();
+        $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $row['validated'] = $this->conn->get_boolean($row['validated']);
@@ -192,25 +196,25 @@ class Tags extends BaseRepository
     {
         $result = $this->conn->db_query($query);
 
-        $taglist = array();
-        $altlist = array();
+        $taglist = [];
+        $altlist = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $raw_name = $row['name'];
             $name = Plugin::trigger_change('render_tag_name', $raw_name, $row);
 
-            $taglist[] = array(
+            $taglist[] = [
                 'name' => $name,
                 'id' => '~~' . $row['id'] . '~~',
-            );
+            ];
 
             if (!$only_user_language) {
-                $alt_names = Plugin::trigger_change('get_tag_alt_names', array(), $raw_name);
+                $alt_names = Plugin::trigger_change('get_tag_alt_names', [], $raw_name);
 
-                foreach (array_diff(array_unique($alt_names), array($name)) as $alt) {
-                    $altlist[] = array(
+                foreach (array_diff(array_unique($alt_names), [$name]) as $alt) {
+                    $altlist[] = [
                         'name' => $alt,
                         'id' => '~~' . $row['id'] . '~~',
-                    );
+                    ];
                 }
             }
         }
@@ -237,7 +241,7 @@ class Tags extends BaseRepository
      */
     public function getTagsIds($raw_tags, $allow_create = true)
     {
-        $tag_ids = array();
+        $tag_ids = [];
         if (!is_array($raw_tags)) {
             $raw_tags = explode(',', $raw_tags);
         }
@@ -262,50 +266,41 @@ class Tags extends BaseRepository
      */
     public function tagIdFromTagName($tag_name)
     {
-        global $page;
-
         $tag_name = trim($tag_name);
-        if (isset($page['tag_id_from_tag_name_cache'][$tag_name])) {
-            return $page['tag_id_from_tag_name_cache'][$tag_name]; // @TODO: change from call to avoid global $page
-        }
 
         // search existing by exact name
-        $query = 'SELECT id FROM ' . $this->table;
+        $query = 'SELECT id FROM ' . TAGS_TABLE;
         $query .= ' WHERE name = \'' . $this->conn->db_real_escape_string($tag_name) . '\';';
 
         if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
             $url_name = Plugin::trigger_change('render_tag_url', $tag_name);
             // search existing by url name
-            $query = 'SELECT id FROM ' . $this->table;
+            $query = 'SELECT id FROM ' . TAGS_TABLE;
             $query .= ' WHERE url_name = \'' . $this->conn->db_real_escape_string($url_name) . '\';';
             if (count($existing_tags = $this->conn->query2array($query, null, 'id')) == 0) {
                 // search by extended description (plugin sub name)
-                $sub_name_where = Plugin::trigger_change('get_tag_name_like_where', array(), $tag_name);
+                $sub_name_where = Plugin::trigger_change('get_tag_name_like_where', [], $tag_name);
                 if (count($sub_name_where)) {
-                    $query = 'SELECT id FROM ' . $this->table;
+                    $query = 'SELECT id FROM ' . TAGS_TABLE;
                     $query .= ' WHERE ' . implode(' OR ', $sub_name_where) . ';';
                     $existing_tags = $this->conn->query2array($query, null, 'id');
                 }
 
                 if (count($existing_tags) == 0) { // finally create the tag
                     $this->conn->mass_inserts(
-                        $this->table,
-                        array('name', 'url_name'),
-                        array(array('name' => $tag_name, 'url_name' => $url_name))
+                        TAGS_TABLE,
+                        ['name', 'url_name'],
+                        [['name' => $tag_name, 'url_name' => $url_name]]
                     );
-
-                    $page['tag_id_from_tag_name_cache'][$tag_name] = $this->conn->db_insert_id($this->table);
 
                     \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
 
-                    return $page['tag_id_from_tag_name_cache'][$tag_name];
+                    return $this->conn->db_insert_id(TAGS_TABLE);
                 }
             }
         }
 
-        $page['tag_id_from_tag_name_cache'][$tag_name] = $existing_tags[0];
-
-        return $page['tag_id_from_tag_name_cache'][$tag_name];
+        return $existing_tags[0];
     }
 
     /**
@@ -327,13 +322,13 @@ class Tags extends BaseRepository
         $query .= ' AND tag_id ' . $this->conn->in($tags);
         $this->conn->db_query($query);
 
-        $inserts = array();
+        $inserts = [];
         foreach ($images as $image_id) {
             foreach (array_unique($tags) as $tag_id) {
-                $inserts[] = array(
+                $inserts[] = [
                     'image_id' => $image_id,
                     'tag_id' => $tag_id,
-                );
+                ];
             }
         }
         $this->conn->mass_inserts(
@@ -353,7 +348,7 @@ class Tags extends BaseRepository
      */
     public function setTags($tags, $image_id)
     {
-        $this->setTagsOf(array($image_id => $tags));
+        $this->setTagsOf([$image_id => $tags]);
     }
 
     /**
@@ -364,7 +359,7 @@ class Tags extends BaseRepository
     public function deleteTags($tag_ids)
     {
         if (is_numeric($tag_ids)) {
-            $tag_ids = array($tag_ids);
+            $tag_ids = [$tag_ids];
         }
 
         if (!is_array($tag_ids)) {
@@ -394,14 +389,14 @@ class Tags extends BaseRepository
             $query .= ' WHERE image_id ' . $this->conn->in(array_keys($tags_of));
             $this->conn->db_query($query);
 
-            $inserts = array();
+            $inserts = [];
 
             foreach ($tags_of as $image_id => $tag_ids) {
                 foreach (array_unique($tag_ids) as $tag_id) {
-                    $inserts[] = array(
+                    $inserts[] = [
                         'image_id' => $image_id,
                         'tag_id' => $tag_id
-                    );
+                    ];
                 }
             }
 
@@ -430,8 +425,6 @@ class Tags extends BaseRepository
      */
     public function addLevelToTags($tags)
     {
-        global $conf;
-
         if (count($tags) == 0) {
             return $tags;
         }
@@ -447,8 +440,8 @@ class Tags extends BaseRepository
 
         // tag levels threshold calculation: a tag with an average rate must have
         // the middle level.
-        for ($i = 1; $i < $conf['tags_levels']; $i++) {
-            $threshold_of_level[$i] = 2 * $i * $tag_average_count / $conf['tags_levels'];
+        for ($i = 1; $i < $this->conf['tags_levels']; $i++) {
+            $threshold_of_level[$i] = 2 * $i * $tag_average_count / $this->conf['tags_levels'];
         }
 
         // display sorted tags
@@ -456,7 +449,7 @@ class Tags extends BaseRepository
             $tag['level'] = 1;
 
             // based on threshold, determine current tag level
-            for ($i = $conf['tags_levels'] - 1; $i >= 1; $i--) {
+            for ($i = $this->conf['tags_levels'] - 1; $i >= 1; $i--) {
                 if ($tag['counter'] > $threshold_of_level[$i]) {
                     $tag['level'] = $i + 1;
                     break;
@@ -481,10 +474,8 @@ class Tags extends BaseRepository
      */
     public function getImageIdsForTags($tag_ids, $mode = 'AND', $extra_images_where_sql = '', $order_by = '', $use_permissions = true)
     {
-        global $conf;
-
         if (empty($tag_ids)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT id FROM ' . IMAGES_TABLE . ' i ';
@@ -498,11 +489,11 @@ class Tags extends BaseRepository
 
         if ($use_permissions) {
             $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                array(
+                [
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',
                     'visible_images' => 'id'
-                ),
+                ],
                 "\n  AND"
             );
         }
@@ -512,7 +503,7 @@ class Tags extends BaseRepository
         if ($mode == 'AND' and count($tag_ids) > 1) {
             $query .= ' HAVING COUNT(DISTINCT tag_id)=' . count($tag_ids);
         }
-        $query .= ' ' . (empty($order_by) ? $conf['order_by'] : $order_by);
+        $query .= ' ' . (empty($order_by) ? $this->conf['order_by'] : $order_by);
 
         return $this->conn->query2array($query, null, 'id');
     }
@@ -525,9 +516,9 @@ class Tags extends BaseRepository
      * @param string[] $names
      * @return array [id, name, url_name]
      */
-    public function findTags($ids = array(), $url_names = array(), $names = array())
+    public function findTags($ids = [], $url_names = [], $names = [])
     {
-        $where_clauses = array();
+        $where_clauses = [];
         if (!empty($ids)) {
             $where_clauses[] = 'id ' . $this->conn->in($ids);
         }
@@ -538,7 +529,7 @@ class Tags extends BaseRepository
             $where_clauses[] = 'name ' . $this->conn->in($names);
         }
         if (empty($where_clauses)) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT id,name,url_name,lastmodified FROM ' . TAGS_TABLE;
@@ -555,7 +546,7 @@ class Tags extends BaseRepository
         $orphan_tags = $this->getOrphanTags();
 
         if (count($orphan_tags) > 0) {
-            $orphan_tag_ids = array();
+            $orphan_tag_ids = [];
             foreach ($orphan_tags as $tag) {
                 $orphan_tag_ids[] = $tag['id'];
             }
@@ -592,20 +583,20 @@ class Tags extends BaseRepository
         if (count($existing_tags) == 0) {
             $this->conn->single_insert(
                 TAGS_TABLE,
-                array(
+                [
                     'name' => $tag_name,
                     'url_name' => Plugin::trigger_change('render_tag_url', $tag_name),
-                )
+                ]
             );
 
             $inserted_id = $this->conn->db_insert_id(TAGS_TABLE);
 
-            return array(
+            return [
                 'info' => \Phyxo\Functions\Language::l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
                 'id' => $inserted_id,
-            );
+            ];
         } else {
-            return array('error' => \Phyxo\Functions\Language::l10n('Tag "%s" already exists', stripslashes($tag_name))); // @TODO: remove stripslashes
+            return ['error' => \Phyxo\Functions\Language::l10n('Tag "%s" already exists', stripslashes($tag_name))]; // @TODO: remove stripslashes
         }
     }
 
@@ -615,12 +606,12 @@ class Tags extends BaseRepository
             return;
         }
 
-        $inserts = array();
+        $inserts = [];
         foreach ($tag_ids as $tag_id) {
-            $inserts[] = array(
+            $inserts[] = [
                 'image_id' => $image_id,
                 'tag_id' => $tag_id
-            );
+            ];
         }
         $this->conn->mass_inserts(
             IMAGE_TAG_TABLE,
@@ -630,54 +621,50 @@ class Tags extends BaseRepository
         \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
-    /*
-     * @param $elements in an array of tags indexed by image_id
-     */
+    // @param $elements in an array of tags indexed by image_id
     public function rejectTags($elements)
     {
         if (empty($elements)) {
             return;
         }
-        $deletes = array();
+        $deletes = [];
         foreach ($elements as $image_id => $tag_ids) {
             foreach ($tag_ids as $tag_id) {
-                $deletes[] = array(
+                $deletes[] = [
                     'image_id' => $image_id,
                     'tag_id' => $tag_id
-                );
+                ];
             }
         }
         $this->conn->mass_deletes(
             IMAGE_TAG_TABLE,
-            array('tag_id', 'image_id'),
+            ['tag_id', 'image_id'],
             $deletes
         );
     }
 
-    /*
-     * @param $elements in an array of tags indexed by image_id
-     */
+    // @param $elements in an array of tags indexed by image_id
     public function validateTags(array $elements)
     {
         if (empty($elements)) {
             return;
         }
-        $updates = array();
+        $updates = [];
         foreach ($elements as $image_id => $tag_ids) {
             foreach ($tag_ids as $tag_id) {
-                $updates[] = array(
+                $updates[] = [
                     'image_id' => $image_id,
                     'tag_id' => $tag_id,
                     'validated' => $this->conn->boolean_to_db(true)
-                );
+                ];
             }
         }
         $this->conn->mass_updates(
             IMAGE_TAG_TABLE,
-            array(
-                'primary' => array('tag_id', 'image_id'),
-                'update' => array('validated')
-            ),
+            [
+                'primary' => ['tag_id', 'image_id'],
+                'update' => ['validated']
+            ],
             $updates
         );
         $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
@@ -709,15 +696,15 @@ class Tags extends BaseRepository
      */
     public function toBeValidatedTags($tags_ids, $image_id, array $infos)
     {
-        $rows = array();
+        $rows = [];
         foreach ($tags_ids as $id) {
-            $rows[] = array(
+            $rows[] = [
                 'tag_id' => $id,
                 'image_id' => $image_id,
                 'status' => $infos['status'],
                 'created_by' => $infos['user_id'],
                 'validated' => false
-            );
+            ];
         }
 
         if (count($rows) > 0) {
@@ -730,10 +717,10 @@ class Tags extends BaseRepository
             } else {
                 $this->conn->mass_updates(
                     IMAGE_TAG_TABLE,
-                    array(
-                        'primary' => array('tag_id', 'image_id'),
-                        'update' => array('status', 'validated', 'created_by')
-                    ),
+                    [
+                        'primary' => ['tag_id', 'image_id'],
+                        'update' => ['status', 'validated', 'created_by']
+                    ],
                     $rows
                 );
             }
@@ -744,12 +731,10 @@ class Tags extends BaseRepository
 
     private function validatedCondition($user_id)
     {
-        global $conf;
-
         $sql = ' ((validated = \'' . $this->conn->boolean_to_db(true) . '\' AND status = 1)';
         $sql .= ' OR (validated = \'' . $this->conn->boolean_to_db(false) . '\' AND status = 0))';
 
-        if (!empty($conf['show_pending_added_tags'])) {
+        if (!empty($this->conf['show_pending_added_tags'])) {
             $sql .= ' OR (created_by = ' . $user_id . ')';
         }
 

@@ -8,6 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
@@ -45,16 +46,16 @@ function id_compare($a, $b)
 $title = \Phyxo\Functions\Language::l10n('Tags');
 $page['body_id'] = 'theTagsPage';
 
-$template->set_filenames(array('tags' => 'tags.tpl'));
+$template->set_filenames(['tags' => 'tags.tpl']);
 
 $page['display_mode'] = $conf['tags_default_display_mode'];
 if (isset($_GET['display_mode'])) {
-    if (in_array($_GET['display_mode'], array('cloud', 'letters'))) {
+    if (in_array($_GET['display_mode'], ['cloud', 'letters'])) {
         $page['display_mode'] = $_GET['display_mode'];
     }
 }
 
-foreach (array('cloud', 'letters') as $mode) {
+foreach (['cloud', 'letters'] as $mode) {
     $template->assign(
         'U_' . strtoupper($mode),
         \Phyxo\Functions\URL::get_root_url() . 'tags.php' . ($conf['tags_default_display_mode'] == $mode ? '' : '?display_mode=' . $mode)
@@ -64,7 +65,7 @@ foreach (array('cloud', 'letters') as $mode) {
 $template->assign('display_mode', $page['display_mode']);
 
 // find all tags available for the current user
-$tags = $services['tags']->getAvailableTags();
+$tags = $services['tags']->getAvailableTags($user);
 
 // +-----------------------------------------------------------------------+
 // |                       letter groups construction                      |
@@ -79,7 +80,7 @@ if ($page['display_mode'] == 'letters') {
     $current_column = 1;
     $current_tag_idx = 0;
 
-    $letter = array('tags' => array());
+    $letter = ['tags' => []];
 
     foreach ($tags as $tag) {
         $tag_letter = mb_strtoupper(mb_substr(\Phyxo\Functions\Language::transliterate($tag['name']), 0, 1, PWG_CHARSET), PWG_CHARSET);
@@ -105,16 +106,16 @@ if ($page['display_mode'] == 'letters') {
             );
 
             $current_letter = $tag_letter;
-            $letter = array(
-                'tags' => array()
-            );
+            $letter = [
+                'tags' => []
+            ];
         }
 
         $letter['tags'][] = array_merge(
             $tag,
-            array(
-                'URL' => \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag))),
-            )
+            [
+                'URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]),
+            ]
         );
 
         $current_tag_idx++;
@@ -151,13 +152,13 @@ if ($page['display_mode'] == 'letters') {
             'tags',
             array_merge(
                 $tag,
-                array(
+                [
                     'URL' => \Phyxo\Functions\URL::make_index_url(
-                        array(
-                            'tags' => array($tag),
-                        )
+                        [
+                            'tags' => [$tag],
+                        ]
                     ),
-                )
+                ]
             )
         );
     }

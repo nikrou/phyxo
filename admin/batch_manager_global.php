@@ -38,7 +38,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 // |                            current selection                          |
 // +-----------------------------------------------------------------------+
 
-$collection = array();
+$collection = [];
 if (isset($_POST['setSelected'])) {
     $collection = $page['cat_elements_id'];
 } elseif (isset($_POST['selection'])) {
@@ -108,7 +108,7 @@ if (isset($_POST['submit'])) {
     if ('associate' == $action) {
         \Phyxo\Functions\Category::associate_images_to_categories(
             $collection,
-            array($_POST['associate'])
+            [$_POST['associate']]
         );
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
@@ -123,7 +123,7 @@ if (isset($_POST['submit'])) {
             }
         }
     } elseif ('move' == $action) {
-        \Phyxo\Functions\Category::move_images_to_categories($collection, array($_POST['move']));
+        \Phyxo\Functions\Category::move_images_to_categories($collection, [$_POST['move']]);
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
@@ -165,17 +165,17 @@ if (isset($_POST['submit'])) {
             $_POST['author'] = null;
         }
 
-        $datas = array();
+        $datas = [];
         foreach ($collection as $image_id) {
-            $datas[] = array(
+            $datas[] = [
                 'id' => $image_id,
                 'author' => $_POST['author']
-            );
+            ];
         }
 
         $conn->mass_updates(
             IMAGES_TABLE,
-            array('primary' => array('id'), 'update' => array('author')),
+            ['primary' => ['id'], 'update' => ['author']],
             $datas
         );
     } elseif ('title' == $action) {
@@ -183,17 +183,17 @@ if (isset($_POST['submit'])) {
             $_POST['title'] = null;
         }
 
-        $datas = array();
+        $datas = [];
         foreach ($collection as $image_id) {
-            $datas[] = array(
+            $datas[] = [
                 'id' => $image_id,
                 'name' => $_POST['title']
-            );
+            ];
         }
 
         $conn->mass_updates(
             IMAGES_TABLE,
-            array('primary' => array('id'), 'update' => array('name')),
+            ['primary' => ['id'], 'update' => ['name']],
             $datas
         );
     } elseif ('date_creation' == $action) {
@@ -203,31 +203,31 @@ if (isset($_POST['submit'])) {
             $date_creation = $_POST['date_creation'];
         }
 
-        $datas = array();
+        $datas = [];
         foreach ($collection as $image_id) {
-            $datas[] = array(
+            $datas[] = [
                 'id' => $image_id,
                 'date_creation' => $date_creation
-            );
+            ];
         }
 
         $conn->mass_updates(
             IMAGES_TABLE,
-            array('primary' => array('id'), 'update' => array('date_creation')),
+            ['primary' => ['id'], 'update' => ['date_creation']],
             $datas
         );
     } elseif ('level' == $action) { // privacy_level
-        $datas = array();
+        $datas = [];
         foreach ($collection as $image_id) {
-            $datas[] = array(
+            $datas[] = [
                 'id' => $image_id,
                 'level' => $_POST['level']
-            );
+            ];
         }
 
         $conn->mass_updates(
             IMAGES_TABLE,
-            array('primary' => array('id'), 'update' => array('level')),
+            ['primary' => ['id'], 'update' => ['level']],
             $datas
         );
 
@@ -277,7 +277,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    if (!in_array($action, array('remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'))) {
+    if (!in_array($action, ['remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'])) {
         \Phyxo\Functions\Utils::invalidate_user_cache();
     }
 
@@ -294,33 +294,33 @@ if (isset($_POST['submit'])) {
 
 $base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
 
-$prefilters = array(
-    array('id' => 'caddie', 'name' => \Phyxo\Functions\Language::l10n('Caddie')),
-    array('id' => 'favorites', 'name' => \Phyxo\Functions\Language::l10n('Your favorites')),
-    array('id' => 'last_import', 'name' => \Phyxo\Functions\Language::l10n('Last import')),
-    array('id' => 'no_album', 'name' => \Phyxo\Functions\Language::l10n('With no album')),
-    array('id' => 'no_tag', 'name' => \Phyxo\Functions\Language::l10n('With no tag')),
-    array('id' => 'duplicates', 'name' => \Phyxo\Functions\Language::l10n('Duplicates')),
-    array('id' => 'all_photos', 'name' => \Phyxo\Functions\Language::l10n('All'))
-);
+$prefilters = [
+    ['id' => 'caddie', 'name' => \Phyxo\Functions\Language::l10n('Caddie')],
+    ['id' => 'favorites', 'name' => \Phyxo\Functions\Language::l10n('Your favorites')],
+    ['id' => 'last_import', 'name' => \Phyxo\Functions\Language::l10n('Last import')],
+    ['id' => 'no_album', 'name' => \Phyxo\Functions\Language::l10n('With no album')],
+    ['id' => 'no_tag', 'name' => \Phyxo\Functions\Language::l10n('With no tag')],
+    ['id' => 'duplicates', 'name' => \Phyxo\Functions\Language::l10n('Duplicates')],
+    ['id' => 'all_photos', 'name' => \Phyxo\Functions\Language::l10n('All')]
+];
 
 if ($conf['enable_synchronization']) {
-    $prefilters[] = array('id' => 'no_virtual_album', 'name' => \Phyxo\Functions\Language::l10n('With no virtual album'));
+    $prefilters[] = ['id' => 'no_virtual_album', 'name' => \Phyxo\Functions\Language::l10n('With no virtual album')];
 }
 
 $prefilters = \Phyxo\Functions\Plugin::trigger_change('get_batch_manager_prefilters', $prefilters);
 usort($prefilters, '\Phyxo\Functions\Utils::name_compare');
 
 $template->assign(
-    array(
+    [
         'prefilters' => $prefilters,
         'filter' => $_SESSION['bulk_manager_filter'],
         'selection' => $collection,
         'all_elements' => $page['cat_elements_id'],
         'START' => $page['start'],
-        'U_DISPLAY' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('display')),
-        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('cat', 'start', 'tag', 'filter')),
-    )
+        'U_DISPLAY' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(['display']),
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(['cat', 'start', 'tag', 'filter']),
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -342,16 +342,16 @@ foreach ($conf['available_permission_levels'] as $level) {
     }
 }
 $template->assign(
-    array(
+    [
         'filter_level_options' => $level_options,
         'filter_level_options_selected' => isset($_SESSION['bulk_manager_filter']['level'])
             ? $_SESSION['bulk_manager_filter']['level']
             : 0,
-    )
+    ]
 );
 
 // tags
-$filter_tags = array();
+$filter_tags = [];
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
     $query = 'SELECT id,name FROM ' . TAGS_TABLE;
@@ -363,10 +363,10 @@ if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
 $template->assign('filter_tags', $filter_tags);
 
 // in the filter box, which category to select by default
-$selected_category = array();
+$selected_category = [];
 
 if (isset($_SESSION['bulk_manager_filter']['category'])) {
-    $selected_category = array($_SESSION['bulk_manager_filter']['category']);
+    $selected_category = [$_SESSION['bulk_manager_filter']['category']];
 } else {
     // we need to know the category in which the last photo was added
     $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
@@ -393,7 +393,7 @@ if (count($page['cat_elements_id']) > 0) {
 
 if (count($page['cat_elements_id']) > 0) {
     // remove tags
-    $template->assign('associated_tags', $services['tags']->getCommonTags($page['cat_elements_id'], -1));
+    $template->assign('associated_tags', $services['tags']->getCommonTags($user, $page['cat_elements_id'], -1));
 }
 
 // creation date
@@ -401,30 +401,30 @@ $template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d'
 
 // image level options
 $template->assign(
-    array(
+    [
         'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
         'level_options_selected' => 0,
-    )
+    ]
 );
 
 // metadata
 $site_reader = new LocalSiteReader('./'); // @TODO : in conf or somewhere else but no direct path here
 $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
 
-$template->assign(array('used_metadata' => $used_metadata));
+$template->assign(['used_metadata' => $used_metadata]);
 
 //derivatives
-$del_deriv_map = array();
+$del_deriv_map = [];
 foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     $del_deriv_map[$params->type] = \Phyxo\Functions\Language::l10n($params->type);
 }
 $gen_deriv_map = $del_deriv_map;
 $del_deriv_map[IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(IMG_CUSTOM);
 $template->assign(
-    array(
+    [
         'del_derivatives_types' => $del_deriv_map,
         'generate_derivatives_types' => $gen_deriv_map,
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -446,7 +446,7 @@ $nb_thumbs_page = 0;
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = \Phyxo\Functions\Utils::create_navigation_bar(
-        $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
+        $base_url . \Phyxo\Functions\URL::get_query_string_diff(['start']),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
@@ -500,22 +500,22 @@ if (count($page['cat_elements_id']) > 0) {
             'thumbnails',
             array_merge(
                 $row,
-                array(
+                [
                     'thumb' => new \Phyxo\Image\DerivativeImage($thumb_params, $src_image),
                     'TITLE' => $ttitle,
                     'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
                     'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
-                )
+                ]
             )
         );
     }
     $template->assign('thumb_params', $thumb_params);
 }
 
-$template->assign(array(
+$template->assign([
     'nb_thumbs_page' => $nb_thumbs_page,
     'nb_thumbs_set' => count($page['cat_elements_id']),
-    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags', 'categories')),
-));
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['tags', 'categories']),
+]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_element_set_global');

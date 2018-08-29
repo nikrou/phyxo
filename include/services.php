@@ -18,9 +18,6 @@ use Phyxo\Model\Repository\Comments;
 use Phyxo\Model\Repository\Users;
 
 $services = [];
-$services['tags'] = new Tags($conn, 'Phyxo\Model\Entity\Tag', TAGS_TABLE);
-$services['comments'] = new Comments($conn, 'Phyxo\Model\Entity\Comment', COMMENTS_TABLE);
+$services['tags'] = new Tags($conn, $conf);
+$services['comments'] = new Comments($conn, $conf);
 $services['users'] = new Users($conn, $conf, $user, $cache);
-
-// @TODO : find a better place
-\Phyxo\Functions\Plugin::add_event_handler('user_comment_check', [$services['comments'], 'userCommentCheck']);
