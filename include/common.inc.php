@@ -31,19 +31,20 @@ $t2 = microtime(true);
 $prefixeTable = 'phyxo_';
 
 $debug = '';
-$page = array(
-    'infos' => array(),
-    'errors' => array(),
-    'warnings' => array(),
+$cache = [];
+$page = [
+    'infos' => [],
+    'errors' => [],
+    'warnings' => [],
     'count_queries' => 0,
     'queries_time' => 0,
-);
-$user = array();
-$lang = array();
-$lang_info = array();
-$header_msgs = array();
-$header_notes = array();
-$filter = array();
+];
+$user = [];
+$lang = [];
+$lang_info = [];
+$header_msgs = [];
+$header_notes = [];
+$filter = [];
 
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
@@ -128,7 +129,7 @@ if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     \Phyxo\Functions\Language::load_language('admin.lang');
 }
 \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
-\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, array('no_fallback' => true, 'local' => true));
+\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['no_fallback' => true, 'local' => true]);
 
 // only now we can set the localized username of the guest user (and not in include/user.inc.php)
 if ($services['users']->isGuest()) {
@@ -177,7 +178,7 @@ if ($conf['check_upgrade_feed']) {
 
 if (count($header_msgs) > 0) {
     $template->assign('header_msgs', $header_msgs);
-    $header_msgs = array();
+    $header_msgs = [];
 }
 
 if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_value('used')) {
@@ -189,7 +190,7 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
     // $filter['visible_images']: List of visible images
     if (!\Phyxo\Functions\Utils::get_filter_page_value('cancel')) {
         if (isset($_GET['filter'])) {
-            $filter['matches'] = array();
+            $filter['matches'] = [];
             $filter['enabled'] = preg_match('/^start-recent-(\d+)$/', $_GET['filter'], $filter['matches']) === 1;
         } else {
             $filter['enabled'] = isset($_SESSION['filter_enabled']) ? $_SESSION['filter_enabled'] : false;
@@ -199,7 +200,7 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
     }
 
     if ($filter['enabled']) {
-        $filter_key = isset($_SESSION['filter_check_key']) ? $_SESSION['filter_check_key'] : array('user' => 0, 'recent_period' => -1, 'time' => 0, 'date' => '');
+        $filter_key = isset($_SESSION['filter_check_key']) ? $_SESSION['filter_check_key'] : ['user' => 0, 'recent_period' => -1, 'time' => 0, 'date' => ''];
 
         if (isset($filter['matches'])) {
             $filter['recent_period'] = $filter['matches'][1];
@@ -213,12 +214,12 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
             || $filter_key['user'] != $user['id'] || $filter_key['recent_period'] != $filter['recent_period']
             || $filter_key['date'] != date('Ymd')) {
             // Need to compute dats
-            $filter_key = array(
+            $filter_key = [
                 'user' => (int)$user['id'],
                 'recent_period' => (int)$filter['recent_period'],
                 'time' => time(),
                 'date' => date('Ymd')
-            );
+            ];
 
             $filter['categories'] = \Phyxo\Functions\Category::get_computed_categories($user, (int)$filter['recent_period']);
 
@@ -253,7 +254,7 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
             $_SESSION['filter_visible_images'] = $filter['visible_images'];
         } else {
             // Read only data
-            $filter['categories'] = isset($_SESSION['filter_categories']) ? $_SESSION['filter_categories'] : array();
+            $filter['categories'] = isset($_SESSION['filter_categories']) ? $_SESSION['filter_categories'] : [];
             $filter['visible_categories'] = isset($_SESSION['filter_visible_categories']) ? $_SESSION['filter_visible_categories'] : '';
             $filter['visible_images'] = isset($_SESSION['filter_visible_images']) ? $_SESSION['filter_visible_images'] : '';
         }

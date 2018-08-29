@@ -11,16 +11,21 @@
 
 namespace Phyxo\Model\Repository;
 
+use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 
-class Users extends BaseRepository
+class Users
 {
-    protected $conn;
+    private $conn;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn, $model, $table)
+    public function __construct(iDBLayer $conn, Conf $conf, array $user, array $cache)
     {
-        parent::__construct($conn, $model, $table);
+        $this->conn = $conn;
+        $this->conf = $conf;
+        $this->user = $user;
+        $this->cache = $cache;
 
         Plugin::add_event_handler('try_log_user', [$this, 'login']);
     }
@@ -34,10 +39,8 @@ class Users extends BaseRepository
      */
     public function validateMailAddress($user_id, $mail_address)
     {
-        global $conf;
-
         if (empty($mail_address)
-            and !($conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
+            and !($this->conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
             return '';
         }
 
@@ -47,8 +50,8 @@ class Users extends BaseRepository
 
         if (defined("PHPWG_INSTALLED") and !empty($mail_address)) {
             $query = 'SELECT count(1) FROM ' . USERS_TABLE;
-            $query .= ' WHERE upper(' . $conf['user_fields']['email'] . ') = upper(\'' . $this->conn->db_real_escape_string($mail_address) . '\')';
-            $query .= (is_numeric($user_id) ? 'AND ' . $conf['user_fields']['id'] . ' != \'' . $user_id . '\'' : '') . ';';
+            $query .= ' WHERE upper(' . $this->conf['user_fields']['email'] . ') = upper(\'' . $this->conn->db_real_escape_string($mail_address) . '\')';
+            $query .= (is_numeric($user_id) ? 'AND ' . $this->conf['user_fields']['id'] . ' != \'' . $user_id . '\'' : '') . ';';
             list($count) = $this->conn->db_fetch_row($this->conn->db_query($query));
             if ($count != 0) {
                 return \Phyxo\Functions\Language::l10n('this email address is already in use');
@@ -65,12 +68,10 @@ class Users extends BaseRepository
      */
     public function validateLoginCase($login)
     {
-        global $conf;
-
         if (defined("PHPWG_INSTALLED")) {
-            $query = 'SELECT ' . $conf['user_fields']['username'] . ' FROM ' . USERS_TABLE;
+            $query = 'SELECT ' . $this->conf['user_fields']['username'] . ' FROM ' . USERS_TABLE;
             $query .= ' WHERE LOWER(';
-            $query .= $this->conn->db_real_escape_string($conf['user_fields']['username']);
+            $query .= $this->conn->db_real_escape_string($this->conf['user_fields']['username']);
             $query .= ') = \'' . strtolower($this->conn->db_real_escape_string($login)) . '\'';
             $count = $this->conn->db_num_rows($this->conn->db_query($query));
 
@@ -88,13 +89,11 @@ class Users extends BaseRepository
      */
     public function searchCaseUsername($username)
     {
-        global $conf;
-
         $username_lo = strtolower($username);
 
         $users = [];
 
-        $q = $this->conn->db_query('SELECT ' . $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE);
+        $q = $this->conn->db_query('SELECT ' . $this->conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE);
         while ($r = $this->conn->db_fetch_assoc($q)) {
             $users[$r['username']] = strtolower($r['username']);
         }
@@ -124,8 +123,6 @@ class Users extends BaseRepository
      */
     public function registerUser($login, $password, $mail_address, $notify_admin = true, &$errors = [], $notify_user = false)
     {
-        global $conf;
-
         if ($login == '') {
             $errors[] = \Phyxo\Functions\Language::l10n('Please, enter a login');
         }
@@ -146,7 +143,7 @@ class Users extends BaseRepository
             $errors[] = $mail_error;
         }
 
-        if ($conf['insensitive_case_logon'] == true) {
+        if ($this->conf['insensitive_case_logon'] == true) {
             $login_error = $this->validateLoginCase($login);
             if ($login_error != '') {
                 $errors[] = $login_error;
@@ -166,9 +163,9 @@ class Users extends BaseRepository
         // if no error until here, registration of the user
         if (empty($errors)) {
             $insert = [
-                $conf['user_fields']['username'] => $this->conn->db_real_escape_string($login),
-                $conf['user_fields']['password'] => $this->passwordHash($password),
-                $conf['user_fields']['email'] => $mail_address
+                $this->conf['user_fields']['username'] => $this->conn->db_real_escape_string($login),
+                $this->conf['user_fields']['password'] => $this->passwordHash($password),
+                $this->conf['user_fields']['email'] => $mail_address
             ];
 
             $this->conn->single_insert(USERS_TABLE, $insert);
@@ -192,14 +189,14 @@ class Users extends BaseRepository
             }
 
             $override = null;
-            if ($notify_admin and $conf['browser_language']) {
+            if ($notify_admin && $this->conf['browser_language']) {
                 if (!\Phyxo\Functions\Language::get_browser_language($override['language'])) {
                     $override = null;
                 }
             }
             $this->createUserInfos($user_id, $override);
 
-            if ($notify_admin and $conf['email_admin_on_new_user']) {
+            if ($notify_admin && $this->conf['email_admin_on_new_user']) {
                 $admin_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'admin/index.php?page=user_list&username=' . $login;
 
                 $keyargs_content = [
@@ -218,7 +215,7 @@ class Users extends BaseRepository
             if ($notify_user && \Phyxo\Functions\Utils::email_check_format($mail_address)) {
                 $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('Hello %s,', stripslashes($login)),
-                    \Phyxo\Functions\Language::get_l10n_args('Thank you for registering at %s!', $conf['gallery_title']),
+                    \Phyxo\Functions\Language::get_l10n_args('Thank you for registering at %s!', $this->conf['gallery_title']),
                     \Phyxo\Functions\Language::get_l10n_args('', ''),
                     \Phyxo\Functions\Language::get_l10n_args('Here are your connection settings', ''),
                     \Phyxo\Functions\Language::get_l10n_args('Username: %s', stripslashes($login)),
@@ -234,7 +231,7 @@ class Users extends BaseRepository
                 \Phyxo\Functions\Mail::mail(
                     $mail_address,
                     [
-                        'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Registration'),
+                        'subject' => '[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Registration'),
                         'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                         'content_format' => 'text/plain',
                     ]
@@ -266,12 +263,10 @@ class Users extends BaseRepository
      */
     public function buildUser($user_id, $use_cache = true)
     {
-        global $conf;
-
         $user['id'] = $user_id;
         $user = array_merge($user, $this->getUserData($user_id, $use_cache));
 
-        if ($user['id'] == $conf['guest_id'] and $user['status'] != 'guest') {
+        if ($user['id'] == $this->conf['guest_id'] and $user['status'] != 'guest') {
             $user['status'] = 'guest';
             $user['internal_status']['guest_must_be_guest'] = true;
         }
@@ -292,17 +287,15 @@ class Users extends BaseRepository
      */
     public function logUser($user_id, $remember_me)
     {
-        global $conf, $user;
-
-        if ($remember_me and $conf['authorize_remembering']) {
+        if ($remember_me && $this->conf['authorize_remembering']) {
             $now = time();
             $key = $this->calculateAutoLoginKey($user_id, $now, $username);
             if ($key !== false) {
                 $cookie = $user_id . '-' . $now . '-' . $key;
                 setcookie(
-                    $conf['remember_me_name'],
+                    $this->conf['remember_me_name'],
                     $cookie,
-                    time() + $conf['remember_me_length'],
+                    time() + $this->conf['remember_me_length'],
                     Utils::cookie_path(),
                     ini_get('session.cookie_domain'),
                     ini_get('session.cookie_secure'),
@@ -310,15 +303,12 @@ class Users extends BaseRepository
                 );
             }
         } else { // make sure we clean any remember me ...
-            setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
+            setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
         }
 
-        //session_name($conf['session_name']);
-        //session_start();
-
         $_SESSION['pwg_uid'] = (int)$user_id;
-        $user['id'] = $_SESSION['pwg_uid'];
-        Plugin::trigger_notify('user_login', $user['id']);
+        $this->user['id'] = $_SESSION['pwg_uid'];
+        Plugin::trigger_notify('user_login', $this->user['id']);
     }
 
     /**
@@ -328,14 +318,12 @@ class Users extends BaseRepository
      */
     public function autoLogin()
     {
-        global $conf;
-
-        if (isset($_COOKIE[$conf['remember_me_name']])) {
-            $cookie = explode('-', stripslashes($_COOKIE[$conf['remember_me_name']]));
+        if (isset($_COOKIE[$this->conf['remember_me_name']])) {
+            $cookie = explode('-', stripslashes($_COOKIE[$this->conf['remember_me_name']]));
             if (count($cookie) === 3
                 and is_numeric(@$cookie[0]) // user id
             and is_numeric(@$cookie[1]) // time
-            and time() - $conf['remember_me_length'] <= @$cookie[1]
+            and time() - $this->conf['remember_me_length'] <= @$cookie[1]
                 and time() >= @$cookie[1] /*cookie generated in the past*/) {
                 $key = $this->calculateAutoLoginKey($cookie[0], $cookie[1], $username);
                 if ($key !== false and $key === $cookie[2]) {
@@ -344,7 +332,7 @@ class Users extends BaseRepository
                     return true;
                 }
             }
-            setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
+            setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
         }
 
         return false;
@@ -374,20 +362,15 @@ class Users extends BaseRepository
      */
     public function login($success, $username, $password, $remember_me)
     {
-        global $conf;
-
         if ($success === true) {
             return true;
         }
 
-        // we force the session table to be clean : @TODO : check why
-        //        pwg_session_gc();
-
         // retrieving the encrypted password of the login submitted
-        $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
-        $query .= $conf['user_fields']['password'] . ' AS password';
+        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' AS id,';
+        $query .= $this->conf['user_fields']['password'] . ' AS password';
         $query .= ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
+        $query .= ' WHERE ' . $this->conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
         if ($this->passwordVerify($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
@@ -404,15 +387,13 @@ class Users extends BaseRepository
      */
     public function logoutUser()
     {
-        global $conf;
-
         Plugin::trigger_notify('user_logout', isset($_SESSION['pwg_uid']) ? $_SESSION['pwg_uid'] : null);
 
         $_SESSION = [];
         session_unset();
         session_destroy();
-        setcookie(session_name($conf['session_name']), '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
-        setcookie($conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
+        setcookie(session_name($this->conf['session_name']), '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
+        setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
     }
 
     /**
@@ -424,12 +405,10 @@ class Users extends BaseRepository
      */
     public function getUserData($user_id, $use_cache = false)
     {
-        global $conf;
-
         // retrieve basic user data
         $query = 'SELECT ';
         $is_first = true;
-        foreach ($conf['user_fields'] as $pwgfield => $dbfield) {
+        foreach ($this->conf['user_fields'] as $pwgfield => $dbfield) {
             if ($is_first) {
                 $is_first = false;
             } else {
@@ -438,12 +417,12 @@ class Users extends BaseRepository
             $query .= $dbfield . ' AS ' . $pwgfield;
         }
         $query .= ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $this->conn->db_real_escape_string($user_id);
+        $query .= ' WHERE ' . $this->conf['user_fields']['id'] . ' = ' . $this->conn->db_real_escape_string($user_id);
 
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
 
         // retrieve additional user data ?
-        if ($conf['external_authentification']) {
+        if ($this->conf['external_authentification']) {
             $query = 'SELECT COUNT(1) AS counter FROM ' . USER_INFOS_TABLE . ' AS ui';
             $query .= ' LEFT JOIN ' . USER_CACHE_TABLE . ' AS uc ON ui.user_id = uc.user_id';
             $query .= ' LEFT JOIN ' . THEMES_TABLE . ' AS t ON t.id = ui.theme';
@@ -569,8 +548,6 @@ class Users extends BaseRepository
      */
     public function createUserInfos($user_ids, $override_values = null)
     {
-        global $conf;
-
         if (!is_array($user_ids)) {
             $user_ids = [$user_ids];
         }
@@ -591,10 +568,10 @@ class Users extends BaseRepository
 
             foreach ($user_ids as $user_id) {
                 $level = isset($default_user['level']) ? $default_user['level'] : 0;
-                if ($user_id == $conf['webmaster_id']) {
+                if ($user_id == $this->conf['webmaster_id']) {
                     $status = 'webmaster';
-                    $level = max($conf['available_permission_levels']);
-                } elseif (($user_id == $conf['guest_id']) or ($user_id == $conf['default_user_id'])) {
+                    $level = max($this->conf['available_permission_levels']);
+                } elseif (($user_id == $this->conf['guest_id']) or ($user_id == $this->conf['default_user_id'])) {
                     $status = 'guest';
                 } else {
                     $status = 'normal';
@@ -625,10 +602,8 @@ class Users extends BaseRepository
      */
     public function getUserId($username)
     {
-        global $conf;
-
-        $query = 'SELECT ' . $conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
+        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
+        $query .= ' WHERE ' . $this->conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
         $result = $this->conn->db_query($query);
 
         if ($this->conn->db_num_rows($result) == 0) {
@@ -647,10 +622,8 @@ class Users extends BaseRepository
      */
     public function getUserIdByEmail($email)
     {
-        global $conf;
-
-        $query = 'SELECT ' . $conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE UPPER(' . $conf['user_fields']['email'] . ') = UPPER(\'' . $this->conn->db_real_escape_string($email) . '\');';
+        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
+        $query .= ' WHERE UPPER(' . $this->conf['user_fields']['email'] . ') = UPPER(\'' . $this->conn->db_real_escape_string($email) . '\');';
         $result = $this->conn->db_query($query);
 
         if ($this->conn->db_num_rows($result) == 0) {
@@ -669,25 +642,23 @@ class Users extends BaseRepository
      */
     public function getDefaultUserInfo($convert_str = true)
     {
-        global $cache, $conf;
-
-        if (!isset($cache['default_user'])) {
-            $query = 'SELECT * FROM ' . USER_INFOS_TABLE . ' WHERE user_id = ' . $conf['default_user_id'] . ';';
+        if (!isset($this->cache['default_user'])) {
+            $query = 'SELECT * FROM ' . USER_INFOS_TABLE . ' WHERE user_id = ' . $this->conf['default_user_id'] . ';';
             $result = $this->conn->db_query($query);
 
             if ($this->conn->db_num_rows($result) > 0) {
-                $cache['default_user'] = $this->conn->db_fetch_assoc($result);
+                $this->cache['default_user'] = $this->conn->db_fetch_assoc($result);
 
-                unset($cache['default_user']['user_id'], $cache['default_user']['status'], $cache['default_user']['registration_date']);
-                
-                
+                unset($this->cache['default_user']['user_id'], $this->cache['default_user']['status'], $this->cache['default_user']['registration_date']);
+
+
             } else {
-                $cache['default_user'] = false;
+                $this->cache['default_user'] = false;
             }
         }
 
-        if (is_array($cache['default_user']) and $convert_str) {
-            $default_user = $cache['default_user'];
+        if (is_array($this->cache['default_user']) and $convert_str) {
+            $default_user = $this->cache['default_user'];
             foreach ($default_user as &$value) {
                 // If the field is true or false, the variable is transformed into a boolean value.
                 if ($this->conn->is_boolean($value)) {
@@ -696,7 +667,7 @@ class Users extends BaseRepository
             }
             return $default_user;
         } else {
-            return $cache['default_user'];
+            return $this->cache['default_user'];
         }
     }
 
@@ -755,17 +726,15 @@ class Users extends BaseRepository
      */
     public function calculateAutoLoginKey($user_id, $time, &$username)
     {
-        global $conf;
-
-        $query = 'SELECT ' . $conf['user_fields']['username'] . ' AS username';
-        $query .= ', ' . $conf['user_fields']['password'] . ' AS password FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $user_id;
+        $query = 'SELECT ' . $this->conf['user_fields']['username'] . ' AS username';
+        $query .= ', ' . $this->conf['user_fields']['password'] . ' AS password FROM ' . USERS_TABLE;
+        $query .= ' WHERE ' . $this->conf['user_fields']['id'] . ' = ' . $user_id;
 
         $result = $this->conn->db_query($query);
         if ($this->conn->db_num_rows($result) > 0) {
             $row = $this->conn->db_fetch_assoc($result);
             $data = $time . $user_id . $row['username'];
-            $key = base64_encode(hash_hmac('sha1', $data, $conf['secret_key'] . $row['password'], true));
+            $key = base64_encode(hash_hmac('sha1', $data, $this->conf['secret_key'] . $row['password'], true));
             return $key;
         }
 
@@ -848,7 +817,7 @@ class Users extends BaseRepository
      * @param string $user_status used if $user not initialized
      * @return string
      */
-    public function getUserStatus($user_status = '')
+    protected function getUserStatus($user_status = '')
     {
         global $user;
 
@@ -872,12 +841,10 @@ class Users extends BaseRepository
      */
     public function getAccessTypeStatus($user_status = '')
     {
-        global $conf;
-
         switch ($this->getUserStatus($user_status)) {
             case 'guest':
                 {
-                    $access_type_status = ($conf['guest_access'] ? ACCESS_GUEST : ACCESS_FREE);
+                    $access_type_status = ($this->conf['guest_access'] ? ACCESS_GUEST : ACCESS_FREE);
                     break;
                 }
             case 'generic':
@@ -1048,8 +1015,6 @@ class Users extends BaseRepository
      */
     public function canManageComment($action, $comment_author_id)
     {
-        global $user, $conf;
-
         if ($this->isGuest()) {
             return false;
         }
@@ -1062,14 +1027,14 @@ class Users extends BaseRepository
             return true;
         }
 
-        if ('edit' == $action and $conf['user_can_edit_comment']) {
-            if ($comment_author_id == $user['id']) {
+        if ('edit' == $action and $this->conf['user_can_edit_comment']) {
+            if ($comment_author_id == $this->user['id']) {
                 return true;
             }
         }
 
-        if ('delete' == $action and $conf['user_can_delete_comment']) {
-            if ($comment_author_id == $user['id']) {
+        if ('delete' == $action and $this->conf['user_can_delete_comment']) {
+            if ($comment_author_id == $this->user['id']) {
                 return true;
             }
         }
