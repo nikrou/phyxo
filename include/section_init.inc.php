@@ -33,7 +33,7 @@ use Phyxo\Calendar\CalendarMonthly;
 //   );
 
 
-$page['items'] = array();
+$page['items'] = [];
 $page['start'] = $page['startcat'] = 0;
 
 // some ISPs set PATH_INFO to empty string or to SCRIPT_FILENAME while in the
@@ -108,7 +108,7 @@ if (!isset($page['section'])) {
             {
             // No section defined, go to random url
                 if (!empty($conf['random_index_redirect']) and empty($tokens[$next_token])) {
-                    $random_index_redirect = array();
+                    $random_index_redirect = [];
                     foreach ($conf['random_index_redirect'] as $random_url => $random_url_condition) {
                         if (empty($random_url_condition) or eval($random_url_condition)) {
                             $random_index_redirect[] = $random_url;
@@ -169,11 +169,11 @@ if (!empty($_SESSION['image_order']) && $_SESSION['image_order'] > 0) {
 }
 
 $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
-    array(
+    [
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
         'visible_images' => 'id'
-    ),
+    ],
     'AND'
 );
 
@@ -184,14 +184,14 @@ if ('categories' == $page['section']) {
     if (isset($page['category'])) {
         $page = array_merge(
             $page,
-            array(
+            [
                 'comment' => \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_description',
                     $page['category']['comment'],
                     'main_page_category_description'
                 ),
                 'title' => \Phyxo\Functions\Category::get_cat_display_name($page['category']['upper_names'], '', false),
-            )
+            ]
         );
     } else {
         $page['title'] = ''; // will be set later
@@ -210,13 +210,13 @@ if ('categories' == $page['section']) {
             if (isset($page['category'])) {
                 $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
                 $query .= ' WHERE uppercats LIKE \'' . $page['category']['uppercats'] . ',%\' ';
-                $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'AND');
+                $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], 'AND');
 
                 $subcat_ids = $conn->query2array($query, null, 'id');
                 $subcat_ids[] = $page['category']['id'];
                 $where_sql = 'category_id ' . $conn->in($subcat_ids);
                 // remove categories from forbidden because just checked above
-                $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
+                $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
             } else {
                 $cache_key = $persistent_cache->make_key('all_iids' . $user['id'] . $user['cache_update_time'] . $conf['order_by']);
                 unset($page['is_homepage']);
@@ -244,7 +244,7 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         // |                            tags section                               |
         // +-----------------------------------------------------------------------+
-        $page['tag_ids'] = array();
+        $page['tag_ids'] = [];
         foreach ($page['tags'] as $tag) {
             $page['tag_ids'][] = $tag['id'];
         }
@@ -253,10 +253,10 @@ if ('categories' == $page['section']) {
 
         $page = array_merge(
             $page,
-            array(
+            [
                 'title' => \Phyxo\Functions\Utils::get_tags_content_title(),
                 'items' => $items,
-            )
+            ]
         );
     } elseif ($page['section'] == 'search') {
         // +-----------------------------------------------------------------------+
@@ -270,10 +270,10 @@ if ('categories' == $page['section']) {
 
         $page = array_merge(
             $page,
-            array(
+            [
                 'items' => $search_result['items'],
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Search results') . '</a>'
-            )
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Search results') . '</a>'
+            ]
         );
     } elseif ($page['section'] == 'favorites') {
         // +-----------------------------------------------------------------------+
@@ -281,29 +281,29 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         \Phyxo\Functions\Utils::check_user_favorites();
 
-        $page = array_merge($page, array('title' => \Phyxo\Functions\Language::l10n('Favorites')));
+        $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Favorites')]);
 
         if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
             $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE user_id = ' . $user['id'] . ';';
             $conn->db_query($query);
-            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')));
+            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(['section' => 'favorites']));
         } else {
             $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
             $query .= ' LEFT JOIN ' . FAVORITES_TABLE . ' ON image_id = id';
             $query .= ' WHERE user_id = ' . $user['id'];
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND');
+            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
             $query .= ' ' . $conf['order_by'];
-            $page = array_merge($page, array('items' => $conn->query2array($query, null, 'image_id')));
+            $page = array_merge($page, ['items' => $conn->query2array($query, null, 'image_id')]);
 
             if (count($page['items']) > 0) {
                 $template->assign(
                     'favorite',
-                    array(
+                    [
                         'U_FAVORITE' => \Phyxo\Functions\URL::add_url_params(
-                            \Phyxo\Functions\URL::make_index_url(array('section' => 'favorites')),
-                            array('action' => 'remove_all_from_favorites')
+                            \Phyxo\Functions\URL::make_index_url(['section' => 'favorites']),
+                            ['action' => 'remove_all_from_favorites']
                         ),
-                    )
+                    ]
                 );
             }
         }
@@ -325,16 +325,16 @@ if ('categories' == $page['section']) {
 
         $page = array_merge(
             $page,
-            array(
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
+            [
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
                 'items' => $conn->query2array($query, null, 'id')
-            )
+            ]
         );
     } elseif ($page['section'] == 'recent_cats') {
         // +-----------------------------------------------------------------------+
         // |                 recently updated categories section                   |
         // +-----------------------------------------------------------------------+
-        $page = array_merge($page, array('title' => \Phyxo\Functions\Language::l10n('Recent albums')));
+        $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Recent albums')]);
     } elseif ($page['section'] == 'most_visited') {
         // +-----------------------------------------------------------------------+
         // |                        most visited section                           |
@@ -350,10 +350,10 @@ if ('categories' == $page['section']) {
 
         $page = array_merge(
             $page,
-            array(
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
+            [
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
-            )
+            ]
         );
     } elseif ($page['section'] == 'best_rated') {
         // +-----------------------------------------------------------------------+
@@ -369,10 +369,10 @@ if ('categories' == $page['section']) {
         $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conf['top_number'];
         $page = array_merge(
             $page,
-            array(
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
+            [
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
-            )
+            ]
         );
     } elseif ($page['section'] == 'list') {
         // +-----------------------------------------------------------------------+
@@ -386,10 +386,10 @@ if ('categories' == $page['section']) {
 
         $page = array_merge(
             $page,
-            array(
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(array('start' => 0)) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
+            [
+                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
                 'items' => $conn->query2array($query, null, 'id'),
-            )
+            ]
         );
     }
 }
@@ -410,12 +410,12 @@ if (isset($page['chronology_field'])) {
     $inner_sql = ' FROM ' . IMAGES_TABLE;
 
     if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
-        $page['items'] = array();
+        $page['items'] = [];
         $inner_sql .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(
-                \Phyxo\Functions\Category::get_subcat_ids(array($page['category']['id'])),
+                \Phyxo\Functions\Category::get_subcat_ids([$page['category']['id']]),
                 explode(',', $user['forbidden_categories'])
             );
 
@@ -423,14 +423,14 @@ if (isset($page['chronology_field'])) {
                 return; // nothing to do
             }
             $inner_sql .= ' WHERE category_id ' . $conn->in($sub_ids);
-            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_images' => 'id'), 'AND', false);
+            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND', false);
         } else {
             $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                array(
+                [
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',
                     'visible_images' => 'id'
-                ),
+                ],
                 'WHERE',
                 true
             );
@@ -443,33 +443,33 @@ if (isset($page['chronology_field'])) {
     }
 
     //-------------------------------------- initialize the calendar parameters ---
-    $fields = array(
+    $fields = [
         // Created
-        'created' => array(
+        'created' => [
             'label' => \Phyxo\Functions\Language::l10n('Creation date'),
-        ),
+        ],
         // Posted
-        'posted' => array(
+        'posted' => [
             'label' => \Phyxo\Functions\Language::l10n('Post date'),
-        ),
-    );
+        ],
+    ];
 
-    $styles = array(
+    $styles = [
         // Monthly style
-        'monthly' => array(
+        'monthly' => [
             'include' => 'calendar_monthly.class.php',
             'view_calendar' => true,
             'classname' => 'CalendarMonthly',
-        ),
+        ],
         // Weekly style
-        'weekly' => array(
+        'weekly' => [
             'include' => 'calendar_weekly.class.php',
             'view_calendar' => false,
             'classname' => 'CalendarWeekly',
-        ),
-    );
+        ],
+    ];
 
-    $views = array(CAL_VIEW_LIST, CAL_VIEW_CALENDAR);
+    $views = [CAL_VIEW_LIST, CAL_VIEW_CALENDAR];
 
     // Retrieve calendar field
     isset($fields[$page['chronology_field']]) || \Phyxo\Functions\HTTP::fatal_error('bad chronology field');
@@ -495,7 +495,7 @@ if (isset($page['chronology_field'])) {
 
     // perform a sanity check on $requested
     if (!isset($page['chronology_date'])) {
-        $page['chronology_date'] = array();
+        $page['chronology_date'] = [];
     }
     while (count($page['chronology_date']) > 3) {
         array_pop($page['chronology_date']);
@@ -528,7 +528,7 @@ if (isset($page['chronology_field'])) {
     $must_show_list = true; // true until calendar generates its own display
     if (\Phyxo\Functions\Utils::script_basename() != 'picture') { // basename without file extention
         if ($calendar->generate_category_content()) {
-            $page['items'] = array();
+            $page['items'] = [];
             $must_show_list = false;
         }
 
@@ -541,7 +541,7 @@ if (isset($page['chronology_field'])) {
                     $selected = false;
 
                     if ($style != $cal_style) {
-                        $chronology_date = array();
+                        $chronology_date = [];
                         if (isset($page['chronology_date'][0])) {
                             $chronology_date[] = $page['chronology_date'][0];
                         }
@@ -549,11 +549,11 @@ if (isset($page['chronology_field'])) {
                         $chronology_date = $page['chronology_date'];
                     }
                     $url = \Phyxo\Functions\URL::duplicate_index_url(
-                        array(
+                        [
                             'chronology_style' => $style,
                             'chronology_view' => $view,
                             'chronology_date' => $chronology_date,
-                        )
+                        ]
                     );
 
                     if ($style == $cal_style and $view == $page['chronology_view']) {
@@ -562,19 +562,19 @@ if (isset($page['chronology_field'])) {
 
                     $template->append(
                         'chronology_views',
-                        array(
+                        [
                             'VALUE' => $url,
                             'CONTENT' => \Phyxo\Functions\Language::l10n('chronology_' . $style . '_' . $view),
                             'SELECTED' => $selected,
-                        )
+                        ]
                     );
                 }
             }
         }
-        $url = \Phyxo\Functions\URL::duplicate_index_url(array(), array('start', 'chronology_date'));
+        $url = \Phyxo\Functions\URL::duplicate_index_url([], ['start', 'chronology_date']);
         $calendar_title = '<a href="' . $url . '">' . $fields[$page['chronology_field']]['label'] . '</a>';
         $calendar_title .= $calendar->get_display_name();
-        $template->assign('chronology', array('TITLE' => $calendar_title));
+        $template->assign('chronology', ['TITLE' => $calendar_title]);
     } // end category calling
 
     if ($must_show_list) {
@@ -615,7 +615,7 @@ if (isset($page['chronology_field'])) {
 
 // title update
 if (isset($page['title'])) {
-    $page['section_title'] = '<a href="' . \Phyxo\Functions\URL::get_gallery_home_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a>';
+    $page['section_title'] = '<a href="' . \Phyxo\Functions\URL::get_root_url() . '">' . \Phyxo\Functions\Language::l10n('Home') . '</a>';
     if (!empty($page['title'])) {
         $page['section_title'] .= $conf['level_separator'] . $page['title'];
     } else {
@@ -624,13 +624,13 @@ if (isset($page['title'])) {
 }
 
 // add meta robots noindex, nofollow to avoid unnecesary robot crawls
-$page['meta_robots'] = array();
+$page['meta_robots'] = [];
 if (isset($page['chronology_field']) or (isset($page['flat']) and isset($page['category']))
     or 'list' == $page['section'] or 'recent_pics' == $page['section']) {
-    $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+    $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 } elseif ('tags' == $page['section']) {
     if (count($page['tag_ids']) > 1) {
-        $page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+        $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
     }
 } elseif ('recent_cats' == $page['section']) {
     $page['meta_robots']['noindex'] = 1;

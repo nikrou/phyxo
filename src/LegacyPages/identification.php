@@ -39,7 +39,7 @@ if (isset($_POST['login'])) {
         $remember_me = isset($_POST['remember_me']) and $_POST['remember_me'] == 1;
 
         if ($services['users']->tryLogUser($_POST['username'], $_POST['password'], $remember_me)) {
-            \Phyxo\Functions\Utils::redirect(empty($redirect_to) ? \Phyxo\Functions\URL::get_gallery_home_url() : $redirect_to);
+            \Phyxo\Functions\Utils::redirect(empty($redirect_to) ? \Phyxo\Functions\URL::get_root_url() : $redirect_to);
         } else {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         }
@@ -53,15 +53,15 @@ if (isset($_POST['login'])) {
 $title = \Phyxo\Functions\Language::l10n('Identification');
 $page['body_id'] = 'theIdentificationPage';
 
-$template->set_filenames(array('identification' => 'identification.tpl'));
+$template->set_filenames(['identification' => 'identification.tpl']);
 
 $template->assign(
-    array(
+    [
         'U_REDIRECT' => $redirect_to,
 
         'F_LOGIN_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'identification.php',
         'authorize_remembering' => $conf['authorize_remembering'],
-    )
+    ]
 );
 
 if (!$conf['gallery_locked'] && $conf['allow_user_registration']) {

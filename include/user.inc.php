@@ -15,7 +15,7 @@ $user['id'] = $conf['guest_id'];
 if (isset($_COOKIE[session_name()])) {
     if (isset($_GET['act']) and $_GET['act'] == 'logout') { // logout
         $services['users']->logoutUser();
-        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_gallery_home_url());
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url());
     } elseif (!empty($_SESSION['pwg_uid'])) {
         $user['id'] = $_SESSION['pwg_uid'];
     }
@@ -29,7 +29,7 @@ if ($user['id'] == $conf['guest_id']) {
 // using Apache authentication override the above user search
 if ($conf['apache_authentication']) {
     $remote_user = null;
-    foreach (array('REMOTE_USER', 'REDIRECT_REMOTE_USER') as $server_key) {
+    foreach (['REMOTE_USER', 'REDIRECT_REMOTE_USER'] as $server_key) {
         if (isset($_SERVER[$server_key])) {
             $remote_user = $_SERVER[$server_key];
             break;

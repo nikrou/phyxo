@@ -101,7 +101,7 @@ $page['body_id'] = 'theAdminPage';
 
 $template_filename = 'index';
 $template->assign(
-    array(
+    [
         'USERNAME' => $user['username'],
         'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
         'U_SITE_MANAGER' => $link_start . 'site_manager',
@@ -124,7 +124,7 @@ $template->assign(
         'U_USERS' => $link_start . 'users',
         'U_GROUPS' => $link_start . 'groups',
         'U_NOTIFICATION_BY_MAIL' => $link_start . 'notification_by_mail',
-        'U_RETURN' => \Phyxo\Functions\URL::get_gallery_home_url(),
+        'U_RETURN' => \Phyxo\Functions\URL::get_root_url(),
         'U_ADMIN' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php',
         'U_LOGOUT' => \Phyxo\Functions\URL::get_root_url() . 'index.php?act=logout',
         'U_PLUGINS' => $link_start . 'plugins',
@@ -133,7 +133,7 @@ $template->assign(
         'U_DEV_VERSION' => strpos(PHPWG_VERSION, 'dev') !== false,
         'U_DEV_API' => './api.php',
         'U_DEV_JS_TESTS' => '../tests/functional/'
-    )
+    ]
 );
 
 if ($conf['activate_comments']) {
@@ -154,10 +154,10 @@ list($nb_photos_in_caddie) = $conn->db_fetch_row($conn->db_query($query));
 
 if ($nb_photos_in_caddie > 0) {
     $template->assign(
-        array(
+        [
             'NB_PHOTOS_IN_CADDIE' => $nb_photos_in_caddie,
             'U_CADDIE' => $link_start . 'batch_manager&amp;filter=prefilter-caddie',
-        )
+        ]
     );
 }
 
@@ -165,7 +165,7 @@ if ($nb_photos_in_caddie > 0) {
 // | Plugin menu                                                           |
 // +-----------------------------------------------------------------------+
 
-$plugin_menu_links = \Phyxo\Functions\Plugin::trigger_change('get_admin_plugin_menu_links', array());
+$plugin_menu_links = \Phyxo\Functions\Plugin::trigger_change('get_admin_plugin_menu_links', []);
 usort($plugin_menu_links, '\Phyxo\Functions\Utils::name_compare');
 $template->assign('plugin_menu_items', $plugin_menu_links);
 
@@ -174,14 +174,14 @@ $template->assign('plugin_menu_items', $plugin_menu_links);
 // +-----------------------------------------------------------------------+
 
 // Only for pages witch change permissions
-if (in_array($page['page'], array('site_manager', 'site_update'))
-    or (!empty($_POST) and in_array($page['page'], array(
+if (in_array($page['page'], ['site_manager', 'site_update'])
+    or (!empty($_POST) and in_array($page['page'], [
     'album',        // public/private; lock/unlock, permissions
     'albums_move',
     'albums_options',  // public/private; lock/unlock
     'user_list',    // group assoc; user level
     'user_perm',
-)))) {
+]))) {
     \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 

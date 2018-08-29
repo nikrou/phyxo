@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_page_header');
 
 $template->assign(
-    array(
+    [
         'GALLERY_TITLE' =>
             isset($page['gallery_title']) ?
             $page['gallery_title'] : $conf['gallery_title'],
@@ -31,9 +30,9 @@ $template->assign(
         'BODY_ID' => isset($page['body_id']) ? $page['body_id'] : '',
         'CONTENT_ENCODING' => \Phyxo\Functions\Utils::get_charset(),
         'PAGE_TITLE' => strip_tags($title),
-        'U_HOME' => \Phyxo\Functions\URL::get_gallery_home_url(),
+        'U_HOME' => \Phyxo\Functions\URL::get_root_url(),
         'LEVEL_SEPARATOR' => $conf['level_separator'],
-    )
+    ]
 );
 
 
@@ -63,12 +62,12 @@ if (!isset($page['meta_robots']['noindex'])) {
 // refresh
 if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
     $template->assign(
-        array(
-            'page_refresh' => array(
+        [
+            'page_refresh' => [
                 'TIME' => $refresh,
                 'U_REFRESH' => $url_link
-            )
-        )
+            ]
+        ]
     );
 }
 
