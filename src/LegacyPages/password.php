@@ -76,8 +76,8 @@ function process_password_request()
 
         $conn->single_update(
             USER_INFOS_TABLE,
-            array('activation_key' => $activation_key),
-            array('user_id' => $user_id)
+            ['activation_key' => $activation_key],
+            ['user_id' => $user_id]
         );
 
         $userdata['activation_key'] = $activation_key;
@@ -100,11 +100,11 @@ function process_password_request()
 
     $message = \Phyxo\Functions\Plugin::trigger_change('render_lost_password_mail_content', $message);
 
-    $email_params = array(
+    $email_params = [
         'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset'),
         'content' => $message,
         'email_format' => 'text/plain',
-    );
+    ];
 
     if (\Phyxo\Functions\Mail::mail($userdata['email'], $email_params)) {
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
@@ -149,8 +149,8 @@ function reset_password()
 
     $conn->single_update(
         USERS_TABLE,
-        array($conf['user_fields']['password'] => $conf['password_hash']($_POST['use_new_pwd'])),
-        array($conf['user_fields']['id'] => $user_id)
+        [$conf['user_fields']['password'] => $services['users']->passwordHash($_POST['use_new_pwd'])],
+        [$conf['user_fields']['id'] => $user_id]
     );
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your password has been reset');
@@ -210,7 +210,7 @@ if (isset($_GET['key'])) {
 if (!isset($page['action'])) {
     if (!isset($_GET['action'])) {
         $page['action'] = 'lost';
-    } elseif (in_array($_GET['action'], array('lost', 'reset', 'none'))) {
+    } elseif (in_array($_GET['action'], ['lost', 'reset', 'none'])) {
         $page['action'] = $_GET['action'];
     }
 }
@@ -239,15 +239,15 @@ if ('lost' == $page['action']) {
 
 $page['body_id'] = 'thePasswordPage';
 
-$template->set_filenames(array('password' => 'password.tpl'));
+$template->set_filenames(['password' => 'password.tpl']);
 $template->assign(
-    array(
+    [
         'title' => $title,
         'form_action' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
         'action' => $page['action'],
         'username' => isset($page['username']) ? $page['username'] : $user['username'],
         'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
-    )
+    ]
 );
 
 

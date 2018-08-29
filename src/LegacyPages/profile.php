@@ -33,11 +33,11 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
     // Reset to default (Guest) custom settings
     if (isset($_POST['reset_to_default'])) {
-        $fields = array(
+        $fields = [
             'nb_image_page', 'expand',
             'show_nb_comments', 'show_nb_hits',
             'recent_period', 'show_nb_hits'
-        );
+        ];
 
         // Get the Guest custom settings
         $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . USER_INFOS_TABLE;
@@ -77,13 +77,13 @@ function save_profile_from_post($userdata, &$errors)
 {
     global $conf, $page, $conn, $services;
 
-    $errors = array();
+    $errors = [];
 
     if (!isset($_POST['validate'])) {
         return false;
     }
 
-    $special_user = in_array($userdata['id'], array($conf['guest_id'], $conf['default_user_id']));
+    $special_user = in_array($userdata['id'], [$conf['guest_id'], $conf['default_user_id']]);
     if ($special_user) {
         unset($_POST['username'], $_POST['mail_address'],
             $_POST['password'], $_POST['use_new_pwd'],
@@ -137,7 +137,7 @@ function save_profile_from_post($userdata, &$errors)
             $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = \'' . $conn->db_real_escape_string($userdata['id']) . '\'';
             list($current_password) = $conn->db_fetch_row($conn->db_query($query));
 
-            if (!$conf['password_verify']($_POST['password'], $current_password)) {
+            if (!$services['users']->passwordVerify($_POST['password'], $current_password)) {
                 $errors[] = \Phyxo\Functions\Language::l10n('Current password is wrong');
             }
         }
@@ -147,17 +147,16 @@ function save_profile_from_post($userdata, &$errors)
         // mass_updates function
         if (isset($_POST['mail_address'])) {
             // update common user informations
-            $fields = array($conf['user_fields']['email']);
+            $fields = [$conf['user_fields']['email']];
 
-            $data = array();
+            $data = [];
             $data[$conf['user_fields']['id']] = $userdata['id'];
             $data[$conf['user_fields']['email']] = $_POST['mail_address'];
 
             // password is updated only if filled
             if (!empty($_POST['use_new_pwd'])) {
                 $fields[] = $conf['user_fields']['password'];
-                // password is hashed with function $conf['password_hash']
-                $data[$conf['user_fields']['password']] = $conf['password_hash']($_POST['use_new_pwd']);
+                $data[$conf['user_fields']['password']] = $services['users']->passwordHash($_POST['use_new_pwd']);
             }
 
             // username is updated only if allowed
@@ -173,18 +172,18 @@ function save_profile_from_post($userdata, &$errors)
                     if ($_POST['username'] != $userdata['username']) {
                         \Phyxo\Functions\Mail::switch_lang_to($userdata['language']);
 
-                        $keyargs_content = array(
+                        $keyargs_content = [
                             \Phyxo\Functions\Language::get_l10n_args('Hello', ''),
                             \Phyxo\Functions\Language::get_l10n_args('Your username has been successfully changed to : %s', $_POST['username']),
-                        );
+                        ];
 
                         \Phyxo\Functions\Mail::mail(
                             $_POST['mail_address'],
-                            array(
+                            [
                                 'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Username modification'),
                                 'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                                 'content_format' => 'text/plain',
-                            )
+                            ]
                         );
 
                         \Phyxo\Functions\Mail::switch_lang_back();
@@ -194,27 +193,27 @@ function save_profile_from_post($userdata, &$errors)
 
             $conn->mass_updates(
                 USERS_TABLE,
-                array(
-                    'primary' => array($conf['user_fields']['id']),
+                [
+                    'primary' => [$conf['user_fields']['id']],
                     'update' => $fields
-                ),
-                array($data)
+                ],
+                [$data]
             );
         }
 
         if ($conf['allow_user_customization'] or defined('IN_ADMIN')) {
             // update user "additional" informations (specific to Piwigo)
-            $fields = array(
+            $fields = [
                 'nb_image_page', 'language',
                 'expand', 'show_nb_hits',
                 'recent_period', 'theme'
-            );
+            ];
 
             if ($conf['activate_comments']) {
                 $fields[] = 'show_nb_comments';
             }
 
-            $data = array();
+            $data = [];
             $data['user_id'] = $userdata['id'];
 
             foreach ($fields as $field) {
@@ -224,8 +223,8 @@ function save_profile_from_post($userdata, &$errors)
             }
             $conn->mass_updates(
                 USER_INFOS_TABLE,
-                array('primary' => array('user_id'), 'update' => $fields),
-                array($data)
+                ['primary' => ['user_id'], 'update' => $fields],
+                [$data]
             );
         }
         \Phyxo\Functions\Plugin::trigger_notify('save_profile_from_post', $userdata['id']);
@@ -252,14 +251,14 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
 
     $template->assign(
         'radio_options',
-        array(
+        [
             'true' => \Phyxo\Functions\Language::l10n('Yes'),
             'false' => \Phyxo\Functions\Language::l10n('No')
-        )
+        ]
     );
 
     $template->assign(
-        array(
+        [
             $template_prefixe . 'USERNAME' => stripslashes($userdata['username']),
             $template_prefixe . 'EMAIL' => @$userdata['email'],
             $template_prefixe . 'ALLOW_USER_CUSTOMIZATION' => $conf['allow_user_customization'],
@@ -271,7 +270,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
             $template_prefixe . 'NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
             $template_prefixe . 'REDIRECT' => $url_redirect,
             $template_prefixe . 'F_ACTION' => $url_action,
-        )
+        ]
     );
 
     $template->assign('template_selection', $userdata['theme']);
@@ -286,7 +285,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
 
     $template->assign('language_options', $language_options);
 
-    $special_user = in_array($userdata['id'], array($conf['guest_id'], $conf['default_user_id']));
+    $special_user = in_array($userdata['id'], [$conf['guest_id'], $conf['default_user_id']]);
     $template->assign('SPECIAL_USER', $special_user);
     $template->assign('IN_ADMIN', defined('IN_ADMIN'));
 

@@ -342,7 +342,7 @@ class User
             }
 
             if (!empty($params['password'])) {
-                $updates[$conf['user_fields']['password']] = $conf['password_hash']($params['password']);
+                $updates[$conf['user_fields']['password']] = $services['users']->passwordHash($params['password']);
             }
         }
 

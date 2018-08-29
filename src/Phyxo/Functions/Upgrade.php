@@ -66,13 +66,13 @@ class Upgrade
     {
         global $page, $conn;
 
-        $standard_plugins = array();
+        $standard_plugins = [];
 
         $query = 'SELECT id FROM ' . PREFIX_TABLE . 'plugins WHERE state = \'active\'';
         $query .= ' AND id NOT ' . $conn->in($standard_plugins);
 
         $result = $conn->db_query($query);
-        $plugins = array();
+        $plugins = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $plugins[] = $row['id'];
         }
@@ -91,13 +91,13 @@ class Upgrade
     {
         global $page, $conf, $conn;
 
-        $standard_themes = array('elegant');
+        $standard_themes = ['elegant'];
 
         $query = 'SELECT id,name  FROM ' . PREFIX_TABLE . 'themes';
         $query .= ' WHERE id NOT ' . $conn->in($standard_themes);
         $result = $conn->db_query($query);
-        $theme_ids = array();
-        $theme_names = array();
+        $theme_ids = [];
+        $theme_names = [];
 
         while ($row = $conn->db_fetch_assoc($result)) {
             $theme_ids[] = $row['id'];
@@ -127,7 +127,7 @@ class Upgrade
     // Check access rights
     public static function check_upgrade_access_rights()
     {
-        global $conf, $page, $current_release, $conn;
+        global $conf, $page, $current_release, $conn, $services;
 
         if (version_compare($current_release, '1.0', '>=') and isset($_COOKIE[session_name()])) {
             // Check if user is already connected as webmaster
@@ -156,7 +156,7 @@ class Upgrade
         $query .= ' WHERE ' . $conf['user_fields']['username'] . '=\'' . $conn->db_real_escape_string($username) . '\';';
 
         $row = $conn->db_fetch_assoc($conn->db_query($query));
-        if (!$conf['password_verify']($password, $row['password'])) {
+        if (!$services['users']->passwordVerify($password, $row['password'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('You do not have access rights to run upgrade');
@@ -174,7 +174,7 @@ class Upgrade
     {
         $upgrades_path = PHPWG_ROOT_PATH . 'install/db';
 
-        $available_upgrade_ids = array();
+        $available_upgrade_ids = [];
 
         if ($contents = opendir($upgrades_path)) {
             while (($node = readdir($contents)) !== false) {
@@ -205,5 +205,4 @@ class Upgrade
         // which upgrades need to be applied?
         return (count(array_diff($existing, $applied)) > 0);
     }
-
 }

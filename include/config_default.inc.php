@@ -43,12 +43,12 @@
 
 // picture_ext : file extensions for picture file, must be a subset of
 // file_ext
-$conf['picture_ext'] = array('jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'gif', 'GIF');
+$conf['picture_ext'] = ['jpg', 'JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'gif', 'GIF'];
 
 // file_ext : file extensions (case sensitive) authorized
 $conf['file_ext'] = array_merge(
   $conf['picture_ext'],
-  array('tiff', 'tif', 'mpg', 'zip', 'avi', 'mp3', 'ogg', 'pdf')
+  ['tiff', 'tif', 'mpg', 'zip', 'avi', 'mp3', 'ogg', 'pdf']
 );
 
 // top_number : number of element to display for "best rated" and "most
@@ -114,7 +114,7 @@ $conf['meta_ref'] = true;
 // links : list of external links to add in the menu. An example is the best
 // than a long explanation :
 // If the array is empty, the "Links" box won't be displayed on the main page.
-$conf['links'] = array();
+$conf['links'] = [];
 
 // random_index_redirect: list of 'internal' links to use when no section is defined on index.php.
 // An example is the best than a long explanation :
@@ -127,11 +127,11 @@ $conf['links'] = array();
 //    PHPWG_ROOT_PATH.'random.php' => '',
 //    PHPWG_ROOT_PATH.'index.php?/categories' => '',
 //    );
-$conf['random_index_redirect'] = array();
+$conf['random_index_redirect'] = [];
 
 // List of notes to display on all header page
 // example $conf['header_notes']  = array('Test', 'Hello');
-$conf['header_notes'] = array();
+$conf['header_notes'] = [];
 
 // show_thumbnail_caption : on thumbnails page, show thumbnail captions ?
 $conf['show_thumbnail_caption'] = true;
@@ -170,7 +170,7 @@ $conf['representative_cache_on_subcats'] = true;
 $conf['allow_html_descriptions'] = true;
 
 // image level permissions available in the admin interface
-$conf['available_permission_levels'] = array(0, 1, 2, 4, 8);
+$conf['available_permission_levels'] = [0, 1, 2, 4, 8];
 
 // check_upgrade_feed: check if there are database upgrade required. Set to
 // true, a message will strongly encourage you to upgrade your database if
@@ -181,7 +181,7 @@ $conf['available_permission_levels'] = array(0, 1, 2, 4, 8);
 $conf['check_upgrade_feed'] = true;
 
 // rate_items: available rates for a picture
-$conf['rate_items'] = array(0, 1, 2, 3, 4, 5);
+$conf['rate_items'] = [0, 1, 2, 3, 4, 5];
 
 // Define using double password type in admin's users management panel
 $conf['double_password_type_in_admin'] = false;
@@ -256,12 +256,12 @@ $conf['show_iptc'] = false;
 //
 // To know how to associated iptc_field with their meaning, use
 // tools/metadata.php
-$conf['show_iptc_mapping'] = array(
+$conf['show_iptc_mapping'] = [
   'iptc_keywords' => '2#025',
   'iptc_caption_writer' => '2#122',
   'iptc_byline_title' => '2#085',
   'iptc_caption' => '2#120'
-);
+];
 
 // use_iptc: Use IPTC data during database synchronization with files
 // metadata
@@ -270,13 +270,13 @@ $conf['use_iptc'] = false;
 // use_iptc_mapping : in which IPTC fields will Phyxo find image
 // information ? This setting is used during metadata synchronisation. It
 // associates a phyxo_images column name to a IPTC key
-$conf['use_iptc_mapping'] = array(
+$conf['use_iptc_mapping'] = [
   'keywords' => '2#025',
   'date_creation' => '2#055',
   'author' => '2#122',
   'name' => '2#005',
   'comment' => '2#120'
-);
+];
 
 // show_exif: Show EXIF metadata on picture.php (table or line presentation
 // avalaible)
@@ -294,21 +294,21 @@ $conf['show_exif'] = true;
 // for PHP version newer than 4.1.2 :
 // $conf['show_exif_fields'] = array('CameraMake','CameraModel','DateTime');
 //
-$conf['show_exif_fields'] = array(
+$conf['show_exif_fields'] = [
   'Make',
   'Model',
   'DateTimeOriginal',
   'COMPUTED;ApertureFNumber'
-);
+];
 
 // use_exif: Use EXIF data during database synchronization with files
 // metadata
 $conf['use_exif'] = true;
 
 // use_exif_mapping: same behaviour as use_iptc_mapping
-$conf['use_exif_mapping'] = array(
+$conf['use_exif_mapping'] = [
   'date_creation' => 'DateTimeOriginal'
-);
+];
 
 // allow_html_in_metadata: in case the origin of the photo is unsecure (user
 // upload), we remove HTML tags to avoid XSS (malicious execution of
@@ -445,24 +445,12 @@ $conf['external_authentification'] = false;
 // user_fields : mapping between generic field names and table specific
 // field names. For example, in PWG, the mail address is names
 // "mail_address" and in punbb, it's called "email".
-$conf['user_fields'] = array(
+$conf['user_fields'] = [
   'id' => 'id',
   'username' => 'username',
   'password' => 'password',
   'email' => 'mail_address'
-);
-
-// password_hash: function hash the clear user password to store it in the
-// database. The function takes only one parameter: the clear password.
-$conf['password_hash'] = 'pwg_password_hash';
-
-// password_verify: function that checks the password against its hash. The
-// function takes 2 mandatory parameter : clear password, hashed password +
-// an optional parameter user_id. The user_id is used to update the password
-// with the new hash introduced in Phyxo 1.2. See function
-// pwg_password_verify in include/services.php
-// and src/Phyxo/Model/Repository/Users:passwordVerify
-$conf['password_verify'] = 'pwg_password_verify';
+];
 
 // guest_id : id of the anonymous user
 $conf['guest_id'] = 2;
@@ -574,10 +562,10 @@ $conf['nbm_max_treatment_timeout_percent'] = 0.8;
 $conf['nbm_treatment_timeout_default'] = 20;
 
 // Parameters used in get_recent_post_dates for the 2 kind of notification
-$conf['recent_post_dates'] = array(
-  'RSS' => array('max_dates' => 5, 'max_elements' => 6, 'max_cats' => 6),
-  'NBM' => array('max_dates' => 7, 'max_elements' => 3, 'max_cats' => 9)
-);
+$conf['recent_post_dates'] = [
+  'RSS' => ['max_dates' => 5, 'max_elements' => 6, 'max_cats' => 6],
+  'NBM' => ['max_dates' => 7, 'max_elements' => 3, 'max_cats' => 9]
+];
 
 // the author shown in the RSS feed <author> element
 $conf['rss_feed_author'] = 'Phyxo notifier';
@@ -620,27 +608,27 @@ $conf['ws_max_users_per_page'] = 1000;
 //   o Empty configuration in order to disable completely filter functions
 //     No filter, No icon,...
 //     $conf['filter_pages'] = array();
-$conf['filter_pages'] = array(
+$conf['filter_pages'] = [
     // Default page
-  'default' => array(
+  'default' => [
     'used' => true, 'cancel' => false, 'add_notes' => false
-  ),
+  ],
     // Real pages
-  'index' => array('add_notes' => true),
-  'tags' => array('add_notes' => true),
-  'search' => array('add_notes' => true),
-  'comments' => array('add_notes' => true),
-  'admin' => array('used' => false),
-  'feed' => array('used' => false),
-  'notification' => array('used' => false),
-  'nbm' => array('used' => false),
-  'profile' => array('used' => false),
-  'ws' => array('used' => false),
-  'identification' => array('cancel' => true),
-  'install' => array('cancel' => true),
-  'password' => array('cancel' => true),
-  'register' => array('cancel' => true),
-);
+  'index' => ['add_notes' => true],
+  'tags' => ['add_notes' => true],
+  'search' => ['add_notes' => true],
+  'comments' => ['add_notes' => true],
+  'admin' => ['used' => false],
+  'feed' => ['used' => false],
+  'notification' => ['used' => false],
+  'nbm' => ['used' => false],
+  'profile' => ['used' => false],
+  'ws' => ['used' => false],
+  'identification' => ['cancel' => true],
+  'install' => ['cancel' => true],
+  'password' => ['cancel' => true],
+  'register' => ['cancel' => true],
+];
 
 // +-----------------------------------------------------------------------+
 // | Slideshow                                                             |
@@ -688,7 +676,7 @@ $conf['enable_synchronization'] = true;
 $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';
 
 // folders name exluded during synchronization
-$conf['sync_exclude_folders'] = array();
+$conf['sync_exclude_folders'] = [];
 
 // PEM url (default is https://ext.phyxo.net)
 $conf['alternative_pem_url'] = '';

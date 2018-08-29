@@ -22,7 +22,7 @@ class Users extends BaseRepository
     {
         parent::__construct($conn, $model, $table);
 
-        Plugin::add_event_handler('try_log_user', array($this, 'login'));
+        Plugin::add_event_handler('try_log_user', [$this, 'login']);
     }
 
     /**
@@ -37,7 +37,7 @@ class Users extends BaseRepository
         global $conf;
 
         if (empty($mail_address)
-            and !($conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), array('register', 'profile')))) {
+            and !($conf['obligatory_user_mail_address'] and in_array(\Phyxo\Functions\Utils::script_basename(), ['register', 'profile']))) {
             return '';
         }
 
@@ -92,7 +92,7 @@ class Users extends BaseRepository
 
         $username_lo = strtolower($username);
 
-        $users = array();
+        $users = [];
 
         $q = $this->conn->db_query('SELECT ' . $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE);
         while ($r = $this->conn->db_fetch_assoc($q)) {
@@ -122,7 +122,7 @@ class Users extends BaseRepository
      * @param bool $notify_user
      * @return int|false user id or false
      */
-    public function registerUser($login, $password, $mail_address, $notify_admin = true, &$errors = array(), $notify_user = false)
+    public function registerUser($login, $password, $mail_address, $notify_admin = true, &$errors = [], $notify_user = false)
     {
         global $conf;
 
@@ -156,20 +156,20 @@ class Users extends BaseRepository
         $errors = Plugin::trigger_change(
             'register_user_check',
             $errors,
-            array(
+            [
                 'username' => $login,
                 'password' => $password,
                 'email' => $mail_address,
-            )
+            ]
         );
 
         // if no error until here, registration of the user
         if (empty($errors)) {
-            $insert = array(
+            $insert = [
                 $conf['user_fields']['username'] => $this->conn->db_real_escape_string($login),
-                $conf['user_fields']['password'] => $conf['password_hash']($password),
+                $conf['user_fields']['password'] => $this->passwordHash($password),
                 $conf['user_fields']['email'] => $mail_address
-            );
+            ];
 
             $this->conn->single_insert(USERS_TABLE, $insert);
             $user_id = $this->conn->db_insert_id(USERS_TABLE);
@@ -179,16 +179,16 @@ class Users extends BaseRepository
             $query .= ' WHERE is_default = \'' . $this->conn->boolean_to_db(true) . '\' ORDER BY id ASC;';
             $result = $this->conn->db_query($query);
 
-            $inserts = array();
+            $inserts = [];
             while ($row = $this->conn->db_fetch_assoc($result)) {
-                $inserts[] = array(
+                $inserts[] = [
                     'user_id' => $user_id,
                     'group_id' => $row['id']
-                );
+                ];
             }
 
             if (count($inserts) != 0) {
-                $this->conn->mass_inserts(USER_GROUP_TABLE, array('user_id', 'group_id'), $inserts);
+                $this->conn->mass_inserts(USER_GROUP_TABLE, ['user_id', 'group_id'], $inserts);
             }
 
             $override = null;
@@ -202,12 +202,12 @@ class Users extends BaseRepository
             if ($notify_admin and $conf['email_admin_on_new_user']) {
                 $admin_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'admin/index.php?page=user_list&username=' . $login;
 
-                $keyargs_content = array(
+                $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('User: %s', stripslashes($login)),
                     \Phyxo\Functions\Language::get_l10n_args('Email: %s', $mail_address),
                     \Phyxo\Functions\Language::get_l10n_args(''),
                     \Phyxo\Functions\Language::get_l10n_args('Admin: %s', $admin_url),
-                );
+                ];
 
                 \Phyxo\Functions\Mail::mail_notification_admins(
                     \Phyxo\Functions\Language::get_l10n_args('Registration of %s', stripslashes($login)),
@@ -216,7 +216,7 @@ class Users extends BaseRepository
             }
 
             if ($notify_user && \Phyxo\Functions\Utils::email_check_format($mail_address)) {
-                $keyargs_content = array(
+                $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('Hello %s,', stripslashes($login)),
                     \Phyxo\Functions\Language::get_l10n_args('Thank you for registering at %s!', $conf['gallery_title']),
                     \Phyxo\Functions\Language::get_l10n_args('', ''),
@@ -229,25 +229,25 @@ class Users extends BaseRepository
                         'If you think you\'ve received this email in error, please contact us at %s',
                         \Phyxo\Functions\Utils::get_webmaster_mail_address()
                     ),
-                );
+                ];
 
                 \Phyxo\Functions\Mail::mail(
                     $mail_address,
-                    array(
+                    [
                         'subject' => '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Registration'),
                         'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                         'content_format' => 'text/plain',
-                    )
+                    ]
                 );
             }
 
             Plugin::trigger_notify(
                 'register_user',
-                array(
+                [
                     'id' => $user_id,
                     'username' => $login,
                     'email' => $mail_address,
-                )
+                ]
             );
 
             return $user_id;
@@ -333,10 +333,10 @@ class Users extends BaseRepository
         if (isset($_COOKIE[$conf['remember_me_name']])) {
             $cookie = explode('-', stripslashes($_COOKIE[$conf['remember_me_name']]));
             if (count($cookie) === 3
-                and is_numeric(@$cookie[0]) /*user id*/
-            and is_numeric(@$cookie[1]) /*time*/
+                and is_numeric(@$cookie[0]) // user id
+            and is_numeric(@$cookie[1]) // time
             and time() - $conf['remember_me_length'] <= @$cookie[1]
-                and time() >= @$cookie[1] /*cookie generated in the past*/ ) {
+                and time() >= @$cookie[1] /*cookie generated in the past*/) {
                 $key = $this->calculateAutoLoginKey($cookie[0], $cookie[1], $username);
                 if ($key !== false and $key === $cookie[2]) {
                     $this->logUser($cookie[0], true);
@@ -389,7 +389,7 @@ class Users extends BaseRepository
         $query .= ' FROM ' . USERS_TABLE;
         $query .= ' WHERE ' . $conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
-        if ($conf['password_verify']($password, $row['password'], $row['id'])) {
+        if ($this->passwordVerify($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
             Plugin::trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes
             return true;
@@ -408,7 +408,7 @@ class Users extends BaseRepository
 
         Plugin::trigger_notify('user_logout', isset($_SESSION['pwg_uid']) ? $_SESSION['pwg_uid'] : null);
 
-        $_SESSION = array();
+        $_SESSION = [];
         session_unset();
         session_destroy();
         setcookie(session_name($conf['session_name']), '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
@@ -506,7 +506,7 @@ class Users extends BaseRepository
                 // now we update user cache categories
                 $user_cache_cats = \Phyxo\Functions\Category::get_computed_categories($userdata, null);
                 if (!$this->isAdmin($userdata['status'])) { // for non admins we forbid categories with no image (feature 1053)
-                    $forbidden_ids = array();
+                    $forbidden_ids = [];
                     foreach ($user_cache_cats as $cat) {
                         if ($cat['count_images'] == 0) {
                             $forbidden_ids[] = $cat['cat_id'];
@@ -528,12 +528,12 @@ class Users extends BaseRepository
                 $this->conn->db_query($query);
                 $this->conn->mass_inserts(
                     USER_CACHE_CATEGORIES_TABLE,
-                    array(
+                    [
                         'user_id', 'cat_id',
                         'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
-                    ),
+                    ],
                     $user_cache_cats,
-                    array('ignore' => true)
+                    ['ignore' => true]
                 );
                 $this->conn->db_unlock();
 
@@ -572,17 +572,17 @@ class Users extends BaseRepository
         global $conf;
 
         if (!is_array($user_ids)) {
-            $user_ids = array($user_ids);
+            $user_ids = [$user_ids];
         }
 
         if (!empty($user_ids)) {
-            $inserts = array();
+            $inserts = [];
             list($dbnow) = $this->conn->db_fetch_row($this->conn->db_query('SELECT NOW();'));
 
             $default_user = $this->getDefaultUserInfo(false);
             if ($default_user === false) {
                 // Default on structure are used
-                $default_user = array();
+                $default_user = [];
             }
 
             if (!is_null($override_values)) {
@@ -602,12 +602,12 @@ class Users extends BaseRepository
 
                 $insert = array_merge(
                     $default_user,
-                    array(
+                    [
                         'user_id' => $user_id,
                         'status' => $status,
                         'registration_date' => $dbnow,
                         'level' => $level
-                    )
+                    ]
                 );
 
                 $inserts[] = $insert;
@@ -678,9 +678,9 @@ class Users extends BaseRepository
             if ($this->conn->db_num_rows($result) > 0) {
                 $cache['default_user'] = $this->conn->db_fetch_assoc($result);
 
-                unset($cache['default_user']['user_id']);
-                unset($cache['default_user']['status']);
-                unset($cache['default_user']['registration_date']);
+                unset($cache['default_user']['user_id'], $cache['default_user']['status'], $cache['default_user']['registration_date']);
+                
+                
             } else {
                 $cache['default_user'] = false;
             }
@@ -800,8 +800,8 @@ class Users extends BaseRepository
             $hash = $this->passwordHash($password);
             $this->conn->single_update(
                 USERS_TABLE,
-                array('password' => $hash),
-                array('id' => $user_id)
+                ['password' => $hash],
+                ['id' => $user_id]
             );
         }
 
@@ -1039,7 +1039,6 @@ class Users extends BaseRepository
         return implode(',', $forbidden_array);
     }
 
-
     /**
      * Returns if current user can edit/delete/validate a comment.
      *
@@ -1055,7 +1054,7 @@ class Users extends BaseRepository
             return false;
         }
 
-        if (!in_array($action, array('delete', 'edit', 'validate'))) {
+        if (!in_array($action, ['delete', 'edit', 'validate'])) {
             return false;
         }
 
