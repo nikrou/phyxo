@@ -36,7 +36,7 @@
     tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
     'Add': '{'Create'|translate}'
     }});
-
+    })();
     {/footer_script}
 
     <form action="{$F_ACTION}" method="post" id="catModify">
@@ -97,7 +97,7 @@
 			<label for="album">{'Representation of albums'|translate}</label>
 			<select id="album" data-selectize="categories" data-value="{$represented_albums|@json_encode|escape:html}"
 			    placeholder="{'Type in a search term'|translate}" name="represent[]" multiple></select>
-		
+
 	    </p>
 
 	    <p>
