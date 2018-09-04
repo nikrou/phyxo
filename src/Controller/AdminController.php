@@ -61,12 +61,12 @@ class AdminController extends Controller
             ob_start();
             chdir(dirname($legacy_file));
             require $legacy_file;
-            return new Response(ob_get_clean());
+
+            return new Response($template->flush(true));
         } catch (Routing\Exception\ResourceNotFoundException $e) {
             return new Response('Not Found', 404);
         } catch (Exception $e) {
             return new Response('An error occurred', 500);
         }
     }
-
 }

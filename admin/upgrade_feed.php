@@ -9,41 +9,20 @@
  * file that was distributed with this source code.
  */
 
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
+}
 
-define('PHPWG_ROOT_PATH', '../../');
-
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
 use Phyxo\DBLayer\DBLayer;
 
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-}
-defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-
-include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when it is not ok                               |
-// +-----------------------------------------------------------------------+
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (!$conf['check_upgrade_feed']) {
     die("upgrade feed is not active");
 }
 
-\Phyxo\Functions\Upload::prepare_conf_upgrade();
-
 define('PREFIX_TABLE', $prefixeTable);
 define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
-
-// +-----------------------------------------------------------------------+
-// |                         Database connection                           |
-// +-----------------------------------------------------------------------+
-try {
-    $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-} catch (Exception $e) {
-    my_error(\Phyxo\Functions\Language::l10n($e->getMessage(), true));
-}
 
 // +-----------------------------------------------------------------------+
 // |                              Upgrades                                 |
@@ -59,14 +38,12 @@ $existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);
 
-echo '<pre>';
-echo count($to_apply) . ' upgrades to apply';
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 foreach ($to_apply as $upgrade_id) {
     unset($upgrade_description);
 
-    echo "\n\n";
-    echo '=== upgrade ' . $upgrade_id . "\n";
+    printf('<h3>Upgrade %s</h3>', $upgrade_id);
 
     // include & execute upgrade script. Each upgrade script must contain
     // $upgrade_description variable which describe briefly what the upgrade
@@ -79,4 +56,9 @@ foreach ($to_apply as $upgrade_id) {
     $conn->db_query($query);
 }
 
-echo '</pre>';
+$upgrade_content = ob_get_contents();
+ob_end_clean();
+
+$template->assign('upgrade_content', $upgrade_content);
+
+$template_filename = 'upgrade_feed';

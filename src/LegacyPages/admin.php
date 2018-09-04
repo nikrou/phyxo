@@ -205,4 +205,4 @@ $template->set_filenames(['admin' => "${template_filename}.tpl"]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_admin');
 \Phyxo\Functions\Utils::flush_page_messages();
-$template->pparse('admin');
+$template->parse('admin');

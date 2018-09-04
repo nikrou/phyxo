@@ -9,43 +9,24 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', '../../');
+if (!defined('PHPWG_ROOT_PATH')) {
+    die('Hacking attempt!');
+}
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
-use Phyxo\DBLayer\DBLayer;
 use Phyxo\Language\Languages;
 use Phyxo\Update\Updates;
-use Phyxo\Template\Template;
 
-// load config file
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-}
-defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
+$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
-    include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
-}
-
-// $conf is not used for users tables - define cannot be re-defined
-define('USERS_TABLE', $prefixeTable . 'users');
-include_once(PHPWG_ROOT_PATH . 'include/constants.php');
+define('UPGRADE_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=upgrade');
 define('PREFIX_TABLE', $prefixeTable);
-define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 
-// +-----------------------------------------------------------------------+
-// |                          database connection                          |
-// +-----------------------------------------------------------------------+
-try {
-    $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-} catch (Exception $e) {
-    $page['errors'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
+$template_filename = 'upgrade';
+
+if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
+    $template->assign('DEV_VERSION', true);
+    return;
 }
-
-$page['count_queries'] = 0;
-$page['queries_time'] = 0;
 
 // +-----------------------------------------------------------------------+
 // |                             language                                  |
@@ -53,8 +34,10 @@ $page['queries_time'] = 0;
 $languages = new Languages($conn, 'utf-8');
 
 if (isset($_GET['language'])) {
-    if (!in_array($language, array_keys($languages->getFsLanguages()))) {
+    if (!in_array($_GET['language'], array_keys($languages->getFsLanguages()))) {
         $language = PHPWG_DEFAULT_LANGUAGE;
+    } else {
+        $language = $_GET['language'];
     }
 } else {
     $language = 'en_GB';
@@ -67,21 +50,16 @@ if (isset($_GET['language'])) {
     }
 }
 
-\Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-\Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-\Phyxo\Functions\Language::load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
-\Phyxo\Functions\Language::load_language('upgrade.lang', '', array('language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true));
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
+\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
+\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
+\Phyxo\Functions\Language::load_language('upgrade.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);
 
-// +-----------------------------------------------------------------------+
-// |                        template initialization                        |
-// +-----------------------------------------------------------------------+
-
-$template = new Template(PHPWG_ROOT_PATH . 'admin/theme', '.');
-$template->set_filenames(array('upgrade' => 'upgrade.tpl'));
-$template->assign(array('RELEASE' => PHPWG_VERSION));
+$template->set_filenames(['upgrade' => 'upgrade.tpl']);
+$template->assign(['RELEASE' => PHPWG_VERSION]);
 
 // +-----------------------------------------------------------------------+
 // |                            upgrade choice                             |
@@ -94,33 +72,32 @@ $columns_of = $conn->db_get_columns_of($tables);
 $query = 'SELECT id FROM ' . PREFIX_TABLE . 'upgrade;';
 $applied_upgrades = $conn->query2array($query, null, 'id');
 
-if (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
-    $current_release = '1.3.0';
+if (!in_array(142, $applied_upgrades)) {
+    $current_release = '1.0.0';
+} elseif (!in_array(144, $applied_upgrades)) {
+    $current_release = '1.1.0';
 } elseif (!in_array(145, $applied_upgrades)) {
     $current_release = '1.2.0';
-} elseif (!in_array(142, $applied_upgrades)) {
-    $current_release = '1.0.0';
-} else {
-    // @TODO: add a template ; not display a almost blank page
-    // confirm that the database is in the same version as source code files
-    $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
-
-    header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
-    echo 'No upgrade required, the database structure is up to date';
-    echo '<br><a href="index.php">← back to gallery</a>';
-    exit();
+} elseif (in_array('validated', $columns_of[PREFIX_TABLE . 'tags'])) {
+    $current_release = '1.3.0';
+} elseif (!in_array(146, $applied_upgrades)) {
+    $current_release = '1.5.0';
+} elseif (!in_array(147, $applied_upgrades)) {
+    $current_release = '1.6.0';
+} elseif (!in_array(148, $applied_upgrades)) {
+    $current_release = '1.8.0';
 }
 
 // +-----------------------------------------------------------------------+
 // |                            upgrade launch                             |
 // +-----------------------------------------------------------------------+
-$page['infos'] = array();
-$page['errors'] = array();
-$mysql_changes = array();
+$page['infos'] = [];
+$page['errors'] = [];
+$mysql_changes = [];
 
 \Phyxo\Functions\Upgrade::check_upgrade_access_rights();
 
-if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade::check_upgrade()) {
+if (isset($_POST['submit']) && \Phyxo\Functions\Upgrade::check_upgrade()) {
     $upgrade_file = PHPWG_ROOT_PATH . 'install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
         $page['upgrade_start'] = microtime(true);
@@ -139,7 +116,7 @@ if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade
 
         $template->assign(
             'upgrade',
-            array(
+            [
                 'VERSION' => $current_release,
                 'TOTAL_TIME' => \Phyxo\Functions\Utils::get_elapsed_time(
                     $page['upgrade_start'],
@@ -152,14 +129,14 @@ if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade
                     ' '
                 ) . ' s',
                 'NB_QUERIES' => $page['count_queries']
-            )
+            ]
         );
 
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Perform a maintenance check in [Administration>Tools>Maintenance] if you encounter any problem.');
 
         // Save $page['infos'] in order to restore after maintenance actions
         $page['infos_sav'] = $page['infos'];
-        $page['infos'] = array();
+        $page['infos'] = [];
 
         // Delete cache data
         \Phyxo\Functions\Utils::invalidate_user_cache(true);
@@ -190,14 +167,11 @@ if ((isset($_POST['submit']) || isset($_GET['now'])) && \Phyxo\Functions\Upgrade
     }
     $template->assign('language_options', $languages_options);
 
-    $template->assign('introduction', array(
+    $template->assign('introduction', [
         'CURRENT_RELEASE' => $current_release,
-        'F_ACTION' => 'upgrade.php?language=' . $language
-    ));
-
-    if (!\Phyxo\Functions\Upgrade::check_upgrade()) {
-        $template->assign('login', true);
-    }
+        'F_ACTION' => UPGRADE_BASE_URL,
+        'LANGUAGE' => $language
+    ]);
 }
 
 if (count($page['errors']) != 0) {
@@ -207,9 +181,3 @@ if (count($page['errors']) != 0) {
 if (count($page['infos']) != 0) {
     $template->assign('infos', $page['infos']);
 }
-
-// +-----------------------------------------------------------------------+
-// |                          sending html code                            |
-// +-----------------------------------------------------------------------+
-
-$template->pparse('upgrade');
