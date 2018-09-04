@@ -1,0 +1,11 @@
+tags:
+  path: /tags.{extension}
+  controller: App\Controller\TagController::list
+  defaults:
+    extension: php
+
+images_by_tags:
+  path: /tags/{tag_id}
+  controller: App\Controller\TagController::imagesByTags
+  requirements:
+    tag_id: .*

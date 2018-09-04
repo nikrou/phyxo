@@ -1,0 +1,29 @@
+favorites:
+  path: /favorites
+  controller: App\Controller\IndexController::favorites
+
+most_visited:
+  path: /most_visited
+  controller: App\Controller\IndexController::mostVisited
+
+recent_pics:
+  path: /recent_pics
+  controller: App\Controller\IndexController::recentPics
+
+recent_cats:
+  path: /recent_cats
+  controller: App\Controller\IndexController::recentCats
+
+best_rated:
+  path: /best_rated
+  controller: App\Controller\IndexController::bestRated
+
+random:
+  path: /random.{extension}
+  controller: App\Controller\IndexController::random
+  defaults:
+    extension: php
+
+random_list:
+  path: /list/{list}
+  controller: App\Controller\IndexController::randomList

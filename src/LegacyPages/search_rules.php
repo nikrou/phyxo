@@ -31,9 +31,9 @@ function inc_exc_str($is_included)
 
 
 $title = \Phyxo\Functions\Language::l10n('Search rules');
-$page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+$page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 
-$template->set_filenames(array('search_rules' => 'search_rules.tpl'));
+$template->set_filenames(['search_rules' => 'search_rules.tpl']);
 
 include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 
@@ -50,7 +50,7 @@ if (isset($search['q'])) {
     $template->append('search_words', $search['q']);
 } else {
     $template->assign(
-        array('INTRODUCTION' => 'OR' == $search['mode'] ? \Phyxo\Functions\Language::l10n('At least one listed rule must be satisfied.') : \Phyxo\Functions\Language::l10n('Each listed rule must be satisfied.'))
+        ['INTRODUCTION' => 'OR' == $search['mode'] ? \Phyxo\Functions\Language::l10n('At least one listed rule must be satisfied.') : \Phyxo\Functions\Language::l10n('Each listed rule must be satisfied.')]
     );
 }
 
@@ -97,7 +97,7 @@ if (isset($search['fields']['cat'])) {
     $query .= ' WHERE id ' . $conn->in($cat_ids);
     $result = $conn->db_query($query);
 
-    $categories = array();
+    $categories = [];
     if (!empty($result)) {
         while ($row = $conn->db_fetch_assoc($result)) {
             $categories[] = $row;
@@ -116,28 +116,28 @@ if (isset($search['fields']['cat'])) {
     }
 }
 
-foreach (array('date_available', 'date_creation') as $datefield) {
+foreach (['date_available', 'date_creation'] as $datefield) {
     if ('date_available' == $datefield) {
-        $lang_items = array(
+        $lang_items = [
             'date' => \Phyxo\Functions\Language::l10n('posted on %s'),
             'period' => \Phyxo\Functions\Language::l10n('posted between %s (%s) and %s (%s)'),
             'after' => \Phyxo\Functions\Language::l10n('posted after %s (%s)'),
             'before' => \Phyxo\Functions\Language::l10n('posted before %s (%s)'),
-        );
+        ];
     } elseif ('date_creation' == $datefield) {
-        $lang_items = array(
+        $lang_items = [
             'date' => \Phyxo\Functions\Language::l10n('created on %s'),
             'period' => \Phyxo\Functions\Language::l10n('created between %s (%s) and %s (%s)'),
             'after' => \Phyxo\Functions\Language::l10n('created after %s (%s)'),
             'before' => \Phyxo\Functions\Language::l10n('created before %s (%s)'),
-        );
+        ];
     }
 
-    $keys = array(
+    $keys = [
         'date' => $datefield,
         'after' => $datefield . '-after',
         'before' => $datefield . '-before',
-    );
+    ];
 
     if (isset($search['fields'][$keys['date']])) {
         $template->assign(
@@ -186,4 +186,3 @@ foreach (array('date_available', 'date_creation') as $datefield) {
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-$template->pparse('search_rules');

@@ -18,11 +18,16 @@ use Phyxo\Template\ScriptLoader;
 use Phyxo\Template\CssLoader;
 use Phyxo\Image\ImageStdParams;
 
+use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Symfony\Component\HttpFoundation\Response;
 
-class Template
+class Template implements EngineInterface
 {
+    private $stats = ['render_time' => null, 'files' => []];
+
     /** @var Smarty */
     public $smarty;
     /** @var string */
@@ -69,22 +74,6 @@ class Template
         $this->cssLoader = new CssLoader();
         $this->smarty = new Smarty();
 
-        if (!empty($this->options['conf']['debug_template'])) {
-            $this->smarty->debugging = $this->options['conf']['debug_template'];
-        }
-
-        if (!$this->smarty->debugging) {
-            $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
-        }
-
-        if (!empty($this->options['conf']['template_compile_check'])) {
-            $this->smarty->compile_check = $this->options['conf']['template_compile_check'];
-        }
-
-        if (!empty($this->options['conf']['template_force_compile'])) {
-            $this->smarty->force_compile = $this->options['conf']['template_force_compile'];
-        }
-
         $this->smarty->assign('pwg', new TemplateAdapter());
         $this->smarty->registerPlugin('modifiercompiler', 'translate', [$this, 'modcompiler_translate']);
         $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', [$this, 'modcompiler_translate_dec']);
@@ -100,6 +89,34 @@ class Template
         $this->smarty->registerPlugin('compiler', 'get_combined_css', [$this, 'func_get_combined_css']);
         $this->smarty->registerPlugin('block', 'footer_script', [$this, 'block_footer_script']);
         $this->smarty->registerFilter('pre', [__class__, 'prefilter_white_space']);
+    }
+
+    public static function init($compile_dir)
+    {
+        $template = new Template();
+        $template->setCompileDir($compile_dir);
+
+        return $template;
+    }
+
+    public function postConstruct()
+    {
+        if (isset($this->options['conf']['debug_template'])) {
+            $this->smarty->debugging = $this->options['conf']['debug_template'];
+        }
+
+        if (!$this->smarty->debugging) {
+            $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
+        }
+
+        if (isset($this->options['conf']['template_compile_check'])) {
+            $this->smarty->compile_check = $this->options['conf']['template_compile_check'];
+        }
+
+        if (isset($this->options['conf']['template_force_compile'])) {
+            $this->smarty->force_compile = $this->options['conf']['template_force_compile'];
+        }
+
         if (!empty($this->options['conf']['compiled_template_cache_language'])) {
             $this->smarty->registerFilter('post', [__class__, 'postfilter_language']);
         }
@@ -116,12 +133,19 @@ class Template
         $this->smarty->assign('lang_info', $this->options['lang_info']);
     }
 
-    public static function init($compile_dir)
+    public function setConf(Conf $conf)
     {
-        $template = new Template();
-        $template->setCompileDir($compile_dir);
+        $this->options['conf'] = $conf;
+    }
 
-        return $template;
+    public function setLang(array $lang)
+    {
+        $this->options['lang'] = $lang;
+    }
+
+    public function setLangInfo(array $lang_info)
+    {
+        $this->options['lang_info'] = $lang_info;
     }
 
     public function setCompileDir($compile_dir)
@@ -683,6 +707,8 @@ class Template
      */
     public function func_combine_script($params)
     {
+        trigger_error('combined_scripts is deprecated. Use plain html instead', E_USER_DEPRECATED);
+
         if (!isset($params['id'])) {
             trigger_error("combine_script: missing 'id' parameter", E_USER_ERROR);
         }
@@ -721,6 +747,8 @@ class Template
      */
     public function func_get_combined_scripts($params)
     {
+        trigger_error('get_combined_scripts is deprecated. Merge scripts on your own', E_USER_DEPRECATED);
+
         if (!isset($params['load'])) {
             trigger_error("get_combined_scripts: missing 'load' parameter", E_USER_ERROR);
         }
@@ -789,6 +817,8 @@ class Template
      */
     public function block_footer_script($params, $content)
     {
+        trigger_error('footer_script is deprecated. Use Smarty block instead', E_USER_DEPRECATED);
+
         $content = trim($content);
         if (!empty($content)) { // second call
             $this->scriptLoader->add_inline(
@@ -808,9 +838,12 @@ class Template
      *    - version (optional) used to force a browser refresh
      *    - order (optional)
      *    - template (optional) set to true to allow smarty syntax in the css file
+     * @deprecated since 1.9.0 and will be removed in 1.10 or 2.0
      */
     public function func_combine_css($params)
     {
+        trigger_error('combine_css is deprecated. Use plain html instead.', E_USER_DEPRECATED);
+
         if (empty($params['path'])) {
             \Phyxo\Functions\HTTP::fatal_error('combine_css missing path');
         }
@@ -836,6 +869,8 @@ class Template
      */
     public function func_get_combined_css($params)
     {
+        trigger_error('get_combine_css is deprecated. Merge css on your own', E_USER_DEPRECATED);
+
         return self::COMBINED_CSS_TAG;
     }
 
@@ -1018,5 +1053,40 @@ class Template
         }
 
         return $this->themeconfs[$dir];
+    }
+
+    public function renderResponse($view, array $parameters = [], Response $response = null)
+    {
+    }
+
+    public function render($name, array $parameters = [])
+    {
+        $time_before = microtime(true);
+
+        $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
+        $this->smarty->assign($parameters);
+
+        $html = $this->smarty->fetch($name);
+
+        $this->stats['render_time'] = microtime(true) - $time_before;
+
+        return $html;
+    }
+
+    public function exists($name)
+    {
+        return $this->smarty->templateExists($name);
+    }
+
+    public function supports($name)
+    {
+        return preg_match('`.*\.tpl$`', $name);
+    }
+
+    public function getStats()
+    {
+        $this->stats['files'] = $this->files;
+
+        return $this->stats;
     }
 }

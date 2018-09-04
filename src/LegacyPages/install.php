@@ -22,6 +22,16 @@ use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
 
+// container
+if (!empty($GLOBALS['container'])) {
+    $container = $GLOBALS['container'];
+}
+
+if (\Phyxo\Functions\Utils::phyxoInstalled($container->get('phyxo.conn'))) {
+    header('Location: ' . \Phyxo\Functions\URL::get_root_url());
+    exit();
+}
+
 define('DEFAULT_PREFIX_TABLE', 'phyxo_');
 
 if (isset($_POST['install'])) {
@@ -70,17 +80,8 @@ $admin_pass1 = (!empty($_POST['admin_pass1'])) ? $_POST['admin_pass1'] : '';
 $admin_pass2 = (!empty($_POST['admin_pass2'])) ? $_POST['admin_pass2'] : '';
 $admin_mail = (!empty($_POST['admin_mail'])) ? $_POST['admin_mail'] : '';
 
-$infos = array();
-$errors = array();
-
-$config_file = PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php';
-if (is_readable($config_file)) {
-    include($config_file);
-    // Is Phyxo already installed ?
-    if (defined("PHPWG_INSTALLED")) {
-        die('Phyxo is already installed');
-    }
-}
+$infos = [];
+$errors = [];
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 
@@ -103,16 +104,17 @@ if (isset($_GET['language'])) {
     }
 }
 
-\Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
-\Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
-\Phyxo\Functions\Language::load_language('install.lang', '', array('language' => $language, 'target_charset' => 'utf-8'));
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
+\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
+\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
 
 header('Content-Type: text/html; charset=UTF-8');
 
 $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
+$template->postConstruct();
 $template->setCompileDir($container->getParameter('kernel.cache_dir') . '/smarty');
 $template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
-$template->set_filenames(array('install' => 'install.tpl'));
+$template->set_filenames(['install' => 'install.tpl']);
 if (!isset($step)) {
     $step = 1;
 }
@@ -183,11 +185,11 @@ define(\'DB_COLLATE\', \'\');';
             @fclose($fh);
 
             $template->assign(
-                array(
+                [
                     'config_creation_failed' => true,
                     'config_url' => 'install.php?dl=' . $tmp_filename,
                     'config_file_content' => $file_content,
-                )
+                ]
             );
         }
         @fputs($fp, $file_content, strlen($file_content));
@@ -247,41 +249,41 @@ define(\'DB_COLLATE\', \'\');';
             }
         }
 
-        $insert = array('id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/');
-        $conn->mass_inserts(SITES_TABLE, array_keys($insert), array($insert));
+        $insert = ['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/'];
+        $conn->mass_inserts(SITES_TABLE, array_keys($insert), [$insert]);
 
         // webmaster admin user
-        $inserts = array(
-            array(
+        $inserts = [
+            [
                 'id' => 1,
                 'username' => $admin_name,
                 'password' => md5($admin_pass1),
                 'mail_address' => $admin_mail,
-            ),
-            array(
+            ],
+            [
                 'id' => 2,
                 'username' => 'guest',
-            ),
-        );
+            ],
+        ];
         $conn->mass_inserts(USERS_TABLE, array_keys($inserts[0]), $inserts);
         if ($dblayer == 'pgsql') {
             $conn->db_query('ALTER SEQUENCE ' . strtolower(USERS_TABLE) . '_id_seq RESTART WITH 3');
         }
 
-        $services['users']->createUserInfos(array(1, 2), array('language' => $language));
+        $services['users']->createUserInfos([1, 2], ['language' => $language]);
 
         // Available upgrades must be ignored after a fresh installation. To
         // make Phyxo avoid upgrading, we must tell it upgrades have already been
         // made.
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         define('CURRENT_DATE', $dbnow);
-        $datas = array();
+        $datas = [];
         foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
-            $datas[] = array(
+            $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => CURRENT_DATE,
                 'description' => 'upgrade included in installation',
-            );
+            ];
         }
         $conn->mass_inserts(
             UPGRADE_TABLE,
@@ -301,7 +303,7 @@ foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
 $template->assign('language_options', $languages_options);
 
 $template->assign(
-    array(
+    [
         'GALLERY_TITLE' => 'Phyxo',
         'PAGE_TITLE' => \Phyxo\Functions\Language::l10n('Installation'),
         'T_CONTENT_ENCODING' => 'utf-8',
@@ -316,7 +318,7 @@ $template->assign(
         'F_ADMIN' => $admin_name,
         'F_ADMIN_EMAIL' => $admin_mail,
         'EMAIL' => '<span class="adminEmail">' . $admin_mail . '</span>'
-    )
+    ]
 );
 
 //------------------------------------------------------ errors & infos display
@@ -347,7 +349,7 @@ if ($step == 1) {
 
         // email notification
         if (isset($_POST['send_password_by_mail'])) {
-            $keyargs_content = array(
+            $keyargs_content = [
                 \Phyxo\Functions\Language::get_l10n_args('Hello %s,', $admin_name),
                 \Phyxo\Functions\Language::get_l10n_args('Welcome to your new installation of Phyxo!', ''),
                 \Phyxo\Functions\Language::get_l10n_args('', ''),
@@ -357,15 +359,15 @@ if ($step == 1) {
                 \Phyxo\Functions\Language::get_l10n_args('Username: %s', $admin_name),
                 \Phyxo\Functions\Language::get_l10n_args('Password: %s', $admin_pass1),
                 \Phyxo\Functions\Language::get_l10n_args('Email: %s', $admin_mail)
-            );
+            ];
 
             \Phyxo\Functions\Mail::mail(
                 $admin_mail,
-                array(
+                [
                     'subject' => \Phyxo\Functions\Language::l10n('Just another Phyxo gallery'),
                     'content' => \Phyxo\Functions\Language::l10n_args($keyargs_content),
                     'content_format' => 'text/plain',
-                )
+                ]
             );
         }
     }
@@ -380,4 +382,4 @@ if (count($infos) != 0) {
 }
 
 //----------------------------------------------------------- html code display
-$template->pparse('install');
+$template->parse('install');

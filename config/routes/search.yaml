@@ -1,0 +1,32 @@
+qsearch:
+  path: /qsearch.{extension}
+  controller: App\Controller\SearchController::qsearch
+  defaults:
+    extension: php
+
+search:
+  path: /search.{extension}
+  controller: App\Controller\SearchController::search
+  defaults:
+    extension: php
+
+search_rules:
+  path:  /search_rules.{extension}/{search_id}
+  controller: App\Controller\SearchController::searchRules
+  defaults:
+    extension: php
+
+search_results:
+  path:  /search/{search_id}/{start_id}
+  controller: App\Controller\SearchController::searchResults
+  defaults:
+    extension: php
+    start_id: null
+  requirements:
+    start_id: start-\d+
+
+picture_by_search:
+  path:  /picture.{extension}/{image_id}/search/{search_id}
+  controller: App\Controller\SearchController::imagesBySearch
+  defaults:
+    extension: php

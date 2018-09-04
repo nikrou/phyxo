@@ -49,7 +49,7 @@ services:
         factory: 'Phyxo\Template\Template::init'
         arguments: ['%kernel.cache_dir%/smarty']
 
-    phyxo.template:
+    templating.engine.smarty:
         public: true
         alias: 'Phyxo\Template\Template'
 

@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
@@ -48,14 +47,14 @@ if ($services['users']->isGuest()) {
 
 $title = \Phyxo\Functions\Language::l10n('Notification');
 $page['body_id'] = 'theNotificationPage';
-$page['meta_robots'] = array('noindex' => 1, 'nofollow' => 1);
+$page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 
-$template->set_filenames(array('notification' => 'notification.tpl'));
+$template->set_filenames(['notification' => 'notification.tpl']);
 $template->assign(
-    array(
+    [
         'U_FEED' => $feed_url,
         'U_FEED_IMAGE_ONLY' => $feed_image_only_url,
-    )
+    ]
 );
 
 // include menubar
@@ -71,4 +70,3 @@ include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_notification');
 \Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-$template->pparse('notification');

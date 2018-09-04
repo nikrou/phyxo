@@ -1,0 +1,38 @@
+homepage:
+  path:  /
+  controller: App\Controller\DefaultController::home
+
+about:
+  path: /about.{extension}
+  controller: App\Controller\DefaultController::about
+  defaults:
+    extension: php
+
+feed:
+  path: /feed.{extension}
+  controller: App\Controller\DefaultController::feed
+  defaults:
+    extension: php
+
+notification:
+  path: /notification.{extension}
+  controller: App\Controller\DefaultController::notification
+  defaults:
+    extension: php
+
+comments:
+  path: /comments.{extension}
+  controller: App\Controller\DefaultController::comments
+  defaults:
+    extension: php
+
+action:
+  path: /action.{extension}/{image_id}/{part}/{download}
+  controller: App\Controller\DefaultController::action
+  defaults:
+    extension: php
+    download: false
+  requirements:
+    image_id: \d+
+    part: e|r
+    download: download

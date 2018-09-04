@@ -1,0 +1,34 @@
+calendar:
+  path: /{date_type}-monthly-{type}-{year}-{month}-{day}
+  controller: App\Controller\CalendarController::index
+  defaults:
+    month: null
+    day: null
+  requirements:
+    date_type: created|posted
+    type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+categories_calendar:
+  path: /categories/{date_type}-monthly-{type}-{year}-{month}-{day}
+  controller: App\Controller\CalendarController::categories
+  defaults:
+    month: null
+    day: null
+  requirements:
+    date_type: created|posted
+    type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+calendar_details:
+  path:  /{date_type}-monthly-calendar/{time_params}/{extra_params}
+  controller: App\Controller\CalendarController::details
+  defaults:
+    time_params: null
+    extra_params: null
+  requirements:
+    date_type: created|posted

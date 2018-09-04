@@ -75,15 +75,15 @@ $email = !empty($_POST['mail_address']) ? htmlspecialchars(stripslashes($_POST['
 $title = \Phyxo\Functions\Language::l10n('Registration');
 $page['body_id'] = 'theRegisterPage';
 
-$template->set_filenames(array('register' => 'register.tpl'));
-$template->assign(array(
+$template->set_filenames(['register' => 'register.tpl']);
+$template->assign([
     'U_HOME' => \Phyxo\Functions\URL::make_index_url(),
     'F_KEY' => $registration_post_key,
     'F_ACTION' => 'register.php',
     'F_LOGIN' => $login,
     'F_EMAIL' => $email,
     'obligatory_user_mail_address' => $conf['obligatory_user_mail_address'],
-));
+]);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');
@@ -95,4 +95,3 @@ include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_register');
 \Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-$template->pparse('register');

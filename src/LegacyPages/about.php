@@ -29,9 +29,9 @@ $page['body_id'] = 'theAboutPage';
 
 $template->set_filename('about', 'about.tpl');
 
-$template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', array('return' => true)));
+$template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', ['return' => true]));
 
-$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . $user['theme'] . '/', array('return' => true));
+$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . $user['theme'] . '/', ['return' => true]);
 if ($theme_about !== false) {
     $template->assign('THEME_ABOUT', $theme_about);
 }
@@ -45,4 +45,3 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theAboutPage', $themeconf['
 include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-$template->pparse('about');

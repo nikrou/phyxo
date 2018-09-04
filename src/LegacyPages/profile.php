@@ -69,7 +69,6 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     \Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
     \Phyxo\Functions\Utils::flush_page_messages();
     include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-    $template->pparse('profile');
 }
 
 //------------------------------------------------------ update & customization

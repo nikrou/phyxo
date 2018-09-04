@@ -2,5 +2,34 @@ admin_routes:
   resource: routes/admin.yaml
   prefix: /admin
 
-legacy_routes:
-  resource: routes/legacy_routes.yaml
+default_routes:
+  resource: routes/default.yaml
+  prefix: /
+
+user_routes:
+  resource: routes/user.yaml
+  prefix: /
+
+search_routes:
+  resource: routes/search.yaml
+  prefix: /
+
+album_routes:
+  resource: routes/album.yaml
+  prefix: /
+
+calendar_routes:
+  resource: routes/calendar.yaml
+  prefix: /
+
+picture_routes:
+  resource: routes/picture.yaml
+  prefix: /
+
+tag_routes:
+  resource: routes/tag.yaml
+  prefix: /
+
+index_routes:
+  resource: routes/index.yaml
+  prefix: /

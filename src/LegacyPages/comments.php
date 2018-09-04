@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
@@ -25,25 +24,25 @@ if (!$conf['activate_comments']) {
 // +-----------------------------------------------------------------------+
 $services['users']->checkStatus(ACCESS_GUEST);
 
-$url_self = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(array('delete', 'edit', 'validate', 'pwg_token'));
+$url_self = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(['delete', 'edit', 'validate', 'pwg_token']);
 
-$sort_order = array(
+$sort_order = [
     'DESC' => \Phyxo\Functions\Language::l10n('descending'),
     'ASC' => \Phyxo\Functions\Language::l10n('ascending')
-);
+];
 
 // sort_by : database fields proposed for sorting comments list
-$sort_by = array(
+$sort_by = [
     'date' => \Phyxo\Functions\Language::l10n('comment date'),
     'image_id' => \Phyxo\Functions\Language::l10n('photo')
-);
+];
 
 // items_number : list of number of items to display per page
-$items_number = array(5, 10, 20, 50, 'all');
+$items_number = [5, 10, 20, 50, 'all'];
 
 // if the default value is not in the expected values, we add it in the $items_number array
 if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
-    $items_number_new = array();
+    $items_number_new = [];
 
     $is_inserted = false;
 
@@ -61,12 +60,12 @@ if (!in_array($conf['comments_page_nb_comments'], $items_number)) {
 
 // since when display comments ?
 //
-$since_options = array(
-    1 => array('label' => \Phyxo\Functions\Language::l10n('today'), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(1)),
-    2 => array('label' => \Phyxo\Functions\Language::l10n('last %d days', 7), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(7)),
-    3 => array('label' => \Phyxo\Functions\Language::l10n('last %d days', 30), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(30)),
-    4 => array('label' => \Phyxo\Functions\Language::l10n('the beginning'), 'clause' => '1=1') // stupid but generic
-);
+$since_options = [
+    1 => ['label' => \Phyxo\Functions\Language::l10n('today'), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(1)],
+    2 => ['label' => \Phyxo\Functions\Language::l10n('last %d days', 7), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(7)],
+    3 => ['label' => \Phyxo\Functions\Language::l10n('last %d days', 30), 'clause' => 'date > ' . $conn->db_get_recent_period_expression(30)],
+    4 => ['label' => \Phyxo\Functions\Language::l10n('the beginning'), 'clause' => '1=1'] // stupid but generic
+];
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_comments');
 
@@ -102,15 +101,15 @@ if (!is_numeric($page['items_number']) and $page['items_number'] != 'all') {
     $page['items_number'] = 10;
 }
 
-$page['where_clauses'] = array();
+$page['where_clauses'] = [];
 
 // which category to filter on ?
 if (isset($_GET['cat']) and 0 != $_GET['cat']) {
     \Phyxo\Functions\Utils::check_input_parameter('cat', $_GET, false, PATTERN_ID);
 
-    $category_ids = \Phyxo\Functions\Category::get_subcat_ids(array($_GET['cat']));
+    $category_ids = \Phyxo\Functions\Category::get_subcat_ids([$_GET['cat']]);
     if (empty($category_ids)) {
-        $category_ids = array(-1);
+        $category_ids = [-1];
     }
 
     $page['where_clauses'][] = 'category_id ' . $conn->in($category_ids);
@@ -159,11 +158,11 @@ if (!$services['users']->isAdmin()) {
 }
 
 $page['where_clauses'][] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
-    array(
+    [
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
         'visible_images' => 'ic.image_id'
-    ),
+    ],
     '',
     true
 );
@@ -175,7 +174,7 @@ $page['where_clauses'][] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
 $comment_id = null;
 $action = null;
 
-$actions = array('delete', 'validate', 'edit');
+$actions = ['delete', 'validate', 'edit'];
 foreach ($actions as $loop_action) {
     if (isset($_GET[$loop_action])) {
         $action = $loop_action;
@@ -207,12 +206,12 @@ if (isset($action)) {
             if (!empty($_POST['content'])) {
                 \Phyxo\Functions\Utils::check_token();
                 $comment_action = $services['comments']->updateUserComment(
-                    array(
+                    [
                         'comment_id' => $_GET['edit'],
                         'image_id' => $_POST['image_id'],
                         'content' => $_POST['content'],
                         'website_url' => @$_POST['website_url'],
-                    ),
+                    ],
                     $_POST['key']
                 );
 
@@ -246,13 +245,13 @@ if (isset($action)) {
 
 $title = \Phyxo\Functions\Language::l10n('User comments');
 
-$template->set_filenames(array('comments' => 'comments.tpl'));
+$template->set_filenames(['comments' => 'comments.tpl']);
 $template->assign(
-    array(
+    [
         'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
         'F_KEYWORD' => htmlspecialchars(stripslashes(@$_GET['keyword'])),
         'F_AUTHOR' => htmlspecialchars(stripslashes(@$_GET['author'])),
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -263,8 +262,8 @@ $template->assign(
 $blockname = 'categories';
 
 $query = 'SELECT id, name, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'id', 'visible_categories' => 'id'), 'WHERE') . ';';
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, array(@$_GET['cat']), $blockname, true);
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], 'WHERE') . ';';
+\Phyxo\Functions\Category::display_select_cat_wrapper($query, [@$_GET['cat']], $blockname, true);
 
 // Filter on recent comments...
 $tpl_var = [];
@@ -334,7 +333,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $category_ids[] = $row['category_id'];
 }
 
-$url = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start', 'edit', 'delete', 'validate', 'pwg_token'));
+$url = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(['start', 'edit', 'delete', 'validate', 'pwg_token']);
 $navbar = \Phyxo\Functions\Utils::create_navigation_bar(
     $url,
     $counter,
@@ -367,11 +366,11 @@ if (count($comments) > 0) {
 
         // link to the full size picture
         $url = \Phyxo\Functions\URL::make_picture_url(
-            array(
+            [
                 'category' => $categories[$comment['category_id']],
                 'image_id' => $comment['image_id'],
                 'image_file' => $elements[$comment['image_id']]['file'],
-            )
+            ]
         );
 
         $email = null;
@@ -381,16 +380,16 @@ if (count($comments) > 0) {
             $email = $comment['email'];
         }
 
-        $tpl_comment = array(
+        $tpl_comment = [
             'ID' => $comment['comment_id'],
             'U_PICTURE' => $url,
             'src_image' => $src_image,
             'ALT' => $name,
             'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $comment['author']),
             'WEBSITE_URL' => $comment['website_url'],
-            'DATE' => \Phyxo\Functions\DateTime::format_date($comment['date'], array('day_name', 'day', 'month', 'year', 'time')),
+            'DATE' => \Phyxo\Functions\DateTime::format_date($comment['date'], ['day_name', 'day', 'month', 'year', 'time']),
             'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $comment['content']),
-        );
+        ];
 
         if ($services['users']->isAdmin()) {
             $tpl_comment['EMAIL'] = $email;
@@ -399,19 +398,19 @@ if (count($comments) > 0) {
         if ($services['users']->canManageComment('delete', $comment['author_id'])) {
             $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
-                array(
+                [
                     'delete' => $comment['comment_id'],
                     'pwg_token' => \Phyxo\Functions\Utils::get_token(),
-                )
+                ]
             );
         }
 
         if ($services['users']->canManageComment('edit', $comment['author_id'])) {
             $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
-                array(
+                [
                     'edit' => $comment['comment_id']
-                )
+                ]
             );
 
             if (isset($edit_comment) and ($comment['comment_id'] == $edit_comment)) {
@@ -429,10 +428,10 @@ if (count($comments) > 0) {
             if ($conn->is_boolean($comment['validated']) && !$conn->get_boolean($comment['validated'])) {
                 $tpl_comment['U_VALIDATE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
-                    array(
+                    [
                         'validate' => $comment['comment_id'],
                         'pwg_token' => \Phyxo\Functions\Utils::get_token(),
-                    )
+                    ]
                 );
             }
         }
@@ -456,4 +455,3 @@ include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_comments');
 \Phyxo\Functions\Utils::flush_page_messages();
 include(PHPWG_ROOT_PATH . 'include/page_tail.php');
-$template->pparse('comments');

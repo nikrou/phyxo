@@ -14,6 +14,12 @@ framework:
     php_errors:
         log: true
 
+    templating:
+      enabled: true
+      engines:
+        - twig
+        - smarty
+
     cache:
         # Put the unique name of your app here: the prefix seed
         # is used to compute stable namespaces for cache keys.

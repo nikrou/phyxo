@@ -1,0 +1,23 @@
+register:
+  path: /register.{extension}
+  controller: App\Controller\UserController::register
+  defaults:
+    extension: php
+
+password:
+  path: /password.{extension}
+  controller: App\Controller\UserController::password
+  defaults:
+    extension: php
+
+identification:
+  path: /identification.{extension}
+  controller: App\Controller\UserController::identification
+  defaults:
+    extension: php
+
+profile:
+  path: /profile.{extension}
+  controller: App\Controller\UserController::profile
+  defaults:
+    extension: php

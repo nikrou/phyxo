@@ -9,7 +9,6 @@
  * file that was distributed with this source code.
  */
 
-
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
@@ -43,7 +42,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         }
 
         header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
-        $template->set_filenames(array('no_photo_yet' => 'no_photo_yet.tpl'));
+        $template->set_filenames(['no_photo_yet' => 'no_photo_yet.tpl']);
 
         if ($services['users']->isAdmin()) {
             $url = $conf['no_photo_yet_url'];
@@ -52,7 +51,7 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
             }
 
             $template->assign(
-                array(
+                [
                     'step' => 2,
                     'intro' => \Phyxo\Functions\Language::l10n(
                         'Hello %s, your Phyxo photo gallery is empty!',
@@ -60,22 +59,22 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
                     ),
                     'next_step_url' => $url,
                     'deactivate_url' => \Phyxo\Functions\URL::get_root_url() . '?no_photo_yet=deactivate',
-                )
+                ]
             );
         } else {
 
             $template->assign(
-                array(
+                [
                     'step' => 1,
                     'U_LOGIN' => 'identification.php',
                     'deactivate_url' => \Phyxo\Functions\URL::get_root_url() . '?no_photo_yet=browse',
-                )
+                ]
             );
         }
 
         \Phyxo\Functions\Plugin::trigger_notify('loc_end_no_photo_yet');
 
-        $template->pparse('no_photo_yet');
+        $template->parse('no_photo_yet');
         exit();
     } else {
         $conf['no_photo_yet'] = false;

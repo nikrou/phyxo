@@ -104,6 +104,9 @@
     "symfony/stopwatch": {
         "version": "v4.1.3"
     },
+    "symfony/templating": {
+        "version": "v4.1.4"
+    },
     "symfony/twig-bridge": {
         "version": "v4.1.3"
     },

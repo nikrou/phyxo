@@ -11,17 +11,17 @@
 
 defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
-require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
-use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
+use Phyxo\Functions\Utils;
 
 // container
-if (!empty($GLOBALS['CONTAINER'])) {
-    $container = $GLOBALS['CONTAINER'];
+if (!empty($GLOBALS['container'])) {
+    $container = $GLOBALS['container'];
 }
 
 // determine the initial instant to indicate the generation time of this page
@@ -52,17 +52,6 @@ if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
     include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
 }
 
-// @TODO: find another way to determine if Phyxo is installed
-if (!defined('PHPWG_INSTALLED')) {
-    header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
-    exit();
-}
-
-if (!empty($conf['show_php_errors'])) {
-    @ini_set('error_reporting', $conf['show_php_errors']);
-    @ini_set('display_errors', true);
-}
-
 // Database connection
 if (defined('IN_WS')) {
     try {
@@ -75,7 +64,19 @@ if (defined('IN_WS')) {
 } else {
     $conn = $container->get('phyxo.conn');
     $conf = $container->get('phyxo.conf');
+    $template = $container->get('templating.engine.smarty');
 }
+
+if (!Utils::phyxoInstalled($conn)) {
+    header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
+    exit();
+}
+
+if (!empty($conf['show_php_errors'])) {
+    @ini_set('error_reporting', $conf['show_php_errors']);
+    @ini_set('display_errors', true);
+}
+
 $conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 $conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
 include(PHPWG_ROOT_PATH . 'include/constants.php');
@@ -89,7 +90,7 @@ $conf->loadFromDB();
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {
-        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'upgrade.php');
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/?page=upgrade');
     }
 }
 
@@ -137,16 +138,16 @@ if ($services['users']->isGuest()) {
 }
 
 if (!defined('IN_WS') || !IN_WS) {
+    $template->setLang($lang);
+    $template->setLangInfo($lang_info);
+    $template->setConf($conf);
+    $template->postConstruct();
     if (defined('IN_ADMIN') && IN_ADMIN) { // Admin template
-        $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
         $template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
     } else {
-        $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
         $theme = $user['theme'];
         $template->set_theme(PHPWG_ROOT_PATH . 'themes', $theme);
     }
-    $compile_dir = $container->getParameter('kernel.cache_dir') . '/smarty';
-    $template->setCompileDir($compile_dir);
 }
 
 if (!isset($conf['no_photo_yet']) || !$conf['no_photo_yet']) {
@@ -172,7 +173,7 @@ if ($conf['gallery_locked']) {
 
 if ($conf['check_upgrade_feed']) {
     if (\Phyxo\Functions\Upgrade::check_upgrade_feed()) {
-        $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . \Phyxo\Functions\URL::get_absolute_root_url(false) . 'upgrade_feed.php">upgrade now</a>';
+        $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . \Phyxo\Functions\URL::get_root_url() . 'admin/?page=upgrade_feed">upgrade now</a>';
     }
 }
 

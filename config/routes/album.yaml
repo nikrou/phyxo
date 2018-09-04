@@ -1,0 +1,14 @@
+album:
+  path: /category/{category_id}/{start_id}
+  controller: App\Controller\AlbumController::album
+  defaults:
+    start_id: null
+  requirements:
+    start_id: start-\d+
+
+album_by_params:
+  path:  /categories/{time_params}/{extra_params}
+  controller: App\Controller\AlbumController::albumByParams
+  defaults:
+    time_params: null
+    extra_params: null

@@ -1,0 +1,18 @@
+picture:
+  path:  /picture.{extension}/{image_id}/{type}/{element_id}
+  controller: App\Controller\PictureController::picture
+  defaults:
+    extension: php
+  requirements:
+    type: category|list|tags|search
+
+picture_by_type:
+  path:  /picture.{extension}/{image_id}/{type}/{time_params}{extra_params}
+  controller: App\Controller\PictureController::imagesByTypes
+  defaults:
+    extension: php
+    time_params: null
+    extra_params: null
+  requirements:
+    type: favorites|most_visited|recent_pics|best_rated|created-monthly-calendar|categories|tags
+    time_params: .*
