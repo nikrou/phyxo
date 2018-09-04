@@ -151,7 +151,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    /* transaction functions */
+    // transaction functions
     public function db_start_transaction()
     {
         $this->db_query('BEGIN');
@@ -194,6 +194,8 @@ class pgsqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_tables($prefix)
     {
+        $tables = [];
+
         $query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema()';
         $result = $this->db_query($query);
 
@@ -208,7 +210,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_columns_of($tables)
     {
-        $columns_of = array();
+        $columns_of = [];
 
         $fmt_query = 'SELECT column_name, udt_name, character_maximum_length,';
         $fmt_query .= ' is_nullable, column_default';
@@ -218,7 +220,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         foreach ($tables as $table) {
             $query = sprintf($fmt_query, $this->db_real_escape_string($table));
             $result = $this->db_query($query);
-            $columns_of[$table] = array();
+            $columns_of[$table] = [];
 
             while ($row = $this->db_fetch_row($result)) {
                 $columns_of[$table][] = $row[0];
@@ -385,7 +387,6 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return 'CAST(' . $string . ' AS TEXT)';
     }
 
-
     /**
      * inserts multiple lines in a table
      *
@@ -394,7 +395,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    public function mass_inserts($tablename, $dbfields, $datas, $options = array())
+    public function mass_inserts($tablename, $dbfields, $datas, $options = [])
     {
         if (count($datas) != 0) {
             foreach ($datas as $insert) {
@@ -416,7 +417,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                 $query .= ' WHERE NOT EXISTS(';
                 $query .= ' SELECT 1 FROM ' . $tablename;
                 $query .= ' WHERE ';
-                $parts = array();
+                $parts = [];
                 foreach ($dbfields as $dbfield) {
                     if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
                         $parts[] = $dbfield . ' = \'' . $this->boolean_to_db($insert[$dbfield]) . '\'';
@@ -543,7 +544,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     {
         global $prefixeTable;
 
-        $all_tables = array();
+        $all_tables = [];
 
         // List all tables
         $query = 'SELECT tablename FROM pg_tables';

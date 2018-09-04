@@ -45,6 +45,14 @@ services:
               id: 'app.dblayer_collector'
               public: false
 
+    App\DataCollector\SmartyCollector:
+        tags:
+            - name: data_collector
+              template: 'data_collector/smarty.html.twig'
+              id: 'app.smarty_collector'
+              public: false
+
+
     Phyxo\Template\Template:
         factory: 'Phyxo\Template\Template::init'
         arguments: ['%kernel.cache_dir%/smarty']

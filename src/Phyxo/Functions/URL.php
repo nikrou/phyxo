@@ -42,7 +42,7 @@ class URL
      * @param array
      * @return string
      */
-    public static function make_index_url($params = array())
+    public static function make_index_url($params = [])
     {
         global $conf;
 
@@ -185,7 +185,7 @@ class URL
      * @param array removed keys
      * @return string
      */
-    public static function duplicate_index_url($redefined = array(), $removed = array())
+    public static function duplicate_index_url($redefined = [], $removed = [])
     {
         return self::make_index_url(
             self::params_for_duplication($redefined, $removed)
@@ -216,7 +216,6 @@ class URL
         return $params;
     }
 
-
     /**
      * create a picture URL with current page parameters, but with redefinitions
      * and removes. See duplicate_index_url.
@@ -225,7 +224,7 @@ class URL
      * @param array removed keys
      * @return string
      */
-    public static function duplicate_picture_url($redefined = array(), $removed = array())
+    public static function duplicate_picture_url($redefined = [], $removed = [])
     {
         return self::make_picture_url(
             self::params_for_duplication($redefined, $removed)
@@ -276,12 +275,12 @@ class URL
             $section = $params['section'];
         }
         if (!isset($section)) {
-            $section_of = array(
+            $section_of = [
                 'category' => 'categories',
                 'tags' => 'tags',
                 'list' => 'list',
                 'search' => 'search',
-            );
+            ];
 
             foreach ($section_of as $param => $s) {
                 if (isset($params[$param])) {
@@ -384,7 +383,7 @@ class URL
     {
         global $services;
 
-        $page = array();
+        $page = [];
         if (strncmp(@$tokens[$next_token], 'categor', 7) == 0) { // @TODO: remove arobase, add test
             $page['section'] = 'categories';
             $next_token++;
@@ -397,7 +396,7 @@ class URL
                     $page['category'] = $matches[1];
                     $next_token++;
                 } else { // try a permalink
-                    $maybe_permalinks = array();
+                    $maybe_permalinks = [];
                     $current_token = $next_token;
                     while (isset($tokens[$current_token])
                         and strpos($tokens[$current_token], 'created-') !== 0
@@ -437,13 +436,13 @@ class URL
             global $conf;
 
             $page['section'] = 'tags';
-            $page['tags'] = array();
+            $page['tags'] = [];
 
             $next_token++;
             $i = $next_token;
 
-            $requested_tag_ids = array();
-            $requested_tag_url_names = array();
+            $requested_tag_ids = [];
+            $requested_tag_url_names = [];
 
             while (isset($tokens[$i])) {
                 if (strpos($tokens[$i], 'created-') === 0
@@ -498,7 +497,7 @@ class URL
             $page['section'] = 'list';
             $next_token++;
 
-            $page['list'] = array();
+            $page['list'] = [];
 
             // No pictures
             if (empty($tokens[$next_token])) {
@@ -524,7 +523,7 @@ class URL
      */
     public static function parse_well_known_params_url($tokens, &$i)
     {
-        $page = array();
+        $page = [];
         while (isset($tokens[$i])) {
             if ('flat' == $tokens[$i]) {
             // indicate a special list of images
@@ -559,14 +558,14 @@ class URL
      * @param id image id
      * @param what_part string one of 'e' (element), 'r' (representative)
      */
-    public static function get_action_url($id, $what_part, $download)
+    public static function get_action_url($id, $what_part, $download = false)
     {
-        $params = array('id' => $id, 'part' => $what_part);
+        $url = self::get_root_url() . sprintf('action.php/%d/%s', $id, $what_part);
         if ($download) {
-            $params['download'] = null;
+            $url .= '/download';
         }
 
-        return self::add_url_params(self::get_root_url() . 'action.php', $params);
+        return $url;
     }
 
     /*
@@ -673,7 +672,7 @@ class URL
      * @param boolean $escape escape *&* to *&amp;*
      * @returns string
      */
-    public static function get_query_string_diff($rejects = array(), $escape = true)
+    public static function get_query_string_diff($rejects = [], $escape = true)
     {
         if (empty($_SERVER['QUERY_STRING'])) {
             return '';
@@ -730,6 +729,4 @@ class URL
 
         return \Phyxo\Functions\URL::get_action_url($infos['id'], 'e', false);
     }
-
-
 }

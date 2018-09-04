@@ -12,9 +12,17 @@
 namespace Phyxo\Functions;
 
 use Phyxo\Block\RegisteredBlock;
+use Phyxo\DBLayer\iDBLayer;
 
 class Utils
 {
+    public static function phyxoInstalled(iDBLayer $conn, $prefix = 'phyxo_')
+    {
+        $tables = $conn->db_get_tables($prefix);
+
+        return (count($tables) > 0);
+    }
+
     /** no option for mkgetdir() */
     const MKGETDIR_NONE = 0;
     /** sets mkgetdir() recursive */
@@ -206,17 +214,17 @@ class Utils
 
         $caddiables = array_diff($elements_id, $in_caddie);
 
-        $datas = array();
+        $datas = [];
 
         foreach ($caddiables as $caddiable) {
-            $datas[] = array(
+            $datas[] = [
                 'element_id' => $caddiable,
                 'user_id' => $user['id'],
-            );
+            ];
         }
 
         if (count($caddiables) > 0) {
-            $conn->mass_inserts(CADDIE_TABLE, array('element_id', 'user_id'), $datas);
+            $conn->mass_inserts(CADDIE_TABLE, ['element_id', 'user_id'], $datas);
         }
     }
 
@@ -310,7 +318,7 @@ class Utils
     {
         global $conf;
 
-        foreach (array('SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF') as $value) {
+        foreach (['SCRIPT_NAME', 'SCRIPT_FILENAME', 'PHP_SELF'] as $value) {
             if (!empty($_SERVER[$value])) {
                 $filename = strtolower($_SERVER[$value]);
                 if ($conf['php_extension_in_urls'] and self::get_extension($filename) !== 'php') {
@@ -503,7 +511,7 @@ class Utils
     {
         global $conf;
 
-        $navbar = array();
+        $navbar = [];
         $pages_around = $conf['paginate_pages_around'];
         $start_str = $clean_url ? '/' . $param_name . '-' : (strpos($url, '?') === false ? '?' : '&amp;') . $param_name . '=';
 
@@ -535,7 +543,7 @@ class Utils
             }
 
             // pages to display
-            $navbar['pages'] = array();
+            $navbar['pages'] = [];
             $navbar['pages'][1] = $url;
             for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
                 $navbar['pages'][$i] = $url . $start_str . (($i - 1) * $nb_element_page);
@@ -569,13 +577,13 @@ class Utils
             );
         }
 
-        $icon = array(
+        $icon = [
             'TITLE' => $cache['get_icon']['title'],
             'IS_CHILD_DATE' => $is_child_date,
-        );
+        ];
 
         if (isset($cache['get_icon'][$date])) {
-            return $cache['get_icon'][$date] ? $icon : array();
+            return $cache['get_icon'][$date] ? $icon : [];
         }
 
         if (!isset($cache['get_icon']['sql_recent_date'])) {
@@ -585,7 +593,7 @@ class Utils
 
         $cache['get_icon'][$date] = $date > $cache['get_icon']['sql_recent_date'];
 
-        return $cache['get_icon'][$date] ? $icon : array();
+        return $cache['get_icon'][$date] ? $icon : [];
     }
 
     /*
@@ -639,7 +647,7 @@ class Utils
     {
         global $conf;
 
-        $options = array();
+        $options = [];
         $label = '';
         foreach (array_reverse($conf['available_permission_levels']) as $level) {
             if (0 == $level) {
@@ -668,6 +676,7 @@ class Utils
     }
 
     // http
+
     /**
      * Redirects to the given URL (HTTP method).
      * once this function called, the execution doesn't go further
@@ -739,15 +748,15 @@ class Utils
         global $user, $conn, $services;
 
         if (!isset($user['nb_available_comments'])) {
-            $where = array();
+            $where = [];
             if (!$services['users']->isAdmin()) {
                 $where[] = 'validated=\'' . $conn->boolean_to_db(true) . '\'';
             }
             $where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                array(
+                [
                     'forbidden_categories' => 'category_id',
                     'forbidden_images' => 'ic.image_id'
-                ),
+                ],
                 '',
                 true
             );
@@ -759,8 +768,8 @@ class Utils
 
             $conn->single_update(
                 USER_CACHE_TABLE,
-                array('nb_available_comments' => $user['nb_available_comments']),
-                array('user_id' => $user['id'])
+                ['nb_available_comments' => $user['nb_available_comments']],
+                ['user_id' => $user['id']]
             );
         }
 
@@ -819,7 +828,7 @@ class Utils
         $query = 'SELECT DISTINCT f.image_id FROM ' . FAVORITES_TABLE . ' AS f';
         $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
         $query .= ' WHERE f.user_id = ' . $user['id'];
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('forbidden_categories' => 'ic.category_id'), ' AND ');
+        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'ic.category_id'], ' AND ');
         $authorizeds = $conn->query2array($query, null, 'image_id');
 
         $query = 'SELECT image_id FROM ' . FAVORITES_TABLE;
@@ -865,7 +874,7 @@ class Utils
     {
         global $cache;
 
-        foreach (array($a, $b) as $tag) {
+        foreach ([$a, $b] as $tag) {
             if (!isset($cache[__FUNCTION__][$tag['name']])) {
                 $cache[__FUNCTION__][$tag['name']] = \Phyxo\Functions\Language::transliterate($tag['name']);
             }
@@ -946,7 +955,7 @@ class Utils
 
         for ($i = 0; $i < count($page['tags']); $i++) {
             $title .= $i > 0 ? ' + ' : '';
-            $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($page['tags'][$i]))) . '"';
+            $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['tags' => [$page['tags'][$i]]]) . '"';
             $title .= ' title="' . \Phyxo\Functions\Language::l10n('display photos linked to this tag') . '">';
             $title .= \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
             $title .= '</a>';
@@ -954,7 +963,7 @@ class Utils
             if (count($page['tags']) > 2) {
                 $other_tags = $page['tags'];
                 unset($other_tags[$i]);
-                $remove_url = \Phyxo\Functions\URL::make_index_url(array('tags' => $other_tags));
+                $remove_url = \Phyxo\Functions\URL::make_index_url(['tags' => $other_tags]);
 
                 $title .= '<a href="' . $remove_url . '" style="border:none;" title="';
                 $title .= \Phyxo\Functions\Language::l10n('remove this tag from the list');
@@ -1032,7 +1041,7 @@ class Utils
     {
         global $conf, $user;
 
-        $details = array();
+        $details = [];
 
         if (!empty($info['hit'])) {
             $details[] = $info['hit'] . ' ' . strtolower(\Phyxo\Functions\Language::l10n('Visits'));
@@ -1069,7 +1078,7 @@ class Utils
         global $template, $page;
 
         if ($template->get_template_vars('page_refresh') === null) {
-            foreach (array('errors', 'infos', 'warnings') as $mode) {
+            foreach (['errors', 'infos', 'warnings'] as $mode) {
                 if (isset($_SESSION['page_' . $mode])) {
                     $page[$mode] = array_merge($page[$mode], $_SESSION['page_' . $mode]);
                     unset($_SESSION['page_' . $mode]);
@@ -1097,7 +1106,7 @@ class Utils
         global $conn;
 
         // filling $cat_ids : all categories required
-        $cat_ids = array();
+        $cat_ids = [];
 
         $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
         $query .= ' WHERE site_id = ' . $site_id . ' AND dir IS NOT NULL';
@@ -1114,7 +1123,7 @@ class Utils
         }
 
         if (count($cat_ids) == 0) {
-            return array();
+            return [];
         }
 
         $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
@@ -1138,11 +1147,11 @@ class Utils
     {
         global $conf;
 
-        return array(
+        return [
             'period' => $conf['slideshow_period'],
             'repeat' => $conf['slideshow_repeat'],
             'play' => true,
-        );
+        ];
     }
 
     /**
@@ -1151,7 +1160,7 @@ class Utils
      * @param array $params
      * @return array
      */
-    public static function correct_slideshow_params($params = array())
+    public static function correct_slideshow_params($params = [])
     {
         global $conf;
 
@@ -1179,7 +1188,7 @@ class Utils
         if (is_numeric($encode_params)) {
             $result['period'] = $encode_params;
         } else {
-            $matches = array();
+            $matches = [];
             if (preg_match_all('/([a-z]+)-(\d+)/', $encode_params, $matches)) {
                 $matchcount = count($matches[1]);
                 for ($i = 0; $i < $matchcount; $i++) {
@@ -1204,7 +1213,7 @@ class Utils
      * @param array $decode_params
      * @return string
      */
-    public static function encode_slideshow_params($decode_params = array())
+    public static function encode_slideshow_params($decode_params = [])
     {
         global $conf, $conn;
 
@@ -1230,7 +1239,7 @@ class Utils
     {
         return substr(
             str_replace(
-                array('+', '/'),
+                ['+', '/'],
                 '',
                 base64_encode(openssl_random_pseudo_bytes($size))
             ),
@@ -1272,7 +1281,7 @@ class Utils
             return 0;
         }
 
-        $new_ids = array();
+        $new_ids = [];
 
         $query = 'SELECT id,path,representative_ext FROM ' . IMAGES_TABLE;
         $query .= ' WHERE id ' . $conn->in($ids);
@@ -1282,7 +1291,7 @@ class Utils
                 continue;
             }
 
-            $files = array();
+            $files = [];
             $files[] = \Phyxo\Functions\Utils::get_element_path($row);
 
             if (!empty($row['representative_ext'])) {
@@ -1390,7 +1399,7 @@ class Utils
     {
         global $conf, $conn;
 
-        $tables = array(
+        $tables = [
             // destruction of the access linked to the user
             USER_ACCESS_TABLE,
             // destruction of data notification by mail for this user
@@ -1409,7 +1418,7 @@ class Utils
             CADDIE_TABLE,
             // deletion of phyxo specific informations
             USER_INFOS_TABLE,
-        );
+        ];
 
         foreach ($tables as $table) {
             $query = 'DELETE FROM ' . $table . ' WHERE user_id = ' . $user_id . ';';
@@ -1460,16 +1469,16 @@ class Utils
     {
         global $conf;
 
-        $dirs = array();
+        $dirs = [];
         $path = rtrim($path, '/');
 
         $exclude_folders = array_merge(
             $conf['sync_exclude_folders'],
-            array(
+            [
                 '.', '..', '.svn',
                 'thumbnail', 'pwg_high',
                 'pwg_representative',
-            )
+            ]
         );
         $exclude_folders = array_flip($exclude_folders);
 
@@ -1503,7 +1512,7 @@ class Utils
         $query = 'SELECT id, id_uppercat, uppercats, rank, global_rank FROM ' . CATEGORIES_TABLE;
         $query .= ' ORDER BY id_uppercat,rank,name';
 
-        $cat_map = array();
+        $cat_map = [];
 
         $current_rank = 0;
         $current_uppercat = '';
@@ -1515,16 +1524,16 @@ class Utils
                 $current_uppercat = $row['id_uppercat'];
             }
             ++$current_rank;
-            $cat = array(
+            $cat = [
                 'rank' => $current_rank,
                 'rank_changed' => $current_rank != $row['rank'],
                 'global_rank' => $row['global_rank'],
                 'uppercats' => $row['uppercats'],
-            );
+            ];
             $cat_map[$row['id']] = $cat;
         }
 
-        $datas = array();
+        $datas = [];
 
         $cat_map_callback = function ($m) use ($cat_map) {
             return $cat_map[$m[1]]['rank'];
@@ -1538,11 +1547,11 @@ class Utils
             );
 
             if ($cat['rank_changed'] || $new_global_rank != $cat['global_rank']) {
-                $datas[] = array(
+                $datas[] = [
                     'id' => $id,
                     'rank' => $cat['rank'],
                     'global_rank' => $new_global_rank,
-                );
+                ];
             }
         }
 
@@ -1550,10 +1559,10 @@ class Utils
 
         $conn->mass_updates(
             CATEGORIES_TABLE,
-            array(
-                'primary' => array('id'),
-                'update' => array('rank', 'global_rank')
-            ),
+            [
+                'primary' => ['id'],
+                'update' => ['rank', 'global_rank']
+            ],
             $datas
         );
 
@@ -1569,25 +1578,25 @@ class Utils
     {
         global $conn;
 
-        $datas = array();
+        $datas = [];
         foreach ($categories as $category_id) {
             $query = 'SELECT image_id FROM ' . IMAGE_CATEGORY_TABLE;
             $query .= ' WHERE category_id = ' . $category_id;
             $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '()  LIMIT 1;';
             list($representative) = $conn->db_fetch_row($conn->db_query($query));
 
-            $datas[] = array(
+            $datas[] = [
                 'id' => $category_id,
                 'representative_picture_id' => $representative,
-            );
+            ];
         }
 
         $conn->mass_updates(
             CATEGORIES_TABLE,
-            array(
-                'primary' => array('id'),
-                'update' => array('representative_picture_id')
-            ),
+            [
+                'primary' => ['id'],
+                'update' => ['representative_picture_id']
+            ],
             $datas
         );
     }
@@ -1611,10 +1620,10 @@ class Utils
             $conf['flip_file_ext'] = array_flip($conf['file_ext']);
         }
 
-        $fs['elements'] = array();
-        $fs['thumbnails'] = array();
-        $fs['representatives'] = array();
-        $subdirs = array();
+        $fs['elements'] = [];
+        $fs['thumbnails'] = [];
+        $fs['representatives'] = [];
+        $subdirs = [];
 
         // @TODO: use glob
         if (is_dir($path)) {
@@ -1682,7 +1691,7 @@ class Utils
         }
 
         // users present in user related tables must be present in the base user table
-        $tables = array(
+        $tables = [
             USER_MAIL_NOTIFICATION_TABLE,
             USER_FEED_TABLE,
             USER_INFOS_TABLE,
@@ -1690,7 +1699,7 @@ class Utils
             USER_CACHE_TABLE,
             USER_CACHE_CATEGORIES_TABLE,
             USER_GROUP_TABLE
-        );
+        ];
 
         foreach ($tables as $table) {
             $query = 'SELECT DISTINCT user_id FROM ' . $table;
@@ -1721,7 +1730,7 @@ class Utils
 
         foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
             $query = 'UPDATE ' . IMAGES_TABLE;
-            $query .= ' SET path = ' . $conn->db_concat(array("'" . $fulldirs[$cat_id] . "/'", 'file'));
+            $query .= ' SET path = ' . $conn->db_concat(["'" . $fulldirs[$cat_id] . "/'", 'file']);
             $query .= ' WHERE storage_category_id = ' . $conn->db_real_escape_string($cat_id);
             $conn->db_query($query);
         }
@@ -1815,7 +1824,7 @@ class Utils
      */
     public static function order_by_name($element_ids, $name)
     {
-        $ordered_element_ids = array();
+        $ordered_element_ids = [];
         foreach ($element_ids as $k_id => $element_id) {
             $key = strtolower($name[$element_id]) . '-' . $name[$element_id] . '-' . $k_id;
             $ordered_element_ids[$key] = $element_id;
@@ -1834,7 +1843,7 @@ class Utils
     {
         global $conn;
 
-        $status_list = array('admin');
+        $status_list = ['admin'];
 
         if ($include_webmaster) {
             $status_list[] = 'webmaster';
@@ -1857,7 +1866,7 @@ class Utils
             $types = \Phyxo\Image\ImageStdParams::get_all_types();
             $types[] = IMG_CUSTOM;
         } elseif (!is_array($types)) {
-            $types = array($types);
+            $types = [$types];
         }
 
         for ($i = 0; $i < count($types); $i++) {
@@ -2012,20 +2021,20 @@ class Utils
      * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
      * @return string[]
      */
-    public static function get_admin_client_cache_keys($requested = array())
+    public static function get_admin_client_cache_keys($requested = [])
     {
         global $conn;
 
-        $tables = array(
+        $tables = [
             'categories' => CATEGORIES_TABLE,
             'groups' => GROUPS_TABLE,
             'images' => IMAGES_TABLE,
             'tags' => TAGS_TABLE,
             'users' => USER_INFOS_TABLE
-        );
+        ];
 
         if (!is_array($requested)) {
-            $requested = array($requested);
+            $requested = [$requested];
         }
         if (empty($requested)) {
             $requested = array_keys($tables);
@@ -2033,9 +2042,9 @@ class Utils
             $requested = array_intersect($requested, array_keys($tables));
         }
 
-        $keys = array(
+        $keys = [
             '_hash' => md5(\Phyxo\Functions\URL::get_absolute_root_url()),
-        );
+        ];
 
         foreach ($requested as $item) {
            // @TODO : add _ between timestamp and count -> pwg_concat ??

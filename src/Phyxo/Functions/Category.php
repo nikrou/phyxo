@@ -27,11 +27,26 @@ class Category
             if ($category['uppercats'] === $category['id']) {
                 $categories[$category['id']] = $category;
             } else {
-                insert_category($categories, $category, $category['uppercats']);
+                self::insert_category($categories, $category, $category['uppercats']);
             }
         }
 
         return $categories;
+    }
+
+    // insert recursively category in tree
+    public static function insert_category(&$categories, $category, $uppercats)
+    {
+        if ($category['id'] != $uppercats) {
+            $cats = explode(',', $uppercats);
+            $cat = $cats[0];
+            $new_uppercats = array_slice($cats, 1);
+            if (count($new_uppercats) === 1) {
+                $categories[$cat]['children'][$category['id']] = $category;
+            } else {
+                self::insert_category($categories[$cat]['children'], $category, implode(',', $new_uppercats));
+            }
+        }
     }
 
     /**
@@ -61,7 +76,7 @@ class Category
             }
             $where .= ')';
         } else {
-            $where = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id'), null, true);
+            $where = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], null, true);
         }
 
         $where = \Phyxo\Functions\Plugin::trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
@@ -69,13 +84,13 @@ class Category
         $query .= ' WHERE ' . $where;
 
         $result = $conn->db_query($query);
-        $cats = array();
+        $cats = [];
         $selected_category = isset($page['category']) ? $page['category'] : null;
         while ($row = $conn->db_fetch_assoc($result)) {
             $child_date_last = @$row['max_date_last'] > @$row['date_last'];
             $row = array_merge(
                 $row,
-                array(
+                [
                     'NAME' => \Phyxo\Functions\Plugin::trigger_change(
                         'render_category_name',
                         $row['name'],
@@ -88,11 +103,11 @@ class Category
                         false,
                         ' / '
                     ),
-                    'URL' => \Phyxo\Functions\URL::make_index_url(array('category' => $row)),
+                    'URL' => \Phyxo\Functions\URL::make_index_url(['category' => $row]),
                     'LEVEL' => substr_count($row['global_rank'], '.') + 1,
                     'SELECTED' => $selected_category['id'] == $row['id'] ? true : false,
                     'IS_UPPERCAT' => $selected_category['id_uppercat'] == $row['id'] ? true : false,
-                )
+                ]
             );
             if ($conf['index_new_icon']) {
                 $row['icon_ts'] = \Phyxo\Functions\Utils::get_icon($row['max_date_last'], $child_date_last);
@@ -135,20 +150,20 @@ class Category
 
         $upper_ids = explode(',', $cat['uppercats']);
         if (count($upper_ids) == 1) { // no need to make a query for level 1
-            $cat['upper_names'] = array(
-                array(
+            $cat['upper_names'] = [
+                [
                     'id' => $cat['id'],
                     'name' => $cat['name'],
                     'permalink' => $cat['permalink'],
-                )
-            );
+                ]
+            ];
         } else {
             $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
             $query .= ' WHERE id ' . $conn->in($cat['uppercats']);
             $names = $conn->query2array($query, 'id');
 
             // category names must be in the same order than uppercats list
-            $cat['upper_names'] = array();
+            $cat['upper_names'] = [];
             foreach ($upper_ids as $cat_id) {
                 $cat['upper_names'][] = $names[$cat_id];
             }
@@ -170,20 +185,20 @@ class Category
     {
         global $conf, $page, $services;
 
-        return \Phyxo\Functions\Plugin::trigger_change('get_category_preferred_image_orders', array(
-            array(\Phyxo\Functions\Language::l10n('Default'), '', true),
-            array(\Phyxo\Functions\Language::l10n('Photo title, A &rarr; Z'), 'name ASC', true),
-            array(\Phyxo\Functions\Language::l10n('Photo title, Z &rarr; A'), 'name DESC', true),
-            array(\Phyxo\Functions\Language::l10n('Date created, new &rarr; old'), 'date_creation DESC', true),
-            array(\Phyxo\Functions\Language::l10n('Date created, old &rarr; new'), 'date_creation ASC', true),
-            array(\Phyxo\Functions\Language::l10n('Date posted, new &rarr; old'), 'date_available DESC', true),
-            array(\Phyxo\Functions\Language::l10n('Date posted, old &rarr; new'), 'date_available ASC', true),
-            array(\Phyxo\Functions\Language::l10n('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']),
-            array(\Phyxo\Functions\Language::l10n('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']),
-            array(\Phyxo\Functions\Language::l10n('Visits, high &rarr; low'), 'hit DESC', true),
-            array(\Phyxo\Functions\Language::l10n('Visits, low &rarr; high'), 'hit ASC', true),
-            array(\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $services['users']->isAdmin()),
-        ));
+        return \Phyxo\Functions\Plugin::trigger_change('get_category_preferred_image_orders', [
+            [\Phyxo\Functions\Language::l10n('Default'), '', true],
+            [\Phyxo\Functions\Language::l10n('Photo title, A &rarr; Z'), 'name ASC', true],
+            [\Phyxo\Functions\Language::l10n('Photo title, Z &rarr; A'), 'name DESC', true],
+            [\Phyxo\Functions\Language::l10n('Date created, new &rarr; old'), 'date_creation DESC', true],
+            [\Phyxo\Functions\Language::l10n('Date created, old &rarr; new'), 'date_creation ASC', true],
+            [\Phyxo\Functions\Language::l10n('Date posted, new &rarr; old'), 'date_available DESC', true],
+            [\Phyxo\Functions\Language::l10n('Date posted, old &rarr; new'), 'date_available ASC', true],
+            [\Phyxo\Functions\Language::l10n('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']],
+            [\Phyxo\Functions\Language::l10n('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
+            [\Phyxo\Functions\Language::l10n('Visits, high &rarr; low'), 'hit DESC', true],
+            [\Phyxo\Functions\Language::l10n('Visits, low &rarr; high'), 'hit ASC', true],
+            [\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $services['users']->isAdmin()],
+        ]);
     }
 
     /**
@@ -240,7 +255,7 @@ class Category
             if (!isset($url)) {
                 $output .= $cat['name'];
             } elseif ($url == '') {
-                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('category' => $cat)) . '">';
+                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['category' => $cat]) . '">';
                 $output .= $cat['name'] . '</a>';
             } else {
                 $output .= '<a href="' . $url . $cat['id'] . '">';
@@ -300,7 +315,7 @@ class Category
             if (!isset($url) or $single_link) {
                 $output .= $cat['name'];
             } elseif ($url == '') {
-                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(array('category' => $cat)) . '">' . $cat['name'] . '</a>';
+                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['category' => $cat]) . '">' . $cat['name'] . '</a>';
             } else {
                 $output .= '<a href="' . $url . $category_id . '">' . $cat['name'] . '</a>';
             }
@@ -325,7 +340,7 @@ class Category
     {
         global $template;
 
-        $tpl_cats = array();
+        $tpl_cats = [];
         foreach ($categories as $category) {
             if ($fullname) {
                 $option = strip_tags(
@@ -619,11 +634,11 @@ class Category
                 $query .= ' c.id=' . $category['id'];
             }
             $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                array(
+                [
                     'forbidden_categories' => 'c.id',
                     'visible_categories' => 'c.id',
                     'visible_images' => 'image_id',
-                ),
+                ],
                 "\n  AND"
             );
             $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
@@ -666,7 +681,7 @@ class Category
         $result = $conn->db_query($query);
 
         $userdata['last_photo_date'] = null;
-        $cats = array();
+        $cats = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $row['user_id'] = $userdata['id'];
             $row['nb_categories'] = 0;
@@ -796,7 +811,7 @@ class Category
     {
         global $conn;
 
-        if (!in_array($value, array('public', 'private'))) {
+        if (!in_array($value, ['public', 'private'])) {
             trigger_error("set_cat_status invalid param $value", E_USER_WARNING);
             return false;
         }
@@ -852,8 +867,8 @@ class Category
             // 3) remove all inconsistant permissions from sub-albums of each top-album
 
             // step 1, search top albums
-            $top_categories = array();
-            $parent_ids = array();
+            $top_categories = [];
+            $parent_ids = [];
 
             $query = 'SELECT id,name,id_uppercat,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
             $query .= ' WHERE id ' . $conn->in($categories);
@@ -884,7 +899,7 @@ class Category
             // step 2, search the reference album for permissions
             //
             // to find the reference of each top album, we will need the parent albums
-            $parent_cats = array();
+            $parent_cats = [];
 
             if (count($parent_ids) > 0) {
                 $query = 'SELECT id,status FROM ' . CATEGORIES_TABLE;
@@ -892,10 +907,10 @@ class Category
                 $parent_cats = $conn->query2array($query, 'id');
             }
 
-            $tables = array(
+            $tables = [
                 USER_ACCESS_TABLE => 'user_id',
                 GROUP_ACCESS_TABLE => 'group_id'
-            );
+            ];
 
             foreach ($top_categories as $top_category) {
                 // what is the "reference" for list of permissions? The parent album
@@ -908,7 +923,7 @@ class Category
                     $ref_cat_id = $top_category['id_uppercat'];
                 }
 
-                $subcats = self::get_subcat_ids(array($top_category['id']));
+                $subcats = self::get_subcat_ids([$top_category['id']]);
 
                 foreach ($tables as $table => $field) {
                     // what are the permissions user/group of the reference album
@@ -953,10 +968,10 @@ class Category
         global $conn;
 
         if (!is_array($cat_ids) or count($cat_ids) < 1) {
-            return array();
+            return [];
         }
 
-        $uppercats = array();
+        $uppercats = [];
 
         $query = 'SELECT uppercats FROM ' . CATEGORIES_TABLE;
         $query .= ' WHERE id ' . $conn->in($cat_ids);
@@ -980,10 +995,10 @@ class Category
         global $conn;
 
         if (!is_array($category_ids)) {
-            $category_ids = array($category_ids);
+            $category_ids = [$category_ids];
         }
         if (!is_array($user_ids)) {
-            $user_ids = array($user_ids);
+            $user_ids = [$user_ids];
         }
 
         // check for emptiness
@@ -1006,21 +1021,21 @@ class Category
             return;
         }
 
-        $inserts = array();
+        $inserts = [];
         foreach ($private_cats as $cat_id) {
             foreach ($user_ids as $user_id) {
-                $inserts[] = array(
+                $inserts[] = [
                     'user_id' => $user_id,
                     'cat_id' => $cat_id
-                );
+                ];
             }
         }
 
         $conn->mass_inserts(
             USER_ACCESS_TABLE,
-            array('user_id', 'cat_id'),
+            ['user_id', 'cat_id'],
             $inserts,
-            array('ignore' => true)
+            ['ignore' => true]
         );
     }
 
@@ -1037,20 +1052,20 @@ class Category
      *    - boolean inherit
      * @return array ('info', 'id') or ('error')
      */
-    public static function create_virtual_category($category_name, $parent_id = null, $options = array())
+    public static function create_virtual_category($category_name, $parent_id = null, $options = [])
     {
         global $conf, $user, $conn;
 
         // is the given category name only containing blank spaces ?
         if (preg_match('/^\s*$/', $category_name)) {
-            return array('error' => \Phyxo\Functions\Language::l10n('The name of an album must not be empty'));
+            return ['error' => \Phyxo\Functions\Language::l10n('The name of an album must not be empty')];
         }
 
-        $insert = array(
+        $insert = [
             'name' => $category_name,
             'rank' => 0,
             'global_rank' => 0,
-        );
+        ];
 
         // is the album commentable?
         if (isset($options['commentable']) and is_bool($options['commentable'])) {
@@ -1113,8 +1128,8 @@ class Category
 
         $conn->single_update(
             CATEGORIES_TABLE,
-            array('uppercats' => $uppercats_prefix . $inserted_id),
-            array('id' => $inserted_id)
+            ['uppercats' => $uppercats_prefix . $inserted_id],
+            ['id' => $inserted_id]
         );
 
         \Phyxo\Functions\Utils::update_global_rank();
@@ -1124,29 +1139,29 @@ class Category
             $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE;
             $query .= ' WHERE cat_id = ' . $insert['id_uppercat'];
             $granted_grps = $conn->query2array($query, null, 'group_id');
-            $inserts = array();
+            $inserts = [];
             foreach ($granted_grps as $granted_grp) {
-                $inserts[] = array('group_id' => $granted_grp, 'cat_id' => $inserted_id);
+                $inserts[] = ['group_id' => $granted_grp, 'cat_id' => $inserted_id];
             }
-            $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $inserts);
+            $conn->mass_inserts(GROUP_ACCESS_TABLE, ['group_id', 'cat_id'], $inserts);
 
             $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $insert['id_uppercat'];
             $granted_users = $conn->query2array($query, null, 'user_id');
             add_permission_on_category(
                 $inserted_id,
-                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), array($user['id']), $granted_users))
+                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']], $granted_users))
             );
         } elseif ('private' == $insert['status']) {
             add_permission_on_category(
                 $inserted_id,
-                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), array($user['id'])))
+                array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']]))
             );
         }
 
-        return array(
+        return [
             'info' => \Phyxo\Functions\Language::l10n('Virtual album added'),
             'id' => $inserted_id,
-        );
+        ];
     }
 
     /**
@@ -1160,7 +1175,7 @@ class Category
         global $cat_dirs, $conn;
 
         if (count($cat_ids) == 0) {
-            return array();
+            return [];
         }
 
         // caching directories of existing categories
@@ -1182,7 +1197,7 @@ class Category
             return $cat_dirs[$m[1]];
         };
 
-        $cat_fulldirs = array();
+        $cat_fulldirs = [];
         foreach ($categories as $category) {
             $uppercats = str_replace(',', '/', $category['uppercats']);
             $cat_fulldirs[$category['id']] = $galleries_url[$category['site_id']];
@@ -1208,9 +1223,9 @@ class Category
         $query = 'SELECT id, id_uppercat, uppercats FROM ' . CATEGORIES_TABLE;
         $cat_map = $conn->query2array($query, 'id');
 
-        $datas = array();
+        $datas = [];
         foreach ($cat_map as $id => $cat) {
-            $upper_list = array();
+            $upper_list = [];
 
             $uppercat = $id;
             while ($uppercat) {
@@ -1220,13 +1235,13 @@ class Category
 
             $new_uppercats = implode(',', array_reverse($upper_list));
             if ($new_uppercats != $cat['uppercats']) {
-                $datas[] = array(
+                $datas[] = [
                     'id' => $id,
                     'uppercats' => $new_uppercats
-                );
+                ];
             }
         }
-        $fields = array('primary' => array('id'), 'update' => array('uppercats'));
+        $fields = ['primary' => ['id'], 'update' => ['uppercats']];
         $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
     }
 
@@ -1246,17 +1261,17 @@ class Category
         }
 
         $new_parent = $new_parent < 1 ? 'NULL' : $new_parent;
-        $categories = array();
+        $categories = [];
 
         $query = 'SELECT id, id_uppercat, status, uppercats FROM ' . CATEGORIES_TABLE;
         $query .= ' WHERE id ' . $conn->in($category_ids);
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
-            $categories[$row['id']] = array(
+            $categories[$row['id']] = [
                 'parent' => empty($row['id_uppercat']) ? 'NULL' : $row['id_uppercat'],
                 'status' => $row['status'],
                 'uppercats' => $row['uppercats']
-            );
+            ];
         }
 
         // is the movement possible? The movement is impossible if you try to move
@@ -1275,10 +1290,10 @@ class Category
             }
         }
 
-        $tables = array(
+        $tables = [
             USER_ACCESS_TABLE => 'user_id',
             GROUP_ACCESS_TABLE => 'group_id'
-        );
+        ];
 
         $query = 'UPDATE ' . CATEGORIES_TABLE;
         $query .= ' SET id_uppercat = ' . $new_parent;
@@ -1328,7 +1343,7 @@ class Category
         $query .= ' AND category_id ' . $conn->in($categories);
         $result = $conn->db_query($query);
 
-        $existing = array();
+        $existing = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $existing[$row['category_id']][] = $row['image_id'];
         }
@@ -1346,24 +1361,24 @@ class Category
         );
 
         // associate only not already associated images
-        $inserts = array();
+        $inserts = [];
         foreach ($categories as $category_id) {
             if (!isset($current_rank_of[$category_id])) {
                 $current_rank_of[$category_id] = 0;
             }
             if (!isset($existing[$category_id])) {
-                $existing[$category_id] = array();
+                $existing[$category_id] = [];
             }
 
             foreach ($images as $image_id) {
                 if (!in_array($image_id, $existing[$category_id])) {
                     $rank = ++$current_rank_of[$category_id];
 
-                    $inserts[] = array(
+                    $inserts[] = [
                         'image_id' => $image_id,
                         'category_id' => $category_id,
                         'rank' => $rank,
-                    );
+                    ];
                 }
             }
         }
@@ -1463,7 +1478,7 @@ class Category
         global $filter;
 
         if ($filter['enabled']) {
-            $upd_fields = array('date_last', 'max_date_last', 'count_images', 'count_categories', 'nb_images');
+            $upd_fields = ['date_last', 'max_date_last', 'count_images', 'count_categories', 'nb_images'];
 
             foreach ($cats as $cat_id => $category) {
                 foreach ($upd_fields as $upd_field) {

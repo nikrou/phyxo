@@ -92,10 +92,10 @@ function url_to_size($s)
 {
     $pos = strpos($s, 'x');
     if ($pos === false) {
-        return array((int)$s, (int)$s);
+        return [(int)$s, (int)$s];
     }
 
-    return array((int)substr($s, 0, $pos), (int)substr($s, $pos + 1));
+    return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
 }
 
 function parse_custom_params($tokens)
@@ -196,7 +196,7 @@ function parse_request()
         }
         $greatest = \Phyxo\Image\ImageStdParams::get_by_type(IMG_XXLARGE);
 
-        $key = array();
+        $key = [];
         $params->add_url_tokens($key);
         $key = implode('_', $key);
         if (!isset(\Phyxo\Image\ImageStdParams::$custom[$key])) {
@@ -236,7 +236,7 @@ function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtim
         $use_watermark = $params->will_watermark($dsize);
     }
 
-    $candidates = array();
+    $candidates = [];
     foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $candidate) {
         if ($candidate->type == $params->type) {
             continue;
@@ -290,7 +290,7 @@ function send_derivative($expires)
     global $page;
 
     if (isset($_GET['ajaxload']) and $_GET['ajaxload'] == 'true') {
-        echo json_encode(array('url' => \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $page['derivative_path'])));
+        echo json_encode(['url' => \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $page['derivative_path'])]);
         return;
     }
 
@@ -324,9 +324,9 @@ function send_derivative($expires)
     fclose($fp);
 }
 
-$page = array();
+$page = [];
 $begin = $step = microtime(true);
-$timing = array();
+$timing = [];
 foreach (explode(',', 'load,rotate,crop,scale,sharpen,watermark,save,send') as $k) {
     $timing[$k] = '';
 }
@@ -385,7 +385,7 @@ if (strpos($page['src_location'], '/pwg_representative/') === false
 
         if (($row = $conn->db_fetch_assoc($conn->db_query($query)))) {
             if (isset($row['width'])) {
-                $page['original_size'] = array($row['width'], $row['height']);
+                $page['original_size'] = [$row['width'], $row['height']];
             }
             $page['coi'] = $row['coi'];
 
@@ -394,8 +394,8 @@ if (strpos($page['src_location'], '/pwg_representative/') === false
 
                 $conn->single_update(
                     $prefixeTable . 'images',
-                    array('rotation' => \Phyxo\Image\Image::get_rotation_code_from_angle($page['rotation_angle'])),
-                    array('id' => $row['id'])
+                    ['rotation' => \Phyxo\Image\Image::get_rotation_code_from_angle($page['rotation_angle'])],
+                    ['id' => $row['id']]
                 );
             } else {
                 $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle_from_code($row['rotation']);
@@ -420,8 +420,8 @@ if (!try_switch_source($params, $src_mtime) && $params->type == IMG_CUSTOM) {
     $params->sharpen = round($sharpen / count(\Phyxo\Image\ImageStdParams::get_defined_type_map()));
 }
 
-if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']))) {
-    ierror("dir create error", 500);
+if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']), \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE)) {
+    ierror("dir create error: ".dirname($page['derivative_path']), 500);
 }
 
 ignore_user_abort(true);
@@ -440,7 +440,7 @@ if (0 != $page['rotation_angle']) {
 }
 
 // Crop & scale
-$o_size = $d_size = array($image->get_width(), $image->get_height());
+$o_size = $d_size = [$image->get_width(), $image->get_height()];
 $params->sizing->compute($o_size, $page['coi'], $crop_rect, $scaled_size);
 if ($crop_rect) {
     $changes++;
@@ -463,7 +463,7 @@ if ($params->sharpen) {
 if ($params->will_watermark($d_size)) {
     $wm = \Phyxo\Image\ImageStdParams::get_watermark();
     $wm_image = new \Phyxo\Image\Image(PHPWG_ROOT_PATH . $wm->file);
-    $wm_size = array($wm_image->get_width(), $wm_image->get_height());
+    $wm_size = [$wm_image->get_width(), $wm_image->get_height()];
     if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
         $wm_scaling_params = \Phyxo\Image\SizingParams::classic($d_size[0], $d_size[1]);
         $wm_scaling_params->compute($wm_size, null, $tmp, $wm_scaled_size);

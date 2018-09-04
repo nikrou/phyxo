@@ -1,0 +1,68 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set time = collector.time ? '%0.0f'|format(collector.time) : 'n/a' %}
+    {% set icon %}
+    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="88px" height="31px" viewBox="0 0 88 31" enable-background="new 0 0 88 31" xml:space="preserve">
+	<image id="image0" width="88" height="31" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAMAAABUFvrSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAWlBMVEUAAADwwED/yCb/xRn994z+5V7+/av6+vHg4NJ8fn5dXmLY1a3Ew8IUFBiwpkd2ZzSMjotucHKfn56zs63TzoCrlxbUvBFGRU0xMTP9/AHfjTmbQQ7zpEbEbyiHkxgIAAAAAWJLR0QHFmGI6wAAAAd0SU1FB+IJBAoDFV5N1/EAAANxSURBVEjHtVWLYpw4DMTGb/AGMA8X8P//ZkcymyWXXtu7NtqExZY8Ho1lbdN8mYk/NdnKz5M3YKUEB8jfhyRrW6315zUfgMkv/yOu0MY68xPGUiujeHvF2ZHJ65vf8WmrhyaJKZtwPoROtK/AG7CEtdoYozTDixZfNGqRBhLBQAt6tIJmyENEqvVNE53RNRB2Zww8IKrH2wOwwGi1HcYwTs6o3vvkpjBaO4TgVKtsGkPwQHLD4Lsp2QHA3tEo2WnwvWpvwIQ3L8v6WGbipe0W4Yi5tz7GmDHY6JGtdlskV57shJkcvd2osqbUxBjIuRn5Dszyzss3mH7MENowCwCM1tMG8VmZvUkYjgHIrudZjojBTvyOTYK5MSa93loC/rY+oKwZQcYOMXtLQIkw6sP2IMaTnQ20p7PQOHe2y00z0FSv5a0qWqWYMEzMRvP+YUjWqhSb2Fus6i0BG2Nt7zHMM6EAVzOwVqEyju5DuYHyE/gxQ2/rOc/sOPU7sJoyi4JJQG3Im4GFBpecMpT4UG4kRcVdVzpI0EoDHZklxukFTLlET1xnOxKw1BdwB33zS4nX4T2WS2PUsaHt6VQyKRh7lwkTwBPRzIzOGmcjNEdgzcCJ2Bsw4wJ5Be7yoDIm4IaUDFSlgKNXF6/dao0kGjdOkxTN5pTuSaPR3K90vR6kcrt0dK+V4zpGPPKNOG0cymZRddESHBV2nBIqHJkLSicmUKaCTuoGjPuMDiDUsq7LQjdaSkU3L/jO6H70Y28nP+JGeD9Yk0JIbvAj7pr33gmp+hE3UUtDJe9EznnJIi/PJiSF3rawBdQEVHr2CokO8ewBmu6nbrlTmKtPQDeckKFWYvqNUhQii6Whz3vbnEFxfJNAELV1cf++da1Xk/vYynhCs0ZJMzBEugHrxxbCIuWPuvYvTepuzNtAtwPAW5PvwHrd1//R6J9Kuq4jZcRS///Gb947s/tvH4CPL7GvB97P8zzKee54HMdZDozLsRfy0Qs8hd1kz7iy08KdvvG3U9i+/5MxB9FsEWUXAKaVZ+GJvbrLfouFGztdS05aVbGPHwEX2rAwuwOvV+C+nzd3ZUxxV0QplfxeGZd/ZYyAQsClinBUUd7dL8YgvB9Mm4HB+SeMz0s4koI2wery1LC6eVrUOJa3al3KdTCfNP77VfFF9h077nKNjKkV8wAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOC0wOS0wNFQwODowMzoyMSswMjowMDYnBLkAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTgtMDktMDRUMDg6MDM6MjErMDI6MDBHerwFAAAAAElFTkSuQmCC" />
+    </svg>
+    <span class="sf-toolbar-value">{{ time }}</span>
+    <span class="sf-toolbar-label">ms</span>
+    {% endset %}
+
+    {% set text %}
+    <div class="sf-toolbar-info-piece">
+        <b>Render Time</b>
+        <span>{{ time }} ms</span>
+    </div>
+    <div class="sf-toolbar-info-piece">
+        <b>Template Calls</b>
+        <span class="sf-toolbar-status">{{ collector.templates|length }}</span>
+    </div>
+    {% endset %}
+
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: profiler_url }) }}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">
+	    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="88px" height="31px" viewBox="0 0 88 31" enable-background="new 0 0 88 31" xml:space="preserve">
+		<image id="image0" width="88" height="31" x="0" y="0" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAfCAMAAABUFvrSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAWlBMVEUAAADwwED/yCb/xRn994z+5V7+/av6+vHg4NJ8fn5dXmLY1a3Ew8IUFBiwpkd2ZzSMjotucHKfn56zs63TzoCrlxbUvBFGRU0xMTP9/AHfjTmbQQ7zpEbEbyiHkxgIAAAAAWJLR0QHFmGI6wAAAAd0SU1FB+IJBAoDFV5N1/EAAANxSURBVEjHtVWLYpw4DMTGb/AGMA8X8P//ZkcymyWXXtu7NtqExZY8Ho1lbdN8mYk/NdnKz5M3YKUEB8jfhyRrW6315zUfgMkv/yOu0MY68xPGUiujeHvF2ZHJ65vf8WmrhyaJKZtwPoROtK/AG7CEtdoYozTDixZfNGqRBhLBQAt6tIJmyENEqvVNE53RNRB2Zww8IKrH2wOwwGi1HcYwTs6o3vvkpjBaO4TgVKtsGkPwQHLD4Lsp2QHA3tEo2WnwvWpvwIQ3L8v6WGbipe0W4Yi5tz7GmDHY6JGtdlskV57shJkcvd2osqbUxBjIuRn5Dszyzss3mH7MENowCwCM1tMG8VmZvUkYjgHIrudZjojBTvyOTYK5MSa93loC/rY+oKwZQcYOMXtLQIkw6sP2IMaTnQ20p7PQOHe2y00z0FSv5a0qWqWYMEzMRvP+YUjWqhSb2Fus6i0BG2Nt7zHMM6EAVzOwVqEyju5DuYHyE/gxQ2/rOc/sOPU7sJoyi4JJQG3Im4GFBpecMpT4UG4kRcVdVzpI0EoDHZklxukFTLlET1xnOxKw1BdwB33zS4nX4T2WS2PUsaHt6VQyKRh7lwkTwBPRzIzOGmcjNEdgzcCJ2Bsw4wJ5Be7yoDIm4IaUDFSlgKNXF6/dao0kGjdOkxTN5pTuSaPR3K90vR6kcrt0dK+V4zpGPPKNOG0cymZRddESHBV2nBIqHJkLSicmUKaCTuoGjPuMDiDUsq7LQjdaSkU3L/jO6H70Y28nP+JGeD9Yk0JIbvAj7pr33gmp+hE3UUtDJe9EznnJIi/PJiSF3rawBdQEVHr2CokO8ewBmu6nbrlTmKtPQDeckKFWYvqNUhQii6Whz3vbnEFxfJNAELV1cf++da1Xk/vYynhCs0ZJMzBEugHrxxbCIuWPuvYvTepuzNtAtwPAW5PvwHrd1//R6J9Kuq4jZcRS///Gb947s/tvH4CPL7GvB97P8zzKee54HMdZDozLsRfy0Qs8hd1kz7iy08KdvvG3U9i+/5MxB9FsEWUXAKaVZ+GJvbrLfouFGztdS05aVbGPHwEX2rAwuwOvV+C+nzd3ZUxxV0QplfxeGZd/ZYyAQsClinBUUd7dL8YgvB9Mm4HB+SeMz0s4koI2wery1LC6eVrUOJa3al3KdTCfNP77VfFF9h077nKNjKkV8wAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOC0wOS0wNFQwODowMzoyMSswMjowMDYnBLkAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMTgtMDktMDRUMDg6MDM6MjErMDI6MDBHerwFAAAAAElFTkSuQmCC" />
+	    </svg>
+	</span>
+        <strong>Smarty</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>Smarty</h2>
+    <div class="metrics">
+        <div class="metric">
+            <span class="value">{{ '%0.0f'|format(collector.time) }} <span class="unit">ms</span></span>
+            <span class="label">Render time</span>
+        </div>
+
+	<div class="metric">
+            <span class="value">{{ collector.templates|length }}</span>
+            <span class="label">Template calls</span>
+        </div>
+    </div>
+
+    <h2>Rendered Templates</h2>
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Template Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for template in collector.templates %}
+                <tr>
+                    <td>{{ template }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
