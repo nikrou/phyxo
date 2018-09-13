@@ -1147,12 +1147,12 @@ class Category
 
             $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $insert['id_uppercat'];
             $granted_users = $conn->query2array($query, null, 'user_id');
-            add_permission_on_category(
+            self::add_permission_on_category(
                 $inserted_id,
                 array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']], $granted_users))
             );
         } elseif ('private' == $insert['status']) {
-            add_permission_on_category(
+            self::add_permission_on_category(
                 $inserted_id,
                 array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']]))
             );
