@@ -31,8 +31,6 @@ function inc_exc_str($is_included)
 
 
 $title = \Phyxo\Functions\Language::l10n('Search rules');
-$page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
-
 $template->set_filenames(['search_rules' => 'search_rules.tpl']);
 
 include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
@@ -183,6 +181,4 @@ foreach (['date_available', 'date_creation'] as $datefield) {
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Utils::flush_page_messages();
-include(PHPWG_ROOT_PATH . 'include/page_tail.php');

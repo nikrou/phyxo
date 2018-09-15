@@ -46,8 +46,6 @@ if ($services['users']->isGuest()) {
 // +-----------------------------------------------------------------------+
 
 $title = \Phyxo\Functions\Language::l10n('Notification');
-$page['body_id'] = 'theNotificationPage';
-$page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 
 $template->set_filenames(['notification' => 'notification.tpl']);
 $template->assign(
@@ -66,7 +64,5 @@ if (!isset($themeconf['hide_menu_on']) or !in_array('theNotificationPage', $them
 // +-----------------------------------------------------------------------+
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+
-include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_notification');
 \Phyxo\Functions\Utils::flush_page_messages();
-include(PHPWG_ROOT_PATH . 'include/page_tail.php');

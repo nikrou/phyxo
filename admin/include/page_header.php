@@ -41,36 +41,6 @@ if (!empty($header_notes)) {
     $template->assign('header_notes', $header_notes);
 }
 
-// No referencing is required
-if (!$conf['meta_ref']) {
-    $page['meta_robots']['noindex'] = 1;
-    $page['meta_robots']['nofollow'] = 1;
-}
-
-if (!empty($page['meta_robots'])) {
-    $template->append(
-        'head_elements',
-        '<meta name="robots" content="'
-            . implode(',', array_keys($page['meta_robots']))
-            . '">'
-    );
-}
-if (!isset($page['meta_robots']['noindex'])) {
-    $template->assign('meta_ref', 1);
-}
-
-// refresh
-if (isset($refresh) && intval($refresh) >= 0 && isset($url_link)) {
-    $template->assign(
-        [
-            'page_refresh' => [
-                'TIME' => $refresh,
-                'U_REFRESH' => $url_link
-            ]
-        ]
-    );
-}
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_page_header');
 // header('Content-Type: text/html; charset='.\Phyxo\Functions\Utils::get_charset()); // To restore ?
 \Phyxo\Functions\Plugin::trigger_notify('loc_after_page_header');

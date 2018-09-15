@@ -435,7 +435,6 @@ $slideshow_url_params = [];
 
 if (isset($_GET['slideshow'])) {
     $page['slideshow'] = true;
-    $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
 
     $slideshow_params = \Phyxo\Functions\Utils::decode_slideshow_params($_GET['slideshow']);
     $slideshow_url_params['slideshow'] = \Phyxo\Functions\Utils::encode_slideshow_params($slideshow_params);
@@ -484,12 +483,6 @@ $metadata_showable = \Phyxo\Functions\Plugin::trigger_change(
         and !$picture['current']['src_image']->is_mimetype()),
     $picture['current']
 );
-
-if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
-    $page['meta_robots'] = ['noindex' => 1, 'nofollow' => 1];
-}
-
-$page['body_id'] = 'thePicturePage';
 
 // allow plugins to change what we computed before passing data to template
 $picture = \Phyxo\Functions\Plugin::trigger_change('picture_pictures_data', $picture);
@@ -802,9 +795,7 @@ if ($conf['picture_menu'] and (!isset($themeconf['hide_menu_on']) or !in_array('
     include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 }
 
-include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
 \Phyxo\Functions\Utils::flush_page_messages();
-include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 //------------------------------------------------------------ log informations
 \Phyxo\Functions\Utils::log($picture['current']['id'], 'picture');

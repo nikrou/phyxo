@@ -56,7 +56,7 @@ class AdminController extends Controller
         $container = $this->container; // allow accessing container as global variable
 
         try {
-            global $cache, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $cache, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));

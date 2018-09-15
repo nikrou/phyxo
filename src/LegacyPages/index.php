@@ -47,7 +47,6 @@ if (isset($_GET['image_order'])) {
 }
 
 if (isset($_GET['display'])) {
-    $page['meta_robots']['noindex'] = 1;
     if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
         $_SESSION['index_deriv'] = $_GET['display'];
     }
@@ -297,10 +296,8 @@ if (empty($page['is_external']) or !$page['is_external']) {
 }
 
 //------------------------------------------------------------ end
-include(PHPWG_ROOT_PATH . 'include/page_header.php');
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_index');
 \Phyxo\Functions\Utils::flush_page_messages();
-include(PHPWG_ROOT_PATH . 'include/page_tail.php');
 
 $template->set_filename($template_filename, "$template_filename.tpl");
 
