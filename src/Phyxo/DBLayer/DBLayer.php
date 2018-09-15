@@ -14,7 +14,7 @@ namespace Phyxo\DBLayer;
 class DBLayer
 {
     protected $db_link = null;
-    protected $queries = array();
+    protected $queries = [];
     protected $queries_time = 0;
 
     public static function init($layer, $host, $user, $password, $database)
@@ -30,9 +30,7 @@ class DBLayer
         return new $className($host, $user, $password, $database);
     }
 
-    /*
-     * @param dsn: Data Source Name, contains information to connect to the database
-     */
+    // @param dsn: Data Source Name, contains information to connect to the database
     public static function initFromDSN($dsn)
     {
         $db_params = parse_url($dsn);
@@ -56,10 +54,10 @@ class DBLayer
 
         $query2show = false;
         if ($result != null) {
-            $this_query = array(
+            $this_query = [
                 'sql' => \SqlFormatter::format($query),
                 'time' => $query_time
-            );
+            ];
             if (preg_match('/\s*SELECT\s+/i', $query)) {
                 $this_query['rows'] = sprintf('(num rows: %d)', $this->db_num_rows($result));
                 $query2show = true;
@@ -100,7 +98,7 @@ class DBLayer
             if (strpos($params, ',') !== false) {
                 $params = explode(',', $params);
             } else {
-                $params = array($params);
+                $params = [$params];
             }
         }
 
@@ -149,7 +147,7 @@ class DBLayer
     public function query2array($query, $key_name = null, $value_name = null)
     {
         $result = $this->db_query($query);
-        $data = array();
+        $data = [];
 
         if (isset($key_name)) {
             if (isset($value_name)) {
@@ -285,9 +283,9 @@ class DBLayer
         $query = 'DELETE FROM ' . $tablename;
         $query .= ' WHERE (' . implode(',', $dbfields) . ')';
 
-        $rows = array();
+        $rows = [];
         foreach ($datas as $data) {
-            $elements = array();
+            $elements = [];
             foreach ($dbfields as $dbfield) {
                 if (isset($data[$dbfield]) && is_bool($data[$dbfield])) {
                     $elements[] = $this->boolean_to_db($data[$dbfield]);
@@ -332,7 +330,7 @@ class DBLayer
                 $query = str_replace($replaced, $replacing, $query);
                 // we don't execute "DROP TABLE" queries
                 if (!preg_match('/^DROP TABLE/i', $query)) {
-                    if ($this->dblayer === 'mysql' || $this->dblayer === 'mysqli') {
+                    if ($this->dblayer === 'mysql') {
                         if (preg_match('/^(CREATE TABLE .*)[\s]*;[\s]*/im', $query, $matches)) {
                             $query = $matches[1] . ' DEFAULT CHARACTER SET utf8' . ';';
                         }
@@ -368,7 +366,7 @@ class DBLayer
      */
     public static function availableEngines()
     {
-        $engines = array();
+        $engines = [];
 
         $pattern = PHPWG_ROOT_PATH . 'src/Phyxo/DBLayer/%sConnection.php';
         include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';

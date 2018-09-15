@@ -71,10 +71,6 @@ $dbpasswd = (!empty($_POST['dbpasswd'])) ? $_POST['dbpasswd'] : '';
 $dbname = (!empty($_POST['dbname'])) ? $_POST['dbname'] : '';
 $dblayer = (!empty($_POST['dblayer']) && !empty($dbengines[$_POST['dblayer']])) ? $_POST['dblayer'] : 'mysql';
 
-if ($dblayer == 'mysql' && extension_loaded('mysqli')) {
-    $dblayer = 'mysqli';
-}
-
 $admin_name = (!empty($_POST['admin_name'])) ? $_POST['admin_name'] : '';
 $admin_pass1 = (!empty($_POST['admin_pass1'])) ? $_POST['admin_pass1'] : '';
 $admin_pass2 = (!empty($_POST['admin_pass2'])) ? $_POST['admin_pass2'] : '';

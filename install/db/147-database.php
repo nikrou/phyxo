@@ -17,7 +17,7 @@ $upgrade_description = 'Change default language en_GB instead of en_UK in user_i
 
 $query = '';
 
-if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
+if (in_array($conf['dblayer'], ['mysql'])) {
     $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' CHANGE COLUMN language language VARCHAR(50) NOT NULL DEFAULT \'en_GB\'';
 } elseif ($conf['dblayer'] === 'pgsql') {
     $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' ALTER language SET DEFAULT \'en_GB\'';

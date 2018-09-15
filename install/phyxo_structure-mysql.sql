@@ -1,9 +1,3 @@
--- MySQL dump 9.11
---
--- Host: localhost    Database: pwg-bsf
--- ------------------------------------------------------
--- Server version	4.0.24_Debian-10-log
-
 --
 -- Table structure for table `phyxo_caddie`
 --
@@ -172,8 +166,7 @@ CREATE TABLE `phyxo_image_tag` (
   `tag_id` smallint(5) unsigned NOT NULL default '0',
   `validated` enum('true','false') NOT NULL default 'true',
   `created_by` mediumint(8) unsigned DEFAULT NULL,
-  `status` smallint(5) DEFAULT 1,
-
+  `status` smallint(3) DEFAULT 1,
   PRIMARY KEY  (`image_id`,`tag_id`),
   KEY `image_tag_i1` (`tag_id`)
 ) ENGINE=MyISAM;

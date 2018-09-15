@@ -1,5 +1,14 @@
 <?php
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014 Nicolas Roudaire              http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
@@ -24,7 +33,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 $upgrade_description = 'add fields for users tags';
 
-if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
+if (in_array($conf['dblayer'], ['mysql'])) {
     $query = 'ALTER TABLE '.IMAGE_TAG_TABLE;
     $query .= ' ADD COLUMN validated enum("true","false") NOT NULL default "false",';
     $query .= ' ADD COLUMN created_by mediumint(8) unsigned DEFAULT NULL,';

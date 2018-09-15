@@ -22,11 +22,24 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_connect($host, $user, $password, $database)
     {
-        if (($this->db_link = @\mysql_connect($host, $user, $password)) === false) {
-            throw new dbException('Can\'t connect to server');
+        $port = null;
+        $socket = null;
+
+        if (strpos($host, '/') === 0) {
+            $socket = $host;
+            $host = null;
+        } elseif (strpos($host, ':') !== false) {
+            list($host, $port) = explode(':', $host);
         }
 
-        if (@mysql_select_db($database, $this->db_link) === false) {
+        $dbname = null;
+
+        $this->db_link = new \mysqli($host, $user, $password, $dbname, $port, $socket);
+        if (mysqli_connect_error()) {
+            throw new dbException("Can't connect to server");
+        }
+
+        if (!$this->db_link->select_db($database)) {
             throw new dbException('Connection to server succeed, but it was impossible to connect to database');
         }
         $this->db_post_connect();
@@ -36,12 +49,13 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_query($query)
     {
-        if (is_resource($this->db_link)) {
+        if (!empty($this->db_link)) {
             $start = microtime(true);
-            $result = mysql_query($query, $this->db_link);
+            $result = $this->db_link->query($query);
             $time = microtime(true) - $start;
 
             $this->db_show_query($query, $result, $time);
+
             if ($result === false) {
                 $e = new dbException($this->db_last_error());
                 $e->query = $query;
@@ -54,7 +68,9 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_version()
     {
-        return mysql_get_server_info();
+        if (!empty($this->db_link)) {
+            return $this->db_link->server_info;
+        }
     }
 
     public function db_check_version()
@@ -71,8 +87,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_last_error()
     {
-        if (is_resource($this->db_link)) {
-            return mysql_error();
+        if (!empty($this->db_link)) {
+            return $this->db_link->error;
         }
 
         return false;
@@ -88,13 +104,15 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_changes($result)
     {
-        return mysql_affected_rows();
+        if (!empty($this->db_link)) {
+            return $this->db_link->affected_rows;
+        }
     }
 
     public function db_num_rows($result)
     {
-        if (is_resource($result)) {
-            return mysql_num_rows($result);
+        if (!empty($result)) {
+            return $result->num_rows;
         }
 
         return 0;
@@ -102,66 +120,80 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_fetch_assoc($result)
     {
-        if (is_resource($result)) {
-            return mysql_fetch_assoc($result);
+        if (!empty($result)) {
+            return $result->fetch_assoc();
         }
     }
 
     public function db_fetch_row($result)
     {
-        if (is_resource($result)) {
-            return mysql_fetch_row($result);
+        if (!empty($result)) {
+            return $result->fetch_row();
         }
     }
 
     public function db_free_result($result)
     {
-        if (is_resource($result)) {
-            return mysql_free_result($result);
+        if (!empty($result)) {
+            $result->free_result();
         }
     }
 
     public function db_real_escape_string($s)
     {
-        return mysql_real_escape_string($s);
+        if (!empty($this->db_link)) {
+            return $this->db_link->real_escape_string($s);
+        }
     }
 
     public function db_insert_id($table = null, $column = 'id')
     {
-        return mysql_insert_id();
+        if (!empty($this->db_link)) {
+            return $this->db_link->insert_id;
+        }
     }
 
     public function db_close()
     {
-        if (is_resource($this->db_link)) {
-            return mysql_close();
+        if (!empty($this->db_link)) {
+            $this->db_link->close();
         }
     }
 
-    /* transaction functions */
+    // transaction functions
     public function db_start_transaction()
     {
-        $this->db_query('BEGIN');
+        if (!empty($this->db_link)) {
+            $this->db_query('BEGIN');
+        }
     }
 
     public function db_commit()
     {
-        $this->db_query('COMMIT');
+        if (!empty($this->db_link)) {
+            $this->db_link->commit();
+        }
     }
 
     public function db_rollback()
     {
-        $this->db_query('ROLLBACK');
+        if (!empty($this->db_link)) {
+            $this->db_link->rollback();
+        }
     }
 
     public function db_write_lock($table)
     {
-        $this->db_query('LOCK TABLES ' . $table . ' WRITE');
+        if (!empty($this->db_link)) {
+            $this->db_query('LOCK TABLES ' . $table . ' WRITE');
+        }
     }
 
     public function db_unlock()
     {
-        $this->db_query('UNLOCK TABLES');
+        if (!empty($this->db_link)) {
+            $this->db_query('UNLOCK TABLES');
+        }
     }
 
     public function db_group_concat($field)
@@ -180,7 +212,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_tables($prefix)
     {
-        $tables = array();
+        $tables = [];
 
         $query = 'SHOW TABLES;';
         $result = $this->db_query($query);
@@ -196,13 +228,13 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_columns_of($tables)
     {
-        $columns_of = array();
+        $columns_of = [];
 
         foreach ($tables as $table) {
             $query = 'DESC ' . $table . ';';
             $result = $this->db_query($query);
 
-            $columns_of[$table] = array();
+            $columns_of[$table] = [];
 
             while ($row = $this->db_fetch_row($result)) {
                 $columns_of[$table][] = $row[0];
@@ -212,6 +244,13 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return $columns_of;
     }
 
+    /**
+     * returns an array containing the possible values of an enum field
+     * TODO : find a better way to retrieved that stuff
+     *
+     * @param string tablename
+     * @param string fieldname
+     */
     public function get_enums($table, $field)
     {
         // retrieving the properties of the table. Each line represents a field :
@@ -298,7 +337,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_flood_period_expression($seconds)
     {
-        return 'SUBDATE(now(), INTERVAL ' . $seconds . ' SECOND)';
+        return 'SUBDATE(NOW(), INTERVAL ' . $seconds . ' SECOND)';
     }
 
     public function db_date_to_ts($date)
@@ -318,7 +357,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_hour($date)
     {
-        return 'hour(' . $date . ')';
+        return 'HOUR(' . $date . ')';
     }
 
     public function db_get_year($date)
@@ -382,7 +421,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    function mass_inserts($table_name, $dbfields, $datas, $options = array())
+    function mass_inserts($table_name, $dbfields, $datas, $options = [])
     {
         $ignore = '';
         if (isset($options['ignore']) and $options['ignore']) {
@@ -392,7 +431,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
         if (count($datas) != 0) {
             $first = true;
 
-            $packet_size = $this->getMaxAllowedPacket();
+            $query = 'SHOW VARIABLES LIKE \'max_allowed_packet\'';
+            list(, $packet_size) = $this->db_fetch_row($this->db_query($query));
             $packet_size = $packet_size - 2000; // The last list of values MUST not exceed 2000 character*/
             $query = '';
 
@@ -425,12 +465,6 @@ class mysqlConnection extends DBLayer implements iDBLayer
             }
             $this->db_query($query);
         }
-    }
-
-    private function getMaxAllowedPacket()
-    {
-        $query = 'SHOW VARIABLES LIKE \'max_allowed_packet\'';
-        list(, $packet_size) = $this->db_fetch_row($this->db_query($query));
     }
 
     /**
@@ -487,7 +521,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
             // creation of the temporary table
             $query = 'SHOW FULL COLUMNS FROM ' . $tablename;
             $result = $this->db_query($query);
-            $columns = array();
+            $columns = [];
             $all_fields = array_merge($dbfields['primary'], $dbfields['update']);
             while ($row = $this->db_fetch_assoc($result)) {
                 if (in_array($row['Field'], $all_fields)) {
@@ -553,11 +587,11 @@ class mysqlConnection extends DBLayer implements iDBLayer
      *
      * @return none
      */
-    public function do_maintenance_all_tables()
+    function do_maintenance_all_tables()
     {
         global $prefixeTable;
 
-        $all_tables = array();
+        $all_tables = [];
 
         // List all tables
         $query = 'SHOW TABLES LIKE \'' . $prefixeTable . '%\'';
@@ -572,7 +606,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
         // Re-Order all tables
         foreach ($all_tables as $table_name) {
-            $all_primary_key = array();
+            $all_primary_key = [];
 
             $query = 'DESC ' . $table_name . ';';
             $result = $this->db_query($query);

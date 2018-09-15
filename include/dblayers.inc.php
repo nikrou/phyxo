@@ -1,5 +1,14 @@
 <?php
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 // | Phyxo - Another web based photo gallery                               |
 // | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
 // +-----------------------------------------------------------------------+
@@ -18,23 +27,18 @@
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
 
-$dblayers = array();
-$dblayers['mysql'] = array(
+$dblayers = [];
+$dblayers['mysql'] = [
     'engine' => 'MySQL',
-    'function_available' => 'mysql_connect'
-);
-
-$dblayers['mysqli'] = array(
-    'engine' => 'MySQL (improved)',
     'function_available' => 'mysqli_connect'
-);
+];
 
-$dblayers['pgsql'] = array(
+$dblayers['pgsql'] = [
     'engine' => 'PostgreSQL',
     'function_available' => 'pg_connect'
-);
+];
 
-$dblayers['sqlite'] = array(
+$dblayers['sqlite'] = [
     'engine' => 'SQLite',
     'class_available' => 'PDO'
-);
+];

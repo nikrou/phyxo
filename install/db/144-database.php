@@ -15,7 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 $upgrade_description = 'add activation_key_expire';
 
-if (in_array($conf['dblayer'], array('mysql', 'mysqli'))) {
+if (in_array($conf['dblayer'], ['mysql'])) {
     $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' CHANGE activation_key activation_key VARCHAR(255) DEFAULT NULL,';
     $query .= ' ADD COLUMN activation_key_expire DATETIME DEFAULT NULL AFTER activation_key;';
     $conn->db_query($query);

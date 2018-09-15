@@ -13,7 +13,7 @@ services:
   - mysql
 
 env:
-  - DB=mysqli
+  - DB=mysql
   - DB=pgsql
   - DB=sqlite
 
@@ -23,9 +23,9 @@ before_install:
 
 before_script:
   - composer install
-  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
-  - sh -c "if [ '$DB' = 'mysqli' ]; then mysql -u root -e 'create database phyxo;';fi"
-  - sh -c "if [ '$DB' = 'mysqli' ]; then cp -p local/config/.env.mysqli.travis .env;fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'create database phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/.env.mysql.travis .env;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo;' -U postgres; fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo;' -U postgres ;fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/.env.pgsql.travis .env;fi"
