@@ -31,8 +31,6 @@ function inc_exc_str($is_included)
 
 
 $title = \Phyxo\Functions\Language::l10n('Search rules');
-$template->set_filenames(['search_rules' => 'search_rules.tpl']);
-
 include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+

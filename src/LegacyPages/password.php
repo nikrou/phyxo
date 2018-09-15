@@ -218,11 +218,11 @@ if (!isset($page['action'])) {
 }
 
 if ('reset' == $page['action'] and !isset($_GET['key']) and ($services['users']->isGuest() or $services['users']->isGeneric())) {
-    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_gallery_home_url());
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url());
 }
 
 if ('lost' == $page['action'] and !$services['users']->isGuest()) {
-    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_gallery_home_url());
+    \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url());
 }
 
 // +-----------------------------------------------------------------------+
@@ -239,9 +239,6 @@ if ('lost' == $page['action']) {
     }
 }
 
-$page['body_id'] = 'thePasswordPage';
-
-$template->set_filenames(['password' => 'password.tpl']);
 $template->assign(
     [
         'title' => $title,

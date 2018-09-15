@@ -149,9 +149,6 @@ if (isset($_POST['submit']) and count($page['errors']) == 0) {
 // Start output of page
 //
 $title = \Phyxo\Functions\Language::l10n('Search');
-$page['body_id'] = 'theSearchPage';
-
-$template->set_filename('search', 'search.tpl');
 
 $month_list = $lang['month'];
 $month_list[0] = '------------';

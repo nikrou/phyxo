@@ -47,7 +47,6 @@ if ($services['users']->isGuest()) {
 
 $title = \Phyxo\Functions\Language::l10n('Notification');
 
-$template->set_filenames(['notification' => 'notification.tpl']);
 $template->assign(
     [
         'U_FEED' => $feed_url,

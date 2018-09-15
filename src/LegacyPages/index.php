@@ -11,8 +11,6 @@
 
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
-$template_filename = 'index';
-
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include(PHPWG_ROOT_PATH . 'include/section_init.inc.php');
 
@@ -298,8 +296,6 @@ if (empty($page['is_external']) or !$page['is_external']) {
 //------------------------------------------------------------ end
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_index');
 \Phyxo\Functions\Utils::flush_page_messages();
-
-$template->set_filename($template_filename, "$template_filename.tpl");
 
 //------------------------------------------------------------ log informations
 \Phyxo\Functions\Utils::log();

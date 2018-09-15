@@ -245,7 +245,6 @@ if (isset($action)) {
 
 $title = \Phyxo\Functions\Language::l10n('User comments');
 
-$template->set_filenames(['comments' => 'comments.tpl']);
 $template->assign(
     [
         'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',

@@ -73,9 +73,6 @@ $email = !empty($_POST['mail_address']) ? htmlspecialchars(stripslashes($_POST['
 // Start output of page
 //
 $title = \Phyxo\Functions\Language::l10n('Registration');
-$page['body_id'] = 'theRegisterPage';
-
-$template->set_filenames(['register' => 'register.tpl']);
 $template->assign([
     'U_HOME' => \Phyxo\Functions\URL::make_index_url(),
     'F_KEY' => $registration_post_key,

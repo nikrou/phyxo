@@ -97,7 +97,6 @@ $conf_link = $link_start . 'configuration&amp;section=';
 
 $title = \Phyxo\Functions\Language::l10n('Phyxo Administration'); // for include/page_header.php
 $page['page_banner'] = '<h1>' . \Phyxo\Functions\Language::l10n('Phyxo Administration') . '</h1>';
-$page['body_id'] = 'theAdminPage';
 
 $template_filename = 'index';
 $template->assign(

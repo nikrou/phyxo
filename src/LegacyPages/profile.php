@@ -50,9 +50,6 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     save_profile_from_post($userdata, $page['errors']);
 
     $title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
-    $page['body_id'] = 'theProfilePage';
-    $template->set_filename('profile', 'profile.tpl');
-
     load_profile_in_template(
         \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
         \Phyxo\Functions\URL::make_index_url(), // for redirect

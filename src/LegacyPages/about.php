@@ -23,11 +23,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 // Start output of page
 //
 $title = \Phyxo\Functions\Language::l10n('About Phyxo');
-$page['body_id'] = 'theAboutPage';
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_about');
-
-$template->set_filename('about', 'about.tpl');
 
 $template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', ['return' => true]));
 

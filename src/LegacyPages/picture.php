@@ -463,12 +463,6 @@ if (isset($_GET['slideshow'])) {
     $page['slideshow'] = false;
 }
 
-if ($page['slideshow'] and $conf['light_slideshow']) {
-    $template->set_filenames(['slideshow' => 'slideshow.tpl']);
-} else {
-    $template->set_filenames(['picture' => 'picture.tpl']);
-}
-
 $title = $picture['current']['TITLE'];
 $title_nb = ($page['current_rank'] + 1) . '/' . count($page['items']);
 

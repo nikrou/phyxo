@@ -44,9 +44,6 @@ function id_compare($a, $b)
 // +-----------------------------------------------------------------------+
 
 $title = \Phyxo\Functions\Language::l10n('Tags');
-$page['body_id'] = 'theTagsPage';
-
-$template->set_filenames(['tags' => 'tags.tpl']);
 
 $page['display_mode'] = $conf['tags_default_display_mode'];
 if (isset($_GET['display_mode'])) {

@@ -51,9 +51,6 @@ if (isset($_POST['login'])) {
 // Start output of page
 //
 $title = \Phyxo\Functions\Language::l10n('Identification');
-$page['body_id'] = 'theIdentificationPage';
-
-$template->set_filenames(['identification' => 'identification.tpl']);
 
 $template->assign(
     [
