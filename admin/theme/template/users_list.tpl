@@ -78,12 +78,12 @@
     {combine_script id="user_list" load="footer" path="admin/theme/js/user_list.js"}
 
     <p>
-	    <a href="#addUserForm" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>
+	    <a href="#add-user" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {'Add a user'|translate}</a>
 	    <span class="infos" style="display:none"></span>
     </p>
 
-    <div id="addUserForm" class="collapse">
-    <form method="post" name="add_user" action="{$F_ADD_ACTION}">
+    <div id="add-user" class="collapse">
+    <form id="addUserForm" method="post" name="add_user" action="{$F_ADD_ACTION}">
 	    <div class="fieldset">
 	        <h3>{'Add a user'|translate}</h3>
 
@@ -119,7 +119,7 @@
 
             <p>
                 <input class="btn btn-submit" name="submit_add" type="submit" value="{'Submit'|translate}">
-                <button class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</button>
+                <a href="#add-user" class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</a>
                 <span class="loading" style="display:none"><img src="./theme/images/ajax-loader-small.gif" alt=""></span>
                 <span class="errors" style="display:none"></span>
             </p>
@@ -275,7 +275,7 @@
      <div class="userActions">
      <% if (!user.isGuest) { %>
      <span class="changePasswordDone infos" style="display:none">&#x2714; {'Password updated'|translate}</span>
-     <span class="changePassword" style="display:none">{'New password'|translate} <input type="text"> 
+     <span class="changePassword" style="display:none">{'New password'|translate} <input type="text">
      <button class="btn btn-submit text">{'Submit'|translate}</button> <button class="btn btn-cancel cancel">{'Cancel'|translate}</button></span>
      <a class="changePasswordOpen" href="#"><i class="fa fa-key"></i> {'Change password'|translate}</a>
      <br>
@@ -294,7 +294,7 @@
      <% if (!user.isGuest) { %>
 	 <a href="#"><i class="fa fa-pencil"></i> {'Change username'|translate}</a></span>
      <span class="changeUsername" style="display:none">
-     <input type="text"> 
+     <input type="text">
      <button class="btn btn-submit text">{'Submit'|translate}</button> <button class="btn btn-cancel cancel">{'Cancel'|translate}</button>
      <% } %>
 
@@ -318,7 +318,7 @@
       </div>
 
       <div class="userProperty">
-        <label>{'Status'|translate}        
+        <label>{'Status'|translate}
         <% if (!user.isProtected) { %>
             <select class="custom-select" name="status">
         <% _.each( user.statusOptions, function( option ){ %>
@@ -343,7 +343,7 @@
 
       <div class="userProperty">
         <label>
-            <input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>> 
+            <input type="checkbox" name="enabled_high"<% if (user.enabled_high == 'true') { %> checked="checked"<% } %>>
             {'High definition enabled'|translate}
         </label>
       </div>
@@ -393,21 +393,21 @@
 
       <div class="userProperty">
         <label>
-            <input type="checkbox" name="expand"<% if (user.expand == 'true') { %> checked="checked"<% }%>> 
+            <input type="checkbox" name="expand"<% if (user.expand == 'true') { %> checked="checked"<% }%>>
             {'Expand all albums'|translate}
         </label>
       </div>
 
       <div class="userProperty">
         <label>
-            <input type="checkbox" name="show_nb_comments"<% if (user.show_nb_comments == 'true') { %> checked="checked"<% }%>> 
+            <input type="checkbox" name="show_nb_comments"<% if (user.show_nb_comments == 'true') { %> checked="checked"<% }%>>
             {'Show number of comments'|translate}
         </label>
       </div>
 
       <div class="userProperty">
         <label>
-            <input type="checkbox" name="show_nb_hits"<% if (user.show_nb_hits == 'true') { %> checked="checked"<% }%>> 
+            <input type="checkbox" name="show_nb_hits"<% if (user.show_nb_hits == 'true') { %> checked="checked"<% }%>>
             {'Show number of hits'|translate}
         </label>
       </div>

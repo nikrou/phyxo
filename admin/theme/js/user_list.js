@@ -1,19 +1,4 @@
 $(function() {
-    /**
-     * Add user
-     */
-    $('#addUser').click(function() {
-        $('#addUserForm').toggle();
-        $('#showAddUser .infos').hide();
-        $('input[name=username]').focus();
-        return false;
-    });
-
-    $('#addUserClose').click(function() {
-        $('#addUserForm').hide();
-        return false;
-    });
-
     $('#addUserForm').submit(function() {
         $.ajax({
             url: '../ws.php?format=json&method=pwg.users.add',
