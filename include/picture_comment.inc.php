@@ -14,6 +14,8 @@
  *
  */
 
+use App\Repository\CommentRepository;
+
 // the picture is commentable if it belongs at least to one category which
 // is commentable
 $page['show_comments'] = false;
@@ -30,13 +32,13 @@ if ($page['show_comments'] and isset($_POST['content'])) {
         die('Session expired'); // TODO : better end of request ; better response
     }
 
-    $comm = array(
+    $comm = [
         'author' => trim(@$_POST['author']),
         'content' => trim($_POST['content']),
         'website_url' => trim(@$_POST['website_url']),
         'email' => trim(@$_POST['email']),
         'image_id' => $page['image_id'],
-    );
+    ];
 
     if (empty($_POST['key'])) {
         $comment_action = 'reject';
@@ -59,68 +61,56 @@ if ($page['show_comments'] and isset($_POST['content'])) {
     }
 
     // allow plugins to notify what's going on
-    \Phyxo\Functions\Plugin::trigger_notify('user_comment_insertion', array_merge($comm, array('action' => $comment_action)));
+    \Phyxo\Functions\Plugin::trigger_notify('user_comment_insertion', array_merge($comm, ['action' => $comment_action]));
 } elseif (isset($_POST['content'])) {
     \Phyxo\Functions\HTTP::set_status_header(403);
     die('ugly spammer');
 }
 
 if ($page['show_comments']) {
-    if (!$services['users']->isAdmin()) {
-        $validated_clause = '  AND validated = \'' . $conn->boolean_to_db(true) . '\'';
-    } else {
-        $validated_clause = '';
-    }
-
-    // number of comments for this picture
-    $query = 'SELECT COUNT(1) AS nb_comments FROM ' . COMMENTS_TABLE;
-    $query .= ' WHERE image_id = ' . $page['image_id'] . $validated_clause . ';';
-    $row = $conn->db_fetch_assoc($conn->db_query($query));
-
+    $nb_comments = (new CommentRepository($conn))->countByImage($page['image_id'], $services['users']->isAdmin());
     // navigation bar creation
     if (!isset($page['start'])) {
         $page['start'] = 0;
     }
 
     $navigation_bar = \Phyxo\Functions\Utils::create_navigation_bar(
-        \Phyxo\Functions\URL::duplicate_picture_url(array(), array('start')),
-        $row['nb_comments'],
+        \Phyxo\Functions\URL::duplicate_picture_url([], ['start']),
+        $nb_comments,
         $page['start'],
         $conf['nb_comment_page'],
         true // We want a clean URL
     );
 
     $template->assign(
-        array(
-            'COMMENT_COUNT' => $row['nb_comments'],
+        [
+            'COMMENT_COUNT' => $nb_comments,
             'navbar' => $navigation_bar,
-        )
+        ]
     );
 
-    if ($row['nb_comments'] > 0) {
+    if ($nb_comments > 0) {
         // comments order (get, session, conf)
-        if (!empty($_GET['comments_order']) && in_array(strtoupper($_GET['comments_order']), array('ASC', 'DESC'))) {
+        if (!empty($_GET['comments_order']) && in_array(strtoupper($_GET['comments_order']), ['ASC', 'DESC'])) {
             $_SESSION['comments_order'] = $_GET['comments_order'];
         }
         $comments_order = isset($_SESSION['comments_order']) ? $_SESSION['comments_order'] : $conf['comments_order'];
 
-        $template->assign(array(
+        $template->assign([
             'COMMENTS_ORDER_URL' => \Phyxo\Functions\URL::add_url_params(
                 \Phyxo\Functions\URL::duplicate_picture_url(),
-                array('comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC'))
+                ['comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC')]
             ),
             'COMMENTS_ORDER_TITLE' => $comments_order == 'ASC' ? \Phyxo\Functions\Language::l10n('Show latest comments first') : \Phyxo\Functions\Language::l10n('Show oldest comments first'),
-        ));
+        ]);
 
-        $query = 'SELECT com.id, author, author_id,u.' . $conf['user_fields']['email'] . ' AS user_email,';
-        $query .= 'date,image_id,website_url,com.email,content, validated FROM ' . COMMENTS_TABLE . ' AS com';
-        $query .= ' LEFT JOIN ' . USERS_TABLE . ' AS u ON u.' . $conf['user_fields']['id'] . ' = author_id';
-        $query .= ' WHERE image_id = ' . $page['image_id'];
-        $query .= ' ' . $validated_clause;
-        $query .= ' ORDER BY date ' . $comments_order;
-        $query .= ' LIMIT ' . $conf['nb_comment_page'] . ' OFFSET ' . $page['start'] . ';';
-        $result = $conn->db_query($query);
-
+        $result = (new CommentRepository($conn))->getCommentsOnImage(
+            $page['image_id'],
+            $comments_order,
+            $conf['nb_comment_page'],
+            $page['start'],
+            $services['users']->isAdmin()
+        );
         while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['author'] == 'guest') {
                 $row['author'] = \Phyxo\Functions\Language::l10n('guest');
@@ -134,31 +124,31 @@ if ($page['show_comments']) {
             }
 
             $tpl_comment =
-                array(
+                [
                 'ID' => $row['id'],
                 'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
-                'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
+                'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
                 'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
                 'WEBSITE_URL' => $row['website_url'],
-            );
+            ];
 
             if ($services['users']->canManageComment('delete', $row['author_id'])) {
                 $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
-                    array(
+                    [
                         'action' => 'delete_comment',
                         'comment_to_delete' => $row['id'],
                         'pwg_token' => \Phyxo\Functions\Utils::get_token(),
-                    )
+                    ]
                 );
             }
             if ($services['users']->canManageComment('edit', $row['author_id'])) {
                 $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
-                    array(
+                    [
                         'action' => 'edit_comment',
                         'comment_to_edit' => $row['id'],
-                    )
+                    ]
                 );
                 if (isset($edit_comment) and ($row['id'] == $edit_comment)) {
                     $tpl_comment['IN_EDIT'] = true;
@@ -175,11 +165,11 @@ if ($page['show_comments']) {
                 if ($row['validated'] != 'true') {
                     $tpl_comment['U_VALIDATE'] = \Phyxo\Functions\URL::add_url_params(
                         $url_self,
-                        array(
+                        [
                             'action' => 'validate_comment',
                             'comment_to_validate' => $row['id'],
                             'pwg_token' => \Phyxo\Functions\Utils::get_token(),
-                        )
+                        ]
                     );
                 }
             }
@@ -198,7 +188,7 @@ if ($page['show_comments']) {
     if ($show_add_comment_form) {
         $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
 
-        $tpl_var = array(
+        $tpl_var = [
             'F_ACTION' => $url_self,
             'KEY' => $key,
             'CONTENT' => '',
@@ -210,10 +200,10 @@ if ($page['show_comments']) {
             'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
             'EMAIL' => '',
             'SHOW_WEBSITE' => $conf['comments_enable_website'],
-        );
+        ];
 
         if (!empty($comment_action) && $comment_action == 'reject') {
-            foreach (array('content', 'author', 'website_url', 'email') as $k) {
+            foreach (['content', 'author', 'website_url', 'email'] as $k) {
                 $tpl_var[strtoupper($k)] = htmlspecialchars(stripslashes(@$_POST[$k]));
             }
         }

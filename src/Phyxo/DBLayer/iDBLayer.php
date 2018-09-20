@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\DBLayer;
 
@@ -35,7 +26,7 @@ interface iDBLayer
      */
     public function db_connect($host, $user, $password, $database);
 
-	/**
+    /**
      * Database query
      *
      * This method should run an SQL query and return a resource result.
@@ -73,15 +64,15 @@ interface iDBLayer
      */
     public function db_nextval($column, $table);
 
-	/**
-	* Affected rows
-	*
-	* This method should return number of rows affected by INSERT, UPDATE or
-	* DELETE queries.
-	*
-    * @param resource $result    Resource result
-	* @return integer
-	*/
+    /**
+     * Affected rows
+     *
+     * This method should return number of rows affected by INSERT, UPDATE or
+     * DELETE queries.
+     *
+     * @param resource $result    Resource result
+     * @return integer
+     */
     public function db_changes($result);
 
     /**
@@ -152,32 +143,33 @@ interface iDBLayer
      * @param string	$column			Column auto-incremented.
      * @return integer
      */
-    public function db_insert_id($table=null, $column='id');
+    public function db_insert_id($table = null, $column = 'id');
 
-	/**
+    /**
      * Close connection
      *
      * This method should close resource link.
      */
     public function db_close();
 
-    /* transaction methods */
+    // transaction methods
+
     /**
      * Starts a transaction
      */
     public function db_start_transaction();
 
-	/**
+    /**
      * Commits transaction
      */
     public function db_commit();
 
-	/**
+    /**
      * Rollback transaction
      */
     public function db_rollback();
 
-	/**
+    /**
      * Acquiere Write lock
      *
      * This method should lock the given table in write access.
@@ -193,7 +185,8 @@ interface iDBLayer
      */
     public function db_unlock();
 
-    /* strings methods */
+    // strings methods
+
     /**
      *  GROUP_CONCAT for mysql
      */
@@ -233,7 +226,8 @@ interface iDBLayer
      */
     public function db_cast_to_text($string);
 
-    /* others methods */
+    // others methods
+
     /**
      * Get all tables in current database
      *
@@ -290,10 +284,10 @@ interface iDBLayer
      */
     public function in($params);
 
-    /* day & time methods */
-    public function db_get_recent_period($period, $date='CURRENT_DATE');
+    // day & time methods
+    public function db_get_recent_period($period, $date = 'CURRENT_DATE');
 
-    public function db_get_recent_period_expression($period, $date='CURRENT_DATE');
+    public function db_get_recent_period_expression($period, $date = 'CURRENT_DATE');
 
     public function db_get_flood_period_expression($seconds);
 
@@ -309,7 +303,7 @@ interface iDBLayer
 
     public function db_get_month($date);
 
-    public function db_get_week($date, $mode=null);
+    public function db_get_week($date, $mode = null);
 
     public function db_get_dayofmonth($date);
 
@@ -352,7 +346,9 @@ interface iDBLayer
      * @param string $value_name
      * @return array
      */
-    public function query2array($query, $key_name=null, $value_name=null);
+    public function query2array($query, $key_name = null, $value_name = null);
+
+    public function result2array($result, $key_name = null, $value_name = null);
 
     /**
      * Updates one line in a table.
@@ -362,7 +358,7 @@ interface iDBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update($tablename, $datas, $where, $flags=0);
+    public function single_update($tablename, $datas, $where, $flags = 0);
 
     /**
      * Inserts one line in a table.
@@ -381,7 +377,7 @@ interface iDBLayer
      * @param int flags - if MASS_UPDATES_SKIP_EMPTY - empty values do not overwrite existing ones
      * @return void
      */
-    public function mass_updates($tablename, $dbfields, $datas, $flags=0);
+    public function mass_updates($tablename, $dbfields, $datas, $flags = 0);
 
     /**
      * inserts multiple lines in a table

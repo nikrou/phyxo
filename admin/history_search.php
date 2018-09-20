@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\TagRepository;
+
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
 }
@@ -19,13 +21,13 @@ if (isset($_GET['start']) and is_numeric($_GET['start'])) {
     $page['start'] = 0;
 }
 
-$types = array('none', 'picture', 'high', 'other');
+$types = ['none', 'picture', 'high', 'other'];
 
-$display_thumbnails = array(
+$display_thumbnails = [
     'no_display_thumbnail' => \Phyxo\Functions\Language::l10n('No display'),
     'display_thumbnail_classic' => \Phyxo\Functions\Language::l10n('Classic display'),
     'display_thumbnail_hoverbox' => \Phyxo\Functions\Language::l10n('Hoverbox display')
-);
+];
 
 \Phyxo\Functions\Plugin::add_event_handler('get_history', '\Phyxo\Functions\History::get_history');
 
@@ -33,8 +35,8 @@ $display_thumbnails = array(
 // | Build search criteria and redirect to results                         |
 // +-----------------------------------------------------------------------+
 
-$page['errors'] = array();
-$search = array();
+$page['errors'] = [];
+$search = [];
 
 if (isset($_POST['submit'])) {
     // dates
@@ -107,10 +109,10 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 
 $template->assign(
-    array(
+    [
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=history',
         'F_ACTION' => HISTORY_BASE_URL . '&amp;section=search'
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -141,17 +143,17 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }
 
-    /* @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS*/
-    $data = \Phyxo\Functions\Plugin::trigger_change('get_history', array(), $page['search'], $types);
+    // @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS
+    $data = \Phyxo\Functions\Plugin::trigger_change('get_history', [], $page['search'], $types);
     usort($data, '\Phyxo\Functions\History::history_compare');
 
     $page['nb_lines'] = count($data);
 
-    $history_lines = array();
-    $user_ids = array();
-    $username_of = array();
-    $category_ids = array();
-    $image_ids = array();
+    $history_lines = [];
+    $user_ids = [];
+    $username_of = [];
+    $category_ids = [];
+    $image_ids = [];
     $has_tags = false;
 
     foreach ($data as $row) {
@@ -179,7 +181,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         $query .= ' WHERE id ' . $conn->in(array_keys($user_ids));
         $result = $conn->db_query($query);
 
-        $username_of = array();
+        $username_of = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $username_of[$row['id']] = stripslashes($row['username']);
         }
@@ -190,7 +192,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         $query .= ' WHERE id ' . $conn->in(array_keys($category_ids));
         $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
 
-        $name_of_category = array();
+        $name_of_category = [];
 
         foreach ($uppercats_of as $category_id => $uppercats) {
             $name_of_category[$category_id] = \Phyxo\Functions\Category::get_cat_display_name_cache($uppercats);
@@ -205,12 +207,10 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if ($has_tags > 0) {
-        $query = 'SELECT id,name, url_name FROM ' . TAGS_TABLE;
-
-        $name_of_tag = array();
-        $result = $conn->db_query($query);
+        $name_of_tag = [];
+        $result = (new TagRepository($conn))->findAll();
         while ($row = $conn->db_fetch_assoc($result)) {
-            $name_of_tag[$row['id']] = '<a href="' . \Phyxo\Functions\URL::make_index_url(array('tags' => array($row))) . '">' . \Phyxo\Functions\Plugin::trigger_change("render_tag_name", $row['name'], $row) . '</a>';
+            $name_of_tag[$row['id']] = '<a href="' . \Phyxo\Functions\URL::make_index_url(['tags' => [$row]]) . '">' . \Phyxo\Functions\Plugin::trigger_change("render_tag_name", $row['name'], $row) . '</a>';
         }
     }
 
@@ -219,7 +219,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     $last_line = $page['start'] + $conf['nb_logs_page'];
 
     $summary['total_filesize'] = 0;
-    $summary['guests_ip'] = array();
+    $summary['guests_ip'] = [];
 
     foreach ($history_lines as $line) {
         if (isset($line['image_type']) and $line['image_type'] == 'high') {
@@ -269,15 +269,15 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $image_string = '';
         if (isset($line['image_id'])) {
-            $picture_url = \Phyxo\Functions\URL::make_picture_url(array('image_id' => $line['image_id']));
+            $picture_url = \Phyxo\Functions\URL::make_picture_url(['image_id' => $line['image_id']]);
 
             if (isset($image_infos[$line['image_id']])) {
-                $element = array(
+                $element = [
                     'id' => $line['image_id'],
                     'file' => $image_infos[$line['image_id']]['file'],
                     'path' => $image_infos[$line['image_id']]['path'],
                     'representative_ext' => $image_infos[$line['image_id']]['representative_ext'],
-                );
+                ];
                 $thumbnail_display = $page['search']['fields']['display_thumbnail'];
             } else {
                 $thumbnail_display = 'no_display_thumbnail';
@@ -322,7 +322,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
         $template->append(
             'search_results',
-            array(
+            [
                 'DATE' => $line['date'],
                 'TIME' => $line['time'],
                 'USER' => $user_string,
@@ -336,7 +336,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                     : 'deleted ' . $line['category_id'])
                     : '',
                 'TAGS' => $tags_string,
-            )
+            ]
         );
     }
 
@@ -351,7 +351,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     $summary['nb_members'] = count($username_of);
 
-    $member_strings = array();
+    $member_strings = [];
     foreach ($username_of as $user_id => $user_name) {
         $member_string = $user_name . '&nbsp;<a href="';
         $member_string .= HISTORY_BASE_URL . '&amp;section=search';
@@ -364,7 +364,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     $template->assign(
         'search_summary',
-        array(
+        [
             'NB_LINES' => \Phyxo\Functions\Language::l10n_dec(
                 '%d line filtered',
                 '%d lines filtered',
@@ -385,7 +385,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                 '%d guests',
                 $summary['nb_guests']
             ),
-        )
+        ]
     );
 
     unset($name_of_tag);
@@ -397,7 +397,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
 if (isset($page['search_id'])) {
     $navbar = \Phyxo\Functions\Utils::create_navigation_bar(
-        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
+        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(['start']),
         $page['nb_lines'],
         $page['start'],
         $conf['nb_logs_page']
@@ -410,7 +410,7 @@ if (isset($page['search_id'])) {
 // |                             filter form                               |
 // +-----------------------------------------------------------------------+
 
-$form = array();
+$form = [];
 
 if (isset($page['search'])) {
     if (isset($page['search']['fields']['date-after'])) {
@@ -444,20 +444,20 @@ if (isset($page['search'])) {
 
 
 $template->assign(
-    array(
+    [
         'IMAGE_ID' => @$form['image_id'],
         'FILENAME' => @$form['filename'],
         'IP' => @$form['ip'],
         'START' => @$form['start'],
         'END' => @$form['end'],
-    )
+    ]
 );
 
 $template->assign(
-    array(
+    [
         'type_option_values' => $types,
         'type_option_selected' => $form['types']
-    )
+    ]
 );
 
 
@@ -465,10 +465,10 @@ $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
 $query .= $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
 $query .= ' ORDER BY username ASC;';
 $template->assign(
-    array(
+    [
         'user_options' => $conn->query2array($query, 'id', 'username'),
-        'user_options_selected' => array(@$form['user'])
-    )
+        'user_options_selected' => [@$form['user']]
+    ]
 );
 
 $template->assign('display_thumbnails', $display_thumbnails);

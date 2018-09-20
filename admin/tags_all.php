@@ -13,23 +13,24 @@ if (!defined('TAGS_BASE_URL')) {
     die('Hacking attempt!');
 }
 
+use App\Repository\TagRepository;
+use App\Repository\ImageTagRepository;
+
 // +-----------------------------------------------------------------------+
 // |                                edit tags                              |
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['edit_submit'])) {
-    $query = 'SELECT name FROM ' . TAGS_TABLE . ';';
-    $existing_names = $conn->query2array($query, null, 'name');
+    $result = (new TagRepository($conn))->findAll();
+    $existing_names = $conn->result2array($result, null, 'name');
 
-    $current_name_of = array();
-    $query = 'SELECT id, name FROM ' . TAGS_TABLE;
-    $query .= ' WHERE id ' . $conn->in($_POST['edit_list']);
-    $result = $conn->db_query($query);
+    $current_name_of = [];
+    $result = (new TagRepository($conn))->findTags($_POST['edit_list']);
     while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[$row['id']] = $row['name'];
     }
 
-    $updates = array();
+    $updates = [];
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
         $tag_name = $_POST['tag_name-' . $tag_id];
@@ -38,20 +39,20 @@ if (isset($_POST['edit_submit'])) {
             if (in_array($tag_name, $existing_names)) {
                 $page['errors'][] = \Phyxo\Functions\Language::l10n('Tag "%s" already exists', $tag_name);
             } elseif (!empty($tag_name)) {
-                $updates[] = array(
+                $updates[] = [
                     'id' => $tag_id,
                     'name' => $tag_name,
                     'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
-                );
+                ];
             }
         }
     }
     $conn->mass_updates(
         TAGS_TABLE,
-        array(
-            'primary' => array('id'),
-            'update' => array('name', 'url_name'),
-        ),
+        [
+            'primary' => ['id'],
+            'update' => ['name', 'url_name'],
+        ],
         $updates
     );
 }
@@ -60,17 +61,16 @@ if (isset($_POST['edit_submit'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['duplic_submit'])) {
-    $query = 'SELECT name FROM ' . TAGS_TABLE;
-    $existing_names = $conn->query2array($query, null, 'name');
+    $result = (new TagRepository($conn))->findAll();
+    $existing_names = $conn->result2array($query, null, 'name');
 
-    $current_name_of = array();
-    $query = 'SELECT id, name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['edit_list']);
-    $result = $conn->db_query($query);
+    $current_name_of = [];
+    $result = (new TagRepository($conn))->findTags($_POST['edit_list']);
     while ($row = $conn->db_fetch_assoc($result)) {
         $current_name_of[$row['id']] = $row['name'];
     }
 
-    $updates = array();
+    $updates = [];
     // we must not rename tag with an already existing name
     foreach (explode(',', $_POST['edit_list']) as $tag_id) {
         $tag_name = $_POST['tag_name-' . $tag_id];
@@ -81,25 +81,25 @@ if (isset($_POST['duplic_submit'])) {
             } elseif (!empty($tag_name)) {
                 $conn->single_insert(
                     TAGS_TABLE,
-                    array(
+                    [
                         'name' => $tag_name,
                         'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
-                    )
+                    ]
                 );
 
-                $query = 'SELECT id FROM ' . TAGS_TABLE . ' WHERE name = \'' . $conn->db_real_escape_string($tag_name) . '\'';
-                $destination_tag = $conn->query2array($query, null, 'id');
+                $result = (new TagRepository($conn))->findBy('name', $tag_name);
+                $destination_tag = $conn->result2array($query, null, 'id');
                 $destination_tag_id = $destination_tag[0];
 
-                $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE . ' WHERE tag_id = ' . $conn->db_real_escape_string($tag_id) . ';';
-                $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
+                $result = (new ImageTagRepository($conn))->findBy('tag_id', $tag_id);
+                $destination_tag_image_ids = $conn->result2array($query, null, 'image_id');
 
-                $inserts = array();
+                $inserts = [];
                 foreach ($destination_tag_image_ids as $image_id) {
-                    $inserts[] = array(
+                    $inserts[] = [
                         'tag_id' => $destination_tag_id,
                         'image_id' => $image_id
-                    );
+                    ];
                 }
 
                 if (count($inserts) > 0) {
@@ -121,10 +121,10 @@ if (isset($_POST['duplic_submit'])) {
 
     $conn->mass_updates(
         TAGS_TABLE,
-        array(
-            'primary' => array('id'),
-            'update' => array('name', 'url_name'),
-        ),
+        [
+            'primary' => ['id'],
+            'update' => ['name', 'url_name'],
+        ],
         $updates
     );
 }
@@ -141,16 +141,15 @@ if (isset($_POST['merge_submit'])) {
         $tag_ids = explode(',', $_POST['merge_list']);
 
         if (is_array($tag_ids) and count($tag_ids) > 1) {
-            $name_of_tag = array();
-            $query = 'SELECT id,name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($tag_ids);
-            $result = $conn->db_query($query);
+            $name_of_tag = [];
+            $result = (new TagRepository($conn))->findTags($tag_ids);
             while ($row = $conn->db_fetch_assoc($result)) {
                 $name_of_tag[$row['id']] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $row['name'], $row);
             }
 
             $tag_ids_to_delete = array_diff(
                 $tag_ids,
-                array($destination_tag_id)
+                [$destination_tag_id]
             );
 
             $query = 'SELECT DISTINCT(image_id)  FROM ' . IMAGE_TAG_TABLE;
@@ -167,12 +166,12 @@ if (isset($_POST['merge_submit'])) {
                 $destination_tag_image_ids
             );
 
-            $inserts = array();
+            $inserts = [];
             foreach ($image_ids_to_link as $image_id) {
-                $inserts[] = array(
+                $inserts[] = [
                     'tag_id' => $destination_tag_id,
                     'image_id' => $image_id
-                );
+                ];
             }
 
             if (count($inserts) > 0) {
@@ -183,7 +182,7 @@ if (isset($_POST['merge_submit'])) {
                 );
             }
 
-            $tags_deleted = array();
+            $tags_deleted = [];
             foreach ($tag_ids_to_delete as $tag_id) {
                 $tags_deleted[] = $name_of_tag[$tag_id];
             }
@@ -203,8 +202,8 @@ if (isset($_POST['merge_submit'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['delete']) and isset($_POST['tags'])) {
-    $query = 'SELECT name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['tags']);
-    $tag_names = $conn->query2array($query, null, 'name');
+    $result = (new TagRepository($conn))->findTags($_POST['tags']);
+    $tag_names = $conn->result2array($query, null, 'name');
 
     $services['tags']->deleteTags($_POST['tags']);
 
@@ -245,9 +244,9 @@ if (isset($_POST['add']) and !empty($_POST['add_tag'])) {
 // |                              orphan tags                              |
 // +-----------------------------------------------------------------------+
 
-$orphan_tags = $services['tags']->getOrphanTags();
+$orphan_tags = $conn->result2array((new TagRepository($conn))->getOrphanTags());
 
-$orphan_tag_names = array();
+$orphan_tag_names = [];
 foreach ($orphan_tags as $tag) {
     $orphan_tag_names[] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
 }
@@ -270,9 +269,8 @@ $query = 'SELECT tag_id, COUNT(image_id) AS counter FROM ' . IMAGE_TAG_TABLE . '
 $tag_counters = $conn->query2array($query, 'tag_id', 'counter');
 
 // all tags
-$query = 'SELECT id,name FROM ' . TAGS_TABLE;
-$result = $conn->db_query($query);
-$all_tags = array();
+$result = (new TagRepository($conn))->findAll();
+$all_tags = [];
 while ($tag = $conn->db_fetch_assoc($result)) {
     $raw_name = $tag['name'];
     $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $raw_name, $tag);
@@ -281,11 +279,11 @@ while ($tag = $conn->db_fetch_assoc($result)) {
     } else {
         $tag['counter'] = intval($tag_counters[$tag['id']]);
     }
-    $tag['U_VIEW'] = \Phyxo\Functions\URL::make_index_url(array('tags' => array($tag)));
+    $tag['U_VIEW'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
     $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-' . $tag['id'];
 
-    $alt_names = \Phyxo\Functions\Plugin::trigger_change('get_tag_alt_names', array(), $raw_name);
-    $alt_names = array_diff(array_unique($alt_names), array($tag['name']));
+    $alt_names = \Phyxo\Functions\Plugin::trigger_change('get_tag_alt_names', [], $raw_name);
+    $alt_names = array_diff(array_unique($alt_names), [$tag['name']]);
     if (count($alt_names)) {
         $tag['alt_names'] = implode(', ', $alt_names);
     }
@@ -293,7 +291,7 @@ while ($tag = $conn->db_fetch_assoc($result)) {
 }
 usort($all_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
 
-$template->assign(array('all_tags' => $all_tags));
+$template->assign(['all_tags' => $all_tags]);
 
 if ((isset($_POST['edit']) or isset($_POST['duplicate']) or isset($_POST['merge'])) and isset($_POST['tags'])) {
     $list_name = 'EDIT_TAGS_LIST';
@@ -305,15 +303,14 @@ if ((isset($_POST['edit']) or isset($_POST['duplicate']) or isset($_POST['merge'
 
     $template->assign($list_name, implode(',', $_POST['tags']));
 
-    $query = 'SELECT id, name FROM ' . TAGS_TABLE . ' WHERE id ' . $conn->in($_POST['tags']);
-    $result = $conn->db_query($query);
+    $result = (new TagRepository($conn))->findTags($_POST['tags']);
     while ($row = $conn->db_fetch_assoc($result)) {
         $template->append(
             'tags',
-            array(
+            [
                 'ID' => $row['id'],
                 'NAME' => $row['name'],
-            )
+            ]
         );
     }
 }

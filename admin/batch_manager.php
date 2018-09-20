@@ -22,6 +22,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 define('BATCH_MANAGER_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager');
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\TagRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -72,7 +73,7 @@ if (isset($_GET['action'])) {
 // filters from form
 if (isset($_POST['submitFilter'])) {
     unset($_REQUEST['start']); // new photo set must reset the page
-    $_SESSION['bulk_manager_filter'] = array();
+    $_SESSION['bulk_manager_filter'] = [];
 
     if (isset($_POST['filter_prefilter_use'])) {
         $_SESSION['bulk_manager_filter']['prefilter'] = $_POST['filter_prefilter'];
@@ -99,7 +100,7 @@ if (isset($_POST['submitFilter'])) {
     if (isset($_POST['filter_tags_use'])) {
         $_SESSION['bulk_manager_filter']['tags'] = $services['tags']->getTagsIds($_POST['filter_tags']);
 
-        if (isset($_POST['tag_mode']) and in_array($_POST['tag_mode'], array('AND', 'OR'))) {
+        if (isset($_POST['tag_mode']) and in_array($_POST['tag_mode'], ['AND', 'OR'])) {
             $_SESSION['bulk_manager_filter']['tag_mode'] = $_POST['tag_mode'];
         }
     }
@@ -115,12 +116,12 @@ if (isset($_POST['submitFilter'])) {
     }
 
     if (isset($_POST['filter_dimension_use'])) {
-        foreach (array('min_width', 'max_width', 'min_height', 'max_height') as $type) {
+        foreach (['min_width', 'max_width', 'min_height', 'max_height'] as $type) {
             if (filter_var($_POST['filter_dimension_' . $type], FILTER_VALIDATE_INT) !== false) {
                 $_SESSION['bulk_manager_filter']['dimension'][$type] = $_POST['filter_dimension_' . $type];
             }
         }
-        foreach (array('min_ratio', 'max_ratio') as $type) {
+        foreach (['min_ratio', 'max_ratio'] as $type) {
             if (filter_var($_POST['filter_dimension_' . $type], FILTER_VALIDATE_FLOAT) !== false) {
                 $_SESSION['bulk_manager_filter']['dimension'][$type] = $_POST['filter_dimension_' . $type];
             }
@@ -128,7 +129,7 @@ if (isset($_POST['submitFilter'])) {
     }
 
     if (isset($_POST['filter_filesize_use'])) {
-        foreach (array('min', 'max') as $type) {
+        foreach (['min', 'max'] as $type) {
             if (filter_var($_POST['filter_filesize_' . $type], FILTER_VALIDATE_FLOAT) !== false) {
                 $_SESSION['bulk_manager_filter']['filesize'][$type] = $_POST['filter_filesize_' . $type];
             }
@@ -145,7 +146,7 @@ if (isset($_POST['submitFilter'])) {
         $_GET['filter'] = explode(',', $_GET['filter']);
     }
 
-    $_SESSION['bulk_manager_filter'] = array();
+    $_SESSION['bulk_manager_filter'] = [];
 
     foreach ($_GET['filter'] as $filter) {
         list($type, $value) = explode('-', $filter, 2);
@@ -165,7 +166,7 @@ if (isset($_POST['submitFilter'])) {
 
             case 'tag':
                 if (is_numeric($value)) {
-                    $_SESSION['bulk_manager_filter']['tags'] = array($value);
+                    $_SESSION['bulk_manager_filter']['tags'] = [$value];
                     $_SESSION['bulk_manager_filter']['tag_mode'] = 'AND';
                 }
                 break;
@@ -181,7 +182,7 @@ if (isset($_POST['submitFilter'])) {
                 break;
 
             case 'dimension':
-                $dim_map = array('w' => 'width', 'h' => 'height', 'r' => 'ratio');
+                $dim_map = ['w' => 'width', 'h' => 'height', 'r' => 'ratio'];
                 foreach (explode('-', $value) as $part) {
                     $values = explode('..', substr($part, 1));
                     if (isset($dim_map[$part[0]])) {
@@ -209,11 +210,11 @@ if (isset($_POST['submitFilter'])) {
 }
 
 if (empty($_SESSION['bulk_manager_filter'])) {
-    $_SESSION['bulk_manager_filter'] = array('prefilter' => 'caddie');
+    $_SESSION['bulk_manager_filter'] = ['prefilter' => 'caddie'];
 }
 
 // depending on the current filter (in session), we find the appropriate photos
-$filter_sets = array();
+$filter_sets = [];
 if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     switch ($_SESSION['bulk_manager_filter']['prefilter']) {
         case 'caddie':
@@ -270,7 +271,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         case 'duplicates':
-            $duplicates_on_fields = array('file');
+            $duplicates_on_fields = ['file'];
             if (isset($_SESSION['bulk_manager_filter']['duplicates_date'])) {
                 $duplicates_on_fields[] = 'date_creation';
             }
@@ -285,7 +286,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             $query .= ' HAVING COUNT(*) > 1;';
             $array_of_ids_string = $conn->query2array($query, null, 'ids');
 
-            $ids = array();
+            $ids = [];
 
             foreach ($array_of_ids_string as $ids_string) {
                 $ids = array_merge($ids, explode(',', $ids_string));
@@ -313,12 +314,12 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
 }
 
 if (isset($_SESSION['bulk_manager_filter']['category'])) {
-    $categories = array();
+    $categories = [];
 
     if (isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
-        $categories = \Phyxo\Functions\Category::get_subcat_ids(array($_SESSION['bulk_manager_filter']['category']));
+        $categories = \Phyxo\Functions\Category::get_subcat_ids([$_SESSION['bulk_manager_filter']['category']]);
     } else {
-        $categories = array($_SESSION['bulk_manager_filter']['category']);
+        $categories = [$_SESSION['bulk_manager_filter']['category']];
     }
 
     $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
@@ -340,17 +341,21 @@ if (isset($_SESSION['bulk_manager_filter']['level'])) {
 }
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
-    $filter_sets[] = $services['tags']->getImageIdsForTags(
-        $_SESSION['bulk_manager_filter']['tags'],
-        $_SESSION['bulk_manager_filter']['tag_mode'],
+    $filter_sets[] = $conn->result2array(
+        (new TagRepository($conn))->getImageIdsForTags(
+            $_SESSION['bulk_manager_filter']['tags'],
+            $_SESSION['bulk_manager_filter']['tag_mode'],
+            null,
+            $conf['order_by'],
+            false // we don't apply permissions in administration screens
+        ),
         null,
-        null,
-        false // we don't apply permissions in administration screens
+        'id'
     );
 }
 
 if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
-    $where_clauses = array();
+    $where_clauses = [];
     if (isset($_SESSION['bulk_manager_filter']['dimension']['min_width'])) {
         $where_clause[] = 'width >= ' . $_SESSION['bulk_manager_filter']['dimension']['min_width'];
     }
@@ -379,7 +384,7 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
 }
 
 if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
-    $where_clauses = array();
+    $where_clauses = [];
 
     if (isset($_SESSION['bulk_manager_filter']['filesize']['min'])) {
         $where_clause[] = 'filesize >= ' . $_SESSION['bulk_manager_filter']['filesize']['min'] * 1024;
@@ -397,7 +402,7 @@ if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
 }
 
 if (isset($_SESSION['bulk_manager_filter']['search']) && strlen($_SESSION['bulk_manager_filter']['search']['q'])) {
-    $res = \Phyxo\Functions\Search::get_quick_search_results_no_cache($_SESSION['bulk_manager_filter']['search']['q'], array('permissions' => false));
+    $res = \Phyxo\Functions\Search::get_quick_search_results_no_cache($_SESSION['bulk_manager_filter']['search']['q'], ['permissions' => false]);
     if (!empty($res['items']) && !empty($res['qs']['unmatched_terms'])) {
         $template->assign('no_search_results', $res['qs']['unmatched_terms']);
     }
@@ -438,10 +443,10 @@ if (!isset($_REQUEST['start']) or !is_numeric($_REQUEST['start'])
 // |                              dimensions                               |
 // +-----------------------------------------------------------------------+
 
-$widths = array();
-$heights = array();
-$ratios = array();
-$dimensions = array();
+$widths = [];
+$heights = [];
+$ratios = [];
+$dimensions = [];
 
 // get all width, height and ratios
 $query = 'SELECT DISTINCT width, height FROM ' . IMAGES_TABLE;
@@ -458,33 +463,33 @@ if ($conn->db_num_rows($result)) {
     }
 }
 if (empty($widths)) { // arbitrary values, only used when no photos on the gallery
-    $widths = array(600, 1920, 3500);
-    $heights = array(480, 1080, 2300);
-    $ratios = array(1.25, 1.52, 1.78);
+    $widths = [600, 1920, 3500];
+    $heights = [480, 1080, 2300];
+    $ratios = [1.25, 1.52, 1.78];
 }
 
-foreach (array('widths', 'heights', 'ratios') as $type) {
+foreach (['widths', 'heights', 'ratios'] as $type) {
     ${$type} = array_unique(${$type}); // @TODO : remove that ~ eval
     sort(${$type});
     $dimensions[$type] = implode(',', ${$type});
 }
 
-$dimensions['bounds'] = array(
+$dimensions['bounds'] = [
     'min_width' => $widths[0],
     'max_width' => end($widths),
     'min_height' => $heights[0],
     'max_height' => end($heights),
     'min_ratio' => $ratios[0],
     'max_ratio' => end($ratios),
-);
+];
 
 // find ratio categories
-$ratio_categories = array(
-    'portrait' => array(),
-    'square' => array(),
-    'landscape' => array(),
-    'panorama' => array(),
-);
+$ratio_categories = [
+    'portrait' => [],
+    'square' => [],
+    'landscape' => [],
+    'panorama' => [],
+];
 
 foreach ($ratios as $ratio) {
     if ($ratio < 0.95) {
@@ -500,10 +505,10 @@ foreach ($ratios as $ratio) {
 
 foreach (array_keys($ratio_categories) as $type) {
     if (count($ratio_categories[$type]) > 0) {
-        $dimensions['ratio_' . $type] = array(
+        $dimensions['ratio_' . $type] = [
             'min' => $ratio_categories[$type][0],
             'max' => end($ratio_categories[$type]),
-        );
+        ];
     }
 }
 
@@ -520,8 +525,8 @@ $template->assign('dimensions', $dimensions);
 // | filesize                                                              |
 // +-----------------------------------------------------------------------+
 
-$filesizes = array();
-$filesize = array();
+$filesizes = [];
+$filesize = [];
 
 $query = 'SELECT filesize FROM ' . IMAGES_TABLE;
 $query .= ' WHERE filesize IS NOT NULL GROUP BY filesize';
@@ -532,7 +537,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 }
 
 if (empty($filesizes)) { // arbitrary values, only used when no photos on the gallery
-    $filesizes = array(0, 1, 2, 5, 8, 15);
+    $filesizes = [0, 1, 2, 5, 8, 15];
 }
 
 $filesizes = array_unique($filesizes);
@@ -544,10 +549,10 @@ $filesizes[count($filesizes) - 1] += 0.1;
 
 $filesize['list'] = implode(',', $filesizes);
 
-$filesize['bounds'] = array(
+$filesize['bounds'] = [
     'min' => $filesizes[0],
     'max' => end($filesizes),
-);
+];
 
 // selected=bound if nothing selected
 foreach (array_keys($filesize['bounds']) as $type) {

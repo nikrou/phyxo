@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CommentRepository;
+
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 include(PHPWG_ROOT_PATH . 'include/section_init.inc.php');
+
 
 // Check Access and exit when user status is not ok
 $services['users']->checkStatus(ACCESS_GUEST);
@@ -269,7 +272,7 @@ if (isset($_GET['action'])) {
         case 'edit_comment':
             {
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
-                $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_edit']);
+                $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_edit']);
 
                 if ($services['users']->canManageComment('edit', $author_id)) {
                     if (!empty($_POST['content'])) {
@@ -313,7 +316,7 @@ if (isset($_GET['action'])) {
             {
                 \Phyxo\Functions\Utils::check_token();
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
-                $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_delete']);
+                $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_delete']);
 
                 if ($services['users']->canManageComment('delete', $author_id)) {
                     $services['comments']->deleteUserComment($_GET['comment_to_delete']);
@@ -326,7 +329,7 @@ if (isset($_GET['action'])) {
             {
                 \Phyxo\Functions\Utils::check_token();
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
-                $author_id = $services['comments']->getCommentAuthorId($_GET['comment_to_validate']);
+                $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_validate']);
 
                 if ($services['users']->canManageComment('validate', $author_id)) {
                     $services['comments']->validateUserComment($_GET['comment_to_validate']);

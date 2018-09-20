@@ -14,6 +14,9 @@ namespace Phyxo\Model\Repository;
 use Phyxo\Functions\Plugin;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
+use App\Repository\CommentRepository;
+use App\Repository\UserCacheRepository;
+use App\Repository\UserRepository;
 
 class Comments
 {
@@ -106,11 +109,9 @@ class Comments
             }
             $comm['author_id'] = $this->conf['guest_id'];
             // if a guest try to use the name of an already existing user, he must be rejected
-            if ($comm['author'] != 'guest') {
-                $query = 'SELECT COUNT(1) AS user_exists FROM ' . USERS_TABLE;
-                $query .= ' WHERE ' . $this->conf['user_fields']['username'] . " = '" . $this->conn->db_real_escape_string($comm['author']) . "'";
-                $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
-                if ($row['user_exists'] == 1) {
+            if ($comm['author'] !== 'guest') {
+
+                if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {
                     $infos[] = \Phyxo\Functions\Language::l10n('This login is already used by another user');
                     $comment_action = 'reject';
                 }
@@ -168,14 +169,11 @@ class Comments
 
         if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 and !$services['users']->isAdmin()) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
-
-            $query = 'SELECT count(1) FROM ' . COMMENTS_TABLE;
-            $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($comm['author_id']);
-            if (!$services['users']->isClassicUser()) {
-                $query .= ' AND anonymous_id LIKE \'' . $anonymous_id . '.%\'';
-            }
-
-            list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
+            $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
+                $comm['author_id'],
+                $reference_date,
+                !$services['users']->isClassicUser() ? $anonymous_id : null
+            );
             if ($counter > 0) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
@@ -187,18 +185,18 @@ class Comments
         $comment_action = Plugin::trigger_change('user_comment_check', $comment_action, $comm);
 
         if ($comment_action != 'reject') {
-            $query = 'INSERT INTO ' . COMMENTS_TABLE;
-            $query .= ' (author, author_id, anonymous_id, content, date, validated, validation_date, image_id, website_url, email)';
-            $query .= ' VALUES (\'' . $comm['author'] . '\',';
-            $query .= $this->conn->db_real_escape_string($comm['author_id']) . ', \'' . $comm['ip'] . '\',';
-            $query .= '\'' . $this->conn->db_real_escape_string($comm['content']) . '\', NOW(), \'';
-            $query .= $comment_action == 'validate' ? $this->conn->boolean_to_db(true) : $this->conn->boolean_to_db(false);
-            $query .= '\', ' . ($comment_action == 'validate' ? 'NOW()' : 'NULL') . ',' . $comm['image_id'] . ',';
-            $query .= ' ' . (!empty($comm['website_url']) ? '\'' . $this->conn->db_real_escape_string($comm['website_url']) . '\'' : 'NULL') . ',';
-            $query .= ' ' . (!empty($comm['email']) ? '\'' . $this->conn->db_real_escape_string($comm['email']) . '\'' : 'NULL') . ')';
-            $this->conn->db_query($query);
-
-            $comm['id'] = $this->conn->db_insert_id(COMMENTS_TABLE);
+            $comm['id'] = (new CommentRepository($this->conn))->addComment([
+                'author' => $comm['author'],
+                'author_id' => $comm['author_id'],
+                'anonymous_id' => $comm['ip'],
+                'content' => $comm['content'],
+                'date' => 'now()',
+                'validated' => $comment_action === 'validate',
+                'validation_date' => ($comment_action == 'validate' ? 'now()' : ''),
+                'image_id' => $comm['image_id'],
+                'website_url' => (!empty($comm['website_url']) ? $comm['website_url'] : ''),
+                'email' => (!empty($comm['email']) ? $comm['email'] : '')
+            ]);
 
             $this->invalidateUserCacheNbComments();
 
@@ -240,21 +238,7 @@ class Comments
     {
         global $user, $services;
 
-        $user_where_clause = '';
-        if (!$services['users']->isAdmin()) {
-            $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($user['id']) . '\'';
-        }
-
-        if (is_array($comment_id)) {
-            $where_clause = 'id ' . $this->conn->in($comment_id);
-        } else {
-            $where_clause = 'id = ' . $this->conn->db_real_escape_string($comment_id);
-        }
-
-        $query = 'DELETE FROM ' . COMMENTS_TABLE;
-        $query .= ' WHERE ' . $where_clause . $user_where_clause . ';';
-
-        if ($this->conn->db_changes($this->conn->db_query($query))) {
+        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$services['users']->isAdmin() ? $user['id'] : null)) {
             $this->invalidateUserCacheNbComments();
 
             $this->email_admin(
@@ -270,31 +254,6 @@ class Comments
         }
 
         return false;
-    }
-
-    /**
-     * Returns the author id of a comment
-     *
-     * @param int $comment_id
-     * @param bool $die_on_error
-     * @return int
-     */
-    public function getCommentAuthorId($comment_id, $die_on_error = true)
-    {
-        $query = 'SELECT author_id FROM ' . COMMENTS_TABLE;
-        $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment_id);
-        $result = $this->conn->db_query($query);
-        if ($this->conn->db_num_rows($result) == 0) {
-            if ($die_on_error) {
-                \Phyxo\Functions\HTTP::fatal_error('Unknown comment identifier');
-            } else {
-                return false;
-            }
-        }
-
-        list($author_id) = $this->conn->db_fetch_row($result);
-
-        return $author_id;
     }
 
     /**
@@ -333,7 +292,7 @@ class Comments
 
         // website
         if (!empty($comment['website_url'])) {
-            $comm['website_url'] = strip_tags($comm['website_url']);
+            $comment['website_url'] = strip_tags($comment['website_url']);
             if (!preg_match('/^https?/i', $comment['website_url'])) {
                 $comment['website_url'] = 'http://' . $comment['website_url'];
             }
@@ -349,14 +308,11 @@ class Comments
                 $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($user['id']) . '\'';
             }
 
-            $query = 'UPDATE ' . COMMENTS_TABLE;
-            $query .= ' SET content = \'' . $comment['content'] . '\',';
-            $query .= ' website_url = ' . (!empty($comment['website_url']) ? '\'' . $this->conn->db_real_escape_string($comment['website_url']) . '\'' : 'NULL') . ',';
-            $query .= ' validated = \'' . ($comment_action == 'validate' ? '' . $this->conn->boolean_to_db(true) . '' : '' . $this->conn->boolean_to_db(false) . '') . '\',';
-            $query .= ' validation_date = ' . ($comment_action == 'validate' ? 'NOW()' : 'NULL');
-            $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment['comment_id']) . $user_where_clause . ';';
-            $result = $this->conn->db_query($query);
+            $comment['website_url'] = !empty($comment['website_url']) ? $comment['website_url'] : '';
+            $comment['validated'] = $comment_action === 'validate';
+            $comment['validation_date'] = $comment_action === 'validate' ? 'now()' : '';
 
+            $result = (new CommentRepository($this->conn))->updateComment($comment, $user_where_clause);
             // mail admin and ask to validate the comment
             if ($result && $this->conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
@@ -389,15 +345,7 @@ class Comments
      */
     public function validateUserComment($comment_id)
     {
-        if (is_array($comment_id)) {
-            $where_clause = 'id ' . $this->conn->in($comment_id);
-        } else {
-            $where_clause = 'id = ' . $this->conn->db_real_escape_string($comment_id);
-        }
-
-        $query = 'UPDATE ' . COMMENTS_TABLE;
-        $query .= ' SET validated = \'' . $this->conn->boolean_to_db(true) . '\', validation_date = NOW() WHERE ' . $where_clause . ';';
-        $this->conn->db_query($query);
+        (new CommentRepository($this->conn))->validateUserComment($comment_id);
 
         $this->invalidateUserCacheNbComments();
         Plugin::trigger_notify('user_comment_validation', $comment_id);
@@ -412,8 +360,7 @@ class Comments
 
         unset($user['nb_available_comments']);
 
-        $query = 'UPDATE ' . USER_CACHE_TABLE . ' SET nb_available_comments = NULL;';
-        $this->conn->db_query($query);
+        (new UserCacheRepository($this->conn))->invalidateUserCache('nb_available_comments');
     }
 
     /**

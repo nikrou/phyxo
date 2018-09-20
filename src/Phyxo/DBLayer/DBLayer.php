@@ -147,6 +147,12 @@ class DBLayer
     public function query2array($query, $key_name = null, $value_name = null)
     {
         $result = $this->db_query($query);
+
+        return $this->result2array($result, $key_name, $value_name);
+    }
+
+    public function result2array($result, $key_name = null, $value_name = null)
+    {
         $data = [];
 
         if (isset($key_name)) {

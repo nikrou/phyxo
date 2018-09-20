@@ -11,6 +11,7 @@
 
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Calendar\CalendarMonthly;
+use App\Repository\TagRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -249,7 +250,11 @@ if ('categories' == $page['section']) {
             $page['tag_ids'][] = $tag['id'];
         }
 
-        $items = $services['tags']->getImageIdsForTags($page['tag_ids']);
+        $items = $conn->result2array(
+            (new TagRepository($conn))->getImageIdsForTags($page['tag_ids']),
+            null,
+            'id'
+        );
 
         $page = array_merge(
             $page,

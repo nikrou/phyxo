@@ -14,6 +14,8 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use GuzzleHttp\Client;
+use App\Repository\TagRepository;
+use App\Repository\CommentRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -77,8 +79,7 @@ list($nb_physical) = $conn->db_fetch_row($conn->db_query($query));
 $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
 list($nb_image_category) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM ' . TAGS_TABLE;
-list($nb_tags) = $conn->db_fetch_row($conn->db_query($query));
+$nb_tags = (new TagRepository($conn))->count();
 
 $query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE;
 list($nb_image_tag) = $conn->db_fetch_row($conn->db_query($query));
@@ -93,7 +94,7 @@ $query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
 list($nb_rates) = $conn->db_fetch_row($conn->db_query($query));
 
 $template->assign(
-    array(
+    [
         'PHPWG_URL' => PHPWG_URL,
         'PWG_VERSION' => PHPWG_VERSION,
         'OS' => PHP_OS,
@@ -115,12 +116,11 @@ $template->assign(
         'U_PHPINFO' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?action=phpinfo',
         'PHP_DATATIME' => $php_current_timestamp,
         'DB_DATATIME' => $db_current_date,
-    )
+    ]
 );
 
 if ($conf['activate_comments']) {
-    $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ';';
-    list($nb_comments) = $conn->db_fetch_row($conn->db_query($query));
+    $nb_comments = (new CommentRepository($conn))->count();
     $template->assign('DB_COMMENTS', \Phyxo\Functions\Language::l10n_dec('%d comment', '%d comments', $nb_comments));
 }
 
@@ -130,10 +130,10 @@ if ($nb_elements > 0) {
 
     $template->assign(
         'first_added',
-        array(
+        [
             'DB_DATE' =>
                 \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($first_date))
-        )
+        ]
     );
 }
 

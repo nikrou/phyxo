@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CommentRepository;
 // +-----------------------------------------------------------------------+
 // | Basic constants and includes                                          |
 // +-----------------------------------------------------------------------+
@@ -139,9 +140,7 @@ if ($conf['activate_comments']) {
     $template->assign('U_COMMENTS', $link_start . 'comments');
 
     // pending comments
-    $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ' WHERE validated=\'' . $conn->boolean_to_db(false) . '\'';
-    list($nb_comments) = $conn->db_fetch_row($conn->db_query($query));
-
+    $nb_comments = (new CommentRepository($conn))->count($validated = false);
     if ($nb_comments > 0) {
         $template->assign('NB_PENDING_COMMENTS', $nb_comments);
     }

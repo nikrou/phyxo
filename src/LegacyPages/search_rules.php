@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-// +-----------------------------------------------------------------------+
-// |                           initialization                              |
-// +-----------------------------------------------------------------------+
+use App\Repository\TagRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -63,11 +61,10 @@ if (isset($search['fields']['allwords'])) {
 if (isset($search['fields']['tags'])) {
     $template->assign('SEARCH_TAGS_MODE', $search['fields']['tags']['mode']);
 
-    $query = 'SELECT name FROM ' . TAGS_TABLE;
-    $query .= ' WHERE id ' . $conn->in($search['fields']['tags']['words']);
+    $result = (new TagRepository($conn))->findTags($search['fields']['tags']['words']);
     $template->assign(
         'search_tags',
-        $conn->query2array($query, 'name')
+        $conn->result2array($query, 'name')
     );
 }
 

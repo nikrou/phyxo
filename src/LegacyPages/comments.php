@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CommentRepository;
+
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
@@ -185,7 +187,7 @@ foreach ($actions as $loop_action) {
 }
 
 if (isset($action)) {
-    $comment_author_id = $services['comments']->getCommentAuthorId($comment_id);
+    $comment_author_id = (new CommentRepository($conn))->getCommentAuthorId($comment_id);
 
     if ($services['users']->canManageComment($action, $comment_author_id)) {
         $perform_redirect = false;
@@ -244,7 +246,6 @@ if (isset($action)) {
 // +-----------------------------------------------------------------------+
 
 $title = \Phyxo\Functions\Language::l10n('User comments');
-
 $template->assign(
     [
         'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
@@ -309,23 +310,14 @@ $comments = [];
 $element_ids = [];
 $category_ids = [];
 
-$query = 'SELECT com.id AS comment_id, com.image_id, ic.category_id, com.author,';
-$query .= 'com.author_id, u.' . $conf['user_fields']['email'] . ' AS user_email, com.email,';
-$query .= 'com.date,com.website_url,com.content,com.validated FROM ' . COMMENTS_TABLE . ' AS com';
-$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = com.image_id';
-$query .= ' LEFT JOIN ' . USERS_TABLE . ' As u ON u.' . $conf['user_fields']['id'] . ' = com.author_id';
-$query .= ' WHERE ' . implode(' AND ', $page['where_clauses']);
-$query .= ' GROUP BY comment_id, ic.category_id, u.mail_address';
-$query .= ' ORDER BY ' . $page['sort_by'] . ' ' . $page['sort_order'];
-
-$result_count = $conn->db_query($query);
-$counter = $conn->db_num_rows($result_count);
-
-if ('all' != $page['items_number']) {
-    $query .= ' LIMIT ' . $page['items_number'] . ' OFFSET ' . $conn->db_real_escape_string($start);
-}
-
-$result = $conn->db_query($query);
+$query_params = [
+    'where_clauses' => $page['where_clauses'],
+    'limit' => $page['items_number'],
+    'offset' => $start,
+    'order_by' => $page['sort_by'] . ' ' . $page['sort_order'],
+];
+$nb_comments = (new CommentRepository($conn))->getLastComments($query_params, $count_only = true);
+$result = (new CommentRepository($conn))->getLastComments($query_params);
 while ($row = $conn->db_fetch_assoc($result)) {
     $comments[] = $row;
     $element_ids[] = $row['image_id'];
@@ -335,11 +327,12 @@ while ($row = $conn->db_fetch_assoc($result)) {
 $url = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(['start', 'edit', 'delete', 'validate', 'pwg_token']);
 $navbar = \Phyxo\Functions\Utils::create_navigation_bar(
     $url,
-    $counter,
+    $nb_comments,
     $start,
     $page['items_number'],
     ''
 );
+
 $template->assign('navbar', $navbar);
 
 if (count($comments) > 0) {

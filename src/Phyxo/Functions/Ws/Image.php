@@ -15,6 +15,8 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
 use Phyxo\Ws\NamedArray;
+use App\Repository\TagRepository;
+use App\Repository\CommentRepository;
 
 class Image
 {
@@ -165,22 +167,14 @@ class Image
         //---------------------------------------------------------- related comments
         $related_comments = [];
 
-        $where_comments = 'image_id = ' . $image_row['id'];
-        if (!$services['users']->isAdmin()) {
-            $where_comments .= ' AND validated=\'' . $conn->boolean_to_db(true) . '\'';
-        }
-
-        $query = 'SELECT COUNT(id) AS nb_comments FROM ' . COMMENTS_TABLE . ' WHERE ' . $where_comments . ';';
-        list($nb_comments) = $conn->query2array($query, null, 'nb_comments');
-        $nb_comments = (int)$nb_comments;
+        $nb_comments = (new CommentRepository($conn))->countByImage($image_row['id'], $services['users']->isAdmin());
 
         if ($nb_comments > 0 and $params['comments_per_page'] > 0) {
-            $query = 'SELECT id, date, author, content FROM ' . COMMENTS_TABLE;
-            $query .= ' WHERE ' . $where_comments . ' ORDER BY date';
-            $query .= ' LIMIT ' . (int)$params['comments_per_page'];
-            $query .= ' OFFSET ' . (int)($params['comments_per_page'] * $params['comments_page']) . ';';
-            $result = $conn->db_query($query);
-
+            $result = (new CommentRepository($conn))->getCommentsByImagePerPage(
+                $image_row['id'],
+                $params['comments_per_page'],
+                $params['comments_per_page'] * $params['comments_page']
+            );
             while ($row = $conn->db_fetch_assoc($result)) {
                 $row['id'] = (int)$row['id'];
                 $related_comments[] = $row;
@@ -1046,12 +1040,9 @@ class Image
             $params['tags'] = [];
         }
 
-        $query = 'SELECT id FROM ' . TAGS_TABLE . ' AS t';
-        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
-
+        $result = (new TagRepository($conn))->getTagsByImage($params['image_id']);
         $removed_tags_ids = $new_tags_ids = [];
-        $current_tags_ids = $conn->query2array($query, null, 'id');
+        $current_tags_ids = $conn->result2array($result, null, 'id');
         $current_tags = array_map(function ($id) {
             return '~~' . $id . '~~';
         }, $current_tags_ids);

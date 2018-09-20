@@ -14,6 +14,8 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
+use App\Repository\CommentRepository;
+use App\Repository\TagRepository;
 
 class Main
 {
@@ -143,8 +145,7 @@ class Main
         $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE . ';';
         list($infos['nb_image_category']) = $conn->db_fetch_row($conn->db_query($query));
 
-        $query = 'SELECT COUNT(1) FROM ' . TAGS_TABLE . ';';
-        list($infos['nb_tags']) = $conn->db_fetch_row($conn->db_query($query));
+        $infos['nb_tags'] = (new TagRepository($conn))->count();
 
         $query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE . ';';
         list($infos['nb_image_tag']) = $conn->db_fetch_row($conn->db_query($query));
@@ -155,8 +156,7 @@ class Main
         $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE . ';';
         list($infos['nb_groups']) = $conn->db_fetch_row($conn->db_query($query));
 
-        $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ';';
-        list($infos['nb_comments']) = $conn->db_fetch_row($conn->db_query($query));
+        $infos['nb_comments'] = (new CommentRepository($conn))->count();
 
         // first element
         if ($infos['nb_elements'] > 0) {
@@ -166,8 +166,7 @@ class Main
 
         // unvalidated comments
         if ($infos['nb_comments'] > 0) {
-            $query = 'SELECT COUNT(1) FROM ' . COMMENTS_TABLE . ' WHERE validated=\'' . $conn->boolean_to_db(false) . '\'';
-            list($infos['nb_unvalidated_comments']) = $conn->db_fetch_row($conn->db_query($query));
+            list($infos['nb_unvalidated_comments']) = (new CommentRepository($conn))->count($validated = false);
         }
 
         foreach ($infos as $name => $value) {

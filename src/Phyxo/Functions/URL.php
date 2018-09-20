@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\TagRepository;
+
 class URL
 {
     /**
@@ -381,7 +383,7 @@ class URL
      */
     public static function parse_section_url($tokens, &$next_token)
     {
-        global $services;
+        global $conn;
 
         $page = [];
         if (strncmp(@$tokens[$next_token], 'categor', 7) == 0) { // @TODO: remove arobase, add test
@@ -464,7 +466,8 @@ class URL
                 \Phyxo\Functions\HTTP::bad_request('at least one tag required');
             }
 
-            $page['tags'] = $services['tags']->findTags($requested_tag_ids, $requested_tag_url_names);
+            $result = (new TagRepository($conn))->findTags($requested_tag_ids, $requested_tag_url_names);
+            $page['tags'] = $conn->result2array($result);
             if (empty($page['tags'])) {
                 \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Requested tag does not exist'), self::get_root_url() . 'tags.php');
             }

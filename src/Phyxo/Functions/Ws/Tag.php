@@ -14,6 +14,7 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
+use App\Repository\TagRepository;
 
 class Tag
 {
@@ -83,7 +84,7 @@ class Tag
         global $conn, $services;
 
         // first build all the tag_ids we are interested in
-        $tags = $services['tags']->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']);
+        $tags = $conn->result2array((new TagRepository($conn))->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']));
         $tags_by_id = [];
         foreach ($tags as $tag) {
             $tags['id'] = (int)$tag['id'];
@@ -102,11 +103,15 @@ class Tag
             $order_by = 'ORDER BY ' . $order_by;
         }
 
-        $image_ids = $services['tags']->getImageIdsForTags(
-            $tag_ids,
-            $params['tag_mode_and'] ? 'AND' : 'OR',
-            $where_clauses,
-            $order_by
+        $image_ids = $conn->result2array(
+            (new TagRepository($conn))->getImageIdsForTags(
+                $tag_ids,
+                $params['tag_mode_and'] ? 'AND' : 'OR',
+                $where_clauses,
+                $order_by
+            ),
+            null,
+            'id'
         );
 
         $count_set = count($image_ids);

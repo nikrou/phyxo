@@ -12,11 +12,14 @@
 namespace Phyxo\Functions;
 
 use Phyxo\Block\RegisteredBlock;
-use Phyxo\DBLayer\iDBLayer;
+use Phyxo\DBLayer\DBLayer;
+use App\Repository\CommentRepository;
+use App\Repository\ImageCategory;
+use App\Repository\ImageCategoryRepository;
 
 class Utils
 {
-    public static function phyxoInstalled(iDBLayer $conn, $prefix = 'phyxo_')
+    public static function phyxoInstalled(DBLayer $conn, $prefix = 'phyxo_')
     {
         $tables = $conn->db_get_tables($prefix);
 
@@ -748,23 +751,7 @@ class Utils
         global $user, $conn, $services;
 
         if (!isset($user['nb_available_comments'])) {
-            $where = [];
-            if (!$services['users']->isAdmin()) {
-                $where[] = 'validated=\'' . $conn->boolean_to_db(true) . '\'';
-            }
-            $where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                [
-                    'forbidden_categories' => 'category_id',
-                    'forbidden_images' => 'ic.image_id'
-                ],
-                '',
-                true
-            );
-
-            $query = 'SELECT COUNT(DISTINCT(com.id)) FROM ' . IMAGE_CATEGORY_TABLE . ' AS ic';
-            $query .= ' LEFT JOIN ' . COMMENTS_TABLE . ' AS com ON ic.image_id = com.image_id';
-            $query .= ' WHERE ' . implode(' AND ', $where);
-            list($user['nb_available_comments']) = $conn->db_fetch_row($conn->db_query($query));
+            $user['nb_available_comments'] = (new ImageCategoryRepository($conn))->countAvailableComments($services['users']->isAdmin());
 
             $conn->single_update(
                 USER_CACHE_TABLE,
@@ -1349,8 +1336,7 @@ class Utils
         }
 
         // destruction of the comments on the image
-        $query = 'DELETE FROM ' . COMMENTS_TABLE . ' WHERE image_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new CommentRepository($conn))->deleteByImage($ids);
 
         // destruction of the links between images and categories
         $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id ' . $conn->in($ids);

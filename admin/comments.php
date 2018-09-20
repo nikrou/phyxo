@@ -16,6 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 define('COMMENTS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments');
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\CommentRepository;
 
 if (isset($_GET['start']) and is_numeric($_GET['start'])) {
     $page['start'] = $_GET['start'];
@@ -87,8 +88,7 @@ $template->assign([
 $nb_total = 0;
 $nb_pending = 0;
 
-$query = 'SELECT COUNT(1) AS counter,validated FROM ' . COMMENTS_TABLE . ' GROUP BY validated;';
-$result = $conn->db_query($query);
+$result = (new CommentRepository($conn))->countGroupByValidated();
 while ($row = $conn->db_fetch_assoc($result)) {
     $nb_total += $row['counter'];
 
@@ -109,28 +109,17 @@ if ($page['section'] === 'all') {
     ]);
 }
 
-$where_clauses = array('1=1');
-
-if ('pending' == $page['section']) {
-    $where_clauses[] = 'validated=\'' . $conn->boolean_to_db(false) . '\'';
-}
-
-$query = 'SELECT c.id,c.image_id,c.date,c.author,';
-$query .= $conf['user_fields']['username'] . ' AS username,c.content,i.path,';
-$query .= 'i.representative_ext,validated,c.anonymous_id FROM ' . COMMENTS_TABLE . ' AS c';
-$query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON i.id = c.image_id';
-$query .= ' LEFT JOIN ' . USERS_TABLE . ' AS u ON u.' . $conf['user_fields']['id'] . ' = c.author_id';
-$query .= ' WHERE ' . implode(' AND ', $where_clauses);
-$query .= ' ORDER BY c.date DESC';
-$query .= ' LIMIT ' . $conf['comments_page_nb_comments'] . ' OFFSET ' . $page['start'];
-
-$result = $conn->db_query($query);
+$result = (new CommentRepository($conn))->getCommentOnImages(
+    $conf['comments_page_nb_comments'],
+    $page['start'],
+    $validated = $page['section'] === 'pending' ? false : null
+);
 while ($row = $conn->db_fetch_assoc($result)) {
     $thumb = \Phyxo\Image\DerivativeImage::thumb_url(
-        array(
+        [
             'id' => $row['image_id'],
             'path' => $row['path'],
-        )
+        ]
     );
     if (empty($row['author_id'])) {
         $author_name = $row['author'];
@@ -139,16 +128,16 @@ while ($row = $conn->db_fetch_assoc($result)) {
     }
     $template->append(
         'comments',
-        array(
+        [
             'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'],
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
             'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),
-            'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], array('day_name', 'day', 'month', 'year', 'time')),
+            'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
             'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
             'IS_PENDING' => $conn->get_boolean($row['validated']) === false,
             'IP' => $row['anonymous_id'],
-        )
+        ]
     );
 
     $list[] = $row['id'];
@@ -159,7 +148,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // +-----------------------------------------------------------------------+
 
 $navbar = \Phyxo\Functions\Utils::create_navigation_bar(
-    \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
+    \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(['start']),
     ('pending' == $page['section'] ? $nb_pending : $nb_total),
     $page['start'],
     $conf['comments_page_nb_comments']
@@ -173,4 +162,4 @@ $template->assign('navbar', $navbar);
 
 $template_filename = 'comments';
 
-$template->assign(array('F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments'));
+$template->assign(['F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments']);
