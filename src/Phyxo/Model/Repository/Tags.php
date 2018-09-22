@@ -17,6 +17,7 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\UserCacheRepository;
 
 class Tags
 {
@@ -35,7 +36,7 @@ class Tags
      * @param  q string substring of tag to search
      * @return array [id, name, url_name]
      */
-    public function getAllTags($q = '')
+    public function getAllTags(string $q = '')
     {
         $result = (new TagRepository($this->conn))->findAll($q);
         $tags = [];
@@ -74,8 +75,7 @@ class Tags
     {
         if (!isset($user['nb_available_tags'])) {
             $user['nb_available_tags'] = count($this->getAvailableTags($user));
-            $this->conn->single_update(
-                USER_CACHE_TABLE,
+            (new UserCacheRepository($this->conn))->updateUserCache(
                 ['nb_available_tags' => $user['nb_available_tags']],
                 ['user_id' => $user['id']]
             );
@@ -145,26 +145,23 @@ class Tags
     }
 
     /**
-     * Get tags list from SQL query (ids are surrounded by ~~, for getTagsIds()).
+     * Get tags list and surround ids by ~~, for getTagsIds()) to differenciate new tags from existing tags
      *
-     * @param string $query
      * @param boolean $only_user_language - if true, only local name is returned for
      *    multilingual tags (if ExtendedDescription plugin is active)
      * @return array[] ('id', 'name')
      */
-    public function getTagsList($query, $only_user_language = true)
+    public function prepareTagsListForUI(array $tags, $only_user_language = true) : array
     {
-        $result = $this->conn->db_query($query);
-
         $taglist = [];
         $altlist = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
-            $raw_name = $row['name'];
-            $name = Plugin::trigger_change('render_tag_name', $raw_name, $row);
+        foreach ($tags as $tag) {
+            $raw_name = $tag['name'];
+            $name = Plugin::trigger_change('render_tag_name', $raw_name, $tag);
 
             $taglist[] = [
                 'name' => $name,
-                'id' => '~~' . $row['id'] . '~~',
+                'id' => '~~' . $tag['id'] . '~~',
             ];
 
             if (!$only_user_language) {
@@ -173,7 +170,7 @@ class Tags
                 foreach (array_diff(array_unique($alt_names), [$name]) as $alt) {
                     $altlist[] = [
                         'name' => $alt,
-                        'id' => '~~' . $row['id'] . '~~',
+                        'id' => '~~' . $tag['id'] . '~~',
                     ];
                 }
             }
@@ -199,7 +196,7 @@ class Tags
      * @param boolean $allow_create
      * @return int[]
      */
-    public function getTagsIds($raw_tags, $allow_create = true)
+    public function getTagsIds($raw_tags, bool $allow_create = true)
     {
         $tag_ids = [];
         if (!is_array($raw_tags)) {
@@ -224,7 +221,7 @@ class Tags
      * @param string $tag_name
      * @return int
      */
-    public function tagIdFromTagName($tag_name)
+    public function tagIdFromTagName(string $tag_name) : int
     {
         $tag_name = trim($tag_name);
 
@@ -238,16 +235,12 @@ class Tags
             $result = (new TagRepository($this->conn))->findBy('url_name', $url_name);
             $existing_tags = $this->conn->result2array($result, null, 'id');
 
-            if (count($existing_tags) == 0) { // finally create the tag
-                $this->conn->mass_inserts(
-                    TAGS_TABLE,
-                    ['name', 'url_name'],
-                    [['name' => $tag_name, 'url_name' => $url_name]]
-                );
+            if (count($existing_tags) === 0) { // finally create the tag
+                $insert_tag_id = (new TagRepository($this->conn))->insertTag($tag_name, $url_name);
 
                 \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
 
-                return $this->conn->db_insert_id(TAGS_TABLE);
+                return $insert_tag_id;
             }
         }
 
@@ -256,11 +249,8 @@ class Tags
 
     /**
      * Add new tags to a set of images.
-     *
-     * @param int[] $tags
-     * @param int[] $images
      */
-    public function addTags($tags, $images)
+    public function addTags(array $tags, array $images)
     {
         if (count($tags) == 0 or count($images) == 0) {
             return;
@@ -279,8 +269,7 @@ class Tags
                 ];
             }
         }
-        $this->conn->mass_inserts(
-            IMAGE_TAG_TABLE,
+        (new ImageTagRepository($this->conn))->insertImageTags(
             array_keys($inserts[0]),
             $inserts
         );
@@ -294,7 +283,7 @@ class Tags
      * @param int[] $tags
      * @param int $image_id
      */
-    public function setTags($tags, $image_id)
+    public function setTags(array $tags, int $image_id)
     {
         $this->setTagsOf([$image_id => $tags]);
     }
@@ -304,16 +293,8 @@ class Tags
      *
      * @param int[] $tag_ids
      */
-    public function deleteTags($tag_ids)
+    public function deleteTags(array $tag_ids)
     {
-        if (is_numeric($tag_ids)) {
-            $tag_ids = [$tag_ids];
-        }
-
-        if (!is_array($tag_ids)) {
-            return false;
-        }
-
         (new ImageTagRepository($this->conn))->deleteBy('tag_id', $tag_ids);
         (new TagRepository($this->conn))->deleteBy('id', $tag_ids);
 
@@ -325,7 +306,7 @@ class Tags
      *
      * @param array $tags_of - keys are image ids, values are array of tag ids
      */
-    public function setTagsOf($tags_of)
+    public function setTagsOf(array $tags_of)
     {
         if (count($tags_of) > 0) {
             (new ImageTagRepository($this->conn))->deleteBy('image_id', array_keys($tags_of));
@@ -342,8 +323,7 @@ class Tags
             }
 
             if (count($inserts)) {
-                $this->conn->mass_inserts(
-                    IMAGE_TAG_TABLE,
+                (new ImageTagRepository($this->conn))->insertImageTags(
                     array_keys($inserts[0]),
                     $inserts
                 );
@@ -364,7 +344,7 @@ class Tags
      * @param array $tags at least [id, counter]
      * @return array [..., level]
      */
-    public function addLevelToTags($tags)
+    public function addLevelToTags(array $tags) : array
     {
         if (count($tags) == 0) {
             return $tags;
@@ -426,22 +406,14 @@ class Tags
      * @param string $tag_name
      * @return array ('id', info') or ('error')
      */
-    public function createTag($tag_name)
+    public function createTag(string $tag_name) : array
     {
         // does the tag already exists?
         $result = (new TagRepository($this->conn))->findBy('name', $tag_name);
         $existing_tags = $this->conn->result2array($result, null, 'id');
 
         if (count($existing_tags) === 0) {
-            $this->conn->single_insert(
-                TAGS_TABLE,
-                [
-                    'name' => $tag_name,
-                    'url_name' => Plugin::trigger_change('render_tag_url', $tag_name),
-                ]
-            );
-
-            $inserted_id = $this->conn->db_insert_id(TAGS_TABLE);
+            $inserted_id = (new TagRepository($this->conn))->insertTag($tag_name, Plugin::trigger_change('render_tag_url', $tag_name));
 
             return [
                 'info' => \Phyxo\Functions\Language::l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
@@ -452,7 +424,7 @@ class Tags
         }
     }
 
-    public function associateTags($tag_ids, $image_id)
+    public function associateTags(array $tag_ids, int $image_id)
     {
         if (!is_array($tag_ids)) {
             return;
@@ -465,8 +437,7 @@ class Tags
                 'tag_id' => $tag_id
             ];
         }
-        $this->conn->mass_inserts(
-            IMAGE_TAG_TABLE,
+        (new ImageTagRepository($this->conn))->insertImageTags(
             array_keys($inserts[0]),
             $inserts
         );
@@ -474,7 +445,7 @@ class Tags
     }
 
     // @param $elements in an array of tags indexed by image_id
-    public function rejectTags($elements)
+    public function rejectTags(array $elements)
     {
         if (empty($elements)) {
             return;
@@ -488,8 +459,7 @@ class Tags
                 ];
             }
         }
-        $this->conn->mass_deletes(
-            IMAGE_TAG_TABLE,
+        (new ImageTagRepository($this->conn))->deleteImageTags(
             ['tag_id', 'image_id'],
             $deletes
         );
@@ -511,8 +481,7 @@ class Tags
                 ];
             }
         }
-        $this->conn->mass_updates(
-            IMAGE_TAG_TABLE,
+        (new ImageTagRepository($this->conn))->updateImageTags(
             [
                 'primary' => ['tag_id', 'image_id'],
                 'update' => ['validated']
@@ -541,7 +510,7 @@ class Tags
      *                      status[0|1] - 0 for deletion, 1 for addition
      *                      user_id -id user who add or delete tags
      */
-    public function toBeValidatedTags($tags_ids, $image_id, array $infos)
+    public function toBeValidatedTags(array $tags_ids, int $image_id, array $infos)
     {
         $rows = [];
         foreach ($tags_ids as $id) {
@@ -555,15 +524,13 @@ class Tags
         }
 
         if (count($rows) > 0) {
-            if ($infos['status'] == 1) {
-                $this->conn->mass_inserts(
-                    IMAGE_TAG_TABLE,
+            if ($infos['status'] === 1) {
+                (new ImageTagRepository($this->conn))->insertImageTags(
                     array_keys($rows[0]),
                     $rows
                 );
             } else {
-                $this->conn->mass_updates(
-                    IMAGE_TAG_TABLE,
+                (new ImageTagRepository($this->conn))->updateImageTags(
                     [
                         'primary' => ['tag_id', 'image_id'],
                         'update' => ['status', 'validated', 'created_by']

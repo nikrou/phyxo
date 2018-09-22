@@ -15,6 +15,8 @@ use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
+use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\UserCacheRepository;
 
 class Users
 {
@@ -448,7 +450,7 @@ class Users
 
         foreach ($userdata as &$value) {
             // If the field is true or false, the variable is transformed into a boolean value.
-            if ($this->conn->is_boolean($value)) {
+            if (!is_null($value) && $this->conn->is_boolean($value)) {
                 $value = $this->conn->get_boolean($value);
             }
         }
@@ -503,10 +505,8 @@ class Users
 
                 // delete user cache
                 $this->conn->db_write_lock(USER_CACHE_CATEGORIES_TABLE);
-                $query = 'DELETE FROM ' . USER_CACHE_CATEGORIES_TABLE . ' WHERE user_id = ' . $userdata['id'];
-                $this->conn->db_query($query);
-                $this->conn->mass_inserts(
-                    USER_CACHE_CATEGORIES_TABLE,
+                (new UserCacheCategoriesRepository($this->conn))->deleteByUserId($userdata['id']);
+                (new UserCacheCategoriesRepository($this->conn))->insertUserCacheCategories(
                     [
                         'user_id', 'cat_id',
                         'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
@@ -519,17 +519,20 @@ class Users
                 // update user cache
                 $this->conn->db_start_transaction();
                 try {
-                    $query = 'DELETE FROM ' . USER_CACHE_TABLE . ' WHERE user_id = ' . $userdata['id'];
-                    $this->conn->db_query($query);
+                    (new UserCacheRepository($this->conn))->deleteUserCache($userdata['id']);
+                    (new UserCacheRepository($this->conn))->insertUserCache(
+                        [
+                            'user_id' => $userdata['id'],
+                            'need_update' => $userdata['need_update'],
+                            'cache_update_time' => $userdata['cache_update_time'],
+                            'forbidden_categories' => $userdata['forbidden_categories'],
+                            'nb_total_images' => $userdata['nb_total_images'],
+                            $userdata['last_photo_date'] ?? $userdata['last_photo_date'],
+                            'image_access_type' => $userdata['image_access_type'],
+                            'image_access_list' => $userdata['image_access_list']
+                        ]
+                    );
 
-                    $query = 'INSERT INTO ' . USER_CACHE_TABLE;
-                    $query .= ' (user_id, need_update, cache_update_time, forbidden_categories, nb_total_images,';
-                    $query .= ' last_photo_date,image_access_type, image_access_list)';
-                    $query .= ' VALUES(' . $userdata['id'] . ',\'' . $this->conn->boolean_to_db($userdata['need_update']) . '\',';
-                    $query .= $userdata['cache_update_time'] . ',\'' . $userdata['forbidden_categories'] . '\',' . $userdata['nb_total_images'] . ',';
-                    $query .= (empty($userdata['last_photo_date']) ? 'NULL' : '\'' . $userdata['last_photo_date'] . '\'');
-                    $query .= ',\'' . $userdata['image_access_type'] . '\',\'' . $userdata['image_access_list'] . '\')';
-                    $this->conn->db_query($query);
                     $this->conn->db_commit();
                 } catch (Exception $e) {
                     $this->conn->db_rollback();
@@ -661,7 +664,7 @@ class Users
             $default_user = $this->cache['default_user'];
             foreach ($default_user as &$value) {
                 // If the field is true or false, the variable is transformed into a boolean value.
-                if ($this->conn->is_boolean($value)) {
+                if (!is_null($value) && $this->conn->is_boolean($value)) {
                     $value = $this->conn->get_boolean($value);
                 }
             }

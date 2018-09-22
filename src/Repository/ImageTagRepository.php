@@ -27,4 +27,19 @@ class ImageTagRepository extends BaseRepository
         $query .= ' WHERE ' . $field . ' ' . $this->conn->in($values);
         $this->conn->db_query($query);
     }
+
+    public function updateImageTags(array $fields, array $datas)
+    {
+        $this->conn->mass_updates(self::IMAGE_TAG_TABLE, $fields, $datas);
+    }
+
+    public function insertImageTags(array $fields, array $datas)
+    {
+        $this->conn->mass_insert(self::IMAGE_TAG_TABLE, $fields, $datas);
+    }
+
+    public function deleteImageTags(array $fields, array $datas)
+    {
+        $this->conn->mass_deletes(self::IMAGE_TAG_TABLE, $fields, $datas);
+    }
 }

@@ -33,11 +33,16 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function insertTag(string $tag_name, string $url_name)
+    {
+        return $this->conn->single_insert(self::TAGS_TABLE, ['name' => $tag_name, 'url_name' => $url_name]);
+    }
+
     public function count() : int
     {
         $query = 'SELECT count(1) FROM ' . self::TAGS_TABLE;
         $result = $this->conn->db_query($query);
-        list($nb_tags) = $conn->db_fetch_row($result);
+        list($nb_tags) = $this->conn->db_fetch_row($result);
 
         return $nb_tags;
     }
@@ -133,14 +138,16 @@ class TagRepository extends BaseRepository
         }
 
         return $this->conn->db_query($query);
-        //return $this->conn->query2array($query, null, 'id');
     }
 
-    public function getTagsByImage(int $image_id)
+    public function getTagsByImage(int $image_id, ? bool $validated)
     {
         $query = 'SELECT id FROM ' . self::TAGS_TABLE . ' AS t';
         $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($image_id);
+        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
+        if ($validated !== null) {
+            $query .= ' AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
+        }
 
         return $this->conn->db_query($query);
     }
@@ -178,7 +185,7 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getCommonTags($user, array $items, $max_tags, array $excluded_tag_ids = [])
+    public function getCommonTags($user, array $items, int $max_tags, array $excluded_tag_ids = [])
     {
         $query = 'SELECT id,name,validated,created_by,status,';
         $query .= ' url_name, count(1) AS counter FROM ' . self::TAGS_TABLE . ' AS t';
@@ -191,7 +198,7 @@ class TagRepository extends BaseRepository
         $query .= ' GROUP BY validated,created_by,status,t.id';
 
         if ($max_tags > 0) {
-            $query .= ' ORDER BY counter DESC LIMIT ' . $max_tags;
+            $query .= ' ORDER BY counter DESC LIMIT ' . $this->conn->db_real_escape_string($max_tags);
         }
 
         return $this->conn->db_query($query);
@@ -216,10 +223,10 @@ class TagRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
-    public function deleteByImageAndTags(int $image, array $tags)
+    public function deleteByImageAndTags(int $image_id, array $tags)
     {
         $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id ' . $image;
+        $query .= ' WHERE image_id ' . $this->conn->db_real_escape_string($image_id);
         $query .= ' AND tag_id ' . $this->conn->in($tags);
         $this->conn->db_query($query);
     }
@@ -239,13 +246,18 @@ class TagRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
-    private function validatedCondition($user_id)
+    public function updateTags(array $fields, array $datas)
+    {
+        $this->conn->mass_updates(self::TAGS_TABLE, $fields, $datas);
+    }
+
+    private function validatedCondition(int $user_id)
     {
         $sql = '((validated = \'' . $this->conn->boolean_to_db(true) . '\' AND status = 1)';
         $sql .= ' OR (validated = \'' . $this->conn->boolean_to_db(false) . '\' AND status = 0))';
 
         if (!empty($this->conf['show_pending_added_tags'])) {
-            $sql .= ' OR (created_by = ' . $user_id . ')';
+            $sql .= ' OR (created_by = ' . $this->conn->db_real_escape_string($user_id) . ')';
         }
 
         return $sql;

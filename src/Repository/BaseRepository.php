@@ -25,6 +25,7 @@ class BaseRepository
 
     const COMMENTS_TABLE = 'phyxo_comments';
     const USER_CACHE_TABLE = 'phyxo_user_cache';
+    const USER_CACHE_CATEGORIES_TABLE = 'phyxo_user_cache_categories';
 
     protected $conn = null;
 

@@ -20,6 +20,7 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
 }
 
 use Phyxo\LocalSiteReader;
+use App\Repository\TagRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -354,10 +355,8 @@ $template->assign(
 $filter_tags = [];
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
-    $query = 'SELECT id,name FROM ' . TAGS_TABLE;
-    $query .= ' WHERE id ' . $conn->in($_SESSION['bulk_manager_filter']['tags']);
-
-    $filter_tags = $services['tags']->getTagsList($query);
+    $tags = $conn->result2array((new TagRepository($conn))->findTags($_SESSION['bulk_manager_filter']['tags']));
+    $filter_tags = $services['tags']->prepareTagsListForUI($tags);
 }
 
 $template->assign('filter_tags', $filter_tags);

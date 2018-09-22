@@ -13,6 +13,8 @@ if (!defined("PHOTO_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+use App\Repository\TagRepository;
+
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
@@ -28,7 +30,7 @@ $represented_albums = $conn->query2array($query, 'id');
 if (isset($_GET['delete'])) {
     \Phyxo\Functions\Utils::check_token();
 
-    \Phyxo\Functions\Utils::delete_elements(array($_GET['image_id']), true);
+    \Phyxo\Functions\Utils::delete_elements([$_GET['image_id']], true);
     \Phyxo\Functions\Utils::invalidate_user_cache();
 
     // where to redirect the user now?
@@ -40,9 +42,9 @@ if (isset($_GET['delete'])) {
     if (!empty($_GET['cat_id'])) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
-                array(
+                [
                     'category' => \Phyxo\Functions\Category::get_cat_info($_GET['cat_id'])
-                )
+                ]
             )
         );
     }
@@ -58,9 +60,9 @@ if (isset($_GET['delete'])) {
     foreach ($authorizeds as $category_id) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
-                array(
+                [
                     'category' => \Phyxo\Functions\Category::get_cat_info($category_id)
-                )
+                ]
             )
         );
     }
@@ -73,13 +75,13 @@ if (isset($_GET['delete'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['sync_metadata'])) {
-    \Phyxo\Functions\Metadata::sync_metadata(array(intval($_GET['image_id'])));
+    \Phyxo\Functions\Metadata::sync_metadata([intval($_GET['image_id'])]);
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
 }
 
 //--------------------------------------------------------- update informations
 if (isset($_POST['submit'])) {
-    $data = array();
+    $data = [];
     $data['id'] = $_GET['image_id'];
     $data['name'] = $_POST['name'];
     $data['author'] = $_POST['author'];
@@ -103,11 +105,11 @@ if (isset($_POST['submit'])) {
     $conn->single_update(
         IMAGES_TABLE,
         $data,
-        array('id' => $data['id'])
+        ['id' => $data['id']]
     );
 
     // time to deal with tags
-    $tag_ids = array();
+    $tag_ids = [];
     if (!empty($_POST['tags'])) {
         $tag_ids = $services['tags']->getTagsIds($_POST['tags']);
     }
@@ -115,16 +117,16 @@ if (isset($_POST['submit'])) {
 
     // association to albums
     if (!isset($_POST['associate'])) {
-        $_POST['associate'] = array();
+        $_POST['associate'] = [];
     }
     \Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, true, PATTERN_ID);
-    \Phyxo\Functions\Category::move_images_to_categories(array($_GET['image_id']), $_POST['associate']);
+    \Phyxo\Functions\Category::move_images_to_categories([$_GET['image_id']], $_POST['associate']);
 
     \Phyxo\Functions\Utils::invalidate_user_cache();
 
     // thumbnail for albums
     if (!isset($_POST['represent'])) {
-        $_POST['represent'] = array();
+        $_POST['represent'] = [];
     }
     \Phyxo\Functions\Utils::check_input_parameter('represent', $_POST, true, PATTERN_ID);
 
@@ -146,11 +148,8 @@ if (isset($_POST['submit'])) {
 }
 
 // tags
-$query = 'SELECT id,name FROM ' . TAGS_TABLE . ' AS t';
-$query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
-$query .= ' WHERE image_id = ' . $conn->db_real_escape_string($_GET['image_id']);
-$query .= ' AND validated = \'' . $conn->boolean_to_db(true) . '\'';
-$tag_selection = $services['tags']->getTagsList($query);
+$tags = (new TagRepository($conn))->getTagsByImage($_GET['image_id'], $validated = true);
+$tag_selection = (new TagRepository($conn))->prepareTagsListForUi($tags);
 
 // retrieving direct information about picture
 $query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id = ' . (int)$_GET['image_id'];
@@ -173,7 +172,7 @@ $admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id=' . $_GET['cat_id'] : 
 $src_image = new \Phyxo\Image\SrcImage($row);
 
 $template->assign(
-    array(
+    [
         'tag_selection' => $tag_selection,
         'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
         'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
@@ -188,8 +187,8 @@ $template->assign(
         'AUTHOR' => htmlspecialchars(isset($_POST['author']) ? stripslashes($_POST['author']) : @$row['author']),
         'DATE_CREATION' => $row['date_creation'],
         'DESCRIPTION' => htmlspecialchars(isset($_POST['description']) ? stripslashes($_POST['description']) : @$row['comment']),
-        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('sync_metadata'))
-    )
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(['sync_metadata'])
+    ]
 );
 
 $added_by = 'N/A';
@@ -200,18 +199,18 @@ while ($user_row = $conn->db_fetch_assoc($result)) {
     $row['added_by'] = $user_row['username'];
 }
 
-$intro_vars = array(
+$intro_vars = [
     'file' => \Phyxo\Functions\Language::l10n('Original file : %s', $row['file']),
     'add_date' => \Phyxo\Functions\Language::l10n(
         'Posted %s on %s',
         \Phyxo\Functions\DateTime::time_since($row['date_available'], 'year'),
-        \Phyxo\Functions\DateTime::format_date($row['date_available'], array('day', 'month', 'year'))
+        \Phyxo\Functions\DateTime::format_date($row['date_available'], ['day', 'month', 'year'])
     ),
     'added_by' => \Phyxo\Functions\Language::l10n('Added by %s', $row['added_by']),
     'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
     'stats' => \Phyxo\Functions\Language::l10n('Visited %d times', $row['hit']),
     'id' => \Phyxo\Functions\Language::l10n('Numeric identifier : %d', $row['id']),
-);
+];
 
 if ($conf['rate'] and !empty($row['rating_score'])) {
     $query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
@@ -230,10 +229,10 @@ if (in_array(\Phyxo\Functions\Utils::get_extension($row['path']), $conf['picture
 // image level options
 $selected_level = isset($_POST['level']) ? $_POST['level'] : $row['level'];
 $template->assign(
-    array(
+    [
         'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
-        'level_options_selected' => array($selected_level)
-    )
+        'level_options_selected' => [$selected_level]
+    ]
 );
 
 // categories
@@ -270,20 +269,20 @@ $authorizeds = array_diff(
 
 if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
     $url_img = \Phyxo\Functions\URL::make_picture_url(
-        array(
+        [
             'image_id' => $_GET['image_id'],
             'image_file' => $image_file,
             'category' => $cache['cat_names'][$_GET['cat_id']],
-        )
+        ]
     );
 } else {
     foreach ($authorizeds as $category) {
         $url_img = \Phyxo\Functions\URL::make_picture_url(
-            array(
+            [
                 'image_id' => $_GET['image_id'],
                 'image_file' => $image_file,
                 'category' => $cache['cat_names'][$category],
-            )
+            ]
         );
         break;
     }
@@ -299,11 +298,11 @@ $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = category_id';
 $query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
 $associated_albums = $conn->query2array($query, 'id');
 
-$template->assign(array(
+$template->assign([
     'associated_albums' => $associated_albums,
     'represented_albums' => $represented_albums,
     'STORAGE_ALBUM' => $storage_category_id,
-    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags', 'categories')),
-));
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['tags', 'categories']),
+]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture_modify');

@@ -13,10 +13,42 @@ namespace App\Repository;
 
 class UserCacheRepository extends BaseRepository
 {
+    public function deleteUserCache(? int $user_id)
+    {
+        $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
+        if (!is_null($user_id)) {
+            $query .= ' WHERE user_id = ' . $user_id;
+        }
+
+        $this->conn->db_query($query);
+    }
+
     public function invalidateUserCache(string $field)
     {
-        $query = 'UPDATE ' . self::USER_CACHE_TABLE;
-        $query .= ' SET ' . $field . ' = NULL';
+        $this->conn->single_update(self::USER_CACHE_TABLE, [$field => null], []);
+    }
+
+    public function updateUserCache(array $datas, array $where = [])
+    {
+        $this->conn->single_update(self::USER_CACHE_TABLE, $datas, $where);
+    }
+
+    public function getDistinctUsers()
+    {
+        $query = 'SELECT DISTINCT user_id FROM ' . self::USER_CACHE_TABLE;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function deleteByUserId(array $ids)
+    {
+        $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
+        $query .= ' WHERE user_id ' . $this->conn->in($ids);
         $this->conn->db_query($query);
+    }
+
+    public function insertUserCache(array $params)
+    {
+        return $this->conn->single_insert(self::USER_CACHE_TABLE, ['name' => $tag_name, 'url_name' => $url_name]);
     }
 }

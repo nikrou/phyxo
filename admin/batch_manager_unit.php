@@ -9,6 +9,7 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\TagRepository;
 /**
  * Management of elements set. Elements can belong to a category or to the
  * user caddie.
@@ -33,14 +34,14 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 if (isset($_POST['submit'])) {
     $collection = explode(',', $_POST['element_ids']);
 
-    $datas = array();
+    $datas = [];
 
     $query = 'SELECT id, date_creation FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id ' . $conn->in($collection);
     $result = $conn->db_query($query);
 
     while ($row = $conn->db_fetch_assoc($result)) {
-        $data = array();
+        $data = [];
 
         $data['id'] = $row['id'];
         $data['name'] = $_POST['name-' . $row['id']];
@@ -62,7 +63,7 @@ if (isset($_POST['submit'])) {
         $datas[] = $data;
 
         // tags management
-        $tag_ids = array();
+        $tag_ids = [];
         if (!empty($_POST['tags-' . $row['id']])) {
             $tag_ids = $services['tags']->getTagIds($_POST['tags-' . $row['id']]);
         }
@@ -71,10 +72,10 @@ if (isset($_POST['submit'])) {
 
     $conn->mass_updates(
         IMAGES_TABLE,
-        array(
-            'primary' => array('id'),
-            'update' => array('name', 'author', 'level', 'comment', 'date_creation')
-        ),
+        [
+            'primary' => ['id'],
+            'update' => ['name', 'author', 'level', 'comment', 'date_creation']
+        ],
         $datas
     );
 
@@ -89,11 +90,11 @@ if (isset($_POST['submit'])) {
 $base_url = PHPWG_ROOT_PATH . 'admin/index.php';
 
 $template->assign(
-    array(
-        'U_ELEMENTS_PAGE' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('display', 'start')),
-        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array()),
+    [
+        'U_ELEMENTS_PAGE' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(['display', 'start']),
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff([]),
         'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -111,14 +112,14 @@ if (!empty($_GET['display'])) {
 
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = \Phyxo\Functions\Utils::create_navigation_bar(
-        $base_url . \Phyxo\Functions\URL::get_query_string_diff(array('start')),
+        $base_url . \Phyxo\Functions\URL::get_query_string_diff(['start']),
         count($page['cat_elements_id']),
         $page['start'],
         $page['nb_images']
     );
-    $template->assign(array('navbar' => $nav_bar));
+    $template->assign(['navbar' => $nav_bar]);
 
-    $element_ids = array();
+    $element_ids = [];
 
     $is_category = false;
     if (isset($_SESSION['bulk_manager_filter']['category']) && !isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
@@ -152,16 +153,13 @@ if (count($page['cat_elements_id']) > 0) {
     $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 
-    // @TODO : query in a loop ???? getTagsList is another query
     while ($row = $conn->db_fetch_assoc($result)) {
         $element_ids[] = $row['id'];
 
         $src_image = new \Phyxo\Image\SrcImage($row);
 
-        $query = 'SELECT id,name FROM ' . TAGS_TABLE . ' AS t';
-        $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
-        $query .= ' WHERE image_id = ' . $row['id'] . ';';
-        $tag_selection = $services['tags']->getTagsList($query);
+        $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($row['id']));
+        $tag_selection = $services['tags']->prepareTagsListForUI($tags);
 
         $legend = \Phyxo\Functions\Utils::render_element_name($row);
         if ($legend != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) {
@@ -172,7 +170,7 @@ if (count($page['cat_elements_id']) > 0) {
             'elements',
             array_merge(
                 $row,
-                array(
+                [
                     'ID' => $row['id'],
                     'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
                     'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
@@ -184,15 +182,15 @@ if (count($page['cat_elements_id']) > 0) {
                     'DESCRIPTION' => htmlspecialchars(@$row['comment']), // @TODO: remove arobase
                     'DATE_CREATION' => $row['date_creation'],
                     'TAGS' => $tag_selection,
-                )
+                ]
             )
         );
     }
 
-    $template->assign(array(
+    $template->assign([
         'ELEMENT_IDS' => implode(',', $element_ids),
-        'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('tags')),
-    ));
+        'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['tags']),
+    ]);
 }
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_element_set_unit');

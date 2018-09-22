@@ -47,8 +47,7 @@ if (isset($_POST['edit_submit'])) {
             }
         }
     }
-    $conn->mass_updates(
-        TAGS_TABLE,
+    (new TagRepository($conn))->updateTags(
         [
             'primary' => ['id'],
             'update' => ['name', 'url_name'],
@@ -79,12 +78,9 @@ if (isset($_POST['duplic_submit'])) {
             if (in_array($tag_name, $existing_names)) {
                 $page['errors'][] = \Phyxo\Functions\Language::l10n('Tag "%s" already exists', $tag_name);
             } elseif (!empty($tag_name)) {
-                $conn->single_insert(
-                    TAGS_TABLE,
-                    [
-                        'name' => $tag_name,
-                        'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
-                    ]
+                (new TagRepository($conn))->insertTag(
+                    $tag_name,
+                    \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name)
                 );
 
                 $result = (new TagRepository($conn))->findBy('name', $tag_name);
@@ -119,8 +115,7 @@ if (isset($_POST['duplic_submit'])) {
         }
     }
 
-    $conn->mass_updates(
-        TAGS_TABLE,
+    (new TagRepository($conn))->updateTags(
         [
             'primary' => ['id'],
             'update' => ['name', 'url_name'],

@@ -13,7 +13,7 @@ namespace App\Repository;
 
 class CommentRepository extends BaseRepository
 {
-    public function count(? bool $validated):int
+    public function count(? bool $validated) : int
     {
         $query = 'SELECT COUNT(1) FROM ' . self::COMMENTS_TABLE;
         if (is_bool($validated)) {
@@ -24,7 +24,7 @@ class CommentRepository extends BaseRepository
         return $nb_comments;
     }
 
-    public function countByImage(int $image_id, bool $isAdmin = false):int
+    public function countByImage(int $image_id, bool $isAdmin = false) : int
     {
         $query = 'SELECT COUNT(1) FROM ' . self::COMMENTS_TABLE;
         $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);

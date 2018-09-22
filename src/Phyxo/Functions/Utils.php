@@ -16,6 +16,7 @@ use Phyxo\DBLayer\DBLayer;
 use App\Repository\CommentRepository;
 use App\Repository\ImageCategory;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\UserCacheRepository;
 
 class Utils
 {
@@ -753,8 +754,7 @@ class Utils
         if (!isset($user['nb_available_comments'])) {
             $user['nb_available_comments'] = (new ImageCategoryRepository($conn))->countAvailableComments($services['users']->isAdmin());
 
-            $conn->single_update(
-                USER_CACHE_TABLE,
+            (new UserCacheRepository($conn))->updateUserCache(
                 ['nb_available_comments' => $user['nb_available_comments']],
                 ['user_id' => $user['id']]
             );
@@ -1392,10 +1392,6 @@ class Utils
             USER_MAIL_NOTIFICATION_TABLE,
             // destruction of data RSS notification for this user
             USER_FEED_TABLE,
-            // deletion of calculated permissions linked to the user
-            USER_CACHE_TABLE,
-            // deletion of computed cache data linked to the user
-            USER_CACHE_CATEGORIES_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
             // destruction of the favorites associated with the user
@@ -1410,6 +1406,11 @@ class Utils
             $query = 'DELETE FROM ' . $table . ' WHERE user_id = ' . $user_id . ';';
             $conn->db_query($query);
         }
+
+        // deletion of calculated permissions linked to the user
+        (new UserCacheRepository($conn))->deleteUserCache($user_id);
+        // deletion of computed cache data linked to the user
+        (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories($user_id);
 
         // purge of sessions
         $query = 'DELETE FROM ' . SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';
@@ -1682,8 +1683,6 @@ class Utils
             USER_FEED_TABLE,
             USER_INFOS_TABLE,
             USER_ACCESS_TABLE,
-            USER_CACHE_TABLE,
-            USER_CACHE_CATEGORIES_TABLE,
             USER_GROUP_TABLE
         ];
 
@@ -1699,6 +1698,21 @@ class Utils
                 $query .= ' WHERE user_id ' . $conn->in($to_delete);
                 $conn->db_query($query);
             }
+        }
+
+        $to_delete = array_diff(
+            $conn->result2array((new UserCacheRepository($conn))->getDistinctUser(), null, 'user_id'),
+            $base_users
+        );
+        if (count($to_delete) > 0) {
+            (new UserCacheRepository($conn))->deleteByUserId($to_delete);
+        }
+        $to_delete = array_diff(
+            $conn->result2array((new UserCacheCategoriesRepository($conn))->getDistinctUser(), null, 'user_id'),
+            $base_users
+        );
+        if (count($to_delete) > 0) {
+            (new UserCacheCategoriesRepository($conn))->deleteByUserId($to_delete);
         }
     }
 
@@ -1730,13 +1744,10 @@ class Utils
         global $conn;
 
         if ($full) {
-            $query = 'TRUNCATE TABLE ' . USER_CACHE_CATEGORIES_TABLE . ';';
-            $conn->db_query($query);
-            $query = 'TRUNCATE TABLE ' . USER_CACHE_TABLE . ';';
-            $conn->db_query($query);
+            (new UserCacheRepository($conn))->deleteUserCache();
+            (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories();
         } else {
-            $query = 'UPDATE ' . USER_CACHE_TABLE . ' SET need_update = \'' . $conn->boolean_to_db(true) . '\'';
-            $conn->db_query($query);
+            (new UserCacheRepository($conn))->updateUserCache(['need_update' => true]);
         }
         \Phyxo\Functions\Plugin::trigger_notify('invalidate_user_cache', $full);
     }
@@ -1750,9 +1761,7 @@ class Utils
 
         unset($user['nb_available_tags']);
 
-        $query = 'UPDATE ' . USER_CACHE_TABLE;
-        $query .= ' SET nb_available_tags = NULL';
-        $conn->db_query($query);
+        (new UserCacheRepository($conn))->updateUserCache(['nb_available_tags' => null]);
     }
 
     /**

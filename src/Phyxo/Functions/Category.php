@@ -143,7 +143,7 @@ class Category
 
         foreach ($cat as $k => $v) {
             // If the field is true or false, the variable is transformed into a boolean value.
-            if ($conn->is_boolean($v)) {
+            if (!is_null($v) && $conn->is_boolean($v)) {
                 $cat[$k] = $conn->get_boolean($v);
             }
         }
