@@ -144,14 +144,14 @@ class DBLayer
      * @param string $value_name
      * @return array
      */
-    public function query2array($query, $key_name = null, $value_name = null)
+    public function query2array(string $query, string $key_name = null, string $value_name = null) : array
     {
         $result = $this->db_query($query);
 
         return $this->result2array($result, $key_name, $value_name);
     }
 
-    public function result2array($result, $key_name = null, $value_name = null)
+    public function result2array($result, string $key_name = null, string $value_name = null) : array
     {
         $data = [];
 
@@ -182,11 +182,8 @@ class DBLayer
 
     /**
      * Inserts one line in a table.
-     *
-     * @param string $table_name
-     * @param array $data
      */
-    public function single_insert($table_name, $data)
+    public function single_insert(string $table_name, array $data) : int
     {
         if (count($data) != 0) {
             $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', array_keys($data)) . ')';
@@ -211,6 +208,8 @@ class DBLayer
             $query .= ')';
 
             $this->db_query($query);
+
+            return $this->conn->db_insert_id($table_name);
         }
     }
 
@@ -222,7 +221,7 @@ class DBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update($tablename, $datas, $where, $flags = 0)
+    public function single_update(string $tablename, array $datas, array $where = [], $flags = 0)
     { // @TODO: need refactoring between mass_* and single_*
         if (count($datas) == 0) {
             return;
@@ -250,7 +249,7 @@ class DBLayer
             $is_first = false;
         }
 
-        if (!$is_first) { // only if one field at least updated
+        if (!$is_first && count($where) > 0) { // only if one field at least updated
             $is_first = true;
 
             $query .= ' WHERE ';
@@ -281,7 +280,7 @@ class DBLayer
      * @param array datas
      * @return void
      */
-    public function mass_deletes($tablename, array $dbfields, array $datas)
+    public function mass_deletes(string $tablename, array $dbfields, array $datas)
     {
         if (empty($dbfields) || empty($datas)) {
             return;

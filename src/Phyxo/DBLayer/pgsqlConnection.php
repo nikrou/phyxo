@@ -20,7 +20,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     protected $dblayer = 'pgsql';
     protected $db_link = null;
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database)
     {
         $connection_string = '';
         if (strpos($host, ':') !== false) {
@@ -39,7 +39,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $this->db_link;
     }
 
-    public function db_query($query)
+    public function db_query(string $query)
     {
         if (is_resource($this->db_link)) {
             $start = microtime(true);
@@ -58,14 +58,14 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_version()
+    public function db_version() : string
     {
         list($pg_version) = $this->db_fetch_row($this->db_query('SHOW SERVER_VERSION;'));
 
         return $pg_version;
     }
 
-    public function db_check_version()
+    public function db_check_version() : void
     {
         $current_pgsql = $this->db_version();
         if (version_compare($current_pgsql, self::REQUIRED_VERSION, '<')) {
@@ -77,7 +77,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_last_error()
+    public function db_last_error() : string
     {
         if (is_resource($this->db_link)) {
             return pg_last_error($this->db_link);
@@ -86,7 +86,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return false;
     }
 
-    public function db_nextval($column, $table)
+    public function db_nextval(string $column, string $table) : int
     {
         $query = 'SELECT nextval(\'' . $table . '_' . $column . '_seq\')';
         list($next) = $this->db_fetch_row($this->db_query($query));
@@ -94,12 +94,12 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $next;
     }
 
-    public function db_changes($result)
+    public function db_changes($result) : int
     {
         return pg_affected_rows($result);
     }
 
-    public function db_num_rows($result)
+    public function db_num_rows($result) : int
     {
         if (is_resource($result)) {
             return pg_num_rows($result);
@@ -122,10 +122,10 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_free_result($result)
+    public function db_free_result($result) : void
     {
         if (is_resource($result)) {
-            return pg_free_result($result);
+            pg_free_result($result);
         }
     }
 
@@ -134,7 +134,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return pg_escape_string($s);
     }
 
-    public function db_insert_id($table = null, $column = 'id')
+    public function db_insert_id(string $table = null, string $column = 'id') : int
     {
         $sequence = sprintf('%s_%s_seq', strtolower($table), $column);
         $query = 'SELECT CURRVAL(\'' . $sequence . '\');';
@@ -183,7 +183,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return sprintf('ARRAY_TO_STRING(ARRAY_AGG(%s),\',\')', $field);
     }
 
-    public function db_full_text_search($fields, $values)
+    public function db_full_text_search($fields, $values) : string
     {
         return sprintf(
             'to_tsvector(%s) @@ to_tsquery(\'%s\')',
@@ -192,7 +192,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         );
     }
 
-    public function db_get_tables($prefix)
+    public function db_get_tables(string $prefix) : array
     {
         $tables = [];
 
@@ -208,7 +208,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $tables;
     }
 
-    public function db_get_columns_of($tables)
+    public function db_get_columns_of(array $tables) : array
     {
         $columns_of = [];
 
@@ -230,7 +230,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $columns_of;
     }
 
-    public function get_enums($table, $field)
+    public function get_enums(string $table, string $field) : array
     {
         $typname = preg_replace('/' . $GLOBALS['prefixeTable'] . '/', '', $table);
         $typname .= '_' . $field;
@@ -248,7 +248,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     /**
      * return boolean true/false if $string (comming from database) can be converted to a real boolean
      */
-    public function is_boolean($string)
+    public function is_boolean(string $string) : bool
     {
         return ($string == 'f' || $string == 't' || $string == 'false' || $string == 'true');
     }
@@ -258,7 +258,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * "false" (case insensitive), then the boolean value false is returned. In
      * any other case, true is returned.
      */
-    public function get_boolean($string)
+    public function get_boolean(string $string) : bool
     {
         $boolean = true;
         if ('f' == $string || 'false' == $string) {
@@ -268,7 +268,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $boolean;
     }
 
-    public function boolean_to_db($var)
+    public function boolean_to_db(bool $var)
     {
         if ($var === true) {
             return 't';
@@ -368,21 +368,21 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return 'EXTRACT(ISODOW FROM ' . $date . ')::INTEGER - 1';
     }
 
-    public function db_concat($array)
+    public function db_concat(array $array) : string
     {
         $string = implode($array, ',');
 
         return 'ARRAY_TO_STRING(ARRAY[' . $string . '])';
     }
 
-    public function db_concat_ws($array, $separator)
+    public function db_concat_ws(array $array, string $separator) : string
     {
         $string = implode($array, ',');
 
         return 'ARRAY_TO_STRING(ARRAY[' . $string . '],\'' . $separator . '\')';
     }
 
-    public function db_cast_to_text($string)
+    public function db_cast_to_text(string $string) : string
     {
         return 'CAST(' . $string . ' AS TEXT)';
     }

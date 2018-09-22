@@ -20,31 +20,31 @@ class sqliteConnection extends DBLayer implements iDBLayer
     protected $dblayer = 'sqlite';
     protected $db_link = null;
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database)
     {
         global $conf;
 
         $db_file = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
 
         try {
-            $this->db_link = new \PDO($db_file, null, null, array(\PDO::ATTR_PERSISTENT => true));
+            $this->db_link = new \PDO($db_file, null, null, [\PDO::ATTR_PERSISTENT => true]);
 
         } catch (\Exception $e) {
             throw new dbException('Failed to open database ' . $db_file . ':' . $e->getMessage());
         }
 
-        $this->db_link->sqliteCreateFunction('now', array($this, '_now'), 0);
-        $this->db_link->sqliteCreateFunction('unix_timestamp', array($this, '_unix_timestamp'), 0);
+        $this->db_link->sqliteCreateFunction('now', [$this, '_now'], 0);
+        $this->db_link->sqliteCreateFunction('unix_timestamp', [$this, '_unix_timestamp'], 0);
         $this->db_link->sqliteCreateFunction('md5', 'md5', 1);
-        $this->db_link->sqliteCreateFunction('if', array($this, '_if'), 3);
+        $this->db_link->sqliteCreateFunction('if', [$this, '_if'], 3);
 
-        $this->db_link->sqliteCreateAggregate('std', array($this, '_std_step'), array($this, '_std_finalize'));
-        $this->db_link->sqliteCreateFunction('regexp', array($this, '_regexp'), 2);
+        $this->db_link->sqliteCreateAggregate('std', [$this, '_std_step'], [$this, '_std_finalize']);
+        $this->db_link->sqliteCreateFunction('regexp', [$this, '_regexp'], 2);
 
         return $this->db_link;
     }
 
-    public function db_query($query)
+    public function db_query(string $query)
     {
         $truncate_pattern = '`truncate(.*)`i';
 
@@ -73,12 +73,12 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_version()
+    public function db_version() : string
     {
         return $this->db_link->getAttribute(\PDO::ATTR_SERVER_VERSION);
     }
 
-    public function db_check_version()
+    public function db_check_version() : void
     {
         $current_sqlite = $this->db_version();
         if (version_compare($current_sqlite, self::REQUIRED_VERSION, '<')) {
@@ -90,7 +90,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_last_error()
+    public function db_last_error() : string
     {
         if ($this->db_link) {
             $err = $this->db_link->errorInfo();
@@ -100,7 +100,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return false;
     }
 
-    public function db_nextval($column, $table)
+    public function db_nextval(string $column, string $table) : int
     {
         $query = 'SELECT MAX(' . $column . ')+1 FROM ' . $table;
         list($next) = $this->db_fetch_row($this->db_query($query));
@@ -111,12 +111,12 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return $next;
     }
 
-    public function db_changes($result)
+    public function db_changes($result) : int
     {
         return $result->rowCount();
     }
 
-    public function db_num_rows($result)
+    public function db_num_rows($result) : int
     {
         if (!empty($result)) {
             return $result->columnCount();
@@ -139,7 +139,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_free_result($result)
+    public function db_free_result($result) : void
     {
     }
 
@@ -148,7 +148,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return trim($this->db_link->quote($s), '\'');
     }
 
-    public function db_insert_id($table = null, $column = 'id')
+    public function db_insert_id(string $table = null, string $column = 'id') : int
     {
         return $this->db_link->lastInsertId();
     }
@@ -160,7 +160,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    /* transaction functions */
+    // transaction functions
     public function db_start_transaction()
     {
         $this->db_link->beginTransaction();
@@ -191,7 +191,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return sprintf('GROUP_CONCAT(%s)', $field);
     }
 
-    public function db_full_text_search($fields, $values)
+    public function db_full_text_search($fields, $values) : string
     {
         return sprintf(
             'MATCH(%s) AGAINST(\'%s\' IN BOOLEAN MODE)',
@@ -200,9 +200,9 @@ class sqliteConnection extends DBLayer implements iDBLayer
         );
     }
 
-    public function db_get_tables($prefix)
+    public function db_get_tables(string $prefix) : array
     {
-        $tables = array();
+        $tables = [];
 
         $query = "SELECT * FROM sqlite_master WHERE type = 'table'";
         $result = $this->db_query($query);
@@ -216,16 +216,16 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return $tables;
     }
 
-    public function db_get_columns_of($tables)
+    public function db_get_columns_of(array $tables) : array
     {
-        $columns_of = array();
+        $columns_of = [];
 
         $fmt_query = 'PRAGMA table_info(%s)';
 
         foreach ($tables as $table) {
             $query = sprintf($fmt_query, $this->db_real_escape_string($table));
             $result = $this->db_query($query);
-            $columns_of[$table] = array();
+            $columns_of[$table] = [];
 
             while ($row = $this->db_fetch_row($result)) {
                 $columns_of[$table][] = $row[0];
@@ -242,30 +242,30 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * @param string tablename
      * @param string fieldname
      */
-    public function get_enums($table, $field)
+    public function get_enums(string $table, string $field) : array
     {
         global $prefixeTable;
 
-        $list = array();
+        $list = [];
 
-        $Enums = array();
-        $Enums[$prefixeTable . 'categories']['status'] = array('public', 'private');
-        $Enums[$prefixeTable . 'categories']['visible'] = array('true', 'false');
-        $Enums[$prefixeTable . 'categories']['commentable'] = array('true', 'false');
-        $Enums[$prefixeTable . 'comments']['validated'] = array('true', 'false');
-        $Enums[$prefixeTable . 'groups']['is_default'] = array('true', 'false');
-        $Enums[$prefixeTable . 'history']['section'] = array('categories', 'tags', 'search', 'list', 'favorites', 'most_visited', 'best_rated', 'recent_pics', 'recent_cats');
-        $Enums[$prefixeTable . 'history']['summarized'] = array('true', 'false');
-        $Enums[$prefixeTable . 'history']['image_type'] = array('picture', 'high', 'other');
-        $Enums[$prefixeTable . 'plugins']['state'] = array('inactive', 'active');
-        $Enums[$prefixeTable . 'user_cache']['need_update'] = array('true', 'false');
-        $Enums[$prefixeTable . 'user_cache']['image_access_type'] = array('NOT IN', 'IN');
-        $Enums[$prefixeTable . 'user_infos']['status'] = array('webmaster', 'admin', 'normal', 'generic', 'guest');
-        $Enums[$prefixeTable . 'user_infos']['expand'] = array('true', 'false');
-        $Enums[$prefixeTable . 'user_infos']['show_nb_comments'] = array('true', 'false');
-        $Enums[$prefixeTable . 'user_infos']['show_nb_hits'] = array('true', 'false');
-        $Enums[$prefixeTable . 'user_infos']['enabled_high'] = array('true', 'false');
-        $Enums[$prefixeTable . 'user_mail_notification']['enabled'] = array('true', 'false');
+        $Enums = [];
+        $Enums[$prefixeTable . 'categories']['status'] = ['public', 'private'];
+        $Enums[$prefixeTable . 'categories']['visible'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'categories']['commentable'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'comments']['validated'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'groups']['is_default'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'history']['section'] = ['categories', 'tags', 'search', 'list', 'favorites', 'most_visited', 'best_rated', 'recent_pics', 'recent_cats'];
+        $Enums[$prefixeTable . 'history']['summarized'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'history']['image_type'] = ['picture', 'high', 'other'];
+        $Enums[$prefixeTable . 'plugins']['state'] = ['inactive', 'active'];
+        $Enums[$prefixeTable . 'user_cache']['need_update'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'user_cache']['image_access_type'] = ['NOT IN', 'IN'];
+        $Enums[$prefixeTable . 'user_infos']['status'] = ['webmaster', 'admin', 'normal', 'generic', 'guest'];
+        $Enums[$prefixeTable . 'user_infos']['expand'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'user_infos']['show_nb_comments'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'user_infos']['show_nb_hits'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'user_infos']['enabled_high'] = ['true', 'false'];
+        $Enums[$prefixeTable . 'user_mail_notification']['enabled'] = ['true', 'false'];
 
         if (!empty($Enums[$table][$field])) {
             $list = $Enums[$table][$field];
@@ -277,7 +277,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     /**
      * return boolean true/false if $string (comming from database) can be converted to a real boolean
      */
-    public function is_boolean($string)
+    public function is_boolean(string $string) : bool
     {
         return ($string == 'true' || $string == 'false');
     }
@@ -287,7 +287,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * "false" (case insensitive), then the boolean value false is returned. In
      * any other case, true is returned.
      */
-    public function get_boolean($string)
+    public function get_boolean(string $string) : bool
     {
         $boolean = true;
         if ('f' === $string || 'false' === $string) {
@@ -316,7 +316,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function boolean_to_db($var)
+    public function boolean_to_db(bool $var)
     {
         if ($var === true) {
             return 1;
@@ -397,19 +397,19 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return 'strftime(\'%w\',date(' . $date . ',\'-1 DAY\'))';
     }
 
-    public function db_concat($array)
+    public function db_concat(array $array) : string
     {
         return implode($array, ' || ');
     }
 
-    public function db_concat_ws($array, $separator)
+    public function db_concat_ws(array $array, string $separator) : string
     {
         $glue = sprintf(' || \'%s\' || ', $separator);
 
         return implode($array, $glue);
     }
 
-    public function db_cast_to_text($string)
+    public function db_cast_to_text(string $string) : string
     {
         return $string;
     }
@@ -423,7 +423,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * @param int flags - if MASS_UPDATES_SKIP_EMPTY - empty values do not overwrite existing ones
      * @return void
      */
-    public function mass_updates($tablename, $dbfields, $datas, $flags = 0)
+    public function mass_updates(string $tablename, array $dbfields, array $datas, int $flags = 0)
     {
         if (count($datas) == 0) {
             return;
@@ -520,7 +520,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
     {
         global $prefixeTable;
 
-        $all_tables = array();
+        $all_tables = [];
 
         // List all tables
         $query = 'SELECT name FROM SQLITE_MASTER WHERE name LIKE \'' . $prefixeTable . '%\'';
@@ -542,7 +542,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    public function mass_inserts($table_name, $dbfields, $datas, $options = array())
+    public function mass_inserts(string $table_name, array $dbfields, array $datas, array $options = [])
     {
         $ignore = '';
         if (isset($options['ignore']) and $options['ignore']) {

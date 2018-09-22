@@ -20,7 +20,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
     protected $dblayer = 'mysql';
     protected $db_link = null;
 
-    public function db_connect($host, $user, $password, $database)
+    public function db_connect(string $host, string $user, string $password, string $database)
     {
         $port = null;
         $socket = null;
@@ -47,7 +47,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return $this->db_link;
     }
 
-    public function db_query($query)
+    public function db_query(string $query)
     {
         if (!empty($this->db_link)) {
             $start = microtime(true);
@@ -66,14 +66,14 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_version()
+    public function db_version() : string
     {
         if (!empty($this->db_link)) {
             return $this->db_link->server_info;
         }
     }
 
-    public function db_check_version()
+    public function db_check_version() : void
     {
         $current_mysql = $this->db_version();
         if (version_compare($current_mysql, self::REQUIRED_VERSION, '<')) {
@@ -85,7 +85,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_last_error()
+    public function db_last_error() : string
     {
         if (!empty($this->db_link)) {
             return $this->db_link->error;
@@ -94,7 +94,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return false;
     }
 
-    public function db_nextval($column, $table)
+    public function db_nextval(string $column, string $table) : int
     {
         $query = 'SELECT IF(MAX(' . $column . ')+1 IS NULL, 1, MAX(' . $column . ')+1) FROM ' . $table;
         list($next) = $this->db_fetch_row($this->db_query($query));
@@ -102,14 +102,14 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return $next;
     }
 
-    public function db_changes($result)
+    public function db_changes($result) : int
     {
         if (!empty($this->db_link)) {
             return $this->db_link->affected_rows;
         }
     }
 
-    public function db_num_rows($result)
+    public function db_num_rows($result) : int
     {
         if (!empty($result)) {
             return $result->num_rows;
@@ -132,7 +132,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_free_result($result)
+    public function db_free_result($result) : void
     {
         if (!empty($result)) {
             $result->free_result();
@@ -146,7 +146,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_insert_id($table = null, $column = 'id')
+    public function db_insert_id(string $table = null, string $column = 'id') : int
     {
         if (!empty($this->db_link)) {
             return $this->db_link->insert_id;
@@ -201,7 +201,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return sprintf('GROUP_CONCAT(%s)', $field);
     }
 
-    public function db_full_text_search($fields, $values)
+    public function db_full_text_search($fields, $values) : string
     {
         return sprintf(
             'MATCH(%s) AGAINST(\'%s\' IN BOOLEAN MODE)',
@@ -210,7 +210,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         );
     }
 
-    public function db_get_tables($prefix)
+    public function db_get_tables(string $prefix) : array
     {
         $tables = [];
 
@@ -226,7 +226,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return $tables;
     }
 
-    public function db_get_columns_of($tables)
+    public function db_get_columns_of(array $tables) : array
     {
         $columns_of = [];
 
@@ -251,7 +251,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
      * @param string tablename
      * @param string fieldname
      */
-    public function get_enums($table, $field)
+    public function get_enums(string $table, string $field) : array
     {
         // retrieving the properties of the table. Each line represents a field :
         // columns are 'Field', 'Type'
@@ -275,7 +275,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
     /**
      * return boolean true/false if $string (comming from database) can be converted to a real boolean
      */
-    public function is_boolean($string)
+    public function is_boolean(string $string) : bool
     {
         return ($string == 'true' || $string == 'false');
     }
@@ -285,7 +285,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
      * "false" (case insensitive), then the boolean value false is returned. In
      * any other case, true is returned.
      */
-    public function get_boolean($input)
+    public function get_boolean(string $input) : bool
     {
         if ('false' === strtolower($input)) {
             return false;
@@ -309,7 +309,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function boolean_to_db($var)
+    public function boolean_to_db(bool $var)
     {
         if ($var === true) {
             return 'true';
@@ -394,21 +394,21 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return 'WEEKDAY(' . $date . ')';
     }
 
-    public function db_concat($array)
+    public function db_concat(array $array) : string
     {
         $string = implode($array, ',');
 
         return 'CONCAT(' . $string . ')';
     }
 
-    public function db_concat_ws($array, $separator)
+    public function db_concat_ws(array $array, string $separator) : string
     {
         $string = implode($array, ',');
 
         return 'CONCAT_WS(\'' . $separator . '\',' . $string . ')';
     }
 
-    public function db_cast_to_text($string)
+    public function db_cast_to_text(string $string) : string
     {
         return $string;
     }
@@ -421,7 +421,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    function mass_inserts($table_name, $dbfields, $datas, $options = [])
+    function mass_inserts(string $table_name, array $dbfields, array $datas, array $options = [])
     {
         $ignore = '';
         if (isset($options['ignore']) and $options['ignore']) {
@@ -476,7 +476,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
      * @param int flags - if MASS_UPDATES_SKIP_EMPTY - empty values do not overwrite existing ones
      * @return void
      */
-    public function mass_updates($tablename, $dbfields, $datas, $flags = 0)
+    public function mass_updates(string $tablename, array $dbfields, array $datas, int $flags = 0)
     {
         if (count($datas) == 0) {
             return;

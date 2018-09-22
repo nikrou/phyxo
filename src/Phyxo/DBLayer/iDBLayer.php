@@ -24,7 +24,7 @@ interface iDBLayer
      * @param string	$database	Database name
      * @return resource
      */
-    public function db_connect($host, $user, $password, $database);
+    public function db_connect(string $host, string $user, string $password, string $database);
 
     /**
      * Database query
@@ -35,7 +35,7 @@ interface iDBLayer
      * @param string	    $query		SQL query string
      * @return resource
      */
-    public function db_query($query);
+    public function db_query(string $query);
 
     /**
      * Database version
@@ -44,7 +44,7 @@ interface iDBLayer
      *
      * @return string
      */
-    public function db_version();
+    public function db_version() : string;
 
     /**
      * Check database version against required one.
@@ -53,7 +53,7 @@ interface iDBLayer
      *
      * @return void
      */
-    public function db_check_version();
+    public function db_check_version() : void;
 
     /**
      * Next value for integer field in a table
@@ -62,7 +62,7 @@ interface iDBLayer
      * @param string $table      Table name.
      * @return integer
      */
-    public function db_nextval($column, $table);
+    public function db_nextval(string $column, string $table) : int;
 
     /**
      * Affected rows
@@ -73,7 +73,7 @@ interface iDBLayer
      * @param resource $result    Resource result
      * @return integer
      */
-    public function db_changes($result);
+    public function db_changes($result) : int;
 
     /**
      * Last error
@@ -82,7 +82,7 @@ interface iDBLayer
      *
      * @return string
      */
-    public function db_last_error();
+    public function db_last_error() : string;
 
     /**
      * Result rows count
@@ -92,7 +92,7 @@ interface iDBLayer
      * @param resource	$result			Resource result
      * @return integer
      */
-    public function db_num_rows($result);
+    public function db_num_rows($result) : int;
 
     /**
      * Fetch result
@@ -122,7 +122,7 @@ interface iDBLayer
      * This method should free the memory and data associated with the specified query result resource.
      * return void
      */
-    public function db_free_result($result);
+    public function db_free_result($result) : void;
 
     /**
      * Escape string
@@ -143,7 +143,7 @@ interface iDBLayer
      * @param string	$column			Column auto-incremented.
      * @return integer
      */
-    public function db_insert_id($table = null, $column = 'id');
+    public function db_insert_id(string $table = null, string $column = 'id') : int;
 
     /**
      * Close connection
@@ -176,7 +176,7 @@ interface iDBLayer
      *
      * @param string	$table		Table name
      */
-    public function db_write_lock($table);
+    public function db_write_lock(string $table);
 
     /**
      * Release lock
@@ -199,7 +199,7 @@ interface iDBLayer
      * @param string	$values		Values to search.
      * @return string
      */
-    public function db_full_text_search($fields, $values);
+    public function db_full_text_search($fields, $values) : string;
 
     /**
      * Convert Array to String
@@ -207,7 +207,7 @@ interface iDBLayer
      * @param array	$array		Array to convert.
      * @return string
      */
-    public function db_concat($array);
+    public function db_concat(array $array) : string;
 
     /**
      * Convert Array to String with separator
@@ -216,7 +216,7 @@ interface iDBLayer
      * @param string	$separator	Separator between parts.
      * @return string
      */
-    public function db_concat_ws($array, $separator);
+    public function db_concat_ws(array $array, string $separator) : string;
 
     /**
      * Cast string to text
@@ -224,7 +224,7 @@ interface iDBLayer
      * @param string	$string	    String to cast.
      * @return string
      */
-    public function db_cast_to_text($string);
+    public function db_cast_to_text(string $string) : string;
 
     // others methods
 
@@ -234,7 +234,7 @@ interface iDBLayer
      * @param string $prefix    Prefix to identify tables.
      * @return array
      */
-    public function db_get_tables($prefix);
+    public function db_get_tables(string $prefix) : array;
 
     /**
      * Get columns of tables
@@ -242,7 +242,7 @@ interface iDBLayer
      * @param array $tables    Array of tables name.
      * @return array indexed by table name.
      */
-    public function db_get_columns_of($tables);
+    public function db_get_columns_of(array $tables) : array;
 
     /**
      * Get enums for a field in a table
@@ -251,20 +251,20 @@ interface iDBLayer
      * @param string $field    Field name.
      * @return array
      */
-    public function get_enums($table, $field);
+    public function get_enums(string $table, string $field) : array;
 
     /**
      * is_boolean test if a string is a boolean.
      * The string comes from database so it depends of database engine
      */
-    public function is_boolean($string);
+    public function is_boolean(string $string) : bool;
 
     /**
      * get_boolean transforms a string to a boolean value. If the string is
      * "false" (case insensitive), then the boolean value false is returned. In
      * any other case, true is returned.
      */
-    public function get_boolean($string);
+    public function get_boolean(string $string) : bool;
 
     /**
      * returns boolean string 'true' or 'false' if the given var is boolean
@@ -277,7 +277,7 @@ interface iDBLayer
     /**
      * boolean_to_db transforms boolean to a compatible field in database
      */
-    public function boolean_to_db($var);
+    public function boolean_to_db(bool $var);
 
     /**
      * return an IN clause where @params are escaped
@@ -346,9 +346,9 @@ interface iDBLayer
      * @param string $value_name
      * @return array
      */
-    public function query2array($query, $key_name = null, $value_name = null);
+    public function query2array(string $query, string $key_name = null, string $value_name = null) : array;
 
-    public function result2array($result, $key_name = null, $value_name = null);
+    public function result2array($result, string $key_name = null, string $value_name = null) : array;
 
     /**
      * Updates one line in a table.
@@ -358,7 +358,7 @@ interface iDBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update($tablename, $datas, $where, $flags = 0);
+    public function single_update(string $tablename, array $datas, array $where, int $flags = 0);
 
     /**
      * Inserts one line in a table.
@@ -366,7 +366,7 @@ interface iDBLayer
      * @param string $table_name
      * @param array $data
      */
-    public function single_insert($table_name, $data);
+    public function single_insert(string $table_name, array $data);
 
     /**
      * updates multiple lines in a table
@@ -377,7 +377,7 @@ interface iDBLayer
      * @param int flags - if MASS_UPDATES_SKIP_EMPTY - empty values do not overwrite existing ones
      * @return void
      */
-    public function mass_updates($tablename, $dbfields, $datas, $flags = 0);
+    public function mass_updates(string $tablename, array $dbfields, array $datas, int $flags = 0);
 
     /**
      * inserts multiple lines in a table
@@ -387,7 +387,7 @@ interface iDBLayer
      * @param array inserts
      * @return void
      */
-    public function mass_inserts($table_name, $dbfields, $datas);
+    public function mass_inserts(string $table_name, array $dbfields, array $datas);
 
     /**
      * deletes multiple lines in a table
@@ -397,7 +397,7 @@ interface iDBLayer
      * @param array datas
      * @return void
      */
-    public function mass_deletes($tablename, array $dbfields, array $datas);
+    public function mass_deletes(string $tablename, array $dbfields, array $datas);
 
     /**
      * Do maintenance on all Phyxo tables
