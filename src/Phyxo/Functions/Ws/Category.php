@@ -14,8 +14,10 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
+use App\Repository\CategoryRepository;
+use App\Repository\ImageCategoryRepository;
 
-class Categorie
+class Category
 {
     /**
      * API method
@@ -249,7 +251,7 @@ class Categorie
                 $image_id = $row['representative_picture_id'];
             } elseif ($conf['allow_random_representative']) {
                 // searching a random representant among elements in sub-categories
-                $image_id = \Phyxo\Functions\Category::get_random_image_in_category($row);
+                $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
             } else { // searching a random representant among representant of sub-categories
                 if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
                     $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
@@ -305,7 +307,7 @@ class Categorie
                     foreach ($categories as &$category) {
                         if ($row['id'] == $category['representative_picture_id']) {
                             // searching a random representant among elements in sub-categories
-                            $image_id = \Phyxo\Functions\Category::get_random_image_in_category($category);
+                            $image_id = (new CategoryRepository($conn))->getRandomImageInCategory(category);
 
                             if (isset($image_id) and !in_array($image_id, $image_ids)) {
                                 $new_image_ids[] = $image_id;
@@ -394,13 +396,8 @@ class Categorie
     {
         global $conn;
 
-        $query = 'SELECT category_id, COUNT(1) AS counter FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' GROUP BY category_id;';
-        $nb_images_of = $conn->query2array($query, 'category_id', 'counter');
-
-        $query = 'SELECT id, name, comment, uppercats, global_rank, dir FROM ' . CATEGORIES_TABLE;
-        $result = $conn->db_query($query);
-
+        $nb_images_of = $conn->result2array((new ImageCategoryRepository($conn))->countByCategory(), 'category_id', 'counter');
+        $result = (new CategoryRepository($conn))->findAll();
         $cats = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $id = $row['id'];
@@ -687,7 +684,7 @@ class Categorie
          * 0 as parent means "move categories at gallery root"
          */
         if (0 != $params['parent']) {
-            $subcat_ids = \Phyxo\Functions\Category::get_subcat_ids([$params['parent']]);
+            $subcat_ids = (new CategoryRepository($conn))->getSubcatIds([$params['parent']]);
             if (count($subcat_ids) == 0) {
                 return new Error(403, 'Unknown parent category id');
             }

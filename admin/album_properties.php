@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CategoryRepository;
+
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
 }
@@ -22,7 +24,7 @@ if (!isset($_GET['cat_id']) || !is_numeric($_GET['cat_id'])) {
 
 //--------------------------------------------------------- form criteria check
 if (isset($_POST['submit'])) {
-    $data = array('id' => $_GET['cat_id'], 'name' => '', 'comment' => '');
+    $data = ['id' => $_GET['cat_id'], 'name' => '', 'comment' => ''];
 
     if (!empty($_POST['name'])) {
         $data['name'] = $_POST['name'];
@@ -36,25 +38,16 @@ if (isset($_POST['submit'])) {
         $data['commentable'] = isset($_POST['commentable']) ? $conn->get_boolean($_POST['commentable']) : false;
     }
 
-    $conn->single_update(
-        CATEGORIES_TABLE,
+    (new CategoryRepository($conn))->updateCategory(
         $data,
-        array('id' => $data['id'])
+        ['id' => $data['id']]
     );
     if (!empty($_POST['apply_commentable_on_sub'])) {
-        $subcats = \Phyxo\Functions\Category::get_subcat_ids(array('id' => $data['id']));
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET commentable = \'' . $conn->boolean_to_db($data['commentable']) . '\'';
-        $query .= ' WHERE id ' . $conn->in($subcats);
-        $conn->db_query($query);
-    }
-
-    if (!empty($_POST['apply_commentable_on_sub'])) {
-        $subcats = \Phyxo\Functions\Category::get_subcat_ids(array('id' => $data['id']));
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET commentable = \'' . $conn->boolean_to_db($data['commentable']) . '\'';
-        $query .= ' WHERE id ' . $conn->in($subcats);
-        $conn->db_query($query);
+        $subcats = (new CategoryRepository($conn))->getSubcatIds(['id' => $data['id']]);
+        (new CategoryRepository($conn))->updateCategory(
+            ['commentable' => $data['commentable']],
+            $subcats
+        );
     }
 
     // retrieve cat infos before continuing (following updates are expensive)
@@ -62,9 +55,9 @@ if (isset($_POST['submit'])) {
 
     if (!empty($_POST['visible'])) {
         if ($_POST['visible'] == 'true_sub') {
-            \Phyxo\Functions\Category::set_cat_visible(array($_GET['cat_id']), true, true);
+            \Phyxo\Functions\Category::set_cat_visible([$_GET['cat_id']], true, true);
         } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
-            \Phyxo\Functions\Category::set_cat_visible(array($_GET['cat_id']), $conn->get_boolean($_POST['visible']));
+            \Phyxo\Functions\Category::set_cat_visible([$_GET['cat_id']], $conn->get_boolean($_POST['visible']));
         }
     }
 
@@ -77,13 +70,13 @@ if (isset($_POST['submit'])) {
 
     // only move virtual albums
     if (empty($cat_info['dir']) and $cat_info['id_uppercat'] != $_POST['parent']) {
-        \Phyxo\Functions\Category::move_categories(array($_GET['cat_id']), $_POST['parent']);
+        \Phyxo\Functions\Category::move_categories([$_GET['cat_id']], $_POST['parent']);
     }
 
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Album updated successfully');
     $redirect = true;
 } elseif (isset($_POST['set_random_representant'])) {
-    \Phyxo\Functions\Utils::set_random_representant(array($_GET['cat_id']));
+    \Phyxo\Functions\Utils::set_random_representant([$_GET['cat_id']]);
     $redirect = true;
 } elseif (isset($_POST['delete_representant'])) {
     $query = 'UPDATE ' . CATEGORIES_TABLE;
@@ -97,7 +90,7 @@ if (isset($redirect)) {
 }
 
 // nullable fields
-foreach (array('comment', 'dir', 'site_id', 'id_uppercat') as $nullable) {
+foreach (['comment', 'dir', 'site_id', 'id_uppercat'] as $nullable) {
     if (!isset($category[$nullable])) {
         $category[$nullable] = '';
     }
@@ -129,18 +122,18 @@ if (!empty($category['id_uppercat'])) {
 }
 
 $template->assign(
-    array(
+    [
         'CATEGORIES_NAV' => $navigation,
         'CAT_ID' => $category['id'],
         'CAT_NAME' => @htmlspecialchars($category['name']), // @TODO: remove arobase
         'CAT_COMMENT' => @htmlspecialchars($category['comment']), // @TODO: remove arobase
         'CAT_VISIBLE' => $conn->boolean_to_string($category['visible']),
-        'U_JUMPTO' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
+        'U_JUMPTO' => \Phyxo\Functions\URL::make_index_url(['category' => $category]),
         'U_ADD_PHOTOS_ALBUM' => $base_url . 'photos_add&amp;album=' . $category['id'],
         'U_CHILDREN' => $cat_list_url . '&amp;parent_id=' . $category['id'],
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_modify',
         'F_ACTION' => $form_action,
-    )
+    ]
 );
 
 if ($conf['activate_comments']) {
@@ -179,24 +172,24 @@ if ($category['has_images']) {
 
 $intro .= '<br>' . \Phyxo\Functions\Language::l10n('Numeric identifier : %d', $category['id']);
 
-$template->assign(array(
+$template->assign([
     'INTRO' => $intro,
     'U_MANAGE_RANKS' => $base_url . 'element_set_ranks&amp;cat_id=' . $category['id'],
-    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('categories')),
-));
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['categories']),
+]);
 
 if ($category['is_virtual']) {
     $template->assign(
-        array(
+        [
             'U_DELETE' => $self_url . '&amp;delete=' . $category['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
-        )
+        ]
     );
 } else {
     $category['cat_full_dir'] = get_complete_dir($_GET['cat_id']);
     $template->assign(
-        array(
+        [
             'CAT_FULL_DIR' => preg_replace('/\/$/', '', $category['cat_full_dir'])
-        )
+        ]
     );
 
     if ($conf['enable_synchronization']) {
@@ -209,7 +202,7 @@ if ($category['is_virtual']) {
 
 // representant management
 if ($category['has_images'] || !empty($category['representative_picture_id'])) {
-    $tpl_representant = array();
+    $tpl_representant = [];
 
     // picture to display : the identified representant or the generic random
     // representant ?
@@ -221,10 +214,10 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
 
         $tpl_representant['picture'] =
-            array(
+            [
             'SRC' => $src,
             'URL' => $url
-        );
+        ];
     }
 
     // can the admin choose to set a new random representant ?
@@ -239,7 +232,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
 }
 
 if ($category['is_virtual']) {
-    $template->assign('parent_category', empty($category['id_uppercat']) ? array() : array($category['id_uppercat']));
+    $template->assign('parent_category', empty($category['id_uppercat']) ? [] : [$category['id_uppercat']]);
 }
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_cat_modify');
@@ -277,7 +270,7 @@ function get_local_dir($category_id)
 
     $upper_array = explode(',', $uppercats);
 
-    $database_dirs = array();
+    $database_dirs = [];
     $query = 'SELECT id,dir';
     $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($uppercats);
     $result = $conn->db_query($query);

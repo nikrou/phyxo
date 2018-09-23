@@ -37,6 +37,13 @@ class UserCacheCategoriesRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
+    public function deleteByUserCatIds(array $ids)
+    {
+        $query = 'DELETE FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= ' WHERE cat_id ' . $this->conn->in($ids);
+        $this->conn->db_query($query);
+    }
+
     public function insertUserCacheCategories(array $fields, array $datas)
     {
         $this->conn->mass_inserts(self::USER_CACHE_CATEGORIES_TABLE, $fields, $datas);

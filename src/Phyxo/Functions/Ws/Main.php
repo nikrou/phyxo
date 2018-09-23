@@ -16,6 +16,7 @@ use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use App\Repository\CommentRepository;
 use App\Repository\TagRepository;
+use App\Repository\CategoryRepository;
 
 class Main
 {
@@ -133,14 +134,9 @@ class Main
         $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
         list($infos['nb_elements']) = $conn->db_fetch_row($conn->db_query($query));
 
-        $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ';';
-        list($infos['nb_categories']) = $conn->db_fetch_row($conn->db_query($query));
-
-        $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL;';
-        list($infos['nb_virtual']) = $conn->db_fetch_row($conn->db_query($query));
-
-        $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL;';
-        list($infos['nb_physical']) = $conn->db_fetch_row($conn->db_query($query));
+        $infos['nb_categories'] = (new CategoryRepository($conn))->count();
+        $infos['nb_virtual'] = (new CategoryRepository($conn))->count('dir IS NULL');
+        $infos['nb_physical'] = (new CategoryRepository($conn))->count('dir IS NOT NULL');
 
         $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE . ';';
         list($infos['nb_image_category']) = $conn->db_fetch_row($conn->db_query($query));

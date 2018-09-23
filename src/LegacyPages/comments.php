@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CommentRepository;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
@@ -109,7 +110,7 @@ $page['where_clauses'] = [];
 if (isset($_GET['cat']) and 0 != $_GET['cat']) {
     \Phyxo\Functions\Utils::check_input_parameter('cat', $_GET, false, PATTERN_ID);
 
-    $category_ids = \Phyxo\Functions\Category::get_subcat_ids([$_GET['cat']]);
+    $category_ids = (new CategoryRepository($conn))->getSubcatIds([$_GET['cat']]);
     if (empty($category_ids)) {
         $category_ids = [-1];
     }

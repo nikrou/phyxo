@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CategoryRepository;
+
 if (!defined("GROUPS_BASE_URL")) {
     die("Hacking attempt!");
 }
@@ -24,16 +26,16 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     // |                                updates                                |
     // +-----------------------------------------------------------------------+
 
-    if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
+    if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
         // if you forbid access to a category, all sub-categories become
         // automatically forbidden
-        $subcats = \Phyxo\Functions\Category::get_subcat_ids($_POST['cat_true']);
+        $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
         $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
         $query .= ' WHERE group_id = ' . $page['group'] . ' AND cat_id ' . $conn->in($subcats);
         $conn->db_query($query);
-    } elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
+    } elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
         $uppercats = \Phyxo\Functions\Category::get_uppercat_ids($_POST['cat_false']);
-        $private_uppercats = array();
+        $private_uppercats = [];
 
         $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
         $query .= ' WHERE id ' . $conn->in($uppercats) . ' AND status = \'private\';';
@@ -45,7 +47,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         // retrying to authorize a category which is already authorized may cause
         // an error (in SQL statement), so we need to know which categories are
         // accesible
-        $authorized_ids = array();
+        $authorized_ids = [];
 
         $query = 'SELECT cat_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id = ' . $conn->db_real_escape_string($page['group']);
         $result = $conn->db_query($query);
@@ -54,16 +56,16 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
             $authorized_ids[] = $row['cat_id'];
         }
 
-        $inserts = array();
+        $inserts = [];
         $to_autorize_ids = array_diff($private_uppercats, $authorized_ids);
         foreach ($to_autorize_ids as $to_autorize_id) {
-            $inserts[] = array(
+            $inserts[] = [
                 'group_id' => $page['group'],
                 'cat_id' => $to_autorize_id
-            );
+            ];
         }
 
-        $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $inserts);
+        $conn->mass_inserts(GROUP_ACCESS_TABLE, ['group_id', 'cat_id'], $inserts);
         \Phyxo\Functions\Utils::invalidate_user_cache();
     }
 
@@ -71,10 +73,10 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     // |                             template init                             |
     // +-----------------------------------------------------------------------+
 
-    $template->set_filenames(array('double_select' => 'double_select.tpl'));
+    $template->set_filenames(['double_select' => 'double_select.tpl']);
 
     $template->assign(
-        array(
+        [
             'TITLE' =>
                 \Phyxo\Functions\Language::l10n(
                 'Manage permissions for group "%s"',
@@ -84,17 +86,17 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
             'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),
             'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
             'F_ACTION' => GROUPS_BASE_URL . '&amp;section=perm&amp;group_id=' . $page['group']
-        )
+        ]
     );
 
     // only private categories are listed
     $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
     $query_true .= ' LEFT JOIN ' . GROUP_ACCESS_TABLE . ' ON cat_id = id';
     $query_true .= ' WHERE status = \'private\' AND group_id = ' . $conn->db_real_escape_string($page['group']);
-    \Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
+    \Phyxo\Functions\Category::display_select_cat_wrapper($query_true, [], 'category_option_true');
 
     $result = $conn->db_query($query_true);
-    $authorized_ids = array();
+    $authorized_ids = [];
     while ($row = $conn->db_fetch_assoc($result)) {
         $authorized_ids[] = $row['id'];
     }
@@ -103,7 +105,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     if (count($authorized_ids) > 0) {
         $query_false .= ' AND id NOT ' . $conn->in($authorized_ids);
     }
-    \Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
+    \Phyxo\Functions\Category::display_select_cat_wrapper($query_false, [], 'category_option_false');
 
     // +-----------------------------------------------------------------------+
     // |                           html code display                           |
@@ -119,13 +121,13 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     while ($row = $conn->db_fetch_assoc($result)) {
         $template->append(
             'groups',
-            array(
+            [
                 'NAME' => $row['name'],
                 'ID' => $row['id'],
                 'IS_DEFAULT' => ($conn->get_boolean($row['is_default']) ? ' [' . \Phyxo\Functions\Language::l10n('default') . ']' : ''),
                 'U_PERM' => $perm_url . $row['id'],
-            )
+            ]
         );
     }
-    $template->assign(array('TITLE' => \Phyxo\Functions\Language::l10n('Groups')));
+    $template->assign(['TITLE' => \Phyxo\Functions\Language::l10n('Groups')]);
 }

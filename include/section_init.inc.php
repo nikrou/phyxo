@@ -12,6 +12,7 @@
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Calendar\CalendarMonthly;
 use App\Repository\TagRepository;
+use App\Repository\CategoryRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -420,7 +421,7 @@ if (isset($page['chronology_field'])) {
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(
-                \Phyxo\Functions\Category::get_subcat_ids([$page['category']['id']]),
+                (new CategoryRepository($conn))->getSubcatIds([$page['category']['id']]),
                 explode(',', $user['forbidden_categories'])
             );
 

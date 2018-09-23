@@ -16,6 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 use GuzzleHttp\Client;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
+use App\Repository\CategoryRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -67,14 +68,9 @@ list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
 $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
 list($nb_elements) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE;
-list($nb_categories) = $conn->db_fetch_row($conn->db_query($query));
-
-$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL';
-list($nb_virtual) = $conn->db_fetch_row($conn->db_query($query));
-
-$query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL';
-list($nb_physical) = $conn->db_fetch_row($conn->db_query($query));
+$nb_categories = (new CategoryRepository($conn))->count();
+$nb_virtual = (new CategoryRepository($conn))->count('dir IS NULL');
+$nb_physical = (new CategoryRepository($conn))->count('dir IS NOT NULL');
 
 $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
 list($nb_image_category) = $conn->db_fetch_row($conn->db_query($query));

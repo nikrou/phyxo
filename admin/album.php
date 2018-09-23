@@ -26,7 +26,7 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_GET['cat_id']);
 $category = $conn->db_fetch_assoc($conn->db_query($query));
 foreach ($category as $k => $v) {
-    if ($conn->is_boolean($v)) {
+    if (!is_null($v) && $conn->is_boolean($v)) {
         $category[$k] = $conn->get_boolean($v);
     }
 }

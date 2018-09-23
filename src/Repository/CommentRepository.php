@@ -13,10 +13,10 @@ namespace App\Repository;
 
 class CommentRepository extends BaseRepository
 {
-    public function count(? bool $validated) : int
+    public function count(? bool $validated = null) : int
     {
         $query = 'SELECT COUNT(1) FROM ' . self::COMMENTS_TABLE;
-        if (is_bool($validated)) {
+        if (!is_null($validated)) {
             $query .= ' WHERE validated = \'' . $this->conn->boolean_to_db($validated) . '\'';
         }
         list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));

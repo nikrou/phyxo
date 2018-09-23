@@ -282,7 +282,7 @@ interface iDBLayer
     /**
      * return an IN clause where @params are escaped
      */
-    public function in($params);
+    public function in(array $params);
 
     // day & time methods
     public function db_get_recent_period($period, $date = 'CURRENT_DATE');

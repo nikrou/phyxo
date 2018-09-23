@@ -148,8 +148,8 @@ if (isset($_POST['submit'])) {
 }
 
 // tags
-$tags = (new TagRepository($conn))->getTagsByImage($_GET['image_id'], $validated = true);
-$tag_selection = (new TagRepository($conn))->prepareTagsListForUi($tags);
+$tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($_GET['image_id'], $validated = true));
+$tag_selection = $services['tags']->prepareTagsListForUI($tags);
 
 // retrieving direct information about picture
 $query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id = ' . (int)$_GET['image_id'];

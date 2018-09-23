@@ -9,6 +9,17 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CategoryRepository;
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 /**
  * This file is included by the main page to show subcategories of a category
  * or to show recent categories or main page categories list
@@ -27,17 +38,17 @@ if ('recent_cats' == $page['section']) {
     $query .= ' WHERE id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id'), 'AND');
+$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], 'AND');
 
 if ('recent_cats' != $page['section']) {
     $query .= ' ORDER BY rank';
 }
 
 $result = $conn->db_query($query);
-$categories = array();
-$category_ids = array();
-$image_ids = array();
-$user_representative_updates_for = array();
+$categories = [];
+$category_ids = [];
+$image_ids = [];
+$user_representative_updates_for = [];
 
 while ($row = $conn->db_fetch_assoc($result)) {
     // TODO remove arobases ; need tests ?
@@ -48,13 +59,13 @@ while ($row = $conn->db_fetch_assoc($result)) {
     } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
         $image_id = $row['representative_picture_id'];
     } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-        $image_id = \Phyxo\Functions\Category::get_random_image_in_category($row);
+        $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
     } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
         $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
         $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id = cat_id and user_id = ' . $user['id'];
         $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\'';
         $query .= ' AND representative_picture_id IS NOT NULL';
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'id', ), "\n  AND");
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id', ], "\n  AND");
         $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
         $subresult = $conn->db_query($query);
         if ($conn->db_num_rows($subresult) > 0) {
@@ -81,7 +92,7 @@ if ($conf['display_fromto']) {
         $query .= ' MAX(date_creation) AS _to FROM ' . IMAGE_CATEGORY_TABLE;
         $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' ON image_id = id';
         $query .= ' WHERE category_id ' . $conn->in($category_ids);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(array('visible_categories' => 'category_id', 'visible_images' => 'id'), 'AND');
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'category_id', 'visible_images' => 'id'], 'AND');
         $query .= ' GROUP BY category_id;';
         $dates_of_category = $conn->query2array($query, 'category_id');
     }
@@ -92,8 +103,8 @@ if ($page['section'] == 'recent_cats') {
 }
 
 if (count($categories) > 0) {
-    $infos_of_image = array();
-    $new_image_ids = array();
+    $infos_of_image = [];
+    $new_image_ids = [];
 
     $query = 'SELECT * FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id ' . $conn->in($image_ids);
@@ -113,7 +124,7 @@ if (count($categories) > 0) {
             foreach ($categories as &$category) {
                 if ($row['id'] == $category['representative_picture_id']) {
                     // searching a random representant among elements in sub-categories
-                    $image_id = \Phyxo\Functions\Category::get_random_image_in_category($category);
+                    $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($category);
 
                     if (isset($image_id) and !in_array($image_id, $image_ids)) {
                         $new_image_ids[] = $image_id;
@@ -146,22 +157,22 @@ if (count($categories) > 0) {
 }
 
 if (count($user_representative_updates_for)) {
-    $updates = array();
+    $updates = [];
 
     foreach ($user_representative_updates_for as $cat_id => $image_id) {
-        $updates[] = array(
+        $updates[] = [
             'user_id' => $user['id'],
             'cat_id' => $cat_id,
             'user_representative_picture_id' => $image_id,
-        );
+        ];
     }
 
     $conn->mass_updates(
         USER_CACHE_CATEGORIES_TABLE,
-        array(
-            'primary' => array('user_id', 'cat_id'),
-            'update' => array('user_representative_picture_id')
-        ),
+        [
+            'primary' => ['user_id', 'cat_id'],
+            'update' => ['user_representative_picture_id']
+        ],
         $updates
     );
 }
@@ -174,7 +185,7 @@ if (count($categories) > 0) {
 
     \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_category_thumbnails', $categories);
 
-    $tpl_thumbnails_var = array();
+    $tpl_thumbnails_var = [];
 
     foreach ($categories as $category) {
         if (0 == $category['count_images']) {
@@ -195,11 +206,11 @@ if (count($categories) > 0) {
 
         $representative_infos = $infos_of_image[$category['representative_picture_id']];
 
-        $tpl_var = array_merge($category, array(
+        $tpl_var = array_merge($category, [
             'ID' => $category['id'] /*obsolete*/,
             'representative' => $representative_infos,
             'TN_ALT' => strip_tags($category['name']),
-            'URL' => \Phyxo\Functions\URL::make_index_url(array('category' => $category)),
+            'URL' => \Phyxo\Functions\URL::make_index_url(['category' => $category]),
             'CAPTION_NB_IMAGES' => \Phyxo\Functions\Category::get_display_images_count(
                 $category['nb_images'],
                 $category['count_images'],
@@ -212,7 +223,7 @@ if (count($categories) > 0) {
                 \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
             ),
             'NAME' => $name,
-        ));
+        ]);
         if ($conf['index_new_icon']) {
             $tpl_var['icon_ts'] = \Phyxo\Functions\Utils::get_icon($category['max_date_last'], $category['is_child_date_last']);
         }
@@ -242,18 +253,18 @@ if (count($categories) > 0) {
 
     $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
     $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
-    $template->assign(array(
+    $template->assign([
         'maxRequests' => $conf['max_requests'],
         'category_thumbnails' => $tpl_thumbnails_var_selection,
         'derivative_album_params' => $derivative_params,
         'derivative_params' => $derivative_params,
-    ));
+    ]);
 
     // navigation bar
-    $page['cats_navigation_bar'] = array();
+    $page['cats_navigation_bar'] = [];
     if ($page['total_categories'] > $conf['nb_categories_page']) {
         $page['cats_navigation_bar'] = \Phyxo\Functions\Utils::create_navigation_bar(
-            \Phyxo\Functions\URL::duplicate_index_url(array(), array('startcat')),
+            \Phyxo\Functions\URL::duplicate_index_url([], ['startcat']),
             $page['total_categories'],
             $page['startcat'],
             $conf['nb_categories_page'],

@@ -10,6 +10,7 @@
  */
 
 use App\Repository\TagRepository;
+use App\Repository\CategoryRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -81,7 +82,7 @@ if (isset($search['fields']['author'])) {
 if (isset($search['fields']['cat'])) {
     if ($search['fields']['cat']['sub_inc']) {
         // searching all the categories id of sub-categories
-        $cat_ids = \Phyxo\Functions\Category::get_subcat_ids($search['fields']['cat']['words']);
+        $cat_ids = (new CategoryRepository($conn))->getSubcatIds($search['fields']['cat']['words']);
     } else {
         $cat_ids = $search['fields']['cat']['words'];
     }

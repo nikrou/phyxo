@@ -14,6 +14,7 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
+use App\Repository\CategoryRepository;
 
 class Permission
 {
@@ -138,7 +139,7 @@ class Permission
         if (!empty($params['group_id'])) {
             $cat_ids = \Phyxo\Functions\Category::get_uppercat_ids($params['cat_id']);
             if ($params['recursive']) {
-                $cat_ids = array_merge($cat_ids, \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']));
+                $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds($params['cat_id']));
             }
 
             $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
@@ -187,7 +188,7 @@ class Permission
             return new Error(403, 'Invalid security token');
         }
 
-        $cat_ids = \Phyxo\Functions\Category::get_subcat_ids($params['cat_id']);
+        $cat_ids = (new CategoryRepository($conn))->getSubcatIds($params['cat_id']);
 
         if (!empty($params['group_id'])) {
             $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;

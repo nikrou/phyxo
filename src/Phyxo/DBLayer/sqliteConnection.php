@@ -176,7 +176,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         $this->db_link->rollback();
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table)
     {
         $this->db_query('BEGIN EXCLUSIVE TRANSACTION');
     }

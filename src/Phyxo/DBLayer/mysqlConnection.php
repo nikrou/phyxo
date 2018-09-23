@@ -182,7 +182,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         }
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table)
     {
         if (!empty($this->db_link)) {
             $this->db_query('LOCK TABLES ' . $table . ' WRITE');

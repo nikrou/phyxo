@@ -11,6 +11,14 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\CategoryRepository;
+use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
+use App\Repository\UserAccessRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\OldPermalinkRepository;
+
 class Category
 {
     /**
@@ -58,32 +66,12 @@ class Category
     {
         global $page, $user, $filter, $conf, $conn;
 
-        $query = 'SELECT ';
-        // From CATEGORIES_TABLE
-        $query .= 'id, name, permalink, nb_images, global_rank,uppercats,';
-        // From USER_CACHE_CATEGORIES_TABLE
-        $query .= 'date_last, max_date_last, count_images, count_categories';
+        $result = (new CategoryRepository($conn))->getCategoriesForMenu(
+            $user,
+            $filter['enabled'],
+            isset($page['category']) ? explode(',', $page['category']['uppercats']) : []
+        );
 
-        // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
-        $query .= ' FROM ' . CATEGORIES_TABLE . ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE;
-        $query .= ' ON id = cat_id and user_id = ' . $user['id'];
-
-        // Always expand when filter is activated
-        if (!$user['expand'] and !$filter['enabled']) {
-            $where = ' (id_uppercat is NULL';
-            if (isset($page['category'])) {
-                $where .= ' OR id_uppercat ' . $conn->in($page['category']['uppercats']);
-            }
-            $where .= ')';
-        } else {
-            $where = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], null, true);
-        }
-
-        $where = \Phyxo\Functions\Plugin::trigger_change('get_categories_menu_sql_where', $where, $user['expand'], $filter['enabled']);
-
-        $query .= ' WHERE ' . $where;
-
-        $result = $conn->db_query($query);
         $cats = [];
         $selected_category = isset($page['category']) ? $page['category'] : null;
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -135,8 +123,7 @@ class Category
     {
         global $conn;
 
-        $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $id . ';';
-        $cat = $conn->db_fetch_assoc($conn->db_query($query));
+        $cat = (new CategoryRepository($conn))->findById($id);
         if (empty($cat)) {
             return null;
         }
@@ -158,10 +145,7 @@ class Category
                 ]
             ];
         } else {
-            $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($cat['uppercats']);
-            $names = $conn->query2array($query, 'id');
-
+            $names = $conn->result2array((new CategoryRepository($conn))->findByIds($upper_ids), 'id');
             // category names must be in the same order than uppercats list
             $cat['upper_names'] = [];
             foreach ($upper_ids as $cat_id) {
@@ -281,8 +265,7 @@ class Category
         global $cache, $conf, $conn;
 
         if (!isset($cache['cat_names'])) {
-            $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
-            $cache['cat_names'] = $conn->query2array($query, 'id');
+            $cache['cat_names'] = $conn->result2array((new CategoryRepository($conn))->findAll(), 'id');
         }
 
         $output = '';
@@ -381,34 +364,6 @@ class Category
     }
 
     /**
-     * Returns all subcategory identifiers of given category ids
-     *
-     * @param int[] $ids
-     * @return int[]
-     */
-    public static function get_subcat_ids($ids)
-    {
-        global $conn;
-
-        $query = 'SELECT DISTINCT(id) FROM ' . CATEGORIES_TABLE . ' WHERE ';
-
-        foreach ($ids as $num => $category_id) {
-            is_numeric($category_id)
-                or trigger_error(
-                'get_subcat_ids expecting numeric, not ' . gettype($category_id),
-                E_USER_WARNING
-            );
-
-            if ($num > 0) {
-                $query .= ' OR ';
-            }
-            $query .= 'uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $category_id . '(,|$)\'';
-        }
-
-        return $conn->query2array($query, null, 'id');
-    }
-
-    /**
      * Recursively deletes one or more categories.
      * It also deletes :
      *    - all the elements physically linked to the category (with delete_elements)
@@ -431,26 +386,23 @@ class Category
 
         // add sub-category ids to the given ids : if a category is deleted, all
         // sub-categories must be so
-        $ids = self::get_subcat_ids($ids);
+        $ids = (new CategoryRepository($conn))->getSubcatIds($ids);
 
         // destruction of all photos physically linked to the category
-        $query = 'SELECT id FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id ' . $conn->in($ids);
-        $element_ids = $conn->query2array($query, null, 'id');
+        $element_ids = $conn->result2array((new ImageRepository($conn))->findByField('storage_category_id', $ids), null, 'id');
         \Phyxo\Functions\Utils::delete_elements($element_ids);
 
         // now, should we delete photos that are virtually linked to the category?
         if ('delete_orphans' == $photo_deletion_mode or 'force_delete' == $photo_deletion_mode) {
-            $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id ' . $conn->in($ids);
-            $image_ids_linked = $conn->query2array($query, null, 'image_id');
+            $image_ids_linked = $conn->result2array((new ImageCategoryRepository($conn))->getImageIdsLinked($ids), null, 'image_id');
 
             if (count($image_ids_linked) > 0) {
                 if ('delete_orphans' == $photo_deletion_mode) {
-                    $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-                    $query .= ' WHERE image_id ' . $conn->in($image_ids_linked);
-                    $query .= ' AND category_id NOT ' . $conn->in($ids);
-                    $image_ids_not_orphans = $conn->query2array($query, null, 'image_id');
+                    $image_ids_not_orphans = $this->conn->result2array(
+                        (new ImageCategoryRepository($conn))->getImageIdsNotOrphans($image_ids_linked, $ids),
+                        null,
+                        'image_id'
+                    );
                     $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
                 }
 
@@ -463,25 +415,17 @@ class Category
         }
 
         // destruction of the links between images and this category
-        $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE category_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new ImageCategoryRepository($conn))->deleteByCategory($ids);
 
         // destruction of the access linked to the category
-        $query = 'DELETE FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-        $conn->db_query($query);
-
-        $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new UserAccessRepository($conn))->deleteByUserCatIds($ids);
+        (new GroupAccessRepository($conn))->deleteByCatIds($ids);
 
         // destruction of the category
-        $query = 'DELETE FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->deleteByIds($ids);
 
-        $query = 'DELETE FROM ' . OLD_PERMALINKS_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-        $conn->db_query($query);
-
-        $query = 'DELETE FROM ' . USER_CACHE_CATEGORIES_TABLE . ' WHERE cat_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new OldPermalinkRepository($conn))->deleteByCatIds($ids);
+        (new UserCacheCategoriesRepository($conn))->deleteByUserCatIds($ids);
 
         \Phyxo\Functions\Plugin::trigger_notify('delete_categories', $ids);
     }
@@ -507,19 +451,11 @@ class Category
             $where_cats = '%s ' . $conn->in($ids);
         }
 
-        // find all categories where the setted representative is not possible :
-        // the picture does not exist
-        $query = 'SELECT DISTINCT c.id FROM ' . CATEGORIES_TABLE . ' AS c';
-        $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON c.representative_picture_id = i.id';
-        $query .= ' WHERE representative_picture_id IS NOT NULL';
-        $query .= ' AND ' . sprintf($where_cats, 'c.id') . ' AND i.id IS NULL;';
-        $wrong_representant = $conn->query2array($query, null, 'id');
+        // find all categories where the setted representative is not possible : the picture does not exist
+        $wrong_representant = $conn->result2array((new CategoryRepository($conn))->findWrongRepresentant($where_cats), null, 'id');
 
         if (count($wrong_representant) > 0) {
-            $query = 'UPDATE ' . CATEGORIES_TABLE;
-            $query .= ' SET representative_picture_id = NULL';
-            $query .= ' WHERE id ' . $conn->in($wrong_representant);
-            $conn->db_query($query);
+            (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => null], $wrong_representant);
         }
 
         if (!$conf['allow_random_representative']) {
@@ -527,11 +463,7 @@ class Category
             // categories with elements and with no representant. Those categories
             // must be added to the list of categories to set to a random
             // representant.
-            $query = 'SELECT DISTINCT id FROM ' . CATEGORIES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = category_id';
-            $query .= ' WHERE representative_picture_id IS NULL';
-            $query .= ' AND ' . sprintf($where_cats, 'category_id');
-            $to_rand = $conn->query2array($query, null, 'id');
+            $to_rand = $conn->result2array((new CategoryRepository($conn))->findRandomRepresentant($where_cats), null, 'id');
             if (count($to_rand) > 0) {
                 \Phyxo\Functions\Utils::set_random_representant($to_rand);
             }
@@ -549,12 +481,7 @@ class Category
     {
         global $conn;
 
-        $query = 'SELECT cat_id AS id, permalink, 1 AS is_old FROM ' . OLD_PERMALINKS_TABLE;
-        $query .= ' WHERE permalink ' . $conn->in($permalinks);
-        $query .= ' UNION ';
-        $query .= ' SELECT id, permalink, 0 AS is_old FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE permalink ' . $conn->in($permalinks);
-        $perma_hash = $conn->query2array($query, 'permalink');
+        $perma_hash = $conn->result2array((new OldPermalinkRepository($conn))->findCategoryFromPermalinks($permalinks), 'permalink');
 
         if (empty($perma_hash)) {
             return null;
@@ -614,44 +541,6 @@ class Category
     }
 
     /**
-     * Find a random photo among all photos inside an album (including sub-albums)
-     *
-     * @param array $category (at least id,uppercats,count_images)
-     * @param bool $recursive
-     * @return int|null
-     */
-    public static function get_random_image_in_category($category, $recursive = true)
-    {
-        global $conn;
-
-        $image_id = null;
-        if ($category['count_images'] > 0) {
-            $query = 'SELECT image_id FROM ' . CATEGORIES_TABLE . ' AS c';
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.category_id = c.id WHERE ';
-            if ($recursive) {
-                $query .= '(c.id=' . $category['id'] . ' OR uppercats LIKE \'' . $category['uppercats'] . ',%\')';
-            } else {
-                $query .= ' c.id=' . $category['id'];
-            }
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                [
-                    'forbidden_categories' => 'c.id',
-                    'visible_categories' => 'c.id',
-                    'visible_images' => 'image_id',
-                ],
-                "\n  AND"
-            );
-            $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
-            $result = $conn->db_query($query);
-            if ($conn->db_num_rows($result) > 0) {
-                list($image_id) = $conn->db_fetch_row($result);
-            }
-        }
-
-        return $image_id;
-    }
-
-    /**
      * Get computed array of categories, that means cache data of all categories
      * available for the current user (count_categories, count_images, etc.).
      *
@@ -663,23 +552,7 @@ class Category
     {
         global $conn;
 
-        $query = 'SELECT c.id AS cat_id, id_uppercat';
-        // Count by date_available to avoid count null
-        $query .= ', MAX(date_available) AS date_last, COUNT(date_available) AS nb_images FROM ' . CATEGORIES_TABLE . ' as c';
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.category_id = c.id';
-        $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' AS i ON ic.image_id = i.id AND i.level<=' . $userdata['level'];
-
-        if (isset($filter_days)) {
-            $query .= ' AND i.date_available > ' . $conn->db_get_recent_period_expression($filter_days);
-        }
-
-        if (!empty($userdata['forbidden_categories'])) {
-            $query .= ' WHERE c.id NOT IN (' . $userdata['forbidden_categories'] . ')';
-        }
-
-        $query .= ' GROUP BY c.id';
-        $result = $conn->db_query($query);
-
+        $result = (new CategoryRepository($conn))->getComputedCategories($userdata, $filter_days);
         $userdata['last_photo_date'] = null;
         $cats = [];
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -785,19 +658,13 @@ class Category
         if ($value) {
             $cats = self::get_uppercat_ids($categories);
             if ($unlock_child) {
-                $cats = array_merge($cats, self::get_subcat_ids($categories));
+                $cats = array_merge($cats, (new CategoryRepository($conn))->getSubcatIds($categories));
             }
 
-            $query = 'UPDATE ' . CATEGORIES_TABLE;
-            $query .= ' SET visible = \'' . $conn->boolean_to_db(true) . '\'';
-            $query .= ' WHERE id ' . $conn->in($cats);
-            $conn->db_query($query);
+            (new CategoryRepository($conn))->updateCategory(['visible' => true], $cats);
         } else { // locking a category   => all its child categories become locked
-            $subcats = self::get_subcat_ids($categories);
-            $query = 'UPDATE ' . CATEGORIES_TABLE;
-            $query .= ' SET visible = \'' . $conn->boolean_to_db(false) . '\'';
-            $query .= ' WHERE id ' . $conn->in($subcats);
-            $conn->db_query($query);
+            $subcats = (new CategoryRepository($conn))->getSubcatIds($categories);
+            (new CategoryRepository($conn))->updateCategory(['visible' => false], $subcats);
         }
     }
 
@@ -819,19 +686,13 @@ class Category
         // make public a category => all its parent categories become public
         if ($value == 'public') {
             $uppercats = self::get_uppercat_ids($categories);
-            $query = 'UPDATE ' . CATEGORIES_TABLE . ' SET status = \'public\'';
-            $query .= ' WHERE id ' . $conn->in($uppercats);
-            $conn->db_query($query);
+            (new CategoryRepository($conn))->updateCategory(['status' => 'public'], $uppercats);
         }
 
         // make a category private => all its child categories become private
         if ($value == 'private') {
-            $subcats = self::get_subcat_ids($categories);
-
-            $query = 'UPDATE ' . CATEGORIES_TABLE;
-            $query .= ' SET status = \'private\'';
-            $query .= ' WHERE id ' . $conn->in($subcats);
-            $conn->db_query($query);
+            $subcats = (new CategoryRepository($conn))->getSubcatIds($categories);
+            (new CategoryRepository($conn))->updateCategory(['status' => 'private'], $subcats);
 
             // @TODO: add unit tests for that
             // We have to keep permissions consistant: a sub-album can't be
@@ -870,9 +731,7 @@ class Category
             $top_categories = [];
             $parent_ids = [];
 
-            $query = 'SELECT id,name,id_uppercat,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($categories);
-            $all_categories = $conn->query2array($query);
+            $all_categories = $conn->result2array((new CategoryRepository($conn))->findAll($ids));
             usort($all_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
             foreach ($all_categories as $cat) {
@@ -902,14 +761,12 @@ class Category
             $parent_cats = [];
 
             if (count($parent_ids) > 0) {
-                $query = 'SELECT id,status FROM ' . CATEGORIES_TABLE;
-                $query .= ' WHERE id ' . $conn->in($parent_ids);
-                $parent_cats = $conn->query2array($query, 'id');
+                $parent_cats = $conn->result2array((new CategoryRepository($conn))->findAll($parent_ids), 'id');
             }
 
-            $tables = [
-                USER_ACCESS_TABLE => 'user_id',
-                GROUP_ACCESS_TABLE => 'group_id'
+            $repositories = [
+                'UserAccessRepository' => 'user_id',
+                'GroupAccessRepository' => 'group_id'
             ];
 
             foreach ($top_categories as $top_category) {
@@ -917,29 +774,23 @@ class Category
                 // if it is private, else the album itself
                 $ref_cat_id = $top_category['id'];
 
-                if (!empty($top_category['id_uppercat'])
-                    and isset($parent_cats[$top_category['id_uppercat']])
-                    and 'private' == $parent_cats[$top_category['id_uppercat']]['status']) {
+                if (!empty($top_category['id_uppercat']) && isset($parent_cats[$top_category['id_uppercat']])
+                    && 'private' == $parent_cats[$top_category['id_uppercat']]['status']) {
                     $ref_cat_id = $top_category['id_uppercat'];
                 }
 
-                $subcats = self::get_subcat_ids([$top_category['id']]);
+                $subcats = (new CategoryRepository($conn))->getSubcatIds([$top_category['id']]);
 
-                foreach ($tables as $table => $field) {
+                foreach ($repositories as $repository => $field) {
                     // what are the permissions user/group of the reference album
-                    $query = 'SELECT ' . $field . ' FROM ' . $table;
-                    $query .= ' WHERE cat_id = ' . $conn->db_real_escape_string($ref_cat_id);
-                    $ref_access = $conn->query2array($query, null, $field);
+                    $ref_access = $conn->query2array((new $repository($conn))->findByCat($ref_cat_id), null, $field);
 
                     if (count($ref_access) == 0) {
                         $ref_access[] = -1;
                     }
 
                     // step 3, remove the inconsistant permissions from sub-albums
-                    $query = 'DELETE FROM ' . $table;
-                    $query .= ' WHERE ' . $field . ' NOT ' . $conn->in($ref_access);
-                    $query .= ' AND cat_id ' . $conn->in($subcats);
-                    $conn->db_query($query);
+                    (new $repository($conn))->deleteByCatIds($subcats, $field . ' NOT ' . $conn->in($ref_access));
                 }
             }
         }
@@ -972,16 +823,12 @@ class Category
         }
 
         $uppercats = [];
-
-        $query = 'SELECT uppercats FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($cat_ids);
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findAll($cat_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $uppercats = array_merge($uppercats, explode(',', $row['uppercats']));
         }
-        $uppercats = array_unique($uppercats);
 
-        return $uppercats;
+        return array_unique($uppercats);
     }
 
     /**
@@ -1009,13 +856,10 @@ class Category
         // make sure categories are private and select uppercats or subcats
         $cat_ids = self::get_uppercat_ids($category_ids);
         if (isset($_POST['apply_on_sub'])) {
-            $cat_ids = array_merge($cat_ids, self::get_subcat_ids($category_ids));
+            $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds($category_ids));
         }
 
-        $query = 'SELECT id  FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($cat_ids);
-        $query .= ' AND status = \'private\';';
-        $private_cats = $conn->query2array($query, null, 'id');
+        $private_cats = $conn->result2array((new CategoryRepository($conn))->findByIdsAndStatus($cat_ids, 'private'), null, 'id');
 
         if (count($private_cats) == 0) {
             return;
@@ -1031,11 +875,9 @@ class Category
             }
         }
 
-        $conn->mass_inserts(
-            USER_ACCESS_TABLE,
+        (new UserAccessRepository($conn))->insertUserAccess(
             ['user_id', 'cat_id'],
-            $inserts,
-            ['ignore' => true]
+            $inserts
         );
     }
 
@@ -1097,9 +939,8 @@ class Category
         }
 
         if (!empty($parent_id) and is_numeric($parent_id)) {
-            $query = 'SELECT id, uppercats, global_rank, visible, status FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id = ' . $parent_id . ';';
-            $parent = $conn->db_fetch_assoc($conn->db_query($query));
+            $result = (new CategoryRepository($conn))->findById($parent_id);
+            $parent = $conn->db_fetch_assoc($result);
 
             $insert['id_uppercat'] = (int)$parent['id'];
             $insert['global_rank'] = $parent['global_rank'] . '.' . $insert['rank'];
@@ -1123,30 +964,24 @@ class Category
         }
 
         // we have then to add the virtual category
-        $conn->single_insert(CATEGORIES_TABLE, $insert);
-        $inserted_id = $conn->db_insert_id(CATEGORIES_TABLE);
-
-        $conn->single_update(
-            CATEGORIES_TABLE,
+        $inserted_id = (new CategoryRepository($conn))->insertCategory($insert);
+        (new CategoryRepository($conn))->updateCategory(
             ['uppercats' => $uppercats_prefix . $inserted_id],
             ['id' => $inserted_id]
         );
 
         \Phyxo\Functions\Utils::update_global_rank();
 
-        if ('private' == $insert['status'] and !empty($insert['id_uppercat'])
-            and ((isset($options['inherit']) and $options['inherit']) or $conf['inheritance_by_default'])) {
-            $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE;
-            $query .= ' WHERE cat_id = ' . $insert['id_uppercat'];
-            $granted_grps = $conn->query2array($query, null, 'group_id');
+        if ('private' == $insert['status'] && !empty($insert['id_uppercat'])
+            && ((isset($options['inherit']) && $options['inherit']) || $conf['inheritance_by_default'])) {
+            $granted_grps = $conn->result2array((new GroupAccessRepository($conn))->findByCatId($insert['id_uppercat'], 'group_id'), null, 'group_id');
             $inserts = [];
             foreach ($granted_grps as $granted_grp) {
                 $inserts[] = ['group_id' => $granted_grp, 'cat_id' => $inserted_id];
             }
-            $conn->mass_inserts(GROUP_ACCESS_TABLE, ['group_id', 'cat_id'], $inserts);
+            (new GroupAccessRepository($conn))->insertGroupAccess(['group_id', 'cat_id'], $inserts);
 
-            $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $insert['id_uppercat'];
-            $granted_users = $conn->query2array($query, null, 'user_id');
+            $granted_users = $conn->result2array((new UserAccessRepository($conn))->findByCatId($insert['id_uppercat']), null, 'user_id');
             self::add_permission_on_category(
                 $inserted_id,
                 array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']], $granted_users))
@@ -1179,18 +1014,14 @@ class Category
         }
 
         // caching directories of existing categories
-        $query = 'SELECT id, dir  FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NOT NULL;';
-        $cat_dirs = $conn->query2array($query, 'id', 'dir');
+        $cat_dirs = $conn->result2array((new CategoryRepository($conn))->findByDir('IS NOT NULL'), 'id', 'dir');
 
         // caching galleries_url
         $query = 'SELECT id, galleries_url FROM ' . SITES_TABLE;
         $galleries_url = $conn->query2array($query, 'id', 'galleries_url');
 
         // categories : id, site_id, uppercats
-        $query = 'SELECT id, uppercats, site_id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE dir IS NOT NULL';
-        $query .= ' AND id ' . $conn->in($cat_ids);
-        $categories = $conn->query2array($query);
+        $categories = $conn->result2array((new CategoryRepository($conn))->findByIdsAndDir($cat_ids, 'IS NOT NULL'));
 
         // filling $cat_fulldirs
         $cat_dirs_callback = function ($m) use ($cat_dirs) {
@@ -1220,8 +1051,7 @@ class Category
     {
         global $conn;
 
-        $query = 'SELECT id, id_uppercat, uppercats FROM ' . CATEGORIES_TABLE;
-        $cat_map = $conn->query2array($query, 'id');
+        $cat_map = $conn->result2array((new CategoryRepository($conn))->findAll(), 'id');
 
         $datas = [];
         foreach ($cat_map as $id => $cat) {
@@ -1242,7 +1072,7 @@ class Category
             }
         }
         $fields = ['primary' => ['id'], 'update' => ['uppercats']];
-        $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
+        (new CategoryRepository($conn))->updateCategories($fields, $datas);
     }
 
     /**
@@ -1263,9 +1093,7 @@ class Category
         $new_parent = $new_parent < 1 ? 'NULL' : $new_parent;
         $categories = [];
 
-        $query = 'SELECT id, id_uppercat, status, uppercats FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($category_ids);
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findByIds($category_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $categories[$row['id']] = [
                 'parent' => empty($row['id_uppercat']) ? 'NULL' : $row['id_uppercat'],
@@ -1277,8 +1105,7 @@ class Category
         // is the movement possible? The movement is impossible if you try to move
         // a category in a sub-category or itself
         if ('NULL' != $new_parent) {
-            $query = 'SELECT uppercats FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $new_parent . ';';
-            list($new_parent_uppercats) = $conn->db_fetch_row($conn->db_query($query));
+            $new_parent_uppercats = (new CategoryRepository($conn))->findById($new_parent)['uppercats'];
 
             foreach ($categories as $category) {
             // technically, you can't move a category with uppercats 12,125,13,14
@@ -1290,16 +1117,7 @@ class Category
             }
         }
 
-        $tables = [
-            USER_ACCESS_TABLE => 'user_id',
-            GROUP_ACCESS_TABLE => 'group_id'
-        ];
-
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET id_uppercat = ' . $new_parent;
-        $query .= ' WHERE id ' . $conn->in($category_ids);
-        $conn->db_query($query);
-
+        (new CategoryRepository($conn))->updateCategory(['id_uppercat' => $new_parent], $category_ids);
         self::update_uppercats();
         \Phyxo\Functions\Utils::update_global_rank();
 
@@ -1307,8 +1125,7 @@ class Category
         if ('NULL' == $new_parent) {
             $parent_status = 'public';
         } else {
-            $query = 'SELECT status FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $new_parent . ';';
-            list($parent_status) = $conn->db_fetch_row($conn->db_query($query));
+            $parent_status = (new CategoryRepository($conn))->findById($new_parent)['status'];
         }
 
         if ('private' == $parent_status) {
@@ -1338,10 +1155,7 @@ class Category
         }
 
         // get existing associations
-        $query = 'SELECT image_id,category_id FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE image_id ' . $conn->in($images);
-        $query .= ' AND category_id ' . $conn->in($categories);
-        $result = $conn->db_query($query);
+        $result = (new ImageCategoryRepository($conn))->findAll($images, $categories);
 
         $existing = [];
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -1349,13 +1163,8 @@ class Category
         }
 
         // get max rank of each categories
-        $query = 'SELECT category_id,MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE rank IS NOT NULL';
-        $query .= ' AND category_id ' . $conn->in($categories);
-        $query .= ' GROUP BY category_id;';
-
-        $current_rank_of = $conn->query2array(
-            $query,
+        $current_rank_of = $conn->result2array(
+            (new ImageCategoryRepository($conn))->findMaxRankForEachCategories($categories),
             'category_id',
             'max_rank'
         );
@@ -1384,8 +1193,7 @@ class Category
         }
 
         if (count($inserts)) {
-            $conn->mass_inserts(
-                IMAGE_CATEGORY_TABLE,
+            (new ImageCategoryRepository($conn))->insertImageCategories(
                 array_keys($inserts[0]),
                 $inserts
             );
@@ -1410,15 +1218,10 @@ class Category
             return false;
         }
 
-        // let's first break links with all old albums but their "storage album"
-        $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id in (';
-        $query .= ' SELECT id FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT ' . $conn->in($categories) . ')';
-        $query .= ')';
-        $query .= ' AND image_id ' . $conn->in($images);
+        $cat_ids = $conn->result2array((new ImageRepository($conn))->findWithNoStorageOrStorage($categories), null, 'id');
 
-        $conn->db_query($query);
+        // let's first break links with all old albums but their "storage album"
+        (new ImageCategoryRepository($conn))->deleteByCategory($cat_ids, $images);
 
         if (is_array($categories) and count($categories) > 0) {
             self::associate_images_to_categories($images, $categories);
@@ -1440,9 +1243,7 @@ class Category
             return false;
         }
 
-        $query = 'SELECT image_id FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id ' . $conn->in($sources);
-        $images = $conn->query2array($query, null, 'image_id');
+        $images = $conn->result2array((new ImageCategoryRepository($conn))->findAll($sources), null, 'image_id');
 
         self::associate_images_to_categories($images, $destinations);
     }

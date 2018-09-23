@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CategoryRepository;
+
 if (!defined('IN_ADMIN')) {
     die('Hacking attempt!');
 }
@@ -32,14 +34,14 @@ if (isset($_GET['user_id']) and is_numeric($_GET['user_id'])) {
 // |                                updates                                |
 // +-----------------------------------------------------------------------+
 
-if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
+if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
     // if you forbid access to a category, all sub-categories become
     // automatically forbidden
-    $subcats = \Phyxo\Functions\Category::get_subcat_ids($_POST['cat_true']);
+    $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
     $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
     $query .= ' WHERE user_id = ' . $page['user'] . ' AND cat_id ' . $conn->in($subcats);
     $conn->db_query($query);
-} elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
+} elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
     \Phyxo\Functions\Category::add_permission_on_category($_POST['cat_false'], $page['user']);
 }
 
@@ -51,7 +53,7 @@ $template_filename = 'user_perm';
 $template->set_filenames(['double_select' => 'double_select.tpl']);
 
 $template->assign(
-    array(
+    [
         'TITLE' =>
             \Phyxo\Functions\Language::l10n(
             'Manage permissions for user "%s"',
@@ -62,12 +64,12 @@ $template->assign(
 
         'F_ACTION' =>
             \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_perm&amp;user_id=' . $page['user']
-    )
+    ]
 );
 
 
 // retrieve category ids authorized to the groups the user belongs to
-$group_authorized = array();
+$group_authorized = [];
 
 $query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM ' . GROUP_ACCESS_TABLE . ' AS ga';
 $query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON ug.group_id = ga.group_id';
@@ -78,7 +80,7 @@ $result = $conn->db_query($query);
 
 
 if ($conn->db_num_rows($result) > 0) {
-    $cats = array();
+    $cats = [];
     while ($row = $conn->db_fetch_assoc($result)) {
         $cats[] = $row;
         $group_authorized[] = $row['cat_id'];
@@ -100,10 +102,10 @@ $query_true .= ' WHERE status = \'private\' AND user_id = ' . $page['user'];
 if (count($group_authorized) > 0) {
     $query_true .= ' AND cat_id NOT ' . $conn->in($group_authorized);
 }
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, [], 'category_option_true');
 
 $result = $conn->db_query($query_true);
-$authorized_ids = array();
+$authorized_ids = [];
 while ($row = $conn->db_fetch_assoc($result)) {
     $authorized_ids[] = $row['id'];
 }
@@ -116,7 +118,7 @@ if (count($authorized_ids) > 0) {
 if (count($group_authorized) > 0) {
     $query_false .= ' AND id NOT ' . $conn->in($group_authorized);
 }
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
+\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, [], 'category_option_false');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

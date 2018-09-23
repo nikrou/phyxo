@@ -24,7 +24,6 @@ if (isset($page['category'])) {
     \Phyxo\Functions\Utils::check_restrictions($page['category']['id']);
 }
 
-
 if (!empty($_GET['display'])) {
     if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
         $_SESSION['picture_deriv'] = $_GET['display'];

@@ -167,7 +167,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         $this->db_query('ROLLBACK');
     }
 
-    public function db_write_lock($table)
+    public function db_write_lock(string $table)
     {
         $this->db_query('BEGIN');
         $this->db_query('LOCK TABLE ' . $table . ' IN EXCLUSIVE MODE');

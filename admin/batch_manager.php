@@ -23,6 +23,7 @@ define('BATCH_MANAGER_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/i
 
 use Phyxo\TabSheet\TabSheet;
 use App\Repository\TagRepository;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -317,7 +318,7 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
     $categories = [];
 
     if (isset($_SESSION['bulk_manager_filter']['category_recursive'])) {
-        $categories = \Phyxo\Functions\Category::get_subcat_ids([$_SESSION['bulk_manager_filter']['category']]);
+        $categories = (new CategoryRepository($conn))->getSubcatIds([$_SESSION['bulk_manager_filter']['category']]);
     } else {
         $categories = [$_SESSION['bulk_manager_filter']['category']];
     }

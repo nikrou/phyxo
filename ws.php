@@ -126,7 +126,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.getImages',
-        '\Phyxo\Functions\Ws\Categorie::getImages',
+        '\Phyxo\Functions\Ws\Category::getImages',
         array_merge([
             'cat_id' => ['default' => null, 'flags' => Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
             'recursive' => ['default' => false, 'type' => Server::WS_TYPE_BOOL],
@@ -139,7 +139,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.getList',
-        '\Phyxo\Functions\Ws\Categorie::getList',
+        '\Phyxo\Functions\Ws\Category::getList',
         [
             'cat_id' => [
                 'default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE,
@@ -393,7 +393,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.getAdminList',
-        '\Phyxo\Functions\Ws\Categorie::getAdminList',
+        '\Phyxo\Functions\Ws\Category::getAdminList',
         null,
         'Get albums list as displayed on admin page.',
         ['admin_only' => true]
@@ -401,7 +401,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.add',
-        '\Phyxo\Functions\Ws\Categorie::add',
+        '\Phyxo\Functions\Ws\Category::add',
         [
             'name' => [],
             'parent' => ['default' => null, 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -416,7 +416,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.delete',
-        '\Phyxo\Functions\Ws\Categorie::delete',
+        '\Phyxo\Functions\Ws\Category::delete',
         [
             'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
             'photo_deletion_mode' => ['default' => 'delete_orphans'],
@@ -429,7 +429,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.move',
-        '\Phyxo\Functions\Ws\Categorie::move',
+        '\Phyxo\Functions\Ws\Category::move',
         [
             'category_id' => ['flags' => Server::WS_PARAM_ACCEPT_ARRAY],
             'parent' => ['type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -442,7 +442,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.setRepresentative',
-        '\Phyxo\Functions\Ws\Categorie::setRepresentative',
+        '\Phyxo\Functions\Ws\Category::setRepresentative',
         [
             'category_id' => ['type' => Server::WS_TYPE_ID],
             'image_id' => ['type' => Server::WS_TYPE_ID],
@@ -543,7 +543,7 @@ function addDefaultMethods($arr)
 
     $service->addMethod(
         'pwg.categories.setInfo',
-        '\Phyxo\Functions\Ws\Categorie::setInfo',
+        '\Phyxo\Functions\Ws\Category::setInfo',
         [
             'category_id' => ['type' => Server::WS_TYPE_ID],
             'name' => ['default' => null],
