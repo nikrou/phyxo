@@ -487,16 +487,19 @@ class mysqlConnection extends DBLayer implements iDBLayer
             foreach ($datas as $data) {
                 $query = 'UPDATE ' . $tablename . ' SET ';
                 $is_first = true;
-                foreach ($dbfields['update'] as $key) {
-                    $separator = $is_first ? '' : ",\n    ";
 
-                    if (isset($data[$key]) and $data[$key] != '') {
+                foreach ($dbfields['update'] as $key) {
+                    $separator = $is_first ? '' : ', ';
+
+                    if (isset($data[$key]) && is_bool($data[$key])) {
+                        $query .= $separator . $key . ' = \'' . $this->boolean_to_db($data[$key]) . '\'';
+                    } elseif (isset($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                     } else {
                         if ($flags & MASS_UPDATES_SKIP_EMPTY) {
                             continue; // next field
                         }
-                        $query .= "$separator$key = NULL";
+                        $query .= " $separator $key = null ";
                     }
                     $is_first = false;
                 }
@@ -507,10 +510,12 @@ class mysqlConnection extends DBLayer implements iDBLayer
                         if (!$is_first) {
                             $query .= ' AND ';
                         }
-                        if (isset($data[$key])) {
-                            $query .= $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
-                        } else {
+                        if (isset($data[$key]) && is_bool($data[$key])) {
+                            $query .= $key . ' = \'' . $this->boolean_to_db($data[$key]) . '\'';
+                        } elseif (!isset($data[$key]) || $data[$key] === '') {
                             $query .= $key . ' IS NULL';
+                        } else {
+                            $query .= $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                         }
                         $is_first = false;
                     }
@@ -534,12 +539,12 @@ class mysqlConnection extends DBLayer implements iDBLayer
                         $nullable = false;
                     }
                     if (isset($row['Default'])) {
-                        $column .= " default '" . $row['Default'] . "'";
+                        $column .= " default '" . $row[' default '] . "' ";
                     } elseif ($nullable) {
-                        $column .= " default NULL";
+                        $column .= " default null ";
                     }
                     if (isset($row['Collation']) and $row['Collation'] != 'NULL') {
-                        $column .= " collate '" . $row['Collation'] . "'";
+                        $column .= " collate '" . $row[' Collation '] . "' ";
                     }
                     $columns[] = $column;
                 }
@@ -555,11 +560,11 @@ class mysqlConnection extends DBLayer implements iDBLayer
             $this->mass_inserts($temporary_tablename, $all_fields, $datas);
             if ($flags & MASS_UPDATES_SKIP_EMPTY) {
                 $func_set = function ($s) {
-                    return "t1.$s = IFNULL(t2.$s, t1.$s)";
+                    return " t1 . $s = IFNULL(t2 . $s, t1 . $s) ";
                 };
             } else {
                 $func_set = function ($s) {
-                    return "t1.$s = t2.$s";
+                    return " t1 . $s = t2 . $s ";
                 };
             }
 
@@ -571,7 +576,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
                 ' AND ',
                 array_map(
                     function ($s) {
-                        return "t1.$s = t2.$s";
+                        return " t1 . $s = t2 . $s ";
                     },
                     $dbfields['primary']
                 )

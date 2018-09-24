@@ -137,9 +137,9 @@ class pgsqlConnection extends DBLayer implements iDBLayer
     public function db_insert_id(string $table = null, string $column = 'id') : int
     {
         $sequence = sprintf('%s_%s_seq', strtolower($table), $column);
-        $query = 'SELECT CURRVAL(\'' . $sequence . '\');';
-
-        list($id) = $this->db_fetch_row($this->db_query($query));
+        $query = 'SELECT CURRVAL(\'' . $sequence . '\')';
+        $result = $this->db_query($query);
+        list($id) = $this->db_fetch_row($result);
 
         return $id;
     }
@@ -445,7 +445,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      */
     public function mass_updates($tablename, $dbfields, $datas, $flags = 0)
     {
-        if (count($datas) == 0) {
+        if (count($datas) === 0) {
             return;
         }
 
@@ -454,7 +454,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                 $query = 'UPDATE ' . $tablename . ' SET ';
                 $is_first = true;
                 foreach ($dbfields['update'] as $key) {
-                    $separator = $is_first ? '' : ",\n    ";
+                    $separator = $is_first ? '' : ', ';
 
                     if (isset($data[$key]) && is_bool($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->boolean_to_db($data[$key]) . '\'';
@@ -484,6 +484,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                         }
                         $is_first = false;
                     }
+
                     $this->db_query($query);
                 }
             }

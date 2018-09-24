@@ -434,9 +434,11 @@ class sqliteConnection extends DBLayer implements iDBLayer
                 $query = 'UPDATE ' . $tablename . ' SET ';
                 $is_first = true;
                 foreach ($dbfields['update'] as $key) {
-                    $separator = $is_first ? '' : ",\n    ";
+                    $separator = $is_first ? '' : ', ';
 
-                    if (isset($data[$key]) and $data[$key] != '') {
+                    if (isset($data[$key]) && is_bool($data[$key])) {
+                        $query .= $separator . $key . ' = \'' . $this->boolean_to_db($data[$key]) . '\'';
+                    } elseif (isset($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                     } else {
                         if ($flags & MASS_UPDATES_SKIP_EMPTY) {
@@ -453,10 +455,12 @@ class sqliteConnection extends DBLayer implements iDBLayer
                         if (!$is_first) {
                             $query .= ' AND ';
                         }
-                        if (isset($data[$key])) {
-                            $query .= $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
-                        } else {
+                        if (isset($data[$key]) && is_bool($data[$key])) {
+                            $query .= $key . ' = \'' . $this->boolean_to_db($data[$key]) . '\'';
+                        } elseif (!isset($data[$key]) || $data[$key] === '') {
                             $query .= $key . ' IS NULL';
+                        } else {
+                            $query .= $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                         }
                         $is_first = false;
                     }

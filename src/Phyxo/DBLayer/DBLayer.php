@@ -89,7 +89,7 @@ class DBLayer
     /**
      * return an IN clause where @params are escaped
      */
-    public function in($params)
+    public function in(array $params)
     {
         if (empty($params)) {
             return '';
@@ -183,7 +183,7 @@ class DBLayer
     /**
      * Inserts one line in a table.
      */
-    public function single_insert(string $table_name, array $data) : int
+    public function single_insert(string $table_name, array $data, $auto_increment_for_table = true) : ? int
     {
         if (count($data) != 0) {
             $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', array_keys($data)) . ')';
@@ -209,7 +209,11 @@ class DBLayer
 
             $this->db_query($query);
 
-            return $this->conn->db_insert_id($table_name);
+            if ($auto_increment_for_table) {
+                return $this->db_insert_id($table_name);
+            }
+
+            return null;
         }
     }
 
@@ -222,7 +226,8 @@ class DBLayer
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
     public function single_update(string $tablename, array $datas, array $where = [], $flags = 0)
-    { // @TODO: need refactoring between mass_* and single_*
+    {
+        // @TODO: need refactoring between mass_* and single_*
         if (count($datas) == 0) {
             return;
         }
@@ -358,7 +363,7 @@ class DBLayer
         $t2 = explode('.', $t1[0]);
         $t2 = $t1[1] . substr($t2[1], 0, 6);
 
-        return "$table_$t2";
+        return $table . '_' . $t2;
     }
 
     /**
