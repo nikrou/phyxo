@@ -158,7 +158,7 @@ class CategoryRepository extends BaseRepository
     /**
      * Find a random photo among all photos inside an album (including sub-albums)
      */
-    public static function getRandomImageInCategory(array $category, bool $recursive = true)
+    public function getRandomImageInCategory(array $category, bool $recursive = true)
     {
         $image_id = null;
         if ($category['count_images'] > 0) {

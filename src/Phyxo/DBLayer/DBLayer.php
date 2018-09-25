@@ -35,7 +35,13 @@ class DBLayer
     {
         $db_params = parse_url($dsn);
 
-        return self::init($db_params['scheme'], $db_params['host'], $db_params['user'], $db_params['pass'], substr($db_params['path'], 1));
+        return self::init(
+            $db_params['scheme'],
+            $db_params['host'],
+            isset($db_params['user']) ? $db_params['user'] : '',
+            isset($db_params['pass']) ? $db_params['pass'] : '',
+            substr($db_params['path'], 1)
+        );
     }
 
     public function getLayer()
@@ -225,7 +231,7 @@ class DBLayer
      * @param array $where
      * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
-    public function single_update(string $tablename, array $datas, array $where = [], $flags = 0)
+    public function single_update(string $tablename, array $datas, array $where = [], int $flags = 0)
     {
         // @TODO: need refactoring between mass_* and single_*
         if (count($datas) == 0) {

@@ -84,7 +84,7 @@ if (isset($_POST['submit'])) {
         $cookie_val = null;
     }
 
-    set_cookie('display_thumbnail', $cookie_val, strtotime('+1 month'), \Phyxo\Functions\Utils::cookie_path());
+    setcookie('display_thumbnail', $cookie_val, strtotime('+1 month'), \Phyxo\Functions\Utils::cookie_path());
 
     // TODO manage inconsistency of having $_POST['image_id'] and
     // $_POST['filename'] simultaneously
