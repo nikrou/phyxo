@@ -61,7 +61,7 @@ class Rate
                 $conn->db_query($query);
             } // end client changed ip
 
-            set_cookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
+            setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
         } // end anonymous user
 
         $query = 'DELETE FROM ' . RATE_TABLE;
@@ -99,7 +99,7 @@ class Rate
         $all_rates_count = 0;
         $all_rates_avg = 0;
         $item_ratecount_avg = 0;
-        $by_item = array();
+        $by_item = [];
 
         $result = $conn->db_query($query);
         while ($row = $conn->db_fetch_assoc($result)) {
@@ -113,25 +113,25 @@ class Rate
             $item_ratecount_avg = $all_rates_count / count($by_item);
         }
 
-        $updates = array();
+        $updates = [];
         foreach ($by_item as $id => $rate_summary) {
             $score = ($item_ratecount_avg * $all_rates_avg + $rate_summary['rsum']) / ($item_ratecount_avg + $rate_summary['rcount']);
             $score = round($score, 2);
             if ($id == $element_id) {
-                $return = array(
+                $return = [
                     'score' => $score,
                     'average' => round($rate_summary['rsum'] / $rate_summary['rcount'], 2),
                     'count' => $rate_summary['rcount'],
-                );
+                ];
             }
-            $updates[] = array('id' => $id, 'rating_score' => $score);
+            $updates[] = ['id' => $id, 'rating_score' => $score];
         }
         $conn->mass_updates(
             IMAGES_TABLE,
-            array(
-                'primary' => array('id'),
-                'update' => array('rating_score')
-            ),
+            [
+                'primary' => ['id'],
+                'update' => ['rating_score']
+            ],
             $updates
         );
 
@@ -151,6 +151,6 @@ class Rate
             }
         }
 
-        return isset($return) ? $return : array('score' => null, 'average' => null, 'count' => 0);
+        return isset($return) ? $return : ['score' => null, 'average' => null, 'count' => 0];
     }
 }

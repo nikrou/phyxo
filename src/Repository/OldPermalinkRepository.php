@@ -30,4 +30,12 @@ class OldPermalinkRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
+
+    public function updateOldPermalink(string $permalink, int $cat_id)
+    {
+        $query = ' UPDATE ' . self::OLD_PERMALINKS_TABLE . ' SET last_hit = NOW(), hit = hit + 1 ';
+        $query .= ' WHERE permalink = \'' . $permalink . '\' AND cat_id=' . $cat_id;
+
+        $this->conn->db_query($query);
+    }
 }

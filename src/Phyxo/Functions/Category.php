@@ -18,6 +18,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\OldPermalinkRepository;
+use App\Repository\SiteRepository;
 
 class Category
 {
@@ -492,9 +493,7 @@ class Category
                 $idx = $i;
                 $cat_id = $perma_hash[$permalinks[$i]]['id'];
                 if ($perma_hash[$permalinks[$i]]['is_old']) {
-                    $query = 'UPDATE ' . OLD_PERMALINKS_TABLE . ' SET last_hit=NOW(), hit=hit+1';
-                    $query .= ' WHERE permalink=\'' . $permalinks[$i] . '\' AND cat_id=' . $cat_id . ' LIMIT 1';
-                    $conn->db_query($query);
+                    (new OldPermalinkRepository($conn))->updateOldPermalink($permalinks[$i], $cat_id);
                 }
                 return $cat_id;
             }
@@ -1020,8 +1019,7 @@ class Category
         $cat_dirs = $conn->result2array((new CategoryRepository($conn))->findByDir('IS NOT NULL'), 'id', 'dir');
 
         // caching galleries_url
-        $query = 'SELECT id, galleries_url FROM ' . SITES_TABLE;
-        $galleries_url = $conn->query2array($query, 'id', 'galleries_url');
+        $galleries_url = $conn->result2array((new SiteRepository($conn))->findAll(), 'id', 'galleries_url');
 
         // categories : id, site_id, uppercats
         $categories = $conn->result2array((new CategoryRepository($conn))->findByIdsAndDir($cat_ids, 'IS NOT NULL'));
