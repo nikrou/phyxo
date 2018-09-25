@@ -26,7 +26,8 @@ class CategoryRepository extends BaseRepository
 
     public function findAll(array $ids = [])
     {
-        $query = 'SELECT id, name, comment, uppercats, global_rank, dir FROM ' . self::CATEGORIES_TABLE;
+        $query = 'SELECT id, name, id_uppercat, comment, dir, rank, status, site_id, visible, representative_picture_id, uppercats,';
+        $query .= ' commentable, global_rank, image_order, permalink, lastmodified FROM ' . self::CATEGORIES_TABLE;
 
         if (count($ids) > 0) {
             $query .= ' WHERE id ' . $this->conn->in($ids);
@@ -98,7 +99,7 @@ class CategoryRepository extends BaseRepository
 
         $query .= ' GROUP BY c.id';
 
-        $this->conn->db_query($query);
+        return $this->conn->db_query($query);
     }
 
     public function findById(int $id) : array
@@ -126,14 +127,32 @@ class CategoryRepository extends BaseRepository
         return $this->conn->single_insert(self::CATEGORIES_TABLE, $datas);
     }
 
-    public function updateCategory(array $datas, array $ids)
+    public function updateCategory(array $datas, int $id)
     {
-        $this->conn->single_update(self::CATEGORIES_TABLE, $datas, $ids);
+        $this->conn->single_update(self::CATEGORIES_TABLE, $datas, ['id' => $id]);
     }
 
-    public function updateCategories(array $fields, array $datas)
+    public function updateCategories(array $fields, array $ids)
     {
-        $this->conn->mass_update(self::CATEGORIES_TABLE, $fields, $datas);
+        $query = 'UPDATE ' . self::CATEGORIES_TABLE;
+        $query .= ' SET ';
+        foreach ($fields as $key => $value) {
+            if (is_bool($value)) {
+                $query .= $key . ' = \'' . $this->conn->boolean_to_db($value) . '\'';
+            } elseif (!empty($value)) {
+                $query .= $key . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
+            } else {
+                $query .= $key . ' IS NULL';
+            }
+            $query .= ' WHERE id ' . $this->conn->in($ids);
+
+            $this->conn->db_query($query);
+        }
+    }
+
+    public function massUpdatesCategories(array $fields, array $datas)
+    {
+        $this->conn->mass_updates(self::CATEGORIES_TABLE, $fields, $datas);
     }
 
     /**
@@ -194,7 +213,7 @@ class CategoryRepository extends BaseRepository
     /**
      * Returns all subcategory identifiers of given category ids
      */
-    public static function getSubcatIds(array $ids) : array
+    public function getSubcatIds(array $ids) : array
     {
         $query = 'SELECT DISTINCT(id) FROM ' . self::CATEGORIES_TABLE;
         $query .= ' WHERE ';

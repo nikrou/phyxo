@@ -140,9 +140,9 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getTagsByImage(int $image_id, ? bool $validated)
+    public function getTagsByImage(int $image_id, ? bool $validated = null)
     {
-        $query = 'SELECT id FROM ' . self::TAGS_TABLE . ' AS t';
+        $query = 'SELECT id,name,url_name FROM ' . self::TAGS_TABLE . ' AS t';
         $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON t.id = it.tag_id';
         $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
         if ($validated !== null) {

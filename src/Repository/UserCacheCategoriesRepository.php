@@ -13,7 +13,7 @@ namespace App\Repository;
 
 class UserCacheCategoriesRepository extends BaseRepository
 {
-    public function deleteUserCacheCategories(? int $user_id)
+    public function deleteUserCacheCategories(? int $user_id = null)
     {
         $query = 'DELETE FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
         if (!is_null($user_id)) {

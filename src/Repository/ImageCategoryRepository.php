@@ -11,7 +11,7 @@
 
 namespace App\Repository;
 
-class ImageCategoryRepository extends BaseCategory
+class ImageCategoryRepository extends BaseRepository
 {
     public function countByCategory()
     {
@@ -51,7 +51,7 @@ class ImageCategoryRepository extends BaseCategory
             true
         );
 
-        if (!$isAdmin()) {
+        if (!$isAdmin) {
             $query .= ' AND validated = \'' . $this->conn->boolean_to_db(true) . '\'';
         }
 

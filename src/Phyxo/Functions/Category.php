@@ -455,7 +455,7 @@ class Category
         $wrong_representant = $conn->result2array((new CategoryRepository($conn))->findWrongRepresentant($where_cats), null, 'id');
 
         if (count($wrong_representant) > 0) {
-            (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => null], $wrong_representant);
+            (new CategoryRepository($conn))->updateCategories(['representative_picture_id' => null], $wrong_representant);
         }
 
         if (!$conf['allow_random_representative']) {
@@ -661,10 +661,10 @@ class Category
                 $cats = array_merge($cats, (new CategoryRepository($conn))->getSubcatIds($categories));
             }
 
-            (new CategoryRepository($conn))->updateCategory(['visible' => true], $cats);
+            (new CategoryRepository($conn))->updateCategories(['visible' => true], $cats);
         } else { // locking a category   => all its child categories become locked
             $subcats = (new CategoryRepository($conn))->getSubcatIds($categories);
-            (new CategoryRepository($conn))->updateCategory(['visible' => false], $subcats);
+            (new CategoryRepository($conn))->updateCategories(['visible' => false], $subcats);
         }
     }
 
@@ -686,13 +686,16 @@ class Category
         // make public a category => all its parent categories become public
         if ($value == 'public') {
             $uppercats = self::get_uppercat_ids($categories);
-            (new CategoryRepository($conn))->updateCategory(['status' => 'public'], $uppercats);
+            (new CategoryRepository($conn))->updateCategories(
+                ['status' => 'public'],
+                $uppercats
+            );
         }
 
         // make a category private => all its child categories become private
         if ($value == 'private') {
             $subcats = (new CategoryRepository($conn))->getSubcatIds($categories);
-            (new CategoryRepository($conn))->updateCategory(['status' => 'private'], $subcats);
+            (new CategoryRepository($conn))->updateCategories(['status' => 'private'], $subcats);
 
             // @TODO: add unit tests for that
             // We have to keep permissions consistant: a sub-album can't be
@@ -731,7 +734,7 @@ class Category
             $top_categories = [];
             $parent_ids = [];
 
-            $all_categories = $conn->result2array((new CategoryRepository($conn))->findAll($ids));
+            $all_categories = $conn->result2array((new CategoryRepository($conn))->findAll($categories));
             usort($all_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
             foreach ($all_categories as $cat) {
@@ -765,8 +768,8 @@ class Category
             }
 
             $repositories = [
-                'UserAccessRepository' => 'user_id',
-                'GroupAccessRepository' => 'group_id'
+                '\App\Repository\UserAccessRepository' => 'user_id',
+                '\App\Repository\GroupAccessRepository' => 'group_id'
             ];
 
             foreach ($top_categories as $top_category) {
@@ -783,7 +786,7 @@ class Category
 
                 foreach ($repositories as $repository => $field) {
                     // what are the permissions user/group of the reference album
-                    $ref_access = $conn->query2array((new $repository($conn))->findByCat($ref_cat_id), null, $field);
+                    $ref_access = $conn->result2array((new $repository($conn))->findByCatId($ref_cat_id, $field), null, $field);
 
                     if (count($ref_access) == 0) {
                         $ref_access[] = -1;
@@ -967,7 +970,7 @@ class Category
         $inserted_id = (new CategoryRepository($conn))->insertCategory($insert);
         (new CategoryRepository($conn))->updateCategory(
             ['uppercats' => $uppercats_prefix . $inserted_id],
-            ['id' => $inserted_id]
+            $inserted_id
         );
 
         \Phyxo\Functions\Utils::update_global_rank();
@@ -1052,7 +1055,6 @@ class Category
         global $conn;
 
         $cat_map = $conn->result2array((new CategoryRepository($conn))->findAll(), 'id');
-
         $datas = [];
         foreach ($cat_map as $id => $cat) {
             $upper_list = [];
@@ -1072,7 +1074,7 @@ class Category
             }
         }
         $fields = ['primary' => ['id'], 'update' => ['uppercats']];
-        (new CategoryRepository($conn))->updateCategories($fields, $datas);
+        (new CategoryRepository($conn))->massUpdatesCategories($fields, $datas);
     }
 
     /**
@@ -1117,7 +1119,7 @@ class Category
             }
         }
 
-        (new CategoryRepository($conn))->updateCategory(['id_uppercat' => $new_parent], $category_ids);
+        (new CategoryRepository($conn))->updateCategories(['id_uppercat' => $new_parent], $category_ids);
         self::update_uppercats();
         \Phyxo\Functions\Utils::update_global_rank();
 

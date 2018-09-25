@@ -13,7 +13,7 @@ namespace App\Repository;
 
 class UserCacheRepository extends BaseRepository
 {
-    public function deleteUserCache(? int $user_id)
+    public function deleteUserCache(? int $user_id = null)
     {
         $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
         if (!is_null($user_id)) {
@@ -49,6 +49,6 @@ class UserCacheRepository extends BaseRepository
 
     public function insertUserCache(array $params)
     {
-        return $this->conn->single_insert(self::USER_CACHE_TABLE, ['name' => $tag_name, 'url_name' => $url_name]);
+        return $this->conn->single_insert(self::USER_CACHE_TABLE, $params, $auto_increment_for_table = false);
     }
 }

@@ -40,11 +40,11 @@ if (isset($_POST['submit'])) {
 
     (new CategoryRepository($conn))->updateCategory(
         $data,
-        ['id' => $data['id']]
+        $data['id']
     );
     if (!empty($_POST['apply_commentable_on_sub'])) {
         $subcats = (new CategoryRepository($conn))->getSubcatIds(['id' => $data['id']]);
-        (new CategoryRepository($conn))->updateCategory(
+        (new CategoryRepository($conn))->updateCategories(
             ['commentable' => $data['commentable']],
             $subcats
         );

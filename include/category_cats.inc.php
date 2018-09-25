@@ -10,22 +10,12 @@
  */
 
 use App\Repository\CategoryRepository;
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
 /**
  * This file is included by the main page to show subcategories of a category
  * or to show recent categories or main page categories list
  *
  */
-
 
 // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
 $query = 'SELECT c.*, user_representative_picture_id, nb_images, date_last, max_date_last,';

@@ -17,6 +17,7 @@ use App\Repository\CommentRepository;
 use App\Repository\ImageCategory;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheRepository;
+use App\Repository\UserCacheCategoriesRepository;
 
 class Utils
 {

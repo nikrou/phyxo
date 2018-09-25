@@ -455,9 +455,8 @@ class Users
             }
         }
         unset($value);
-
         if ($use_cache) {
-            if (!isset($userdata['need_update']) or !is_bool($userdata['need_update']) or $userdata['need_update'] == true) {
+            if (!isset($userdata['need_update']) or !is_bool($userdata['need_update']) or $userdata['need_update'] === true) {
                 $userdata['cache_update_time'] = time();
 
                 // Set need update are done
@@ -505,14 +504,13 @@ class Users
 
                 // delete user cache
                 $this->conn->db_write_lock(USER_CACHE_CATEGORIES_TABLE);
-                (new UserCacheCategoriesRepository($this->conn))->deleteByUserId($userdata['id']);
+                (new UserCacheCategoriesRepository($this->conn))->deleteByUserId([$userdata['id']]);
                 (new UserCacheCategoriesRepository($this->conn))->insertUserCacheCategories(
                     [
                         'user_id', 'cat_id',
                         'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'
                     ],
-                    $user_cache_cats,
-                    ['ignore' => true]
+                    $user_cache_cats
                 );
                 $this->conn->db_unlock();
 
@@ -527,7 +525,7 @@ class Users
                             'cache_update_time' => $userdata['cache_update_time'],
                             'forbidden_categories' => $userdata['forbidden_categories'],
                             'nb_total_images' => $userdata['nb_total_images'],
-                            $userdata['last_photo_date'] ?? $userdata['last_photo_date'],
+                            'last_photo_date' => !empty($userdata['last_photo_date']) ? $userdata['last_photo_date'] : '',
                             'image_access_type' => $userdata['image_access_type'],
                             'image_access_list' => $userdata['image_access_list']
                         ]
