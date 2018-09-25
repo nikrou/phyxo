@@ -443,7 +443,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @param int flags - if MASS_UPDATES_SKIP_EMPTY - empty values do not overwrite existing ones
      * @return void
      */
-    public function mass_updates($tablename, $dbfields, $datas, $flags = 0)
+    public function mass_updates(string $tablename, array $dbfields, array $datas, int $flags = 0)
     {
         if (count($datas) === 0) {
             return;

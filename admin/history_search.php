@@ -10,6 +10,9 @@
  */
 
 use App\Repository\TagRepository;
+use App\Repository\HistorySummaryRepository;
+use App\Repository\ImageRepository;
+use App\Repository\HistoryRepository;
 
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
@@ -28,8 +31,6 @@ $display_thumbnails = [
     'display_thumbnail_classic' => \Phyxo\Functions\Language::l10n('Classic display'),
     'display_thumbnail_hoverbox' => \Phyxo\Functions\Language::l10n('Hoverbox display')
 ];
-
-\Phyxo\Functions\Plugin::add_event_handler('get_history', '\Phyxo\Functions\History::get_history');
 
 // +-----------------------------------------------------------------------+
 // | Build search criteria and redirect to results                         |
@@ -143,9 +144,16 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }
 
+    if (isset($search['fields']['filename'])) {
+        $search['image_ids'] = $conn->result2array((new ImageRepository($conn))->findByField('file', $search['fields']['filename']), null, 'id');
+        $page['search'] = array_merge($page['search'], $search);
+    }
+
     // @TODO - no need to get a huge number of rows from db (should take only what needed for display + SQL_CALC_FOUND_ROWS
-    $data = \Phyxo\Functions\Plugin::trigger_change('get_history', [], $page['search'], $types);
-    usort($data, '\Phyxo\Functions\History::history_compare');
+    $data = $conn->result2array((new HistoryRepository($conn))->getHistory($page['search'], $types));
+    usort($data, function ($a, $b) {
+        return strcmp($a['date'] . $a['time'], $b['date'] . $b['time']);
+    });
 
     $page['nb_lines'] = count($data);
 

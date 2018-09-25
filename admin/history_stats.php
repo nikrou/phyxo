@@ -13,6 +13,7 @@ if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
 }
 
+use App\Repository\HistorySummaryRepository;
 // +-----------------------------------------------------------------------+
 // | Refresh summary from details                                          |
 // +-----------------------------------------------------------------------+
@@ -24,14 +25,14 @@ $query .= ' GROUP BY date,hour';
 $query .= ' ORDER BY date ASC,hour ASC;';
 $result = $conn->db_query($query);
 
-$need_update = array();
+$need_update = [];
 
 $max_id = 0;
 $is_first = true;
 $first_time_key = null;
 
 while ($row = $conn->db_fetch_assoc($result)) {
-    $time_keys = array(
+    $time_keys = [
         substr($row['date'], 0, 4), //yyyy
         substr($row['date'], 0, 7), //yyyy-mm
         substr($row['date'], 0, 10),//yyyy-mm-dd
@@ -40,7 +41,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
             $row['date'],
             $row['hour']
         ),
-    );
+    ];
 
     foreach ($time_keys as $time_key) {
         if (!isset($need_update[$time_key])) {
@@ -75,8 +76,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // +---------------+----------+
 
 
-$updates = array();
-$inserts = array();
+$updates = [];
+$inserts = [];
 
 if (isset($first_time_key)) {
     list($year, $month, $day, $hour) = explode('-', $first_time_key);
@@ -108,22 +109,22 @@ if (isset($first_time_key)) {
 foreach ($need_update as $time_key => $nb_pages) {
     $time_tokens = explode('-', $time_key);
 
-    $inserts[] = array(
+    $inserts[] = [
         'year' => $time_tokens[0],
         'month' => @$time_tokens[1],
         'day' => @$time_tokens[2],
         'hour' => @$time_tokens[3],
         'nb_pages' => $nb_pages,
-    );
+    ];
 }
 
 if (count($updates) > 0) {
     $conn->mass_updates(
         HISTORY_SUMMARY_TABLE,
-        array(
-            'primary' => array('year', 'month', 'day', 'hour'),
-            'update' => array('nb_pages'),
-        ),
+        [
+            'primary' => ['year', 'month', 'day', 'hour'],
+            'update' => ['nb_pages'],
+        ],
         $updates
     );
 }
@@ -147,7 +148,7 @@ if ($max_id != 0) {
 // | Page parameters check                                                 |
 // +-----------------------------------------------------------------------+
 
-foreach (array('day', 'month', 'year') as $key) {
+foreach (['day', 'month', 'year'] as $key) {
     if (isset($_GET[$key])) {
         $page[$key] = (int)$_GET[$key];
     }
@@ -165,18 +166,18 @@ if (isset($page['month'])) {
     }
 }
 
-$summary_lines = \Phyxo\Functions\History::get_summary(
-    @$page['year'],
-    @$page['month'],
-    @$page['day']
-);
+$summary_lines = $conn->result2array((new HistorySummaryRepository($conn))->getSummary(
+    isset($page['year']) ? $page['year'] : null,
+    isset($page['month']) ? $page['month'] : null,
+    isset($page['day']) ? $page['day'] : null
+));
 
 // +-----------------------------------------------------------------------+
 // | Display statistics header                                             |
 // +-----------------------------------------------------------------------+
 
 // page title creation
-$title_parts = array();
+$title_parts = [];
 
 $url = HISTORY_BASE_URL;
 
@@ -219,12 +220,12 @@ if (isset($page['day'])) {
 $base_url = HISTORY_BASE_URL;
 
 $template->assign(
-    array(
+    [
         'L_STAT_TITLE' => implode($conf['level_separator'], $title_parts),
         'PERIOD_LABEL' => $period_label,
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=history',
         'F_ACTION' => $base_url,
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -233,7 +234,7 @@ $template->assign(
 
 $max_width = 400;
 
-$datas = array();
+$datas = [];
 
 if (isset($page['day'])) {
     $key = 'hour';
@@ -296,11 +297,11 @@ if (count($datas) > 0) {
 
         $template->append(
             'statrows',
-            array(
+            [
                 'VALUE' => $value,
                 'PAGES' => $datas[$i],
                 'WIDTH' => ceil(($datas[$i] * $max_width) / $max_pages),
-            )
+            ]
         );
     }
 }

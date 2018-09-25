@@ -9,71 +9,44 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Functions;
+namespace App\Repository;
 
-class History
+class HistorySummaryRepository extends BaseRepository
 {
-    public static function get_summary($year = null, $month = null, $day = null)
+    public function getSummary(int $year = null, int $month = null, int $day = null)
     {
-        global $conn;
+        $query = 'SELECT year, month, day, hour, nb_pages FROM ' . self::HISTORY_SUMMARY_TABLE;
 
-        $query = 'SELECT year,month,day,hour,nb_pages FROM ' . HISTORY_SUMMARY_TABLE;
-
-        if (isset($day)) {
+        if (!is_null($day)) {
             $query .= ' WHERE year = ' . $year . ' AND month = ' . $month;
             $query .= ' AND day = ' . $day . ' AND hour IS NOT NULL';
-            $query .= ' ORDER BY year ASC,month ASC,day ASC,hour ASC;';
-        } elseif (isset($month)) {
+            $query .= ' ORDER BY year ASC, month ASC, day ASC, hour ASC;';
+        } elseif (!is_null($month)) {
             $query .= ' WHERE year = ' . $year . ' AND month = ' . $month;
             $query .= ' AND day IS NOT NULL AND hour IS NULL';
-            $query .= ' ORDER BY year ASC,month ASC,day ASC;';
-        } elseif (isset($year)) {
+            $query .= ' ORDER BY year ASC, month ASC, day ASC;';
+        } elseif (!is_null($year)) {
             $query .= ' WHERE year = ' . $year . ' AND month IS NOT NULL';
             $query .= ' AND day IS NULL';
-            $query .= ' ORDER BY year ASC,month ASC;';
+            $query .= ' ORDER BY year ASC, month ASC;';
         } else {
             $query .= ' WHERE year IS NOT NULL';
             $query .= ' AND month IS NULL';
             $query .= ' ORDER BY year ASC;';
         }
 
-        $result = $conn->db_query($query);
-
-        $output = array();
-        while ($row = $conn->db_fetch_assoc($result)) {
-            $output[] = $row;
-        }
-
-        return $output;
+        return $this->conn->db_query($query);
     }
 
-    /**
-     * Callback used to sort history entries
-     */
-    public static function history_compare($a, $b)
+    public function getHistory($data, $search, $type)
     {
-        return strcmp($a['date'] . $a['time'], $b['date'] . $b['time']);
-    }
-
-    /**
-     * Perform history search.
-     *
-     * @param array $data  - used in trigger_change
-     * @param array $search
-     * @param string[] $types
-     * @param array
-     */
-    public static function get_history($data, $search, $types)
-    {
-        global $conn;
-
         if (isset($search['fields']['filename'])) {
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $query .= ' WHERE file LIKE \'' . $search['fields']['filename'] . '\'';
             $search['image_ids'] = $conn->query2array($query, null, 'id');
         }
 
-        $clauses = array();
+        $clauses = [];
 
         if (isset($search['fields']['date-after'])) {
             $clauses[] = "date >= '" . $search['fields']['date-after'] . "'";
@@ -84,7 +57,7 @@ class History
         }
 
         if (isset($search['fields']['types'])) {
-            $local_clauses = array();
+            $local_clauses = [];
 
             foreach ($types as $type) {
                 if (in_array($type, $search['fields']['types'])) {
@@ -130,15 +103,10 @@ class History
         $where_separator = implode(' AND ', $clauses);
 
         $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,';
-        $query .= 'image_id,image_type FROM ' . HISTORY_TABLE;
+        $query .= 'image_id,image_type FROM ' . self::HISTORY_TABLE;
         $query .= ' WHERE ' . $where_separator;
 
         $result = $conn->db_query($query);
 
-        while ($row = $conn->db_fetch_assoc($result)) {
-            $data[] = $row;
-        }
-
-        return $data;
     }
 }

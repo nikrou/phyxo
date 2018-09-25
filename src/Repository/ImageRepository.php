@@ -20,4 +20,12 @@ class ImageRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
+
+    public function searchByField($field, $value)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE ' . $field . ' LIKE \'' . $this->conn->db_real_escape_string($value) . '\'';
+
+        $this->conn->db_query($query);
+    }
 }
