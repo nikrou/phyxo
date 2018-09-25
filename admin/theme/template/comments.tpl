@@ -14,22 +14,25 @@
     {if !empty($comments) }
 	<form method="post" action="{$F_ACTION}">
 	    <table class="table table-striped">
-			<tbody>
-				{foreach $comments as $comment}
-				<tr>
-					<td style="width:50px;" class="checkComment">
-						<input type="checkbox" name="comments[]" value="{$comment.ID}">
-					</td>
-					<td>
-						<div class="comment">
-							<a href="{$comment.U_PICTURE}"><img src="{$comment.TN_SRC}"></a>
-							<p>{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}{if !empty($comment.IP)}{$comment.IP} - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em></p>
-							<blockquote>{$comment.CONTENT}</blockquote>
-						</div>
-					</td>
-				</tr>
-				{/foreach}
-			</tbody>
+		<tbody>
+		    {foreach $comments as $comment}
+			<tr>
+			    <td class="checkComment">
+				<input type="checkbox" name="comments[]" value="{$comment.ID}">
+			    </td>
+			    <td>
+				<div class="comment">
+				    <a href="{$comment.U_PICTURE}"><img src="{$comment.TN_SRC}"></a>
+				    <p>
+					{if $comment.IS_PENDING}<span class="pendingFlag">{'Waiting'|translate}</span> - {/if}
+					{if !empty($comment.IP)}{$comment.IP} - {/if}<strong>{$comment.AUTHOR}</strong> - <em>{$comment.DATE}</em>
+				    </p>
+				    <blockquote>{$comment.CONTENT}</blockquote>
+				</div>
+			    </td>
+			</tr>
+		    {/foreach}
+		</tbody>
 	    </table>
 
 	    <p class="checkActions">
@@ -40,8 +43,8 @@
 	    </p>
 
 	    <p class="bottomButtons">
-		<input type="submit" name="validate" value="{'Validate'|translate}">
-		<input type="submit" name="reject" value="{'Reject'|translate}">
+		<input class="btn btn-submit" type="submit" name="validate" value="{'Validate'|translate}">
+		<input class="btn btn-cancel" type="submit" name="reject" value="{'Reject'|translate}">
 	    </p>
 
 	</form>

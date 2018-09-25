@@ -129,7 +129,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $template->append(
         'comments',
         [
-            'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'],
+            'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['image_id'],
             'ID' => $row['id'],
             'TN_SRC' => $thumb,
             'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),

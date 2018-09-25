@@ -87,7 +87,7 @@ if (isset($_POST['submit'])) {
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
 
-$base_url = PHPWG_ROOT_PATH . 'admin/index.php';
+$base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
 
 $template->assign(
     [

@@ -47,7 +47,7 @@ $template->assign([
     'U_PAGE' => CONFIGURATION_BASE_URL,
 ]);
 
-$main_checkboxes = array(
+$main_checkboxes = [
     'allow_user_registration',
     'obligatory_user_mail_address',
     'rate',
@@ -57,11 +57,11 @@ $main_checkboxes = array(
     'log',
     'history_admin',
     'history_guest',
-);
+];
 
-$sizes_checkboxes = array('original_resize');
+$sizes_checkboxes = ['original_resize'];
 
-$comments_checkboxes = array(
+$comments_checkboxes = [
     'activate_comments',
     'comments_forall',
     'comments_validation',
@@ -74,9 +74,9 @@ $comments_checkboxes = array(
     'comments_author_mandatory',
     'comments_email_mandatory',
     'comments_enable_website',
-);
+];
 
-$display_checkboxes = array(
+$display_checkboxes = [
     'menubar_filter_icon',
     'index_sort_order_input',
     'index_flat_icon',
@@ -91,9 +91,9 @@ $display_checkboxes = array(
     'picture_navigation_icons',
     'picture_navigation_thumb',
     'picture_menu',
-);
+];
 
-$display_info_checkboxes = array(
+$display_info_checkboxes = [
     'author',
     'created_on',
     'posted_on',
@@ -105,10 +105,10 @@ $display_info_checkboxes = array(
     'visits',
     'rating_score',
     'privacy_level',
-);
+];
 
 // image order management
-$sort_fields = array(
+$sort_fields = [
     '' => '',
     'file ASC' => \Phyxo\Functions\Language::l10n('File name, A &rarr; Z'),
     'file DESC' => \Phyxo\Functions\Language::l10n('File name, Z &rarr; A'),
@@ -125,12 +125,12 @@ $sort_fields = array(
     'id ASC' => \Phyxo\Functions\Language::l10n('Numeric identifier, 1 &rarr; 9'),
     'id DESC' => \Phyxo\Functions\Language::l10n('Numeric identifier, 9 &rarr; 1'),
     'rank ASC' => \Phyxo\Functions\Language::l10n('Manual sort order'),
-);
+];
 
-$comments_order = array(
+$comments_order = [
     'ASC' => \Phyxo\Functions\Language::l10n('Show oldest comments first'),
     'DESC' => \Phyxo\Functions\Language::l10n('Show latest comments first'),
-);
+];
 
 $mail_themes = [
     'clear' => 'Clear',
@@ -146,7 +146,7 @@ if (isset($_POST['submit'])) {
             {
                 if (!isset($conf['order_by_custom']) and !isset($conf['order_by_inside_category_custom'])) {
                     if (!empty($_POST['order_by'])) {
-                        $used = array();
+                        $used = [];
                         foreach ($_POST['order_by'] as $i => $val) {
                             if (empty($val) or isset($used[$val])) {
                                 unset($_POST['order_by'][$i]);
@@ -167,7 +167,7 @@ if (isset($_POST['submit'])) {
 
                         // must define a default order_by if user want to order by rank only
                             if (count($order_by) == 0) {
-                                $order_by = array('id ASC');
+                                $order_by = ['id ASC'];
                             }
 
                             $_POST['order_by'] = 'ORDER BY ' . implode(', ', $order_by);
@@ -228,7 +228,7 @@ if (isset($_POST['submit'])) {
     }
 
     // updating configuration if no error found
-    if (!in_array($page['section'], array('sizes', 'watermark')) and count($page['errors']) == 0) {
+    if (!in_array($page['section'], ['sizes', 'watermark']) and count($page['errors']) == 0) {
         $result = $conn->db_query('SELECT param FROM ' . CONFIG_TABLE);
         while ($row = $conn->db_fetch_assoc($result)) {
             if (isset($_POST[$row['param']])) {
@@ -265,10 +265,10 @@ $action = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configura
 $action .= '&amp;section=' . $page['section'];
 
 $template->assign(
-    array(
+    [
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=configuration',
         'F_ACTION' => $action
-    )
+    ]
 );
 
 switch ($page['section']) {
@@ -291,10 +291,10 @@ switch ($page['section']) {
             }
 
             if (isset($conf['order_by_custom']) or isset($conf['order_by_inside_category_custom'])) {
-                $order_by = array('');
+                $order_by = [''];
                 $template->assign('ORDER_BY_IS_CUSTOM', true);
             } else {
-                $out = array();
+                $out = [];
                 $order_by = trim($conf['order_by_inside_category']);
                 $order_by = str_replace('ORDER BY ', null, $order_by);
                 $order_by = explode(', ', $order_by);
@@ -302,27 +302,27 @@ switch ($page['section']) {
 
             $template->assign(
                 'main',
-                array(
+                [
                     'CONF_GALLERY_TITLE' => htmlspecialchars($conf['gallery_title']),
                     'CONF_PAGE_BANNER' => htmlspecialchars($conf['page_banner']),
-                    'week_starts_on_options' => array(
+                    'week_starts_on_options' => [
                         'sunday' => $lang['day'][0],
                         'monday' => $lang['day'][1],
-                    ),
+                    ],
                     'week_starts_on_options_selected' => $conf['week_starts_on'],
                     'mail_theme' => $conf['mail_theme'],
                     'mail_theme_options' => $mail_themes,
                     'order_by' => $order_by,
                     'order_by_options' => $sort_fields,
-                )
+                ]
             );
 
             foreach ($main_checkboxes as $checkbox) {
                 $template->append(
                     'main',
-                    array(
+                    [
                         $checkbox => $conf[$checkbox]
-                    ),
+                    ],
                     true
                 );
             }
@@ -332,19 +332,19 @@ switch ($page['section']) {
         {
             $template->assign(
                 'comments',
-                array(
+                [
                     'NB_COMMENTS_PAGE' => $conf['nb_comment_page'],
                     'comments_order' => $conf['comments_order'],
                     'comments_order_options' => $comments_order
-                )
+                ]
             );
 
             foreach ($comments_checkboxes as $checkbox) {
                 $template->append(
                     'comments',
-                    array(
+                    [
                         $checkbox => $conf[$checkbox]
-                    ),
+                    ],
                     true
                 );
             }
@@ -353,9 +353,9 @@ switch ($page['section']) {
     case 'default':
         {
             $edit_user = $services['users']->buildUser($conf['guest_id'], false);
-            include_once(PHPWG_ROOT_PATH . 'profile.php');
+            include_once(PHPWG_ROOT_PATH . 'src/LegacyPages/profile.php');
 
-            $errors = array();
+            $errors = [];
             if (save_profile_from_post($edit_user, $errors)) {
         // Reload user
                 $edit_user = $services['users']->buildUser($conf['guest_id'], false);
@@ -369,7 +369,7 @@ switch ($page['section']) {
                 $edit_user,
                 'GUEST_'
             );
-            $template->assign('default', array());
+            $template->assign('default', []);
             break;
         }
     case 'display':
@@ -377,18 +377,18 @@ switch ($page['section']) {
             foreach ($display_checkboxes as $checkbox) {
                 $template->append(
                     'display',
-                    array(
+                    [
                         $checkbox => $conf[$checkbox]
-                    ),
+                    ],
                     true
                 );
             }
             $template->append(
                 'display',
-                array(
+                [
                     'picture_informations' => json_decode($conf['picture_informations'], true),
                     'NB_CATEGORIES_PAGE' => $conf['nb_categories_page'],
-                ),
+                ],
                 true
             );
             break;
@@ -402,19 +402,19 @@ switch ($page['section']) {
                 $template->assign('is_gd', $is_gd);
                 $template->assign(
                     'sizes',
-                    array(
+                    [
                         'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
                         'original_resize_maxheight' => $conf['original_resize_maxheight'],
                         'original_resize_quality' => $conf['original_resize_quality'],
-                    )
+                    ]
                 );
 
                 foreach ($sizes_checkboxes as $checkbox) {
                     $template->append(
                         'sizes',
-                        array(
+                        [
                             $checkbox => $conf[$checkbox]
-                        ),
+                        ],
                         true
                     );
                 }
@@ -424,12 +424,12 @@ switch ($page['section']) {
                 if (!empty($conf['disabled_derivatives'])) {
                     $disabled = unserialize($conf['disabled_derivatives']);
                 } else {
-                    $disabled = array();
+                    $disabled = [];
                 }
 
-                $tpl_vars = array();
+                $tpl_vars = [];
                 foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
-                    $tpl_var = array();
+                    $tpl_var = [];
 
                     $tpl_var['must_square'] = ($type == IMG_SQUARE ? true : false);
                     $tpl_var['must_enable'] = ($type == IMG_SQUARE || $type == IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
@@ -455,7 +455,7 @@ switch ($page['section']) {
                 $template->assign('derivatives', $tpl_vars);
                 $template->assign('resize_quality', \Phyxo\Image\ImageStdParams::$quality);
 
-                $tpl_vars = array();
+                $tpl_vars = [];
                 $now = time();
                 foreach (\Phyxo\Image\ImageStdParams::$custom as $custom => $time) {
                     $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? \Phyxo\Functions\Language::l10n('today') : \Phyxo\Functions\DateTime::time_since($time, 'day');
@@ -467,7 +467,7 @@ switch ($page['section']) {
         }
     case 'watermark':
         {
-            $watermark_files = array();
+            $watermark_files = [];
             foreach (glob(PHPWG_ROOT_PATH . 'themes/default/watermarks/*.png') as $file) {
                 $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
             }
@@ -476,7 +476,7 @@ switch ($page['section']) {
                     $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
                 }
             }
-            $watermark_filemap = array('' => '---');
+            $watermark_filemap = ['' => '---'];
             foreach ($watermark_files as $file) {
                 $display = basename($file);
                 $watermark_filemap[$file] = $display;
@@ -509,7 +509,7 @@ switch ($page['section']) {
 
                 $template->assign(
                     'watermark',
-                    array(
+                    [
                         'file' => $wm->file,
                         'minw' => $wm->min_size[0],
                         'minh' => $wm->min_size[1],
@@ -518,7 +518,7 @@ switch ($page['section']) {
                         'xrepeat' => $wm->xrepeat,
                         'opacity' => $wm->opacity,
                         'position' => $position,
-                    )
+                    ]
                 );
             }
             break;

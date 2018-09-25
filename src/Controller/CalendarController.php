@@ -54,7 +54,7 @@ class CalendarController extends BaseController
         $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = '/' . $type . '-monthly-calendar';
+        $_SERVER['PATH_INFO'] = '/' . $date_type . '-monthly-calendar';
         if (!is_null($time_params)) {
             $_SERVER['PATH_INFO'] .= "/$time_params";
         }

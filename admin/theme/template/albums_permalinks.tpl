@@ -14,7 +14,7 @@
 		<h3>{'Add/delete a permalink'|translate}</h3>
 		<p>
 		    <label for="cat-id">{'Album'|translate}</label>
-		    <select name="cat_id" id="cat-id">
+		    <select class="custom-select" name="cat_id" id="cat-id">
 			<option value="0">------</option>
 			{html_options options=$categories selected=$categories_selected}
 		    </select>
@@ -22,7 +22,7 @@
 
 		<p>
 		    <label for="permalink">{'Permalink'|translate}</label>
-		    <input type="text" name="permalink" id="permalink">
+		    <input class="form-control" type="text" name="permalink" id="permalink">
 		</p>
 
 		<p>

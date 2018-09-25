@@ -86,7 +86,7 @@
 
 		    <p>
 			<label for="level-{$element.id}">{'Who can see this photo?'|translate}</label>
-			<select name="level-{$element.id}" id="level-{$element.id}">
+			<select class="custom-select" name="level-{$element.id}" id="level-{$element.id}">
 			    {html_options options=$level_options selected=$element.LEVEL}
 			</select>
 		    </p>
