@@ -15,6 +15,7 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
+use App\Repository\LanguageRepository;
 
 class User
 {
@@ -383,7 +384,9 @@ class User
         }
 
         if (!empty($params['language'])) {
-            if (!in_array($params['language'], array_keys(\Phyxo\Functions\Language::get_languages()))) {
+            $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+
+            if (!isset($languages[$params['language']])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
             }
             $updates_infos['language'] = $params['language'];

@@ -11,6 +11,9 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\LanguageRepository;
+
+
 class Language
 {
     /**
@@ -73,11 +76,11 @@ class Language
     public static function get_l10n_args($key, $args = '')
     {
         if (is_array($args)) {
-            $key_arg = array_merge(array($key), $args);
+            $key_arg = array_merge([$key], $args);
         } else {
-            $key_arg = array($key, $args);
+            $key_arg = [$key, $args];
         }
-        return array('key_args' => $key_arg);
+        return ['key_args' => $key_arg];
     }
 
     /**
@@ -154,7 +157,7 @@ class Language
      *     @option bool local - if true load file from local directory
      * @return boolean|string
      */
-    public static function load_language($filename, $dirname = '', $options = array())
+    public static function load_language($filename, $dirname = '', $options = [])
     {
         global $user, $language_files, $services, $lang, $lang_info;
 
@@ -184,7 +187,7 @@ class Language
         $default_language = (defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH')) ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
 
         // construct list of potential languages
-        $languages = array();
+        $languages = [];
         if (!empty($options['language'])) { // explicit language
             $languages[] = $options['language'];
         }
@@ -238,11 +241,11 @@ class Language
 
                 // access already existing values
                 if (!isset($lang)) {
-                    $lang = array();
+                    $lang = [];
                 }
 
                 if (!isset($lang_info)) {
-                    $lang_info = array();
+                    $lang_info = [];
                 }
 
                 // load parent language content directly in global
@@ -273,29 +276,6 @@ class Language
     }
 
     /**
-     * returns an array with a list of {language_code => language_name}
-     *
-     * @return string[]
-     * @TODO: transform Phyxo\Language\Languages as service and use it
-     */
-    public static function get_languages()
-    {
-        global $conn;
-
-        $query = 'SELECT id, name FROM ' . LANGUAGES_TABLE . ' ORDER BY name ASC;';
-        $result = $conn->db_query($query);
-
-        $languages = array();
-        while ($row = $conn->db_fetch_assoc($result)) {
-            if (is_dir(PHPWG_ROOT_PATH . 'language/' . $row['id'])) {
-                $languages[$row['id']] = $row['name'];
-            }
-        }
-
-        return $languages;
-    }
-
-    /**
      * Tries to find the browser language among available languages.
      * @todo : try to match 'fr_CA' before 'fr'
      *
@@ -304,10 +284,19 @@ class Language
      */
     public static function get_browser_language(&$lang)
     {
-        $browser_language = substr(@$_SERVER["HTTP_ACCEPT_LANGUAGE"], 0, 2);
-        foreach (self::get_languages() as $language_code => $language_name) {
+        global $conn;
+
+        if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"])) {
+            return false;
+        }
+
+        $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+        $browser_language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+
+        foreach ($langauges as $language_code => $language_name) {
             if (substr($language_code, 0, 2) == $browser_language) {
                 $lang = $language_code;
+
                 return true;
             }
         }
@@ -316,6 +305,7 @@ class Language
     }
 
     // charset methods
+
     /**
      * finds out if a string is in ASCII, UTF-8 or other encoding
      *
@@ -326,15 +316,15 @@ class Language
     {
         $ret = 0;
         for ($i = 0; $i < strlen($Str); $i++) {
-            if (ord($Str[$i]) < 0x80) continue; # 0bbbbbbb
+            if (ord($Str[$i]) < 0x80) continue; // 0bbbbbbb
             $ret = 1;
-            if ((ord($Str[$i]) & 0xE0) == 0xC0) $n = 1; # 110bbbbb
-            elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n = 2; # 1110bbbb
-            elseif ((ord($Str[$i]) & 0xF8) == 0xF0) $n = 3; # 11110bbb
-            elseif ((ord($Str[$i]) & 0xFC) == 0xF8) $n = 4; # 111110bb
-            elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n = 5; # 1111110b
-            else return -1; # Does not match any model
-            for ($j = 0; $j < $n; $j++) { # n bytes matching 10bbbbbb follow ?
+            if ((ord($Str[$i]) & 0xE0) == 0xC0) $n = 1; // 110bbbbb
+            elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n = 2; // 1110bbbb
+            elseif ((ord($Str[$i]) & 0xF8) == 0xF0) $n = 3; // 11110bbb
+            elseif ((ord($Str[$i]) & 0xFC) == 0xF8) $n = 4; // 111110bb
+            elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n = 5; // 1111110b
+            else return -1; // Does not match any model
+            for ($j = 0; $j < $n; $j++) { // n bytes matching 10bbbbbb follow ?
                 if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80))
                     return -1;
             }
@@ -356,7 +346,7 @@ class Language
         }
 
         if ($utf > 0) {
-            $chars = array(
+            $chars = [
                 // Decompositions for Latin-1 Supplement
                 "\xc3\x80" => 'A', "\xc3\x81" => 'A',
                 "\xc3\x82" => 'A', "\xc3\x83" => 'A',
@@ -457,7 +447,7 @@ class Language
                 "\xe2\x82\xac" => 'E',
                 // GBP (Pound) Sign
                 "\xc2\xa3" => ''
-            );
+            ];
 
             $string = strtr($string, $chars);
         } else {
@@ -476,8 +466,8 @@ class Language
             $chars['out'] = "EfSZszYcYuAAAAAACEEEEIIIINOOOOOOUUUUYaaaaaaceeeeiiiinoooooouuuuyy";
 
             $string = strtr($string, $chars['in'], $chars['out']);
-            $double_chars['in'] = array(chr(140), chr(156), chr(198), chr(208), chr(222), chr(223), chr(230), chr(240), chr(254));
-            $double_chars['out'] = array('OE', 'oe', 'AE', 'DH', 'TH', 'ss', 'ae', 'dh', 'th');
+            $double_chars['in'] = [chr(140), chr(156), chr(198), chr(208), chr(222), chr(223), chr(230), chr(240), chr(254)];
+            $double_chars['out'] = ['OE', 'oe', 'AE', 'DH', 'TH', 'ss', 'ae', 'dh', 'th'];
             $string = str_replace($double_chars['in'], $double_chars['out'], $string);
         }
 
@@ -500,7 +490,6 @@ class Language
         }
     }
 
-
     /**
      * simplify a string to insert it into an URL
      *
@@ -520,5 +509,4 @@ class Language
 
         return $res;
     }
-
 }

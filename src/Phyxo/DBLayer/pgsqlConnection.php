@@ -395,7 +395,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      * @param array inserts
      * @return void
      */
-    public function mass_inserts($tablename, $dbfields, $datas, $options = [])
+    public function mass_inserts(string $tablename, array $dbfields, array $datas, array $options = [])
     {
         if (count($datas) != 0) {
             foreach ($datas as $insert) {

@@ -14,7 +14,7 @@ Language Name: English [GB]
 Version: 2.7.0
 Author: Nicolas Roudaie
 Author URI: https://www.phyxo.net
-*/
+ */
 
 $lang_info['language_name'] = "English";
 $lang_info['country'] = "Great Britain";
@@ -155,6 +155,7 @@ $lang['Email address'] = "Email address";
 $lang['Email address is mandatory'] = 'Email address is mandatory';
 $lang['Email: %s'] = "Email: %s";
 $lang['Empty query. No criteria has been entered.'] = 'Empty query. No criteria have been entered.';
+$lang['Start-Date'] = "Start date";
 $lang['End-Date'] = "End date";
 $lang['Enter your new password below.'] = 'Enter your new password below.';
 $lang['Enter your personnal informations'] = "Enter your personal data";

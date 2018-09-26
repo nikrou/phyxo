@@ -17,65 +17,70 @@
 if (!defined('PHPWG_ROOT_PATH')) { //direct script access
     define('PHPWG_ROOT_PATH', '../../');
     include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-
-    // +-----------------------------------------------------------------------+
-    // | Check Access and exit when user status is not ok                      |
-    // +-----------------------------------------------------------------------+
-    $services['users']->checkStatus(ACCESS_CLASSIC);
-
-    if (!empty($_POST)) {
-        \Phyxo\Functions\Utils::check_token();
-    }
-
-    $userdata = $user;
-
-    \Phyxo\Functions\Plugin::trigger_notify('loc_begin_profile');
-
-    // Reset to default (Guest) custom settings
-    if (isset($_POST['reset_to_default'])) {
-        $fields = [
-            'nb_image_page', 'expand',
-            'show_nb_comments', 'show_nb_hits',
-            'recent_period', 'show_nb_hits'
-        ];
-
-        // Get the Guest custom settings
-        $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . USER_INFOS_TABLE;
-        $query .= ' WHERE user_id = ' . $conf['default_user_id'] . ';';
-        $result = $conn->db_query($query);
-        $default_user = $conn->db_fetch_assoc($result);
-        $userdata = array_merge($userdata, $default_user);
-    }
-
-    save_profile_from_post($userdata, $page['errors']);
-
-    $title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
-    load_profile_in_template(
-        \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
-        \Phyxo\Functions\URL::make_index_url(), // for redirect
-        $userdata
-    );
-
-    // include menubar
-    $themeconf = $template->get_template_vars('themeconf');
-    if (!isset($themeconf['hide_menu_on']) or !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
-        include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
-    }
-
-    \Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
-    \Phyxo\Functions\Utils::flush_page_messages();
 }
+
+use App\Repository\LanguageRepository;
+
+// +-----------------------------------------------------------------------+
+// | Check Access and exit when user status is not ok                      |
+// +-----------------------------------------------------------------------+
+
+$services['users']->checkStatus(ACCESS_CLASSIC);
+
+if (!empty($_POST)) {
+    \Phyxo\Functions\Utils::check_token();
+}
+
+$userdata = $user;
+
+\Phyxo\Functions\Plugin::trigger_notify('loc_begin_profile');
+
+// Reset to default (Guest) custom settings
+if (isset($_POST['reset_to_default'])) {
+    $fields = [
+        'nb_image_page', 'expand',
+        'show_nb_comments', 'show_nb_hits',
+        'recent_period', 'show_nb_hits'
+    ];
+
+    // Get the Guest custom settings
+    $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . USER_INFOS_TABLE;
+    $query .= ' WHERE user_id = ' . $conf['default_user_id'] . ';';
+    $result = $conn->db_query($query);
+    $default_user = $conn->db_fetch_assoc($result);
+    $userdata = array_merge($userdata, $default_user);
+}
+
+save_profile_from_post($userdata, $page['errors']);
+
+$title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
+load_profile_in_template(
+    \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
+    \Phyxo\Functions\URL::get_root_url(), // for redirect
+    $userdata
+);
+
+// include menubar
+$themeconf = $template->get_template_vars('themeconf');
+if (!isset($themeconf['hide_menu_on']) or !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
+    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+}
+
+\Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
+\Phyxo\Functions\Utils::flush_page_messages();
 
 //------------------------------------------------------ update & customization
 function save_profile_from_post($userdata, &$errors)
 {
-    global $conf, $page, $conn, $services;
+    global $conf, $page, $conn, $services, $conn;
 
     $errors = [];
 
     if (!isset($_POST['validate'])) {
         return false;
     }
+
+    $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
 
     $special_user = in_array($userdata['id'], [$conf['guest_id'], $conf['default_user_id']]);
     if ($special_user) {
@@ -102,7 +107,7 @@ function save_profile_from_post($userdata, &$errors)
             $errors[] = \Phyxo\Functions\Language::l10n('Recent period must be a positive integer value');
         }
 
-        if (!in_array($_POST['language'], array_keys(\Phyxo\Functions\Language::get_languages()))) {
+        if (isset($_POST['language']) && !isset($languages[$_POST['language']])) {
             die('Hacking attempt, incorrect language value');
         }
 
@@ -196,7 +201,7 @@ function save_profile_from_post($userdata, &$errors)
         }
 
         if ($conf['allow_user_customization'] or defined('IN_ADMIN')) {
-            // update user "additional" informations (specific to Piwigo)
+            // update user "additional" informations
             $fields = [
                 'nb_image_page', 'language',
                 'expand', 'show_nb_hits',
@@ -241,7 +246,9 @@ function save_profile_from_post($userdata, &$errors)
  */
 function load_profile_in_template($url_action, $url_redirect, $userdata, $template_prefixe = null)
 {
-    global $template, $conf;
+    global $template, $conf, $conn;
+
+    $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
 
     $template->assign(
         'radio_options',
@@ -270,14 +277,11 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     $template->assign('template_selection', $userdata['theme']);
     $template->assign('template_options', \Phyxo\Functions\Theme::get_themes());
 
-    foreach (\Phyxo\Functions\Language::get_languages() as $language_code => $language_name) {
-        if (isset($_POST['submit']) or $userdata['language'] == $language_code) {
-            $template->assign('language_selection', $language_code);
-        }
-        $language_options[$language_code] = $language_name;
+    if (isset($languages[$userdata['language']])) {
+        $template->assign('language_selection', $userdata['language']);
     }
 
-    $template->assign('language_options', $language_options);
+    $template->assign('language_options', $languages);
 
     $special_user = in_array($userdata['id'], [$conf['guest_id'], $conf['default_user_id']]);
     $template->assign('SPECIAL_USER', $special_user);

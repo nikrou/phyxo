@@ -14,7 +14,7 @@ Language Name: Français [FR]
 Version: 2.7.0
 Author: Nicolas Roudaire
 Author URI: https://www.phyxo.net
-*/
+ */
 
 // Langage informations
 $lang_info['language_name'] = 'Français';
@@ -147,6 +147,7 @@ $lang['Email address is missing. Please specify an email address.'] = "L'adresse
 $lang['Email address'] = 'Adresse e-mail';
 $lang['Email: %s'] = 'Email : %s';
 $lang['Empty query. No criteria has been entered.'] = 'Requête vide. Aucun critère saisi.';
+$lang['Start-Date'] = 'Date de début';
 $lang['End-Date'] = 'Date de fin';
 $lang['Enter your new password below.'] = 'Entrez votre nouveau mot de passe ci-dessous.';
 $lang['Enter your personnal informations'] = 'Entrer vos informations personnelles';
