@@ -15,9 +15,26 @@ class LanguageRepository extends BaseRepository
 {
     public function findAll()
     {
-        $query = 'SELECT id, name FROM ' . self::LANGUAGES_TABLE;
+        $query = 'SELECT id, version, name FROM ' . self::LANGUAGES_TABLE;
         $query .= ' ORDER BY name ASC';
 
         return $this->conn->db_query($query);
+    }
+
+    public function addLanguage(string $id, string $name, string $version)
+    {
+        return $this->conn->single_insert(self::LANGUAGES_TABLE, ['id' => $id, 'name' => $name, 'version' => $version]);
+    }
+
+    public function deleteLanguage(string $id)
+    {
+        $query = 'DELETE FROM ' . self::LANGUAGES_TABLE;
+        $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($language_id) . '\'';
+        $this->conn->db_query($query);
+    }
+
+    public function updateLanguage(array $datas, array $where)
+    {
+        $this->conn->single_update(self::LANGUAGES_TABLE, $datas, $where);
     }
 }

@@ -22,45 +22,6 @@ class Upgrade
         return false;
     }
 
-    // concerning upgrade, we use the default tables
-    public static function prepare_conf_upgrade()
-    {
-        global $prefixeTable;
-
-        // $conf is not used for users tables
-        // define cannot be re-defined
-        define('CATEGORIES_TABLE', $prefixeTable . 'categories');
-        define('COMMENTS_TABLE', $prefixeTable . 'comments');
-        define('CONFIG_TABLE', $prefixeTable . 'config');
-        define('FAVORITES_TABLE', $prefixeTable . 'favorites');
-        define('GROUP_ACCESS_TABLE', $prefixeTable . 'group_access');
-        define('GROUPS_TABLE', $prefixeTable . 'groups');
-        define('HISTORY_TABLE', $prefixeTable . 'history');
-        define('HISTORY_SUMMARY_TABLE', $prefixeTable . 'history_summary');
-        define('IMAGE_CATEGORY_TABLE', $prefixeTable . 'image_category');
-        define('IMAGES_TABLE', $prefixeTable . 'images');
-        define('SESSIONS_TABLE', $prefixeTable . 'sessions');
-        define('SITES_TABLE', $prefixeTable . 'sites');
-        define('USER_ACCESS_TABLE', $prefixeTable . 'user_access');
-        define('USER_GROUP_TABLE', $prefixeTable . 'user_group');
-        define('USERS_TABLE', $prefixeTable . 'users');
-        define('USER_INFOS_TABLE', $prefixeTable . 'user_infos');
-        define('USER_FEED_TABLE', $prefixeTable . 'user_feed');
-        define('RATE_TABLE', $prefixeTable . 'rate');
-        define('USER_CACHE_TABLE', $prefixeTable . 'user_cache');
-        define('USER_CACHE_CATEGORIES_TABLE', $prefixeTable . 'user_cache_categories');
-        define('CADDIE_TABLE', $prefixeTable . 'caddie');
-        define('UPGRADE_TABLE', $prefixeTable . 'upgrade');
-        define('SEARCH_TABLE', $prefixeTable . 'search');
-        define('USER_MAIL_NOTIFICATION_TABLE', $prefixeTable . 'user_mail_notification');
-        define('TAGS_TABLE', $prefixeTable . 'tags');
-        define('IMAGE_TAG_TABLE', $prefixeTable . 'image_tag');
-        define('PLUGINS_TABLE', $prefixeTable . 'plugins');
-        define('OLD_PERMALINKS_TABLE', $prefixeTable . 'old_permalinks');
-        define('THEMES_TABLE', $prefixeTable . 'themes');
-        define('LANGUAGES_TABLE', $prefixeTable . 'languages');
-    }
-
     // Deactivate all non-standard plugins
     public static function deactivate_non_standard_plugins()
     {

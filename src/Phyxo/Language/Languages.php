@@ -12,10 +12,11 @@
 namespace Phyxo\Language;
 
 use Phyxo\Extension\Extensions;
+use App\Repository\LanguageRepository;
 
 class Languages extends Extensions
 {
-    private $fs_languages = array(), $db_languages = array(), $server_languages = array();
+    private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, $target_charset = null)
@@ -52,7 +53,7 @@ class Languages extends Extensions
             $crt_db_language = $this->db_languages[$language_id];
         }
 
-        $errors = array();
+        $errors = [];
 
         switch ($action) {
             case 'activate':
@@ -61,11 +62,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                $query = 'INSERT INTO ' . LANGUAGES_TABLE . ' (id, version, name)';
-                $query .= ' VALUES(\'' . $language_id . '\',';
-                $query .= ' \'' . $this->fs_languages[$language_id]['version'] . '\',';
-                $query .= ' \'' . $this->fs_languages[$language_id]['name'] . '\');';
-                $this->conn->db_query($query);
+                (new LanguageRepository($this->conn))->addLanguage($language_id, $this->fs_languages[$language_id]['name'], $this->fs_languages[$language_id]['version']);
                 break;
 
             case 'deactivate':
@@ -79,8 +76,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                $query = 'DELETE FROM ' . LANGUAGES_TABLE . ' WHERE id= \'' . $language_id . '\'';
-                $this->conn->db_query($query);
+                (new LanguageRepository($this->conn))->deleteLanguage($language_id);
                 break;
 
             case 'delete':
@@ -93,17 +89,14 @@ class Languages extends Extensions
                     break;
                 }
 
-            // Set default language to user who are using this language
-                $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET language = \'' . $services['users']->getDefaultLanguage() . '\'';
-                $query .= ' WHERE language = \'' . $language_id . '\';';
-                $this->conn->db_query($query);
-
+                // Set default language to user who are using this language
+                (new LanguageRepository($this->conn))->updateLanguage(['language' => $services['users']->getDefaultLanguage()], ['id' => $language_id]);
                 \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . 'language/' . $language_id, PHPWG_ROOT_PATH . 'language/trash');
                 break;
 
             case 'set_default':
                 $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET language = \'' . $language_id . '\'';
-                $query .= ' WHERE user_id ' . $this->conn->in(array($conf['default_user_id'], $conf['guest_id']));
+                $query .= ' WHERE user_id ' . $this->conn->in([$conf['default_user_id'], $conf['guest_id']]);
                 $this->conn->db_query($query);
                 break;
         }
@@ -134,13 +127,13 @@ class Languages extends Extensions
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
                     continue;
                 }
-                $language = array(
+                $language = [
                     'name' => $language_dir,
                     'code' => $language_dir,
                     'version' => '0',
                     'uri' => '',
                     'author' => ''
-                );
+                ];
                 $language_data = file_get_contents($common_lang, false, null, 0, 2048);
 
                 if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
@@ -180,13 +173,7 @@ class Languages extends Extensions
     public function getDbLanguages()
     {
         if (!$this->db_languages_retrieved) {
-            $query = 'SELECT id, name FROM ' . LANGUAGES_TABLE . ' ORDER BY name ASC;';
-            $result = $this->conn->db_query($query);
-
-            while ($row = $this->conn->db_fetch_assoc($result)) {
-                $this->db_languages[$row['id']] = $row['name'];
-            }
-
+            $this->db_languages = $this->conn->result2array((new LanguageRepository($this->conn))->findAll(), 'id', 'name');
             $this->db_languages_retrieved = true;
         }
 
@@ -201,13 +188,13 @@ class Languages extends Extensions
         global $user, $conf;
 
         if (!$this->server_languages_retrieved) {
-            $get_data = array(
+            $get_data = [
                 'category_id' => $conf['pem_languages_category'],
-            );
+            ];
 
             // Retrieve PEM versions
             $version = PHPWG_VERSION;
-            $versions_to_check = array();
+            $versions_to_check = [];
             $url = PEM_URL . '/api/get_version_list.php';
 
             try {
@@ -226,11 +213,11 @@ class Languages extends Extensions
             }
 
             if (empty($versions_to_check)) {
-                return array();
+                return [];
             }
 
             // Languages to check
-            $languages_to_check = array();
+            $languages_to_check = [];
             foreach ($this->getFsLanguages() as $fs_language) {
                 if (isset($fs_language['extension'])) {
                     $languages_to_check[] = $fs_language['extension'];
@@ -239,12 +226,12 @@ class Languages extends Extensions
 
             // Retrieve PEM languages infos
             $url = PEM_URL . '/api/get_revision_list.php';
-            $get_data = array_merge($get_data, array(
+            $get_data = array_merge($get_data, [
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
                 'lang' => $user['language'],
                 'get_nb_downloads' => 'true',
-            ));
+            ]);
             if (!empty($languages_to_check)) {
                 if ($new) {
                     $get_data['extension_exclude'] = implode(',', $languages_to_check);
@@ -256,7 +243,7 @@ class Languages extends Extensions
             try {
                 $pem_languages = $this->getJsonFromServer($url, $get_data);
                 if (!is_array($pem_languages)) {
-                    return array();
+                    return [];
                 }
 
                 foreach ($pem_languages as $language) {
@@ -264,7 +251,7 @@ class Languages extends Extensions
                         $this->server_languages[$language['extension_id']] = $language;
                     }
                 }
-                uasort($this->server_languages, array($this, 'extensionNameCompare'));
+                uasort($this->server_languages, [$this, 'extensionNameCompare']);
             } catch (\Exception $e) {
                 throw new \Exception($e->getMessage());
             }
@@ -284,10 +271,10 @@ class Languages extends Extensions
     public function extractLanguageFiles($action, $revision, $dest = '')
     {
         $archive = tempnam(PHPWG_ROOT_PATH . 'language', 'zip');
-        $get_data = array(
+        $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action,
-        );
+        ];
 
         $this->directory_pattern = '/^[a-z]{2}_[A-Z]{2}$/';
         try {

@@ -14,6 +14,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 }
 
 use Phyxo\Language\Languages;
+use App\Repository\LanguageRepository;
 
 $languages = new Languages($conn);
 
@@ -31,10 +32,10 @@ if (isset($_GET['action']) and isset($_GET['language'])) {
 // +-----------------------------------------------------------------------+
 $default_language = $services['users']->getDefaultLanguage();
 
-$tpl_languages = array();
+$tpl_languages = [];
 
 foreach ($languages->getFsLanguages() as $language_id => $language) {
-    $language['u_action'] = \Phyxo\Functions\URL::add_url_params(LANGUAGES_BASE_URL . '&amp;section=installed', array('language' => $language_id));
+    $language['u_action'] = \Phyxo\Functions\URL::add_url_params(LANGUAGES_BASE_URL . '&amp;section=installed', ['language' => $language_id]);
 
     if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
         $language['state'] = 'active';
@@ -62,7 +63,7 @@ foreach ($languages->getFsLanguages() as $language_id => $language) {
     }
 }
 
-$template->assign(array('languages' => $tpl_languages));
+$template->assign(['languages' => $tpl_languages]);
 $template->append('language_states', 'active');
 $template->append('language_states', 'inactive');
 
@@ -76,6 +77,5 @@ foreach ($missing_language_ids as $language_id) {
     $query .= ' WHERE language = \'' . $language_id . '\';';
     $conn->db_query($query);
 
-    $query = 'DELETE FROM ' . LANGUAGES_TABLE . ' WHERE id= \'' . $language_id . '\';';
-    $conn->db_query($query);
+    (new LanguageRepository($conn))->deleteLanguage($language_id);
 }
