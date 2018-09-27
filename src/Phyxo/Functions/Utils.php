@@ -18,6 +18,7 @@ use App\Repository\ImageCategory;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\FavoriteRepository;
 
 class Utils
 {
@@ -811,23 +812,16 @@ class Utils
 
         // $filter['visible_categories'] and $filter['visible_images']
         // must be not used because filter <> restriction
-        // retrieving images allowed : belonging to at least one authorized
-        // category
-        $query = 'SELECT DISTINCT f.image_id FROM ' . FAVORITES_TABLE . ' AS f';
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
-        $query .= ' WHERE f.user_id = ' . $user['id'];
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'ic.category_id'], ' AND ');
-        $authorizeds = $conn->query2array($query, null, 'image_id');
+        // retrieving images allowed : belonging to at least one authorized category
+        $result = (new FavoriteRepository($conn))->findUnauthorizedImagesInFavorite($user['id']);
+        $authorizeds = $conn->result2array($query, null, 'image_id');
 
-        $query = 'SELECT image_id FROM ' . FAVORITES_TABLE;
-        $query .= ' WHERE user_id = ' . $user['id'];
-        $favorites = $conn->query2array($query, null, 'image_id');
+        $result = (new FavoriteRepository($conn))->findAll($user['id']);
+        $favorites = $conn->result2array($result, null, 'image_id');
 
         $to_deletes = array_diff($favorites, $authorizeds);
         if (count($to_deletes) > 0) {
-            $query = 'DELETE FROM ' . FAVORITES_TABLE;
-            $query .= ' WHERE image_id ' . $conn->in($to_deletes) . ' AND user_id = ' . $user['id'];
-            $conn->db_query($query);
+            (new FavoriteRepository($conn))->deleteImagesFromFavorite($to_deletes, $user['id']);
         }
     }
 
@@ -1348,8 +1342,7 @@ class Utils
         $conn->db_query($query);
 
         // destruction of the favorites associated with the picture
-        $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE image_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new FavoriteRepository($conn))->deleteImagesFromFavorite($ids);
 
         // destruction of the rates associated to this element
         $query = 'DELETE FROM ' . RATE_TABLE . ' WHERE element_id ' . $conn->in($ids);
@@ -1395,8 +1388,6 @@ class Utils
             USER_FEED_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
-            // destruction of the favorites associated with the user
-            FAVORITES_TABLE,
             // destruction of the caddie associated with the user
             CADDIE_TABLE,
             // deletion of phyxo specific informations
@@ -1412,6 +1403,8 @@ class Utils
         (new UserCacheRepository($conn))->deleteUserCache($user_id);
         // deletion of computed cache data linked to the user
         (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories($user_id);
+        // destruction of the favorites associated with the user
+        (new FavoriteRepository($conn))->removeAllFavorites($user_id);
 
         // purge of sessions
         $query = 'DELETE FROM ' . SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';

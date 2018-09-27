@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CommentRepository;
+use App\Repository\FavoriteRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -227,17 +228,13 @@ if (isset($_GET['action'])) {
     switch ($_GET['action']) {
         case 'add_to_favorites':
             {
-                $query = 'INSERT INTO ' . FAVORITES_TABLE . ' (image_id,user_id) VALUES(' . $page['image_id'] . ',' . $user['id'] . ');';
-                $conn->db_query($query);
-
+                (new FavoriteRepository($conn))->addFavorite($user['id'], $page['image_id']);
                 \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
         case 'remove_from_favorites':
             {
-                $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE user_id = ' . $user['id'] . ' AND image_id = ' . $page['image_id'] . ';';
-                $conn->db_query($query);
-
+                (new FavoriteRepository($conn))->deleteFavorite($user['id'], $page['image_id']);
                 if ('favorites' == $page['section']) {
                     \Phyxo\Functions\Utils::redirect($url_up);
                 } else {
@@ -589,11 +586,7 @@ if ($services['users']->isAdmin()) {
 // favorite manipulation
 if (!$services['users']->isGuest() and $conf['picture_favorite_icon']) {
     // verify if the picture is already in the favorite of the user
-    $query = 'SELECT COUNT(1) AS nb_fav FROM ' . FAVORITES_TABLE;
-    $query .= ' WHERE image_id = ' . $page['image_id'] . ' AND user_id = ' . $user['id'] . ';';
-    $row = $conn->db_fetch_assoc($conn->db_query($query));
-    $is_favorite = $row['nb_fav'] != 0;
-
+    $is_favorite = (new FavoriteRepository($conn))->iSFavorite($user['id'], $page['image_id']);
     $template->assign(
         'favorite',
         [

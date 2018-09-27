@@ -13,6 +13,7 @@ use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Calendar\CalendarMonthly;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\FavoriteRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -290,8 +291,7 @@ if ('categories' == $page['section']) {
         $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Favorites')]);
 
         if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
-            $query = 'DELETE FROM ' . FAVORITES_TABLE . ' WHERE user_id = ' . $user['id'] . ';';
-            $conn->db_query($query);
+            (new FavoriteRepository($conn))->removeAllFavorites($user['id']);
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(['section' => 'favorites']));
         } else {
             $query = 'SELECT image_id FROM ' . IMAGES_TABLE;

@@ -24,6 +24,7 @@ define('BATCH_MANAGER_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/i
 use Phyxo\TabSheet\TabSheet;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\FavoriteRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -225,9 +226,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         case 'favorites':
-            $query = 'SELECT image_id FROM ' . FAVORITES_TABLE;
-            $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
-            $filter_sets[] = $conn->query2array($query, null, 'image_id');
+            $filter_sets[] = $conn->result2array((new FavoriteRepository($conn))->findAll($user['id']), null, 'image_id');
             break;
 
         case 'last_import':
