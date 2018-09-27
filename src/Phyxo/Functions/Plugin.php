@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\PluginRepository;
+
 class Plugin
 {
     /** default priority for plugins handlers */
@@ -37,10 +39,10 @@ class Plugin
             }
         }
 
-        $pwg_event_handlers[$event][$priority][] = array(
+        $pwg_event_handlers[$event][$priority][] = [
             'function' => $func,
             'include_path' => is_string($include_path) ? $include_path : null,
-        );
+        ];
 
         ksort($pwg_event_handlers[$event]);
         return true;
@@ -97,7 +99,7 @@ class Plugin
         if (isset($pwg_event_handlers['trigger'])) {// debugging
             self::trigger_notify(
                 'trigger',
-                array('type' => 'event', 'event' => $event, 'data' => $data)
+                ['type' => 'event', 'event' => $event, 'data' => $data]
             );
         }
 
@@ -122,7 +124,7 @@ class Plugin
         if (isset($pwg_event_handlers['trigger'])) { // debugging
             self::trigger_notify(
                 'trigger',
-                array('type' => 'post_event', 'event' => $event, 'data' => $data)
+                ['type' => 'post_event', 'event' => $event, 'data' => $data]
             );
         }
 
@@ -144,7 +146,7 @@ class Plugin
         if (isset($pwg_event_handlers['trigger']) and $event != 'trigger') { // debugging - avoid recursive calls
             self::trigger_notify(
                 'trigger',
-                array('type' => 'action', 'event' => $event, 'data' => null)
+                ['type' => 'action', 'event' => $event, 'data' => null]
             );
         }
 
@@ -189,7 +191,7 @@ class Plugin
     {
         global $conf, $pwg_loaded_plugins, $conn;
 
-        $pwg_loaded_plugins = array();
+        $pwg_loaded_plugins = [];
 
         if ($conf['enable_plugins']) {
             $plugins = new \Phyxo\Plugin\Plugins($conn);
@@ -249,9 +251,7 @@ class Plugin
 
             // update database (only on production)
             if ($plugin['version'] != 'auto') {
-                $query = 'UPDATE ' . PLUGINS_TABLE . ' SET version = \'' . $plugin['version'] . '\'';
-                $query .= ' WHERE id = \'' . $plugin['id'] . '\'';
-                $conn->db_query($query);
+                (new PluginRepository($conn))->updatePlugin(['version' => $plugin['version']], ['id' => $plugin['id']]);
             }
         }
     }
@@ -276,8 +276,4 @@ class Plugin
 
         return $url;
     }
-
 }
-
-
-

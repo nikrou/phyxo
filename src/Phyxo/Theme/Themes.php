@@ -102,7 +102,7 @@ class Themes extends Extensions
                 $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $errors);
 
                 if (empty($errors)) {
-                    (new ThemeRepository($conn))->addTheme($theme_id, $this->fs_themes[$theme_id]['version'], $this->fs_themes[$theme_id]['name']);
+                    (new ThemeRepository($this->conn))->addTheme($theme_id, $this->fs_themes[$theme_id]['version'], $this->fs_themes[$theme_id]['name']);
                 }
                 break;
 
@@ -112,14 +112,14 @@ class Themes extends Extensions
                     break;
                 }
 
-            // you can't deactivate the last theme
+                // you can't deactivate the last theme
                 if (count($this->db_themes) <= 1) {
                     $errors[] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
                     break;
                 }
 
                 if ($theme_id == $services['users']->getDefaultTheme()) {
-                // find a random theme to replace
+                    // find a random theme to replace
                     $new_theme = null;
                     $result = (new ThemeRepository($this->conn))->findById($theme_id);
                     if ($this->conn->db_num_rows($result) == 0) {
@@ -141,7 +141,7 @@ class Themes extends Extensions
                     break;
                 }
                 if (!isset($this->fs_themes[$theme_id])) {
-                // nothing to do here
+                    // nothing to do here
                     break;
                 }
 
@@ -160,7 +160,7 @@ class Themes extends Extensions
                 break;
 
             case 'set_default':
-            // first we need to know which users are using the current default theme
+                // first we need to know which users are using the current default theme
                 $this->setDefaultTheme($theme_id);
                 break;
         }
