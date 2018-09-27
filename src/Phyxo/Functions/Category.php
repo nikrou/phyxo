@@ -390,7 +390,7 @@ class Category
         $ids = (new CategoryRepository($conn))->getSubcatIds($ids);
 
         // destruction of all photos physically linked to the category
-        $element_ids = $conn->result2array((new ImageRepository($conn))->findByField('storage_category_id', $ids), null, 'id');
+        $element_ids = $conn->result2array((new ImageRepository($conn))->findByFields('storage_category_id', $ids), null, 'id');
         \Phyxo\Functions\Utils::delete_elements($element_ids);
 
         // now, should we delete photos that are virtually linked to the category?

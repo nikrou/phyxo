@@ -14,6 +14,7 @@ if (!defined("USERS_BASE_URL")) {
 }
 
 use App\Repository\LanguageRepository;
+use App\Repository\ThemeRepository;
 
 // +-----------------------------------------------------------------------+
 // |                              groups list                              |
@@ -74,7 +75,7 @@ $template->assign(
         'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
         'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
         'RECENT_PERIOD' => $default_user['recent_period'],
-        'theme_options' => \Phyxo\Functions\Theme::get_themes(),
+        'theme_options' => $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name'),
         'theme_selected' => $services['users']->getDefaultTheme(),
         'language_options' => $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name'),
         'language_selected' => $services['users']->getDefaultLanguage(),

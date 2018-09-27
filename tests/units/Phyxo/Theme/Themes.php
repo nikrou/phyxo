@@ -16,14 +16,12 @@ require_once __DIR__ . '/../../bootstrap.php';
 use atoum;
 use Phyxo\DBLayer\pgsqlConnection;
 
-define('THEMES_TABLE', 'themes');
-
 class Themes extends atoum
 {
     private function getLocalThemes()
     {
-        return array(
-            'theme1' => array(
+        return [
+            'theme1' => [
                 'id' => 'theme1',
                 'name' => 'A simple theme',
                 'version' => '1.2.3',
@@ -34,8 +32,8 @@ class Themes extends atoum
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
                 'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
-            ),
-            'theme2' => array(
+            ],
+            'theme2' => [
                 'id' => 'theme2',
                 'name' => 'ZZ Theme',
                 'version' => '4.5.6',
@@ -45,8 +43,8 @@ class Themes extends atoum
                 'author' => 'Arthur',
                 'mobile' => true,
                 'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
-            ),
-            'theme3' => array(
+            ],
+            'theme3' => [
                 'id' => 'theme3',
                 'name' => 'My first theme',
                 'version' => '7.8.9',
@@ -57,8 +55,8 @@ class Themes extends atoum
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
                 'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
-            ),
-            'theme4' => array(
+            ],
+            'theme4' => [
                 'id' => 'theme4',
                 'name' => 'Photos Theme',
                 'version' => '10.11.12',
@@ -69,8 +67,8 @@ class Themes extends atoum
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
                 'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
-            ),
-        );
+            ],
+        ];
     }
 
     public function testFsThemes()
@@ -108,11 +106,11 @@ class Themes extends atoum
 
     protected function testSortThemesDataProvider()
     {
-        return array(
-            array('author', array('theme2', 'theme3', 'theme4', 'theme1')),
-            array('id', array('theme1', 'theme2', 'theme3', 'theme4')),
-            array('status', array('theme1', 'theme3', 'theme4', 'theme2')),
-            array('name', array('theme1', 'theme3', 'theme4', 'theme2'))
-        );
+        return [
+            ['author', ['theme2', 'theme3', 'theme4', 'theme1']],
+            ['id', ['theme1', 'theme2', 'theme3', 'theme4']],
+            ['status', ['theme1', 'theme3', 'theme4', 'theme2']],
+            ['name', ['theme1', 'theme3', 'theme4', 'theme2']]
+        ];
     }
 }

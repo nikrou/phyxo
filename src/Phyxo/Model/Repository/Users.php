@@ -703,7 +703,8 @@ class Users
         }
 
         // let's find the first available theme
-        $active_themes = array_keys(\Phyxo\Functions\Theme::get_themes());
+        $active_themes = array_keys($conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name'));
+
         return $active_themes[0];
     }
 

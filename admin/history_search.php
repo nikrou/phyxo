@@ -145,7 +145,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if (isset($search['fields']['filename'])) {
-        $search['image_ids'] = $conn->result2array((new ImageRepository($conn))->findByField('file', $search['fields']['filename']), null, 'id');
+        $search['image_ids'] = $conn->result2array((new ImageRepository($conn))->findByFields('file', $search['fields']['filename']), null, 'id');
         $page['search'] = array_merge($page['search'], $search);
     }
 

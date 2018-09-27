@@ -41,9 +41,9 @@ class HistorySummaryRepository extends BaseRepository
     public function getHistory($data, $search, $type)
     {
         if (isset($search['fields']['filename'])) {
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
+            $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
             $query .= ' WHERE file LIKE \'' . $search['fields']['filename'] . '\'';
-            $search['image_ids'] = $conn->query2array($query, null, 'id');
+            $search['image_ids'] = $this->conn->query2array($query, null, 'id');
         }
 
         $clauses = [];
@@ -90,7 +90,7 @@ class HistorySummaryRepository extends BaseRepository
                 // a clause that is always false
                 $clauses[] = '1 = 2 ';
             } else {
-                $clauses[] = 'image_id ' . $conn->in($search['image_ids']);
+                $clauses[] = 'image_id ' . $this->conn->in($search['image_ids']);
             }
         }
 
@@ -106,7 +106,7 @@ class HistorySummaryRepository extends BaseRepository
         $query .= 'image_id,image_type FROM ' . self::HISTORY_TABLE;
         $query .= ' WHERE ' . $where_separator;
 
-        $result = $conn->db_query($query);
+        $result = $this->conn->db_query($query);
 
     }
 }

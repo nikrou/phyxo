@@ -12,50 +12,51 @@
 namespace Phyxo\Functions;
 
 use GuzzleHttp\Client;
+use App\Repository\ImageRepository;
 
 class Upload
 {
     public static function get_upload_form_config()
     {
         // default configuration for upload
-        $upload_form_config = array(
-            'original_resize' => array(
+        $upload_form_config = [
+            'original_resize' => [
                 'default' => false,
                 'can_be_null' => false,
-            ),
+            ],
 
-            'original_resize_maxwidth' => array(
+            'original_resize_maxwidth' => [
                 'default' => 2000,
                 'min' => 500,
                 'max' => 20000,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
                 'error_message' => \Phyxo\Functions\Language::l10n('The original maximum width must be a number between %d and %d'),
-            ),
+            ],
 
-            'original_resize_maxheight' => array(
+            'original_resize_maxheight' => [
                 'default' => 2000,
                 'min' => 300,
                 'max' => 20000,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
                 'error_message' => \Phyxo\Functions\Language::l10n('The original maximum height must be a number between %d and %d'),
-            ),
+            ],
 
-            'original_resize_quality' => array(
+            'original_resize_quality' => [
                 'default' => 95,
                 'min' => 50,
                 'max' => 98,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
                 'error_message' => \Phyxo\Functions\Language::l10n('The original image quality must be a number between %d and %d'),
-            ),
-        );
+            ],
+        ];
 
         return $upload_form_config;
     }
 
-    public static function save_upload_form_config($data, &$errors = array(), &$form_errors = array())
+    public static function save_upload_form_config($data, &$errors = [], &$form_errors = [])
     {
         global $conn;
 
@@ -64,7 +65,7 @@ class Upload
         }
 
         $upload_form_config = self::get_upload_form_config();
-        $updates = array();
+        $updates = [];
 
         foreach ($data as $field => $value) {
             if (!isset($upload_form_config[$field])) {
@@ -77,25 +78,25 @@ class Upload
                     $value = false;
                 }
 
-                $updates[] = array(
+                $updates[] = [
                     'param' => $field,
                     'value' => $conn->boolean_to_string($value)
-                );
+                ];
             } elseif ($upload_form_config[$field]['can_be_null'] and empty($value)) {
-                $updates[] = array(
+                $updates[] = [
                     'param' => $field,
                     'value' => 'false'
-                );
+                ];
             } else {
                 $min = $upload_form_config[$field]['min'];
                 $max = $upload_form_config[$field]['max'];
                 $pattern = $upload_form_config[$field]['pattern'];
 
                 if (preg_match($pattern, $value) and $value >= $min and $value <= $max) {
-                    $updates[] = array(
+                    $updates[] = [
                         'param' => $field,
                         'value' => $value
-                    );
+                    ];
                 } else {
                     $errors[] = sprintf(
                         $upload_form_config[$field]['error_message'],
@@ -111,10 +112,10 @@ class Upload
         if (count($errors) == 0) {
             $conn->mass_updates(
                 CONFIG_TABLE,
-                array(
-                    'primary' => array('param'),
-                    'update' => array('value')
-                ),
+                [
+                    'primary' => ['param'],
+                    'update' => ['value']
+                ],
                 $updates
             );
             return true;
@@ -145,9 +146,7 @@ class Upload
         $is_tiff = false;
 
         if (isset($image_id)) { // this photo already exists, we update it
-            $query = 'SELECT path FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id = ' . $conn->db_real_escape_string($image_id);
-            $result = $conn->db_query($query);
+            $result = (new ImageRepository($conn))->findByField('id', $image_id);
             while ($row = $conn->db_fetch_assoc($result)) {
                 $file_path = $row['path'];
             }
@@ -157,9 +156,9 @@ class Upload
             }
 
             // delete all physical files related to the photo (thumbnail, web site, HD)
-            \Phyxo\Functions\Utils::delete_element_files(array($image_id));
+            \Phyxo\Functions\Utils::delete_element_files([$image_id]);
         } else {
-            // this photo is new current date
+            // this photo is new current date. @TODO: really need a query for that ?
             list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
             list($year, $month, $day) = preg_split('/[^\d]/', $dbnow, 4);
 
@@ -251,10 +250,10 @@ class Upload
         }
 
         // generate pwg_representative in case of video
-        $ffmpeg_video_exts = array( // extensions tested with FFmpeg
+        $ffmpeg_video_exts = [ // extensions tested with FFmpeg
             'wmv', 'mov', 'mkv', 'mp4', 'mpg', 'flv', 'asf', 'xvid', 'divx', 'mpeg',
             'avi', 'rm',
-        );
+        ];
 
         if (isset($original_extension) and in_array($original_extension, $ffmpeg_video_exts)) {
             $representative_file_path = dirname($file_path) . '/pwg_representative/';
@@ -325,7 +324,7 @@ class Upload
         $file_infos = self::image_infos($file_path);
 
         if (isset($image_id)) {
-            $update = array(
+            $update = [
                 'file' => $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)),
                 'filesize' => $file_infos['filesize'],
                 'width' => $file_infos['width'],
@@ -333,7 +332,7 @@ class Upload
                 'md5sum' => $md5sum,
                 'added_by' => $user['id'],
                 'rotation' => $rotation,
-            );
+            ];
 
             if (isset($level)) {
                 $update['level'] = $level;
@@ -342,12 +341,12 @@ class Upload
             $conn->single_update(
                 IMAGES_TABLE,
                 $update,
-                array('id' => $image_id)
+                ['id' => $image_id]
             );
         } else {
             // database registration
             $file = $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
-            $insert = array(
+            $insert = [
                 'file' => $file,
                 'name' => \Phyxo\Functions\Utils::get_name_from_file($file),
                 'date_available' => $dbnow,
@@ -358,7 +357,7 @@ class Upload
                 'md5sum' => $md5sum,
                 'added_by' => $user['id'],
                 'rotation' => $rotation,
-            );
+            ];
 
             if (isset($level)) {
                 $insert['level'] = $level;
@@ -375,7 +374,7 @@ class Upload
 
         if (isset($categories) and count($categories) > 0) {
             \Phyxo\Functions\Category::associate_images_to_categories(
-                array($image_id),
+                [$image_id],
                 $categories
             );
         }
@@ -384,20 +383,19 @@ class Upload
         if ($conf['use_exif'] and !function_exists('exif_read_data')) {
             $conf['use_exif'] = false;
         }
-        \Phyxo\Functions\Metadata::sync_metadata(array($image_id));
+        \Phyxo\Functions\Metadata::sync_metadata([$image_id]);
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
         // cache thumbnail
-        $query = 'SELECT id,path FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($image_id);
-        $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
+        $result = (new ImageRepository($conn))->findByField('id', $image_id);
+        $image_infos = $conn->db_fetch_assoc($result);
 
         \Phyxo\Functions\URL::set_make_full_url();
         // in case we are on uploadify.php, we have to replace the false path
         $thumb_url = preg_replace('#admin/include/i#', 'i', \Phyxo\Image\DerivativeImage::thumb_url($image_infos));
         \Phyxo\Functions\URL::unset_make_full_url();
 
-        $client = new Client(array('http_errors' => false));
+        $client = new Client(['http_errors' => false]);
         $response = $client->request('GET', $thumb_url);
 
         return $image_id;
@@ -446,11 +444,11 @@ class Upload
         list($width, $height) = getimagesize($path);
         $filesize = floor(filesize($path) / 1024);
 
-        return array(
+        return [
             'width' => $width,
             'height' => $height,
             'filesize' => $filesize,
-        );
+        ];
     }
 
     public static function is_valid_image_extension($extension)

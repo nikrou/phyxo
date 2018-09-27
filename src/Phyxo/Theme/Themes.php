@@ -13,10 +13,11 @@ namespace Phyxo\Theme;
 
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
+use App\Repository\ThemeRepository;
 
 class Themes extends Extensions
 {
-    private $fs_themes = array(), $db_themes = array(), $server_themes = array();
+    private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn)
@@ -69,7 +70,7 @@ class Themes extends Extensions
 
         $theme_maintain = self::build_maintain_class($theme_id);
 
-        $errors = array();
+        $errors = [];
 
         switch ($action) {
             case 'activate':
@@ -101,11 +102,7 @@ class Themes extends Extensions
                 $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $errors);
 
                 if (empty($errors)) {
-                    $query = 'INSERT INTO ' . THEMES_TABLE;
-                    $query .= ' (id, version, name) VALUES(\'' . $theme_id . '\',';
-                    $query .= ' \'' . $this->fs_themes[$theme_id]['version'] . '\',';
-                    $query .= ' \'' . $this->fs_themes[$theme_id]['name'] . '\');';
-                    $this->conn->db_query($query);
+                    (new ThemeRepository($conn))->addTheme($theme_id, $this->fs_themes[$theme_id]['version'], $this->fs_themes[$theme_id]['name']);
                 }
                 break;
 
@@ -124,10 +121,7 @@ class Themes extends Extensions
                 if ($theme_id == $services['users']->getDefaultTheme()) {
                 // find a random theme to replace
                     $new_theme = null;
-
-                    $query = 'SELECT id FROM ' . THEMES_TABLE;
-                    $query .= ' WHERE id != \'' . $theme_id . '\';';
-                    $result = $this->conn->db_query($query);
+                    $result = (new ThemeRepository($this->conn))->findById($theme_id);
                     if ($this->conn->db_num_rows($result) == 0) {
                         $new_theme = 'default';
                     } else {
@@ -138,9 +132,7 @@ class Themes extends Extensions
                 }
 
                 $theme_maintain->deactivate();
-
-                $query = 'DELETE FROM ' . THEMES_TABLE . ' WHERE id= \'' . $theme_id . '\';';
-                $this->conn->db_query($query);
+                (new ThemeRepository($this->conn))->deleteById($theme_id);
                 break;
 
             case 'delete':
@@ -198,7 +190,7 @@ class Themes extends Extensions
 
     public function getChildrenThemes($theme_id)
     {
-        $children = array();
+        $children = [];
 
         foreach ($this->getFsThemes() as $test_child) {
             if (isset($test_child['parent']) and $test_child['parent'] == $theme_id) {
@@ -221,7 +213,7 @@ class Themes extends Extensions
         $user_ids = array_unique(
             array_merge(
                 $this->conn->query2array($query, null, 'user_id'),
-                array($conf['guest_id'], $conf['default_user_id'])
+                [$conf['guest_id'], $conf['default_user_id']]
             )
         );
 
@@ -233,24 +225,10 @@ class Themes extends Extensions
         $this->conn->db_query($query);
     }
 
-    public function getDbThemes($id = '')
+    public function getDbThemes()
     {
         if (!$this->db_themes_retrieved) {
-            $query = 'SELECT id, version, name FROM ' . THEMES_TABLE;
-
-            $clauses = array();
-            if (!empty($id)) {
-                $clauses[] = 'id = \'' . $id . '\'';
-            }
-            if (count($clauses) > 0) {
-                $query .= ' WHERE ' . implode(' AND ', $clauses);
-            }
-
-            $result = $this->conn->db_query($query);
-            $this->db_themes = array();
-            while ($row = $this->conn->db_fetch_assoc($result)) {
-                $this->db_themes[$row['id']] = $row;
-            }
+            $this->db_themes = $this->conn->result2array((new ThemeRepository($this->conn))->findAll(), 'id');
             $this->db_themes_retrieved = true;
         }
         return $this->db_themes;
@@ -276,7 +254,7 @@ class Themes extends Extensions
                     continue;
                 }
 
-                $theme = array(
+                $theme = [
                     'id' => $theme_dir,
                     'name' => $theme_dir,
                     'version' => '0',
@@ -284,7 +262,7 @@ class Themes extends Extensions
                     'description' => '',
                     'author' => '',
                     'mobile' => false,
-                );
+                ];
                 $theme_data = implode('', file($themeconf));
 
                 if (preg_match("|Theme Name:\\s*(.+)|", $theme_data, $val)) {
@@ -296,7 +274,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', array('return' => true))) {
+                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['return' => true])) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);
@@ -359,7 +337,7 @@ class Themes extends Extensions
                 $this->sortThemesByState();
                 break;
             case 'author':
-                uasort($this->fs_themes, array($this, 'themeAuthorCompare'));
+                uasort($this->fs_themes, [$this, 'themeAuthorCompare']);
                 break;
             case 'id':
                 uksort($this->fs_themes, 'strcasecmp');
@@ -375,13 +353,13 @@ class Themes extends Extensions
         global $user, $conf;
 
         if (!$this->server_themes_retrieved) {
-            $get_data = array(
+            $get_data = [
                 'category_id' => $conf['pem_themes_category'],
-            );
+            ];
 
             // Retrieve PEM versions
             $version = PHPWG_VERSION;
-            $versions_to_check = array();
+            $versions_to_check = [];
             $url = PEM_URL . '/api/get_version_list.php';
 
             try {
@@ -400,11 +378,11 @@ class Themes extends Extensions
             }
 
             if (empty($versions_to_check)) {
-                return array();
+                return [];
             }
 
             // Themes to check
-            $themes_to_check = array();
+            $themes_to_check = [];
             foreach ($this->getFsThemes() as $fs_theme) {
                 if (isset($fs_theme['extension'])) {
                     $themes_to_check[] = $fs_theme['extension'];
@@ -415,12 +393,12 @@ class Themes extends Extensions
             $url = PEM_URL . '/api/get_revision_list.php';
             $get_data = array_merge(
                 $get_data,
-                array(
+                [
                     'last_revision_only' => 'true',
                     'version' => implode(',', $versions_to_check),
                     'lang' => substr($user['language'], 0, 2),
                     'get_nb_downloads' => 'true',
-                )
+                ]
             );
 
             if (!empty($themes_to_check)) {
@@ -433,7 +411,7 @@ class Themes extends Extensions
             try {
                 $pem_themes = $this->getJsonFromServer($url, $get_data);
                 if (!is_array($pem_themes)) {
-                    return array();
+                    return [];
                 }
 
                 foreach ($pem_themes as $theme) {
@@ -457,16 +435,16 @@ class Themes extends Extensions
                 krsort($this->server_themes);
                 break;
             case 'revision':
-                usort($this->server_themes, array($this, 'extensionRevisionCompare'));
+                usort($this->server_themes, [$this, 'extensionRevisionCompare']);
                 break;
             case 'name':
-                uasort($this->server_themes, array($this, 'extensionNameCompare'));
+                uasort($this->server_themes, [$this, 'extensionNameCompare']);
                 break;
             case 'author':
-                uasort($this->server_themes, array($this, 'extensionAuthorCompare'));
+                uasort($this->server_themes, [$this, 'extensionAuthorCompare']);
                 break;
             case 'downloads':
-                usort($this->server_themes, array($this, 'extensionDownloadsCompare'));
+                usort($this->server_themes, [$this, 'extensionDownloadsCompare']);
                 break;
         }
     }
@@ -481,10 +459,10 @@ class Themes extends Extensions
     public function extractThemeFiles($action, $revision, $dest)
     {
         $archive = tempnam(PHPWG_THEMES_PATH, 'zip');
-        $get_data = array(
+        $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action
-        );
+        ];
 
         try {
             $this->download($get_data, $archive);
@@ -553,9 +531,9 @@ class Themes extends Extensions
     {
         uasort($this->fs_themes, '\Phyxo\Functions\Utils::name_compare');
 
-        $active_themes = array();
-        $inactive_themes = array();
-        $not_installed = array();
+        $active_themes = [];
+        $inactive_themes = [];
+        $not_installed = [];
 
         foreach ($this->fs_themes as $theme_id => $theme) {
             if (isset($this->db_themes[$theme_id])) {

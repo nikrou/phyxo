@@ -20,6 +20,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 }
 
 use App\Repository\LanguageRepository;
+use App\Repository\ThemeRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -81,6 +82,7 @@ function save_profile_from_post($userdata, &$errors)
     }
 
     $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+    $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
 
     $special_user = in_array($userdata['id'], [$conf['guest_id'], $conf['default_user_id']]);
     if ($special_user) {
@@ -111,7 +113,7 @@ function save_profile_from_post($userdata, &$errors)
             die('Hacking attempt, incorrect language value');
         }
 
-        if (!in_array($_POST['theme'], array_keys(\Phyxo\Functions\Theme::get_themes()))) {
+        if (isset($_POST['theme']) && !isset($themes[$_POST['theme']])) {
             die('Hacking attempt, incorrect theme value');
         }
     }
@@ -249,6 +251,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     global $template, $conf, $conn;
 
     $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+    $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
 
     $template->assign(
         'radio_options',
@@ -275,7 +278,7 @@ function load_profile_in_template($url_action, $url_redirect, $userdata, $templa
     );
 
     $template->assign('template_selection', $userdata['theme']);
-    $template->assign('template_options', \Phyxo\Functions\Theme::get_themes());
+    $template->assign('template_options', $themes);
 
     if (isset($languages[$userdata['language']])) {
         $template->assign('language_selection', $userdata['language']);

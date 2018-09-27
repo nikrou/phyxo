@@ -393,7 +393,8 @@ class User
         }
 
         if (!empty($params['theme'])) {
-            if (!in_array($params['theme'], array_keys(\Phyxo\Functions\Theme::get_themes()))) {
+            $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
+            if (!isset($themes[$params['theme']])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
             $updates_infos['theme'] = $params['theme'];

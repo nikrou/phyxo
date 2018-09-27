@@ -13,10 +13,18 @@ namespace App\Repository;
 
 class ImageRepository extends BaseRepository
 {
-    public function findByField(string $field, array $ids)
+    public function findByFields(string $field, array $ids)
     {
         $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE ' . $field . $this->conn->in($ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByField(string $field, string $value)
+    {
+        $query = 'SELECT id, path FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
 
         return $this->conn->db_query($query);
     }

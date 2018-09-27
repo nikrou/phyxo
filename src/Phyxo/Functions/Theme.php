@@ -14,31 +14,6 @@ namespace Phyxo\Functions;
 class Theme
 {
     /**
-     * returns available themes
-     *
-     * @param bool $show_mobile
-     * @return array
-     */
-    public static function get_themes($show_mobile = false)
-    {
-        global $conf, $conn;
-
-        $themes = array();
-        $query = 'SELECT id, name FROM ' . THEMES_TABLE . ' ORDER BY name ASC;';
-        $result = $conn->db_query($query);
-        while ($row = $conn->db_fetch_assoc($result)) {
-            if (self::check_theme_installed($row['id'])) {
-                $themes[$row['id']] = $row['name'];
-            }
-        }
-
-        // plugins want remove some themes based on user status maybe?
-        $themes = \Phyxo\Functions\Plugin::trigger_change('get_themes', $themes);
-
-        return $themes;
-    }
-
-    /**
      * check if a theme is installed (directory exsists)
      *
      * @param string $theme_id
@@ -63,5 +38,4 @@ class Theme
 
         return $template->get_themeconf($key);
     }
-
 }
