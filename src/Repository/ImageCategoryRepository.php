@@ -13,6 +13,15 @@ namespace App\Repository;
 
 class ImageCategoryRepository extends BaseRepository
 {
+    public function count() : int
+    {
+        $query = 'SELECT COUNT(1) FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $result = $this->conn->db_query($query);
+        list($nb_image_category) = $this->conn->db_fetch_row($result);
+
+        return $nb_image_category;
+    }
+
     public function countByCategory()
     {
         $query = 'SELECT category_id, COUNT(1) AS counter FROM ' . self::IMAGE_CATEGORY_TABLE;
@@ -69,6 +78,13 @@ class ImageCategoryRepository extends BaseRepository
             $query .= ' AND image_id ' . $this->conn->in($image_ids);
         }
 
+        $this->conn->db_query($query);
+    }
+
+    public function deleteBy(string $field, array $values)
+    {
+        $query = 'DELETE  FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE ' . $field . ' ' . $this->conn->in($values);
         $this->conn->db_query($query);
     }
 

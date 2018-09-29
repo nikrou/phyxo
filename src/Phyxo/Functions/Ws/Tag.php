@@ -15,6 +15,7 @@ use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
 use App\Repository\TagRepository;
+use App\Repository\ImageTagRepository;
 
 class Tag
 {
@@ -120,10 +121,7 @@ class Tag
         $image_tag_map = [];
         // build list of image ids with associated tags per image
         if (!empty($image_ids) and !$params['tag_mode_and']) {
-            $query = 'SELECT image_id, ' . $conn->db_group_concat('tag_id') . ' AS tag_ids FROM ' . IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id ' . $conn->in($tag_ids);
-            $query .= ' AND image_id ' . $conn->in($image_ids) . ' GROUP BY image_id';
-            $result = $conn->db_query($query);
+            $result = (new ImageTagRepository($conn))->findImageTags($tag_ids, $image_ids);
 
             while ($row = $conn->db_fetch_assoc($result)) {
                 $row['image_id'] = (int)$row['image_id'];

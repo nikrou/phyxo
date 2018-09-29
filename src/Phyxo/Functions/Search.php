@@ -19,6 +19,8 @@ use Phyxo\Search\QNumericRangeScope;
 use Phyxo\Search\QMultipleToken;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageTagRepository;
+use App\Repository\ImageRepository;
 
 class Search
 {
@@ -382,10 +384,8 @@ class Search
             $token = $expr->stokens[$i];
 
             if (!empty($tag_ids)) {
-                $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE;
-                $query .= ' WHERE tag_id ' . $conn->in($tag_ids);
-                $query .= ' GROUP BY image_id';
-                $qsr->tag_iids[$i] = $conn->query2array($query, null, 'image_id');
+                $result = (new ImageTagRepository($conn))->findImageByTags($tag_ids);
+                $qsr->tag_iids[$i] = $conn->result2array($result, null, 'image_id');
                 if ($expr->stoken_modifiers[$i] & QSearchScope::QST_NOT) {
                     $not_ids = array_merge($not_ids, $tag_ids);
                 } else {
@@ -397,11 +397,11 @@ class Search
                 }
             } elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term) == 0) {
                 if ($token->modifier & QSearchScope::QST_WILDCARD) { // eg. 'tag:*' returns all tagged images
-                    $qsr->tag_iids[$i] = $conn->query2array('SELECT DISTINCT image_id FROM ' . IMAGE_TAG_TABLE, null, 'image_id');
+                    $result = (new ImageTagRepository($conn))->findImageIds();
+                    $qsr->tag_iids[$i] = $conn->result2array($result, null, 'image_id');
                 } else { // eg. 'tag:' returns all untagged images
-                    $query = 'SELECT id FROM ' . IMAGES_TABLE;
-                    $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' ON id=image_id WHERE image_id IS NULL';
-                    $qsr->tag_iids[$i] = $conn->query2array($query, null, 'id');
+                    $result = (new ImageRepository($conn))->findImageWithNoTag();
+                    $qsr->tag_iids[$i] = $conn->result2array($resquery, null, 'id');
                 }
             }
         }

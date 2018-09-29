@@ -18,6 +18,7 @@ use Phyxo\Ws\NamedArray;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
 use App\Repository\RateRepository;
+use App\Repository\ImageTagRepository;
 
 class Image
 {
@@ -1071,9 +1072,7 @@ class Image
                         ['status' => 0, 'user_id' => $_SESSION['pwg_uid']]
                     );
                 } else {
-                    $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
-                    $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
-                    $conn->db_query($query);
+                    (new ImageTagRepository($conn))->deleteBy('image_id', $params['image_id']);
                 }
             } else {
                 // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1

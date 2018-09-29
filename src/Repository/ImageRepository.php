@@ -13,6 +13,43 @@ namespace App\Repository;
 
 class ImageRepository extends BaseRepository
 {
+    public function count() : int
+    {
+        $query = 'SELECT COUNT(1) FROM ' . self::IMAGES_TABLE;
+        $result = $this->conn->db_query($query);
+        list($nb_images) = $this->conn->db_fetch_row($result);
+
+        return $nb_images;
+    }
+
+    public function findFirstDate()
+    {
+        $query = 'SELECT MIN(date_available) FROM ' . self::IMAGES_TABLE;
+        $result = $this->conn->db_query($query);
+
+        list($first_date) = $this->conn->db_fetch_row($result);
+
+        return $first_date;
+    }
+
+    public function findImageWithNoTag()
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON id = image_id';
+        $query .= ' WHERE tag_id is null';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImageWithNoAlbum()
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' WHERE category_id is null';
+
+        return $this->conn->db_query($query);
+    }
+
     public function findByFields(string $field, array $ids)
     {
         $query = 'SELECT id FROM ' . self::IMAGES_TABLE;

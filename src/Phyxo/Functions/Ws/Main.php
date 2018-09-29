@@ -17,6 +17,9 @@ use Phyxo\Ws\NamedArray;
 use App\Repository\CommentRepository;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageTagRepository;
+use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageRepository;
 
 class Main
 {
@@ -130,21 +133,13 @@ class Main
         global $conn;
 
         $infos['version'] = PHPWG_VERSION;
-
-        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
-        list($infos['nb_elements']) = $conn->db_fetch_row($conn->db_query($query));
-
+        $infos['nb_elements'] = (new ImageRepository($conn))->count();
         $infos['nb_categories'] = (new CategoryRepository($conn))->count();
         $infos['nb_virtual'] = (new CategoryRepository($conn))->count('dir IS NULL');
         $infos['nb_physical'] = (new CategoryRepository($conn))->count('dir IS NOT NULL');
-
-        $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE . ';';
-        list($infos['nb_image_category']) = $conn->db_fetch_row($conn->db_query($query));
-
+        $infos['nb_image_category'] = (new ImageCategoryRepository($conn))->count();
         $infos['nb_tags'] = (new TagRepository($conn))->count();
-
-        $query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE . ';';
-        list($infos['nb_image_tag']) = $conn->db_fetch_row($conn->db_query($query));
+        $infos['nb_image_tag'] = (new ImageTagRepository($conn))->count();
 
         $query = 'SELECT COUNT(1) FROM ' . USERS_TABLE . ';';
         list($infos['nb_users']) = $conn->db_fetch_row($conn->db_query($query));
@@ -156,13 +151,12 @@ class Main
 
         // first element
         if ($infos['nb_elements'] > 0) {
-            $query = 'SELECT MIN(date_available) FROM ' . IMAGES_TABLE . ';';
-            list($infos['first_date']) = $conn->db_fetch_row($conn->db_query($query));
+            $infos['first_date'] = (new ImageRepository($conn))->findFirstDate();
         }
 
         // unvalidated comments
         if ($infos['nb_comments'] > 0) {
-            list($infos['nb_unvalidated_comments']) = (new CommentRepository($conn))->count($validated = false);
+            $infos['nb_unvalidated_comments'] = (new CommentRepository($conn))->count($validated = false);
         }
 
         foreach ($infos as $name => $value) {

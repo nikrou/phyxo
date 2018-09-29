@@ -18,6 +18,7 @@ use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\RateRepository;
+use App\Repository\ImageRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -66,20 +67,13 @@ $php_current_timestamp = date("Y-m-d H:i:s");
 $db_version = $conn->db_version();
 list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
 
-$query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
-list($nb_elements) = $conn->db_fetch_row($conn->db_query($query));
-
+$nb_elements = (new ImageRepository($conn))->count();
 $nb_categories = (new CategoryRepository($conn))->count();
 $nb_virtual = (new CategoryRepository($conn))->count('dir IS NULL');
 $nb_physical = (new CategoryRepository($conn))->count('dir IS NOT NULL');
-
-$query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
-list($nb_image_category) = $conn->db_fetch_row($conn->db_query($query));
-
+$nb_image_category = (new ImageCategoryRepository($conn))->count();
 $nb_tags = (new TagRepository($conn))->count();
-
-$query = 'SELECT COUNT(1) FROM ' . IMAGE_TAG_TABLE;
-list($nb_image_tag) = $conn->db_fetch_row($conn->db_query($query));
+$nb_image_tag = (new ImageTagRepository($conn))->count();
 
 $query = 'SELECT COUNT(1) FROM ' . USERS_TABLE;
 list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
@@ -87,7 +81,7 @@ list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
 $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
 list($nb_groups) = $conn->db_fetch_row($conn->db_query($query));
 
-list($nb_rates) = (new RateRepository($conn))->count();
+$nb_rates = (new RateRepository($conn))->count();
 
 $template->assign(
     [

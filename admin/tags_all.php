@@ -99,8 +99,7 @@ if (isset($_POST['duplic_submit'])) {
                 }
 
                 if (count($inserts) > 0) {
-                    $conn->mass_inserts(
-                        IMAGE_TAG_TABLE,
+                    (new ImageTagRepository($conn))->insertImageTags(
                         array_keys($inserts[0]),
                         $inserts
                     );
@@ -147,14 +146,13 @@ if (isset($_POST['merge_submit'])) {
                 [$destination_tag_id]
             );
 
-            $query = 'SELECT DISTINCT(image_id)  FROM ' . IMAGE_TAG_TABLE;
-            $query .= ' WHERE tag_id ' . $conn->in($tag_ids_to_delete);
-            $image_ids = $conn->query2array($query, null, 'image_id');
+            $result = (new ImageTagRepository($conn))->findImageByTags($tag_ids_to_delete);
+            $image_ids = $conn->result2array($resul, null, 'image_id');
 
             $services['tags']->deleteTags($tag_ids_to_delete);
 
-            $query = 'SELECT image_id FROM ' . IMAGE_TAG_TABLE . ' WHERE tag_id = ' . $conn->db_real_escape_string($destination_tag_id);
-            $destination_tag_image_ids = $conn->query2array($query, null, 'image_id');
+            $result = (new ImageTagRepository($conn))->findBy('tag_id', $destination_tag_id);
+            $destination_tag_image_ids = $conn->result2array($result, null, 'image_id');
 
             $image_ids_to_link = array_diff(
                 $image_ids,
@@ -170,8 +168,7 @@ if (isset($_POST['merge_submit'])) {
             }
 
             if (count($inserts) > 0) {
-                $conn->mass_inserts(
-                    IMAGE_TAG_TABLE,
+                (new ImageTagRepository($conn))->insertImageTags(
                     array_keys($inserts[0]),
                     $inserts
                 );
@@ -260,8 +257,8 @@ if (count($orphan_tag_names) > 0) {
 // +-----------------------------------------------------------------------+
 
 // tag counters
-$query = 'SELECT tag_id, COUNT(image_id) AS counter FROM ' . IMAGE_TAG_TABLE . ' GROUP BY tag_id';
-$tag_counters = $conn->query2array($query, 'tag_id', 'counter');
+$result = (new ImageTagRepository($conn))->getTagCounters();
+$tag_counters = $conn->result2array($result, 'tag_id', 'counter');
 
 // all tags
 $result = (new TagRepository($conn))->findAll();

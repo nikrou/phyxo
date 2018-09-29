@@ -20,6 +20,7 @@ use App\Repository\UserCacheRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\RateRepository;
+use App\Repository\ImageTagRepository;
 
 class Utils
 {
@@ -1335,12 +1336,10 @@ class Utils
         (new CommentRepository($conn))->deleteByImage($ids);
 
         // destruction of the links between images and categories
-        $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new ImageCategoryRepository($conn))->deleteBy('image_id', $ids);
 
         // destruction of the links between images and tags
-        $query = 'DELETE FROM ' . IMAGE_TAG_TABLE . ' WHERE image_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new ImageTagRepository($conn))->deleteBy('image_id', $ids);
 
         // destruction of the favorites associated with the picture
         (new FavoriteRepository($conn))->deleteImagesFromFavorite($ids);

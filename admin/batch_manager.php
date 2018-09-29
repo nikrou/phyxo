@@ -25,6 +25,7 @@ use Phyxo\TabSheet\TabSheet;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
+use App\Repository\ImageRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -241,7 +242,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         case 'no_virtual_album':
-        // we are searching elements not linked to any virtual category
+            // we are searching elements not linked to any virtual category
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $all_elements = $conn->query2array($query, null, 'id');
 
@@ -257,17 +258,13 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         case 'no_album':
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-            $query .= ' WHERE category_id is null';
-            $filter_sets[] = $conn->query2array($query, null, 'id');
+            $result = (new ImageRepository($conn))->findImageWithNoAlbum();
+            $filter_sets[] = $conn->result2array($result, null, 'id');
             break;
 
         case 'no_tag':
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_TAG_TABLE . ' ON id = image_id';
-            $query .= ' WHERE tag_id is null';
-            $filter_sets[] = $conn->query2array($query, null, 'id');
+            $result = (new ImageRepository($conn))->findImageWithNoTag();
+            $filter_sets[] = $conn->result2array($result, null, 'id');
             break;
 
         case 'duplicates':

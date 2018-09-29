@@ -13,10 +13,51 @@ namespace App\Repository;
 
 class ImageTagRepository extends BaseRepository
 {
+    public function count() : int
+    {
+        $query = 'SELECT COUNT(1) FROM ' . self::IMAGE_TAG_TABLE;
+        $result = $this->conn->db_query($query);
+        list($nb_image_tag) = $this->conn->db_fetch_row($result);
+
+        return $nb_image_tag;
+    }
+
     public function findBy(string $field, string $value)
     {
         $query = 'SELECT id FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= sprintf(' WHERE %s = \'%s\'', $key, $this->conn->db_real_escape_string($value));
+        $query .= sprintf(' WHERE %s = \'%s\'', $field, $this->conn->db_real_escape_string($value));
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImageIds()
+    {
+        $query = 'SELECT DISTINCT image_id FROM ' . self::IMAGE_TAG_TABLE;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImageByTags(array $tag_ids)
+    {
+        $query = 'SELECT DISTINCT(image_id)  FROM ' . self::IMAGE_TAG_TABLE;
+        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImageTags(array $tag_ids, array $image_ids)
+    {
+        $query = 'SELECT image_id, ' . $this->conn->db_group_concat('tag_id') . ' AS tag_ids FROM ' . self::IMAGE_TAG_TABLE;
+        $query .= ' WHERE tag_id ' . $this->conn->in($tag_ids);
+        $query .= ' AND image_id ' . $this->conn->in($image_ids) . ' GROUP BY image_id';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getTagCounters()
+    {
+        $query = 'SELECT tag_id, COUNT(image_id) AS counter FROM ' . self::IMAGE_TAG_TABLE;
+        $query .= ' GROUP BY tag_id';
 
         return $this->conn->db_query($query);
     }
@@ -49,5 +90,13 @@ class ImageTagRepository extends BaseRepository
             $query .= ' AND tag_id = ' . (int)$data['tag_id'];
             $this->conn->db_query($query);
         }
+    }
+
+    public function deleteByImagesAndTags(array $image_ids, array $tag_ids)
+    {
+        $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
+        $query .= ' WHERE image_id ' . $this->conn->in($image_ids);
+        $query .= ' AND tag_id ' . $this->conn->in($tag_ids);
+        $this->conn->db_query($query);
     }
 }

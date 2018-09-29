@@ -21,6 +21,7 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
 
 use Phyxo\LocalSiteReader;
 use App\Repository\TagRepository;
+use App\Repository\ImageTagRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -91,11 +92,7 @@ if (isset($_POST['submit'])) {
         }
     } elseif ('del_tags' == $action) {
         if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0) {
-            // @TODO: move delete to src/Phyxo/Model/Repository/Tags::dissociateTags
-            $query = 'DELETE FROM ' . IMAGE_TAG_TABLE;
-            $query .= ' WHERE image_id ' . $conn->in($collection);
-            $query .= ' AND tag_id ' . $conn->in($_POST['del_tags']);
-            $conn->db_query($query);
+            (new ImageTagRepository($conn))->deleteByImagesAndTags($collection, $_POST['del_tags']);
 
             if (isset($_SESSION['bulk_manager_filter']['tags'])
                 && count(array_intersect($_SESSION['bulk_manager_filter']['tags'], $_POST['del_tags']))) {
