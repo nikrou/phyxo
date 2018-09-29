@@ -17,6 +17,7 @@ use GuzzleHttp\Client;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\RateRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -86,8 +87,7 @@ list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
 $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
 list($nb_groups) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
-list($nb_rates) = $conn->db_fetch_row($conn->db_query($query));
+list($nb_rates) = (new RateRepository($conn))->count();
 
 $template->assign(
     [

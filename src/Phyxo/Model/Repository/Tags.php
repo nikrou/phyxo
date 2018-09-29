@@ -459,10 +459,7 @@ class Tags
                 ];
             }
         }
-        (new ImageTagRepository($this->conn))->deleteImageTags(
-            ['tag_id', 'image_id'],
-            $deletes
-        );
+        (new ImageTagRepository($this->conn))->deleteImageTags($deletes);
     }
 
     // @param $elements in an array of tags indexed by image_id

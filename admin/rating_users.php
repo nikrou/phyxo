@@ -13,6 +13,8 @@ if (!defined("RATING_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+use App\Repository\RateRepository;
+
 $filter_min_rates = 2;
 if (isset($_GET['f_min_rates'])) {
     $filter_min_rates = (int)$_GET['f_min_rates'];
@@ -28,28 +30,27 @@ $query = 'SELECT DISTINCT u.' . $conf['user_fields']['id'] . ' AS id,';
 $query .= 'u.' . $conf['user_fields']['username'] . ' AS name,ui.status FROM ' . USERS_TABLE . ' AS u';
 $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON u.' . $conf['user_fields']['id'] . ' = ui.user_id';
 
-$users_by_id = array();
+$users_by_id = [];
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
-    $users_by_id[(int)$row['id']] = array(
+    $users_by_id[(int)$row['id']] = [
         'name' => $row['name'],
         'anon' => $services['users']->isAuthorizeStatus(ACCESS_CLASSIC, $row['status']) ? false : true
-    );
+    ];
 }
 
-$by_user_rating_model = array('rates' => array());
+$by_user_rating_model = ['rates' => []];
 foreach ($conf['rate_items'] as $rate) {
-    $by_user_rating_model['rates'][$rate] = array();
+    $by_user_rating_model['rates'][$rate] = [];
 }
 
 // by user aggregation
-$image_ids = array();
-$by_user_ratings = array();
-$query = 'SELECT * FROM ' . RATE_TABLE . ' ORDER by date DESC';
-$result = $conn->db_query($query);
+$image_ids = [];
+$by_user_ratings = [];
+$result = (new RateRepository($conn))->findAll();
 while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($users_by_id[$row['user_id']])) {
-        $users_by_id[$row['user_id']] = array('name' => '???' . $row['user_id'], 'anon' => false);
+        $users_by_id[$row['user_id']] = ['name' => '???' . $row['user_id'], 'anon' => false];
     }
     $usr = $users_by_id[$row['user_id']];
     if ($usr['anon']) {
@@ -68,35 +69,34 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $rating['first_date'] = $row['date'];
     }
 
-    $rating['rates'][$row['rate']][] = array(
+    $rating['rates'][$row['rate']][] = [
         'id' => $row['element_id'],
         'date' => $row['date'],
-    );
+    ];
     $image_ids[$row['element_id']] = 1;
     unset($rating);
 }
 
 // get image tn urls
-$image_urls = array();
+$image_urls = [];
 if (count($image_ids) > 0) {
     $query = 'SELECT id, name, file, path, representative_ext, level FROM ' . IMAGES_TABLE;
     $query .= ' WHERE id ' . $conn->in(array_keys($image_ids));
     $result = $conn->db_query($query);
     $params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
-        $image_urls[$row['id']] = array(
+        $image_urls[$row['id']] = [
             'tn' => \Phyxo\Image\DerivativeImage::url($params, $row),
-            'page' => \Phyxo\Functions\URL::make_picture_url(array('image_id' => $row['id'], 'image_file' => $row['file'])),
-        );
+            'page' => \Phyxo\Functions\URL::make_picture_url(['image_id' => $row['id'], 'image_file' => $row['file']]),
+        ];
     }
 }
 
 //all image averages
-$query = 'SELECT element_id,AVG(rate) AS avg FROM ' . RATE_TABLE . ' GROUP BY element_id';
-$all_img_sum = array();
-$result = $conn->db_query($query);
+$all_img_sum = [];
+$result = (new RateRepository($conn))->calculateAverageyElement();
 while ($row = $conn->db_fetch_assoc($result)) {
-    $all_img_sum[(int)$row['element_id']] = array('avg' => (float)$row['avg']);
+    $all_img_sum[(int)$row['element_id']] = ['avg' => (float)$row['avg']];
 }
 
 $query = 'SELECT id FROM ' . IMAGES_TABLE . ' ORDER by rating_score DESC LIMIT ' . $consensus_top_number;
@@ -131,14 +131,14 @@ foreach ($by_user_ratings as $id => &$rating) {
     }
 
     $var = ($ss - $s * $s / $c) / $c;
-    $rating += array(
+    $rating += [
         'id' => $id,
         'count' => $c,
         'avg' => $s / $c,
         'cv' => $s == 0 ? -1 : sqrt($var) / ($s / $c), // http://en.wikipedia.org/wiki/Coefficient_of_variation
         'cd' => $consensus_dev,
         'cdtop' => $consensus_dev_top_count ? $consensus_dev_top : '',
-    );
+    ];
 }
 unset($rating);
 
@@ -195,10 +195,10 @@ for ($i = 0; $i < count($available_order_by); $i++) {
     $template->append('order_by_options', $available_order_by[$i][0]);
 }
 
-$template->assign('order_by_options_selected', array($order_by_index));
+$template->assign('order_by_options_selected', [$order_by_index]);
 $x = uasort($by_user_ratings, $available_order_by[$order_by_index][1]);
 
-$template->assign(array(
+$template->assign([
     'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php',
     'F_MIN_RATES' => $filter_min_rates,
     'CONSENSUS_TOP_NUMBER' => $consensus_top_number,
@@ -206,4 +206,4 @@ $template->assign(array(
     'ratings' => $by_user_ratings,
     'image_urls' => $image_urls,
     'TN_WIDTH' => \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size[0],
-));
+]);

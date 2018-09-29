@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Repository\RateRepository;
+
 class Rate
 {
     /**
@@ -24,16 +26,12 @@ class Rate
     {
         global $conn;
 
-        $query = 'DELETE FROM ' . RATE_TABLE . ' WHERE user_id=' . $conn->db_real_escape_string($params['user_id']);
+        $changes = (new RateRepository($conn))->deleteRate(
+            $params['user_id'],
+            !empty($params['image_id']) ? $params['image_id'] : null,
+            !empty($params['anonymous_id']) ? $params['anonymous_id'] : null
+        );
 
-        if (!empty($params['anonymous_id'])) {
-            $query .= ' AND anonymous_id=\'' . $conn->db_real_escape_string($params['anonymous_id']) . '\'';
-        }
-        if (!empty($params['image_id'])) {
-            $query .= ' AND element_id=' . $conn->db_real_escape_string($params['image_id']);
-        }
-
-        $changes = $conn->db_changes($conn->db_query($query));
         if ($changes) {
             \Phyxo\Functions\Rate::update_rating_score();
         }

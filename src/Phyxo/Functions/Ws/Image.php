@@ -17,6 +17,7 @@ use Phyxo\Ws\NamedStruct;
 use Phyxo\Ws\NamedArray;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
+use App\Repository\RateRepository;
 
 class Image
 {
@@ -155,8 +156,7 @@ class Image
             'average' => null,
         ];
         if (isset($rating['score'])) {
-            $query = 'SELECT COUNT(rate) AS count, ROUND(AVG(rate),2) AS average FROM ' . RATE_TABLE;
-            $query .= ' WHERE element_id = ' . $image_row['id'] . ';';
+            $result = (new RateRepository($conn))->calculateRateSummary($image_row['id']);
             $row = $conn->db_fetch_assoc($conn->db_query($query));
 
             $rating['score'] = (float)$rating['score'];

@@ -36,4 +36,12 @@ class ImageRepository extends BaseRepository
 
         $this->conn->db_query($query);
     }
+
+    public function findWithNoStorageOrStorageCategoryId(array $categories)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT ' . $this->conn->in($categories) . ')';
+
+        return $this->conn->db_query($query);
+    }
 }

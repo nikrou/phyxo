@@ -44,7 +44,7 @@ class FavoriteRepository extends BaseRepository
     public function deleteImagesFromFavorite(array $ids, ? int $user_id = null)
     {
         $query = 'DELETE FROM ' . self::FAVORITES_TABLE;
-        $query .= ' WHERE image_id ' . $conn->in($ids);
+        $query .= ' WHERE image_id ' . $this->conn->in($ids);
 
         if (!is_null($user_id)) {
             $query .= ' AND user_id = ' . $user_id;
@@ -67,13 +67,13 @@ class FavoriteRepository extends BaseRepository
         $result = $this->conn->db_query($query);
         $row = $this->conn->db_fetch_assoc($result);
 
-        return ($row[' nb_fav'] !== 0);
+        return ($row['nb_fav'] !== 0);
     }
 
     public function findUnauthorizedImagesInFavorite(int $user_id)
     {
         $query = 'SELECT DISTINCT f.image_id FROM ' . self::FAVORITES_TABLE . ' AS f';
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
         $query .= ' WHERE f.user_id = ' . $user['id'];
         $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'ic.category_id'], ' AND ');
 

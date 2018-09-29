@@ -1218,7 +1218,7 @@ class Category
             return false;
         }
 
-        $cat_ids = $conn->result2array((new ImageRepository($conn))->findWithNoStorageOrStorage($categories), null, 'id');
+        $cat_ids = $conn->result2array((new ImageRepository($conn))->findWithNoStorageOrStorageCategoryId($categories), null, 'id');
 
         // let's first break links with all old albums but their "storage album"
         (new ImageCategoryRepository($conn))->deleteByCategory($cat_ids, $images);

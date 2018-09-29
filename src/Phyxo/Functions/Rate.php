@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\RateRepository;
+
 class Rate
 {
     /**
@@ -43,36 +45,26 @@ class Rate
         if ($user_anonymous) {
             $save_anonymous_id = isset($_COOKIE['anonymous_rater']) ? $_COOKIE['anonymous_rater'] : $anonymous_id;
 
-            if ($anonymous_id != $save_anonymous_id) { // client has changed his IP adress or he's trying to fool us
-                $query = 'SELECT element_id FROM ' . RATE_TABLE;
-                $query .= ' WHERE user_id = ' . $user['id'] . ' AND anonymous_id = \'' . $anonymous_id . '\';';
-                $already_there = $conn->query2array($query, null, 'element_id');
+            if ($anonymous_id != $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
+                $result = (new RateRepository($conn))->findByUserAndAnonymousId($user['id'], $anonymous_id);
+                $already_there = $conn->result2array($result, null, 'element_id');
 
                 if (count($already_there) > 0) {
-                    $query = 'DELETE FROM ' . RATE_TABLE;
-                    $query .= ' WHERE user_id = ' . $user['id'];
-                    $query .= ' AND anonymous_id = \'' . $save_anonymous_id . '\'';
-                    $query .= ' AND element_id ' . $conn->in($already_there);
-                    $conn->db_query($query);
+                    (new RateRepository($conn))->deleteRates($user['id'], $save_anonymous_id, $already_there);
                 }
 
-                $query = 'UPDATE ' . RATE_TABLE . '  SET anonymous_id = \'' . $anonymous_id . '\'';
-                $query .= ' WHERE user_id = ' . $user['id'] . ' AND anonymous_id = \'' . $save_anonymous_id . '\';';
-                $conn->db_query($query);
+                (new RateRepository($conn))->updateRate(
+                    ['anonymous_id' => $anonymous_id],
+                    ['user_id' => $user['id'], 'anonymous_id' => $save_anonymous_id]
+                );
             } // end client changed ip
 
             setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
         } // end anonymous user
 
-        $query = 'DELETE FROM ' . RATE_TABLE;
-        $query .= ' WHERE element_id = ' . $image_id . ' AND user_id = ' . $user['id'];
-        if ($user_anonymous) {
-            $query .= ' AND anonymous_id = \'' . $anonymous_id . '\'';
-        }
-        $conn->db_query($query);
-        $query = 'INSERT INTO ' . RATE_TABLE . ' (user_id,anonymous_id,element_id,rate,date)';
-        $query .= ' VALUES(' . $user['id'] . ',\'' . $anonymous_id . '\',' . $image_id . ',' . $rate . ',NOW());';
-        $conn->db_query($query);
+        (new RateRepository($conn))->deleteRate($user['id'], $image_id, $user_anonymous ? $anonymous_id : null);
+
+        (new RateRepository($conn))->addRate($user['id'], $image_id, $anonymous_id, $rate, new \DateTime());
 
         return self::update_rating_score($image_id);
     }
@@ -94,14 +86,12 @@ class Rate
             return $alt_result;
         }
 
-        $query = 'SELECT element_id, COUNT(rate) AS rcount,SUM(rate) AS rsum FROM ' . RATE_TABLE . ' GROUP by element_id';
-
         $all_rates_count = 0;
         $all_rates_avg = 0;
         $item_ratecount_avg = 0;
         $by_item = [];
 
-        $result = $conn->db_query($query);
+        $result = (new RateRepository($conn))->calculateRateByElement();
         while ($row = $conn->db_fetch_assoc($result)) {
             $all_rates_count += $row['rcount'];
             $all_rates_avg += $row['rsum'];
@@ -136,19 +126,20 @@ class Rate
         );
 
         //set to null all items with no rate
+        // @TODO : how that situation can exist ?
         if (!isset($by_item[$element_id])) {
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . RATE_TABLE . ' ON id=element_id';
-            $query .= ' WHERE element_id IS NULL AND rating_score IS NOT NULL';
+            // $query = 'SELECT id FROM ' . IMAGES_TABLE;
+            // $query .= ' LEFT JOIN ' . RATE_TABLE . ' ON id = element_id';
+            // $query .= ' WHERE element_id IS NULL AND rating_score IS NOT NULL';
 
-            $to_update = $conn->query2array($query, null, 'id');
+            // $to_update = $conn->query2array($result, null, 'id');
 
-            if (!empty($to_update)) {
-                $query = 'UPDATE ' . IMAGES_TABLE;
-                $query .= ' SET rating_score=NULL';
-                $query .= ' WHERE id ' . $conn->in($to_update);
-                $conn->db_query($query);
-            }
+            // if (!empty($to_update)) {
+            //     $query = 'UPDATE ' . IMAGES_TABLE;
+            //     $query .= ' SET rating_score=NULL';
+            //     $query .= ' WHERE id ' . $conn->in($to_update);
+            //     $conn->db_query($query);
+            // }
         }
 
         return isset($return) ? $return : ['score' => null, 'average' => null, 'count' => 0];

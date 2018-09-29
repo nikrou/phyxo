@@ -19,6 +19,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\FavoriteRepository;
+use App\Repository\RateRepository;
 
 class Utils
 {
@@ -1345,8 +1346,7 @@ class Utils
         (new FavoriteRepository($conn))->deleteImagesFromFavorite($ids);
 
         // destruction of the rates associated to this element
-        $query = 'DELETE FROM ' . RATE_TABLE . ' WHERE element_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new RateRepository($conn))->deleteByElementIds($ids);
 
         // destruction of the caddie associated to this element
         $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE element_id ' . $conn->in($ids);

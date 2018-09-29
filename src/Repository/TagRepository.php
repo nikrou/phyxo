@@ -50,7 +50,7 @@ class TagRepository extends BaseRepository
     public function findBy(string $field, string $value)
     {
         $query = 'SELECT id FROM ' . self::TAGS_TABLE;
-        $query .= sprintf(' WHERE %s = \'%s\'', $key, $this->conn->db_real_escape_string($value));
+        $query .= sprintf(' WHERE %s = \'%s\'', $field, $this->conn->db_real_escape_string($value));
 
         return $this->conn->db_query($query);
     }

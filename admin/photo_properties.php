@@ -14,6 +14,7 @@ if (!defined("PHOTO_BASE_URL")) {
 }
 
 use App\Repository\TagRepository;
+use App\Repository\RateRepository;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -213,11 +214,8 @@ $intro_vars = [
 ];
 
 if ($conf['rate'] and !empty($row['rating_score'])) {
-    $query = 'SELECT COUNT(1) FROM ' . RATE_TABLE;
-    $query .= ' WHERE element_id = ' . (int)$_GET['image_id'];
-    list($row['nb_rates']) = $conn->db_fetch_row($conn->db_query($query));
-
-    $intro_vars['stats'] .= ', ' . sprintf(\Phyxo\Functions\Language::l10n('Rated %d times, score : %.2f'), $row['nb_rates'], $row['rating_score']);
+    $nb_rates = (new RateRepository($conn))->count($_GET['image_id']);
+    $intro_vars['stats'] .= ', ' . sprintf(\Phyxo\Functions\Language::l10n('Rated %d times, score : %.2f'), $nb_rates, $row['rating_score']);
 }
 
 $template->assign('INTRO', $intro_vars);
