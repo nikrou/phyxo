@@ -11,6 +11,9 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\OldPermalinkRepository;
+use App\Repository\CategoryRepository;
+
 class Permalink
 {
     /** returns a category id that corresponds to the given permalink (or null)
@@ -34,14 +37,14 @@ class Permalink
             }
         }
 
-        $ret = array();
+        $ret = [];
         foreach ($sortable_by as $field) {
             $url = $base_url;
             $disp = '↓'; // @TODO: an small image is better
 
             if ($field !== @$_GET[$get_param]) {
                 if (!isset($default_field) or $default_field != $field) { // the first should be the default
-                    $url = \Phyxo\Functions\URL::add_url_params($url, array($get_param => $field));
+                    $url = \Phyxo\Functions\URL::add_url_params($url, [$get_param => $field]);
                 } elseif (isset($default_field) and !isset($_GET[$get_param])) {
                     $ret[] = $field;
                     $disp = '<em>' . $disp . '</em>';
@@ -74,27 +77,6 @@ class Permalink
         return null;
     }
 
-    /** returns a category id that has used before this permalink (or null)
-     * @param string permalink
-     * @param boolean is_hit if true update the usage counters on the old permalinks
-     */
-    public static function get_cat_id_from_old_permalink($permalink)
-    {
-        global $conn;
-
-        $query = 'SELECT c.id FROM ' . OLD_PERMALINKS_TABLE . ' AS op';
-        $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' AS c ON op.cat_id=c.id';
-        $query .= ' WHERE op.permalink=\'' . $conn->db_real_escape_string($permalink) . '\'';
-        $query .= ' LIMIT 1';
-        $result = $conn->db_query($query);
-        $cat_id = null;
-        if ($conn->db_num_rows($result)) {
-            list($cat_id) = $conn->db_fetch_row($result);
-        }
-
-        return $cat_id;
-    }
-
     /** deletes the permalink associated with a category
      * returns true on success
      * @param int cat_id the target category id
@@ -116,7 +98,7 @@ class Permalink
         }
 
         if ($save) {
-            $old_cat_id = self::get_cat_id_from_old_permalink($permalink);
+            $old_cat_id = (new OldPermalinkRepository($conn))->getCategoryIdFromOldPermalink($permalink);
             if (isset($old_cat_id) and $old_cat_id != $cat_id) {
                 $page['errors'][] = sprintf(
                     \Phyxo\Functions\Language::l10n('Permalink %s has been previously used by album %s. Delete from the permalink history first'),
@@ -135,16 +117,14 @@ class Permalink
         unset($cache['cat_names']); //force regeneration
         if ($save) {
             if (isset($old_cat_id)) {
-                $query = 'UPDATE ' . OLD_PERMALINKS_TABLE;
-                $query .= ' SET date_deleted=NOW()';
-                $query .= ' WHERE cat_id=' . $conn->db_real_escape_string($cat_id);
-                $query .= ' AND permalink=\'' . $conn->db_real_escape_string($permalink) . '\'';
+                (new OldPermalinkRepository($conn))->updateOldPermalink(['date_deleted' => 'now()'], ['cat_id' => $cat_id, 'permalink' => $permalink]);
             } else {
-                $query = 'INSERT INTO ' . OLD_PERMALINKS_TABLE;
-                $query .= ' (permalink, cat_id, date_deleted) VALUES';
-                $query .= '( \'' . $conn->db_real_escape_string($permalink) . '\',' . $conn->db_real_escape_string($cat_id) . ',NOW())';
+                (new OldPermalinkRepository($conn))->addOldPermalink([
+                    'permalink' => $permalink,
+                    'cat_id' => $cat_id,
+                    'date_deleted' => 'now()'
+                ]);
             }
-            $conn->db_query($query);
         }
 
         return true;
@@ -169,8 +149,8 @@ class Permalink
             return false;
         }
 
-    // check if the new permalink is actively used
-        $existing_cat_id = self::get_cat_id_from_permalink($permalink);
+        // check if the new permalink is actively used
+        $existing_cat_id = (new OldPermalinkRepository($conn))->getCategoryIdFromOldPermalink($permalink);
         if (isset($existing_cat_id)) {
             if ($existing_cat_id == $cat_id) { // no change required
                 return true;
@@ -184,8 +164,8 @@ class Permalink
             }
         }
 
-    // check if the new permalink was historically used
-        $old_cat_id = self::get_cat_id_from_old_permalink($permalink);
+        // check if the new permalink was historically used
+        $old_cat_id = (new OldPermalinkRepository($conn))->getCategoryIdFromOldPermalink($permalink);
         if (isset($old_cat_id) and $old_cat_id != $cat_id) {
             $page['errors'][] = sprintf(
                 \Phyxo\Functions\Language::l10n('Permalink %s has been previously used by album %s. Delete from the permalink history first'),
@@ -200,17 +180,10 @@ class Permalink
         }
 
         if (isset($old_cat_id)) { // the new permalink must not be active and old at the same time
-            assert($old_cat_id == $cat_id); // @TODO: remove !
-            $query = 'DELETE FROM ' . OLD_PERMALINKS_TABLE;
-            $query .= ' WHERE cat_id=' . $conn->db_real_escape_string($old_cat_id);
-            $query .= ' AND permalink=\'' . $conn->db_real_escape_string($permalink) . '\'';
-            $conn->db_query($query);
+            (new OldPermalinkRepository($conn))->deleteByCatIdAndPermalink($old_cat_id, $permalink);
         }
 
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET permalink=\'' . $conn->db_real_escape_string($permalink) . '\'';
-        $query .= ' WHERE id=' . $conn->db_real_escape_string($cat_id);
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->updateCategory(['permalink' => $permalink], $cat_id);
 
         unset($cache['cat_names']); //force regeneration
 

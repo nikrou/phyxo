@@ -13,7 +13,9 @@ if (!defined("ALBUMS_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-$selected_cat = array();
+use App\Repository\OldPermalinkRepository;
+
+$selected_cat = [];
 if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
     $permalink = $_POST['permalink'];
     if (empty($permalink)) {
@@ -21,11 +23,9 @@ if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
     } else {
         \Phyxo\Functions\Permalink::set_cat_permalink($_POST['cat_id'], $permalink, isset($_POST['save']));
     }
-    $selected_cat = array($_POST['cat_id']);
+    $selected_cat = [$_POST['cat_id']];
 } elseif (isset($_GET['delete_permanent'])) {
-    $query = 'DELETE FROM ' . OLD_PERMALINKS_TABLE;
-    $query .= ' WHERE permalink=\'' . $conn->db_real_escape_string($_GET['delete_permanent']) . '\' LIMIT 1';
-    $result = $conn->db_query($query);
+    $result = (new OldPermalinkRepository($conn))->deleteByPermalink($_GET['delete_permanent']);
     if ($conn->db_changes($result) == 0) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Cannot delete the old permalink !');
     }
@@ -36,10 +36,10 @@ $query = 'SELECT id,permalink,name,uppercats,global_rank FROM ' . CATEGORIES_TAB
 
 // --- generate display of active permalinks -----------------------------------
 $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
-    array('id', 'name', 'permalink'),
+    ['id', 'name', 'permalink'],
     'name',
     'psf',
-    array('delete_permanent'),
+    ['delete_permanent'],
     'SORT_'
 );
 
@@ -47,7 +47,7 @@ $query = 'SELECT id, permalink, uppercats, global_rank FROM ' . CATEGORIES_TABLE
 if ($sort_by[0] == 'id' or $sort_by[0] == 'permalink') {
     $query .= ' ORDER BY ' . $sort_by[0];
 }
-$categories = array();
+$categories = [];
 $result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats']);
@@ -62,28 +62,23 @@ $template->assign('permalinks', $categories);
 // --- generate display of old permalinks --------------------------------------
 
 $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
-    array('cat_id', 'permalink', 'date_deleted', 'last_hit', 'hit'),
+    ['cat_id', 'permalink', 'date_deleted', 'last_hit', 'hit'],
     null,
     'dpsf',
-    array('delete_permanent'),
+    ['delete_permanent'],
     'SORT_OLD_',
     '#old_permalinks'
 );
 
 $url_del_base = ALBUMS_BASE_URL . '&map;section=permalinks';
-$query = 'SELECT * FROM ' . OLD_PERMALINKS_TABLE;
-if (count($sort_by)) {
-    $query .= ' ORDER BY ' . $sort_by[0];
-}
-$result = $conn->db_query($query);
-$deleted_permalinks = array();
+$result = (new OldPermalinkRepository($conn))->findAll($sort_by[0]);
+$deleted_permalinks = [];
 while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['cat_id']);
     $row['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
         $url_del_base,
-        array('delete_permanent' => $row['permalink'])
+        ['delete_permanent' => $row['permalink']]
     );
     $deleted_permalinks[] = $row;
 }
 $template->assign('deleted_permalinks', $deleted_permalinks);
-//$template->assign('U_HELP', \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=permalinks');

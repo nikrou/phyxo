@@ -20,8 +20,6 @@ use org\bovigo\vfs\vfsStreamWrapper;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-define('PLUGINS_TABLE', 'plugins');
-
 class Plugins extends atoum
 {
     private $plugins_dir = '';
@@ -112,8 +110,8 @@ class Plugins extends atoum
         $plugins->extractPluginFiles('install', 10, 'myPlugin1', $plugin_id);
         $plugins->getFsPlugin($plugin_id); // refresh plugins list
 
-        $myPlugin1 = array(
-            'myPlugin1' => array(
+        $myPlugin1 = [
+            'myPlugin1' => [
                 'name' => 'myPlugin1',
                 'version' => '0.1.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=1',
@@ -121,8 +119,8 @@ class Plugins extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '1'
-            )
-        );
+            ]
+        ];
         // tests
         $plugins->sortFsPlugins('id');
         $this
@@ -148,8 +146,8 @@ class Plugins extends atoum
         $plugins->extractPluginFiles('install', 10, 'myPlugin1', $plugin_id);
         $plugins->getFsPlugin($plugin_id); // refresh plugins list
 
-        $new_plugin = array(
-            'myPlugin1' => array(
+        $new_plugin = [
+            'myPlugin1' => [
                 'name' => 'myPlugin1',
                 'version' => '0.1.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=1',
@@ -157,8 +155,8 @@ class Plugins extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '1'
-            )
-        );
+            ]
+        ];
         // tests
         $plugins->sortFsPlugins('id');
         $this
@@ -184,18 +182,18 @@ class Plugins extends atoum
 
     protected function testSortPluginsDataProvider()
     {
-        return array(
-            array('author', array('plugin2', 'plugin3', 'plugin4', 'plugin1')),
-            array('id', array('plugin1', 'plugin2', 'plugin3', 'plugin4')),
-            array('status', array('plugin1', 'plugin3', 'plugin4', 'plugin2')),
-            array('name', array('plugin1', 'plugin3', 'plugin4', 'plugin2'))
-        );
+        return [
+            ['author', ['plugin2', 'plugin3', 'plugin4', 'plugin1']],
+            ['id', ['plugin1', 'plugin2', 'plugin3', 'plugin4']],
+            ['status', ['plugin1', 'plugin3', 'plugin4', 'plugin2']],
+            ['name', ['plugin1', 'plugin3', 'plugin4', 'plugin2']]
+        ];
     }
 
     private function getLocalPlugins()
     {
-        return array(
-            'plugin1' => array(
+        return [
+            'plugin1' => [
                 'name' => 'A simple plugin',
                 'version' => '0.1.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=10',
@@ -203,16 +201,16 @@ class Plugins extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '10'
-            ),
-            'plugin2' => array(
+            ],
+            'plugin2' => [
                 'name' => 'ZZ Plugin',
                 'version' => '1.0.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=20',
                 'description' => 'My second plugin',
                 'author' => 'Arthur',
                 'extension' => '20'
-            ),
-            'plugin3' => array(
+            ],
+            'plugin3' => [
                 'name' => 'My Plugin',
                 'version' => '2.1.0',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=40',
@@ -220,8 +218,8 @@ class Plugins extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '40'
-            ),
-            'plugin4' => array(
+            ],
+            'plugin4' => [
                 'name' => 'Photos Plugin',
                 'version' => '3.1.3',
                 'uri' => 'http://ext.phyxo.net/extension_view.php?eid=30',
@@ -229,8 +227,8 @@ class Plugins extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net/',
                 'extension' => '30'
-            ),
+            ],
 
-        );
+        ];
     }
 }
