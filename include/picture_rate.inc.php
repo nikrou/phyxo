@@ -19,7 +19,7 @@ use App\Repository\RateRepository;
 if ($conf['rate']) {
     $rate_summary = ['count' => 0, 'score' => $picture['current']['rating_score'], 'average' => null];
     if (null != $rate_summary['score']) {
-        $rate_summary = (new RateRepository($conn))->calculateRateSummary();
+        $rate_summary = (new RateRepository($conn))->calculateRateSummary($picture['current']['id']);
     }
     $template->assign('rate_summary', $rate_summary);
 

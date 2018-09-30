@@ -22,6 +22,7 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
 use Phyxo\LocalSiteReader;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\CaddieRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -72,10 +73,7 @@ if (isset($_POST['submit'])) {
     $redirect = false;
 
     if ('remove_from_caddie' == $action) {
-        $query = 'DELETE FROM ' . CADDIE_TABLE;
-        $query .= ' WHERE element_id ' . $conn->in($collection);
-        $query .= ' AND user_id = ' . $conn->db_real_escape_string($user['id']);
-        $conn->db_query($query);
+        (new CaddieRepository($conn))->deleteElements($collection, $user['id']);
 
         // remove from caddie action available only in caddie so reload content
         $redirect = true;

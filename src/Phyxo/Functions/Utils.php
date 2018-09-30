@@ -21,6 +21,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\CaddieRepository;
 
 class Utils
 {
@@ -216,9 +217,8 @@ class Utils
     {
         global $user, $conn;
 
-        $query = 'SELECT element_id FROM ' . CADDIE_TABLE;
-        $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
-        $in_caddie = $conn->query2array($query, null, 'element_id');
+        $result = (new CaddieRepository($conn))->getElements($user['id']);
+        $in_caddie = $conn->result2array($result, null, 'element_id');
 
         $caddiables = array_diff($elements_id, $in_caddie);
 
@@ -232,7 +232,7 @@ class Utils
         }
 
         if (count($caddiables) > 0) {
-            $conn->mass_inserts(CADDIE_TABLE, ['element_id', 'user_id'], $datas);
+            (new CaddieRepository($conn))->addElements(['element_id', 'user_id'], $datas);
         }
     }
 
@@ -1348,8 +1348,7 @@ class Utils
         (new RateRepository($conn))->deleteByElementIds($ids);
 
         // destruction of the caddie associated to this element
-        $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE element_id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new CaddieRepository($conn))->deleteElements($ids);
 
         // destruction of the image
         $query = 'DELETE FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($ids);
@@ -1387,8 +1386,6 @@ class Utils
             USER_FEED_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
-            // destruction of the caddie associated with the user
-            CADDIE_TABLE,
             // deletion of phyxo specific informations
             USER_INFOS_TABLE,
         ];
@@ -1404,6 +1401,8 @@ class Utils
         (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories($user_id);
         // destruction of the favorites associated with the user
         (new FavoriteRepository($conn))->removeAllFavorites($user_id);
+        // destruction of the caddie associated with the user
+        (new CaddieRepository($conn))->emptyCaddie($user_id);
 
         // purge of sessions
         $query = 'DELETE FROM ' . SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';

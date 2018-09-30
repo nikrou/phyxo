@@ -39,7 +39,7 @@ class RateRepository extends BaseRepository
     public function findAll()
     {
         $query = 'SELECT user_id, element_id, anonymous_id, rate, date FROM ' . self::RATE_TABLE;
-        $query .= ' ORDER by date DESC';
+        $query .= ' ORDER BY date DESC';
 
         return $this->conn->db_query($query);
     }
@@ -72,7 +72,7 @@ class RateRepository extends BaseRepository
 
         $result = $this->conn->db_query($query);
 
-        return $this->conn->db_fetch_assoc();
+        return $this->conn->db_fetch_assoc($result);
     }
 
     public function findByUserAndAnonymousId(int $user_id, string $anonymous_id)

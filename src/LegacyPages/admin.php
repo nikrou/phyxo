@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CommentRepository;
+use App\Repository\CaddieRepository;
 // +-----------------------------------------------------------------------+
 // | Basic constants and includes                                          |
 // +-----------------------------------------------------------------------+
@@ -147,8 +148,7 @@ if ($conf['activate_comments']) {
 }
 
 // any photo in the caddie?
-$query = 'SELECT COUNT(1) FROM ' . CADDIE_TABLE . ' WHERE user_id = ' . $user['id'];
-list($nb_photos_in_caddie) = $conn->db_fetch_row($conn->db_query($query));
+$nb_photos_in_caddie = (new CaddieRepository($conn))->count($user['id']);
 
 if ($nb_photos_in_caddie > 0) {
     $template->assign(

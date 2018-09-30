@@ -13,11 +13,11 @@ namespace App\Repository;
 
 class OldPermalinkRepository extends BaseRepository
 {
-    public function findAll(string $order = '')
+    public function findAll(? string $order = null)
     {
         $query = 'SELECT cat_id, permalink, date_deleted, last_hit, hit FROM ' . self::OLD_PERMALINKS_TABLE;
 
-        if (!empty($order)) {
+        if (!is_null($order)) {
             $query .= ' ORDER BY ' . $order;
         }
 

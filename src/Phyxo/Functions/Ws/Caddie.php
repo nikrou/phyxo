@@ -11,6 +11,9 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Repository\ImageRepository;
+use App\Repository\CaddieRepository;
+
 class Caddie
 {
     /**
@@ -23,21 +26,17 @@ class Caddie
     {
         global $user, $conn;
 
-        $query = 'SELECT id FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . CADDIE_TABLE . ' ON id=element_id AND user_id=' . $user['id'];
-        $query .= ' WHERE id ' . $conn->in($params['image_id']) . ' AND element_id IS NULL';
-        $result = $conn->query2array($query, null, 'id');
-
+        $result = (new ImageRepository($conn))->getImagesFromCaddie($params['image_id'], $user['id']);
+        $ids = $conn->result2array($result, null, 'id');
         $datas = [];
-        foreach ($result as $id) {
+        foreach ($ids as $id) {
             $datas[] = [
                 'element_id' => $id,
                 'user_id' => $user['id'],
             ];
         }
         if (count($datas)) {
-            $conn->mass_inserts(
-                CADDIE_TABLE,
+            (new CaddieRepository($conn))->addElements(
                 ['element_id', 'user_id'],
                 $datas
             );

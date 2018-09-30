@@ -13,6 +13,8 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
     die("Hacking attempt!");
 }
 
+use App\Repository\CaddieRepository;
+
 // +-----------------------------------------------------------------------+
 // |                        batch management request                       |
 // +-----------------------------------------------------------------------+
@@ -20,18 +22,16 @@ if (!defined('PHOTOS_ADD_BASE_URL')) {
 if (isset($_GET['batch'])) {
     \Phyxo\Functions\Utils::check_input_parameter('batch', $_GET, false, '/^\d+(,\d+)*$/');
 
-    $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
-    $conn->db_query($query);
+    (new CaddieRepository($conn))->emptyCaddie($user['id']);
 
-    $inserts = array();
+    $inserts = [];
     foreach (explode(',', $_GET['batch']) as $image_id) {
-        $inserts[] = array(
+        $inserts[] = [
             'user_id' => $user['id'],
             'element_id' => $image_id,
-        );
+        ];
     }
-    $conn->mass_inserts(
-        CADDIE_TABLE,
+    (new CaddieRepository($conn))->addElements(
         array_keys($inserts[0]),
         $inserts
     );

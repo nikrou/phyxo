@@ -22,6 +22,17 @@ class ImageRepository extends BaseRepository
         return $nb_images;
     }
 
+    public function getImagesFromCaddie(array $image_ids, int $user_id)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::CADDIE_TABLE;
+        $query .= ' ON id = element_id AND user_id=' . $user_id;
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+        $query .= ' AND element_id IS NULL';
+
+        return $this->conn->db_query($query);
+    }
+
     public function findFirstDate()
     {
         $query = 'SELECT MIN(date_available) FROM ' . self::IMAGES_TABLE;

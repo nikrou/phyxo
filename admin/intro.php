@@ -19,6 +19,8 @@ use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageTagRepository;
+use App\Repository\ImageCategoryRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 

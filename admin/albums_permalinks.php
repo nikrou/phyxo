@@ -71,7 +71,7 @@ $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
 );
 
 $url_del_base = ALBUMS_BASE_URL . '&map;section=permalinks';
-$result = (new OldPermalinkRepository($conn))->findAll($sort_by[0]);
+$result = (new OldPermalinkRepository($conn))->findAll((count($sort_by)) > 0 ? $sort_by[0] : null);
 $deleted_permalinks = [];
 while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['cat_id']);

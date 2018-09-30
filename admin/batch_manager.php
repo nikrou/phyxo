@@ -26,6 +26,7 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
+use App\Repository\CaddieRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -61,9 +62,7 @@ $template->assign([
 
 if (isset($_GET['action'])) {
     if ('empty_caddie' == $_GET['action']) {
-        $query = 'DELETE FROM ' . CADDIE_TABLE . ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
-        $conn->db_query($query);
-
+        (new CaddieRepository($conn))->emptyCaddie($user['id']);
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
         \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page']);
     }
@@ -221,9 +220,8 @@ $filter_sets = [];
 if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
     switch ($_SESSION['bulk_manager_filter']['prefilter']) {
         case 'caddie':
-            $query = 'SELECT element_id FROM ' . CADDIE_TABLE;
-            $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($user['id']);
-            $filter_sets[] = $conn->query2array($query, null, 'element_id');
+            $result = (new CaddieRepository($conn))->getElements($user['id']);
+            $filter_sets[] = $conn->result2array($result, null, 'element_id');
             break;
 
         case 'favorites':
