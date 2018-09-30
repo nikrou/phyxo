@@ -21,6 +21,7 @@ use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
+use App\Repository\SiteRepository;
 
 // container
 if (!empty($GLOBALS['container'])) {
@@ -245,8 +246,7 @@ define(\'DB_COLLATE\', \'\');';
             }
         }
 
-        $insert = ['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/'];
-        $conn->mass_inserts(SITES_TABLE, array_keys($insert), [$insert]);
+        (new SiteRepository($conn))->addSite(['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/']);
 
         // webmaster admin user
         $inserts = [

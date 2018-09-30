@@ -20,6 +20,7 @@ use Phyxo\Conf;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Symfony\Component\Dotenv\Dotenv;
+use App\Repository\SiteRepository;
 
 (new Dotenv())->load(__DIR__ . '/../.env');
 
@@ -83,8 +84,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
     }
 }
 
-$insert = ['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/'];
-$conn->mass_inserts(SITES_TABLE, array_keys($insert), [$insert]);
+(new SiteRepository($conn))->addSite(['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/']);
 if ($conf['dblayer'] == 'pgsql') {
     $conn->db_query('ALTER SEQUENCE ' . strtolower(SITES_TABLE) . '_id_seq RESTART WITH 2');
 }

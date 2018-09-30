@@ -22,6 +22,7 @@ use App\Repository\FavoriteRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\SiteRepository;
 
 class Utils
 {
@@ -1247,8 +1248,7 @@ class Utils
         \Phyxo\Functions\Category::delete_categories($category_ids);
 
         // destruction of the site
-        $query = 'DELETE FROM ' . SITES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($id);
-        $conn->db_query($query);
+        (new SiteRepository($conn))->deleteSite($id);
     }
 
     /**

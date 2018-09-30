@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\SiteRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
@@ -185,7 +186,35 @@ if ($category['is_virtual']) {
         ]
     );
 } else {
-    $category['cat_full_dir'] = get_complete_dir($_GET['cat_id']);
+    $result = (new SiteRepository($conn))->getSiteUrl($_GET['cat_id']);
+    $row = $conn->db_fetch_assoc($result);
+
+    $uppercats = '';
+    $local_dir = '';
+    if (isset($page['plain_structure'][$category_id]['uppercats'])) {
+        $uppercats = $page['plain_structure'][$category_id]['uppercats'];
+    } else {
+        $query = 'SELECT uppercats';
+        $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $_GET['cat_id'];
+        $row = $conn->db_fetch_assoc($conn->db_query($query));
+        $uppercats = $row['uppercats'];
+    }
+
+    $upper_array = explode(',', $uppercats);
+
+    $database_dirs = [];
+    $query = 'SELECT id,dir';
+    $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($uppercats);
+    $result = $conn->db_query($query);
+    while ($row = $conn->db_fetch_assoc($result)) {
+        $database_dirs[$row['id']] = $row['dir'];
+    }
+    foreach ($upper_array as $id) {
+        $local_dir .= $database_dirs[$id] . '/';
+    }
+
+    $category['cat_full_dir'] = $row['galleries_url'] . $local_dir;
+
     $template->assign(
         [
             'CAT_FULL_DIR' => preg_replace('/\/$/', '', $category['cat_full_dir'])
@@ -236,63 +265,3 @@ if ($category['is_virtual']) {
 }
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_cat_modify');
-
-
-// get_complete_dir returns the concatenation of get_site_url and
-// get_local_dir
-// Example : "pets > rex > 1_year_old" is on the the same site as the
-// Piwigo files and this category has 22 for identifier
-// get_complete_dir(22) returns "./galleries/pets/rex/1_year_old/"
-function get_complete_dir($category_id)
-{
-    return get_site_url($category_id) . get_local_dir($category_id);
-}
-
-// get_local_dir returns an array with complete path without the site url
-// Example : "pets > rex > 1_year_old" is on the the same site as the
-// Piwigo files and this category has 22 for identifier
-// get_local_dir(22) returns "pets/rex/1_year_old/"
-function get_local_dir($category_id)
-{
-    global $page, $conn;
-
-    $uppercats = '';
-    $local_dir = '';
-
-    if (isset($page['plain_structure'][$category_id]['uppercats'])) {
-        $uppercats = $page['plain_structure'][$category_id]['uppercats'];
-    } else {
-        $query = 'SELECT uppercats';
-        $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $category_id;
-        $row = $conn->db_fetch_assoc($conn->db_query($query));
-        $uppercats = $row['uppercats'];
-    }
-
-    $upper_array = explode(',', $uppercats);
-
-    $database_dirs = [];
-    $query = 'SELECT id,dir';
-    $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($uppercats);
-    $result = $conn->db_query($query);
-    while ($row = $conn->db_fetch_assoc($result)) {
-        $database_dirs[$row['id']] = $row['dir'];
-    }
-    foreach ($upper_array as $id) {
-        $local_dir .= $database_dirs[$id] . '/';
-    }
-
-    return $local_dir;
-}
-
-// retrieving the site url : "http://domain.com/gallery/" or
-// simply "./galleries/"
-function get_site_url($category_id)
-{
-    global $page, $conn;
-
-    $query = 'SELECT galleries_url FROM ' . SITES_TABLE . ' AS s,' . CATEGORIES_TABLE . ' AS c';
-    $query .= ' WHERE s.id = c.site_id AND c.id = ' . $category_id;
-    $row = $conn->db_fetch_assoc($conn->db_query($query));
-
-    return $row['galleries_url'];
-}

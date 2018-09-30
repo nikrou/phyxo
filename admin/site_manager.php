@@ -13,6 +13,8 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die("Hacking attempt!");
 }
 
+use App\Repository\SiteRepository;
+
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -47,10 +49,8 @@ if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
     }
 
     // site must not exists
-    $query = 'SELECT COUNT(id) AS count FROM ' . SITES_TABLE;
-    $query .= ' WHERE galleries_url = \'' . $url . '\';';
-    $row = $conn->db_fetch_assoc($conn->db_query($query));
-    if ($row['count'] > 0) {
+    $nb_sites = (new SiteRepository($conn))->getSiteUrl($url);
+    if ($nb_sites > 0) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('This site already exists') . ' [' . $url . ']';
     }
     if (count($page['errors']) == 0) {
@@ -60,8 +60,7 @@ if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
     }
 
     if (count($page['errors']) == 0) {
-        $query = 'INSERT INTO ' . SITES_TABLE . ' (galleries_url) VALUES(\'' . $url . '\');';
-        $conn->db_query($query);
+        (new SiteRepository($conn))->addSite(['gallery_url' => $url]);
         $page['infos'][] = $url . ' ' . \Phyxo\Functions\Language::l10n('created');
     }
 }
@@ -73,8 +72,8 @@ if (isset($_GET['site']) and is_numeric($_GET['site'])) {
     $page['site'] = $_GET['site'];
 }
 if (isset($_GET['action']) and isset($page['site'])) {
-    $query = 'SELECT galleries_url FROM ' . SITES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($page['site']);
-    list($galleries_url) = $conn->db_fetch_row($conn->db_query($query));
+    $result = (new SiteRepository($conn))->findById($page['site']);
+    list($galleries_url) = $conn->db_fetch_row($result);
     if ($_GET['action'] == 'delete') {
         \Phyxo\Functions\Utils::delete_site($page['site']);
         $page['infos'][] = $galleries_url . ' ' . \Phyxo\Functions\Language::l10n('deleted');
@@ -82,10 +81,10 @@ if (isset($_GET['action']) and isset($page['site'])) {
 }
 
 $template->assign(
-    array(
-        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(array('action', 'site', 'pwg_token')),
+    [
+        'F_ACTION' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php' . \Phyxo\Functions\URL::get_query_string_diff(['action', 'site', 'pwg_token']),
         'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
-    )
+    ]
 );
 
 $query = 'SELECT c.site_id, COUNT(DISTINCT c.id) AS nb_categories, COUNT(i.id) AS nb_images';
@@ -93,8 +92,7 @@ $query .= ' FROM ' . CATEGORIES_TABLE . ' AS c LEFT JOIN ' . IMAGES_TABLE . ' AS
 $query .= ' WHERE c.site_id IS NOT NULL GROUP BY c.site_id;';
 $sites_detail = $conn->query2array($query, 'site_id');
 
-$query = 'SELECT * FROM ' . SITES_TABLE;
-$result = $conn->db_query($query);
+$result = (new SiteRepository($conn))->findAll();
 
 while ($row = $conn->db_fetch_assoc($result)) {
     $is_remote = \Phyxo\Functions\URL::url_is_remote($row['galleries_url']);
@@ -109,19 +107,19 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $update_url .= '&amp;site=' . $row['id'];
 
     $tpl_var =
-        array(
+        [
         'NAME' => $row['galleries_url'],
         'TYPE' => \Phyxo\Functions\Language::l10n($is_remote ? 'Remote' : 'Local'),
         'CATEGORIES' => (int)@$sites_detail[$row['id']]['nb_categories'],
         'IMAGES' => (int)@$sites_detail[$row['id']]['nb_images'],
         'U_SYNCHRONIZE' => $update_url
-    );
+    ];
 
     if ($row['id'] != 1) {
         $tpl_var['U_DELETE'] = $base_url . 'delete';
     }
 
-    $plugin_links = array();
+    $plugin_links = [];
     //$plugin_links is array of array composed of U_HREF, U_HINT & U_CAPTION
     $plugin_links = \Phyxo\Functions\Plugin::trigger_change(
         'get_admins_site_links',
