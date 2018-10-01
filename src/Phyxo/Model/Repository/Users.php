@@ -17,6 +17,7 @@ use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
+use App\Repository\CategoryRepository;
 
 class Users
 {
@@ -968,8 +969,8 @@ class Users
      */
     public function calculatePermissions($user_id, $user_status)
     {
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE status = \'private\';';
-        $private_array = $this->conn->query2array($query, null, 'id');
+        $result = (new CategoryRepository($this->conn))->findByField('status', 'private');
+        $private_array = $this->conn->result2array($result, null, 'id');
 
         // retrieve category ids directly authorized to the user
         $query = 'SELECT cat_id FROM ' . USER_ACCESS_TABLE . ' WHERE user_id = ' . $user_id . ';';
@@ -990,8 +991,8 @@ class Users
 
         // if user is not an admin, locked categories are forbidden
         if (!$this->isAdmin($user_status)) {
-            $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE visible = \'' . $this->conn->boolean_to_db(false) . '\'';
-            $forbidden_array = array_merge($forbidden_array, $this->conn->query2array($query, null, 'id'));
+            $result = (new CategoryRepository($conn))->findByField('visible', false);
+            $forbidden_array = array_merge($forbidden_array, $this->conn->result2array($result, null, 'id'));
             $forbidden_array = array_unique($forbidden_array);
         }
 

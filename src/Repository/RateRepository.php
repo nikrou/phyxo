@@ -153,7 +153,7 @@ class RateRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getRatePerImage(string $user_filter, string $order, int $limit, int $offet = 0)
+    public function getRatePerImage(string $user_filter, string $order, int $limit, int $offset = 0)
     {
         $query = 'SELECT i.id, i.path, i.file, i.representative_ext, i.rating_score AS score,';
         $query .= 'MAX(r.date) AS recently_rated, ROUND(AVG(r.rate), 2) AS avg_rates,';
@@ -166,6 +166,6 @@ class RateRepository extends BaseRepository
         $query .= ' ORDER BY ' . $order;
         $query .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
 
-        return $this->db_query($query);
+        return $this->conn->db_query($query);
     }
 }

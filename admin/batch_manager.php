@@ -244,8 +244,8 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             $query = 'SELECT id FROM ' . IMAGES_TABLE;
             $all_elements = $conn->query2array($query, null, 'id');
 
-            $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL';
-            $virtual_categories = $conn->query2array($query, null, 'id');
+            $result = (new CategoryRepository($conn))->findWithCondtion(['dir IS NULL']);
+            $virtual_categories = $conn->result2array($result, null, 'id');
             if (!empty($virtual_categories)) {
                 $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
                 $query .= ' WHERE category_id ' . $conn->in($virtual_categories);

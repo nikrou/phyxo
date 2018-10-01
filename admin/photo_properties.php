@@ -15,14 +15,14 @@ if (!defined("PHOTO_BASE_URL")) {
 
 use App\Repository\TagRepository;
 use App\Repository\RateRepository;
+use App\Repository\CategoryRepository;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 // represent
-$query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-$query .= ' WHERE representative_picture_id = ' . (int)$_GET['image_id'];
-$represented_albums = $conn->query2array($query, 'id');
+$result = (new CategoryRepository($conn))->findByField('representative_picture_id', $_GET['image_id']);
+$represented_albums = $conn->result2array($result, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |
@@ -138,10 +138,7 @@ if (isset($_POST['submit'])) {
 
     $new_thumbnail_for = array_diff($_POST['represent'], $represented_albums);
     if (count($new_thumbnail_for) > 0) {
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET representative_picture_id = ' . (int)$_GET['image_id'];
-        $query .= ' WHERE id ' . $conn->in($new_thumbnail_for);
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->updateCategories(['representative_picture_id' => $_GET['image_id']], $new_thumbnail_for);
     }
 
     $represented_albums = $_POST['represent'];
@@ -233,16 +230,13 @@ $template->assign(
     ]
 );
 
-// categories
-$query = 'SELECT category_id, uppercats FROM ' . CATEGORIES_TABLE . ' AS c';
-$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON c.id = ic.category_id';
-$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
-$result = $conn->db_query($query);
+// associate to albums
+$result = (new CategoryRepository($conn))->findCategoriesForImage($_GET['image_id']);
+$associated_albums = $conn->result2array($result, 'id');
+foreach ($associated_albums as $album) {
+    $name = \Phyxo\Functions\Category::get_cat_display_name_cache($album['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
 
-while ($row = $conn->db_fetch_assoc($result)) {
-    $name = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
-
-    if ($row['category_id'] == $storage_category_id) {
+    if ($album['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);
     } else {
         $template->append('related_categories', $name);
@@ -289,12 +283,6 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
 if (isset($url_img)) {
     $template->assign('U_JUMPTO', $url_img);
 }
-
-// associate to albums
-$query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = category_id';
-$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
-$associated_albums = $conn->query2array($query, 'id');
 
 $template->assign([
     'associated_albums' => $associated_albums,

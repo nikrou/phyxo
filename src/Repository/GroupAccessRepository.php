@@ -33,6 +33,16 @@ class GroupAccessRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findCategoriesAuthorizedToUser(int $user_id)
+    {
+        $query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM ' . self::GROUP_ACCESS_TABLE . ' AS ga';
+        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON ug.group_id = ga.group_id';
+        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' AS c ON c.id = ga.cat_id';
+        $query .= ' WHERE ug.user_id = ' . $user_id;
+
+        return $this->conn->db_query($query);
+    }
+
     public function insertGroupAccess(array $fields, array $datas)
     {
         $this->conn->mass_insert(self::GROUP_ACCESS_TABLE, $fields, $datas);

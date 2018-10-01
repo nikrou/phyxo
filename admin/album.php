@@ -14,6 +14,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Basic checks                                                          |
@@ -22,9 +23,7 @@ use Phyxo\TabSheet\TabSheet;
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
-
-$query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_GET['cat_id']);
-$category = $conn->db_fetch_assoc($conn->db_query($query));
+$category = (new CategoryRepository($conn))->findById($_GET['cat_id']);
 foreach ($category as $k => $v) {
     if (!is_null($v) && $conn->is_boolean($v)) {
         $category[$k] = $conn->get_boolean($v);

@@ -68,7 +68,7 @@ function save_categories_order($categories)
         $datas[] = ['id' => $id, 'rank' => $current_rank];
     }
     $fields = ['primary' => ['id'], 'update' => ['rank']];
-    $conn->mass_updates(CATEGORIES_TABLE, $fields, $datas);
+    (new CategoryRepository($conn))->massUpdatesCategories($fields, $datas);
 
     \Phyxo\Functions\Utils::update_global_rank();
 }
@@ -90,9 +90,8 @@ function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max
 
     // the iterate on all albums (having a ref_date or not) to find the
     // reference_date, with a search on sub-albums
-    $query = 'SELECT id,uppercats FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($category_ids);
-    $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
+    $result = (new CategoryRepository($conn))->findByIds($category_ids);
+    $uppercats_of = $conn->result2array($result, 'id', 'uppercats');
 
     foreach (array_keys($uppercats_of) as $cat_id) {
         // find the subcats
@@ -177,10 +176,8 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
         die('Invalid sort order');
     }
 
-    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id_uppercat ';
-    $query .= !isset($_GET['parent_id']) ? 'IS NULL' : '= ' . $conn->db_real_escape_string($_GET['parent_id']);
-    $category_ids = $conn->query2array($query, null, 'id');
+    $result = (new CategoryRepository($conn))->findByField('id_uppercat', isset($_GET['parent_id']) ? $_GET['parent_id'] : null);
+    $category_ids = $conn->result2array($result, null, 'id');
 
     if (isset($_POST['recursive'])) {
         $category_ids = (new CategoryRepository($conn))->getSubcatIds($category_ids);
@@ -202,9 +199,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
         );
     }
 
-    $query = 'SELECT id, name, id_uppercat FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($category_ids);
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findByIds($category_ids);
     while ($row = $conn->db_fetch_assoc($result)) {
         if ($order_by_date) {
             $sort[] = $ref_dates[$row['id']];
@@ -264,27 +259,20 @@ $template->assign([
 // |                          Categories display                           |
 // +-----------------------------------------------------------------------+
 
-$categories = [];
+$result = (new CategoryRepository($conn))->findByField('id_uppercat', isset($_GET['parent_id']) ? $_GET['parent_id'] : null);
+$categories = $conn->result2array($result, 'id');
 
-$query = 'SELECT id, name, permalink, dir, rank, status FROM ' . CATEGORIES_TABLE;
-if (!isset($_GET['parent_id'])) {
-    $query .= ' WHERE id_uppercat IS NULL';
-} else {
-    $query .= ' WHERE id_uppercat = ' . $conn->db_real_escape_string($_GET['parent_id']);
-}
-$query .= ' ORDER BY rank ASC;';
-$categories = $conn->query2array($query, 'id');
 
 // get the categories containing images directly
 $categories_with_images = [];
-if (count($categories)) {
+if (count($categories) > 0) {
     $query = 'SELECT category_id,COUNT(1) AS nb_photos FROM ' . IMAGE_CATEGORY_TABLE;
     $query .= ' GROUP BY category_id;';
 
     $nb_photos_in = $conn->query2array($query, 'category_id', 'nb_photos');
 
-    $query = 'SELECT id,uppercats FROM ' . CATEGORIES_TABLE;
-    $all_categories = $conn->query2array($query, 'id', 'uppercats');
+    $result = (new CategoryRepository($conn))->findAll();
+    $all_categories = $conn->result2array($result, 'id', 'uppercats');
     $subcats_of = [];
 
     foreach (array_keys($categories) as $cat_id) {

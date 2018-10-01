@@ -13,6 +13,8 @@ if (!defined('ALBUMS_BASE_URL')) {
     die('Hacking attempt!');
 }
 
+use App\Repository\CategoryRepository;
+
 // +-----------------------------------------------------------------------+
 // |                          categories movement                          |
 // +-----------------------------------------------------------------------+
@@ -31,27 +33,18 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 
 $template->assign(
-    array(
-        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_move',
+    [
         'F_ACTION' => ALBUMS_BASE_URL . '&amp;section=move',
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
 // |                          Categories display                           |
 // +-----------------------------------------------------------------------+
+$result = (new CategoryRepository($conn))->findWithCondtion(['dir IS NULL']);
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_to_move_options');
 
-$query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE dir IS NULL;';
-\Phyxo\Functions\Category::display_select_cat_wrapper(
-    $query,
-    array(),
-    'category_to_move_options'
-);
-
-$query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-
-\Phyxo\Functions\Category::display_select_cat_wrapper(
-    $query,
-    array(),
-    'category_parent_options'
-);
+$result = (new CategoryRepository($conn))->findAll();
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_parent_options');

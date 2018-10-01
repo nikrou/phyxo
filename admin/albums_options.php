@@ -16,6 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 define('ALBUMS_OPTIONS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=albums_options');
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -51,14 +52,11 @@ $template->assign([
 // |                       modification registration                       |
 // +-----------------------------------------------------------------------+
 
-if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_true']) > 0) {
+if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
     switch ($_GET['section']) {
         case 'comments':
             {
-                $query = 'UPDATE ' . CATEGORIES_TABLE;
-                $query .= ' SET commentable = \'false\'';
-                $query .= ' WHERE id ' . $conn->in($_POST['cat_true']);
-                $conn->db_query($query);
+                (new CategoryRepository($conn))->updateCategories(['commentable' => false], $_POST['cat_true']);
                 break;
             }
         case 'visible':
@@ -73,21 +71,15 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
             }
         case 'representative':
             {
-                $query = 'UPDATE ' . CATEGORIES_TABLE;
-                $query .= ' SET representative_picture_id = NULL';
-                $query .= ' WHERE id ' . $conn->in($_POST['cat_true']);
-                $conn->db_query($query);
+                (new CategoryRepository($conn))->updateCategories(['representative_picture_id' => null], $_POST['cat_true']);
                 break;
             }
     }
-} elseif (isset($_POST['trueify']) && isset($_POST['cat_false']) && count($_POST['cat_false']) > 0) {
+} elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
     switch ($_GET['section']) {
         case 'comments':
             {
-                $query = 'UPDATE ' . CATEGORIES_TABLE;
-                $query .= ' SET commentable = \'' . $conn->boolean_to_db(true) . '\'';
-                $query .= ' WHERE id ' . $conn->in($_POST['cat_false']);
-                $conn->db_query($query);
+                (new CategoryRepository($conn))->updateCategories(['commentable' => true], $_POST['cat_false']);
                 break;
             }
         case 'visible':
@@ -111,10 +103,10 @@ if (isset($_POST['falsify']) && isset($_POST['cat_true']) && count($_POST['cat_t
 }
 
 $template->assign(
-    array(
+    [
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_options',
         'F_ACTION' => ALBUMS_OPTIONS_BASE_URL . '&amp;section=' . $page['section']
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -130,15 +122,15 @@ $template->assign(
 // for true and false status, we associates an array of category ids,
 // function display_select_categories will use the given CSS class for each
 // option
-$cats_true = array();
-$cats_false = array();
+$cats_true = [];
+$cats_false = [];
 switch ($page['section']) {
     case 'comments':
         {
-            $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query_true .= ' WHERE commentable = \'' . $conn->boolean_to_db(true) . '\'';
-            $query_false = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query_false .= ' WHERE commentable = \'' . $conn->boolean_to_db(false) . '\'';
+            $result = (new CategoryRepository($conn))->findByField('commentable', true);
+            $cats_true = $conn->result2array($result);
+            $result = (new CategoryRepository($conn))->findByField('commentable', false);
+            $cats_false = $conn->result2array($result);
             $template->assign([
                 'L_SECTION' => \Phyxo\Functions\Language::l10n('Authorize users to add comments on selected albums'),
                 'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
@@ -149,10 +141,10 @@ switch ($page['section']) {
         }
     case 'visible':
         {
-            $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query_true .= ' WHERE visible = \'' . $conn->boolean_to_db(true) . '\'';
-            $query_false = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query_false .= ' WHERE visible = \'' . $conn->boolean_to_db(false) . '\'';
+            $result = (new CategoryRepository($conn))->findByField('visible', true);
+            $cats_true = $conn->result2array($result);
+            $result = (new CategoryRepository($conn))->findByField('visible', false);
+            $cats_false = $conn->result2array($result);
             $template->assign([
                 'L_SECTION' => \Phyxo\Functions\Language::l10n('Lock albums'),
                 'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Unlocked'),
@@ -163,8 +155,10 @@ switch ($page['section']) {
         }
     case 'status':
         {
-            $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE status = \'public\';';
-            $query_false = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE status = \'private\';';
+            $result = (new CategoryRepository($conn))->findByField('status', 'public');
+            $cats_true = $conn->result2array($result);
+            $result = (new CategoryRepository($conn))->findByField('status', 'private');
+            $cats_false = $conn->result2array($result);
             $template->assign([
                 'L_SECTION' => \Phyxo\Functions\Language::l10n('Manage authorizations for selected albums'),
                 'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Public'),
@@ -175,9 +169,10 @@ switch ($page['section']) {
         }
     case 'representative':
         {
-            $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE representative_picture_id IS NOT NULL;';
-            $query_false = 'SELECT DISTINCT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-            $query_false .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=category_id WHERE representative_picture_id IS NULL;';
+            $result = (new CategoryRepository($conn))->findWithRepresentant();
+            $cats_true = $conn->result2array($result);
+            $result = (new CategoryRepository($conn))->findWithNoRepresentant();
+            $cats_false = $conn->result2array($result);
             $template->assign([
                 'L_SECTION' => \Phyxo\Functions\Language::l10n('Representative'),
                 'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('singly represented'),
@@ -187,8 +182,8 @@ switch ($page['section']) {
             break;
         }
 }
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, array(), 'category_option_true');
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, array(), 'category_option_false');
+\Phyxo\Functions\Category::display_select_cat_wrapper($cats_true, [], 'category_option_true');
+\Phyxo\Functions\Category::display_select_cat_wrapper($cats_false, [], 'category_option_false');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

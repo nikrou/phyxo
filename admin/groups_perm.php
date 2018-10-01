@@ -26,20 +26,18 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     // |                                updates                                |
     // +-----------------------------------------------------------------------+
 
-    if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
+    if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 0) {
         // if you forbid access to a category, all sub-categories become
         // automatically forbidden
         $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
         $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
         $query .= ' WHERE group_id = ' . $page['group'] . ' AND cat_id ' . $conn->in($subcats);
         $conn->db_query($query);
-    } elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
+    } elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
         $uppercats = \Phyxo\Functions\Category::get_uppercat_ids($_POST['cat_false']);
         $private_uppercats = [];
 
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($uppercats) . ' AND status = \'private\';';
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findByIds($uppercats, 'private');
         while ($row = $conn->db_fetch_assoc($result)) {
             $private_uppercats[] = $row['id'];
         }
@@ -90,22 +88,17 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     );
 
     // only private categories are listed
-    $query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-    $query_true .= ' LEFT JOIN ' . GROUP_ACCESS_TABLE . ' ON cat_id = id';
-    $query_true .= ' WHERE status = \'private\' AND group_id = ' . $conn->db_real_escape_string($page['group']);
-    \Phyxo\Functions\Category::display_select_cat_wrapper($query_true, [], 'category_option_true');
-
-    $result = $conn->db_query($query_true);
+    $result = (new CategoryRepository($conn))->findWithGroupAccess($page['group']);
+    $categories = $conn->result2array($result);
+    \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_true');
     $authorized_ids = [];
-    while ($row = $conn->db_fetch_assoc($result)) {
-        $authorized_ids[] = $row['id'];
+    foreach ($categories as $category) {
+        $authorized_ids[] = $category['id'];
     }
 
-    $query_false = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE . ' WHERE status = \'private\'';
-    if (count($authorized_ids) > 0) {
-        $query_false .= ' AND id NOT ' . $conn->in($authorized_ids);
-    }
-    \Phyxo\Functions\Category::display_select_cat_wrapper($query_false, [], 'category_option_false');
+    $result = (new CategoryRepository($conn))->findUnauthorized($authorized_ids);
+    $categories = $conn->result2array($result);
+    \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_false');
 
     // +-----------------------------------------------------------------------+
     // |                           html code display                           |

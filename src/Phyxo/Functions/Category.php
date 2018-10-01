@@ -355,11 +355,8 @@ class Category
      * Same as display_select_categories but categories are ordered by rank
      * @see display_select_categories()
      */
-    public static function display_select_cat_wrapper($query, $selecteds, $blockname, $fullname = true)
+    public static function display_select_cat_wrapper(array $categories, $selecteds, $blockname, $fullname = true)
     {
-        global $conn;
-
-        $categories = $conn->query2array($query);
         usort($categories, '\Phyxo\Functions\Utils::global_rank_compare');
         self::display_select_categories($categories, $selecteds, $blockname, $fullname);
     }
@@ -733,7 +730,7 @@ class Category
             $top_categories = [];
             $parent_ids = [];
 
-            $all_categories = $conn->result2array((new CategoryRepository($conn))->findAll($categories));
+            $all_categories = $conn->result2array((new CategoryRepository($conn))->findByIds($categories));
             usort($all_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
             foreach ($all_categories as $cat) {
@@ -763,7 +760,7 @@ class Category
             $parent_cats = [];
 
             if (count($parent_ids) > 0) {
-                $parent_cats = $conn->result2array((new CategoryRepository($conn))->findAll($parent_ids), 'id');
+                $parent_cats = $conn->result2array((new CategoryRepository($conn))->findByIds($parent_ids), 'id');
             }
 
             $repositories = [
@@ -825,7 +822,7 @@ class Category
         }
 
         $uppercats = [];
-        $result = (new CategoryRepository($conn))->findAll($cat_ids);
+        $result = (new CategoryRepository($conn))->findByIds($cat_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $uppercats = array_merge($uppercats, explode(',', $row['uppercats']));
         }

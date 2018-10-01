@@ -14,6 +14,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use App\Repository\SiteRepository;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -87,10 +88,8 @@ $template->assign(
     ]
 );
 
-$query = 'SELECT c.site_id, COUNT(DISTINCT c.id) AS nb_categories, COUNT(i.id) AS nb_images';
-$query .= ' FROM ' . CATEGORIES_TABLE . ' AS c LEFT JOIN ' . IMAGES_TABLE . ' AS i ON c.id=i.storage_category_id';
-$query .= ' WHERE c.site_id IS NOT NULL GROUP BY c.site_id;';
-$sites_detail = $conn->query2array($query, 'site_id');
+$result = (new CategoryRepository($conn))->findSitesDetail();
+$sites_detail = $conn->result2array($result, 'site_id');
 
 $result = (new SiteRepository($conn))->findAll();
 

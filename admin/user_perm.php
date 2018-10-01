@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\GroupAccessRepository;
 
 if (!defined('IN_ADMIN')) {
     die('Hacking attempt!');
@@ -34,14 +35,14 @@ if (isset($_GET['user_id']) and is_numeric($_GET['user_id'])) {
 // |                                updates                                |
 // +-----------------------------------------------------------------------+
 
-if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
+if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 0) {
     // if you forbid access to a category, all sub-categories become
     // automatically forbidden
     $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
     $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
     $query .= ' WHERE user_id = ' . $page['user'] . ' AND cat_id ' . $conn->in($subcats);
     $conn->db_query($query);
-} elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
+} elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     \Phyxo\Functions\Category::add_permission_on_category($_POST['cat_false'], $page['user']);
 }
 
@@ -71,14 +72,7 @@ $template->assign(
 // retrieve category ids authorized to the groups the user belongs to
 $group_authorized = [];
 
-$query = 'SELECT DISTINCT cat_id, c.uppercats, c.global_rank FROM ' . GROUP_ACCESS_TABLE . ' AS ga';
-$query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON ug.group_id = ga.group_id';
-$query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' AS c ON c.id = ga.cat_id';
-$query .= ' WHERE ug.user_id = ' . $page['user'];
-$result = $conn->db_query($query);
-
-
-
+$result = (new GroupAccessRepository($conn))->findCategoriesAuthorizedToUser($page['user']);
 if ($conn->db_num_rows($result) > 0) {
     $cats = [];
     while ($row = $conn->db_fetch_assoc($result)) {
@@ -96,29 +90,17 @@ if ($conn->db_num_rows($result) > 0) {
 }
 
 // only private categories are listed
-$query_true = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-$query_true .= ' LEFT JOIN ' . USER_ACCESS_TABLE . ' ON cat_id = id';
-$query_true .= ' WHERE status = \'private\' AND user_id = ' . $page['user'];
-if (count($group_authorized) > 0) {
-    $query_true .= ' AND cat_id NOT ' . $conn->in($group_authorized);
-}
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_true, [], 'category_option_true');
-
-$result = $conn->db_query($query_true);
+$result = (new CategoryRepository($conn))->findWithUserAccess($page['user'], $group_authorized);
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_true');
 $authorized_ids = [];
-while ($row = $conn->db_fetch_assoc($result)) {
-    $authorized_ids[] = $row['id'];
+foreach ($categories as $category) {
+    $authorized_ids[] = $category['id'];
 }
 
-$query_false = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-$query_false .= ' WHERE status = \'private\'';
-if (count($authorized_ids) > 0) {
-    $query_false .= ' AND id NOT ' . $conn->in($authorized_ids);
-}
-if (count($group_authorized) > 0) {
-    $query_false .= ' AND id NOT ' . $conn->in($group_authorized);
-}
-\Phyxo\Functions\Category::display_select_cat_wrapper($query_false, [], 'category_option_false');
+$result = (new CategoryRepository($conn))->findUnauthorized(array_merge($authorized_ids, $group_authorized));
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_false');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

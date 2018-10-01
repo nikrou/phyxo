@@ -69,6 +69,16 @@ class ImageCategoryRepository extends BaseRepository
         return $nb_available_comments;
     }
 
+    public function getRelatedCategory(int $image_id)
+    {
+        $query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' ON category_id = id';
+        $query .= ' WHERE image_id = ' . $image_id;
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], ' AND ');
+
+        return $this->conn->db_query($query);
+    }
+
     public function deleteByCategory(array $ids, array $image_ids = [])
     {
         $query = 'DELETE FROM ' . self::IMAGE_CATEGORY_TABLE;

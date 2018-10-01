@@ -262,9 +262,11 @@ $template->assign(
 // Search in a particular category
 $blockname = 'categories';
 
-$query = 'SELECT id, name, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], 'WHERE') . ';';
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, [@$_GET['cat']], $blockname, true);
+$result = (new CategoryRepository($conn))->findWithCondtion(
+    [\Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
+);
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [@$_GET['cat']], $blockname, true);
 
 // Filter on recent comments...
 $tpl_var = [];
@@ -343,9 +345,8 @@ if (count($comments) > 0) {
     $elements = $conn->query2array($query, 'id');
 
     // retrieving category informations
-    $query = 'SELECT id, name, permalink, uppercats FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($category_ids);
-    $categories = $conn->query2array($query, 'id');
+    $result = (new CategoryRepository($conn))->findByIds($category_ids);
+    $categories = $conn->result2array($result, 'id');
 
     foreach ($comments as $comment) {
         if (!empty($elements[$comment['image_id']]['name'])) {

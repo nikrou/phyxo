@@ -92,4 +92,26 @@ class ImageRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
+
+    public function getRecentImages(string $where_sql, $date_available, int $limit)
+    {
+        $query = 'SELECT DISTINCT c.uppercats, COUNT(DISTINCT i.id) AS img_count FROM ' . self::IMAGES_TABLE . ' i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON i.id = image_id';
+        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' c ON c.id = category_id';
+        $query .= ' ' . $where_sql;
+        $query .= ' AND date_available = \'' . $this->conn->db_real_escape_string($date_available) . '\'';
+        $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT ' . $limit;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findCategoryWithLastImageAdded()
+    {
+        $query = 'SELECT category_id FROM ' . self::IMAGES_TABLE . ' AS i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = i.id';
+        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' AS c ON category_id = c.id';
+        $query .= ' ORDER BY i.id DESC LIMIT 1';
+
+        return $this->conn->db_query($query);
+    }
 }

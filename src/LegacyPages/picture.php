@@ -11,6 +11,8 @@
 
 use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
+use App\Repository\CategoryRepository;
+use App\Repository\ImageCategoryRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -245,10 +247,7 @@ if (isset($_GET['action'])) {
         case 'set_as_representative':
             {
                 if ($services['users']->isAdmin() and isset($page['category'])) {
-                    $query = 'UPDATE ' . CATEGORIES_TABLE;
-                    $query .= ' SET representative_picture_id = ' . $page['image_id'] . ' WHERE id = ' . $page['category']['id'] . ';';
-                    $conn->db_query($query);
-
+                    (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $page['image_id']], $page['category']['id']);
                     \Phyxo\Functions\Utils::invalidate_user_cache();
                 }
                 \Phyxo\Functions\Utils::redirect($url_self);
@@ -357,11 +356,8 @@ if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count',
 }
 
 //---------------------------------------------------------- related categories
-$query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM ' . IMAGE_CATEGORY_TABLE;
-$query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' ON category_id = id';
-$query .= ' WHERE image_id = ' . $page['image_id'];
-$query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], ' AND ') . ';';
-$related_categories = $conn->query2array($query);
+$result = (new ImageCategoryRepository($conn))->getRelatedCategory($page['image_id']);
+$related_categories = $conn->result2array($result);
 usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
 $picture = [];
@@ -724,9 +720,8 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
         $ids = array_merge($ids, explode(',', $category['uppercats']));
     }
     $ids = array_unique($ids);
-    $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($ids);
-    $cat_map = $conn->query2array($query, 'id');
+    $result = (new CategoryRepository($conn))->findByIds($ids);
+    $cat_map = $conn->result2array($result, 'id');
     foreach ($related_categories as $category) {
         $cats = [];
         foreach (explode(',', $category['uppercats']) as $id) {

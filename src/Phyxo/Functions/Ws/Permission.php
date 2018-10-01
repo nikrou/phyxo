@@ -142,9 +142,8 @@ class Permission
                 $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds($params['cat_id']));
             }
 
-            $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($cat_ids) . ' AND status = \'private\';';
-            $private_cats = $conn->query2array($query, null, 'id');
+            $result = (new CategoryRepository($conn))->findByIdsAndStatus($cat_ids, 'private');
+            $private_cats = $conn->result2array($result, null, 'id');
 
             $inserts = [];
             foreach ($private_cats as $cat_id) {

@@ -80,9 +80,7 @@ if (isset($_POST['submit'])) {
     \Phyxo\Functions\Utils::set_random_representant([$_GET['cat_id']]);
     $redirect = true;
 } elseif (isset($_POST['delete_representant'])) {
-    $query = 'UPDATE ' . CATEGORIES_TABLE;
-    $query .= ' SET representative_picture_id = NULL WHERE id = ' . $conn->db_real_escape_string($_GET['cat_id']);
-    $conn->db_query($query);
+    (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => null], $_GET['cat_id']);
     $redirect = true;
 }
 
@@ -194,18 +192,15 @@ if ($category['is_virtual']) {
     if (isset($page['plain_structure'][$category_id]['uppercats'])) {
         $uppercats = $page['plain_structure'][$category_id]['uppercats'];
     } else {
-        $query = 'SELECT uppercats';
-        $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $_GET['cat_id'];
-        $row = $conn->db_fetch_assoc($conn->db_query($query));
+        $result = (new CategoryRepository($conn))->findById($_GET['cat_id']);
+        $row = $conn->db_fetch_assoc($result);
         $uppercats = $row['uppercats'];
     }
 
     $upper_array = explode(',', $uppercats);
 
     $database_dirs = [];
-    $query = 'SELECT id,dir';
-    $query .= ' FROM ' . CATEGORIES_TABLE . ' WHERE id ' . $conn->in($uppercats);
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findByIds($uppercats);
     while ($row = $conn->db_fetch_assoc($result)) {
         $database_dirs[$row['id']] = $row['dir'];
     }

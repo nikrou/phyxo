@@ -19,6 +19,7 @@ use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\CategoryRepository;
 
 class Image
 {
@@ -35,19 +36,7 @@ class Image
     {
         global $conn, $services;
 
-        $query = 'SELECT DISTINCT image_id  FROM ' . CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id=id';
-        $query .= ' WHERE commentable=\'' . $conn->boolean_to_db(true) . '\'';
-        $query .= ' AND image_id=' . $params['image_id'];
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
-            [
-                'forbidden_categories' => 'id',
-                'visible_categories' => 'id',
-                'visible_images' => 'image_id'
-            ],
-            ' AND'
-        );
-
+        $result = (new CategoryRepository($conn))->findCommentable($params['image_id']);
         if (!$conn->db_num_rows($conn->db_query($query))) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
         }
@@ -103,11 +92,7 @@ class Image
         $image_row = array_merge($image_row, \Phyxo\Functions\Ws\Main::stdGetUrls($image_row));
 
         //-------------------------------------------------------- related categories
-        $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM ' . CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id = id';
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($image_row['id']);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id'], ' AND ');
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findRelative($image_row['id']);
 
         $is_commentable = false;
         $related_categories = [];
@@ -677,10 +662,8 @@ class Image
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
 
-                $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $category_id . ';';
-                $result = $conn->db_query($query);
+                $result = (new CategoryRepository($conn))->findById($category_id);
                 $category = $conn->db_fetch_assoc($result);
-
                 $url_params['section'] = 'categories';
                 $url_params['category'] = $category;
             }
@@ -776,11 +759,8 @@ class Image
         $url_params = ['image_id' => $image_id];
 
         if (!empty($params['category'])) {
-            $query = 'SELECT id, name, permalink FROM ' . CATEGORIES_TABLE;
-            $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['category'][0]);
-            $result = $conn->db_query($query);
+            $result = (new CategoryRepository($conn))->findById($params['category'][0]);
             $category = $conn->db_fetch_assoc($result);
-
             $url_params['section'] = 'categories';
             $url_params['category'] = $category;
         }
@@ -1331,9 +1311,8 @@ class Image
             );
         }
 
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($cat_ids);
-        $db_cat_ids = $conn->query2array($query, null, 'id');
+        $result = (new CategoryRepository($conn))->findByIds($cat_ids);
+        $db_cat_ids = $conn->result2array($result, null, 'id');
 
         $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
         if (count($unknown_cat_ids) != 0) {

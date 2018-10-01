@@ -18,23 +18,21 @@ use App\Repository\CategoryRepository;
  */
 
 // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
-$query = 'SELECT c.*, user_representative_picture_id, nb_images, date_last, max_date_last,';
-$query .= 'count_images,nb_categories,count_categories FROM ' . CATEGORIES_TABLE . ' c';
-$query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ucc ON id = cat_id AND user_id = ' . $user['id'];
-
+$order = null;
+$where = [];
 if ('recent_cats' == $page['section']) {
-    $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos('date_last');
+    $where[] = \Phyxo\Functions\SQL::get_recent_photos('date_last');
 } else {
-    $query .= ' WHERE id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
+    $where[] = 'id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], 'AND');
+$where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], '', $force_on_condtion = true);
 
 if ('recent_cats' != $page['section']) {
-    $query .= ' ORDER BY rank';
+    $order = 'rank';
 }
 
-$result = $conn->db_query($query);
+$result = (new CategoryRepository($conn))->findWithUserAndCondtion($user['id'], $where, $order);
 $categories = [];
 $category_ids = [];
 $image_ids = [];
@@ -51,15 +49,9 @@ while ($row = $conn->db_fetch_assoc($result)) {
     } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
         $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
     } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
-        $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id = cat_id and user_id = ' . $user['id'];
-        $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\'';
-        $query .= ' AND representative_picture_id IS NOT NULL';
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id', ], "\n  AND");
-        $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
-        $subresult = $conn->db_query($query);
-        if ($conn->db_num_rows($subresult) > 0) {
-            list($image_id) = $conn->db_fetch_row($subresult);
+        $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($user['id'], $row['uppercats']);
+        if ($conn->db_num_rows($result) > 0) {
+            list($image_id) = $conn->db_fetch_row($result);
         }
     }
 

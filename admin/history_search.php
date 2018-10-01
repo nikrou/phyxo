@@ -13,6 +13,7 @@ use App\Repository\TagRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\HistoryRepository;
+use App\Repository\CategoryRepository;
 
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
@@ -196,9 +197,8 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if (count($category_ids) > 0) {
-        $query = 'SELECT id, uppercats FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in(array_keys($category_ids));
-        $uppercats_of = $conn->query2array($query, 'id', 'uppercats');
+        $result = (new CategoryRepository($conn))->findByIds($category_ids);
+        $uppercats_of = $conn->result2array($result, 'id', 'uppercats');
 
         $name_of_category = [];
 

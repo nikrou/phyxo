@@ -254,7 +254,7 @@ class Plugins extends Extensions
      * @param string $id returns only data about given plugin
      * @return array
      */
-    public function getDbPlugins($state = '', $id = '')
+    public function getDbPlugins($state = null, $id = '')
     {
         if (!$this->db_plugins_retrieved) {
             $result = (new PluginRepository($this->conn))->findAll($state);

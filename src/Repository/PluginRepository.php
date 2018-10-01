@@ -25,7 +25,7 @@ class PluginRepository extends BaseRepository
 
     public function addPlugin(string $id, string $version, string $state = 'inactive')
     {
-        return $this->conn->single_insert(self::PLUGINS_TABLE, ['id' => $id, 'version' => $version, 'state' => $state]);
+        return $this->conn->single_insert(self::PLUGINS_TABLE, ['id' => $id, 'version' => $version, 'state' => $state], false);
     }
 
     public function updatePlugin(array $datas, array $where)

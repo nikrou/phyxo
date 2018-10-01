@@ -14,6 +14,7 @@ if (!defined("ALBUMS_BASE_URL")) {
 }
 
 use App\Repository\OldPermalinkRepository;
+use App\Repository\CategoryRepository;
 
 $selected_cat = [];
 if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
@@ -31,8 +32,9 @@ if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
     }
 }
 
-$query = 'SELECT id,permalink,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, $selected_cat, 'categories', false);
+$result = (new CategoryRepository($conn))->findAll();
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, $selected_cat, 'categories', false);
 
 // --- generate display of active permalinks -----------------------------------
 $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
@@ -43,12 +45,13 @@ $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
     'SORT_'
 );
 
-$query = 'SELECT id, permalink, uppercats, global_rank FROM ' . CATEGORIES_TABLE . ' WHERE permalink IS NOT NULL';
 if ($sort_by[0] == 'id' or $sort_by[0] == 'permalink') {
-    $query .= ' ORDER BY ' . $sort_by[0];
+    $order = $sort_by[0];
+} else {
+    $order = '';
 }
+$result = (new CategoryRepository($conn))->findWithPermalinks($order);
 $categories = [];
-$result = $conn->db_query($query);
 while ($row = $conn->db_fetch_assoc($result)) {
     $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats']);
     $categories[] = $row;

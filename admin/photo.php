@@ -14,6 +14,7 @@ if (!defined("PHPWG_ROOT_PATH")) {
 }
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Basic checks                                                          |
@@ -50,8 +51,8 @@ $template->assign([
 // +-----------------------------------------------------------------------+
 
 if (!empty($_GET['cat_id'])) {
-    $query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . (int)$_GET['cat_id'];
-    $category = $conn->db_fetch_assoc($conn->db_query($query));
+    $result = (new CategoryRepository($conn))->findById($_GET['cat_id']);
+    $category = $conn->db_fetch_assoc($result);
 }
 
 // +-----------------------------------------------------------------------+

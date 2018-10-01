@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CategoryRepository;
+
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -210,15 +212,16 @@ foreach ($author_counts as $author => $counter) {
 $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
-$query = 'SELECT id,name,global_rank,uppercats FROM ' . CATEGORIES_TABLE;
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+$where = [\Phyxo\Functions\SQL::get_sql_condition_FandF(
     [
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
     ],
     'WHERE'
-);
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, [], 'category_options', true);
+)];
+$result = (new CategoryRepository($conn))->findWithCondtion($where);
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_options', true);
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');

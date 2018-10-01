@@ -18,13 +18,15 @@ if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
 }
 
+use App\Repository\CategoryRepository;
+
 $page['category_id'] = $category['id'];
 
 // +-----------------------------------------------------------------------+
 // |                       global mode form submission                     |
 // +-----------------------------------------------------------------------+
 
-$image_order_choices = array('default', 'rank', 'user_define');
+$image_order_choices = ['default', 'rank', 'user_define'];
 $image_order_choice = 'default';
 
 if (isset($_POST['submit'])) {
@@ -56,18 +58,12 @@ if (isset($_POST['submit'])) {
     } elseif ($image_order_choice == 'rank') {
         $image_order = 'rank ASC';
     }
-    $query = 'UPDATE ' . CATEGORIES_TABLE;
-    $query .= ' SET image_order = ' . (isset($image_order) ? '\'' . $conn->db_real_escape_string($image_order) . '\'' : 'NULL');
-    $query .= ' WHERE id=' . $conn->db_real_escape_string($page['category_id']);
-    $conn->db_query($query);
+    (new CategoryRepository($conn))->updateCategory(['image_order' => $image_order], $page['category_id']);
 
     if (isset($_POST['image_order_subcats'])) {
         $cat_info = \Phyxo\Functions\Category::get_cat_info($page['category_id']);
 
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET image_order = ' . (isset($image_order) ? '\'' . $conn->db_real_escape_string($image_order) . '\'' : 'NULL');
-        $query .= ' WHERE uppercats LIKE \'' . $conn->db_real_escape_string($cat_info['uppercats']) . ',%\'';
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->updateByUppercats(['image_order' => $image_order], $cat_info['uppercats']);
     }
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');
@@ -78,9 +74,7 @@ if (isset($_POST['submit'])) {
 // +-----------------------------------------------------------------------+
 
 $base_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php';
-
-$query = 'SELECT * FROM ' . CATEGORIES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($page['category_id']);
-$category = $conn->db_fetch_assoc($conn->db_query($query));
+$category = (new CategoryRepository($conn))->findById($page['category_id']);
 
 if ($category['image_order'] == 'rank ASC') {
     $image_order_choice = 'rank';
@@ -95,10 +89,10 @@ $navigation = \Phyxo\Functions\Category::get_cat_display_name_cache(
 );
 
 $template->assign(
-    array(
+    [
         'CATEGORIES_NAV' => $navigation,
-        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(array()),
-    )
+        'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff([]),
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -126,18 +120,18 @@ if ($conn->db_num_rows($result) > 0) {
         $current_rank++;
         $template->append(
             'thumbnails',
-            array(
+            [
                 'ID' => $row['id'],
                 'NAME' => $thumbnail_name,
                 'TN_SRC' => $derivative->get_url(),
                 'RANK' => $current_rank * 10,
                 'SIZE' => $derivative->get_size(),
-            )
+            ]
         );
     }
 }
 // image order management
-$sort_fields = array(
+$sort_fields = [
     '' => '',
     'file ASC' => \Phyxo\Functions\Language::l10n('File name, A &rarr; Z'),
     'file DESC' => \Phyxo\Functions\Language::l10n('File name, Z &rarr; A'),
@@ -154,7 +148,7 @@ $sort_fields = array(
     'id ASC' => \Phyxo\Functions\Language::l10n('Numeric identifier, 1 &rarr; 9'),
     'id DESC' => \Phyxo\Functions\Language::l10n('Numeric identifier, 9 &rarr; 1'),
     'rank ASC' => \Phyxo\Functions\Language::l10n('Manual sort order'),
-);
+];
 
 $template->assign('image_order_options', $sort_fields);
 
@@ -188,17 +182,17 @@ function save_images_order($category_id, $images)
     global $conn;
 
     $current_rank = 0;
-    $datas = array();
+    $datas = [];
     foreach ($images as $id) {
-        $datas[] = array(
+        $datas[] = [
             'category_id' => $category_id,
             'image_id' => $id,
             'rank' => ++$current_rank,
-        );
+        ];
     }
-    $fields = array(
-        'primary' => array('image_id', 'category_id'),
-        'update' => array('rank')
-    );
+    $fields = [
+        'primary' => ['image_id', 'category_id'],
+        'update' => ['rank']
+    ];
     $conn->mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
 }

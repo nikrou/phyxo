@@ -475,7 +475,8 @@ if (count($page['cat_elements_id']) > 0) {
         $query .= ' AND category_id = ' . $conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
     }
 
-    $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
+    //$query .= ' ' . $conf['order_by']; // rank in not a field
+    $query .= ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
     $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
     $result = $conn->db_query($query);
 

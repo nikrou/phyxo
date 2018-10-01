@@ -13,6 +13,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use App\Repository\CategoryRepository;
 
 class DefaultController extends BaseController
 {
@@ -86,11 +87,9 @@ class DefaultController extends BaseController
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON category_id = id';
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($image_id);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'], ' AND ');
-        $query .= ' LIMIT 1';
+        if (!(new CategoryRepository($conn))->hasAccessToImage($image_id)) {
+            throw new AccessDeniedException('Access denied');
+        }
 
         $file = '';
         switch ($part) {

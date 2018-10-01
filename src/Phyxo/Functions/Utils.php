@@ -23,6 +23,7 @@ use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\SiteRepository;
+use App\Repository\CategoryRepository;
 
 class Utils
 {
@@ -1086,23 +1087,14 @@ class Utils
      * @param boolean $only_new
      * @return array
      */
-    public static function get_filelist($category_id = '', $site_id = 1, $recursive = false, $only_new = false)
+    public static function get_filelist(? int $category_id = null, $site_id = 1, $recursive = false, $only_new = false)
     {
         global $conn;
 
         // filling $cat_ids : all categories required
         $cat_ids = [];
 
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE site_id = ' . $site_id . ' AND dir IS NOT NULL';
-        if (is_numeric($category_id)) {
-            if ($recursive) {
-                $query .= ' AND uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $category_id . '(,|$)\'';
-            } else {
-                $query .= ' AND id = ' . $category_id;
-            }
-        }
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findPhysicalsBySiteAndIdOrUppercats($site_id, $category_id, $recursive);
         while ($row = $conn->db_fetch_assoc($result)) {
             $cat_ids[] = $row['id'];
         }
@@ -1243,8 +1235,8 @@ class Utils
         global $conn;
 
         // destruction of the categories of the site
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE site_id = ' . $conn->db_real_escape_string($id);
-        $category_ids = $conn->query2array($query, null, 'id');
+        $result = (new CategoryRepository($conn))->findByField('site_id', $id);
+        $category_ids = $conn->result2array($result, null, 'id');
         \Phyxo\Functions\Category::delete_categories($category_ids);
 
         // destruction of the site
@@ -1355,7 +1347,7 @@ class Utils
         $conn->db_query($query);
 
         // are the photo used as category representant?
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE . ' WHERE representative_picture_id ' . $conn->in($ids);
+        $result = (new CategoryRepository($conn))->findRepresentants($ids);
         $category_ids = $conn->query2array($query, null, 'id');
         if (count($category_ids) > 0) {
             \Phyxo\Functions\Category::update_category($category_ids);
@@ -1488,15 +1480,11 @@ class Utils
     {
         global $cat_map, $conn;
 
-        $query = 'SELECT id, id_uppercat, uppercats, rank, global_rank FROM ' . CATEGORIES_TABLE;
-        $query .= ' ORDER BY id_uppercat,rank,name';
-
         $cat_map = [];
-
         $current_rank = 0;
         $current_uppercat = '';
 
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findAll('id_uppercat, rank, name');
         while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['id_uppercat'] != $current_uppercat) {
                 $current_rank = 0;
@@ -1536,8 +1524,7 @@ class Utils
 
         unset($cat_map);
 
-        $conn->mass_updates(
-            CATEGORIES_TABLE,
+        (new CategoryRepository($conn))->massUpdatesCategories(
             [
                 'primary' => ['id'],
                 'update' => ['rank', 'global_rank']
@@ -1570,8 +1557,7 @@ class Utils
             ];
         }
 
-        $conn->mass_updates(
-            CATEGORIES_TABLE,
+        (new CategoryRepository($conn))->massUpdatesCategories(
             [
                 'primary' => ['id'],
                 'update' => ['representative_picture_id']

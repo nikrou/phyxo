@@ -50,7 +50,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $users[$row['id']] = stripslashes($row['username']); // @TODO: remove stripslashes
 }
 
-$nb_images = (new RateRepository($conn))->countImageRatedForUser($user_filter);
+$nb_images = (new RateRepository($conn))->countImagesRatedForUser($user_filter);
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

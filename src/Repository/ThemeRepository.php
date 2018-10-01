@@ -23,7 +23,7 @@ class ThemeRepository extends BaseRepository
 
     public function addTheme(string $id, string $version, string $name)
     {
-        return $this->conn->single_insert(self::THEMES_TABLE, ['id' => $id, 'version' => $version, 'name' => $name]);
+        return $this->conn->single_insert(self::THEMES_TABLE, ['id' => $id, 'version' => $version, 'name' => $name], false);
     }
 
     public function findById(string $id)
@@ -34,7 +34,7 @@ class ThemeRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function deleteById(string $id)
+    public function deleteById(string $theme_id)
     {
         $query = 'DELETE FROM ' . self::THEMES_TABLE;
         $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($theme_id) . '\'';

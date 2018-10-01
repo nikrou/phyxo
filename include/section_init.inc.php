@@ -211,11 +211,8 @@ if ('categories' == $page['section']) {
         if (isset($page['flat'])) {
             // get all allowed sub-categories
             if (isset($page['category'])) {
-                $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-                $query .= ' WHERE uppercats LIKE \'' . $page['category']['uppercats'] . ',%\' ';
-                $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], 'AND');
-
-                $subcat_ids = $conn->query2array($query, null, 'id');
+                $result = (new CategoryRepository($conn))->findAllowedSubCategories($page['category']['uppercats']);
+                $subcat_ids = $conn->result2array($result, null, 'id');
                 $subcat_ids[] = $page['category']['id'];
                 $where_sql = 'category_id ' . $conn->in($subcat_ids);
                 // remove categories from forbidden because just checked above

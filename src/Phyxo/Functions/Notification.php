@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\ImageRepository;
+
 class Notification
 {
     /**
@@ -323,7 +325,7 @@ class Notification
     {
         global $services;
 
-        $news = array();
+        $news = [];
 
         if (!$exclude_img_cats) {
             self::add_news_line(
@@ -331,7 +333,7 @@ class Notification
                 self::nb_new_elements($start, $end),
                 '%d new photo',
                 '%d new photos',
-                \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_pics')),
+                \Phyxo\Functions\URL::make_index_url(['section' => 'recent_pics']),
                 $add_url
             );
         }
@@ -342,7 +344,7 @@ class Notification
                 self::nb_updated_categories($start, $end),
                 '%d album updated',
                 '%d albums updated',
-                \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_cats')),
+                \Phyxo\Functions\URL::make_index_url(['section' => 'recent_cats']),
                 $add_url
             );
         }
@@ -415,13 +417,8 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some categories ...
-                $query = 'SELECT DISTINCT c.uppercats, COUNT(DISTINCT i.id) AS img_count FROM ' . IMAGES_TABLE . ' i';
-                $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON i.id = image_id';
-                $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' c ON c.id = category_id';
-                $query .= ' ' . $where_sql;
-                $query .= ' AND date_available=\'' . $dates[$i]['date_available'] . '\'';
-                $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT ' . $max_cats;
-                $dates[$i]['categories'] = $conn->query2array($query);
+                $result = (new ImageRepository($conn))->getRecentImages($dates[$i]['date_available'], $max_cats);
+                $dates[$i]['categories'] = $conn->result2array($result);
             }
         }
 
@@ -463,7 +460,7 @@ class Notification
             '<li>'
             . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
             . ' ('
-            . '<a href="' . \Phyxo\Functions\URL::make_index_url(array('section' => 'recent_pics')) . '">'
+            . '<a href="' . \Phyxo\Functions\URL::make_index_url(['section' => 'recent_pics']) . '">'
             . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>'
             . ')'
             . '</li><br>';
@@ -471,10 +468,10 @@ class Notification
         foreach ($date_detail['elements'] as $element) {
             $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element);
             $description .= '<a href="' .
-                \Phyxo\Functions\URL::make_picture_url(array(
+                \Phyxo\Functions\URL::make_picture_url([
                 'image_id' => $element['id'],
                 'image_file' => $element['file'],
-            )) . '"><img src="' . $tn_src . '"></a>';
+            ]) . '"><img src="' . $tn_src . '"></a>';
         }
         $description .= '...<br>';
 
@@ -560,7 +557,7 @@ class Notification
      *
      * @return quoted check key list
      */
-    public static function quote_check_key_list($check_key_list = array())
+    public static function quote_check_key_list($check_key_list = [])
     {
         return array_map(function ($s) {
             return '\'' . $s . '\'';
@@ -574,13 +571,13 @@ class Notification
      *
      * return array of users
      */
-    public static function get_user_notifications($action, $check_key_list = array(), $enabled_filter_value = false)
+    public static function get_user_notifications($action, $check_key_list = [], $enabled_filter_value = false)
     {
         global $conf, $conn;
 
-        $data_users = array();
+        $data_users = [];
 
-        if (in_array($action, array('subscribe', 'send'))) {
+        if (in_array($action, ['subscribe', 'send'])) {
             $quoted_check_key_list = self::quote_check_key_list($check_key_list);
             if (count($check_key_list) > 0) {
                 $query_and_check_key = ' AND check_key ' . $conn->in($check_key_list);
@@ -672,26 +669,26 @@ class Notification
         \Phyxo\Functions\Mail::switch_lang_back();
 
         if ($env_nbm['is_to_send_mail']) {
-            unset($env_nbm['email_format']);
-            unset($env_nbm['send_as_name']);
-            unset($env_nbm['send_as_mail_address']);
-            unset($env_nbm['send_as_mail_formated']);
+            unset($env_nbm['email_format'], $env_nbm['send_as_name'], $env_nbm['send_as_mail_address'], $env_nbm['send_as_mail_formated'], $env_nbm['msg_info'], $env_nbm['msg_error']);
+            
+            
+            
             // Don t unset counter
             //unset($env_nbm['error_on_mail_count']);
             //unset($env_nbm['sent_mail_count']);
-            unset($env_nbm['msg_info']);
-            unset($env_nbm['msg_error']);
+            
+            
         }
 
-        unset($env_nbm['save_user']);
-        unset($env_nbm['is_to_send_mail']);
+        unset($env_nbm['save_user'], $env_nbm['is_to_send_mail']);
+        
     }
 
 /*
-     * Set user on nbm enviromnent
-     *
-     * Return none
-     */
+ * Set user on nbm enviromnent
+ *
+ * Return none
+ */
     public static function set_user_on_env_nbm(&$nbm_user, $is_action_send)
     {
         global $user, $lang, $lang_info, $env_nbm, $services;
@@ -788,13 +785,13 @@ class Notification
         \Phyxo\Functions\URL::set_make_full_url();
 
         $env_nbm['mail_template']->assign(
-            array(
+            [
                 'USERNAME' => stripslashes($nbm_user['username']),
                 'SEND_AS_NAME' => $env_nbm['send_as_name'],
-                'UNSUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', array('unsubscribe' => $nbm_user['check_key'])),
-                'SUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', array('subscribe' => $nbm_user['check_key'])),
+                'UNSUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', ['unsubscribe' => $nbm_user['check_key']]),
+                'SUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', ['subscribe' => $nbm_user['check_key']]),
                 'CONTACT_EMAIL' => $env_nbm['send_as_mail_address']
-            )
+            ]
         );
 
         \Phyxo\Functions\URL::unset_make_full_url();
@@ -808,13 +805,13 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = array())
+    public static function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
     {
         global $conf, $page, $env_nbm, $conf, $conn;
 
         \Phyxo\Functions\URL::set_make_full_url();
 
-        $check_key_treated = array();
+        $check_key_treated = [];
         $updated_data_count = 0;
         $error_on_updated_data_count = 0;
 
@@ -827,7 +824,7 @@ class Notification
         }
 
         if (count($check_key_list) != 0) {
-            $updates = array();
+            $updates = [];
             $enabled_value = $conn->boolean_to_db($is_subscribe);
             $data_users = self::get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
@@ -860,25 +857,25 @@ class Notification
                     $section_action_by = ($is_subscribe ? 'subscribe_by_' : 'unsubscribe_by_');
                     $section_action_by .= ($is_admin_request ? 'admin' : 'himself');
                     $env_nbm['mail_template']->assign(
-                        array(
+                        [
                             $section_action_by => true,
                             'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
                             'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
-                        )
+                        ]
                     );
 
                     $ret = \Phyxo\Functions\Mail::mail(
-                        array(
+                        [
                             'name' => stripslashes($nbm_user['username']),
                             'email' => $nbm_user['mail_address'],
-                        ),
-                        array(
+                        ],
+                        [
                             'from' => $env_nbm['send_as_mail_formated'],
                             'subject' => $subject,
                             'email_format' => $env_nbm['email_format'],
                             'content' => $env_nbm['mail_template']->parse('notification_by_mail', true),
                             'content_format' => $env_nbm['email_format'],
-                        )
+                        ]
                     );
 
                     if ($ret) {
@@ -893,10 +890,10 @@ class Notification
                 }
 
                 if ($do_update) {
-                    $updates[] = array(
+                    $updates[] = [
                         'check_key' => $nbm_user['check_key'],
                         'enabled' => $enabled_value
-                    );
+                    ];
                     $updated_data_count += 1;
                     $page['infos'][] = sprintf($msg_info, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
                 } else {
@@ -912,10 +909,10 @@ class Notification
 
             $conn->mass_updates(
                 USER_MAIL_NOTIFICATION_TABLE,
-                array(
-                    'primary' => array('check_key'),
-                    'update' => array('enabled')
-                ),
+                [
+                    'primary' => ['check_key'],
+                    'update' => ['enabled']
+                ],
                 $updates
             );
         }
@@ -948,7 +945,7 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = array())
+    public static function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = [])
     {
         return self::do_subscribe_unsubscribe_notification_by_mail($is_admin_request, false, $check_key_list);
     }
@@ -960,7 +957,7 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function subscribe_notification_by_mail($is_admin_request, $check_key_list = array())
+    public static function subscribe_notification_by_mail($is_admin_request, $check_key_list = [])
     {
         return self::do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
     }
@@ -972,7 +969,7 @@ class Notification
      * @param check_key_treated: array of check_key treated
      * @return none
      */
-    public static function do_timeout_treatment($post_keyname, $check_key_treated = array())
+    public static function do_timeout_treatment($post_keyname, $check_key_treated = [])
     {
         global $env_nbm, $base_url, $page, $must_repost;
 
@@ -997,9 +994,7 @@ class Notification
         }
     }
 
-    /*
-     * Inserting News users
-     */
+    // Inserting News users
     public static function insert_new_data_user_mail_notification()
     {
         global $conf, $page, $env_nbm, $conn;
@@ -1021,8 +1016,8 @@ class Notification
 
         $result = $conn->db_query($query);
         if ($conn->db_num_rows($result) > 0) {
-            $inserts = array();
-            $check_key_list = array();
+            $inserts = [];
+            $check_key_list = [];
 
             while ($nbm_user = $conn->db_fetch_assoc($result)) {
                 // Calculate key
@@ -1032,11 +1027,11 @@ class Notification
                 $check_key_list[] = $nbm_user['check_key'];
 
                 // Insert new nbm_users
-                $inserts[] = array(
+                $inserts[] = [
                     'user_id' => $nbm_user['user_id'],
                     'check_key' => $nbm_user['check_key'],
                     'enabled' => 'false' // By default if false, set to true with specific functions
-                );
+                ];
 
                 $page['infos'][] = \Phyxo\Functions\Language::l10n(
                     'User %s [%s] added.',
@@ -1046,7 +1041,7 @@ class Notification
             }
 
             // Insert new nbm_users
-            $conn->mass_inserts(USER_MAIL_NOTIFICATION_TABLE, array('user_id', 'check_key', 'enabled'), $inserts);
+            $conn->mass_inserts(USER_MAIL_NOTIFICATION_TABLE, ['user_id', 'check_key', 'enabled'], $inserts);
             // Update field enabled with specific function
             $check_key_treated = self::do_subscribe_unsubscribe_notification_by_mail(
                 true,
@@ -1062,7 +1057,7 @@ class Notification
                     $query .= ' WHERE check_key ' . $conn->in($check_key_list);
                     $result = $conn->db_query($query);
 
-                    \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff(array(), false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
+                    \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff([], false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
                 }
             }
         }
@@ -1091,13 +1086,13 @@ class Notification
      * Return list of "selected" users for 'list_to_send'
      * Return list of "treated" check_key for 'send'
      */
-    public static function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = array(), $customize_mail_content = '')
+    public static function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
     {
         global $conf, $page, $user, $lang_info, $lang, $env_nbm, $conn;
 
-        $return_list = array();
+        $return_list = [];
 
-        if (in_array($action, array('list_to_send', 'send'))) {
+        if (in_array($action, ['list_to_send', 'send'])) {
             list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 
             $is_action_send = ($action == 'send');
@@ -1111,7 +1106,7 @@ class Notification
             // Check if exist news to list user or send mails
             if ((!$is_list_all_without_test) or ($is_action_send)) {
                 if (count($data_users) > 0) {
-                    $datas = array();
+                    $datas = [];
 
                     if (!isset($customize_mail_content)) {
                         $customize_mail_content = $conf['nbm_complementary_mail_content'];
@@ -1165,15 +1160,15 @@ class Notification
                                 if (!is_null($nbm_user['last_send'])) {
                                     $env_nbm['mail_template']->assign(
                                         'content_new_elements_between',
-                                        array(
+                                        [
                                             'DATE_BETWEEN_1' => $nbm_user['last_send'],
                                             'DATE_BETWEEN_2' => $dbnow,
-                                        )
+                                        ]
                                     );
                                 } else {
                                     $env_nbm['mail_template']->assign(
                                         'content_new_elements_single',
-                                        array('DATE_SINGLE' => $dbnow)
+                                        ['DATE_SINGLE' => $dbnow]
                                     );
                                 }
 
@@ -1197,43 +1192,43 @@ class Notification
                                     foreach ($recent_post_dates as $date_detail) {
                                         $env_nbm['mail_template']->append(
                                             'recent_posts',
-                                            array(
+                                            [
                                                 'TITLE' => \Phyxo\Functions\Notification::get_title_recent_post_date($date_detail),
                                                 'HTML_DATA' => \Phyxo\Functions\Notification::get_html_description_recent_post_date($date_detail)
-                                            )
+                                            ]
                                         );
                                     }
                                 }
 
                                 $env_nbm['mail_template']->assign(
-                                    array(
+                                    [
                                         'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
                                         'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                                         'SEND_AS_NAME' => $env_nbm['send_as_name'],
-                                    )
+                                    ]
                                 );
 
                                 $ret = \Phyxo\Functions\Mail::mail(
-                                    array(
+                                    [
                                         'name' => stripslashes($nbm_user['username']),
                                         'email' => $nbm_user['mail_address'],
-                                    ),
-                                    array(
+                                    ],
+                                    [
                                         'from' => $env_nbm['send_as_mail_formated'],
                                         'subject' => $subject,
                                         'email_format' => $env_nbm['email_format'],
                                         'content' => $env_nbm['mail_template']->parse('notification_by_mail', true),
                                         'content_format' => $env_nbm['email_format'],
-                                    )
+                                    ]
                                 );
 
                                 if ($ret) {
                                     self::inc_mail_sent_success($nbm_user);
 
-                                    $datas[] = array(
+                                    $datas[] = [
                                         'user_id' => $nbm_user['user_id'],
                                         'last_send' => $dbnow
-                                    );
+                                    ];
                                 } else {
                                     self::inc_mail_sent_failed($nbm_user);
                                 }
@@ -1257,10 +1252,10 @@ class Notification
                     if ($is_action_send) {
                         $conn->mass_updates(
                             USER_MAIL_NOTIFICATION_TABLE,
-                            array(
-                                'primary' => array('user_id'),
-                                'update' => array('last_send')
-                            ),
+                            [
+                                'primary' => ['user_id'],
+                                'update' => ['last_send']
+                            ],
                             $datas
                         );
 
@@ -1282,6 +1277,4 @@ class Notification
         // Return list of "treated" check_key for 'send'
         return $return_list;
     }
-
 }
-

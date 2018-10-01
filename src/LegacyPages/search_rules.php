@@ -87,10 +87,7 @@ if (isset($search['fields']['cat'])) {
         $cat_ids = $search['fields']['cat']['words'];
     }
 
-    $query = 'SELECT id, uppercats, global_rank FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($cat_ids);
-    $result = $conn->db_query($query);
-
+    $result = (new CategoryRepository($conn))->findByIds($cat_ids);
     $categories = [];
     if (!empty($result)) {
         while ($row = $conn->db_fetch_assoc($result)) {

@@ -24,7 +24,7 @@ class SiteRepository extends BaseRepository
 
     public function addSite(array $datas) : int
     {
-        return $this->conn->single_insert($datas);
+        return $this->conn->single_insert(self::SITES_TABLE, $datas);
     }
 
     public function findById(int $id)

@@ -53,10 +53,7 @@ class Category
             true
         );
 
-        $query = 'SELECT id, name, permalink, image_order FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE ' . implode(' AND ', $where_clauses);
-        $result = $conn->db_query($query);
-
+        $result = (new CategoryRepository($conn))->findWithCondtion($where_clauses);
         $cats = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $row['id'] = (int)$row['id'];
@@ -172,7 +169,7 @@ class Category
 
         if ($params['public']) {
             $where[] = 'status = \'public\'';
-            $where[] = 'visible = \'true\'';
+            $where[] = 'visible = \'' . $conn->boolean_to_db(true) . '\'';
 
             $join_user = $conf['guest_id'];
         } elseif ($services['users']->isAdmin()) {
@@ -188,13 +185,7 @@ class Category
             $join_type = 'LEFT';
         }
 
-        $query = 'SELECT id, name, comment, permalink, uppercats, global_rank, id_uppercat,';
-        $query .= 'nb_images, count_images AS total_nb_images, representative_picture_id,';
-        $query .= 'user_representative_picture_id, count_images, count_categories,';
-        $query .= 'date_last, max_date_last, count_categories AS nb_categories FROM ' . CATEGORIES_TABLE;
-        $query .= ' ' . $join_type . ' JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id=cat_id AND user_id=' . $join_user;
-        $query .= ' WHERE ' . implode(' AND ', $where);
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findWithUserAndCondtion($join_user, $where);
 
         // management of the album thumbnail -- starts here
         $image_ids = [];
@@ -254,15 +245,9 @@ class Category
                 $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
             } else { // searching a random representant among representant of sub-categories
                 if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
-                    $query = 'SELECT representative_picture_id FROM ' . CATEGORIES_TABLE;
-                    $query .= ' LEFT JOIN ' . USER_CACHE_CATEGORIES_TABLE . ' ON id=cat_id AND user_id=' . $user['id'];
-                    $query .= ' WHERE uppercats LIKE \'' . $row['uppercats'] . ',%\' AND representative_picture_id IS NOT NULL';
-                    $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], "\n  AND");
-                    $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT 1;';
-                    $subresult = $conn->db_query($query);
-
-                    if ($conn->db_num_rows($subresult) > 0) {
-                        list($image_id) = $conn->db_fetch_row($subresult);
+                    $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($user['id'], $row['uppercats']);
+                    if ($conn->db_num_rows($result) > 0) {
+                        list($image_id) = $conn->db_fetch_row($result);
                     }
                 }
             }
@@ -501,11 +486,7 @@ class Category
         }
 
         if ($perform_update) {
-            $conn->single_update(
-                CATEGORIES_TABLE,
-                $update,
-                ['id' => $update['id']]
-            );
+            (new CategoryRepository($conn))->updateCategory($update, $update['id']);
         }
     }
 
@@ -521,9 +502,8 @@ class Category
         global $conn;
 
         // does the category really exist?
-        $query = 'SELECT COUNT(1) FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['category_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
+        $result = (new CategoryRepository($conn))->findById($params['category_id']);
+        list($count) = $conn->db_fetch_row($result);
         if ($count == 0) {
             return new Error(404, 'category_id not found');
         }
@@ -537,10 +517,7 @@ class Category
         }
 
         // apply change
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET representative_picture_id = ' . $conn->db_real_escape_string($params['image_id']);
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['category_id']);
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
 
         $query = 'UPDATE ' . USER_CACHE_CATEGORIES_TABLE . ' SET user_representative_picture_id = NULL';
         $query .= ' WHERE cat_id = ' . $conn->db_real_escape_string($params['category_id']);
@@ -594,8 +571,7 @@ class Category
             return;
         }
 
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($category_ids);
+        $result = (new CategoryRepository($conn))->findByIds($category_ids);
         $category_ids = $conn->query2array($query, null, 'id');
 
         if (count($category_ids) == 0) {
@@ -646,9 +622,7 @@ class Category
         // we can't move physical categories
         $categories_in_db = [];
 
-        $query = 'SELECT id, name, dir FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($category_ids);
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findByIds($category_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $categories_in_db[$row['id']] = $row;
 

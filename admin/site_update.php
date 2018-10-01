@@ -15,6 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\LocalSiteReader;
 use App\Repository\SiteRepository;
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -85,21 +86,11 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     $counts['upd_elements'] = 0;
 }
 
-
 if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == 'files') and !$general_failure) {
     $start = microtime(true);
     // which categories to update ?
-    $query = 'SELECT id, uppercats, global_rank, status, visible FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE dir IS NOT NULL AND site_id = ' . $conn->db_real_escape_string($site_id);
-
-    if (isset($_POST['cat']) and is_numeric($_POST['cat'])) {
-        if (isset($_POST['subcats-included']) and $_POST['subcats-included'] == 1) {
-            $query .= ' AND uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $conn->db_real_escape_string($_POST['cat']) . '(,|$)\'';
-        } else {
-            $query .= ' AND id = ' . $conn->db_real_escape_string($_POST['cat']);
-        }
-    }
-    $db_categories = $conn->query2array($query, 'id');
+    $result = (new CategoryRepository($conn))->findPhysicalsBySite($site_id, $_POST['cat'], (isset($_POST['subcats-included']) and $_POST['subcats-included'] == 1));
+    $db_categories = $conn->result2array($result, 'id');
 
     // get categort full directories in an array for comparison with file
     // system directory tree
@@ -120,17 +111,13 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     // has 1 for next rank on its sub-categories to create
     $next_rank['NULL'] = 1;
 
-    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findAll();
     while ($row = $conn->db_fetch_assoc($result)) {
         $next_rank[$row['id']] = 1;
     }
 
     // let's see if some categories already have some sub-categories...
-    $query = 'SELECT id_uppercat, MAX(rank)+1 AS next_rank FROM ' . CATEGORIES_TABLE;
-    $query .= ' GROUP BY id_uppercat';
-
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findWithSubCategories();
     while ($row = $conn->db_fetch_assoc($result)) {
         // for the id_uppercat NULL, we write 'NULL' and not the empty string
         if (!isset($row['id_uppercat']) or $row['id_uppercat'] == '') {
@@ -227,7 +214,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 'id', 'dir', 'name', 'site_id', 'id_uppercat', 'uppercats', 'commentable',
                 'visible', 'status', 'rank', 'global_rank'
             ];
-            $conn->mass_inserts(CATEGORIES_TABLE, $dbfields, $inserts);
+            (new CategoryRepository($conn))->addCategories($dbfields, $inserts);
 
             // add default permissions to categories
             $category_ids = [];
@@ -712,9 +699,9 @@ $tpl_introduction['privacy_level_options'] = \Phyxo\Functions\Utils::get_privacy
 
 $template->assign('introduction', $tpl_introduction);
 
-$query = 'SELECT id,name,uppercats,global_rank FROM ' . CATEGORIES_TABLE;
-$query .= ' WHERE site_id = ' . $site_id;
-\Phyxo\Functions\Category::display_select_cat_wrapper($query, $cat_selected, 'category_options', false);
+$result = (new CategoryRepository($conn))->findByField('site_id', $site_id);
+$categories = $conn->result2array($result);
+\Phyxo\Functions\Category::display_select_cat_wrapper($categories, $cat_selected, 'category_options', false);
 
 if (count($errors) > 0) {
     foreach ($errors as $error) {

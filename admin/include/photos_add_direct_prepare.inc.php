@@ -1,5 +1,5 @@
 <?php
-    /*
+/*
  * This file is part of Phyxo package
  *
  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
@@ -8,6 +8,8 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
+use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Photo selection                                                       |
@@ -25,11 +27,11 @@ if ($upload_max_filesize == \Phyxo\Functions\Upload::get_ini_size('upload_max_fi
 }
 
 $template->assign(
-    array(
+    [
         'F_ADD_ACTION' => PHOTOS_ADD_BASE_URL,
         'upload_max_filesize' => $upload_max_filesize,
         'upload_max_filesize_shorthand' => $upload_max_filesize_shorthand,
-    )
+    ]
 );
 
 // what is the maximum number of pixels permitted by the memory_limit?
@@ -48,11 +50,11 @@ if (\Phyxo\Image\Image::get_library() === 'GD') {
     // no need to display a limitation warning if the limitation is huge like 20MP
     if ($max_upload_resolution < 25) {
         $template->assign(
-            array(
+            [
                 'max_upload_width' => $max_upload_width,
                 'max_upload_height' => $max_upload_height,
                 'max_upload_resolution' => $max_upload_resolution,
-            )
+            ]
         );
     }
 }
@@ -60,18 +62,18 @@ if (\Phyxo\Image\Image::get_library() === 'GD') {
 //warn the user if the picture will be resized after upload
 if ($conf['original_resize']) {
     $template->assign(
-        array(
+        [
             'original_resize_maxwidth' => $conf['original_resize_maxwidth'],
             'original_resize_maxheight' => $conf['original_resize_maxheight'],
-        )
+        ]
     );
 }
 
 $template->assign(
-    array(
+    [
         'form_action' => PHOTOS_ADD_BASE_URL,
         'pwg_token' => \Phyxo\Functions\Utils::get_token(),
-    )
+    ]
 );
 
 $unique_exts = array_unique(
@@ -82,10 +84,10 @@ $unique_exts = array_unique(
 );
 
 $template->assign(
-    array(
+    [
         'upload_file_types' => implode(', ', $unique_exts),
         'file_exts' => implode(',', $unique_exts),
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -93,18 +95,16 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 // we need to know the category in which the last photo was added
-$selected_category = array();
+$selected_category = [];
 
 if (isset($_GET['album'])) {
     // set the category from get url or ...
     \Phyxo\Functions\Utils::check_input_parameter('album', $_GET, false, PATTERN_ID);
 
     // test if album really exists
-    $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-    $query .= ' WHERE id = ' . $conn->db_real_escape_string($_GET['album']);
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findById($_GET['album']);
     if ($conn->db_num_rows($result) == 1) {
-        $selected_category = array($_GET['album']);
+        $selected_category = [$_GET['album']];
 
         // lets put in the session to persist in case of upload method switch
         $_SESSION['selected_category'] = $selected_category;
@@ -115,14 +115,10 @@ if (isset($_GET['album'])) {
     $selected_category = $_SESSION['selected_category'];
 } else {
     // we need to know the category in which the last photo was added
-    $query = 'SELECT category_id FROM ' . IMAGES_TABLE . ' AS i';
-    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = i.id';
-    $query .= ' LEFT JOIN ' . CATEGORIES_TABLE . ' AS c ON category_id = c.id';
-    $query .= ' ORDER BY i.id DESC LIMIT 1';
-    $result = $conn->db_query($query);
+    $result = (new CategoryRepository($conn))->findCategoryWithLastImageAdded();
     if ($conn->db_num_rows($result) > 0) {
         $row = $conn->db_fetch_assoc($result);
-        $selected_category = array($row['category_id']);
+        $selected_category = [$row['category_id']];
     }
 }
 
@@ -133,10 +129,10 @@ $template->assign('selected_category', $selected_category);
 // image level options
 $selected_level = isset($_POST['level']) ? $_POST['level'] : 0;
 $template->assign(
-    array(
+    [
         'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
-        'level_options_selected' => array($selected_level)
-    )
+        'level_options_selected' => [$selected_level]
+    ]
 );
 
 // +-----------------------------------------------------------------------+
@@ -144,7 +140,7 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 // Errors
-$setup_errors = array();
+$setup_errors = [];
 
 $error_message = \Phyxo\Functions\Upload::ready_for_upload_message();
 if (!empty($error_message)) {
@@ -155,10 +151,10 @@ if (!function_exists('gd_info')) {
     $setup_errors[] = \Phyxo\Functions\Language::l10n('GD library is missing');
 }
 
-$template->assign(array(
+$template->assign([
     'setup_errors' => $setup_errors,
-    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(array('categories')),
-));
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['categories']),
+]);
 
 // Warnings
 if (isset($_GET['hide_warnings'])) {
@@ -166,7 +162,7 @@ if (isset($_GET['hide_warnings'])) {
 }
 
 if (!isset($_SESSION['upload_hide_warnings'])) {
-    $setup_warnings = array();
+    $setup_warnings = [];
 
     if ($conf['use_exif'] and !function_exists('exif_read_data')) {
         $setup_warnings[] = \Phyxo\Functions\Language::l10n('Exif extension not available, admin should disable exif use');
@@ -180,9 +176,9 @@ if (!isset($_SESSION['upload_hide_warnings'])) {
         );
     }
     $template->assign(
-        array(
+        [
             'setup_warnings' => $setup_warnings,
             'hide_warnings_link' => PHOTOS_ADD_BASE_URL . '&amp;hide_warnings=1'
-        )
+        ]
     );
 }

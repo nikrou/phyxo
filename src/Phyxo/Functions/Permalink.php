@@ -67,9 +67,8 @@ class Permalink
     {
         global $conn;
 
-        $query = 'SELECT id FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE permalink = \'' . $conn->db_real_escape_string($permalink) . '\'';
-        $ids = $conn->query2array($query, null, 'id');
+        $result = (new CategoryRepository($conn))->findByField('permalink', $permalink);
+        $ids = $conn->result2array($result, null, 'id');
         if (!empty($ids)) {
             return $ids[0];
         }
@@ -87,9 +86,7 @@ class Permalink
     {
         global $page, $cache, $conn;
 
-        $query = 'SELECT permalink FROM ' . CATEGORIES_TABLE;
-        $query .= ' WHERE id=\'' . $conn->db_real_escape_string($cat_id) . '\'';
-        $result = $conn->db_query($query);
+        $result = (new CategoryRepository($conn))->findById($cat_id);
         if ($conn->db_num_rows($result)) {
             list($permalink) = $conn->db_fetch_row($result);
         }
@@ -109,10 +106,7 @@ class Permalink
             }
         }
 
-        $query = 'UPDATE ' . CATEGORIES_TABLE;
-        $query .= ' SET permalink=NULL';
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($cat_id);
-        $conn->db_query($query);
+        (new CategoryRepository($conn))->updateCategory(['permalink' => null], $cat_id);
 
         unset($cache['cat_names']); //force regeneration
         if ($save) {
