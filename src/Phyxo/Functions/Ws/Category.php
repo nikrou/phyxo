@@ -16,6 +16,7 @@ use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\UserCacheCategoriesRepository;
 
 class Category
 {
@@ -334,8 +335,7 @@ class Category
                 ];
             }
 
-            $conn->mass_updates(
-                USER_CACHE_CATEGORIES_TABLE,
+            (new UserCacheCategoriesRepository($conn))->massUpdatesUserCacheCategories(
                 [
                     'primary' => ['user_id', 'cat_id'],
                     'update' => ['user_representative_picture_id']
@@ -518,10 +518,7 @@ class Category
 
         // apply change
         (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
-
-        $query = 'UPDATE ' . USER_CACHE_CATEGORIES_TABLE . ' SET user_representative_picture_id = NULL';
-        $query .= ' WHERE cat_id = ' . $conn->db_real_escape_string($params['category_id']);
-        $conn->db_query($query);
+        (new UserCacheCategoriesRepository($conn))->updateUserCacheCategory(['user_representative_picture_id' => null], ['cat_id' => $params['category_id']]);
     }
 
     /**

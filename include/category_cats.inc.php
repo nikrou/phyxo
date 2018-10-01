@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\UserCacheCategoriesRepository;
 
 /**
  * This file is included by the main page to show subcategories of a category
@@ -149,8 +150,7 @@ if (count($user_representative_updates_for)) {
         ];
     }
 
-    $conn->mass_updates(
-        USER_CACHE_CATEGORIES_TABLE,
+    (new UserCacheCategoriesRepository($conn))->massUpdatesUserCacheCategories(
         [
             'primary' => ['user_id', 'cat_id'],
             'update' => ['user_representative_picture_id']
