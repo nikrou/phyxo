@@ -16,6 +16,8 @@
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
+use App\Repository\UserFeedRepository;
+
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
@@ -28,10 +30,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 // +-----------------------------------------------------------------------+
 
 $page['feed'] = md5(uniqid(true));
-
-$query = 'INSERT INTO ' . USER_FEED_TABLE . ' (id, user_id, last_check) VALUES (\'' . $page['feed'] . '\', ' . $user['id'] . ', NULL);';
-$conn->db_query($query);
-
+(new UserFeedRepository($conn))->addUserFeed(['id' => $page['feed'], 'user_id' => $user['id']]);
 $feed_url = \Phyxo\Functions\URL::get_root_url() . 'feed.php';
 if ($services['users']->isGuest()) {
     $feed_image_only_url = $feed_url;

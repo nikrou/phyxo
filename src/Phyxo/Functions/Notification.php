@@ -12,9 +12,16 @@
 namespace Phyxo\Functions;
 
 use App\Repository\ImageRepository;
+use App\Repository\CommentRepository;
+use Phyxo\DBLayer\DBLayer;
 
 class Notification
 {
+    public function __construct(DBLayer $conn)
+    {
+        $this->conn = $conn;
+    }
+
     /**
      * Execute custom notification query.
      * @todo use a cache for all data returned by custom_notification_query()
@@ -30,33 +37,6 @@ class Notification
         global $user, $conn;
 
         switch ($type) {
-            case 'new_comments':
-                {
-                    $query = ' FROM ' . COMMENTS_TABLE . ' AS c';
-                    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON c.image_id = ic.image_id WHERE 1=1';
-                    if (!empty($start)) {
-                        $query .= ' AND c.validation_date > \'' . $conn->db_real_escape_string($start) . '\'';
-                    }
-                    if (!empty($end)) {
-                        $query .= ' AND c.validation_date <= \'' . $conn->db_real_escape_string($end) . '\'';
-                    }
-                    $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND');
-                    break;
-                }
-
-            case 'unvalidated_comments':
-                {
-                    $query = ' FROM ' . COMMENTS_TABLE . ' WHERE 1=1';
-                    if (!empty($start)) {
-                        $query .= ' AND date > \'' . $conn->db_real_escape_string($start) . '\'';
-                    }
-                    if (!empty($end)) {
-                        $query .= ' AND date <= \'' . $conn->db_real_escape_string($end) . '\'';
-                    }
-                    $query .= ' AND validated = \'' . $conn->boolean_to_db(false) . '\'';
-                    break;
-                }
-
             case 'new_elements':
                 {
                     $query = ' FROM ' . IMAGES_TABLE;
@@ -105,12 +85,6 @@ class Notification
             case 'count':
                 {
                     switch ($type) {
-                        case 'new_comments':
-                            $field_id = 'c.id';
-                            break;
-                        case 'unvalidated_comments':
-                            $field_id = 'id';
-                            break;
                         case 'new_elements':
                             $field_id = 'image_id';
                             break;
@@ -130,12 +104,6 @@ class Notification
             case 'info':
                 {
                     switch ($type) {
-                        case 'new_comments':
-                            $field_id = 'c.id';
-                            break;
-                        case 'unvalidated_comments':
-                            $field_id = 'id';
-                            break;
                         case 'new_elements':
                             $field_id = 'image_id';
                             break;
@@ -166,7 +134,9 @@ class Notification
      */
     public static function nb_new_comments($start = null, $end = null)
     {
-        return self::custom_notification_query('count', 'new_comments', $start, $end);
+        global $conn;
+
+        return (new CommentRepository($conn))->getNewComments($start, $end, $count_only = true);
     }
 
     /**
@@ -178,7 +148,9 @@ class Notification
      */
     public static function new_comments($start = null, $end = null)
     {
-        return self::custom_notification_query('info', 'new_comments', $start, $end);
+        global $conn;
+
+        return (new CommentRepository($conn))->getNewComments($start, $end);
     }
 
     /**
@@ -190,7 +162,9 @@ class Notification
      */
     public static function nb_unvalidated_comments($start = null, $end = null)
     {
-        return self::custom_notification_query('count', 'unvalidated_comments', $start, $end);
+        global $conn;
+
+        (new CommentRepository($conn))->getUnvalidatedComments($start, $end, $count_only = true);
     }
 
     /**
@@ -417,7 +391,7 @@ class Notification
             }
 
             if ($max_cats > 0) { // get some categories ...
-                $result = (new ImageRepository($conn))->getRecentImages($dates[$i]['date_available'], $max_cats);
+                $result = (new ImageRepository($conn))->getRecentImages($where_sql, $dates[$i]['date_available'], $max_cats);
                 $dates[$i]['categories'] = $conn->result2array($result);
             }
         }
@@ -670,18 +644,18 @@ class Notification
 
         if ($env_nbm['is_to_send_mail']) {
             unset($env_nbm['email_format'], $env_nbm['send_as_name'], $env_nbm['send_as_mail_address'], $env_nbm['send_as_mail_formated'], $env_nbm['msg_info'], $env_nbm['msg_error']);
-            
-            
-            
+
+
+
             // Don t unset counter
             //unset($env_nbm['error_on_mail_count']);
             //unset($env_nbm['sent_mail_count']);
-            
-            
+
+
         }
 
         unset($env_nbm['save_user'], $env_nbm['is_to_send_mail']);
-        
+
     }
 
 /*

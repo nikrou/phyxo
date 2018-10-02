@@ -105,6 +105,17 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function getFavorites(int $user_id, string $order_by)
+    {
+        $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::FAVORITES_TABLE . ' ON image_id = id';
+        $query .= ' WHERE user_id = ' . $user_id;
+        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
+        $query .= ' ' . $order_by;
+
+        return $this->conn->db_query($query);
+    }
+
     public function findCategoryWithLastImageAdded()
     {
         $query = 'SELECT category_id FROM ' . self::IMAGES_TABLE . ' AS i';

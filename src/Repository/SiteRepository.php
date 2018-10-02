@@ -22,9 +22,9 @@ class SiteRepository extends BaseRepository
         return $nb_sites;
     }
 
-    public function addSite(array $datas) : int
+    public function addSite(array $datas)
     {
-        return $this->conn->single_insert(self::SITES_TABLE, $datas);
+        return $this->conn->single_insert(self::SITES_TABLE, $datas, false);
     }
 
     public function findById(int $id)

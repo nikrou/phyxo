@@ -13,6 +13,7 @@ namespace Phyxo\Functions;
 
 use GuzzleHttp\Client;
 use App\Repository\ImageRepository;
+use App\Repository\ConfigRepository;
 
 class Upload
 {
@@ -110,8 +111,7 @@ class Upload
         }
 
         if (count($errors) == 0) {
-            $conn->mass_updates(
-                CONFIG_TABLE,
+            (new ConfigRepository($conn))->massUpdates(
                 [
                     'primary' => ['param'],
                     'update' => ['value']

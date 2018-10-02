@@ -13,10 +13,12 @@ if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+use App\Repository\ConfigRepository;
+
 if (isset($_POST['param_submit'])) {
     $updated_param_count = 0;
     // Update param
-    $result = $conn->db_query('select param, value from ' . CONFIG_TABLE . ' where param like \'nbm\\_%\'');
+    $result = (new ConfigRepository($conn))->findAll('param like \'nbm\\_%\'');
     while ($nbm_user = $conn->db_fetch_assoc($result)) {
         if (isset($_POST[$nbm_user['param']])) {
             $value = $_POST[$nbm_user['param']];
@@ -36,11 +38,11 @@ if (isset($_POST['param_submit'])) {
     $conf->loadFromDB('param like \'nbm\\_%\'');
 }
 
-$template->assign(array(
+$template->assign([
     'SEND_HTML_MAIL' => $conf['nbm_send_html_mail'],
     'SEND_MAIL_AS' => $conf['nbm_send_mail_as'],
     'SEND_DETAILED_CONTENT' => $conf['nbm_send_detailed_content'],
     'COMPLEMENTARY_MAIL_CONTENT' => $conf['nbm_complementary_mail_content'],
     'SEND_RECENT_POST_DATES' => $conf['nbm_send_recent_post_dates'],
     'F_ACTION' => NOTIFICATION_BY_MAIL_BASE_URL . '&amp;section=params'
-));
+]);

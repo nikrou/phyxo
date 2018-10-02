@@ -25,7 +25,6 @@ define('PHPWG_ZIP_PATH', __DIR__ . '/fixtures/zip');
 define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 
 define('MASS_UPDATES_SKIP_EMPTY', false);
-define('CONFIG_TABLE', 'config');
 
 $conf['admin_theme'] = 'default';
 

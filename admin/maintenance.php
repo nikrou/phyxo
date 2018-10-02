@@ -14,6 +14,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use Phyxo\Template\FileCombiner;
+use App\Repository\UserFeedRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -41,7 +42,7 @@ switch ($action) {
     case 'unlock_gallery':
         {
             $conf['gallery_locked'] = false;
-            $_SESSION['page_infos'] = array(\Phyxo\Functions\Language::l10n('Gallery unlocked'));
+            $_SESSION['page_infos'] = [\Phyxo\Functions\Language::l10n('Gallery unlocked')];
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance');
             break;
         }
@@ -91,8 +92,7 @@ switch ($action) {
         }
     case 'feeds':
         {
-            $query = 'DELETE FROM ' . USER_FEED_TABLE . ' WHERE last_check IS NULL;';
-            $conn->db_query($query);
+            (new UserFeedRepository($conn))->deleteUserFeedNotChecked();
             break;
         }
     case 'database':
@@ -141,7 +141,7 @@ foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
 $purge_urls[\Phyxo\Functions\Language::l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . IMG_CUSTOM;
 
 $template->assign(
-    array(
+    [
         'U_MAINT_CATEGORIES' => sprintf($url_format, 'categories'),
         'U_MAINT_IMAGES' => sprintf($url_format, 'images'),
         'U_MAINT_ORPHAN_TAGS' => sprintf($url_format, 'delete_orphan_tags'),
@@ -156,21 +156,21 @@ $template->assign(
         'U_MAINT_DERIVATIVES' => sprintf($url_format, 'derivatives'),
         'purge_derivatives' => $purge_urls,
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=maintenance',
-    )
+    ]
 );
 
 
 if ($conf['gallery_locked']) {
     $template->assign(
-        array(
+        [
             'U_MAINT_UNLOCK_GALLERY' => sprintf($url_format, 'unlock_gallery'),
-        )
+        ]
     );
 } else {
     $template->assign(
-        array(
+        [
             'U_MAINT_LOCK_GALLERY' => sprintf($url_format, 'lock_gallery'),
-        )
+        ]
     );
 }
 
@@ -178,7 +178,7 @@ if ($conf['gallery_locked']) {
 // | Define advanced features                                              |
 // +-----------------------------------------------------------------------+
 
-$advanced_features = array();
+$advanced_features = [];
 
 //$advanced_features is array of array composed of CAPTION & URL
 $advanced_features = \Phyxo\Functions\Plugin::trigger_change(

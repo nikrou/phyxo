@@ -23,7 +23,7 @@ class LanguageRepository extends BaseRepository
 
     public function addLanguage(string $id, string $name, string $version)
     {
-        return $this->conn->single_insert(self::LANGUAGES_TABLE, ['id' => $id, 'name' => $name, 'version' => $version]);
+        return $this->conn->single_insert(self::LANGUAGES_TABLE, ['id' => $id, 'name' => $name, 'version' => $version], false);
     }
 
     public function deleteLanguage(string $id)

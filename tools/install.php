@@ -21,6 +21,7 @@ use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Repository\SiteRepository;
+use App\Repository\ConfigRepository;
 
 (new Dotenv())->load(__DIR__ . '/../.env');
 
@@ -56,11 +57,11 @@ $conn->executeSqlFile(
     $prefixeTable
 );
 
-$query = 'INSERT INTO ' . CONFIG_TABLE . ' (param,value,comment)';
-$query .= 'VALUES (\'secret_key\',';
-$query .= 'md5(' . $conn->db_cast_to_text($conn::RANDOM_FUNCTION . '()') . '),';
-$query .= '\'a secret key specific to the gallery for internal use\')';
-$conn->db_query($query);
+(new ConfigRepository($conn))->addParam(
+    'secret_key',
+    md5(openssl_random_pseudo_bytes(15)),
+    '\'a secret key specific to the gallery for internal use\')'
+);
 
 $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION);
 $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');

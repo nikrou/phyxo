@@ -16,6 +16,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
 use Phyxo\TabSheet\TabSheet;
+use App\Repository\ConfigRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -229,7 +230,7 @@ if (isset($_POST['submit'])) {
 
     // updating configuration if no error found
     if (!in_array($page['section'], ['sizes', 'watermark']) and count($page['errors']) == 0) {
-        $result = $conn->db_query('SELECT param FROM ' . CONFIG_TABLE);
+        $result = (new ConfigRepository($conn))->findAll();
         while ($row = $conn->db_fetch_assoc($result)) {
             if (isset($_POST[$row['param']])) {
                 $value = $_POST[$row['param']];

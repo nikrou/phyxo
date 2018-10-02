@@ -12,6 +12,7 @@
 namespace Phyxo;
 
 use Phyxo\DBLayer\DBLayer;
+use App\Repository\ConfigRepository;
 
 /**
  *  Manage configuration of Phyxo in two ways :
@@ -56,12 +57,7 @@ class Conf implements \ArrayAccess
      */
     public function loadFromDB($condition = '')
     {
-        $query = 'SELECT param, value  FROM ' . CONFIG_TABLE;
-        if (!empty($condition)) {
-            $query .= ' WHERE ' . $condition;
-        }
-
-        $result = $this->conn->db_query($query);
+        $result = (new ConfigRepository($this->conn))->findAll($condition);
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $value = isset($row['value']) ? $row['value'] : '';
             if ($this->conn->is_boolean($value)) {
@@ -79,26 +75,7 @@ class Conf implements \ArrayAccess
      */
     protected function addOrUpdateParam($param, $value)
     {
-        if (is_array($value) || is_object($value)) {
-            $dbValue = json_encode($value);
-        } else {
-            $dbValue = $this->conn->boolean_to_string($value);
-        }
-
-        $query = 'SELECT count(1) FROM ' . CONFIG_TABLE;
-        $query .= ' WHERE param = \'' . $this->conn->db_real_escape_string($param) . '\'';
-
-        list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
-        if ($counter == 0) {
-            $query = 'INSERT INTO ' . CONFIG_TABLE . ' (param, value)';
-            $query .= ' VALUES(\'' . $this->conn->db_real_escape_string($param) . '\', \'' . $this->conn->db_real_escape_string($dbValue) . '\')';
-            $this->conn->db_query($query);
-        } else {
-            $query = 'UPDATE ' . CONFIG_TABLE;
-            $query .= ' SET value = \'' . $this->conn->db_real_escape_string($dbValue) . '\'';
-            $query .= ' WHERE param = \'' . $this->conn->db_real_escape_string($param) . '\'';
-            $this->conn->db_query($query);
-        }
+        (new ConfigRepository($this->conn))->addOrUpdateParam($param, $value);
 
         $this->keys[self::DB_PREFIX . $param] = $value;
     }
@@ -149,20 +126,17 @@ class Conf implements \ArrayAccess
     protected function deleteParam($params)
     {
         if (!is_array($params)) {
-            $params = array($params);
+            $params = [$params];
         }
 
         if (empty($params)) {
             return;
         }
 
-        $query = 'DELETE FROM ' . CONFIG_TABLE;
-        $query .= ' WHERE param ' . $this->conn->in($params);
-        $this->conn->db_query($query);
+        (new ConfigRepository($this->conn))->delete($params);
 
         foreach ($params as $param) {
             unset($this->keys[self::DB_PREFIX . $param]);
         }
     }
-
 }

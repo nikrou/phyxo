@@ -56,7 +56,7 @@ class CommentRepository extends BaseRepository
     public function getLastComments(array $params = [], bool $count_only = false)
     {
         if ($count_only) {
-            $query = 'SELECT count(1)';//, com.id, ic.category_id, u.mail_address';
+            $query = 'SELECT count(1)';
         } else {
             $query = 'SELECT com.id AS comment_id, com.image_id, ic.category_id, com.author,';
             $query .= 'com.author_id, u.mail_address AS user_email, com.email,';
@@ -209,15 +209,16 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function validateUserComment($comments)
+    public function validateUserComment($comment_ids)
     {
         $query = 'UPDATE ' . self::COMMENTS_TABLE;
         $query .= ' SET validated = \'' . $this->conn->boolean_to_db(true) . '\', validation_date = NOW()';
-        if (is_array($comments)) {
-            $query .= ' WHERE id ' . $this->conn->in($comments);
+        if (is_array($comment_ids)) {
+            $query .= ' WHERE id ' . $this->conn->in($comment_ids);
         } else {
-            $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comments);
+            $query .= ' WHERE id = ' . $comment_ids;
         }
+
         return $this->conn->db_query($query);
     }
 
@@ -230,5 +231,70 @@ class CommentRepository extends BaseRepository
         $query .= ' OFFSET ' . $offset;
 
         return $this->conn->db_query($query);
+    }
+
+    public function getNewComments(? string $start = null, ? string $end = null, bool $count_only = false)
+    {
+        if ($count_only) {
+            $query = 'SELECT count(1)';
+        } else {
+            $query = 'SELECT c.id';
+        }
+        $query .= ' FROM ' . self::COMMENTS_TABLE . ' AS c';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON c.image_id = ic.image_id';
+        $query .= ' WHERE';
+
+        if (!is_null($start)) {
+            $query .= ' c.validation_date > \'' . $this->conn->db_real_escape_string($start) . '\'';
+        }
+
+        if (!is_null($end)) {
+            if (!is_null($start)) {
+                $query .= ' AND';
+            }
+            $query .= ' c.validation_date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+        }
+
+        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND');
+
+        if ($count_only) {
+            list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_comments;
+        } else {
+            return $this->conn->db_query($query);
+        }
+    }
+
+    public function getUnvalidatedComments(? string $start, ? string $end, bool $count_only)
+    {
+        if ($count_only) {
+            $query = 'SELECT count(1)';
+        } else {
+            $query = 'SELECT id';
+        }
+        $query .= ' FROM ' . self::COMMENTS_TABLE;
+        $query .= ' WHERE';
+
+        if (!is_null($start)) {
+            $query .= ' date > \'' . $this->conn->db_real_escape_string($start) . '\'';
+        }
+
+        if (!is_null($end)) {
+            if (!is_null($start)) {
+                $query .= ' AND';
+            }
+            $query .= ' date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+        }
+
+        $query .= ' AND validated = \'' . $this->conn->boolean_to_db(false) . '\'';
+
+        if ($count_only) {
+            list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_comments;
+        } else {
+            return $this->conn->db_query($query);
+        }
     }
 }

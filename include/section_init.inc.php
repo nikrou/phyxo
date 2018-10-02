@@ -14,6 +14,7 @@ use Phyxo\Calendar\CalendarMonthly;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
+use App\Repository\ImageRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -291,12 +292,8 @@ if ('categories' == $page['section']) {
             (new FavoriteRepository($conn))->removeAllFavorites($user['id']);
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(['section' => 'favorites']));
         } else {
-            $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . FAVORITES_TABLE . ' ON image_id = id';
-            $query .= ' WHERE user_id = ' . $user['id'];
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
-            $query .= ' ' . $conf['order_by'];
-            $page = array_merge($page, ['items' => $conn->query2array($query, null, 'image_id')]);
+            $result = (new ImageRepository($conn))->getFavorites($user['id'], $conf['order_by']);
+            $page = array_merge($page, ['items' => $conn->result2array($result, null, 'image_id')]);
 
             if (count($page['items']) > 0) {
                 $template->assign(

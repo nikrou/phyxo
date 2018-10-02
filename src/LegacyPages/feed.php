@@ -12,6 +12,8 @@
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
+use App\Repository\UserFeedRepository;
+
 // +-----------------------------------------------------------------------+
 // |                               functions                               |
 // +-----------------------------------------------------------------------+
@@ -54,9 +56,8 @@ $feed_id = isset($_GET['feed']) ? $_GET['feed'] : '';
 $image_only = isset($_GET['image_only']);
 
 if (!empty($feed_id)) {
-    $query = 'SELECT user_id,last_check  FROM ' . USER_FEED_TABLE;
-    $query .= ' WHERE id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
-    $feed_row = $conn->db_fetch_assoc($conn->db_query($query));
+    $result = (new UserFeedRepository($conn))->findById($feed_id);
+    $feed_row = $conn->db_fetch_assoc($result);
     if (empty($feed_row)) {
         \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Unknown feed identifier'));
     }
@@ -87,7 +88,7 @@ $rss->link = \Phyxo\Functions\URL::get_gallery_home_url();
 // |                            Feed creation                              |
 // +-----------------------------------------------------------------------+
 
-$news = array();
+$news = [];
 if (!$image_only) {
     $news = \Phyxo\Functions\Notification::news($feed_row['last_check'], $dbnow, true, true);
 
@@ -110,17 +111,13 @@ if (!$image_only) {
 
         $rss->addItem($item);
 
-        $query = 'UPDATE ' . USER_FEED_TABLE . ' SET last_check = \'' . $dbnow;
-        $query .= '\' where id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
-        $conn->db_query($query);
+        (new UserFeedRepository($conn))->updateUserFeed(['last_check' => $dbnow], $feed_id);
     }
 }
 
 if (!empty($feed_id) and empty($news)) {// update the last check from time to time to avoid deletion by maintenance tasks
     if (!isset($feed_row['last_check']) or time() - datetime_to_ts($feed_row['last_check']) > 30 * 24 * 3600) {
-        $query = 'UPDATE ' . USER_FEED_TABLE . ' SET last_check = ' . $conn->db_get_recent_period_expression(-15, $dbnow);
-        $query .= ' WHERE id = \'' . $conn->db_real_escape_string($feed_id) . '\'';
-        $conn->db_query($query);
+        (new UserFeedRepository($conn))->updateUserFeed(['last_check' => $conn->db_get_recent_period_expression(-15, $dbnow)], $feed_id);
     }
 }
 
@@ -131,12 +128,12 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
     $date = $date_detail['date_available'];
     $item->title = \Phyxo\Functions\Notification::get_title_recent_post_date($date_detail);
     $item->link = \Phyxo\Functions\URL::make_index_url(
-        array(
+        [
             'chronology_field' => 'posted',
             'chronology_style' => 'monthly',
             'chronology_view' => 'calendar',
             'chronology_date' => explode('-', substr($date, 0, 10))
-        )
+        ]
     );
 
     $item->description .= '<a href="' . \Phyxo\Functions\URL::make_index_url() . '">' . $conf['gallery_title'] . '</a><br> ';

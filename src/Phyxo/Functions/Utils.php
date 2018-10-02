@@ -24,6 +24,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\UserFeedRepository;
 
 class Utils
 {
@@ -1374,8 +1375,6 @@ class Utils
             USER_ACCESS_TABLE,
             // destruction of data notification by mail for this user
             USER_MAIL_NOTIFICATION_TABLE,
-            // destruction of data RSS notification for this user
-            USER_FEED_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
             // deletion of phyxo specific informations
@@ -1387,6 +1386,8 @@ class Utils
             $conn->db_query($query);
         }
 
+        // destruction of data RSS notification for this user
+        (new UserFeedRepository($conn))->deleteUserOnes($user_id);
         // deletion of calculated permissions linked to the user
         (new UserCacheRepository($conn))->deleteUserCache($user_id);
         // deletion of computed cache data linked to the user
@@ -1658,7 +1659,6 @@ class Utils
         // users present in user related tables must be present in the base user table
         $tables = [
             USER_MAIL_NOTIFICATION_TABLE,
-            USER_FEED_TABLE,
             USER_INFOS_TABLE,
             USER_ACCESS_TABLE,
             USER_GROUP_TABLE
@@ -1678,6 +1678,13 @@ class Utils
             }
         }
 
+        $to_delete = array_diff(
+            $conn->result2array((new UserFeedRepository($conn))->getDistinctUser(), null, 'user_id'),
+            $base_users
+        );
+        if (count($to_delete) > 0) {
+            (new UserFeedRepository($conn))->deleteByUserId($to_delete);
+        }
         $to_delete = array_diff(
             $conn->result2array((new UserCacheRepository($conn))->getDistinctUser(), null, 'user_id'),
             $base_users
