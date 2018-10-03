@@ -15,6 +15,8 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\Template\FileCombiner;
 use App\Repository\UserFeedRepository;
+use App\Repository\HistoryRepository;
+use App\Repository\HistorySummaryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -75,14 +77,12 @@ switch ($action) {
         }
     case 'history_detail':
         {
-            $query = 'DELETE FROM ' . HISTORY_TABLE . ';';
-            $conn->db_query($query);
+            (new HistoryRepository($conn))->deleteAll();
             break;
         }
     case 'history_summary':
         {
-            $query = 'DELETE FROM ' . HISTORY_SUMMARY_TABLE . ';';
-            $conn->db_query($query);
+            (new HistorySummaryRepository($conn))->deleteAll();
             break;
         }
     case 'sessions':

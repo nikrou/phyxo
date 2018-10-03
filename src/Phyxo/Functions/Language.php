@@ -293,7 +293,7 @@ class Language
         $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
         $browser_language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 
-        foreach ($langauges as $language_code => $language_name) {
+        foreach ($languages as $language_code => $language_name) {
             if (substr($language_code, 0, 2) == $browser_language) {
                 $lang = $language_code;
 

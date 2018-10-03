@@ -991,7 +991,7 @@ class Users
 
         // if user is not an admin, locked categories are forbidden
         if (!$this->isAdmin($user_status)) {
-            $result = (new CategoryRepository($conn))->findByField('visible', false);
+            $result = (new CategoryRepository($this->conn))->findByField('visible', false);
             $forbidden_array = array_merge($forbidden_array, $this->conn->result2array($result, null, 'id'));
             $forbidden_array = array_unique($forbidden_array);
         }

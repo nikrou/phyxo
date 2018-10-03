@@ -14,17 +14,12 @@ if (!defined('HISTORY_BASE_URL')) {
 }
 
 use App\Repository\HistorySummaryRepository;
+use App\Repository\HistoryRepository;
 // +-----------------------------------------------------------------------+
 // | Refresh summary from details                                          |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT date,' . $conn->db_get_hour('time') . ' AS hour,MAX(id) AS max_id,';
-$query .= 'COUNT(1) AS nb_pages FROM ' . HISTORY_TABLE;
-$query .= ' WHERE summarized = \'' . $conn->boolean_to_db(false) . '\'';
-$query .= ' GROUP BY date,hour';
-$query .= ' ORDER BY date ASC,hour ASC;';
-$result = $conn->db_query($query);
-
+$result = (new HistoryRepository($conn))->getDetailsFromNotSummarized();
 $need_update = [];
 
 $max_id = 0;
@@ -80,12 +75,7 @@ $updates = [];
 $inserts = [];
 
 if (isset($first_time_key)) {
-    list($year, $month, $day, $hour) = explode('-', $first_time_key);
-
-    $query = 'SELECT * FROM ' . HISTORY_SUMMARY_TABLE;
-    $query .= ' WHERE year=' . $year;
-    $query .= ' AND ( month IS NULL OR ( month=' . $month . ' AND ( day is NULL OR (day=' . $day . ' AND (hour IS NULL OR hour=' . $hour . ')))));';
-    $result = $conn->db_query($query);
+    $result = (new HistorySummaryRepository($conn))->getSummaryToUpdate(...explode('-', $first_time_key));
     while ($row = $conn->db_fetch_assoc($result)) {
         $key = sprintf('%4u', $row['year']);
         if (isset($row['month'])) {
@@ -119,8 +109,7 @@ foreach ($need_update as $time_key => $nb_pages) {
 }
 
 if (count($updates) > 0) {
-    $conn->mass_updates(
-        HISTORY_SUMMARY_TABLE,
+    (new HistorySummaryRepository($conn))->massUpdates(
         [
             'primary' => ['year', 'month', 'day', 'hour'],
             'update' => ['nb_pages'],
@@ -130,18 +119,11 @@ if (count($updates) > 0) {
 }
 
 if (count($inserts) > 0) {
-    $conn->mass_inserts(
-        HISTORY_SUMMARY_TABLE,
-        array_keys($inserts[0]),
-        $inserts
-    );
+    (new HistorySummaryRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
 }
 
 if ($max_id != 0) {
-    $query = 'UPDATE ' . HISTORY_TABLE . ' SET summarized = \'' . $conn->boolean_to_db(true) . '\'';
-    $query .= ' WHERE summarized = \'' . $conn->boolean_to_db(false) . '\'';
-    $query .= ' AND id <= ' . $max_id . ';';
-    $conn->db_query($query);
+    (new HistoryRepository($conn))->setSummarizedForUnsummarized($max_id);
 }
 
 // +-----------------------------------------------------------------------+

@@ -77,4 +77,54 @@ class HistoryRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
+
+    public function getDetailsFromNotSummarized()
+    {
+        $query = 'SELECT date,' . $this->conn->db_get_hour('time') . ' AS hour,MAX(id) AS max_id,';
+        $query .= 'COUNT(1) AS nb_pages FROM ' . self::HISTORY_TABLE;
+        $query .= ' WHERE summarized = \'' . $this->conn->boolean_to_db(false) . '\'';
+        $query .= ' GROUP BY date, hour';
+        $query .= ' ORDER BY date ASC, hour ASC';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function setSummarizedForUnsummarized(int $max_id)
+    {
+        $query = 'UPDATE ' . self::HISTORY_TABLE;
+        $query .= ' SET summarized = \'' . $this->conn->boolean_to_db(true) . '\'';
+        $query .= ' WHERE summarized = \'' . $this->conn->boolean_to_db(false) . '\'';
+        $query .= ' AND id <= ' . $max_id;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getMaxIdForUsers(array $user_ids)
+    {
+        $query = 'SELECT MAX(id) as history_id FROM ' . self::HISTORY_TABLE;
+        $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
+        $query .= ' GROUP BY user_id;';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByIds(array $ids)
+    {
+        $query = 'SELECT user_id, date, time FROM ' . self::HISTORY_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    public function addHistory($datas) : int
+    {
+        return $this->conn->single_insert(self::HISTORY_TABLE, $datas);
+    }
+
+    public function deleteAll()
+    {
+        $query = 'DELETE FROM ' . self::HISTORY_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

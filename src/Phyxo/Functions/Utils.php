@@ -25,6 +25,7 @@ use App\Repository\CaddieRepository;
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\UserFeedRepository;
+use App\Repository\HistoryRepository;
 
 class Utils
 {
@@ -491,18 +492,19 @@ class Utils
             $tags_string = implode(',', $page['tag_ids']);
         }
 
-        $query = 'INSERT INTO ' . HISTORY_TABLE;
-        $query .= ' (date,time,user_id,IP,section,category_id,image_id,image_type,tag_ids)';
-        $query .= ' VALUES(';
-        $query .= ' CURRENT_DATE,CURRENT_TIME,';
-        $query .= $conn->db_real_escape_string($user['id']) . ',\'' . $conn->db_real_escape_string($_SERVER['REMOTE_ADDR']) . '\',';
-        $query .= (isset($page['section']) ? "'" . $conn->db_real_escape_string($page['section']) . "'" : 'NULL') . ',';
-        $query .= (isset($page['category']['id']) ? $conn->db_real_escape_string($page['category']['id']) : 'NULL') . ',';
-        $query .= (isset($image_id) ? $conn->db_real_escape_string($image_id) : 'NULL') . ',';
-        $query .= (isset($image_type) ? "'" . $conn->db_real_escape_string($image_type) . "'" : 'NULL') . ',';
-        $query .= (isset($tags_string) ? "'" . $conn->db_real_escape_string($tags_string) . "'" : 'NULL');
-        $query .= ');';
-        $conn->db_query($query);
+        (new HistoryRepository($conn))->addHistory(
+            [
+                'date' => 'CURRENT_DATE',
+                'time' => 'CURRENT_TIME',
+                'user_id' => $user['id'],
+                'IP' => $_SERVER['REMOTE_ADDR'],
+                'section' => $page['section'] ?? null,
+                'category_id' => $page['category']['id'] ?? '',
+                'image_id' => $image_id ?? '',
+                'image_type' => $image_type ?? '',
+                'tag_ids' => $tags_string ?? ''
+            ]
+        );
 
         return true;
     }

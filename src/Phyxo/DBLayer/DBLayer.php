@@ -203,7 +203,9 @@ class DBLayer
                     $is_first = false;
                 }
 
-                if (is_bool($value)) {
+                if ($value === 'CURRENT_DATE' || $value === 'CURRENT_TIME') {
+                    $query .= $value;
+                } elseif (is_bool($value)) {
                     $query .= '\'' . $this->boolean_to_db($value) . '\'';
                 } elseif ($value === '') {
                     $query .= 'NULL';

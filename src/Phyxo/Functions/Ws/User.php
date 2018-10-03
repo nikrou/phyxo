@@ -16,6 +16,7 @@ use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
 use App\Repository\LanguageRepository;
+use App\Repository\HistoryRepository;
 
 class User
 {
@@ -165,17 +166,14 @@ class User
             }
 
             if (isset($params['display']['last_visit'])) {
-                $query = 'SELECT MAX(id) as history_id FROM ' . HISTORY_TABLE;
-                $query .= ' WHERE user_id ' . $conn->in(array_keys($users)) . ' GROUP BY user_id;';
-                $history_ids = $conn->query2array($query, null, 'history_id');
+                $result = (new HistoryRepository($conn))->getMaxIdForUsers(array_keys($users));
+                $history_ids = $conn->result2array($result, null, 'history_id');
 
                 if (count($history_ids) == 0) {
                     $history_ids[] = -1;
                 }
 
-                $query = 'SELECT user_id, date, time FROM ' . HISTORY_TABLE;
-                $query .= ' WHERE id ' . $conn->in($history_ids);
-                $result = $conn->db_query($query);
+                $result = (new HistoryRepository($conn))->findByIds($history_ids);
                 while ($row = $conn->db_fetch_assoc($result)) {
                     $last_visit = $row['date'] . ' ' . $row['time'];
                     $users[$row['user_id']]['last_visit'] = $last_visit;

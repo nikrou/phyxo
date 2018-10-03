@@ -13,7 +13,7 @@ namespace App\Repository;
 
 class HistorySummaryRepository extends BaseRepository
 {
-    public function getSummary(int $year = null, int $month = null, int $day = null)
+    public function getSummary(? int $year = null, ? int $month = null, ? int $day = null)
     {
         $query = 'SELECT year, month, day, hour, nb_pages FROM ' . self::HISTORY_SUMMARY_TABLE;
 
@@ -38,75 +38,29 @@ class HistorySummaryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getHistory($data, $search, $type)
+    public function getSummaryToUpdate(int $year, ? int $month = null, ? int $day = null, ? int $hour = null)
     {
-        if (isset($search['fields']['filename'])) {
-            $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
-            $query .= ' WHERE file LIKE \'' . $search['fields']['filename'] . '\'';
-            $search['image_ids'] = $this->conn->query2array($query, null, 'id');
-        }
+        $query = 'SELECT id, year, month, day, hour, nb_pages FROM ' . self::HISTORY_SUMMARY_TABLE;
+        $query .= ' WHERE year = ' . $year;
+        $query .= ' AND ( month IS NULL OR ( month=' . $month . ' AND ( day is NULL OR (day=' . $day . ' AND (hour IS NULL OR hour=' . $hour . ')))))';
 
-        $clauses = [];
+        return $this->conn->db_query($query);
+    }
 
-        if (isset($search['fields']['date-after'])) {
-            $clauses[] = "date >= '" . $search['fields']['date-after'] . "'";
-        }
+    public function deleteAll()
+    {
+        $query = 'DELETE FROM ' . self::HISTORY_SUMMARY_TABLE;
 
-        if (isset($search['fields']['date-before'])) {
-            $clauses[] = "date <= '" . $search['fields']['date-before'] . "'";
-        }
+        return $this->conn->db_query($query);
+    }
 
-        if (isset($search['fields']['types'])) {
-            $local_clauses = [];
+    public function massUpdates(array $fields, array $datas)
+    {
+        $this->conn->mass_updates(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
+    }
 
-            foreach ($types as $type) {
-                if (in_array($type, $search['fields']['types'])) {
-                    $clause = 'image_type ';
-                    if ($type == 'none') {
-                        $clause .= 'IS NULL';
-                    } else {
-                        $clause .= "= '" . $type . "'";
-                    }
-
-                    $local_clauses[] = $clause;
-                }
-            }
-
-            if (count($local_clauses) > 0) {
-                $clauses[] = implode(' OR ', $local_clauses);
-            }
-        }
-
-        if (isset($search['fields']['user']) and $search['fields']['user'] != -1) {
-            $clauses[] = 'user_id = ' . $search['fields']['user'];
-        }
-
-        if (isset($search['fields']['image_id'])) {
-            $clauses[] = 'image_id = ' . $search['fields']['image_id'];
-        }
-
-        if (isset($search['fields']['filename'])) {
-            if (count($search['image_ids']) == 0) {
-                // a clause that is always false
-                $clauses[] = '1 = 2 ';
-            } else {
-                $clauses[] = 'image_id ' . $this->conn->in($search['image_ids']);
-            }
-        }
-
-        if (isset($search['fields']['ip'])) {
-            $clauses[] = 'ip LIKE \'' . $search['fields']['ip'] . '\'';
-        }
-
-        $clauses = \Phyxo\Functions\Utils::prepend_append_array_items($clauses, '(', ')');
-
-        $where_separator = implode(' AND ', $clauses);
-
-        $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,';
-        $query .= 'image_id,image_type FROM ' . self::HISTORY_TABLE;
-        $query .= ' WHERE ' . $where_separator;
-
-        $result = $this->conn->db_query($query);
-
+    public function massInserts(array $fields, array $datas)
+    {
+        $this->conn->mas_inserts(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
     }
 }
