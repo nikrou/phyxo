@@ -46,8 +46,8 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        $query = 'SELECT MAX(id)+1, COUNT(1) FROM ' . IMAGES_TABLE;
-        list($max_id, $image_count) = $conn->db_fetch_row($conn->db_query($query));
+        $result = (new ImageRepository($conn))->findMaxIdAndCount();
+        list($max_id, $image_count) = $conn->db_fetch_row($result);
 
         if (0 == $image_count) {
             return [];
@@ -64,19 +64,15 @@ class Main
         $conf['derivative_url_style'] = 2; //script
 
         $qlimit = min(5000, ceil(max($image_count / 500, $max_urls / count($types))));
-        $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, '');
-        $where_clauses[] = 'id<start_id';
+        $where_clauses[] = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, '');
 
         if (!empty($params['ids'])) {
             $where_clauses[] = 'id ' . $conn->in($params['ids']);
         }
 
-        $query_model = 'SELECT id, path, representative_ext, width, height, rotation FROM ' . IMAGES_TABLE;
-        $query_model .= ' WHERE ' . implode(' AND ', $where_clauses) . ' ORDER BY id DESC LIMIT ' . $qlimit;
-
         $urls = [];
         do {
-            $result = $conn->db_query(str_replace('start_id', $start_id, $query_model));
+            $result = (new ImageRepository($conn))->findWithCondtions($where_clauses, $start_id, $qlimit);
             $is_last = $conn->db_num_rows($result) < $qlimit;
 
             while ($row = $conn->db_fetch_assoc($result)) {
@@ -96,14 +92,14 @@ class Main
                     }
                 }
 
-                if (count($urls) >= $max_urls and !$is_last) {
+                if (count($urls) >= $max_urls && !$is_last) {
                     break;
                 }
             }
             if ($is_last) {
                 $start_id = 0;
             }
-        } while (count($urls) < $max_urls and $start_id);
+        } while (count($urls) < $max_urls && $start_id);
 
         $ret = [];
         if ($start_id) {

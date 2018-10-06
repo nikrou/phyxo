@@ -18,6 +18,7 @@ use Phyxo\Conf;
 use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
 use Phyxo\Functions\Utils;
+use App\Repository\ImageRepository;
 
 // container
 if (!empty($GLOBALS['container'])) {
@@ -230,17 +231,11 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
                 $filter['visible_categories'] = -1;
             }
 
-            $query = 'SELECT distinct image_id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
-            $query .= ' WHERE ';
-
-            if (!empty($filter['visible_categories'])) {
-                $query .= ' category_id  ' . $conn->in($filter['visible_categories']) . ' AND ';
-            }
-
-            $query .= ' date_available >= ' . $conn->db_get_recent_period_expression($filter['recent_period']);
-
-            $filter['visible_images'] = implode(',', $conn->query2array($query, null, 'image_id'));
+            $result = (new ImageRepository($conn))->findVisibleImages(
+                explode(',', $filter['visible_categories']),
+                $filter['recent_period']
+            );
+            $filter['visible_images'] = implode(',', $conn->result2array($result, null, 'image_id'));
 
             if (empty($filter['visible_images'])) {
                 // Must be not empty

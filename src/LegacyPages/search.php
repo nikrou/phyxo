@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
@@ -177,23 +178,8 @@ if (count($available_tags) > 0) {
 
 // authors
 $authors = [];
-
-$query = 'SELECT author, id FROM ' . IMAGES_TABLE . ' AS i';
-$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
-$query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-    [
-        'forbidden_categories' => 'category_id',
-        'visible_categories' => 'category_id',
-        'visible_images' => 'id'
-    ],
-    ' WHERE '
-);
-$query .= ' AND author IS NOT NULL';
-$query .= ' GROUP BY author, id';
-$query .= ' ORDER BY author;';
-
 $author_counts = [];
-$result = $conn->db_query($query);
+$result = (new ImageRepository($conn))->findGroupByAuthor();
 while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($author_counts[$row['author']])) {
         $author_counts[$row['author']] = 0;
@@ -212,13 +198,15 @@ foreach ($author_counts as $author => $counter) {
 $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
-$where = [\Phyxo\Functions\SQL::get_sql_condition_FandF(
+$where = [];
+if ($filter_condtion = \Phyxo\Functions\SQL::get_sql_condition_FandF(
     [
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
-    ],
-    'WHERE'
-)];
+    ]
+)) {
+    $where[] = $filter_condtion;
+}
 $result = (new CategoryRepository($conn))->findWithCondtion($where);
 $categories = $conn->result2array($result);
 \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_options', true);

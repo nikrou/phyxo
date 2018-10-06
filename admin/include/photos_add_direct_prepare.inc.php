@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 // +-----------------------------------------------------------------------+
 // | Photo selection                                                       |
@@ -115,7 +116,7 @@ if (isset($_GET['album'])) {
     $selected_category = $_SESSION['selected_category'];
 } else {
     // we need to know the category in which the last photo was added
-    $result = (new CategoryRepository($conn))->findCategoryWithLastImageAdded();
+    $result = (new ImageRepository($conn))->findCategoryWithLastImageAdded();
     if ($conn->db_num_rows($result) > 0) {
         $row = $conn->db_fetch_assoc($result);
         $selected_category = [$row['category_id']];

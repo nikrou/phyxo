@@ -26,6 +26,7 @@ use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
+use App\Repository\ImageRepository;
 
 class Utils
 {
@@ -821,7 +822,7 @@ class Utils
         // must be not used because filter <> restriction
         // retrieving images allowed : belonging to at least one authorized category
         $result = (new FavoriteRepository($conn))->findUnauthorizedImagesInFavorite($user['id']);
-        $authorizeds = $conn->result2array($query, null, 'image_id');
+        $authorizeds = $conn->result2array($result, null, 'image_id');
 
         $result = (new FavoriteRepository($conn))->findAll($user['id']);
         $favorites = $conn->result2array($result, null, 'image_id');
@@ -1106,13 +1107,9 @@ class Utils
             return [];
         }
 
-        $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id ' . $conn->in($cat_ids);
-        if ($only_new) {
-            $query .= ' AND date_metadata_update IS NULL';
-        }
+        $result = (new ImageRepository($conn))->findByStorageCategoryId($cat_ids, $only_new);
 
-        return $conn->query2array($query, 'id');
+        return $conn->result2array($result, 'id');
     }
 
     /**
@@ -1261,10 +1258,7 @@ class Utils
         }
 
         $new_ids = [];
-
-        $query = 'SELECT id,path,representative_ext FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($ids);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findByIds($ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             if (\Phyxo\Functions\URL::url_is_remote($row['path'])) {
                 continue;
@@ -1346,8 +1340,7 @@ class Utils
         (new CaddieRepository($conn))->deleteElements($ids);
 
         // destruction of the image
-        $query = 'DELETE FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($ids);
-        $conn->db_query($query);
+        (new ImageRepository($conn))->deleteByElementIds($ids);
 
         // are the photo used as category representant?
         $result = (new CategoryRepository($conn))->findRepresentants($ids);
@@ -1418,15 +1411,11 @@ class Utils
     {
         global $conn;
 
-        $query = 'SELECT image_id FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id WHERE id IS NULL;';
-        $result = $conn->db_query($query);
-        $orphan_image_ids = $conn->query2array($query, null, 'image_id');
+        $result = (new ImageRepository($conn))->findOrphanImages();
+        $orphan_image_ids = $conn->result2array($result, null, 'image_id');
 
         if (count($orphan_image_ids) > 0) {
-            $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE image_id ' . $conn->in($orphan_image_ids);
-            $conn->db_query($query);
+            (new ImageCategoryRepository($conn))->deleteByCategory([], $orphan_image_ids);
         }
     }
 
@@ -1710,16 +1699,12 @@ class Utils
     {
         global $conn;
 
-        $query = 'SELECT DISTINCT(storage_category_id) FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id IS NOT NULL';
-        $cat_ids = $conn->query2array($query, null, 'storage_category_id');
+        $result = (new ImageRepository($conn))->findDistinctStorageId();
+        $cat_ids = $conn->result2array($result, null, 'storage_category_id');
         $fulldirs = \Phyxo\Functions\Category::get_fulldirs($cat_ids);
 
         foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
-            $query = 'UPDATE ' . IMAGES_TABLE;
-            $query .= ' SET path = ' . $conn->db_concat(["'" . $fulldirs[$cat_id] . "/'", 'file']);
-            $query .= ' WHERE storage_category_id = ' . $conn->db_real_escape_string($cat_id);
-            $conn->db_query($query);
+            (new ImageRepository($conn))->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
         }
     }
 

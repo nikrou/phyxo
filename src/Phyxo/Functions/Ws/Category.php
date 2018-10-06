@@ -17,6 +17,7 @@ use Phyxo\Ws\NamedStruct;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\ImageRepository;
 
 class Category
 {
@@ -76,15 +77,7 @@ class Category
                 $order_by = $cats[$params['cat_id'][0]]['image_order'];
             }
             $order_by = empty($order_by) ? $conf['order_by'] : 'ORDER BY ' . $order_by;
-
-            $query = 'SELECT i.*, ' . $conn->db_group_concat('category_id') . ' AS cat_ids FROM ' . IMAGES_TABLE . ' i';
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON i.id=image_id';
-            $query .= ' WHERE ' . implode(' AND ', $where_clauses);
-            $query .= ' GROUP BY i.id';
-            $query .= ' ' . $order_by;
-            $query .= ' LIMIT ' . (int)$params['per_page'];
-            $query .= ' OFFSET ' . (int)($params['per_page'] * $params['page']) . ';';
-            $result = $conn->db_query($query);
+            $result = (new ImageRepository($conn))->getImagesFromCategories($where_clauses, $order_by, $params['per_page'], $params['per_page'] * $params['page']);
 
             while ($row = $conn->db_fetch_assoc($result)) {
                 $image = [];
@@ -274,10 +267,7 @@ class Category
             $thumbnail_src_of = [];
             $new_image_ids = [];
 
-            $query = 'SELECT id, path, representative_ext, level FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($image_ids);
-            $result = $conn->db_query($query);
-
+            $result = (new ImageRepository($conn))->getImagesFromCategories($image_ids);
             while ($row = $conn->db_fetch_assoc($result)) {
                 if ($row['level'] <= $user['level']) {
                     $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
@@ -310,10 +300,7 @@ class Category
             }
 
             if (count($new_image_ids) > 0) {
-                $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
-                $query .= ' WHERE id ' . $conn->in($new_image_ids);
-                $result = $conn->db_query($query);
-
+                $result = (new ImageRepository($conn))->findByIds($new_image_ids);
                 while ($row = $conn->db_fetch_assoc($result)) {
                     $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
                 }
@@ -509,10 +496,7 @@ class Category
         }
 
         // does the image really exist?
-        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
             return new Error(404, 'image_id not found');
         }
 

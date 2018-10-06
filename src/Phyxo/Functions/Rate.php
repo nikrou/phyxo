@@ -12,6 +12,7 @@
 namespace Phyxo\Functions;
 
 use App\Repository\RateRepository;
+use App\Repository\ImageRepository;
 
 class Rate
 {
@@ -116,31 +117,13 @@ class Rate
             }
             $updates[] = ['id' => $id, 'rating_score' => $score];
         }
-        $conn->mass_updates(
-            IMAGES_TABLE,
+        (new ImageRepository($conn))->massUpdates(
             [
                 'primary' => ['id'],
                 'update' => ['rating_score']
             ],
             $updates
         );
-
-        //set to null all items with no rate
-        // @TODO : how that situation can exist ?
-        if (!isset($by_item[$element_id])) {
-            // $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            // $query .= ' LEFT JOIN ' . RATE_TABLE . ' ON id = element_id';
-            // $query .= ' WHERE element_id IS NULL AND rating_score IS NOT NULL';
-
-            // $to_update = $conn->query2array($result, null, 'id');
-
-            // if (!empty($to_update)) {
-            //     $query = 'UPDATE ' . IMAGES_TABLE;
-            //     $query .= ' SET rating_score=NULL';
-            //     $query .= ' WHERE id ' . $conn->in($to_update);
-            //     $conn->db_query($query);
-            // }
-        }
 
         return isset($return) ? $return : ['score' => null, 'average' => null, 'count' => 0];
     }

@@ -229,11 +229,8 @@ if ('categories' == $page['section']) {
 
         if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
             // main query
-            $query = 'SELECT DISTINCT(image_id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-            $query .= ' WHERE ' . $where_sql . ' ' . $forbidden . ' ' . $conf['order_by'];
-
-            $page['items'] = $conn->query2array($query, null, 'image_id');
+            $result = (new ImageRepository($conn))->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
+            $page['items'] = $conn->result2array($result, null, 'image_id');
 
             if (isset($cache_key)) {
                 $persistent_cache->set($cache_key, $page['items']);
@@ -319,15 +316,17 @@ if ('categories' == $page['section']) {
             );
         }
 
-        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_recent_photos('date_available') . ' ' . $forbidden . ' ' . $conf['order_by'];
-
+        $result = (new ImageRepository($conn))->searchDistinctId(
+            'id',
+            [\Phyxo\Functions\SQL::get_recent_photos('date_available') . ' ' . $forbidden],
+            true,
+            $conf['order_by']
+        );
         $page = array_merge(
             $page,
             [
                 'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
-                'items' => $conn->query2array($query, null, 'id')
+                'items' => $conn->result2array($result, null, 'id')
             ]
         );
     } elseif ($page['section'] == 'recent_cats') {
@@ -342,17 +341,12 @@ if ('categories' == $page['section']) {
         $page['super_order_by'] = true;
         $conf['order_by'] = ' ORDER BY hit DESC, id DESC';
 
-        $query = 'SELECT DISTINCT(id), ' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE hit > 0';
-        $query .= ' ' . $forbidden;
-        $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conf['top_number'];
-
+        $result = (new ImageRepository($conn))->searchDistinctId('id', ['hit > 0 ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
         $page = array_merge(
             $page,
             [
                 'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
-                'items' => $conn->query2array($query, null, 'id'),
+                'items' => $conn->result2array($result, null, 'id'),
             ]
         );
     } elseif ($page['section'] == 'best_rated') {
@@ -362,33 +356,24 @@ if ('categories' == $page['section']) {
         $page['super_order_by'] = true;
         $conf['order_by'] = ' ORDER BY rating_score DESC, id DESC';
 
-        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE rating_score IS NOT NULL';
-        $query .= ' ' . $forbidden;
-        $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conf['top_number'];
+        $result = (new ImageRepository($conn))->searchDistinctId('id', ['rating_score IS NOT NULL ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
         $page = array_merge(
             $page,
             [
                 'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
-                'items' => $conn->query2array($query, null, 'id'),
+                'items' => $conn->result2array($result, null, 'id'),
             ]
         );
     } elseif ($page['section'] == 'list') {
         // +-----------------------------------------------------------------------+
         // |                             list section                              |
         // +-----------------------------------------------------------------------+
-        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE image_id ' . $conn->in($page['list']);
-        $query .= ' ' . $forbidden;
-        $query .= ' ' . $conf['order_by'];
-
+        $result = (new ImageRepository($conn))->findList($page['list'], $forbidden, $conf['order_by']);
         $page = array_merge(
             $page,
             [
                 'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
-                'items' => $conn->query2array($query, null, 'id'),
+                'items' => $conn->result2array($result, null, 'id'),
             ]
         );
     }
@@ -457,15 +442,13 @@ if (isset($page['chronology_field'])) {
     $styles = [
         // Monthly style
         'monthly' => [
-            'include' => 'calendar_monthly.class.php',
             'view_calendar' => true,
-            'classname' => 'CalendarMonthly',
+            'classname' => 'Phyxo\Calendar\CalendarMonthly',
         ],
         // Weekly style
         'weekly' => [
-            'include' => 'calendar_weekly.class.php',
             'view_calendar' => false,
-            'classname' => 'CalendarWeekly',
+            'classname' => 'Phyxo\Calendar\CalendarWeekly',
         ],
     ];
 
@@ -479,12 +462,11 @@ if (isset($page['chronology_field'])) {
         $page['chronology_style'] = 'monthly';
     }
     $cal_style = $page['chronology_style'];
-    $classname = 'Phyxo\Calendar\\' . $styles[$cal_style]['classname'];
+    $classname = $styles[$cal_style]['classname'];
 
     $calendar = new $classname();
 
     // Retrieve view
-
     if (!isset($page['chronology_view']) or !in_array($page['chronology_view'], $views)) {
         $page['chronology_view'] = CAL_VIEW_LIST;
     }

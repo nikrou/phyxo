@@ -11,6 +11,7 @@
 
 use App\Repository\CategoryRepository;
 use App\Repository\SiteRepository;
+use App\Repository\ImageRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
@@ -146,10 +147,8 @@ if ($category['has_images']) {
         $base_url . 'batch_manager&amp;filter=album-' . $category['id']
     );
 
-    $query = 'SELECT COUNT(image_id), MIN(DATE(date_available)), MAX(DATE(date_available)) FROM ' . IMAGES_TABLE;
-    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
-    $query .= ' WHERE category_id = ' . $category['id'] . ';';
-    list($image_count, $min_date, $max_date) = $conn->db_fetch_row($conn->db_query($query));
+    $result = (new ImageRepository($conn))->getImagesInfosInCategory($category['id']);
+    list($image_count, $min_date, $max_date) = $conn->db_fetch_row($result);
 
     if ($min_date == $max_date) {
         $intro = \Phyxo\Functions\Language::l10n(
@@ -231,9 +230,8 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     // picture to display : the identified representant or the generic random
     // representant ?
     if (!empty($category['representative_picture_id'])) {
-        $query = 'SELECT id,representative_ext,path FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $category['representative_picture_id'];
-        $row = $conn->db_fetch_assoc($conn->db_query($query));
+        $result = (new ImageRepository($conn))->findById($category['representative_picture_id']);
+        $row = $conn->db_fetch_assoc($result);
         $src = \Phyxo\Image\DerivativeImage::thumb_url($row);
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
 

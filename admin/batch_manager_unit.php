@@ -10,6 +10,7 @@
  */
 
 use App\Repository\TagRepository;
+use App\Repository\ImageRepository;
 /**
  * Management of elements set. Elements can belong to a category or to the
  * user caddie.
@@ -36,10 +37,7 @@ if (isset($_POST['submit'])) {
 
     $datas = [];
 
-    $query = 'SELECT id, date_creation FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($collection);
-    $result = $conn->db_query($query);
-
+    $result = (new ImageRepository($conn))->findByIds($collection);
     while ($row = $conn->db_fetch_assoc($result)) {
         $data = [];
 
@@ -70,8 +68,7 @@ if (isset($_POST['submit'])) {
         $services['tags']->setTags($tag_ids, $row['id']);
     }
 
-    $conn->mass_updates(
-        IMAGES_TABLE,
+    (new ImageRepository($conn))->massUpdates(
         [
             'primary' => ['id'],
             'update' => ['name', 'author', 'level', 'comment', 'date_creation']
@@ -130,29 +127,20 @@ if (count($page['cat_elements_id']) > 0) {
         $conf['order_by'] = ' ORDER BY file, id';
     }
 
-    $query = 'SELECT * FROM ' . IMAGES_TABLE;
-
     if ($is_category) {
         $category_info = \Phyxo\Functions\Category::get_cat_info($_SESSION['bulk_manager_filter']['category']);
-
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {
             $conf['order_by'] = ' ORDER BY ' . $category_info['image_order'];
         }
-
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
     }
-
-    $query .= ' WHERE id ' . $conn->in($page['cat_elements_id']);
-
-    if ($is_category) {
-        $query .= ' AND category_id = ' . $conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
-    }
-
-    $query .= ' ' . $conf['order_by'] . ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
-    $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
-    $result = $conn->db_query($query);
-
+    $result = (new ImageRepository($conn))->findByImageIdsAndCategoryId(
+        $page['cat_elements_id'],
+        $_SESSION['bulk_manager_filter']['category'] ?? null,
+        $conf['order_by'],
+        $page['nb_images'],
+        $page['start']
+    );
     while ($row = $conn->db_fetch_assoc($result)) {
         $element_ids[] = $row['id'];
 

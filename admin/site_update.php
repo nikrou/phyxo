@@ -16,6 +16,8 @@ if (!defined('PHPWG_ROOT_PATH')) {
 use Phyxo\LocalSiteReader;
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -127,7 +129,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     }
 
     // next category id available
-    $next_id = $conn->db_nextval('id', CATEGORIES_TABLE);
+    $next_id = (new CategoryRepository($conn))->getNextId();
 
     // retrieve sub-directories fulldirs from the site reader
     $fs_fulldirs = $site_reader->get_full_directories($basedir);
@@ -357,14 +359,12 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
     $db_elements = [];
 
     if (count($cat_ids) > 0) {
-        $query = 'SELECT id, path FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE storage_category_id ' . $conn->in($cat_ids);
-        $db_elements = $conn->query2array($query, 'id', 'path');
+        $result = (new ImageRepository($conn))->findByFields('storage_category_id', $cat_ids);
+        $db_elements = $conn->result2array($result, 'id', 'path');
     }
 
     // next element id available
-    $next_element_id = $conn->db_nextval('id', IMAGES_TABLE);
-
+    $next_element_id = (new ImageRepository($conn))->getNextId();
     $start = microtime(true);
 
     $inserts = [];
@@ -420,18 +420,10 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
     if (count($inserts) > 0) {
         if (!$simulate) {
             // inserts all new elements
-            $conn->mass_inserts(
-                IMAGES_TABLE,
-                array_keys($inserts[0]),
-                $inserts
-            );
+            (new ImageRepository($conn))->addImages(array_keys($inserts[0]), $inserts);
 
             // inserts all links between new elements and their storage category
-            $conn->mass_inserts(
-                IMAGE_CATEGORY_TABLE,
-                array_keys($insert_links[0]),
-                $insert_links
-            );
+            (new ImageCategoryRepository($conn))->massInserts(array_keys($insert_links[0]), $insert_links);
 
             // add new photos to caddie
             if (isset($_POST['add_to_caddie']) and $_POST['add_to_caddie'] == 1) {
@@ -501,9 +493,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
         $counts['upd_elements'] = count($datas);
         if (!$simulate and count($datas) > 0) {
-            $conn->mass_updates(
-                IMAGES_TABLE,
-                // fields
+            (new ImageRepository($conn))->massUpdates(
                 [
                     'primary' => ['id'],
                     'update' => $site_reader->get_update_attributes(),
@@ -591,9 +581,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
 
     if (!$simulate) {
         if (count($datas) > 0) {
-            $conn->mass_updates(
-                IMAGES_TABLE,
-              // fields
+            (new ImageRepository($conn))->massUpdates(
                 [
                     'primary' => ['id'],
                     'update' => array_unique(

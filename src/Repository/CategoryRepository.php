@@ -66,7 +66,10 @@ class CategoryRepository extends BaseRepository
     {
         $query = 'SELECT id, name, id_uppercat, comment, dir, rank, status, site_id, visible, representative_picture_id, uppercats,';
         $query .= ' commentable, global_rank, image_order, permalink, lastmodified FROM ' . self::CATEGORIES_TABLE;
-        $query .= ' WHERE ' . implode(' AND ', $where);
+
+        if (count($where) > 0) {
+            $query .= ' WHERE ' . implode(' AND ', $where);
+        }
 
         return $this->conn->db_query($query);
     }
@@ -102,7 +105,7 @@ class CategoryRepository extends BaseRepository
 
     public function findCategoriesForImage(int $image_id)
     {
-        $query = 'SELECT category_id, uppercats FROM ' . self::CATEGORIES_TABLE . ' AS c';
+        $query = 'SELECT c.id, category_id, uppercats FROM ' . self::CATEGORIES_TABLE . ' AS c';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON c.id = ic.category_id';
         $query .= ' WHERE image_id = ' . $image_id;
 
@@ -209,6 +212,11 @@ class CategoryRepository extends BaseRepository
         $query .= ' GROUP BY id_uppercat';
 
         return $this->conn->db_query($query);
+    }
+
+    public function getNextId() : int
+    {
+        return $this->conn->db_nextval('id', self::CATEGORIES_TABLE);
     }
 
     public function findById(int $id) : array

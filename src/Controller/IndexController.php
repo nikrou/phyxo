@@ -13,6 +13,7 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\DBLayer\iDBLayer;
+use App\Repository\ImageRepository;
 
 class IndexController extends BaseController
 {
@@ -78,9 +79,7 @@ class IndexController extends BaseController
         chdir(dirname($legacy_file));
         require $legacy_file;
 
-        $query = 'SELECT id FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $where_sql = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -88,9 +87,8 @@ class IndexController extends BaseController
             ],
             'WHERE'
         );
-        $query .= ' ORDER BY ' . $this->container->get('phyxo.conn')::RANDOM_FUNCTION . '()';
-        $query .= ' LIMIT ' . min(50, $conf['top_number'], $user['nb_image_page']);
-        $list = $this->container->get('phyxo.conn')->query2array($query, null, 'id');
+        $result = (new ImageRepository($conn))->findRandomImages($where_sql, '', min(50, $conf['top_number'], $user['nb_image_page']));
+        $list = $conn->result2array($result, null, 'id');
 
         return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
     }

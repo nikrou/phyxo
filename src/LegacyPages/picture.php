@@ -13,6 +13,7 @@ use App\Repository\CommentRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -36,11 +37,7 @@ if (!empty($_GET['display'])) {
 // direct call
 if (isset($_GET['level'])) {
     if (in_array($_GET['level'], $conf['available_permission_levels'])) {
-        $query = 'UPDATE ' . IMAGES_TABLE;
-        $query .= ' SET level = ' . $conn->db_real_escape_string($_GET['level']);
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['image_id']);
-        $result = $conn->db_query($query);
-
+        (new ImageRepository($conn))->updateImage(['level' => $_GET['level']], $page['image_id']);
         \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_picture_url(['image_id' => $page['image_id']]));
     }
 }
@@ -50,16 +47,12 @@ $page['rank_of'] = array_flip($page['items']);
 // if this image_id doesn't correspond to this category, an error message is
 // displayed, and execution is stopped
 if (!isset($page['rank_of'][$page['image_id']])) {
-    $query = 'SELECT id, file, level FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE ';
     if ($page['image_id'] > 0) {
-        $query .= 'id = ' . $page['image_id'];
+        $result = (new ImageRepository($conn))->findById($page['image_id']);
     } else { // url given by file name
-        assert(!empty($page['image_file'])); // @TODO: remove and throw error/exception
-        $query .= 'file LIKE \'' . str_replace(['_', '%'], ['/_', '/%'], $page['image_file']);
-        $query .= '.%\' ESCAPE \'/\' LIMIT 1';
+        $result = (new ImageRepository($conn))->searchByField('file', str_replace(['_', '%'], ['/_', '/%'], $page['image_file']) . '.%');
     }
-    if (!($row = $conn->db_fetch_assoc($conn->db_query($query)))) { // element does not exist
+    if (!($row = $conn->db_fetch_assoc($result))) { // element does not exist
         \Phyxo\Functions\HTTP::page_not_found(
             'The requested image does not exist',
             \Phyxo\Functions\URL::duplicate_index_url()
@@ -81,12 +74,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
         if ('categories' == $page['section'] and !isset($page['category'])) { // flat view - all items
             \Phyxo\Functions\HTTP::access_denied();
         } else { // try to see if we can access it differently
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
-            $query .= ' WHERE id=' . $page['image_id'];
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id'], ' AND ');
-            $query .= ' LIMIT 1';
-            if ($conn->db_num_rows($conn->db_query($query)) == 0) {
+            if (!(new ImageRepository($conn))->isImageAuthorized($page['image_id'])) {
                 \Phyxo\Functions\HTTP::access_denied();
             } else {
                 if ('best_rated' == $page['section']) {
@@ -351,8 +339,7 @@ if (isset($_SERVER['HTTP_X_MOZ']) and $_SERVER['HTTP_X_MOZ'] == 'prefetch') {
 // don't increment if adding a comment
 if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count', $inc_hit_count, $page['image_id'])) {
     // avoiding auto update of "lastmodified" field
-    $query = 'UPDATE ' . IMAGES_TABLE . ' SET hit = hit+1, lastmodified = lastmodified WHERE id = ' . $page['image_id'] . ';';
-    $conn->db_query($query);
+    (new ImageRepository($conn))->updateImageHitAndLastModified($page['image_id']);
 }
 
 //---------------------------------------------------------- related categories
@@ -372,10 +359,7 @@ if (isset($page['next_item'])) {
     $ids[] = $page['last_item'];
 }
 
-// @TODO: replace select * by fields
-$query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($ids);
-$result = $conn->db_query($query);
-
+$result = (new ImageRepository($conn))->findByIds($ids);
 while ($row = $conn->db_fetch_assoc($result)) {
     if (isset($page['previous_item']) and $row['id'] == $page['previous_item']) {
         $i = 'previous';

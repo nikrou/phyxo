@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\ImageRepository;
+
 // The "No Photo Yet" feature: if you have no photo yet in your gallery, the
 // gallery displays only a big box to show you the way for adding your first
 // photos
@@ -16,13 +18,11 @@
 // keep the ability to login
 // keep the ability to discuss with web API
 if (!(defined('IN_ADMIN') and IN_ADMIN)
-    and \Phyxo\Functions\Utils::script_basename() != 'identification'
-    and \Phyxo\Functions\Utils::script_basename() != 'ws'
-    and !isset($_SESSION['no_photo_yet'])) {  // temporary hide
+    && \Phyxo\Functions\Utils::script_basename() != 'identification'
+    && \Phyxo\Functions\Utils::script_basename() != 'ws'
+    && !isset($_SESSION['no_photo_yet'])) {  // temporary hide
 
-    $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ';';
-    list($nb_photos) = $conn->db_fetch_row($conn->db_query($query));
-    if ($nb_photos === 0) {
+    if ((new ImageRepository($conn))->count() === 0) {
         // make sure we don't use the mobile theme, which is not compatible with
         // the "no photo yet" feature
         $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $user['theme']);

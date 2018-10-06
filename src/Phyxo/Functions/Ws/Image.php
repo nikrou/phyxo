@@ -20,6 +20,8 @@ use App\Repository\CommentRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 class Image
 {
@@ -78,12 +80,7 @@ class Image
     {
         global $user, $conf, $conn, $services;
 
-        $query = 'SELECT * FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], ' AND ');
-        $query .= ' LIMIT 1;';
-        $result = $conn->db_query($query);
-
+        $result = (new ImageRepository($conn))->findById($params['image_id'], $visible_images = true);
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
         }
@@ -235,21 +232,9 @@ class Image
     {
         global $conf, $conn;
 
-        $query = 'SELECT DISTINCT id FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
-        $query .= ' WHERE id=' . $conn->db_real_escape_string($params['image_id']);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
-            [
-                'forbidden_categories' => 'category_id',
-                'forbidden_images' => 'id',
-            ],
-            '    AND'
-        );
-        $query .= ' LIMIT 1;';
-        if ($conn->db_num_rows($conn->db_query($query)) == 0) {
+        if ((new ImageRepository($conn))->isImageAuthorized($params['image_id'])) {
             return new Error(404, 'Invalid image_id or access denied');
         }
-
         $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
 
         if ($res == false) {
@@ -270,7 +255,7 @@ class Image
      */
     public static function search($params, $service)
     {
-        global $conn;
+        global $conf, $conn;
 
         $images = [];
         $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
@@ -278,7 +263,6 @@ class Image
 
         $super_order_by = false;
         if (!empty($order_by)) {
-            global $conf;
             $conf['order_by'] = 'ORDER BY ' . $order_by;
             $super_order_by = true; // quick_search_result might be faster
         }
@@ -298,11 +282,8 @@ class Image
         );
 
         if (count($image_ids)) {
-            $query = 'SELECT * FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($image_ids);
-            $result = $conn->db_query($query);
+            $result = (new ImageRepository($conn))->findByIds($image_ids);
             $image_ids = array_flip($image_ids);
-
             while ($row = $conn->db_fetch_assoc($result)) {
                 $image = [];
                 foreach (['id', 'width', 'height', 'hit'] as $k) {
@@ -353,14 +334,11 @@ class Image
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
 
-        $query = 'UPDATE ' . IMAGES_TABLE;
-        $query .= ' SET level=' . (int)$params['level'];
-        $query .= ' WHERE id ' . $conn->in($params['image_id']);
-        $result = $conn->db_query($query);
-
+        $result = (new ImageRepository($conn))->updateImages(['level' => (int)$params['level']], $params['image_id']);
         if ($affected_rows = $conn->db_changes($result)) {
             \Phyxo\Functions\Utils::invalidate_user_cache();
         }
+
         return $affected_rows;
     }
 
@@ -377,47 +355,29 @@ class Image
         global $conn;
 
         // does the image really exist?
-        $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
             return new Error(404, 'image_id not found');
         }
 
         // is the image associated to this category?
-        $query = 'SELECT COUNT(1) FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
-        $query .= ' AND category_id = ' . $conn->db_real_escape_string($params['category_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new ImageCategoryRepository($conn))->isImageAssociatedToCategory($params['image_id'], $params['category_id'])) {
             return new Error(404, 'This image is not associated to this category');
         }
 
         // what is the current higher rank for this category?
-        $query = 'SELECT MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category_id']);
-        $row = $conn->db_fetch_assoc($conn->db_query($query));
-
-        if (is_numeric($row['max_rank'])) {
-            if ($params['rank'] > $row['max_rank']) {
-                $params['rank'] = $row['max_rank'] + 1;
+        if ($max_rank = (new ImageCategoryRepository($conn))->maxRankForCategory($params['category_id'])) {
+            if ($params['rank'] > $max_rank) {
+                $params['rank'] = $max_rank + 1;
             }
         } else {
             $params['rank'] = 1;
         }
 
         // update rank for all other photos in the same category
-        $query = 'UPDATE ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' SET rank = rank + 1';
-        $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category_id']);
-        $query .= ' AND rank IS NOT NULL AND rank >= ' . $params['rank'] . ';';
-        $conn->db_query($query);
+        (new ImageCategoryRepository($conn))->updateRankForCategory($params['rank'], $params['category_id']);
 
         // set the new rank for the photo
-        $query = 'UPDATE ' . IMAGE_CATEGORY_TABLE . ' SET rank = ' . $params['rank'];
-        $query .= ' WHERE image_id = ' . $conn->db_real_escape_string($params['image_id']);
-        $query .= ' AND category_id = ' . $conn->db_real_escape_string($params['category_id']);
-        $conn->db_query($query);
+        (new ImageCategoryRepository($conn))->updateRankForImage($params['rank'], $params['image_id'], $params['category_id']);
 
         // return data for client
         return [
@@ -497,9 +457,7 @@ class Image
         \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
         // what is the path and other infos about the photo?
-        $query = 'SELECT path, file, md5sum, width, height, filesize FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findById($params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new Phyxo\Ws\Error(404, "image_id not found");
@@ -583,10 +541,7 @@ class Image
         }
 
         if ($params['image_id'] > 0) {
-            $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-            list($count) = $conn->db_fetch_row($conn->db_query($query));
-            if ($count == 0) {
+            if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
                 return new Error(404, 'image_id not found');
             }
         }
@@ -594,15 +549,12 @@ class Image
         // does the image already exists ?
         if ($params['check_uniqueness']) {
             if ('md5sum' == $conf['uniqueness_mode']) {
-                $where_clause = 'md5sum = \'' . $conn->db_real_escape_string($params['original_sum']) . '\'';
+                $result = (new ImageRepository($conn))->findByField('md5sum', $params['original_sum']);
+            } elseif ('filename' == $conf['uniqueness_mode']) {
+                $result = (new ImageRepository($conn))->findByField('file', $params['original_filename']);
             }
-            if ('filename' == $conf['uniqueness_mode']) {
-                $where_clause = 'file = \'' . $conn->db_real_escape_string($params['original_filename']) . '\'';
-            }
-
-            $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE . ' WHERE ' . $where_clause . ';';
-            list($counter) = $conn->db_fetch_row($conn->db_query($query));
-            if ($counter != 0) {
+            $row = $conn->db_fetch_row($result);
+            if (empty($row)) {
                 return new Error(500, 'file already exists');
             }
         }
@@ -646,11 +598,7 @@ class Image
         }
 
         if (count(array_keys($update)) > 0) {
-            $conn->single_update(
-                IMAGES_TABLE,
-                $update,
-                ['id' => $image_id]
-            );
+            (new ImageRepository($conn))->updateImage($update, $image_id);
         }
 
         $url_params = ['image_id' => $image_id];
@@ -703,9 +651,8 @@ class Image
         }
 
         if ($params['image_id'] > 0) {
-            $query = 'SELECT COUNT(1) FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-            list($count) = $conn->db_fetch_row($conn->db_query($query));
+            $result = (new ImageRepository($conn))->findById($params['image_id']);
+            list($count) = $conn->db_fetch_row($result);
             if ($count == 0) {
                 return new Error(404, 'image_id not found');
             }
@@ -734,11 +681,7 @@ class Image
             }
         }
 
-        $conn->single_update(
-            IMAGES_TABLE,
-            $update,
-            ['id' => $image_id]
-        );
+        (new ImageRepository($conn))->updateImage($update, $image_id);
 
         if (!empty($params['tags'])) {
             $tag_ids = [];
@@ -856,13 +799,11 @@ class Image
                 null // image_id = not provided, this is a new photo
             );
 
-            $query = 'SELECT id,name,representative_ext,path FROM ' . IMAGES_TABLE . ' WHERE id = ' . $image_id;
-            $image_infos = $conn->db_fetch_assoc($conn->db_query($query));
+            $result = (new ImageRepository($conn))->findById($image_id);
+            $image_infos = $conn->db_fetch_assoc($result);
 
-            $query = 'SELECT COUNT(1) AS nb_photos FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($params['category'][0]);
-            $category_infos = $conn->db_fetch_assoc($conn->db_query($query));
-
+            $result = (new ImageCategoryRepository($conn))->countByCategory($params['category'][0]);
+            list(, $nb_photos) = $conn->db_fetch_assoc($result);
             $category_name = \Phyxo\Functions\Category::get_cat_display_name_from_id($params['category'][0], null);
 
             return [
@@ -871,7 +812,7 @@ class Image
                 'name' => $image_infos['name'],
                 'category' => [
                     'id' => $params['category'][0],
-                    'nb_photos' => $category_infos['nb_photos'],
+                    'nb_photos' => $nb_photos,
                     'label' => $category_name,
                 ]
             ];
@@ -892,8 +833,7 @@ class Image
         \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ' ' . var_export($params, true));
 
         $split_pattern = '/[\s,;\|]/';
-        $result = [];
-
+        $res = [];
 
         if ('md5sum' == $conf['uniqueness_mode']) {
             if (empty($params['md5sum_list'])) {
@@ -908,14 +848,13 @@ class Image
                 PREG_SPLIT_NO_EMPTY
             );
 
-            $query = 'SELECT id, md5sum FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE md5sum ' . $conn->in($md5sums);
-            $id_of_md5 = $conn->query2array($query, 'md5sum', 'id');
+            $result = (new ImageRepository($conn))->findByFields('md5sum', $md5sums);
+            $id_of_md5 = $conn->result2array($result, 'md5sum', 'id');
 
             foreach ($md5sums as $md5sum) {
-                $result[$md5sum] = null;
+                $res[$md5sum] = null;
                 if (isset($id_of_md5[$md5sum])) {
-                    $result[$md5sum] = $id_of_md5[$md5sum];
+                    $res[$md5sum] = $id_of_md5[$md5sum];
                 }
             }
         } elseif ('filename' == $conf['uniqueness_mode']) {
@@ -931,19 +870,18 @@ class Image
                 PREG_SPLIT_NO_EMPTY
             );
 
-            $query = 'SELECT id, file FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE file ' . $conn->in($filenames);
-            $id_of_filename = $conn->query2array($query, 'file', 'id');
+            $result = (new ImageRepository($conn))->findByFields('file', $filenames);
+            $id_of_filename = $conn->result2array($result, 'file', 'id');
 
             foreach ($filenames as $filename) {
-                $result[$filename] = null;
+                $res[$filename] = null;
                 if (isset($id_of_filename[$filename])) {
-                    $result[$filename] = $id_of_filename[$filename];
+                    $res[$filename] = $id_of_filename[$filename];
                 }
             }
         }
 
-        return $result;
+        return $res;
     }
 
     /**
@@ -959,8 +897,7 @@ class Image
 
         \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
-        $query = 'SELECT path FROM ' . IMAGES_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findById($params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
@@ -1107,9 +1044,7 @@ class Image
     {
         global $conn, $services;
 
-        $query = 'SELECT * FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['image_id']);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findById($params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
@@ -1161,11 +1096,7 @@ class Image
         if (count(array_keys($update)) > 0) {
             $update['id'] = $params['image_id'];
 
-            $conn->single_update(
-                IMAGES_TABLE,
-                $update,
-                ['id' => $update['id']]
-            );
+            (new ImageRepository($conn))->updateImage($update, $update['id']);
         }
 
         if (isset($params['categories'])) {
@@ -1325,15 +1256,13 @@ class Image
         $to_update_cat_ids = [];
 
         // in case of replace mode, we first check the existing associations
-        $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id = ' . $image_id . ';';
-        $existing_cat_ids = $conn->query2array($query, null, 'category_id');
+        $result = (new ImageCategoryRepository($conn))->findByImageId($image_id);
+        $existing_cat_ids = $conn->result2array($result, null, 'category_id');
 
         if ($replace_mode) {
             $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
             if (count($to_remove_cat_ids) > 0) {
-                $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE . ' WHERE image_id = ' . $image_id;
-                $query .= ' AND category_id ' . $conn->in($to_remove_cat_ids);
-                $conn->db_query($query);
+                (new ImageCategoryRepository($conn))->deleteByCategory($to_remove_cat_ids, [$image_id]);
                 \Phyxo\Functions\Category::update_category($to_remove_cat_ids);
             }
         }
@@ -1344,10 +1273,8 @@ class Image
         }
 
         if ($search_current_ranks) {
-            $query = 'SELECT category_id, MAX(rank) AS max_rank FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE rank IS NOT NULL AND category_id ' . $conn->in($new_cat_ids);
-            $query .= ' GROUP BY category_id;';
-            $current_rank_of = $conn->query2array($query, 'category_id', 'max_rank');
+            $result = (new ImageCategoryRepository($conn))->findMaxRankForEachCategories($new_cat_ids);
+            $current_rank_of = $conn->result2array($result, 'category_id', 'max_rank');
 
             foreach ($new_cat_ids as $cat_id) {
                 if (!isset($current_rank_of[$cat_id])) {
@@ -1370,11 +1297,7 @@ class Image
             ];
         }
 
-        $conn->mass_inserts(
-            IMAGE_CATEGORY_TABLE,
-            array_keys($inserts[0]),
-            $inserts
-        );
+        (new ImageCategoryRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
 
         \Phyxo\Functions\Category::update_category($new_cat_ids);
     }

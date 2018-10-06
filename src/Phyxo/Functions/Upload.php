@@ -338,11 +338,7 @@ class Upload
                 $update['level'] = $level;
             }
 
-            $conn->single_update(
-                IMAGES_TABLE,
-                $update,
-                ['id' => $image_id]
-            );
+            (new ImageRepository($conn))->updateImage($update, $image_id);
         } else {
             // database registration
             $file = $conn->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
@@ -367,9 +363,7 @@ class Upload
                 $insert['representative_ext'] = $representative_ext;
             }
 
-            $conn->single_insert(IMAGES_TABLE, $insert);
-
-            $image_id = $conn->db_insert_id(IMAGES_TABLE);
+            $image_id = (new ImageRepository($conn))->addImage($insert);
         }
 
         if (isset($categories) and count($categories) > 0) {

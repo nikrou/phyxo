@@ -37,34 +37,6 @@ class Notification
         global $user, $conn;
 
         switch ($type) {
-            case 'new_elements':
-                {
-                    $query = ' FROM ' . IMAGES_TABLE;
-                    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = id WHERE 1=1';
-                    if (!empty($start)) {
-                        $query .= ' AND date_available > \'' . $conn->db_real_escape_string($start) . '\'';
-                    }
-                    if (!empty($end)) {
-                        $query .= ' AND date_available <= \'' . $conn->db_real_escape_string($end) . '\'';
-                    }
-                    $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
-                    break;
-                }
-
-            case 'updated_categories':
-                {
-                    $query = ' FROM ' . IMAGES_TABLE;
-                    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = id WHERE 1=1';
-                    if (!empty($start)) {
-                        $query .= ' AND date_available > \'' . $conn->db_real_escape_string($start) . '\'';
-                    }
-                    if (!empty($end)) {
-                        $query .= ' AND date_available <= \'' . $conn->db_real_escape_string($end) . '\'';
-                    }
-                    $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
-                    break;
-                }
-
             case 'new_users':
                 {
                     $query = ' FROM ' . USER_INFOS_TABLE . ' WHERE 1=1';
@@ -85,12 +57,6 @@ class Notification
             case 'count':
                 {
                     switch ($type) {
-                        case 'new_elements':
-                            $field_id = 'image_id';
-                            break;
-                        case 'updated_categories':
-                            $field_id = 'category_id';
-                            break;
                         case 'new_users':
                             $field_id = 'user_id';
                             break;
@@ -104,12 +70,6 @@ class Notification
             case 'info':
                 {
                     switch ($type) {
-                        case 'new_elements':
-                            $field_id = 'image_id';
-                            break;
-                        case 'updated_categories':
-                            $field_id = 'category_id';
-                            break;
                         case 'new_users':
                             $field_id = 'user_id';
                             break;
@@ -176,7 +136,9 @@ class Notification
      */
     public static function nb_new_elements($start = null, $end = null)
     {
-        return self::custom_notification_query('count', 'new_elements', $start, $end);
+        global $conn;
+
+        return (new ImageRepository($conn))->getNewElements($start, $end, $count_only = true);
     }
 
     /**
@@ -188,7 +150,9 @@ class Notification
      */
     public static function new_elements($start = null, $end = null)
     {
-        return self::custom_notification_query('info', 'new_elements', $start, $end);
+        global $conn;
+
+        return (new ImageRepository($conn))->getNewElements($start, $end);
     }
 
     /**
@@ -200,7 +164,9 @@ class Notification
      */
     public static function nb_updated_categories($start = null, $end = null)
     {
-        return self::custom_notification_query('count', 'updated_categories', $start, $end);
+        global $conn;
+
+        return (new ImageRepository($conn))->getUpdatedCategories($start, $end, $count_only = true);
     }
 
     /**
@@ -212,7 +178,9 @@ class Notification
      */
     public static function updated_categories($start = null, $end = null)
     {
-        return self::custom_notification_query('info', 'updated_categories', $start, $end);
+        global $conn;
+
+        return (new ImageRepository($conn))->getUpdatedCategories($start, $end, $count_only = true);
     }
 
     /**
@@ -373,21 +341,13 @@ class Notification
         }
         $where_sql = \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
-        $query = 'SELECT date_available, COUNT(DISTINCT id) AS nb_elements,';
-        $query .= ' COUNT(DISTINCT category_id) AS nb_cats FROM ' . IMAGES_TABLE . ' i';
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = image_id';
-        $query .= ' ' . $where_sql;
-        $query .= ' GROUP BY date_available ORDER BY date_available DESC LIMIT ' . $conn->db_real_escape_string($max_dates);
-        $dates = $conn->query2array($query);
+        $result = (new ImageRepository($conn))->getRecentPostedImages($where_sql, $max_dates);
+        $dates = $conn->result2array($result);
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
-                $query = 'SELECT i.* FROM ' . IMAGES_TABLE . ' i';
-                $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = image_id';
-                $query .= ' ' . $where_sql;
-                $query .= ' AND date_available=\'' . $dates[$i]['date_available'] . '\'';
-                $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '() LIMIT ' . $max_elements;
-                $dates[$i]['elements'] = $conn->query2array($query);
+                $result = (new ImageRepository($conn))->findRandomImages($where_sql, $max_elements);
+                $dates[$i]['elements'] = $conn->result2array($result);
             }
 
             if ($max_cats > 0) { // get some categories ...

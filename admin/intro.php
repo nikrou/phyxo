@@ -117,14 +117,12 @@ if ($conf['activate_comments']) {
 }
 
 if ($nb_elements > 0) {
-    $query = 'SELECT MIN(date_available) FROM ' . IMAGES_TABLE . ';';
-    list($first_date) = $conn->db_fetch_row($conn->db_query($query));
-
+    $min_date_available = (new ImageRepository($conn))->findMinDateAvailable();
     $template->assign(
         'first_added',
         [
             'DB_DATE' =>
-                \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($first_date))
+                \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($min_date_available))
         ]
     );
 }

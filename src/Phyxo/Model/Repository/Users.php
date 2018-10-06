@@ -18,6 +18,7 @@ use Phyxo\Functions\Utils;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 class Users
 {
@@ -468,10 +469,8 @@ class Users
                 /* now we build the list of forbidden images (this list does not contain
                  * images that are not in at least an authorized category)
                  */
-                $query = 'SELECT DISTINCT(id) FROM ' . IMAGES_TABLE;
-                $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id=image_id';
-                $query .= ' WHERE category_id NOT IN (' . $userdata['forbidden_categories'] . ') AND level>' . $userdata['level'];
-                $forbidden_ids = $this->conn->query2array($query, null, 'id');
+                $result = (new ImageRepository($this->conn))->getForbiddenImages(explode(', ', $userdata['forbidden_categories']), $userdata['level']);
+                $forbidden_ids = $this->conn->result2array($result, null, 'id');
 
                 if (empty($forbidden_ids)) {
                     $forbidden_ids[] = 0;

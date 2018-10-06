@@ -27,6 +27,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\ImageCategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -229,27 +230,22 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             break;
 
         case 'last_import':
-            $query = 'SELECT MAX(date_available) AS date FROM ' . IMAGES_TABLE;
-            $row = $conn->db_fetch_assoc($conn->db_query($query));
-            if (!empty($row['date'])) {
-                $query = 'SELECT id FROM ' . IMAGES_TABLE;
-                $query .= ' WHERE date_available BETWEEN ';
-                $query .= $conn->db_get_recent_period_expression(1, $row['date']) . ' AND \'' . $row['date'] . '\';';
-                $filter_sets[] = $conn->query2array($query, null, 'id');
+            if ($max_date_available = (new ImageRepository($conn))->findMaxDateAvailable()) {
+                $result = (new ImageRepository($conn))->findImagesFromLastImport($max_date_available);
+                $filter_sets[] = $conn->result2array($result, null, 'id');
             }
             break;
 
         case 'no_virtual_album':
             // we are searching elements not linked to any virtual category
-            $query = 'SELECT id FROM ' . IMAGES_TABLE;
-            $all_elements = $conn->query2array($query, null, 'id');
+            $result = (new ImageRepository($conn))->findAll();
+            $all_elements = $conn->result2array($result, null, 'id');
 
             $result = (new CategoryRepository($conn))->findWithCondtion(['dir IS NULL']);
             $virtual_categories = $conn->result2array($result, null, 'id');
             if (!empty($virtual_categories)) {
-                $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-                $query .= ' WHERE category_id ' . $conn->in($virtual_categories);
-                $linked_to_virtual = $conn->query2array($query, null, 'image_id');
+                $result = (new ImageCategoryRepository($conn))->getImageIdsLinked($virtual_categories);
+                $linked_to_virtual = $conn->result2array($result, null, 'image_id');
             }
 
             $filter_sets[] = array_diff($all_elements, $linked_to_virtual);
@@ -276,10 +272,8 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
                 $duplicates_on_fields[] = 'height';
             }
 
-            $query = 'SELECT ' . $conn->db_group_concat('id') . ' AS ids FROM ' . IMAGES_TABLE;
-            $query .= ' GROUP BY ' . implode(',', $duplicates_on_fields);
-            $query .= ' HAVING COUNT(*) > 1;';
-            $array_of_ids_string = $conn->query2array($query, null, 'ids');
+            $result = (new ImageRepository($conn))->findDuplicates($duplicates_on_fields);
+            $array_of_ids_string = $conn->result2array($result, null, 'ids');
 
             $ids = [];
 
@@ -292,9 +286,8 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
 
         case 'all_photos':
             if (count($_SESSION['bulk_manager_filter']) == 1) { // make the query only if this is the only filter
-                $query = 'SELECT id FROM ' . IMAGES_TABLE;
-                $query .= ' ' . $conf['order_by'];
-                $filter_sets[] = $conn->query2array($query, null, 'id');
+                $result = (new ImageRepository($conn))->findAll($conf['order_by']);
+                $filter_sets[] = $conn->result2array($result, null, 'id');
             }
             break;
 
@@ -317,9 +310,8 @@ if (isset($_SESSION['bulk_manager_filter']['category'])) {
         $categories = [$_SESSION['bulk_manager_filter']['category']];
     }
 
-    $query = 'SELECT DISTINCT(image_id) FROM ' . IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE category_id ' . $conn->in($categories);
-    $filter_sets[] = $conn->query2array($query, null, 'image_id');
+    $result = (new ImageCategoryRepository($conn))->getImageIdsLinked($categories);
+    $filter_sets[] = $conn->result2array($result, null, 'image_id');
 }
 
 if (isset($_SESSION['bulk_manager_filter']['level'])) {
@@ -328,11 +320,8 @@ if (isset($_SESSION['bulk_manager_filter']['level'])) {
         $operator = '<=';
     }
 
-    $query = 'SELECT id FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE level ' . $operator . ' ' . $_SESSION['bulk_manager_filter']['level'];
-    $query .= ' ' . $conf['order_by'];
-
-    $filter_sets[] = $conn->query2array($query, null, 'id');
+    $result = (new ImageRepository($conn))->filterByField('field', $operator, $_SESSION['bulk_manager_filter']['level'], $conf['order_by']);
+    $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
@@ -371,11 +360,8 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
         $where_clause[] = 'width/height < ' . ($_SESSION['bulk_manager_filter']['dimension']['max_ratio'] + 0.01);
     }
 
-    $query = 'SELECT id FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE ' . implode(' AND ', $where_clause);
-    $query .= ' ' . $conf['order_by'];
-
-    $filter_sets[] = $conn->query2array($query, null, 'id');
+    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by']);
+    $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 
 if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
@@ -389,11 +375,8 @@ if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
         $where_clause[] = 'filesize <= ' . $_SESSION['bulk_manager_filter']['filesize']['max'] * 1024;
     }
 
-    $query = 'SELECT id FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE ' . implode(' AND ', $where_clause);
-    $query .= ' ' . $conf['order_by'];
-
-    $filter_sets[] = $conn->query2array($query, null, 'id');
+    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by']);
+    $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 
 if (isset($_SESSION['bulk_manager_filter']['search']) && strlen($_SESSION['bulk_manager_filter']['search']['q'])) {
@@ -424,8 +407,8 @@ $page['cat_elements_id'] = $current_set;
 // category. For exampe, $page['start'] = 12 means we must show elements #12
 // and $page['nb_images'] next elements
 
-if (!isset($_REQUEST['start']) or !is_numeric($_REQUEST['start'])
-    or $_REQUEST['start'] < 0 or (isset($_REQUEST['display']) and 'all' == $_REQUEST['display'])) {
+if (!isset($_REQUEST['start']) || !is_numeric($_REQUEST['start'])
+    || $_REQUEST['start'] < 0 || (isset($_REQUEST['display']) && 'all' == $_REQUEST['display'])) {
     $page['start'] = 0;
 } else {
     $page['start'] = $_REQUEST['start'];
@@ -444,10 +427,7 @@ $ratios = [];
 $dimensions = [];
 
 // get all width, height and ratios
-$query = 'SELECT DISTINCT width, height FROM ' . IMAGES_TABLE;
-$query .= ' WHERE width IS NOT NULL AND height IS NOT NULL';
-$result = $conn->db_query($query);
-
+$result = (new ImageRepository($conn))->findAllWidthAndHeight();
 if ($conn->db_num_rows($result)) {
     while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['width'] > 0 && $row['height'] > 0) {
@@ -523,10 +503,7 @@ $template->assign('dimensions', $dimensions);
 $filesizes = [];
 $filesize = [];
 
-$query = 'SELECT filesize FROM ' . IMAGES_TABLE;
-$query .= ' WHERE filesize IS NOT NULL GROUP BY filesize';
-$result = $conn->db_query($query);
-
+$result = (new ImageRepository($conn))->findFilesize();
 while ($row = $conn->db_fetch_assoc($result)) {
     $filesizes[] = sprintf('%.1f', $row['filesize'] / 1024);
 }

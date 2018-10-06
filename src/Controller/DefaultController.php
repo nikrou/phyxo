@@ -14,6 +14,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 class DefaultController extends BaseController
 {
@@ -79,10 +80,8 @@ class DefaultController extends BaseController
         chdir(dirname($legacy_file));
         require $legacy_file;
 
-        $query = 'SELECT * FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id=' . $conn->db_real_escape_string($image_id);
-
-        $element_info = $conn->db_fetch_assoc($conn->db_query($query));
+        $result = (new ImageRepository($conn))->findById($image_id);
+        $element_info = $conn->db_fetch_assoc($result);
 
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)

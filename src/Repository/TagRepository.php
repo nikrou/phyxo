@@ -100,7 +100,7 @@ class TagRepository extends BaseRepository
      * @param bool $user_permissions
      * @return array
      */
-    public function getImageIdsForTags(array $tag_ids, string $mode = 'AND', string $extra_images_where_sql = '', string $order_by = '', bool $use_permissions = true)
+    public function getImageIdsForTags(array $tag_ids, string $mode = 'AND', ? string $extra_images_where_sql = null, string $order_by = '', bool $use_permissions = true)
     {
         if (empty($tag_ids)) {
             return [];
@@ -127,7 +127,9 @@ class TagRepository extends BaseRepository
             );
         }
 
-        $query .= (empty($extra_images_where_sql) ? '' : ' AND (' . $extra_images_where_sql . ')') . ' GROUP BY id';
+        if (!is_null($extra_images_where_sql)) {
+            $query .= ' AND (' . $extra_images_where_sql . ')' . ' GROUP BY id';
+        }
 
         if ($mode == 'AND' and count($tag_ids) > 1) {
             $query .= ' HAVING COUNT(DISTINCT tag_id)=' . count($tag_ids);

@@ -22,6 +22,311 @@ class ImageRepository extends BaseRepository
         return $nb_images;
     }
 
+    public function addImage(array $datas)
+    {
+        return $this->conn->single_insert(self::IMAGES_TABLE, $datas);
+    }
+
+    public function findAll(? string $order_by = null)
+    {
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+
+        if (!is_null($order_by)) {
+            $query .= ' ' . $order_by;
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findGroupByAuthor()
+    {
+        $query = 'SELECT author, id FROM ' . self::IMAGES_TABLE . ' AS i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
+        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            [
+                'forbidden_categories' => 'category_id',
+                'visible_categories' => 'category_id',
+                'visible_images' => 'id'
+            ],
+            ' WHERE '
+        );
+        $query .= ' AND author IS NOT NULL';
+        $query .= ' GROUP BY author, id';
+        $query .= ' ORDER BY author;';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findById(int $image_id, ? bool $visible_images = null)
+    {
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id =' . $image_id;
+
+        if (!is_null($visible_images)) {
+            $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], ' AND ');
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImagesInVirtualCategory(array $image_ids, int $category_id)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+        $query .= ' AND category_id = ' . $category_id;
+        $query .= ' AND (category_id != storage_category_id OR storage_category_id IS NULL);';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findVirtualCategoriesWithImages(array $image_ids)
+    {
+        $query = 'SELECT DISTINCT(category_id) AS id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+        $query .= ' AND (category_id != storage_category_id OR storage_category_id IS NULL);';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findVisibleImages(array $category_ids = [], string $recent_period)
+    {
+        $query = 'SELECT distinct image_id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE ';
+        $query .= ' date_available >= ' . $this->conn->db_get_recent_period_expression($recent_period);
+
+        if (coun($category_ids) > 0) {
+            $query .= ' AND category_id  ' . $this->conn->in($category_ids);
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findDuplicates(array $fields)
+    {
+        $query = 'SELECT ' . $this->conn->db_group_concat('id') . ' AS ids FROM ' . self::IMAGES_TABLE;
+        $query .= ' GROUP BY ' . implode(', ', $fields);
+        $query .= ' HAVING COUNT(*) > 1';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getImagesFromCategories(string $where, string $order_by, int $limit, int $offset = 0)
+    {
+        $query = 'SELECT i.id, i.file, i.date_available, i.date_creation, i.name, i.comment, i.author, i.hit, i.filesize,';
+        $query .= ' i.width, i.height, i.coi, i.representative_ext, i.date_metadata_update, i.rating_score, i.path,';
+        $query .= ' i.storage_category_id, i.level, i.md5sum, i.added_by, i.rotation, i.latitude, i.longitude, i.lastmodified';
+        $query .= ' ' . $this->conn->db_group_concat('category_id') . ' AS cat_ids FROM ' . self::IMAGES_TABLE . ' i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON i.id = image_id';
+        $query .= ' WHERE ' . implode(' AND ', $where);
+        $query .= ' GROUP BY i.id';
+        $query .= ' ' . $order_by;
+        $query .= ' LIMIT ' . $limit;
+        $query .= ' OFFSET ' . $offset;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByIds(array $image_ids)
+    {
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findWithCondtions(array $where, ? int $start_id = null, ? int $limit = null, string $order = 'ORDER BY id DESC')
+    {
+        $query = 'SELECT id, path, representative_ext, width, height, rotation FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE ' . implode(' AND ', $where);
+
+        if (!is_null($start_id)) {
+            $query .= ' AND id < ' . $start_id;
+        }
+
+        $query .= ' ' . $order;
+
+        if (!is_null($limit)) {
+            $query .= ' LIMIT ' . $limit;
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findAllWidthAndHeight()
+    {
+        $query = 'SELECT DISTINCT width, height FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE width IS NOT NULL AND height IS NOT NULL';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findFilesize()
+    {
+        $query = 'SELECT filesize FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE filesize IS NOT NULL GROUP BY filesize';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function searchDistinctId(string $field, array $where, bool $permissions, string $order_by, ? int $limit = null)
+    {
+        $where = array_filter($where, function ($w) {
+            return !empty($w);
+        });
+
+        $query = 'SELECT DISTINCT(' . $field . '),' . \Phyxo\Functions\SQL::addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE . ' i';
+        if ($permissions) {
+            $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
+        }
+        $query .= ' WHERE ' . implode(' AND ', $where);
+        $query .= ' ' . $order_by;
+
+        if (!is_null($limit)) {
+            $query .= ' LIMIT ' . $limit;
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByImageIdsAndCategoryId(array $image_ids, ? int $category_id = null, string $order_by, int $limit, int $offset = 0)
+    {
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+
+        if (!is_null($category_id)) {
+            $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        }
+
+        $query .= ' WHERE id ' . $this->conn->in($image_ids);
+
+        if (!is_null($category_id)) {
+            $query .= ' AND category_id = ' . $category_id;
+        }
+        $query .= ' ' . $order_by;
+        $query .= ' LIMIT ' . $limit;
+        $query .= ' OFFSET ' . $offset;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findList(array $ids, string $forbidden, string $order_by)
+    {
+        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
+        $query .= ' WHERE image_id ' . $this->conn->in($ids);
+        $query .= ' ' . $forbidden;
+        $query .= ' ' . $order_by;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getReferenceDateForCategories(string $field, string $minmax, array $category_ids)
+    {
+        $query = 'SELECT category_id,' . $minmax . '(' . $field . ') as ref_date FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id ' . $this->conn->in($category_ids);
+        $query .= ' GROUP BY category_id';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function qsearchImages(array $where)
+    {
+        $query = 'SELECT id from ' . self::IMAGES_TABLE . 'AS i';
+        $query .= ' WHERE ';
+        $query = '(' . implode(' OR ', $where) . ')';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function isImageAuthorized(int $image_id) : bool
+    {
+        $query = 'SELECT DISTINCT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' WHERE id=' . $image_id;
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            [
+                'forbidden_categories' => 'category_id',
+                'forbidden_images' => 'id',
+            ],
+            ' AND '
+        );
+        $result = $this->conn->db_query($query);
+
+        return ($this->conn->db_num_rows($result) === 1);
+    }
+
+    public function isImageExists(int $image_id) : bool
+    {
+        $query = 'SELECT DISTINCT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id=' . $image_id;
+        $result = $this->conn->db_query($query);
+
+        return ($this->conn->db_num_rows($result) === 1);
+    }
+
+    public function updateImage(array $fields, int $id)
+    {
+        $this->conn->single_update(self::IMAGES_TABLE, $fields, ['id' => $id]);
+    }
+
+    public function updateImageHitAndLastModified(int $id)
+    {
+        $query = 'UPDATE ' . self::IMAGES_TABLE;
+        $query .= ' SET hit = hit+1, lastmodified = lastmodified';
+        $query .= ' WHERE id = ' . $id;
+        $this->conn->db_query($query);
+    }
+
+    public function updateImages(array $fields, array $ids)
+    {
+        $is_first = true;
+
+        $query = 'UPDATE ' . self::IMAGES_TABLE;
+        $query .= ' SET ';
+        foreach ($fields as $key => $value) {
+            $separator = $is_first ? '' : ', ';
+
+            if (is_bool($value)) {
+                $query .= $separator . $key . ' = \'' . $this->conn->boolean_to_db($value) . '\'';
+            } elseif (!empty($value)) {
+                $query .= $separator . $key . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
+            } else {
+                $query .= $separator . $key . ' IS NULL';
+            }
+            $is_first = false;
+        }
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    /**
+     * this list does not contain images that are not in at least an authorized category
+     */
+    public function getForbiddenImages(array $forbidden_categories, int $level)
+    {
+        $query = 'SELECT DISTINCT(id) FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' WHERE category_id NOT ' . $this->conn->in($forbidden_categories) . ' AND level > ' . $level;
+
+        return $this->conn->db_query($query);
+    }
+
     public function getImagesFromCaddie(array $image_ids, int $user_id)
     {
         $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
@@ -61,18 +366,38 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findByFields(string $field, array $ids)
+    public function findByFields(string $field, array $values, ? string $order_by = null)
     {
-        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
-        $query .= ' WHERE ' . $field . $this->conn->in($ids);
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE ' . $field . $this->conn->in($values);
+
+        if (!is_null($order_by)) {
+            $query .= $order_by;
+        }
 
         return $this->conn->db_query($query);
     }
 
-    public function findByField(string $field, string $value)
+    public function findByField(string $field, string $value, ? string $order_by = null)
     {
         $query = 'SELECT id, path FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
+
+        if (!is_null($order_by)) {
+            $query .= $order_by;
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function filterByField(string $field, string $operator = '=', string $value, ? string $order_by = null)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE level ' . $operator . '\'' . $this->conn->db_real_escape_string($value) . '\'';
+        $query .= ' ' . $order_by;
 
         return $this->conn->db_query($query);
     }
@@ -85,10 +410,64 @@ class ImageRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
+    public function getNextId()
+    {
+        return $this->conn->db_nextval('id', self::IMAGES_TABLE);
+    }
+
+    public function findBestRated(int $limit)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' ORDER by rating_score DESC LIMIT ' . $limit;
+
+        $this->conn->db_query($query);
+    }
+
     public function findWithNoStorageOrStorageCategoryId(array $categories)
     {
         $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT ' . $this->conn->in($categories) . ')';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByStorageCategoryId(array $cat_ids, bool $only_new)
+    {
+        $query = 'SELECT id, path, representative_ext FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE storage_category_id ' . $this->conn->in($cat_ids);
+        if ($only_new) {
+            $query .= ' AND date_metadata_update IS NULL';
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findDistinctStorageId()
+    {
+        $query = 'SELECT DISTINCT(storage_category_id) FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE storage_category_id IS NOT NULL';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findImagesInCategory(int $category_id, string $order_by)
+    {
+        $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
+        $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
+        $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id = ' . $category_id;
+        $query .= ' ' . $order_by;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getImagesInfosInCategory(int $category_id)
+    {
+        $query = 'SELECT COUNT(image_id), MIN(DATE(date_available)), MAX(DATE(date_available)) FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id = ' . $category_id;
 
         return $this->conn->db_query($query);
     }
@@ -103,6 +482,108 @@ class ImageRepository extends BaseRepository
         $query .= ' GROUP BY category_id, c.uppercats ORDER BY img_count DESC LIMIT ' . $limit;
 
         return $this->conn->db_query($query);
+    }
+
+    public function getRecentPostedImages(string $where_sql, int $limit)
+    {
+        $query = 'SELECT date_available, COUNT(DISTINCT id) AS nb_elements,';
+        $query .= ' COUNT(DISTINCT category_id) AS nb_cats FROM ' . self::IMAGES_TABLE . ' AS i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = image_id';
+        $query .= ' ' . $where_sql;
+        $query .= ' GROUP BY date_available ORDER BY date_available DESC';
+        $query .= ' LIMIT ' . $limit;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findRandomImages(string $where_sql, string $date_available = '', int $limit)
+    {
+        $query = 'SELECT i.id, i.file, i.date_available, i.date_creation, i.name, i.comment, i.author, i.hit, i.filesize,';
+        $query .= ' i.width, i.height, i.coi, i.representative_ext, i.date_metadata_update, i.rating_score, i.path,';
+        $query .= ' i.storage_category_id, i.level, i.md5sum, i.added_by, i.rotation, i.latitude, i.longitude, i.lastmodified';
+        $query .= ' FROM ' . self::IMAGES_TABLE . ' AS i';
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = image_id';
+        $query .= ' ' . $where_sql;
+        if ($date_available !== '') {
+            $query .= ' AND date_available=\'' . $this->conn->db_real_escape_string($date_available) . '\'';
+        }
+        $query .= ' ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT ' . $limit;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getNewElements(? string $start = null, ? string $end = null, bool $count_only = false)
+    {
+        if ($count_only) {
+            $query = 'SELECT count(1) ';
+        } else {
+            $query = 'SELECT image_id ';
+        }
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = id';
+        $query .= ' WHERE';
+
+        if (!empty($start)) {
+            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start) . '\'';
+        }
+
+        if (!empty($end)) {
+            if (!is_null($start)) {
+                $query .= ' AND';
+            }
+            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+        }
+
+        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
+
+        if ($count_only) {
+            list($nb_images) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_images;
+        } else {
+            return $this->conn->db_query($query);
+        }
+    }
+
+    public function getUpdatedCategories(? string $start = null, ? string $end = null, bool $count_only = false)
+    {
+        if ($count_only) {
+            $query = 'SELECT count(1) ';
+        } else {
+            $query = 'SELECT category_id';
+        }
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON image_id = id';
+        $query .= ' WHERE';
+
+        if (!empty($start)) {
+            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start) . '\'';
+        }
+
+        if (!empty($end)) {
+            if (!is_null($start)) {
+                $query .= ' AND';
+            }
+            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+        }
+
+        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
+
+        if ($count_only) {
+            list($nb_categories) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_categories;
+        } else {
+            return $this->conn->db_query($query);
+        }
+    }
+
+    public function updatePathByStorageId(string $path, int $cat_id)
+    {
+        $query = 'UPDATE ' . self::IMAGES_TABLE;
+        $query .= ' SET path = ' . $this->conn->db_concat(["'" . $patg . "/'", 'file']);
+        $query .= ' WHERE storage_category_id = ' . $cat_id;
+        $this->conn->db_query($query);
     }
 
     public function getFavorites(int $user_id, string $order_by)
@@ -124,5 +605,64 @@ class ImageRepository extends BaseRepository
         $query .= ' ORDER BY i.id DESC LIMIT 1';
 
         return $this->conn->db_query($query);
+    }
+
+    public function findMaxIdAndCount()
+    {
+        $query = 'SELECT MAX(id)+1, COUNT(1) FROM ' . self::IMAGES_TABLE;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findMaxDateAvailable() : string
+    {
+        $query = 'SELECT MAX(date_available) AS max_date FROM ' . self::IMAGES_TABLE;
+        $result = $this->conn->db_query($query);
+        $row = $this->conn->db_fetch_assoc($result);
+
+        return $row['max_date'];
+    }
+
+    public function findMinDateAvailable() : string
+    {
+        $query = 'SELECT MIN(date_available) AS min_date FROM ' . self::IMAGES_TABLE;
+        $result = $this->conn->db_query($query);
+        $row = $this->conn->db_fetch_assoc($result);
+
+        return $row['min_date'];
+    }
+
+    public function findImagesFromLastImport(string $max_date)
+    {
+        $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE date_available BETWEEN ';
+        $query .= $this->conn->db_get_recent_period_expression(1, $max_date) . ' AND \'' . $max_date . '\'';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findOrphanImages()
+    {
+        $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id WHERE id IS NULL;';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function deleteByElementId(array $ids)
+    {
+        $query = 'DELETE FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $this->conn->db_query($query);
+    }
+
+    public function massUpdates(array $fields, array $datas)
+    {
+        $this->conn->mass_updates(self::IMAGES_TABLE, $fields, $datas);
+    }
+
+    public function addImages(array $fields, array $datas)
+    {
+        $this->conn->mass_inserts(self::IMAGES_TABLE, $fields, $datas);
     }
 }

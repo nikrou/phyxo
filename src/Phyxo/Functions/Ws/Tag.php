@@ -16,6 +16,7 @@ use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
+use App\Repository\ImageRepository;
 
 class Tag
 {
@@ -133,10 +134,7 @@ class Tag
         if (!empty($image_ids)) {
             $rank_of = array_flip($image_ids);
 
-            $query = 'SELECT * FROM ' . IMAGES_TABLE;
-            $query .= ' WHERE id ' . $conn->in($image_ids);
-            $result = $conn->db_query($query);
-
+            $result = (new ImageRepository($conn))->findByIds($image_ids);
             while ($row = $conn->db_fetch_assoc($result)) {
                 $image = [];
                 $image['rank'] = $rank_of[$row['id']];

@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 if (!defined("ALBUMS_BASE_URL")) {
     die("Hacking attempt!");
@@ -82,10 +83,7 @@ function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max
     $category_ids = (new CategoryRepository($conn))->getSubcatIds($ids);
 
     // search for the reference date of each album
-    $query = 'SELECT category_id,' . $minmax . '(' . $field . ') as ref_date FROM ' . IMAGES_TABLE;
-    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
-    $query .= ' WHERE category_id ' . $conn->in($category_ids);
-    $query .= ' GROUP BY category_id;';
+    $result = (new ImageRepository($conn))->getReferenceDateForCategories('date_available', $minmax, $category_ids);
     $ref_dates = $conn->query2array($query, 'category_id', 'ref_date');
 
     // the iterate on all albums (having a ref_date or not) to find the

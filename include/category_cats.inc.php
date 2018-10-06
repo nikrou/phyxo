@@ -11,6 +11,8 @@
 
 use App\Repository\CategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\ImageCategoryRepository;
+use App\Repository\ImageRepository;
 
 /**
  * This file is included by the main page to show subcategories of a category
@@ -71,12 +73,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
 if ($conf['display_fromto']) {
     if (count($category_ids) > 0) {
-        $query = 'SELECT category_id, MIN(date_creation) AS _from,';
-        $query .= ' MAX(date_creation) AS _to FROM ' . IMAGE_CATEGORY_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGES_TABLE . ' ON image_id = id';
-        $query .= ' WHERE category_id ' . $conn->in($category_ids);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'category_id', 'visible_images' => 'id'], 'AND');
-        $query .= ' GROUP BY category_id;';
+        $result = (new ImageCategoryRepository($conn))->dateOfCategories($category_ids);
         $dates_of_category = $conn->query2array($query, 'category_id');
     }
 }
@@ -89,9 +86,7 @@ if (count($categories) > 0) {
     $infos_of_image = [];
     $new_image_ids = [];
 
-    $query = 'SELECT * FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($image_ids);
-    $result = $conn->db_query($query);
+    $result = (new ImageRepository($conn))->findByIds($image_ids);
     while ($row = $conn->db_fetch_assoc($result)) {
         if ($row['level'] <= $user['level']) {
             $infos_of_image[$row['id']] = $row;
@@ -125,9 +120,7 @@ if (count($categories) > 0) {
     }
 
     if (count($new_image_ids) > 0) {
-        $query = 'SELECT * FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($new_image_ids);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findByIds($new_image_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $infos_of_image[$row['id']] = $row;
         }

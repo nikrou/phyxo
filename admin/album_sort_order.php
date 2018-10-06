@@ -19,6 +19,7 @@ if (!defined('ALBUM_BASE_URL')) {
 }
 
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 $page['category_id'] = $category['id'];
 
@@ -99,11 +100,7 @@ $template->assign(
 // |                              thumbnails                               |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT id,file,path,representative_ext,width, height,rotation,';
-$query .= ' name,rank FROM ' . IMAGES_TABLE;
-$query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
-$query .= ' WHERE category_id = ' . $conn->db_real_escape_string($page['category_id']) . ' ORDER BY rank;';
-$result = $conn->db_query($query);
+$result = (new ImageRepository($conn))->findImagesInCategory($page['category_id'], 'ORDER BY RANK');
 if ($conn->db_num_rows($result) > 0) {
 	// template thumbnail initialization
     $current_rank = 1;

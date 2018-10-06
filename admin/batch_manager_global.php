@@ -23,6 +23,8 @@ use Phyxo\LocalSiteReader;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -138,19 +140,11 @@ if (isset($_POST['submit'])) {
     } elseif ('dissociate' == $action) {
         // physical links must not be broken, so we must first retrieve image_id
         // which create virtual links with the category to "dissociate from".
-        $query = 'SELECT id FROM ' . IMAGES_TABLE;
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON image_id = id';
-        $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($_POST['dissociate']);
-        $query .= ' AND id ' . $conn->in($collection);
-        $query .= ' AND (category_id != storage_category_id OR storage_category_id IS NULL);';
-        $dissociables = $conn->query2array($query, null, 'id');
+        $result = (new ImageRepository($conn))->findImagesInVirtualCategory($collection, $_POST['dissociate']);
+        $dissociables = $conn->result2array($result, null, 'id');
 
         if (!empty($dissociables)) {
-            $query = 'DELETE FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id = ' . $conn->db_real_escape_string($_POST['dissociate']);
-            $query .= ' AND image_id ' . $conn->in($dissociables);
-            $conn->db_query($query);
-
+            (new ImageCategoryRepository($conn))->deleteByCategory($_POST['dissociate'], $dissociables);
             $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
             // let's refresh the page because the current set might be modified
@@ -169,11 +163,7 @@ if (isset($_POST['submit'])) {
             ];
         }
 
-        $conn->mass_updates(
-            IMAGES_TABLE,
-            ['primary' => ['id'], 'update' => ['author']],
-            $datas
-        );
+        (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['author']], $datas);
     } elseif ('title' == $action) {
         if (isset($_POST['remove_title'])) {
             $_POST['title'] = null;
@@ -187,11 +177,7 @@ if (isset($_POST['submit'])) {
             ];
         }
 
-        $conn->mass_updates(
-            IMAGES_TABLE,
-            ['primary' => ['id'], 'update' => ['name']],
-            $datas
-        );
+        (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['name']], $datas);
     } elseif ('date_creation' == $action) {
         if (isset($_POST['remove_date_creation']) || empty($_POST['date_creation'])) {
             $date_creation = null;
@@ -207,11 +193,7 @@ if (isset($_POST['submit'])) {
             ];
         }
 
-        $conn->mass_updates(
-            IMAGES_TABLE,
-            ['primary' => ['id'], 'update' => ['date_creation']],
-            $datas
-        );
+        (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['date_creation']], $datas);
     } elseif ('level' == $action) { // privacy_level
         $datas = [];
         foreach ($collection as $image_id) {
@@ -221,11 +203,7 @@ if (isset($_POST['submit'])) {
             ];
         }
 
-        $conn->mass_updates(
-            IMAGES_TABLE,
-            ['primary' => ['id'], 'update' => ['level']],
-            $datas
-        );
+        (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['level']], $datas);
 
         if (isset($_SESSION['bulk_manager_filter']['level'])) {
             if ($_POST['level'] < $_SESSION['bulk_manager_filter']['level']) {
@@ -256,9 +234,7 @@ if (isset($_POST['submit'])) {
         \Phyxo\Functions\Metadata::sync_metadata($collection);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
     } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
-        $query = 'SELECT path,representative_ext FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($collection);
-        $result = $conn->db_query($query);
+        $result = (new ImageRepository($conn))->findByIds($collection);
         while ($info = $conn->db_fetch_assoc($result)) {
             foreach ($_POST['del_derivatives_type'] as $type) {
                 \Phyxo\Functions\Utils::delete_element_derivatives($info, $type);
@@ -378,11 +354,8 @@ $template->assign('filter_category_selected', $selected_category);
 // represent virtual links. We can't create orphans. Links to physical
 // categories can't be broken.
 if (count($page['cat_elements_id']) > 0) {
-    $query = 'SELECT DISTINCT(category_id) AS id FROM ' . IMAGES_TABLE . ' AS i';
-    $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON i.id = ic.image_id';
-    $query .= ' WHERE ic.image_id ' . $conn->in($page['cat_elements_id']);
-    $query .= ' AND (ic.category_id != i.storage_category_id OR i.storage_category_id IS NULL)';
-    $template->assign('associated_categories', $conn->query2array($query, 'id', 'id'));
+    $result = (new ImageRepository($conn))->findVirtualCategoriesWithImages($page['cat_elements_id']);
+    $template->assign('associated_categories', $conn->result2array($result, 'id', 'id'));
 }
 
 if (count($page['cat_elements_id']) > 0) {
@@ -456,8 +429,6 @@ if (count($page['cat_elements_id']) > 0) {
         $conf['order_by'] = ' ORDER BY file, id';
     }
 
-    $query = 'SELECT id,path,representative_ext,file,filesize,level,name,width,height,rotation FROM ' . IMAGES_TABLE;
-
     if ($is_category) {
         $category_info = \Phyxo\Functions\Category::get_cat_info($_SESSION['bulk_manager_filter']['category']);
 
@@ -465,21 +436,14 @@ if (count($page['cat_elements_id']) > 0) {
         if (!empty($category_info['image_order'])) {
             $conf['order_by'] = ' ORDER BY ' . $conn->db_real_escape_string($category_info['image_order']);
         }
-
-        $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
     }
-
-    $query .= ' WHERE id ' . $conn->in($page['cat_elements_id']);
-
-    if ($is_category) {
-        $query .= ' AND category_id = ' . $conn->db_real_escape_string($_SESSION['bulk_manager_filter']['category']);
-    }
-
-    //$query .= ' ' . $conf['order_by']; // rank in not a field
-    $query .= ' LIMIT ' . $conn->db_real_escape_string($page['nb_images']);
-    $query .= ' OFFSET ' . $conn->db_real_escape_string($page['start']);
-    $result = $conn->db_query($query);
-
+    $result = (new ImageRepository($conn))->findByImageIdsAndCategoryId(
+        $page['cat_elements_id'],
+        $_SESSION['bulk_manager_filter']['category'] ?? null,
+        $conf['order_by'],
+        $page['nb_images'],
+        $page['start']
+    );
     $thumb_params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB);
     // template thumbnail initialization
     while ($row = $conn->db_fetch_assoc($result)) {

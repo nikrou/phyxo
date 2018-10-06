@@ -22,10 +22,27 @@ class ImageCategoryRepository extends BaseRepository
         return $nb_image_category;
     }
 
-    public function countByCategory()
+    public function countByCategory(? int $category_id = null)
     {
         $query = 'SELECT category_id, COUNT(1) AS counter FROM ' . self::IMAGE_CATEGORY_TABLE;
-        $query .= ' GROUP BY category_id;';
+
+        if (!is_null($category_id)) {
+            $query .= ' WHERE category_id = ' . $category_id;
+        }
+
+        $query .= ' GROUP BY category_id';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function dateOfCategories(array $category_ids)
+    {
+        $query = 'SELECT category_id, MIN(date_creation) AS _from,';
+        $query .= ' MAX(date_creation) AS _to FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' ON image_id = id';
+        $query .= ' WHERE category_id ' . $this->conn->in($category_ids);
+        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'category_id', 'visible_images' => 'id'], 'AND');
+        $query .= ' GROUP BY category_id';
 
         return $this->conn->db_query($query);
     }
@@ -79,13 +96,34 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function deleteByCategory(array $ids, array $image_ids = [])
+    public function getCategoryWithLastPhotoAdded() : int
     {
+        $query = 'SELECT category_id FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' ORDER BY image_id DESC LIMIT 1';
+        $result = $this->conn->db_query($query);
+        $row = $this->conn->db_fetch_assoc($result);
+
+        return $row['category_id'];
+    }
+
+    public function deleteByCategory(array $ids = [], array $image_ids = [])
+    {
+        if (count($ids) === 0 && count($image_ids) === 0) {
+            return;
+        }
+
         $query = 'DELETE FROM ' . self::IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id ' . $this->conn->in($ids);
+        $query .= ' WHERE ';
+
+        if (count($ids) > 0) {
+            $query .= ' category_id ' . $this->conn->in($ids);
+        }
 
         if (count($image_ids) > 0) {
-            $query .= ' AND image_id ' . $this->conn->in($image_ids);
+            if (count($ids) > 0) {
+                $query .= ' AND ';
+            }
+            $query .= ' image_id ' . $this->conn->in($image_ids);
         }
 
         $this->conn->db_query($query);
@@ -110,6 +148,51 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findByImageId(int $image_id)
+    {
+        $query = 'SELECT category_id FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE image_id = ' . $image_id;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function isImageAssociatedToCategory(int $image_id, int $category_id)
+    {
+        $query = 'SELECT COUNT(1) FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE image_id = ' . $image_id;
+        $query .= ' AND category_id = ' . $category_id;
+        list($count) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+        return $count === 1;
+    }
+
+    public function maxRankForCategory(int $category_id) : int
+    {
+        $query = 'SELECT MAX(rank) AS max_rank FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id = ' . $category_id;
+        $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
+
+        return $row['max_rank'];
+    }
+
+    public function updateRankForCategory(int $rank, int $category_id)
+    {
+        $query = 'UPDATE ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' SET rank = rank + 1';
+        $query .= ' WHERE category_id = ' . $category_id;
+        $query .= ' AND rank IS NOT NULL AND rank >= ' . $rank;
+        $this->conn->db_query($query);
+    }
+
+    public function updateRankForImage(int $rank, int $image_id, int $category_id)
+    {
+        $query = 'UPDATE ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' SET rank = ' . $rank;
+        $query .= ' WHERE image_id = ' . $image_id;
+        $query .= ' AND category_id = ' . $category_id;
+        $this->conn->db_query($query);
+    }
+
     public function findMaxRankForEachCategories(array $ids)
     {
         $query = 'SELECT category_id, MAX(rank) AS max_rank FROM ' . self::IMAGE_CATEGORY_TABLE;
@@ -121,6 +204,11 @@ class ImageCategoryRepository extends BaseRepository
     }
 
     public function insertImageCategories(array $fields, array $datas)
+    {
+        $this->conn->mass_inserts(self::IMAGE_CATEGORY_TABLE, $fields, $datas);
+    }
+
+    public function massInserts(array $fields, array $datas)
     {
         $this->conn->mass_inserts(self::IMAGE_CATEGORY_TABLE, $fields, $datas);
     }

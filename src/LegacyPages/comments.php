@@ -11,6 +11,7 @@
 
 use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
@@ -340,9 +341,8 @@ $template->assign('navbar', $navbar);
 
 if (count($comments) > 0) {
   // retrieving element informations
-    $query = 'SELECT * FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE id ' . $conn->in($element_ids);
-    $elements = $conn->query2array($query, 'id');
+    $result = (new ImageRepository($conn))->findByIds($element_ids);
+    $elements = $conn->result2array($result, 'id');
 
     // retrieving category informations
     $result = (new CategoryRepository($conn))->findByIds($category_ids);

@@ -13,7 +13,7 @@ namespace App\Repository;
 
 class FavoriteRepository extends BaseRepository
 {
-    public function findAll(int $user_id) : array
+    public function findAll(int $user_id)
     {
         $query = 'SELECT image_id FROM ' . self::FAVORITES_TABLE;
         $query .= ' WHERE user_id = ' . $user_id;
@@ -74,7 +74,7 @@ class FavoriteRepository extends BaseRepository
     {
         $query = 'SELECT DISTINCT f.image_id FROM ' . self::FAVORITES_TABLE . ' AS f';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
-        $query .= ' WHERE f.user_id = ' . $user['id'];
+        $query .= ' WHERE f.user_id = ' . $user_id;
         $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'ic.category_id'], ' AND ');
 
         return $this->conn->db_query($query);

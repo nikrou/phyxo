@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CommentRepository;
+use App\Repository\ImageRepository;
 /**
  * This file is included by the main page to show thumbnails for the default
  * case
@@ -29,8 +30,7 @@ $selection = \Phyxo\Functions\Plugin::trigger_change('loc_index_thumbnails_selec
 if (count($selection) > 0) {
     $rank_of = array_flip($selection);
 
-    $query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id ' . $conn->in($selection);
-    $result = $conn->db_query($query);
+    $result = (new ImageRepository($conn))->findByIds($selection);
     while ($row = $conn->db_fetch_assoc($result)) {
         $row['rank'] = $rank_of[$row['id']];
         $pictures[] = $row;

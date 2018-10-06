@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\ImageRepository;
+
 class Metadata
 {
     /**
@@ -24,9 +26,9 @@ class Metadata
     {
         global $conf;
 
-        $result = array();
+        $result = [];
 
-        $imginfo = array();
+        $imginfo = [];
         if (false == @getimagesize($filename, $imginfo)) {
             return $result;
         }
@@ -76,7 +78,7 @@ class Metadata
         $iptc = self::get_iptc_data($file, $map);
 
         foreach ($iptc as $pwg_key => $value) {
-            if (in_array($pwg_key, array('date_creation', 'date_available'))) {
+            if (in_array($pwg_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/(\d{4})(\d{2})(\d{2})/', $value, $matches)) {
                     $year = $matches[1];
                     $month = $matches[2];
@@ -128,7 +130,7 @@ class Metadata
     {
         global $conf;
 
-        $result = array();
+        $result = [];
 
         if (!function_exists('exif_read_data')) {
             die('Exif extension not available, admin should disable exif use');
@@ -153,10 +155,10 @@ class Metadata
             }
 
             // GPS data
-            $gps_exif = array_intersect_key($exif, array_flip(array('GPSLatitudeRef', 'GPSLatitude', 'GPSLongitudeRef', 'GPSLongitude')));
+            $gps_exif = array_intersect_key($exif, array_flip(['GPSLatitudeRef', 'GPSLatitude', 'GPSLongitudeRef', 'GPSLongitude']));
             if (count($gps_exif) == 4) {
-                if (is_array($gps_exif['GPSLatitude']) and in_array($gps_exif['GPSLatitudeRef'], array('S', 'N'))
-                    && is_array($gps_exif['GPSLongitude']) and in_array($gps_exif['GPSLongitudeRef'], array('W', 'E'))) {
+                if (is_array($gps_exif['GPSLatitude']) and in_array($gps_exif['GPSLatitudeRef'], ['S', 'N'])
+                    && is_array($gps_exif['GPSLongitude']) and in_array($gps_exif['GPSLongitudeRef'], ['W', 'E'])) {
                     $result['latitude'] = self::parse_exif_gps_data($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
                     $result['longitude'] = self::parse_exif_gps_data($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
                 }
@@ -187,7 +189,7 @@ class Metadata
         $exif = self::get_exif_data($file, $conf['use_exif_mapping']);
 
         foreach ($exif as $pwg_key => $value) {
-            if (in_array($pwg_key, array('date_creation', 'date_available'))) {
+            if (in_array($pwg_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
                     if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
                         && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
@@ -287,14 +289,14 @@ class Metadata
     {
         global $conf;
 
-        $update_fields = array('filesize', 'width', 'height');
+        $update_fields = ['filesize', 'width', 'height'];
 
         if ($conf['use_exif']) {
             $update_fields =
                 array_merge(
                 $update_fields,
                 array_keys($conf['use_exif_mapping']),
-                array('latitude', 'longitude')
+                ['latitude', 'longitude']
             );
         }
 
@@ -364,13 +366,9 @@ class Metadata
             define('CURRENT_DATE', date('Y-m-d'));
         }
 
-        $datas = array();
-        $tags_of = array();
-
-        $query = 'SELECT id, path, representative_ext FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id ' . $conn->in($ids);
-
-        $result = $conn->db_query($query);
+        $datas = [];
+        $tags_of = [];
+        $result = (new ImageRepository($conn))->findByIds($ids);
         while ($data = $conn->db_fetch_assoc($result)) {
             $data = self::get_sync_metadata($data);
             if ($data === false) {
@@ -378,10 +376,10 @@ class Metadata
             }
 
             $id = $data['id'];
-            foreach (array('keywords', 'tags') as $key) {
+            foreach (['keywords', 'tags'] as $key) {
                 if (isset($data[$key])) {
                     if (!isset($tags_of[$id])) {
-                        $tags_of[$id] = array();
+                        $tags_of[$id] = [];
                     }
 
                     foreach (explode(',', $data[$key]) as $tag_name) {
@@ -401,15 +399,14 @@ class Metadata
 
             $update_fields = array_diff(
                 $update_fields,
-                array('tags', 'keywords')
+                ['tags', 'keywords']
             );
 
-            $conn->mass_updates(
-                IMAGES_TABLE,
-                array(
-                    'primary' => array('id'),
+            (new ImageRepository($conn))->massUpdates(
+                [
+                    'primary' => ['id'],
                     'update' => $update_fields
-                ),
+                ],
                 $datas,
                 MASS_UPDATES_SKIP_EMPTY
             );

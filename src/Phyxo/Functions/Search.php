@@ -166,8 +166,7 @@ class Search
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
                 'visible_images' => 'id'
-            ],
-            " AND "
+            ]
         );
 
         $items = [];
@@ -187,16 +186,8 @@ class Search
         $search_clause = self::get_sql_search_clause($search);
 
         if (!empty($search_clause)) {
-            $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']);
-            $query .= ' FROM ' . IMAGES_TABLE . ' AS i';
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-            $query .= ' WHERE ' . $search_clause;
-
-            if (!empty($images_where)) {
-                $query .= ' AND ' . $images_where;
-            }
-            $query .= $forbidden . ' ' . $conf['order_by'];
-            $items = $conn->query2array($query, null, 'id');
+            $result = (new ImageRepository($conn))->searchDistinctId('id', [$search_clause, $forbidden, $images_where], true, $conf['order_by']);
+            $items = $conn->result2array($result, null, 'id');
         }
 
         if (!empty($tag_items)) {
@@ -281,7 +272,6 @@ class Search
 
         $qsr->images_iids = array_fill(0, count($expr->stokens), []);
 
-        $query_base = 'SELECT id from ' . IMAGES_TABLE . ' i WHERE ';
         for ($i = 0; $i < count($expr->stokens); $i++) {
             $token = $expr->stokens[$i];
             $scope_id = isset($token->scope) ? $token->scope->id : 'photo';
@@ -335,8 +325,8 @@ class Search
                     break;
             }
             if (!empty($clauses)) {
-                $query = $query_base . '(' . implode(' OR ', $clauses) . ')';
-                $qsr->images_iids[$i] = $conn->query2array($query, null, 'id');
+                $result = (new ImageRepository($conn))->qsearchImages($clauses);
+                $qsr->images_iids[$i] = $conn->result2array($result, null, 'id');
             }
         }
     }
@@ -615,13 +605,8 @@ class Search
             );
         }
 
-        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($conf['order_by']) . ' FROM ' . IMAGES_TABLE . ' i';
-        if ($permissions) {
-            $query .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        }
-        $query .= ' WHERE ' . implode("\n AND ", $where_clauses) . ' ' . $conf['order_by'];
-
-        $ids = $conn->query2array($query, null, 'id');
+        $result = (new ImageRepository($conn))->searchDistinctId('id', $where_clauses, $conf['order_by']);
+        $ids = $conn->result2array($result, null, 'id');
 
         $debug[] = count($ids) . ' final photo count -->';
         $template->append('footer_elements', implode("\n", $debug));

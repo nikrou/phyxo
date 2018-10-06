@@ -14,6 +14,7 @@ if (!defined("RATING_BASE_URL")) {
 }
 
 use App\Repository\RateRepository;
+use App\Repository\ImageRepository;
 
 $filter_min_rates = 2;
 if (isset($_GET['f_min_rates'])) {
@@ -80,9 +81,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // get image tn urls
 $image_urls = [];
 if (count($image_ids) > 0) {
-    $query = 'SELECT id, name, file, path, representative_ext, level FROM ' . IMAGES_TABLE;
-    $query .= ' WHERE id ' . $conn->in(array_keys($image_ids));
-    $result = $conn->db_query($query);
+    $result = (new ImageRepository($conn))->findByIds(array_keys($image_ids));
     $params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
         $image_urls[$row['id']] = [
@@ -99,8 +98,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
     $all_img_sum[(int)$row['element_id']] = ['avg' => (float)$row['avg']];
 }
 
-$query = 'SELECT id FROM ' . IMAGES_TABLE . ' ORDER by rating_score DESC LIMIT ' . $consensus_top_number;
-$best_rated = array_flip($conn->query2array($query, null, 'id'));
+$result = (new ImageRepository($conn))->findBestRated($consensus_top_number);
+$best_rated = array_flip($conn->result2array($result, null, 'id'));
 
 // by user stats
 foreach ($by_user_ratings as $id => &$rating) {

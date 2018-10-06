@@ -208,10 +208,8 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if (count($image_ids) > 0) {
-        $query = 'SELECT id,name,file,filesize,file,';
-        $query .= 'path,representative_ext FROM ' . IMAGES_TABLE;
-        $query .= ' WHERE id ' . $conn->in(array_keys($image_ids));
-        $image_infos = $conn->query2array($query, 'id');
+        $result = (new ImageRepository($conn))->findByIds(array_kets($image_ids));
+        $image_infos = $conn->result2array($result, 'id');
     }
 
     if ($has_tags > 0) {

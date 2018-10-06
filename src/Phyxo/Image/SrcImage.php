@@ -13,6 +13,7 @@ namespace Phyxo\Image;
 
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
+use App\Repository\ImageRepository;
 
 /**
  * A source image is used to get a derivative image. It is either
@@ -58,11 +59,11 @@ class SrcImage
                 $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';
                 $size = getimagesize(PHPWG_ROOT_PATH . $this->rel_path);
             }
-            $this->size = array($size[0], $size[1]);
+            $this->size = [$size[0], $size[1]];
         }
 
         if (!$this->size) {
-            if (isset($infos['width']) && isset($infos['height'])) {
+            if (isset($infos['width'], $infos['height'])) {
                 $width = $infos['width'];
                 $height = $infos['height'];
 
@@ -74,7 +75,7 @@ class SrcImage
                     $height = $infos['width'];
                 }
 
-                $this->size = array($width, $height);
+                $this->size = [$width, $height];
             } elseif (!array_key_exists('width', $infos)) {
                 $this->flags |= self::DIM_NOT_GIVEN;
             }
@@ -136,12 +137,15 @@ class SrcImage
             if ($this->flags & self::DIM_NOT_GIVEN) {
                 \Phyxo\Functions\HTTP::fatal_error('SrcImage dimensions required but not provided');
             }
+
+            // @TODO : move that query elsewhere
             // probably not metadata synced
             if (is_readable($this->get_path()) && ($size = getimagesize($this->get_path())) !== false) {
-                $this->size = array($size[0], $size[1]);
-                $conn->db_query('UPDATE ' . IMAGES_TABLE . ' SET width=' . $size[0] . ', height=' . $size[1] . ' WHERE id=' . $this->id);
+                $this->size = [$size[0], $size[1]];
+                (new ImageRepository($conn))->updateImage(['width' => $size[0], 'height' => $size[1]], $this->id);
             }
         }
+
         return $this->size;
     }
 }

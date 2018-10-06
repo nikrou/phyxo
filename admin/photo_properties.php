@@ -16,6 +16,7 @@ if (!defined("PHOTO_BASE_URL")) {
 use App\Repository\TagRepository;
 use App\Repository\RateRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -103,11 +104,7 @@ if (isset($_POST['submit'])) {
 
     $data = \Phyxo\Functions\Plugin::trigger_change('picture_modify_before_update', $data);
 
-    $conn->single_update(
-        IMAGES_TABLE,
-        $data,
-        ['id' => $data['id']]
-    );
+    (new ImageRepository($conn))->updateImage($data, $data['id']);
 
     // time to deal with tags
     $tag_ids = [];
@@ -150,8 +147,8 @@ $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($_GET['im
 $tag_selection = $services['tags']->prepareTagsListForUI($tags);
 
 // retrieving direct information about picture
-$query = 'SELECT * FROM ' . IMAGES_TABLE . ' WHERE id = ' . (int)$_GET['image_id'];
-$row = $conn->db_fetch_assoc($conn->db_query($query));
+$result = (new ImageRepository($conn))->findById($_GET['image_id']);
+$row = $conn->db_fetch_assoc($result);
 
 $storage_category_id = null;
 if (!empty($row['storage_category_id'])) {
