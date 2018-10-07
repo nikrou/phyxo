@@ -22,6 +22,7 @@ use Phyxo\Language\Languages;
 use Symfony\Component\Dotenv\Dotenv;
 use App\Repository\SiteRepository;
 use App\Repository\ConfigRepository;
+use App\Repository\UpgradeRepository;
 
 (new Dotenv())->load(__DIR__ . '/../.env');
 
@@ -119,11 +120,7 @@ foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
         'description' => 'upgrade included in installation',
     ];
 }
-$conn->mass_inserts(
-    UPGRADE_TABLE,
-    array_keys($datas[0]),
-    $datas
-);
+(new UpgradeRepository($conn))->massInserts(array_keys($datas[0]), $datas);
 if (!is_dir(PHPWG_ROOT_PATH . $conf['data_location'])) {
     mkdir(PHPWG_ROOT_PATH . $conf['data_location']);
 }

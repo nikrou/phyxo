@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\UpgradeRepository;
+
 if (!defined('PHPWG_ROOT_PATH')) {
     die('This page cannot be loaded directly, load upgrade.php');
 } else {
@@ -30,21 +32,21 @@ $existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);
-$inserts = array();
+$inserts = [];
 foreach ($to_apply as $upgrade_id) {
     if ($upgrade_id >= $first_id) { // TODO change on each release
         break;
     }
 
-    $inserts[] = array(
+    $inserts[] = [
         'id' => $upgrade_id,
         'applied' => CURRENT_DATE,
         'description' => sprintf('[migration from %s to %s] not applied', $release_from, PHPWG_VERSION)
-    );
+    ];
 }
 
 if (!empty($inserts)) {
-    $conn->mass_inserts(UPGRADE_TABLE, array_keys($inserts[0]), $inserts);
+    (new UpgradeRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
 }
 
 // +-----------------------------------------------------------------------+

@@ -23,6 +23,7 @@ use Phyxo\Template\Template;
 use Phyxo\Session\SessionDbHandler;
 use App\Repository\SiteRepository;
 use App\Repository\ConfigRepository;
+use App\Repository\UpgradeRepository;
 
 // container
 if (!empty($GLOBALS['container'])) {
@@ -282,11 +283,7 @@ define(\'DB_COLLATE\', \'\');';
                 'description' => 'upgrade included in installation',
             ];
         }
-        $conn->mass_inserts(
-            UPGRADE_TABLE,
-            array_keys($datas[0]),
-            $datas
-        );
+        (new UpgradeRepository($conn))->massInserts(array_keys($datas[0]), $datas);
     }
 }
 

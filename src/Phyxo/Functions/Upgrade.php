@@ -11,6 +11,8 @@
 
 namespace Phyxo\Functions;
 
+use App\Repository\UpgradeRepository;
+
 class Upgrade
 {
     public static function check_upgrade()
@@ -157,8 +159,8 @@ class Upgrade
         global $conn;
 
         // retrieve already applied upgrades
-        $query = 'SELECT id FROM ' . UPGRADE_TABLE;
-        $applied = $conn->query2array($query, null, 'id');
+        $result = (new UpgradeRepository($conn))->findAll();
+        $applied = $conn->result2array($result, null, 'id');
 
         // retrieve existing upgrades
         $existing = self::get_available_upgrade_ids();
