@@ -38,12 +38,12 @@ class ImageCategoryRepository extends BaseRepository
     public function countTotalImages(array $forbidden_categories, string $access_type, array $image_ids) : int
     {
         $query = 'SELECT COUNT(DISTINCT(image_id)) as total FROM ' . self::IMAGE_CATEGORY_TABLE;
-        $query .= ' WHERE category_id NOT' . $this->conn($forbidden_categories);
+        $query .= ' WHERE category_id NOT' . $this->conn->in($forbidden_categories);
 
         if ($access_type === 'NOT IN') {
-            $query .= ' AND image_id NOT ' . $this->conn($image_ids);
+            $query .= ' AND image_id NOT ' . $this->conn->in($image_ids);
         } else {
-            $query .= ' AND image_id ' . $this->conn($image_ids);
+            $query .= ' AND image_id ' . $this->conn->in($image_ids);
         }
 
         $result = $this->conn->db_query($query);

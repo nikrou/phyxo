@@ -15,7 +15,7 @@ class UserMailNotificationRepository extends BaseRepository
 {
     public function findInfosForUsers(bool $no_mail_empty, bool $enabled, array $check_keys = [], string $order_by)
     {
-        $query = 'SELECT user_id, check_key, enabled, last_send FROM ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS n';
+        $query = 'SELECT username, mail_address, user_id, check_key, enabled, last_send FROM ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS n';
         $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u';
         $query .= ' ON u.id = n.user_id';
         $query .= ' WHERE n.enabled = \'' . $this->conn->boolean_to_db($enabled) . '\'';

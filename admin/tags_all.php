@@ -61,7 +61,7 @@ if (isset($_POST['edit_submit'])) {
 
 if (isset($_POST['duplic_submit'])) {
     $result = (new TagRepository($conn))->findAll();
-    $existing_names = $conn->result2array($query, null, 'name');
+    $existing_names = $conn->result2array($result, null, 'name');
 
     $current_name_of = [];
     $result = (new TagRepository($conn))->findTags($_POST['edit_list']);
@@ -84,11 +84,11 @@ if (isset($_POST['duplic_submit'])) {
                 );
 
                 $result = (new TagRepository($conn))->findBy('name', $tag_name);
-                $destination_tag = $conn->result2array($query, null, 'id');
+                $destination_tag = $conn->result2array($result, null, 'id');
                 $destination_tag_id = $destination_tag[0];
 
                 $result = (new ImageTagRepository($conn))->findBy('tag_id', $tag_id);
-                $destination_tag_image_ids = $conn->result2array($query, null, 'image_id');
+                $destination_tag_image_ids = $conn->result2array($result, null, 'image_id');
 
                 $inserts = [];
                 foreach ($destination_tag_image_ids as $image_id) {
@@ -147,7 +147,7 @@ if (isset($_POST['merge_submit'])) {
             );
 
             $result = (new ImageTagRepository($conn))->findImageByTags($tag_ids_to_delete);
-            $image_ids = $conn->result2array($resul, null, 'image_id');
+            $image_ids = $conn->result2array($result, null, 'image_id');
 
             $services['tags']->deleteTags($tag_ids_to_delete);
 
@@ -195,7 +195,7 @@ if (isset($_POST['merge_submit'])) {
 
 if (isset($_POST['delete']) and isset($_POST['tags'])) {
     $result = (new TagRepository($conn))->findTags($_POST['tags']);
-    $tag_names = $conn->result2array($query, null, 'name');
+    $tag_names = $conn->result2array($result, null, 'name');
 
     $services['tags']->deleteTags($_POST['tags']);
 

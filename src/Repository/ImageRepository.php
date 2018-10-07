@@ -206,11 +206,7 @@ class ImageRepository extends BaseRepository
         $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
         $query .= ' storage_category_id, level, md5sum, added_by, rotation, latitude, longitude, lastmodified';
         $query .= ' FROM ' . self::IMAGES_TABLE;
-
-        if (!is_null($category_id)) {
-            $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        }
-
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
         $query .= ' WHERE id ' . $this->conn->in($image_ids);
 
         if (!is_null($category_id)) {

@@ -479,8 +479,8 @@ class Users
                 $userdata['image_access_type'] = 'NOT IN'; //TODO maybe later
                 $userdata['image_access_list'] = implode(',', $forbidden_ids);
 
-                $userdata['nb_total_images'] = (new ImageCategoryRepository($conn))->countTotalImages(
-                    $userdata['forbidden_categories'],
+                $userdata['nb_total_images'] = (new ImageCategoryRepository($this->conn))->countTotalImages(
+                    explode(', ', $userdata['forbidden_categories']),
                     $userdata['image_access_type'],
                     $forbidden_ids
                 );

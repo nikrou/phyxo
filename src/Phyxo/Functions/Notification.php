@@ -497,7 +497,7 @@ class Notification
                 $order_by = ' ORDER BY username';
             }
 
-            $result = (new UserMailNotificationRepository($conn))->findInfosForUser(
+            $result = (new UserMailNotificationRepository($conn))->findInfosForUsers(
                 $no_mail_empty = ($action === 'send'),
                 $enabled_filter_value,
                 $check_key_list,

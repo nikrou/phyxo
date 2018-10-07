@@ -300,9 +300,9 @@ class Themes extends Extensions
                 }
 
                 // screenshot
-                $screenshot_path = dirname($themeconf) . '/screenshot.png';
-                if (file_exists($screenshot_path)) {
-                    $theme['screenshot'] = $screenshot_path;
+                $screenshot_path = $theme_dir . '/screenshot.png';
+                if (is_readable("../../themes/" . $screenshot_path)) {
+                    $theme['screenshot'] = "themes/$screenshot_path";
                 } else {
                     $theme['screenshot'] = \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png';
                 }

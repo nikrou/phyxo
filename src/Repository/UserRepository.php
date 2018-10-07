@@ -30,6 +30,7 @@ class UserRepository extends BaseRepository
         $query .= ' WHERE u.mail_address IS NOT NULL';
         $query .= ' AND um.user_id is null';
         $query .= ' ORDER BY user_id';
+        $result = $this->conn->db_query($query);
 
         return $this->conn->db_fetch_assoc($result);
     }

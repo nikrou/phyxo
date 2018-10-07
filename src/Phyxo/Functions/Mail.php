@@ -20,7 +20,6 @@ class Mail
      *
      * @return string
      */
-
     public static function get_mail_sender_name()
     {
         global $conf;
@@ -58,7 +57,7 @@ class Mail
     {
         global $conf;
 
-        $conf_mail = array(
+        $conf_mail = [
             'send_bcc_mail_webmaster' => $conf['send_bcc_mail_webmaster'],
             'mail_allow_html' => $conf['mail_allow_html'],
             'mail_theme' => $conf['mail_theme'],
@@ -69,7 +68,7 @@ class Mail
             'smtp_secure' => $conf['smtp_secure'],
             'email_webmaster' => self::get_mail_sender_email(),
             'name_webmaster' => self::get_mail_sender_name(),
-        );
+        ];
 
         return $conf_mail;
     }
@@ -116,15 +115,15 @@ class Mail
         }
 
         if (preg_match('/(.*)<(.*)>.*/', $input, $matches)) {
-            return array(
+            return [
                 'email' => trim($matches[2]),
                 'name' => trim($matches[1]),
-            );
+            ];
         } else {
-            return array(
+            return [
                 'email' => trim($input),
                 'name' => '',
-            );
+            ];
         }
     }
 
@@ -142,21 +141,21 @@ class Mail
     public static function get_clean_recipients_list($data)
     {
         if (empty($data)) {
-            return array();
+            return [];
         } elseif (is_array($data)) {
             $values = array_values($data);
             if (!is_array($values[0])) {
                 $keys = array_keys($data);
                 if (is_int($keys[0])) { // simple array of emails
                     foreach ($data as &$item) {
-                        $item = array(
+                        $item = [
                             'email' => trim($item),
                             'name' => '',
-                        );
+                        ];
                     }
                     unset($item);
                 } else { // hashmap of one recipient
-                    $data = array(self::unformat_email($data));
+                    $data = [self::unformat_email($data)];
                 }
             } else { // array of hashmaps
                 $data = array_map('self::unformat_email', $data);
@@ -166,7 +165,7 @@ class Mail
             $data = array_map('self::unformat_email', $data);
         }
 
-        $existing = array();
+        $existing = [];
         foreach ($data as $i => $entry) {
             if (isset($existing[$entry['email']])) {
                 unset($data[$i]);
@@ -186,7 +185,11 @@ class Mail
      */
     public static function get_mail_template($email_format)
     {
-        $template = new \Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', 'default', 'template/mail/' . $email_format);
+        global $conf, $lang, $lang_info;
+
+        $template = new \Phyxo\Template\Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
+        $template->set_theme(PHPWG_ROOT_PATH . 'themes', 'default', 'template/mail/' . $email_format);
+
         return $template;
     }
 
@@ -231,14 +234,14 @@ class Mail
         // Load new data if necessary
         if (!isset($switch_lang['language'][$language])) {
             // Re-Init language arrays
-            $lang_info = array();
-            $lang = array();
+            $lang_info = [];
+            $lang = [];
 
             // language files
-            \Phyxo\Functions\Language::load_language('common.lang', '', array('language' => $language));
+            \Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language]);
             // No test admin because script is checked admin (user selected no)
             // Translations are in admin file too
-            \Phyxo\Functions\Language::load_language('admin.lang', '', array('language' => $language));
+            \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language]);
 
             // Reload all plugins files (see \Phyxo\Functions\Language::load_language declaration)
             if (!empty($language_files)) {
@@ -254,7 +257,7 @@ class Mail
             \Phyxo\Functions\Language::load_language(
                 'lang',
                 PHPWG_ROOT_PATH . PWG_LOCAL_DIR,
-                array('language' => $language, 'no_fallback' => true, 'local' => true)
+                ['language' => $language, 'no_fallback' => true, 'local' => true]
             );
 
             $switch_lang['language'][$language]['lang_info'] = $lang_info;
@@ -317,27 +320,27 @@ class Mail
             self::switch_lang_back();
         }
 
-        $tpl_vars = array();
+        $tpl_vars = [];
         if ($send_technical_details) {
-            $tpl_vars['TECHNICAL'] = array(
+            $tpl_vars['TECHNICAL'] = [
                 'username' => stripslashes($user['username']),
                 'ip' => $_SERVER['REMOTE_ADDR'],
                 'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-            );
+            ];
         }
 
         return self::mail_admins(
-            array(
+            [
                 'subject' => '[' . $conf['gallery_title'] . '] ' . $subject,
                 'mail_title' => $conf['gallery_title'],
                 'mail_subtitle' => $subject,
                 'content' => $content,
                 'content_format' => 'text/plain',
-            ),
-            array(
+            ],
+            [
                 'filename' => 'notification_admin',
                 'assign' => $tpl_vars,
-            )
+            ]
         );
     }
 
@@ -350,7 +353,7 @@ class Mail
      * @param array $tpl - as in Mail::mail()
      * @return boolean
      */
-    public static function mail_admins($args = array(), $tpl = array())
+    public static function mail_admins($args = [], $tpl = [])
     {
         global $conf, $user, $conn, $services;
 
@@ -393,7 +396,7 @@ class Mail
      * @param array $tpl - as in Mail::mail()
      * @return boolean
      */
-    public static function mail_group($group_id, $args = array(), $tpl = array())
+    public static function mail_group($group_id, $args = [], $tpl = [])
     {
         global $conf, $conn;
 
@@ -440,7 +443,7 @@ class Mail
                 null,
                 array_merge(
                     $args,
-                    array('Bcc' => $users)
+                    ['Bcc' => $users]
                 ),
                 $tpl
             );
@@ -473,7 +476,7 @@ class Mail
      *
      * @return boolean
      */
-    public static function mail($to, $args = array(), $tpl = array())
+    public static function mail($to, $args = [], $tpl = [])
     {
         global $conf, $conf_mail, $lang_info, $page, $services;
 
@@ -497,10 +500,10 @@ class Mail
         \Phyxo\Functions\URL::set_make_full_url();
 
         if (empty($args['from'])) {
-            $from = array(
+            $from = [
                 'email' => $conf_mail['email_webmaster'],
                 'name' => $conf_mail['name_webmaster'],
-            );
+            ];
         } else {
             $from = self::unformat_email($args['from']);
         }
@@ -524,10 +527,10 @@ class Mail
         // Bcc
         $Bcc = self::get_clean_recipients_list(@$args['Bcc']);
         if ($conf_mail['send_bcc_mail_webmaster']) {
-            $Bcc[] = array(
+            $Bcc[] = [
                 'email' => \Phyxo\Functions\Utils::get_webmaster_mail_address(),
                 'name' => '',
-            );
+            ];
         }
         if (!empty($Bcc)) {
             foreach ($Bcc as $recipient) {
@@ -536,7 +539,7 @@ class Mail
         }
 
         // theme
-        if (empty($args['theme']) or !in_array($args['theme'], array('clear', 'dark'))) {
+        if (empty($args['theme']) or !in_array($args['theme'], ['clear', 'dark'])) {
             $args['theme'] = $conf_mail['mail_theme'];
         }
 
@@ -564,13 +567,13 @@ class Mail
             $args['content_format'] = 'text/plain';
         }
 
-        $content_type_list = array();
+        $content_type_list = [];
         if ($conf_mail['mail_allow_html'] && (empty($args['email_format']) || $args['email_format'] != 'text/plain')) {
             $content_type_list[] = 'text/html';
         }
         $content_type_list[] = 'text/plain';
 
-        $contents = array();
+        $contents = [];
         foreach ($content_type_list as $content_type) {
             // key compose of indexes witch allow to cache mail data
             $cache_key = $content_type . '-' . $lang_info['code'];
@@ -587,14 +590,14 @@ class Mail
                 $template->set_filename('mail_footer', 'footer.tpl');
 
                 $template->assign(
-                    array(
+                    [
                         'GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                         'GALLERY_TITLE' => isset($page['gallery_title']) ? $page['gallery_title'] : $conf['gallery_title'],
                         'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
                         'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
                         'CONTENT_ENCODING' => \Phyxo\Functions\Utils::get_charset(),
                         'CONTACT_MAIL' => $conf_mail['email_webmaster'],
-                    )
+                    ]
                 );
 
                 if ($content_type == 'text/html') {
@@ -612,10 +615,10 @@ class Mail
 
             $template = &$conf_mail[$cache_key]['theme'];
             $template->assign(
-                array(
+                [
                     'MAIL_TITLE' => $args['mail_title'],
                     'MAIL_SUBTITLE' => $args['mail_subtitle'],
-                )
+                ]
             );
 
             // Header
@@ -689,7 +692,7 @@ class Mail
             }
 
             $mail_transport = new \Swift_SmtpTransport($smtp_host, $smtp_port);
-            if (!empty($conf_mail['smtp_secure']) and in_array($conf_mail['smtp_secure'], array('ssl', 'tls'))) {
+            if (!empty($conf_mail['smtp_secure']) and in_array($conf_mail['smtp_secure'], ['ssl', 'tls'])) {
                 $mail_transport->setSecurity($conf_mail['smtp_secure']);
             }
 

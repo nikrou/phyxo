@@ -11,7 +11,7 @@
 	    <h3>{'Who can add tags?'|translate}</h3>
 
 	    <p class="field">
-		<select name="permission_add">
+		<select class="custom-select" name="permission_add">
 		    {html_options options=$STATUS_OPTIONS selected=$PERMISSIONS.add}
 		</select>
 	    </p>
@@ -32,7 +32,7 @@
 	<div class="fieldset">
 	    <h3>{'Who can delete related tags?'|translate}</h3>
 	    <p class="field">
-		<select name="permission_delete">
+		<select class="custom-select" name="permission_delete">
 		    {html_options options=$STATUS_OPTIONS selected=$PERMISSIONS.delete}
 		</select>
 	    </p>

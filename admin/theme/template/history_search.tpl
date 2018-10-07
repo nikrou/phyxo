@@ -15,8 +15,8 @@
     {/footer_script}
 
     <form class="filter" method="post" name="filter" action="{$F_ACTION}">
-	<fieldset>
-	    <legend>{'Filter'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Filter'|translate}</h3>
 	    <ul>
 		<li><label>{'Date'|translate}</label></li>
 		<li>
@@ -44,14 +44,14 @@
 
 	    <label>
 		{'Element type'|translate}
-		<select name="types[]" multiple="multiple" size="4">
+		<select class="custom-select" name="types[]" multiple="multiple" size="4">
 		    {html_options values=$type_option_values output=$type_option_values|translate selected=$type_option_selected}
 		</select>
 	    </label>
 
 	    <label>
 		{'User'|translate}
-		<select name="user">
+		<select class="custom-select" name="user">
 		    <option value="-1">------------</option>
 		    {html_options options=$user_options selected=$user_options_selected}
 		</select>
@@ -59,33 +59,33 @@
 
 	    <label>
 		{'Image id'|translate}
-		<input name="image_id" value="{$IMAGE_ID}" type="text" size="5">
+		<input class="form-control" name="image_id" value="{$IMAGE_ID}" type="text" size="5">
 	    </label>
 
 	    <label>
 		{'File name'|translate}
-		<input name="filename" value="{$FILENAME}" type="text" size="12">
+		<input class="form-control" name="filename" value="{$FILENAME}" type="text" size="12">
 	    </label>
 
 	    <label>
 		{'IP'|translate}
-		<input name="ip" value="{$IP}" type="text" size="12">
+		<input class="form-control" name="ip" value="{$IP}" type="text" size="12">
 	    </label>
 
 	    <label>
 		{'Thumbnails'|translate}
-		<select name="display_thumbnail">
+		<select class="custom-select" name="display_thumbnail">
 		    {html_options options=$display_thumbnails selected=$display_thumbnail_selected}
 		</select>
 	    </label>
 
-	    <input type="submit" name="submit" value="{'Submit'|translate}">
-	</fieldset>
+	    <input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
+	</div>
     </form>
 
     {if isset($search_summary)}
-	<fieldset>
-	    <legend>{'Summary'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Summary'|translate}</h3>
 
 	    <ul>
 		<li>{$search_summary.NB_LINES}, {$search_summary.FILESIZE}</li>
@@ -97,7 +97,7 @@
 		    </ul>
 		</li>
 	    </ul>
-	</fieldset>
+	</div>
     {/if}
 
     {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
