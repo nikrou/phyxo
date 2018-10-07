@@ -11,6 +11,7 @@
 
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\SearchRepository;
 
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
@@ -128,9 +129,7 @@ if (isset($_POST['submit'])) {
 
         // register search rules in database, then they will be available on
         // thumbnails page and picture page.
-        $query = 'INSERT INTO ' . SEARCH_TABLE . ' (rules, last_seen) VALUES (\'' . serialize($search) . '\', NOW());';
-        $conn->db_query($query);
-        $search_id = $conn->db_insert_id(SEARCH_TABLE);
+        $search_id = (new SearchRepository($conn))->addSearch(serialize($search));
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
     }

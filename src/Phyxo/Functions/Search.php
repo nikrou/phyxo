@@ -21,6 +21,7 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
+use App\Repository\SearchRepository;
 
 class Search
 {
@@ -35,8 +36,8 @@ class Search
     {
         global $conn;
 
-        $query = 'SELECT rules FROM ' . SEARCH_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($search_id);
-        list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
+        $result = (new SearchRepository($conn))->findById($search_id);
+        list($serialized_rules) = $conn->db_fetch_row($result);
 
         return unserialize($serialized_rules); // @TODO: remove unserialize
     }

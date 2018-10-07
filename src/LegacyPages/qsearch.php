@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\SearchRepository;
+
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
@@ -21,26 +23,23 @@ if (empty($_GET['q'])) {
     \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url());
 }
 
-$search = array();
+$search = [];
 $search['q'] = $_GET['q'];
 
-$query = 'SElECT id FROM ' . SEARCH_TABLE . ' WHERE rules = \'' . $conn->db_real_escape_string(serialize($search)) . '\'';
-$search_id = $conn->query2array($query, null, 'id');
+$result = (new SearchRepository($conn))->findByRules(serialize($search));
+$search_id = $conn->result2array($result, null, 'id');
 if (!empty($search_id)) {
     $search_id = $search_id[0];
-    $query = 'UPDATE ' . SEARCH_TABLE . ' SET last_seen=NOW() WHERE id=' . $search_id;
-    $conn->db_query($query);
+    (new SearchRepository($conn))->updateLastSeen($search_id);
 } else {
-    $query = 'INSERT INTO ' . SEARCH_TABLE . ' (rules, last_seen) VALUES (\'' . $conn->db_real_escape_string(serialize($search)) . '\', NOW() );';
-    $conn->db_query($query);
-    $search_id = $conn->db_insert_id(SEARCH_TABLE);
+    $search_id = (new SearchRepository($conn))->addSearch(serialize($search_id));
 }
 
 \Phyxo\Functions\Utils::redirect(
     \Phyxo\Functions\URL::make_index_url(
-        array(
+        [
             'section' => 'search',
             'search' => $search_id,
-        )
+        ]
     )
 );

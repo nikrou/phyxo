@@ -17,6 +17,7 @@ use Phyxo\Template\FileCombiner;
 use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
+use App\Repository\SearchRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -106,8 +107,7 @@ switch ($action) {
         }
     case 'search':
         {
-            $query = 'DELETE FROM ' . SEARCH_TABLE . ';';
-            $conn->db_query($query);
+            (new SearchRepository($conn))->delete();
             break;
         }
     case 'compiled-templates':

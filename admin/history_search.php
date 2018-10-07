@@ -14,6 +14,7 @@ use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\SearchRepository;
 
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
@@ -94,12 +95,7 @@ if (isset($_POST['submit'])) {
     if (!empty($search)) {
         // register search rules in database, then they will be available on
         // thumbnails page and picture page.
-        $query = 'INSERT INTO ' . SEARCH_TABLE;
-        $query .= ' (rules) VALUES(\'' . serialize($search) . '\');';
-        $conn->db_query($query);
-
-        $search_id = $conn->db_insert_id(SEARCH_TABLE);
-
+        $search_id = (new SearchRepository($conn))->addSearch(serialize($search));
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&&search_id=' . $search_id);
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
@@ -123,9 +119,8 @@ $template->assign(
 
 if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     // what are the lines to display in reality ?
-    $query = 'SELECT rules FROM ' . SEARCH_TABLE;
-    $query .= ' WHERE id = ' . $conn->db_real_escape_string($page['search_id']);
-    list($serialized_rules) = $conn->db_fetch_row($conn->db_query($query));
+    $result = (new SearchRepository($conn))->findById($page['search_id']);
+    list($serialized_rules) = $conn->db_fetch_row($result);
 
     $page['search'] = unserialize($serialized_rules);
 
@@ -135,12 +130,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         }
 
         $page['search']['fields']['user'] = $_GET['user_id'];
-
-        $query = 'INSERT INTO ' . SEARCH_TABLE;
-        $query .= ' (rules) VALUES(\'' . serialize($page['search']) . '\');';
-        $conn->db_query($query);
-
-        $search_id = $conn->db_insert_id(SEARCH_TABLE);
+        $search_id = (new SearchRepository($conn))->addSearch(serialize($page['search']));
 
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }
