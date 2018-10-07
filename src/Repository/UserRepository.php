@@ -21,6 +21,19 @@ class UserRepository extends BaseRepository
         return $this->conn->db_fetch_assoc($result);
     }
 
+    public function findUsersWIthNoMailNotificationInfos()
+    {
+        $query = 'SELECT u.id AS user_id,';
+        $query .= ' u.username,';
+        $query .= ' u.mail_address FROM ' . self::USERS_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS um ON u.id = um.user_id';
+        $query .= ' WHERE u.mail_address IS NOT NULL';
+        $query .= ' AND um.user_id is null';
+        $query .= ' ORDER BY user_id';
+
+        return $this->conn->db_fetch_assoc($result);
+    }
+
     public function isUserExists(string $username) : bool
     {
         $query = 'SELECT COUNT(1) AS user_exists FROM ' . self::USERS_TABLE;

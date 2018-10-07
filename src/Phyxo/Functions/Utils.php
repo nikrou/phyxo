@@ -27,6 +27,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\UserMailNotificationRepository;
 
 class Utils
 {
@@ -1368,8 +1369,6 @@ class Utils
         $tables = [
             // destruction of the access linked to the user
             USER_ACCESS_TABLE,
-            // destruction of data notification by mail for this user
-            USER_MAIL_NOTIFICATION_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
             // deletion of phyxo specific informations
@@ -1381,6 +1380,8 @@ class Utils
             $conn->db_query($query);
         }
 
+        // destruction of data notification by mail for this user
+        (new UserMailNotificationRepository($conn))->deleteByUserId($user_id);
         // destruction of data RSS notification for this user
         (new UserFeedRepository($conn))->deleteUserOnes($user_id);
         // deletion of calculated permissions linked to the user
@@ -1649,7 +1650,6 @@ class Utils
 
         // users present in user related tables must be present in the base user table
         $tables = [
-            USER_MAIL_NOTIFICATION_TABLE,
             USER_INFOS_TABLE,
             USER_ACCESS_TABLE,
             USER_GROUP_TABLE
@@ -1667,6 +1667,14 @@ class Utils
                 $query .= ' WHERE user_id ' . $conn->in($to_delete);
                 $conn->db_query($query);
             }
+        }
+
+        $to_delete = array_diff(
+            $conn->result2array((new UserMailNotificationRepository($conn))->getDistinctUser(), null, 'user_id'),
+            $base_users
+        );
+        if (count($to_delete) > 0) {
+            (new UserMailNotificationRepository($conn))->deleteByUserId($to_delete);
         }
 
         $to_delete = array_diff(

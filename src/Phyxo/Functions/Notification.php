@@ -14,6 +14,8 @@ namespace Phyxo\Functions;
 use App\Repository\ImageRepository;
 use App\Repository\CommentRepository;
 use Phyxo\DBLayer\DBLayer;
+use App\Repository\UserMailNotificationRepository;
+use App\Repository\UserRepository;
 
 class Notification
 {
@@ -450,29 +452,6 @@ class Notification
     }
 
     /*
-     * Search an available check_key
-     *
-     * It's a copy of function find_available_feed_id
-     *
-     * @return string nbm identifier
-     */
-    public static function find_available_check_key()
-    {
-        global $conn;
-
-        while (true) {
-            $key = \Phyxo\Functions\Utils::generate_key(16);
-            $query = 'SELECT count(1) FROM ' . USER_MAIL_NOTIFICATION_TABLE;
-            $query .= ' WHERE check_key = \'' . $conn->db_real_escape_string($key) . '\';';
-
-            list($count) = $conn->db_fetch_row($conn->db_query($query));
-            if ($count == 0) {
-                return $key;
-            }
-        }
-    }
-
-    /*
      * Check sendmail timeout state
      *
      * @return true, if it's timeout
@@ -512,43 +491,20 @@ class Notification
         $data_users = [];
 
         if (in_array($action, ['subscribe', 'send'])) {
-            $quoted_check_key_list = self::quote_check_key_list($check_key_list);
-            if (count($check_key_list) > 0) {
-                $query_and_check_key = ' AND check_key ' . $conn->in($check_key_list);
-            } else {
-                $query_and_check_key = '';
-            }
-
-            $query = 'SELECT N.user_id,N.check_key,U.' . $conf['user_fields']['username'] . ' as username,';
-            $query .= 'U.' . $conf['user_fields']['email'] . ' AS mail_address,N.enabled,N.last_send';
-            $query .= ' FROM ' . USER_MAIL_NOTIFICATION_TABLE . ' AS N,' . USERS_TABLE . ' AS U';
-            $query .= ' WHERE  N.user_id =  U.' . $conf['user_fields']['id'];
-
-
             if ($action == 'send') {
-                // No mail empty and all users enabled
-                $query .= ' AND N.enabled = \'' . $conn->boolean_to_db(true) . '\' AND U.' . $conf['user_fields']['email'] . ' is not null';
-            }
-
-            $query .= $query_and_check_key;
-
-            if (!empty($enabled_filter_value)) {
-                $query .= ' AND N.enabled = \'' . $conn->boolean_to_db($enabled_filter_value) . '\'';
-            }
-
-            $query .= ' ORDER BY';
-
-            if ($action == 'send') {
-                $query .= ' last_send, username;';
+                $order_by = ' ORDER BY last_send, username';
             } else {
-                $query .= ' username;';
+                $order_by = ' ORDER BY username';
             }
 
-            $result = $conn->db_query($query);
-            if (!empty($result)) {
-                while ($nbm_user = $conn->db_fetch_assoc($result)) {
-                    $data_users[] = $nbm_user;
-                }
+            $result = (new UserMailNotificationRepository($conn))->findInfosForUser(
+                $no_mail_empty = ($action === 'send'),
+                $enabled_filter_value,
+                $check_key_list,
+                $order_by
+            );
+            while ($nbm_user = $conn->db_fetch_assoc($result)) {
+                $data_users[] = $nbm_user;
             }
         }
 
@@ -841,8 +797,7 @@ class Notification
 
             self::display_counter_info();
 
-            $conn->mass_updates(
-                USER_MAIL_NOTIFICATION_TABLE,
+            (new UserMailNotificationRepository($conn))->massUpdates(
                 [
                     'primary' => ['check_key'],
                     'update' => ['enabled']
@@ -940,22 +895,14 @@ class Notification
         $conn->db_query($query);
 
         // null mail_address are not selected in the list
-        $query = 'SELECT u.' . $conf['user_fields']['id'] . ' AS user_id,';
-        $query .= ' u.' . $conf['user_fields']['username'] . ' AS username,';
-        $query .= ' u.' . $conf['user_fields']['email'] . ' AS mail_address FROM ' . USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . USER_MAIL_NOTIFICATION_TABLE . ' AS m ON u.' . $conf['user_fields']['id'] . ' = m.user_id';
-        $query .= ' WHERE u.' . $conf['user_fields']['email'] . ' is not null';
-        $query .= ' AND m.user_id is null';
-        $query .= ' ORDER BY user_id;';
-
-        $result = $conn->db_query($query);
+        $result = (new UserRepository($conn))->findUsersWIthNoMailNotificationInfos();
         if ($conn->db_num_rows($result) > 0) {
             $inserts = [];
             $check_key_list = [];
 
             while ($nbm_user = $conn->db_fetch_assoc($result)) {
                 // Calculate key
-                $nbm_user['check_key'] = self::find_available_check_key();
+                $nbm_user['check_key'] = \Phyxo\Functions\Utils::generate_key(16);
 
                 // Save key
                 $check_key_list[] = $nbm_user['check_key'];
@@ -975,7 +922,7 @@ class Notification
             }
 
             // Insert new nbm_users
-            $conn->mass_inserts(USER_MAIL_NOTIFICATION_TABLE, ['user_id', 'check_key', 'enabled'], $inserts);
+            (new UserMailNotificationRepository($conn))->massInserts(['user_id', 'check_key', 'enabled'], $inserts);
             // Update field enabled with specific function
             $check_key_treated = self::do_subscribe_unsubscribe_notification_by_mail(
                 true,
@@ -985,12 +932,9 @@ class Notification
 
             // On timeout simulate like tabsheet send
             if ($env_nbm['is_sendmail_timeout']) {
-                $quoted_check_key_list = self::quote_check_key_list(array_diff($check_key_list, $check_key_treated));
+                $check_key_list = array_diff($check_key_list, $check_key_treated);
                 if (count($check_key_list) > 0) {
-                    $query = 'DELETE FROM ' . USER_MAIL_NOTIFICATION_TABLE;
-                    $query .= ' WHERE check_key ' . $conn->in($check_key_list);
-                    $result = $conn->db_query($query);
-
+                    (new UserMailNotificationRepository($conn))->deleteByCheckKeys($check_key_list);
                     \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff([], false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
                 }
             }
@@ -1184,8 +1128,7 @@ class Notification
                     self::end_users_env_nbm();
 
                     if ($is_action_send) {
-                        $conn->mass_updates(
-                            USER_MAIL_NOTIFICATION_TABLE,
+                        (new UserMailNotificationRepository($conn))->massUpdates(
                             [
                                 'primary' => ['user_id'],
                                 'update' => ['last_send']
