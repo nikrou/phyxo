@@ -17,6 +17,7 @@ use App\Repository\TagRepository;
 use App\Repository\RateRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -51,11 +52,9 @@ if (isset($_GET['delete'])) {
         );
     }
 
-    $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
-    $query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
-
+    $result = (new ImageCategoryRepository($conn))->findByImageId($_GET['image_id']);
     $authorizeds = array_diff(
-        $conn->query2array($query, null, 'category_id'),
+        $conn->resulty2array($result, null, 'category_id'),
         explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
     );
 
@@ -248,11 +247,9 @@ foreach ($associated_albums as $album) {
 //    linked category
 // 4. if no category reachable, no jumpto link
 
-$query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
-$query .= ' WHERE image_id = ' . (int)$_GET['image_id'];
-
+$result = (new ImageCategoryRepository($conn))->findByImageId($_GET['image_id']);
 $authorizeds = array_diff(
-    $conn->query2array($query, null, 'category_id'),
+    $conn->result2array($result, null, 'category_id'),
     explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
 );
 

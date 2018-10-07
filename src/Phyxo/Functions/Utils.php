@@ -1539,10 +1539,8 @@ class Utils
 
         $datas = [];
         foreach ($categories as $category_id) {
-            $query = 'SELECT image_id FROM ' . IMAGE_CATEGORY_TABLE;
-            $query .= ' WHERE category_id = ' . $category_id;
-            $query .= ' ORDER BY ' . $conn::RANDOM_FUNCTION . '()  LIMIT 1;';
-            list($representative) = $conn->db_fetch_row($conn->db_query($query));
+            $result = (new ImageCategoryRepository($conn))->findRandomRepresentant($category_id);
+            list($representative) = $conn->db_fetch_row($result);
 
             $datas[] = [
                 'id' => $category_id,

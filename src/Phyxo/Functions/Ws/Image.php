@@ -1297,7 +1297,7 @@ class Image
             ];
         }
 
-        (new ImageCategoryRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
+        (new ImageCategoryRepository($conn))->insertImageCategories(array_keys($inserts[0]), $inserts);
 
         \Phyxo\Functions\Category::update_category($new_cat_ids);
     }

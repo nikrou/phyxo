@@ -18,10 +18,10 @@ class UserMailNotificationRepository extends BaseRepository
         $query = 'SELECT user_id, check_key, enabled, last_send FROM ' . self::USER_MAIL_NOTIFICATION_TABLE . ' AS n';
         $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u';
         $query .= ' ON u.id = n.user_id';
-        $query .= ' WHERE n.enabled = \'' . $conn->boolean_to_db($enabled) . '\'';
+        $query .= ' WHERE n.enabled = \'' . $this->conn->boolean_to_db($enabled) . '\'';
 
         if ($no_mail_empty) {
-            $query .= ' AND n.enabled = \'' . $conn->boolean_to_db(true) . '\' AND u.mail_address IS NOT NULL';
+            $query .= ' AND n.enabled = \'' . $this->conn->boolean_to_db(true) . '\' AND u.mail_address IS NOT NULL';
         }
 
         if (count($check_keys) > 0) {

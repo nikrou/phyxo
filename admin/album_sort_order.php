@@ -20,6 +20,7 @@ if (!defined('ALBUM_BASE_URL')) {
 
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 $page['category_id'] = $category['id'];
 
@@ -191,5 +192,6 @@ function save_images_order($category_id, $images)
         'primary' => ['image_id', 'category_id'],
         'update' => ['rank']
     ];
-    $conn->mass_updates(IMAGE_CATEGORY_TABLE, $fields, $datas);
+
+    (new ImageCategoryRepository($conn))->massUpdates($fields, $datas);
 }

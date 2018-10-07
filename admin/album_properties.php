@@ -12,6 +12,7 @@
 use App\Repository\CategoryRepository;
 use App\Repository\SiteRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
@@ -97,10 +98,7 @@ foreach (['comment', 'dir', 'site_id', 'id_uppercat'] as $nullable) {
 }
 
 $category['is_virtual'] = empty($category['dir']) ? true : false;
-
-$query = 'SELECT DISTINCT category_id FROM ' . IMAGE_CATEGORY_TABLE;
-$query .= ' WHERE category_id = ' . $conn->db_real_escape_string($_GET['cat_id']) . ' LIMIT 1';
-$result = $conn->db_query($query);
+$result = (new ImageCategoryRepository($conn))->findDistinctCategoryId($_GET['cat_id']);
 $category['has_images'] = $conn->db_num_rows($result) > 0 ? true : false;
 
 // Navigation path

@@ -19,6 +19,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 class Users
 {
@@ -478,10 +479,11 @@ class Users
                 $userdata['image_access_type'] = 'NOT IN'; //TODO maybe later
                 $userdata['image_access_list'] = implode(',', $forbidden_ids);
 
-                $query = 'SELECT COUNT(DISTINCT(image_id)) as total FROM ' . IMAGE_CATEGORY_TABLE;
-                $query .= ' WHERE category_id NOT IN (' . $userdata['forbidden_categories'] . ')';
-                $query .= ' AND image_id ' . $userdata['image_access_type'] . ' (' . $userdata['image_access_list'] . ')';
-                list($userdata['nb_total_images']) = $this->conn->db_fetch_row($this->conn->db_query($query));
+                $userdata['nb_total_images'] = (new ImageCategoryRepository($conn))->countTotalImages(
+                    $userdata['forbidden_categories'],
+                    $userdata['image_access_type'],
+                    $forbidden_ids
+                );
 
                 // now we update user cache categories
                 $user_cache_cats = \Phyxo\Functions\Category::get_computed_categories($userdata, null);

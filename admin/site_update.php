@@ -423,7 +423,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
             (new ImageRepository($conn))->addImages(array_keys($inserts[0]), $inserts);
 
             // inserts all links between new elements and their storage category
-            (new ImageCategoryRepository($conn))->massInserts(array_keys($insert_links[0]), $insert_links);
+            (new ImageCategoryRepository($conn))->insertImageCategories(array_keys($insert_links[0]), $insert_links);
 
             // add new photos to caddie
             if (isset($_POST['add_to_caddie']) and $_POST['add_to_caddie'] == 1) {

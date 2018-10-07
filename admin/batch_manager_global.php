@@ -336,16 +336,10 @@ $template->assign('filter_tags', $filter_tags);
 $selected_category = [];
 
 if (isset($_SESSION['bulk_manager_filter']['category'])) {
-    $selected_category = [$_SESSION['bulk_manager_filter']['category']];
+    $selected_category[] = $_SESSION['bulk_manager_filter']['category'];
 } else {
     // we need to know the category in which the last photo was added
-    $query = 'SELECT category_id FROM ' . IMAGE_CATEGORY_TABLE;
-    $query .= ' ORDER BY image_id DESC LIMIT 1';
-    $result = $conn->db_query($query);
-    if ($conn->db_num_rows($result) > 0) {
-        $row = $conn->db_fetch_assoc($result);
-        $selected_category[] = $row['category_id'];
-    }
+    $selected_category[] = (new ImageCategoryRepository($conn))->getCategoryWithLastPhotoAdded();
 }
 
 $template->assign('filter_category_selected', $selected_category);

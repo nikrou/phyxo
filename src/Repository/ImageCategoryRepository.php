@@ -35,6 +35,49 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function countTotalImages(array $forbidden_categories, string $access_type, array $image_ids) : int
+    {
+        $query = 'SELECT COUNT(DISTINCT(image_id)) as total FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id NOT' . $this->conn($forbidden_categories);
+
+        if ($access_type === 'NOT IN') {
+            $query .= ' AND image_id NOT ' . $this->conn($image_ids);
+        } else {
+            $query .= ' AND image_id ' . $this->conn($image_ids);
+        }
+
+        $result = $this->conn->db_query($query);
+        list($nb_total_images) = $this->conn->db_fetch_row($result);
+
+        return $nb_total_images;
+    }
+
+    public function findDistinctCategoryId(int $category_id)
+    {
+        $query = 'SELECT DISTINCT category_id FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id = ' . $category_id;
+        $query .= ' LIMIT 1';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findCategoriesWithImages()
+    {
+        $query = 'SELECT category_id, COUNT(1) AS nb_photos FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' GROUP BY category_id;';
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findRandomRepresentant(int $category_id)
+    {
+        $query = 'SELECT image_id FROM ' . self::IMAGE_CATEGORY_TABLE;
+        $query .= ' WHERE category_id = ' . $category_id;
+        $query .= ' ORDER BY ' . $this->conn::RANDOM_FUNCTION . '()  LIMIT 1';
+
+        return $this->conn->db_query($query);
+    }
+
     public function dateOfCategories(array $category_ids)
     {
         $query = 'SELECT category_id, MIN(date_creation) AS _from,';
@@ -208,8 +251,8 @@ class ImageCategoryRepository extends BaseRepository
         $this->conn->mass_inserts(self::IMAGE_CATEGORY_TABLE, $fields, $datas);
     }
 
-    public function massInserts(array $fields, array $datas)
+    public function massUpdates(array $fields, array $datas)
     {
-        $this->conn->mass_inserts(self::IMAGE_CATEGORY_TABLE, $fields, $datas);
+        $this->conn->mass_updates(self::IMAGE_CATEGORY_TABLE, $fields, $datas);
     }
 }

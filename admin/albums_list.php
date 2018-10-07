@@ -11,6 +11,7 @@
 
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\ImageCategoryRepository;
 
 if (!defined("ALBUMS_BASE_URL")) {
     die("Hacking attempt!");
@@ -264,10 +265,8 @@ $categories = $conn->result2array($result, 'id');
 // get the categories containing images directly
 $categories_with_images = [];
 if (count($categories) > 0) {
-    $query = 'SELECT category_id,COUNT(1) AS nb_photos FROM ' . IMAGE_CATEGORY_TABLE;
-    $query .= ' GROUP BY category_id;';
-
-    $nb_photos_in = $conn->query2array($query, 'category_id', 'nb_photos');
+    $result = (new ImageCategoryRepository($conn))->findCategoriesWithImages();
+    $nb_photos_in = $conn->result2array($result, 'category_id', 'nb_photos');
 
     $result = (new CategoryRepository($conn))->findAll();
     $all_categories = $conn->result2array($result, 'id', 'uppercats');
