@@ -416,7 +416,7 @@ class Category
         (new ImageCategoryRepository($conn))->deleteByCategory($ids);
 
         // destruction of the access linked to the category
-        (new UserAccessRepository($conn))->deleteByUserCatIds($ids);
+        (new UserAccessRepository($conn))->deleteByCatIds($ids);
         (new GroupAccessRepository($conn))->deleteByCatIds($ids);
 
         // destruction of the category

@@ -487,7 +487,8 @@ class CategoryRepository extends BaseRepository
     public function deleteByIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::CATEGORIES_TABLE;
-        $query = ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+
         $this->conn->db_query($query);
     }
 }

@@ -754,14 +754,10 @@ if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
     include(PHPWG_ROOT_PATH . 'include/picture_metadata.inc.php');
 }
 
-// include menubar
-$themeconf = $template->get_template_vars('themeconf');
-if ($conf['picture_menu'] and (!isset($themeconf['hide_menu_on']) or !in_array('thePicturePage', $themeconf['hide_menu_on']))) {
-    if (!isset($page['start'])) {
-        $page['start'] = 0;
-    }
-    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+if (!isset($page['start'])) {
+    $page['start'] = 0;
 }
+include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
 \Phyxo\Functions\Utils::flush_page_messages();

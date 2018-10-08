@@ -13,12 +13,12 @@ namespace App\Repository;
 
 class GroupAccessRepository extends BaseRepository
 {
-    public function deleteByCatIds(array $ids, string $condition)
+    public function deleteByCatIds(array $ids, ? string $condition = null)
     {
         $query = 'DELETE FROM ' . self::GROUP_ACCESS_TABLE;
         $query .= ' WHERE cat_id ' . $this->conn->in($ids);
 
-        if (!empty($condtion)) {
+        if (!is_null($condition)) {
             $query .= ' AND ' . $condtion;
         }
 
