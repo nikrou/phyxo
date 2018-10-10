@@ -17,6 +17,7 @@ use Phyxo\Ws\NamedArray;
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\UserAccessRepository;
+use App\Repository\UserGroupRepository;
 
 class Permission
 {
@@ -62,10 +63,7 @@ class Permission
         }
 
         // indirect users
-        $query = 'SELECT ug.user_id, ga.cat_id FROM ' . USER_GROUP_TABLE . ' AS ug';
-        $query .= ' LEFT JOIN ' . GROUP_ACCESS_TABLE . ' AS ga ON ug.group_id = ga.group_id ' . $cat_filter . ';';
-        $result = $conn->db_query($query);
-
+        $result = (new UserGroupRepository($conn))->findIndirectUsersByCatIds($params['cat_id'] ?? []);
         while ($row = $conn->db_fetch_assoc($result)) {
             if (!empty($row['cat_id'])) {
                 if (!isset($perms[$row['cat_id']])) {
@@ -83,7 +81,6 @@ class Permission
             }
             $perms[$row['cat_id']]['groups'][] = intval($row['group_id']);
         }
-
 
         // filter by group and user
         foreach ($perms as $cat_id => &$cat) {

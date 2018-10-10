@@ -21,6 +21,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserGroupRepository;
 
 class Users
 {
@@ -188,7 +189,7 @@ class Users
             }
 
             if (count($inserts) != 0) {
-                $this->conn->mass_inserts(USER_GROUP_TABLE, ['user_id', 'group_id'], $inserts);
+                (new UserGroupRepository($conn))->massInserts(['user_id', 'group_id'], $inserts);
             }
 
             $override = null;
@@ -975,11 +976,8 @@ class Users
         $query = 'SELECT cat_id FROM ' . USER_ACCESS_TABLE . ' WHERE user_id = ' . $user_id . ';';
         $authorized_array = $this->conn->query2array($query, null, 'cat_id');
 
-        // retrieve category ids authorized to the groups the user belongs to
-        $query = 'SELECT cat_id FROM ' . USER_GROUP_TABLE . ' AS ug';
-        $query .= ' LEFT JOIN ' . GROUP_ACCESS_TABLE . ' AS ga ON ug.group_id = ga.group_id';
-        $query .= ' WHERE ug.user_id = ' . $user_id . ';';
-        $authorized_array = array_merge($authorized_array, $this->conn->query2array($query, null, 'cat_id'));
+        $result = (new UserGroupRepository($conn))->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
+        $authorized_array = array_merge($authorized_array, $this->conn->result2array($result, null, 'cat_id'));
 
         // uniquify ids : some private categories might be authorized for the
         // groups and for the user

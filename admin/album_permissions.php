@@ -12,6 +12,7 @@
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserGroupRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
@@ -168,9 +169,7 @@ $user_granted_indirect_ids = [];
 if (count($group_granted_ids) > 0) {
     $granted_groups = [];
 
-    $query = 'SELECT user_id, group_id FROM ' . USER_GROUP_TABLE;
-    $query .= ' WHERE group_id ' . $conn->in($group_granted_ids);
-    $result = $conn->db_query($query);
+    $result = (new UserGroupRepository($conn))->findByGroupIds($group_granted_ids);
     while ($row = $conn->db_fetch_assoc($result)) {
         if (!isset($granted_groups[$row['group_id']])) {
             $granted_groups[$row['group_id']] = [];

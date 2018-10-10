@@ -19,6 +19,7 @@ use App\Repository\LanguageRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ThemeRepository;
+use App\Repository\UserGroupRepository;
 
 class User
 {
@@ -146,10 +147,7 @@ class User
 
         if (count($users) > 0) {
             if (isset($params['display']['groups'])) {
-                $query = 'SELECT user_id, group_id FROM ' . USER_GROUP_TABLE;
-                $query .= ' WHERE user_id ' . $conn->in(array_keys($users));
-                $result = $conn->db_query($query);
-
+                $result = (new UserGroupRepository($conn))->findByUserIds(array_keys($users));
                 while ($row = $conn->db_fetch_assoc($result)) {
                     $users[$row['user_id']]['groups'][] = intval($row['group_id']);
                 }
@@ -458,9 +456,7 @@ class User
 
         // manage association to groups
         if (!empty($params['group_id'])) {
-            $query = 'DELETE FROM ' . USER_GROUP_TABLE;
-            $query .= ' WHERE user_id ' . $conn->in($params['user_id']);
-            $conn->db_query($query);
+            (new UserGroupRepository($conn))->deleteByUserIds($params['user_id']);
 
             // we remove all provided groups that do not really exist
             $result = (new GroupRepository($conn))->findByIds($params['group_id']);
@@ -476,7 +472,7 @@ class User
                     }
                 }
 
-                $conn->mass_inserts(USER_GROUP_TABLE, array_keys($inserts[0]), $inserts);
+                (new UserGroupRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
             }
         }
 
