@@ -15,6 +15,7 @@ if (!defined("USERS_BASE_URL")) {
 
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
+use App\Repository\GroupRepository;
 
 // +-----------------------------------------------------------------------+
 // |                              groups list                              |
@@ -22,9 +23,7 @@ use App\Repository\ThemeRepository;
 
 $groups = [];
 
-$query = 'SELECT id, name FROM ' . GROUPS_TABLE . ' ORDER BY name ASC;';
-$result = $conn->db_query($query);
-
+$result = (new GroupRepository($conn))->findAll('ORDER BY name ASC');
 while ($row = $conn->db_fetch_assoc($result)) {
     $groups[$row['id']] = $row['name'];
 }

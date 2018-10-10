@@ -44,7 +44,10 @@
 			    <td><input class="group_selection" name="group_selection[]" type="checkbox" value="{$group.ID}"></td>
 			    <td>{$group.NAME}<i><small>{$group.IS_DEFAULT}</small></i></td>
 			    <td>
-				{if $group.MEMBERS>0}{$group.MEMBERS}<br>{$group.L_MEMBERS}{else}{$group.MEMBERS}{/if}</p>
+				{$group.MEMBERS|@count}<br>
+				{foreach $group.MEMBERS as $member}
+				    {$member}<br>
+				{/foreach}
 				<a class="group_perm" href="{$group.U_PERM}" title="{'Permissions'|translate}"><i class="fa fa-lock"></i> {'Permissions'|translate}</a>
 			    </td>
 		    {/foreach}

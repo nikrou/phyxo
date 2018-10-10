@@ -186,7 +186,7 @@ class ImageRepository extends BaseRepository
             return !empty($w);
         });
 
-        $query = 'SELECT DISTINCT(' . $field . '),' . \Phyxo\Functions\SQL::addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE . ' i';
+        $query = 'SELECT DISTINCT(' . $field . '),' . $this->addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE . ' AS i';
         if ($permissions) {
             $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         }
@@ -221,7 +221,7 @@ class ImageRepository extends BaseRepository
 
     public function findList(array $ids, string $forbidden, string $order_by)
     {
-        $query = 'SELECT DISTINCT(id),' . \Phyxo\Functions\SQL::addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE;
+        $query = 'SELECT DISTINCT(id),' . $this->addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         $query .= ' WHERE image_id ' . $this->conn->in($ids);
         $query .= ' ' . $forbidden;
@@ -272,7 +272,7 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE id=' . $image_id;
         $result = $this->conn->db_query($query);
 
-        return ($this->conn->db_num_rows($result) === 1);
+        return $this->conn->db_num_rows($result) === 1;
     }
 
     public function updateImage(array $fields, int $id)
@@ -422,7 +422,12 @@ class ImageRepository extends BaseRepository
     public function findWithNoStorageOrStorageCategoryId(array $categories)
     {
         $query = 'SELECT id FROM ' . self::IMAGES_TABLE;
-        $query .= ' WHERE (storage_category_id IS NULL OR storage_category_id NOT ' . $this->conn->in($categories) . ')';
+        $query .= ' WHERE (';
+        $query .= 'storage_category_id IS NULL';
+        if (count($categories) > 0) {
+            $query .= ' OR storage_category_id NOT ' . $this->conn->in($categories);
+        }
+        $query .= ')';
 
         return $this->conn->db_query($query);
     }

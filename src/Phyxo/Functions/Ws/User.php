@@ -17,6 +17,8 @@ use Phyxo\Ws\NamedArray;
 use Phyxo\Ws\NamedStruct;
 use App\Repository\LanguageRepository;
 use App\Repository\HistoryRepository;
+use App\Repository\GroupRepository;
+use App\Repository\ThemeRepository;
 
 class User
 {
@@ -461,12 +463,10 @@ class User
             $conn->db_query($query);
 
             // we remove all provided groups that do not really exist
-            $query = 'SELECT id FROM ' . GROUPS_TABLE;
-            $query .= ' WHERE id ' . $conn->in($params['group_id']);
-            $group_ids = $conn->query2array($query, null, 'id');
+            $result = (new GroupRepository($conn))->findByIds($params['group_id']);
+            $group_ids = $conn->result2array($result, null, 'id');
 
             // if only -1 (a group id that can't exist) is in the list, then no group is associated
-
             if (count($group_ids) > 0) {
                 $inserts = [];
 

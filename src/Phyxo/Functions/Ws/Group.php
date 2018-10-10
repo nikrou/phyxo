@@ -15,6 +15,9 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
 use Phyxo\Ws\NamedArray;
+use App\Repository\GroupRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\UserGroupRepository;
 
 class Group
 {
@@ -29,24 +32,14 @@ class Group
     {
         global $conn;
 
-        $where_clauses = ['1=1'];
-
-        if (!empty($params['name'])) {
-            $where_clauses[] = 'LOWER(name) LIKE \'' . $conn->db_real_escape_string($params['name']) . '\'';
-        }
-
-        if (!empty($params['group_id'])) {
-            $where_clauses[] = 'id ' . $conn->in($params['group_id']);
-        }
-
-        $query = 'SELECT g.*, COUNT(user_id) AS nb_users FROM ' . GROUPS_TABLE . ' AS g';
-        $query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON ug.group_id = g.id';
-        $query .= ' WHERE ' . implode(' AND ', $where_clauses);
-        $query .= ' GROUP BY id';
-        $query .= ' ORDER BY ' . $params['order'];
-        $query .= ' LIMIT ' . (int)$params['per_page'] . ' OFFSET ' . (int)($params['per_page'] * $params['page']) . ';';
-
-        $groups = $conn->query2array($query);
+        $result = (new GroupRepository(
+            $params['name'],
+            $params['group_id'] ?? [],
+            $params['order'],
+            $params['per_page'],
+            $params['per_page'] * $params['page']
+        ));
+        $groups = $conn->result2array($result);
 
         return [
             'paging' => new NamedStruct([
@@ -69,24 +62,19 @@ class Group
     {
         global $conn;
 
-        // is the name not already used ?
-        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE name = \'' . $conn->db_real_escape_string($params['name']) . '\'';
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count != 0) {
+        if ((new GroupRepository($conn))->isGroupNameExists($params['name'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
         }
 
         // creating the group
-        $conn->single_insert(
-            GROUPS_TABLE,
+        $group_id = (new GroupRepository($conn))->addGroup(
             [
                 'name' => $params['name'],
                 'is_default' => $conn->boolean_to_string($params['is_default']),
             ]
         );
 
-        return $service->invoke('pwg.groups.getList', ['group_id' => $conn->db_insert_id()]);
+        return $service->invoke('pwg.groups.getList', ['group_id' => $group_id]);
     }
 
     /**
@@ -105,19 +93,16 @@ class Group
         }
 
         // destruction of the access linked to the group
-        $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id ' . $conn->in($params['group_id']);
-        $conn->db_query($query);
+        (new GroupAccessRepository($conn))->deleteByGroupIds($params['group_id']);
 
         // destruction of the users links for this group
-        $query = 'DELETE FROM ' . USER_GROUP_TABLE . ' WHERE group_id ' . $conn->in($params['group_id']);
-        $conn->db_query($query);
+        (new UserGroupRepository($conn))->deleteByGroupIds($params['group_id']);
 
-        $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id ' . $conn->in($params['group_id']);
-        $groupnames = $conn->query2array($query, null, 'name');
+        $result = (new GroupRepository($conn))->findByIds($params['group_id']);
+        $groupnames = $conn->result2array($result, null, 'name');
 
         // destruction of the group
-        $query = 'DELETE FROM ' . GROUPS_TABLE . ' WHERE id ' . $conn->in($params['group_id']);
-        $conn->db_query($query);
+        (new GroupRepository($conn))->deleteByIds($params['group_id']);
 
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
@@ -142,34 +127,23 @@ class Group
 
         $updates = [];
 
-        // does the group exist ?
-        $query = 'SELECT COUNT(1) ' . GROUPS_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new GroupRepository($conn))->isGroupIdExists($params['group_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
         if (!empty($params['name'])) {
-            // is the name not already used ?
-            $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-            $query .= ' WHERE name = \'' . $conn->db_real_escape_string($params['name']) . '\'';
-            list($count) = $conn->db_fetch_row($conn->db_query($query));
-            if ($count != 0) {
+            if ((new GroupRepository($conn))->isGroupNameExists($params['name'])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'This name is already used by another group.');
             }
 
             $updates['name'] = $params['name'];
         }
 
-        if (!empty($params['is_default']) or @$params['is_default'] === false) {
-            $updates['is_default'] = $conn->boolean_to_string($params['is_default']);
+        if (!empty($params['is_default'])) {
+            $updates['is_default'] = $params['is_default'];
         }
 
-        $conn->single_update(
-            GROUPS_TABLE,
-            $updates,
-            ['id' => $params['group_id']]
-        );
+        (new GroupRepository($conn))->updateGroup($updates, $params['group_id']);
 
         return $service->invoke('pwg.groups.getList', ['group_id' => $params['group_id']]);
     }
@@ -189,11 +163,7 @@ class Group
             return new Error(403, 'Invalid security token');
         }
 
-        // does the group exist ?
-        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new GroupRepository($conn))->isGroupIdExists($params['group_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
@@ -205,11 +175,7 @@ class Group
             ];
         }
 
-        $conn->mass_inserts(
-            USER_GROUP_TABLE,
-            ['group_id', 'user_id'],
-            $inserts
-        );
+        (new UserGroupRepository($conn))->massInserts(['group_id', 'user_id'], $inserts);
 
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
@@ -231,18 +197,11 @@ class Group
             return new Error(403, 'Invalid security token');
         }
 
-        // does the group exist ?
-        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE id = ' . $conn->db_real_escape_string($params['group_id']);
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count == 0) {
+        if (!(new GroupRepository($conn))->isGroupIdExists($params['group_id'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'This group does not exist.');
         }
 
-        $query = 'DELETE FROM ' . USER_GROUP_TABLE;
-        $query .= ' WHERE group_id = ' . $conn->db_real_escape_string($params['group_id']);
-        $query .= ' AND user_id ' . $conn->in($params['user_id']);
-        $conn->db_query($query);
+        (new UserGroupRepository($conn))->delete($params['group_id'], $params['user_id']);
 
         \Phyxo\Functions\Utils::invalidate_user_cache();
 

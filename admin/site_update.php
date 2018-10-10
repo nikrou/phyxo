@@ -18,6 +18,8 @@ use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\UserAccessRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -229,10 +231,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
             }
             $category_up = implode(',', array_unique($category_up));
             if ($conf['inheritance_by_default']) {
-                // TODO remove SELECT *
-                $query = 'SELECT * FROM ' . GROUP_ACCESS_TABLE;
-                $query .= ' WHERE cat_id ' . $conn->in($category_up);
-                $result = $conn->db_query($query);
+                $result = (new GroupAccessRepository($conn))->findByCatIds($category_up);
                 if (!empty($result)) {
                     $granted_grps = [];
                     while ($row = $conn->db_fetch_assoc($result)) {
@@ -248,10 +247,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                         );
                     }
                 }
-                // TODO remove SELECT *
-                $query = 'SELECT * FROM ' . USER_ACCESS_TABLE;
-                $query .= ' WHERE cat_id ' . $conn->in($category_up);
-                $result = $conn->db_query($query);
+                $result = (new UserAccessRepository($conn))->findByCatIds($category_up);
                 if (!empty($result)) {
                     $granted_users = [];
                     while ($row = $conn->db_fetch_assoc($result)) {
@@ -299,9 +295,10 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                         }
                     }
                 }
-                $conn->mass_inserts(GROUP_ACCESS_TABLE, ['group_id', 'cat_id'], $insert_granted_grps);
+
+                (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $insert_granted_grps);
                 $insert_granted_users = array_unique($insert_granted_users, SORT_REGULAR);
-                $conn->mass_inserts(USER_ACCESS_TABLE, ['user_id', 'cat_id'], $insert_granted_users);
+                (new UserAccessRepository($conn))->massInserts(['user_id', 'cat_id'], $insert_granted_users);
             } else {
                 \Phyxo\Functions\Category::add_permission_on_category($category_ids, \Phyxo\Functions\Utils::get_admins());
             }

@@ -9,21 +9,22 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\UserGroupRepository;
+
 define('PHPWG_ROOT_PATH', '../../');
 define('IN_ADMIN', true);
+
 
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Easy set variables
- */
+// Easy set variables
 
 /* Array of database columns which should be read and sent back to DataTables. Use a space where
  * you want to insert a non-database field (for example a counter or static image)
  */
-$aColumns = array(
+$aColumns = [
     $conf['user_fields']['id'],
     $conf['user_fields']['username'],
     'status',
@@ -31,14 +32,14 @@ $aColumns = array(
     'recent_period',
     'level',
     'registration_date'
-);
+];
 
 $aColumns = \Phyxo\Functions\Plugin::trigger_change('user_list_columns', $aColumns);
 
-/* Indexed column (used for fast and accurate table cardinality) */
+// Indexed column (used for fast and accurate table cardinality)
 $sIndexColumn = 'user_id';
 
-/* DB table to use */
+// DB table to use
 $sTable = USERS_TABLE . ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ' . $conf['user_fields']['id'] . ' = ui.user_id';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,9 +47,7 @@ $sTable = USERS_TABLE . ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ' . $conf[
  * no need to edit below this line
  */
 
-/*
- * Paging
- */
+// Paging
 $sLimit = '';
 if (isset($_REQUEST['iDisplayStart']) && $_REQUEST['iDisplayLength'] != '-1') {
     $sLimit = sprintf(
@@ -58,9 +57,7 @@ if (isset($_REQUEST['iDisplayStart']) && $_REQUEST['iDisplayLength'] != '-1') {
     );
 }
 
-/*
- * Ordering
- */
+// Ordering
 if (isset($_REQUEST['iSortCol_0'])) {
     $sOrder = 'ORDER BY  ';
     for ($i = 0; $i < intval($_REQUEST['iSortingCols']); $i++) {
@@ -93,9 +90,9 @@ if ($_REQUEST['sSearch'] != '') {
     $sWhere .= ')';
 }
 
-/* Individual column filtering */
+// Individual column filtering
 for ($i = 0; $i < count($aColumns); $i++) {
-    if (isset($_REQUEST['bSearchable_' . $i]) && isset($_REQUEST['sSearch_' . $i]) && $_REQUEST['bSearchable_' . $i] == "true" && $_REQUEST['sSearch_' . $i] != '') {
+    if (isset($_REQUEST['bSearchable_' . $i], $_REQUEST['sSearch_'.$i])     && $_REQUEST['bSearchable_' . $i] == "true" && $_REQUEST['sSearch_' . $i] != '') {
         if ($sWhere == '') {
             $sWhere = 'WHERE ';
         } else {
@@ -114,39 +111,37 @@ $sQuery = 'SELECT ' . str_replace(' , ', ' ', implode(', ', $aColumns)) . ' FROM
 $sQuery .= $sWhere . ' ' . $sOrder . ' ' . $sLimit;
 $rResult = $conn->db_query($sQuery);
 
-/* Data set length after filtering */
+// Data set length after filtering
 $iFilteredTotal = 0;
 
-/* Total data set length */
+// Total data set length
 $sQuery = "SELECT COUNT(" . $sIndexColumn . ") FROM   $sTable";
 $rResultTotal = $conn->db_query($sQuery);
 $aResultTotal = $conn->db_fetch_row($rResultTotal);
 $iTotal = $aResultTotal[0];
 
 
-/*
- * Output
- */
-$output = array(
+// Output
+$output = [
     'sEcho' => intval($_REQUEST['sEcho']),
     'iTotalRecords' => $iTotal,
     'iTotalDisplayRecords' => $iFilteredTotal,
-    'aaData' => array()
-);
+    'aaData' => []
+];
 
-$user_ids = array();
+$user_ids = [];
 
 while ($aRow = $conn->db_fetch_assoc($rResult)) {
     $user_ids[] = $aRow[$conf['user_fields']['id']];
 
-    $row = array();
+    $row = [];
     for ($i = 0; $i < count($aColumns); $i++) {
         if ($aColumns[$i] == 'status') {
             $row[] = \Phyxo\Functions\Language::l10n('user_status_' . $aRow[$aColumns[$i]]);
         } elseif ($aColumns[$i] == 'level') {
             $row[] = $aRow[$aColumns[$i]] == 0 ? '' : \Phyxo\Functions\Language::l10n(sprintf('Level %d', $aRow[$aColumns[$i]]));
         } elseif ($aColumns[$i] != ' ') {
-            /* General output */
+            // General output
             $colname = $aColumns[$i];
             foreach ($conf['user_fields'] as $real_name => $alias) {
                 if ($aColumns[$i] == $real_name) {
@@ -161,13 +156,9 @@ while ($aRow = $conn->db_fetch_assoc($rResult)) {
 
 // replace "recent_period" by the list of groups
 if (count($user_ids) > 0) {
-    $groups_of_user = array();
+    $groups_of_user = [];
 
-    $query = 'SELECT user_id, name FROM ' . USER_GROUP_TABLE;
-    $query .= ' LEFT JOIN ' . GROUPS_TABLE . ' ON id = group_id';
-    $query .= ' WHERE user_id ' . $conn->in($user_ids);
-
-    $result = $conn->db_query($query);
+    $result = (new UserGroupRepository($conn))->findByUserIds($user_ids);
     while ($row = $conn->db_fetch_assoc($result)) {
         if (empty($groups_of_user[$row['user_id']])) {
             $groups_of_user[$row['user_id']] = $row['name'];

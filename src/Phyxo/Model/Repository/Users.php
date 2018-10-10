@@ -20,6 +20,7 @@ use App\Repository\UserCacheRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\GroupRepository;
 
 class Users
 {
@@ -177,10 +178,7 @@ class Users
             $user_id = $this->conn->db_insert_id(USERS_TABLE);
 
             // Assign by default groups
-            $query = 'SELECT id FROM ' . GROUPS_TABLE;
-            $query .= ' WHERE is_default = \'' . $this->conn->boolean_to_db(true) . '\' ORDER BY id ASC;';
-            $result = $this->conn->db_query($query);
-
+            $result = (new GroupRepository($this->conn))->findByField('is_default', true, 'ORDER BY id ASC');
             $inserts = [];
             while ($row = $this->conn->db_fetch_assoc($result)) {
                 $inserts[] = [

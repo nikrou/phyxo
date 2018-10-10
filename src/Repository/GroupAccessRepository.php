@@ -13,22 +13,45 @@ namespace App\Repository;
 
 class GroupAccessRepository extends BaseRepository
 {
-    public function deleteByCatIds(array $ids, ? string $condition = null)
+    public function findByGroupId(int $group_id)
     {
-        $query = 'DELETE FROM ' . self::GROUP_ACCESS_TABLE;
-        $query .= ' WHERE cat_id ' . $this->conn->in($ids);
+        $query = 'SELECT group_id, cat_id FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE group_id = ' . $group_id;
 
-        if (!is_null($condition)) {
-            $query .= ' AND ' . $condtion;
-        }
-
-        $this->conn->db_query($query);
+        return $this->conn->db_query($query);
     }
 
-    public function findByCatId(int $cat_id, string $field)
+    public function findByGroupIds(array $group_ids)
+    {
+        $query = 'SELECT group_id, cat_id FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE group_id ' . $this->conn->in($group_ids);
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByCatId(? int $cat_id = null)
+    {
+        $query = 'SELECT group_id, cat_id FROM ' . self::GROUP_ACCESS_TABLE;
+
+        if (!is_null($cat_id)) {
+            $query .= ' WHERE cat_id = ' . $cat_id;
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findFieldByCatId(int $cat_id, string $field)
     {
         $query = 'SELECT ' . $field . ' FROM ' . self::GROUP_ACCESS_TABLE;
-        $query .= ' WHERE cat_id = ' . $this->conn->db_real_escape_string($cat_id);
+        $query .= ' WHERE cat_id = ' . $cat_id;
+
+        return $this->conn->db_query($query);
+    }
+
+    public function findByCatIds(array $cat_ids)
+    {
+        $query = 'SELECT group_id, cat_id FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE cat_id ' . $this->conn->in($cat_ids);
 
         return $this->conn->db_query($query);
     }
@@ -43,8 +66,35 @@ class GroupAccessRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function insertGroupAccess(array $fields, array $datas)
+    public function massInserts(array $fields, array $datas)
     {
         $this->conn->mass_insert(self::GROUP_ACCESS_TABLE, $fields, $datas);
+    }
+
+    public function deleteByGroupIds(array $ids)
+    {
+        $query = 'DELETE FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE group_id ' . $this->conn->in($ids);
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByCatIds(array $ids, ? string $condition = null)
+    {
+        $query = 'DELETE FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE cat_id ' . $this->conn->in($ids);
+
+        if (!is_null($condition)) {
+            $query .= ' AND ' . $condition;
+        }
+
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByGroupIdsAndCatIds(array $group_ids, array $cat_ids)
+    {
+        $query = 'DELETE FROM ' . self::GROUP_ACCESS_TABLE;
+        $query .= ' WHERE group_id ' . $this->conn->in($group_ids);
+        $query .= ' AND cat_id ' . $this->conn->in($cat_ids);
+        $this->conn->db_query($query);
     }
 }

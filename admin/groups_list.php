@@ -9,6 +9,10 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\GroupRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\UserGroupRepository;
+
 if (!defined("GROUPS_BASE_URL")) {
     die("Hacking attempt!");
 }
@@ -22,18 +26,12 @@ if (isset($_POST['submit_add'])) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('The name of a group must not contain " or \' or be empty.');
     }
     if (count($page['errors']) == 0) {
-        // is the group not already existing ?
-        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE name = \'' . $conn->db_real_escape_string($_POST['groupname']) . '\'';
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count != 0) {
+        if ((new GroupRepository($conn))->isGroupNameExists($_POST['groupname'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('This name is already used by another group.');
         }
     }
     if (count($page['errors']) == 0) {
-        // creating the group
-        $query = 'INSERT INTO ' . GROUPS_TABLE . ' (name) VALUES(\'' . $conn->db_real_escape_string($_POST['groupname']) . '\');';
-        $conn->db_query($query);
+        (new GroupRepository($conn))->addGroup($_POST['groupname']);
 
         $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" added', $_POST['groupname']);
     }
@@ -43,8 +41,7 @@ if (isset($_POST['submit_add'])) {
 // |                             action send                               |
 // +-----------------------------------------------------------------------+
 if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['group_selection'])) {
-    // if the user tries to apply an action, it means that there is at least 1
-    // photo in the selection
+    // if the user tries to apply an action, it means that there is at least 1 photo in the selection
     $groups = $_POST['group_selection'];
     if (count($groups) == 0) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one group');
@@ -57,16 +54,13 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // +
     if ($action == "rename") {
         // is the group not already existing ?
-        $query = 'SELECT name FROM ' . GROUPS_TABLE;
-        $group_names = $conn->query2array($query, null, 'name');
+        $result = (new GroupRepository($conn))->findAll();
+        $group_names = $conn->result2array($result, null, 'name');
         foreach ($groups as $group) {
             if (in_array($_POST['rename_' . $group . ''], $group_names)) {
                 $page['errors'][] = $_POST['rename_' . $group . ''] . ' | ' . \Phyxo\Functions\Language::l10n('This name is already used by another group.');
-            } elseif (!empty($_POST['rename_' . $group . ''])) {
-                $query = 'UPDATE ' . GROUPS_TABLE;
-                $query .= ' SET name = \'' . $conn->db_real_escape_string($_POST['rename_' . $group . '']) . '\'';
-                $query .= ' WHERE id = ' . $group;
-                $conn->db_query($query);
+            } elseif (!empty($_POST['rename_' . $group])) {
+                (new GroupRepository($conn))->updateGroup(['name' => $_POST['rename_' . $group]], $group);
             }
         }
     }
@@ -75,72 +69,59 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // |delete a group
     // +
     if ($action == "delete" and isset($_POST['confirm_deletion']) and $_POST['confirm_deletion']) {
-        foreach ($groups as $group) {
-            // destruction of the access linked to the group
-            $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id = ' . $group;
-            $conn->db_query($query);
+        // destruction of the access linked to the group
+        (new GroupAccessRepository($conn))->deleteByGroupIds($groups);
 
-            // destruction of the users links for this group
-            $query = 'DELETE FROM ' . USER_GROUP_TABLE . ' WHERE group_id = ' . $group;
-            $conn->db_query($query);
+        // destruction of the users links for this group
+        (new UserGroupRepository($conn))->deleteGroupByIds($groups);
 
-            $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id = ' . $group;
-            list($groupname) = $conn->db_fetch_row($conn->db_query($query));
+        $result = (new GroupRepository($conn))->findByIds($params['group_id']);
+        $groupnames = $conn->result2array($result, null, 'name');
 
-            // destruction of the group
-            $query = 'DELETE FROM ' . GROUPS_TABLE . ' WHERE id = ' . $group;
-            $conn->db_query($query);
+        // destruction of the group
+        (new GroupRepository($conn))->deleteByIds($params['group_id']);
 
-            $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" deleted', $groupname);
-        }
+        $page['infos'][] = \Phyxo\Functions\Language::l10n('groups "%s" deleted', implode(', ', $groupnames));
     }
 
     // +
     // |merge groups into a new one
     // +
     if ($action == "merge" and count($groups) > 1) {
-        // is the group not already existing ?
-        $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE name = \'' . $conn->db_real_escape_string($_POST['merge']) . '\'';
-        list($count) = $conn->db_fetch_row($conn->db_query($query));
-        if ($count != 0) {
+        if ((new GroupRepository($conn))->isGroupNameExists($_POST['merge'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('This name is already used by another group.');
         } else {
-            // creating the group
-            $query = 'INSERT INTO ' . GROUPS_TABLE . ' (name) VALUES(\'' . $conn->db_real_escape_string($_POST['merge']) . '\')';
-            $conn->db_query($query);
-            $query = 'SELECT id FROM ' . GROUPS_TABLE . ' WHERE name = \'' . $conn->db_real_escape_string($_POST['merge']) . '\'';
-            list($groupid) = $conn->db_fetch_row($conn->db_query($query));
+            $group_id = (new GroupRepository($conn))->addGroup(['name' => $_POST['merge']]);
         }
-        $grp_access = array();
-        $usr_grp = array();
-        foreach ($groups as $group) {
-            $query = 'SELECT * FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id = ' . $group;
-            $res = $conn->db_query($query);
-            while ($row = $conn->db_fetch_assoc($res)) {
-                $new_grp_access = array(
-                    'cat_id' => $row['cat_id'],
-                    'group_id' => $groupid
-                );
-                if (!in_array($new_grp_access, $grp_access)) {
-                    $grp_access[] = $new_grp_access;
-                }
-            }
 
-            $query = 'SELECT * FROM ' . USER_GROUP_TABLE . ' WHERE group_id = ' . $group;
-            $result = $conn->db_query($query);
-            while ($row = $conn->db_fetch_assoc($result)) {
-                $new_usr_grp = array(
-                    'user_id' => $row['user_id'],
-                    'group_id' => $groupid
-                );
-                if (!in_array($new_usr_grp, $usr_grp)) {
-                    $usr_grp[] = $new_usr_grp;
-                }
+        $grp_access = [];
+        $usr_grp = [];
+        $result = (new GroupAccessRepository($conn))->findByGroupIds($groups);
+        $groups_infos = $conn->result2array($result);
+        foreach ($groups_infos as $group) {
+            $new_grp_access = [
+                'cat_id' => $group['cat_id'],
+                'group_id' => $group_id
+            ];
+            if (!in_array($new_grp_access, $grp_access)) {
+                $grp_access[] = $new_grp_access;
             }
         }
-        $conn->mass_inserts(USER_GROUP_TABLE, array('user_id', 'group_id'), $usr_grp);
-        $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $grp_access);
+
+        $result = (new GroupAccessRepository($conn))->findByGroupIds($groups);
+        $groups_infos = $conn->result2array($result);
+        foreach ($groups_infos as $group) {
+            $new_grp_access = [
+                'cat_id' => $group['cat_id'],
+                'group_id' => $group_id
+            ];
+            if (!in_array($new_grp_access, $grp_access)) {
+                $grp_access[] = $new_grp_access;
+            }
+        }
+
+        (new UserGroupRepository($conn))->massInserts(['user_id', 'group_id'], $usr_grp);
+        (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $grp_access);
 
         $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" added', $_POST['merge']);
     }
@@ -149,50 +130,40 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // |duplicate a group
     // +
     if ($action == "duplicate") {
+        // @TODO: avoid query in loop
         foreach ($groups as $group) {
-            if (empty($_POST['duplicate_' . $group . ''])) {
+            if (empty($_POST['duplicate_' . $group])) {
                 break;
             }
-            // is the group not already existing ?
-            $query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-            $query .= ' WHERE name = \'' . $conn->db_real_escape_string($_POST['duplicate_' . $group . '']);
-            list($count) = $conn->db_fetch_row($conn->db_query($query));
-            if ($count != 0) {
+
+            if ((new GroupRepository($conn))->isGroupNameExists($_POST['duplicate_' . $group])) {
                 $page['errors'][] = \Phyxo\Functions\Language::l10n('This name is already used by another group.');
                 break;
             }
-            // creating the group
-            $query = 'INSERT INTO ' . GROUPS_TABLE;
-            $query .= ' (name) VALUES (\'' . $conn->db_real_escape_string($_POST['duplicate_' . $group . '']) . '\')';
-            $conn->db_query($query);
 
-            // @TODO: use last insert id
-            $query = 'SELECT id FROM ' . GROUPS_TABLE;
-            $query .= ' WHERE name = \'' . $conn->db_real_escape_string($_POST['duplicate_' . $group . '']) . '\'';
-            list($groupid) = $conn->db_fetch_row($conn->db_query($query));
-            $query = 'SELECT * FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id = ' . $group;
-            $grp_access = array();
-            $res = $conn->db_query($query);
-            while ($row = $conn->db_fetch_assoc($res)) {
-                $grp_access[] = array(
+            $group_id = (new GroupRepository($conn))->addGroup(['name' => $_POST['duplicate_' . $group]]);
+
+            $grp_access = [];
+            $result = (new GroupAccessRepository($conn))->findByGroupId($group);
+            while ($row = $conn->db_fetch_assoc($result)) {
+                $grp_access[] = [
                     'cat_id' => $row['cat_id'],
                     'group_id' => $groupid
-                );
+                ];
             }
-            $conn->mass_inserts(GROUP_ACCESS_TABLE, array('group_id', 'cat_id'), $grp_access);
+            (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $grp_access);
 
-            $query = 'SELECT * FROM ' . USER_GROUP_TABLE . ' WHERE group_id = ' . $group;
-            $usr_grp = array();
-            $result = $conn->db_query($query);
+            $usr_grp = [];
+            $result = (new UserGroupRepository($conn))->findByGroupId($group);
             while ($row = $conn->db_fetch_assoc($result)) {
-                $usr_grp[] = array(
+                $usr_grp[] = [
                     'user_id' => $row['user_id'],
                     'group_id' => $groupid
-                );
+                ];
             }
-            $conn->mass_inserts(USER_GROUP_TABLE, array('user_id', 'group_id'), $usr_grp);
+            (new UserGroupRepository($conn))->massInserts(['user_id', 'group_id'], $usr_grp);
 
-            $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" added', $_POST['duplicate_' . $group . '']);
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" added', $_POST['duplicate_' . $group]);
         }
     }
 
@@ -201,20 +172,10 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
     // | toggle_default
     // +
     if ($action == "toggle_default") {
-        foreach ($groups as $group) {
-            $query = 'SELECT name, is_default FROM ' . GROUPS_TABLE . ' WHERE id = ' . $group;
-            $row = $conn->db_fetch_assoc($conn->db_query($query));
-            $groupname = $row['name'];
-            $is_default = $conn->get_boolean($row['is_default']);
+        // @TODO: strange idea to have multiple default groups
+        (new GroupRepository($conn))->toggleIsDefault($groups);
 
-            // update of the group
-            $query = 'UPDATE ' . GROUPS_TABLE;
-            $query .= ' SET is_default = \'' . $conn->boolean_to_db($is_default) . '\'';
-            $query .= ' WHERE id = ' . $group;
-            $conn->db_query($query);
-
-            $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" updated', $groupname);
-        }
+        $page['infos'][] = \Phyxo\Functions\Language::l10n('groups "%s" updated', implode(', ', $groups));
     }
     \Phyxo\Functions\Utils::invalidate_user_cache();
 }
@@ -223,45 +184,43 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
 // +-----------------------------------------------------------------------+
 
 $template->assign(
-    array(
+    [
         'F_ADD_ACTION' => GROUPS_BASE_URL . '&amp;section=list',
         //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=group_list',
         'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
-    )
+    ]
 );
 
 // +-----------------------------------------------------------------------+
 // |                              group list                               |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT id, name, is_default FROM ' . GROUPS_TABLE . ' ORDER BY name ASC';
-$result = $conn->db_query($query);
-
 $perm_url = GROUPS_BASE_URL . '&amp;section=perm&amp;group_id=';
 $del_url = GROUPS_BASE_URL . '&amp;section=list&amp;delete=';
 $toggle_is_default_url = GROUPS_BASE_URL . '&amp;section=list&amp;toggle_is_default=';
 
+$groups = [];
+$result = (new GroupRepository($conn))->findUsersInGroups();
 while ($row = $conn->db_fetch_assoc($result)) {
-    $query = 'SELECT u.' . $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE . ' AS u';
-    $query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON u.' . $conf['user_fields']['id'] . ' = ug.user_id';
-    $query .= ' WHERE ug.group_id = ' . $row['id'];
-    $members = array();
-    $user_result = $conn->db_query($query);
-    while ($user = $conn->db_fetch_assoc($user_result)) {
-        $members[] = $user['username'];
-    }
-    $template->append(
-        'groups',
-        array(
-            'NAME' => $row['name'],
+    if (isset($groups[$row['id']])) {
+        if (!empty($row['username'])) {
+            $groups[$row['id']]['MEMBERS'][] = $row['username'];
+        }
+    } else {
+        $group = [
+            'MEMBERS' => [],
             'ID' => $row['id'],
+            'NAME' => $row['name'],
             'IS_DEFAULT' => ($conn->get_boolean($row['is_default']) ? ' [' . \Phyxo\Functions\Language::l10n('default') . ']' : ''),
-            'NB_MEMBERS' => count($members),
-            'L_MEMBERS' => implode(' <span class="userSeparator">&middot;</span> ', $members),
-            'MEMBERS' => \Phyxo\Functions\Language::l10n_dec('%d member', '%d members', count($members)),
             'U_DELETE' => $del_url . $row['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
             'U_PERM' => $perm_url . $row['id'],
             'U_ISDEFAULT' => $toggle_is_default_url . $row['id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
-        )
-    );
+        ];
+        if (!empty($row['username'])) {
+            $group['MEMBERS'][] = $row['username'];
+        }
+        $groups[$row['id']] = $group;
+    }
 }
+
+$template->assign('groups', $groups);

@@ -10,6 +10,8 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\GroupRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
@@ -37,8 +39,8 @@ if (!empty($_POST)) {
         //
         // manage groups
         //
-        $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
-        $groups_granted = $conn->query2array($query, null, 'group_id');
+        $result = (new GroupAccessRepository($conn))->findByCatId($page['cat']);
+        $groups_granted = $conn->result2array($result, null, 'group_id');
 
         if (!isset($_POST['groups'])) {
             $_POST['groups'] = [];
@@ -51,10 +53,7 @@ if (!empty($_POST)) {
         if (count($deny_groups) > 0) {
             // if you forbid access to an album, all sub-albums become
             // automatically forbidden
-            $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
-            $query .= ' WHERE group_id ' . $conn->in($deny_groups);
-            $query .= ' AND cat_id ' . $conn->in((new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
-            $conn->db_query($query);
+            (new GroupAccessRepository($conn))->deleteByGroupIdsAndCatIds($deny_groups, (new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
         }
 
         //
@@ -80,12 +79,7 @@ if (!empty($_POST)) {
                 }
             }
 
-            $conn->mass_inserts(
-                GROUP_ACCESS_TABLE,
-                ['group_id', 'cat_id'],
-                $inserts,
-                ['ignore' => true]
-            );
+            (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
         }
 
         //
@@ -149,13 +143,13 @@ $template->assign(
 
 $groups = [];
 
-$query = 'SELECT id, name FROM ' . GROUPS_TABLE . ' ORDER BY name ASC;';
-$groups = $conn->query2array($query, 'id', 'name');
+$result = (new GroupRepository($conn))->findAll('ORDER BY name ASC');
+$groups = $conn->result2array($result, 'id', 'name');
 $template->assign('groups', $groups);
 
 // groups granted to access the category
-$query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
-$group_granted_ids = $conn->query2array($query, null, 'group_id');
+$result = (new GroupAccessRepository($conn))->findByCatId($page['cat']);
+$group_granted_ids = $conn->result2array($result, null, 'group_id');
 $template->assign('groups_selected', $group_granted_ids);
 
 // users...

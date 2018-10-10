@@ -66,7 +66,7 @@ class BaseController extends Controller
                     [
                         'TIME' => $time,
                         'NB_QUERIES' => $conn->getQueriesCount(),
-                        'SQL_TIME' => number_format($conn->getQueriesTime(), 3, '.', ' ') . ' s'
+                        'SQL_TIME' => number_format($conn->getQueriesTime() * 1000, 2, '.', ' ') . ' ms'
                     ]
                 );
             }

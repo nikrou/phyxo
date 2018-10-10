@@ -782,7 +782,7 @@ class Category
 
                 foreach ($repositories as $repository => $field) {
                     // what are the permissions user/group of the reference album
-                    $ref_access = $conn->result2array((new $repository($conn))->findByCatId($ref_cat_id, $field), null, $field);
+                    $ref_access = $conn->result2array((new $repository($conn))->findFieldByCatId($ref_cat_id, $field), null, $field);
 
                     if (count($ref_access) == 0) {
                         $ref_access[] = -1;
@@ -971,16 +971,17 @@ class Category
 
         \Phyxo\Functions\Utils::update_global_rank();
 
-        if ('private' == $insert['status'] && !empty($insert['id_uppercat'])
-            && ((isset($options['inherit']) && $options['inherit']) || $conf['inheritance_by_default'])) {
-            $granted_grps = $conn->result2array((new GroupAccessRepository($conn))->findByCatId($insert['id_uppercat'], 'group_id'), null, 'group_id');
+        if ('private' == $insert['status'] && !empty($insert['id_uppercat']) && ((isset($options['inherit']) && $options['inherit']) || $conf['inheritance_by_default'])) {
+            $result = (new GroupAccessRepository($conn))->findFieldByCatId($insert['id_uppercat'], 'group_id');
+            $granted_grps = $conn->result2array($result, null, 'group_id');
             $inserts = [];
             foreach ($granted_grps as $granted_grp) {
                 $inserts[] = ['group_id' => $granted_grp, 'cat_id' => $inserted_id];
             }
-            (new GroupAccessRepository($conn))->insertGroupAccess(['group_id', 'cat_id'], $inserts);
+            (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts);
 
-            $granted_users = $conn->result2array((new UserAccessRepository($conn))->findByCatId($insert['id_uppercat']), null, 'user_id');
+            $result = (new UserAccessRepository($conn))->findByCatId($insert['id_uppercat']);
+            $granted_users = $conn->result2array($result, null, 'user_id');
             self::add_permission_on_category(
                 $inserted_id,
                 array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user['id']], $granted_users))

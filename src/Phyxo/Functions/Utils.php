@@ -28,6 +28,7 @@ use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserMailNotificationRepository;
+use App\Repository\GroupRepository;
 
 class Utils
 {
@@ -124,7 +125,7 @@ class Utils
      */
     public static function get_elapsed_time($start, $end)
     {
-        return number_format($end - $start, 3, '.', ' ') . ' s';
+        return number_format(($end - $start) * 1000, 2, '.', ' ') . ' ms';
     }
 
     /**
@@ -1752,15 +1753,14 @@ class Utils
     {
         global $conn;
 
-        $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id = ' . intval($group_id) . ';';
-        $result = $conn->db_query($query);
+        $result = (new GroupRepository($conn))->findById($group_id);
         if ($conn->db_num_rows($result) > 0) {
-            list($groupname) = $conn->db_fetch_row($result);
+            $row = $conn->db_fetch_assoc($result);
+
+            return $row['name'];
         } else {
             return false;
         }
-
-        return $groupname;
     }
 
     /**

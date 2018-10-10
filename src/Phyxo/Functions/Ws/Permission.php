@@ -15,6 +15,8 @@ use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedArray;
 use App\Repository\CategoryRepository;
+use App\Repository\GroupAccessRepository;
+use App\Repository\UserAccessRepository;
 
 class Permission
 {
@@ -51,10 +53,7 @@ class Permission
         $perms = [];
 
         // direct users
-        $query = 'SELECT user_id, cat_id FROM ' . USER_ACCESS_TABLE;
-        $query .= ' ' . $cat_filter;
-        $result = $conn->db_query($query);
-
+        $result = (new UserAccessRepository($conn))->findByCatId($params['cat_id'] ?? null);
         while ($row = $conn->db_fetch_assoc($result)) {
             if (!isset($perms[$row['cat_id']])) {
                 $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
@@ -77,9 +76,7 @@ class Permission
         }
 
         // groups
-        $query = 'SELECT group_id, cat_id FROM ' . GROUP_ACCESS_TABLE . ' ' . $cat_filter . ';';
-        $result = $conn->db_query($query);
-
+        $result = (new GroupAccessRepository($conn))->findByCatId($params['cat_id'] ?? null);
         while ($row = $conn->db_fetch_assoc($result)) {
             if (!isset($perms[$row['cat_id']])) {
                 $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
@@ -155,12 +152,7 @@ class Permission
                 }
             }
 
-            $conn->mass_inserts(
-                GROUP_ACCESS_TABLE,
-                ['group_id', 'cat_id'],
-                $inserts,
-                ['ignore' => true]
-            );
+            (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
         }
 
         if (!empty($params['user_id'])) {
@@ -190,17 +182,11 @@ class Permission
         $cat_ids = (new CategoryRepository($conn))->getSubcatIds($params['cat_id']);
 
         if (!empty($params['group_id'])) {
-            $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
-            $query .= ' WHERE group_id ' . $conn->in($params['group_id']);
-            $query .= ' AND cat_id ' . $conn->in($cat_ids);
-            $conn->db_query($query);
+            (new GroupAccessRepository($conn))->deleteByGroupIdsAndCatIds($params['group_id'], $cat_ids);
         }
 
         if (!empty($params['user_id'])) {
-            $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
-            $query .= ' WHERE user_id ' . $conn->in($params['user_id']);
-            $query .= ' AND cat_id ' . $conn->in($cat_ids);
-            $conn->db_query($query);
+            (new UserAccessRepository($conn))->deleteByUserIdsAndCatIds($params['user_id'], $cat_ids);
         }
 
         return $service->invoke('pwg.permissions.getList', ['cat_id' => $params['cat_id']]);

@@ -21,6 +21,7 @@ use App\Repository\RateRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\GroupRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -80,9 +81,7 @@ $nb_image_tag = (new ImageTagRepository($conn))->count();
 $query = 'SELECT COUNT(1) FROM ' . USERS_TABLE;
 list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
 
-$query = 'SELECT COUNT(1) FROM ' . GROUPS_TABLE;
-list($nb_groups) = $conn->db_fetch_row($conn->db_query($query));
-
+$nb_groups = (new GroupRepository($conn))->count();
 $nb_rates = (new RateRepository($conn))->count();
 
 $template->assign(

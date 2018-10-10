@@ -14,6 +14,8 @@ if (!defined('ALBUM_BASE_URL')) {
 }
 
 use App\Repository\ImageRepository;
+use App\Repository\GroupRepository;
+use App\Repository\GroupAccessRepository;
 
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
@@ -79,10 +81,10 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
 
     \Phyxo\Functions\URL::unset_make_full_url();
 
-    $query = 'SELECT name FROM ' . GROUPS_TABLE . ' WHERE id = ' . $conn->db_real_escape_string($_POST['group']);
-    list($group_name) = $conn->db_fetch_row($conn->db_query($query));
+    $result = (new GroupRepository($conn))->findById($_POST['group']);
+    $row = $conn->db_fetch_assoc($result);
 
-    $page['infos'][] = \Phyxo\Functions\Language::l10n('An information email was sent to group "%s"', $group_name);
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('An information email was sent to group "%s"', $row['name']);
 }
 
 // +-----------------------------------------------------------------------+
@@ -104,15 +106,15 @@ $template->assign(
 // |                          form construction                            |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT id AS group_id FROM ' . GROUPS_TABLE;
-$all_group_ids = $conn->query2array($query, null, 'group_id');
+$result = (new GroupRepository($conn))->findAll();
+$all_group_ids = $conn->result2array($result, null, 'group_id');
 
 if (count($all_group_ids) == 0) {
     $template->assign('no_group_in_gallery', true);
 } else {
     if ('private' == $category['status']) {
-        $query = 'SELECT group_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE cat_id = ' . $category['id'];
-        $group_ids = $conn->query2array($query, null, 'group_id');
+        $result = (new GroupAccessRepository($conn))->findByCatId($category['id']);
+        $group_ids = $conn->result2array($result, null, 'group_id');
 
         if (count($group_ids) == 0) {
             $template->assign('permission_url', ALBUM_BASE_URL . '&amp;section=permissions');
@@ -122,11 +124,10 @@ if (count($all_group_ids) == 0) {
     }
 
     if (count($group_ids) > 0) {
-        $query = 'SELECT id,name FROM ' . GROUPS_TABLE;
-        $query .= ' WHERE id ' . $conn->in($group_ids) . ' ORDER BY name ASC';
+        $result = (new GroupRepository($conn))->findByIds($group_ids, 'ORDER BY name ASC');
         $template->assign(
             'group_mail_options',
-            $conn->query2array($query, 'id', 'name')
+            $conn->result2array($result, 'id', 'name')
         );
     }
 }

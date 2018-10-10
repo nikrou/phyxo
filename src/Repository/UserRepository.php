@@ -42,6 +42,6 @@ class UserRepository extends BaseRepository
         $result = $this->conn->db_query($query);
         $row = $this->conn->db_fetch_assoc();
 
-        return $row['user_exists'] === 1;
+        return $row['user_exists'] == 1;
     }
 }

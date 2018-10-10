@@ -10,6 +10,8 @@
  */
 
 use App\Repository\CategoryRepository;
+use App\Repository\GroupRepository;
+use App\Repository\GroupAccessRepository;
 
 if (!defined("GROUPS_BASE_URL")) {
     die("Hacking attempt!");
@@ -30,9 +32,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         // if you forbid access to a category, all sub-categories become
         // automatically forbidden
         $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
-        $query = 'DELETE FROM ' . GROUP_ACCESS_TABLE;
-        $query .= ' WHERE group_id = ' . $page['group'] . ' AND cat_id ' . $conn->in($subcats);
-        $conn->db_query($query);
+        (new GroupAccessRepository($conn))->deleteByGroupIdsAndCatIds($page['group'], $subcats);
     } elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
         $uppercats = \Phyxo\Functions\Category::get_uppercat_ids($_POST['cat_false']);
         $private_uppercats = [];
@@ -47,9 +47,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         // accesible
         $authorized_ids = [];
 
-        $query = 'SELECT cat_id FROM ' . GROUP_ACCESS_TABLE . ' WHERE group_id = ' . $conn->db_real_escape_string($page['group']);
-        $result = $conn->db_query($query);
-
+        $result = (new GroupAccessRepository($conn))->findByGroupId($page['group']);
         while ($row = $conn->db_fetch_assoc($result)) {
             $authorized_ids[] = $row['cat_id'];
         }
@@ -63,7 +61,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
             ];
         }
 
-        $conn->mass_inserts(GROUP_ACCESS_TABLE, ['group_id', 'cat_id'], $inserts);
+        (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts);
         \Phyxo\Functions\Utils::invalidate_user_cache();
     }
 
@@ -106,11 +104,9 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
 
     $template->assign_var_from_handle('DOUBLE_SELECT', 'double_select');
 } else {
-    $query = 'SELECT id, name, is_default FROM ' . GROUPS_TABLE . ' ORDER BY name ASC';
-    $result = $conn->db_query($query);
-
     $perm_url = GROUPS_BASE_URL . '&amp;section=perm&amp;group_id=';
 
+    $result = (new GroupRepository($conn))->findAll('ORDER BY name ASC');
     while ($row = $conn->db_fetch_assoc($result)) {
         $template->append(
             'groups',
