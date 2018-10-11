@@ -68,7 +68,6 @@ if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && \Phyxo\Func
 if ($block != null) {
     $block->data = [
         'NB_PICTURE' => $user['nb_total_images'],
-        //'MENU_CATEGORIES' => \Phyxo\Functions\Category::get_categories_menu(),
         'MENU_CATEGORIES' => \Phyxo\Functions\Category::get_recursive_categories_menu(),
         'U_CATEGORIES' => \Phyxo\Functions\URL::make_index_url(['section' => 'categories']),
     ];

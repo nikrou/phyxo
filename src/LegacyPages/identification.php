@@ -31,10 +31,6 @@ if (isset($_POST['login'])) {
     if (!isset($_COOKIE[session_name()])) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Cookies are blocked or not supported by your browser. You must enable cookies to connect.');
     } else {
-        if ($conf['insensitive_case_logon'] == true) {
-            $_POST['username'] = $services['users']->searchCaseUsername($_POST['username']);
-        }
-
         $redirect_to = isset($_POST['redirect']) ? urldecode($_POST['redirect']) : '';
         $remember_me = isset($_POST['remember_me']) and $_POST['remember_me'] == 1;
 

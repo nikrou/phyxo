@@ -9,6 +9,17 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\UserRepository;
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
@@ -147,12 +158,7 @@ function reset_password()
         $user_id = $user['id'];
     }
 
-    $conn->single_update(
-        USERS_TABLE,
-        [$conf['user_fields']['password'] => $services['users']->passwordHash($_POST['use_new_pwd'])],
-        [$conf['user_fields']['id'] => $user_id]
-    );
-
+    (new UserRepository($conn))->updateUser(['password' => $services['users']->passwordHash($_POST['use_new_pwd'])], $user_id);
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your password has been reset');
 
     if (isset($_GET['key'])) {

@@ -888,14 +888,8 @@ class Notification
     {
         global $conf, $page, $env_nbm, $conn;
 
-        // Set null mail_address empty
-        $query = 'UPDATE ' . USERS_TABLE;
-        $query .= ' SET ' . $conf['user_fields']['email'] . ' = null';
-        $query .= ' WHERE trim(' . $conf['user_fields']['email'] . ') = \'\';'; // @TODO: simplify
-        $conn->db_query($query);
-
         // null mail_address are not selected in the list
-        $result = (new UserRepository($conn))->findUsersWIthNoMailNotificationInfos();
+        $result = (new UserRepository($conn))->findUsersWithNoMailNotificationInfos();
         if ($conn->db_num_rows($result) > 0) {
             $inserts = [];
             $check_key_list = [];

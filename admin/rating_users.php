@@ -15,6 +15,7 @@ if (!defined("RATING_BASE_URL")) {
 
 use App\Repository\RateRepository;
 use App\Repository\ImageRepository;
+use App\Repository\UserRepository;
 
 $filter_min_rates = 2;
 if (isset($_GET['f_min_rates'])) {
@@ -27,15 +28,11 @@ if (isset($_GET['consensus_top_number'])) {
 }
 
 // build users
-$query = 'SELECT DISTINCT u.' . $conf['user_fields']['id'] . ' AS id,';
-$query .= 'u.' . $conf['user_fields']['username'] . ' AS name,ui.status FROM ' . USERS_TABLE . ' AS u';
-$query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON u.' . $conf['user_fields']['id'] . ' = ui.user_id';
-
 $users_by_id = [];
-$result = $conn->db_query($query);
+$result = (new UserRepository($conn))->getUserInfosList();
 while ($row = $conn->db_fetch_assoc($result)) {
     $users_by_id[(int)$row['id']] = [
-        'name' => $row['name'],
+        'name' => $row['username'],
         'anon' => $services['users']->isAuthorizeStatus(ACCESS_CLASSIC, $row['status']) ? false : true
     ];
 }

@@ -21,6 +21,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
+use App\Repository\UserRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -134,9 +135,9 @@ function save_profile_from_post($userdata, &$errors)
         }
 
         if (!defined('IN_ADMIN')) { // changing password requires old password
-            $query = 'SELECT ' . $conf['user_fields']['password'] . ' AS password FROM ' . USERS_TABLE;
-            $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = \'' . $conn->db_real_escape_string($userdata['id']) . '\'';
-            list($current_password) = $conn->db_fetch_row($conn->db_query($query));
+            $result = (new UserRepository($conn))->findById($userdata['id']);
+            $row = $conn->db_fetch_assoc($result);
+            $current_password = $row['password'];
 
             if (!$services['users']->passwordVerify($_POST['password'], $current_password)) {
                 $errors[] = \Phyxo\Functions\Language::l10n('Current password is wrong');
@@ -192,8 +193,7 @@ function save_profile_from_post($userdata, &$errors)
                 }
             }
 
-            $conn->mass_updates(
-                USERS_TABLE,
+            (new UserRepository($conn))->massUpdates(
                 [
                     'primary' => [$conf['user_fields']['id']],
                     'update' => $fields
@@ -222,6 +222,7 @@ function save_profile_from_post($userdata, &$errors)
                     $data[$field] = $_POST[$field];
                 }
             }
+
             $conn->mass_updates(
                 USER_INFOS_TABLE,
                 ['primary' => ['user_id'], 'update' => $fields],

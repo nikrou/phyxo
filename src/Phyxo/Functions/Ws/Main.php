@@ -21,6 +21,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 
 class Main
 {
@@ -137,10 +138,7 @@ class Main
         $infos['nb_image_category'] = (new ImageCategoryRepository($conn))->count();
         $infos['nb_tags'] = (new TagRepository($conn))->count();
         $infos['nb_image_tag'] = (new ImageTagRepository($conn))->count();
-
-        $query = 'SELECT COUNT(1) FROM ' . USERS_TABLE . ';';
-        list($infos['nb_users']) = $conn->db_fetch_row($conn->db_query($query));
-
+        $infos['nb_users'] = (new UserRepository($conn))->count();
         $infos['nb_groups'] = (new GroupRepository($conn))->count();
         $infos['nb_comments'] = (new CommentRepository($conn))->count();
 

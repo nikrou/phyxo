@@ -20,6 +20,7 @@ use App\Repository\HistoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserGroupRepository;
+use App\Repository\UserRepository;
 
 class User
 {
@@ -119,27 +120,8 @@ class User
             $params['display'] = [];
         }
 
-        $query = 'SELECT DISTINCT ';
-
-        $first = true;
-        foreach ($display as $field => $name) {
-            if (!$first) {
-                $query .= ', ';
-            } else {
-                $first = false;
-            }
-            $query .= $field . ' AS ' . $name;
-        }
-
-        $query .= ' FROM ' . USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON u.' . $conf['user_fields']['id'] . ' = ui.user_id';
-        $query .= ' LEFT JOIN ' . USER_GROUP_TABLE . ' AS ug ON u.' . $conf['user_fields']['id'] . ' = ug.user_id';
-        $query .= ' WHERE ' . implode(' AND ', $where_clauses);
-        $query .= ' ORDER BY ' . $conn->db_real_escape_string($params['order']);
-        $query .= ' LIMIT ' . (int)$params['per_page'] . ' OFFSET ' . (int)($params['per_page'] * $params['page']) . ';';
-
         $users = [];
-        $result = $conn->db_query($query);
+        $result = (new UserRepository($conn))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
         while ($row = $conn->db_fetch_assoc($result)) {
             $row['id'] = intval($row['id']);
             $users[$row['id']] = $row;
@@ -423,11 +405,7 @@ class User
         }
 
         // perform updates
-        $conn->single_update(
-            USERS_TABLE,
-            $updates,
-            [$conf['user_fields']['id'] => $params['user_id'][0]]
-        );
+        (new UserRepository($conn))->updateUser($updates, $params['user_id'][0]);
 
         if (isset($update_status) and count($params['user_id_for_status']) > 0) {
             $query = 'UPDATE ' . USER_INFOS_TABLE;

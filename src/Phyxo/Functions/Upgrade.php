@@ -12,6 +12,7 @@
 namespace Phyxo\Functions;
 
 use App\Repository\UpgradeRepository;
+use App\Repository\UserRepository;
 
 class Upgrade
 {
@@ -114,11 +115,8 @@ class Upgrade
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $query = 'SELECT u.password, ui.status FROM ' . USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON u.' . $conf['user_fields']['id'] . '=ui.user_id';
-        $query .= ' WHERE ' . $conf['user_fields']['username'] . '=\'' . $conn->db_real_escape_string($username) . '\';';
-
-        $row = $conn->db_fetch_assoc($conn->db_query($query));
+        $result = (new UserRepository($conn))->getUserInfosByUsername($username);
+        $row = $conn->db_fetch_assoc($result);
         if (!$services['users']->passwordVerify($password, $row['password'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {

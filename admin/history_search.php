@@ -15,6 +15,7 @@ use App\Repository\ImageRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\SearchRepository;
+use App\Repository\UserRepository;
 
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
@@ -175,12 +176,8 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
     // prepare reference data (users, tags, categories...)
     if (count($user_ids) > 0) {
-        $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id, ' . $conf['user_fields']['username'] . ' AS username';
-        $query .= ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE id ' . $conn->in(array_keys($user_ids));
-        $result = $conn->db_query($query);
-
         $username_of = [];
+        $result = (new UserRepository($conn))->findByIds($user_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $username_of[$row['id']] = stripslashes($row['username']);
         }
@@ -456,10 +453,7 @@ $template->assign(
     ]
 );
 
-
-$query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
-$query .= $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
-$query .= ' ORDER BY username ASC;';
+$result = (new UserRepository($conn))->findAll('ORDER BY username ASC');
 $template->assign(
     [
         'user_options' => $conn->query2array($query, 'id', 'username'),

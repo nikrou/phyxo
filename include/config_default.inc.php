@@ -186,12 +186,6 @@ $conf['rate_items'] = [0, 1, 2, 3, 4, 5];
 // Define using double password type in admin's users management panel
 $conf['double_password_type_in_admin'] = false;
 
-// Define if logins must be case sentitive or not at users registration. ie :
-// If set true, the login "user" will equal "User" or "USER" or "user",
-// etc. ... And it will be impossible to use such login variation to create a
-// new user account.
-$conf['insensitive_case_logon'] = false;
-
 // how should we check for unicity when adding a photo. Can be 'md5sum' or
 // 'filename'
 $conf['uniqueness_mode'] = 'md5sum';
@@ -433,10 +427,6 @@ $conf['apache_authentication'] = false;
 // All informations contained in these tables and column are related to
 // phyxo_users table.
 $conf['users_table'] = null;
-
-// If you decide to use external authentication
-// change conf below by $conf['external_authentification'] = true;
-$conf['external_authentification'] = false;
 
 // Other tables can be changed, if you define associated constants
 // Example:

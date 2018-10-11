@@ -460,7 +460,7 @@ class CategoryRepository extends BaseRepository
             }
             $query .= ')';
         } else {
-            $query = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], null, true);
+            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], null, true);
         }
 
         return $this->conn->db_query($query);

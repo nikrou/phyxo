@@ -15,7 +15,7 @@ class UserGroupRepository extends BaseRepository
 {
     public function findByUserIds(array $user_ids)
     {
-        $query = 'SELECT user_id, name FROM ' . self::USER_GROUP_TABLE;
+        $query = 'SELECT name, user_id, group_id FROM ' . self::USER_GROUP_TABLE;
         $query .= ' LEFT JOIN ' . self::GROUPS_TABLE . ' ON id = group_id';
         $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
 

@@ -22,6 +22,7 @@ use App\Repository\ImageRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -77,10 +78,7 @@ $nb_physical = (new CategoryRepository($conn))->count('dir IS NOT NULL');
 $nb_image_category = (new ImageCategoryRepository($conn))->count();
 $nb_tags = (new TagRepository($conn))->count();
 $nb_image_tag = (new ImageTagRepository($conn))->count();
-
-$query = 'SELECT COUNT(1) FROM ' . USERS_TABLE;
-list($nb_users) = $conn->db_fetch_row($conn->db_query($query));
-
+$nb_users = (new UserRepository($conn))->count();
 $nb_groups = (new GroupRepository($conn))->count();
 $nb_rates = (new RateRepository($conn))->count();
 

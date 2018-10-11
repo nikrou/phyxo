@@ -22,6 +22,7 @@ use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
+use App\Repository\UserRepository;
 
 class Users
 {
@@ -55,65 +56,8 @@ class Users
             return \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
         }
 
-        if (defined("PHPWG_INSTALLED") and !empty($mail_address)) {
-            $query = 'SELECT count(1) FROM ' . USERS_TABLE;
-            $query .= ' WHERE upper(' . $this->conf['user_fields']['email'] . ') = upper(\'' . $this->conn->db_real_escape_string($mail_address) . '\')';
-            $query .= (is_numeric($user_id) ? 'AND ' . $this->conf['user_fields']['id'] . ' != \'' . $user_id . '\'' : '') . ';';
-            list($count) = $this->conn->db_fetch_row($this->conn->db_query($query));
-            if ($count != 0) {
-                return \Phyxo\Functions\Language::l10n('this email address is already in use');
-            }
-        }
-    }
-
-    /**
-     * Checks if a login is not already in use.
-     * Comparision is case insensitive.
-     *
-     * @param string $login
-     * @return string|void error message or nothing
-     */
-    public function validateLoginCase($login)
-    {
-        if (defined("PHPWG_INSTALLED")) {
-            $query = 'SELECT ' . $this->conf['user_fields']['username'] . ' FROM ' . USERS_TABLE;
-            $query .= ' WHERE LOWER(';
-            $query .= $this->conn->db_real_escape_string($this->conf['user_fields']['username']);
-            $query .= ') = \'' . strtolower($this->conn->db_real_escape_string($login)) . '\'';
-            $count = $this->conn->db_num_rows($this->conn->db_query($query));
-
-            if ($count > 0) {
-                return \Phyxo\Functions\Language::l10n('this login is already used');
-            }
-        }
-    }
-
-    /**
-     * Searches for user with the same username in different case.
-     *
-     * @param string $username typically typed in by user for identification
-     * @return string $username found in database
-     */
-    public function searchCaseUsername($username)
-    {
-        $username_lo = strtolower($username);
-
-        $users = [];
-
-        $q = $this->conn->db_query('SELECT ' . $this->conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE);
-        while ($r = $this->conn->db_fetch_assoc($q)) {
-            $users[$r['username']] = strtolower($r['username']);
-        }
-        // $users is now an associative table where the key is the account as
-        // registered in the DB, and the value is this same account, in lower case
-
-        $users_found = array_keys($users, $username_lo);
-        // $users_found is now a table of which the values are all the accounts
-        // which can be written in lowercase the same way as $username
-        if (count($users_found) != 1) { // If ambiguous, don't allow lowercase writing
-            return $username; // but normal writing will work
-        } else {
-            return $users_found[0];
+        if (!empty($mail_address) && (new UserRepository($this->conn))->isEmailExistsExceptUser($mail_address, $user_id)) {
+            return \Phyxo\Functions\Language::l10n('this email address is already in use');
         }
     }
 
@@ -150,13 +94,6 @@ class Users
             $errors[] = $mail_error;
         }
 
-        if ($this->conf['insensitive_case_logon'] == true) {
-            $login_error = $this->validateLoginCase($login);
-            if ($login_error != '') {
-                $errors[] = $login_error;
-            }
-        }
-
         $errors = Plugin::trigger_change(
             'register_user_check',
             $errors,
@@ -175,8 +112,7 @@ class Users
                 $this->conf['user_fields']['email'] => $mail_address
             ];
 
-            $this->conn->single_insert(USERS_TABLE, $insert);
-            $user_id = $this->conn->db_insert_id(USERS_TABLE);
+            $user_id = (new UserRepository($this->conn))->addUser($insert);
 
             // Assign by default groups
             $result = (new GroupRepository($this->conn))->findByField('is_default', true, 'ORDER BY id ASC');
@@ -189,7 +125,7 @@ class Users
             }
 
             if (count($inserts) != 0) {
-                (new UserGroupRepository($conn))->massInserts(['user_id', 'group_id'], $inserts);
+                (new UserGroupRepository($this->conn))->massInserts(['user_id', 'group_id'], $inserts);
             }
 
             $override = null;
@@ -370,11 +306,6 @@ class Users
             return true;
         }
 
-        // retrieving the encrypted password of the login submitted
-        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' AS id,';
-        $query .= $this->conf['user_fields']['password'] . ' AS password';
-        $query .= ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $this->conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
         $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
         if ($this->passwordVerify($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
@@ -409,34 +340,8 @@ class Users
      */
     public function getUserData($user_id, $use_cache = false)
     {
-        // retrieve basic user data
-        $query = 'SELECT ';
-        $is_first = true;
-        foreach ($this->conf['user_fields'] as $pwgfield => $dbfield) {
-            if ($is_first) {
-                $is_first = false;
-            } else {
-                $query .= ', ';
-            }
-            $query .= $dbfield . ' AS ' . $pwgfield;
-        }
-        $query .= ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $this->conf['user_fields']['id'] . ' = ' . $this->conn->db_real_escape_string($user_id);
-
-        $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
-
-        // retrieve additional user data ?
-        if ($this->conf['external_authentification']) {
-            $query = 'SELECT COUNT(1) AS counter FROM ' . USER_INFOS_TABLE . ' AS ui';
-            $query .= ' LEFT JOIN ' . USER_CACHE_TABLE . ' AS uc ON ui.user_id = uc.user_id';
-            $query .= ' LEFT JOIN ' . THEMES_TABLE . ' AS t ON t.id = ui.theme';
-            $query .= ' WHERE ui.user_id = ' . $user_id;
-            $query .= ' GROUP BY ui.user_id;';
-            list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
-            if ($counter != 1) {
-                $this->createUserInfos($user_id);
-            }
-        }
+        $result = (new UserRepository($this->conn))->findById($user_id);
+        $user = $this->conn->db_fetch_assoc($result);
 
         // retrieve user info
         $query = 'SELECT ui.*, uc.*, t.name AS theme_name FROM ' . USER_INFOS_TABLE . ' AS ui';
@@ -445,10 +350,10 @@ class Users
         $query .= ' WHERE ui.user_id = ' . $user_id . ';';
 
         $result = $this->conn->db_query($query);
-        $user_infos_row = $this->conn->db_fetch_assoc($result);
+        $user_infos = $this->conn->db_fetch_assoc($result);
 
         // then merge basic + additional user data
-        $userdata = array_merge($row, $user_infos_row);
+        $userdata = array_merge($user, $user_infos);
 
         foreach ($userdata as &$value) {
             // If the field is true or false, the variable is transformed into a boolean value.
@@ -604,15 +509,14 @@ class Users
      */
     public function getUserId($username)
     {
-        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $this->conf['user_fields']['username'] . ' = \'' . $this->conn->db_real_escape_string($username) . '\';';
-        $result = $this->conn->db_query($query);
+        $result = (new UserRepository($this->conn))->findByUsername($username);
+        if ($this->conn->db_num_rows($result) === 0) {
 
-        if ($this->conn->db_num_rows($result) == 0) {
             return false;
         } else {
-            list($user_id) = $this->conn->db_fetch_row($result);
-            return $user_id;
+            $user = $this->conn->db_fetch_assoc($result);
+
+            return $user['id'];
         }
     }
 
@@ -624,15 +528,13 @@ class Users
      */
     public function getUserIdByEmail($email)
     {
-        $query = 'SELECT ' . $this->conf['user_fields']['id'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE UPPER(' . $this->conf['user_fields']['email'] . ') = UPPER(\'' . $this->conn->db_real_escape_string($email) . '\');';
-        $result = $this->conn->db_query($query);
-
+        $result = (new UserRepository($this->conn))->findByEmail($email);
         if ($this->conn->db_num_rows($result) == 0) {
             return false;
         } else {
-            list($user_id) = $this->conn->db_fetch_row($result);
-            return $user_id;
+            $user = $this->conn->db_fetch_assoc($result);
+
+            return $user['id'];
         }
     }
 
@@ -704,7 +606,8 @@ class Users
         }
 
         // let's find the first available theme
-        $active_themes = array_keys($conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name'));
+        $result = (new ThemeRepository($this->conn))->findAll();
+        $active_themes = array_keys($this->conn->result2array($result, 'id', 'name'));
 
         return $active_themes[0];
     }
@@ -729,11 +632,7 @@ class Users
      */
     public function calculateAutoLoginKey($user_id, $time, &$username)
     {
-        $query = 'SELECT ' . $this->conf['user_fields']['username'] . ' AS username';
-        $query .= ', ' . $this->conf['user_fields']['password'] . ' AS password FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $this->conf['user_fields']['id'] . ' = ' . $user_id;
-
-        $result = $this->conn->db_query($query);
+        $result = (new UserRepository($this->conn))->findById($user_id);
         if ($this->conn->db_num_rows($result) > 0) {
             $row = $this->conn->db_fetch_assoc($result);
             $data = $time . $user_id . $row['username'];
@@ -770,11 +669,8 @@ class Users
     {
         if (empty($hash) || strpos($hash, '$P') !== false || $hash == md5($password)) {
             $hash = $this->passwordHash($password);
-            $this->conn->single_update(
-                USERS_TABLE,
-                ['password' => $hash],
-                ['id' => $user_id]
-            );
+
+            (new UserRepository($this->conn))->updateUser(['password' => $hash], $user_id);
         }
 
         return password_verify($password, $hash);
@@ -793,14 +689,14 @@ class Users
         }
 
         $query = 'SELECT user_id, status FROM ' . USER_INFOS_TABLE;
-        $query .= ' WHERE activation_key = \'' . $conn->db_real_escape_string($key) . '\'';
-        $result = $conn->db_query($query);
+        $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
+        $result = $this->conn->db_query($query);
 
-        if ($conn->db_num_rows($result) == 0) {
+        if ($this->conn->db_num_rows($result) == 0) {
             throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
         }
 
-        $userdata = $conn->db_fetch_assoc($result);
+        $userdata = $this->conn->db_fetch_assoc($result);
 
         if ($this->isGuest($userdata['status']) or $this->isGeneric($userdata['status'])) {
             throw new \Exception(\Phyxo\Functions\Language::l10n('Password reset is not allowed for this user'));
@@ -976,7 +872,7 @@ class Users
         $query = 'SELECT cat_id FROM ' . USER_ACCESS_TABLE . ' WHERE user_id = ' . $user_id . ';';
         $authorized_array = $this->conn->query2array($query, null, 'cat_id');
 
-        $result = (new UserGroupRepository($conn))->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
+        $result = (new UserGroupRepository($this->conn))->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
         $authorized_array = array_merge($authorized_array, $this->conn->result2array($result, null, 'cat_id'));
 
         // uniquify ids : some private categories might be authorized for the

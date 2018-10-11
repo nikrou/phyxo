@@ -14,6 +14,7 @@ if (!defined('RATING_BASE_URL')) {
 }
 
 use App\Repository\RateRepository;
+use App\Repository\UserRepository;
 
 // +-----------------------------------------------------------------------+
 // |                            initialization                             |
@@ -44,10 +45,9 @@ if (isset($_GET['users'])) {
 }
 
 $users = [];
-$query = 'SELECT ' . $conf['user_fields']['username'] . ' as username, ' . $conf['user_fields']['id'] . ' as id FROM ' . USERS_TABLE;
-$result = $conn->db_query($query);
+$result = (new UserRepository($conn))->findAll();
 while ($row = $conn->db_fetch_assoc($result)) {
-    $users[$row['id']] = stripslashes($row['username']); // @TODO: remove stripslashes
+    $users[$row['id']] = $row['username'];
 }
 
 $nb_images = (new RateRepository($conn))->countImagesRatedForUser($user_filter);

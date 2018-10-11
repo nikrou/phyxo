@@ -18,6 +18,7 @@ use App\Repository\RateRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\UserRepository;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -186,9 +187,7 @@ $template->assign(
 );
 
 $added_by = 'N/A';
-$query = 'SELECT ' . $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
-$query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $row['added_by'] . ';';
-$result = $conn->db_query($query);
+$result = (new UserRepository($conn))->findById($row['added_by']);
 while ($user_row = $conn->db_fetch_assoc($result)) {
     $row['added_by'] = $user_row['username'];
 }

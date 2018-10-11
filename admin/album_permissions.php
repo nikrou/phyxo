@@ -13,6 +13,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
+use App\Repository\UserRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
@@ -154,11 +155,8 @@ $group_granted_ids = $conn->result2array($result, null, 'group_id');
 $template->assign('groups_selected', $group_granted_ids);
 
 // users...
-$users = [];
-
-$query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id,';
-$query .= $conf['user_fields']['username'] . ' AS username FROM ' . USERS_TABLE;
-$users = $conn->query2array($query, 'id', 'username');
+$result = (new UserRepository($conn))->findAll();
+$users = $conn->result2array($result, 'id', 'username');
 $template->assign('users', $users);
 
 $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);

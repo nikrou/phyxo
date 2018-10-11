@@ -16,6 +16,7 @@ if (!defined("USERS_BASE_URL")) {
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 
 // +-----------------------------------------------------------------------+
 // |                              groups list                              |
@@ -32,13 +33,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 // | template                                                              |
 // +-----------------------------------------------------------------------+
 
-$query = 'SELECT DISTINCT u.' . $conf['user_fields']['id'] . ' AS id,u.' . $conf['user_fields']['username'] . ' AS username,';
-$query .= 'u.' . $conf['user_fields']['email'] . ' AS email,ui.status,ui.enabled_high,';
-$query .= 'ui.level FROM ' . USERS_TABLE . ' AS u';
-$query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON u.' . $conf['user_fields']['id'] . ' = ui.user_id';
-$query .= ' WHERE u.' . $conf['user_fields']['id'] . ' > 0;';
-
-$result = $conn->db_query($query);
+$result = (new UserRepository($conn))->getUserInfosList();
 while ($row = $conn->db_fetch_assoc($result)) {
     $users[] = $row;
     $user_ids[] = $row['id'];

@@ -29,6 +29,7 @@ use App\Repository\HistoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\GroupRepository;
+use App\Repository\UserRepository;
 
 class Utils
 {
@@ -252,10 +253,9 @@ class Utils
     {
         global $conf, $conn;
 
-        $query = 'SELECT ' . $conf['user_fields']['email'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . $conf['webmaster_id'] . ';';
-        list($email) = $conn->db_fetch_row($conn->db_query($query));
-
+        $result = (new UserRepository($conn))->findById($conf['webmaster_id']);
+        $row = $conn->db_fetch_assoc($result);
+        $email = $row['mail_address'];
         $email = \Phyxo\Functions\Plugin::trigger_change('get_webmaster_mail_address', $email);
 
         return $email;
@@ -1399,8 +1399,7 @@ class Utils
         $conn->db_query($query);
 
         // destruction of the user
-        $query = 'DELETE FROM ' . USERS_TABLE . ' WHERE ' . $conf['user_fields']['id'] . ' = ' . (int)$user_id . ';';
-        $conn->db_query($query);
+        (new UserRepository($conn))->deleteById($user_id);
 
         \Phyxo\Functions\Plugin::trigger_notify('delete_user', $user_id);
     }
@@ -1634,8 +1633,8 @@ class Utils
     {
         global $conf, $conn, $services;
 
-        $query = 'SELECT ' . $conf['user_fields']['id'] . ' AS id FROM ' . USERS_TABLE;
-        $base_users = $conn->query2array($query, null, 'id');
+        $result = (new UserRepository($conn))->findAll();
+        $base_users = $conn->result2array($result, null, 'id');
 
         $query = 'SELECT user_id FROM ' . USER_INFOS_TABLE;
         $infos_users = $conn->query2array($query, null, 'user_id');
@@ -1773,17 +1772,14 @@ class Utils
     {
         global $conf, $conn;
 
-        $query = 'SELECT ' . $conf['user_fields']['username'] . ' FROM ' . USERS_TABLE;
-        $query .= ' WHERE ' . $conf['user_fields']['id'] . ' = ' . intval($user_id) . ';';
-        $result = $conn->db_query($query);
+        $result = (new UserRepository($conn))->findById($user_id);
         if ($conn->db_num_rows($result) > 0) {
-            list($username) = $conn->db_fetch_row($result);
+            $row = $conn->db_fetch_assoc($result);
+
+            return $row['username'];
         } else {
             return false;
         }
-
-        // @TODO: why stripslashes ?
-        return stripslashes($username);
     }
 
     /**

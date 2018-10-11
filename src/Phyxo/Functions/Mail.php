@@ -12,6 +12,7 @@
 namespace Phyxo\Functions;
 
 use Pelago\Emogrifier;
+use App\Repository\UserRepository;
 
 class Mail
 {
@@ -363,15 +364,8 @@ class Mail
 
         $return = true;
 
-        // get admins (except ourself)
-        $query = 'SELECT u.' . $conf['user_fields']['username'] . ' AS name,';
-        $query .= 'u.' . $conf['user_fields']['email'] . ' AS email FROM ' . USERS_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS i ON i.user_id =  u.' . $conf['user_fields']['id'];
-        $query .= ' WHERE i.status in (\'webmaster\',  \'admin\')';
-        $query .= ' AND u.' . $conf['user_fields']['email'] . ' IS NOT NULL';
-        $query .= ' AND i.user_id <> ' . $user['id'];
-        $query .= ' ORDER BY name;';
-        $admins = $conn->query2array($query);
+        $result = (new UserRepository($conn))->getAdminsExceptOurself($user['id']);
+        $admins = $conn->result2array($result);
 
         if (empty($admins)) {
             return $return;
