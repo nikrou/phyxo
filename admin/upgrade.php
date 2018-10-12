@@ -15,6 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\Language\Languages;
 use Phyxo\Update\Updates;
+use App\Repository\UpgradeRepository;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -69,8 +70,8 @@ $tables = $conn->db_get_tables(PREFIX_TABLE);
 $columns_of = $conn->db_get_columns_of($tables);
 
 // find the current release
-$query = 'SELECT id FROM ' . PREFIX_TABLE . 'upgrade;';
-$applied_upgrades = $conn->query2array($query, null, 'id');
+$result = (new UpgradeRepository($conn))->findAll();
+$applied_upgrades = $conn->result2array($result, null, 'id');
 
 if (!in_array(142, $applied_upgrades)) {
     $current_release = '1.0.0';

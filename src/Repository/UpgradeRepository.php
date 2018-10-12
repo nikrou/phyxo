@@ -20,6 +20,14 @@ class UpgradeRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function addUpgrade(string $id, string $description)
+    {
+        $query = 'INSERT INTO ' . self::UPGRADE_TABLE;
+        $query .= ' (id, applied, description)';
+        $query .= ' VALUES(\'' . $this->conn->db_real_escape_string($id) . '\', NOW(), \'' . $this->conn->db_real_escape_string($description) . '\')';
+        $this->conn->db_query($query);
+    }
+
     public function massInserts(array $fields, array $datas)
     {
         $this->conn->mass_inserts(self::UPGRADE_TABLE, $fields, $datas);

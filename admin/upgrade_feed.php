@@ -14,6 +14,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use Phyxo\DBLayer\DBLayer;
+use App\Repository\UpgradeRepository;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -29,8 +30,8 @@ define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
 // +-----------------------------------------------------------------------+
 
 // retrieve already applied upgrades
-$query = 'SELECT id FROM ' . PREFIX_TABLE . 'upgrade;';
-$applied = $conn->query2array($query, null, 'id');
+$result = (new UpgradeRepository($conn))->findAll();
+$applied = $conn->result2array($result, null, 'id');
 
 // retrieve existing upgrades
 $existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
@@ -51,9 +52,7 @@ foreach ($to_apply as $upgrade_id) {
     include(UPGRADES_PATH . '/' . $upgrade_id . '-database.php');
 
     // notify upgrade
-    $query = 'INSERT INTO ' . PREFIX_TABLE . 'upgrade (id, applied, description)';
-    $query .= ' VALUES(\'' . $upgrade_id . '\', NOW(), \'' . $upgrade_description . '\');';
-    $conn->db_query($query);
+    (new UpgradeRepository($conn))->addUpgrade($upgrade_id, $upgrade_description);
 }
 
 $upgrade_content = ob_get_contents();
