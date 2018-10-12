@@ -308,7 +308,8 @@ class Users
             return true;
         }
 
-        $row = $this->conn->db_fetch_assoc($this->conn->db_query($query));
+        $result = (new UserRepository($this->conn))->findByUsername($username);
+        $row = $this->conn->db_fetch_assoc($result);
         if ($this->passwordVerify($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
             Plugin::trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes
@@ -784,6 +785,8 @@ class Users
      */
     public function checkStatus($access_type, $user_status = '')
     {
+        return true; // @TODO: check roles or use voters
+
         if (!$this->isAuthorizeStatus($access_type, $user_status)) {
             \Phyxo\Functions\HTTP::access_denied();
         }
@@ -862,7 +865,7 @@ class Users
         $private_array = $this->conn->result2array($result, null, 'id');
 
         // retrieve category ids directly authorized to the user
-        $result = (new UserAccessRepository($conn))->findByUserId($user_id);
+        $result = (new UserAccessRepository($this->conn))->findByUserId($user_id);
         $authorized_array = $this->conn->result2array($result, null, 'cat_id');
 
         $result = (new UserGroupRepository($this->conn))->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);

@@ -122,7 +122,28 @@ if (isset($conf['order_by_inside_category_custom'])) {
     $conf['order_by_inside_category'] = $conf['order_by_inside_category_custom'];
 }
 
-include(PHPWG_ROOT_PATH . 'include/user.inc.php');
+$user['id'] = $conf['guest_id'];
+
+if (isset($_COOKIE[session_name()])) {
+    if (isset($_GET['act']) and $_GET['act'] == 'logout') { // logout
+        $services['users']->logoutUser();
+        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url());
+    } elseif (!empty($_SESSION['pwg_uid'])) {
+        $user['id'] = $_SESSION['pwg_uid'];
+    }
+}
+
+// Now check the auto-login
+if ($user['id'] == $conf['guest_id']) {
+    $services['users']->autoLogin();
+}
+
+$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
+
+if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {
+    \Phyxo\Functions\Language::get_browser_language($user['language']);
+}
+\Phyxo\Functions\Plugin::trigger_notify('user_init', $user);
 
 // language files
 \Phyxo\Functions\Language::load_language('common.lang');
