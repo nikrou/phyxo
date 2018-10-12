@@ -26,23 +26,6 @@ if ($user['id'] == $conf['guest_id']) {
     $services['users']->autoLogin();
 }
 
-// using Apache authentication override the above user search
-if ($conf['apache_authentication']) {
-    $remote_user = null;
-    foreach (['REMOTE_USER', 'REDIRECT_REMOTE_USER'] as $server_key) {
-        if (isset($_SERVER[$server_key])) {
-            $remote_user = $_SERVER[$server_key];
-            break;
-        }
-    }
-
-    if (isset($remote_user)) {
-        if (!($user['id'] = $services['users']->getUserId($remote_user))) {
-            $user['id'] = $services['users']->registerUser($remote_user, '', '', false);
-        }
-    }
-}
-
 $user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
 
 if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {

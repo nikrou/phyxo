@@ -242,11 +242,8 @@ if ($services['users']->isGuest()) {
         $template->assign('U_PROFILE', \Phyxo\Functions\URL::get_root_url() . 'profile.php');
     }
 
-    // the logout link has no meaning with Apache authentication : it is not
-    // possible to logout with this kind of authentication.
-    if (!$conf['apache_authentication']) {
-        $template->assign('U_LOGOUT', \Phyxo\Functions\URL::get_root_url() . '?act=logout');
-    }
+    $template->assign('U_LOGOUT', \Phyxo\Functions\URL::get_root_url() . '?act=logout');
+
     if ($services['users']->isAdmin()) {
         $template->assign('U_ADMIN', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php');
     }

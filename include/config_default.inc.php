@@ -403,10 +403,6 @@ $conf['enable_i_log'] = false;
 // |                            authentication                             |
 // +-----------------------------------------------------------------------+
 
-// apache_authentication : use Apache authentication as reference instead of
-// users table ?
-$conf['apache_authentication'] = false;
-
 // users_table: which table is the reference for users? Can be a different
 // table than Phyxo table
 //
