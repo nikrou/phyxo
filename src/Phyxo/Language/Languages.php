@@ -13,6 +13,7 @@ namespace Phyxo\Language;
 
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
+use App\Repository\UserInfosRepository;
 
 class Languages extends Extensions
 {
@@ -95,9 +96,7 @@ class Languages extends Extensions
                 break;
 
             case 'set_default':
-                $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET language = \'' . $language_id . '\'';
-                $query .= ' WHERE user_id ' . $this->conn->in([$conf['default_user_id'], $conf['guest_id']]);
-                $this->conn->db_query($query);
+                (new UserInfosRepository($this->conn))->updateFieldForUsers('language', $language_id, [$conf['default_user_id'], $conf['guest_id']]);
                 break;
         }
 

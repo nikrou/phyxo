@@ -401,16 +401,8 @@ class Mail
         $return = true;
 
         // get distinct languages of targeted users
-        $query = 'SELECT DISTINCT language FROM ' . USER_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . USERS_GROUP_TABLE . ' AS ug ON ' . $conf['user_fields']['id'] . ' = ug.user_id';
-        $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
-        $query .= ' WHERE group_id = ' . $group_id . ' AND ' . $conf['user_fields']['email'] . ' <> ""';
-
-        if (!empty($args['language_selected'])) {
-            $query .= ' AND language = \'' . $args['language_selected'] . '\'';
-        }
-
-        $languages = $conn->query2array($query, 'language');
+        $result = (new UserRepository($conn))->getDistinctLanguagesForUsers($group_id, $args['language_selected'] ?? null);
+        $languages = $conn->result2array($result, 'language');
 
         if (empty($languages)) {
             return $return;
@@ -418,14 +410,9 @@ class Mail
 
         foreach ($languages as $language) {
             // get subset of users in this group for a specific language
-            $query = 'SELECT u.' . $conf['user_fields']['username'] . ' AS name,';
-            $query .= 'u.' . $conf['user_fields']['email'] . ' AS email';
-            $query .= ' FROM ' . USER_TABLE . ' AS u';
-            $query .= ' LEFT JOIN ' . USERS_GROUP_TABLE . ' AS ug ON ' . $conf['user_fields']['id'] . ' = ug.user_id';
-            $query .= ' LEFT JOIN ' . USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
-            $query .= ' WHERE group_id = ' . $group_id . ' AND ' . $conf['user_fields']['email'] . ' <> ""';
-            $query .= ' AND language = \'' . $language . '\';';
-            $users = $conn->query2array($query);
+            // @TODO: make only one query
+            $result = (new UserRepository($conn))->getUsersByLanguage($group_id, $language);
+            $users = $conn->result2array($result);
 
             if (empty($users)) {
                 continue;

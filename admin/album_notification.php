@@ -107,7 +107,7 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 
 $result = (new GroupRepository($conn))->findAll();
-$all_group_ids = $conn->result2array($result, null, 'group_id');
+$all_group_ids = $conn->result2array($result, null, 'id');
 
 if (count($all_group_ids) == 0) {
     $template->assign('no_group_in_gallery', true);

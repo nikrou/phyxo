@@ -34,10 +34,25 @@ class ThemeRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findExcept(array $ids)
+    {
+        $query = 'SELECT id,name  FROM ' . self::THEMES_TABLE;
+        $query .= ' WHERE id NOT ' . $this->conn->in($ids);
+
+        return $this->conn->db_query($query);
+    }
+
     public function deleteById(string $theme_id)
     {
         $query = 'DELETE FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
+        $query .= ' WHERE id \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByIds(array $theme_ids)
+    {
+        $query = 'DELETE FROM ' . self::THEMES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($theme_ids);
         $this->conn->db_query($query);
     }
 }

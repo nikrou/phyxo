@@ -16,75 +16,13 @@ use App\Repository\CommentRepository;
 use Phyxo\DBLayer\DBLayer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 
 class Notification
 {
     public function __construct(DBLayer $conn)
     {
         $this->conn = $conn;
-    }
-
-    /**
-     * Execute custom notification query.
-     * @todo use a cache for all data returned by custom_notification_query()
-     *
-     * @param string $action 'count', 'info'
-     * @param string $type 'new_comments', 'unvalidated_comments', 'new_elements', 'updated_categories', 'new_users'
-     * @param string $start (mysql datetime format)
-     * @param string $end (mysql datetime format)
-     * @return int|array int for action count array for info
-     */
-    protected static function custom_notification_query($action, $type, $start = null, $end = null)
-    {
-        global $user, $conn;
-
-        switch ($type) {
-            case 'new_users':
-                {
-                    $query = ' FROM ' . USER_INFOS_TABLE . ' WHERE 1=1';
-                    if (!empty($start)) {
-                        $query .= ' AND registration_date > \'' . $conn->db_real_escape_string($start) . '\'';
-                    }
-                    if (!empty($end)) {
-                        $query .= ' AND registration_date <= \'' . $conn->db_real_escape_string($end) . '\'';
-                    }
-                    break;
-                }
-
-            default:
-                return null; // stop and return nothing
-        }
-
-        switch ($action) {
-            case 'count':
-                {
-                    switch ($type) {
-                        case 'new_users':
-                            $field_id = 'user_id';
-                            break;
-                    }
-                    $query = 'SELECT COUNT(DISTINCT ' . $field_id . ') ' . $query;
-                    list($count) = $conn->db_fetch_row($conn->db_query($query));
-                    return $count;
-                    break;
-                }
-
-            case 'info':
-                {
-                    switch ($type) {
-                        case 'new_users':
-                            $field_id = 'user_id';
-                            break;
-                    }
-                    $query = 'SELECT DISTINCT ' . $field_id . ' ' . $query . ';';
-                    $infos = $conn->query2array($query);
-                    return $infos;
-                    break;
-                }
-
-            default:
-                return null; // stop and return nothing
-        }
     }
 
     /**
@@ -194,7 +132,9 @@ class Notification
      */
     public static function nb_new_users($start = null, $end = null)
     {
-        return self::custom_notification_query('count', 'new_users', $start, $end);
+        global $conn;
+
+        return (new UserInfosRepository($conn))->getNewUsers($start, $end, $count_only = true);
     }
 
     /**
@@ -206,7 +146,9 @@ class Notification
      */
     public static function new_users($start = null, $end = null)
     {
-        return self::custom_notification_query('info', 'new_users', $start, $end);
+        global $conn;
+
+        return (new UserInfosRepository($conn))->getNewUsers($start, $end);
     }
 
     /**

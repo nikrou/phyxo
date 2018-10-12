@@ -14,6 +14,7 @@ namespace Phyxo\Theme;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
+use App\Repository\UserInfosRepository;
 
 class Themes extends Extensions
 {
@@ -207,22 +208,16 @@ class Themes extends Extensions
 
         // first we need to know which users are using the current default theme
         $default_theme = $services['users']->getDefaultTheme();
-
-        $query = 'SELECT user_id FROM ' . USER_INFOS_TABLE;
-        $query .= ' WHERE theme = \'' . $default_theme . '\';';
+        $result = (new UserInfosRepository($this->conn))->findByThemes($default_theme);
         $user_ids = array_unique(
             array_merge(
-                $this->conn->query2array($query, null, 'user_id'),
+                $this->conn->result2array($result, null, 'user_id'),
                 [$conf['guest_id'], $conf['default_user_id']]
             )
         );
 
-        // $user_ids can't be empty, at least the default user has the default
-        // theme
-
-        $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET theme = \'' . $theme_id . '\'';
-        $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
-        $this->conn->db_query($query);
+        // $user_ids can't be empty, at least the default user has the default theme
+        (new UserInfosRepository($this->conn))->updateFieldForUsers('theme', $theme_id, $user_ids);
     }
 
     public function getDbThemes()

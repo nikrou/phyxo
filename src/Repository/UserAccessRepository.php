@@ -40,6 +40,13 @@ class UserAccessRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function getDistinctUser()
+    {
+        $query = 'SELECT DISTINCT user_id FROM ' . self::USER_ACCESS_TABLE;
+
+        return $this->conn->db_query($query);
+    }
+
     public function insertUserAccess(array $fields, array $datas)
     {
         $this->conn->mass_insert(self::USER_ACCESS_TABLE, $fields, $datas);
@@ -67,6 +74,13 @@ class UserAccessRepository extends BaseRepository
         $query = 'DELETE FROM ' . self::USER_ACCESS_TABLE;
         $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
         $query .= ' AND cat_id ' . $this->conn->in($cat_ids);
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByUserIds(array $user_ids)
+    {
+        $query = 'DELETE FROM ' . self::USER_ACCESS_TABLE;
+        $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
         $this->conn->db_query($query);
     }
 }

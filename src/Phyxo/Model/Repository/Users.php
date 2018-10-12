@@ -23,6 +23,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 
 class Users
 {
@@ -344,12 +345,8 @@ class Users
         $user = $this->conn->db_fetch_assoc($result);
 
         // retrieve user info
-        $query = 'SELECT ui.*, uc.*, t.name AS theme_name FROM ' . USER_INFOS_TABLE . ' AS ui';
-        $query .= ' LEFT JOIN ' . USER_CACHE_TABLE . ' AS uc ON ui.user_id = uc.user_id';
-        $query .= ' LEFT JOIN ' . THEMES_TABLE . ' AS t ON t.id = ui.theme';
-        $query .= ' WHERE ui.user_id = ' . $user_id . ';';
 
-        $result = $this->conn->db_query($query);
+        $result = (new UserInfosRepository($this->conn))->getCompleteUserInfos($user_id);
         $user_infos = $this->conn->db_fetch_assoc($result);
 
         // then merge basic + additional user data
@@ -410,7 +407,7 @@ class Users
 
                 // delete user cache
                 $this->conn->db_write_lock(USER_CACHE_CATEGORIES_TABLE);
-                (new UserCacheCategoriesRepository($this->conn))->deleteByUserId([$userdata['id']]);
+                (new UserCacheCategoriesRepository($this->conn))->deleteByUserIds([$userdata['id']]);
                 (new UserCacheCategoriesRepository($this->conn))->insertUserCacheCategories(
                     [
                         'user_id', 'cat_id',
@@ -497,7 +494,7 @@ class Users
                 $inserts[] = $insert;
             }
 
-            $this->conn->mass_inserts(USER_INFOS_TABLE, array_keys($inserts[0]), $inserts);
+            (new UserInfosRepository($this->conn))->massInserts(array_keys($inserts[0]), $inserts);
         }
     }
 
@@ -547,9 +544,7 @@ class Users
     public function getDefaultUserInfo($convert_str = true)
     {
         if (!isset($this->cache['default_user'])) {
-            $query = 'SELECT * FROM ' . USER_INFOS_TABLE . ' WHERE user_id = ' . $this->conf['default_user_id'] . ';';
-            $result = $this->conn->db_query($query);
-
+            $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
             if ($this->conn->db_num_rows($result) > 0) {
                 $this->cache['default_user'] = $this->conn->db_fetch_assoc($result);
 
@@ -688,10 +683,7 @@ class Users
             throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
         }
 
-        $query = 'SELECT user_id, status FROM ' . USER_INFOS_TABLE;
-        $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
-        $result = $this->conn->db_query($query);
-
+        $result = (new UserInfosRepository($this->conn))->findByActivationKey($key);
         if ($this->conn->db_num_rows($result) == 0) {
             throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
         }

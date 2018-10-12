@@ -40,7 +40,7 @@ class UserCacheRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function deleteByUserId(array $ids)
+    public function deleteByUserIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::USER_CACHE_TABLE;
         $query .= ' WHERE user_id ' . $this->conn->in($ids);

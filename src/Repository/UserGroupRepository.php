@@ -59,6 +59,13 @@ class UserGroupRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function getDistinctUser()
+    {
+        $query = 'SELECT DISTINCT user_id FROM ' . self::GROUP_ACCESS_TABLE;
+
+        return $this->conn->db_query($query);
+    }
+
     public function massInserts(array $fields, array $datas)
     {
         $this->conn->mass_inserts(self::USER_GROUP_TABLE, $fields, $datas);

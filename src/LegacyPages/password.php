@@ -10,6 +10,7 @@
  */
 
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 /*
  * This file is part of Phyxo package
  *
@@ -85,11 +86,7 @@ function process_password_request()
     if (empty($userdata['activation_key'])) {
         $activation_key = get_user_activation_key();
 
-        $conn->single_update(
-            USER_INFOS_TABLE,
-            ['activation_key' => $activation_key],
-            ['user_id' => $user_id]
-        );
+        (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => $activation_key], $user_id);
 
         $userdata['activation_key'] = $activation_key;
     }

@@ -17,6 +17,7 @@ use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 
 // +-----------------------------------------------------------------------+
 // |                              groups list                              |
@@ -59,8 +60,8 @@ $protected_users = [
 
 // an admin can't delete other admin/webmaster
 if ('admin' == $user['status']) {
-    $query = 'SELECT user_id FROM ' . USER_INFOS_TABLE . ' WHERE status ' . $conn->in(['webmaster', 'admin']);
-    $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
+    $result = (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
+    $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
 }
 
 $template->assign(

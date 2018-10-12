@@ -30,7 +30,14 @@ class UserCacheCategoriesRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function deleteByUserId(array $ids)
+    public function deleteByUserId(int $id)
+    {
+        $query = 'DELETE FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= ' WHERE user_id = ' . $id;
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByUserIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
         $query .= ' WHERE user_id ' . $this->conn->in($ids);

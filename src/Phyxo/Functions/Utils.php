@@ -30,6 +30,9 @@ use App\Repository\ImageRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
+use App\Repository\UserAccessRepository;
+use App\Repository\UserGroupRepository;
 
 class Utils
 {
@@ -1372,8 +1375,6 @@ class Utils
             USER_ACCESS_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
-            // deletion of phyxo specific informations
-            USER_INFOS_TABLE,
         ];
 
         foreach ($tables as $table) {
@@ -1381,6 +1382,8 @@ class Utils
             $conn->db_query($query);
         }
 
+        // deletion of phyxo specific informations
+        (new UserInfosRepository($conn))->deleteByUserId($user_id);
         // destruction of data notification by mail for this user
         (new UserMailNotificationRepository($conn))->deleteByUserId($user_id);
         // destruction of data RSS notification for this user
@@ -1636,8 +1639,8 @@ class Utils
         $result = (new UserRepository($conn))->findAll();
         $base_users = $conn->result2array($result, null, 'id');
 
-        $query = 'SELECT user_id FROM ' . USER_INFOS_TABLE;
-        $infos_users = $conn->query2array($query, null, 'user_id');
+        $result = (new UserInfosRepository($conn))->findAll();
+        $infos_users = $conn->result2array($result, null, 'user_id');
 
         // users present in $base_users and not in $infos_users must be added
         $to_create = array_diff($base_users, $infos_users);
@@ -1647,54 +1650,19 @@ class Utils
         }
 
         // users present in user related tables must be present in the base user table
-        $tables = [
-            USER_INFOS_TABLE,
-            USER_ACCESS_TABLE,
-            USER_GROUP_TABLE
+        $Repositories = [
+            'UserInfosRepository', 'UserMailNotificationRepository', 'UserFeedRepository',
+            'UserCacheRepository', 'UserCacheCategoriesRepository', 'UserAccessRepository', 'UserGroupRepository'
         ];
 
-        foreach ($tables as $table) {
-            $query = 'SELECT DISTINCT user_id FROM ' . $table;
+        foreach ($Repositories as $repository) {
             $to_delete = array_diff(
-                $conn->query2array($query, null, 'user_id'),
+                $conn->result2array((new $repository($conn))->getDistinctUser(), null, 'user_id'),
                 $base_users
             );
-
             if (count($to_delete) > 0) {
-                $query = 'DELETE FROM ' . $table;
-                $query .= ' WHERE user_id ' . $conn->in($to_delete);
-                $conn->db_query($query);
+                (new $repository($conn))->deleteByUserIds($to_delete);
             }
-        }
-
-        $to_delete = array_diff(
-            $conn->result2array((new UserMailNotificationRepository($conn))->getDistinctUser(), null, 'user_id'),
-            $base_users
-        );
-        if (count($to_delete) > 0) {
-            (new UserMailNotificationRepository($conn))->deleteByUserId($to_delete);
-        }
-
-        $to_delete = array_diff(
-            $conn->result2array((new UserFeedRepository($conn))->getDistinctUser(), null, 'user_id'),
-            $base_users
-        );
-        if (count($to_delete) > 0) {
-            (new UserFeedRepository($conn))->deleteByUserId($to_delete);
-        }
-        $to_delete = array_diff(
-            $conn->result2array((new UserCacheRepository($conn))->getDistinctUser(), null, 'user_id'),
-            $base_users
-        );
-        if (count($to_delete) > 0) {
-            (new UserCacheRepository($conn))->deleteByUserId($to_delete);
-        }
-        $to_delete = array_diff(
-            $conn->result2array((new UserCacheCategoriesRepository($conn))->getDistinctUser(), null, 'user_id'),
-            $base_users
-        );
-        if (count($to_delete) > 0) {
-            (new UserCacheCategoriesRepository($conn))->deleteByUserId($to_delete);
         }
     }
 
@@ -1818,10 +1786,9 @@ class Utils
             $status_list[] = 'webmaster';
         }
 
-        $query = 'SELECT user_id  FROM ' . USER_INFOS_TABLE;
-        $query .= ' WHERE status ' . $conn->in($status_list);
+        $result = (new UserInfosRepository($conn))->findByStatuses($status_list);
 
-        return $conn->query2array($query, null, 'user_id');
+        return $conn->result2array($result, null, 'user_id');
     }
 
     /**

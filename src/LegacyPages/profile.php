@@ -22,6 +22,7 @@ if (!defined('PHPWG_ROOT_PATH')) { //direct script access
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -46,9 +47,7 @@ if (isset($_POST['reset_to_default'])) {
     ];
 
     // Get the Guest custom settings
-    $query = 'SELECT ' . implode(',', $fields) . ' FROM ' . USER_INFOS_TABLE;
-    $query .= ' WHERE user_id = ' . $conf['default_user_id'] . ';';
-    $result = $conn->db_query($query);
+    $result = (new UserInfosRepository($conn))->findByUserId($conf['default_user_id']);
     $default_user = $conn->db_fetch_assoc($result);
     $userdata = array_merge($userdata, $default_user);
 }
@@ -223,11 +222,7 @@ function save_profile_from_post($userdata, &$errors)
                 }
             }
 
-            $conn->mass_updates(
-                USER_INFOS_TABLE,
-                ['primary' => ['user_id'], 'update' => $fields],
-                [$data]
-            );
+            (new UserInfosRepository($conn))->massUpdates(['primary' => ['user_id'], 'update' => $fields], [$data]);
         }
         \Phyxo\Functions\Plugin::trigger_notify('save_profile_from_post', $userdata['id']);
 

@@ -177,6 +177,31 @@ class UserRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function getDistinctLanguagesForUsers(int $group_id, ? string $language = null)
+    {
+        $query = 'SELECT DISTINCT language FROM ' . self::USER_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USERS_GROUP_TABLE . ' AS ug ON id = ug.user_id';
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
+        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_adress IS NOT NULL';
+
+        if (!is_null($language)) {
+            $query .= ' AND language = \'' . $this->conn->db_real_escape_string($language) . '\'';
+        }
+
+        return $this->conn->db_query($query);
+    }
+
+    public function getUsersByLanguage(int $group_id, string $languages)
+    {
+        $query = 'SELECT u.username AS name, u.mail_address AS email FROM ' . self::USER_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USERS_GROUP_TABLE . ' AS ug ON id = ug.user_id';
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
+        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_address IS NOT NULL';
+        $query .= ' AND language  = \'' . $this->conn->db_real_escape_string($language) . '\'';
+
+        return $this->conn->db_query($query);
+    }
+
     public function updateUser(array $datas, int $user_id)
     {
         $this->conn->single_update(self::USERS_TABLE, $datas, ['id' => $user_id]);

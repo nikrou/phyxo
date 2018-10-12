@@ -61,6 +61,6 @@ class HistorySummaryRepository extends BaseRepository
 
     public function massInserts(array $fields, array $datas)
     {
-        $this->conn->mas_inserts(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
+        $this->conn->mass_inserts(self::HISTORY_SUMMARY_TABLE, $fields, $datas);
     }
 }

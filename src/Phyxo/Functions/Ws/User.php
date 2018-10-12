@@ -21,6 +21,7 @@ use App\Repository\GroupRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserInfosRepository;
 
 class User
 {
@@ -247,9 +248,8 @@ class User
 
         // an admin can't delete other admin/webmaster
         if ('admin' == $user['status']) {
-            $query = 'SELECT user_id ' . USER_INFOS_TABLE;
-            $query .= ' WHERE status ' . $conn->in(['webmaster', 'admin']);
-            $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
+            $result = (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
+            $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
         }
 
         // protect some users
@@ -344,9 +344,8 @@ class User
 
             // an admin can't change status of other admin/webmaster
             if ('admin' == $user['status']) {
-                $query = 'SELECT user_id ' . USER_INFOS_TABLE;
-                $query .= ' WHERE status ' . $conn->in(['webmaster', 'admin']);
-                $protected_users = array_merge($protected_users, $conn->query2array($query, null, 'user_id'));
+                (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
+                $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
             }
 
             // status update query is separated from the rest as not applying to the same
@@ -408,28 +407,11 @@ class User
         (new UserRepository($conn))->updateUser($updates, $params['user_id'][0]);
 
         if (isset($update_status) and count($params['user_id_for_status']) > 0) {
-            $query = 'UPDATE ' . USER_INFOS_TABLE;
-            $query .= ' SET status = \'' . $conn->db_real_escape_string($update_status) . '\'';
-            $query .= ' WHERE user_id ' . $conn->in($params['user_id_for_status']);
-            $conn->db_query($query);
+            (new UserInfosRepository($conn))->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 
         if (count($updates_infos) > 0) {
-            $query = 'UPDATE ' . USER_INFOS_TABLE;
-            $query .= ' SET ';
-
-            $first = true;
-            foreach ($updates_infos as $field => $value) {
-                if (!$first) {
-                    $query .= ', ';
-                } else {
-                    $first = false;
-                }
-                $query .= $field . '=\'' . $value . '\'';
-            }
-
-            $query .= ' WHERE user_id ' . $conn->in($params['user_id']);
-            $conn->db_query($query);
+            (new UserInfosRepository($conn))->updateFieldsForUsers($updates_infos, $params['user_id']);
         }
 
         // manage association to groups

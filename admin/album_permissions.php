@@ -211,7 +211,7 @@ if (count($group_granted_ids) > 0) {
 // |                           sending html code                           |
 // +-----------------------------------------------------------------------+
 $template->assign([
-    ' PWG_TOKEN ' => \Phyxo\Functions\Utils::get_token(),
-    ' INHERIT ' => $conf['inheritance_by_default'],
-    ' CACHE_KEYS ' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['groups', 'users']),
+    'PWG_TOKEN' => \Phyxo\Functions\Utils::get_token(),
+    'INHERIT' => $conf['inheritance_by_default'],
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['groups', 'users']),
 ]);

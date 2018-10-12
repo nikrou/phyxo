@@ -13,6 +13,9 @@ namespace Phyxo\Functions;
 
 use App\Repository\UpgradeRepository;
 use App\Repository\UserRepository;
+use App\Repository\PluginRepository;
+use App\Repository\ThemeRepository;
+use App\Repository\UserInfosRepository;
 
 class Upgrade
 {
@@ -32,20 +35,14 @@ class Upgrade
 
         $standard_plugins = [];
 
-        $query = 'SELECT id FROM ' . PREFIX_TABLE . 'plugins WHERE state = \'active\'';
-        $query .= ' AND id NOT ' . $conn->in($standard_plugins);
-
-        $result = $conn->db_query($query);
+        $result = (new PluginRepository($conn))->findByStateAndExcludeIds($standard_plugins);
         $plugins = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $plugins[] = $row['id'];
         }
 
         if (!empty($plugins)) {
-            $query = 'UPDATE ' . PREFIX_TABLE . 'plugins SET state=\'inactive\'';
-            $query .= ' WHERE id ' . $conn->in($plugins);
-            $conn->db_query($query);
-
+            (new PluginRepository($conn))->deactivateIds($plugins);
             $page['infos'][] = \Phyxo\Functions\Language::l10n('As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:') . '<p><i>' . implode(', ', $plugins) . '</i></p>';
         }
     }
@@ -57,8 +54,7 @@ class Upgrade
 
         $standard_themes = ['elegant'];
 
-        $query = 'SELECT id,name  FROM ' . PREFIX_TABLE . 'themes';
-        $query .= ' WHERE id NOT ' . $conn->in($standard_themes);
+        $result = (new ThemeRepository($conn))->findExcept($standard_themes);
         $result = $conn->db_query($query);
         $theme_ids = [];
         $theme_names = [];
@@ -69,21 +65,17 @@ class Upgrade
         }
 
         if (!empty($theme_ids)) {
-            $query = 'DELETE FROM ' . PREFIX_TABLE . 'themes WHERE id ' . $conn->in($theme_ids);
-            $conn->db_query($query);
+            (new ThemeRepository($conn))->deleteByIds($theme_ids);
 
             $page['infos'][] = \Phyxo\Functions\Language::l10n('As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:') . '<p><i>' . implode(', ', $theme_names) . '</i></p>';
 
             // what is the default theme?
-            $query = 'SELECT theme FROM ' . PREFIX_TABLE . 'user_infos';
-            $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($conf['default_user_id']);
-            list($default_theme) = $conn->db_fetch_row($conn->db_query($query));
+            $result = (new UserInfosRepository($conn))->findByUserId($conf['default_user_id']);
+            $user_infos = $conn->db_fetch_assoc($result);
 
             // if the default theme has just been deactivated, let's set another core theme as default
-            if (in_array($default_theme, $theme_ids)) {
-                $query = 'UPDATE ' . PREFIX_TABLE . 'user_infos';
-                $query .= ' SET theme = \'elegant\' WHERE user_id = ' . $conn->db_real_escape_string($conf['default_user_id']);
-                $conn->db_query($query);
+            if (in_array($user_infos['theme'], $theme_ids)) {
+                (new UserInfosRepository($conn))->updateUserInfos(['theme' => 'elegant'], $conf['default_user_id']);
             }
         }
     }
@@ -97,9 +89,7 @@ class Upgrade
             // Check if user is already connected as webmaster
             session_start();
             if (!empty($_SESSION['pwg_uid'])) {
-                $query = 'SELECT status FROM ' . USER_INFOS_TABLE;
-                $query .= ' WHERE user_id = ' . $conn->db_real_escape_string($_SESSION['pwg_uid']);
-                $result = $conn->db_query($query);
+                $result = (new UserInfosRepository($conn))->findByUserId($_SESSION['pwg_uid']);
                 $row = $conn->db_fetch_assoc($result);
                 if (isset($row['status']) and $row['status'] == 'webmaster') {
                     define('PHPWG_IN_UPGRADE', true);

@@ -23,6 +23,15 @@ class PluginRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findByStateAndExcludeIds(string $status, array $plugin_ids)
+    {
+        $query = 'SELECT id, state, version FROM ' . self::PLUGINS_TABLE;
+        $query .= ' WHERE state = \'active\'';
+        $query .= ' AND id NOT ' . $this->conn->in($plugin_ids);
+
+        return $this->conn->db_query($query);
+    }
+
     public function addPlugin(string $id, string $version, string $state = 'inactive')
     {
         return $this->conn->single_insert(self::PLUGINS_TABLE, ['id' => $id, 'version' => $version, 'state' => $state], false);
@@ -31,6 +40,14 @@ class PluginRepository extends BaseRepository
     public function updatePlugin(array $datas, array $where)
     {
         $this->conn->single_update(self::PLUGINS_TABLE, $datas, $where);
+    }
+
+    public function deactivateIds(array $plugin_ids)
+    {
+        $query = 'UPDATE ' . self::PLUGINS_TABLE;
+        $query .= ' SET state=\'inactive\'';
+        $query .= ' WHERE id ' . $this->conn->in($plugin_ids);
+        $this->conn->db_query($query);
     }
 
     public function deletePlugin(string $plugin_id)

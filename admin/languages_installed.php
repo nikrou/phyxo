@@ -15,6 +15,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 
 use Phyxo\Language\Languages;
 use App\Repository\LanguageRepository;
+use App\Repository\UserInfosRepository;
 
 $languages = new Languages($conn);
 
@@ -72,10 +73,6 @@ $missing_language_ids = array_diff(
     array_keys($languages->getFsLanguages())
 );
 
-foreach ($missing_language_ids as $language_id) {
-    $query = 'UPDATE ' . USER_INFOS_TABLE . ' SET language = \'' . $services['users']->getDefaultLanguage() . '\'';
-    $query .= ' WHERE language = \'' . $language_id . '\';';
-    $conn->db_query($query);
-
-    (new LanguageRepository($conn))->deleteLanguage($language_id);
+if (count($missing_language_ids) > 0) {
+    (new UserInfosRepository($conn))->updateLanguageForLanguages($services['users']->getDefaultLanguage(), $missing_language_ids);
 }

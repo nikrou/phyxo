@@ -195,7 +195,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     }
 
     if (count($image_ids) > 0) {
-        $result = (new ImageRepository($conn))->findByIds(array_kets($image_ids));
+        $result = (new ImageRepository($conn))->findByIds(array_keys($image_ids));
         $image_infos = $conn->result2array($result, 'id');
     }
 
@@ -456,7 +456,7 @@ $template->assign(
 $result = (new UserRepository($conn))->findAll('ORDER BY username ASC');
 $template->assign(
     [
-        'user_options' => $conn->query2array($query, 'id', 'username'),
+        'user_options' => $conn->result2array($result, 'id', 'username'),
         'user_options_selected' => [@$form['user']]
     ]
 );
