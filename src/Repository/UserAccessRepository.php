@@ -13,12 +13,20 @@ namespace App\Repository;
 
 class UserAccessRepository extends BaseRepository
 {
+    public function findByUserId(int $user_id)
+    {
+        $query = 'SELECT user_id, cat_id FROM ' . self::USER_ACCESS_TABLE;
+        $query .= ' WHERE user_id = ' . $user_id;
+
+        return $this->conn->db_query($query);
+    }
+
     public function findByCatId(? int $cat_id = null)
     {
         $query = 'SELECT user_id, cat_id FROM ' . self::USER_ACCESS_TABLE;
 
         if (!is_null($cat_id)) {
-            $query .= ' WHERE cat_id = ' . $this->conn->db_real_escape_string($cat_id);
+            $query .= ' WHERE cat_id = ' . $cat_id;
         }
 
         return $this->conn->db_query($query);
@@ -27,7 +35,7 @@ class UserAccessRepository extends BaseRepository
     public function findFieldByCatId(int $cat_id, string $field)
     {
         $query = 'SELECT ' . $field . ' FROM ' . self::USER_ACCESS_TABLE;
-        $query .= ' WHERE cat_id = ' . $this->conn->db_real_escape_string($cat_id);
+        $query .= ' WHERE cat_id = ' . $cat_id;
 
         return $this->conn->db_query($query);
     }
@@ -74,6 +82,13 @@ class UserAccessRepository extends BaseRepository
         $query = 'DELETE FROM ' . self::USER_ACCESS_TABLE;
         $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
         $query .= ' AND cat_id ' . $this->conn->in($cat_ids);
+        $this->conn->db_query($query);
+    }
+
+    public function deleteByUserId(int $user_id)
+    {
+        $query = 'DELETE FROM ' . self::USER_ACCESS_TABLE;
+        $query .= ' WHERE user_id = ' . $user_id;
         $this->conn->db_query($query);
     }
 

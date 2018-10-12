@@ -11,6 +11,7 @@
 
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
+use App\Repository\UserAccessRepository;
 
 if (!defined('IN_ADMIN')) {
     die('Hacking attempt!');
@@ -36,12 +37,9 @@ if (isset($_GET['user_id']) and is_numeric($_GET['user_id'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 0) {
-    // if you forbid access to a category, all sub-categories become
-    // automatically forbidden
+    // if you forbid access to a category, all sub-categories become automatically forbidden
     $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
-    $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
-    $query .= ' WHERE user_id = ' . $page['user'] . ' AND cat_id ' . $conn->in($subcats);
-    $conn->db_query($query);
+    (new UserAccessRepository($conn))->deleteByUserIdsAndCatIds([$page['user']], $subcats);
 } elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     \Phyxo\Functions\Category::add_permission_on_category($_POST['cat_false'], $page['user']);
 }

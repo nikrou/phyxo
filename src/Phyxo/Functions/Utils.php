@@ -1371,8 +1371,6 @@ class Utils
         global $conf, $conn;
 
         $tables = [
-            // destruction of the access linked to the user
-            USER_ACCESS_TABLE,
             // destruction of the group links for this user
             USER_GROUP_TABLE,
         ];
@@ -1382,6 +1380,8 @@ class Utils
             $conn->db_query($query);
         }
 
+        // destruction of the access linked to the user
+        (new UserAccessRepository($conn))->deleteByUserId($user_id);
         // deletion of phyxo specific informations
         (new UserInfosRepository($conn))->deleteByUserId($user_id);
         // destruction of data notification by mail for this user

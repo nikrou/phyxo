@@ -14,6 +14,7 @@ use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserAccessRepository;
 
 if (!defined('ALBUM_BASE_URL')) {
     die("Hacking attempt!");
@@ -87,8 +88,8 @@ if (!empty($_POST)) {
         //
         // users
         //
-        $query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
-        $users_granted = $conn->query2array($query, null, 'user_id');
+        $result = (new UserAccessRepository($conn))->findByCatId($page['cat']);
+        $users_granted = $conn->result2array($result, null, 'user_id');
 
         if (!isset($_POST['users'])) {
             $_POST['users'] = [];
@@ -99,12 +100,8 @@ if (!empty($_POST)) {
         //
         $deny_users = array_diff($users_granted, $_POST['users']);
         if (count($deny_users) > 0) {
-            // if you forbid access to an album, all sub-album become automatically
-            // forbidden
-            $query = 'DELETE FROM ' . USER_ACCESS_TABLE;
-            $query .= ' WHERE user_id ' . $conn->in($deny_users);
-            $query .= ' AND cat_id ' . $conn->in((new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
-            $conn->db_query($query);
+            // if you forbid access to an album, all sub-album become automatically forbidden
+            (new UserAccessRepository($conn))->deleteByUserIdsAndCatIds($deny_users, (new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
         }
 
         //
@@ -159,8 +156,8 @@ $result = (new UserRepository($conn))->findAll();
 $users = $conn->result2array($result, 'id', 'username');
 $template->assign('users', $users);
 
-$query = 'SELECT user_id FROM ' . USER_ACCESS_TABLE . ' WHERE cat_id = ' . $conn->db_real_escape_string($page['cat']);
-$user_granted_direct_ids = $conn->query2array($query, null, 'user_id');
+(new UserAccessRepository($conn))->findByCatId($page['cat']);
+$user_granted_direct_ids = $conn->result2array($result, null, 'user_id');
 $template->assign('users_selected', $user_granted_direct_ids);
 
 $user_granted_indirect_ids = [];

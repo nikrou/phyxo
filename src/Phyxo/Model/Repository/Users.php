@@ -24,6 +24,7 @@ use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
+use App\Repository\UserAccessRepository;
 
 class Users
 {
@@ -861,8 +862,8 @@ class Users
         $private_array = $this->conn->result2array($result, null, 'id');
 
         // retrieve category ids directly authorized to the user
-        $query = 'SELECT cat_id FROM ' . USER_ACCESS_TABLE . ' WHERE user_id = ' . $user_id . ';';
-        $authorized_array = $this->conn->query2array($query, null, 'cat_id');
+        $result = (new UserAccessRepository($conn))->findByUserId($user_id);
+        $authorized_array = $this->conn->result2array($result, null, 'cat_id');
 
         $result = (new UserGroupRepository($this->conn))->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
         $authorized_array = array_merge($authorized_array, $this->conn->result2array($result, null, 'cat_id'));
