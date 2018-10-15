@@ -93,16 +93,18 @@ class RateRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function addRate(int $user_id, int $element_id, string $anonymous_id, int $rate, \DateTime $date)
+    public function addRate(int $user_id, int $element_id, string $anonymous_id, int $rate, $date)
     {
-        return $this->conn->single_insert(
+        $this->conn->single_insert(
+            self::RATE_TABLE,
             [
                 'user_id' => $user_id,
                 'element_id' => $element_id,
                 'anonymous_id' => $anonymous_id,
                 'rate' => $rate,
                 'date' => $date
-            ]
+            ],
+            $auto_increment_for_table = false
         );
     }
 

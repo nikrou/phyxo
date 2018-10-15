@@ -55,7 +55,7 @@ class ConfigRepository extends BaseRepository
         $query .= ' WHERE param = \'' . $this->conn->db_real_escape_string($param) . '\'';
 
         list($counter) = $this->conn->db_fetch_row($this->conn->db_query($query));
-        if ($counter === 0) {
+        if ($counter == 0) {
             $query = 'INSERT INTO ' . self::CONFIG_TABLE . ' (param, value)';
             $query .= ' VALUES(\'' . $this->conn->db_real_escape_string($param) . '\', \'' . $this->conn->db_real_escape_string($dbValue) . '\')';
             $this->conn->db_query($query);

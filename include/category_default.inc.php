@@ -56,7 +56,7 @@ if (count($pictures) > 0) {
 
     if ($conf['activate_comments'] and $user['show_nb_comments']) {
         $result = (new CommentRepository($conn))->countGroupByImage($selection);
-        $nb_comments_of = $conn->result2array($query, 'image_id', 'nb_comments');
+        $nb_comments_of = $conn->result2array($result, 'image_id', 'nb_comments');
     }
 }
 

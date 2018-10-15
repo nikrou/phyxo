@@ -208,7 +208,7 @@ class Themes extends Extensions
 
         // first we need to know which users are using the current default theme
         $default_theme = $services['users']->getDefaultTheme();
-        $result = (new UserInfosRepository($this->conn))->findByThemes($default_theme);
+        $result = (new UserInfosRepository($this->conn))->findByTheme($default_theme);
         $user_ids = array_unique(
             array_merge(
                 $this->conn->result2array($result, null, 'user_id'),

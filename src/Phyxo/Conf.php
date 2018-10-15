@@ -73,7 +73,7 @@ class Conf implements \ArrayAccess
      * @param string $param
      * @param string $value
      */
-    protected function addOrUpdateParam($param, $value)
+    public function addOrUpdateParam($param, $value)
     {
         (new ConfigRepository($this->conn))->addOrUpdateParam($param, $value);
 

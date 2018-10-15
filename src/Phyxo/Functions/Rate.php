@@ -65,7 +65,7 @@ class Rate
 
         (new RateRepository($conn))->deleteRate($user['id'], $image_id, $user_anonymous ? $anonymous_id : null);
 
-        (new RateRepository($conn))->addRate($user['id'], $image_id, $anonymous_id, $rate, new \DateTime());
+        (new RateRepository($conn))->addRate($user['id'], $image_id, $anonymous_id, $rate, 'now()');
 
         return self::update_rating_score($image_id);
     }

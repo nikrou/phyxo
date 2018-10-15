@@ -232,7 +232,7 @@ class Image
     {
         global $conf, $conn;
 
-        if ((new ImageRepository($conn))->isImageAuthorized($params['image_id'])) {
+        if (!(new ImageRepository($conn))->isImageAuthorized($params['image_id'])) {
             return new Error(404, 'Invalid image_id or access denied');
         }
         $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
