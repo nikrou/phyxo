@@ -220,34 +220,6 @@ class Utils
     }
 
     /**
-     * fill the current user caddie with given elements, if not already in caddie
-     *
-     * @param int[] $elements_id
-     */
-    public static function fill_caddie($elements_id)
-    {
-        global $user, $conn;
-
-        $result = (new CaddieRepository($conn))->getElements($user['id']);
-        $in_caddie = $conn->result2array($result, null, 'element_id');
-
-        $caddiables = array_diff($elements_id, $in_caddie);
-
-        $datas = [];
-
-        foreach ($caddiables as $caddiable) {
-            $datas[] = [
-                'element_id' => $caddiable,
-                'user_id' => $user['id'],
-            ];
-        }
-
-        if (count($caddiables) > 0) {
-            (new CaddieRepository($conn))->addElements(['element_id', 'user_id'], $datas);
-        }
-    }
-
-    /**
      * Returns webmaster mail address depending on $conf['webmaster_id']
      *
      * @return string
@@ -813,32 +785,6 @@ class Utils
     }
 
     /**
-     * Deletes favorites of the current user if he's not allowed to see them.
-     */
-    public static function check_user_favorites()
-    {
-        global $user, $conn;
-
-        if ($user['forbidden_categories'] == '') {
-            return;
-        }
-
-        // $filter['visible_categories'] and $filter['visible_images']
-        // must be not used because filter <> restriction
-        // retrieving images allowed : belonging to at least one authorized category
-        $result = (new FavoriteRepository($conn))->findUnauthorizedImagesInFavorite($user['id']);
-        $authorizeds = $conn->result2array($result, null, 'image_id');
-
-        $result = (new FavoriteRepository($conn))->findAll($user['id']);
-        $favorites = $conn->result2array($result, null, 'image_id');
-
-        $to_deletes = array_diff($favorites, $authorizeds);
-        if (count($to_deletes) > 0) {
-            (new FavoriteRepository($conn))->deleteImagesFromFavorite($to_deletes, $user['id']);
-        }
-    }
-
-    /**
      * Callback used for sorting by global_rank
      */
     public static function global_rank_compare($a, $b)
@@ -1370,18 +1316,9 @@ class Utils
     {
         global $conf, $conn;
 
-        $tables = [
-            // destruction of the group links for this user
-            USER_GROUP_TABLE,
-        ];
-
-        foreach ($tables as $table) {
-            $query = 'DELETE FROM ' . $table . ' WHERE user_id = ' . $user_id . ';';
-            $conn->db_query($query);
-        }
-
-        // destruction of the access linked to the user
-        (new UserAccessRepository($conn))->deleteByUserId($user_id);
+        // destruction of the group links for this user
+        (new UserGroupRepository($conn))->deleteByUserId($user_id);
+        // destruction of the access linked to the user(new UserAccessRepository($conn))->deleteByUserId($user_id);
         // deletion of phyxo specific informations
         (new UserInfosRepository($conn))->deleteByUserId($user_id);
         // destruction of data notification by mail for this user

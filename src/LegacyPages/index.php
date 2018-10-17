@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\CaddieRepository;
+
 //--------------------------------------------------------------------- include
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -68,7 +70,7 @@ $template->assign('thumb_navbar', $page['navigation_bar']);
 
 // caddie filling :-)
 if (isset($_GET['caddie'])) {
-    \Phyxo\Functions\Utils::fill_caddie($page['items']);
+    (new CaddieRepository($conn))->fillCaddie($user['id'], $page['items']);
     \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::duplicate_index_url());
 }
 

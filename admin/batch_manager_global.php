@@ -211,7 +211,7 @@ if (isset($_POST['submit'])) {
             }
         }
     } elseif ('add_to_caddie' == $action) {
-        \Phyxo\Functions\Utils::fill_caddie($collection);
+        (new CaddieRepository($conn))->fillCaddie($user['id'], $collection);
     } elseif ('delete' == $action) {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
             $deleted_count = \Phyxo\Functions\Utils::delete_elements($collection, true);

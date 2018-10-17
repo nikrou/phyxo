@@ -20,6 +20,7 @@ use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\UserAccessRepository;
+use App\Repository\CaddieRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -424,7 +425,7 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 
             // add new photos to caddie
             if (isset($_POST['add_to_caddie']) and $_POST['add_to_caddie'] == 1) {
-                \Phyxo\Functions\Utils::fill_caddie($caddiables);
+                (new CaddieRepository($conn))->fillCaddie($user['id'], $caddiables);
             }
         }
         $counts['new_elements'] = count($inserts);

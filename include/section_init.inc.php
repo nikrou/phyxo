@@ -15,6 +15,7 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
+use App\Repository\CaddieRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -281,7 +282,9 @@ if ('categories' == $page['section']) {
         // +-----------------------------------------------------------------------+
         // |                           favorite section                            |
         // +-----------------------------------------------------------------------+
-        \Phyxo\Functions\Utils::check_user_favorites();
+        if ($user['forbidden_categories']) {
+            (new FavoriteRepository($conn))->deleteUnauthorizedImagesFromFavorites($user['id']);
+        }
 
         $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Favorites')]);
 

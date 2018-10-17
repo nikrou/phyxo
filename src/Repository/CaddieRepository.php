@@ -29,6 +29,26 @@ class CaddieRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
+    public function fillCaddie(int $user_id, array $elements_id)
+    {
+        $result = $this->getElements($user_id);
+        $in_caddie = $this->conn->result2array($result, null, 'element_id');
+
+        $caddiables = array_diff($elements_id, $in_caddie);
+        $datas = [];
+
+        foreach ($caddiables as $caddiable) {
+            $datas[] = [
+                'element_id' => $caddiable,
+                'user_id' => $user_id,
+            ];
+        }
+
+        if (count($caddiables) > 0) {
+            (new CaddieRepository($conn))->addElements(['element_id', 'user_id'], $datas);
+        }
+    }
+
     public function deleteElements(array $elements, ? int $user_id = null)
     {
         $query = 'DELETE FROM ' . self::CADDIE_TABLE;

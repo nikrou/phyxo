@@ -86,6 +86,13 @@ class UserGroupRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
+    public function deleteByUserId(int $user_id)
+    {
+        $query = 'DELETE FROM ' . self::USER_GROUP_TABLE;
+        $query .= ' WHERE user_id = ' . $user_id;
+        $this->conn->db_query($query);
+    }
+
     public function deleteByUserIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::USER_GROUP_TABLE;

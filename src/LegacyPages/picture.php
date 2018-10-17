@@ -14,6 +14,7 @@ use App\Repository\FavoriteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\CaddieRepository;
 
 define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -243,7 +244,7 @@ if (isset($_GET['action'])) {
             }
         case 'add_to_caddie':
             {
-                \Phyxo\Functions\Utils::fill_caddie([$page['image_id']]);
+                (new CaddieRepository($conn))->fillCaddie($user['id'], [$page['image_id']]);
                 \Phyxo\Functions\Utils::redirect($url_self);
                 break;
             }
