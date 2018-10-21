@@ -334,8 +334,8 @@
 			<input type="checkbox" name="filter_prefilter_use" class="useFilterCheckbox" {if isset($filter.prefilter)}checked="checked"{/if}>
 			{'Predefined filter'|translate}
 			<select class="custom-select" name="filter_prefilter">
-			    {foreach from=$prefilters item=prefilter}
-				<option value="{$prefilter.ID}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
+			    {foreach $prefilters as $prefilter}
+				<option value="{$prefilter.id}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.id}selected="selected"{/if}>{$prefilter.name}</option>
 			    {/foreach}
 			</select>
 			<a id="empty_caddie" href="./index.php?page=batch_manager&amp;action=empty_caddie"

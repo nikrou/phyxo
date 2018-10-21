@@ -1,8 +1,7 @@
 {extends file="__layout.tpl"}
 
-{block name="head_scripts"}
-    {$smarty.block.parent}
-    {combine_script id='jquery-install' path='admin/theme/js/install.js'}
+{block name="head_assets" append}
+    <script src="./admin/theme/js/install.js"></script>
 {/block}
 
 {block name="header"}{/block}

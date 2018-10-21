@@ -1,15 +1,15 @@
 {extends file="__layout.tpl"}
 
-{block name="content"}
-    {combine_script id="jquery.cluetip" load="async" require="jquery" path="admin/theme/js/plugins/jquery.cluetip.js"}
-    {combine_script id="intro" require="jquery" path="admin/theme/js/intro.js"}
-
-    {footer_script require="jquery.cluetip"}
+{block name="footer_assets" append}
+    <script src="./theme/js/intro.js"></script>
+    <script>
     var phyxo_need_update_msg = '<a href="./index.php?page=updates">{'A new version of Phyxo is available.'|translate|@escape:"javascript"}</a>';
     var ext_need_update_msg = '<a href="./index.php?page=updates&amp;tab=ext">{'Some upgrades are available for extensions.'|translate|@escape:"javascript"}</a>';
-    var phyxo_is_uptodate_msg = "{'You are running the latest version of Phyxo.'|translate}";
-    {/footer_script}
+	var phyxo_is_uptodate_msg = "{'You are running the latest version of Phyxo.'|translate}";
+    </script>
+{/block}
 
+{block name="content"}
     <h2>{'Phyxo Administration'|translate}</h2>
     <dl style="padding-top: 30px;">
 	<dt>{'Phyxo version'|translate}</dt>
@@ -54,7 +54,7 @@
 	</dd>
     </dl>
 
-    {if $ENABLE_SYNCHRONIZATION}
+    {* if $ENABLE_SYNCHRONIZATION}
 	<form name="QuickSynchro" action="{$U_CAT_UPDATE}" method="post" id="QuickSynchro" style="display: block; text-align:right;">
 	    <div>
 		<input type="hidden" name="sync" value="files" checked="checked">
@@ -70,5 +70,5 @@
 		<input type="submit" value="{'Quick Local Synchronization'|translate}" name="submit">
 	    </div>
 	</form>
-    {/if}
+    {/if *}
 {/block}

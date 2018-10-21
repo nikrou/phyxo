@@ -20,9 +20,9 @@
 	    {/foreach}
 	{/if}
 
-	{block name="head_scripts"}
-	    {combine_script id='jquery' path='admin/theme/js/jquery/jquery.js'}
-	    {combine_script id='jquery.migrate' path='admin/theme/js/jquery/jquery-migrate-1.2.1.js'}
+	{block name="head_assets"}
+	    <script src="./theme/js/jquery/jquery.js"></script>
+	    <script src="./theme/js/jquery/jquery-migrate-1.2.1.js"></script>
 	{/block}
     </head>
     <body>
@@ -162,6 +162,8 @@
 	{get_combined_scripts load='footer'}
 	<!-- END get_combined -->
 
-	<script src="{asset manifest='../../admin/theme/build/build/manifest.json' src='app.js'}"></script>
+	{block name="footer_assets"}
+	    <script src="{asset manifest='../../admin/theme/build/build/manifest.json' src='app.js'}"></script>
+	{/block}
     </body>
 </html>

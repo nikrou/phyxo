@@ -1,9 +1,4 @@
 $(function() {
-    $('.cluetip').cluetip({
-	width: 300,
-	splitTitle: '|',
-	positionBy: 'bottomTop'
-    });
     $('#check-upgrade').click(function(e) {
 	$.ajax({
 	    type: 'GET',
