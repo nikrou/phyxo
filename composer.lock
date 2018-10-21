@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "abd1bf07beae05b29ec5014de5419a7f",
+    "content-hash": "f051b76f5ab028120e4676f4f998675f",
     "packages": [
         {
             "name": "doctrine/lexer",
@@ -339,56 +339,6 @@
                 "password"
             ],
             "time": "2014-11-20T16:49:30+00:00"
-        },
-        {
-            "name": "jdorn/sql-formatter",
-            "version": "v1.2.17",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jdorn/sql-formatter.git",
-                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jdorn/sql-formatter/zipball/64990d96e0959dff8e059dfcdc1af130728d92bc",
-                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2.4"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "lib"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jeremy Dorn",
-                    "email": "jeremy@jeremydorn.com",
-                    "homepage": "http://jeremydorn.com/"
-                }
-            ],
-            "description": "a PHP SQL highlighting library",
-            "homepage": "https://github.com/jdorn/sql-formatter/",
-            "keywords": [
-                "highlight",
-                "sql"
-            ],
-            "time": "2014-01-12T16:20:24+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2052,89 +2002,6 @@
             "time": "2018-08-06T14:22:27+00:00"
         },
         {
-            "name": "symfony/polyfill-php72",
-            "version": "v1.9.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-php72.git",
-                "reference": "95c50420b0baed23852452a7f0c7b527303ed5ae"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/95c50420b0baed23852452a7f0c7b527303ed5ae",
-                "reference": "95c50420b0baed23852452a7f0c7b527303ed5ae",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.9-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Php72\\": ""
-                },
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill backporting some PHP 7.2+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "time": "2018-08-06T14:22:27+00:00"
-        },
-        {
-            "name": "symfony/profiler-pack",
-            "version": "v1.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/profiler-pack.git",
-                "reference": "fa2e2dad522a3bef322196abad28ffce6d0fdbc5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/profiler-pack/zipball/fa2e2dad522a3bef322196abad28ffce6d0fdbc5",
-                "reference": "fa2e2dad522a3bef322196abad28ffce6d0fdbc5",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.0",
-                "symfony/stopwatch": "^3.3|^4.0",
-                "symfony/twig-bundle": "^3.3|^4.0",
-                "symfony/web-profiler-bundle": "^3.3|^4.0"
-            },
-            "type": "symfony-pack",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "A pack for the Symfony web profiler",
-            "time": "2017-12-12T01:48:24+00:00"
-        },
-        {
             "name": "symfony/routing",
             "version": "v4.1.6",
             "source": {
@@ -2209,55 +2076,6 @@
                 "uri",
                 "url"
             ],
-            "time": "2018-10-02T12:40:59+00:00"
-        },
-        {
-            "name": "symfony/stopwatch",
-            "version": "v4.1.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/stopwatch.git",
-                "reference": "5bfc064125b73ff81229e19381ce1c34d3416f4b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/5bfc064125b73ff81229e19381ce1c34d3416f4b",
-                "reference": "5bfc064125b73ff81229e19381ce1c34d3416f4b",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Stopwatch\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony Stopwatch Component",
-            "homepage": "https://symfony.com",
             "time": "2018-10-02T12:40:59+00:00"
         },
         {
@@ -2481,41 +2299,32 @@
             "time": "2018-09-30T03:38:13+00:00"
         },
         {
-            "name": "symfony/var-dumper",
+            "name": "symfony/yaml",
             "version": "v4.1.6",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "60319b45653580b0cdacca499344577d87732f16"
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/60319b45653580b0cdacca499344577d87732f16",
-                "reference": "60319b45653580b0cdacca499344577d87732f16",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/367e689b2fdc19965be435337b50bc8adf2746c9",
+                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1.3",
-                "symfony/polyfill-mbstring": "~1.0",
-                "symfony/polyfill-php72": "~1.5"
+                "symfony/polyfill-ctype": "~1.8"
             },
             "conflict": {
-                "phpunit/phpunit": "<4.8.35|<5.4.3,>=5.0",
                 "symfony/console": "<3.4"
             },
             "require-dev": {
-                "ext-iconv": "*",
-                "symfony/process": "~3.4|~4.0",
-                "twig/twig": "~1.34|~2.4"
+                "symfony/console": "~3.4|~4.0"
             },
             "suggest": {
-                "ext-iconv": "To convert non-UTF-8 strings to UTF-8 (or symfony/polyfill-iconv in case ext-iconv cannot be used).",
-                "ext-intl": "To show region name in time zone dump",
-                "symfony/console": "To use the ServerDumpCommand and/or the bin/var-dump-server script"
+                "symfony/console": "For validating YAML files using the lint command"
             },
-            "bin": [
-                "Resources/bin/var-dump-server"
-            ],
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2523,81 +2332,8 @@
                 }
             },
             "autoload": {
-                "files": [
-                    "Resources/functions/dump.php"
-                ],
                 "psr-4": {
-                    "Symfony\\Component\\VarDumper\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony mechanism for exploring and dumping PHP variables",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "debug",
-                "dump"
-            ],
-            "time": "2018-10-02T16:36:10+00:00"
-        },
-        {
-            "name": "symfony/web-profiler-bundle",
-            "version": "v4.1.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/web-profiler-bundle.git",
-                "reference": "17fed79cdbc4649ea59297e6ca7aa8e89182c3c1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/17fed79cdbc4649ea59297e6ca7aa8e89182c3c1",
-                "reference": "17fed79cdbc4649ea59297e6ca7aa8e89182c3c1",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3",
-                "symfony/http-kernel": "~4.1",
-                "symfony/routing": "~3.4|~4.0",
-                "symfony/twig-bridge": "~3.4|~4.0",
-                "symfony/var-dumper": "~3.4|~4.0",
-                "twig/twig": "~1.34|~2.4"
-            },
-            "conflict": {
-                "symfony/config": "<3.4",
-                "symfony/dependency-injection": "<3.4",
-                "symfony/event-dispatcher": "<3.4",
-                "symfony/var-dumper": "<3.4"
-            },
-            "require-dev": {
-                "symfony/config": "~3.4|~4.0",
-                "symfony/console": "~3.4|~4.0",
-                "symfony/dependency-injection": "~3.4|~4.0",
-                "symfony/stopwatch": "~3.4|~4.0"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.1-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Bundle\\WebProfilerBundle\\": ""
+                    "Symfony\\Component\\Yaml\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -2617,9 +2353,9 @@
                     "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Symfony WebProfilerBundle",
+            "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-09-30T03:38:13+00:00"
+            "time": "2018-10-02T16:36:10+00:00"
         },
         {
             "name": "tedivm/jshrink",
@@ -2988,12 +2724,6 @@
             ],
             "authors": [
                 {
-                    "name": "Johannes Schmitt",
-                    "email": "schmittjoh@gmail.com",
-                    "homepage": "https://github.com/schmittjoh",
-                    "role": "Developer of wrapped JMSSerializerBundle"
-                },
-                {
                     "name": "Konstantin Kudryashov",
                     "email": "ever.zet@gmail.com",
                     "homepage": "http://everzet.com"
@@ -3007,6 +2737,11 @@
                     "name": "Geoffrey Bachelet",
                     "email": "geoffrey.bachelet@gmail.com",
                     "homepage": "https://github.com/ubermuda"
+                },
+                {
+                    "name": "Johannes M. Schmitt",
+                    "email": "schmittjoh@gmail.com",
+                    "homepage": "https://github.com/schmittjoh"
                 }
             ],
             "description": "Commonly used contexts for Behat",
@@ -3825,16 +3560,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v2.13.0",
+            "version": "v2.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/PHP-CS-Fixer.git",
-                "reference": "7136aa4e0c5f912e8af82383775460d906168a10"
+                "reference": "54814c62d5beef3ba55297b9b3186ed8b8a1b161"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/7136aa4e0c5f912e8af82383775460d906168a10",
-                "reference": "7136aa4e0c5f912e8af82383775460d906168a10",
+                "url": "https://api.github.com/repos/FriendsOfPHP/PHP-CS-Fixer/zipball/54814c62d5beef3ba55297b9b3186ed8b8a1b161",
+                "reference": "54814c62d5beef3ba55297b9b3186ed8b8a1b161",
                 "shasum": ""
             },
             "require": {
@@ -3845,7 +3580,7 @@
                 "ext-tokenizer": "*",
                 "php": "^5.6 || >=7.0 <7.3",
                 "php-cs-fixer/diff": "^1.3",
-                "symfony/console": "^3.2 || ^4.0",
+                "symfony/console": "^3.4.17 || ^4.1.6",
                 "symfony/event-dispatcher": "^3.0 || ^4.0",
                 "symfony/filesystem": "^3.0 || ^4.0",
                 "symfony/finder": "^3.0 || ^4.0",
@@ -3881,11 +3616,6 @@
                 "php-cs-fixer"
             ],
             "type": "application",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.13-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "PhpCsFixer\\": "src/"
@@ -3917,7 +3647,7 @@
                 }
             ],
             "description": "A tool to automatically fix PHP code style",
-            "time": "2018-08-23T13:15:44+00:00"
+            "time": "2018-10-21T00:32:10+00:00"
         },
         {
             "name": "instaclick/php-webdriver",
@@ -3977,6 +3707,56 @@
                 "webtest"
             ],
             "time": "2017-06-30T04:02:48+00:00"
+        },
+        {
+            "name": "jdorn/sql-formatter",
+            "version": "v1.2.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jdorn/sql-formatter.git",
+                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jdorn/sql-formatter/zipball/64990d96e0959dff8e059dfcdc1af130728d92bc",
+                "reference": "64990d96e0959dff8e059dfcdc1af130728d92bc",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "lib"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Dorn",
+                    "email": "jeremy@jeremydorn.com",
+                    "homepage": "http://jeremydorn.com/"
+                }
+            ],
+            "description": "a PHP SQL highlighting library",
+            "homepage": "https://github.com/jdorn/sql-formatter/",
+            "keywords": [
+                "highlight",
+                "sql"
+            ],
+            "time": "2014-01-12T16:20:24+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -4043,162 +3823,6 @@
                 "schema"
             ],
             "time": "2018-02-14T22:26:30+00:00"
-        },
-        {
-            "name": "muglug/package-versions-56",
-            "version": "1.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/muglug/PackageVersions.git",
-                "reference": "a67bed26deaaf9269a348e53063bc8d4dcc60ffd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/muglug/PackageVersions/zipball/a67bed26deaaf9269a348e53063bc8d4dcc60ffd",
-                "reference": "a67bed26deaaf9269a348e53063bc8d4dcc60ffd",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0",
-                "php": "^5.6 || ^7.0"
-            },
-            "require-dev": {
-                "composer/composer": "^1.3",
-                "ext-zip": "*",
-                "phpunit/phpunit": "^5.7.5"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Muglug\\PackageVersions\\Installer",
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Muglug\\PackageVersions\\": "src/PackageVersions"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com"
-                },
-                {
-                    "name": "Abdul Malik Ikhsan",
-                    "email": "samsonasik@gmail.com"
-                },
-                {
-                    "name": "Matt Brown",
-                    "email": "github@muglug.com"
-                }
-            ],
-            "description": "A backport of ocramius/package-versions that supports php ^5.6. Composer plugin that provides efficient querying for installed package versions (no runtime IO)",
-            "time": "2018-03-26T03:22:13+00:00"
-        },
-        {
-            "name": "nikic/php-parser",
-            "version": "v3.1.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "bb87e28e7d7b8d9a7fda231d37457c9210faf6ce"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/bb87e28e7d7b8d9a7fda231d37457c9210faf6ce",
-                "reference": "bb87e28e7d7b8d9a7fda231d37457c9210faf6ce",
-                "shasum": ""
-            },
-            "require": {
-                "ext-tokenizer": "*",
-                "php": ">=5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0|~5.0"
-            },
-            "bin": [
-                "bin/php-parse"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PhpParser\\": "lib/PhpParser"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Popov"
-                }
-            ],
-            "description": "A PHP parser written in PHP",
-            "keywords": [
-                "parser",
-                "php"
-            ],
-            "time": "2018-02-28T20:30:58+00:00"
-        },
-        {
-            "name": "openlss/lib-array2xml",
-            "version": "0.5.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nullivex/lib-array2xml.git",
-                "reference": "c8b5998a342d7861f2e921403f44e0a2f3ef2be0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nullivex/lib-array2xml/zipball/c8b5998a342d7861f2e921403f44e0a2f3ef2be0",
-                "reference": "c8b5998a342d7861f2e921403f44e0a2f3ef2be0",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "LSS": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Bryan Tong",
-                    "email": "contact@nullivex.com",
-                    "homepage": "http://bryantong.com"
-                },
-                {
-                    "name": "Tony Butler",
-                    "email": "spudz76@gmail.com",
-                    "homepage": "http://openlss.org"
-                }
-            ],
-            "description": "Array2XML conversion library credit to lalit.org",
-            "homepage": "http://openlss.org",
-            "keywords": [
-                "array",
-                "array conversion",
-                "xml",
-                "xml conversion"
-            ],
-            "time": "2016-11-10T19:10:18+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -4759,6 +4383,61 @@
             "time": "2018-08-06T14:22:27+00:00"
         },
         {
+            "name": "symfony/polyfill-php72",
+            "version": "v1.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php72.git",
+                "reference": "95c50420b0baed23852452a7f0c7b527303ed5ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/95c50420b0baed23852452a7f0c7b527303ed5ae",
+                "reference": "95c50420b0baed23852452a7f0c7b527303ed5ae",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php72\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.2+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2018-08-06T14:22:27+00:00"
+        },
+        {
             "name": "symfony/process",
             "version": "v4.1.6",
             "source": {
@@ -4806,6 +4485,34 @@
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
             "time": "2018-10-02T12:40:59+00:00"
+        },
+        {
+            "name": "symfony/profiler-pack",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/profiler-pack.git",
+                "reference": "fa2e2dad522a3bef322196abad28ffce6d0fdbc5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/profiler-pack/zipball/fa2e2dad522a3bef322196abad28ffce6d0fdbc5",
+                "reference": "fa2e2dad522a3bef322196abad28ffce6d0fdbc5",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0",
+                "symfony/stopwatch": "^3.3|^4.0",
+                "symfony/twig-bundle": "^3.3|^4.0",
+                "symfony/web-profiler-bundle": "^3.3|^4.0"
+            },
+            "type": "symfony-pack",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A pack for the Symfony web profiler",
+            "time": "2017-12-12T01:48:24+00:00"
         },
         {
             "name": "symfony/property-access",
@@ -4872,6 +4579,55 @@
                 "property path",
                 "reflection"
             ],
+            "time": "2018-10-02T12:40:59+00:00"
+        },
+        {
+            "name": "symfony/stopwatch",
+            "version": "v4.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/stopwatch.git",
+                "reference": "5bfc064125b73ff81229e19381ce1c34d3416f4b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/5bfc064125b73ff81229e19381ce1c34d3416f4b",
+                "reference": "5bfc064125b73ff81229e19381ce1c34d3416f4b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Stopwatch\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Stopwatch Component",
+            "homepage": "https://symfony.com",
             "time": "2018-10-02T12:40:59+00:00"
         },
         {
@@ -4944,32 +4700,41 @@
             "time": "2018-10-02T16:36:10+00:00"
         },
         {
-            "name": "symfony/yaml",
+            "name": "symfony/var-dumper",
             "version": "v4.1.6",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/yaml.git",
-                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9"
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "60319b45653580b0cdacca499344577d87732f16"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/367e689b2fdc19965be435337b50bc8adf2746c9",
-                "reference": "367e689b2fdc19965be435337b50bc8adf2746c9",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/60319b45653580b0cdacca499344577d87732f16",
+                "reference": "60319b45653580b0cdacca499344577d87732f16",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1.3",
-                "symfony/polyfill-ctype": "~1.8"
+                "symfony/polyfill-mbstring": "~1.0",
+                "symfony/polyfill-php72": "~1.5"
             },
             "conflict": {
+                "phpunit/phpunit": "<4.8.35|<5.4.3,>=5.0",
                 "symfony/console": "<3.4"
             },
             "require-dev": {
-                "symfony/console": "~3.4|~4.0"
+                "ext-iconv": "*",
+                "symfony/process": "~3.4|~4.0",
+                "twig/twig": "~1.34|~2.4"
             },
             "suggest": {
-                "symfony/console": "For validating YAML files using the lint command"
+                "ext-iconv": "To convert non-UTF-8 strings to UTF-8 (or symfony/polyfill-iconv in case ext-iconv cannot be used).",
+                "ext-intl": "To show region name in time zone dump",
+                "symfony/console": "To use the ServerDumpCommand and/or the bin/var-dump-server script"
             },
+            "bin": [
+                "Resources/bin/var-dump-server"
+            ],
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -4977,8 +4742,81 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "Resources/functions/dump.php"
+                ],
                 "psr-4": {
-                    "Symfony\\Component\\Yaml\\": ""
+                    "Symfony\\Component\\VarDumper\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony mechanism for exploring and dumping PHP variables",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "debug",
+                "dump"
+            ],
+            "time": "2018-10-02T16:36:10+00:00"
+        },
+        {
+            "name": "symfony/web-profiler-bundle",
+            "version": "v4.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/web-profiler-bundle.git",
+                "reference": "17fed79cdbc4649ea59297e6ca7aa8e89182c3c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/web-profiler-bundle/zipball/17fed79cdbc4649ea59297e6ca7aa8e89182c3c1",
+                "reference": "17fed79cdbc4649ea59297e6ca7aa8e89182c3c1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/http-kernel": "~4.1",
+                "symfony/routing": "~3.4|~4.0",
+                "symfony/twig-bridge": "~3.4|~4.0",
+                "symfony/var-dumper": "~3.4|~4.0",
+                "twig/twig": "~1.34|~2.4"
+            },
+            "conflict": {
+                "symfony/config": "<3.4",
+                "symfony/dependency-injection": "<3.4",
+                "symfony/event-dispatcher": "<3.4",
+                "symfony/var-dumper": "<3.4"
+            },
+            "require-dev": {
+                "symfony/config": "~3.4|~4.0",
+                "symfony/console": "~3.4|~4.0",
+                "symfony/dependency-injection": "~3.4|~4.0",
+                "symfony/stopwatch": "~3.4|~4.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Bundle\\WebProfilerBundle\\": ""
                 },
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -4998,9 +4836,9 @@
                     "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Symfony Yaml Component",
+            "description": "Symfony WebProfilerBundle",
             "homepage": "https://symfony.com",
-            "time": "2018-10-02T16:36:10+00:00"
+            "time": "2018-09-30T03:38:13+00:00"
         },
         {
             "name": "textalk/websocket",
@@ -5040,73 +4878,6 @@
             ],
             "description": "WebSocket client and server",
             "time": "2015-10-09T07:32:42+00:00"
-        },
-        {
-            "name": "vimeo/psalm",
-            "version": "1.1.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vimeo/psalm.git",
-                "reference": "d15cf3b7f50249caf933144c8926c8e69aff3d34"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/d15cf3b7f50249caf933144c8926c8e69aff3d34",
-                "reference": "d15cf3b7f50249caf933144c8926c8e69aff3d34",
-                "shasum": ""
-            },
-            "require": {
-                "composer/xdebug-handler": "^1.1",
-                "muglug/package-versions-56": "1.2.4",
-                "nikic/php-parser": "^3.1",
-                "openlss/lib-array2xml": "^0.0.10||^0.5.1",
-                "php": "^5.6||^7.0",
-                "php-cs-fixer/diff": "^1.2"
-            },
-            "provide": {
-                "psalm/psalm": "self.version"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.2",
-                "php-coveralls/php-coveralls": "^2.0",
-                "phpunit/phpunit": "^5.7.4",
-                "squizlabs/php_codesniffer": "^3.0"
-            },
-            "suggest": {
-                "ext-igbinary": "^2.0.5"
-            },
-            "bin": [
-                "psalm",
-                "psalter"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.x-dev",
-                    "dev-1.x": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Psalm\\": "src/Psalm"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Matthew Brown"
-                }
-            ],
-            "description": "A static analysis tool for finding errors in PHP applications",
-            "keywords": [
-                "code",
-                "inspection",
-                "php"
-            ],
-            "time": "2018-08-14T16:06:16+00:00"
         }
     ],
     "aliases": [],

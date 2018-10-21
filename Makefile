@@ -18,7 +18,8 @@ config: clean
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -d $(DIST)/$(APP_NAME)
-	rm $(DIST)/$(APP_NAME)/composer.*
+	rm $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock
+	rm -fr $(DIST)/$(APP_NAME)/config/dev $(DIST)/$(APP_NAME)/config/test
 
 	# remove doc and useless stuff
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*'	\
@@ -33,9 +34,10 @@ config: clean
 		-o -path '*/examples/*'	| xargs rm -fr ; 	\
 
 	# empty dirs
-	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload \
-	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config \
-	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins
+	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload	\
+	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config	\
+	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins		\
+	$(DIST)/$(APP_NAME)/var/cache 	$(DIST)/$(APP_NAME)/var/log
 
 	# copy only distrib plugins and themes
 	cp -pr themes/default themes/legacy themes/elegant $(DIST)/$(APP_NAME)/themes/
