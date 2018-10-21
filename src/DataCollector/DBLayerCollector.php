@@ -26,6 +26,9 @@ class DBLayerCollector extends DataCollector
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
         $queries = $this->conn->getQueries();
+        foreach ($queries as &$query) {
+            $query['sql'] = \SqlFormatter::format($query['sql']);
+        }
 
         $this->data = [
             'queries' => $queries,

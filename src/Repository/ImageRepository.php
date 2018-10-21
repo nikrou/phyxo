@@ -242,9 +242,11 @@ class ImageRepository extends BaseRepository
 
     public function qsearchImages(array $where)
     {
-        $query = 'SELECT id from ' . self::IMAGES_TABLE . 'AS i';
+        $query = 'SELECT id from ' . self::IMAGES_TABLE . ' AS i';
         $query .= ' WHERE ';
-        $query = '(' . implode(' OR ', $where) . ')';
+        $query .= '(' . implode(' OR ', $where) . ')';
+
+        \App\Log::getInstance()->debug($query);
 
         return $this->conn->db_query($query);
     }
@@ -650,7 +652,7 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function deleteByElementId(array $ids)
+    public function deleteByElementIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE id ' . $this->conn->in($ids);

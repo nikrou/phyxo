@@ -25,7 +25,7 @@ use App\Repository\UserRepository;
 
 // represent
 $result = (new CategoryRepository($conn))->findByField('representative_picture_id', $_GET['image_id']);
-$represented_albums = $conn->result2array($result, 'id');
+$represented_albums = $conn->result2array($result, null, 'id');
 
 // +-----------------------------------------------------------------------+
 // |                             delete photo                              |

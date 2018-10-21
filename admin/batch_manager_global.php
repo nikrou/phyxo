@@ -434,7 +434,7 @@ if (count($page['cat_elements_id']) > 0) {
     $result = (new ImageRepository($conn))->findByImageIdsAndCategoryId(
         $page['cat_elements_id'],
         $_SESSION['bulk_manager_filter']['category'] ?? null,
-        $conf['order_by'],
+        $conf['order_by'] ?? '  ',
         $page['nb_images'],
         $page['start']
     );

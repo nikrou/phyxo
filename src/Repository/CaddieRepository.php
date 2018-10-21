@@ -45,7 +45,7 @@ class CaddieRepository extends BaseRepository
         }
 
         if (count($caddiables) > 0) {
-            (new CaddieRepository($conn))->addElements(['element_id', 'user_id'], $datas);
+            $this->addElements(['element_id', 'user_id'], $datas);
         }
     }
 

@@ -803,7 +803,7 @@ class Image
             $image_infos = $conn->db_fetch_assoc($result);
 
             $result = (new ImageCategoryRepository($conn))->countByCategory($params['category'][0]);
-            list(, $nb_photos) = $conn->db_fetch_assoc($result);
+            list(, $nb_photos) = $conn->db_fetch_row($result);
             $category_name = \Phyxo\Functions\Category::get_cat_display_name_from_id($params['category'][0], null);
 
             return [

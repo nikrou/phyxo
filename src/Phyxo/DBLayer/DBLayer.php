@@ -61,7 +61,7 @@ class DBLayer
         $query2show = false;
         if ($result != null) {
             $this_query = [
-                'sql' => \SqlFormatter::format($query),
+                'sql' => $query,
                 'time' => $query_time
             ];
             if (preg_match('/\s*SELECT\s+/i', $query)) {

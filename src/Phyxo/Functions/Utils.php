@@ -1295,7 +1295,7 @@ class Utils
 
         // are the photo used as category representant?
         $result = (new CategoryRepository($conn))->findRepresentants($ids);
-        $category_ids = $conn->query2array($query, null, 'id');
+        $category_ids = $conn->result2array($result, null, 'id');
         if (count($category_ids) > 0) {
             \Phyxo\Functions\Category::update_category($category_ids);
         }

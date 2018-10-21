@@ -360,7 +360,7 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
         $where_clause[] = 'width/height < ' . ($_SESSION['bulk_manager_filter']['dimension']['max_ratio'] + 0.01);
     }
 
-    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by']);
+    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by'] ?? '');
     $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 
