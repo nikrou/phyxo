@@ -23,10 +23,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
     && !isset($_SESSION['no_photo_yet'])) {  // temporary hide
 
     if ((new ImageRepository($conn))->count() === 0) {
-        // make sure we don't use the mobile theme, which is not compatible with
-        // the "no photo yet" feature
-        $template = new Phyxo\Template\Template(PHPWG_ROOT_PATH . 'themes', $user['theme']);
-
         if (isset($_GET['no_photo_yet'])) {
             if ('browse' == $_GET['no_photo_yet']) {
                 $_SESSION['no_photo_yet'] = 'browse';
@@ -41,7 +37,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
             }
         }
 
-        header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());
         $template->set_filenames(['no_photo_yet' => 'no_photo_yet.tpl']);
 
         if ($services['users']->isAdmin()) {
@@ -62,7 +57,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
                 ]
             );
         } else {
-
             $template->assign(
                 [
                     'step' => 1,
@@ -73,9 +67,6 @@ if (!(defined('IN_ADMIN') and IN_ADMIN)
         }
 
         \Phyxo\Functions\Plugin::trigger_notify('loc_end_no_photo_yet');
-
-        $template->parse('no_photo_yet');
-        exit();
     } else {
         $conf['no_photo_yet'] = false;
     }

@@ -139,7 +139,7 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getCategoryWithLastPhotoAdded() : int
+    public function getCategoryWithLastPhotoAdded() : ? int
     {
         $query = 'SELECT category_id FROM ' . self::IMAGE_CATEGORY_TABLE;
         $query .= ' ORDER BY image_id DESC LIMIT 1';

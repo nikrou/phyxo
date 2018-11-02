@@ -246,8 +246,6 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE ';
         $query .= '(' . implode(' OR ', $where) . ')';
 
-        \App\Log::getInstance()->debug($query);
-
         return $this->conn->db_query($query);
     }
 
@@ -623,7 +621,11 @@ class ImageRepository extends BaseRepository
         $result = $this->conn->db_query($query);
         $row = $this->conn->db_fetch_assoc($result);
 
-        return $row['max_date'];
+        if (empty($row['max_date'])) {
+            return '';
+        } else {
+            return $row['max_date'];
+        }
     }
 
     public function findMinDateAvailable() : string

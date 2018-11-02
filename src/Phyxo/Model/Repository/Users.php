@@ -310,6 +310,10 @@ class Users
 
         $result = (new UserRepository($this->conn))->findByUsername($username);
         $row = $this->conn->db_fetch_assoc($result);
+        if (empty($row)) {
+            return false;
+        }
+
         if ($this->passwordVerify($password, $row['password'], $row['id'])) {
             $this->logUser($row['id'], $remember_me);
             Plugin::trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes

@@ -152,7 +152,7 @@ class Upload
             }
 
             if (!isset($file_path)) {
-                throw new Exception('[' . __FUNCTION__ . '] this photo does not exist in the database');
+                throw new \Exception('[' . __FUNCTION__ . '] this photo does not exist in the database');
             }
 
             // delete all physical files related to the photo (thumbnail, web site, HD)
@@ -193,10 +193,10 @@ class Upload
                 if (in_array($original_extension, $conf['file_ext'])) {
                     $file_path .= $original_extension;
                 } else {
-                    throw new Exception('unexpected file type');
+                    throw new \Exception('unexpected file type');
                 }
             } else {
-                throw new Exception('forbidden file type');
+                throw new \Exception('forbidden file type');
             }
 
             self::prepare_directory($upload_dir);
@@ -405,7 +405,7 @@ class Upload
             umask(0000);
             $recursive = true;
             if (!@mkdir($directory, 0777, $recursive)) {
-                throw new Exception('[prepare_directory] cannot create directory "' . $directory . '"');
+                throw new \Exception('[prepare_directory] cannot create directory "' . $directory . '"');
             }
         }
 
@@ -414,7 +414,7 @@ class Upload
             @chmod($directory, 0777);
 
             if (!is_writable($directory)) {
-                throw new Exception('[prepare_directory] directory "' . $directory . '" has no write access');
+                throw new \Exception('[prepare_directory] directory "' . $directory . '" has no write access');
             }
         }
     }

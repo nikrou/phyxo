@@ -29,7 +29,7 @@ class LanguageRepository extends BaseRepository
     public function deleteLanguage(string $id)
     {
         $query = 'DELETE FROM ' . self::LANGUAGES_TABLE;
-        $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($language_id) . '\'';
+        $query .= ' WHERE id= \'' . $this->conn->db_real_escape_string($id) . '\'';
         $this->conn->db_query($query);
     }
 

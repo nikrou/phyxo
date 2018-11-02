@@ -337,11 +337,11 @@ class CategoryRepository extends BaseRepository
 
     public function findWithUserAccess(int $user_id, array $exclude_cats = [])
     {
-        $query_true = 'SELECT id, name, uppercats, global_rank FROM ' . self::CATEGORIES_TABLE;
-        $query_true .= ' LEFT JOIN ' . self::USER_ACCESS_TABLE . ' ON cat_id = id';
-        $query_true .= ' WHERE status = \'private\' AND user_id = ' . $user_id;
+        $query = 'SELECT id, name, uppercats, global_rank FROM ' . self::CATEGORIES_TABLE;
+        $query .= ' LEFT JOIN ' . self::USER_ACCESS_TABLE . ' ON cat_id = id';
+        $query .= ' WHERE status = \'private\' AND user_id = ' . $user_id;
         if (count($exclude_cats) > 0) {
-            $query_true .= ' AND cat_id NOT ' . $this->conn->in($exclude_cats);
+            $query .= ' AND cat_id NOT ' . $this->conn->in($exclude_cats);
         }
 
         return $this->conn->db_query($query);
@@ -371,7 +371,7 @@ class CategoryRepository extends BaseRepository
             } elseif (isset($value)) {
                 $query .= $separator . $key . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
             } else {
-                $query .= $separator . $key . ' IS NULL';
+                $query .= $separator . $key . ' = NULL';
             }
             $is_first = false;
         }

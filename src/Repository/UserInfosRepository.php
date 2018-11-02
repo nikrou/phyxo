@@ -136,7 +136,7 @@ class UserInfosRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
-    public function updateFielsdForUsers(array $fields, array $user_ids)
+    public function updateFieldsForUsers(array $fields, array $user_ids)
     {
         $query = 'UPDATE ' . self::USER_INFOS_TABLE;
         $query .= ' SET ';
@@ -151,7 +151,7 @@ class UserInfosRepository extends BaseRepository
             $query .= $field . '=\'' . $this->conn->db_real_escape_string($value) . '\'';
         }
 
-        $query .= ' WHERE user_id ' . $this->conn->in($params['user_id']);
+        $query .= ' WHERE user_id ' . $this->conn->in($user_ids);
         $this->conn->db_query($query);
     }
 

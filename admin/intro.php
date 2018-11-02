@@ -88,7 +88,7 @@ $template->assign(
         'PWG_VERSION' => PHPWG_VERSION,
         'OS' => PHP_OS,
         'PHP_VERSION' => phpversion(),
-        'DB_ENGINE' => $dblayers[$conf['dblayer']]['engine'],
+        'DB_ENGINE' => $dblayers[$conn->getLayer()]['engine'],
         'DB_VERSION' => $db_version,
         'DB_ELEMENTS' => \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $nb_elements),
         'DB_CATEGORIES' =>

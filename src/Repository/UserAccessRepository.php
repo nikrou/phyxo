@@ -57,12 +57,12 @@ class UserAccessRepository extends BaseRepository
 
     public function insertUserAccess(array $fields, array $datas)
     {
-        $this->conn->mass_insert(self::USER_ACCESS_TABLE, $fields, $datas);
+        $this->conn->mass_inserts(self::USER_ACCESS_TABLE, $fields, $datas);
     }
 
     public function massInserts(array $fields, array $datas)
     {
-        $this->conn->mass_insert(self::USER_ACCESS_TABLE, $fields, $datas);
+        $this->conn->mass_inserts(self::USER_ACCESS_TABLE, $fields, $datas);
     }
 
     public function deleteByCatIds(array $ids, string $condtion = '')

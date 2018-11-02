@@ -31,7 +31,7 @@ if (isset($_POST['submit_add'])) {
         }
     }
     if (count($page['errors']) == 0) {
-        (new GroupRepository($conn))->addGroup($_POST['groupname']);
+        (new GroupRepository($conn))->addGroup(['name' => $_POST['groupname']]);
 
         $page['infos'][] = \Phyxo\Functions\Language::l10n('group "%s" added', $_POST['groupname']);
     }
