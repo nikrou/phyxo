@@ -121,10 +121,16 @@ class User
             $params['display'] = [];
         }
 
+        $booleanFields = ['expand', 'show_nb_comments', 'show_nb_hits', 'enabled_high'];
+
         $users = [];
         $result = (new UserRepository($conn))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
         while ($row = $conn->db_fetch_assoc($result)) {
-            $row['id'] = intval($row['id']);
+            foreach ($booleanFields as $field) {
+                if (isset($row[$field])) {
+                    $row[$field] = $conn->get_boolean($row[$field]);
+                }
+            }
             $users[$row['id']] = $row;
         }
 
@@ -355,7 +361,7 @@ class User
             $update_status = $params['status'];
         }
 
-        if (!empty($params['level']) or @$params['level'] === 0) {
+        if (!empty($params['level']) || (isset($params['level']) && $params['level'] === 0)) {
             if (!in_array($params['level'], $conf['available_permission_levels'])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
             }
@@ -383,30 +389,30 @@ class User
             $updates_infos['nb_image_page'] = $params['nb_image_page'];
         }
 
-        if (!empty($params['recent_period']) || $params['recent_period'] === 0) {
+        if (!empty($params['recent_period']) || (isset($params['recent_period']) && $params['recent_period'] === 0)) {
             $updates_infos['recent_period'] = $params['recent_period'];
         }
 
-        if (!empty($params['expand']) || $params['expand'] === false) {
+        if (!empty($params['expand']) || (isset($params['expand']) && $params['expand'] === false)) {
             $updates_infos['expand'] = $conn->boolean_to_string($params['expand']);
         }
 
-        if (!empty($params['show_nb_comments']) || $params['show_nb_comments'] === false) {
+        if (!empty($params['show_nb_comments']) || (isset($params['show_nb_comments']) && $params['show_nb_comments'] === false)) {
             $updates_infos['show_nb_comments'] = $conn->boolean_to_string($params['show_nb_comments']);
         }
 
-        if (!empty($params['show_nb_hits']) || $params['show_nb_hits'] === false) {
+        if (!empty($params['show_nb_hits']) || (isset($params['show_nb_hits']) && $params['show_nb_hits'] === false)) {
             $updates_infos['show_nb_hits'] = $conn->boolean_to_string($params['show_nb_hits']);
         }
 
-        if (!empty($params['enabled_high']) || $params['enabled_high'] === false) {
+        if (!empty($params['enabled_high']) || (isset($params['enabled_high']) && $params['enabled_high'] === false)) {
             $updates_infos['enabled_high'] = $conn->boolean_to_string($params['enabled_high']);
         }
 
         // perform updates
         (new UserRepository($conn))->updateUser($updates, $params['user_id'][0]);
 
-        if (isset($update_status) and count($params['user_id_for_status']) > 0) {
+        if (isset($update_status) && count($params['user_id_for_status']) > 0) {
             (new UserInfosRepository($conn))->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 

@@ -50,11 +50,13 @@ config: clean
 
 admin_assets:;
 	cd $(DIST)/$(APP_NAME)/admin/theme ;	\
+	npm ci ;				\
 	npm run build ;				\
 	rm -fr src node_modules webpack.config.js package.json package-lock.json
 
 assets:;
 	cd $(DIST)/$(APP_NAME)/themes/treflez ;	\
+	npm ci ;				\
 	npm run build ;				\
 	rm -fr src node_modules webpack.config.js package.json package-lock.json
 

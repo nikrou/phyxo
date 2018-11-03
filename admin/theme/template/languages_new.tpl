@@ -6,17 +6,6 @@
 {/block}
 
 {block name="content"}
-    {combine_script id='jquery.cluetip' load='async' require='jquery' path='admin/theme/js/plugins/jquery.cluetip.js'}
-
-    {footer_script require='jquery.cluetip'}
-    jQuery().ready(function(){ldelim}
-    jQuery('.cluetip').cluetip({ldelim}
-    width: 300,
-    splitTitle: '|'
-    });
-    });
-   {/footer_script}
-
    {if !empty($languages)}
        <table class="table languages">
 	   <thead>
@@ -31,8 +20,8 @@
 	   <tbody>
 	       {foreach from=$languages item=language name=languages_loop}
 		   <tr class="language {if $smarty.foreach.languages_loop.index is odd}row1{else}row2{/if}">
-		       <td><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.EXT_DESC|@htmlspecialchars|@nl2br}">{$language.EXT_NAME}</a></td>
-		       <td><a href="{$language.EXT_URL}" class="externalLink cluetip" title="{$language.EXT_NAME}|{$language.VER_DESC|@htmlspecialchars|@nl2br}">{$language.VERSION}</a></td>
+		       <td><a href="{$language.EXT_URL}" class="externalLink" title="{$language.EXT_NAME}|{$language.EXT_DESC|@htmlspecialchars|@nl2br}">{$language.EXT_NAME}</a></td>
+		       <td><a href="{$language.EXT_URL}" class="externalLink" title="{$language.EXT_NAME}|{$language.VER_DESC|@htmlspecialchars|@nl2br}">{$language.VERSION}</a></td>
 		       <td>{$language.DATE}</td>
 		       <td>{$language.AUTHOR}</td>
 		       <td><a href="{$language.URL_INSTALL}">{'Install'|translate}</a>

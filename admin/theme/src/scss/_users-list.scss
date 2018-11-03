@@ -1,0 +1,24 @@
+@import '~datatables.net-bs4/css/dataTables.bootstrap4.css';
+@import '~selectize/dist/css/selectize.default.css';
+@import '~bootstrap-slider/src/sass/bootstrap-slider.scss';
+
+.table tbody tr.selected {
+    background-color: $pink;
+    color: $white;
+}
+
+.table tbody .details-control {
+    color: $blue;
+    cursor: pointer;
+}
+
+.slider label {
+    margin-right: 1em;
+}
+
+#users-list_wrapper {
+    .select-info {
+	display: block;
+    }
+
+}

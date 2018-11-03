@@ -26,10 +26,4 @@ $(function() {
 	});
 
 	checkOrderOptions();
-
-	$('.thumbnail').tipTip({
-		'delay' : 0,
-		'fadeIn' : 200,
-		'fadeOut' : 200
-	});
 });

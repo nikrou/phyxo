@@ -218,6 +218,7 @@ $lang['Most visited'] = 'Plus vues';
 $lang['N/A'] = 'non disponible';
 $lang['New on %s'] = 'Nouveau le %s';
 $lang['New password'] = 'Nouveau mot de passe';
+$lang['New username'] = "Nouveau nom d'utilisateur";
 $lang['Next'] = 'Suivante';
 $lang['no rate'] = 'pas de note';
 $lang['No'] = 'Non';

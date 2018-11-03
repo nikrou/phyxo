@@ -1,6 +1,7 @@
 import '../scss/style.scss';
 
 import 'bootstrap';
+import './users-list';
 
 $(function() {
     if (menuitem_active !== undefined) {

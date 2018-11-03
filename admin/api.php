@@ -5,7 +5,6 @@
     <title>Phyxo web API (web-services) explorer</title>
     <link type="text/css" rel="stylesheet" href="./css/api.css">
     <script src="./js/jquery.js"></script>
-    <script src="./js/jquery.tipTip.js"></script>
     <script src="./js/api.js"></script>
   </head>
   <body>

@@ -103,14 +103,24 @@ class GroupRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function searchByName(string $name, ? array $group_ids = [], string $order, int $limit, int $offset = 0)
+    public function searchByName(? string $name = null, ? array $group_ids = [], string $order, int $limit, int $offset = 0)
     {
-        $query = 'SELECT g.id, g.name, g.is_defaut, g.lastmodified, COUNT(user_id) AS nb_users FROM ' . self::GROUPS_TABLE . ' AS g';
+        $query = 'SELECT g.id, g.name, g.is_default, g.lastmodified, COUNT(user_id) AS nb_users FROM ' . self::GROUPS_TABLE . ' AS g';
         $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON ug.group_id = g.id';
-        $query .= ' WHERE LOWER(name) LIKE \'' . $this->conn->db_real_escape_string($name) . '\'';
+
+        if (!is_null($name) || count($group_ids) > 0) {
+            $query .= ' WHERE';
+        }
+
+        if (!is_null($name)) {
+            $query .= ' LOWER(name) LIKE \'' . $this->conn->db_real_escape_string($name) . '\'';
+        }
 
         if (count($group_ids) > 0) {
-            $query .= ' AND id ' . $this->conn->in($group_ids);
+            if (!is_null($name)) {
+                $query .= ' AND ';
+            }
+            $query .= ' id ' . $this->conn->in($group_ids);
         }
 
         $query .= ' GROUP BY id';

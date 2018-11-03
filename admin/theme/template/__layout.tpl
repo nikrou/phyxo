@@ -7,6 +7,7 @@
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
 	<link rel="stylesheet" href="{asset manifest='../../admin/theme/build/manifest.json' src='app.css'}">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<!-- BEGIN get_combined -->
 	{get_combined_css}

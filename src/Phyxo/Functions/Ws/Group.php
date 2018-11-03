@@ -32,13 +32,13 @@ class Group
     {
         global $conn;
 
-        $result = (new GroupRepository(
-            $params['name'],
+        $result = (new GroupRepository($conn))->searchByName(
+            $params['name'] ?? null,
             $params['group_id'] ?? [],
             $params['order'],
             $params['per_page'],
             $params['per_page'] * $params['page']
-        ));
+        );
         $groups = $conn->result2array($result);
 
         return [

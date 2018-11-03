@@ -108,10 +108,10 @@ const MAIN_CONFIG = merge([
 		writeToFileEmit: true,
 	    }),
 	    new webpack.ProvidePlugin({
-		/* $: 'jquery',
-		   jQuery: 'jquery',
-		   'window.jQuery': 'jquery',
-		   'window.$': 'jquery',*/
+		$: 'jquery',
+		jQuery: 'jquery',
+		'window.jQuery': 'jquery',
+		'window.$': 'jquery',
 		Popper: ['popper.js', 'default'],
 	    }),
 	    new webpack.DefinePlugin({
