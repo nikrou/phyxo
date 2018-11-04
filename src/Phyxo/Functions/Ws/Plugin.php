@@ -56,8 +56,6 @@ class Plugin
      */
     public static function performAction($params, $service)
     {
-        global $template;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
@@ -69,11 +67,6 @@ class Plugin
 
         if (!empty($errors)) {
             return new Error(500, $errors);
-        } else {
-            if (in_array($params['action'], ['activate', 'deactivate'])) {
-                $template->delete_compiled_templates();
-            }
-            return true;
         }
     }
 }

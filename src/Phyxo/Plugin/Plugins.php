@@ -1,13 +1,13 @@
 <?php
-    /*
-     * This file is part of Phyxo package
-     *
-     * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-     * Licensed under the GPL version 2.0 license.
-     *
-     * For the full copyright and license information, please view the LICENSE
-     * file that was distributed with this source code.
-     */
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Plugin;
 
@@ -116,14 +116,10 @@ class Plugins extends Extensions
             case 'activate':
                 if (!isset($crt_db_plugin)) {
                     $errors = $this->performAction('install', $plugin_id);
-                    list($crt_db_plugin) = $this->getDbPlugins(null, $plugin_id);
+                    $this->getDbPlugins(null, $plugin_id);
                     $conf->loadFromDB();
                 } elseif ($crt_db_plugin['state'] == 'active') {
                     break;
-                }
-
-                if (empty($errors)) {
-                    $plugin_maintain->activate($crt_db_plugin['version'], $errors);
                 }
 
                 if (empty($errors)) {
@@ -263,7 +259,7 @@ class Plugins extends Extensions
         }
 
         if (!empty($id)) {
-            return $this->db_plugins[$id] ?? $this->db_plugins[$id];
+            return isset($this->db_plugins[$id]) ? $this->db_plugins[$id] : [];
         } else {
             return $this->db_plugins;
         }
