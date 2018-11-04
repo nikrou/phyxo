@@ -56,9 +56,7 @@
     {combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
 
     <div id="photosAddContent">
-
 	<div class="infos" style="display:none"></div>
-
 	<p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="">{'Add another set of photos'|translate}</a></p>
 
 	{if count($setup_errors) > 0}
@@ -89,7 +87,7 @@
 
 		    <span id="albumSelection" style="display:none">
 			<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
-						data-default="first" name="category" style="width:600px"></select>
+						data-default="first" name="category"></select>
 			<br>{'... or '|translate}</span>
 			<button class="btn btn-sm btn-submit" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</button>
 		</div>

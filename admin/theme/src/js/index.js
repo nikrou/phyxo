@@ -4,6 +4,10 @@ import 'bootstrap';
 import './users-list';
 
 $(function() {
+    $('#sidebarCollapse').on('click', function () {
+        $('#sidebar').toggleClass('active');
+    });
+
     if (menuitem_active !== undefined) {
         $('aside[role="navigation"] a[href="' + menuitem_active + '"]')
             .addClass('show')

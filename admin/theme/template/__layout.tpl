@@ -5,15 +5,11 @@
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-
 	<link rel="stylesheet" href="{asset manifest='../../admin/theme/build/manifest.json' src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-	<!-- BEGIN get_combined -->
 	{get_combined_css}
-
 	{get_combined_scripts load='header'}
-	<!-- END get_combined -->
 
 	{if not empty($head_elements)}
 	    {foreach $head_elements as $elt}
@@ -29,12 +25,13 @@
     <body>
 	{block name="header"}
 	    <header>
-		<nav class="navbar navbar-expand-md navbar-dark">
+		<nav class="navbar navbar-expand-lg navbar-dark">
+		    <a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
 		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
-			<span class="navbar-toggler-icon"></span>
+			<i class="fa fa-align-justify"></i>
 		    </button>
+
 		    <div class="collapse navbar-collapse" id="navbarCollapse">
-			<a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
 			<ul class="navbar-nav ml-auto">
 			    <li class="nav-item"><a class="nav-link" href="{$U_RETURN}"><i class="fa fa-eye"></i> {'Visit Gallery'|translate}</a></li>
 			    <li class="nav-item"><a class="nav-link" href="{$U_LOGOUT}"><i class="fa fa-sign-out"></i> {'Logout'|translate}  ({$USERNAME})</a></li>
@@ -42,7 +39,7 @@
 		    </div>
 		</nav>
 
-		{if !empty($header_msgs)}
+	    	{if !empty($header_msgs)}
 		    <div class="alert alert-dark" role="alert">
 			{foreach $header_msgs as $elt}
 			    {$elt}
@@ -63,6 +60,13 @@
 	<div class="wrapper">
 	    <main>
 		<section role="content">
+		    <p>
+			<button type="button" id="sidebarCollapse" class="btn btn-info">
+			    <i class="fa fa-align-left"></i>
+			    <span>{'Toggle menu'|translate}</span>
+			</button>
+		    </p>
+
 		    {block name="breadcrumb"}
 			<nav aria-label="breadcrumb">
 			    <ol class="breadcrumb">
@@ -119,27 +123,13 @@
 
 		    {block name="content"}{/block}
 		</section>
-
-		{block name="aside"}
-		    <aside role="navigation">
-			{include file="_menubar.tpl"}
-		    </aside>
-		{/block}
 	    </main>
 
-	    {if isset($footer_elements)}
-		{foreach $footer_elements as $elt}
-		    {$elt}
-		{/foreach}
-	    {/if}
-
-	    {if isset($debug.QUERIES_LIST)}
-		<div id="debug">
-		    {foreach $debug.QUERIES_LIST as $query}
-			{$query.sql}
-		    {/foreach}
-		</div>
-	    {/if}
+	    {block name="aside"}
+		<aside id="sidebar" role="navigation">
+		    {include file="_menubar.tpl"}
+		</aside>
+	    {/block}
 	</div>
 
 	<footer>
@@ -159,9 +149,7 @@
 	    </div>
 	</footer>
 
-	<!-- BEGIN get_combined -->
 	{get_combined_scripts load='footer'}
-	<!-- END get_combined -->
 
 	{block name="footer_assets"}
 	    <script src="{asset manifest='../../admin/theme/build/build/manifest.json' src='app.js'}"></script>

@@ -72,7 +72,7 @@
 		       <button
 			   data-confirm="{'Are you sure?'|translate}" data-action="{$ROOT_URL}ws.php?format=json&method=pwg.rates.delete"
 			   data-data="{ldelim}&quot;user_id&quot;:{$rating.uid}{if !empty({$rating.aid})},&quot;anonymous_id&quot;:&quot;{$rating.aid}&quot;{/if}{rdelim}"
-			   data-method="POST" data-delete="#rate-{$rating.md5sum}" data-toggle="modal" data-target="#confirm-delete" class="fa fa-trash"></button>
+			   data-method="POST" data-delete="#rate-{$rating.md5sum}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
 		   </td>
 	       </tr>
 	   {/foreach}

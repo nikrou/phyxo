@@ -2,12 +2,12 @@
 @import 'fonts';
 @import 'users-list';
 
-body {
-    display: flex;
-    flex-flow: column wrap;
+$sidebar-width: 15em;
 
-    margin: 0;
-    padding: 0;
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
     i {
         margin-right: 0.2rem;
     }
@@ -15,11 +15,6 @@ body {
 
 .visually-hidden {
     @include sr-only();
-}
-
-.wrapper {
-    flex: 1 0 auto;
-    min-height: 100vh;
 }
 
 header {
@@ -42,10 +37,11 @@ header {
 }
 
 main {
-    display: flex;
-    flex: 1 0 auto;
-    flex-flow: row nowrap;
-    padding-top: 2rem;
+    width: 100%;
+    padding: 1rem;
+    min-height: 100vh;
+    transition: all 0.3s;
+    order: 1;
 }
 
 section[role='content'] {
@@ -263,8 +259,15 @@ section[role='content'] {
 }
 
 aside[role='navigation'] {
-    flex: 0 0 15em; // do not grow or shrink, stay at 15em
-    order: 1;
+    min-width: $sidebar-width;
+    max-width: $sidebar-width;
+    transition: all 0.3s;
+    margin-top: 1rem;
+
+    &.active {
+	margin-left: - $sidebar-width;
+    }
+
     ul {
         list-style: none;
         margin: 0;
@@ -306,6 +309,18 @@ aside[role='navigation'] {
     }
 }
 
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
 footer {
     flex: 1 0 auto;
     display: flex;
@@ -315,4 +330,17 @@ footer {
     background-color: $gray-200;
     color: $gray-500;
     font-size: 0.9rem;
+}
+
+@include media-breakpoint-down(md) {
+    aside[role='navigation'] {
+        margin-left: - $sidebar-width;
+	&.active {
+            margin-left: 0;
+	}
+    }
+
+    #sidebarCollapse span {
+        display: none;
+    }
 }

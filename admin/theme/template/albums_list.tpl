@@ -10,11 +10,11 @@
 
     <p>
 	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{'create a new album'|translate}</a>
-	{if !empty($categories)}<a class="btn btn-submit2" data-toggle="collapse" href="#apply-automatic-sort-order">{'apply automatic sort order'|translate}</a>{/if}
+	{if !empty($categories)}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{'apply automatic sort order'|translate}</a>{/if}
 	{if !empty($PARENT_EDIT)}<a class="btn btn-edit" href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
     </p>
 
-    <div id="create-album"  class="collapse">
+    <div id="create-album" class="collapse">
 	<form id="formCreateAlbum" action="{$F_ACTION}" method="post">
 	    <div class="fieldset">
 		<h3>{'create a new album'|translate}</h3>
@@ -22,7 +22,7 @@
 
 		<p>
 		    <label for="virtual_name">{'Album name'|translate}</label>
-		    <input type="text" name="virtual_name" id="virtual_name" maxlength="255">
+		    <input class="form-control" type="text" name="virtual_name" id="virtual_name" maxlength="255">
 		</p>
 
 		<p>

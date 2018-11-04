@@ -1005,3 +1005,7 @@ $lang['User "%s" deleted'] = 'Utilisateur "%s" supprimé';
 $lang['User infos updated'] = "Les informations de l'utilisateur ont été mises à jour";
 $lang['User password updated'] = "Le mot de passe de l'utilisateur a été mis à jour";
 $lang['Username has been changed to %s'] = "Le nom d'utilisateur a été changé en %s";
+$lang['Toggle menu'] = "Menu";
+$lang['Show/Hide form filter'] = "Montrer/cacher le filtre";
+$lang['You are about to delete one element, this procedure is irreversible'] = "Vous allez supprimer un élément, cette opération est irréversible";
+$lang['Do you want to proceed?'] = "Voulez-vous continuer ? ";

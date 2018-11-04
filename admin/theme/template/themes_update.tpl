@@ -148,9 +148,9 @@
     {/footer_script}
 
     <div class="autoupdate_bar">
-	<input type="submit" id="update_all" value="{'Update All'|translate}" onClick="updateAll(); return false;">
-	<input type="submit" id="ignore_all" value="{'Ignore All'|translate}" onClick="ignoreAll(); return false;">
-	<input type="submit" id="reset_ignore" value="{'Reset ignored updates'|translate}" onClick="resetIgnored(); return false;"{if $SHOW_RESET} style="display:none"{/if}/>
+	<input class="btn btn-submit" type="submit" id="update_all" value="{'Update All'|translate}" onClick="updateAll(); return false;">
+	<input class="btn btn-submit" type="submit" id="ignore_all" value="{'Ignore All'|translate}" onClick="ignoreAll(); return false;">
+	<input class="btn btn-reset" type="submit" id="reset_ignore" value="{'Reset ignored updates'|translate}" onClick="resetIgnored(); return false;"{if $SHOW_RESET} style="display:none"{/if}/>
     </div>
     <div class="autoupdate_bar" style="display:none;">
 	{'Please wait...'|translate}<br><img src="./theme/images/ajax-loader-bar.gif" alt="">

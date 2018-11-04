@@ -555,101 +555,127 @@
 		<h3>{'Action'|translate}</h3>
 		<div id="forbidAction"{if empty($selection) != 0} style="display:none"{/if}>{'No photo selected, no action possible.'|translate}</div>
 		<div id="permitAction"{if count($selection) == 0} style="display:none"{/if}>
-
-		    <select class="custom-select" name="selectAction">
-			<option value="-1">{'Choose an action'|translate}</option>
-			<option disabled="disabled">------------------</option>
-			<option value="delete">{'Delete selected photos'|translate}</option>
-			<option value="associate">{'Associate to album'|translate}</option>
-			<option value="move">{'Move to album'|translate}</option>
-			{if !empty($associated_categories)}
-			    <option value="dissociate">{'Dissociate from album'|translate}</option>
-			{/if}
-			<option value="add_tags">{'Add tags'|translate}</option>
-			{if !empty($associated_tags)}
-			    <option value="del_tags">{'remove tags'|translate}</option>
-			{/if}
-			<option value="author">{'Set author'|translate}</option>
-			<option value="title">{'Set title'|translate}</option>
-			<option value="date_creation">{'Set creation date'|translate}</option>
-			<option value="level">{'Who can see these photos?'|translate}</option>
-			<option value="metadata">{'Synchronize metadata'|translate}</option>
-			{if ($IN_CADDIE)}
-			    <option value="remove_from_caddie">{'Remove from caddie'|translate}</option>
-			{else}
-			    <option value="add_to_caddie">{'Add to caddie'|translate}</option>
-			{/if}
-			<option value="delete_derivatives">{'Delete multiple size images'|translate}</option>
-			<option value="generate_derivatives">{'Generate multiple size images'|translate}</option>
-			{if !empty($element_set_global_plugins_actions)}
-			    {foreach from=$element_set_global_plugins_actions item=action}
-				<option value="{$action.ID}">{$action.NAME}</option>
-			    {/foreach}
-			{/if}
-		    </select>
+		    <p>
+			<select class="custom-select" name="selectAction">
+			    <option value="-1">{'Choose an action'|translate}</option>
+			    <option disabled="disabled">------------------</option>
+			    <option value="delete">{'Delete selected photos'|translate}</option>
+			    <option value="associate">{'Associate to album'|translate}</option>
+			    <option value="move">{'Move to album'|translate}</option>
+			    {if !empty($associated_categories)}
+				<option value="dissociate">{'Dissociate from album'|translate}</option>
+			    {/if}
+			    <option value="add_tags">{'Add tags'|translate}</option>
+			    {if !empty($associated_tags)}
+				<option value="del_tags">{'remove tags'|translate}</option>
+			    {/if}
+			    <option value="author">{'Set author'|translate}</option>
+			    <option value="title">{'Set title'|translate}</option>
+			    <option value="date_creation">{'Set creation date'|translate}</option>
+			    <option value="level">{'Who can see these photos?'|translate}</option>
+			    <option value="metadata">{'Synchronize metadata'|translate}</option>
+			    {if ($IN_CADDIE)}
+				<option value="remove_from_caddie">{'Remove from caddie'|translate}</option>
+			    {else}
+				<option value="add_to_caddie">{'Add to caddie'|translate}</option>
+			    {/if}
+			    <option value="delete_derivatives">{'Delete multiple size images'|translate}</option>
+			    <option value="generate_derivatives">{'Generate multiple size images'|translate}</option>
+			    {if !empty($element_set_global_plugins_actions)}
+				{foreach from=$element_set_global_plugins_actions item=action}
+				    <option value="{$action.ID}">{$action.NAME}</option>
+				{/foreach}
+			    {/if}
+			</select>
+		    </p>
 
 		    <!-- delete -->
-		    <div id="action_delete" class="bulkAction">
-			<p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|translate}</label></p>
+		    <div id="action_delete">
+			<p class="custom-control custom-checkbox">
+			    <input class="custom-control-input" type="checkbox" name="confirm_deletion" value="1">
+			    <label class="custom-control-label">{'Are you sure?'|translate}</label>
+			</p>
 		    </div>
 
 		    <!-- associate -->
-		    <div id="action_associate" class="bulkAction">
-			<select data-selectize="categories" data-default="first" name="associate" style="width:600px"></select>
-			<br>{'... or '|translate}
-			<a href="#" data-add-album="associate" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+		    <div id="action_associate">
+			<p>
+			    <select data-selectize="categories" data-default="first" name="associate"></select>
+			</p>
+			<p>{'... or '|translate}</p>
+			<p>
+			    <a class="btn btn-submit" href="#" data-add-album="associate" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+			</p>
 		    </div>
 
 		    <!-- move -->
-		    <div id="action_move" class="bulkAction">
-			<select data-selectize="categories" data-default="first" name="move" style="width:600px"></select>
-			<br>{'... or '|translate}
-			<a href="#" data-add-album="move" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+		    <div id="action_move">
+			<p>
+			    <select data-selectize="categories" data-default="first" name="move"></select>
+			</p>
+			<p>{'... or '|translate}</p>
+			<p>
+			    <a class="btn btn-submit" href="#" data-add-album="move" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+			</p>
 		    </div>
-
 
 		    <!-- dissociate -->
-		    <div id="action_dissociate" class="bulkAction">
-			<select data-selectize="categories" placeholder="{'Type in a search term'|translate}"
-						name="dissociate" style="width:600px"></select>
+		    <div id="action_dissociate">
+			<p>
+			    <select data-selectize="categories" placeholder="{'Type in a search term'|translate}" name="dissociate"></select>
+			</p>
 		    </div>
 
-
 		    <!-- add_tags -->
-		    <div id="action_add_tags" class="bulkAction">
-			<select data-selectize="tags" data-create="true" placeholder="{'Type in a search term'|translate}"
-						name="add_tags[]" multiple style="width:400px;"></select>
+		    <div id="action_add_tags">
+			<p>
+			    <select data-selectize="tags" data-create="true" placeholder="{'Type in a search term'|translate}" name="add_tags[]" multiple></select>
+			</p>
 		    </div>
 
 		    <!-- del_tags -->
-		    <div id="action_del_tags" class="bulkAction">
+		    <div id="action_del_tags">
 			{if !empty($associated_tags)}
-			    <select data-selectize="tags" name="del_tags[]" multiple style="width:400px;"
-				    placeholder="{'Type in a search term'|translate}">
-				{foreach from=$associated_tags item=tag}
-				    <option value="{$tag.id}">{$tag.name}</option>
-				{/foreach}
-			    </select>
+			    <p>
+				<select data-selectize="tags" name="del_tags[]" multiple placeholder="{'Type in a search term'|translate}">
+				    {foreach from=$associated_tags item=tag}
+					<option value="{$tag.id}">{$tag.name}</option>
+				    {/foreach}
+				</select>
+			    </p>
 			{/if}
 		    </div>
 
 		    <!-- author -->
-		    <div id="action_author" class="bulkAction">
-			<label><input type="checkbox" name="remove_author"> {'remove author'|translate}</label><br>
+		    <div id="action_author">
+			<p class="custom-control custom-checkbox">
+			    <input class="custom-control-input" type="checkbox" id="remove_author" name="remove_author" value="1">
+			    <label class="custom-control-label" for="remove_author">{'remove author'|translate}</label>
+			</p>
 			{assign var='authorDefaultValue' value='Type here the author name'|translate}
-			<input type="text" class="form-control" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
+			<p>
+			    <input type="text" class="form-control" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
+			</p>
 		    </div>
 
 		    <!-- title -->
-		    <div id="action_title" class="bulkAction">
-			<label><input type="checkbox" name="remove_title"> {'remove title'|translate}</label><br>
+		    <div id="action_title">
+			<p class="custom-control custom-checkbox">
+			    <input class="custom-control-input" type="checkbox" name="remove_title">
+			    <label class="custom-control-label" for="remove_title">{'remove title'|translate}</label>
+			</p>
 			{assign var='titleDefaultValue' value='Type here the title'|translate}
-			<input type="text" class="form-control" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
+			<p>
+			    <input type="text" class="form-control" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
+			</p>
 		    </div>
 
 		    <!-- date_creation -->
-		    <div id="action_date_creation" class="bulkAction">
-			<label><input type="checkbox" name="remove_date_creation"> {'remove creation date'|translate}</label><br>
+		    <div id="action_date_creation">
+			<p class="custom-control custom-checkbox">
+			    <input class="custom-control-input" type="checkbox" name="remove_date_creation">
+			    <label class="custom-control-label" for="remove_date_creation">{'remove creation date'|translate}</label>
+			</p>
 			<div id="set_date_creation">
 			    <input type="hidden" name="date_creation" value="{$DATE_CREATION}">
 			    <label>
@@ -660,47 +686,58 @@
 		    </div>
 
 		    <!-- level -->
-		    <div id="action_level" class="bulkAction">
+		    <div id="action_level">
 			<select class="custom-select" name="level" size="1">
 			    {html_options options=$level_options selected=$level_options_selected}
 			</select>
 		    </div>
 
 		    <!-- metadata -->
-		    <div id="action_metadata" class="bulkAction">
+		    <div id="action_metadata">
 		    </div>
 
 		    <!-- generate derivatives -->
-		    <div id="action_generate_derivatives" class="bulkAction">
-			<a href="javascript:selectGenerateDerivAll()">{'All'|translate}</a>,
-			<a href="javascript:selectGenerateDerivNone()">{'None'|translate}</a>
-			<br>
-			{foreach from=$generate_derivatives_types key=type item=disp}
-			    <label><input type="checkbox" name="generate_derivatives_type[]" value="{$type}"> {$disp}</label>
+		    <div id="action_generate_derivatives">
+			<p>
+			    <a href="javascript:selectGenerateDerivAll()">{'All'|translate}</a>,
+			    <a href="javascript:selectGenerateDerivNone()">{'None'|translate}</a>
+			</p>
+			{foreach $generate_derivatives_types as $type => $disp}
+			    <p class="custom-control custom-checkbox">
+				<input class="custom-control-input" type="checkbox" id="generate_derivatives_type_{$type}" name="generate_derivatives_type[]" value="{$type}">
+				<label class="custom-control-label" for="generate_derivatives_type_{$type}">{$disp}</label>
+			    </p>
 			{/foreach}
 		    </div>
 
 		    <!-- delete derivatives -->
-		    <div id="action_delete_derivatives" class="bulkAction">
-			<a href="javascript:selectDelDerivAll()">{'All'|translate}</a>,
-			<a href="javascript:selectDelDerivNone()">{'None'|translate}</a>
-			<br>
-			{foreach from=$del_derivatives_types key=type item=disp}
-			    <label><input type="checkbox" name="del_derivatives_type[]" value="{$type}"> {$disp}</label>
+		    <div id="action_delete_derivatives">
+			<p>
+			    <a href="javascript:selectDelDerivAll()">{'All'|translate}</a>,
+			    <a href="javascript:selectDelDerivNone()">{'None'|translate}</a>
+			</p>
+
+			{foreach $generate_derivatives_types as $type => $disp}
+			    <p class="custom-control custom-checkbox">
+				<input class="custom-control-input" type="checkbox" id="del_derivatives_type_{$type}" name="del_derivatives_type[]" value="{$type}">
+				<label class="custom-control-label" for="del_derivatives_type_{$type}">{$disp}</label>
+			    </p>
 			{/foreach}
 		    </div>
 
 		    <!-- progress bar -->
 		    <div id="regenerationMsg" class="bulkAction" style="display:none">
-			<p id="regenerationText" style="margin-bottom:10px;">{'Generate multiple size images'|translate}</p>
-			<span class="progressBar" id="progressBar"></span>
-			<input type="hidden" name="regenerateSuccess" value="0">
-			<input type="hidden" name="regenerateError" value="0">
+			<p id="regenerationText">{'Generate multiple size images'|translate}</p>
+			<p>
+			    <span class="progressBar" id="progressBar"></span>
+			    <input type="hidden" name="regenerateSuccess" value="0">
+			    <input type="hidden" name="regenerateError" value="0">
+			</p>
 		    </div>
 
 		    <!-- plugins -->
 		    {if !empty($element_set_global_plugins_actions)}
-			{foreach from=$element_set_global_plugins_actions item=action}
+			{foreach $element_set_global_plugins_actions as $action}
 			    <div id="action_{$action.ID}" class="bulkAction">
 				{if !empty($action.CONTENT)}{$action.CONTENT}{/if}
 			    </div>
