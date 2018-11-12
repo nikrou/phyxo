@@ -44,6 +44,28 @@ class DBLayer
         );
     }
 
+    public static function initFromConfigFile(string $config_file)
+    {
+        if (!is_readable($config_file)) {
+            throw new \App\Exception\ConfigFileMissingException(sprintf('Config file %s missing', $config_file));
+        }
+
+        $load = (function ($path) {
+            include($path);
+
+
+            return [
+                $conf['dblayer'],
+                $conf['db_host'],
+                isset($conf['db_user']) ? $conf['db_user'] : '',
+                isset($conf['db_password']) ? $conf['db_password'] : '',
+                $conf['db_base']
+            ];
+        });
+
+        return self::init(...$load($config_file));
+    }
+
     public function getLayer()
     {
         return $this->dblayer;

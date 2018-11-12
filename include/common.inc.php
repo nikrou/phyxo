@@ -20,11 +20,6 @@ use Phyxo\Cache\PersistentFileCache;
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 
-// container
-if (!empty($GLOBALS['container'])) {
-    $container = $GLOBALS['container'];
-}
-
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
 
@@ -48,13 +43,16 @@ $header_notes = [];
 $filter = [];
 
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-
-if (is_readable(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php')) {
-    include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
+$db_config_file = PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php';
+if (!Utils::phyxoInstalled($db_config_file)) {
+    header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
+    exit();
 }
 
-// Database connection
 if (defined('IN_WS')) {
+    include($db_config_file);
+
+    // Database connection
     try {
         $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
     } catch (Exception $e) {
@@ -66,11 +64,6 @@ if (defined('IN_WS')) {
     $conn = $container->get('phyxo.conn');
     $conf = $container->get('phyxo.conf');
     $template = $container->get('templating.engine.smarty');
-}
-
-if (!Utils::phyxoInstalled($conn)) {
-    header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
-    exit();
 }
 
 if (!empty($conf['show_php_errors'])) {

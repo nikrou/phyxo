@@ -25,13 +25,9 @@ use App\Repository\SiteRepository;
 use App\Repository\ConfigRepository;
 use App\Repository\UpgradeRepository;
 use App\Repository\UserRepository;
+use Phyxo\Model\Repository\Users;
 
-// container
-if (!empty($GLOBALS['container'])) {
-    $container = $GLOBALS['container'];
-}
-
-if (\Phyxo\Functions\Utils::phyxoInstalled($container->get('phyxo.conn'))) {
+if (\Phyxo\Functions\Utils::phyxoInstalled($container->getParameter('database_config_file'))) {
     header('Location: ' . \Phyxo\Functions\URL::get_root_url());
     exit();
 }
@@ -44,10 +40,6 @@ if (isset($_POST['install'])) {
     $prefixeTable = DEFAULT_PREFIX_TABLE;
 }
 
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-}
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
 // download database config file if exists
@@ -82,6 +74,13 @@ $admin_mail = (!empty($_POST['admin_mail'])) ? $_POST['admin_mail'] : '';
 
 $infos = [];
 $errors = [];
+
+if (empty($_POST)) {
+    include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+    if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
+        include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+    }
+}
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 
@@ -137,7 +136,14 @@ if (isset($_POST['install'])) {
             $conn = DBLayer::init($_POST['dblayer'], $_POST['dbhost'], $_POST['dbuser'], $_POST['dbpasswd'], $_POST['dbname']);
             $conn->db_check_version();
 
-            include(PHPWG_ROOT_PATH . 'include/services.php');
+            $conf = new Conf($conn);
+            $conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+            $conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+
+            $user = [];
+            $cache = [];
+            $services = [];
+            $services['users'] = new Users($conn, $conf, $user, $cache);
         } catch (\Exception $e) {
             $errors[] = \Phyxo\Functions\Language::l10n($e->getMessage());
         }

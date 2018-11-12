@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace App\DataCollector;
+namespace Phyxo\DataCollector;
 
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Phyxo\DBLayer\DBLayer;

@@ -12,7 +12,6 @@
 namespace Phyxo\Functions;
 
 use Phyxo\Block\RegisteredBlock;
-use Phyxo\DBLayer\DBLayer;
 use App\Repository\CommentRepository;
 use App\Repository\ImageCategory;
 use App\Repository\ImageCategoryRepository;
@@ -36,11 +35,9 @@ use App\Repository\UserGroupRepository;
 
 class Utils
 {
-    public static function phyxoInstalled(DBLayer $conn, $prefix = 'phyxo_')
+    public static function phyxoInstalled(string $config_file)
     {
-        $tables = $conn->db_get_tables($prefix);
-
-        return (count($tables) > 0);
+        return is_readable($config_file);
     }
 
     /** no option for mkgetdir() */

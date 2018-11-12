@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace App\DataCollector;
+namespace Phyxo\DataCollector;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

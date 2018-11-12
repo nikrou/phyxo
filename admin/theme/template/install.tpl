@@ -1,12 +1,15 @@
 {extends file="__layout.tpl"}
 
 {block name="head_assets" append}
-    <script src="./admin/theme/js/install.js"></script>
+    <script src="./theme/js/install.js"></script>
 {/block}
 
 {block name="header"}{/block}
 {block name="breadcrumb"}{/block}
 {block name="aside"}{/block}
+{block name="menu_toggle_button"}{/block}
+
+{block name="footer_assets"}{/block}
 
 {block name="content"}
     <h2>Phyxo {'Version'|translate} {$RELEASE} - {'Installation'|translate}</h2>

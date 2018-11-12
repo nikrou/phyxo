@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
     <head>
-	<meta http-equiv="Content-Type" content="text/html; charset={$CONTENT_ENCODING}">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
@@ -60,12 +60,14 @@
 	<div class="wrapper">
 	    <main>
 		<section role="content">
-		    <p>
-			<button type="button" id="sidebarCollapse" class="btn btn-info">
-			    <i class="fa fa-align-left"></i>
-			    <span>{'Toggle menu'|translate}</span>
-			</button>
-		    </p>
+		    {block name="menu_toggle_button"}
+			<p>
+			    <button type="button" id="sidebarCollapse" class="btn btn-info">
+				<i class="fa fa-align-left"></i>
+				<span>{'Toggle menu'|translate}</span>
+			    </button>
+			</p>
+		    {/block}
 
 		    {block name="breadcrumb"}
 			<nav aria-label="breadcrumb">
