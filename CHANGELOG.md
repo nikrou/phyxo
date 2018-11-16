@@ -1,3 +1,5 @@
+# Phyxo 2.0.0 - YYYY-MM-DD
+
 # Phyxo 1.9.0 - 2018-11-16
 -   Improve installation process
 -   Admin responsive.
