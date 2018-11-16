@@ -13,13 +13,15 @@ dist: config admin_assets dist-tgz dist-zip
 
 config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
-	cp -pr *.php admin include install language src \
+	cp -pr *.php admin include install language templates config src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
+	cp -p tools/index_prod.php $(DIST)/$(APP_NAME)/index.php
+	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -d $(DIST)/$(APP_NAME)
-	rm $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock
 	rm -fr $(DIST)/$(APP_NAME)/config/dev $(DIST)/$(APP_NAME)/config/test
+	rm $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock
 
 	# remove doc and useless stuff
 	find $(DIST)/$(APP_NAME)/vendor -path '*/.git/*'	\
@@ -37,12 +39,14 @@ config: clean
 	mkdir -p $(DIST)/$(APP_NAME)/_data $(DIST)/$(APP_NAME)/upload	\
 	$(DIST)/$(APP_NAME)/galleries $(DIST)/$(APP_NAME)/local/config	\
 	$(DIST)/$(APP_NAME)/themes $(DIST)/$(APP_NAME)/plugins		\
-	$(DIST)/$(APP_NAME)/var/cache 	$(DIST)/$(APP_NAME)/var/log
+	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/log/prod
 
 	# copy only distrib plugins and themes
 	cp -pr themes/default themes/legacy themes/elegant $(DIST)/$(APP_NAME)/themes/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
+	find $(DIST) -name '.env*' -exec rm \{\} \;
+	rm -fr $(DIST)/$(APP_NAME)/public
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type d -name '.svn' | xargs -r rm -rf

@@ -1,4 +1,8 @@
-# Phyxo 1.9.0 - YYYY-MM-DD
+# Phyxo 1.9.0 - 2018-11-16
+-   Improve installation process
+-   Admin responsive.
+-   Use Symfony in front of Phyxo. Use severals components
+-   Sanitize code. (Work in progress : lot of work to do)
 
 # Phyxo 1.8.0 - 2018-07-03
 
