@@ -15,6 +15,10 @@ use App\Repository\CaddieRepository;
 // | Basic constants and includes                                          |
 // +-----------------------------------------------------------------------+
 
+$infos = [];
+$errors = [];
+$warnings = [];
+
 define('PHPWG_ROOT_PATH', '../../');
 define('IN_ADMIN', true);
 
@@ -199,6 +203,11 @@ $template->assign('ACTIVE_MENU', $link_start . $page['page']);
 include(PHPWG_ROOT_PATH . '/admin/include/page_header.php');
 include(PHPWG_ROOT_PATH . '/admin/include/page_tail.php');
 
+$template->assign([
+    'errors' => $errors,
+    'infos' => $infos,
+    'warnings' => $warnings,
+]);
 $template->set_filenames(['admin' => "${template_filename}.tpl"]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_admin');

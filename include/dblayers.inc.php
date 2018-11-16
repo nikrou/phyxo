@@ -11,7 +11,7 @@
 
 $dblayers = [];
 $dblayers['mysql'] = [
-    'engine' => 'MySQL',
+    'engine' => 'MySQL, MariaDB, Percona Server, ...',
     'function_available' => 'mysqli_connect'
 ];
 

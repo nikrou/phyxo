@@ -55,3 +55,19 @@ $lang['Welcome to your new installation of Phyxo!'] = 'Bienvenue sur votre nouve
 $lang['Don\'t hesitate to consult our forums for any help : %s'] = 'N\'hésitez pas à consulter nos forums si vous avez le moindre problème : %s';
 
 $lang['Database type'] = "Type de base de données";
+$lang['Unable to connect to database'] = "Impossible de se connecter à la base de données";
+$lang['All tables in database have been created'] = "Toutes les tables ont été créés dans la base de données";
+
+$lang['Save and continue'] = "Enregistrer et continuer";
+$lang['Installation steps'] = "Étapes d'installation";
+$lang['Choose language'] = "Sélection du langage";
+$lang['Verify requirements'] = "Vérification des prérequis";
+$lang['Install database'] = "Installation de la base de données";
+$lang['Create first user'] = "Création du premier utilisateur";
+$lang['Check directories permissions'] = "Vérification des accès aux répertoires";
+$lang['The installation process requires for the following directories read and write access'] = "Le processus d'installation a besoin d'accès en lecture et/ou écriture pour les répertoires suivants";
+$lang['readable'] = "Accès en lecture";
+$lang['writable'] = "Accès en écriture";
+$lang['After check permissions'] = "Après avoir vérifié les permissions";
+$lang['retry'] = "réessayer";
+$lang['Directory does not exist'] = "Le répertoire n'existe pas";

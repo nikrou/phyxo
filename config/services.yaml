@@ -39,11 +39,11 @@ services:
         public: true
         alias: 'Phyxo\DBLayer\DBLayer'
 
-    Phyxo\DataCollector\DBLayerCollector:
-        tags:
-            - name: data_collector
-              template: 'data_collector/queries.html.twig'
-              id: 'app.dblayer_collector'
+    # Phyxo\DataCollector\DBLayerCollector:
+    #     tags:
+    #         - name: data_collector
+    #           template: 'data_collector/queries.html.twig'
+    #           id: 'app.dblayer_collector'
 
     Phyxo\DataCollector\SmartyCollector:
         tags:

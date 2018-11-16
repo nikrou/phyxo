@@ -67,7 +67,7 @@ class CategoryRepository extends BaseRepository
         $query = 'SELECT id, name, id_uppercat, comment, dir, rank, status, site_id, visible, representative_picture_id, uppercats,';
         $query .= ' commentable, global_rank, image_order, permalink, lastmodified FROM ' . self::CATEGORIES_TABLE;
 
-        if (count($where) > 0) {
+        if (!empty(array_filter($where))) {
             $query .= ' WHERE ' . implode(' AND ', $where);
         }
 

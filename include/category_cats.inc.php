@@ -21,7 +21,7 @@ use App\Repository\ImageRepository;
  */
 
 // $user['forbidden_categories'] including with USER_CACHE_CATEGORIES_TABLE
-$order = null;
+$order = '';
 $where = [];
 if ('recent_cats' == $page['section']) {
     $where[] = \Phyxo\Functions\SQL::get_recent_photos('date_last');

@@ -3,6 +3,7 @@
 @import 'users-list';
 
 $sidebar-width: 15em;
+$sidebar-install-width: $sidebar-width + 5em;
 
 .wrapper {
     display: flex;
@@ -260,13 +261,20 @@ section[role='content'] {
 
 aside[role='navigation'] {
     min-width: $sidebar-width;
-    max-width: $sidebar-width;
-    transition: all 0.3s;
     margin-top: 1rem;
-
+    max-width: $sidebar-width;
     &.active {
 	margin-left: - $sidebar-width;
     }
+
+    &.install {
+	min-width: $sidebar-install-width;
+	margin-top: 2em;
+	&.active {
+	    margin-left: - $sidebar-install-width;
+	}
+    }
+    transition: all 0.3s;
 
     ul {
         list-style: none;
@@ -335,7 +343,11 @@ footer {
 @include media-breakpoint-down(md) {
     aside[role='navigation'] {
         margin-left: - $sidebar-width;
-	&.active {
+	&.install {
+	    margin-left: - $sidebar-install-width;
+	}
+
+	&.active,&.active.install {
             margin-left: 0;
 	}
     }

@@ -90,7 +90,7 @@
 			{/if}
 		    {/block}
 
-		    {if isset($errors)}
+		    {if count($errors)>0}
 			<div class="alert alert-danger alert-dismissible fade show" role="alert">
 			    {foreach $errors as $error}
 				<p>{$error}</p>
@@ -101,7 +101,7 @@
 			</div>
 		    {/if}
 
-		    {if isset($infos)}
+		    {if count($infos)>0}
 			<div class="alert alert-success alert-dismissible fade show" role="alert">
 			    {foreach $infos as $info}
 				<p>{$info}</p>
@@ -112,7 +112,7 @@
 			</div>
 		    {/if}
 
-		    {if isset($warnings)}
+		    {if count($warnings)>0}
 			<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			    {foreach $warnings as $warning}
 				<p>{$warning}</p>

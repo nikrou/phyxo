@@ -6,8 +6,6 @@
 {/block}
 
 {block name="content"}
-    {combine_script id="cat_list" require="jquery.ui.sortable" load="footer" path="admin/theme/js/cat_list.js"}
-
     <p>
 	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{'create a new album'|translate}</a>
 	{if !empty($categories)}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{'apply automatic sort order'|translate}</a>{/if}

@@ -38,6 +38,11 @@ interface iDBLayer
     public function db_query(string $query);
 
     /**
+     * @return string current prefix for all tables
+     */
+    public function getPrefix();
+
+    /**
      * Database version
      *
      * This method should return database version number.

@@ -13,8 +13,9 @@ $(function() {
     const users_list = $('#users-list');
     let datatable;
 
-    $('.alert').hide();
-    $('#addUserForm').submit(function() {
+    if ($('#addUserForm').length>0) {
+	$('.alert').hide();
+	$('#addUserForm').submit(function() {
         $.ajax({
             url: '../ws.php?format=json&method=pwg.users.add',
             type: 'POST',
@@ -45,9 +46,9 @@ $(function() {
         });
 
         return false;
-    });
-
-    $('#permitAction').hide();
+	});
+	$('#permitAction').hide();
+    }
 
     if (users_list.length > 0) {
 	datatable = users_list.DataTable({

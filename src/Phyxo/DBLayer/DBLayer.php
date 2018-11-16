@@ -16,8 +16,9 @@ class DBLayer
     protected $db_link = null;
     protected $queries = [];
     protected $queries_time = 0;
+    protected $prefix = 'phyxo_';
 
-    public static function init($layer, $host, $user, $password, $database)
+    public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_')
     {
         if (file_exists(__DIR__ . '/' . $layer . 'Connection.php')) {
             require_once __DIR__ . '/' . $layer . 'Connection.php';
@@ -27,7 +28,10 @@ class DBLayer
             exit(1);
         }
 
-        return new $className($host, $user, $password, $database);
+        $instance = new $className($host, $user, $password, $database);
+        $instance->prefix = $prefix;
+
+        return $instance;
     }
 
     // @param dsn: Data Source Name, contains information to connect to the database
@@ -53,13 +57,13 @@ class DBLayer
         $load = (function ($path) {
             include($path);
 
-
             return [
                 $conf['dblayer'],
                 $conf['db_host'],
                 isset($conf['db_user']) ? $conf['db_user'] : '',
                 isset($conf['db_password']) ? $conf['db_password'] : '',
-                $conf['db_base']
+                $conf['db_base'],
+                $prefixeTable
             ];
         });
 
@@ -74,6 +78,11 @@ class DBLayer
     public function __construct($host, $user = '', $password = '', $database)
     {
         $this->db_link = $this->db_connect($host, $user, $password, $database);
+    }
+
+    public function getPrefix()
+    {
+        return $this->prefix;
     }
 
     protected function db_show_query($query, $result, $query_time)
