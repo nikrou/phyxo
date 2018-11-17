@@ -3,5 +3,13 @@
         "**/.dist": true,
         "**/_data": true,
         "**/target": true
-    }
+    },
+    "files.watcherExclude": {
+        "**/.git/**": true,
+        "**/.dist": true,
+        "**/node_modules/**": true,
+        "**/vendor/**": true,
+        "**/var/cache/**": true,
+        "**/var/log/**": true
+    },
 }

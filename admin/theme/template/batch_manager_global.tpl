@@ -10,7 +10,6 @@
     {include file="include/colorbox.inc.tpl" load_mode="async"}
     {include file="include/add_album.inc.tpl" load_mode="async"}
 
-
     {combine_css path="admin/theme/js/ui/theme/jquery.ui.core.css"}
     {combine_css path="admin/theme/js/ui/theme/jquery.ui.slider.css"}
     {combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
@@ -26,6 +25,7 @@
     {combine_script id="jquery.progressBar" load="async" path="admin/theme/js/plugins/jquery.progressbar.js"}
     {combine_script id="jquery.ajaxmanager" load="async" path="admin/theme/js/plugins/jquery.ajaxmanager.js"}
 
+    {combine_script id="addAlbum" load="footer" path="admin/theme/js/addAlbum.js"}
     {combine_script id="batchManagerGlobal" load="async" require="jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider" path="admin/theme/js/batchManagerGlobal.js"}
 
     {footer_script}

@@ -421,7 +421,7 @@ if (!try_switch_source($params, $src_mtime) && $params->type == IMG_CUSTOM) {
 }
 
 if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']), \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE)) {
-    ierror("dir create error: ".dirname($page['derivative_path']), 500);
+    ierror("dir create error: " . dirname($page['derivative_path']), 500);
 }
 
 ignore_user_abort(true);
