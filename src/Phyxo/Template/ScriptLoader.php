@@ -32,18 +32,18 @@ class ScriptLoader
     /** @var bool */
     private $did_footer;
 
-    private static $known_paths = array(
+    private static $known_paths = [
         'core.scripts' => 'admin/theme/js/scripts.js',
-        'jquery' => 'admin/theme/js/jquery.js',
+        'jquery' => 'admin/theme/js/jquery/jquery.js',
         'jquery.ui' => 'admin/theme/js/ui/jquery.ui.core.js',
         'jquery.ui.effect' => 'admin/theme/js/ui/jquery.ui.effect.js',
-    );
+    ];
 
-    private static $ui_core_dependencies = array(
-        'jquery.ui.widget' => array('jquery'),
-        'jquery.ui.position' => array('jquery'),
-        'jquery.ui.mouse' => array('jquery', 'jquery.ui', 'jquery.ui.widget'),
-    );
+    private static $ui_core_dependencies = [
+        'jquery.ui.widget' => ['jquery'],
+        'jquery.ui.position' => ['jquery'],
+        'jquery.ui.mouse' => ['jquery', 'jquery.ui', 'jquery.ui.widget'],
+    ];
 
     public function __construct()
     {
@@ -52,9 +52,9 @@ class ScriptLoader
 
     public function clear()
     {
-        $this->registered_scripts = array();
-        $this->inline_scripts = array();
-        $this->head_done_scripts = array();
+        $this->registered_scripts = [];
+        $this->inline_scripts = [];
+        $this->head_done_scripts = [];
         $this->did_head = $this->did_footer = false;
     }
 
@@ -155,7 +155,7 @@ class ScriptLoader
             $this->compute_script_topological_order($id);
         }
 
-        uasort($this->registered_scripts, array(__class__, 'cmp_by_mode_and_order'));
+        uasort($this->registered_scripts, [__class__, 'cmp_by_mode_and_order']);
 
         foreach ($this->registered_scripts as $id => $script) {
             if ($script->load_mode > 0) {
@@ -182,7 +182,7 @@ class ScriptLoader
             self::check_load_dep($this->registered_scripts);
         }
         $this->did_footer = true;
-        $todo = array();
+        $todo = [];
         foreach ($this->registered_scripts as $id => $script) {
             if (!isset($this->head_done_scripts[$id])) {
                 $todo[$id] = $script;
@@ -193,13 +193,13 @@ class ScriptLoader
             $this->compute_script_topological_order($id);
         }
 
-        uasort($todo, array(__class__, 'cmp_by_mode_and_order'));
+        uasort($todo, [__class__, 'cmp_by_mode_and_order']);
 
-        $result = array(array(), array());
+        $result = [[], []];
         foreach ($todo as $id => $script) {
             $result[$script->load_mode - 1][$id] = $script;
         }
-        return array(self::do_combine($result[0], 1), self::do_combine($result[1], 2));
+        return [self::do_combine($result[0], 1), self::do_combine($result[1], 2)];
     }
 
     /**
@@ -256,17 +256,17 @@ class ScriptLoader
             $script->path = self::$known_paths[$id];
         }
         if (strncmp($id, 'jquery.', 7) == 0) {
-            $required_ids = array('jquery');
+            $required_ids = ['jquery'];
 
             if (strncmp($id, 'jquery.ui.effect-', 17) == 0) {
-                $required_ids = array('jquery', 'jquery.ui.effect');
+                $required_ids = ['jquery', 'jquery.ui.effect'];
 
                 if (empty($script->path)) {
                     $script->path = dirname(self::$known_paths['jquery.ui.effect']) . "/$id.js";
                 }
             } elseif (strncmp($id, 'jquery.ui.', 10) == 0) {
                 if (!isset(self::$ui_core_dependencies[$id])) {
-                    $required_ids = array_merge(array('jquery', 'jquery.ui'), array_keys(self::$ui_core_dependencies));
+                    $required_ids = array_merge(['jquery', 'jquery.ui'], array_keys(self::$ui_core_dependencies));
                 }
 
                 if (empty($script->path)) {
@@ -292,7 +292,7 @@ class ScriptLoader
     private function load_known_required_script($id, $load_mode)
     {
         if (isset(self::$known_paths[$id]) or strncmp($id, 'jquery.ui.', 10) == 0) {
-            $this->add($id, $load_mode, array(), null);
+            $this->add($id, $load_mode, [], null);
             return true;
         }
 

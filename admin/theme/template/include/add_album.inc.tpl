@@ -4,8 +4,6 @@
 {combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
 {combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
 
-{combine_script id="addAlbum" load=$load_mode path="admin/theme/js/addAlbum.js"}
-
 <div class="collapse">
     <div id="addAlbumForm">
 	<form action="">

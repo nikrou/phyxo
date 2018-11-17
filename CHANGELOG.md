@@ -1,3 +1,6 @@
+# Phyxo 1.9.1 - 2018-11-17
+-   Fix migration from 1.8.0. Forget to remove old php files.
+
 # Phyxo 1.9.0 - 2018-11-16
 -   Improve installation process
 -   Admin responsive.

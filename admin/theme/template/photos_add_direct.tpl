@@ -5,8 +5,13 @@
     <li class="breadcrumb-item">{'Web Form'|translate}</li>
 {/block}
 
-{block name="content"}
-    {html_head}
+{block name="head_assets"}
+    {combine_css path="admin/theme/js/plugins/jquery.jgrowl.css"}
+    {combine_css path="admin/theme/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"}
+    {combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
+{/block}
+
+{block name="footer_assets" append}
     <script src="./theme/js/common.js"></script>
     <script src="./theme/js/plugins/jquery.jgrowl.js"></script>
     <script src="./theme/js/plugins/plupload/moxie.js"></script>
@@ -14,46 +19,44 @@
     <script src="./theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
     <script src="./theme/js/LocalStorageCache.js"></script>
     <script src="./theme/js/plugins/selectize.js"></script>
+    <script src="./theme/js/addAlbum.js"></script>
     <script src="./theme/js/photos_add_direct.js"></script>
     <script src="./theme/js/plugins/plupload/i18n/{$lang_info.plupload_code}.js"></script>
-    {/html_head}
-    {footer_script}
-    {* <!-- CATEGORIES --> *}
-    var categoriesCache = new CategoriesCache({
-    serverKey: '{$CACHE_KEYS.categories}',
-    serverId: '{$CACHE_KEYS._hash}',
-    rootUrl: '{$ROOT_URL}'
-    });
 
-    categoriesCache.selectize($('[data-selectize=categories]'), {
-    filter: function(categories, options) {
-    if (categories.length > 0) {
-    jQuery("#albumSelection, .selectFiles, .showFieldset").show();
-    }
+    <script>
+     {* <!-- CATEGORIES --> *}
+     var categoriesCache = new CategoriesCache({
+	 serverKey: '{$CACHE_KEYS.categories}',
+	 serverId: '{$CACHE_KEYS._hash}',
+	 rootUrl: '{$ROOT_URL}'
+     });
 
-    return categories;
-    }
-    });
+     categoriesCache.selectize($('[data-selectize=categories]'), {
+	 filter: function(categories, options) {
+	     if (categories.length > 0) {
+		 jQuery("#albumSelection, .selectFiles, .showFieldset").show();
+	     }
 
-    $('[data-add-album]').pwgAddAlbum({ cache: categoriesCache });
+	     return categories;
+	 }
+     });
 
-    var pwg_token = '{$pwg_token}';
-    var photosUploaded_label = "{'%d photos uploaded'|translate}";
-    var batch_Label = "{'Manage this set of %d photos'|translate}";
-    var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
-    var upload_file_types = "{$upload_file_types}";
-    var file_exts = "{$file_exts}";
-    var uploadedPhotos = [];
-    var uploadCategory = null;
+     $('[data-add-album]').pwgAddAlbum({ cache: categoriesCache });
 
-    {/footer_script}
+     var pwg_token = '{$pwg_token}';
+     var photosUploaded_label = "{'%d photos uploaded'|translate}";
+     var batch_Label = "{'Manage this set of %d photos'|translate}";
+     var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
+     var upload_file_types = "{$upload_file_types}";
+     var file_exts = "{$file_exts}";
+     var uploadedPhotos = [];
+     var uploadCategory = null;
+    </script>
+{/block}
 
-    {combine_css path="admin/theme/js/plugins/jquery.jgrowl.css"}
-    {combine_css path="admin/theme/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"}
+{block name="content"}
     {include file='include/colorbox.inc.tpl'}
     {include file='include/add_album.inc.tpl'}
-
-    {combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
 
     <div id="photosAddContent">
 	<div class="infos" style="display:none"></div>

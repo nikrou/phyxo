@@ -21,20 +21,20 @@ use Phyxo\Image\WatermarkParams;
 class ImageStdParams
 {
     /** @var string[] */
-    private static $all_types = array(
+    private static $all_types = [
         IMG_SQUARE, IMG_THUMB, IMG_XXSMALL, IMG_XSMALL, IMG_SMALL,
         IMG_MEDIUM, IMG_LARGE, IMG_XLARGE, IMG_XXLARGE
-    );
+    ];
     /** @var DerivativeParams[] */
-    private static $all_type_map = array();
+    private static $all_type_map = [];
     /** @var DerivativeParams[] */
-    private static $type_map = array();
+    private static $type_map = [];
     /** @var DerivativeParams[] */
-    private static $undefined_type_map = array();
+    private static $undefined_type_map = [];
     /** @var WatermarkParams */
     private static $watermark;
     /** @var array */
-    public static $custom = array();
+    public static $custom = [];
     /** @var int */
     public static $quality = 95;
 
@@ -88,10 +88,10 @@ class ImageStdParams
      */
     public static function get_custom($w, $h, $crop = 0, $minw = null, $minh = null)
     {
-        $params = new DerivativeParams(new SizingParams(array($w, $h), $crop, array($minw, $minh)));
+        $params = new DerivativeParams(new SizingParams([$w, $h], $crop, [$minw, $minh]));
         self::apply_global($params);
 
-        $key = array();
+        $key = [];
         $params->add_url_tokens($key);
         $key = implode('_', $key);
         if (@self::$custom[$key] < time() - 24 * 3600) {
@@ -115,7 +115,8 @@ class ImageStdParams
     public static function load_from_db()
     {
         global $conf;
-        $arr = @unserialize($conf['derivatives']);
+
+        $arr = @unserialize(stripslashes($conf['derivatives']));
         if (false !== $arr) {
             self::$type_map = $arr['d'];
             self::$watermark = @$arr['w'];
@@ -124,7 +125,7 @@ class ImageStdParams
             }
             self::$custom = @$arr['c'];
             if (!self::$custom) {
-                self::$custom = array();
+                self::$custom = [];
             }
             if (isset($arr['q'])) {
                 self::$quality = $arr['q'];
@@ -164,12 +165,12 @@ class ImageStdParams
     {
         global $conf;
 
-        $ser = serialize(array(
+        $ser = serialize([
             'd' => self::$type_map,
             'q' => self::$quality,
             'w' => self::$watermark,
             'c' => self::$custom,
-        ));
+        ]);
         $conf['derivatives'] = $ser;
     }
 
@@ -178,7 +179,7 @@ class ImageStdParams
      */
     public static function get_default_sizes()
     {
-        $arr = array(
+        $arr = [
             IMG_SQUARE => new DerivativeParams(SizingParams::square(120, 120)),
             IMG_THUMB => new DerivativeParams(SizingParams::classic(144, 144)),
             IMG_XXSMALL => new DerivativeParams(SizingParams::classic(240, 240)),
@@ -188,7 +189,7 @@ class ImageStdParams
             IMG_LARGE => new DerivativeParams(SizingParams::classic(1008, 756)),
             IMG_XLARGE => new DerivativeParams(SizingParams::classic(1224, 918)),
             IMG_XXLARGE => new DerivativeParams(SizingParams::classic(1656, 1242)),
-        );
+        ];
         $now = time();
         foreach ($arr as $params) {
             $params->last_mod_time = $now;
