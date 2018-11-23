@@ -116,7 +116,12 @@ class ImageStdParams
     {
         global $conf;
 
-        $arr = @unserialize(stripslashes($conf['derivatives']));
+        // ugly hack before refactoring
+        if (!empty($conf['dblayer']) && $conf['dblayer'] === 'mysql') {
+            $arr = @unserialize(stripslashes($conf['derivatives']));
+        } else {
+            $arr = @unserialize($conf['derivatives']);
+        }
         if (false !== $arr) {
             self::$type_map = $arr['d'];
             self::$watermark = @$arr['w'];
