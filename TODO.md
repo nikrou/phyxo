@@ -12,7 +12,3 @@
     -   use more friendly assertion (example: see modal instead of see #cboxWrapper)
 
 -   Check modifiers(translation, explode, ternary) in template class
-
--   Find a way to provide simple menu categories and recursive one but not both
--   Give better user experience in case of upgrade in minor or major version. Display a real page not an almost blank page.
--   Fix use of PHPWG_ROOT_PATH that is used for filesystem root path and URL path

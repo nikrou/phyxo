@@ -3,7 +3,7 @@ Phyxo
 
 Simply share your images.
 
-![alt tag](https://www.phyxo.net/screenshot.png "Phyxo screenshot")
+![alt tag](https://www.phyxo.net/demo-home.png "Phyxo screenshot")
 
 Requirements
 ------------
