@@ -26,7 +26,7 @@ class FavoriteRepository extends BaseRepository
         $this->conn->single_insert(
             self::FAVORITES_TABLE,
             [
-                'user_id => $user_id',
+                'user_id' => $user_id,
                 'image_id' => $image_id
             ],
             $auto_increment_for_table = false
