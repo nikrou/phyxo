@@ -1,3 +1,8 @@
+# Phyxo 1.9.2 - 2018-02-12
+-   No question mark in url (default)
+-   Fix misspelling in Favorites repository
+-   Fix small regression in derivative params.
+
 # Phyxo 1.9.1 - 2018-11-17
 -   Fix migration from 1.8.0. Forget to remove old php files.
 
