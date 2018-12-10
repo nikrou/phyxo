@@ -7,5 +7,5 @@
 {block name="content"}
     {$upgrade_content}
 
-    <p>All database upgrades have been made. Go to <a href="./">dashboard</a></p>
+    <p>{'All database upgrades have been made. Go to'|translate}&nbsp;<a href="./">{'dashboard'|translate}</a></p>
 {/block}

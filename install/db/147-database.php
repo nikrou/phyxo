@@ -17,11 +17,11 @@ $upgrade_description = 'Change default language en_GB instead of en_UK in user_i
 
 $query = '';
 
-if (in_array($conf['dblayer'], ['mysql'])) {
+if (in_array($conn->getLayer(), ['mysql'])) {
     $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' CHANGE COLUMN language language VARCHAR(50) NOT NULL DEFAULT \'en_GB\'';
-} elseif ($conf['dblayer'] === 'pgsql') {
+} elseif ($conn->getLayer() === 'pgsql') {
     $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' ALTER language SET DEFAULT \'en_GB\'';
-} elseif ($conf['dblayer'] === 'sqlite') {
+} elseif ($conn->getLayer() === 'sqlite') {
     $temporary_table = $conn->getTemporaryTable('tmp_user_infos');
 
     $query = 'BEGIN TRANSACTION;';

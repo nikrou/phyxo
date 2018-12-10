@@ -26,6 +26,8 @@ $t2 = microtime(true);
 // @TODO: move it in symfony configuration. Needed because of constants
 $prefixeTable = 'phyxo_';
 
+$pwg_loaded_plugins = [];
+
 $debug = '';
 $cache = [];
 $page = [

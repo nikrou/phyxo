@@ -1,4 +1,4 @@
-<div class="loader"><img src="themes/legacy/images/ajax_loader.gif"></div>
+<div class="loader"><img src="{$ROOT_URL}themes/legacy/images/ajax_loader.gif" alt="!"></div>
 <ul class="thumbnailCategories">
     {foreach $category_thumbnails as $cat}
 	{assign var=derivative value=$pwg->derivative($derivative_album_params, $cat.representative.src_image)}

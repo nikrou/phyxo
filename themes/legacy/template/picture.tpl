@@ -17,7 +17,7 @@
 
 	<div class="actionButtons">
 	    {if isset($current.unique_derivatives) && count($current.unique_derivatives)>1}
-		{footer_script require='jquery'}{literal}
+		{footer_script require='legacy-jquery'}{literal}
 		function changeImgSrc(url,typeSave,typeMap)
 		{
 		var theImg = document.getElementById("theMainImage");
@@ -67,7 +67,7 @@
 		</a>
 
 		{if !empty($current.formats)}
-		    {footer_script require='jquery'}{literal}
+		    {footer_script require='legacy-jquery'}{literal}
 		    jQuery().ready(function() {
 		    jQuery("#downloadSwitchLink").removeAttr("href");
 
@@ -311,7 +311,7 @@
 				<a id="privacyLevelLink" href>{$available_permission_levels[$current.level]}</a>
 			    </div>
 			    {combine_script id='core.scripts' load='async' path='themes/legacy/js/scripts.js'}
-			    {footer_script require='jquery'}{strip}
+			    {footer_script require='legacy-jquery'}{strip}
 			    function setPrivacyLevel(id, level){
 			    (new PwgWS('{$ROOT_URL}')).callService(
 			    "pwg.images.setPrivacyLevel", { image_id:id, level:level},
@@ -408,7 +408,7 @@
 	{combine_script id="jquery.selectize" load="footer" path="themes/legacy/js/selectize.js"}
 	{combine_css id="jquery.selectize" path="themes/legacy/css/selectize.{$themeconf.colorscheme}.css"}
 	{combine_css id="picture.tags" path="themes/legacy/css/picture_tags.css"}
-	{combine_script id="picture.tags" load="async" require="jquery" path="themes/legacy/js/picture_tags.js"}
+	{combine_script id="picture.tags" load="async" require="legacy-jquery" path="themes/legacy/js/picture_tags.js"}
 
 	{footer_script require="picture.tags"}
 	var user_tags = user_tags || {};

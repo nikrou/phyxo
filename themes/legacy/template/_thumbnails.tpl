@@ -1,4 +1,4 @@
-<div class="loader"><img src="themes/legacy/images/ajax_loader.gif"></div>
+<div class="loader"><img src="{$ROOT_URL}themes/legacy/images/ajax_loader.gif"></div>
 <ul class="thumbnails" id="thumbnails">
     {foreach $thumbnails as $thumbnail}
 	{assign var=derivative value=$pwg->derivative($derivative_params, $thumbnail.src_image)}

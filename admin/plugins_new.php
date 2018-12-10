@@ -28,6 +28,7 @@ if (isset($_GET['revision']) and isset($_GET['extension'])) {
             $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
             $install_status = 'ok';
         } catch (\Exception $e) {
+            $install_status = 'nok';
             $page['errors'] = $e->getMessage();
         }
 
@@ -67,13 +68,13 @@ if (isset($_GET['installstatus'])) {
 }
 
 //---------------------------------------------------------------Order options
-$template->assign('order_options', array(
+$template->assign('order_options', [
     'date' => \Phyxo\Functions\Language::l10n('Post date'),
     'revision' => \Phyxo\Functions\Language::l10n('Last revisions'),
     'name' => \Phyxo\Functions\Language::l10n('Name'),
     'author' => \Phyxo\Functions\Language::l10n('Author'),
     'downloads' => \Phyxo\Functions\Language::l10n('Number of downloads')
-));
+]);
 
 // +-----------------------------------------------------------------------+
 // |                     start template output                             |
@@ -81,7 +82,7 @@ $template->assign('order_options', array(
 
 try {
     if (count($plugins->getServerPlugins(true)) > 0) {
-        /* order plugins */
+        // order plugins
         if (!empty($_SESSION['plugins_new_order'])) {
             $order_selected = $_SESSION['plugins_new_order'];
             $plugins->sortServerPlugins($order_selected);
@@ -101,7 +102,7 @@ try {
                 . '&amp;extension=' . $plugin['extension_id']
                 . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
-            $template->append('plugins', array(
+            $template->append('plugins', [
                 'ID' => $plugin['extension_id'],
                 'EXT_NAME' => $plugin['extension_name'],
                 'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $plugin['extension_id'],
@@ -113,7 +114,7 @@ try {
                 'DOWNLOADS' => $plugin['extension_nb_downloads'],
                 'URL_INSTALL' => $url_auto_install,
                 'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download'
-            ));
+            ]);
         }
     }
 } catch (\Exception $e) {

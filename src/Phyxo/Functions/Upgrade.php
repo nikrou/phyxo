@@ -35,7 +35,7 @@ class Upgrade
 
         $standard_plugins = [];
 
-        $result = (new PluginRepository($conn))->findByStateAndExcludeIds($standard_plugins);
+        $result = (new PluginRepository($conn))->findByStateAndExcludeIds('active', $standard_plugins);
         $plugins = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $plugins[] = $row['id'];
@@ -55,7 +55,6 @@ class Upgrade
         $standard_themes = ['elegant'];
 
         $result = (new ThemeRepository($conn))->findExcept($standard_themes);
-        $result = $conn->db_query($query);
         $theme_ids = [];
         $theme_names = [];
 

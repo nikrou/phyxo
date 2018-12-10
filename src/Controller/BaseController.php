@@ -25,7 +25,7 @@ class BaseController extends Controller
         $tpl_params = [];
 
         try {
-            global $conf, $conn, $header_notes, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $conf, $conn, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));

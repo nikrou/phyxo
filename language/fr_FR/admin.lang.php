@@ -1009,3 +1009,5 @@ $lang['Toggle menu'] = "Menu";
 $lang['Show/Hide form filter'] = "Montrer/cacher le filtre";
 $lang['You are about to delete one element, this procedure is irreversible'] = "Vous allez supprimer un élément, cette opération est irréversible";
 $lang['Do you want to proceed?'] = "Voulez-vous continuer ? ";
+$lang['All database upgrades have been made. Go to'] = "Toutes les mises à jour de la base de données ont été faites. Aller sur";
+$lang['dashboard'] = "le tableau de bord";

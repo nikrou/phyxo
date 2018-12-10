@@ -14,32 +14,60 @@ jQuery( ".radio" ).buttonset();
 </div>
 <form method="post" class="properties" action="" ENCTYPE="multipart/form-data" name="form" class="properties">
     <div id="configContent">
-	<fieldset>
-	    <legend>{'Panels options'|translate}</legend>
+	<div class="fieldset">
+	    <h3>{'Panels options'|translate}</h3>
 	    <p>{'Choose what should be the default state for each panel, or disable the animation:'|translate}</p>
+
+	    <h4>{'Main Menu Panel'|translate}</h4>
 	    <ul>
-		<li class="radio" >
-		    <label for="p_main_menu"><span class="property">{'Main Menu Panel'|translate}</span>&nbsp;</label>
-		    <input type="radio" id="p_main_menu_on" name="p_main_menu" value="on" {if $options.p_main_menu=="on"}checked="checked"{/if}><label for="p_main_menu_on">{'Displayed'|translate}</label>
-		    <input type="radio" id="p_main_menu_off" name="p_main_menu" value="off" {if $options.p_main_menu=="off"}checked="checked"{/if}><label for="p_main_menu_off">{'Hidden'|translate}</label>
-		    <input type="radio" id="p_main_menu_disabled" name="p_main_menu" value="disabled" {if $options.p_main_menu=="disabled"}checked="checked"{/if}><label for="p_main_menu_disabled">{'Disable the animation'|translate}</label>
+		<li>
+		    <input type="radio" id="p_main_menu_on" name="p_main_menu" value="on" {if $options.p_main_menu=="on"}checked="checked"{/if}>
+		    <label for="p_main_menu_on">{'Displayed'|translate}</label>
 		</li>
-		<li class="radio" >
-		    <label for="p_pict_descr"><span class="property">{'Photo Description Panel'|translate}</span>&nbsp;</label>
-		    <input type="radio" id="p_pict_descr_on" name="p_pict_descr" value="on" {if $options.p_pict_descr=="on"}checked="checked"{/if}><label for="p_pict_descr_on">{'Displayed'|translate}</label>
-		    <input type="radio" id="p_pict_descr_off" name="p_pict_descr" value="off" {if $options.p_pict_descr=="off"}checked="checked"{/if}><label for="p_pict_descr_off">{'Hidden'|translate}</label>
-		    <input type="radio" id="p_pict_descr_disabled" name="p_pict_descr" value="disabled" {if $options.p_pict_descr=="disabled"}checked="checked"{/if}><label for="p_pict_descr_disabled">{'Disable the animation'|translate}</label>
+		<li>
+		    <input type="radio" id="p_main_menu_off" name="p_main_menu" value="off" {if $options.p_main_menu=="off"}checked="checked"{/if}>
+		    <label for="p_main_menu_off">{'Hidden'|translate}</label>
 		</li>
-		<li class="radio" >
-		    <label for="p_pict_comment"><span class="property">{'Comments Panel'|translate}</span>&nbsp;</label>
-		    <input type="radio" id="p_pict_comment_on" name="p_pict_comment" value="on" {if $options.p_pict_comment=="on"}checked="checked"{/if}><label for="p_pict_comment_on">{'Displayed'|translate}</label>
-		    <input type="radio" id="p_pict_comment_off" name="p_pict_comment" value="off" {if $options.p_pict_comment=="off"}checked="checked"{/if}><label for="p_pict_comment_off">{'Hidden'|translate}</label>
-		    <input type="radio" id="p_pict_comment_disabled" name="p_pict_comment" value="disabled" {if $options.p_pict_comment=="disabled"}checked="checked"{/if}><label for="p_pict_comment_disabled">{'Disable the animation'|translate}</label>
+		<li>
+		    <input type="radio" id="p_main_menu_disabled" name="p_main_menu" value="disabled" {if $options.p_main_menu=="disabled"}checked="checked"{/if}>
+		    <label for="p_main_menu_disabled">{'Disable the animation'|translate}</label>
 		</li>
 	    </ul>
-	</fieldset>
+
+	    <h4>{'Photo Description Panel'|translate}</h4>
+	    <ul>
+		<li>
+		    <input type="radio" id="p_pict_descr_on" name="p_pict_descr" value="on" {if $options.p_pict_descr=="on"}checked="checked"{/if}>
+		    <label for="p_pict_descr_on">{'Displayed'|translate}</label>
+		</li>
+		<li>
+		    <input type="radio" id="p_pict_descr_off" name="p_pict_descr" value="off" {if $options.p_pict_descr=="off"}checked="checked"{/if}>
+		    <label for="p_pict_descr_off">{'Hidden'|translate}</label>
+		</li>
+		<li>
+		    <input type="radio" id="p_pict_descr_disabled" name="p_pict_descr" value="disabled" {if $options.p_pict_descr=="disabled"}checked="checked"{/if}>
+		    <label for="p_pict_descr_disabled">{'Disable the animation'|translate}</label>
+		</li>
+	    </ul>
+
+	    <h4>{'Comments Panel'|translate}</h4>
+	    <ul>
+		<li>
+		    <input type="radio" id="p_pict_comment_on" name="p_pict_comment" value="on" {if $options.p_pict_comment=="on"}checked="checked"{/if}>
+		    <label for="p_pict_comment_on">{'Displayed'|translate}</label>
+		</li>
+		<li>
+		    <input type="radio" id="p_pict_comment_off" name="p_pict_comment" value="off" {if $options.p_pict_comment=="off"}checked="checked"{/if}>
+		    <label for="p_pict_comment_off">{'Hidden'|translate}</label>
+		</li>
+		<li>
+		    <input type="radio" id="p_pict_comment_disabled" name="p_pict_comment" value="disabled" {if $options.p_pict_comment=="disabled"}checked="checked"{/if}>
+		    <label for="p_pict_comment_disabled">{'Disable the animation'|translate}</label>
+		</li>
+	    </ul>
+	</div>
     </div>
     <p>
-	<input class="submit" type="submit" value="{'Submit'|translate}" name="submit_elegant" />
+	<input class="btn btn-submit" type="submit" value="{'Submit'|translate}" name="submit_elegant" />
     </p>
 </form>

@@ -392,6 +392,9 @@ if ($step === 'user') {
             $step = 'success';
 
             rename(PHPWG_ROOT_PATH . 'local/config/database.inc.tmp.php', PHPWG_ROOT_PATH . 'local/config/database.inc.php');
+
+            // remove temporary upgrade file needed for upgrade from previous releases
+            unlink(PHPWG_ROOT_PATH . 'upgrade.php');
             $infos[] = \Phyxo\Functions\Language::l10n('Congratulations, Phyxo installation is completed');
         } catch (\Exception $e) {
             $errors[] = \Phyxo\Functions\Language::l10n($e->getMessage());
