@@ -43,10 +43,12 @@ class Conf implements \ArrayAccess
         require $conf_file;
         ob_end_clean();
 
-        foreach ($conf as $key => $value) {
-            $this->keys[self::FILE_PREFIX . $key] = $value;
+        if (!empty($conf)) {
+            foreach ($conf as $key => $value) {
+                $this->keys[self::FILE_PREFIX . $key] = $value;
+            }
+            unset($conf);
         }
-        unset($conf);
     }
 
     /**

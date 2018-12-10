@@ -1,5 +1,15 @@
-
 # Phyxo 2.0.0 - YYYY-MM-DD
+
+# Phyxo 1.9.3 - 2018-12-09
+-   Fix many small issues in various files: thanks to PHPStan
+-   Improve upgrade.
+-   Upgrade symfony to 4.2.1
+-   Fix assets path for Elegant theme.
+
+# Phyxo 1.9.2 - 2018-12-02
+-   No question mark in url (default)
+-   Fix misspelling in Favorites repository
+-   Fix small regression in derivative params.
 
 # Phyxo 1.9.1 - 2018-11-17
 -   Fix migration from 1.8.0. Forget to remove old php files.

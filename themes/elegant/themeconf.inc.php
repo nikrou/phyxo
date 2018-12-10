@@ -18,21 +18,22 @@ Author: Nicolas Roudaire
 Author URI: https://www.phyxo.net
 
 The theme is based on the original one for piwigo.
-*/
+ */
 
 $themeconf = [
-    'name'  => 'elegant',
+    'name' => 'elegant',
     'parent' => 'legacy',
-    'local_head'  => 'local_head.tpl'
+    'local_head' => 'local_head.tpl'
 ];
 
 // Need upgrade?
 global $conf;
-include(PHPWG_THEMES_PATH.'elegant/admin/upgrade.inc.php');
+include(PHPWG_THEMES_PATH . 'elegant/admin/upgrade.inc.php');
 
 \Phyxo\Functions\Plugin::add_event_handler('init', 'set_config_values_elegant');
-function set_config_values_elegant() {
+function set_config_values_elegant()
+{
     global $conf, $template;
-    $config = $conf['elegant'];
+    $config = json_decode($conf['elegant'], true);
     $template->assign('elegant', $config);
 }

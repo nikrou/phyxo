@@ -25,14 +25,16 @@ STEP:
 $step = isset($_GET['step']) ? $_GET['step'] : 0;
 $upgrade_to = isset($_GET['to']) ? $_GET['to'] : '';
 
+$obsolete_file = __DIR__ . '/../install/obsolete.list';
+
 // +-----------------------------------------------------------------------+
 // |                                Step 0                                 |
 // +-----------------------------------------------------------------------+
 if ($step == 0) {
-    $template->assign(array(
+    $template->assign([
         'CHECK_VERSION' => false,
         'DEV_VERSION' => false,
-    ));
+    ]);
 
     $updater = new Updates($conn);
     $updater->setUpdateUrl(PHYXO_UPDATE_URL);
@@ -78,10 +80,10 @@ if ($step == 0) {
 // |                                Step 1                                 |
 // +-----------------------------------------------------------------------+
 if ($step == 1) {
-    $template->assign(array(
+    $template->assign([
         'MINOR_VERSION' => $version,
         'MAJOR_VERSION' => $last_version,
-    ));
+    ]);
 }
 
 // +-----------------------------------------------------------------------+
@@ -92,6 +94,7 @@ if ($step == 2 and $services['users']->isWebmaster()) {
         $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
+        $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
 
         try {
             $updater->upgrade($zip);
@@ -109,7 +112,7 @@ if ($step == 2 and $services['users']->isWebmaster()) {
             $message .= implode("\n", $e->not_writable);
             $message .= '</pre>';
 
-            $template->assign(array('UPGRADE_ERROR' => $message));
+            $template->assign(['UPGRADE_ERROR' => $message]);
         }
     }
 }
@@ -122,6 +125,7 @@ if ($step == 3 and $services['users']->isWebmaster()) {
         $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
+        $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
 
         try {
             $updater->upgrade($zip);
@@ -137,7 +141,7 @@ if ($step == 3 and $services['users']->isWebmaster()) {
             $message .= implode("\n", $e->not_writable);
             $message .= '</pre>';
 
-            $template->assign(array('UPGRADE_ERROR' => $message));
+            $template->assign(['UPGRADE_ERROR' => $message]);
         }
     }
 }
@@ -150,9 +154,9 @@ if (!$services['users']->isWebmaster()) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
 }
 
-$template->assign(array(
+$template->assign([
     'STEP' => $step,
     'PHPWG_VERSION' => PHPWG_VERSION,
     'UPGRADE_TO' => $upgrade_to,
     'RELEASE_URL' => PHPWG_URL . '/releases/' . $upgrade_to,
-));
+]);

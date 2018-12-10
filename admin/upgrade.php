@@ -14,7 +14,6 @@ if (!defined('PHPWG_ROOT_PATH')) {
 }
 
 use Phyxo\Language\Languages;
-use Phyxo\Update\Updates;
 use App\Repository\UpgradeRepository;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);

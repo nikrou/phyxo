@@ -21,6 +21,7 @@ class Plugins extends Extensions
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
     private static $plugins_root_path = PHPWG_PLUGINS_PATH;
+    private $conn;
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn, $plugins_root_path = PHPWG_PLUGINS_PATH)
     {
@@ -35,7 +36,7 @@ class Plugins extends Extensions
      */
     private static function build_maintain_class($plugin_id)
     {
-        $file_to_include = self::$plugins_root_path . $plugin_id . '/maintain';
+        $file_to_include = self::$plugins_root_path . '/' . $plugin_id . '/maintain';
         $classname = $plugin_id . '_maintain';
 
         if (file_exists($file_to_include . '.class.php')) {
@@ -106,7 +107,7 @@ class Plugins extends Extensions
                     $plugin_maintain = self::build_maintain_class($plugin_id);
                     $plugin_maintain->update($previous_version, $new_version, $errors);
                     if ($new_version != 'auto') {
-                        (new PluginRepository($this->conn))->updatePlugin(['version' => $version], ['id' => $plugin_id]);
+                        (new PluginRepository($this->conn))->updatePlugin(['version' => $new_version], ['id' => $plugin_id]);
                     }
                 } catch (\Exception $e) {
                     $errors[] = $e->getMessage();

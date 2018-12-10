@@ -41,7 +41,7 @@ $(function() {
     $.ajax({
         method: 'GET',
         url: './index.php',
-        data: { page: 'plugins_installed', incompatible_plugins: true },
+        data: { page: 'plugins', section: 'installed', incompatible_plugins: true },
         dataType: 'json',
         success: function(data) {
             for (i = 0; i < data.length; i++) {

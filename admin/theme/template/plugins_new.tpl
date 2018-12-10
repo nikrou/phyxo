@@ -65,16 +65,15 @@
     {if not empty($plugins)}
 	<p class="sort">
 	    {'Sort order'|translate} :
-	    {html_options name="selectOrder" options=$order_options selected=$order_selected}
+	    {html_options class="custom-select" name="selectOrder" options=$order_options selected=$order_selected}
 	</p>
     {/if}
 
     {if not empty($plugins)}
 	<div id="availablePlugins">
-	    <fieldset>
-		<legend></legend>
+	    <div class="fieldset">
 		{foreach $plugins as $plugin}
-		    <div class="pluginBox" id="plugin_{$plugin.ID}">
+		    <div class="plugin" id="plugin_{$plugin.ID}">
 			<input type="hidden" name="date" value="{$plugin.ID}">
 			<input type="hidden" name="name" value="{$plugin.EXT_NAME}">
 			<input type="hidden" name="revision" value="{$plugin.REVISION_DATE}">
@@ -111,7 +110,7 @@
 			</table>
 		    </div>
 		{/foreach}
-	    </fieldset>
+	    </div>
 	</div>
     {else}
 	<p>{'There is no other plugin available.'|translate}</p>

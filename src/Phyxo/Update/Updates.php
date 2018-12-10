@@ -19,19 +19,21 @@ use GuzzleHttp\Client;
 
 class Updates
 {
-    private $versions = array(), $version = array();
-    private $types = array();
+    private $versions = [], $version = [];
+    private $types = [];
+    private $default_themes = [], $default_plugins = [], $default_languages = [];
+    private $update_url, $missing = [];
 
     public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, $page = 'updates')
     {
-        $this->types = array('plugins', 'themes', 'languages');
+        $this->types = ['plugins', 'themes', 'languages'];
 
         if (in_array($page, $this->types)) {
-            $this->types = array($page);
+            $this->types = [$page];
         }
-        $this->default_themes = array('elegant', 'legacy', 'default');
-        $this->default_plugins = array();
-        $this->default_languages = array();
+        $this->default_themes = ['elegant', 'legacy', 'default'];
+        $this->default_plugins = [];
+        $this->default_languages = [];
 
         foreach ($this->types as $type) {
             $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
@@ -56,7 +58,7 @@ class Updates
     public function getAllVersions()
     {
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $this->update_url);
             if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $this->versions = json_decode($response->getBody(), true);
@@ -78,12 +80,29 @@ class Updates
         }
     }
 
+    public function removeObsoleteFiles(string $obsolete_file, string $root)
+    {
+        if (!is_readable($obsolete_file)) {
+            return;
+        }
+
+        $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
+        foreach ($old_files as $old_file) {
+            $path = $root . '/' . $old_file;
+            if (is_writable($path)) {
+                @unlink($path);
+            } elseif (is_dir($path)) {
+                \Phyxo\Functions\Utils::deltree($path);
+            }
+        }
+    }
+
     public function download($zip_file)
     {
         @\Phyxo\Functions\Utils::mkgetdir(dirname($zip_file)); // @TODO: remove arobase and use a fs library
 
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $this->getFileURL());
             if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 file_put_contents($zip_file, $response->getBody());
@@ -100,7 +119,7 @@ class Updates
     public function upgrade($zip_file)
     {
         $zip = new PclZip($zip_file);
-        $not_writable = array();
+        $not_writable = [];
         $root = PHPWG_ROOT_PATH;
 
         foreach ($zip->listContent() as $file) {
@@ -135,16 +154,16 @@ class Updates
     {
         global $user;
 
-        $get_data = array(
+        $get_data = [
             'format' => 'json',
-        );
+        ];
 
         // Retrieve PEM versions
-        $versions_to_check = array();
+        $versions_to_check = [];
         $url = PEM_URL . '/api/get_version_list.php';
 
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, $get_data);
             if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $pem_versions = json_decode($response->getBody(), true);
@@ -170,7 +189,7 @@ class Updates
         }
 
         // Extensions to check
-        $ext_to_check = array();
+        $ext_to_check = [];
         foreach ($this->types as $type) {
             foreach ($this->getType($type)->getFsExtensions() as $ext) {
                 if (isset($ext['extension'])) {
@@ -181,22 +200,22 @@ class Updates
 
         // Retrieve PEM plugins infos
         $url = PEM_URL . '/api/get_revision_list.php';
-        $get_data = array_merge($get_data, array(
+        $get_data = array_merge($get_data, [
             'last_revision_only' => 'true',
             'version' => implode(',', $versions_to_check),
             'lang' => substr($user['language'], 0, 2),
             'get_nb_downloads' => 'true',
             'format' => 'json'
-        ));
+        ]);
         $url .= '?' . http_build_query($get_data, '', '&');
 
-        $post_data = array();
+        $post_data = [];
         if (!empty($ext_to_check)) {
             $post_data['extension_include'] = implode(',', array_keys($ext_to_check));
         }
 
         try {
-            $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+            $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('POST', $url, $post_data);
             if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                 $pem_exts = json_decode($response->getBody(), true);
@@ -204,16 +223,16 @@ class Updates
                 throw new \Exception("Reponse from server is not readable");
             }
             if (!is_array($pem_exts)) {
-                return array();
+                return [];
             }
 
-            $servers = array();
+            $servers = [];
             foreach ($pem_exts as $ext) {
                 if (isset($ext_to_check[$ext['extension_id']])) {
                     $type = $ext_to_check[$ext['extension_id']];
 
                     if (!isset($servers[$type])) {
-                        $servers[$type] = array();
+                        $servers[$type] = [];
                     }
 
                     $servers[$type][$ext['extension_id']] = $ext;
@@ -223,12 +242,12 @@ class Updates
             }
 
             $this->checkMissingExtensions($ext_to_check);
-            return array();
+            return [];
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
 
-        return array();
+        return [];
     }
 
     public function checkCoreUpgrade()
@@ -237,7 +256,7 @@ class Updates
 
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
             try {
-                $client = new Client(array('headers' => array('User-Agent' => 'Phyxo')));
+                $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
                 $response = $client->request('GET', PHPWG_URL . '/download/all_versions.php');
                 if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
@@ -260,10 +279,10 @@ class Updates
             return false;
         }
 
-        $_SESSION['extensions_need_update'] = array();
+        $_SESSION['extensions_need_update'] = [];
 
         foreach ($this->types as $type) {
-            $ignore_list = array();
+            $ignore_list = [];
 
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
                 if (isset($fs_ext['extension']) and isset($server_ext[$fs_ext['extension']])) {
