@@ -63,7 +63,7 @@ class OldPermalinkRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public static function getCategoryIdFromOldPermalink(string $permalink) : string
+    public function getCategoryIdFromOldPermalink(string $permalink) : string
     {
         $query = 'SELECT c.id FROM ' . self::OLD_PERMALINKS_TABLE . ' AS op';
         $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' AS c ON op.cat_id=c.id';

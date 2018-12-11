@@ -83,20 +83,20 @@ class FavoriteRepository extends BaseRepository
     /**
      * Deletes favorites of the current user if he's not allowed to see them.
      */
-    public static function deleteUnauthorizedImagesFromFavorites(int $user_id)
+    public function deleteUnauthorizedImagesFromFavorites(int $user_id)
     {
         // $filter['visible_categories'] and $filter['visible_images']
         // must be not used because filter <> restriction
         // retrieving images allowed : belonging to at least one authorized category
         $result = $this->findAuthorizedImagesInFavorite($user_id);
-        $authorizeds = $conn->result2array($result, null, 'image_id');
+        $authorizeds = $this->conn->result2array($result, null, 'image_id');
 
         $result = $this->findAll($user_id);
-        $favorites = $conn->result2array($result, null, 'image_id');
+        $favorites = $this->conn->result2array($result, null, 'image_id');
 
         $to_deletes = array_diff($favorites, $authorizeds);
         if (count($to_deletes) > 0) {
-            (new FavoriteRepository($conn))->deleteImagesFromFavorite($to_deletes, $user_id);
+            (new FavoriteRepository($this->conn))->deleteImagesFromFavorite($to_deletes, $user_id);
         }
     }
 }

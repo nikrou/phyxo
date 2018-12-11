@@ -392,7 +392,7 @@ class Search
                     $qsr->tag_iids[$i] = $conn->result2array($result, null, 'image_id');
                 } else { // eg. 'tag:' returns all untagged images
                     $result = (new ImageRepository($conn))->findImageWithNoTag();
-                    $qsr->tag_iids[$i] = $conn->result2array($resquery, null, 'id');
+                    $qsr->tag_iids[$i] = $conn->result2array($result, null, 'id');
                 }
             }
         }
@@ -481,6 +481,7 @@ class Search
                 isset($options['images_where']) ? $options['images_where'] : '',
             ]
         );
+        $res = null;
         if ($persistent_cache->get($cache_key, $res)) {
             return $res;
         }

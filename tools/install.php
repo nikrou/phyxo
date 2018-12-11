@@ -41,7 +41,7 @@ try {
 
 $conf = new Conf($conn);
 $conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-$languages = new Languages($conn, 'utf-8');
+$languages = new Languages($conn);
 
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
 

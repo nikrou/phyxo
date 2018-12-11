@@ -78,7 +78,7 @@ class RateRepository extends BaseRepository
     public function findByUserAndAnonymousId(int $user_id, string $anonymous_id)
     {
         $query = 'SELECT element_id FROM ' . self::RATE_TABLE;
-        $query .= ' WHERE user_id = ' . $user['id'];
+        $query .= ' WHERE user_id = ' . $user_id;
         $query .= ' AND anonymous_id = \'' . $this->conn->db_real_escape_string($anonymous_id) . '\'';
 
         return $this->conn->db_query($query);
@@ -144,7 +144,7 @@ class RateRepository extends BaseRepository
 
     public function updateRate(array $datas, array $where)
     {
-        $this->single_update(self::RATE_TABLE, $datas, $where);
+        $this->conn->single_update(self::RATE_TABLE, $datas, $where);
     }
 
     public function calculateRateByElement()

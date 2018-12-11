@@ -48,7 +48,7 @@ class CategoryRepository extends BaseRepository
     {
         $query = 'SELECT id, uppercats, site_id FROM ' . self::CATEGORIES_TABLE;
         $query .= ' WHERE dir \'' . $condition . '\'';
-        $query .= ' AND id ' . $this->conn->in($cat_ids);
+        $query .= ' AND id ' . $this->conn->in($ids);
 
         return $this->conn->db_query($query);
     }
@@ -385,7 +385,7 @@ class CategoryRepository extends BaseRepository
 
         $query = 'UPDATE ' . self::CATEGORIES_TABLE;
         $query .= ' SET ';
-        foreach ($fields as $key => $value) {
+        foreach ($datas as $key => $value) {
             $separator = $is_first ? '' : ', ';
 
             if (is_bool($value)) {

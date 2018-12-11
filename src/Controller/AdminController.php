@@ -14,6 +14,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class AdminController extends Controller
 {
@@ -37,16 +38,6 @@ class AdminController extends Controller
         return $this->doResponse($legacy_file);
     }
 
-    public function user_list_backend(Request $request)
-    {
-        $legacy_file = sprintf('%s/user_list_backend.php', $this->container->getParameter('legacy_base_dir'));
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = '/user_list_backend.php';
-
-        return $this->doResponse($legacy_file);
-    }
-
     private function doResponse($legacy_file)
     {
         $_SERVER['PHP_SELF'] = $legacy_file;
@@ -63,9 +54,9 @@ class AdminController extends Controller
             require $legacy_file;
 
             return new Response($template->flush(true));
-        } catch (Routing\Exception\ResourceNotFoundException $e) {
+        } catch (ResourceNotFoundException $e) {
             return new Response('Not Found', 404);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return new Response('An error occurred', 500);
         }
     }

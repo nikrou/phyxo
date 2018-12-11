@@ -39,7 +39,7 @@ class Image
         global $conn, $services;
 
         $result = (new CategoryRepository($conn))->findCommentable($params['image_id']);
-        if (!$conn->db_num_rows($conn->db_query($query))) {
+        if (!$conn->db_num_rows($result)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
         }
 
@@ -49,6 +49,7 @@ class Image
             'image_id' => $params['image_id'],
         ];
 
+        $infos = [];
         $comment_action = $services['comments']->insertUserComment($comm, $params['key'], $infos);
 
         switch ($comment_action) {
@@ -140,7 +141,7 @@ class Image
         ];
         if (isset($rating['score'])) {
             $result = (new RateRepository($conn))->calculateRateSummary($image_row['id']);
-            $row = $conn->db_fetch_assoc($conn->db_query($query));
+            $row = $conn->db_fetch_assoc($result);
 
             $rating['score'] = (float)$rating['score'];
             $rating['average'] = (float)$row['average'];
@@ -460,14 +461,14 @@ class Image
         $result = (new ImageRepository($conn))->findById($params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
-            return new Phyxo\Ws\Error(404, "image_id not found");
+            return new \Phyxo\Ws\Error(404, "image_id not found");
         }
 
         $image = $conn->db_fetch_assoc($result);
 
         // we do not take the imported "thumb" into account
         if ('thumb' == $params['type']) {
-            self::remove_chunks($image['md5sum'], $type);
+            self::remove_chunks($image['md5sum'], $params['type']);
             return true;
         }
 

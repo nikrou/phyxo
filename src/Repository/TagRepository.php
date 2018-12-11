@@ -167,7 +167,7 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getAvailableTags($user)
+    public function getAvailableTags($user, bool $show_pending_added_tags = false)
     {
         // we can find top fatter tags among reachable images
         $query = 'SELECT tag_id, validated, status, created_by,';
@@ -181,19 +181,19 @@ class TagRepository extends BaseRepository
             ],
             ' WHERE '
         );
-        $query .= ' AND (' . $this->validatedCondition($user['id']) . ')';
+        $query .= ' AND (' . $this->validatedCondition($user['id'], $show_pending_added_tags) . ')';
         $query .= ' GROUP BY tag_id,validated,created_by,status';
 
         return $this->conn->db_query($query);
     }
 
-    public function getCommonTags($user, array $items, int $max_tags, array $excluded_tag_ids = [])
+    public function getCommonTags($user, array $items, int $max_tags, bool $show_pending_added_tags, array $excluded_tag_ids = [])
     {
         $query = 'SELECT id,name,validated,created_by,status,';
         $query .= ' url_name, count(1) AS counter FROM ' . self::TAGS_TABLE . ' AS t';
         $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON tag_id = id';
         $query .= ' WHERE image_id ' . $this->conn->in($items);
-        $query .= ' AND (' . $this->validatedCondition($user['id']) . ')';
+        $query .= ' AND (' . $this->validatedCondition($user['id'], $show_pending_added_tags) . ')';
         if (!empty($excluded_tag_ids)) {
             $query .= ' AND tag_id NOT ' . $this->conn->in($excluded_tag_ids);
         }
@@ -253,12 +253,12 @@ class TagRepository extends BaseRepository
         $this->conn->mass_updates(self::TAGS_TABLE, $fields, $datas);
     }
 
-    private function validatedCondition(int $user_id)
+    private function validatedCondition(int $user_id, bool $show_pending_added_tags = false)
     {
         $sql = '((validated = \'' . $this->conn->boolean_to_db(true) . '\' AND status = 1)';
         $sql .= ' OR (validated = \'' . $this->conn->boolean_to_db(false) . '\' AND status = 0))';
 
-        if (!empty($this->conf['show_pending_added_tags'])) {
+        if ($show_pending_added_tags) {
             $sql .= ' OR (created_by = ' . $this->conn->db_real_escape_string($user_id) . ')';
         }
 

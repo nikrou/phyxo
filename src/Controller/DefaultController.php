@@ -96,7 +96,7 @@ class DefaultController extends BaseController
                 if (!$user['enabled_high']) {
                     $deriv = new \Phyxo\Image\DerivativeImage(IMG_XXLARGE, new \Phyxo\Image\SrcImage($element_info));
                     if (!$deriv->same_as_source()) {
-                        throw new AccessDeniedException();
+                        throw new AccessDeniedException('Access denied');
                     }
                 }
                 $file = \Phyxo\Functions\Utils::get_element_path($element_info);

@@ -182,7 +182,7 @@ class Mail
      * Return an new mail template.
      *
      * @param string $email_format - text/html or text/plain
-     * @return Template
+     * @return \Phyxo\Template\Template
      */
     public static function get_mail_template($email_format)
     {

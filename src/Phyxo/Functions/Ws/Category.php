@@ -553,7 +553,7 @@ class Category
         }
 
         $result = (new CategoryRepository($conn))->findByIds($category_ids);
-        $category_ids = $conn->query2array($query, null, 'id');
+        $category_ids = $conn->result2array($result, null, 'id');
 
         if (count($category_ids) == 0) {
             return;
@@ -671,7 +671,7 @@ class Category
                 $tree[] = &$node;
             } else {
                 if (!isset($categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'])) {
-                    $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = new NamedArray([], 'category', self::stdGetCategoryXmlAttributes());
+                    $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories'] = new NamedArray([], 'category', \Phyxo\Functions\Ws\Main::stdGetCategoryXmlAttributes());
                 }
 
                 $categories[$key_of_cat[$node['id_uppercat']]]['sub_categories']->_content[] = &$node;

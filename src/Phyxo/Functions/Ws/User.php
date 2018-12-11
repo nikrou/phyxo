@@ -214,6 +214,7 @@ class User
             }
         }
 
+        $errors = [];
         $user_id = $services['users']->registerUser(
             $params['username'],
             $params['password'],
@@ -350,7 +351,7 @@ class User
 
             // an admin can't change status of other admin/webmaster
             if ('admin' == $user['status']) {
-                (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
+                $result = (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
                 $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
             }
 

@@ -17,10 +17,11 @@ use App\Repository\UserInfosRepository;
 
 class Languages extends Extensions
 {
+    private $conn;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, $target_charset = null)
+    public function __construct(\Phyxo\DBLayer\DBLayer $conn = null)
     {
         if (!is_null($conn)) {
             $this->conn = $conn;

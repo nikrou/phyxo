@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DBLayerCollector extends DataCollector
 {
+    private $conn;
+
     public function __construct(DBLayer $conn)
     {
         $this->conn = $conn;

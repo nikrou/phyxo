@@ -396,7 +396,7 @@ class Category
 
             if (count($image_ids_linked) > 0) {
                 if ('delete_orphans' == $photo_deletion_mode) {
-                    $image_ids_not_orphans = $this->conn->result2array(
+                    $image_ids_not_orphans = $conn->result2array(
                         (new ImageCategoryRepository($conn))->getImageIdsNotOrphans($image_ids_linked, $ids),
                         null,
                         'image_id'
@@ -600,7 +600,7 @@ class Category
         if (isset($filter_days)) {
             foreach ($cats as $category) {
                 if (empty($category['max_date_last'])) {
-                    remove_computed_category($cats, $category);
+                    self::remove_computed_category($cats, $category);
                 }
             }
         }
@@ -836,7 +836,7 @@ class Category
      * @param int[] $category_ids
      * @param int[] $user_ids
      */
-    function add_permission_on_category($category_ids, $user_ids)
+    public static function add_permission_on_category($category_ids, $user_ids)
     {
         global $conn;
 

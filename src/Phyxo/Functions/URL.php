@@ -703,7 +703,7 @@ class URL
      * Event handler to protect src image urls.
      *
      * @param string $url
-     * @param SrcImage $src_image
+     * @param \Phyxo\Image\SrcImage $src_image
      * @return string
      */
     public static function get_src_image_url_protection_handler($url, $src_image)

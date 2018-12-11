@@ -137,7 +137,7 @@ class UserRepository extends BaseRepository
         $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS i ON i.user_id =  u.id';
         $query .= ' WHERE i.status in (\'webmaster\',  \'admin\')';
         $query .= ' AND u.mail_address IS NOT NULL';
-        $query .= ' AND i.user_id != ' . $user['id'];
+        $query .= ' AND i.user_id != ' . $user_id;
         $query .= ' ORDER BY name';
 
         return $this->conn->db_query($query);
@@ -179,8 +179,8 @@ class UserRepository extends BaseRepository
 
     public function getDistinctLanguagesForUsers(int $group_id, ? string $language = null)
     {
-        $query = 'SELECT DISTINCT language FROM ' . self::USER_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USERS_GROUP_TABLE . ' AS ug ON id = ug.user_id';
+        $query = 'SELECT DISTINCT language FROM ' . self::USERS_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
         $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
         $query .= ' WHERE group_id = ' . $group_id . ' AND mail_adress IS NOT NULL';
 
@@ -193,11 +193,11 @@ class UserRepository extends BaseRepository
 
     public function getUsersByLanguage(int $group_id, string $languages)
     {
-        $query = 'SELECT u.username AS name, u.mail_address AS email FROM ' . self::USER_TABLE . ' AS u';
-        $query .= ' LEFT JOIN ' . self::USERS_GROUP_TABLE . ' AS ug ON id = ug.user_id';
+        $query = 'SELECT u.username AS name, u.mail_address AS email FROM ' . self::USERS_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
         $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
         $query .= ' WHERE group_id = ' . $group_id . ' AND mail_address IS NOT NULL';
-        $query .= ' AND language  = \'' . $this->conn->db_real_escape_string($language) . '\'';
+        $query .= ' AND language  = \'' . $this->conn->db_real_escape_string($languages) . '\'';
 
         return $this->conn->db_query($query);
     }

@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CheckInstallSubscriber implements EventSubscriberInterface
 {
+    private $urlGenerator;
+
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
