@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\Response;
 class Template implements EngineInterface
 {
     private $stats = ['render_time' => null, 'files' => []];
+    private $manifest_content = '';
 
     /** @var Smarty */
     public $smarty;
@@ -400,7 +401,7 @@ class Template implements EngineInterface
         $this->load_external_filters($handle);
 
         if (!empty($this->options['conf']['compiled_template_cache_language']) && isset($this->options['lang_info']['code'])) {
-            $this->smarty->compile_id .= '_' . $lang_info['code'];
+            $this->smarty->compile_id .= '_' . $this->options['lang_info']['code'];
         }
 
         $v = $this->smarty->fetch($this->files[$handle]);

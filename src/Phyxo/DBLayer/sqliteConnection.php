@@ -517,10 +517,8 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     /**
      * Do maintenance on all Phyxo tables
-     *
-     * @return none
      */
-    function do_maintenance_all_tables()
+    public function do_maintenance_all_tables() : bool
     {
         global $prefixeTable;
 
@@ -529,7 +527,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         // List all tables
         $query = 'SELECT name FROM SQLITE_MASTER WHERE name LIKE \'' . $prefixeTable . '%\'';
 
-        $all_tables = $this->conn->query2array($query, null, 'name');
+        $all_tables = $this->query2array($query, null, 'name');
         foreach ($all_tables as $table_name) {
             $query = 'VACUUM ' . $table_name . ';';
             $result = $this->db_query($query);

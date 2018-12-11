@@ -21,7 +21,7 @@ use App\Repository\UserCacheRepository;
 
 class Tags
 {
-    private $conn;
+    private $conn, $conf;
 
     public function __construct(DBLayer $conn, Conf $conf)
     {
@@ -93,7 +93,7 @@ class Tags
      */
     public function getAvailableTags($user)
     {
-        $result = (new TagRepository($this->conn))->getAvailableTags($user);
+        $result = (new TagRepository($this->conn))->getAvailableTags($user, $this->conf['show_pending_added_tags'] ?? false);
 
         // merge tags whether they are validated or not
         $tag_counters = [];
@@ -132,7 +132,7 @@ class Tags
             return [];
         }
 
-        $result = (new TagRepository($this->conn))->getCommonTags($user, $items, $max_tags, $excluded_tag_ids);
+        $result = (new TagRepository($this->conn))->getCommonTags($user, $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
         $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);

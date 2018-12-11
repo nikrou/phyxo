@@ -16,10 +16,11 @@ class InflectorEn
     private $exceptions;
     private $pluralizers;
     private $singularizers;
+    private $er2ing, $ing2er;
 
     public function __construct()
     {
-        $tmp = array(
+        $tmp = [
             'octopus' => 'octopuses',
             'virus' => 'viruses',
             'person' => 'people',
@@ -32,25 +33,25 @@ class InflectorEn
             'zombie' => 'zombies', // pl->sg exc.
             'serie' => 'series', // pl->sg exc.
             'movie' => 'movies', // pl->sg exc.
-        );
+        ];
 
         $this->exceptions = $tmp;
         foreach ($tmp as $k => $v) {
             $this->exceptions[$v] = $k;
         }
 
-        $words = array(
+        $words = [
             'new', 'news', 'advice', 'art', 'coal', 'baggage', 'butter', 'clothing', 'cotton', 'currency', 'deer', 'energy', 'equipment', 'experience', 'fish', 'flour',
             'food', 'furniture', 'gas', 'homework', 'impatience', 'information', 'jeans', 'knowledge', 'leather', 'love', 'luggage', 'money', 'oil', 'patience', 'police',
             'polish', 'progress', 'research', 'rice', 'series', 'sheep', 'silk', 'soap', 'species', 'sugar', 'talent', 'toothpaste', 'travel', 'vinegar', 'weather', 'wood', 'wool', 'work'
-        );
+        ];
 
         foreach ($words as $w) {
             $this->exceptions[$w] = 0;
         }
 
         $this->pluralizers = array_reverse(
-            array(
+            [
                 '/$/' => 's',
                 '/s$/' => 's',
                 '/^(ax|test)is$/' => '\1es',
@@ -66,10 +67,10 @@ class InflectorEn
                 '/(x|ch|ss|sh)$/' => '\1es',
                 '/(matr|vert|ind)(?:ix|ex)$/' => '\1ices',
                 '/(quiz)$/' => '\1zes',
-            )
+            ]
         );
 
-        $this->singularizers = array_reverse(array(
+        $this->singularizers = array_reverse([
             '/s$/' => '',
             '/(ss)$/' => '\1',
             '/([ti])a$/' => '\1um',
@@ -91,25 +92,25 @@ class InflectorEn
             '/(matr)ices$/' => '\1ix',
             '/(quiz)zes$/' => '\1',
             '/(database)s$/' => '\1',
-        ));
+        ]);
 
-        $this->er2ing = array_reverse(array(
+        $this->er2ing = array_reverse([
             '/ers?$/' => 'ing',
             '/(be|draw|liv)ers?$/' => '\0'
-        ));
+        ]);
 
-        $this->ing2er = array_reverse(array(
+        $this->ing2er = array_reverse([
             '/ing$/' => 'er',
             '/(snow|rain)ing$/' => '\1',
             '/(th|hous|dur|spr|wedd)ing$/' => '\0',
             '/(liv|draw)ing$/' => '\0'
-        ));
+        ]);
 
     }
 
     public function get_variants($word)
     {
-        $res = array();
+        $res = [];
 
         $lword = strtolower($word);
 

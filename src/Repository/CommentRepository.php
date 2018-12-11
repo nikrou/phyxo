@@ -152,7 +152,7 @@ class CommentRepository extends BaseRepository
     public function deleteByIds($comments, int $author_id = null)
     {
         $query = 'DELETE FROM ' . self::COMMENTS_TABLE;
-        if (is_array($comment)) {
+        if (is_array($comments)) {
             $query .= ' WHERE id ' . $this->conn->in($comments);
         } else {
             $query .= ' WHERE id = ' . $comments;

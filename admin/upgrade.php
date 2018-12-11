@@ -31,7 +31,7 @@ if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
 // +-----------------------------------------------------------------------+
 // |                             language                                  |
 // +-----------------------------------------------------------------------+
-$languages = new Languages($conn, 'utf-8');
+$languages = new Languages($conn);
 
 if (isset($_GET['language'])) {
     if (!in_array($_GET['language'], array_keys($languages->getFsLanguages()))) {

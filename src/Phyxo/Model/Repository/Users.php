@@ -25,10 +25,11 @@ use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserAccessRepository;
+use App\Repository\ThemeRepository;
 
 class Users
 {
-    private $conn;
+    private $conn, $conf, $user, $cache;
 
     public function __construct(iDBLayer $conn, Conf $conf, array $user, array $cache)
     {
@@ -441,7 +442,7 @@ class Users
                     );
 
                     $this->conn->db_commit();
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $this->conn->db_rollback();
                 }
             }

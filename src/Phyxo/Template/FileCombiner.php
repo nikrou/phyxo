@@ -34,7 +34,7 @@ final class FileCombiner
      * @param string $type 'js' or 'css'
      * @param Combinable[] $combinables
      */
-    public function __construct($type, $combinables = array())
+    public function __construct($type, $combinables = [])
     {
         $this->type = $type;
         $this->is_css = $type == 'css';
@@ -81,9 +81,9 @@ final class FileCombiner
                 || (isset($_SERVER['HTTP_PRAGMA']) && strpos($_SERVER['HTTP_PRAGMA'], 'no-cache'));
         }
 
-        $result = array();
-        $pending = array();
-        $ini_key = $this->is_css ? array(\Phyxo\Functions\URL::get_absolute_root_url(false)) : array(); //because for css we modify bg url;
+        $result = [];
+        $pending = [];
+        $ini_key = $this->is_css ? [\Phyxo\Functions\URL::get_absolute_root_url(false)] : []; //because for css we modify bg url;
         $key = $ini_key;
 
         foreach ($this->combinables as $combinable) {
@@ -139,8 +139,8 @@ final class FileCombiner
             $this->process_combinable($pending[0], false, $force, $header);
             $result[] = $pending[0];
         }
-        $key = array();
-        $pending = array();
+        $key = [];
+        $pending = [];
     }
 
     /**
@@ -160,7 +160,7 @@ final class FileCombiner
 
         if ($combinable->is_template) {
             if (!$return_content) {
-                $key = array($combinable->path, $combinable->version);
+                $key = [$combinable->path, $combinable->version];
                 if ($conf['template_compile_check']) {
                     $key[] = filemtime(PHPWG_ROOT_PATH . $combinable->path);
                 }
@@ -212,7 +212,7 @@ final class FileCombiner
         if (strpos($file, '.min') === false and strpos($file, '.packed') === false) {
             try {
                 $js = JShrink\Minifier::minify($js);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
         return trim($js, " \t\r\n;") . ";\n";
@@ -231,7 +231,7 @@ final class FileCombiner
     {
         $css = self::process_css_rec($css, dirname($file), $header);
         if (strpos($file, '.min') === false and version_compare(PHP_VERSION, '5.2.4', '>=')) {
-            $css = CssMin::minify($css, array('Variables' => false));
+            $css = CssMin::minify($css, ['Variables' => false]);
         }
         $css = Plugin::trigger_change('combined_css_postfilter', $css);
         return $css;
@@ -252,7 +252,7 @@ final class FileCombiner
         static $PATTERN_IMPORT = "#@import\s*['|\"]{0,1}(.*?)['|\"]{0,1};#";
 
         if (preg_match_all($PATTERN_URL, $css, $matches, PREG_SET_ORDER)) {
-            $search = $replace = array();
+            $search = $replace = [];
             foreach ($matches as $match) {
                 if (!\Phyxo\Functions\URL::url_is_remote($match[1]) && $match[1][0] != '/' && strpos($match[1], 'data:image/') === false) {
                     $relative = $dir . "/$match[1]";
@@ -264,7 +264,7 @@ final class FileCombiner
         }
 
         if (preg_match_all($PATTERN_IMPORT, $css, $matches, PREG_SET_ORDER)) {
-            $search = $replace = array();
+            $search = $replace = [];
             foreach ($matches as $match) {
                 $search[] = $match[0];
 

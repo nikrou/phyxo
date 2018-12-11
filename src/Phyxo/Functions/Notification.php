@@ -20,6 +20,8 @@ use App\Repository\UserInfosRepository;
 
 class Notification
 {
+    private $conn;
+
     public function __construct(DBLayer $conn)
     {
         $this->conn = $conn;
@@ -280,6 +282,7 @@ class Notification
         global $conf, $user, $persistent_cache, $conn;
 
         $cache_key = $persistent_cache->make_key('recent_posts' . $user['id'] . $user['cache_update_time'] . $max_dates . $max_elements . $max_cats);
+        $cached = null;
         if ($persistent_cache->get($cache_key, $cached)) {
             return $cached;
         }
@@ -828,7 +831,7 @@ class Notification
     // Inserting News users
     public static function insert_new_data_user_mail_notification()
     {
-        global $conf, $page, $env_nbm, $conn;
+        global $conf, $page, $env_nbm, $conn, $base_url;
 
         // null mail_address are not selected in the list
         $result = (new UserRepository($conn))->findUsersWithNoMailNotificationInfos();

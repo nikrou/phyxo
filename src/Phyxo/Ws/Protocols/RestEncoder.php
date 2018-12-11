@@ -15,6 +15,8 @@ use Phyxo\Ws\Server;
 
 class RestEncoder extends ResponseEncoder
 {
+    private $_writer;
+
     public function encodeResponse($response)
     {
         $respClass = @get_class($response);
@@ -41,7 +43,7 @@ class RestEncoder extends ResponseEncoder
         return 'text/xml';
     }
 
-    public function encode_array($data, $itemName, $xml_attributes = array())
+    public function encode_array($data, $itemName, $xml_attributes = [])
     {
         foreach ($data as $item) {
             $this->_writer->start_element($itemName);
@@ -50,7 +52,7 @@ class RestEncoder extends ResponseEncoder
         }
     }
 
-    public function encode_struct($data, $skip_underscore, $xml_attributes = array())
+    public function encode_struct($data, $skip_underscore, $xml_attributes = [])
     {
         foreach ($data as $name => $value) {
             if (is_numeric($name)) {
@@ -89,7 +91,7 @@ class RestEncoder extends ResponseEncoder
         }
     }
 
-    public function encode($data, $xml_attributes = array())
+    public function encode($data, $xml_attributes = [])
     {
         switch (gettype($data)) {
             case 'null':

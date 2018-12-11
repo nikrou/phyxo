@@ -589,10 +589,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     /**
      * Do maintenance on all Phyxo tables
-     *
-     * @return none
      */
-    function do_maintenance_all_tables()
+    public function do_maintenance_all_tables() : bool
     {
         global $prefixeTable;
 

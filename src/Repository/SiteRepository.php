@@ -29,8 +29,8 @@ class SiteRepository extends BaseRepository
 
     public function findById(int $id)
     {
-        $query = 'INSERT INTO ' . self::SITES_TABLE;
-        $query .= ' (galleries_url) VALUES(\'' . $this->conn->db_real_escape_string($url) . '\')';
+        $query = 'SELECT id, galleries_url FROM ' . self::SITES_TABLE;
+        $query .= ' WHERE id = ' . $id;
 
         return $this->conn->db_query($query);
     }

@@ -1,28 +1,20 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2016 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Ws\Protocols;
 
 class XmlRpcEncoder extends ResponseEncoder
 {
-    public function encodeResponse($response) {
+    public function encodeResponse($response)
+    {
         $respClass = @get_class($response);
         if ($respClass == 'Phyxo\Ws\Error') {
             $code = $response->code();
@@ -64,41 +56,41 @@ EOD;
         return $ret;
     }
 
-    public function getContentType() {
+    public function getContentType()
+    {
         return 'text/xml';
     }
 
-    private function xmlrpc_encode($data) {
-        switch (gettype($data))
-        {
-        case 'boolean':
-            return '<boolean>'.($data ? '1' : '0').'</boolean>';
-        case 'integer':
-            return '<int>'.$data.'</int>';
-        case 'double':
-            return '<double>'.$data.'</double>';
-        case 'string':
-            return '<string>'.htmlspecialchars($data).'</string>';
-        case 'object':
-        case 'array':
-            $is_array = range(0, count($data) - 1) === array_keys($data);
-            if ($is_array) {
-                $return = '<array><data>'."\n";
-                foreach ($data as $item) {
-                    $return .= '  <value>'.xmlrpc_encode($item)."</value>\n";
+    private function xmlrpc_encode($data)
+    {
+        switch (gettype($data)) {
+            case 'boolean':
+                return '<boolean>' . ($data ? '1' : '0') . '</boolean>';
+            case 'integer':
+                return '<int>' . $data . '</int>';
+            case 'double':
+                return '<double>' . $data . '</double>';
+            case 'string':
+                return '<string>' . htmlspecialchars($data) . '</string>';
+            case 'object':
+            case 'array':
+                $is_array = range(0, count($data) - 1) === array_keys($data);
+                if ($is_array) {
+                    $return = '<array><data>' . "\n";
+                    foreach ($data as $item) {
+                        $return .= '  <value>' . $this->xmlrpc_encode($item) . "</value>\n";
+                    }
+                    $return .= '</data></array>';
+                } else {
+                    $return = '<struct>' . "\n";
+                    foreach ($data as $name => $value) {
+                        $name = htmlspecialchars($name);
+                        $return .= "  <member><name>$name</name><value>";
+                        $return .= $this->xmlrpc_encode($value) . "</value></member>\n";
+                    }
+                    $return .= '</struct>';
                 }
-                $return .= '</data></array>';
-            } else {
-                $return = '<struct>'."\n";
-                foreach ($data as $name => $value) {
-					$name = htmlspecialchars($name);
-                    $return .= "  <member><name>$name</name><value>";
-                    $return .= xmlrpc_encode($value)."</value></member>\n";
-                }
-                $return .= '</struct>';
-            }
-            return $return;
+                return $return;
         }
     }
-
 }

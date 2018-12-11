@@ -61,7 +61,7 @@ if (!isset($step)) {
     $step = array_keys($Steps)[0];
 }
 
-$languages = new Languages(null, 'utf-8');
+$languages = new Languages(null);
 if (isset($_POST['language'])) {
     if (in_array($_POST['language'], array_keys($languages->getFsLanguages()))) {
         $language = $_POST['language'];

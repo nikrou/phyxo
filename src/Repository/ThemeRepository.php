@@ -26,7 +26,7 @@ class ThemeRepository extends BaseRepository
         return $this->conn->single_insert(self::THEMES_TABLE, ['id' => $id, 'version' => $version, 'name' => $name], false);
     }
 
-    public function findById(string $id)
+    public function findById(string $theme_id)
     {
         $query = 'SELECT id FROM ' . self::THEMES_TABLE;
         $query .= ' WHERE id != \'' . $this->conn->db_real_escape_string($theme_id) . '\'';

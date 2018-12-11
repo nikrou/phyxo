@@ -919,7 +919,7 @@ class Utils
      * Add known menubar blocks.
      * This method is called by a trigger_change()
      *
-     * @param BlockManager[] $menu_ref_arr
+     * @param \Phyxo\Block\BlockManager[] $menu_ref_arr
      */
     public static function register_default_menubar_blocks($menu_ref_arr)
     {

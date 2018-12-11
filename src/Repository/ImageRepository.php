@@ -103,7 +103,7 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE ';
         $query .= ' date_available >= ' . $this->conn->db_get_recent_period_expression($recent_period);
 
-        if (coun($category_ids) > 0) {
+        if (count($category_ids) > 0) {
             $query .= ' AND category_id  ' . $this->conn->in($category_ids);
         }
 
@@ -582,7 +582,7 @@ class ImageRepository extends BaseRepository
     public function updatePathByStorageId(string $path, int $cat_id)
     {
         $query = 'UPDATE ' . self::IMAGES_TABLE;
-        $query .= ' SET path = ' . $this->conn->db_concat(["'" . $patg . "/'", 'file']);
+        $query .= ' SET path = ' . $this->conn->db_concat(["'" . $path . "/'", 'file']);
         $query .= ' WHERE storage_category_id = ' . $cat_id;
         $this->conn->db_query($query);
     }

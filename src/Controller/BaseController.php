@@ -12,6 +12,8 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\HttpFoundation\Response;
 
 class BaseController extends Controller
 {
@@ -25,7 +27,7 @@ class BaseController extends Controller
         $tpl_params = [];
 
         try {
-            global $conf, $conn, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));
@@ -75,9 +77,9 @@ class BaseController extends Controller
 
 
             return $this->render($template_name, $tpl_params);
-        } catch (Routing\Exception\ResourceNotFoundException $e) {
+        } catch (ResourceNotFoundException $e) {
             return new Response('Not Found', 404);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return new Response('An error occurred', 500);
         }
     }
