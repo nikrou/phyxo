@@ -18,13 +18,13 @@ namespace Phyxo\Image;
 class Image
 {
     private $image, $library = '', $source_filepath = '';
-    private static $ext_imagick_version = '';
+    public static $ext_imagick_version = '';
 
     public function __construct($source_filepath, $library = null)
     {
         $this->source_filepath = $source_filepath;
 
-        \Phyxo\Functions\Plugin::trigger_notify('load_image_library', array(&$this));
+        \Phyxo\Functions\Plugin::trigger_notify('load_image_library', [&$this]);
 
         if (is_object($this->image)) {
             return; // A plugin may have load its own library
@@ -32,7 +32,7 @@ class Image
 
         $extension = strtolower(\Phyxo\Functions\Utils::get_extension($source_filepath));
 
-        if (!in_array($extension, array('jpg', 'jpeg', 'png', 'gif'))) {
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
             die('[Image] unsupported file extension');
         }
 
@@ -48,7 +48,7 @@ class Image
     // Unknow methods will be redirected to image object
     function __call($method, $arguments)
     {
-        return call_user_func_array(array($this->image, $method), $arguments);
+        return call_user_func_array([$this->image, $method], $arguments);
     }
 
     // resize function
@@ -108,12 +108,12 @@ class Image
     ) {
 
         $rotate_for_dimensions = false;
-        if (isset($rotation) and in_array(abs($rotation), array(90, 270))) {
+        if (isset($rotation) and in_array(abs($rotation), [90, 270])) {
             $rotate_for_dimensions = true;
         }
 
         if ($rotate_for_dimensions) {
-            list($width, $height) = array($height, $width);
+            list($width, $height) = [$height, $width];
         }
 
         if ($crop) {
@@ -121,7 +121,7 @@ class Image
             $y = 0;
 
             if ($width < $height and $follow_orientation) {
-                list($max_width, $max_height) = array($max_height, $max_width);
+                list($max_width, $max_height) = [$max_height, $max_width];
             }
 
             $img_ratio = $width / $height;
@@ -155,21 +155,21 @@ class Image
         }
 
         if ($rotate_for_dimensions) {
-            list($destination_width, $destination_height) = array($destination_height, $destination_width);
+            list($destination_width, $destination_height) = [$destination_height, $destination_width];
         }
 
-        $result = array(
+        $result = [
             'width' => $destination_width,
             'height' => $destination_height,
-        );
+        ];
 
         if ($crop and ($x or $y)) {
-            $result['crop'] = array(
+            $result['crop'] = [
                 'width' => $width,
                 'height' => $height,
                 'x' => $x,
                 'y' => $y,
-            );
+            ];
         }
 
         return $result;
@@ -192,11 +192,11 @@ class Image
 
         if (isset($exif['Orientation']) and preg_match('/^\s*(\d)/', $exif['Orientation'], $matches)) {
             $orientation = $matches[1];
-            if (in_array($orientation, array(3, 4))) {
+            if (in_array($orientation, [3, 4])) {
                 $rotation = 180;
-            } elseif (in_array($orientation, array(5, 6))) {
+            } elseif (in_array($orientation, [5, 6])) {
                 $rotation = 270;
-            } elseif (in_array($orientation, array(7, 8))) {
+            } elseif (in_array($orientation, [7, 8])) {
                 $rotation = 90;
             }
         }
@@ -238,11 +238,11 @@ class Image
         // Amount should be in the range of 48-10
         $amount = round(abs(-48 + ($amount * 0.38)), 2);
 
-        $matrix = array(
-            array(-1, -1, -1),
-            array(-1, $amount, -1),
-            array(-1, -1, -1),
-        );
+        $matrix = [
+            [-1, -1, -1],
+            [-1, $amount, -1],
+            [-1, -1, -1],
+        ];
 
         $norm = array_sum(array_map('array_sum', $matrix));
 
@@ -258,7 +258,7 @@ class Image
 
     private function get_resize_result($destination_filepath, $width, $height, $time = null)
     {
-        return array(
+        return [
             'source' => $this->source_filepath,
             'destination' => $destination_filepath,
             'width' => $width,
@@ -266,7 +266,7 @@ class Image
             'size' => floor(filesize($destination_filepath) / 1024) . ' KB',
             'time' => $time ? number_format((microtime(true) - $time) * 1000, 2, '.', ' ') . ' ms' : null,
             'library' => $this->library,
-        );
+        ];
     }
 
     public static function is_imagick()

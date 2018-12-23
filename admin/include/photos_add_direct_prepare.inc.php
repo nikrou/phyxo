@@ -103,8 +103,8 @@ if (isset($_GET['album'])) {
     \Phyxo\Functions\Utils::check_input_parameter('album', $_GET, false, PATTERN_ID);
 
     // test if album really exists
-    $result = (new CategoryRepository($conn))->findById($_GET['album']);
-    if ($conn->db_num_rows($result) == 1) {
+    $album = (new CategoryRepository($conn))->findById($_GET['album']);
+    if (!empty($album)) {
         $selected_category = [$_GET['album']];
 
         // lets put in the session to persist in case of upload method switch
