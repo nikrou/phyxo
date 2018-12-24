@@ -94,10 +94,10 @@ class TagRepository extends BaseRepository
      * AND & OR mode supported.
      *
      * @param int[] $tag_ids
-     * @param string mode
+     * @param string $mode
      * @param string $extra_images_where_sql - optionally apply a sql where filter to retrieved images
      * @param string $order_by - optionally overwrite default photo order
-     * @param bool $user_permissions
+     * @param bool $use_permissions
      * @return array
      */
     public function getImageIdsForTags(array $tag_ids, string $mode = 'AND', ? string $extra_images_where_sql = null, string $order_by = '', bool $use_permissions = true)

@@ -539,12 +539,12 @@ class mysqlConnection extends DBLayer implements iDBLayer
                         $nullable = false;
                     }
                     if (isset($row['Default'])) {
-                        $column .= " default '" . $row[' default '] . "' ";
+                        $column .= " default '" . $row['Default'] . "' ";
                     } elseif ($nullable) {
                         $column .= " default null ";
                     }
                     if (isset($row['Collation']) and $row['Collation'] != 'NULL') {
-                        $column .= " collate '" . $row[' Collation '] . "' ";
+                        $column .= " collate '" . $row['Collation'] . "' ";
                     }
                     $columns[] = $column;
                 }

@@ -71,7 +71,7 @@
 				placeholder="{'Type in a search term'|translate}"
 				name="groups[]" multiple></select>
 			{else}
-			{'There is no group in this gallery.'|translate} <a href="admin/index.php?page=group_list" class="externalLink">{'Group management'|translate}</a>
+			{'There is no group in this gallery.'|translate} <a href="./index.php?page=groups&section=list" class="externalLink">{'Group management'|translate}</a>
 			{/if}
 		</p>
 

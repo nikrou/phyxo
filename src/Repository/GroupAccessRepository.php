@@ -68,7 +68,7 @@ class GroupAccessRepository extends BaseRepository
 
     public function massInserts(array $fields, array $datas)
     {
-        $this->conn->mass_insert(self::GROUP_ACCESS_TABLE, $fields, $datas);
+        $this->conn->mass_inserts(self::GROUP_ACCESS_TABLE, $fields, $datas);
     }
 
     public function deleteByGroupIds(array $ids)

@@ -1,3 +1,7 @@
+# Phyxo 1.9.5 - 2018-12-24
+-   Small misspelling fix
+-   Fix empty collation for mysql.
+
 # Phyxo 1.9.4 - 2018-12-23
 -   Fix more small issues using my new friend PHPStan
 
