@@ -51,8 +51,7 @@ $template->assign([
 // +-----------------------------------------------------------------------+
 
 if (!empty($_GET['cat_id'])) {
-    $result = (new CategoryRepository($conn))->findById($_GET['cat_id']);
-    $category = $conn->db_fetch_assoc($result);
+    $category = (new CategoryRepository($conn))->findById($_GET['cat_id']);
 }
 
 // +-----------------------------------------------------------------------+

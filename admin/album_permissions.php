@@ -69,8 +69,8 @@ if (!empty($_POST)) {
                 $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
             }
 
-            (new CategoryRepository($conn))->findByIds($cat_ids, 'private');
-            $private_cats = $conn->result2array($query, null, 'id');
+            $result = (new CategoryRepository($conn))->findByIds($cat_ids, 'private');
+            $private_cats = $conn->result2array($result, null, 'id');
 
             $inserts = [];
             foreach ($private_cats as $cat_id) {

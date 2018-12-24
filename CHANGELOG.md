@@ -1,5 +1,12 @@
 # Phyxo 2.0.0 - YYYY-MM-DD
 
+# Phyxo 1.9.5 - 2018-12-24
+-   Small misspelling fix
+-   Fix empty collation for mysql.
+
+# Phyxo 1.9.4 - 2018-12-23
+-   Fix more small issues using my new friend PHPStan
+
 # Phyxo 1.9.3 - 2018-12-09
 -   Fix many small issues in various files: thanks to PHPStan
 -   Improve upgrade.

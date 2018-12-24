@@ -144,7 +144,7 @@ if (isset($_POST['submit'])) {
         $dissociables = $conn->result2array($result, null, 'id');
 
         if (!empty($dissociables)) {
-            (new ImageCategoryRepository($conn))->deleteByCategory($_POST['dissociate'], $dissociables);
+            (new ImageCategoryRepository($conn))->deleteByCategory([$_POST['dissociate']], $dissociables);
             $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
             // let's refresh the page because the current set might be modified

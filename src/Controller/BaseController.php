@@ -79,8 +79,6 @@ class BaseController extends Controller
             return $this->render($template_name, $tpl_params);
         } catch (ResourceNotFoundException $e) {
             return new Response('Not Found', 404);
-        } catch (\Exception $e) {
-            return new Response('An error occurred', 500);
         }
     }
 }

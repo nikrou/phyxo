@@ -56,8 +56,6 @@ class AdminController extends Controller
             return new Response($template->flush(true));
         } catch (ResourceNotFoundException $e) {
             return new Response('Not Found', 404);
-        } catch (\Exception $e) {
-            return new Response('An error occurred', 500);
         }
     }
 }

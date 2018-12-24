@@ -475,7 +475,7 @@ $conf['gallery_url'] = null;
 // question_mark_in_urls : the generated urls contain a ? sign. This can be
 // changed to false only if the server translates PATH_INFO variable
 // (depends on the server AcceptPathInfo directive configuration)
-$conf['question_mark_in_urls'] = true;
+$conf['question_mark_in_urls'] = false;
 
 // php_extension_in_urls : if true, the urls generated for picture and
 // category will not contain the .php extension. This will work only if
