@@ -1,5 +1,10 @@
 # Phyxo 2.0.0 - YYYY-MM-DD
 
+# Phyxo 1.9.6 - 2018-12-31
+-   Fix random page when no photos.
+-   Fix retrieve of elegant config after upgrade
+-   Fix permission on image (space after comma in explode function)
+
 # Phyxo 1.9.5 - 2018-12-24
 -   Small misspelling fix
 -   Fix empty collation for mysql.

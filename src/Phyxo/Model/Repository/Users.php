@@ -378,7 +378,7 @@ class Users
                 /* now we build the list of forbidden images (this list does not contain
                  * images that are not in at least an authorized category)
                  */
-                $result = (new ImageRepository($this->conn))->getForbiddenImages(explode(', ', $userdata['forbidden_categories']), $userdata['level']);
+                $result = (new ImageRepository($this->conn))->getForbiddenImages(explode(',', $userdata['forbidden_categories']), $userdata['level']);
                 $forbidden_ids = $this->conn->result2array($result, null, 'id');
 
                 if (empty($forbidden_ids)) {
@@ -388,7 +388,7 @@ class Users
                 $userdata['image_access_list'] = implode(',', $forbidden_ids);
 
                 $userdata['nb_total_images'] = (new ImageCategoryRepository($this->conn))->countTotalImages(
-                    explode(', ', $userdata['forbidden_categories']),
+                    explode(',', $userdata['forbidden_categories']),
                     $userdata['image_access_type'],
                     $forbidden_ids
                 );
@@ -790,8 +790,6 @@ class Users
      */
     public function checkStatus($access_type, $user_status = '')
     {
-        return true; // @TODO: check roles or use voters
-
         if (!$this->isAuthorizeStatus($access_type, $user_status)) {
             \Phyxo\Functions\HTTP::access_denied();
         }
