@@ -43,5 +43,5 @@ foreach ($old_files as $old_file) {
 }
 
 // warmup cache
-file_get_contents($_SERVER['REQUEST_SCHEME'].'//'.$_SERVER['HTTP_HOST'].basename($_SERVER['SCRIPT_NAME']).'?now=' . md5(openssl_random_pseudo_bytes(15)));
+file_get_contents($_SERVER['REQUEST_SCHEME'].'//'.$_SERVER['HTTP_HOST'].'/'.basename($_SERVER['SCRIPT_NAME']).'?now=' . md5(openssl_random_pseudo_bytes(15)));
 header("Location: ./admin/?now=" . md5(openssl_random_pseudo_bytes(15)));

@@ -34,6 +34,11 @@ include(PHPWG_THEMES_PATH . 'elegant/admin/upgrade.inc.php');
 function set_config_values_elegant()
 {
     global $conf, $template;
-    $config = json_decode($conf['elegant'], true);
+
+    if (is_array($conf['elegant'])) {
+        $config = $conf['elegant'];
+    } else {
+        $config = json_decode($conf['elegant'], true);
+    }
     $template->assign('elegant', $config);
 }

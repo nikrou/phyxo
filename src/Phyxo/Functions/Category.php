@@ -1088,13 +1088,13 @@ class Category
             return;
         }
 
-        $new_parent = $new_parent < 1 ? 0 : $new_parent;
+        $new_parent = $new_parent < 1 ? null : $new_parent;
         $categories = [];
 
         $result = (new CategoryRepository($conn))->findByIds($category_ids);
         while ($row = $conn->db_fetch_assoc($result)) {
             $categories[$row['id']] = [
-                'parent' => empty($row['id_uppercat']) ? 0 : $row['id_uppercat'],
+                'parent' => empty($row['id_uppercat']) ? null : $row['id_uppercat'],
                 'status' => $row['status'],
                 'uppercats' => $row['uppercats']
             ];
@@ -1102,7 +1102,7 @@ class Category
 
         // is the movement possible? The movement is impossible if you try to move
         // a category in a sub-category or itself
-        if ($new_parent !== 0) {
+        if ($new_parent !== null) {
             $new_parent_uppercats = (new CategoryRepository($conn))->findById($new_parent)['uppercats'];
 
             foreach ($categories as $category) {
@@ -1120,7 +1120,7 @@ class Category
         \Phyxo\Functions\Utils::update_global_rank();
 
         // status and related permissions management
-        if ('NULL' == $new_parent) {
+        if ($new_parent === null) {
             $parent_status = 'public';
         } else {
             $parent_status = (new CategoryRepository($conn))->findById($new_parent)['status'];

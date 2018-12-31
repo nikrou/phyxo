@@ -90,7 +90,11 @@ class IndexController extends BaseController
         $result = (new ImageRepository($conn))->findRandomImages($where_sql, '', min(50, $conf['top_number'], $user['nb_image_page']));
         $list = $conn->result2array($result, null, 'id');
 
-        return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
+        if (empty($list)) {
+            return $this->redirectToRoute('homepage');
+        } else {
+            return $this->redirectToRoute('random_list', ['list' => implode(',', $list)]);
+        }
     }
 
     public function randomList(Request $request, $list)
