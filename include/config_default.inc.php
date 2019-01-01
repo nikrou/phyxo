@@ -613,9 +613,6 @@ $conf['upload_dir'] = './upload';
 // where should the user be guided when there is no photo in his gallery yet?
 $conf['no_photo_yet_url'] = 'admin/index.php?page=photos_add';
 
-// directory with themes inside
-$conf['themes_dir'] = PHPWG_ROOT_PATH . 'themes';
-
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = true;
 

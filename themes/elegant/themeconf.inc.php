@@ -28,7 +28,7 @@ $themeconf = [
 
 // Need upgrade?
 global $conf;
-include(PHPWG_THEMES_PATH . 'elegant/admin/upgrade.inc.php');
+include(__DIR__ . '/admin/upgrade.inc.php');
 
 \Phyxo\Functions\Plugin::add_event_handler('init', 'set_config_values_elegant');
 function set_config_values_elegant()

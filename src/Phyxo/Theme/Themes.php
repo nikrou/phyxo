@@ -158,7 +158,7 @@ class Themes extends Extensions
 
                 $theme_maintain->delete();
 
-                \Phyxo\Functions\Utils::deltree(PHPWG_THEMES_PATH . $theme_id, PHPWG_THEMES_PATH . 'trash');
+                \Phyxo\Functions\Utils::deltree(PHPWG_THEMES_PATH . '/' . $theme_id, PHPWG_THEMES_PATH . '/trash');
                 break;
 
             case 'set_default':
@@ -244,7 +244,7 @@ class Themes extends Extensions
         global $conf;
 
         if (!$this->fs_themes_retrieved) {
-            foreach (glob(PHPWG_THEMES_PATH . '*/themeconf.inc.php') as $themeconf) {
+            foreach (glob(PHPWG_THEMES_PATH . '/*/themeconf.inc.php') as $themeconf) {
                 $theme_dir = basename(dirname($themeconf));
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
                     continue;

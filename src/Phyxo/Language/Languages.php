@@ -121,7 +121,7 @@ class Languages extends Extensions
             }
             $target_charset = strtolower($target_charset);
 
-            foreach (glob(PHPWG_LANGUAGES_PATH . '*/common.lang.php') as $common_lang) {
+            foreach (glob(PHPWG_LANGUAGES_PATH . '/*/common.lang.php') as $common_lang) {
                 $language_dir = basename(dirname($common_lang));
 
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {

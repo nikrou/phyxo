@@ -13,7 +13,7 @@
 global $conf;
 include(__DIR__ . '/upgrade.inc.php');
 
-\Phyxo\Functions\Language::load_language('theme.lang', PHPWG_THEMES_PATH . 'elegant/');
+\Phyxo\Functions\Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/elegant/');
 
 $config = [
     'p_main_menu' => 'on', //on - off - disabled
@@ -39,7 +39,7 @@ if (isset($_POST['submit_elegant'])) {
     $conf['elegant'] = json_decode($conf['elegant'], true);
 }
 
-$template->set_filenames(array('theme_admin_content' => __DIR__ . '/admin.tpl'));
+$template->set_filenames(['theme_admin_content' => __DIR__ . '/admin.tpl']);
 
 $template->assign('options', $conf['elegant']);
 

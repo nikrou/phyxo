@@ -27,7 +27,7 @@ $title = \Phyxo\Functions\Language::l10n('About Phyxo');
 
 $template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', ['return' => true]));
 
-$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . $user['theme'] . '/', ['return' => true]);
+$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . '/' . $user['theme'] . '/', ['return' => true]);
 if ($theme_about !== false) {
     $template->assign('THEME_ABOUT', $theme_about);
 }

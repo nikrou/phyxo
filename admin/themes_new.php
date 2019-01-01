@@ -21,8 +21,7 @@ $themes = new Themes($conn);
 // |                           setup check                                 |
 // +-----------------------------------------------------------------------+
 
-$themes_dir = PHPWG_ROOT_PATH . 'themes';
-if (!is_writable($themes_dir)) {
+if (!is_writable(PHPWG_THEMES_PATH)) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Add write access to the "%s" directory', 'themes');
 }
 
@@ -90,12 +89,12 @@ foreach ($themes->getServerThemes(true) as $theme) {
 
     $template->append(
         'new_themes',
-        array(
+        [
             'name' => $theme['extension_name'],
             'thumbnail' => PEM_URL . '/upload/extension-' . $theme['extension_id'] . '/thumbnail.jpg',
             'screenshot' => PEM_URL . '/upload/extension-' . $theme['extension_id'] . '/screenshot.jpg',
             'install_url' => $url_auto_install,
-        )
+        ]
     );
 }
 

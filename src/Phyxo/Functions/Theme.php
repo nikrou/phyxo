@@ -23,7 +23,7 @@ class Theme
     {
         global $conf;
 
-        return file_exists($conf['themes_dir'] . '/' . $theme_id . '/' . 'themeconf.inc.php');
+        return file_exists(PHPWG_THEMES_PATH . '/' . $theme_id . '/' . 'themeconf.inc.php');
     }
 
     /**

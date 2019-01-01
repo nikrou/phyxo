@@ -10,7 +10,7 @@
  */
 
 if (!defined("PHPWG_ROOT_PATH")) {
-    die ("Hacking attempt!");
+    die("Hacking attempt!");
 }
 
 require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
@@ -28,9 +28,9 @@ if (!in_array($_GET['theme'], array_keys($themes->getFsThemes()))) {
     die('Invalid theme'); // @TODO: handle error instead of simple die
 }
 
-$filename = PHPWG_THEMES_PATH.$_GET['theme'].'/admin/admin.inc.php';
+$filename = PHPWG_THEMES_PATH . '/' . $_GET['theme'] . '/admin/admin.inc.php';
 if (is_file($filename)) {
     include_once($filename);
 } else {
-    die('Missing file '.$filename); // @TODO: handle error instead of simple die
+    die('Missing file ' . $filename); // @TODO: handle error instead of simple die
 }
