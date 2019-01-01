@@ -89,7 +89,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
 
 (new SiteRepository($conn))->addSite(['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/']);
 if ($conf['dblayer'] == 'pgsql') {
-    $conn->db_query('ALTER SEQUENCE ' . strtolower(SITES_TABLE) . '_id_seq RESTART WITH 2');
+    $conn->db_query('ALTER SEQUENCE ' . strtolower(\App\Repository\BaseRepository::SITES_TABLE) . '_id_seq RESTART WITH 2');
 }
 
 $inserts = [
@@ -107,7 +107,7 @@ $inserts = [
 (new UserRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
 if ($conf['dblayer'] == 'pgsql') {
     // @TODO: remove that. We don't care of auto_increment id but group
-    $conn->db_query('ALTER SEQUENCE ' . strtolower(USERS_TABLE) . '_id_seq RESTART WITH 3');
+    $conn->db_query('ALTER SEQUENCE ' . strtolower(\App\Repository\BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
 }
 
 $services['users']->createUserInfos([1, 2], ['language' => 'en']);

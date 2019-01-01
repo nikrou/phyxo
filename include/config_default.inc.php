@@ -399,45 +399,6 @@ $conf['show_php_errors'] = E_ALL;
 // enable log for i derivative script
 $conf['enable_i_log'] = false;
 
-// +-----------------------------------------------------------------------+
-// |                            authentication                             |
-// +-----------------------------------------------------------------------+
-
-// users_table: which table is the reference for users? Can be a different
-// table than Phyxo table
-//
-// If you decide to use another table than the default one, you need to
-// prepare your database by deleting some datas :
-//
-// delete from phyxo_user_access;
-// delete from phyxo_user_cache;
-// delete from phyxo_user_feed;
-// delete from phyxo_user_group;
-// delete from phyxo_user_infos;
-// delete from phyxo_sessions;
-// delete from phyxo_rate;
-// update phyxo_images set rating_score = null, added_by = <webmaster_id>;
-// delete from phyxo_caddie;
-// delete from phyxo_favorites;
-//
-// All informations contained in these tables and column are related to
-// phyxo_users table.
-$conf['users_table'] = null;
-
-// Other tables can be changed, if you define associated constants
-// Example:
-//   define('USER_INFOS_TABLE', 'pwg_main'.'user_infos');
-
-// user_fields : mapping between generic field names and table specific
-// field names. For example, in PWG, the mail address is names
-// "mail_address" and in punbb, it's called "email".
-$conf['user_fields'] = [
-  'id' => 'id',
-  'username' => 'username',
-  'password' => 'password',
-  'email' => 'mail_address'
-];
-
 // guest_id : id of the anonymous user
 $conf['guest_id'] = 2;
 

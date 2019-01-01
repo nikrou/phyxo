@@ -14,11 +14,11 @@ if (!defined('TAGS_BASE_URL')) {
 }
 
 $status_options[null] = '----------';
-foreach ($conn->get_enums(USER_INFOS_TABLE, 'status') as $status) {
+foreach ($conn->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status') as $status) {
     $status_options[$status] = \Phyxo\Functions\Language::l10n('user_status_' . $status);
 }
 
-$Permissions = array();
+$Permissions = [];
 $Permissions['add'] = $conf['tags_permission_add'];
 $Permissions['delete'] = $conf['tags_permission_delete'];
 $Permissions['existing_tags_only'] = $conf['tags_existing_tags_only'];
@@ -29,7 +29,7 @@ $Permissions['show_pending_deleted_tags'] = $conf['show_pending_deleted_tags'];
 
 
 if (!empty($_POST['submit'])) {
-    if (isset($_POST['permission_add']) && isset($status_options[$_POST['permission_add']])) {
+    if (isset($_POST['permission_add'], $status_options[$_POST['permission_add']])) {
         $Permissions['add'] = $_POST['permission_add'];
         $conf['tags_permission_add'] = $Permissions['add'];
     }
@@ -37,7 +37,7 @@ if (!empty($_POST['submit'])) {
     $Permissions['existing_tags_only'] = empty($_POST['existing_tags_only']) ? 0 : 1;
     $conf['tags_existing_tags_only'] = $Permissions['existing_tags_only'];
 
-    if (isset($_POST['permission_delete']) && isset($status_options[$_POST['permission_delete']])) {
+    if (isset($_POST['permission_delete'], $status_options[$_POST['permission_delete']])) {
         $Permissions['delete'] = $_POST['permission_delete'];
         $conf['tags_permission_delete'] = $_POST['permission_delete'];
     }

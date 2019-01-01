@@ -25,8 +25,7 @@ class Conf extends atoum
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
-        $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
+        $conf = new \Phyxo\Conf($conn, TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $this
             ->string($conf['simple_value'])
@@ -48,8 +47,7 @@ class Conf extends atoum
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
-        $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
+        $conf = new \Phyxo\Conf($conn, TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $conf['simple_value'] = 'another value';
 
@@ -73,8 +71,7 @@ class Conf extends atoum
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
-        $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
+        $conf = new \Phyxo\Conf($conn, TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         unset($conf['simple_value']);
 
@@ -98,8 +95,7 @@ class Conf extends atoum
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
-        $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
+        $conf = new \Phyxo\Conf($conn, TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $conf['new_key'] = 'new value';
 

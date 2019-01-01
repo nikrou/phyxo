@@ -81,7 +81,7 @@ $template->assign(
 );
 
 // Status options
-foreach ($conn->get_enums(USER_INFOS_TABLE, 'status') as $status) {
+foreach ($conn->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status') as $status) {
     $label_of_status[$status] = \Phyxo\Functions\Language::l10n('user_status_' . $status);
 }
 

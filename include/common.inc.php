@@ -61,28 +61,24 @@ if (defined('IN_WS')) {
         $page['error'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
     }
 
-    $conf = new Conf($conn);
+    $conf = new Conf($conn, PHPWG_ROOT_PATH . 'include/config_default.inc.php', PHPWG_ROOT_PATH . 'local/config/config.inc.php');
 } else {
     $conn = $container->get('phyxo.conn');
     $conf = $container->get('phyxo.conf');
     $template = $container->get('templating.engine.smarty');
 }
 
+include(PHPWG_ROOT_PATH . 'include/constants.php');
+
 if (!empty($conf['show_php_errors'])) {
     @ini_set('error_reporting', $conf['show_php_errors']);
     @ini_set('display_errors', true);
 }
 
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-include(PHPWG_ROOT_PATH . 'include/constants.php');
-
 $persistent_cache = new PersistentFileCache();
 
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');
-
-$conf->loadFromDB();
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {

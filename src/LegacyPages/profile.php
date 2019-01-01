@@ -148,16 +148,16 @@ function save_profile_from_post($userdata, &$errors)
         // mass_updates function
         if (isset($_POST['mail_address'])) {
             // update common user informations
-            $fields = [$conf['user_fields']['email']];
+            $fields = ['mail_address'];
 
             $data = [];
-            $data[$conf['user_fields']['id']] = $userdata['id'];
-            $data[$conf['user_fields']['email']] = $_POST['mail_address'];
+            $data['id'] = $userdata['id'];
+            $data['mail_address'] = $_POST['mail_address'];
 
             // password is updated only if filled
             if (!empty($_POST['use_new_pwd'])) {
-                $fields[] = $conf['user_fields']['password'];
-                $data[$conf['user_fields']['password']] = $services['users']->passwordHash($_POST['use_new_pwd']);
+                $fields[] = 'password';
+                $data['password'] = $services['users']->passwordHash($_POST['use_new_pwd']);
             }
 
             // username is updated only if allowed
@@ -166,8 +166,8 @@ function save_profile_from_post($userdata, &$errors)
                     $page['errors'][] = \Phyxo\Functions\Language::l10n('this login is already used');
                     unset($_POST['redirect']);
                 } else {
-                    $fields[] = $conf['user_fields']['username'];
-                    $data[$conf['user_fields']['username']] = $_POST['username'];
+                    $fields[] = 'username';
+                    $data['username'] = $_POST['username'];
 
                     // send email to the user
                     if ($_POST['username'] != $userdata['username']) {
@@ -194,7 +194,7 @@ function save_profile_from_post($userdata, &$errors)
 
             (new UserRepository($conn))->massUpdates(
                 [
-                    'primary' => [$conf['user_fields']['id']],
+                    'primary' => ['id'],
                     'update' => $fields
                 ],
                 [$data]

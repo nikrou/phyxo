@@ -25,7 +25,7 @@ class Users extends atoum
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $conn_controller);
-        $conf = new Conf($conn);
+        $conf = new Conf($conn, '');
 
         $user = [];
         $cache = [];

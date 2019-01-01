@@ -384,7 +384,7 @@ if ($step === 'user') {
             ];
             (new UserRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
             if ($conn->getLayer() === 'pgsql') {
-                $conn->db_query('ALTER SEQUENCE ' . $conn->getPrefix() . strtolower(USERS_TABLE) . '_id_seq RESTART WITH 3');
+                $conn->db_query('ALTER SEQUENCE ' . strtolower(App\Repository\BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
             }
 
             $services['users']->createUserInfos([1, 2], ['language' => $language]);

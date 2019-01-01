@@ -395,11 +395,11 @@ if (isset($page['chronology_field'])) {
     $template_filename = 'month_calendar';
 
     //------------------ initialize the condition on items to take into account ---
-    $inner_sql = ' FROM ' . IMAGES_TABLE;
+    $inner_sql = ' FROM ' . \App\Repository\BaseRepository::IMAGES_TABLE;
 
     if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
         $page['items'] = [];
-        $inner_sql .= ' LEFT JOIN ' . IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $inner_sql .= ' LEFT JOIN ' . \App\Repository\BaseRepository::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
 
         if (isset($page['category'])) {
             $sub_ids = array_diff(

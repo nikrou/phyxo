@@ -7,6 +7,10 @@ parameters:
     legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
 
+    default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
+    user_config_file: '%kernel.project_dir%/local/config/config.inc.php'
+    constants_file: '%kernel.project_dir%/include/constants.php'
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -59,7 +63,8 @@ services:
         public: true
         alias: 'Phyxo\Template\Template'
 
-    Phyxo\Conf: ~
+    Phyxo\Conf:
+        arguments: ['@phyxo.conn', '%default_config_file%', '%user_config_file%']
 
     phyxo.conf:
         public: true

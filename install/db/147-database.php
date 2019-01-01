@@ -18,9 +18,9 @@ $upgrade_description = 'Change default language en_GB instead of en_UK in user_i
 $query = '';
 
 if (in_array($conn->getLayer(), ['mysql'])) {
-    $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' CHANGE COLUMN language language VARCHAR(50) NOT NULL DEFAULT \'en_GB\'';
+    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ' CHANGE COLUMN language language VARCHAR(50) NOT NULL DEFAULT \'en_GB\'';
 } elseif ($conn->getLayer() === 'pgsql') {
-    $query = 'ALTER TABLE ' . USER_INFOS_TABLE . ' ALTER language SET DEFAULT \'en_GB\'';
+    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ' ALTER language SET DEFAULT \'en_GB\'';
 } elseif ($conn->getLayer() === 'sqlite') {
     $temporary_table = $conn->getTemporaryTable('tmp_user_infos');
 
@@ -43,10 +43,10 @@ if (in_array($conn->getLayer(), ['mysql'])) {
     $query .= '"lastmodified" TIMESTAMP NULL DEFAULT \'1970-01-01 00:00:00\'';
     $query .= 'PRIMARY KEY ("user_id"),';
     $query .= 'CONSTRAINT "user_infos_ui1" UNIQUE ("user_id"));';
-    $query .= 'INSERT INTO ' . $temporary_table . ' SELECT * FROM ' . USER_INFOS_TABLE . ';';
-    $query .= 'DROP TABLE ' . USER_INFOS_TABLE . ';';
-    $query .= 'ALTER TABLE ' . $temporary_table . ' RENAME TO ' . USER_INFOS_TABLE . ';';
-    $query .= 'ALTER TABLE ' . USER_INFOS_TABLE . ' ADD COLUMN "activation_key_expire" TIMESTAMP default NULL;';
+    $query .= 'INSERT INTO ' . $temporary_table . ' SELECT * FROM ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ';';
+    $query .= 'DROP TABLE ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ';';
+    $query .= 'ALTER TABLE ' . $temporary_table . ' RENAME TO ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ';';
+    $query .= 'ALTER TABLE ' . App\Repository\BaseRepository::USER_INFOS_TABLE . ' ADD COLUMN "activation_key_expire" TIMESTAMP default NULL;';
     $query .= 'COMMIT;';
     $conn->db_query($query);
 }

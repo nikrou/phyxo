@@ -1332,7 +1332,7 @@ class Utils
         (new CaddieRepository($conn))->emptyCaddie($user_id);
 
         // purge of sessions
-        $query = 'DELETE FROM ' . SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';
+        $query = 'DELETE FROM ' . \App\Repository\BaseRepository::SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';
         $conn->db_query($query);
 
         // destruction of the user
@@ -1896,11 +1896,11 @@ class Utils
         global $conn;
 
         $tables = [
-            'categories' => CATEGORIES_TABLE,
-            'groups' => GROUPS_TABLE,
-            'images' => IMAGES_TABLE,
-            'tags' => TAGS_TABLE,
-            'users' => USER_INFOS_TABLE
+            'categories' => \App\Repository\BaseRepository::CATEGORIES_TABLE,
+            'groups' => \App\Repository\BaseRepository::GROUPS_TABLE,
+            'images' => \App\Repository\BaseRepository::IMAGES_TABLE,
+            'tags' => \App\Repository\BaseRepository::TAGS_TABLE,
+            'users' => \App\Repository\BaseRepository::USER_INFOS_TABLE
         ];
 
         if (!is_array($requested)) {

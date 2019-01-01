@@ -121,7 +121,7 @@ if (isset($_GET['cat']) and 0 != $_GET['cat']) {
 
 // search a particular author
 if (!empty($_GET['author'])) {
-    $page['where_clauses'][] = '(u.' . $conf['user_fields']['username'] . ' = \'' . $conn->db_real_escape_string($_GET['author'])
+    $page['where_clauses'][] = '(u.username = \'' . $conn->db_real_escape_string($_GET['author'])
         . '\' OR author = \'' . $conn->db_real_escape_string($_GET['author']) . '\')';
 }
 

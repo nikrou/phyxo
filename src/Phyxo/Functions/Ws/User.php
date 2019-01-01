@@ -46,15 +46,15 @@ class User
         $where_clauses = ['1=1'];
 
         if (!empty($params['user_id'])) {
-            $where_clauses[] = 'u.' . $conf['user_fields']['id'] . ' ' . $conn->in($params['user_id']);
+            $where_clauses[] = 'u.id ' . $conn->in($params['user_id']);
         }
 
         if (!empty($params['username'])) {
-            $where_clauses[] = 'u.' . $conf['user_fields']['username'] . ' LIKE \'' . $conn->db_real_escape_string($params['username']) . '\'';
+            $where_clauses[] = 'u.username LIKE \'' . $conn->db_real_escape_string($params['username']) . '\'';
         }
 
         if (!empty($params['status'])) {
-            $params['status'] = array_intersect($params['status'], $conn->get_enums(USER_INFOS_TABLE, 'status'));
+            $params['status'] = array_intersect($params['status'], $conn->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status'));
             if (count($params['status']) > 0) {
                 $where_clauses[] = 'ui.status ' . $conn->in($params['status']);
             }
@@ -71,7 +71,7 @@ class User
             $where_clauses[] = 'ug.group_id ' . $conn->in($params['group_id']);
         }
 
-        $display = ['u.' . $conf['user_fields']['id'] => 'id'];
+        $display = ['u.id' => 'id'];
 
         if ($params['display'] != 'none') {
             $params['display'] = array_map('trim', explode(',', $params['display']));
@@ -102,10 +102,10 @@ class User
             }
 
             if (isset($params['display']['username'])) {
-                $display['u.' . $conf['user_fields']['username']] = 'username';
+                $display['u.username'] = 'username';
             }
             if (isset($params['display']['email'])) {
-                $display['u.' . $conf['user_fields']['email']] = 'email';
+                $display['u.mail_address'] = 'email';
             }
 
             $ui_fields = [
@@ -319,18 +319,18 @@ class User
                 if ($params['username'] != strip_tags($params['username'])) {
                     return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('html tags are not allowed in login'));
                 }
-                $updates[$conf['user_fields']['username']] = $params['username'];
+                $updates['username'] = $params['username'];
             }
 
             if (!empty($params['email'])) {
                 if (($error = $services['users']->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
                     return new Error(Server::WS_ERR_INVALID_PARAM, $error);
                 }
-                $updates[$conf['user_fields']['email']] = $params['email'];
+                $updates['mail_address'] = $params['email'];
             }
 
             if (!empty($params['password'])) {
-                $updates[$conf['user_fields']['password']] = $services['users']->passwordHash($params['password']);
+                $updates['password'] = $services['users']->passwordHash($params['password']);
             }
         }
 

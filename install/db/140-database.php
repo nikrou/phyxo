@@ -17,8 +17,8 @@ $upgrade_description = '#tags.name is not binary';
 
 // add fields
 if (in_array($conf['dblayer'], ['mysql'])) {
-    $query = 'ALTER TABLE '.TAGS_TABLE.' CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL DEFAULT \'\'';
+    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::TAGS_TABLE . ' CHANGE COLUMN `name` `name` VARCHAR(255) NOT NULL DEFAULT \'\'';
     $conn->db_query($query);
 }
 
-echo "\n".$upgrade_description."\n";
+echo "\n" . $upgrade_description . "\n";

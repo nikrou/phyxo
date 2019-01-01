@@ -110,9 +110,9 @@ class Users
         // if no error until here, registration of the user
         if (empty($errors)) {
             $insert = [
-                $this->conf['user_fields']['username'] => $this->conn->db_real_escape_string($login),
-                $this->conf['user_fields']['password'] => $this->passwordHash($password),
-                $this->conf['user_fields']['email'] => $mail_address
+                'username' => $this->conn->db_real_escape_string($login),
+                'password' => $this->passwordHash($password),
+                'mail_address' => $mail_address
             ];
 
             $user_id = (new UserRepository($this->conn))->addUser($insert);
@@ -413,7 +413,7 @@ class Users
                 }
 
                 // delete user cache
-                $this->conn->db_write_lock(USER_CACHE_CATEGORIES_TABLE);
+                $this->conn->db_write_lock(\App\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE);
                 (new UserCacheCategoriesRepository($this->conn))->deleteByUserIds([$userdata['id']]);
                 (new UserCacheCategoriesRepository($this->conn))->insertUserCacheCategories(
                     [
