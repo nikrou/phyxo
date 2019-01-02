@@ -75,6 +75,10 @@ Demo
 
 You can find, discover and play with a [demo](https://demo.phyxo.net/)
 
+Documentation
+-------------
+
+Documentation is available on the [wiki](../../wiki). Work in progress...
 
 Todo
 ----
