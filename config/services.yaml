@@ -64,7 +64,9 @@ services:
         alias: 'Phyxo\Template\Template'
 
     Phyxo\Conf:
-        arguments: ['@phyxo.conn', '%default_config_file%', '%user_config_file%']
+        calls:
+          - method: init
+            arguments: ['%default_config_file%', '%user_config_file%']
 
     phyxo.conf:
         public: true

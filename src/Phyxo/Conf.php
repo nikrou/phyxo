@@ -27,10 +27,13 @@ class Conf implements \ArrayAccess
     const FILE_PREFIX = 'file_';
     const DB_PREFIX = 'db_';
 
-    public function __construct(DBLayer $conn, string $default_config_file, string $user_config_file = '')
+    public function __construct(DBLayer $conn)
     {
         $this->conn = $conn;
+    }
 
+    public function init(string $default_config_file, string $user_config_file = '')
+    {
         $this->loadFromFile($default_config_file);
         if (!empty($user_config_file)) {
             $this->loadFromFile($user_config_file);

@@ -18,7 +18,7 @@
 ;; external libraries
 /vendor/*
 /bin
-
+!/bin/console
 
 ;; other stuff
 /target

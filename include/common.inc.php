@@ -61,7 +61,8 @@ if (defined('IN_WS')) {
         $page['error'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
     }
 
-    $conf = new Conf($conn, PHPWG_ROOT_PATH . 'include/config_default.inc.php', PHPWG_ROOT_PATH . 'local/config/config.inc.php');
+    $conf = new Conf($conn);
+    $conf->init(PHPWG_ROOT_PATH . 'include/config_default.inc.php', PHPWG_ROOT_PATH . 'local/config/config.inc.php');
 } else {
     $conn = $container->get('phyxo.conn');
     $conf = $container->get('phyxo.conf');

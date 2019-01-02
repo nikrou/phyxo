@@ -39,7 +39,8 @@ try {
     die($e->getMessage());
 }
 
-$conf = new Conf($conn, PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$conf = new Conf($conn);
+$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 $languages = new Languages($conn);
 
 require_once(PHPWG_ROOT_PATH . 'include/constants.php');
