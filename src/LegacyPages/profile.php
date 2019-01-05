@@ -14,61 +14,57 @@
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
 
-if (!defined('PHPWG_ROOT_PATH')) { //direct script access
-    define('PHPWG_ROOT_PATH', '../../');
-    include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-}
-
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
+if (!defined('PHPWG_ROOT_PATH')) { //direct script access
+    define('PHPWG_ROOT_PATH', '../../');
+    include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
-$services['users']->checkStatus(ACCESS_CLASSIC);
+    $services['users']->checkStatus(ACCESS_CLASSIC);
 
-if (!empty($_POST)) {
-    \Phyxo\Functions\Utils::check_token();
+    if (!empty($_POST)) {
+        \Phyxo\Functions\Utils::check_token();
+    }
+
+    $userdata = $user;
+
+    \Phyxo\Functions\Plugin::trigger_notify('loc_begin_profile');
+
+    // Reset to default (Guest) custom settings
+    if (isset($_POST['reset_to_default'])) {
+        $fields = [
+            'nb_image_page', 'expand',
+            'show_nb_comments', 'show_nb_hits',
+            'recent_period', 'show_nb_hits'
+        ];
+
+        // Get the Guest custom settings
+        $result = (new UserInfosRepository($conn))->findByUserId($conf['default_user_id']);
+        $default_user = $conn->db_fetch_assoc($result);
+        $userdata = array_merge($userdata, $default_user);
+    }
+
+    save_profile_from_post($userdata, $page['errors']);
+
+    $title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
+    load_profile_in_template(
+        \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
+        \Phyxo\Functions\URL::get_root_url(), // for redirect
+        $userdata
+    );
+
+    // include menubar
+    $themeconf = $template->get_template_vars('themeconf');
+    if (!isset($themeconf['hide_menu_on']) or !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
+        include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+    }
+
+    \Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
+    \Phyxo\Functions\Utils::flush_page_messages();
 }
-
-$userdata = $user;
-
-\Phyxo\Functions\Plugin::trigger_notify('loc_begin_profile');
-
-// Reset to default (Guest) custom settings
-if (isset($_POST['reset_to_default'])) {
-    $fields = [
-        'nb_image_page', 'expand',
-        'show_nb_comments', 'show_nb_hits',
-        'recent_period', 'show_nb_hits'
-    ];
-
-    // Get the Guest custom settings
-    $result = (new UserInfosRepository($conn))->findByUserId($conf['default_user_id']);
-    $default_user = $conn->db_fetch_assoc($result);
-    $userdata = array_merge($userdata, $default_user);
-}
-
-save_profile_from_post($userdata, $page['errors']);
-
-$title = \Phyxo\Functions\Language::l10n('Your Gallery Customization');
-load_profile_in_template(
-    \Phyxo\Functions\URL::get_root_url() . 'profile.php', // action
-    \Phyxo\Functions\URL::get_root_url(), // for redirect
-    $userdata
-);
-
-// include menubar
-$themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) or !in_array('theProfilePage', $themeconf['hide_menu_on'])) {
-    include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
-}
-
-\Phyxo\Functions\Plugin::trigger_notify('loc_end_profile');
-\Phyxo\Functions\Utils::flush_page_messages();
 
 //------------------------------------------------------ update & customization
 function save_profile_from_post($userdata, &$errors)

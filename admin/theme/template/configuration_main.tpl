@@ -14,35 +14,35 @@
 	<div class="fieldset">
 	    <h3>{'Basic settings'|translate}</h3>
 	    <p>
-			<label for="gallery_title">{'Gallery title'|translate}</label>
-			<input type="text" class="form-control" maxlength="255" size="50" name="gallery_title" id="gallery_title" value="{$main.CONF_GALLERY_TITLE}">
+		<label for="gallery_title">{'Gallery title'|translate}</label>
+		<input type="text" class="form-control" maxlength="255" size="50" name="gallery_title" id="gallery_title" value="{$main.CONF_GALLERY_TITLE}">
 	    </p>
 
 	    <p>
-			<label for="page_banner">{'Page banner'|translate}</label>
-			<textarea class="form-control" rows="5" cols="50" class="description" name="page_banner" id="page_banner">{$main.CONF_PAGE_BANNER}</textarea>
+		<label for="page_banner">{'Page banner'|translate}</label>
+		<textarea class="form-control" rows="5" cols="50" class="description" name="page_banner" id="page_banner">{$main.CONF_PAGE_BANNER}</textarea>
 	    </p>
 
 	    <div id="order_filters">
-			<h4>{'Default photos order'|translate}</h4>
-			{foreach $main.order_by as $order}
-				<div class="input-group filter {if isset($ORDER_BY_IS_CUSTOM)}transparent{/if}">
-					<select class="custom-select" name="order_by[]" {if isset($ORDER_BY_IS_CUSTOM)}disabled{/if}>
-						{html_options options=$main.order_by_options selected=$order}
-					</select>
-					<div class="input-group-append">
-						{if $order@index==0}
-							<button class="input-group-btn add-filter btn btn-success fa fa-plus"><span class="visually-hidden">{'Add a criteria'|translate}</span></button>
-						{else}
-							<button class="input-group-btn remove-filter btn btn-danger fa fa-minus"><span class="visually-hidden">{'delete'|translate}</span></button>
-						{/if}
-        			</div>
-				</div>
-			{/foreach}
+		<h4>{'Default photos order'|translate}</h4>
+		{foreach $main.order_by as $order}
+		    <div class="input-group filter {if isset($ORDER_BY_IS_CUSTOM)}transparent{/if}">
+			<select class="custom-select" name="order_by[]" {if isset($ORDER_BY_IS_CUSTOM)}disabled{/if}>
+			    {html_options options=$main.order_by_options selected=$order}
+			</select>
+			<div class="input-group-append">
+			    {if $order@index==0}
+				<button class="input-group-btn add-filter btn btn-success fa fa-plus"><span class="visually-hidden">{'Add a criteria'|translate}</span></button>
+			    {else}
+				<button class="input-group-btn remove-filter btn btn-danger fa fa-minus"><span class="visually-hidden">{'delete'|translate}</span></button>
+			    {/if}
+        		</div>
+		    </div>
+		{/foreach}
 
-			{if isset($ORDER_BY_IS_CUSTOM)}
-				<p class="order_by_is_custom">{'You can\'t define a default photo order because you have a custom setting in your local configuration.'|translate}</p>
-			{/if}
+		{if isset($ORDER_BY_IS_CUSTOM)}
+		    <p class="order_by_is_custom">{'You can\'t define a default photo order because you have a custom setting in your local configuration.'|translate}</p>
+		{/if}
 	    </div>
 	</div>
 
@@ -142,6 +142,7 @@
 	</div>
 
 	<p>
+	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 	    <input type="submit" class="btn btn-submit" name="submit" value="{'Save Settings'|translate}">
 	</p>
 

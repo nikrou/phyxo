@@ -1,29 +1,29 @@
 <?php
     /*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+     * This file is part of Phyxo package
+     *
+     * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+     * Licensed under the GPL version 2.0 license.
+     *
+     * For the full copyright and license information, please view the LICENSE
+     * file that was distributed with this source code.
+     */
 
 if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
 }
 
-$errors = array();
+$errors = [];
 
 // original resize
-$original_fields = array(
+$original_fields = [
     'original_resize',
     'original_resize_maxwidth',
     'original_resize_maxheight',
     'original_resize_quality',
-);
+];
 
-$updates = array();
+$updates = [];
 
 foreach ($original_fields as $field) {
     $value = !empty($_POST[$field]) ? $_POST[$field] : null;
@@ -114,9 +114,9 @@ if (count($errors) == 0) {
     if (!empty($conf['disabled_derivatives'])) {
         $disabled = unserialize($conf['disabled_derivatives']);
     } else {
-        $disabled = array();
+        $disabled = [];
     }
-    $changed_types = array();
+    $changed_types = [];
 
     foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
         $pderivative = $pderivatives[$type];
@@ -124,9 +124,9 @@ if (count($errors) == 0) {
         if ($pderivative['enabled']) {
             $new_params = new \Phyxo\Image\DerivativeParams(
                 new \Phyxo\Image\SizingParams(
-                    array(intval($pderivative['w']), intval($pderivative['h'])),
+                    [intval($pderivative['w']), intval($pderivative['h'])],
                     round($pderivative['crop'] / 100, 2),
-                    array(intval($pderivative['minw']), intval($pderivative['minh']))
+                    [intval($pderivative['minw']), intval($pderivative['minh'])]
                 )
             );
             $new_params->sharpen = intval($pderivative['sharpen']);
@@ -171,7 +171,7 @@ if (count($errors) == 0) {
         }
     }
 
-    $enabled_by = array(); // keys ordered by all types
+    $enabled_by = []; // keys ordered by all types
     foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
         if (isset($enabled[$type])) {
             $enabled_by[$type] = $enabled[$type];
@@ -196,15 +196,15 @@ if (count($errors) == 0) {
         \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);
     }
 
-    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings have been saved');
 } else {
     foreach ($original_fields as $field) {
         if (isset($_POST[$field])) {
             $template->append(
                 'sizes',
-                array(
+                [
                     $field => $_POST[$field]
-                ),
+                ],
                 true
             );
         }

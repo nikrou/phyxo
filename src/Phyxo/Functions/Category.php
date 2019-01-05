@@ -638,17 +638,11 @@ class Category
      * Change the **visible** property on a set of categories.
      *
      * @param int[] $categories
-     * @param boolean|string $value
      * @param boolean $unlock_child optional   default false
      */
-    public static function set_cat_visible($categories, $value, $unlock_child = false)
+    public static function set_cat_visible($categories, bool $value, $unlock_child = false)
     {
         global $conn;
-
-        if (($value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) === null) {
-            trigger_error("set_cat_visible invalid param $value", E_USER_WARNING);
-            return false;
-        }
 
         // unlocking a category => all its parent categories become unlocked
         if ($value) {
@@ -938,8 +932,7 @@ class Category
         }
 
         if (!empty($parent_id) and is_numeric($parent_id)) {
-            $result = (new CategoryRepository($conn))->findById($parent_id);
-            $parent = $conn->db_fetch_assoc($result);
+            $parent = (new CategoryRepository($conn))->findById($parent_id);
 
             $insert['id_uppercat'] = (int)$parent['id'];
             $insert['global_rank'] = $parent['global_rank'] . '.' . $insert['rank'];

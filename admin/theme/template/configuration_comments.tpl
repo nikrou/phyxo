@@ -37,7 +37,7 @@
 		<p>
 		    <label>
 			{'Default comments order'|translate}
-			<select name="comments_order">
+			<select name="comments_order" class="custom-select">
 			    {html_options options=$comments.comments_order_options selected=$comments.comments_order}
 			</select>
 		    </label>
@@ -129,6 +129,7 @@
 	</div>
 
 	<p>
+	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 	    <input type="submit" name="submit" value="{'Save Settings'|translate}" class="btn btn-submit">
 	</p>
 

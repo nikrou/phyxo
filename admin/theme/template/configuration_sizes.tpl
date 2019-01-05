@@ -151,6 +151,7 @@
 	{/if}
 
 	<p>
+	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 	    <input type="submit" class="btn btn-submit" name="submit" value="{'Save Settings'|translate}">
 	</p>
     </form>

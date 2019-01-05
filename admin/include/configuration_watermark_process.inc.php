@@ -1,19 +1,19 @@
 <?php
     /*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+     * This file is part of Phyxo package
+     *
+     * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+     * Licensed under the GPL version 2.0 license.
+     *
+     * For the full copyright and license information, please view the LICENSE
+     * file that was distributed with this source code.
+     */
 
 if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-$errors = array();
+$errors = [];
 $pwatermark = $_POST['w'];
 
 // step 0 - manage upload if any
@@ -99,7 +99,7 @@ if (count($errors) == 0) {
     $watermark->ypos = intval($pwatermark['ypos']);
     $watermark->xrepeat = intval($pwatermark['xrepeat']);
     $watermark->opacity = intval($pwatermark['opacity']);
-    $watermark->min_size = array(intval($pwatermark['minw']), intval($pwatermark['minh']));
+    $watermark->min_size = [intval($pwatermark['minw']), intval($pwatermark['minh'])];
 
     $old_watermark = \Phyxo\Image\ImageStdParams::get_watermark();
     $watermark_changed =
@@ -113,7 +113,7 @@ if (count($errors) == 0) {
     \Phyxo\Image\ImageStdParams::set_watermark($watermark);
 
     // do we have to regenerate the derivatives (and which types)?
-    $changed_types = array();
+    $changed_types = [];
 
     foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
         $old_use_watermark = $params->use_watermark;
@@ -141,7 +141,7 @@ if (count($errors) == 0) {
         \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);
     }
 
-    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings are saved');
+    $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings have been saved');
 } else {
     $template->assign('watermark', $pwatermark);
     $template->assign('ferrors', $errors);
