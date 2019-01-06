@@ -13,7 +13,6 @@ defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
-use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
 use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
@@ -45,29 +44,15 @@ $header_notes = [];
 $filter = [];
 
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-$db_config_file = __DIR__. '/../local/config/database.inc.php';
+$db_config_file = __DIR__ . '/../local/config/database.inc.php';
 if (!Utils::phyxoInstalled($db_config_file)) {
     header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
     exit();
 }
 
-if (defined('IN_WS')) {
-    include($db_config_file);
-
-    // Database connection
-    try {
-        $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-    } catch (Exception $e) {
-        $page['error'][] = \Phyxo\Functions\Language::l10n($e->getMessage());
-    }
-
-    $conf = new Conf($conn);
-    $conf->init(PHPWG_ROOT_PATH . 'include/config_default.inc.php', PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-} else {
-    $conn = $container->get('phyxo.conn');
-    $conf = $container->get('phyxo.conf');
-    $template = $container->get('templating.engine.smarty');
-}
+$conn = $container->get('phyxo.conn');
+$conf = $container->get('phyxo.conf');
+$template = $container->get('templating.engine.smarty');
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 

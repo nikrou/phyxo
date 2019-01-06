@@ -138,7 +138,7 @@ class URL
                 }
             }
         }
-        $url .= \Phyxo\Functions\Utils::cookie_path();
+        $url .= self::get_root_url();
 
         return $url;
     }

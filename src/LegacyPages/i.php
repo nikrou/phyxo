@@ -9,320 +9,9 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', './');
+define('PHPWG_ROOT_PATH', '../../');
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
-use Phyxo\DBLayer\DBLayer;
-
-// fast bootstrap - no db connection
-include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
-if (is_readable(PHPWG_ROOT_PATH . 'local/config/config.inc.php')) {
-    include(PHPWG_ROOT_PATH . 'local/config/config.inc.php');
-}
-
-defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-defined('PWG_DERIVATIVE_DIR') or define('PWG_DERIVATIVE_DIR', $conf['data_location'] . 'i/');
-
-include(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php');
-
-include(PHPWG_ROOT_PATH . 'include/constants.php');
-
-// end fast bootstrap
-
-function ilog()
-{
-    global $conf;
-
-    if (!$conf['enable_i_log']) return;
-
-    $line = date("c");
-    foreach (func_get_args() as $arg) {
-        $line .= ' ';
-        if (is_array($arg)) {
-            $line .= implode(' ', $arg);
-        } else {
-            $line .= $arg;
-        }
-    }
-    $file = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp/i.log';
-    if (false == file_put_contents($file, $line . "\n", FILE_APPEND)) {
-        \Phyxo\Functions\Utils::mkgetdir(dirname($file));
-    }
-}
-
-function ierror($msg, $code)
-{
-    if ($code == 301 || $code == 302) {
-        if (ob_get_length() !== false) {
-            ob_clean();
-        }
-
-        // default url is on html format
-        $url = html_entity_decode($msg);
-        header('Request-URI: ' . $url);
-        header('Content-Location: ' . $url);
-        header('Location: ' . $url);
-        ilog('WARN', $code, $url, $_SERVER['REQUEST_URI']);
-        exit;
-    }
-    if ($code >= 400) {
-        $protocol = $_SERVER["SERVER_PROTOCOL"];
-        if (('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol)) {
-            $protocol = 'HTTP/1.0';
-        }
-
-        header("$protocol $code $msg", true, $code);
-    }
-
-    // TODO: improve
-    echo $msg;
-    ilog('ERROR', $code, $msg, $_SERVER['REQUEST_URI']);
-    exit;
-}
-
-function time_step(&$step)
-{
-    $tmp = $step;
-    $step = microtime(true);
-    return intval(1000 * ($step - $tmp));
-}
-
-function url_to_size($s)
-{
-    $pos = strpos($s, 'x');
-    if ($pos === false) {
-        return [(int)$s, (int)$s];
-    }
-
-    return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
-}
-
-function parse_custom_params($tokens)
-{
-    if (count($tokens) < 1) {
-        ierror('Empty array while parsing Sizing', 400);
-    }
-
-    $crop = 0;
-    $min_size = null;
-
-    $token = array_shift($tokens);
-    if ($token[0] == 's') {
-        $size = url_to_size(substr($token, 1));
-    } elseif ($token[0] == 'e') {
-        $crop = 1;
-        $size = $min_size = url_to_size(substr($token, 1));
-    } else {
-        $size = url_to_size($token);
-        if (count($tokens) < 2) {
-            ierror('Sizing arr', 400);
-        }
-
-        $token = array_shift($tokens);
-        $crop = \Phyxo\Image\DerivativeParams::char_to_fraction($token);
-
-        $token = array_shift($tokens);
-        $min_size = url_to_size($token);
-    }
-
-    return new \Phyxo\Image\DerivativeParams(new \Phyxo\Image\SizingParams($size, $crop, $min_size));
-}
-
-function parse_request()
-{
-    global $conf, $page;
-
-    if (!$conf['question_mark_in_urls'] && !empty($_SERVER['PATH_INFO'])) {
-        $req = $_SERVER['PATH_INFO'];
-        $req = str_replace('//', '/', $req);
-        $path_count = count(explode('/', $req));
-        $page['root_path'] = PHPWG_ROOT_PATH . str_repeat('../', $path_count - 1);
-    } else {
-        $req = $_SERVER["QUERY_STRING"];
-        if ($pos = strpos($req, '&')) {
-            $req = substr($req, 0, $pos);
-        }
-        $req = rawurldecode($req);
-        $page['root_path'] = PHPWG_ROOT_PATH;
-    }
-
-    $req = ltrim($req, '/');
-
-    foreach (preg_split('#/+#', $req) as $token) {
-        preg_match($conf['sync_chars_regex'], $token) or ierror('Invalid chars in request', 400);
-    }
-
-    $page['derivative_path'] = PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $req;
-
-    $pos = strrpos($req, '.');
-    $pos !== false || ierror('Missing .', 400);
-    $ext = substr($req, $pos);
-    $page['derivative_ext'] = $ext;
-    $req = substr($req, 0, $pos);
-
-    $pos = strrpos($req, '-');
-    $pos !== false || ierror('Missing -', 400);
-    $deriv = substr($req, $pos + 1);
-    $req = substr($req, 0, $pos);
-
-    $deriv = explode('_', $deriv);
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
-        if (\Phyxo\Image\DerivativeParams::derivative_to_url($type) == $deriv[0]) {
-            $page['derivative_type'] = $type;
-            $page['derivative_params'] = $params;
-            break;
-        }
-    }
-
-    if (!isset($page['derivative_type'])) {
-        if (\Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) == $deriv[0]) {
-            $page['derivative_type'] = IMG_CUSTOM;
-        } else {
-            ierror('Unknown parsing type', 400);
-        }
-    }
-    array_shift($deriv);
-
-    if ($page['derivative_type'] == IMG_CUSTOM) {
-        $params = $page['derivative_params'] = parse_custom_params($deriv);
-        \Phyxo\Image\ImageStdParams::apply_global($params);
-
-        if ($params->sizing->ideal_size[0] < 20 or $params->sizing->ideal_size[1] < 20) {
-            ierror('Invalid size', 400);
-        }
-        if ($params->sizing->max_crop < 0 or $params->sizing->max_crop > 1) {
-            ierror('Invalid crop', 400);
-        }
-        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(IMG_XXLARGE);
-
-        $key = [];
-        $params->add_url_tokens($key);
-        $key = implode('_', $key);
-        if (!isset(\Phyxo\Image\ImageStdParams::$custom[$key])) {
-            ierror('Size not allowed', 403);
-        }
-    }
-
-    if (is_file(PHPWG_ROOT_PATH . $req . $ext)) {
-        $req = './' . $req; // will be used to match #iamges.path
-    } elseif (is_file(PHPWG_ROOT_PATH . '../' . $req . $ext)) {
-        $req = '../' . $req;
-    }
-
-    $page['src_location'] = $req . $ext;
-    $page['src_path'] = PHPWG_ROOT_PATH . $page['src_location'];
-    $page['src_url'] = $page['root_path'] . $page['src_location'];
-}
-
-function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtime)
-{
-    global $page;
-
-    if (!isset($page['original_size'])) {
-        return false;
-    }
-
-    $original_size = $page['original_size'];
-    if ($page['rotation_angle'] == 90 || $page['rotation_angle'] == 270) {
-        $tmp = $original_size[0];
-        $original_size[0] = $original_size[1];
-        $original_size[1] = $tmp;
-    }
-    $dsize = $params->compute_final_size($original_size);
-
-    $use_watermark = $params->use_watermark;
-    if ($use_watermark) {
-        $use_watermark = $params->will_watermark($dsize);
-    }
-
-    $candidates = [];
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $candidate) {
-        if ($candidate->type == $params->type) {
-            continue;
-        }
-        if ($candidate->use_watermark != $use_watermark) {
-            continue;
-        }
-        if ($candidate->max_width() < $params->max_width() || $candidate->max_height() < $params->max_height()) {
-            continue;
-        }
-        $candidate_size = $candidate->compute_final_size($original_size);
-        if ($dsize != $params->compute_final_size($candidate_size)) {
-            continue;
-        }
-
-        if ($params->sizing->max_crop == 0) {
-            if ($candidate->sizing->max_crop != 0) {
-                continue;
-            }
-        } else {
-            if ($candidate->sizing->max_crop != 0) {
-                continue; // this could be optimized
-            }
-            if ($candidate_size[0] < $params->sizing->min_size[0] || $candidate_size[1] < $params->sizing->min_size[1]) {
-                continue;
-            }
-        }
-        $candidates[] = $candidate;
-    }
-
-    foreach (array_reverse($candidates) as $candidate) {
-        $candidate_path = $page['derivative_path'];
-        $candidate_path = str_replace('-' . \Phyxo\Image\DerivativeParams::derivative_to_url($params->type), '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($candidate->type), $candidate_path);
-        $candidate_mtime = @filemtime($candidate_path);
-        if ($candidate_mtime === false || $candidate_mtime < $original_mtime || $candidate_mtime < $candidate->last_mod_time) {
-            continue;
-        }
-        $params->use_watermark = false;
-        $params->sharpen = min(1, $params->sharpen);
-        $page['src_path'] = $candidate_path;
-        $page['src_url'] = $page['root_path'] . substr($candidate_path, strlen(PHPWG_ROOT_PATH));
-        $page['rotation_angle'] = 0;
-        return true;
-    }
-
-    return false;
-}
-
-function send_derivative($expires)
-{
-    global $page;
-
-    if (isset($_GET['ajaxload']) and $_GET['ajaxload'] == 'true') {
-        echo json_encode(['url' => \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $page['derivative_path'])]);
-        return;
-    }
-
-    $fp = fopen($page['derivative_path'], 'rb');
-
-    $fstat = fstat($fp);
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $fstat['mtime']) . ' GMT');
-    if ($expires !== false) {
-        header('Expires: ' . gmdate('D, d M Y H:i:s', $expires) . ' GMT');
-    }
-    header('Content-length: ' . $fstat['size']);
-    header('Connection: close');
-
-    $ctype = "application/octet-stream";
-    switch (strtolower($page['derivative_ext'])) {
-        case ".jpe":
-        case ".jpeg":
-        case ".jpg":
-            $ctype = "image/jpeg";
-            break;
-        case ".png":
-            $ctype = "image/png";
-            break;
-        case ".gif":
-            $ctype = "image/gif";
-            break;
-    }
-    header("Content-Type: $ctype");
-
-    fpassthru($fp);
-    fclose($fp);
-}
+include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 $page = [];
 $begin = $step = microtime(true);
@@ -331,14 +20,6 @@ foreach (explode(',', 'load,rotate,crop,scale,sharpen,watermark,save,send') as $
     $timing[$k] = '';
 }
 
-try {
-    $conn = DBLayer::init($conf['dblayer'], $conf['db_host'], $conf['db_user'], $conf['db_password'], $conf['db_base']);
-} catch (Exception $e) {
-    ilog("db error", $e->getMessage());
-}
-
-$query = 'SELECT value FROM ' . $prefixeTable . 'config WHERE param=\'derivatives\'';
-list($conf['derivatives']) = $conn->db_fetch_row($conn->db_query($query));
 \Phyxo\Image\ImageStdParams::load_from_db();
 
 parse_request();
@@ -526,3 +207,299 @@ ilog(
     '|',
     $timing
 );
+
+function ilog()
+{
+    global $conf;
+
+    if (!$conf['enable_i_log']) return;
+
+    $line = date("c");
+    foreach (func_get_args() as $arg) {
+        $line .= ' ';
+        if (is_array($arg)) {
+            $line .= implode(' ', $arg);
+        } else {
+            $line .= $arg;
+        }
+    }
+    $file = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp/i.log';
+    if (false == file_put_contents($file, $line . "\n", FILE_APPEND)) {
+        \Phyxo\Functions\Utils::mkgetdir(dirname($file));
+    }
+}
+
+function ierror($msg, $code)
+{
+    if ($code == 301 || $code == 302) {
+        if (ob_get_length() !== false) {
+            ob_clean();
+        }
+
+        // default url is on html format
+        $url = html_entity_decode($msg);
+        header('Request-URI: ' . $url);
+        header('Content-Location: ' . $url);
+        header('Location: ' . $url);
+        ilog('WARN', $code, $url, $_SERVER['REQUEST_URI']);
+        exit;
+    }
+    if ($code >= 400) {
+        $protocol = $_SERVER["SERVER_PROTOCOL"];
+        if (('HTTP/1.1' != $protocol) && ('HTTP/1.0' != $protocol)) {
+            $protocol = 'HTTP/1.0';
+        }
+
+        header("$protocol $code $msg", true, $code);
+    }
+
+    // TODO: improve
+    echo $msg;
+    ilog('ERROR', $code, $msg, $_SERVER['REQUEST_URI']);
+    exit;
+}
+
+function time_step(&$step)
+{
+    $tmp = $step;
+    $step = microtime(true);
+    return intval(1000 * ($step - $tmp));
+}
+
+function url_to_size($s)
+{
+    $pos = strpos($s, 'x');
+    if ($pos === false) {
+        return [(int)$s, (int)$s];
+    }
+
+    return [(int)substr($s, 0, $pos), (int)substr($s, $pos + 1)];
+}
+
+function parse_custom_params($tokens)
+{
+    if (count($tokens) < 1) {
+        ierror('Empty array while parsing Sizing', 400);
+    }
+
+    $crop = 0;
+    $min_size = null;
+
+    $token = array_shift($tokens);
+    if ($token[0] == 's') {
+        $size = url_to_size(substr($token, 1));
+    } elseif ($token[0] == 'e') {
+        $crop = 1;
+        $size = $min_size = url_to_size(substr($token, 1));
+    } else {
+        $size = url_to_size($token);
+        if (count($tokens) < 2) {
+            ierror('Sizing arr', 400);
+        }
+
+        $token = array_shift($tokens);
+        $crop = \Phyxo\Image\DerivativeParams::char_to_fraction($token);
+
+        $token = array_shift($tokens);
+        $min_size = url_to_size($token);
+    }
+
+    return new \Phyxo\Image\DerivativeParams(new \Phyxo\Image\SizingParams($size, $crop, $min_size));
+}
+
+function parse_request()
+{
+    global $conf, $page;
+
+    if (!$conf['question_mark_in_urls'] && !empty($_SERVER['PATH_INFO'])) {
+        $req = $_SERVER['PATH_INFO'];
+        $req = str_replace('//', '/', $req);
+        $path_count = count(explode('/', $req));
+        $page['root_path'] = \Phyxo\Functions\URL::get_root_url();
+    } else {
+        $req = $_SERVER["QUERY_STRING"];
+        if ($pos = strpos($req, '&')) {
+            $req = substr($req, 0, $pos);
+        }
+        $req = rawurldecode($req);
+        $page['root_path'] = \Phyxo\Functions\URL::get_root_url();
+    }
+
+    $req = ltrim($req, '/');
+
+    foreach (preg_split('#/+#', $req) as $token) {
+        preg_match($conf['sync_chars_regex'], $token) or ierror('Invalid chars in request', 400);
+    }
+
+    $page['derivative_path'] = PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $req;
+    $page['derivative_url'] = PWG_DERIVATIVE_DIR . $req;
+
+    $pos = strrpos($req, '.');
+    $pos !== false || ierror('Missing .', 400);
+    $ext = substr($req, $pos);
+    $page['derivative_ext'] = $ext;
+    $req = substr($req, 0, $pos);
+
+    $pos = strrpos($req, '-');
+    $pos !== false || ierror('Missing -', 400);
+    $deriv = substr($req, $pos + 1);
+    $req = substr($req, 0, $pos);
+
+    $deriv = explode('_', $deriv);
+
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url($type) == $deriv[0]) {
+            $page['derivative_type'] = $type;
+            $page['derivative_params'] = $params;
+            break;
+        }
+    }
+
+    if (!isset($page['derivative_type'])) {
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) == $deriv[0]) {
+            $page['derivative_type'] = IMG_CUSTOM;
+        } else {
+            ierror('Unknown parsing type', 400);
+        }
+    }
+    array_shift($deriv);
+
+    if ($page['derivative_type'] == IMG_CUSTOM) {
+        $params = $page['derivative_params'] = parse_custom_params($deriv);
+        \Phyxo\Image\ImageStdParams::apply_global($params);
+
+        if ($params->sizing->ideal_size[0] < 20 or $params->sizing->ideal_size[1] < 20) {
+            ierror('Invalid size', 400);
+        }
+        if ($params->sizing->max_crop < 0 or $params->sizing->max_crop > 1) {
+            ierror('Invalid crop', 400);
+        }
+        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(IMG_XXLARGE);
+
+        $key = [];
+        $params->add_url_tokens($key);
+        $key = implode('_', $key);
+        if (!isset(\Phyxo\Image\ImageStdParams::$custom[$key])) {
+            ierror('Size not allowed', 403);
+        }
+    }
+
+    if (is_file(PHPWG_ROOT_PATH . $req . $ext)) {
+        $req = './' . $req; // will be used to match #iamges.path
+    } elseif (is_file(PHPWG_ROOT_PATH . '../' . $req . $ext)) {
+        $req = '../' . $req;
+    }
+
+    $page['src_location'] = $req . $ext;
+    $page['src_path'] = PHPWG_ROOT_PATH . $page['src_location'];
+    $page['src_url'] = $page['root_path'] . $page['src_location'];
+}
+
+function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtime)
+{
+    global $page;
+
+    if (!isset($page['original_size'])) {
+        return false;
+    }
+
+    $original_size = $page['original_size'];
+    if ($page['rotation_angle'] == 90 || $page['rotation_angle'] == 270) {
+        $tmp = $original_size[0];
+        $original_size[0] = $original_size[1];
+        $original_size[1] = $tmp;
+    }
+    $dsize = $params->compute_final_size($original_size);
+
+    $use_watermark = $params->use_watermark;
+    if ($use_watermark) {
+        $use_watermark = $params->will_watermark($dsize);
+    }
+
+    $candidates = [];
+    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $candidate) {
+        if ($candidate->type == $params->type) {
+            continue;
+        }
+        if ($candidate->use_watermark != $use_watermark) {
+            continue;
+        }
+        if ($candidate->max_width() < $params->max_width() || $candidate->max_height() < $params->max_height()) {
+            continue;
+        }
+        $candidate_size = $candidate->compute_final_size($original_size);
+        if ($dsize != $params->compute_final_size($candidate_size)) {
+            continue;
+        }
+
+        if ($params->sizing->max_crop == 0) {
+            if ($candidate->sizing->max_crop != 0) {
+                continue;
+            }
+        } else {
+            if ($candidate->sizing->max_crop != 0) {
+                continue; // this could be optimized
+            }
+            if ($candidate_size[0] < $params->sizing->min_size[0] || $candidate_size[1] < $params->sizing->min_size[1]) {
+                continue;
+            }
+        }
+        $candidates[] = $candidate;
+    }
+
+    foreach (array_reverse($candidates) as $candidate) {
+        $candidate_path = $page['derivative_path'];
+        $candidate_path = str_replace('-' . \Phyxo\Image\DerivativeParams::derivative_to_url($params->type), '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($candidate->type), $candidate_path);
+        $candidate_mtime = @filemtime($candidate_path);
+        if ($candidate_mtime === false || $candidate_mtime < $original_mtime || $candidate_mtime < $candidate->last_mod_time) {
+            continue;
+        }
+        $params->use_watermark = false;
+        $params->sharpen = min(1, $params->sharpen);
+        $page['src_path'] = $candidate_path;
+        $page['src_url'] = $page['root_path'] . substr($candidate_path, strlen(PHPWG_ROOT_PATH));
+        $page['rotation_angle'] = 0;
+        return true;
+    }
+
+    return false;
+}
+
+function send_derivative($expires)
+{
+    global $page;
+
+    if (isset($_GET['ajaxload']) and $_GET['ajaxload'] == 'true') {
+        echo json_encode(['url' => \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $page['derivative_url'])]);
+        return;
+    }
+
+    $fp = fopen($page['derivative_path'], 'rb');
+
+    $fstat = fstat($fp);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $fstat['mtime']) . ' GMT');
+    if ($expires !== false) {
+        header('Expires: ' . gmdate('D, d M Y H:i:s', $expires) . ' GMT');
+    }
+    header('Content-length: ' . $fstat['size']);
+    header('Connection: close');
+
+    $ctype = "application/octet-stream";
+    switch (strtolower($page['derivative_ext'])) {
+        case ".jpe":
+        case ".jpeg":
+        case ".jpg":
+            $ctype = "image/jpeg";
+            break;
+        case ".png":
+            $ctype = "image/png";
+            break;
+        case ".gif":
+            $ctype = "image/gif";
+            break;
+    }
+    header("Content-Type: $ctype");
+
+    fpassthru($fp);
+    fclose($fp);
+}
