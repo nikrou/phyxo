@@ -4,7 +4,7 @@ $(function() {
 	    type: 'GET',
 	    url: '../ws.php',
 	    dataType: 'json',
-	    data: { method: 'pwg.extensions.checkUpdates', format: 'json' },
+	    data: { method: 'pwg.extensions.checkUpdates' },
 	    timeout: 5000,
 	    success: function (data) {
 		if (data['stat'] != 'ok') {

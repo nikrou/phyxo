@@ -18,11 +18,7 @@ class Extensions
 {
     protected $directory_pattern = '';
 
-    public function getJsonFromServer($url, $params=array()) {
-        if (empty($params['format']) || $params['format']!=='json') {
-            $params['format'] = 'json';
-        }
-
+    public function getJsonFromServer($url, $params=[]) {
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
@@ -36,7 +32,7 @@ class Extensions
         }
     }
 
-    public function download($params=array(), $filename) {
+    public function download($params=[], $filename) {
         $url = PEM_URL . '/download.php';
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);

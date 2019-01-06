@@ -11,7 +11,7 @@ $(function() {
     $('#uploader').pluploadQueue({
         browse_button: 'addFiles',
         runtimes: 'html5',
-        url: '../ws.php?method=pwg.images.upload&format=json',
+        url: '../ws.php?method=pwg.images.upload',
         chunk_size: '500kb',
         filters: {
             max_file_size: '1000mb',

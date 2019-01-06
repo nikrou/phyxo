@@ -65,8 +65,7 @@ class Extension
                         . '&id=' . $extension_id
                         . '&revision=' . $revision
                         . '&reactivate=true'
-                        . '&pwg_token=' . \Phyxo\Functions\Utils::get_token()
-                        . '&format=json');
+                        . '&pwg_token=' . \Phyxo\Functions\Utils::get_token());
                 }
 
                 $errors = $extension->performAction('update', $extension_id, ['revision' => $revision]);

@@ -9,15 +9,12 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', './');
+define('PHPWG_ROOT_PATH', '../../');
 define('IN_WS', true);
 
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Protocols\RestRequestHandler;
 use Phyxo\Ws\Protocols\JsonEncoder;
-use Phyxo\Ws\Protocols\SerialPhpEncoder;
-use Phyxo\Ws\Protocols\RestEncoder;
-use Phyxo\Ws\Protocols\XmlRpcEncoder;
 
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
@@ -34,47 +31,9 @@ if (!$conf['allow_web_services']) {
     3
 );
 
-$requestFormat = 'rest';
-$responseFormat = null;
-
-if (isset($_REQUEST['format'])) { // @TODO filter format
-    $responseFormat = $_REQUEST['format'];
-}
-
-if (!isset($responseFormat) and isset($requestFormat)) {
-    $responseFormat = $requestFormat;
-}
-
 $service = new Server();
-if (!is_null($requestFormat)) {
-    $handler = null;
-    switch ($requestFormat) {
-        case 'rest':
-            $handler = new RestRequestHandler();
-            break;
-    }
-    $service->setHandler($requestFormat, $handler);
-}
-
-if (!is_null($responseFormat)) {
-    $encoder = null;
-    switch ($responseFormat) {
-        case 'rest':
-            $encoder = new RestEncoder();
-            break;
-        case 'php':
-            $encoder = new SerialPhpEncoder();
-            break;
-        case 'json':
-            $encoder = new JsonEncoder();
-            break;
-        case 'xmlrpc':
-            $encoder = new XmlRpcEncoder();
-            break;
-    }
-    $service->setEncoder($responseFormat, $encoder);
-}
-
+$service->setHandler(new RestRequestHandler());
+$service->setEncoder(new JsonEncoder());
 \Phyxo\Functions\URL::set_make_full_url();
 $service->run();
 

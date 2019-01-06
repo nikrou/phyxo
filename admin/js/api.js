@@ -104,7 +104,7 @@ $(function() {
 	$.ajax({
 	    type: "GET",
 	    url: ws_url,
-	    data: { format: "json", method: "reflection.getMethodList" }
+	    data: { method: "reflection.getMethodList" }
 	}).done(function(result) {
 	    result = parsePwgJSON(result);
 
@@ -139,7 +139,7 @@ $(function() {
 	    $.ajax({
 		type: "GET",
 		url: ws_url,
-		data: { format: "json", method: "reflection.getMethodDetails", methodName: methodName }
+		data: { method: "reflection.getMethodDetails", methodName: methodName }
 	    }).done(function(result) {
 		result = parsePwgJSON(result);
 
@@ -228,7 +228,7 @@ $(function() {
     function invokeMethod(methodName, newWindow) {
 	var method = cachedMethods[ methodName ];
 
-	var reqUrl = ws_url +"?format="+ $("#responseFormat").val();
+	var reqUrl = ws_url +'?';
 
 	// GET
 	if ($("#requestFormat").val() == 'get') {

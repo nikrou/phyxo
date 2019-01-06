@@ -205,7 +205,7 @@
     options.key = 'categoriesAdminList';
 
       options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.categories.getAdminList', function(data) {
+      $.getJSON(options.rootUrl + 'ws.php?method=pwg.categories.getAdminList', function(data) {
         var cats = data.result.categories.map(function(c, i) {
           c.pos = i;
           delete c['comment'];
@@ -254,7 +254,7 @@
     options.key = 'tagsAdminList';
 
     options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.tags.getAdminList', function(data) {
+      $.getJSON(options.rootUrl + 'ws.php?method=pwg.tags.getAdminList', function(data) {
         var tags = data.result.tags.map(function(t) {
           t.id = '~~' + t.id + '~~';
           delete t['url_name'];
@@ -303,7 +303,7 @@
     options.key = 'groupsAdminList';
 
     options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.groups.getList&per_page=9999', function(data) {
+      $.getJSON(options.rootUrl + 'ws.php?method=pwg.groups.getList&per_page=9999', function(data) {
         var groups = data.result.groups.map(function(g) {
           delete g['lastmodified'];
           return g;
@@ -354,7 +354,7 @@
 
       // recursive loader
       (function load(page){
-        jQuery.getJSON(options.rootUrl + 'ws.php?format=json&method=pwg.users.getList&display=username&per_page=9999&page='+ page, function(data) {
+        jQuery.getJSON(options.rootUrl + 'ws.php?method=pwg.users.getList&display=username&per_page=9999&page='+ page, function(data) {
           users = users.concat(data.result.users);
 
           if (data.result.paging.count == data.result.paging.per_page) {

@@ -17,7 +17,7 @@ $(function() {
 	$('.alert').hide();
 	$('#addUserForm').submit(function() {
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.add',
+            url: '../ws.php?method=pwg.users.add',
             type: 'POST',
             data: $(this).serialize() + '&pwg_token=' + pwg_token,
             beforeSend: function() {
@@ -55,7 +55,7 @@ $(function() {
 	    lengthMenu: [5,10,25],
 	    pageLength: users_list_config.pageLength,
 	    ajax: {
-		url: '../ws.php?format=json&method=pwg.users.getList&display=all',
+		url: '../ws.php?method=pwg.users.getList&display=all',
 		dataSrc: function(json) {
 		    return json.result.users;
 		},
@@ -326,7 +326,7 @@ $(function() {
 		.val();
 
             $.ajax({
-		url: '../ws.php?format=json&method=pwg.users.setInfo',
+		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: {
                     pwg_token: pwg_token,
@@ -357,7 +357,7 @@ $(function() {
 		.val();
 
             $.ajax({
-		url: '../ws.php?format=json&method=pwg.users.setInfo',
+		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: {
                     pwg_token: pwg_token,
@@ -404,7 +404,7 @@ $(function() {
             const username = $(this).data('username');
 
             $.ajax({
-		url: '../ws.php?format=json&method=pwg.users.delete',
+		url: '../ws.php?method=pwg.users.delete',
 		type: 'POST',
 		data: {
                     user_id: userId,
@@ -470,7 +470,7 @@ $(function() {
 	    fd.append('show_nb_hits', $('#user' + userId + ' input[name="show_nb_hits"]').is(':checked'));
 
             $.ajax({
-		url: '../ws.php?format=json&method=pwg.users.setInfo',
+		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: fd,
  		processData: false,
@@ -595,7 +595,7 @@ $(function() {
             }
 
             $.ajax({
-		url: '../ws.php?format=json&method=' + method,
+		url: '../ws.php?method=' + method,
 		type: 'POST',
 		data: data,
 		beforeSend: function() {

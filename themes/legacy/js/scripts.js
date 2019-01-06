@@ -53,7 +53,7 @@ PwgWS.prototype = {
 		}
 		this.xhr.onreadystatechange = pwgBind(this, this.onStateChange);
 
-		var url = this.urlRoot+"ws.php?format=json&method="+method;
+		var url = this.urlRoot+"ws.php?method="+method;
 
 		var body = "";
 		if (parameters)

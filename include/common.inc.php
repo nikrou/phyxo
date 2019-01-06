@@ -45,7 +45,7 @@ $header_notes = [];
 $filter = [];
 
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
-$db_config_file = PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'config/database.inc.php';
+$db_config_file = __DIR__. '/../local/config/database.inc.php';
 if (!Utils::phyxoInstalled($db_config_file)) {
     header('Location: ' . \Phyxo\Functions\URL::get_root_url() . 'admin/install');
     exit();

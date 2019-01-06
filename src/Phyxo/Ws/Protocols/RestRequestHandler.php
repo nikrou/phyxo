@@ -14,31 +14,30 @@ namespace Phyxo\Ws\Protocols;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
 
-class RestRequestHandler extends RequestHandler
+class RestRequestHandler
 {
-    function handleRequest(&$service) {
-        $params = array();
+    function handleRequest(&$service)
+    {
+        $params = [];
 
         $param_array = $service->isPost() ? $_POST : $_GET;
         foreach ($param_array as $name => $value) {
-            if ($name=='format') {
-                continue; // ignore - special keys
-            }
-            if ($name=='method') {
+            if ($name == 'method') {
                 $method = $value;
             } else {
                 $params[$name] = $value;
             }
         }
-		if ( empty($method) && isset($_GET['method'])) {
-			$method = $_GET['method'];
-		}
+        if (empty($method) && isset($_GET['method'])) {
+            $method = $_GET['method'];
+        }
 
         if (empty($method)) {
             $service->sendResponse(new Error(Server::WS_ERR_INVALID_METHOD, 'Missing "method" name'));
             return;
         }
         $resp = $service->invoke($method, $params);
-        $service->sendResponse($resp);
+
+        return $service->sendResponse($resp);
     }
 }

@@ -21,7 +21,7 @@ $(function() {
             type: 'GET',
             dataType: 'json',
             url: '../ws.php',
-            data: { method: 'pwg.plugins.performAction', action: 'deactivate', plugin: id, pwg_token: pwg_token, format: 'json' },
+            data: { method: 'pwg.plugins.performAction', action: 'deactivate', plugin: id, pwg_token: pwg_token },
             success: function(data) {
                 if (data['stat'] == 'ok') {
                     $('#' + id)

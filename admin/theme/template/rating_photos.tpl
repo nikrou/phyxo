@@ -67,7 +67,7 @@
 				<td>{$rate.date}</td>
 				<td>
 				    <button
-					data-confirm="{'Are you sure?'|translate}" data-action="{$ROOT_URL}ws.php?format=json&method=pwg.rates.delete"
+					data-confirm="{'Are you sure?'|translate}" data-action="{$ROOT_URL}ws.php?method=pwg.rates.delete"
 					data-data="{ldelim}&quot;image_id&quot;:{$image.id},&quot;user_id&quot;:{$rate.user_id}{if !empty({$rate.anonymous_id})},&quot;anonymous_id&quot;:&quot;{$rate.anonymous_id}&quot;{/if}{rdelim}"
 					data-method="POST" data-delete="#rate-{$rate.md5sum}" data-toggle="modal" data-target="#confirm-delete" class="btn btn-danger fa fa-trash"></button>
 				</td>

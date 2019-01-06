@@ -19,7 +19,7 @@ class Server
     private $_requestHandler;
     private $_requestFormat;
     private $_responseEncoder;
-    public $_responseFormat;
+    private $_responseFormat = 'json';
 
     private $_methods = [];
 
@@ -47,19 +47,17 @@ class Server
     /**
      *  Initializes the request handler.
      */
-    public function setHandler($requestFormat, &$requestHandler)
+    public function setHandler($requestHandler)
     {
-        $this->_requestHandler = &$requestHandler;
-        $this->_requestFormat = $requestFormat;
+        $this->_requestHandler = $requestHandler;
     }
 
     /**
      *  Initializes the request handler.
      */
-    public function setEncoder($responseFormat, &$encoder)
+    public function setEncoder($encoder)
     {
-        $this->_responseEncoder = &$encoder;
-        $this->_responseFormat = $responseFormat;
+        $this->_responseEncoder = $encoder;
     }
 
     /**
@@ -102,12 +100,11 @@ class Server
      */
     public function sendResponse($response)
     {
-        $encodedResponse = $this->_responseEncoder->encodeResponse($response);
-        $contentType = $this->_responseEncoder->getContentType();
 
-        @header('Content-Type: ' . $contentType . '; charset=' . \Phyxo\Functions\Utils::get_charset());
-        print_r($encodedResponse);
+        $encodedResponse = $this->_responseEncoder->encodeResponse($response);
         Plugin::trigger_notify('sendResponse', $encodedResponse);
+
+        echo $encodedResponse;
     }
 
     /**

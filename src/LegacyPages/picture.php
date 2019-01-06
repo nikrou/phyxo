@@ -689,8 +689,8 @@ if (isset($conf['tags_existing_tags_only'])) {
 } else {
     $template->assign('TAGS_PERMISSION_ALLOW_CREATION', 1);
 }
-$template->assign('USER_TAGS_WS_GETLIST', \Phyxo\Functions\URL::get_root_url() . 'ws.php?format=json&method=pwg.tags.getFilteredList');
-$template->assign('USER_TAGS_UPDATE_SCRIPT', \Phyxo\Functions\URL::get_root_url() . 'ws.php?format=json&method=pwg.images.setRelatedTags');
+$template->assign('USER_TAGS_WS_GETLIST', \Phyxo\Functions\URL::get_root_url() . 'ws.php?method=pwg.tags.getFilteredList');
+$template->assign('USER_TAGS_UPDATE_SCRIPT', \Phyxo\Functions\URL::get_root_url() . 'ws.php?method=pwg.images.setRelatedTags');
 
 // related categories
 if (count($related_categories) == 1 and isset($page['category']) and $related_categories[0]['id'] == $page['category']['id']) {

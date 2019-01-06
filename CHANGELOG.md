@@ -1,4 +1,5 @@
-# Phyxo 2.0.0 - YYYY-MM-DD
+# Phyxo 1.10.0 - YYYY-MM-DD
+-   Move webservice under symfony router.
 
 # Phyxo 1.9.6 - 2018-12-31
 -   Fix random page when no photos.

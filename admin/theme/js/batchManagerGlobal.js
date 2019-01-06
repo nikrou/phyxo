@@ -172,7 +172,7 @@ function getDerivativeUrls() {
 
 	jQuery.ajax( {
 		type: "POST",
-		url: 'ws.php?format=json&method=pwg.getMissingDerivatives',
+		url: 'ws.php?method=pwg.getMissingDerivatives',
 		data: params,
 		dataType: "json",
 		success: function(data) {

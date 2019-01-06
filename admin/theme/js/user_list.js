@@ -1,7 +1,7 @@
 $(function() {
     $('#addUserForm').submit(function() {
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.add',
+            url: '../ws.php?method=pwg.users.add',
             type: 'POST',
             data: $(this).serialize() + '&pwg_token=' + pwg_token,
             beforeSend: function() {
@@ -162,7 +162,7 @@ $(function() {
         var sOut = null;
 
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.getList',
+            url: '../ws.php?method=pwg.users.getList',
             type: 'POST',
             data: {
                 user_id: userId,
@@ -354,7 +354,7 @@ $(function() {
         $('#user' + userId + ' .changePassword a img').show();
 
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.setInfo',
+            url: '../ws.php?method=pwg.users.setInfo',
             type: 'POST',
             data: {
                 pwg_token: pwg_token,
@@ -419,7 +419,7 @@ $(function() {
         $('#user' + userId + ' .changeUsername a img').show();
 
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.setInfo',
+            url: '../ws.php?method=pwg.users.setInfo',
             type: 'POST',
             data: {
                 pwg_token: pwg_token,
@@ -476,7 +476,7 @@ $(function() {
         var username = $('#user' + userId + ' .username').html();
 
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.delete',
+            url: '../ws.php?method=pwg.users.delete',
             type: 'POST',
             data: {
                 user_id: userId,
@@ -526,7 +526,7 @@ $(function() {
         }
 
         $.ajax({
-            url: '../ws.php?format=json&method=pwg.users.setInfo',
+            url: '../ws.php?method=pwg.users.setInfo',
             type: 'POST',
             data: formData,
             beforeSend: function() {
@@ -785,7 +785,7 @@ $(function() {
         }
 
         $.ajax({
-            url: '../ws.php?format=json&method=' + method,
+            url: '../ws.php?method=' + method,
             type: 'POST',
             data: data,
             beforeSend: function() {

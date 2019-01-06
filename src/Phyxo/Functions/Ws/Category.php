@@ -267,7 +267,7 @@ class Category
             $thumbnail_src_of = [];
             $new_image_ids = [];
 
-            $result = (new ImageRepository($conn))->getImagesFromCategories($image_ids);
+            $result = (new ImageRepository($conn))->findByIds($image_ids);
             while ($row = $conn->db_fetch_assoc($result)) {
                 if ($row['level'] <= $user['level']) {
                     $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);

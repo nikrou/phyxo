@@ -26,6 +26,12 @@ comments:
   defaults:
     extension: php
 
+ws:
+  path: /ws.{extension}
+  controller: App\Controller\WsController::index
+  defaults:
+    extension: php
+
 action:
   path: /action.{extension}/{image_id}/{part}/{download}
   controller: App\Controller\DefaultController::action
