@@ -332,8 +332,7 @@ class Server
         }
 
         $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
-
-        if (@get_class($result) != 'Phyxo\Ws\Error') {
+        if ((is_bool($result) && $result === true) || get_class($result) != 'Phyxo\Ws\Error') {
             $result = call_user_func_array($method['callback'], [$params, &$this]);
         }
 

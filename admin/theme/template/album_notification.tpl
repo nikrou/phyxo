@@ -15,7 +15,6 @@
 	    {if isset($group_mail_options)}
 		<p>
 		    <label>{'Group'|translate}</label>
-		    
 		    <select class="custom-select" name="group">
 			{html_options options=$group_mail_options}
 		    </select>
@@ -31,7 +30,7 @@
 		</p>
 
 	    {elseif isset($no_group_in_gallery) and $no_group_in_gallery}
-		<p>{'There is no group in this gallery.'|translate} <a href="admin/index.php?page=group_list" class="externalLink">{'Group management'|translate}</a></p>
+		<p>{'There is no group in this gallery.'|translate} <a href="./index.php?page=groups">{'Group management'|translate}</a></p>
 	    {else}
 		<p>
 		    {'No group is permitted to see this private album'|translate}.

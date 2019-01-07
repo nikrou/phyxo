@@ -24,6 +24,8 @@ class WsController extends BaseController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/ws';
 
+        $container = $this->container; // allow accessing container as global variable
+
         try {
             global
                 $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user,

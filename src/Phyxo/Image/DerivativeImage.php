@@ -80,7 +80,7 @@ class DerivativeImage
         return \Phyxo\Functions\URL::embellish_url(
             Plugin::trigger_change(
                 'get_derivative_url',
-                \Phyxo\Functions\URL::get_root_url() . $rel_url,
+                \Phyxo\Functions\URL::get_absolute_root_url() . $rel_url,
                 $params,
                 $src_image,
                 $rel_url
@@ -104,7 +104,7 @@ class DerivativeImage
             $src_image = new SrcImage($src_image);
         }
 
-        $ret = array();
+        $ret = [];
         // build enabled types
         foreach (ImageStdParams::get_defined_type_map() as $type => $params) {
             $derivative = new DerivativeImage($params, $src_image);
@@ -176,7 +176,7 @@ class DerivativeImage
             }
         }
 
-        $tokens = array();
+        $tokens = [];
         $tokens[] = substr($params->type, 0, 2);
 
         if ($params->type == IMG_CUSTOM) {

@@ -119,11 +119,11 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getImagesFromCategories(string $where, string $order_by, int $limit, int $offset = 0)
+    public function getImagesFromCategories(array $where, string $order_by, int $limit, int $offset = 0)
     {
         $query = 'SELECT i.id, i.file, i.date_available, i.date_creation, i.name, i.comment, i.author, i.hit, i.filesize,';
         $query .= ' i.width, i.height, i.coi, i.representative_ext, i.date_metadata_update, i.rating_score, i.path,';
-        $query .= ' i.storage_category_id, i.level, i.md5sum, i.added_by, i.rotation, i.latitude, i.longitude, i.lastmodified';
+        $query .= ' i.storage_category_id, i.level, i.md5sum, i.added_by, i.rotation, i.latitude, i.longitude, i.lastmodified,';
         $query .= ' ' . $this->conn->db_group_concat('category_id') . ' AS cat_ids FROM ' . self::IMAGES_TABLE . ' i';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON i.id = image_id';
         $query .= ' WHERE ' . implode(' AND ', $where);
