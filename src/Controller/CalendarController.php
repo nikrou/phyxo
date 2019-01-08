@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CalendarController extends BaseController
 {
-    public function index(Request $request, $date_type, $type, $year, $month = null, $day = null)
+    public function index(string $legacyBaseDir, Request $request, $date_type, $type, $year, $month = null, $day = null)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = sprintf('/%s-monthly-%s-%d', $date_type, $type, $year);
@@ -32,9 +32,9 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function categories(Request $request, $date_type, $type, $year, $month = null, $day = null)
+    public function categories(string $legacyBaseDir, Request $request, $date_type, $type, $year, $month = null, $day = null)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = sprintf('/categories/%s-monthly-%s-%d', $date_type, $type, $year);
@@ -49,9 +49,9 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'month_calendar.tpl');
     }
 
-    public function details(Request $request, $date_type, $time_params = null, $extra_params = null)
+    public function details(string $legacyBaseDir, Request $request, $date_type, $time_params = null, $extra_params = null)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $date_type . '-monthly-calendar';

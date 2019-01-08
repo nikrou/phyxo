@@ -13,8 +13,6 @@
 define('PHPWG_ROOT_PATH', '../../');
 define('IN_ADMIN', true);
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
 use Phyxo\Theme\Themes;

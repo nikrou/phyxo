@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PictureController extends BaseController
 {
-    public function picture(Request $request, $image_id, $type, $element_id)
+    public function picture(string $legacyBaseDir, Request $request, $image_id, $type, $element_id)
     {
-        $legacy_file = sprintf('%s/picture.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type . '/' . $element_id;
@@ -25,9 +25,9 @@ class PictureController extends BaseController
         return $this->doResponse($legacy_file, 'picture.tpl');
     }
 
-    public function imagesByTypes(Request $request, $image_id, $type, $time_params = null, $extra_params = null)
+    public function imagesByTypes(string $legacyBaseDir, Request $request, $image_id, $type, $time_params = null, $extra_params = null)
     {
-        $legacy_file = sprintf('%s/picture.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type;

@@ -16,9 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MediaController extends BaseController
 {
-    public function index(Request $request, string $path, string $derivative, ? string $sizes = null, string $image_extension)
+    public function index(string $legacyBaseDir, Request $request, string $path, string $derivative, ? string $sizes = null, string $image_extension)
     {
-        $legacy_file = sprintf('%s/i.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/i.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = $path;

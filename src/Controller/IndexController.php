@@ -17,9 +17,9 @@ use App\Repository\ImageRepository;
 
 class IndexController extends BaseController
 {
-    public function favorites(Request $request)
+    public function favorites(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/favorites";
@@ -27,9 +27,9 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function mostVisited(Request $request)
+    public function mostVisited(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/most_visited";
@@ -37,9 +37,9 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function recentPics(Request $request)
+    public function recentPics(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_pics";
@@ -47,9 +47,9 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function recentCats(Request $request)
+    public function recentCats(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_cats";
@@ -57,9 +57,9 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function bestRated(Request $request)
+    public function bestRated(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/best_rated";
@@ -97,9 +97,9 @@ class IndexController extends BaseController
         }
     }
 
-    public function randomList(Request $request, $list)
+    public function randomList(string $legacyBaseDir, Request $request, $list)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/list/$list";

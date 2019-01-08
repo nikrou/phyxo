@@ -18,9 +18,9 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class AdminController extends Controller
 {
-    public function install(Request $request)
+    public function install(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/install.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/install.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/install.php';
@@ -28,9 +28,9 @@ class AdminController extends Controller
         return $this->doResponse($legacy_file);
     }
 
-    public function index(Request $request)
+    public function index(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/admin.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/index.php';

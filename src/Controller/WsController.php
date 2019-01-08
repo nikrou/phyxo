@@ -17,9 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WsController extends BaseController
 {
-    public function index(Request $request)
+    public function index(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/ws.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/ws';

@@ -16,9 +16,9 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 
 class AlbumController extends BaseController
 {
-    public function album(Request $request, $category_id, $start_id = null)
+    public function album(string $legacyBaseDir, Request $request, $category_id, $start_id = null)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/category/$category_id";
@@ -30,9 +30,9 @@ class AlbumController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function albumByParams(Request $request, $time_params = null, $extra_params = null)
+    public function albumByParams(string $legacyBaseDir, Request $request, $time_params = null, $extra_params = null)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/categories';

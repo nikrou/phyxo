@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends BaseController
 {
-    public function register(Request $request)
+    public function register(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/register.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/register.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/register";
@@ -25,9 +25,9 @@ class UserController extends BaseController
         return $this->doResponse($legacy_file, 'register.tpl');
     }
 
-    public function password(Request $request)
+    public function password(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/password.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/password.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/password";
@@ -35,9 +35,9 @@ class UserController extends BaseController
         return $this->doResponse($legacy_file, 'password.tpl');
     }
 
-    public function identification(Request $request)
+    public function identification(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/identification.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/identification.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/identification";
@@ -45,9 +45,9 @@ class UserController extends BaseController
         return $this->doResponse($legacy_file, 'identification.tpl');
     }
 
-    public function profile(Request $request)
+    public function profile(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/profile.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/profile.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/profile";

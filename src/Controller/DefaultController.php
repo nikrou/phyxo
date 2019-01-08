@@ -18,9 +18,9 @@ use App\Repository\ImageRepository;
 
 class DefaultController extends BaseController
 {
-    public function home(Request $request)
+    public function home(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/";
@@ -28,9 +28,9 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl');
     }
 
-    public function about(Request $request)
+    public function about(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/about.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/about.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/about";
@@ -38,9 +38,9 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'about.tpl');
     }
 
-    public function feed(Request $request)
+    public function feed(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/feed.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/feed.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/feed";
@@ -48,9 +48,9 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'feed.tpl');
     }
 
-    public function notification(Request $request)
+    public function notification(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/notification.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/notification.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/notification";
@@ -58,9 +58,9 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'notification.tpl');
     }
 
-    public function comments(Request $request)
+    public function comments(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/comments.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/comments.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/comments";

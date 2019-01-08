@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TagController extends BaseController
 {
-    public function list(Request $request)
+    public function list(string $legacyBaseDir, Request $request)
     {
-        $legacy_file = sprintf('%s/tags.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/tags.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/tags";
@@ -25,9 +25,9 @@ class TagController extends BaseController
         return $this->doResponse($legacy_file, 'tags.tpl');
     }
 
-    public function imagesByTags(Request $request, $tag_id)
+    public function imagesByTags(string $legacyBaseDir, Request $request, $tag_id)
     {
-        $legacy_file = sprintf('%s/index.php', $this->container->getParameter('legacy_base_dir'));
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/tags/' . $tag_id;
