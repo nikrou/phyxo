@@ -1,6 +1,9 @@
 # Phyxo 1.10.0 - YYYY-MM-DD
 -   Move webservice and media factory (i.php) under symfony router.
 
+# Phyxo 1.9.7 - 2018-01-12
+-   Fix issue preventing users using nginx as http server to connect.
+
 # Phyxo 1.9.6 - 2018-12-31
 -   Fix random page when no photos.
 -   Fix retrieve of elegant config after upgrade

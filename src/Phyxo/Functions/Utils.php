@@ -63,7 +63,9 @@ class Utils
      */
     public static function cookie_path()
     {
-        if (!empty($_SERVER['REDIRECT_SCRIPT_NAME'])) {
+        if (isset($_SERVER['PUBLIC_BASE_PATH'])) {
+            $scr = $_SERVER['PUBLIC_BASE_PATH'];
+        } elseif (!empty($_SERVER['REDIRECT_SCRIPT_NAME'])) {
             $scr = $_SERVER['REDIRECT_SCRIPT_NAME'];
         } elseif (!empty($_SERVER['REDIRECT_URL'])) {
             // mod_rewrite is activated for upper level directories. we must set the
