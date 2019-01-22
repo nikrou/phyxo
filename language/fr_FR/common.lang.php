@@ -423,3 +423,4 @@ $lang['You are not allowed to add tags'] = "Vous n\êtes pas autorisé à ajoute
 $lang['You are not allowed to delete tags'] = "Vous n\êtes pas autorisé à supprimer de tags";
 $lang['Informations'] = "Informations";
 $lang['Hide context'] = "Masquer le contexte";
+$lang['Discover'] = "Découvrir";
