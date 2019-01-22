@@ -592,8 +592,8 @@
 		    <!-- delete -->
 		    <div id="action_delete">
 			<p class="custom-control custom-checkbox">
-			    <input class="custom-control-input" type="checkbox" name="confirm_deletion" value="1">
-			    <label class="custom-control-label">{'Are you sure?'|translate}</label>
+			    <input class="custom-control-input" type="checkbox" id="confirm-deletion" name="confirm_deletion" value="1">
+			    <label class="custom-control-label" for="confirm-deletion">{'Are you sure?'|translate}</label>
 			</p>
 		    </div>
 
