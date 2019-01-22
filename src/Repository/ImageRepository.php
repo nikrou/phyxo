@@ -299,10 +299,10 @@ class ImageRepository extends BaseRepository
 
             if (is_bool($value)) {
                 $query .= $separator . $key . ' = \'' . $this->conn->boolean_to_db($value) . '\'';
-            } elseif (!empty($value)) {
+            } elseif (isset($value)) {
                 $query .= $separator . $key . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
             } else {
-                $query .= $separator . $key . ' IS NULL';
+                $query .= $separator . $key . ' = NULL';
             }
             $is_first = false;
         }

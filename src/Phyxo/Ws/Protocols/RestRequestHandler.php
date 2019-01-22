@@ -20,7 +20,16 @@ class RestRequestHandler
     {
         $params = [];
 
-        $param_array = $service->isPost() ? $_POST : $_GET;
+        $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim($_SERVER['CONTENT_TYPE']) : '';
+        if ($contentType === "application/json") {
+            //Receive the RAW post data.
+            $content = trim(file_get_contents("php://input"));
+
+            $param_array = json_decode($content, true);
+        } else {
+            $param_array = $service->isPost() ? $_POST : $_GET;
+        }
+
         foreach ($param_array as $name => $value) {
             if ($name == 'method') {
                 $method = $value;
@@ -28,6 +37,7 @@ class RestRequestHandler
                 $params[$name] = $value;
             }
         }
+
         if (empty($method) && isset($_GET['method'])) {
             $method = $_GET['method'];
         }

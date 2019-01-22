@@ -185,7 +185,7 @@ class Server
 
     public static function isPost()
     {
-        return isset($HTTP_RAW_POST_DATA) or !empty($_POST); // @TODO: remove $HTTP_RAW_POST_DATA
+        return !empty($_POST);
     }
 
     public static function makeArrayParam(&$param)
