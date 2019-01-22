@@ -130,7 +130,7 @@
     </div>
     <div class="handle">
         <a id="info-link" href="#">
-            <span class="fas fa-info" aria-hidden="true"></span>
+            <span class="fa fa-info" aria-hidden="true"></span>
         </a>
     </div>
 </div>

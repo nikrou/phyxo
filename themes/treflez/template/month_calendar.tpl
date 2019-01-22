@@ -16,7 +16,7 @@
 	{foreach $chronology_navigation_bars as $bar}
 	    <div id="calendar-nav">
 		{if isset($bar.previous)}
-		    <a id="calendar-prev" class="btn btn-secondary pull-left" href="{$bar.previous.URL}"><span class="fas fa-arrow-left"></span> {$bar.previous.LABEL}</a>
+		    <a id="calendar-prev" class="btn btn-secondary pull-left" href="{$bar.previous.URL}"><span class="fa fa-arrow-left"></span> {$bar.previous.LABEL}</a>
 		{/if}
 		{if !empty($bar.items)}
 		    <div id="calendar-nav-buttons" class="btn-group" role=group">
@@ -53,7 +53,7 @@
 		    </div>
 		{/if}
 		{if isset($bar.next)}
-		    <a id="calendar-next" class="btn btn-secondary pull-right" href="{$bar.next.URL}">{$bar.next.LABEL} <span class="fas fa-arrow-right"></span></a>
+		    <a id="calendar-next" class="btn btn-secondary pull-right" href="{$bar.next.URL}">{$bar.next.LABEL} <span class="fa fa-arrow-right"></span></a>
 		{/if}
 	    </div>
 	{/foreach}

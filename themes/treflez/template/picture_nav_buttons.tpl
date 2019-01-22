@@ -3,22 +3,22 @@
 	{if isset($slideshow)}
 	    {if isset($slideshow.U_INC_PERIOD)}
 		<a href="{$slideshow.U_INC_PERIOD}" title="{'Reduce diaporama speed'|translate}" class="pwg-state-default pwg-button">
-		    <i class="fas fa-minus" aria-hiden="true"></i>
+		    <i class="fa fa-minus" aria-hiden="true"></i>
 		</a>
 	    {else}
-		<i class="fas fa-minus" aria-hiden="true"></i>
+		<i class="fa fa-minus" aria-hiden="true"></i>
 	    {/if}
 	    {if isset($slideshow.U_DEC_PERIOD)}
 		<a href="{$slideshow.U_DEC_PERIOD}" title="{'Accelerate diaporama speed'|translate}" class="pwg-state-default pwg-button">
-		    <i class="fas fa-plus" aria-hidden="true"></i>
+		    <i class="fa fa-plus" aria-hidden="true"></i>
 		</a>
 	    {else}
-		<i class="fas fa-plus" aria-hidden="true"></i>
+		<i class="fa fa-plus" aria-hidden="true"></i>
 	    {/if}
 	{/if}
 	{if isset($slideshow.U_START_REPEAT)}
 	    <a href="{$slideshow.U_START_REPEAT}" title="{'Repeat the slideshow'|translate}" class="pwg-state-default pwg-button">
-		<i class="fas fa-repeat" aria-hidden="true"></i>
+		<i class="fa fa-repeat" aria-hidden="true"></i>
 	    </a>
 	{/if}
 	{* TODO need an icon for this
@@ -38,42 +38,42 @@
 	   {/if}{/strip}-->*}
 	{strip}{if isset($previous)}
 	    <a href="{$previous.U_IMG}" title="{'Previous'|translate} : {$previous.TITLE_ESC}" id="navPrevPicture">
-		<i class="fas fa-chevron-left" aria-hidden="true"></i>
+		<i class="fa fa-chevron-left" aria-hidden="true"></i>
 	    </a>
 	{else}
-            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
 	{/if}{/strip}
 	{strip}{if isset($U_UP) and !isset($slideshow)}
             <a href="{$U_UP}" title="{'Thumbnails'|translate}">
-		<i class="fas fa-chevron-up"></i>
+		<i class="fa fa-chevron-up"></i>
             </a>
 	{/if}{/strip}
 	{strip}{if !isset($slideshow) && ($theme_config->photoswipe && !empty($thumbnails))}
             <a href="javascript:;" title="{'Fullscreen'|translate}" id="startPhotoSwipe">
-		<i class="fas fa-expand-arrows-alt" aria-hidden="true"></i>
+		<i class="fa fa-expand-arrows-alt" aria-hidden="true"></i>
             </a>
 	{/if}{/strip}
 	{if isset($slideshow.U_START_PLAY)}
 	    <a href="{$slideshow.U_START_PLAY}" title="{'Play of slideshow'|translate}">
-		<i class="fas fa-play" aria-hidden="true"></i>
+		<i class="fa fa-play" aria-hidden="true"></i>
 	    </a>
 	{/if}
 	{if isset($slideshow.U_STOP_PLAY)}
 	    <a href="{$slideshow.U_STOP_PLAY}" title="{'Pause of slideshow'|translate}">
-		<i class="fas fa-pause" aria-hidden="true"></i>
+		<i class="fa fa-pause" aria-hidden="true"></i>
 	    </a>
 	{/if}
 	{if isset($U_SLIDESHOW_STOP) }
             <a href="{$U_SLIDESHOW_STOP}" title="{'stop the slideshow'|translate}">
-		<i class="fas fa-stop" aria-hidden="true"></i>
+		<i class="fa fa-stop" aria-hidden="true"></i>
             </a>
 	{/if}
 	{strip}{if isset($next)}
 	    <a href="{$next.U_IMG}" title="{'Next'|translate} : {$next.TITLE_ESC}" id="navNextPicture">
-		<i class="fas fa-chevron-right" aria-hidden="true"></i>
+		<i class="fa fa-chevron-right" aria-hidden="true"></i>
 	    </a>
 	{else}
-	    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+	    <i class="fa fa-chevron-right" aria-hidden="true"></i>
 	{/if}{/strip}
 	{*<!--{strip}{if isset($last)}
 	   <a href="{$last.U_IMG}" title="{'Last'|translate} : {$last.TITLE}" class="pwg-state-default pwg-button pwg-button-icon-right">

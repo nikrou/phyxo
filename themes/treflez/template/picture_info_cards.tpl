@@ -142,7 +142,7 @@
     {if $display_info.tags}
 	<div id="card-tags" class="card mb-2">
             <div class="card-body">
-		<h5>{if $TAGS_PERMISSION_ADD}<i class="fas fa-edit edit-tags"></i>{/if}{'Tags'|translate}</h5>
+		<h5>{if $TAGS_PERMISSION_ADD}<i class="fa fa-edit edit-tags"></i>{/if}{'Tags'|translate}</h5>
 		{include file="_picture_tags.tpl"}
             </div>
 	</div>
@@ -233,7 +233,7 @@
 			    </div>
 			</div>
 		    </div>
-		    <button id="show_exif_data" class="btn btn-primary btn-raised mt-1" style="text-transform: none;"><i class="fas fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
+		    <button id="show_exif_data" class="btn btn-primary btn-raised mt-1" style="text-transform: none;"><i class="fa fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
 		    <div id="full_exif_data" class="d-none flex-column mt-2">
 			{foreach $metadata as $meta}
 			    {foreach $meta.lines as $label => $value}

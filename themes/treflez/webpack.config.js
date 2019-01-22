@@ -136,6 +136,7 @@ module.exports = {
 
     devServer: {
 	contentBase: path.target,
+	disableHostCheck: true,
 	hot: true,
         inline: true,
         overlay: true,

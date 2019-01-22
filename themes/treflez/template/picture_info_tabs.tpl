@@ -110,7 +110,7 @@
 				{if $display_info.tags}
 				    <tr>
 					<th scope="row">
-					    {if $TAGS_PERMISSION_ADD}<i class="fas fa-edit edit-tags"></i>{/if}{'Tags'|translate}
+					    {if $TAGS_PERMISSION_ADD}<i class="fa fa-edit edit-tags"></i>{/if}{'Tags'|translate}
 					</th>
 					<td>
 					    {include file="_picture_tags.tpl"}
