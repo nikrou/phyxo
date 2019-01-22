@@ -1,0 +1,44 @@
+// Picture info sidebar
+#sidebar {
+    position: absolute;
+    right: -250px;
+    text-align: left;
+    z-index: 100;
+
+    .handle {
+	margin-top: 10px;
+	float: right;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+
+	a {
+	    display: block;
+	    padding: 10px;
+	    color: #fff;
+
+	    &:hover, &:focus {
+		color: #eee;
+	    }
+	}
+
+	.fa {
+	    font-size: 1.2em;
+	}
+    }
+
+    .info {
+	float: right;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+	width: 250px;
+	padding: 20px;
+
+	dl {
+	    margin-bottom: 0;
+	}
+
+	button {
+	    max-width: 210px;
+	}
+    }
+}

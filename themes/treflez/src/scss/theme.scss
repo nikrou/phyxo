@@ -1,0 +1,37 @@
+// @import "~bootswatch/dist/[theme]/variables";
+// @import "~bootstrap/scss/bootstrap"; or @import 'bootstrap-custom';
+// @import "~bootswatch/dist/[theme]/bootswatch";
+// ```
+
+// Make sure to import Bootstrap's `bootstrap.scss` in between `_variables.scss`
+// and `_bootswatch.scss`!
+
+// comment following line if you want google fonts
+$web-font-path: '';
+
+@import '~bootswatch/dist/darkly/variables';
+@import 'bootstrap-custom';
+@import '~bootswatch/dist/darkly/bootswatch';
+
+// other dependencies
+@import '~photoswipe/dist/photoswipe.css';
+@import '~photoswipe/dist/default-skin/default-skin.css';
+
+@import '~slick-carousel/slick/slick.css';
+@import '~slick-carousel/slick/slick-theme.css';
+@import '~selectize/dist/css/selectize.bootstrap3.css';
+@import '~bootstrap-social/bootstrap-social.css';
+
+// local styles
+@import 'common/variables';
+@import 'common/fonts';
+@import 'theme/base';
+@import 'theme/navs';
+@import 'theme/index';
+@import 'theme/picture';
+@import 'theme/picture-info-sidebar';
+@import 'theme/comments';
+@import 'theme/photoswipe';
+@import 'theme/tag-cloud';
+@import 'theme/carousel-fade';
+@import 'theme/page-header';

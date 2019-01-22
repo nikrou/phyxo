@@ -1,0 +1,65 @@
+#configContent fieldset.mainConf label.radio {
+  display: inline-block;
+  width: 150px;
+}
+
+fieldset>h4 { text-align: left !important;}
+span.info { padding-left: 20px; }
+
+@media (min-width: 768px) {
+  .dl-horizontal dt {
+     float: left;
+     width: 160px;
+     overflow: hidden;
+     clear: left;
+     text-align: right;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+  }
+  .dl-horizontal dd {
+     margin-left: 180px;
+  }
+}
+.dl-horizontal dd:before,
+.dl-horizontal dd:after { 
+  display: table;
+  content: " ";
+}
+.dl-horizontal dd:after { clear: both; }
+
+#boostrap_theme_descr { padding-top: 15px; }
+
+#bootswatch_theme,
+#bootswatch_theme_label,
+#theme_preview,
+#material_color,
+#material_color_label {
+  display: none;
+}
+
+ul.tabs{
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+ul.tabs li {
+  background: none;
+  color: #777;
+  display: inline-block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+ul.tabs li.current {
+  background: #e3e3e3; 
+  color: #222;
+}
+.tab-content{
+  display: none;
+  background: #e3e3e3;
+  padding: 15px;
+}
+.tab-content.current{ display: inherit; }
+
+.ident {
+   margin-left: 3rem;
+}

@@ -1,0 +1,90 @@
+// Index page (category thumbnails)
+#content {
+    min-height: 100px;
+
+    .col-outer {
+	-webkit-transition: all 0.5s ease;
+	-moz-transition: all 0.5s ease;
+	-o-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+    }
+}
+
+.content-grid {
+    .col-outer {
+	margin-top: 10px;
+	margin-bottom: 10px;
+
+	.description {
+	    display: none;
+	}
+    }
+}
+
+.content-list {
+    .col-outer {
+	margin-top: 20px;
+	margin-bottom: 20px;
+
+	.card {
+	    height: 150px;
+
+	    @include media-breakpoint-up(lg) {
+		height: 200px;
+	    }
+
+	    .card-body {
+		min-height: 80%;
+	    }
+	    .card-footer {
+		max-height: 20%;
+		min-height: 20%;
+	    }
+	}
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .container-fluid {
+	#content, #content-description {
+	    padding: 0 1rem;
+	}
+    }
+}
+
+.ellipsis {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-thumbnail {
+    .card-body {
+	padding-bottom: .25rem;
+    }
+
+    .card-footer {
+	background: none;
+	border-top: none;
+	padding-top: .25rem;
+    }
+
+    .card-text {
+	p.nb-comments, p.nb-hits {
+	    margin-bottom: 0;
+	}
+    }
+
+    .text-muted {
+	font-size: 0.8rem;
+    }
+}
+
+// video indicators
+i.video-indicator {
+    font-weight: 400;
+    opacity: 0.75;
+}
+// still needed?
+#theCategoryPage { padding-left: 0px !important; }

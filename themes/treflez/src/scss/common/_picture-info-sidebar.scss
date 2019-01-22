@@ -1,0 +1,44 @@
+// Picture info sidebar
+$sidebar-bg:           theme-color('secondary') !default;
+$sidebar-color:        $navbar-dark-color !default;
+$sidebar-hover-color:  $navbar-dark-hover-color !default;
+
+#sidebar {
+ .handle {
+    color: $sidebar-color;
+    background-color: $sidebar-bg;
+    border-top: 1px solid $sidebar-bg;
+    border-bottom: 1px solid $sidebar-bg;
+    border-left: 1px solid $sidebar-bg;
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12), 0 3px 5px -1px rgba(0, 0, 0, .2);
+
+    a {
+      color: $sidebar-color;
+
+      &:hover, &:focus {
+        color: $sidebar-hover-color;
+      }
+    }
+  }
+  
+  .info {
+    color: $sidebar-color;
+    background-color: $sidebar-bg;
+    border-top: 1px solid $sidebar-bg;
+    border-bottom: 1px solid $sidebar-bg;
+    border-left: 1px solid $sidebar-bg;
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, .14), 0 1px 18px 0 rgba(0, 0, 0, .12), 0 3px 5px -1px rgba(0, 0, 0, .2);
+
+    h4 {
+      color: $sidebar-color;
+    }
+
+    .imageInfo>dd>a {
+      color: $sidebar-color;
+
+      &:hover, &:focus {
+        color: $sidebar-hover-color;
+      }
+    }
+  }
+}

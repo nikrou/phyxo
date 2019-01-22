@@ -1,27 +1,47 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2017 Nicolas Roudaire        https://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/*
+Theme Name: Treflez
+Version: 0.1.0
+Description: Responsive theme
+Author: Nicolas Roudaire
+Author URI: https://www.phyxo.net
+
+The theme is based on the original one for piwigo.
+ */
+
+require_once(__DIR__ . '/include/themecontroller.php');
+require_once(__DIR__ . '/include/config.php');
 
 $themeconf = [
     'name' => 'treflez',
-    'parent' => 'default',
-    'load_css' => false,
+    'parent' => 'legacy',
+    'icon_dir' => 'themes/legacy/images',
     'load_parent_css' => false,
-    'load_parent_local_head' => false,
+    'load_parent_local_head' => true,
+    'local_head' => 'local_head.tpl',
+    'url' => 'https://www.phyxo.net/'
 ];
+
+global $conf;
+
+// always show metadata initially
+$_SESSION['show_metadata'] = true;
+
+// register video files
+$video_ext = ['mp4', 'm4v'];
+if (!empty($conf['file_ext'])) {
+    $conf['file_ext'] = array_merge($conf['file_ext'], $video_ext, array_map('strtoupper', $video_ext));
+}
+
+$controller = new \Treflez\ThemeController($conf);
+$controller->init();

@@ -1,0 +1,113 @@
+//
+@-ms-viewport       { width: device-width; }
+
+//
+.ui-loader { display: none; }
+
+//
+html, body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+body {
+    overflow-x: hidden;
+}
+
+@media (min-width: 1800px) {
+    .container {
+	width: 1600px;
+    }
+}
+@media (min-width: 3000px) {
+    .container {
+	width: 2800px;
+    }
+}
+
+//
+.jumbotron {
+    border-radius: 0;
+}
+.jumbotron h1 {
+    font-size: 49px;
+}
+@include media-breakpoint-down(sm) {
+    .jumbotron p { font-size: 16px; }
+    .jumbotron h1 { font-size: 28px; }
+}
+
+
+//
+#theImage {
+    padding-bottom: 1em;
+}
+.placeholder>img,
+#theImage>img,
+#theImage #video-modal>.embed-responsive,
+.col-thumbnail>div>img {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+.thumbnail-active>a>img {
+    border: 1px solid white;
+}
+
+//
+#calendar-select {
+    margin-bottom: 10px;
+}
+#calendar-nav {
+    min-height: 55px;
+    text-align: center;
+
+    .btn-group {
+	flex-wrap: wrap;
+    }
+    & > a {
+	margin-bottom: 10px;
+    }
+}
+#calendar-nav-buttons table {
+    padding-top: 10px;
+}
+#calendar-nav-buttons td,
+#calMonth td {
+    border-top: none;
+}
+#calendar-nav-buttons td a{
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+}
+.calendar-month-list li {
+    padding-right: 10px;
+    display: inline-block;
+}
+
+//
+.well-categories { margin-bottom: 10px; }
+
+//
+.copyright {
+    padding: 30px;
+}
+
+//
+#thePopuphelpPage .jumbotron {
+    display: none;
+}
+
+//
+.card-img-left {
+    border-bottom-left-radius: calc(.25rem - 1px);
+    border-top-left-radius: calc(.25rem - 1px);
+    float: left;
+    padding-right: 1em;
+    margin-bottom: -1.25em;
+    height: 100%;
+    width: auto;
+}
+
+// Forms
+.form-control-plaintext {
+    color: inherit;
+}
