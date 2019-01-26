@@ -13,8 +13,6 @@ if (!defined("PHPWG_ROOT_PATH")) {
     die("Hacking attempt!");
 }
 
-require_once(PHPWG_ROOT_PATH . '/vendor/autoload.php');
-
 use Phyxo\Theme\Themes;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);

@@ -24,11 +24,7 @@ require_once(__DIR__ . '/include/config.php');
 
 $themeconf = [
     'name' => 'treflez',
-    'parent' => 'legacy',
-    'icon_dir' => 'themes/legacy/images',
     'load_parent_css' => false,
-    'load_parent_local_head' => true,
-    'local_head' => 'local_head.tpl',
     'url' => 'https://www.phyxo.net/'
 ];
 

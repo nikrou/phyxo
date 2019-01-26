@@ -14,20 +14,14 @@ namespace Treflez;
 class Config
 {
     const CONF_PARAM = 'treflez';
-    const CONF_VERSION = 20;
 
     const TYPE_BOOL = 'bool';
     const TYPE_STRING = 'string';
     const TYPE_NUM = 'numeric';
     const TYPE_FILE = 'file';
 
-    const KEY_VERSION = 'conf_version';
-
     const KEY_FLUID_WIDTH = 'fluid_width';
     const KEY_FLUID_WIDTH_COL_XXL = 'fluid_width_col_xxl';
-    const KEY_BOOTSTRAP_THEME = 'bootstrap_theme';
-    const KEY_BOOTSWATCH_THEME = 'bootswatch_theme';
-    const KEY_MATERIAL_COLOR = 'material_color';
     const KEY_NAVBAR_MAIN_STYLE = 'navbar_main_style';
     const KEY_NAVBAR_MAIN_BG = 'navbar_main_bg';
     const KEY_NAVBAR_CONTEXTUAL_STYLE = 'navbar_contextual_style';
@@ -66,18 +60,13 @@ class Config
     const KEY_COMMENTS_TYPE = 'comments_type';
     const KEY_TAG_CLOUD_TYPE = 'tag_cloud_type';
 
-    const KEY_CUSTOM_CSS = 'custom_css';
-
     private $defaults = [
         self::KEY_FLUID_WIDTH => false,
         self::KEY_FLUID_WIDTH_COL_XXL => true,
-        self::KEY_BOOTSTRAP_THEME => 'material-darkroom',
-        self::KEY_BOOTSWATCH_THEME => 'cerulean',
-        self::KEY_MATERIAL_COLOR => 'teal',
-        self::KEY_NAVBAR_MAIN_STYLE => 'navbar-dark',
-        self::KEY_NAVBAR_MAIN_BG => 'bg-dark',
-        self::KEY_NAVBAR_CONTEXTUAL_STYLE => 'navbar-dark',
-        self::KEY_NAVBAR_CONTEXTUAL_BG => 'bg-primary',
+        self::KEY_NAVBAR_MAIN_STYLE => 'navbar-light',
+        self::KEY_NAVBAR_MAIN_BG => 'bg-light',
+        self::KEY_NAVBAR_CONTEXTUAL_STYLE => 'navbar-light',
+        self::KEY_NAVBAR_CONTEXTUAL_BG => 'bg-light',
         self::KEY_SLICK_ENABLED => true,
         self::KEY_SLICK_LAZYLOAD => 'ondemand',
         self::KEY_SLICK_INFINITE => false,
@@ -108,15 +97,11 @@ class Config
         self::KEY_SOCIAL_VK => true,
         self::KEY_COMMENTS_TYPE => 'phyxo',
         self::KEY_TAG_CLOUD_TYPE => 'basic',
-        self::KEY_CUSTOM_CSS => null,
     ];
 
     private $types = [
         self::KEY_FLUID_WIDTH => self::TYPE_BOOL,
         self::KEY_FLUID_WIDTH_COL_XXL => self::TYPE_BOOL,
-        self::KEY_BOOTSTRAP_THEME => self::TYPE_STRING,
-        self::KEY_BOOTSWATCH_THEME => self::TYPE_STRING,
-        self::KEY_MATERIAL_COLOR => self::TYPE_STRING,
         self::KEY_NAVBAR_MAIN_STYLE => self::TYPE_STRING,
         self::KEY_NAVBAR_MAIN_BG => self::TYPE_STRING,
         self::KEY_NAVBAR_CONTEXTUAL_STYLE => self::TYPE_STRING,
@@ -151,7 +136,6 @@ class Config
         self::KEY_SOCIAL_VK => self::TYPE_BOOL,
         self::KEY_COMMENTS_TYPE => self::TYPE_STRING,
         self::KEY_TAG_CLOUD_TYPE => self::TYPE_STRING,
-        self::KEY_CUSTOM_CSS => self::TYPE_FILE,
     ];
 
     private $config = [];
@@ -164,25 +148,11 @@ class Config
         // Create initial config if necessary
         if (!isset($conf[self::CONF_PARAM])) {
             $this->createDefaultConfig();
-            return;
         }
 
-        // Load and JSON decode the config
-        $loaded = json_decode($conf[self::CONF_PARAM], true);
+        $this->config = json_decode($conf[self::CONF_PARAM], true);
 
-        // Check for current version
-        if (isset($loaded[self::KEY_VERSION]) && $loaded[self::KEY_VERSION] == self::CONF_VERSION) {
-            $this->config = $loaded;
-            return;
-        }
-
-        // Invalid or old config, recreate
-        $this->createDefaultConfig();
-        if (is_array($loaded)) {
-            $this->populateConfig($loaded);
-        }
-
-        $this->save();
+        $this->populateConfig();
     }
 
     public function __set($key, $value)
@@ -231,14 +201,13 @@ class Config
     private function createDefaultConfig()
     {
         $this->config = $this->defaults;
-        $this->config[self::KEY_VERSION] = self::CONF_VERSION;
     }
 
-    private function populateConfig(array $config)
+    private function populateConfig()
     {
-        foreach (array_keys($this->defaults) as $key) {
-            if (isset($config[$key])) {
-                $this->config[$key] = $config[$key];
+        foreach ($this->defaults as $key => $value) {
+            if (!isset($this->config[$key])) {
+                $this->config[$key] = $value;
             }
         }
     }

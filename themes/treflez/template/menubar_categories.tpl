@@ -9,7 +9,7 @@
 		    <span class="badge badge-secondary ml-2" title="{$cat.TITLE}">{$cat.count_images}</span>
 		{/if}
 		{if !empty($cat.icon_ts)}
-		    <img title="{$cat.icon_ts.TITLE}" src="{$ROOT_URL}{$themeconf.icon_dir}/recent{if $cat.icon_ts.IS_CHILD_DATE}_by_child{/if}.png" class="icon" alt="(!)">
+		    <i class="fa fa-exclamation"></i>
 		{/if}
             </a>
 	{/foreach}

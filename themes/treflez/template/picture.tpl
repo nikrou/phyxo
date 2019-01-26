@@ -34,7 +34,11 @@
 	 {else}
 	 var phyxo_slick_infinite = false;
 	 {/if}
+	 {if $theme_config->photoswipe_metadata}
 	 var phyxo_photoswipe_metadata = {$theme_config->photoswipe_metadata};
+	 {else}
+	 var phyxo_photoswipe_metadata = false;
+	 {/if}
 	 var phyxo_photoswipe_interval = {$theme_config->photoswipe_interval};
 	</script>
     {/if}

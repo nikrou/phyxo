@@ -31,7 +31,7 @@
 			    <h6 class="card-title">
 				<a href="{$thumbnail.URL}" class="ellipsis{if !empty($thumbnail.icon_ts)} recent{/if}">{$thumbnail.NAME}</a>
 				{if !empty($thumbnail.icon_ts)}
-				    <img title="{$thumbnail.icon_ts.TITLE}" src="{$ROOT_URL}{$themeconf.icon_dir}/recent.png" alt="(!)">
+				    <i class="fa fa-exclamation"></i>
 				{/if}
 			    </h6>
 			    {if isset($thumbnail.NB_COMMENTS) || isset($thumbnail.NB_HITS)}

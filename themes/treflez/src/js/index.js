@@ -1,7 +1,6 @@
 import '../scss/theme.scss';
 
 import 'bootstrap';
-import './theme';
 import './keyboard-navigation';
 import './tags';
 import './thumbnails-loader';

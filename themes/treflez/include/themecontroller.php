@@ -31,16 +31,10 @@ class ThemeController
 
     public function init()
     {
-        Language::load_language('theme.lang', PHPWG_THEMES_PATH . 'treflez/');
+        Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/treflez/');
 
         Plugin::add_event_handler('init', [$this, 'assignConfig']);
         Plugin::add_event_handler('init', [$this, 'setInitValues']);
-
-        if ($this->config->bootstrap_theme === 'darkroom' || $this->config->bootstrap_theme === 'material' || $this->config->bootstrap_theme === 'bootswatch') {
-            $this->config->bootstrap_theme = 'bootstrap-darkroom';
-            $this->config->save();
-        }
-
         Plugin::add_event_handler('loc_begin_page_header', [$this, 'checkIfHomepage']);
         Plugin::add_event_handler('loc_after_page_header', [$this, 'stripBreadcrumbs']);
         Plugin::add_event_handler('format_exif_data', [$this, 'exifReplacements']);
@@ -106,11 +100,6 @@ class ThemeController
             'loaded_plugins' => $GLOBALS['pwg_loaded_plugins'],
             'meta_ref_enabled' => $this->core_config['meta_ref']
         ]);
-        if (array_key_exists('bootstrap_darkroom_core_js_in_header', $this->core_config)) {
-            $template->assign('bootstrap_darkroom_core_js_in_header', $this->core_config['bootstrap_darkroom_core_js_in_header']);
-        } else {
-            $template->assign('bootstrap_darkroom_core_js_in_header', false);
-        }
 
         if (isset($pwg_loaded_plugins['language_switch'])) {
             Plugin::add_event_handler('loc_end_search', 'language_controler_flags', 95);
@@ -122,7 +111,7 @@ class ThemeController
         }
 
         if (isset($pwg_loaded_plugins['exif_view'])) {
-            Language::load_language('lang.exif', PHPWG_PLUGINS_PATH . 'exif_view/');
+            Language::load_language('lang.exif', PHPWG_PLUGINS_PATH . '/exif_view/');
         }
     }
 

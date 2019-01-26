@@ -11,21 +11,21 @@
 		{if $display_mode != 'cloud'}
 		    <li class="nav-item">
 			<a class="nav-link" href="{$U_CLOUD}" title="{'show tag cloud'|translate}">
-			    <i class="fa fa-cloud fa-fw" aria-hidden="true"></i><span class="d-lg-none"> {'show tag cloud'|translate}</span>
+			    <i class="fa fa-cloud" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{'show tag cloud'|translate}</span>
 			</a>
 		    </li>
 		{/if}
 		{if $display_mode != 'letters'}
 		    <li class="nav-item">
 			<a class="nav-link" href="{$U_LETTERS}" title="{'group by letters'|translate}" rel="nofollow">
-			    <i class="fa fa-sort-alpha-down fa-fw" aria-hidden="true"></i><span class="d-lg-none"> {'group by letters'|translate}</span>
+			    <i class="fa fa-sort-alpha-desc" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{'group by letters'|translate}</span>
 			</a>
 		    </li>
 		{/if}
 		{if isset($loaded_plugins['tag_groups']) && $display_mode != 'groups'}
 		    <li class="nav-item">
 			<a class="nav-link" href="{$U_TAG_GROUPS}" title="{'show tag groups'|translate}" rel="nofollow">
-			    <i class="fa fa-tags fa-fw" aria-hidden="true"></i><span class="d-lg-none"> {'show tag groups'|translate}</span>
+			    <i class="fa fa-tags" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{'show tag groups'|translate}</span>
 			</a>
 		    </li>
 		{/if}
