@@ -63,44 +63,50 @@ class Utils
      */
     public static function cookie_path()
     {
-        if (isset($_SERVER['PUBLIC_BASE_PATH'])) {
-            $scr = $_SERVER['PUBLIC_BASE_PATH'];
+        if (!empty($_SERVER['PUBLIC_BASE_PATH'])) {
+            $path = $_SERVER['PUBLIC_BASE_PATH'];
+
+            // add a trailing '/' if needed
+            if ((strlen($path) === 0) || ($path[strlen($path) - 1] !== '/')) {
+                $path .= '/';
+            }
+
+            return $path;
         } elseif (!empty($_SERVER['REDIRECT_SCRIPT_NAME'])) {
-            $scr = $_SERVER['REDIRECT_SCRIPT_NAME'];
+            $path = $_SERVER['REDIRECT_SCRIPT_NAME'];
         } elseif (!empty($_SERVER['REDIRECT_URL'])) {
             // mod_rewrite is activated for upper level directories. we must set the
             // cookie to the path shown in the browser otherwise it will be discarded.
             if (!empty($_SERVER['PATH_INFO']) && ($_SERVER['REDIRECT_URL'] !== $_SERVER['PATH_INFO'])
                 && (substr($_SERVER['REDIRECT_URL'], -strlen($_SERVER['PATH_INFO'])) == $_SERVER['PATH_INFO'])) {
-                $scr = substr($_SERVER['REDIRECT_URL'], 0, strlen($_SERVER['REDIRECT_URL']) - strlen($_SERVER['PATH_INFO']));
+                $path = substr($_SERVER['REDIRECT_URL'], 0, strlen($_SERVER['REDIRECT_URL']) - strlen($_SERVER['PATH_INFO']));
             } else {
-                $scr = $_SERVER['REDIRECT_URL'];
+                $path = $_SERVER['REDIRECT_URL'];
             }
         } else {
-            $scr = $_SERVER['SCRIPT_NAME'];
+            $path = $_SERVER['SCRIPT_NAME'];
         }
 
-        $scr = substr($scr, 0, strrpos($scr, '/'));
+        $path = substr($path, 0, strrpos($path, '/'));
 
         // add a trailing '/' if needed
-        if ((strlen($scr) == 0) or ($scr {
-            strlen($scr) - 1} !== '/')) {
-            $scr .= '/';
+        if ((strlen($path) === 0) || ($path[strlen($path) - 1] !== '/')) {
+            $path .= '/';
         }
 
         if (substr(PHPWG_ROOT_PATH, 0, 3) == '../') { // this is maybe a plugin inside pwg directory
             // @TODO - what if it is an external script outside PWG ?
-            $scr = $scr . PHPWG_ROOT_PATH;
+            $path = $path . PHPWG_ROOT_PATH;
             while (1) {
-                $new = preg_replace('#[^/]+/\.\.(/|$)#', '', $scr);
-                if ($new == $scr) {
+                $new = preg_replace('#[^/]+/\.\.(/|$)#', '', $path);
+                if ($new == $path) {
                     break;
                 }
-                $scr = $new;
+                $path = $new;
             }
         }
 
-        return $scr;
+        return $path;
     }
 
     /**
