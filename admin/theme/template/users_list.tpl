@@ -48,8 +48,9 @@
                     </label>
 		</p>
 
-		<p>
-                    <label><input type="checkbox" name="send_password_by_mail"> {'Send connection settings by email'|translate}</label>
+		<p class="custom-control custom-checkbox">
+		    <input class="custom-control-input" type="checkbox" id="send_password_by_mail" name="send_password_by_mail">
+		    <label class="custom-control-label" for="send_password_by_mail">{'Send connection settings by email'|translate}</label>
 		</p>
 
 		<p>
@@ -110,11 +111,9 @@
 
 		{* delete *}
 		<div id="action_delete">
-                    <p>
-			<label class="custom-control-label">
-			    <input class="custom-control-input" type="checkbox" name="confirm_deletion" value="1">
-			    {'Are you sure?'|translate}
-			</label>
+                    <p class="custom-control custom-checkbox">
+			<input class="custom-control-input" type="checkbox" id="confirm_deletion" name="confirm_deletion" value="1">
+			<label class="custom-control-label" for="confirm_deletion">{'Are you sure?'|translate}</label>
 		    </p>
 		</div>
 
@@ -448,11 +447,9 @@
              </label>
 	   </div>
 
-	   <div class="userProperty">
-             <label>
-	       <input type="checkbox" name="enabled_high"<% if (user.enabled_high === true) { %> checked="checked"<% } %>>
-	       {'High definition enabled'|translate}
-             </label>
+	   <div class="custom-control custom-checkbox">
+	       <input type="checkbox" class="custom-control-input" id="enabled_high" name="enabled_high"<% if (user.enabled_high === true) { %> checked="checked"<% } %>>
+               <label class="custom-control-label" for="enabled_high">{'High definition enabled'|translate}
 	   </div>
 
 	   <div class="userProperty">
@@ -465,8 +462,8 @@
 
 	   <div class="userProperty slider">
 	     <p>
-               <label class="nb_image_page_infos"></label>
-	       <input type="text" class="form-control" name="nb_image_page" value="<%- user.nb_image_page %>">
+               <label class="nb_image_page_infos" for="nb_image_page"></label>
+	       <input type="text" class="form-control" id="nb_image_page" name="nb_image_page" value="<%- user.nb_image_page %>">
 	     </p>
 	   </div>
 
@@ -497,25 +494,19 @@
 	     </p>
 	   </div>
 
-	   <div class="userProperty">
-             <label>
-	       <input type="checkbox" name="expand"<% if (user.expand === true) { %> checked="checked"<% }%>>
-	       {'Expand all albums'|translate}
-             </label>
+	   <div class="custom-control custom-checkbox">
+	       <input class="custom-control-input" type="checkbox" id="expand" name="expand"<% if (user.expand === true) { %> checked="checked"<% }%>>
+               <label class="custom-control-label" for="expand">{'Expand all albums'|translate}</label>
 	   </div>
 
-	   <div class="userProperty">
-             <label>
-	       <input type="checkbox" name="show_nb_comments"<% if (user.show_nb_comments === true) { %> checked="checked"<% }%>>
-	       {'Show number of comments'|translate}
-             </label>
+	   <div class="custom-control custom-checkbox">
+	       <input class="custom-control-input" type="checkbox" id="show_nb_comments" name="show_nb_comments"<% if (user.show_nb_comments === true) { %> checked="checked"<% }%>>
+               <label class="custom-control-label" for="show_nb_comments">{'Show number of comments'|translate}</label>
 	   </div>
 
-	   <div class="userProperty">
-             <label>
-	       <input type="checkbox" name="show_nb_hits"<% if (user.show_nb_hits === true) { %> checked="checked"<% }%>>
-	       {'Show number of hits'|translate}
-             </label>
+	   <div class="custom-control custom-checkbox">
+	       <input class="custom-control-input" type="checkbox" id="show_nb_hits" name="show_nb_hits"<% if (user.show_nb_hits === true) { %> checked="checked"<% }%>>
+               <label class="custom-control-label" for="show_nb_hits">{'Show number of hits'|translate}</label>
 	   </div>
 
 	   <p>

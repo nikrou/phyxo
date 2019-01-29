@@ -16,36 +16,36 @@ $(function() {
     if ($('#addUserForm').length>0) {
 	$('.alert').hide();
 	$('#addUserForm').submit(function() {
-        $.ajax({
-            url: '../ws.php?method=pwg.users.add',
-            type: 'POST',
-            data: $(this).serialize() + '&pwg_token=' + pwg_token,
-            beforeSend: function() {
-		$('.alert').find('p').remove();
-                $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
+            $.ajax({
+		url: '../ws.php?method=pwg.users.add',
+		type: 'POST',
+		data: $(this).serialize() + '&pwg_token=' + pwg_token,
+		beforeSend: function() {
+		    $('.alert').find('p').remove();
+                    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
 
-                if ($('input[name="username"]').val() == '') {
-                    $('.alert').addClass('alert-warning').addClass('show').append('<p>&#x2718; ' + phyxo_msg.missing_username+'</p>').show();
+                    if ($('input[name="username"]').val() == '') {
+			$('.alert').addClass('alert-warning').addClass('show').append('<p>&#x2718; ' + phyxo_msg.missing_username+'</p>').show();
 
-                    return false;
-                }
-            },
-            success: function(json) {
-                const data = $.parseJSON(json);
-                if (data.stat == 'ok') {
-                    $('#addUserForm input[type="text"], #addUserForm input[type="password"]').val('');
+			return false;
+                    }
+		},
+		success: function(json) {
+                    const data = $.parseJSON(json);
+                    if (data.stat == 'ok') {
+			$('#addUserForm input[type="text"], #addUserForm input[type="password"]').val('');
 
-                    const new_user = data.result.users[0];
-                    $('.alert').addClass('alert-info').addClass('show').append('<p>&#x2714; ' + sprintf(phyxo_msg.new_user_pattern, new_user.username) + '</p>').show();
-		    datatable.ajax.reload();
-                    $('#addUserForm').hide();
-                } else {
-                    $('.alert').addClass('alert-danger').addClass('show').append('<p>&#x2718; ' + data.message + '</p>').show();
-                }
-            }
-        });
+			const new_user = data.result.users[0];
+			$('.alert').addClass('alert-info').addClass('show').append('<p>&#x2714; ' + sprintf(phyxo_msg.new_user_pattern, new_user.username) + '</p>').show();
+			datatable.ajax.reload();
+			$('#addUserForm').hide();
+                    } else {
+			$('.alert').addClass('alert-danger').addClass('show').append('<p>&#x2718; ' + data.message + '</p>').show();
+                    }
+		}
+            });
 
-        return false;
+            return false;
 	});
 	$('#permitAction').hide();
     }
@@ -195,7 +195,7 @@ $(function() {
 		);
 
 		/* nb_image_page slider */
-                const nb_image_page_init = $('#user' + formUser.id + ' input[name="nb_image_page"]').val();
+                const nb_image_page_init = nb_image_page_values.indexOf(Number($('#user' + formUser.id + ' input[name="nb_image_page"]').val()));
                 $('#user' + formUser.id + ' .nb_image_page_infos').html(getNbImagePageInfoFromIdx(nb_image_page_init));
 
 		const slider_images = new Slider('#user' + formUser.id + ' [name="nb_image_page"]', {
@@ -226,82 +226,82 @@ $(function() {
 
 	function prepareFormUser(user) {
 	    /* Prepare data for template */
-            user.statusOptions = [];
-            $('#action select[name="status"] option').each(function() {
+	    user.statusOptions = [];
+	    $('#action select[name="status"] option').each(function() {
 		let option = { value: $(this).val(), label: $(this).html(), isSelected: false };
 
 		if (user.status == $(this).val()) {
-                    option.isSelected = true;
+		    option.isSelected = true;
 		}
 
 		user.statusOptions.push(option);
-            });
+	    });
 
-            user.levelOptions = [];
-            $('#action select[name="level"] option').each(function() {
+	    user.levelOptions = [];
+	    $('#action select[name="level"] option').each(function() {
 		let option = { value: $(this).val(), label: $(this).html(), isSelected: false };
 
 		if (user.level == $(this).val()) {
-                    option.isSelected = true;
+		    option.isSelected = true;
 		}
 
 		user.levelOptions.push(option);
-            });
+	    });
 
-            user.groupOptions = [];
-            $('#action select[name=associate] option').each(function() {
+	    user.groupOptions = [];
+	    $('#action select[name=associate] option').each(function() {
 		let option = { value: $(this).val(), label: $(this).html(), isSelected: false };
 
 		if (user.groups && user.groups.includes(parseInt($(this).val(), 10))) {
-                    option.isSelected = true;
+		    option.isSelected = true;
 		}
 
 		user.groupOptions.push(option);
-            });
+	    });
 
-            user.themeOptions = [];
-            $('#action select[name=theme] option').each(function() {
+	    user.themeOptions = [];
+	    $('#action select[name=theme] option').each(function() {
 		let option = { value: $(this).val(), label: $(this).html(), isSelected: false };
 
 		if (user.theme == $(this).val()) {
-                    option.isSelected = true;
+		    option.isSelected = true;
 		}
 
 		user.themeOptions.push(option);
-            });
+	    });
 
-            user.languageOptions = [];
-            $('#action select[name=language] option').each(function() {
+	    user.languageOptions = [];
+	    $('#action select[name=language] option').each(function() {
 		let option = { value: $(this).val(), label: $(this).html(), isSelected: false };
 
 		if (user.language == $(this).val()) {
-                    option.isSelected = true;
+		    option.isSelected = true;
 		}
 
 		user.languageOptions.push(option);
-            });
+	    });
 
-            user.isGuest = user.id == guestUser;
-            user.isProtected = protectedUsers.indexOf(user.id) != -1;
+	    user.isGuest = user.id == guestUser;
+	    user.isProtected = protectedUsers.indexOf(user.id) != -1;
 
 	    user.registeredOn_string = sprintf(
 		phyxo_msg.registeredOn_pattern,
 		user.registration_date_string,
 		user.registration_date_since
-            );
+	    );
 
-            user.lastVisit_string = '';
-            if (user.last_visit !== undefined) {
+	    user.lastVisit_string = '';
+	    if (user.last_visit !== undefined) {
 		user.lastVisit_string = sprintf(phyxo_msg.lastVisit_pattern, user.last_visit_string, user.last_visit_since);
-            }
+	    }
 
-            user.email = user.email || '';
+	    user.email = user.email || '';
 
-            $('#action select[name=status] option').each(function() {
+	    $('#action select[name=status] option').each(function() {
 		if (user.status == $(this).val()) {
-                    user.statusLabel = $(this).html();
+		    user.statusLabel = $(this).html();
 		}
-            });
+	    });
 
 	    return user;
 	}
@@ -309,69 +309,69 @@ $(function() {
 	const recent_period_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30, 40, 50, 60, 80, 99];
 
 	function getRecentPeriodInfoFromIdx(idx) {
-            return phyxo_msg.days.replace('%d', recent_period_values[idx]);
+	    return phyxo_msg.days.replace('%d', recent_period_values[idx]);
 	}
 
 	const nb_image_page_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 200, 300, 500, 999];
 
 	function getNbImagePageInfoFromIdx(idx) {
-            return phyxo_msg.photos_per_page.replace('%d', nb_image_page_values[idx]);
+	    return phyxo_msg.photos_per_page.replace('%d', nb_image_page_values[idx]);
 	}
 
 	$(document).on('click', '#changePassword [type="submit"]', function() {
-            const userId = $(this)
+	    const userId = $(this)
 		.parentsUntil('form')
 		.parent()
 		.find('input[name=user_id]')
 		.val();
 
-            $.ajax({
+	    $.ajax({
 		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: {
-                    pwg_token: pwg_token,
-                    user_id: userId,
-                    password: $('#changePassword input[type="text"]').val()
+		    pwg_token: pwg_token,
+		    user_id: userId,
+		    password: $('#changePassword input[type="text"]').val()
 		},
 		beforeSend: function() {
-                    $('#changePassword input[type="text"]').val('');
-                    $('#changePassword').toggle('slow');
+		    $('#changePassword input[type="text"]').val('');
+		    $('#changePassword').toggle('slow');
 		    $('.alert').find('p').remove();
-                    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
+		    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
 		},
 		success: function(data) {
 		    $('.alert').addClass('alert-info').addClass('show').append('<p>&#x2714; ' + phyxo_msg.user_password_updated + '</p>').show();
 		    datatable.ajax.reload();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrows) {}
-            });
+	    });
 
-            return false;
+	    return false;
 	});
 
 	$(document).on('click', '#changeUsername [type="submit"]', function() {
-            const userId = $(this)
+	    const userId = $(this)
 		.parentsUntil('form')
 		.parent()
 		.find('input[name=user_id]')
 		.val();
 
-            $.ajax({
+	    $.ajax({
 		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: {
-                    pwg_token: pwg_token,
-                    user_id: userId,
-                    username: $('#changeUsername input[type=text]').val()
+		    pwg_token: pwg_token,
+		    user_id: userId,
+		    username: $('#changeUsername input[type=text]').val()
 		},
 		beforeSend: function() {
-                    $('#changeUsername input[type="text"]').val('');
-                    $('#changeUsername').toggle('slow');
+		    $('#changeUsername input[type="text"]').val('');
+		    $('#changeUsername').toggle('slow');
 		    $('.alert').find('p').remove();
-                    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
+		    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
 		},
 		success: function(json) {
-                    const data = $.parseJSON(json);
+		    const data = $.parseJSON(json);
 		    $('.alert')
 			.addClass('alert-info')
 			.addClass('show')
@@ -379,54 +379,54 @@ $(function() {
 		    datatable.ajax.reload();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrows) {}
-            });
+	    });
 
-            return false;
+	    return false;
 	});
 
 	$(document).on('change', '.userProperty input, .userProperty select', function() {
-            const userId = $(this)
+	    const userId = $(this)
 		.parentsUntil('form')
 		.parent()
 		.find('input[name=user_id]')
 		.val();
 
-            $('#user' + userId + ' input[type=submit]').prop('disabled', false);
+	    $('#user' + userId + ' input[type=submit]').prop('disabled', false);
 	});
 
 	/* delete user */
 	$(document).on('click', '#user-delete', function() {
-            if (!confirm(phyxo_msg.are_you_sure)) {
+	    if (!confirm(phyxo_msg.are_you_sure)) {
 		return false;
-            }
+	    }
 
-            const userId = $(this).data('user_id');
-            const username = $(this).data('username');
+	    const userId = $(this).data('user_id');
+	    const username = $(this).data('username');
 
-            $.ajax({
+	    $.ajax({
 		url: '../ws.php?method=pwg.users.delete',
 		type: 'POST',
 		data: {
-                    user_id: userId,
-                    pwg_token: pwg_token
+		    user_id: userId,
+		    pwg_token: pwg_token
 		},
 		beforeSend: function() {
 		    $('.alert').find('p').remove();
-                    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
+		    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
 		},
 		success: function(data) {
-                    datatable.ajax.reload();
+		    datatable.ajax.reload();
 		    $('.alert').addClass('alert-info').addClass('show').append('<p>&#x2714; '+sprintf(phyxo_msg.user_deleted, username)+'</p>').show();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrows) {
 		}
-            });
+	    });
 
-            return false;
+	    return false;
 	});
 
 	$(document).on('click', '.user-infos input[type=submit]', function() {
-            const userId = $(this).data('user_id');
+	    const userId = $(this).data('user_id');
 
 	    let fd = new FormData();
 	    fd.append('pwg_token', pwg_token);
@@ -454,7 +454,7 @@ $(function() {
 		fd.append('group_id', -1);
 	    }
 
-	    fd.append('nb_image_page', $('#user' + userId + ' input[name="nb_image_page"]').val());
+	    fd.append('nb_image_page', nb_image_page_values[$('#user' + userId + ' input[name="nb_image_page"]').val()]);
 
 	    if ($('#user' + userId + ' [name="theme"]').val()) {
 		fd.append('theme', $('#user' + userId + ' [name="theme"]').val());
@@ -469,7 +469,7 @@ $(function() {
 	    fd.append('show_nb_comments', $('#user' + userId + ' input[name="show_nb_comments"]').is(':checked'));
 	    fd.append('show_nb_hits', $('#user' + userId + ' input[name="show_nb_hits"]').is(':checked'));
 
-            $.ajax({
+	    $.ajax({
 		url: '../ws.php?method=pwg.users.setInfo',
 		type: 'POST',
 		data: fd,
@@ -477,17 +477,17 @@ $(function() {
  		contentType: false,
 		beforeSend: function() {
 		    $('.alert').find('p').remove();
-                    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
+		    $('.alert').removeClass('alert-info').removeClass('alert-danger').hide();
 		},
 		success: function(data) {
-                    datatable.ajax.reload();
+		    datatable.ajax.reload();
 		    $('.alert').addClass('alert-info').addClass('show').append('<p>&#x2714; '+phyxo_msg.user_infos_updated+'</p>').show();
 		},
 		error: function(XMLHttpRequest, textStatus, errorThrows) {
 		}
-            });
+	    });
 
-            return false;
+	    return false;
 	});
 
 	/**
@@ -497,16 +497,16 @@ $(function() {
 	$('#permitAction input[type=submit]').prop('disabled', true);
 	$('select[name="selectAction"]').change(function() {
 	    $('#permitAction input[type=submit]').prop('disabled', false);
-            $('[id^=action_]').hide();
-            $('#action_' + $(this).prop('value')).show();
+	    $('[id^=action_]').hide();
+	    $('#action_' + $(this).prop('value')).show();
 
 	    /* nb_image_page slider */
-            const nb_image_page_init = $('#action_nb_image_page input[name="nb_image_page"]').val();
+	    const nb_image_page_init = $('#action_nb_image_page input[name="nb_image_page"]').val();
             $('#action_nb_image_page .nb_image_page_infos').html(getNbImagePageInfoFromIdx(nb_image_page_init));
 
 	    const slider_images = new Slider('#action_nb_image_page [name="nb_image_page"]', {
 		min: 0,
-		max: nb_image_page_values.length -1,
+		max: nb_image_page_values.length - 1,
 		value: nb_image_page_init,
 	    });
 	    slider_images.on('change', function(values) {
@@ -519,7 +519,7 @@ $(function() {
 
 	    const slider_period = new Slider('#action_recent_period [name="recent_period"]', {
 		min: 0,
-		max: recent_period_values.length -1,
+		max: recent_period_values.length - 1,
 		value: recent_period_init,
 	    });
 	    slider_period.on('change', function(values) {

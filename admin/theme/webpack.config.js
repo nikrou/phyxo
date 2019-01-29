@@ -152,6 +152,7 @@ const devConfig = () => merge([
     {
 	devServer: {
 	    contentBase: PATHS.target,
+	    disableHostCheck: true,
 	    hot: true,
 	    inline: true,
 	    overlay: true,
