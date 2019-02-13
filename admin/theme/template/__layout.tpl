@@ -5,7 +5,7 @@
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-	<link rel="stylesheet" href="{asset manifest='../../admin/theme/build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" href="{asset manifest='./admin/theme/build/manifest.json' src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	{get_combined_css}
@@ -154,7 +154,7 @@
 	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
-	    <script src="{asset manifest='../../admin/theme/build/build/manifest.json' src='app.js'}"></script>
+	    <script src="{asset manifest='./admin/theme/build/build/manifest.json' src='app.js'}"></script>
 	{/block}
     </body>
 </html>

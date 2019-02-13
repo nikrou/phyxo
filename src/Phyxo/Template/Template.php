@@ -680,8 +680,9 @@ class Template implements EngineInterface
         }
 
         if (empty($this->manifest_content)) {
-            if (is_readable($params['manifest'])) {
-                $this->manifest_content = json_decode(file_get_contents($params['manifest']), true);
+            $manifest_file = __DIR__ . '/../../../' . $params['manifest'];
+            if (is_readable($manifest_file)) {
+                $this->manifest_content = json_decode(file_get_contents($manifest_file), true);
             } else {
                 return '';
             }
