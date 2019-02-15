@@ -13,7 +13,7 @@
 global $conf;
 include(__DIR__ . '/upgrade.inc.php');
 
-\Phyxo\Functions\Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/elegant/');
+\Phyxo\Functions\Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/elegant/', ['language' => $user['language']]);
 
 $config = [
     'p_main_menu' => 'on', //on - off - disabled

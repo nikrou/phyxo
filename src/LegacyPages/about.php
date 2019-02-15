@@ -25,9 +25,9 @@ $services['users']->checkStatus(ACCESS_GUEST);
 $title = \Phyxo\Functions\Language::l10n('About Phyxo');
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_about');
 
-$template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', ['return' => true]));
+$template->assign('ABOUT_MESSAGE', \Phyxo\Functions\Language::load_language('about.html', '', ['language' => $user['language'], 'return' => true]));
 
-$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . '/' . $user['theme'] . '/', ['return' => true]);
+$theme_about = \Phyxo\Functions\Language::load_language('about.html', PHPWG_THEMES_PATH . '/' . $user['theme'] . '/', ['language' => $user['language'], 'return' => true]);
 if ($theme_about !== false) {
     $template->assign('THEME_ABOUT', $theme_about);
 }

@@ -88,9 +88,9 @@ if (isset($_POST['language'])) {
 }
 $action .= '?language=' . $language;
 
-\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
-\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
-\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language, 'target_charset' => 'utf-8']);
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language]);
+\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language]);
+\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language]);
 
 $template = new Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
 $template->postConstruct();

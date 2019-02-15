@@ -23,7 +23,7 @@ class Language extends atoum
         $plugin3_dir = PHPWG_PLUGINS_PATH . '/plugin3/';
 
         $this
-            ->string(trim(\Phyxo\Functions\Language::load_language('description.txt', $plugin3_dir, array('return' => true))))
+            ->string(trim(\Phyxo\Functions\Language::load_language('description.txt', $plugin3_dir, ['return' => true])))
             ->isEqualTo('A simple description');
     }
 
@@ -32,20 +32,32 @@ class Language extends atoum
         $theme3_dir = PHPWG_THEMES_PATH . '/theme3/';
 
         $this
-            ->string(trim(\Phyxo\Functions\Language::load_language('about.html', $theme3_dir, array('return' => true))))
+            ->string(trim(\Phyxo\Functions\Language::load_language('about.html', $theme3_dir, ['return' => true])))
             ->isEqualTo('<p>This photo gallery is based on Phyxo.</p>' . "\n" . '<p><a href="https://www.phyxo.net">Visit the Phyxo website</a></p>');
     }
 
-    public function testLoadLanguageCommonLang()
+    public function _testLoadLanguageCommonLang()
     {
         // not existing language file
-        //$this
-          //  ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname(PHPWG_ROOT_PATH)
-            //->isEqualTo(false);
+        $this
+            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname(PHPWG_ROOT_PATH) . '/'))
+            ->isIdenticalTo(false);
 
-        // common language file
         $this
             ->boolean(\Phyxo\Functions\Language::load_language('common.lang', dirname(PHPWG_LANGUAGES_PATH) . '/'))
-            ->isEqualTo(true);
+            ->isIdenticalTo(true);
+    }
+
+    public function testLoadLanguageInArray()
+    {
+        $language_load = (function () {
+            include(PHPWG_LANGUAGES_PATH . 'en_GB/common.lang.php');
+
+            return ['lang' => $lang, 'lang_info' => $lang_info];
+        });
+
+        $this
+            ->array(\Phyxo\Functions\Language::load_language('common.lang', dirname(PHPWG_LANGUAGES_PATH) . '/', ['return_vars' => true]))
+            ->isIdenticalTo($language_load());
     }
 }

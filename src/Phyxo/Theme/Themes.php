@@ -241,7 +241,7 @@ class Themes extends Extensions
      */
     public function getFsThemes()
     {
-        global $conf;
+        global $conf, $user;
 
         if (!$this->fs_themes_retrieved) {
             foreach (glob(PHPWG_THEMES_PATH . '/*/themeconf.inc.php') as $themeconf) {
@@ -270,7 +270,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['return' => true])) {
+                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['language' => $user['language'], 'return' => true])) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);

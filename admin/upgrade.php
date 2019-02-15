@@ -50,10 +50,10 @@ if (isset($_GET['language'])) {
     }
 }
 
-\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
-\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
-\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
-\Phyxo\Functions\Language::load_language('upgrade.lang', '', ['language' => $language, 'target_charset' => 'utf-8', 'no_fallback' => true]);
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $language]);
+\Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $language]);
+\Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language]);
+\Phyxo\Functions\Language::load_language('upgrade.lang', '', ['language' => $language]);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);

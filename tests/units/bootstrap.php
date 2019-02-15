@@ -35,3 +35,5 @@ define('ACCESS_CLASSIC', 2);
 define('ACCESS_ADMINISTRATOR', 3);
 define('ACCESS_WEBMASTER', 4);
 define('ACCESS_CLOSED', 5);
+
+$user = ['language' => 'en_GB'];

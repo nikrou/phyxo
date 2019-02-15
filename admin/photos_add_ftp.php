@@ -22,6 +22,6 @@ $template->assign(
     \Phyxo\Functions\Language::load_language(
         'help/photos_add_ftp.html',
         '',
-        array('return' => true)
+        ['language' => $user['language'], 'return' => true]
     )
 );

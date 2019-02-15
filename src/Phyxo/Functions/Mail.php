@@ -258,7 +258,7 @@ class Mail
             \Phyxo\Functions\Language::load_language(
                 'lang',
                 PHPWG_ROOT_PATH . PWG_LOCAL_DIR,
-                ['language' => $language, 'no_fallback' => true, 'local' => true]
+                ['language' => $language, 'local' => true]
             );
 
             $switch_lang['language'][$language]['lang_info'] = $lang_info;

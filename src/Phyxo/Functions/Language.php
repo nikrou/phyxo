@@ -12,7 +12,7 @@
 namespace Phyxo\Functions;
 
 use App\Repository\LanguageRepository;
-
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class Language
 {
@@ -151,128 +151,83 @@ class Language
      * @param mixed options can contain
      *     @option string language - language to load
      *     @option bool return - if true the file content is returned
-     *     @option bool no_fallback - if true do not load default language
-     *     @option bool|string force_fallback - force pre-loading of another language
-     *        default language if *true* or specified language
      *     @option bool local - if true load file from local directory
      * @return boolean|string
      */
     public static function load_language($filename, $dirname = '', $options = [])
     {
-        global $user, $language_files, $services, $lang, $lang_info;
+        global $lang, $lang_info;
 
         $default_options = [
+            'language' => 'en_GB',
+            'return_vars' => false,
             'return' => false,
-            'no_fallback' => false,
-            'force_fallback' => false,
             'local' => false,
         ];
 
         $options = array_merge($default_options, $options);
-
-        // keep trace of plugins loaded files for switch_lang_to() function
-        if (!empty($dirname) && !empty($filename) && !$options['return'] && !isset($language_files[$dirname][$filename])) {
-            $language_files[$dirname][$filename] = $options;
-        }
 
         if (!$options['return']) {
             $filename .= '.php';
         }
 
         if (empty($dirname)) {
-            $dirname = PHPWG_ROOT_PATH;
+            $dirname = __DIR__ . '/../../..' . '/';
         }
 
         $dirname .= 'language/';
-        $default_language = (defined('PHPWG_INSTALLED') and !defined('UPGRADES_PATH')) ? $services['users']->getDefaultLanguage() : PHPWG_DEFAULT_LANGUAGE;
+        $language_file = $options['local'] ? $dirname . $options['language'] . '.' . $filename : $dirname . $options['language'] . '/' . $filename;
 
-        // construct list of potential languages
-        $languages = [];
-        if (!empty($options['language'])) { // explicit language
-            $languages[] = $options['language'];
+        if (!is_readable($language_file)) {
+            return false;
         }
 
-        if (!empty($user['language'])) { // use language
-            $languages[] = $user['language'];
-        }
+        if ($options['return']) {
+            return file_get_contents($language_file);
+        } else {
+            $loadLanguage = (function ($path) {
+                $lang = $lang_info = [];
+                include($path);
 
-        if (($parent = self::get_parent_language()) !== null) { // parent language
-            // this is only for when the "child" language is missing
-            $languages[] = $parent;
-        }
+                return ['lang' => $lang, 'lang_info' => $lang_info];
+            });
 
-        if ($options['force_fallback']) { // fallback language
-            $languages[] = $default_language;
-        }
+            $load_language = $loadLanguage($language_file);
+            $load_lang = $load_language['lang'];
+            $load_lang_info = $load_language['lang_info'];
 
-        if (!$options['no_fallback']) { // default language
-            $languages[] = $default_language;
-        }
-
-        if (!empty($languages)) {
-            $languages = array_unique($languages);
-        }
-
-        // find first existing
-        $source_file = '';
-        $selected_language = '';
-
-        foreach ($languages as $language) {
-            $f = $options['local'] ? $dirname . $language . '.' . $filename : $dirname . $language . '/' . $filename;
-
-            if (is_readable($f)) {
-                $selected_language = $language;
-                $source_file = $f;
-                break;
+            // access already existing values
+            if (!isset($lang)) {
+                $lang = [];
             }
-        }
 
-        if (!empty($source_file)) {
-            if (!$options['return']) {
-                // load forced fallback
-                if ($options['force_fallback']) {
-                    include(str_replace($selected_language, $options['force_fallback'], $source_file));
-                }
+            if (!isset($lang_info)) {
+                $lang_info = [];
+            }
 
-                // load language content
-                include($source_file);
-                $load_lang = $lang;
-                $load_lang_info = $lang_info;
-
-                // access already existing values
-                if (!isset($lang)) {
-                    $lang = [];
-                }
-
-                if (!isset($lang_info)) {
-                    $lang_info = [];
-                }
-
-                // load parent language content directly in global
-                if (!empty($load_lang_info['parent'])) {
-                    $parent_language = $load_lang_info['parent'];
-                } elseif (!empty($lang_info['parent'])) {
-                    $parent_language = $lang_info['parent'];
-                } else {
-                    $parent_language = null;
-                }
-
-                if (!empty($parent_language) && $parent_language != $selected_language) {
-                    include(str_replace($selected_language, $parent_language, $source_file));
-                }
-
-                // merge contents
-                $lang = array_merge($lang, (array)$load_lang);
-                $lang_info = array_merge($lang_info, (array)$load_lang_info);
-
-                return true;
+            // load parent language content directly in global
+            if (!empty($load_lang_info['parent'])) {
+                $parent_language = $load_lang_info['parent'];
+            } elseif (!empty($lang_info['parent'])) {
+                $parent_language = $lang_info['parent'];
             } else {
-                $content = file_get_contents($source_file);
-                return $content;
+                $parent_language = null;
             }
-        }
 
-        return false;
+            if (!empty($parent_language) && $parent_language != $selected_language) {
+                include(str_replace($selected_language, $parent_language, $source_file));
+            }
+
+            // merge contents
+            $lang = array_merge($lang, (array)$load_lang);
+            $lang_info = array_merge($lang_info, (array)$load_lang_info);
+
+            if ($options['return_vars']) {
+                return ['lang' => $lang, 'lang_info' => $lang_info];
+            }
+
+            return true;
+        }
     }
 
     /**

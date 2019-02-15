@@ -123,13 +123,13 @@ if ($conf['browser_language'] and ($services['users']->isGuest() or $services['u
 \Phyxo\Functions\Plugin::trigger_notify('user_init', $user);
 
 // language files
-\Phyxo\Functions\Language::load_language('common.lang');
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $user['language']]);
 
 if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
-    \Phyxo\Functions\Language::load_language('admin.lang');
+    \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $user['language']]);
 }
 \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
-\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['no_fallback' => true, 'local' => true]);
+\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['language' => $user['language'], 'local' => true]);
 
 // only now we can set the localized username of the guest user (and not in include/user.inc.php)
 if ($services['users']->isGuest()) {

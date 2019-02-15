@@ -31,7 +31,9 @@ class ThemeController
 
     public function init()
     {
-        Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/treflez/');
+        global $user;
+
+        Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/treflez/', ['language' => $user['language']]);
 
         Plugin::add_event_handler('init', [$this, 'assignConfig']);
         Plugin::add_event_handler('init', [$this, 'setInitValues']);
@@ -94,7 +96,7 @@ class ThemeController
 
     public function setInitValues()
     {
-        global $template, $pwg_loaded_plugins;
+        global $template, $pwg_loaded_plugins, $user;
 
         $template->assign([
             'loaded_plugins' => $GLOBALS['pwg_loaded_plugins'],
@@ -111,7 +113,7 @@ class ThemeController
         }
 
         if (isset($pwg_loaded_plugins['exif_view'])) {
-            Language::load_language('lang.exif', PHPWG_PLUGINS_PATH . '/exif_view/');
+            Language::load_language('lang.exif', PHPWG_PLUGINS_PATH . '/exif_view/', ['language' => $user['language']]);
         }
     }
 
