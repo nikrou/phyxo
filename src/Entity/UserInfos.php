@@ -80,6 +80,16 @@ class UserInfos implements \ArrayAccess
         return $this->infos['recent_period'] ?? null;
     }
 
+    public function getShowNbHits()
+    {
+        return $this->infos['show_nb_hits'] ?? null;
+    }
+
+    public function getLanguage() : string
+    {
+        return $this->infos['language'] ?? '';
+    }
+
     public function getUserId()
     {
         return $this->infos['user_id'] ?? null;
@@ -88,11 +98,6 @@ class UserInfos implements \ArrayAccess
     public function getLevel()
     {
         return $this->infos['level'] ?? null;
-    }
-
-    public function getLanguage() : string
-    {
-        return $this->infos['language'];
     }
 
     public function wantExpand()

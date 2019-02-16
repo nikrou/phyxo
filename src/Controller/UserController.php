@@ -15,16 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends BaseController
 {
-    public function register(string $legacyBaseDir, Request $request)
-    {
-        $legacy_file = sprintf('%s/register.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/register";
-
-        return $this->doResponse($legacy_file, 'register.tpl');
-    }
-
     public function password(string $legacyBaseDir, Request $request)
     {
         $legacy_file = sprintf('%s/password.php', $legacyBaseDir);
@@ -33,16 +23,6 @@ class UserController extends BaseController
         $_SERVER['PATH_INFO'] = "/password";
 
         return $this->doResponse($legacy_file, 'password.tpl');
-    }
-
-    public function identification(string $legacyBaseDir, Request $request)
-    {
-        $legacy_file = sprintf('%s/identification.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/identification";
-
-        return $this->doResponse($legacy_file, 'identification.tpl');
     }
 
     public function profile(string $legacyBaseDir, Request $request)

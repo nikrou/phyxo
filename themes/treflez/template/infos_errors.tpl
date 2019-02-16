@@ -1,4 +1,4 @@
-{if isset($errors) }
+{if !empty($errors) }
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
 	{foreach $errors as $error}
 	    <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -9,7 +9,7 @@
     </div>
 {/if}
 
-{if not empty($infos)}
+{if !empty($infos)}
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
 	{foreach $infos as $info}
 	    <div class="alert alert-info alert-dismissible fade show" role="alert">

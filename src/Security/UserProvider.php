@@ -63,7 +63,11 @@ class UserProvider implements UserProviderInterface
             $result = (new UserInfosRepository($this->conn))->getInfos($userData['id']);
             $user_infos = $this->conn->db_fetch_assoc($result);
 
-            $user = new User($userData['id'], $username, $userData['password'], null);
+            $user = new User();
+            $user->setId($userData['id']);
+            $user->setUsername($userData['username']);
+            $user->setPassword($userData['password']);
+            $user->setMailAddress($userData['mail_address']);
             $user->setInfos(new UserInfos($user_infos));
 
             return $user;

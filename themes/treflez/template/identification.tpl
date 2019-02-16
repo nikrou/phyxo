@@ -16,27 +16,19 @@
     {include file='infos_errors.tpl'}
 
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
-	<form action="{$login_action}" method="post" name="login_form" class="form-horizontal">
-	    {if $error}
-		<div class="alert alert-danger">{'Invalid credentials'|translate}</div>
-	    {/if}
-
-            <div class="card">
+	<form action="{$login_route}" method="post" name="login_form" class="form-horizontal">
+            <div class="card col-lg-6">
 		<h4 class="card-header">
                     {'Connection settings'|translate}
 		</h4>
 		<div class="card-body">
                     <div class="form-group">
-			<label for="username" class="col-sm-2 control-label">{'Username'|translate}</label>
-			<div class="col-sm-4">
-                            <input tabindex="1" class="form-control" type="text" name="_username" id="username" placeholder="{'Username'|translate}" value="{$last_username}">
-			</div>
+			<label for="username" class="control-label">{'Username'|translate}</label>
+                        <input tabindex="1" class="form-control" type="text" name="_username" id="username" placeholder="{'Username'|translate}" value="{$last_username}">
                     </div>
                     <div class="form-group">
-			<label for="password" class="col-sm-2 control-label">{'Password'|translate}</label>
-			<div class="col-sm-4">
-                            <input tabindex="2" class="form-control" type="password" name="_password" id="password" placeholder="{'Password'|translate}">
-			</div>
+			<label for="password" class="control-label">{'Password'|translate}</label>
+                        <input tabindex="2" class="form-control" type="password" name="_password" id="password" placeholder="{'Password'|translate}">
                     </div>
 		    {if $authorize_remembering }
 			<div class="form-group">
@@ -57,15 +49,15 @@
                     </div>
                     <div class="form-group">
 			<div class="col-sm-offset-2 col-sm-10">
-                            {if isset($U_REGISTER)}
-				<a href="{$U_REGISTER}" title="{'Register'|translate}" class="pwg-state-default pwg-button">
-                                    <span class="fa fa-user"></span> {'Register'|translate}
+                            {if isset($register_route)}
+				<a href="{$register_route}" title="{'Register'|translate}" class="btn btn-warning">
+				    <i class="fa fa-user"></i> {'Register'|translate}
 				</a>
                             {/if}
-                            &nbsp;&nbsp;&nbsp;
-                            {if isset($U_LOST_PASSWORD)}
-				<a href="{$U_LOST_PASSWORD}" title="{'Forgot your password?'|translate}" class="pwg-state-default pwg-button">
-                                    <span class="fa fa-lock"></span> {'Forgot your password?'|translate}
+
+                            {if isset($password_route)}
+				<a href="{$password_route}" title="{'Forgot your password?'|translate}">
+				    <i class="fa fa-lock"></i> {'Forgot your password?'|translate}
 				</a>
                             {/if}
 			</div>

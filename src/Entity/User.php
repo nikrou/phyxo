@@ -20,21 +20,34 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     private $username;
     private $password;
     private $mail_address;
+    private $salt;
 
     private $user_infos = null;
-
     private $roles = [];
 
-    public function __construct($id, $username, $password, $salt, array $roles = [])
+    public function __construct()
+    {
+        $this->roles = ['ROLE_USER'];
+    }
+
+    public function setId($id)
     {
         $this->id = $id;
-        $this->username = $username;
-        $this->password = $password;
-        $this->salt = $salt;
+    }
 
-        if (!empty($roles)) {
-            $this->roles = $roles;
-        }
+    public function setUsername(string $username)
+    {
+        $this->username = $username;
+    }
+
+    public function setPassword(? string $password = null)
+    {
+        $this->password = $password;
+    }
+
+    public function setMailAddress(? string $mail_address = null)
+    {
+        $this->mail_address = $mail_address;
     }
 
     public function setInfos(UserInfos $user_infos)
@@ -116,6 +129,11 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     public function getUsername()
     {
         return $this->username;
+    }
+
+    public function getMailAddress()
+    {
+        return $this->mail_address;
     }
 
     public function eraseCredentials()

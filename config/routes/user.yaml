@@ -1,6 +1,6 @@
 register:
   path: /register.{extension}
-  controller: App\Controller\UserController::register
+  controller: App\Controller\SecurityController::register
   defaults:
     extension: php
 

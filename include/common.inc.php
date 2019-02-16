@@ -80,8 +80,6 @@ if (isset($conf['order_by_inside_category_custom'])) {
     $conf['order_by_inside_category'] = $conf['order_by_inside_category_custom'];
 }
 
-//$user['id'] = $conf['guest_id'];
-//$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
 
 if ($app_user) {
     $user = $app_user->getInfos();
