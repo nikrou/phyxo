@@ -16,7 +16,11 @@
     {include file='infos_errors.tpl'}
 
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
-	<form action="{$F_LOGIN_ACTION}" method="post" name="login_form" class="form-horizontal">
+	<form action="{$login_action}" method="post" name="login_form" class="form-horizontal">
+	    {if $error}
+		<div class="alert alert-danger">{'Invalid credentials'|translate}</div>
+	    {/if}
+
             <div class="card">
 		<h4 class="card-header">
                     {'Connection settings'|translate}
@@ -25,13 +29,13 @@
                     <div class="form-group">
 			<label for="username" class="col-sm-2 control-label">{'Username'|translate}</label>
 			<div class="col-sm-4">
-                            <input tabindex="1" class="form-control" type="text" name="username" id="username" placeholder="{'Username'|translate}">
+                            <input tabindex="1" class="form-control" type="text" name="_username" id="username" placeholder="{'Username'|translate}" value="{$last_username}">
 			</div>
                     </div>
                     <div class="form-group">
 			<label for="password" class="col-sm-2 control-label">{'Password'|translate}</label>
 			<div class="col-sm-4">
-                            <input tabindex="2" class="form-control" type="password" name="password" id="password" placeholder="{'Password'|translate}">
+                            <input tabindex="2" class="form-control" type="password" name="_password" id="password" placeholder="{'Password'|translate}">
 			</div>
                     </div>
 		    {if $authorize_remembering }
@@ -39,7 +43,7 @@
 			    <div class="col-sm-offset-2 col-sm-10">
 				<div class="checkbox">
 				    <label>
-					<input tabindex="3" type="checkbox" name="remember_me" id="remember_me" value="1"> {'Auto login'|translate}
+					<input tabindex="3" type="checkbox" name="_remember_me" id="remember_me" value="1"> {'Auto login'|translate}
 				    </label>
 				</div>
 			    </div>
@@ -47,7 +51,7 @@
 		    {/if}
                     <div class="form-group">
 			<div class="col-sm-offset-2 col-sm-10">
-                            <input type="hidden" name="redirect" value="{$U_REDIRECT|@urlencode}">
+			    <input type="hidden" name="_csrf_token" value="{$csrf_token}">
                             <input tabindex="4" type="submit" name="login" value="{'Submit'|translate}" class="btn btn-primary btn-raised">
 			</div>
                     </div>
@@ -70,8 +74,4 @@
             </div>
 	</form>
     </div>
-
-    <script>
-     document.getElementById('username').focus();
-    </script>
 {/block}

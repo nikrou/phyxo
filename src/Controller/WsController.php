@@ -14,9 +14,19 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class WsController extends BaseController
 {
+    protected $passwordEncoder, $csrfTokenManager;
+
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->csrfTokenManager = $csrfTokenManager;
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     public function index(string $legacyBaseDir, Request $request)
     {
         $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
@@ -25,6 +35,12 @@ class WsController extends BaseController
         $_SERVER['PATH_INFO'] = '/ws';
 
         $container = $this->container; // allow accessing container as global variable
+        $passwordEncoder = $this->passwordEncoder;
+        $csrf_token = $this->csrfTokenManager->getToken('authenticate');
+
+        if (!$app_user = $this->getUser()) {
+            $app_user = $this->userProvider->loadUserByUsername('guest');
+        }
 
         try {
             global

@@ -14,9 +14,21 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use App\Security\UserProvider;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class BaseController extends Controller
+abstract class BaseController extends Controller
 {
+    protected $csrfTokenManager, $userProvider, $passwordEncoder;
+
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserProvider $userProvider, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->csrfTokenManager = $csrfTokenManager;
+        $this->userProvider = $userProvider;
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     protected function doResponse($legacy_file, $template_name)
     {
         $_SERVER['PHP_SELF'] = $legacy_file;
@@ -24,10 +36,16 @@ class BaseController extends Controller
         $_SERVER['SCRIPT_FILENAME'] = $legacy_file;
 
         $container = $this->container; // allow accessing container as global variable
+        if (!$app_user = $this->getUser()) {
+            $app_user = $this->userProvider->loadUserByUsername('guest');
+        }
+        $passwordEncoder = $this->passwordEncoder;
+
         $tpl_params = [];
 
         try {
-            global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user,
+                $page, $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));
@@ -75,6 +93,17 @@ class BaseController extends Controller
 
             $tpl_params['debug'] = $debug_vars;
 
+            // user & connection infos
+            if ($this->isGranted('ROLE_USER')) {
+                $tpl_params['APP_USER'] = $this->getUser();
+                $tpl_params['U_LOGOUT'] = $this->generateUrl('logout');
+                if ($this->isGranted('ROLE_ADMIN')) {
+                    $tpl_params['U_ADMIN'] = $this->generateUrl('admin_home');
+                }
+            } else {
+                $tpl_params['U_LOGIN'] = $this->generateUrl('login');
+                $tpl_params['csrf_token'] = $this->csrfTokenManager->getToken('authenticate');
+            }
 
             return $this->render($template_name, $tpl_params);
         } catch (ResourceNotFoundException $e) {

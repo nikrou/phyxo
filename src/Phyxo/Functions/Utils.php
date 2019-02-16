@@ -401,9 +401,7 @@ class Utils
      */
     public static function get_token()
     {
-        global $conf;
-
-        return hash_hmac('md5', session_id(), $conf['secret_key']);
+        return $_SESSION['_sf2_attributes']['_csrf/authenticate'];
     }
 
     /**

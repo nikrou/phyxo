@@ -11,10 +11,7 @@
 
 defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
-require_once(__DIR__ . '/../vendor/autoload.php');
-
 use Phyxo\Conf;
-use Phyxo\Session\SessionDbHandler;
 use Phyxo\Cache\PersistentFileCache;
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
@@ -36,7 +33,7 @@ $page = [
     'count_queries' => 0,
     'queries_time' => 0,
 ];
-$user = [];
+$user = ['theme' => 'treflez'];
 $lang = [];
 $lang_info = [];
 $header_msgs = [];
@@ -73,22 +70,6 @@ if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
 }
 
 \Phyxo\Image\ImageStdParams::load_from_db();
-
-if (isset($conf['session_save_handler']) && ($conf['session_save_handler'] == 'db') && defined('PHPWG_INSTALLED')) {
-    session_set_save_handler(new SessionDbHandler($conn), true);
-}
-
-if (function_exists('ini_set')) {
-    ini_set('session.use_cookies', $conf['session_use_cookies']);
-    ini_set('session.use_only_cookies', $conf['session_use_only_cookies']);
-    ini_set('session.use_trans_sid', intval($conf['session_use_trans_sid']));
-    ini_set('session.cookie_httponly', 1);
-}
-
-session_set_cookie_params(0, \Phyxo\Functions\Utils::cookie_path());
-register_shutdown_function('session_write_close');
-session_name($conf['session_name']);
-session_start();
 \Phyxo\Functions\Plugin::load_plugins();
 
 // users can have defined a custom order pattern, incompatible with GUI form
@@ -99,42 +80,23 @@ if (isset($conf['order_by_inside_category_custom'])) {
     $conf['order_by_inside_category'] = $conf['order_by_inside_category_custom'];
 }
 
-$user['id'] = $conf['guest_id'];
+//$user['id'] = $conf['guest_id'];
+//$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
 
-if (isset($_COOKIE[session_name()])) {
-    if (isset($_GET['act']) and $_GET['act'] == 'logout') { // logout
-        $services['users']->logoutUser();
-        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url());
-    } elseif (!empty($_SESSION['pwg_uid'])) {
-        $user['id'] = $_SESSION['pwg_uid'];
-    }
+if ($app_user) {
+    $user = $app_user->getInfos();
 }
 
-// Now check the auto-login
-if ($user['id'] == $conf['guest_id']) {
-    $services['users']->autoLogin();
-}
-
-$user = $services['users']->buildUser($user['id'], (defined('IN_ADMIN') and IN_ADMIN) ? false : true); // use cache ?
-
-if ($conf['browser_language'] and ($services['users']->isGuest() or $services['users']->isGeneric())) {
-    \Phyxo\Functions\Language::get_browser_language($user['language']);
-}
-\Phyxo\Functions\Plugin::trigger_notify('user_init', $user);
+\Phyxo\Functions\Plugin::trigger_notify('user_init', $app_user);
 
 // language files
-\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $user['language']]);
+\Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $app_user->getLanguage()]);
 
 if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
-    \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $user['language']]);
+    \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $app_user->getLanguage()]);
 }
 \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
-\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['language' => $user['language'], 'local' => true]);
-
-// only now we can set the localized username of the guest user (and not in include/user.inc.php)
-if ($services['users']->isGuest()) {
-    $user['username'] = \Phyxo\Functions\Language::l10n('guest');
-}
+\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['local' => true]);
 
 if (!defined('IN_WS') || !IN_WS) {
     $template->setLang($lang);
@@ -153,10 +115,7 @@ if (!isset($conf['no_photo_yet']) || !$conf['no_photo_yet']) {
     include(PHPWG_ROOT_PATH . 'include/no_photo_yet.inc.php');
 }
 
-if (isset($user['internal_status']['guest_must_be_guest']) && $user['internal_status']['guest_must_be_guest'] === true) {
-    $header_msgs[] = \Phyxo\Functions\Language::l10n('Bad status for user "guest", using default status. Please notify the webmaster.');
-}
-
+// @TODO : move elsewhere
 if ($conf['gallery_locked']) {
     $header_msgs[] = \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.');
 

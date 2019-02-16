@@ -10,11 +10,15 @@ password:
   defaults:
     extension: php
 
-identification:
+login:
   path: /identification.{extension}
-  controller: App\Controller\UserController::identification
+  controller: App\Controller\SecurityController::login
   defaults:
     extension: php
+
+logout:
+  path: /logout
+  controller: App\Controller\SecurityController::logout
 
 profile:
   path: /profile.{extension}

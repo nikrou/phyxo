@@ -228,7 +228,6 @@ if (($block = $menu->get_block('mbMenu')) != null) {
 if ($services['users']->isGuest()) {
     $template->assign(
         [
-            'U_LOGIN' => \Phyxo\Functions\URL::get_root_url() . 'identification.php',
             'U_LOST_PASSWORD' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
             'AUTHORIZE_REMEMBERING' => $conf['authorize_remembering']
         ]
@@ -241,8 +240,6 @@ if ($services['users']->isGuest()) {
     if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
         $template->assign('U_PROFILE', \Phyxo\Functions\URL::get_root_url() . 'profile.php');
     }
-
-    $template->assign('U_LOGOUT', \Phyxo\Functions\URL::get_root_url() . '?act=logout');
 
     if ($services['users']->isAdmin()) {
         $template->assign('U_ADMIN', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php');

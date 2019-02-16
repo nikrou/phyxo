@@ -26,10 +26,12 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\ThemeRepository;
+use App\Entity\User;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class Users
 {
-    private $conn, $conf, $user, $cache;
+    private $conn, $conf, $user, $cache, $passwordEncoder;
 
     public function __construct(DBLayer $conn, Conf $conf, array $user, array $cache)
     {
@@ -39,6 +41,11 @@ class Users
         $this->cache = $cache;
 
         Plugin::add_event_handler('try_log_user', [$this, 'login']);
+    }
+
+    public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     /**
@@ -110,8 +117,8 @@ class Users
         // if no error until here, registration of the user
         if (empty($errors)) {
             $insert = [
-                'username' => $this->conn->db_real_escape_string($login),
-                'password' => $this->passwordHash($password),
+                'username' => $login,
+                'password' => $this->passwordEncoder->encodePassword(new User(null, $login, $password, null), $password),
                 'mail_address' => $mail_address
             ];
 
@@ -252,91 +259,6 @@ class Users
         $_SESSION['pwg_uid'] = (int)$user_id;
         $this->user['id'] = $_SESSION['pwg_uid'];
         Plugin::trigger_notify('user_login', $this->user['id']);
-    }
-
-    /**
-     * Performs auto-connection when cookie remember_me exists.
-     *
-     * @return bool
-     */
-    public function autoLogin()
-    {
-        if (isset($_COOKIE[$this->conf['remember_me_name']])) {
-            $cookie = explode('-', stripslashes($_COOKIE[$this->conf['remember_me_name']]));
-            if (count($cookie) === 3
-                and is_numeric(@$cookie[0]) // user id
-            and is_numeric(@$cookie[1]) // time
-            and time() - $this->conf['remember_me_length'] <= @$cookie[1]
-                and time() >= @$cookie[1] /*cookie generated in the past*/) {
-                $key = $this->calculateAutoLoginKey($cookie[0], $cookie[1], $username);
-                if ($key !== false and $key === $cookie[2]) {
-                    $this->logUser($cookie[0], true);
-                    Plugin::trigger_notify('login_success', stripslashes($username));
-                    return true;
-                }
-            }
-            setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
-        }
-
-        return false;
-    }
-
-    /**
-     * Tries to login a user given username and password.
-     *
-     * @param string $username
-     * @param string $password
-     * @param bool $remember_me
-     * @return bool
-     */
-    public function tryLogUser($username, $password, $remember_me)
-    {
-        return Plugin::trigger_change('try_log_user', false, $username, $password, $remember_me);
-    }
-
-    /**
-     * Default method for user login, can be overwritten with 'try_log_user' trigger.
-     * @see tryLogUser()
-     *
-     * @param string $username
-     * @param string $password
-     * @param bool $remember_me
-     * @return bool
-     */
-    public function login($success, $username, $password, $remember_me)
-    {
-        if ($success === true) {
-            return true;
-        }
-
-        $result = (new UserRepository($this->conn))->findByUsername($username);
-        $row = $this->conn->db_fetch_assoc($result);
-        if (empty($row)) {
-            return false;
-        }
-
-        if ($this->passwordVerify($password, $row['password'], $row['id'])) {
-            $this->logUser($row['id'], $remember_me);
-            Plugin::trigger_notify('login_success', stripslashes($username)); // @TODO: remove stripslashes
-            return true;
-        }
-        Plugin::trigger_notify('login_failure', stripslashes($username));  // @TODO: remove stripslashes
-
-        return false;
-    }
-
-    /**
-     * Performs all the cleanup on user logout.
-     */
-    public function logoutUser()
-    {
-        Plugin::trigger_notify('user_logout', isset($_SESSION['pwg_uid']) ? $_SESSION['pwg_uid'] : null);
-
-        $_SESSION = [];
-        session_unset();
-        session_destroy();
-        setcookie(session_name($this->conf['session_name']), '', 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'));
-        setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
     }
 
     /**
@@ -646,39 +568,6 @@ class Users
     }
 
     /**
-     * Hashes a password
-     *
-     * @param string $password plain text
-     * @return string
-     */
-    public function passwordHash($password)
-    {
-        // From time to time algorithm need to be changed and password need to be rehashed
-        // @See password_needs_rehash
-        return password_hash($password, PASSWORD_BCRYPT);
-    }
-
-    /**
-     * Verifies a password
-     * If the hash is 'old' using PasswordHash class used in phyxo < 1.2, the hash is updated in database.
-     *
-     * @param string $password plain text
-     * @param string $hash may be phpass hashed password
-     * @param integer $user_id only useful to update password hash from phpass ones
-     * @return bool
-     */
-    public function passwordVerify($password, $hash, $user_id = null)
-    {
-        if (empty($hash) || strpos($hash, '$P') !== false || $hash == md5($password)) {
-            $hash = $this->passwordHash($password);
-
-            (new UserRepository($this->conn))->updateUser(['password' => $hash], $user_id);
-        }
-
-        return password_verify($password, $hash);
-    }
-
-    /**
      *  checks the activation key: does it match the expected pattern? is it
      *  linked to a user? is this user allowed to reset his password?
      *
@@ -790,6 +679,9 @@ class Users
      */
     public function checkStatus($access_type, $user_status = '')
     {
+        trigger_error('checkStatus is deprecated. Use User methods instead isGranted,...', E_USER_DEPRECATED);
+
+        return true;
         if (!$this->isAuthorizeStatus($access_type, $user_status)) {
             \Phyxo\Functions\HTTP::access_denied();
         }

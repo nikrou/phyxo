@@ -15,9 +15,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AdminController extends Controller
 {
+    protected $csrfTokenManager, $passwordEncoder;
+
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->csrfTokenManager = $csrfTokenManager;
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     public function install(string $legacyBaseDir, Request $request)
     {
         $legacy_file = sprintf('%s/install.php', $legacyBaseDir);
@@ -45,9 +55,13 @@ class AdminController extends Controller
         $_SERVER['SCRIPT_FILENAME'] = $legacy_file;
 
         $container = $this->container; // allow accessing container as global variable
+        $app_user = $this->getUser();
+        $passwordEncoder = $this->passwordEncoder;
+        $csrf_token = $this->csrfTokenManager->getToken('authenticate');
 
         try {
-            global $cache, $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
+            global $cache, $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page,
+                $persistent_cache, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));

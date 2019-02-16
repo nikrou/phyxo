@@ -1,0 +1,55 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        #in_memory: { memory: ~ }
+        app_user_provider:
+          id: App\Security\UserProvider
+
+    encoders:
+      Symfony\Component\Security\Core\User\User:
+        algorithm: bcrypt
+        cost: 12
+      App\Entity\User:
+        algorithm: bcrypt
+        cost: 12
+
+    role_hierarchy:
+      ROLE_ADMIN: ROLE_USER
+      ROLE_WEBMASTER: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: true
+            switch_user: true
+
+            guard:
+              authenticators:
+                - App\Security\LoginFormAuthenticator
+
+            remember_me:
+              secret: '%kernel.secret%'
+              lifetime: 2592000 # 30 days in seconds
+
+            logout:
+              path: logout
+
+            # provider: chain_provider
+            # activate different ways to authenticate
+
+            # http_basic: true
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: true
+            # https://symfony.com/doc/current/security/form_login_setup.html
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
+        - { path: ^/(identification|register)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(password|profile)$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

@@ -10,6 +10,6 @@ legacy_home:
     extension: php
   controller: App\Controller\AdminController::index
 
-home:
+admin_home:
   path:  /
   controller: App\Controller\AdminController::index

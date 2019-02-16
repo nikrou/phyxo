@@ -4,6 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    core_version: 1.10.0-dev
+    phyxo_website: https://www.phyxo.net
+
     legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
 
@@ -23,6 +26,8 @@ services:
 
         bind:
           $legacyBaseDir: '%legacy_base_dir%'
+          $phyxoVersion: '%core_version%'
+          $phyxoWebsite: '%phyxo_website%'
           $default_language: '%kernel.default_locale%'
 
     # makes classes in src/ available to be used as services
@@ -47,11 +52,11 @@ services:
         public: true
         alias: 'Phyxo\DBLayer\DBLayer'
 
-    # Phyxo\DataCollector\DBLayerCollector:
-    #     tags:
-    #         - name: data_collector
-    #           template: 'data_collector/queries.html.twig'
-    #           id: 'app.dblayer_collector'
+    Phyxo\DataCollector\DBLayerCollector:
+        tags:
+            - name: data_collector
+              template: 'data_collector/queries.html.twig'
+              id: 'app.dblayer_collector'
 
     Phyxo\DataCollector\SmartyCollector:
         tags:

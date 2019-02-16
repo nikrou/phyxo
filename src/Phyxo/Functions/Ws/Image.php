@@ -942,7 +942,7 @@ class Image
      */
     public static function setRelatedTags($params, &$service)
     {
-        global $conf, $conn, $services;
+        global $conf, $conn, $services, $user;
 
         if (!$service->isPost()) {
             return new Error(405, "This method requires HTTP POST");
@@ -987,7 +987,7 @@ class Image
                     $services['tags']->toBeValidatedTags(
                         $current_tags_ids,
                         $params['image_id'],
-                        ['status' => 0, 'user_id' => $_SESSION['pwg_uid']]
+                        ['status' => 0, 'user_id' => $user['id']]
                     );
                 } else {
                     (new ImageTagRepository($conn))->deleteBy('image_id', $params['image_id']);
@@ -1000,7 +1000,7 @@ class Image
                         $services['tags']->toBeValidatedTags(
                             $removed_tags_ids,
                             $params['image_id'],
-                            ['status' => 0, 'user_id' => $_SESSION['pwg_uid']]
+                            ['status' => 0, 'user_id' => $user['id']]
                         );
                     } else {
                         $services['tags']->dissociateTags($removed_tags_ids, $params['image_id']);
@@ -1013,7 +1013,7 @@ class Image
                         $services['tags']->toBeValidatedTags(
                             $new_tags_ids,
                             $params['image_id'],
-                            ['status' => 1, 'user_id' => $_SESSION['pwg_uid']]
+                            ['status' => 1, 'user_id' => $user['id']]
                         );
                     } else {
                         $services['tags']->associateTags($new_tags_ids, $params['image_id']);

@@ -26,6 +26,8 @@
         "symfony/framework-bundle": "^4.1",
         "symfony/monolog-bundle": "^3.3",
         "symfony/routing": "^4.1",
+        "symfony/security-bundle": "^4.1",
+        "symfony/security-csrf": "^4.1",
         "symfony/templating": "^4.1",
         "symfony/twig-bundle": "^4.1",
         "symfony/yaml": "^4.1",

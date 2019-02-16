@@ -178,4 +178,14 @@ class UserInfosRepository extends BaseRepository
         $query .= ' WHERE user_id  ' . $this->conn->in($user_ids);
         $this->conn->db_query($query);
     }
+
+    public function getInfos(int $user_id)
+    {
+        $query = 'SELECT ui.*, uc.*, t.name AS theme_name FROM ' . self::USER_INFOS_TABLE . ' AS ui';
+        $query .= ' LEFT JOIN ' . self::USER_CACHE_TABLE . ' AS uc ON ui.user_id = uc.user_id';
+        $query .= ' LEFT JOIN ' . self::THEMES_TABLE . ' AS t ON t.id = ui.theme';
+        $query .= ' WHERE ui.user_id = ' . $user_id;
+
+        return $this->conn->db_query($query);
+    }
 }

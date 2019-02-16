@@ -21,3 +21,6 @@ $services = [];
 $services['tags'] = new Tags($conn, $conf);
 $services['comments'] = new Comments($conn, $conf);
 $services['users'] = new Users($conn, $conf, $user, $cache);
+if (isset($passwordEncoder)) {
+    $services['users']->setPasswordEncoder($passwordEncoder);
+}

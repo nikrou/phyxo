@@ -28,7 +28,7 @@ if (!$conf['allow_user_registration']) {
 
 if (isset($_POST['submit'])) {
     if (empty($_POST['key']) || !\Phyxo\Functions\Utils::verify_ephemeral_key($_POST['key'])) {
-        t_status_header(403);
+        \Phyxo\Functions\HTTP::set_status_header(403);
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid/expired form key');
     }
 
