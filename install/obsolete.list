@@ -20,6 +20,9 @@ upgrade_feed.php
 upgrade.php
 doc
 src/Log.php
+src/LegacyPages/identification.php
+src/LegacyPages/register.php
+src/LegacyPages/profile.php
 admin/index.php
 include/cache.class.php
 include/derivative.inc.php

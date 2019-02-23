@@ -1,13 +1,13 @@
 <?php
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+ /*
+  * This file is part of Phyxo package
+  *
+  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+  * Licensed under the GPL version 2.0 license.
+  *
+  * For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 if (!defined('PHPWG_ROOT_PATH')) {
     die('Hacking attempt!');
@@ -21,6 +21,7 @@ use App\Repository\ConfigRepository;
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
 // +-----------------------------------------------------------------------+
+
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 //-------------------------------------------------------- sections definitions
@@ -469,17 +470,16 @@ if ($section === 'main') {
     );
 } elseif ($section === 'default') {
     $edit_user = $services['users']->buildUser($conf['guest_id'], false);
-    include_once(PHPWG_ROOT_PATH . 'src/LegacyPages/profile.php');
 
     $errors = [];
-    if (save_profile_from_post($edit_user, $errors)) {
+    if (\Phyxo\Functions\Utils::save_profile_from_post($edit_user, $errors)) {
         // Reload user
         $edit_user = $services['users']->buildUser($conf['guest_id'], false);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings have been saved');
     }
     $page['errors'] = array_merge($page['errors'], $errors);
 
-    load_profile_in_template($action, '', $edit_user, 'GUEST_');
+    \Phyxo\Functions\Utils::load_profile_in_template($action, '', $edit_user, 'GUEST_');
     $template->assign('default', []);
 }
 

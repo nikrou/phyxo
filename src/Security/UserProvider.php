@@ -20,14 +20,16 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\User;
 use App\Entity\UserInfos;
+use App\Utils\DataTransformer;
 
 class UserProvider implements UserProviderInterface
 {
-    private $conn;
+    private $conn, $data_transformer;
 
-    public function __construct(DBLayer $conn)
+    public function __construct(DBLayer $conn, DataTransformer $data_transformer)
     {
         $this->conn = $conn;
+        $this->data_transformer = $data_transformer;
     }
 
     public function loadUserByUsername($username)
@@ -61,7 +63,7 @@ class UserProvider implements UserProviderInterface
         // pretend it returns an array on success, false if there is no user
         if ($userData) {
             $result = (new UserInfosRepository($this->conn))->getInfos($userData['id']);
-            $user_infos = $this->conn->db_fetch_assoc($result);
+            $user_infos = $this->data_transformer->map($this->conn->db_fetch_assoc($result));
 
             $user = new User();
             $user->setId($userData['id']);

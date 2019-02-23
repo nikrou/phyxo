@@ -22,6 +22,6 @@ logout:
 
 profile:
   path: /profile.{extension}
-  controller: App\Controller\UserController::profile
+  controller: App\Controller\SecurityController::profile
   defaults:
     extension: php

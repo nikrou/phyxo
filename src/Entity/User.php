@@ -35,6 +35,11 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         $this->id = $id;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public function setUsername(string $username)
     {
         $this->username = $username;

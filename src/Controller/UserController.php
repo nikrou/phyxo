@@ -24,14 +24,4 @@ class UserController extends BaseController
 
         return $this->doResponse($legacy_file, 'password.tpl');
     }
-
-    public function profile(string $legacyBaseDir, Request $request)
-    {
-        $legacy_file = sprintf('%s/profile.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/profile";
-
-        return $this->doResponse($legacy_file, 'profile.tpl');
-    }
 }

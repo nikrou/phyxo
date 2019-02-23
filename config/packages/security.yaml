@@ -49,7 +49,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
-        - { path: ^/(identification|password|register)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/profile$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/(identification|password|register)(\.php)?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/profile(\.php)?$, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

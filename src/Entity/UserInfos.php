@@ -85,6 +85,11 @@ class UserInfos implements \ArrayAccess
         return $this->infos['show_nb_hits'] ?? null;
     }
 
+    public function getShowNbComments()
+    {
+        return $this->infos['show_nb_comments'] ?? null;
+    }
+
     public function getLanguage() : string
     {
         return $this->infos['language'] ?? '';

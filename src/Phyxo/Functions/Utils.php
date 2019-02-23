@@ -1,13 +1,13 @@
 <?php
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+ /*
+  * This file is part of Phyxo package
+  *
+  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+  * Licensed under the GPL version 2.0 license.
+  *
+  * For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 namespace Phyxo\Functions;
 
@@ -23,6 +23,8 @@ use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ThemeRepository;
+use App\Repository\LanguageRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\ImageRepository;
@@ -77,8 +79,10 @@ class Utils
         } elseif (!empty($_SERVER['REDIRECT_URL'])) {
             // mod_rewrite is activated for upper level directories. we must set the
             // cookie to the path shown in the browser otherwise it will be discarded.
-            if (!empty($_SERVER['PATH_INFO']) && ($_SERVER['REDIRECT_URL'] !== $_SERVER['PATH_INFO'])
-                && (substr($_SERVER['REDIRECT_URL'], -strlen($_SERVER['PATH_INFO'])) == $_SERVER['PATH_INFO'])) {
+            if (
+                !empty($_SERVER['PATH_INFO']) && ($_SERVER['REDIRECT_URL'] !== $_SERVER['PATH_INFO'])
+                && (substr($_SERVER['REDIRECT_URL'], -strlen($_SERVER['PATH_INFO'])) == $_SERVER['PATH_INFO'])
+            ) {
                 $path = substr($_SERVER['REDIRECT_URL'], 0, strlen($_SERVER['REDIRECT_URL']) - strlen($_SERVER['PATH_INFO']));
             } else {
                 $path = $_SERVER['REDIRECT_URL'];
@@ -343,10 +347,10 @@ class Utils
         $time = round(microtime(true), 1);
         return $time . ':' . $valid_after_seconds . ':'
             . hash_hmac(
-            'md5',
-            $time . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $valid_after_seconds . $aditionnal_data_to_hash,
-            $conf['secret_key']
-        );
+                'md5',
+                $time . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $valid_after_seconds . $aditionnal_data_to_hash,
+                $conf['secret_key']
+            );
     }
 
     /**
@@ -364,12 +368,14 @@ class Utils
         $key = explode(':', @$key);
 
         // page must have been retrieved more than X sec ago
-        if (count($key) != 3 or $key[0] > $time - (float)$key[1] or $key[0] < $time - 3600
+        if (
+            count($key) != 3 or $key[0] > $time - (float)$key[1] or $key[0] < $time - 3600
             or hash_hmac(
-            'md5',
-            $key[0] . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $key[1] . $aditionnal_data_to_hash,
-            $conf['secret_key']
-        ) != $key[2]) {
+                'md5',
+                $key[0] . substr($_SERVER['REMOTE_ADDR'], 0, 5) . $key[1] . $aditionnal_data_to_hash,
+                $conf['secret_key']
+            ) != $key[2]
+        ) {
             return false;
         }
 
@@ -581,7 +587,7 @@ class Utils
         }
 
         if (!isset($cache['get_icon']['sql_recent_date'])) {
-        // Use MySql date in order to standardize all recent "actions/queries" ???
+            // Use MySql date in order to standardize all recent "actions/queries" ???
             $cache['get_icon']['sql_recent_date'] = $conn->db_get_recent_period($user['recent_period']);
         }
 
@@ -838,7 +844,7 @@ class Utils
         global $user;
 
         // $filter['visible_categories'] and $filter['visible_images']
-       // are not used because it's not necessary (filter <> restriction)
+        // are not used because it's not necessary (filter <> restriction)
         if (in_array($category_id, explode(',', $user['forbidden_categories']))) {
             \Phyxo\Functions\HTTP::access_denied();
         }
@@ -1923,7 +1929,7 @@ class Utils
         ];
 
         foreach ($requested as $item) {
-           // @TODO : add _ between timestamp and count -> pwg_concat ??
+            // @TODO : add _ between timestamp and count -> pwg_concat ??
             $query = 'SELECT ' . $conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
             $query .= ' FROM ' . $tables[$item] . ';';
             $result = $conn->db_query($query);
@@ -1933,5 +1939,120 @@ class Utils
         }
 
         return $keys;
+    }
+
+    function save_profile_from_post($userdata, &$errors)
+    {
+        global $conf, $page, $conn, $services, $conn;
+
+        $errors = [];
+
+        if (!isset($_POST['validate'])) {
+            return false;
+        }
+
+        $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+        $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
+
+        $int_pattern = '/^\d+$/';
+        if (empty($_POST['nb_image_page']) || (!preg_match($int_pattern, $_POST['nb_image_page']))) {
+            $errors[] = \Phyxo\Functions\Language::l10n('The number of photos per page must be a not null scalar');
+        }
+
+        // periods must be integer values, they represents number of days
+        if (!preg_match($int_pattern, $_POST['recent_period']) or $_POST['recent_period'] < 0) {
+            $errors[] = \Phyxo\Functions\Language::l10n('Recent period must be a positive integer value');
+        }
+
+        if (isset($_POST['language']) && !isset($languages[$_POST['language']])) {
+            die('Hacking attempt, incorrect language value');
+        }
+
+        if (isset($_POST['theme']) && !isset($themes[$_POST['theme']])) {
+            die('Hacking attempt, incorrect theme value');
+        }
+
+        if (count($errors) == 0) {
+            // update user "additional" informations
+            $fields = [
+                'nb_image_page', 'language',
+                'expand', 'show_nb_hits',
+                'recent_period', 'theme'
+            ];
+
+            if ($conf['activate_comments']) {
+                $fields[] = 'show_nb_comments';
+            }
+
+            $data = [];
+            $data['user_id'] = $userdata['id'];
+
+            foreach ($fields as $field) {
+                if (isset($_POST[$field])) {
+                    $data[$field] = $_POST[$field];
+                }
+            }
+
+            (new UserInfosRepository($conn))->massUpdates(['primary' => ['user_id'], 'update' => $fields], [$data]);
+
+            \Phyxo\Functions\Plugin::trigger_notify('save_profile_from_post', $userdata['id']);
+
+            if (!empty($_POST['redirect'])) {
+                \Phyxo\Functions\Utils::redirect($_POST['redirect']);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Assign template variables, from arguments
+     * Used to build profile edition pages
+     *
+     * @param string $url_action
+     * @param string $url_redirect
+     * @param array $userdata
+     */
+    function load_profile_in_template($url_action, $url_redirect, $userdata, $template_prefixe = null)
+    {
+        global $template, $conf, $conn;
+
+        $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+        $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
+
+        $template->assign(
+            'radio_options',
+            [
+                'true' => \Phyxo\Functions\Language::l10n('Yes'),
+                'false' => \Phyxo\Functions\Language::l10n('No')
+            ]
+        );
+
+        $template->assign(
+            [
+                $template_prefixe . 'ACTIVATE_COMMENTS' => $conf['activate_comments'],
+                $template_prefixe . 'NB_IMAGE_PAGE' => $userdata['nb_image_page'],
+                $template_prefixe . 'RECENT_PERIOD' => $userdata['recent_period'],
+                $template_prefixe . 'EXPAND' => $userdata['expand'] ? 'true' : 'false',
+                $template_prefixe . 'NB_COMMENTS' => $userdata['show_nb_comments'] ? 'true' : 'false',
+                $template_prefixe . 'NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
+                $template_prefixe . 'REDIRECT' => $url_redirect,
+                $template_prefixe . 'F_ACTION' => $url_action,
+            ]
+        );
+
+        $template->assign('template_selection', $userdata['theme']);
+        $template->assign('template_options', $themes);
+
+        if (isset($languages[$userdata['language']])) {
+            $template->assign('language_selection', $userdata['language']);
+        }
+
+        $template->assign('language_options', $languages);
+
+        // allow plugins to add their own form data to content
+        \Phyxo\Functions\Plugin::trigger_notify('load_profile_in_template', $userdata);
+
+        $template->assign('PWG_TOKEN', \Phyxo\Functions\Utils::get_token());
     }
 }
