@@ -102,18 +102,37 @@ class UserManager
         }
     }
 
-    public function getDefaultUserInfo() : array
+    public function getDefaultUserInfo(): array
     {
         $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
         $default_user = $this->conn->db_fetch_assoc($result);
 
         foreach ($default_user as &$value) {
-                // If the field is true or false, the variable is transformed into a boolean value.
+            // If the field is true or false, the variable is transformed into a boolean value.
             if (!is_null($value) && $this->conn->is_boolean($value)) {
                 $value = $this->conn->get_boolean($value);
             }
         }
 
         return $default_user;
+    }
+
+    public function findUserByUsernameOrEmail(string $username_or_email)
+    {
+        $result = (new UserRepository($this->conn))->findByEmail($username_or_email);
+        if ($this->conn->db_num_rows($result) > 0) {
+            return $this->conn->db_fetch_assoc($result);
+        }
+
+        $result = (new UserRepository($this->conn))->findByUsername($username_or_email);
+        if ($this->conn->db_num_rows($result) == 0) {
+            return false;
+        } else {
+            return $this->conn->db_fetch_assoc($result);
+        }
+    }
+
+    public function generateActivationKey(int $size = 50) {
+        return bin2hex(random_bytes($size));
     }
 }

@@ -55,7 +55,7 @@ class DBLayer
         }
 
         $load = (function ($path) {
-            include($path);
+            include $path;
 
             return [
                 $conf['dblayer'],
@@ -63,7 +63,7 @@ class DBLayer
                 isset($conf['db_user']) ? $conf['db_user'] : '',
                 isset($conf['db_password']) ? $conf['db_password'] : '',
                 $conf['db_base'],
-                $prefixeTable
+                $prefixeTable,
             ];
         });
 
@@ -93,7 +93,7 @@ class DBLayer
         if ($result != null) {
             $this_query = [
                 'sql' => $query,
-                'time' => $query_time
+                'time' => $query_time,
             ];
             if (preg_match('/\s*SELECT\s+/i', $query)) {
                 $this_query['rows'] = sprintf('(num rows: %d)', $this->db_num_rows($result));
@@ -124,7 +124,7 @@ class DBLayer
     }
 
     /**
-     * return an IN clause where @params are escaped
+     * return an IN clause where @params are escaped.
      */
     public function in(array $params)
     {
@@ -148,7 +148,7 @@ class DBLayer
 
     /**
      * Builds an data array from a SQL query.
-     * Depending on $key_name and $value_name it can return :
+     * Depending on $key_name and $value_name it can return :.
      *
      *    - an array of arrays of all fields (key=null, value=null)
      *        array(
@@ -179,16 +179,17 @@ class DBLayer
      * @param string $query
      * @param string $key_name
      * @param string $value_name
+     *
      * @return array
      */
-    public function query2array(string $query, string $key_name = null, string $value_name = null) : array
+    public function query2array(string $query, string $key_name = null, string $value_name = null): array
     {
         $result = $this->db_query($query);
 
         return $this->result2array($result, $key_name, $value_name);
     }
 
-    public function result2array($result, string $key_name = null, string $value_name = null) : array
+    public function result2array($result, string $key_name = null, string $value_name = null): array
     {
         $data = [];
 
@@ -220,7 +221,7 @@ class DBLayer
     /**
      * Inserts one line in a table.
      */
-    public function single_insert(string $table_name, array $data, $auto_increment_for_table = true) : ? int
+    public function single_insert(string $table_name, array $data, $auto_increment_for_table = true): ? int
     {
         if (count($data) != 0) {
             $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', array_keys($data)) . ')';
@@ -260,9 +261,9 @@ class DBLayer
      * Updates one line in a table.
      *
      * @param string $tablename
-     * @param array $datas
-     * @param array $where
-     * @param int $flags - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
+     * @param array  $datas
+     * @param array  $where
+     * @param int    $flags     - if MASS_UPDATES_SKIP_EMPTY, empty values do not overwrite existing ones
      */
     public function single_update(string $tablename, array $datas, array $where = [], int $flags = 0)
     {
@@ -285,9 +286,6 @@ class DBLayer
                     $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($value) . '\'';
                 }
             } else {
-                if ($flags & MASS_UPDATES_SKIP_EMPTY) {
-                    continue; // next field
-                }
                 $query .= "$separator$key = NULL";
             }
             $is_first = false;
@@ -317,12 +315,11 @@ class DBLayer
     }
 
     /**
-     * deletes multiple lines in a table
+     * deletes multiple lines in a table.
      *
      * @param string table_name
      * @param array dbfields
      * @param array datas
-     * @return void
      */
     public function mass_deletes(string $tablename, array $dbfields, array $datas)
     {
@@ -392,7 +389,7 @@ class DBLayer
     }
 
     /**
-     * returns temporary table from regulary table
+     * returns temporary table from regulary table.
      *
      * @return string
      */
@@ -406,7 +403,7 @@ class DBLayer
     }
 
     /**
-     * Search for database engines available
+     * Search for database engines available.
      *
      * We search for functions_DATABASE_ENGINE.inc.php
      * and we check if the connect function for that database exists

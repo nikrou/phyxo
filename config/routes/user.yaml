@@ -4,9 +4,15 @@ register:
   defaults:
     extension: php
 
-password:
+reset_password:
+  path: /password.{extension}/{activation_key}
+  controller: App\Controller\SecurityController::resetPassword
+  defaults:
+    extension: php
+
+forgot_password:
   path: /password.{extension}
-  controller: App\Controller\UserController::password
+  controller: App\Controller\SecurityController::forgotPassword
   defaults:
     extension: php
 

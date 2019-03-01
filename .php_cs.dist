@@ -27,9 +27,11 @@ return PhpCsFixer\Config::create()
     ->setRules([
         'align_multiline_comment' => ['comment_type' => 'all_multiline'],
         'array_syntax' => ['syntax' => 'short'], // long
+        'array_indentation' => true,
         'blank_line_after_namespace' => true,
         'combine_consecutive_issets' => true,
         'combine_consecutive_unsets' => true,
+        'concat_space' =>  ['spacing' => 'one'],
         'elseif' => true,
         'encoding' => true,
         'full_opening_tag' => true,

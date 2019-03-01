@@ -62,13 +62,14 @@ class BaseRepository
      * Compute sql WHERE condition with restrict and filter data.
      * "FandF" means Forbidden and Filters.
      *
-     * @param array $condition_fields one witch fields apply each filter
-     *    - forbidden_categories
-     *    - visible_categories
-     *    - forbidden_images
-     *    - visible_images
-     * @param string $prefix_condition prefixes query if condition is not empty
-     * @param boolean $force_one_condition use at least "1 = 1"
+     * @param array  $condition_fields    one witch fields apply each filter
+     *                                    - forbidden_categories
+     *                                    - visible_categories
+     *                                    - forbidden_images
+     *                                    - visible_images
+     * @param string $prefix_condition    prefixes query if condition is not empty
+     * @param bool   $force_one_condition use at least "1 = 1"
+     *
      * @return string
      */
     public function getSQLConditionFandF(array $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false)
@@ -80,24 +81,25 @@ class BaseRepository
         foreach ($condition_fields as $condition => $field_name) {
             switch ($condition) {
                 case 'forbidden_categories':
-                    {
+
                         if (!empty($user['forbidden_categories'])) {
                             $sql_list[] = $field_name . ' NOT IN (' . $user['forbidden_categories'] . ')';
                         }
                         break;
-                    }
+
                 case 'visible_categories':
-                    {
+
                         if (!empty($filter['visible_categories'])) {
                             $sql_list[] = $field_name . ' IN (' . $filter['visible_categories'] . ')';
                         }
                         break;
-                    }
+
                 case 'visible_images':
                     if (!empty($filter['visible_images'])) {
                         $sql_list[] = $field_name . ' IN (' . $filter['visible_images'] . ')';
                     }
                 // note there is no break - visible include forbidden
+                // no break
                 case 'forbidden_images':
                     if (!empty($user['image_access_list']) or $user['image_access_type'] != 'NOT IN') {
                         $table_prefix = null;
@@ -114,10 +116,9 @@ class BaseRepository
                     }
                     break;
                 default:
-                    {
+
                         die('Unknown condition: ' . $condition);
                         break;
-                    }
             }
         }
 

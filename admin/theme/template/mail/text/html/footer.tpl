@@ -9,7 +9,7 @@
 	    *}
 
             {'Sent by'|translate} <a href="{$GALLERY_URL}">{$GALLERY_TITLE}</a>
-            - {'Powered by'|translate} <a href="{$PHPWG_URL}" class="Piwigo">Phyxo</a>
+            - {'Powered by'|translate} <a href="{$PHPWG_URL}">Phyxo</a>
             {if not empty($VERSION)}{$VERSION}{/if}
 
             - {'Contact'|translate}

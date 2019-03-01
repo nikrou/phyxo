@@ -302,6 +302,7 @@ $lang['show tag cloud'] = 'montrer le nuage de tags';
 $lang['Since'] = 'Depuis';
 $lang['slideshow'] = 'diaporama';
 $lang['Someone requested that the password be reset for the following user account:'] = 'Quelqu\'un a demandé le renouvellement de votre mot de passe pour l\'utilisateur suivant :';
+$lang['confirmation link'] = "Lien de confirmation";
 $lang['Sort by'] = 'Trier selon';
 $lang['Sort order'] = 'Ordre de tri';
 $lang['Successfully registered, you will soon receive an email with your connection settings. Welcome!'] = 'Inscription réussie, vous recevrez bientôt un email avec vos identifiants. Bienvenue !';

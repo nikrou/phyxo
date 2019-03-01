@@ -64,6 +64,10 @@ services:
               template: 'data_collector/smarty.html.twig'
               id: 'app.smarty_collector'
 
+    Phyxo\Template\AdminTemplate:
+        factory: 'Phyxo\Template\AdminTemplate::initialize'
+        arguments: ['%kernel.cache_dir%/smarty', '%kernel.project_dir%/admin/theme']
+
     Phyxo\Template\Template:
         factory: 'Phyxo\Template\Template::init'
         arguments: ['%kernel.cache_dir%/smarty']

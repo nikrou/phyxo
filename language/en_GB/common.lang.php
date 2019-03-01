@@ -336,6 +336,7 @@ $lang['Since'] = "Since";
 $lang['slideshow'] = "slideshow";
 $lang['small'] = 'S - small';
 $lang['Someone requested that the password be reset for the following user account:'] = 'Someone requested that the password be reset for the following user account:';
+$lang['confirmation link'] = "confirmation link";
 $lang['Sort by'] = "Sort by";
 $lang['Sort order'] = "Sort order";
 $lang['Specials'] = "Specials";

@@ -2,7 +2,7 @@
 <html lang="{$lang_info.code}" dir="{$lang_info.direction}">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset={$CONTENT_ENCODING}"/>
-    <title>Piwigo Mail</title>
+    <title>Phyxo Mail</title>
 
     <style type="text/css">
     {if isset($GLOBAL_MAIL_CSS)}{$GLOBAL_MAIL_CSS}{/if}
@@ -23,7 +23,7 @@
           </td></tr>
 
           <tr><td id="content">
-{* <!-- use an invisible div with a bottom margin to force the browser 
+{* <!-- use an invisible div with a bottom margin to force the browser
 to merge the margin with the element bellow (typically h1/h2/...) --> *}
             <div id="topSpacer"></div>
             {* <!-- begin CONTENT --> *}

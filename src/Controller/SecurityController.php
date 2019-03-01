@@ -1,13 +1,13 @@
 <?php
- /*
-  * This file is part of Phyxo package
-  *
-  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-  * Licensed under the GPL version 2.0 license.
-  *
-  * For the full copyright and license information, please view the LICENSE
-  * file that was distributed with this source code.
-  */
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace App\Controller;
 
@@ -16,6 +16,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Template\Template;
+use Phyxo\Template\AdminTemplate;
 use Phyxo\Conf;
 use App\Entity\User;
 use App\Utils\UserManager;
@@ -28,29 +29,31 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\UserInfos;
 use App\Repository\UserRepository;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class SecurityController extends AbstractController
 {
     private $csrfTokenManager;
     private $conf;
+    private $language_load = [];
 
     public function __construct(Template $template, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, $default_language, $phyxoVersion, $phyxoWebsite)
     {
         $this->conf = $conf;
 
         // default theme
-        $template->set_template_dir(__DIR__.'/../../themes/treflez/template');
+        $template->set_template_dir(__DIR__ . '/../../themes/treflez/template');
 
         // to be removed
-        define('PHPWG_ROOT_PATH', __DIR__.'/../../');
+        define('PHPWG_ROOT_PATH', __DIR__ . '/../../');
 
-        $language_load = \Phyxo\Functions\Language::load_language(
+        $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
-            __DIR__.'/../../',
+            __DIR__ . '/../../',
             ['language' => $default_language, 'return_vars' => true]
         );
-        $template->setLang($language_load['lang']);
-        $template->setLangInfo($language_load['lang_info']);
+        $template->setLang($this->language_load['lang']);
+        $template->setLangInfo($this->language_load['lang_info']);
         $template->postConstruct();
 
         $template->assign('VERSION', $conf['show_version'] ? $phyxoVersion : '');
@@ -71,7 +74,7 @@ class SecurityController extends AbstractController
         $tpl_params = [
             'login_action' => $this->generateUrl('login'),
             'register_route' => $this->generateUrl('register'),
-            'password_route' => $this->generateUrl('password'),
+            'password_route' => $this->generateUrl('forgot_password'),
             'last_username' => $last_username,
             'csrf_token' => $token,
             'errors' => $error ? $error->getMessage() : '',
@@ -256,6 +259,124 @@ class SecurityController extends AbstractController
         $tpl_params['languages'] = $languages;
 
         return $this->render('profile.tpl', $tpl_params);
+    }
+
+    public function forgotPassword(Request $request, DBLayer $conn, UserManager $user_manager, Template $template, \Swift_Mailer $mailer,
+            AdminTemplate $admin_template, $phyxoVersion, $phyxoWebsite)
+    {
+        $tpl_params = [];
+
+        $errors = [];
+        $infos = [];
+        $token = $this->csrfTokenManager->getToken('authenticate');
+        $title = \Phyxo\Functions\Language::l10n('Forgot your password?');
+
+        if ($request->request->get('_username_or_email')) {
+            if ($user = $user_manager->findUserByUsernameOrEmail($request->request->get('_username_or_email'))) {
+                if (empty($user['mail_address'])) {
+                    $errors[] = \Phyxo\Functions\Language::l10n('User "%s" has no email address, password reset is not possible', $user['username']);
+                } else {
+                    $activation_key = $user_manager->generateActivationKey();
+                    (new UserInfosRepository($conn))->updateUserInfos(
+                        [
+                            'activation_key' => $activation_key,
+                            'activation_key_expire' => (new \DateTime())->add(new \DateInterval('PT1H'))->format('c'),
+                        ],
+                        $user['id']
+                    );
+
+                    $result = (new UserRepository($conn))->findById($this->conf['webmaster_id']);
+                    $row = $conn->db_fetch_assoc($result);
+                    $webmaster_mail_address = $row['mail_address'];
+
+                    $mail_params = [
+                        'user' => $user,
+                        'url' => $this->generateUrl('reset_password', ['activation_key' => $activation_key], UrlGeneratorInterface::ABSOLUTE_URL),
+                        'MAIL_TITLE' => \Phyxo\Functions\Language::l10n('Password Reset'),
+                        'MAIL_THEME' => $this->conf['mail_theme'],
+                        'GALLERY_URL' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                        'CONTACT_MAIL' => $webmaster_mail_address,
+                        'GALLERY_TITLE' => $this->conf['gallery_title'],
+                        'PHYXO_URL' => $phyxoWebsite,
+                        'VERSION' => $phyxoVersion,
+                    ];
+
+                    if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address)) {
+                        $title = \Phyxo\Functions\Language::l10n('Password reset');
+
+                        $infos[] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
+                    } else {
+                        $errors[] = \Phyxo\Functions\Language::l10n('Error sending email');
+                    }
+                }
+            } else {
+                $errors[] = \Phyxo\Functions\Language::l10n('Invalid username or email');
+            }
+        }
+
+        $tpl_params = [
+            'U_HOME' => $this->generateUrl('homepage'),
+            'forgot_password_action' => $this->generateUrl('forgot_password'),
+            'title' => $title,
+            'csrf_token' => $token,
+            'errors' => $errors,
+            'infos' => $infos,
+        ];
+
+        return $this->render('forgot_password.tpl', $tpl_params);
+    }
+
+    protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address)
+    {
+        $template->setLang($this->language_load['lang']);
+        $template->setLangInfo($this->language_load['lang_info']);
+        $template->postConstruct();
+
+        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset')))
+            ->addTo($params['user']['mail_address'])
+            ->setBody($template->render('mail/reset_password.txt.tpl', $params), 'text/plain')
+            ->addPart($template->render('mail/reset_password.html.tpl', $params), 'text/html');
+
+        $message->setFrom($webmaster_mail_address);
+        $message->setReplyTo($webmaster_mail_address);
+
+        return $mailer->send($message);
+    }
+
+    public function resetPassword(Request $request, DBLayer $conn, string $activation_key, UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $token = $this->csrfTokenManager->getToken('authenticate');
+        $errors = [];
+        $infos = [];
+
+        $result = (new UserInfosRepository($conn))->findByActivationKey($activation_key);
+        if ($conn->db_num_rows($result) === 0) {
+            throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
+        }
+        $user_infos = $conn->db_fetch_assoc($result);
+
+        // @TODO: use symfony forms
+        if ($request->isMethod('POST')) {
+            if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
+                $request->request->get('_password') != $request->request->get('_password_confirm')) {
+                (new UserRepository($conn))->updateUser(
+                    ['password' => $passwordEncoder->encodePassword(new User(), $request->request->get('_password'))], $user_infos['user_id']
+                );
+                (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => null, 'activation_key_expire' => null], $user_infos['user_id']);
+                $infos[] = \Phyxo\Functions\Language::l10n('Your password has been reset');
+            } else {
+                $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
+            }
+        }
+
+        $tpl_params = [
+            'reset_password_action' => $this->generateUrl('reset_password', ['activation_key' => $activation_key]),
+            'csrf_token' => $token,
+            'infos' => $infos,
+            'errors' => $errors,
+        ];
+
+        return $this->render('reset_password.tpl', $tpl_params);
     }
 
     public function logout()
