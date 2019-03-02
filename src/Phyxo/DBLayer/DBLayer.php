@@ -21,7 +21,6 @@ class DBLayer
     public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_')
     {
         if (file_exists(__DIR__ . '/' . $layer . 'Connection.php')) {
-            require_once __DIR__ . '/' . $layer . 'Connection.php';
             $className = sprintf('\Phyxo\DBLayer\%sConnection', $layer);
         } else {
             trigger_error('Unable to load DBLayer for ' . $layer, E_USER_ERROR);
@@ -50,10 +49,6 @@ class DBLayer
 
     public static function initFromConfigFile(string $config_file)
     {
-        if (!is_readable($config_file)) {
-            throw new \App\Exception\ConfigFileMissingException(sprintf('Config file %s missing', $config_file));
-        }
-
         $load = (function ($path) {
             include $path;
 

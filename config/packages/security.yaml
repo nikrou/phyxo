@@ -48,6 +48,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/admin/install(\.php)?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
         - { path: ^/(identification|password|register)(\.php)?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/profile(\.php)?$, roles: IS_AUTHENTICATED_FULLY }
