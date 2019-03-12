@@ -52,12 +52,6 @@ services:
         public: true
         alias: 'Phyxo\DBLayer\DBLayer'
 
-    Phyxo\DataCollector\DBLayerCollector:
-        tags:
-            - name: data_collector
-              template: 'data_collector/queries.html.twig'
-              id: 'app.dblayer_collector'
-
     Phyxo\DataCollector\SmartyCollector:
         tags:
             - name: data_collector
@@ -82,5 +76,5 @@ services:
             arguments: ['%default_config_file%', '%user_config_file%']
 
     phyxo.conf:
-        public: true
-        alias: 'Phyxo\Conf'
+      public: true
+      alias: 'Phyxo\Conf'

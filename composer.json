@@ -47,7 +47,7 @@
         "behatch/contexts": "^3.0",
         "composer/xdebug-handler": "^1.2",
         "dmore/behat-chrome-extension": "^1.1",
-        "friendsofphp/php-cs-fixer": "^2.13",
+        "friendsofphp/php-cs-fixer": "^2.14",
         "jdorn/sql-formatter": "^1.2",
         "symfony/dom-crawler": "^3.3",
         "symfony/profiler-pack": "^1.0"

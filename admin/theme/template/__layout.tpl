@@ -5,7 +5,7 @@
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-	<link rel="stylesheet" href="{asset manifest='./admin/theme/build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./admin/theme/build/manifest.json' src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	{get_combined_css}
@@ -18,8 +18,8 @@
 	{/if}
 
 	{block name="head_assets"}
-	    <script src="./theme/js/jquery/jquery.js"></script>
-	    <script src="./theme/js/jquery/jquery-migrate-1.2.1.js"></script>
+	    <script src="{$ROOT_URL}admin/theme/js/jquery/jquery.js"></script>
+	    <script src="{$ROOT_URL}admin/theme/js/jquery/jquery-migrate-1.2.1.js"></script>
 	{/block}
     </head>
     <body>
@@ -90,7 +90,7 @@
 			{/if}
 		    {/block}
 
-		    {if count($errors)>0}
+		    {if !empty($errors)}
 			<div class="alert alert-danger alert-dismissible fade show" role="alert">
 			    {foreach $errors as $error}
 				<p>{$error}</p>
@@ -101,7 +101,7 @@
 			</div>
 		    {/if}
 
-		    {if count($infos)>0}
+		    {if !empty($infos)}
 			<div class="alert alert-success alert-dismissible fade show" role="alert">
 			    {foreach $infos as $info}
 				<p>{$info}</p>
@@ -112,7 +112,7 @@
 			</div>
 		    {/if}
 
-		    {if count($warnings)>0}
+		    {if !empty($warnings)}
 			<div class="alert alert-warning alert-dismissible fade show" role="alert">
 			    {foreach $warnings as $warning}
 				<p>{$warning}</p>
@@ -154,7 +154,7 @@
 	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
-	    <script src="{asset manifest='./admin/theme/build/build/manifest.json' src='app.js'}"></script>
+	    <script src="{$ROOT_URL}{asset manifest="./admin/theme/build/manifest.json" src='app.js'}"></script>
 	{/block}
     </body>
 </html>

@@ -40,6 +40,11 @@ class Kernel extends BaseKernel
         return $this->getProjectDir() . '/var/log';
     }
 
+    public function getDbConfigFile()
+    {
+        return $this->getProjectDir() . '/local/config/database.inc.php';
+    }
+
     public function registerBundles()
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';
@@ -63,6 +68,10 @@ class Kernel extends BaseKernel
         $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
+
+        if (is_readable($this->getDbConfigFile())) {
+            $loader->load($confDir . '/{services_extra}' . self::CONFIG_EXTS, 'glob');
+        }
     }
 
     protected function configureRoutes(RouteCollectionBuilder $routes)

@@ -17,7 +17,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const CleanupPlugin = require('clean-webpack-plugin')
 
 const IS_PROD = process.env.NODE_ENV === 'production';
-const PUBLIC_PATH = IS_PROD ? './theme/build/' : 'http://localhost:8080/build/';
+const PUBLIC_PATH = IS_PROD ? './admin/theme/build/' : 'http://localhost:8080/build/';
 
 const PATHS = {
     app: path.join(__dirname, 'src', 'js'),

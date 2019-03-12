@@ -34,8 +34,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
         $dbname = null;
 
-        $this->db_link = new \mysqli($host, $user, $password, $dbname, $port, $socket);
-        if (mysqli_connect_error()) {
+        $this->db_link = @new \mysqli($host, $user, $password, $dbname, $port, $socket);
+        if ($this->db_link->connect_errno) {
             throw new dbException("Can't connect to server");
         }
 

@@ -36,6 +36,9 @@ class UserManager
             'password' => $user->getPassword(),
             'mail_address' => $user->getMailAddress()
         ];
+        if ($user->getId()) {
+            $insert['id'] = $user->getId();
+        }
 
         $user_id = (new UserRepository($this->conn))->addUser($insert);
 
@@ -49,7 +52,7 @@ class UserManager
             ];
         }
 
-        if (count($inserts) != 0) {
+        if (count($inserts) !== 0) {
             (new UserGroupRepository($this->conn))->massInserts(['user_id', 'group_id'], $inserts);
         }
 
@@ -64,18 +67,16 @@ class UserManager
         if (!empty($user_ids)) {
             $inserts = [];
 
-            $default_user = $this->getDefaultUserInfo(false);
-            if ($default_user === false) {
-                // Default on structure are used
-                $default_user = [];
-            }
+            $default_user = $this->getDefaultUserInfo();
 
             if (!empty($override_values)) {
                 $default_user = array_merge($default_user, $override_values);
             }
 
+            $now = (new \DateTime())->format('Y-m-d H:i:s');
             foreach ($user_ids as $user_id) {
                 $level = isset($default_user['level']) ? $default_user['level'] : 0;
+
                 if ($user_id == $this->conf['webmaster_id']) {
                     $status = 'webmaster';
                     $level = max($this->conf['available_permission_levels']);
@@ -90,7 +91,7 @@ class UserManager
                     [
                         'user_id' => $user_id,
                         'status' => $status,
-                        'registration_date' => 'now()',
+                        'registration_date' => $now,
                         'level' => $level
                     ]
                 );
@@ -105,16 +106,18 @@ class UserManager
     public function getDefaultUserInfo(): array
     {
         $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
-        $default_user = $this->conn->db_fetch_assoc($result);
-
-        foreach ($default_user as &$value) {
-            // If the field is true or false, the variable is transformed into a boolean value.
-            if (!is_null($value) && $this->conn->is_boolean($value)) {
-                $value = $this->conn->get_boolean($value);
+        if ($default_user = $this->conn->db_fetch_assoc($result)) {
+            foreach ($default_user as &$value) {
+                // If the field is true or false, the variable is transformed into a boolean value.
+                if (!is_null($value) && $this->conn->is_boolean($value)) {
+                    $value = $this->conn->get_boolean($value);
+                }
             }
+    
+            return $default_user;
+        } else {
+            return [];
         }
-
-        return $default_user;
     }
 
     public function findUserByUsernameOrEmail(string $username_or_email)

@@ -49,16 +49,20 @@ class DBLayer
 
     public static function initFromConfigFile(string $config_file)
     {
+        if (!is_readable($config_file)) {
+            throw new \App\Exception\ConfigFileMissingException(sprintf('Config file %s missing', $config_file));
+        }
+
         $load = (function ($path) {
             include $path;
 
             return [
                 $conf['dblayer'],
-                $conf['db_host'],
+                isset($conf['db_host']) ? $conf['db_host']: '',
                 isset($conf['db_user']) ? $conf['db_user'] : '',
                 isset($conf['db_password']) ? $conf['db_password'] : '',
                 $conf['db_base'],
-                $prefixeTable,
+                $conf['db_prefix'] ? $conf['db_prefix'] : $prefixeTable,
             ];
         });
 
@@ -409,8 +413,8 @@ class DBLayer
     {
         $engines = [];
 
-        $pattern = PHPWG_ROOT_PATH . 'src/Phyxo/DBLayer/%sConnection.php';
-        include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
+        $pattern = __DIR__ . '/%sConnection.php';
+        include_once __DIR__ . '/../../../include/dblayers.inc.php';
 
         foreach ($dblayers as $engine_name => $engine) {
             if (file_exists(sprintf($pattern, $engine_name)) && isset($engine['function_available'])

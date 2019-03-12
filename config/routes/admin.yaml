@@ -1,14 +1,16 @@
 install:
-  path:  /install.{extension}
+  path:  /install/{step}
+  controller: App\Controller\InstallController::index
   defaults:
-    extension: php
-  controller: App\Controller\AdminController::install
+    step: language
+  requirements:
+    step: language|check|database|user|success
 
 legacy_home:
   path:  /index.{extension}
+  controller: App\Controller\AdminController::index
   defaults:
     extension: php
-  controller: App\Controller\AdminController::index
 
 admin_home:
   path:  /

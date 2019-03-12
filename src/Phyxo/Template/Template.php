@@ -858,7 +858,7 @@ class Template implements EngineInterface
             $params['id'],
             $params['path'],
             isset($params['version']) ? $params['version'] : 0,
-            isset($param['order']) ? (int)$params['order'] : 0,
+            isset($params['order']) ? (int)$params['order'] : 0,
             isset($params['template']) ? (bool)$params['template'] : false
         );
     }
