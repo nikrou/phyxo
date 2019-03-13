@@ -41,19 +41,15 @@ $themes->sortFsThemes();
 $default_theme = $services['users']->getDefaultTheme();
 
 $db_themes = $themes->getDbThemes();
-$db_theme_ids = array();
+$db_theme_ids = [];
 foreach ($db_themes as $db_theme) {
     $db_theme_ids[] = $db_theme['id'];
 }
 
-$tpl_themes = array();
+$tpl_themes = [];
 
 foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-    if ($theme_id == 'default') {
-        continue;
-    }
-
-    $tpl_theme = array(
+    $tpl_theme = [
         'ID' => $theme_id,
         'NAME' => $fs_theme['name'],
         'VISIT_URL' => $fs_theme['uri'],
@@ -65,7 +61,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
         'SCREENSHOT' => $fs_theme['screenshot'],
         'IS_MOBILE' => $fs_theme['mobile'],
         'ADMIN_URI' => @$fs_theme['admin_uri'],
-    );
+    ];
 
     if (in_array($theme_id, $db_theme_ids)) {
         $tpl_theme['STATE'] = 'active';
@@ -122,7 +118,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
 // sort themes by state then by name
 function cmp($a, $b)
 {
-    $s = array('active' => 0, 'inactive' => 1);
+    $s = ['active' => 0, 'inactive' => 1];
 
     if (@$a['IS_DEFAULT']) return -1;
     if (@$b['IS_DEFAULT']) return 1;
@@ -136,13 +132,13 @@ function cmp($a, $b)
 usort($tpl_themes, 'cmp');
 
 $template->assign(
-    array(
+    [
         'activate_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=activate&amp;theme=',
         'deactivate_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=deactivate&amp;theme=',
         'set_default_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=set_default&amp;theme=',
         'delete_baseurl' => THEMES_BASE_URL . '&amp;section=installed&amp;action=delete&amp;theme=',
         'tpl_themes' => $tpl_themes,
-    )
+    ]
 );
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_themes_installed');

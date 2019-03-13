@@ -17,7 +17,7 @@ if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 }
 if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
-    define('PHPWG_DEFAULT_TEMPLATE', 'elegant');
+    define('PHPWG_DEFAULT_TEMPLATE', 'treflez');
 }
 
 if (!defined('PHPWG_THEMES_PATH')) {

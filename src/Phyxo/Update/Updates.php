@@ -31,7 +31,7 @@ class Updates
         if (in_array($page, $this->types)) {
             $this->types = [$page];
         }
-        $this->default_themes = ['elegant', 'legacy', 'default'];
+        $this->default_themes = ['treflez'];
         $this->default_plugins = [];
         $this->default_languages = [];
 

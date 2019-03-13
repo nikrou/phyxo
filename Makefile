@@ -42,7 +42,7 @@ config: clean
 	$(DIST)/$(APP_NAME)/var/cache/prod $(DIST)/$(APP_NAME)/var/log
 
 	# copy only distrib plugins and themes
-	cp -pr themes/default themes/legacy themes/elegant $(DIST)/$(APP_NAME)/themes/
+	cp -pr themes/treflez $(DIST)/$(APP_NAME)/themes/
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	find $(DIST) -name '.env*' -exec rm \{\} \;

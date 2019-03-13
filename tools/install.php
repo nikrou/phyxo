@@ -82,7 +82,7 @@ if (!defined('PWG_CHARSET')) {
 
 $themes = new Themes($conn);
 foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-    if (in_array($theme_id, ['elegant'])) {
+    if (in_array($theme_id, ['treflez'])) {
         $themes->performAction('activate', $theme_id);
     }
 }

@@ -1,5 +1,7 @@
 # Phyxo 1.10.0 - YYYY-MM-DD
 -   Move webservice and media factory (i.php) under symfony router.
+-   Use symfony sessions
+-   Default theme is now Treflez.
 
 # Phyxo 1.9.7 - 2018-01-12
 -   Fix issue preventing users using nginx as http server to connect.

@@ -52,7 +52,7 @@ class Upgrade
     {
         global $page, $conf, $conn;
 
-        $standard_themes = ['elegant'];
+        $standard_themes = ['treflez'];
 
         $result = (new ThemeRepository($conn))->findExcept($standard_themes);
         $theme_ids = [];
@@ -74,7 +74,7 @@ class Upgrade
 
             // if the default theme has just been deactivated, let's set another core theme as default
             if (in_array($user_infos['theme'], $theme_ids)) {
-                (new UserInfosRepository($conn))->updateUserInfos(['theme' => 'elegant'], $conf['default_user_id']);
+                (new UserInfosRepository($conn))->updateUserInfos(['theme' => 'treflez'], $conf['default_user_id']);
             }
         }
     }

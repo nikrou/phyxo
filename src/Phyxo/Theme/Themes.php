@@ -83,7 +83,7 @@ class Themes extends Extensions
                     break;
                 }
 
-                if ('default' == $theme_id) {
+                if ($theme_id === 'treflez') {
                 // you can't activate the "default" theme
                     break;
                 }
@@ -127,7 +127,7 @@ class Themes extends Extensions
                     $new_theme = null;
                     $result = (new ThemeRepository($this->conn))->findById($theme_id);
                     if ($this->conn->db_num_rows($result) == 0) {
-                        $new_theme = 'default';
+                        $new_theme = 'treflez';
                     } else {
                         list($new_theme) = $this->conn->db_fetch_row($result);
                     }
@@ -181,7 +181,7 @@ class Themes extends Extensions
 
         $parent = $this->fs_themes[$theme_id]['parent'];
 
-        if ('default' == $parent) {
+        if ($parent === 'treflez') {
             return null;
         }
 
