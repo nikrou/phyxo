@@ -36,14 +36,18 @@ class InstallController extends Controller
 
     private $passwordEncoder;
     private $phyxoVersion;
-    private $language_options = [];
+    private $databaseConfigFile;
     private $default_language;
+    private $default_theme;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(Template $template, string $default_language, $phyxoVersion, $phyxoWebsite)
+    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, string $databaseConfigFile, UserPasswordEncoderInterface $passwordEncoder)
     {
-        $this->default_language = $default_language;
+        $this->default_language = $defaultLanguage;
+        $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
+        $this->databaseConfigFile = $databaseConfigFile;
+        $this->passwordEncoder = $passwordEncoder;
 
         $template->set_theme(__DIR__ . '/../../admin/theme', '.');
         $template->assign([
@@ -56,10 +60,14 @@ class InstallController extends Controller
         $template->postConstruct();
     }
     
-    public function index(Request $request, Template $template, string $step = 'language', UserPasswordEncoderInterface $passwordEncoder)
+    public function index(Request $request, Template $template, string $step = 'language')
     {
         $tpl_params = [];
         
+        if (is_readable($this->databaseConfigFile)) {
+            return  $this->redirectToRoute('homepage', []);
+        }
+
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = new Languages(null, __DIR__ . '/../../language');
@@ -375,13 +383,13 @@ class InstallController extends Controller
 
         (new ConfigRepository($conn))->addParam(
             'secret_key',
-            md5(openssl_random_pseudo_bytes(15)),
+            md5(random_bytes(15)),
             '\'a secret key specific to the gallery for internal use\')'
         );
 
         $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version($this->phyxoVersion);
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
-        $conf['page_banner'] = '<h1>%gallery_title%</h1>' . "\n\n<p>" . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
+        $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
         $languages = new Languages($conn, $this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
@@ -392,7 +400,7 @@ class InstallController extends Controller
 
         $themes = new Themes($conn, $this->get('kernel')->getProjectDir() . '/themes');
         foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-            if ($theme_id === 'elegant') {
+            if ($theme_id === $this->default_theme) {
                 $themes->performAction('activate', $theme_id);
             }
         }
@@ -414,7 +422,7 @@ class InstallController extends Controller
         $file_content .= '$conf[\'dblayer\'] = \'' . $db_params['db_layer'] . "';\n";
         $file_content .= '$conf[\'db_base\'] = \'' . $db_params['db_name'] . "';\n";
         if ($db_params['db_layer'] !== 'sqlite') {
-            $file_content .= '$conf[\'db_host\'] = \'' . $db_params['db_host'] . "';\n\n";
+            $file_content .= '$conf[\'db_host\'] = \'' . $db_params['db_host'] . "';\n";
             $file_content .= '$conf[\'db_user\'] = \'' . $db_params['db_user'] . "';\n";
             $file_content .= '$conf[\'db_password\'] = \'' . $db_params['db_password'] . "';\n";
         }

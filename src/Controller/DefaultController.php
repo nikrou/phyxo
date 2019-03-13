@@ -18,7 +18,7 @@ use App\Repository\ImageRepository;
 
 class DefaultController extends BaseController
 {
-    public function home(string $legacyBaseDir, string $default_language, Request $request)
+    public function home(string $legacyBaseDir, Request $request)
     {
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 

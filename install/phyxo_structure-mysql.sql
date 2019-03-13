@@ -281,10 +281,10 @@ CREATE TABLE `phyxo_search` (
 
 DROP TABLE IF EXISTS `phyxo_sessions`;
 CREATE TABLE `phyxo_sessions` (
-  `id` varchar(255) binary NOT NULL default '',
-  `data` mediumtext NOT NULL,
-  `expiration` datetime NOT NULL default '0000-00-00 00:00:00',
-  PRIMARY KEY  (`id`)
+  `sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,
+  `sess_data` BLOB NOT NULL,
+  `sess_time` INTEGER UNSIGNED NOT NULL,
+  `sess_lifetime` MEDIUMINT NOT NULL
 ) ENGINE=MyISAM;
 
 --

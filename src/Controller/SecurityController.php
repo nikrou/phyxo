@@ -37,12 +37,12 @@ class SecurityController extends AbstractController
     private $conf;
     private $language_load = [];
 
-    public function __construct(Template $template, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, $default_language, $phyxoVersion, $phyxoWebsite)
+    public function __construct(Template $template, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
     {
         $this->conf = $conf;
 
         // default theme
-        $template->set_template_dir(__DIR__ . '/../../themes/treflez/template');
+        $template->set_template_dir(sprintf('%s/../../themes/%s/template', __DIR__, $defaultTheme));
 
         // to be removed
         define('PHPWG_ROOT_PATH', __DIR__ . '/../../');
@@ -50,7 +50,7 @@ class SecurityController extends AbstractController
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
-            ['language' => $default_language, 'return_vars' => true]
+            ['language' => $defaultLanguage, 'return_vars' => true]
         );
         $template->setLang($this->language_load['lang']);
         $template->setLangInfo($this->language_load['lang_info']);

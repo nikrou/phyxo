@@ -280,10 +280,11 @@ CREATE TABLE "phyxo_search"
 DROP TABLE IF EXISTS "phyxo_sessions";
 CREATE TABLE "phyxo_sessions"
 (
-  "id" VARCHAR(255) default '' NOT NULL,
-  "data" TEXT  NOT NULL,
-  "expiration" TIMESTAMP NOT NULL,
-  PRIMARY KEY ("id")
+  "sess_id" VARCHAR(128) NOT NULL,
+  "sess_data" TEXT NOT NULL,
+  "sess_time" INTEGER NOT NULL,
+  "sess_lifetime" INTEGER NOT NULL,
+  PRIMARY KEY ("sess_id")
 );
 
 

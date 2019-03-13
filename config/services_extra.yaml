@@ -1,6 +1,16 @@
+framework:
+  session:
+    handler_id: Phyxo\DBLayer\SessionHandler
+
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
   Phyxo\DataCollector\DBLayerCollector:
     tags:
       - name: data_collector
         template: 'data_collector/queries.html.twig'
         id: 'app.dblayer_collector'
+
+  Phyxo\DBLayer\SessionHandler: ~

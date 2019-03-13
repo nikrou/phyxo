@@ -17,6 +17,7 @@ class DBLayer
     protected $queries = [];
     protected $queries_time = 0;
     protected $prefix = 'phyxo_';
+    protected $dsn = '';
 
     public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_')
     {
@@ -29,6 +30,7 @@ class DBLayer
 
         $instance = new $className($host, $user, $password, $database);
         $instance->prefix = $prefix;
+        $instance->dsn = sprintf('%s://%s@%s/%s', $layer, !empty($user) ? "$user:$password" : '', $host, $database);
 
         return $instance;
     }
@@ -72,6 +74,11 @@ class DBLayer
     public function getLayer()
     {
         return $this->dblayer;
+    }
+
+    public function getDsn()
+    {
+        return $this->dsn;
     }
 
     public function __construct($host, $user = '', $password = '', $database)

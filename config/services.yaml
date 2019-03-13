@@ -11,6 +11,7 @@ parameters:
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
 
     default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
+    default_theme: 'treflez'
     user_config_file: '%kernel.project_dir%/local/config/config.inc.php'
     constants_file: '%kernel.project_dir%/include/constants.php'
 
@@ -26,9 +27,11 @@ services:
 
         bind:
           $legacyBaseDir: '%legacy_base_dir%'
+          $databaseConfigFile: '%database_config_file%'
           $phyxoVersion: '%core_version%'
           $phyxoWebsite: '%phyxo_website%'
-          $default_language: '%kernel.default_locale%'
+          $defaultLanguage: '%kernel.default_locale%'
+          $defaultTheme: '%default_theme%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
