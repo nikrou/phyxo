@@ -1,14 +1,14 @@
 import PhotoSwipe from 'photoswipe';
 import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default';
 
-$(function() {
-    function startPhotoSwipe(selector) {
-        $(selector).each(function() {
+$(function () {
+    function startPhotoSwipe(selector, start = 0) {
+        $(selector).each(function () {
             $('#thumbnail-active').addClass('active');
             var $pic = $(this);
-            var getItems = function() {
+            var getItems = function () {
                 var items = [];
-                $pic.find('a').each(function() {
+                $pic.find('a').each(function () {
                     if ($(this).attr('data-video')) {
                         var $src = $(this).data('src-original');
                         var $size = $(this)
@@ -127,7 +127,7 @@ $(function() {
             const pswpElement = document.querySelectorAll('.pswp')[0];
 
             const options = {
-                index: 0,
+                index: start,
                 showHideOpacity: true,
                 closeOnScroll: false,
                 closeOnVerticalDrag: false,
@@ -143,7 +143,7 @@ $(function() {
                 firstResize = true,
                 imageSrcWillChange;
 
-            photoSwipe.listen('beforeResize', function() {
+            photoSwipe.listen('beforeResize', function () {
                 realViewportWidth = photoSwipe.viewportSize.x * window.devicePixelRatio;
                 if (useLargeImages && realViewportWidth < 1335) {
                     useLargeImages = false;
@@ -164,7 +164,7 @@ $(function() {
                 imageSrcWillChange = false;
             });
 
-            photoSwipe.listen('gettingData', function(index, item) {
+            photoSwipe.listen('gettingData', function (index, item) {
                 if (!item.is_video) {
                     if (useLargeImages) {
                         item.src = item.xlargeImage.src;
@@ -181,14 +181,14 @@ $(function() {
             });
 
             var autoplayId = null;
-            $('.pswp__button--autoplay').on('click touchstart', function(event) {
+            $('.pswp__button--autoplay').on('click touchstart', function (event) {
                 event.preventDefault();
                 if (autoplayId) {
                     clearInterval(autoplayId);
                     autoplayId = null;
                     $('.pswp__button--autoplay').removeClass('stop');
                 } else {
-                    autoplayId = setInterval(function() {
+                    autoplayId = setInterval(function () {
                         photoSwipe.next();
                         let $index = photoSwipe.getCurrentIndex();
                     }, phyxo_photoswipe_interval);
@@ -196,7 +196,7 @@ $(function() {
                 }
             });
 
-            photoSwipe.listen('destroy', function() {
+            photoSwipe.listen('destroy', function () {
                 if (autoplayId) {
                     clearInterval(autoplayId);
                     autoplayId = null;
@@ -212,30 +212,30 @@ $(function() {
 
             detectVideo(photoSwipe);
 
-            photoSwipe.listen('initialZoomInEnd', function() {
+            photoSwipe.listen('initialZoomInEnd', function () {
                 const curr_idx = photoSwipe.getCurrentIndex();
-                if (curr_idx !== 0 && autoplayId == null) {
-                    photoSwipe.goTo($index);
+                if (curr_idx !== start && autoplayId == null) {
+                    photoSwipe.goTo(start);
                 }
-                $('.pswp__button--details').on('click touchstart', function() {
+                $('.pswp__button--details').on('click touchstart', function () {
                     location.href = photoSwipe.currItem.href;
                 });
             });
 
-            photoSwipe.listen('afterChange', function() {
+            photoSwipe.listen('afterChange', function () {
                 detectVideo(photoSwipe);
                 $('.pswp__button--details')
                     .off()
-                    .on('click touchstart', function() {
+                    .on('click touchstart', function () {
                         location.href = photoSwipe.currItem.href;
                     });
             });
 
-            photoSwipe.listen('beforeChange', function() {
+            photoSwipe.listen('beforeChange', function () {
                 removeVideo();
             });
 
-            photoSwipe.listen('resize', function() {
+            photoSwipe.listen('resize', function () {
                 if ($('.pswp-video-modal').length > 0) {
                     var vsize = setVideoSize(photoSwipe.currItem, photoSwipe.viewportSize);
                     console.log('PhotoSwipe resize in action. Setting video size to ' + vsize.w + 'x' + vsize.h);
@@ -244,7 +244,7 @@ $(function() {
                 }
             });
 
-            photoSwipe.listen('close', function() {
+            photoSwipe.listen('close', function () {
                 removeVideo();
             });
         });
@@ -282,7 +282,7 @@ $(function() {
             class: 'pswp-video-modal',
             css: { position: 'absolute', width: vsize.w, height: vsize.h }
         });
-        v.one('click tap', function(event) {
+        v.one('click tap', function (event) {
             event.preventDefault();
             var playerCode =
                 '<video id="pswp-video" width="100%" height="auto" autoplay controls>' + '<source src="' + vfile + '" type="video/mp4"></source>' + '</video>';
@@ -302,7 +302,7 @@ $(function() {
 
         // this is soooo nasty, but i have no better idea to fix the fullscreen video issue on OS X, Chrome/Windows
         if ((navigator.appVersion.indexOf('Windows') !== -1 && navigator.userAgent.match(/(Chrome|Firefox)/)) || navigator.userAgent.match(/(X11|Macintosh)/)) {
-            $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function(e) {
+            $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function (e) {
                 var state = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen,
                     event = state ? 'FullscreenOn' : 'FullscreenOff',
                     holder_height = item.h;
@@ -358,10 +358,10 @@ $(function() {
     }
 
     if ($('#thumbnailCarousel').length) {
-        $('#startPhotoSwipe').on('click', function(e) {
+        $('#startPhotoSwipe').on('click', function (e) {
             e.preventDefault();
-
-            startPhotoSwipe('#thumbnailCarousel');
+            const currentThumbnailIndex = $('#thumbnail-active').data('index');
+            startPhotoSwipe('#thumbnailCarousel', currentThumbnailIndex);
         });
 
         $('#theImage').on('doubletap', startPhotoSwipe);

@@ -25,6 +25,7 @@ require_once(__DIR__ . '/include/config.php');
 $themeconf = [
     'name' => 'treflez',
     'load_parent_css' => false,
+    'icon_dir' => 'img',
     'url' => 'https://www.phyxo.net/'
 ];
 

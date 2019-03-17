@@ -1,9 +1,10 @@
 import 'slick-carousel';
 
-$(function() {
+$(function () {
     if ($('#thumbnailCarousel').length) {
         $('#thumbnailCarousel').slick(slick_params);
-        const currentThumbnailIndex = $('#thumbnailCarousel .thumbnail-active:not(.slick-cloned)').data('slick-index');
+
+        const currentThumbnailIndex = $('#thumbnail-active').data('index');
         $('#thumbnailCarousel').slick('goTo', currentThumbnailIndex, true);
     }
 });

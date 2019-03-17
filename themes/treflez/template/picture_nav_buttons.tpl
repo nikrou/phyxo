@@ -49,9 +49,9 @@
             </a>
 	{/if}{/strip}
 	{strip}{if !isset($slideshow) && ($theme_config->photoswipe && !empty($thumbnails))}
-            <a href="javascript:;" title="{'Fullscreen'|translate}" id="startPhotoSwipe">
+            <button type="button" class="btn btn-link" title="{'Fullscreen'|translate}" id="startPhotoSwipe">
 		<i class="fa fa-arrows-alt" aria-hidden="true"></i>
-            </a>
+            </button>
 	{/if}{/strip}
 	{if isset($slideshow.U_START_PLAY)}
 	    <a href="{$slideshow.U_START_PLAY}" title="{'Play of slideshow'|translate}">

@@ -4,10 +4,6 @@
 	<meta charset="{$CONTENT_ENCODING}">
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net/">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	{if $meta_ref_enabled}
 	    {if isset($INFO_AUTHOR)}
 		<meta name="author" content="{$INFO_AUTHOR|@strip_tags:false|@replace:'"':' '}">
@@ -23,8 +19,6 @@
 	{/if}
 
 	<title>{if $PAGE_TITLE!=\Phyxo\Functions\Language::l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
-	<link rel="icon" sizes="192x192" href="{$ROOT_URL}themes/treflez/img/logo.png">
-	<link rel="apple-touch-icon" sizes="192x192" href="{$ROOT_URL}themes/treflez/img/logo.png">
 	<link rel="start" title="{'Home'|translate}" href="{$U_HOME}" >
 	<link rel="search" title="{'Search'|translate}" href="{$ROOT_URL}search.php">
 	{if isset($first.U_IMG)}

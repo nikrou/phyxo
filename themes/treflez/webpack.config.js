@@ -131,7 +131,7 @@ module.exports = {
 
 	new webpack.HotModuleReplacementPlugin(),
 
-        new CleanWebpackPlugin(PATHS.target)
+        new CleanWebpackPlugin()
     ],
 
     devServer: {

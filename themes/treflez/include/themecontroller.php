@@ -18,6 +18,7 @@ use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\Metadata;
 use Phyxo\Functions\URL;
+use App\Repository\ImageRepository;
 
 class ThemeController
 {
@@ -170,25 +171,19 @@ class ThemeController
 
     public function getAllThumbnailsInCategory()
     {
-        global $template, $user, $page, $conn;
+        global $template, $page, $conn;
 
         if (!$page['items'] || ($page['section'] == 'categories' && !isset($page['category']))) {
             return;
         }
 
-        $selection = array_slice(
-            $page['items'],
-            $page['start'],
-            $page['nb_image_page']
-        );
-
+        $selection = $page['items'];
         $selection = Plugin::trigger_change('loc_index_thumbnails_selection', $selection);
 
         if (count($selection) > 0) {
             $rank_of = array_flip($selection);
 
-            $query = 'SELECT * FROM ' . \App\Repository\BaseRepository::IMAGES_TABLE . ' WHERE id ' . $conn->in($selection);
-            $result = $conn->db_query($query);
+            $result = (new ImageRepository($conn))->findByIds($selection);
             while ($row = $conn->db_fetch_assoc($result)) {
                 $row['rank'] = $rank_of[$row['id']];
                 $pictures[] = $row;

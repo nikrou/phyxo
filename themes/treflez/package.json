@@ -33,24 +33,24 @@
         "rebuild-node-sass": "^1.1.0",
         "selectize": "0.12.6",
         "slick-carousel": "^1.8.1",
-        "uglifyjs-webpack-plugin": "^2.1.1",
+        "uglifyjs-webpack-plugin": "^2.1.2",
         "webpack-manifest-plugin": "^2.0.4",
         "webpack-merge": "^4.2.1"
     },
     "devDependencies": {
-        "autoprefixer": "^9.4.8",
+        "autoprefixer": "^9.5.0",
         "bootstrap": "4.3.1",
         "bootswatch": "github:thomaspark/bootswatch#v4.1.1",
-        "clean-webpack-plugin": "^1.0.1",
-        "css-loader": "^2.1.0",
+        "clean-webpack-plugin": "^2.0.1",
+        "css-loader": "^2.1.1",
         "file-loader": "^3.0.1",
         "mini-css-extract-plugin": "^0.5.0",
         "node-sass": "^4.11.0",
         "sass-loader": "^7.1.0",
         "style-loader": "^0.23.1",
-        "uglify-js": "^3.4.9",
-        "webpack": "^4.29.5",
-        "webpack-cli": "^3.2.3",
-        "webpack-dev-server": "^3.2.0"
+        "uglify-js": "^3.4.10",
+        "webpack": "^4.29.6",
+        "webpack-cli": "^3.3.0",
+        "webpack-dev-server": "^3.2.1"
     }
 }
