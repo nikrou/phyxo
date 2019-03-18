@@ -1,4 +1,5 @@
 import './jquery-mobile-events';
+import 'jquery.cookie';
 
 $(function() {
     if ($('#theImage').length) {
@@ -23,7 +24,8 @@ $(function() {
         }
         $('.derivative-li').removeClass('active');
         $('#derivative' + typeMap).addClass('active');
-        document.cookie = 'picture_deriv=' + typeSave + ';path=' + phyxo_cookie_path;
+
+        $.cookie('picture_deriv', typeSave);
     }
 
     $('[data-action="changeImgSrc"]').click(function(e) {

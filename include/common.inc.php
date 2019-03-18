@@ -85,6 +85,8 @@ if ($app_user) {
     $user = $app_user->getInfos();
 }
 
+$services['users']->buildUser($app_user->getId(), (defined('IN_ADMIN') && IN_ADMIN) ? false : true);
+
 \Phyxo\Functions\Plugin::trigger_notify('user_init', $app_user);
 
 // language files

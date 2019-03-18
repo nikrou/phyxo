@@ -8,11 +8,11 @@
 	    {assign var="album_derivative" value=$pwg->derivative($album_derivative_params, $cat.representative.src_image)}
 	    {* this needs a fixed size else it messes up the grid on tablets *}
 	    {include file="grid_classes.tpl" width=260 height=180}
-	    <div class="col-outer mt-3 {if $smarty.cookies.view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
+	    <div class="col-outer mt-3 {if $category_view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
 		<div class="card card-thumbnail">
 		    <div class="h-100">
-			<a href="{$cat.URL}" class="ripple{if $smarty.cookies.view != 'list'} d-block{/if}">
-			    <img class="{if $smarty.cookies.view == 'list'}card-img-left{else}card-img-top{/if}" {if $album_derivative->is_cached()}src="{$album_derivative->get_url()}"{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$album_derivative->get_url()}"{/if} alt="{$cat.TN_ALT}" title="{$cat.NAME|@replace:'"':' '|@strip_tags:false} - {'display this album'|translate}">
+			<a href="{$cat.URL}" class="ripple{if $category_view != 'list'} d-block{/if}">
+			    <img class="{if $category_view == 'list'}card-img-left{else}card-img-top{/if}" {if $album_derivative->is_cached()}src="{$album_derivative->get_url()}"{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$album_derivative->get_url()}"{/if} alt="{$cat.TN_ALT}" title="{$cat.NAME|@replace:'"':' '|@strip_tags:false} - {'display this album'|translate}">
 			</a>
 			<div class="card-body">
 			    <h5 class="card-title ellipsis {if !empty($cat.icon_ts)} recent{/if}">

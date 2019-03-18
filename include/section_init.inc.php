@@ -9,13 +9,10 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Calendar\CalendarWeekly;
-use Phyxo\Calendar\CalendarMonthly;
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
-use App\Repository\CaddieRepository;
 
 /**
  * This included page checks section related parameter and provides

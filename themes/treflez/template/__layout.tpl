@@ -51,7 +51,6 @@
 	    {/if}
 	    <script>
 	     var phyxo_root_url = "{$ROOT_URL}";
-	     var phyxo_cookie_path = "{$COOKIE_PATH}";
 	    </script>
 	    {if not empty($head_elements)}
 		{foreach $head_elements as $elt}

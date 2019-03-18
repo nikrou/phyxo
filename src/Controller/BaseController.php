@@ -29,7 +29,7 @@ abstract class BaseController extends Controller
         $this->passwordEncoder = $passwordEncoder;
     }
 
-    protected function doResponse($legacy_file, $template_name)
+    protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
     {
         $_SERVER['PHP_SELF'] = $legacy_file;
         $_SERVER['SCRIPT_NAME'] = $legacy_file;
@@ -104,6 +104,8 @@ abstract class BaseController extends Controller
                 $tpl_params['U_LOGIN'] = $this->generateUrl('login');
                 $tpl_params['csrf_token'] = $this->csrfTokenManager->getToken('authenticate');
             }
+
+            $tpl_params = array_merge($tpl_params, $extra_params);
 
             return $this->render($template_name, $tpl_params);
         } catch (ResourceNotFoundException $e) {

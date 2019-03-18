@@ -201,10 +201,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
     }
 
     // image order
-    if ($conf['index_sort_order_input']
-        and count($page['items']) > 0
-        and $page['section'] != 'most_visited'
-        and $page['section'] != 'best_rated') {
+    if ($conf['index_sort_order_input'] && count($page['items']) > 0 && $page['section'] != 'most_visited' && $page['section'] != 'best_rated') {
         $preferred_image_orders = \Phyxo\Functions\Category::get_category_preferred_image_orders();
         $order_idx = isset($_SESSION['image_order']) ? $_SESSION['image_order'] : 0;
 

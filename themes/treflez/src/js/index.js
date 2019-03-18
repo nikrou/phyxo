@@ -10,6 +10,7 @@ import './search';
 import './ws';
 import './slick';
 import './photoswipe';
+import './grid-view'
 
 $(function () {
     $('#categoriesDropdownMenu').on('show.bs.dropdown', function () {

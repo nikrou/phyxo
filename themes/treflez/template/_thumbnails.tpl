@@ -16,18 +16,18 @@
     {foreach $thumbnails as $thumbnail}
 	{assign var=derivative value=$pwg->derivative($derivative_params, $thumbnail.src_image)}
 	{include file="grid_classes.tpl" width=$rwidth height=$rheight}
-	<div class="col-outer {if $smarty.cookies.view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
+	<div class="col-outer {if $category_view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
 	    <div class="card card-thumbnail">
 		<div class="h-100">
-		    <a href="{$thumbnail.URL}" data-index="{$idx}" class="ripple{if $smarty.cookies.view != 'list'} d-block{/if}">
-			<img class="{if $smarty.cookies.view == 'list'}card-img-left{else}card-img-top{/if}" {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$derivative->get_url()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}">
+		    <a href="{$thumbnail.URL}" data-index="{$idx}" class="ripple{if $category_view != 'list'} d-block{/if}">
+			<img class="{if $category_view == 'list'}card-img-left{else}card-img-top{/if}" {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$derivative->get_url()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}">
 			{if isset($loaded_plugins['UserCollections']) && !isset($U_LOGIN)}
 			    <div class="addCollection" data-id="{$thumbnail.id}" data-cols="[{$thumbnail.COLLECTIONS}]"><i class="fa fa-star"></i><span class="ml-2">{'Collections'|translate}</span></div>
 			{/if}
 		    </a>
 		    {assign var=idx value=$idx+1}
 		    {if $SHOW_THUMBNAIL_CAPTION}
-			<div class="card-body{if !$theme_config->thumbnail_caption && $smarty.cookies.view != 'list'} d-none{/if}{if !$theme_config->thumbnail_caption} list-view-only{/if}">
+			<div class="card-body{if !$theme_config->thumbnail_caption && $category_view != 'list'} d-none{/if}{if !$theme_config->thumbnail_caption} list-view-only{/if}">
 			    <h6 class="card-title">
 				<a href="{$thumbnail.URL}" class="ellipsis{if !empty($thumbnail.icon_ts)} recent{/if}">{$thumbnail.NAME}</a>
 				{if !empty($thumbnail.icon_ts)}

@@ -166,7 +166,6 @@ function default_picture_content($content, $element_info)
 
     $template->assign([
         'ALT_IMG' => $element_info['file'],
-        'COOKIE_PATH' => \Phyxo\Functions\Utils::cookie_path(),
     ]);
 
     return $template->parse('default_content', true);
