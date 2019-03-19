@@ -447,8 +447,8 @@ class CategoryRepository extends BaseRepository
     {
         $query = 'SELECT id, name, permalink, nb_images, global_rank,uppercats,';
         $query .= 'date_last, max_date_last, count_images, count_categories';
-        $query .= ' FROM ' . self::CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= ' FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE;
         $query .= ' ON id = cat_id and user_id = ' . $user['id'];
 
         $query .= ' WHERE';
