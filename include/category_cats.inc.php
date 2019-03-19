@@ -185,6 +185,7 @@ if (count($categories) > 0) {
             'ID' => $category['id'] /*obsolete*/,
             'representative' => $representative_infos,
             'TN_ALT' => strip_tags($category['name']),
+            'TN_TITLE' => \Phyxo\Functions\Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
             'URL' => \Phyxo\Functions\URL::make_index_url(['category' => $category]),
             'CAPTION_NB_IMAGES' => \Phyxo\Functions\Category::get_display_images_count(
                 $category['nb_images'],

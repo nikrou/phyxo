@@ -27,11 +27,16 @@ class TagController extends BaseController
 
     public function imagesByTags(string $legacyBaseDir, Request $request, $tag_id)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/tags/' . $tag_id;
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 }

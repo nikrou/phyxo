@@ -19,52 +19,77 @@ class IndexController extends BaseController
 {
     public function favorites(string $legacyBaseDir, Request $request)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/favorites";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
     public function mostVisited(string $legacyBaseDir, Request $request)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/most_visited";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
     public function recentPics(string $legacyBaseDir, Request $request)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_pics";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
     public function recentCats(string $legacyBaseDir, Request $request)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_cats";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
     public function bestRated(string $legacyBaseDir, Request $request)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/best_rated";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
     public function random(Request $request)
@@ -72,6 +97,9 @@ class IndexController extends BaseController
         global $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
         $container = $this->container;
+        if (!$app_user = $this->getUser()) {
+            $app_user = $this->userProvider->loadUserByUsername('guest');
+        }
         define('PHPWG_ROOT_PATH', '../');
         $legacy_file = __DIR__ . '/../../include/common.inc.php';
 
@@ -99,11 +127,16 @@ class IndexController extends BaseController
 
     public function randomList(string $legacyBaseDir, Request $request, $list)
     {
+        $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/list/$list";
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl');
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 }

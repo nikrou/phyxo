@@ -229,6 +229,7 @@ class ThemeController
             $tpl_var = array_merge($row, [
                 'NAME' => $name,
                 'TN_ALT' => htmlspecialchars(strip_tags($name)),
+                'TN_TITLE' => \Phyxo\Functions\Utils::get_thumbnail_title($row, $row['name'], $row['comment']),
                 'URL' => $url,
                 'DESCRIPTION' => htmlspecialchars(strip_tags($desc)),
                 'src_image' => new SrcImage($row),
