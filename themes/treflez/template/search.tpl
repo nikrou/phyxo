@@ -134,7 +134,7 @@
 			    </select>
 			    <input id="start_year" name="start_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{'Year'|translate}">
 			    <input id="start_linked_date" name="start_linked_date" type="hidden" size="10" disabled="disabled">
-			    <a class="date_today ml-3 btn btn-sm btn-info" href="#" onClick="document.getElementById('start_day').value={$smarty.now|date_format:"%d"};document.getElementById('start_month').value={$smarty.now|date_format:"%m"};document.getElementById('start_year').value={$smarty.now|date_format:"%Y"};return false;">{'today'|translate}</a>
+			    <button type="button" class="date_today ml-3 btn btn-link btn-sm btn-info" onClick="document.getElementById('start_day').value={$smarty.now|date_format:"%d"};document.getElementById('start_month').value={$smarty.now|date_format:"%m"};document.getElementById('start_year').value={$smarty.now|date_format:"%Y"};return false;">{'today'|translate}</button>
 			</div>
                     </div>
                     <label>{'End-Date'|translate}</label>
@@ -151,7 +151,7 @@
 			    </select>
 			    <input id="end_year" name="end_year" type="text" size="4" maxlength="4" class="form-control" placeholder="{'Year'|translate}">
 			    <input id="end_linked_date" name="end_linked_date" type="hidden" size="10" disabled="disabled">
-			    <a class="date_today ml-3 btn btn-sm btn-info" href="#" onClick="document.getElementById('end_day').value={$smarty.now|date_format:"%d"};document.getElementById('end_month').value={$smarty.now|date_format:"%m"};document.getElementById('end_year').value={$smarty.now|date_format:"%Y"};return false;">{'today'|translate}</a>
+			    <button type="button" class="date_today ml-3 btn btn-link btn-sm btn-info" onClick="document.getElementById('end_day').value={$smarty.now|date_format:"%d"};document.getElementById('end_month').value={$smarty.now|date_format:"%m"};document.getElementById('end_year').value={$smarty.now|date_format:"%Y"};return false;">{'today'|translate}</button>
 			</div>
 		    </div>
 		</div>

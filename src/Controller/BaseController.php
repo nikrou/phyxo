@@ -21,12 +21,16 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 abstract class BaseController extends Controller
 {
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
+    protected $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserProvider $userProvider, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserProvider $userProvider, UserPasswordEncoderInterface $passwordEncoder, $phyxoVersion, $phyxoWebsite)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->userProvider = $userProvider;
         $this->passwordEncoder = $passwordEncoder;
+
+        $this->phyxoVersion = $phyxoVersion;
+        $this->phyxoWebsite = $phyxoWebsite;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -68,8 +72,6 @@ abstract class BaseController extends Controller
                 $tpl_params['header_notes'] = $header_notes;
             }
 
-            $tpl_params['VERSION'] = $conf['show_version'] ? PHPWG_VERSION : '';
-            $tpl_params['PHPWG_URL'] = defined('PHPWG_URL') ? PHPWG_URL : '';
             if (!$services['users']->isGuest()) {
                 $tpl_params['CONTACT_MAIL'] = \Phyxo\Functions\Utils::get_webmaster_mail_address();
             }
@@ -104,6 +106,10 @@ abstract class BaseController extends Controller
                 $tpl_params['U_LOGIN'] = $this->generateUrl('login');
                 $tpl_params['csrf_token'] = $this->csrfTokenManager->getToken('authenticate');
             }
+
+            $tpl_params['CONTENT_ENCODING'] = 'utf-8';
+            $tpl_params['PHYXO_URL'] = $this->phyxoWebsite;
+            $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $this->phyxoVersion : '';
 
             $tpl_params = array_merge($tpl_params, $extra_params);
 

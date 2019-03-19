@@ -23,7 +23,7 @@
      var phyxo_show_exif_data = "{'Show EXIF data'|translate}";
     </script>
 
-    {if $theme_config->slick_enabled && count($thumbnails) > 1}
+    {if $theme_config->slick_enabled && !empty($thumbnails) && count($thumbnails) > 1}
 	{include file="_slick_js.tpl"}
     {/if}
 
@@ -62,7 +62,7 @@
 	</div>
 
 	{if $theme_config->picture_info == 'sidebar'}
-	    {include file='picture_info_sidebar.tpl'}
+ 	    {include file='picture_info_sidebar.tpl'}
 	{/if}
 
 	<div id="theImageComment" class="row justify-content-center mb-3">

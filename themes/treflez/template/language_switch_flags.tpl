@@ -1,7 +1,8 @@
 <li id="languageSwitch" class="nav-item dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-        <span class="pwg-icon langflag-{$lang_switch.Active.code}">&nbsp;</span><span class="pwg-button-text">{'Language'|translate}</span>
-    </a>
+    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
+        <span class="pwg-icon langflag-{$lang_switch.Active.code}">&nbsp;</span>
+	<span class="pwg-button-text">{'Language'|translate}</span>
+    </button>
     <div class="dropdown-menu dropdown-menu-right" role="menu">
 	{foreach $lang_switch.flags as $flag}
             <a class="dropdown-item{if $lang_switch.Active.code==$flag.code} active{/if}" href="{$flag.url}">

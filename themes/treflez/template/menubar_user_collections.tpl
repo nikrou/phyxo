@@ -1,5 +1,5 @@
 <li class="nav-item dropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">{$block->get_title()|strip_tags:true}</a>
+    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{$block->get_title()|strip_tags:true}</button>
     <div class="dropdown-menu dropdown-menu-right" role="menu">
         {strip}<a class="dropdown-item" href="{$block->data.U_LIST}">
         {if $block->data.NB_COL == 0}

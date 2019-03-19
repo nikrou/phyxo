@@ -76,23 +76,25 @@
 		{/if}
 		{if isset($U_MODE_FLAT)}
                     <li class="nav-item">
-                        {strip}<a class="nav-link" href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}" rel="nofollow">
-                        <i class="fa fa-th-large fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2">{'display all photos in all sub-albums'|translate}</span>
-                        </a>{/strip}
+                        <a class="nav-link" href="{$U_MODE_FLAT}" title="{'display all photos in all sub-albums'|translate}">
+                            <i class="fa fa-th-large fa-fw" aria-hidden="true"></i>
+			    <span class="d-lg-none ml-2">{'display all photos in all sub-albums'|translate}</span>
+                        </a>
                     </li>
 		{/if}
 		{if isset($U_MODE_NORMAL)}
                     <li class="nav-item">
-                        {strip}<a class="nav-link" href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">
-                        <i class="fa fa-home" aria-hidden="true"></i><span class="d-lg-none ml-2">{'return to normal view mode'|translate}</span>
-                        </a>{/strip}
+                        <a class="nav-link" href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">
+                            <i class="fa fa-home" aria-hidden="true"></i>
+			    <span class="d-lg-none ml-2">{'return to normal view mode'|translate}</span>
+                        </a>
                     </li>
 		{/if}
 		{if isset($U_MODE_POSTED) || isset($U_MODE_CREATED)}
                     <li class="nav-item dropdown">
                         <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{'Calendar'|translate}">
                             <i class="fa fa-calendar" aria-hidden="true"></i><span class="d-lg-none ml-2">{'Calendar'|translate}</span>
-                        </a>
+                        </button>
                         <div class="dropdown-menu dropdown-menu-right">
 			    {if isset($U_MODE_POSTED)}
 				<a class="dropdown-item" href="{$U_MODE_POSTED}" title="{'display a calendar by posted date'|translate}" rel="nofollow">

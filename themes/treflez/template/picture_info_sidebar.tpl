@@ -129,8 +129,8 @@
         </dl>
     </div>
     <div class="handle">
-        <a id="info-link" href="#">
-            <span class="fa fa-info" aria-hidden="true"></span>
-        </a>
+        <button type="button" id="info-link" class="btn">
+            <i class="fa fa-info" aria-hidden="true"></i>
+	</button>
     </div>
 </div>

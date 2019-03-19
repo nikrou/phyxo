@@ -134,8 +134,7 @@
 		    {if isset($debug.TIME)}
 			{'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
 		    {/if}
-		    {'Powered by'|translate}	<a href="{$PHYXO_URL}">Phyxo</a>
-		    {$VERSION}
+		    {'Powered by'|translate}&nbsp;<a href="{$PHYXO_URL}">Phyxo</a>&nbsp;{$PHYXO_VERSION}
 		    {if isset($CONTACT_MAIL)}
 			| <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|@escape:url}">{'Contact webmaster'|translate}</a>
 		    {/if}

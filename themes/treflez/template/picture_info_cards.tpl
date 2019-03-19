@@ -122,13 +122,13 @@
 			    <dt class="col-sm-5">{'Who can see this photo?'|translate}</dt>
 			    <dd class="col-sm-7">
 				<div class="dropdown">
-				    <button class="btn btn-primary btn-raised dropdown-toggle ellipsis" type="button" id="dropdownPermissions" data-toggle="dropdown" aria-expanded="true">
+				    <button  type="button" class="btn btn-primary btn-raised dropdown-toggle ellipsis" id="dropdownPermissions" data-toggle="dropdown" aria-expanded="true">
 					{$available_permission_levels[$current.level]}
 				    </button>
 				    <div class="dropdown-menu" role="menu" aria-labelledby="dropdownPermissions">
 					{foreach $available_permission_levels as $level => $label}
-					    <button id="permission-{$level}" type="button" class="dropdown-item permission-li {if $current.level == $level} active{/if}"
-							data-action="setPrivacyLevel" data-id="{$current.id}" data-level="{$level}" data-label="{$label}">{$label}</button>
+					    <button type="button" id="permission-{$level}" class="dropdown-item permission-li {if $current.level == $level} active{/if}"
+							  data-action="setPrivacyLevel" data-id="{$current.id}" data-level="{$level}" data-label="{$label}">{$label}</button>
 					{/foreach}
 				    </div>
 				</div>
@@ -233,7 +233,7 @@
 			    </div>
 			</div>
 		    </div>
-		    <button id="show_exif_data" class="btn btn-primary btn-raised mt-1" style="text-transform: none;"><i class="fa fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
+		    <button type="button" id="show_exif_data" class="btn btn-primary btn-raised mt-1"><i class="fa fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
 		    <div id="full_exif_data" class="d-none flex-column mt-2">
 			{foreach $metadata as $meta}
 			    {foreach $meta.lines as $label => $value}

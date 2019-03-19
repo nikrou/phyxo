@@ -10,9 +10,9 @@
             <ul class="navbar-nav">
 		{if isset($current.unique_derivatives) && count($current.unique_derivatives)>1}
                     <li class="nav-item dropdown">
-			<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" title="{'Photo sizes'|translate}">
+			<button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown" title="{'Photo sizes'|translate}">
                             <i class="fa fa-image" aria-hidden="true"></i><span class="d-lg-none ml-2">{'Photo sizes'|translate}</span>
-			</a>
+			</button>
 			<div class="dropdown-menu dropdown-menu-right" role="menu">
 			    {foreach $current.unique_derivatives as $derivative_type => $derivative}
 				<button type="button" id="derivative{$derivative->get_type()}" class="dropdown-item derivative-li{if $derivative->get_type() == $current.selected_derivative->get_type()} active{/if}" data-action="changeImgSrc" data-url="{$derivative->get_url()}" data-type-save="{$derivative_type}" data-type-map="{$derivative->get_type()}"">
@@ -45,9 +45,9 @@
 			    </a>
 		    {else}
 			    <li class="nav-item dropdown">
-				<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" title="{'Download this file'|translate}">
+				<button type="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" title="{'Download this file'|translate}">
 				    <i class="fa fa-download" aria-hidden="true"></i><span class="d-lg-none ml-2">{'Download this file'|translate}</span>
-				</a>
+				</button>
 				<ul class="dropdown-menu dropdown-menu-right" role="menu">
 				    {foreach $current.formats as $format}
 					<li class="dropdown-item"><a href="{$format.download_url}" rel="nofollow">{$format.label}<span class="downloadformatDetails"> ({$format.filesize})</span></a></li>

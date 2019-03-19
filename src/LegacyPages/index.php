@@ -108,7 +108,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
         );
     }
 
-    if ($conf['index_flat_icon'] and !isset($page['flat']) and 'categories' == $page['section']) {
+    if (!isset($page['flat']) && 'categories' === $page['section']) {
         $template->assign(
             'U_MODE_FLAT',
             \Phyxo\Functions\URL::duplicate_index_url(['flat' => ''], ['start', 'chronology_field'])

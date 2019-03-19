@@ -1,7 +1,7 @@
 <li class="nav-item dropdown" id="identificationDropdown">
-    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">
 	{if isset($APP_USER)}<i class="fa fa-user"></i> {$APP_USER->getUsername()}{else}{'Login'|translate}{/if}
-    </a>
+    </button>
     <div class="dropdown-menu dropdown-menu-right" role="menu">
 	{if isset($APP_USER)}
             <div class="dropdown-header">{'Hello'|translate} {$APP_USER->getUsername()}!</div>
