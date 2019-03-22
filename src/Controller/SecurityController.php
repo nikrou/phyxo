@@ -56,7 +56,7 @@ class SecurityController extends AbstractController
         $template->setLangInfo($this->language_load['lang_info']);
         $template->postConstruct();
 
-        $template->assign('VERSION', $conf['show_version'] ? $phyxoVersion : '');
+        $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
         $template->assign('PHYXO_URL', $phyxoWebsite);
 
         $this->csrfTokenManager = $csrfTokenManager;

@@ -602,6 +602,7 @@ if (!empty($picture['current']['date_creation'])) {
     $val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_creation']);
     $url = \Phyxo\Functions\URL::make_index_url(
         [
+            'section' => 'categories',
             'chronology_field' => 'created',
             'chronology_style' => 'monthly',
             'chronology_view' => 'list',
@@ -615,6 +616,7 @@ if (!empty($picture['current']['date_creation'])) {
 $val = \Phyxo\Functions\DateTime::format_date($picture['current']['date_available']);
 $url = \Phyxo\Functions\URL::make_index_url(
     [
+        'section' => 'categories',
         'chronology_field' => 'posted',
         'chronology_style' => 'monthly',
         'chronology_view' => 'list',

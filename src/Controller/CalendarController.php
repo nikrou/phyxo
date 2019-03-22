@@ -12,44 +12,32 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Phyxo\Calendar\CalendarMonthly;
 
 class CalendarController extends BaseController
 {
-    public function index(string $legacyBaseDir, Request $request, $date_type, $type, $year, $month = null, $day = null)
+    public function categoriesMonthly(string $legacyBaseDir, Request $request, string $date_type, string $view_type)
     {
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/%s-monthly-%s-%d', $date_type, $type, $year);
-        if (!is_null($month)) {
+        $_SERVER['PATH_INFO'] = sprintf('/categories/%s-monthly-%s', $date_type, $view_type);
+
+        if ($year = $request->get('year')) {
+            $_SERVER['PATH_INFO'] .= '-' . $year;
+        }
+
+        if ($month = $request->get('month')) {
             $_SERVER['PATH_INFO'] .= '-' . $month;
         }
 
-        if (!is_null($day)) {
+        if ($day = $request->get('day')) {
             $_SERVER['PATH_INFO'] .= '-' . $day;
         }
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
-
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
-    }
-
-    public function categories(string $legacyBaseDir, Request $request, $date_type, $type, $year, $month = null, $day = null)
-    {
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/categories/%s-monthly-%s-%d', $date_type, $type, $year);
-        if (!is_null($month)) {
-            $_SERVER['PATH_INFO'] .= '-' . $month;
-        }
-
-        if (!is_null($day)) {
-            $_SERVER['PATH_INFO'] .= '-' . $day;
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
         }
 
         if ($request->cookies->has('category_view')) {
@@ -59,24 +47,98 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
     }
 
-    public function details(string $legacyBaseDir, Request $request, $date_type, $time_params = null, $extra_params = null)
+    public function categoriesWeekly(string $legacyBaseDir, Request $request, string $date_type)
     {
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = '/' . $date_type . '-monthly-calendar';
-        if (!is_null($time_params)) {
-            $_SERVER['PATH_INFO'] .= "/$time_params";
+        $_SERVER['PATH_INFO'] = sprintf('/categories/%s-weekly-list', $date_type);
+
+        if ($year = $request->get('year')) {
+            $_SERVER['PATH_INFO'] .= '-' . $year;
         }
-        if (!is_null($extra_params)) {
-            $_SERVER['PATH_INFO'] .= "/$extra_params";
+
+        if ($week = $request->get('week')) {
+            $_SERVER['PATH_INFO'] .= '-' . $week;
+        }
+
+        if ($wday = $request->get('wday')) {
+            $_SERVER['PATH_INFO'] .= '-' . $wday;
+        }
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
         }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
+    }
+
+    public function categoryMonthly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, string $view_type)
+    {
+        $tpl_params = [];
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = sprintf('/category/%d/%s-monthly-%s', $category_id, $date_type, $view_type);
+
+        if ($year = $request->get('year')) {
+            $_SERVER['PATH_INFO'] .= '-' . $year;
+        }
+
+        if ($month = $request->get('month')) {
+            $_SERVER['PATH_INFO'] .= '-' . $month;
+        }
+
+        if ($day = $request->get('day')) {
+            $_SERVER['PATH_INFO'] .= '-' . $day;
+        }
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
+    }
+
+    public function categoryWeekly(string $legacyBaseDir, Request $request, int $category_id, string $date_type)
+    {
+        $tpl_params = [];
+        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = sprintf('/category/%d/%s-weekly-list', $category_id, $date_type);
+        
+        if ($year = $request->get('year')) {
+            $_SERVER['PATH_INFO'] .= '-' . $year;
+        }
+
+        if ($week = $request->get('week')) {
+            $_SERVER['PATH_INFO'] .= '-' . $week;
+        }
+
+        if ($wday = $request->get('wday')) {
+            $_SERVER['PATH_INFO'] .= '-' . $wday;
+        }
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
     }
 }

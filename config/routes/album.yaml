@@ -7,8 +7,11 @@ album:
     start_id: start-\d+
 
 album_by_params:
-  path:  /categories/{time_params}/{extra_params}
+  path:  /categories/{extra_params}/{start_id}
   controller: App\Controller\AlbumController::albumByParams
   defaults:
-    time_params: null
+    start_id: null
     extra_params: null
+  requirements:
+    extra_params: flat
+    start_id: start-\d+

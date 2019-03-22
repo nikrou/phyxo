@@ -127,8 +127,9 @@ class CategoryRepository extends BaseRepository
         $query = 'SELECT id, name, comment, permalink, uppercats, global_rank, id_uppercat,';
         $query .= 'nb_images, count_images AS total_nb_images, representative_picture_id,';
         $query .= 'user_representative_picture_id, count_images, count_categories,';
-        $query .= 'date_last, max_date_last, count_categories AS nb_categories FROM ' . self::CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= 'date_last, max_date_last, count_categories AS nb_categories';
+        $query .= ' FROM ' . self::CATEGORIES_TABLE;
+        $query .= ' INNER JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
         $query .= ' ON id = cat_id AND user_id = ' . $user_id;
         $query .= ' WHERE ' . implode(' AND ', $where);
 
@@ -162,7 +163,7 @@ class CategoryRepository extends BaseRepository
     public function findRandomRepresentantAmongSubCategories(int $user_id, string $uppercats)
     {
         $query = 'SELECT representative_picture_id FROM ' . self::CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
+        $query .= ' INNER JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
         $query .= ' ON id = cat_id AND user_id=' . $user_id;
         $query .= ' WHERE uppercats LIKE \'' . $this->conn->db_real_escape_string($uppercats) . ',%\' AND representative_picture_id IS NOT NULL';
         $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], ' AND ');
@@ -447,10 +448,9 @@ class CategoryRepository extends BaseRepository
     {
         $query = 'SELECT id, name, permalink, nb_images, global_rank,uppercats,';
         $query .= 'date_last, max_date_last, count_images, count_categories';
-        $query .= ' FROM ' . self::USER_CACHE_CATEGORIES_TABLE;
-        $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE;
+        $query .= ' FROM ' . self::CATEGORIES_TABLE;
+        $query .= ' INNER JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
         $query .= ' ON id = cat_id and user_id = ' . $user['id'];
-
         $query .= ' WHERE';
         // Always expand when filter is activated
         if (!$user['expand'] and !$filter_enabled) {

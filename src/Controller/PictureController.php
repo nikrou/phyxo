@@ -25,14 +25,29 @@ class PictureController extends BaseController
         return $this->doResponse($legacy_file, 'picture.tpl');
     }
 
-    public function imagesByTypes(string $legacyBaseDir, Request $request, $image_id, $type, $time_params = null, $extra_params = null)
+    public function picturesByTypes(string $legacyBaseDir, Request $request, $image_id, $type)
     {
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type;
-        if (!is_null($extra_params)) {
-            $_SERVER['PATH_INFO'] .= "/$extra_params";
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
+
+        return $this->doResponse($legacy_file, 'picture.tpl');
+    }
+
+    public function pictureFromCalendar(string $legacyBaseDir, Request $request, int $image_id)
+    {
+        $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = '/' . $image_id;
+
+        if ($extra = $request->get('extra')) {
+            $_SERVER['PATH_INFO'] .= '/' . $extra;
         }
 
         return $this->doResponse($legacy_file, 'picture.tpl');

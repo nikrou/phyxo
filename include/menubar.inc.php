@@ -162,6 +162,7 @@ if (($block = $menu->get_block('mbSpecials')) != null) {
     $block->data['calendar'] = [
         'URL' => \Phyxo\Functions\URL::make_index_url(
             [
+                'section' => 'categories',
                 'chronology_field' => ($conf['calendar_datefield'] == 'date_available' ? 'posted' : 'created'),
                 'chronology_style' => 'monthly',
                 'chronology_view' => 'calendar'

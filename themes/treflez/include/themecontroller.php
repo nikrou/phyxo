@@ -45,8 +45,6 @@ class ThemeController
         Plugin::add_event_handler('loc_begin_index_thumbnails', [$this, 'returnPageStart']);
 
         Plugin::add_event_handler('loc_end_picture', [$this, 'getAllThumbnailsInCategory']);
-        // also needed on index.tpl for compatibility with GThumb+/GDThumb
-        Plugin::add_event_handler('loc_end_index', [$this, 'getAllThumbnailsInCategory']);
     }
 
     public function assignConfig()

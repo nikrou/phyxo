@@ -78,6 +78,10 @@ class DefaultController extends BaseController
         global $conf, $conn, $services, $filter, $template, $user, $page, $persistent_cache, $lang, $lang_info;
 
         $container = $this->container;
+        if (!$app_user = $this->getUser()) {
+            $app_user = $this->userProvider->loadUserByUsername('guest');
+        }
+
         define('PHPWG_ROOT_PATH', '../');
         $legacy_file = __DIR__ . '/../../include/common.inc.php';
 

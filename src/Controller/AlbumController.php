@@ -34,7 +34,7 @@ class AlbumController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function albumByParams(string $legacyBaseDir, Request $request, $time_params = null, $extra_params = null)
+    public function albumByParams(string $legacyBaseDir, Request $request, $extra_params = null)
     {
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
@@ -42,12 +42,12 @@ class AlbumController extends BaseController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/categories';
         
-        if (!is_null($time_params)) {
-            $_SERVER['PATH_INFO'] .= "/$time_params";
-        }
-        
         if (!is_null($extra_params)) {
             $_SERVER['PATH_INFO'] .= "/$extra_params";
+        }
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
         }
 
         if ($request->cookies->has('category_view')) {

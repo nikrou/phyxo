@@ -25,6 +25,10 @@ class IndexController extends BaseController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/favorites";
 
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
+
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
@@ -39,6 +43,10 @@ class IndexController extends BaseController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/most_visited";
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
@@ -55,6 +63,10 @@ class IndexController extends BaseController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_pics";
 
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
+
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
@@ -69,6 +81,10 @@ class IndexController extends BaseController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/recent_cats";
+
+        if ($start_id = $request->get('start_id')) {
+            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
