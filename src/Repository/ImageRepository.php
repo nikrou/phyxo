@@ -739,6 +739,132 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    // calendar query
+    public function findDayOfMonthPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    {
+        $query = 'SELECT ' . $this->conn->db_get_dayofmonth($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period';
+        $query .= ' ORDER BY period ASC';
+    
+        return $this->conn->db_query($query);
+    }
+    
+    // calendar query
+    public function findDayOfMonthPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
+    {
+        $query = 'SELECT ' . $this->conn->db_get_dayofmonth($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period';
+        $query .= ' ORDER BY period ASC';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findYYYYMMPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    {
+        $query = 'SELECT ' . $this->conn->db_get_date_YYYYMM($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period';
+        $query .= ' ORDER BY period ASC';
+    
+        return $this->conn->db_query($query);
+    }
+    
+    // calendar query
+    public function findYYYYMMPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
+    {
+        $query = 'SELECT ' . $this->conn->db_get_date_YYYYMM($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period, ' . $date_field;
+        $query .= ' ORDER BY ' . $this->conn->db_get_year($date_field) . ' DESC, ' . $this->conn->db_get_month($date_field) . ' ASC';
+
+        return $this->conn->db_query($query);
+    }
+    
+    // calendar query
+    public function findMMDDPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
+    {
+        $query = 'SELECT ' . $this->conn->db_get_date_MMDD($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period';
+        $query .= ' ORDER BY period ASC';
+    
+        return $this->conn->db_query($query);
+    }
+    
+    // calendar query
+    public function findMMDDPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
+    {
+        $query = 'SELECT ' . $this->conn->db_get_date_MMDD($date_field) . ' as period,';
+        $query .= ' COUNT(distinct id) as count';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $date_where;
+        $query .= ' GROUP BY period';
+        $query .= ' ORDER BY period ASC';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findOneRandomInWeekByIds(string $date_field, string $date_where = '', array $ids)
+    {
+        $query = 'SELECT id, file, representative_ext, path, width, height, rotation, ';
+        $query .= $this->conn->db_get_dayofweek($date_field) . '-1 as dow';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' ' . $date_where;
+        $query .= 'ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findOneRandomInWeek(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
+    {
+        $query = 'SELECT id, file, representative_ext, path, width, height, rotation, ';
+        $query .= $this->conn->db_get_dayofweek($date_field) . '-1 as dow';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $date_where;
+        $query .= 'ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
+    
+        return $this->conn->db_query($query);
+    }
+    
     public function deleteByElementIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::IMAGES_TABLE;

@@ -389,43 +389,6 @@ define('CAL_VIEW_CALENDAR', 'calendar');
 
 if (isset($page['chronology_field'])) {
     unset($page['is_homepage']);
-    $template_filename = 'month_calendar';
-
-    //------------------ initialize the condition on items to take into account ---
-    $inner_sql = ' FROM ' . \App\Repository\BaseRepository::IMAGES_TABLE;
-
-    if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
-        $page['items'] = [];
-        $inner_sql .= ' LEFT JOIN ' . \App\Repository\BaseRepository::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-
-        if (isset($page['category'])) {
-            $sub_ids = array_diff(
-                (new CategoryRepository($conn))->getSubcatIds([$page['category']['id']]),
-                explode(',', $user['forbidden_categories'])
-            );
-
-            if (empty($sub_ids)) {
-                return; // nothing to do
-            }
-            $inner_sql .= ' WHERE category_id ' . $conn->in($sub_ids);
-            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND', false);
-        } else {
-            $inner_sql .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
-                [
-                    'forbidden_categories' => 'category_id',
-                    'visible_categories' => 'category_id',
-                    'visible_images' => 'id'
-                ],
-                'WHERE',
-                true
-            );
-        }
-    } else {
-        if (empty($page['items'])) {
-            return; // nothing to do
-        }
-        $inner_sql .= ' WHERE id ' . $conn->in($page['items']);
-    }
 
     //-------------------------------------- initialize the calendar parameters ---
     $fields = [
@@ -454,17 +417,12 @@ if (isset($page['chronology_field'])) {
 
     $views = [CAL_VIEW_LIST, CAL_VIEW_CALENDAR];
 
-    // Retrieve calendar field
-    isset($fields[$page['chronology_field']]) || \Phyxo\Functions\HTTP::fatal_error('bad chronology field');
-
     // Retrieve style
     if (!isset($styles[$page['chronology_style']])) {
         $page['chronology_style'] = 'monthly';
     }
     $cal_style = $page['chronology_style'];
     $classname = $styles[$cal_style]['classname'];
-
-    $calendar = new $classname();
 
     // Retrieve view
     if (!isset($page['chronology_view']) or !in_array($page['chronology_view'], $views)) {
@@ -505,17 +463,40 @@ if (isset($page['chronology_field'])) {
         array_pop($page['chronology_date']);
     }
 
-    $calendar->initialize($inner_sql);
+    $calendar = new $classname($conn, $page['chronology_field']);
+    if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
+        if (isset($page['category'])) {
+            $calendar->findByConditionAndCategory(
+                \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND', false),
+                $page['category']['id'],
+                explode(',', $user['forbidden_categories'])
+            );
+        } else {
+            $calendar->findByCondition(
+                \Phyxo\Functions\SQL::get_sql_condition_FandF(
+                    [
+
+                        'forbidden_categories' => 'category_id',
+                        'visible_categories' => 'category_id',
+                        'visible_images' => 'id'
+                    ],
+                    'WHERE',
+                    true
+                )
+            );
+        }
+    } else {
+        $calendar->findByItems($page['items']);
+    }
 
     $must_show_list = true; // true until calendar generates its own display
     if (\Phyxo\Functions\Utils::script_basename() != 'picture') { // basename without file extention
-        if ($calendar->generate_category_content()) {
+        if ($calendar->generateCategoryContent()) {
             $page['items'] = [];
             $must_show_list = false;
         }
 
         $page['comment'] = '';
-        $template->assign('FILE_CHRONOLOGY_VIEW', 'month_calendar.tpl');
 
         foreach ($styles as $style => $style_data) {
             foreach ($views as $view) {
@@ -555,7 +536,7 @@ if (isset($page['chronology_field'])) {
         }
         $url = \Phyxo\Functions\URL::duplicate_index_url([], ['start', 'chronology_date']);
         $calendar_title = '<a href="' . $url . '">' . $fields[$page['chronology_field']]['label'] . '</a>';
-        $calendar_title .= $calendar->get_display_name();
+        $calendar_title .= $calendar->getDisplayName();
         $template->assign('chronology', ['TITLE' => $calendar_title]);
     } // end category calling
 
@@ -583,12 +564,8 @@ if (isset($page['chronology_field'])) {
         }
 
         if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
-            $query = 'SELECT DISTINCT id,' . \Phyxo\Functions\SQL::addOrderByFields($order_by);
-            $query .= $calendar->inner_sql . ' ' . $calendar->get_date_where();
-            $query .= ' ' . $order_by;
-
-            $page['items'] = $conn->query2array($query, null, 'id');
-            if (isset($cache_key)) {
+            $page['items'] = $calendar->getItems($order_by);
+        if (isset($cache_key)) {
                 $persistent_cache->set($cache_key, $page['items']);
             }
         }
