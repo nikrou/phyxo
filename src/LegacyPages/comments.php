@@ -263,7 +263,7 @@ $template->assign(
 // Search in a particular category
 $blockname = 'categories';
 
-$result = (new CategoryRepository($conn))->findWithCondtion(
+$result = (new CategoryRepository($conn))->findWithCondition(
     [\Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
 );
 $categories = $conn->result2array($result);

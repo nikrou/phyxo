@@ -146,7 +146,7 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findWithCondtions(array $where, ? int $start_id = null, ? int $limit = null, string $order = 'ORDER BY id DESC')
+    public function findWithConditions(array $where, ? int $start_id = null, ? int $limit = null, string $order = 'ORDER BY id DESC')
     {
         $query = 'SELECT id, path, representative_ext, width, height, rotation FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE ' . implode(' AND ', $where);
@@ -650,6 +650,91 @@ class ImageRepository extends BaseRepository
     {
         $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id WHERE id IS NULL;';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findImagesInPeriods(string $level, string $date_where = '', string $condition, array $category_ids = [])
+    {
+        $query = 'SELECT DISTINCT(' . $level . ') as period,';
+        $query .= ' COUNT(DISTINCT id) as nb_images';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $date_where . ' GROUP BY period';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findImagesInPeriodsByIds(string $level, array $ids = [], string $date_where = '')
+    {
+        $query = 'SELECT DISTINCT(' . $level . ') as period,';
+        $query .= ' COUNT(DISTINCT id) as nb_images';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' ' . $date_where . ' GROUP BY period';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findNextPrevPeriodByIds(array $ids = [], array $date_elements, array $calendar_levels, string $date_field = '')
+    {
+        $sub_queries = [];
+        $nb_elements = count($date_elements);
+        for ($i = 0; $i < $nb_elements; $i++) {
+            if ($date_elements[$i] !== 'any') { // @TODO: replace by null ?
+                $sub_queries[] = $this->conn->db_cast_to_text($calendar_levels[$i]['sql']);
+            }
+        }
+
+        $query = 'SELECT ' . $this->conn->db_concat_ws($sub_queries, '-') . ' AS period';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' WHERE id ' . $this->conn->in($ids);
+        $query .= ' AND ' . $date_field . ' IS NOT NULL GROUP BY period';
+
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findNextPrevPeriod(array $date_elements, array $calendar_levels, string $date_field = '', string $condition, array $category_ids = [])
+    {
+        $sub_queries = [];
+        $nb_elements = count($date_elements);
+        for ($i = 0; $i < $nb_elements; $i++) {
+            if ($date_elements[$i] !== 'any') { // @TODO: replace by null ?
+                $sub_queries[] = $this->conn->db_cast_to_text($calendar_levels[$i]['sql']);
+            }
+        }
+    
+        $query = 'SELECT ' . $this->conn->db_concat_ws($sub_queries, '-') . ' AS period';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' AND ' . $date_field . ' IS NOT NULL GROUP BY period';
+    
+        return $this->conn->db_query($query);
+    }
+
+    // calendar query
+    public function findDistincIds(string $condition, array $category_ids = [], string $order_by)
+    {
+        $query = 'SELECT DISTINCT id,' . \Phyxo\Functions\SQL::addOrderByFields($order_by);
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+        $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
+        $query .= ' ' . $condition;
+        if (!empty($category_ids)) {
+            $query .= ' category_id ' . $this->conn->in($category_ids);
+        }
+        $query .= ' ' . $order_by;
 
         return $this->conn->db_query($query);
     }

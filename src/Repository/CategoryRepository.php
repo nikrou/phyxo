@@ -62,7 +62,7 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findWithCondtion(array $where)
+    public function findWithCondition(array $where)
     {
         $query = 'SELECT id, name, id_uppercat, comment, dir, rank, status, site_id, visible, representative_picture_id, uppercats,';
         $query .= ' commentable, global_rank, image_order, permalink, lastmodified FROM ' . self::CATEGORIES_TABLE;
@@ -122,7 +122,7 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findWithUserAndCondtion(int $user_id, array $where, string $order = '')
+    public function findWithUserAndCondition(int $user_id, array $where, string $order = '')
     {
         $query = 'SELECT id, name, comment, permalink, uppercats, global_rank, id_uppercat,';
         $query .= 'nb_images, count_images AS total_nb_images, representative_picture_id,';

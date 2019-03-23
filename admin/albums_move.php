@@ -41,7 +41,7 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 // |                          Categories display                           |
 // +-----------------------------------------------------------------------+
-$result = (new CategoryRepository($conn))->findWithCondtion(['dir IS NULL']);
+$result = (new CategoryRepository($conn))->findWithCondition(['dir IS NULL']);
 $categories = $conn->result2array($result);
 \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_to_move_options');
 

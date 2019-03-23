@@ -74,7 +74,7 @@ class Main
 
         $urls = [];
         do {
-            $result = (new ImageRepository($conn))->findWithCondtions($where_clauses, $start_id, $qlimit);
+            $result = (new ImageRepository($conn))->findWithConditions($where_clauses, $start_id, $qlimit);
             $is_last = $conn->db_num_rows($result) < $qlimit;
 
             while ($row = $conn->db_fetch_assoc($result)) {

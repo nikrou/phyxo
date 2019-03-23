@@ -55,7 +55,7 @@ class Category
             true
         );
 
-        $result = (new CategoryRepository($conn))->findWithCondtion($where_clauses);
+        $result = (new CategoryRepository($conn))->findWithCondition($where_clauses);
         $cats = [];
         while ($row = $conn->db_fetch_assoc($result)) {
             $row['id'] = (int)$row['id'];
@@ -179,7 +179,7 @@ class Category
             $join_type = 'LEFT';
         }
 
-        $result = (new CategoryRepository($conn))->findWithUserAndCondtion($join_user, $where);
+        $result = (new CategoryRepository($conn))->findWithUserAndCondition($join_user, $where);
 
         // management of the album thumbnail -- starts here
         $image_ids = [];

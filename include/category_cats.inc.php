@@ -29,13 +29,13 @@ if ('recent_cats' == $page['section']) {
     $where[] = 'id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], '', $force_on_condtion = true);
+$where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], '', $force_on_condition = true);
 
 if ('recent_cats' != $page['section']) {
     $order = 'rank';
 }
 
-$result = (new CategoryRepository($conn))->findWithUserAndCondtion($user['id'], $where, $order);
+$result = (new CategoryRepository($conn))->findWithUserAndCondition($user['id'], $where, $order);
 $categories = [];
 $category_ids = [];
 $image_ids = [];

@@ -241,7 +241,7 @@ if (isset($_SESSION['bulk_manager_filter']['prefilter'])) {
             $result = (new ImageRepository($conn))->findAll();
             $all_elements = $conn->result2array($result, null, 'id');
 
-            $result = (new CategoryRepository($conn))->findWithCondtion(['dir IS NULL']);
+            $result = (new CategoryRepository($conn))->findWithCondition(['dir IS NULL']);
             $virtual_categories = $conn->result2array($result, null, 'id');
             if (!empty($virtual_categories)) {
                 $result = (new ImageCategoryRepository($conn))->getImageIdsLinked($virtual_categories);
@@ -360,7 +360,7 @@ if (isset($_SESSION['bulk_manager_filter']['dimension'])) {
         $where_clause[] = 'width/height < ' . ($_SESSION['bulk_manager_filter']['dimension']['max_ratio'] + 0.01);
     }
 
-    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by'] ?? '');
+    $result = (new ImageRepository($conn))->findWithConditions($where_clause, null, null, $conf['order_by'] ?? '');
     $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 
@@ -375,7 +375,7 @@ if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
         $where_clause[] = 'filesize <= ' . $_SESSION['bulk_manager_filter']['filesize']['max'] * 1024;
     }
 
-    $result = (new ImageRepository($conn))->findWithCondtions($where_clause, null, null, $conf['order_by']);
+    $result = (new ImageRepository($conn))->findWithConditions($where_clause, null, null, $conf['order_by']);
     $filter_sets[] = $conn->result2array($result, null, 'id');
 }
 

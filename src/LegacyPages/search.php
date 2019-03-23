@@ -198,15 +198,15 @@ $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
 $where = [];
-if ($filter_condtion = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+if ($filter_condition = \Phyxo\Functions\SQL::get_sql_condition_FandF(
     [
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
     ]
 )) {
-    $where[] = $filter_condtion;
+    $where[] = $filter_condition;
 }
-$result = (new CategoryRepository($conn))->findWithCondtion($where);
+$result = (new CategoryRepository($conn))->findWithCondition($where);
 $categories = $conn->result2array($result);
 \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_options', true);
 

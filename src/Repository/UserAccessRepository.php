@@ -65,13 +65,13 @@ class UserAccessRepository extends BaseRepository
         $this->conn->mass_inserts(self::USER_ACCESS_TABLE, $fields, $datas);
     }
 
-    public function deleteByCatIds(array $ids, string $condtion = '')
+    public function deleteByCatIds(array $ids, string $condition = '')
     {
         $query = 'DELETE FROM ' . self::USER_ACCESS_TABLE;
         $query .= ' WHERE cat_id ' . $this->conn->in($ids);
 
-        if (!empty($condtion)) {
-            $query .= ' AND ' . $condtion;
+        if (!empty($condition)) {
+            $query .= ' AND ' . $condition;
         }
 
         $this->conn->db_query($query);
