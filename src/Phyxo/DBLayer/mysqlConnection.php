@@ -201,7 +201,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
         return sprintf('GROUP_CONCAT(%s)', $field);
     }
 
-    public function db_full_text_search($fields, $values) : string
+    public function db_full_text_search(array $fields, array $values) : string
     {
         return sprintf(
             'MATCH(%s) AGAINST(\'%s\' IN BOOLEAN MODE)',
@@ -396,14 +396,14 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_concat(array $array) : string
     {
-        $string = implode($array, ',');
+        $string = implode(',', $array);
 
         return 'CONCAT(' . $string . ')';
     }
 
     public function db_concat_ws(array $array, string $separator) : string
     {
-        $string = implode($array, ',');
+        $string = implode(',', $array);
 
         return 'CONCAT_WS(\'' . $separator . '\',' . $string . ')';
     }

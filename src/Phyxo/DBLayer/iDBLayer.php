@@ -204,7 +204,7 @@ interface iDBLayer
      * @param string	$values		Values to search.
      * @return string
      */
-    public function db_full_text_search($fields, $values) : string;
+    public function db_full_text_search(array $fields, array $values) : string;
 
     /**
      * Convert Array to String

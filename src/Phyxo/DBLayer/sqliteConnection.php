@@ -191,7 +191,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return sprintf('GROUP_CONCAT(%s)', $field);
     }
 
-    public function db_full_text_search($fields, $values) : string
+    public function db_full_text_search(array $fields, array $values) : string
     {
         return sprintf(
             'MATCH(%s) AGAINST(\'%s\' IN BOOLEAN MODE)',
@@ -399,14 +399,14 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_concat(array $array) : string
     {
-        return implode($array, ' || ');
+        return implode(' || ', $array);
     }
 
     public function db_concat_ws(array $array, string $separator) : string
     {
         $glue = sprintf(' || \'%s\' || ', $separator);
 
-        return implode($array, $glue);
+        return implode($glue, $array);
     }
 
     public function db_cast_to_text(string $string) : string

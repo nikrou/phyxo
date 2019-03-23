@@ -183,7 +183,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return sprintf('ARRAY_TO_STRING(ARRAY_AGG(%s),\',\')', $field);
     }
 
-    public function db_full_text_search($fields, $values) : string
+    public function db_full_text_search(array $fields, array $values) : string
     {
         return sprintf(
             'to_tsvector(%s) @@ to_tsquery(\'%s\')',
@@ -370,14 +370,14 @@ class pgsqlConnection extends DBLayer implements iDBLayer
 
     public function db_concat(array $array) : string
     {
-        $string = implode($array, ',');
+        $string = implode(',', $array);
 
         return 'ARRAY_TO_STRING(ARRAY[' . $string . '])';
     }
 
     public function db_concat_ws(array $array, string $separator) : string
     {
-        $string = implode($array, ',');
+        $string = implode(',', $array);
 
         return 'ARRAY_TO_STRING(ARRAY[' . $string . '],\'' . $separator . '\')';
     }
