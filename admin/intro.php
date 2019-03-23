@@ -23,6 +23,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
+use App\Repository\BaseRepository;
 
 include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
 
@@ -69,8 +70,7 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
 
 $php_current_timestamp = date("Y-m-d H:i:s");
 $db_version = $conn->db_version();
-list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
-
+$db_current_date = (new BaseRepository($conn))->getNow();
 $nb_elements = (new ImageRepository($conn))->count();
 $nb_categories = (new CategoryRepository($conn))->count();
 $nb_virtual = (new CategoryRepository($conn))->count('dir IS NULL');
@@ -92,9 +92,9 @@ $template->assign(
         'DB_VERSION' => $db_version,
         'DB_ELEMENTS' => \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $nb_elements),
         'DB_CATEGORIES' =>
-            \Phyxo\Functions\Language::l10n_dec('%d album including', '%d albums including', $nb_categories) .
-            \Phyxo\Functions\Language::l10n_dec('%d physical', '%d physicals', $nb_physical) .
-            \Phyxo\Functions\Language::l10n_dec(' and %d virtual', ' and %d virtuals', $nb_virtual),
+        \Phyxo\Functions\Language::l10n_dec('%d album including', '%d albums including', $nb_categories) .
+        \Phyxo\Functions\Language::l10n_dec('%d physical', '%d physicals', $nb_physical) .
+        \Phyxo\Functions\Language::l10n_dec(' and %d virtual', ' and %d virtuals', $nb_virtual),
         'DB_IMAGE_CATEGORY' => \Phyxo\Functions\Language::l10n_dec('%d association', '%d associations', $nb_image_category),
         'DB_TAGS' => \Phyxo\Functions\Language::l10n_dec('%d tag', '%d tags', $nb_tags),
         'DB_IMAGE_TAG' => \Phyxo\Functions\Language::l10n_dec('%d association', '%d associations', $nb_image_tag),
@@ -119,7 +119,7 @@ if ($nb_elements > 0) {
         'first_added',
         [
             'DB_DATE' =>
-                \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($min_date_available))
+            \Phyxo\Functions\Language::l10n('first photo added on %s', \Phyxo\Functions\DateTime::format_date($min_date_available))
         ]
     );
 }

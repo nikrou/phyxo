@@ -85,7 +85,7 @@ function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max
 
     // search for the reference date of each album
     $result = (new ImageRepository($conn))->getReferenceDateForCategories('date_available', $minmax, $category_ids);
-    $ref_dates = $conn->query2array($query, 'category_id', 'ref_date');
+    $ref_dates = $conn->result2array($result, 'category_id', 'ref_date');
 
     // the iterate on all albums (having a ref_date or not) to find the
     // reference_date, with a search on sub-albums

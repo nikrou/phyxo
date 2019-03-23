@@ -264,4 +264,12 @@ class TagRepository extends BaseRepository
 
         return $sql;
     }
+
+    public function getMaxLastModified()
+    {
+        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+        $query .= ' FROM ' . self::TAGS_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

@@ -491,4 +491,12 @@ class CategoryRepository extends BaseRepository
 
         $this->conn->db_query($query);
     }
+
+    public function getMaxLastModified()
+    {
+        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+        $query .= ' FROM ' . self::CATEGORIES_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

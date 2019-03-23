@@ -13,6 +13,7 @@ define('PHPWG_ROOT_PATH', '../../');
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
 
 use App\Repository\UserFeedRepository;
+use App\Repository\BaseRepository;
 
 // +-----------------------------------------------------------------------+
 // |                               functions                               |
@@ -74,8 +75,7 @@ if (!empty($feed_id)) {
 // Check the status now after the user has been loaded
 $services['users']->checkStatus(ACCESS_GUEST);
 
-list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
-
+$dbnow = (new BaseRepository($conn))->getNow();
 \Phyxo\Functions\URL::set_make_full_url();
 
 $rss = new UniversalFeedCreator();

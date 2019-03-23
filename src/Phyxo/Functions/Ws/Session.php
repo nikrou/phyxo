@@ -12,6 +12,7 @@
 namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Error;
+use App\Repository\BaseRepository;
 
 class Session
 {
@@ -65,8 +66,7 @@ class Session
         $res['pwg_token'] = \Phyxo\Functions\Utils::get_token();
         $res['charset'] = \Phyxo\Functions\Utils::get_charset();
 
-        list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
-        $res['current_datetime'] = $dbnow;
+        $res['current_datetime'] = (new BaseRepository($conn))->getNow();
         $res['version'] = PHPWG_VERSION;
 
         if ($services['users']->isAdmin()) {

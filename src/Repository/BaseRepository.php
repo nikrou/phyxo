@@ -58,6 +58,13 @@ class BaseRepository
         return str_ireplace(['order by', ' asc', ' desc'], ['', '', ''], $order_by_string);
     }
 
+    public function getNow()
+    {
+        list($dbnow) = $this->conn->db_fetch_row($this->conn->db_query('SELECT NOW();'));
+
+        return $dbnow;
+    }
+
     /**
      * Compute sql WHERE condition with restrict and filter data.
      * "FandF" means Forbidden and Filters.

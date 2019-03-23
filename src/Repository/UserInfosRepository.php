@@ -189,4 +189,12 @@ class UserInfosRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
+
+    public function getMaxLastModified()
+    {
+        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+        $query .= ' FROM ' . self::USER_INFOS_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

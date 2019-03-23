@@ -74,7 +74,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 if ($conf['display_fromto']) {
     if (count($category_ids) > 0) {
         $result = (new ImageCategoryRepository($conn))->dateOfCategories($category_ids);
-        $dates_of_category = $conn->query2array($query, 'category_id');
+        $dates_of_category = $conn->result2array($result, 'category_id');
     }
 }
 

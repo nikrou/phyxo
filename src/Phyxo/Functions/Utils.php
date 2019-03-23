@@ -1,13 +1,13 @@
 <?php
- /*
-  * This file is part of Phyxo package
-  *
-  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-  * Licensed under the GPL version 2.0 license.
-  *
-  * For the full copyright and license information, please view the LICENSE
-  * file that was distributed with this source code.
-  */
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Functions;
 
@@ -989,7 +989,7 @@ class Utils
      */
     public static function get_thumbnail_title($info, $title, $comment = '')
     {
-        global $conf, $user;
+        global $conf;
 
         $details = [];
 
@@ -1118,7 +1118,7 @@ class Utils
      */
     public static function decode_slideshow_params($encode_params = null)
     {
-        global $conf, $conn;
+        global $conn;
 
         $result = self::get_default_slideshow_params();
 
@@ -1152,7 +1152,7 @@ class Utils
      */
     public static function encode_slideshow_params($decode_params = [])
     {
-        global $conf, $conn;
+        global $conn;
 
         $params = array_diff_assoc(self::correct_slideshow_params($decode_params), self::get_default_slideshow_params());
         $result = '';
@@ -1323,7 +1323,7 @@ class Utils
      */
     public static function delete_user($user_id)
     {
-        global $conf, $conn;
+        global $conn;
 
         // destruction of the group links for this user
         (new UserGroupRepository($conn))->deleteByUserId($user_id);
@@ -1342,10 +1342,6 @@ class Utils
         (new FavoriteRepository($conn))->removeAllFavorites($user_id);
         // destruction of the caddie associated with the user
         (new CaddieRepository($conn))->emptyCaddie($user_id);
-
-        // purge of sessions
-        $query = 'DELETE FROM ' . \App\Repository\BaseRepository::SESSIONS_TABLE . ' WHERE data LIKE \'pwg_uid|i:' . (int)$user_id . ';%\';';
-        $conn->db_query($query);
 
         // destruction of the user
         (new UserRepository($conn))->deleteById($user_id);
@@ -1908,11 +1904,11 @@ class Utils
         global $conn;
 
         $tables = [
-            'categories' => \App\Repository\BaseRepository::CATEGORIES_TABLE,
-            'groups' => \App\Repository\BaseRepository::GROUPS_TABLE,
-            'images' => \App\Repository\BaseRepository::IMAGES_TABLE,
-            'tags' => \App\Repository\BaseRepository::TAGS_TABLE,
-            'users' => \App\Repository\BaseRepository::USER_INFOS_TABLE
+            'categories' => '\App\Repository\CaddieRepository',
+            'groups' => '\App\Repository\GroupRepository',
+            'images' => '\App\Repository\ImageRepository',
+            'tags' => '\App\Repository\TagRepository',
+            'users' => '\App\Repository\UserInfosRepository'
         ];
 
         if (!is_array($requested)) {
@@ -1928,14 +1924,11 @@ class Utils
             '_hash' => md5(\Phyxo\Functions\URL::get_absolute_root_url()),
         ];
 
-        foreach ($requested as $item) {
-            // @TODO : add _ between timestamp and count -> pwg_concat ??
-            $query = 'SELECT ' . $conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
-            $query .= ' FROM ' . $tables[$item] . ';';
-            $result = $conn->db_query($query);
+        foreach ($requested as $repository) {
+            $result = (new $repository($conn))->getMaxLastModified();
             $row = $conn->db_fetch_row($result);
 
-            $keys[$item] = sprintf('%s_%s', $row[0], $row[1]);
+            $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);
         }
 
         return $keys;
@@ -1943,7 +1936,7 @@ class Utils
 
     function save_profile_from_post($userdata, &$errors)
     {
-        global $conf, $page, $conn, $services, $conn;
+        global $conf, $conn;
 
         $errors = [];
 

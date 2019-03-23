@@ -755,4 +755,12 @@ class ImageRepository extends BaseRepository
     {
         $this->conn->mass_inserts(self::IMAGES_TABLE, $fields, $datas);
     }
+
+    public function getMaxLastModified()
+    {
+        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+        $query .= ' FROM ' . self::IMAGES_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

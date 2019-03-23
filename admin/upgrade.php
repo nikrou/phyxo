@@ -15,6 +15,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
 
 use Phyxo\Language\Languages;
 use App\Repository\UpgradeRepository;
+use App\Repository\BaseRepository;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
@@ -55,8 +56,7 @@ if (isset($_GET['language'])) {
 \Phyxo\Functions\Language::load_language('install.lang', '', ['language' => $language]);
 \Phyxo\Functions\Language::load_language('upgrade.lang', '', ['language' => $language]);
 
-list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
-define('CURRENT_DATE', $dbnow);
+define('CURRENT_DATE', (new BaseRepository($conn))->getNow());
 
 $template->set_filenames(['upgrade' => 'upgrade.tpl']);
 $template->assign(['RELEASE' => PHPWG_VERSION]);

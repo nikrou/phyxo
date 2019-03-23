@@ -17,6 +17,7 @@ use Phyxo\DBLayer\DBLayer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
+use App\Repository\BaseRepository;
 
 class Notification
 {
@@ -350,9 +351,9 @@ class Notification
             $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element);
             $description .= '<a href="' .
                 \Phyxo\Functions\URL::make_picture_url([
-                'image_id' => $element['id'],
-                'image_file' => $element['file'],
-            ]) . '"><img src="' . $tn_src . '"></a>';
+                    'image_id' => $element['id'],
+                    'image_file' => $element['file'],
+                ]) . '"><img src="' . $tn_src . '"></a>';
         }
         $description .= '...<br>';
 
@@ -910,7 +911,7 @@ class Notification
         $return_list = [];
 
         if (in_array($action, ['list_to_send', 'send'])) {
-            list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
+            $dbnow = (new BaseRepository($conn))->getNow();
 
             $is_action_send = ($action == 'send');
 

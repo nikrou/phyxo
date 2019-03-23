@@ -161,4 +161,12 @@ class GroupRepository extends BaseRepository
         $query .= ' WHERE id ' . $this->conn->in($ids);
         $this->conn->db_query($query);
     }
+
+    public function getMaxLastModified()
+    {
+        $query = 'SELECT ' . $this->conn->db_date_to_ts('MAX(lastmodified)') . ', COUNT(1)';
+        $query .= ' FROM ' . self::GROUPS_TABLE;
+
+        return $this->conn->db_query($query);
+    }
 }

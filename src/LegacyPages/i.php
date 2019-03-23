@@ -9,6 +9,17 @@
  * file that was distributed with this source code.
  */
 
+use App\Repository\ImageRepository;
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 define('PHPWG_ROOT_PATH', '../../');
 
 include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
@@ -61,10 +72,8 @@ $page['coi'] = null;
 if (strpos($page['src_location'], '/pwg_representative/') === false
     && strpos($page['src_location'], 'themes/') === false && strpos($page['src_location'], 'plugins/') === false) {
     try {
-        $query = 'SELECT * FROM ' . $prefixeTable . 'images';
-        $query .= ' WHERE path=\'' . $conn->db_real_escape_string($page['src_location']) . '\'';
-
-        if (($row = $conn->db_fetch_assoc($conn->db_query($query)))) {
+        $result = (new ImageRepository($conn))->findByField('path', $page['src_location']);
+        if (($row = $conn->db_fetch_assoc($result))) {
             if (isset($row['width'])) {
                 $page['original_size'] = [$row['width'], $row['height']];
             }

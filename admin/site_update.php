@@ -21,6 +21,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\BaseRepository;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -38,14 +39,13 @@ if (!is_numeric($_GET['site'])) {
 $site_id = $_GET['site'];
 
 $result = (new SiteRepository($conn))->findById($site_id);
-list($site_url) = $conn->db_fetch_row($conn->db_query($query));
+list($site_url) = $conn->db_fetch_row($result);
 if (!isset($site_url)) {
     die('site ' . $site_id . ' does not exist');
 }
 $site_is_remote = \Phyxo\Functions\URL::url_is_remote($site_url);
 
-list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
-define('CURRENT_DATE', $dbnow);
+define('CURRENT_DATE', (new BaseRepository($conn))->getNow());
 
 $error_labels = [
     'PWG-UPDATE-1' => [
@@ -195,13 +195,13 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
             $db_categories[$insert {
                 'id'}] =
                 [
-                'id' => $insert['id'],
-                'parent' => (isset($parent)) ? $parent : null,
-                'status' => $insert['status'],
-                'visible' => $insert['visible'],
-                'uppercats' => $insert['uppercats'],
-                'global_rank' => $insert['global_rank']
-            ];
+                    'id' => $insert['id'],
+                    'parent' => (isset($parent)) ? $parent : null,
+                    'status' => $insert['status'],
+                    'visible' => $insert['visible'],
+                    'uppercats' => $insert['uppercats'],
+                    'global_rank' => $insert['global_rank']
+                ];
             $db_fulldirs[$fulldir] = $insert['id'];
             $next_rank[$insert {
                 'id'}] = 1;

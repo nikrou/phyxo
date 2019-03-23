@@ -28,6 +28,7 @@ use App\Repository\UserAccessRepository;
 use App\Repository\ThemeRepository;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Repository\BaseRepository;
 
 class Users
 {
@@ -387,7 +388,7 @@ class Users
 
         if (!empty($user_ids)) {
             $inserts = [];
-            list($dbnow) = $this->conn->db_fetch_row($this->conn->db_query('SELECT NOW();'));
+            $dbnow = (new BaseRepository($this->conn))->getNow();
 
             $default_user = $this->getDefaultUserInfo(false);
             if ($default_user === false) {

@@ -65,7 +65,7 @@ if (isset($search['fields']['tags'])) {
     $result = (new TagRepository($conn))->findTags($search['fields']['tags']['words']);
     $template->assign(
         'search_tags',
-        $conn->result2array($query, 'name')
+        $conn->result2array($result, 'name')
     );
 }
 
