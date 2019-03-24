@@ -11,185 +11,138 @@
 const webpack = require('webpack');
 const merge = require('webpack-merge')
 const path = require('path')
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const CleanupPlugin = require('clean-webpack-plugin')
 
-const IS_PROD = process.env.NODE_ENV === 'production';
-const PUBLIC_PATH = IS_PROD ? './admin/theme/build/' : 'http://localhost:8080/build/';
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ManifestPlugin = require('webpack-manifest-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+
+const HOST = process.env.HOST ? process.env.HOST : 'localhost';
+const PORT = process.env.PORT ? process.env.PORT : 8080;
+const IS_DEV = process.env.NODE_ENV !== 'production';
+
+const TARGET_NAME = 'build';
+const TARGET = path.join(__dirname, TARGET_NAME);
+const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './admin/theme/build/';
+const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './';
 
 const PATHS = {
     app: path.join(__dirname, 'src', 'js'),
     target: path.join(__dirname, 'build'),
 }
 
-const STYLE_LOADER = {
-    loader: 'style-loader',
-    options: {
-	sourceMap: true
-    }
-}
+module.exports = {
+    devtool: 'source-map',
 
-const CSS_LOADER = {
-    loader: 'css-loader',
-    options: {
-	sourceMap: true,
-	minimize: IS_PROD
-    }
-}
-
-const SASS_LOADER = {
-    loader: 'sass-loader',
-    options: {
-	sourceMap: true
-    }
-}
-
-const MAIN_CONFIG = merge([
-    {
-	devtool: 'cheap-module-source-map',
-
-	entry: {
-	    app: PATHS.app
-	},
-
-	output: {
-	    filename: path.join('js', IS_PROD ? '[name]-[hash:8].js' : '[name].js'),
-	    path: PATHS.target,
-	    publicPath: PUBLIC_PATH,
-	},
-
-	module: {
-	    rules: [
-		{
-		    test: /\.js$/,
-		    exclude: /node_modules/,
-		    use: {
-			options: {
-			    cacheDirectory: true,
-			    presets: [['env', { modules: false }]],
-			},
-			loader: 'babel-loader'
-		    },
-		},
-
-		{
-                    test: /\.(svg|png|jpg|jpeg|gif|ico)$/,
-                    use: [
-			{
-			    loader: 'file-loader',
-			    options: {
-				name: 'images/[name]-[hash:8].[ext]',
-				publicPath: IS_PROD ? '../' : PUBLIC_PATH,
-			    }
-			}
-                    ]
-		},
-
-		{
-		    test: /\.(ttf|otf|eot|woff(2)?)(\?[a-z0-9]+)?$/,
-		    use: [
-			{
-			    loader: 'file-loader',
-			    options: {
-				name: 'fonts/[name]-[hash:8].[ext]',
-				publicPath: IS_PROD ? '../' : PUBLIC_PATH,
-			    }
-			}
-		    ]
-		},
-	    ]
-	},
-
-	plugins: [
-	    new ManifestPlugin({
-		publicPath: PUBLIC_PATH,
-		writeToFileEmit: true,
-	    }),
-	    new webpack.ProvidePlugin({
-		$: 'jquery',
-		jQuery: 'jquery',
-		'window.jQuery': 'jquery',
-		'window.$': 'jquery',
-		Popper: ['popper.js', 'default'],
-	    }),
-	    new webpack.DefinePlugin({
-		'process.env': { NODE_ENV: JSON.stringify(process.env.NODE_ENV) }
-	    }),
-	],
-    }
-]);
-
-const devConfig = () => merge([
-    MAIN_CONFIG,
-
-    {
-	plugins: [
-	    new webpack.HotModuleReplacementPlugin(),
-	    new webpack.NamedModulesPlugin(),
-	    new webpack.DefinePlugin({
-		__DEVTOOLS__: true,
-	    }),
-	],
+    entry: {
+	app: PATHS.app
     },
 
-    {
-	module: {
-	    rules: [
-		{
-		    test: /\.scss$/,
-		    use: [
-			STYLE_LOADER,
-			CSS_LOADER,
-			SASS_LOADER,
-		    ]
-		}
-	    ]
-	}
+    output: {
+	filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[hash].js'),
+	path: PATHS.target,
+	publicPath: PUBLIC_PATH,
     },
 
-    {
-	devServer: {
-	    contentBase: PATHS.target,
-	    disableHostCheck: true,
-	    hot: true,
-	    inline: true,
-	    overlay: true,
-	    headers: { 'Access-Control-Allow-Origin': '*' },
-	},
-    }
-]);
-
-const prodConfig = () => merge([
-    MAIN_CONFIG,
-
-    {
-	module: {
-	    rules: [
-		{
-		    test: /\.scss$/,
-		    use: ExtractTextPlugin.extract({
-			use: [
-			    CSS_LOADER,
-			    SASS_LOADER,
-			],
-			fallback: STYLE_LOADER
-		    })
-		}
-	    ]
-	}
-    },
-
-    {
-	plugins: [
-	    new webpack.HashedModuleIdsPlugin(),
-	    new ExtractTextPlugin({
-		filename: 'css/[name].[contenthash:8].css',
+    optimization: {
+	minimizer: [
+	    new UglifyJsPlugin({
+		cache: true,
+		parallel: true,
+		sourceMap: true // set to true if you want JS source maps
 	    }),
-	    new CleanupPlugin(PATHS.target),
+	    new OptimizeCSSAssetsPlugin({})
 	]
-    }
-]);
+    },
 
-module.exports = (env = process.env.NODE_ENV) => env === 'production' ? prodConfig() : devConfig();
+    module: {
+	rules: [
+	    {
+		test: /\.js$/,
+		exclude: /node_modules/,
+		use: {
+		    options: {
+			cacheDirectory: true,
+			presets: [['env', { modules: false }]],
+		    },
+		    loader: 'babel-loader'
+		},
+	    },
+
+	    {
+                test: /\.scss$/,
+                use: [
+		    // fallback to style-loader in development
+		    IS_DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
+		    'css-loader',
+		    'postcss-loader',
+		    'sass-loader'
+                ]
+	    },
+
+
+            {
+                test: /\.(png|jpg|jpeg|gif|ico)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'images/[name].[ext]', // @TODO: find a way to inject [hash] in templates
+                            publicPath: ASSETS_PUBLIC_PATH
+                        }
+                    }
+                ]
+            },
+
+            {
+                test: /\.(svg|ttf|otf|eot|woff(2)?)(\?[a-z0-9]+)?$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'fonts/[name].[ext]', // @TODO: find a way to inject [hash:8] in templates
+                            publicPath: ASSETS_PUBLIC_PATH
+                        }
+                    }
+                ]
+            }
+	]
+    },
+
+    plugins: [
+	new ManifestPlugin({
+	    publicPath: PUBLIC_PATH,
+	    writeToFileEmit: true,
+	}),
+
+	new webpack.ProvidePlugin({
+	    $: 'jquery',
+	    jQuery: 'jquery',
+	    'window.jQuery': 'jquery',
+	    'window.$': 'jquery',
+	    Popper: ['popper.js', 'default'],
+	}),
+
+	new MiniCssExtractPlugin({
+	    // Options similar to the same options in webpackOptions.output
+	    // both options are optional
+	    filename: IS_DEV ? '[name].css' : '[name].[hash].css',
+	    chunkFilename: IS_DEV ? '[id].css' : '[id].[hash].css' // @TODO: find a way to inject [hash] in templates
+        }),
+
+
+	new webpack.HotModuleReplacementPlugin(),
+
+        new CleanWebpackPlugin()
+    ],
+
+    devServer: {
+	contentBase: path.target,
+	disableHostCheck: true,
+	hot: true,
+        inline: true,
+        overlay: true,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+    }
+};

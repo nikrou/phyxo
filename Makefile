@@ -8,7 +8,7 @@ all:;
 	@echo "make config or make dist"
 
 
-dist: config admin_assets dist-tgz dist-zip
+dist: config admin_assets assets dist-tgz dist-zip
 
 
 config: clean
@@ -49,20 +49,19 @@ config: clean
 	rm -fr $(DIST)/$(APP_NAME)/public
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
-	find ./$(DIST)/ -type d -name '.svn' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
 admin_assets:;
 	cd $(DIST)/$(APP_NAME)/admin/theme ;	\
 	npm ci ;				\
 	npm run build ;				\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json
+	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
 
 assets:;
 	cd $(DIST)/$(APP_NAME)/themes/treflez ;	\
 	npm ci ;				\
 	npm run build ;				\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json
+	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
 
 dist-tgz: config
 	cd $(DIST); \
