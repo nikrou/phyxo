@@ -251,10 +251,10 @@ $conf['show_iptc'] = false;
 // To know how to associated iptc_field with their meaning, use
 // tools/metadata.php
 $conf['show_iptc_mapping'] = [
-  'iptc_keywords' => '2#025',
-  'iptc_caption_writer' => '2#122',
-  'iptc_byline_title' => '2#085',
-  'iptc_caption' => '2#120'
+    'iptc_keywords' => '2#025',
+    'iptc_caption_writer' => '2#122',
+    'iptc_byline_title' => '2#085',
+    'iptc_caption' => '2#120'
 ];
 
 // use_iptc: Use IPTC data during database synchronization with files
@@ -265,11 +265,11 @@ $conf['use_iptc'] = false;
 // information ? This setting is used during metadata synchronisation. It
 // associates a phyxo_images column name to a IPTC key
 $conf['use_iptc_mapping'] = [
-  'keywords' => '2#025',
-  'date_creation' => '2#055',
-  'author' => '2#122',
-  'name' => '2#005',
-  'comment' => '2#120'
+    'keywords' => '2#025',
+    'date_creation' => '2#055',
+    'author' => '2#122',
+    'name' => '2#005',
+    'comment' => '2#120'
 ];
 
 // show_exif: Show EXIF metadata on picture.php (table or line presentation
@@ -289,10 +289,10 @@ $conf['show_exif'] = true;
 // $conf['show_exif_fields'] = array('CameraMake','CameraModel','DateTime');
 //
 $conf['show_exif_fields'] = [
-  'Make',
-  'Model',
-  'DateTimeOriginal',
-  'COMPUTED;ApertureFNumber'
+    'Make',
+    'Model',
+    'DateTimeOriginal',
+    'COMPUTED;ApertureFNumber'
 ];
 
 // use_exif: Use EXIF data during database synchronization with files
@@ -301,7 +301,7 @@ $conf['use_exif'] = true;
 
 // use_exif_mapping: same behaviour as use_iptc_mapping
 $conf['use_exif_mapping'] = [
-  'date_creation' => 'DateTimeOriginal'
+    'date_creation' => 'DateTimeOriginal'
 ];
 
 // allow_html_in_metadata: in case the origin of the photo is unsecure (user
@@ -510,8 +510,8 @@ $conf['nbm_treatment_timeout_default'] = 20;
 
 // Parameters used in get_recent_post_dates for the 2 kind of notification
 $conf['recent_post_dates'] = [
-  'RSS' => ['max_dates' => 5, 'max_elements' => 6, 'max_cats' => 6],
-  'NBM' => ['max_dates' => 7, 'max_elements' => 3, 'max_cats' => 9]
+    'RSS' => ['max_dates' => 5, 'max_elements' => 6, 'max_cats' => 6],
+    'NBM' => ['max_dates' => 7, 'max_elements' => 3, 'max_cats' => 9]
 ];
 
 // the author shown in the RSS feed <author> element
@@ -557,24 +557,24 @@ $conf['ws_max_users_per_page'] = 1000;
 //     $conf['filter_pages'] = array();
 $conf['filter_pages'] = [
     // Default page
-  'default' => [
-    'used' => true, 'cancel' => false, 'add_notes' => false
-  ],
+    'default' => [
+        'used' => true, 'cancel' => false, 'add_notes' => false
+    ],
     // Real pages
-  'index' => ['add_notes' => true],
-  'tags' => ['add_notes' => true],
-  'search' => ['add_notes' => true],
-  'comments' => ['add_notes' => true],
-  'admin' => ['used' => false],
-  'feed' => ['used' => false],
-  'notification' => ['used' => false],
-  'nbm' => ['used' => false],
-  'profile' => ['used' => false],
-  'ws' => ['used' => false],
-  'identification' => ['cancel' => true],
-  'install' => ['cancel' => true],
-  'password' => ['cancel' => true],
-  'register' => ['cancel' => true],
+    'index' => ['add_notes' => true],
+    'tags' => ['add_notes' => true],
+    'search' => ['add_notes' => true],
+    'comments' => ['add_notes' => true],
+    'admin' => ['used' => false],
+    'feed' => ['used' => false],
+    'notification' => ['used' => false],
+    'nbm' => ['used' => false],
+    'profile' => ['used' => false],
+    'ws' => ['used' => false],
+    'identification' => ['cancel' => true],
+    'install' => ['cancel' => true],
+    'password' => ['cancel' => true],
+    'register' => ['cancel' => true],
 ];
 
 // +-----------------------------------------------------------------------+
@@ -609,9 +609,6 @@ $conf['data_location'] = '_data/';
 // the Phyxo installation directory (but can be outside, as long as it's
 // reachable from your webserver).
 $conf['upload_dir'] = './upload';
-
-// where should the user be guided when there is no photo in his gallery yet?
-$conf['no_photo_yet_url'] = 'admin/index.php?page=photos_add';
 
 // enable the synchronization method for adding photos
 $conf['enable_synchronization'] = true;

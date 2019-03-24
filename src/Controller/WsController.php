@@ -17,8 +17,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Security\UserProvider;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class WsController extends BaseController
+class WsController extends Controller
 {
     protected $passwordEncoder, $csrfTokenManager;
 

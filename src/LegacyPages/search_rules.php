@@ -30,7 +30,7 @@ function inc_exc_str($is_included)
 
 
 $title = \Phyxo\Functions\Language::l10n('Search rules');
-include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+include(__DIR__ . '/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                        Textual rules creation                         |

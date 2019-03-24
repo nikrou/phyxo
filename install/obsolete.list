@@ -24,6 +24,7 @@ src/LegacyPages/identification.php
 src/LegacyPages/install.php
 src/LegacyPages/register.php
 src/LegacyPages/profile.php
+src/Controller/UserController.php
 admin/index.php
 include/cache.class.php
 include/derivative.inc.php
@@ -44,8 +45,13 @@ include/functions_rate.inc.php
 include/functions_search.inc.php
 include/functions_url.inc.php
 include/inflectors
+include/menubar.inc.php
+include/no_photo_yet.inc.php
 include/page_header.inc.php
 include/page_tail.inc.php
+include/picture_comment.inc.php
+include/picture_metadata.inc.php
+include/picture_rate.inc.php
 include/user.inc.php
 include/ws_functions
 include/ws_functions.inc.php

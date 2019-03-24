@@ -748,18 +748,19 @@ $template->assign(
 // |                               sub pages                               |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH . 'include/picture_rate.inc.php');
+
+include(__DIR__ . '/picture_rate.inc.php');
 if ($conf['activate_comments']) {
-    include(PHPWG_ROOT_PATH . 'include/picture_comment.inc.php');
+    include(__DIR__ . '/picture_comment.inc.php');
 }
 if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
-    include(PHPWG_ROOT_PATH . 'include/picture_metadata.inc.php');
+    include(__DIR__ . '/picture_metadata.inc.php');
 }
 
 if (!isset($page['start'])) {
     $page['start'] = 0;
 }
-include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+include(__DIR__ . '/menubar.inc.php');
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
 \Phyxo\Functions\Utils::flush_page_messages();

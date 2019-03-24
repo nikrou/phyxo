@@ -19,7 +19,7 @@ config: clean
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
-	composer install --no-dev -o -d $(DIST)/$(APP_NAME)
+	composer install --no-dev -o -a -d $(DIST)/$(APP_NAME)
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev
 	rm -f $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock $(DIST)/$(APP_NAME)/src/Log.php
 

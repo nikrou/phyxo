@@ -94,7 +94,7 @@ if (count($page['items']) > 0) {
 $template->assign('TITLE', $template_title);
 
 //-------------------------------------------------------------- menubar
-include(PHPWG_ROOT_PATH . 'include/menubar.inc.php');
+include(__DIR__ . '/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |  index page (categories, thumbnails, search, calendar, random, etc.)  |
@@ -252,13 +252,13 @@ if (empty($page['is_external']) or !$page['is_external']) {
     //------------------------------------------------------ main part : thumbnails
     if (0 == $page['start'] && !isset($page['flat']) && !isset($page['chronology_field']) && ('recent_cats' == $page['section'] or 'categories' == $page['section'])
         && (!isset($page['category']['count_categories']) || $page['category']['count_categories'] > 0)) {
-        include(PHPWG_ROOT_PATH . 'include/category_cats.inc.php');
+        include(__DIR__ . '/category_cats.inc.php');
 
         $template_filename = 'mainpage_categories';
     }
 
     if (!empty($page['items'])) {
-        include(PHPWG_ROOT_PATH . 'include/category_default.inc.php');
+        include(__DIR__ . '/category_default.inc.php');
 
         if (!isset($page['chronology_field'])) {
             $template_filename = 'thumbnails';

@@ -121,6 +121,14 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return array_unique($this->roles);
     }
 
+    public function isGuest(): bool {
+        return $this->getRoles() === ['ROLE_USER'];
+    }
+
+    public function isAdmin(): bool {
+        return in_array('ROLE_ADMIN', $this->getRoles());
+    }
+
     public function getPassword()
     {
         return $this->password;

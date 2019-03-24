@@ -125,12 +125,12 @@ if ($page['show_comments']) {
 
             $tpl_comment =
                 [
-                'ID' => $row['id'],
-                'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
-                'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
-                'WEBSITE_URL' => $row['website_url'],
-            ];
+                    'ID' => $row['id'],
+                    'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
+                    'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
+                    'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
+                    'WEBSITE_URL' => $row['website_url'],
+                ];
 
             if ($services['users']->canManageComment('delete', $row['author_id'])) {
                 $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
