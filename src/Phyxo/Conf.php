@@ -11,7 +11,7 @@
 
 namespace Phyxo;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use App\Repository\ConfigRepository;
 
 /**
@@ -27,7 +27,7 @@ class Conf implements \ArrayAccess
     const FILE_PREFIX = 'file_';
     const DB_PREFIX = 'db_';
 
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
     }

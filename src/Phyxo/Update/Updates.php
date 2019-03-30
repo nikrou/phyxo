@@ -24,7 +24,7 @@ class Updates
     private $default_themes = [], $default_plugins = [], $default_languages = [];
     private $update_url, $missing = [];
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, $page = 'updates')
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null, $page = 'updates')
     {
         $this->types = ['plugins', 'themes', 'languages'];
 

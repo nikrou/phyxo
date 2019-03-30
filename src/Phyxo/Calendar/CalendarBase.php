@@ -13,7 +13,7 @@ namespace Phyxo\Calendar;
 
 use App\Repository\ImageRepository;
 use App\Repository\CategoryRepository;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 
 /**
  * Base class for monthly and weekly calendar styles
@@ -31,7 +31,7 @@ abstract class CalendarBase
     protected $conn;
     protected $calendar_levels;
 
-    public function __construct(DBLayer $conn, string $date_type = 'posted')
+    public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
         $this->conn = $conn;
 

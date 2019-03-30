@@ -23,7 +23,7 @@ class Plugins extends Extensions
     private static $plugins_root_path = PHPWG_PLUGINS_PATH;
     private $conn;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn, $plugins_root_path = PHPWG_PLUGINS_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn, $plugins_root_path = PHPWG_PLUGINS_PATH)
     {
         self::$plugins_root_path = $plugins_root_path;
         $this->conn = $conn;

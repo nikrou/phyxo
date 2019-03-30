@@ -12,7 +12,7 @@
 namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
@@ -21,7 +21,7 @@ class CalendarWeekly extends CalendarBase
 {
     const CYEAR = 0, CWEEK = 1, CDAY = 2;
 
-    public function __construct(DBLayer $conn, string $date_type = 'posted')
+    public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
         global $lang, $conf;
 

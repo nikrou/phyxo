@@ -13,7 +13,7 @@ namespace Phyxo\Functions;
 
 use App\Repository\ImageRepository;
 use App\Repository\CommentRepository;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
@@ -23,7 +23,7 @@ class Notification
 {
     private $conn;
 
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
     }

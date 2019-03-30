@@ -13,7 +13,7 @@ namespace Phyxo\Model\Repository;
 
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Functions\Plugin;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
@@ -23,7 +23,7 @@ class Tags
 {
     private $conn, $conf;
 
-    public function __construct(DBLayer $conn, Conf $conf)
+    public function __construct(iDBLayer $conn, Conf $conf)
     {
         $this->conn = $conn;
         $this->conf = $conf;

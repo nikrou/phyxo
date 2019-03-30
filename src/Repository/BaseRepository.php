@@ -11,7 +11,7 @@
 
 namespace App\Repository;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 
 class BaseRepository
 {
@@ -48,7 +48,7 @@ class BaseRepository
 
     protected $conn = null;
 
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
     }

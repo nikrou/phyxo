@@ -23,7 +23,7 @@ class Themes extends Extensions
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn, string $themes_base_path = PHPWG_THEMES_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn, string $themes_base_path = PHPWG_THEMES_PATH)
     {
         $this->conn = $conn;
         self::$themes_base_path = $themes_base_path;

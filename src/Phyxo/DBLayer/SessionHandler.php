@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 class SessionHandler extends PdoSessionHandler
 {
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         parent::__construct($conn->getDsn(), ['db_table' => $conn->getPrefix() . 'sessions']);
     }

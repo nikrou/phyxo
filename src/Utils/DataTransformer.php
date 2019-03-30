@@ -11,11 +11,11 @@
 
 namespace App\Utils;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 
 class DataTransformer
 {
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
     }

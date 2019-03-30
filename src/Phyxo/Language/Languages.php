@@ -22,7 +22,7 @@ class Languages extends Extensions
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\DBLayer $conn = null, string $languages_base_path = PHPWG_LANGUAGES_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null, string $languages_base_path = PHPWG_LANGUAGES_PATH)
     {
         if (!is_null($conn)) {
             $this->conn = $conn;
@@ -31,7 +31,7 @@ class Languages extends Extensions
         $this->languages_base_path = $languages_base_path;
     }
 
-    public function setConnection(\Phyxo\DBLayer\DBLayer $conn)
+    public function setConnection(\Phyxo\DBLayer\iDBLayer $conn)
     {
         $this->conn = $conn;
     }

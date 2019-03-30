@@ -12,7 +12,7 @@
 namespace Phyxo\DataCollector;
 
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -20,7 +20,7 @@ class DBLayerCollector extends DataCollector
 {
     private $conn;
 
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
     }

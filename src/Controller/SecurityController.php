@@ -23,7 +23,7 @@ use App\Utils\UserManager;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 use App\Security\LoginFormAuthenticator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
@@ -137,7 +137,7 @@ class SecurityController extends AbstractController
         return $this->render('register.tpl', $tpl_params);
     }
 
-    public function profile(Request $request, DBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager)
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager)
     {
         $errors = [];
 
@@ -261,7 +261,7 @@ class SecurityController extends AbstractController
         return $this->render('profile.tpl', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, DBLayer $conn, UserManager $user_manager, Template $template, \Swift_Mailer $mailer,
+    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, Template $template, \Swift_Mailer $mailer,
             AdminTemplate $admin_template, $phyxoVersion, $phyxoWebsite)
     {
         $tpl_params = [];
@@ -343,7 +343,7 @@ class SecurityController extends AbstractController
         return $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, DBLayer $conn, string $activation_key, UserPasswordEncoderInterface $passwordEncoder)
+    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, UserPasswordEncoderInterface $passwordEncoder)
     {
         $token = $this->csrfTokenManager->getToken('authenticate');
         $errors = [];

@@ -11,7 +11,7 @@
 
 namespace App\Utils;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
@@ -23,7 +23,7 @@ class UserManager
 {
     private $conn, $conf, $passwordEncoder;
 
-    public function __construct(DBLayer $conn, Conf $conf)
+    public function __construct(iDBLayer $conn, Conf $conf)
     {
         $this->conn = $conn;
         $this->conf = $conf;

@@ -11,7 +11,7 @@
 
 namespace Phyxo\Model\Repository;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
@@ -34,7 +34,7 @@ class Users
 {
     private $conn, $conf, $user, $cache, $passwordEncoder;
 
-    public function __construct(DBLayer $conn, Conf $conf, array $user, array $cache)
+    public function __construct(iDBLayer $conn, Conf $conf, array $user, array $cache)
     {
         $this->conn = $conn;
         $this->conf = $conf;

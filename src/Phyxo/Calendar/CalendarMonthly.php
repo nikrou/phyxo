@@ -15,7 +15,7 @@ use Phyxo\Calendar\CalendarBase;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStdParams;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use App\Repository\ImageRepository;
 
 /**
@@ -25,7 +25,7 @@ class CalendarMonthly extends CalendarBase
 {
     const CYEAR = 0, CMONTH = 1, CDAY = 2;
 
-    public function __construct(DBLayer $conn, string $date_type = 'posted')
+    public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
         global $lang;
 

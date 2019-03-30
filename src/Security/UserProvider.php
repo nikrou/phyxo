@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\User;
@@ -26,7 +26,7 @@ class UserProvider implements UserProviderInterface
 {
     private $conn, $data_transformer;
 
-    public function __construct(DBLayer $conn, DataTransformer $data_transformer)
+    public function __construct(iDBLayer $conn, DataTransformer $data_transformer)
     {
         $this->conn = $conn;
         $this->data_transformer = $data_transformer;
