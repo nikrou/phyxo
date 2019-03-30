@@ -661,7 +661,7 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(DISTINCT id) as nb_images';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -715,7 +715,7 @@ class ImageRepository extends BaseRepository
         $query = 'SELECT ' . $this->conn->db_concat_ws($sub_queries, '-') . ' AS period';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -730,7 +730,7 @@ class ImageRepository extends BaseRepository
         $query = 'SELECT DISTINCT id,' . \Phyxo\Functions\SQL::addOrderByFields($order_by);
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -760,7 +760,7 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -792,7 +792,7 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -824,7 +824,7 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
@@ -855,7 +855,7 @@ class ImageRepository extends BaseRepository
         $query .= $this->conn->db_get_dayofweek($date_field) . '-1 as dow';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' ' . $condition;
+        $query .= ' WHERE ' . $condition;
         if (!empty($category_ids)) {
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }

@@ -470,29 +470,7 @@ class Search
      */
     public static function get_quick_search_results($q, $options)
     {
-        global $persistent_cache, $conf, $user;
-
-        $cache_key = $persistent_cache->make_key(
-            [
-                strtolower($q),
-                $conf['order_by'],
-                $user['id'], $user['cache_update_time'],
-                isset($options['permissions']) ? (boolean)$options['permissions'] : true,
-                isset($options['images_where']) ? $options['images_where'] : '',
-            ]
-        );
-        $res = null;
-        if ($persistent_cache->get($cache_key, $res)) {
-            return $res;
-        }
-
-        $res = self::get_quick_search_results_no_cache($q, $options);
-
-        if (count($res['items'])) {// cache the results only if not empty - otherwise it is useless
-            $persistent_cache->set($cache_key, $res, 300);
-        }
-
-        return $res;
+        return self::get_quick_search_results_no_cache($q, $options);
     }
 
     /**

@@ -217,7 +217,6 @@ if ('categories' == $page['section']) {
                 // remove categories from forbidden because just checked above
                 $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
             } else {
-                $cache_key = $persistent_cache->make_key('all_iids' . $user['id'] . $user['cache_update_time'] . $conf['order_by']);
                 unset($page['is_homepage']);
                 $where_sql = '1=1';
             }
@@ -225,15 +224,9 @@ if ('categories' == $page['section']) {
             $where_sql = 'category_id = ' . $page['category']['id'];
         }
 
-        if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
-            // main query
-            $result = (new ImageRepository($conn))->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
-            $page['items'] = $conn->result2array($result, null, 'image_id');
-
-            if (isset($cache_key)) {
-                $persistent_cache->set($cache_key, $page['items']);
-            }
-        }
+        // main query
+        $result = (new ImageRepository($conn))->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
+        $page['items'] = $conn->result2array($result, null, 'image_id');
     }
 } else { // special sections
     if ($page['section'] == 'tags') {
@@ -480,7 +473,7 @@ if (isset($page['chronology_field'])) {
                         'visible_categories' => 'category_id',
                         'visible_images' => 'id'
                     ],
-                    'WHERE',
+                    '',
                     true
                 )
             );
@@ -558,17 +551,7 @@ if (isset($page['chronology_field'])) {
             );
         }
 
-        if ('categories' == $page['section'] && !isset($page['category'])
-            && (count($page['chronology_date']) == 0 or ($page['chronology_date'][0] == 'any' && count($page['chronology_date']) == 1))) {
-            $cache_key = $persistent_cache->make_key($user['id'] . $user['cache_update_time'] . $calendar->date_field . $order_by);
-        }
-
-        if (!isset($cache_key) || !$persistent_cache->get($cache_key, $page['items'])) {
-            $page['items'] = $calendar->getItems($order_by);
-        if (isset($cache_key)) {
-                $persistent_cache->set($cache_key, $page['items']);
-            }
-        }
+        $page['items'] = $calendar->getItems($order_by);
     }
 }
 

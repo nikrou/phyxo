@@ -11,8 +11,6 @@
 
 defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 
-use Phyxo\Conf;
-use Phyxo\Cache\PersistentFileCache;
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 
@@ -25,7 +23,6 @@ $prefixeTable = 'phyxo_';
 $pwg_loaded_plugins = [];
 
 $debug = '';
-$cache = [];
 $page = [
     'infos' => [],
     'errors' => [],
@@ -57,8 +54,6 @@ if (!empty($conf['show_php_errors'])) {
     @ini_set('error_reporting', $conf['show_php_errors']);
     @ini_set('display_errors', true);
 }
-
-$persistent_cache = new PersistentFileCache();
 
 // services
 include(PHPWG_ROOT_PATH . 'include/services.php');

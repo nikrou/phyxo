@@ -15,7 +15,7 @@ if (!defined("PLUGINS_BASE_URL")) {
 
 use Phyxo\Plugin\Plugins;
 
-$template->set_filenames(array('plugins' => 'plugins_installed.tpl'));
+$template->set_filenames(['plugins' => 'plugins_installed.tpl']);
 
 // should we display details on plugins?
 if (isset($_GET['show_details'])) {
@@ -49,7 +49,6 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
         if (empty($page['errors'])) {
             if ($_GET['action'] == 'activate' or $_GET['action'] == 'deactivate') {
                 $template->delete_compiled_templates();
-                $persistent_cache->purge(true);
             }
             \Phyxo\Functions\Utils::redirect(PLUGINS_BASE_URL . '&section=installed');
         }
@@ -58,7 +57,7 @@ if (isset($_GET['action']) and isset($_GET['plugin'])) {
 
 //--------------------------------------------------------Incompatible Plugins
 if (isset($_GET['incompatible_plugins'])) {
-    $incompatible_plugins = array();
+    $incompatible_plugins = [];
     foreach ($plugins->getIncompatiblePlugins() as $plugin => $version) {
         if ($plugin == '~~expire~~') {
             continue;
@@ -74,7 +73,7 @@ if (isset($_GET['incompatible_plugins'])) {
 // +-----------------------------------------------------------------------+
 
 $plugins->sortFsPlugins('name');
-$tpl_plugins = array();
+$tpl_plugins = [];
 $active_plugins = 0;
 
 foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
@@ -84,7 +83,7 @@ foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
         unset($_SESSION['incompatible_plugins']);
     }
 
-    $tpl_plugin = array(
+    $tpl_plugin = [
         'ID' => $plugin_id,
         'NAME' => $fs_plugin['name'],
         'VISIT_URL' => $fs_plugin['uri'],
@@ -93,7 +92,7 @@ foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
         'AUTHOR' => $fs_plugin['author'],
         'AUTHOR_URL' => @$fs_plugin['author uri'],
         'U_ACTION' => sprintf($action_url, $plugin_id),
-    );
+    ];
 
     if (isset($plugins->getDbPlugins()[$plugin_id])) {
         $tpl_plugin['STATE'] = $plugins->getDbPlugins()[$plugin_id]['state'];
@@ -118,13 +117,13 @@ $missing_plugin_ids = array_diff(
 
 if (count($missing_plugin_ids) > 0) {
     foreach ($missing_plugin_ids as $plugin_id) {
-        $tpl_plugins[] = array(
+        $tpl_plugins[] = [
             'NAME' => $plugin_id,
             'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
             'DESC' => \Phyxo\Functions\Language::l10n('ERROR: THIS PLUGIN IS MISSING BUT IT IS INSTALLED! UNINSTALL IT NOW.'),
             'U_ACTION' => sprintf($action_url, $plugin_id),
             'STATE' => 'missing',
-        );
+        ];
     }
     $template->append('plugin_states', 'missing');
 }
@@ -132,7 +131,7 @@ if (count($missing_plugin_ids) > 0) {
 // sort plugins by state then by name
 function cmp($a, $b)
 {
-    $s = array('missing' => 1, 'active' => 2, 'inactive' => 3);
+    $s = ['missing' => 1, 'active' => 2, 'inactive' => 3];
 
     if ($a['STATE'] == $b['STATE']) {
         return strcasecmp($a['NAME'], $b['NAME']);
@@ -143,11 +142,11 @@ function cmp($a, $b)
 usort($tpl_plugins, 'cmp');
 
 $template->assign(
-    array(
+    [
         'plugins' => $tpl_plugins,
         'active_plugins' => $active_plugins,
         'PWG_TOKEN' => $pwg_token,
         'base_url' => PLUGINS_BASE_URL . '&amp;section=installed',
         'show_details' => $show_details,
-    )
+    ]
 );

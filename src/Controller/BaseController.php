@@ -49,7 +49,7 @@ abstract class BaseController extends Controller
 
         try {
             global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user,
-                $page, $persistent_cache, $lang, $lang_info;
+                $page, $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));

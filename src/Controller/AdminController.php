@@ -60,8 +60,8 @@ class AdminController extends Controller
         $csrf_token = $this->csrfTokenManager->getToken('authenticate');
 
         try {
-            global $cache, $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page,
-                $persistent_cache, $lang, $lang_info;
+            global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page,
+                $lang, $lang_info;
 
             ob_start();
             chdir(dirname($legacy_file));

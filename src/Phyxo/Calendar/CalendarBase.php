@@ -217,7 +217,7 @@ abstract class CalendarBase
         global $page, $template;
 
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findImagesInPeriodsByIds($this->calendar_levels[$level]['sql'], $this->items, $this->get_date_where($level));
+            $result = (new ImageRepository($this->conn))->findImagesInPeriodsByIds($this->calendar_levels[$level]['sql'], $this->items, $this->getDateWhere($level));
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
