@@ -12,12 +12,14 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Calendar\CalendarMonthly;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CalendarController extends BaseController
 {
-    public function categoriesMonthly(string $legacyBaseDir, Request $request, string $date_type, string $view_type)
+    public function categoriesMonthly(string $legacyBaseDir, Request $request, string $date_type, string $view_type, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -47,8 +49,10 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
     }
 
-    public function categoriesWeekly(string $legacyBaseDir, Request $request, string $date_type)
+    public function categoriesWeekly(string $legacyBaseDir, Request $request, string $date_type, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -78,8 +82,10 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
     }
 
-    public function categoryMonthly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, string $view_type)
+    public function categoryMonthly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, string $view_type, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -112,8 +118,10 @@ class CalendarController extends BaseController
         return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
     }
 
-    public function categoryWeekly(string $legacyBaseDir, Request $request, int $category_id, string $date_type)
+    public function categoryWeekly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

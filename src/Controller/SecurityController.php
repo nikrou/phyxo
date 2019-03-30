@@ -33,11 +33,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class SecurityController extends AbstractController
 {
-    private $csrfTokenManager;
     private $conf;
     private $language_load = [];
 
-    public function __construct(Template $template, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
+    public function __construct(Template $template, Conf $conf, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
     {
         $this->conf = $conf;
 
@@ -58,18 +57,16 @@ class SecurityController extends AbstractController
 
         $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
         $template->assign('PHYXO_URL', $phyxoWebsite);
-
-        $this->csrfTokenManager = $csrfTokenManager;
     }
 
-    public function login(AuthenticationUtils $authenticationUtils, Request $request)
+    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request)
     {
         $error = $authenticationUtils->getLastAuthenticationError();
         $last_username = $authenticationUtils->getLastUsername();
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $token = $this->csrfTokenManager->getToken('authenticate');
+        $token = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = [
             'login_action' => $this->generateUrl('login'),
@@ -88,13 +85,14 @@ class SecurityController extends AbstractController
         UserManager $user_manager,
         UserPasswordEncoderInterface $passwordEncoder,
         LoginFormAuthenticator $loginAuthenticator,
+        CsrfTokenManagerInterface $csrfTokenManager,
         GuardAuthenticatorHandler $guardHandler
     ) {
         $errors = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $token = $this->csrfTokenManager->getToken('authenticate');
+        $token = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = [
             'register_action' => $this->generateUrl('register'),
@@ -261,14 +259,21 @@ class SecurityController extends AbstractController
         return $this->render('profile.tpl', $tpl_params);
     }
 
-    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, Template $template, \Swift_Mailer $mailer,
-            AdminTemplate $admin_template, $phyxoVersion, $phyxoWebsite)
+    public function forgotPassword(
+        Request $request,
+        iDBLayer $conn,
+        UserManager $user_manager,
+        \Swift_Mailer $mailer,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        AdminTemplate $admin_template,
+        $phyxoVersion,
+        $phyxoWebsite)
     {
         $tpl_params = [];
 
         $errors = [];
         $infos = [];
-        $token = $this->csrfTokenManager->getToken('authenticate');
+        $token = $csrfTokenManager->getToken('authenticate');
         $title = \Phyxo\Functions\Language::l10n('Forgot your password?');
 
         if ($request->request->get('_username_or_email')) {
@@ -343,9 +348,9 @@ class SecurityController extends AbstractController
         return $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, UserPasswordEncoderInterface $passwordEncoder)
+    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
     {
-        $token = $this->csrfTokenManager->getToken('authenticate');
+        $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
         $infos = [];
 

@@ -20,7 +20,7 @@ use Phyxo\Model\Repository\Users;
 $services = [];
 $services['tags'] = new Tags($conn, $conf);
 $services['comments'] = new Comments($conn, $conf);
-$services['users'] = new Users($conn, $conf, $user, $cache);
+$services['users'] = new Users($conn, $conf, $user);
 if (isset($passwordEncoder)) {
     $services['users']->setPasswordEncoder($passwordEncoder);
 }

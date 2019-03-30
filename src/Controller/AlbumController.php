@@ -12,11 +12,14 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class AlbumController extends BaseController
 {
-    public function album(string $legacyBaseDir, Request $request, $category_id, $start_id = null)
+    public function album(string $legacyBaseDir, Request $request, $category_id, $start_id = null, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -34,8 +37,10 @@ class AlbumController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function albumByParams(string $legacyBaseDir, Request $request, $extra_params = null)
+    public function albumByParams(string $legacyBaseDir, Request $request, $extra_params = null, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
         

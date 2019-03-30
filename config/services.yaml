@@ -39,6 +39,11 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages}'
 
+    # service is  enabled after installation in services_extra.yaml (because of csrf protection not enabled by default)
+    App\Security\LoginFormAuthenticator:
+        autowire: false
+        autoconfigure: false
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
@@ -81,3 +86,7 @@ services:
     phyxo.conf:
       public: true
       alias: 'Phyxo\Conf'
+
+    # services with iDBLayer as dependency ; activated in services_extra.yaml
+    App\Command\UserCreateCommand:
+      autoconfigure: false

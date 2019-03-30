@@ -13,11 +13,14 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class MediaController extends BaseController
 {
-    public function index(string $legacyBaseDir, Request $request, string $path, string $derivative, ? string $sizes = null, string $image_extension)
+    public function index(string $legacyBaseDir, Request $request, string $path, string $derivative, ? string $sizes = null, string $image_extension, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $legacy_file = sprintf('%s/i.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

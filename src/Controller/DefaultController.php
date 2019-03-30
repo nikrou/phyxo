@@ -15,11 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class DefaultController extends BaseController
 {
-    public function home(string $legacyBaseDir, Request $request)
+    public function home(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -33,8 +36,10 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function about(string $legacyBaseDir, Request $request)
+    public function about(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/about.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -53,8 +58,10 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'feed.tpl');
     }
 
-    public function notification(string $legacyBaseDir, Request $request)
+    public function notification(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/notification.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -63,8 +70,10 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'notification.tpl');
     }
 
-    public function comments(string $legacyBaseDir, Request $request)
+    public function comments(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/comments.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

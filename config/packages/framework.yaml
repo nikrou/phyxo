@@ -1,11 +1,15 @@
 framework:
     secret: '%env(APP_SECRET)%'
     default_locale: en_GB
-    csrf_protection: ~
+
+    # csrf protection is enabled after installation in services_extra.yaml
+    # csrf_protection: ~
     #http_method_override: true
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
+
+    # sessions are enabled after installation in services_extra.yaml
     # session: ~
 
     #esi: true

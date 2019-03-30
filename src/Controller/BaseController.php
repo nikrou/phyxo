@@ -14,23 +14,16 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Security\UserProvider;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 abstract class BaseController extends Controller
 {
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserProvider $userProvider, UserPasswordEncoderInterface $passwordEncoder, $phyxoVersion, $phyxoWebsite)
+    public function __construct(UserProvider $userProvider)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
         $this->userProvider = $userProvider;
-        $this->passwordEncoder = $passwordEncoder;
-
-        $this->phyxoVersion = $phyxoVersion;
-        $this->phyxoWebsite = $phyxoWebsite;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -43,7 +36,6 @@ abstract class BaseController extends Controller
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
         }
-        $passwordEncoder = $this->passwordEncoder;
 
         $tpl_params = [];
 

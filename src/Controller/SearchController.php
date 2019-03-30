@@ -12,11 +12,14 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class SearchController extends BaseController
 {
-    public function qsearch(string $legacyBaseDir, Request $request)
+    public function qsearch(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/qsearch.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -25,8 +28,10 @@ class SearchController extends BaseController
         return $this->doResponse($legacy_file, 'qsearch.tpl');
     }
 
-    public function search(string $legacyBaseDir, Request $request)
+    public function search(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/search.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -35,8 +40,10 @@ class SearchController extends BaseController
         return $this->doResponse($legacy_file, 'search.tpl');
     }
 
-    public function searchResults(string $legacyBaseDir, Request $request, $search_id, $start_id = null)
+    public function searchResults(string $legacyBaseDir, Request $request, $search_id, $start_id = null, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -54,8 +61,10 @@ class SearchController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function searchRules(string $legacyBaseDir, Request $request, $search_id)
+    public function searchRules(string $legacyBaseDir, Request $request, $search_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/search_rules.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -64,8 +73,10 @@ class SearchController extends BaseController
         return $this->doResponse($legacy_file, 'search_rules.tpl');
     }
 
-    public function imagesBySearch(string $legacyBaseDir, Request $request, $image_id, $search_id)
+    public function imagesBySearch(string $legacyBaseDir, Request $request, $image_id, $search_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

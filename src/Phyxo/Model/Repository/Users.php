@@ -32,14 +32,13 @@ use App\Repository\BaseRepository;
 
 class Users
 {
-    private $conn, $conf, $user, $cache, $passwordEncoder;
+    private $conn, $conf, $user, $passwordEncoder;
 
-    public function __construct(iDBLayer $conn, Conf $conf, array $user, array $cache)
+    public function __construct(iDBLayer $conn, Conf $conf, array $user)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->user = $user;
-        $this->cache = $cache;
 
         Plugin::add_event_handler('try_log_user', [$this, 'login']);
     }
@@ -473,30 +472,21 @@ class Users
      */
     public function getDefaultUserInfo($convert_str = true)
     {
-        if (!isset($this->cache['default_user'])) {
-            $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
-            if ($this->conn->db_num_rows($result) > 0) {
-                $this->cache['default_user'] = $this->conn->db_fetch_assoc($result);
+        $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
+        if ($this->conn->db_num_rows($result) > 0) {
+            $default_user = $this->conn->db_fetch_assoc($result);
 
-                unset($this->cache['default_user']['user_id'], $this->cache['default_user']['status'], $this->cache['default_user']['registration_date']);
-
-
-            } else {
-                $this->cache['default_user'] = false;
-            }
-        }
-
-        if (is_array($this->cache['default_user']) and $convert_str) {
-            $default_user = $this->cache['default_user'];
+            unset($default_user['user_id'], $default_user['status'], $default_user['registration_date']);
             foreach ($default_user as &$value) {
                 // If the field is true or false, the variable is transformed into a boolean value.
                 if (!is_null($value) && $this->conn->is_boolean($value)) {
                     $value = $this->conn->get_boolean($value);
                 }
             }
+
             return $default_user;
         } else {
-            return $this->cache['default_user'];
+            return false;
         }
     }
 

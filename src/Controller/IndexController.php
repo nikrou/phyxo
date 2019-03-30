@@ -12,13 +12,15 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\DBLayer\iDBLayer;
 use App\Repository\ImageRepository;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class IndexController extends BaseController
 {
-    public function favorites(string $legacyBaseDir, Request $request)
+    public function favorites(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -36,8 +38,10 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function mostVisited(string $legacyBaseDir, Request $request)
+    public function mostVisited(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -55,8 +59,10 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function recentPics(string $legacyBaseDir, Request $request)
+    public function recentPics(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -74,8 +80,10 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function recentCats(string $legacyBaseDir, Request $request)
+    public function recentCats(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -93,8 +101,10 @@ class IndexController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function bestRated(string $legacyBaseDir, Request $request)
+    public function bestRated(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
@@ -141,8 +151,10 @@ class IndexController extends BaseController
         }
     }
 
-    public function randomList(string $legacyBaseDir, Request $request, $list)
+    public function randomList(string $legacyBaseDir, Request $request, $list, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 

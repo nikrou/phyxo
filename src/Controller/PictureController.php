@@ -12,11 +12,14 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class PictureController extends BaseController
 {
-    public function picture(string $legacyBaseDir, Request $request, $image_id, $type, $element_id)
+    public function picture(string $legacyBaseDir, Request $request, $image_id, $type, $element_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -25,8 +28,10 @@ class PictureController extends BaseController
         return $this->doResponse($legacy_file, 'picture.tpl');
     }
 
-    public function picturesByTypes(string $legacyBaseDir, Request $request, $image_id, $type)
+    public function picturesByTypes(string $legacyBaseDir, Request $request, $image_id, $type, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -39,8 +44,10 @@ class PictureController extends BaseController
         return $this->doResponse($legacy_file, 'picture.tpl');
     }
 
-    public function pictureFromCalendar(string $legacyBaseDir, Request $request, int $image_id)
+    public function pictureFromCalendar(string $legacyBaseDir, Request $request, int $image_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

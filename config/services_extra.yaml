@@ -1,4 +1,5 @@
 framework:
+  csrf_protection: ~
   session:
     handler_id: Phyxo\DBLayer\SessionHandler
 
@@ -7,6 +8,11 @@ services:
     autowire: true
     autoconfigure: true
     public: false
+
+  App\Security\LoginFormAuthenticator:
+    autowire: true
+    autoconfigure: true
+
   Phyxo\DataCollector\DBLayerCollector:
     tags:
       - name: data_collector
@@ -14,3 +20,6 @@ services:
         id: 'app.dblayer_collector'
 
   Phyxo\DBLayer\SessionHandler: ~
+
+  App\Command\UserCreateCommand:
+    autoconfigure: true

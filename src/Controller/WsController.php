@@ -21,16 +21,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class WsController extends Controller
 {
-    protected $passwordEncoder, $csrfTokenManager;
-
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->userProvider = $userProvider;
-        $this->passwordEncoder = $passwordEncoder;
-    }
-
-    public function index(string $legacyBaseDir, Request $request)
+    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
     {
         $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
 
@@ -38,11 +29,10 @@ class WsController extends Controller
         $_SERVER['PATH_INFO'] = '/ws';
 
         $container = $this->container; // allow accessing container as global variable
-        $passwordEncoder = $this->passwordEncoder;
-        $csrf_token = $this->csrfTokenManager->getToken('authenticate');
+        $csrf_token = $csrfTokenManager->getToken('authenticate');
 
         if (!$app_user = $this->getUser()) {
-            $app_user = $this->userProvider->loadUserByUsername('guest');
+            $app_user = $userProvider->loadUserByUsername('guest');
         }
 
         try {

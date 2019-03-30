@@ -53,6 +53,6 @@ security:
     access_control:
         - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
         - { path: ^/(identification|password|register)(\.php)?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/profile(\.php)?$, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/profile(\.php)?$, roles: ROLE_USER }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

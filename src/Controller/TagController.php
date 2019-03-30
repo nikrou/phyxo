@@ -12,11 +12,14 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class TagController extends BaseController
 {
-    public function list(string $legacyBaseDir, Request $request)
+    public function list(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+
         $legacy_file = sprintf('%s/tags.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -25,8 +28,10 @@ class TagController extends BaseController
         return $this->doResponse($legacy_file, 'tags.tpl');
     }
 
-    public function imagesByTags(string $legacyBaseDir, Request $request, $tag_id)
+    public function imagesByTags(string $legacyBaseDir, Request $request, $tag_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
+        $this->csrfTokenManager = $csrfTokenManager;
+        
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 

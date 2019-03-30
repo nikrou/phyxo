@@ -22,24 +22,10 @@ class AdminController extends Controller
 {
     protected $csrfTokenManager, $passwordEncoder;
 
-    public function __construct(CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
-    }
-
-    public function install(string $legacyBaseDir, Request $request)
-    {
-        $legacy_file = sprintf('%s/install.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = '/install.php';
-
-        return $this->doResponse($legacy_file);
-    }
-
-    public function index(string $legacyBaseDir, Request $request)
-    {
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
