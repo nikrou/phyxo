@@ -585,7 +585,7 @@ class Search
             );
         }
 
-        $result = (new ImageRepository($conn))->searchDistinctId('id', $where_clauses, $conf['order_by']);
+        $result = (new ImageRepository($conn))->searchDistinctId('id', $where_clauses, $permissions, $conf['order_by']);
         $ids = $conn->result2array($result, null, 'id');
 
         $debug[] = count($ids) . ' final photo count -->';

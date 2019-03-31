@@ -280,7 +280,7 @@ class Notification
      */
     public static function get_recent_post_dates($max_dates, $max_elements, $max_cats)
     {
-        global $conf, $user, $conn;
+        global $conn;
 
         $where_sql = \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
@@ -289,7 +289,7 @@ class Notification
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
-                $result = (new ImageRepository($conn))->findRandomImages($where_sql, $max_elements);
+                $result = (new ImageRepository($conn))->findRandomImages($where_sql, '', $max_elements);
                 $dates[$i]['elements'] = $conn->result2array($result);
             }
 

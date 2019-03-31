@@ -285,8 +285,8 @@ class Updates
             $ignore_list = [];
 
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
-                if (isset($fs_ext['extension']) and isset($server_ext[$fs_ext['extension']])) {
-                    $ext_info = $server_ext[$fs_ext['extension']];
+                if (isset($fs_ext['extension']) and isset($this->getServerExtensions()[$fs_ext['extension']])) {
+                    $ext_info = $this->getServerExtensions()[$fs_ext['extension']];
 
                     if (!version_compare($fs_ext['version'], $ext_info['revision_name'], '>=')) {
                         if (in_array($ext_id, $conf['updates_ignored'][$type])) {
