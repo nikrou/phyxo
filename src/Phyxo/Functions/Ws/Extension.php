@@ -58,14 +58,13 @@ class Extension
                 if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
                     $extension->performAction('deactivate', $extension_id);
 
-                    \Phyxo\Functions\Utils::redirect(PHPWG_ROOT_PATH
-                        . 'ws.php'
+                    \Phyxo\Functions\Utils::redirect('ws.php'
                         . '?method=pwg.extensions.update'
                         . '&type=plugins'
                         . '&id=' . $extension_id
                         . '&revision=' . $revision
                         . '&reactivate=true'
-                        . '&pwg_token=' . \Phyxo\Functions\Utils::get_token());
+                        . '&pwg_token=' . \Phyxo\Functions\Utils::get_token()); // @TODO: use symfony router
                 }
 
                 $errors = $extension->performAction('update', $extension_id, ['revision' => $revision]);

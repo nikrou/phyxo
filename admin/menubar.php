@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
 use Phyxo\Block\BlockManager;
 
 function abs_fn_cmp($a, $b)
@@ -40,7 +36,7 @@ if (is_string($mb_conf)) {
 }
 
 if (!is_array($mb_conf)) {
-    $mb_conf = array();
+    $mb_conf = [];
 }
 
 
@@ -51,7 +47,7 @@ foreach ($mb_conf as $id => $pos) {
 }
 
 if (isset($_POST['reset'])) {
-    $mb_conf = array();
+    $mb_conf = [];
     $conf['blk_' . $menu->get_id()] = '';
 }
 
@@ -87,14 +83,14 @@ make_consecutive($mb_conf);
 foreach ($mb_conf as $id => $pos) {
     $template->append(
         'blocks',
-        array(
+        [
             'pos' => $pos / 5,
             'reg' => $reg_blocks[$id]
-        )
+        ]
     );
 }
 
 $action = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=menubar';
-$template->assign(array('F_ACTION' => $action));
+$template->assign(['F_ACTION' => $action]);
 
 $template_filename = 'menubar';

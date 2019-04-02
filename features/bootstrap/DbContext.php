@@ -19,7 +19,7 @@ use Behat\Gherkin\Node\TableNode;
 class DbContext implements Context
 {
     private static $prefix = 'phyxo_';
-    private $response_params = array();
+    private $response_params = [];
     private $last_id;
     private static $conf_loaded = false, $pdo = null;
 
@@ -735,10 +735,6 @@ class DbContext implements Context
 
     private function addTag($tag_name)
     {
-        if (!defined('PHPWG_ROOT_PATH')) {
-            define('PHPWG_ROOT_PATH', __DIR__ . '/../../');
-        }
-
         if (!self::$conf_loaded) {
             self::configDB($this->parameters);
         }
@@ -764,7 +760,7 @@ class DbContext implements Context
         if (preg_match('`\[(.*)]`', $param_tags, $matches)) {
             $tags = array_map('trim', explode(',', $matches[1]));
         } else {
-            $tags = array($param_tags);
+            $tags = [$param_tags];
         }
         foreach ($tags as &$tag) {
             if (preg_match('`^SAVED:(.*)$`', $tag, $matches)) {
@@ -805,7 +801,7 @@ class DbContext implements Context
         if (preg_match('`\[(.*)]`', $param_tags, $matches)) {
             $tags = array_map('trim', explode(',', $matches[1]));
         } else {
-            $tags = array($param_tags);
+            $tags = [$param_tags];
         }
         foreach ($tags as &$tag) {
             if (preg_match('`^SAVED:(.*)$`', $tag, $matches)) {

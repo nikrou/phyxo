@@ -1,17 +1,13 @@
 <?php
- /*
-  * This file is part of Phyxo package
-  *
-  * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-  * Licensed under the GPL version 2.0 license.
-  *
-  * For the full copyright and license information, please view the LICENSE
-  * file that was distributed with this source code.
-  */
-
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
@@ -390,12 +386,13 @@ if ($section === 'main') {
     }
 } elseif ($section === 'watermark') {
     $watermark_files = [];
-    foreach (glob(PHPWG_ROOT_PATH . 'themes/default/watermarks/*.png') as $file) {
-        $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
+    $base_dir = __DIR__ . '/..';
+    foreach (glob($base_dir . '/themes/*/watermarks/*.png') as $file) {
+        $watermark_files[] = substr($file, strlen($base_dir));
     }
-    if (($glob = glob(PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'watermarks/*.png')) !== false) {
+    if (($glob = glob($base_dir . '/' . PWG_LOCAL_DIR . 'watermarks/*.png')) !== false) {
         foreach ($glob as $file) {
-            $watermark_files[] = substr($file, strlen(PHPWG_ROOT_PATH));
+            $watermark_files[] = substr($file, strlen($base_dir));
         }
     }
     $watermark_filemap = ['' => '---'];

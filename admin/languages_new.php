@@ -21,7 +21,7 @@ $languages = new Languages($conn);
 // |                           setup check                                 |
 // +-----------------------------------------------------------------------+
 
-$languages_dir = PHPWG_ROOT_PATH . 'language';
+$languages_dir = __DIR__ . '/../language';
 if (!is_writable($languages_dir)) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Add write access to the "%s" directory', 'language');
 }
@@ -82,7 +82,7 @@ foreach ($languages->getServerLanguages(true) as $language) {
 
     $url_auto_install = LANGUAGES_BASE_URL . '&amp;section=new&amp;revision=' . $language['revision_id'] . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
-    $template->append('languages', array(
+    $template->append('languages', [
         'EXT_NAME' => $language['extension_name'],
         'EXT_DESC' => $language['extension_description'],
         'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $language['extension_id'],
@@ -92,5 +92,5 @@ foreach ($languages->getServerLanguages(true) as $language) {
         'AUTHOR' => $language['author_name'],
         'URL_INSTALL' => $url_auto_install,
         'URL_DOWNLOAD' => $language['download_url'] . '&amp;origin=phyxo'
-    ));
+    ]);
 }

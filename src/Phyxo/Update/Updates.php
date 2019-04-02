@@ -120,7 +120,7 @@ class Updates
     {
         $zip = new PclZip($zip_file);
         $not_writable = [];
-        $root = PHPWG_ROOT_PATH;
+        $root = __DIR__ . '/../../../';
 
         foreach ($zip->listContent() as $file) {
             $filename = str_replace('phyxo/', '', $file['filename']);
@@ -141,7 +141,7 @@ class Updates
         // @TODO: remove arobase ; extract try to make a touch on every file but sometimes failed.
         $result = @$zip->extract(
             PCLZIP_OPT_PATH,
-            PHPWG_ROOT_PATH,
+            __DIR__ . '/../../../',
             PCLZIP_OPT_REMOVE_PATH,
             'phyxo',
             PCLZIP_OPT_SET_CHMOD,

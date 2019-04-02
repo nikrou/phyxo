@@ -9,11 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
-use Phyxo\DBLayer\DBLayer;
 use App\Repository\UpgradeRepository;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
@@ -23,7 +18,7 @@ if (!$conf['check_upgrade_feed']) {
 }
 
 define('PREFIX_TABLE', $prefixeTable);
-define('UPGRADES_PATH', PHPWG_ROOT_PATH . 'install/db');
+define('UPGRADES_PATH', __DIR__ . '/../install/db');
 
 // +-----------------------------------------------------------------------+
 // |                              Upgrades                                 |

@@ -9,18 +9,14 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 $upgrade_description = 'Use json functions instead of serialize ones';
 
 $conf->loadFromDB();
 
-$params = array(
+$params = [
     'picture_informations',
     'updates_ignored',
-);
+];
 
 foreach ($params as $param) {
     $conf[$param] = unserialize($conf[$param]);

@@ -120,9 +120,9 @@ class Upgrade
      *
      * @return array
      */
-    public static function get_available_upgrade_ids(string $upgrades_base_path = PHPWG_ROOT_PATH)
+    public static function get_available_upgrade_ids()
     {
-        $upgrades_path = $upgrades_base_path . '/install/db';
+        $upgrades_path = __DIR__ . '/../../../install/db';
 
         $available_upgrade_ids = [];
 

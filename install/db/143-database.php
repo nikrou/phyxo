@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 $upgrade_description = 'enlarge your user_id (16 millions possible users)';
 
 

@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-defined('PHPWG_ROOT_PATH') or die('Hacking attempt!');
-
 $upgrade_description = 'add lastmodified field for categories, images, groups, users, tags';
 
 $tables = [

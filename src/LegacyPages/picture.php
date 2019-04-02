@@ -16,9 +16,8 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
 
-define('PHPWG_ROOT_PATH', '../../');
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-include(PHPWG_ROOT_PATH . 'include/section_init.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
+include_once(__DIR__ . '/../../include/section_init.inc.php');
 
 
 // Check Access and exit when user status is not ok

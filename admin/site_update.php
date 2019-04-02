@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 use Phyxo\LocalSiteReader;
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
@@ -63,7 +59,7 @@ $infos = [];
 if ($site_is_remote) {
     \Phyxo\Functions\HTTP::fatal_error('remote sites not supported');
 } else {
-    $site_reader = new LocalSiteReader(PHPWG_ROOT_PATH . $site_url);
+    $site_reader = new LocalSiteReader(__DIR__ . '/../' . $site_url);
 }
 
 $general_failure = true;
@@ -107,7 +103,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
     } else {
         $basedir = preg_replace('#/*$#', '', $site_url);
     }
-    $basedir = PHPWG_ROOT_PATH . $basedir;
+    $basedir = __DIR__ . '/../' . $basedir;
 
     // we need to have fulldirs as keys to make efficient comparison
     $db_fulldirs = array_flip($db_fulldirs);
@@ -324,7 +320,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
         if (substr_compare($fulldir, '../', 0, 3) == 0) {
             $fulldir = substr($fulldir, 3);
         }
-        $to_delete_derivative_dirs[] = PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $fulldir;
+        $to_delete_derivative_dirs[] = __DIR__ . '/../' . PWG_DERIVATIVE_DIR . $fulldir;
     }
 
     if (count($to_delete) > 0) {

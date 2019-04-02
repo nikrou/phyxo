@@ -44,4 +44,4 @@ $template->assign([
 
 $template_filename = 'users_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/users_' . $page['section'] . '.php');
+include(__DIR__ . '/users_' . $page['section'] . '.php');

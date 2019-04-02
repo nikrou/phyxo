@@ -98,9 +98,9 @@ class Utils
             $path .= '/';
         }
 
-        if (substr(PHPWG_ROOT_PATH, 0, 3) == '../') { // this is maybe a plugin inside pwg directory
+        if (substr(__DIR__ . '/../../../', 0, 3) == '../') { // this is maybe a plugin inside pwg directory
             // @TODO - what if it is an external script outside PWG ?
-            $path = $path . PHPWG_ROOT_PATH;
+            $path = $path . __DIR__ . '/../../../';
             while (1) {
                 $new = preg_replace('#[^/]+/\.\.(/|$)#', '', $path);
                 if ($new == $path) {
@@ -223,7 +223,7 @@ class Utils
     {
         $path = $element_info['path'];
         if (!\Phyxo\Functions\URL::url_is_remote($path)) {
-            $path = PHPWG_ROOT_PATH . $path;
+            $path = __DIR__ . '/../../../' . $path;
         }
         return $path;
     }
@@ -1768,10 +1768,11 @@ class Utils
         $pattern .= '\.[a-zA-Z0-9]{3,4}$#';
 
         // @TODO: use glob
-        if ($contents = @opendir(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR)) {
+        $base_dir = __DIR__ . '/../../../';
+        if ($contents = @opendir($base_dir . PWG_DERIVATIVE_DIR)) {
             while (($node = readdir($contents)) !== false) {
-                if ($node != '.' and $node != '..' and is_dir(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $node)) {
-                    self::clear_derivative_cache_rec(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $node, $pattern);
+                if ($node != '.' and $node != '..' && is_dir($base_dir . PWG_DERIVATIVE_DIR . $node)) {
+                    self::clear_derivative_cache_rec($base_dir . PWG_DERIVATIVE_DIR . $node, $pattern);
                 }
             }
             closedir($contents);
@@ -1840,7 +1841,7 @@ class Utils
             $pattern = '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '*';
         }
         $path = substr_replace($path, $pattern, $dot, 0);
-        if (($glob = glob(PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $path)) !== false) {
+        if (($glob = glob(__DIR__ . '/../../../' . PWG_DERIVATIVE_DIR . $path)) !== false) {
             foreach ($glob as $file) {
                 unlink($file);
             }
@@ -1904,7 +1905,7 @@ class Utils
         global $conn;
 
         $tables = [
-            'categories' => '\App\Repository\CaddieRepository',
+            'categories' => '\App\Repository\CategoryRepository',
             'groups' => '\App\Repository\GroupRepository',
             'images' => '\App\Repository\ImageRepository',
             'tags' => '\App\Repository\TagRepository',
@@ -1925,7 +1926,7 @@ class Utils
         ];
 
         foreach ($requested as $repository) {
-            $result = (new $repository($conn))->getMaxLastModified();
+            $result = (new $tables[$repository]($conn))->getMaxLastModified();
             $row = $conn->db_fetch_row($result);
 
             $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);

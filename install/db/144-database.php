@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 $upgrade_description = 'add activation_key_expire';
 
 if (in_array($conf['dblayer'], ['mysql'])) {

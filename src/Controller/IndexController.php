@@ -126,7 +126,6 @@ class IndexController extends BaseController
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
         }
-        define('PHPWG_ROOT_PATH', '../');
         $legacy_file = __DIR__ . '/../../include/common.inc.php';
 
         ob_start();

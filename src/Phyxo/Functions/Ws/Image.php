@@ -738,7 +738,7 @@ class Image
             return new Error(403, 'Invalid security token');
         }
 
-        $upload_dir = PHPWG_ROOT_PATH . $conf['upload_dir'] . '/buffer';
+        $upload_dir = __DIR__ . '/../../../../' . $conf['upload_dir'] . '/buffer';
 
         // create the upload directory tree if not exists
         if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {

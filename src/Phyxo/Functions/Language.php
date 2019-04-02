@@ -130,7 +130,7 @@ class Language
         if (empty($lang_id)) {
             return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
         } else {
-            $f = PHPWG_ROOT_PATH . 'language/' . $lang_id . '/common.lang.php';
+            $f = __DIR__ . '/../../../language/' . $lang_id . '/common.lang.php';
             if (file_exists($f)) {
                 include($f);
                 return !empty($lang_info['parent']) ? $lang_info['parent'] : null;

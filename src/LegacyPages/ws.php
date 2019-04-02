@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
-defined('PHPWG_ROOT_PATH') or define('PHPWG_ROOT_PATH', '../../');
 define('IN_WS', true);
 
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Protocols\RestRequestHandler;
 use Phyxo\Ws\Protocols\JsonEncoder;
 
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
 
 if (!$conf['allow_web_services']) {

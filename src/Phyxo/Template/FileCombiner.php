@@ -47,10 +47,10 @@ final class FileCombiner
     public static function clear_combined_files()
     {
         // @TODO: use glob
-        $dir = opendir(PHPWG_ROOT_PATH . PWG_COMBINED_DIR);
+        $dir = opendir(__DIR__ . '/../../../' . PWG_COMBINED_DIR);
         while ($file = readdir($dir)) {
             if (Utils::get_extension($file) == 'js' || Utils::get_extension($file) == 'css') {
-                unlink(PHPWG_ROOT_PATH . PWG_COMBINED_DIR . $file);
+                unlink(__DIR__ . '/../../../' . PWG_COMBINED_DIR . $file);
             }
         }
         closedir($dir);
@@ -100,7 +100,7 @@ final class FileCombiner
             $key[] = $combinable->path;
             $key[] = $combinable->version;
             if ($conf['template_compile_check']) {
-                $key[] = filemtime(PHPWG_ROOT_PATH . $combinable->path);
+                $key[] = filemtime(__DIR__ . '/../../../' . $combinable->path);
             }
             $pending[] = $combinable;
         }
@@ -121,7 +121,7 @@ final class FileCombiner
         if (count($pending) > 1) {
             $key = join('>', $key);
             $file = PWG_COMBINED_DIR . base_convert(crc32($key), 10, 36) . '.' . $this->type;
-            if ($force || !file_exists(PHPWG_ROOT_PATH . $file)) {
+            if ($force || !file_exists(__DIR__ . '/../../../' . $file)) {
                 $output = '';
                 foreach ($pending as $combinable) {
                     $output .= "/*BEGIN $combinable->path */\n";
@@ -129,9 +129,9 @@ final class FileCombiner
                     $output .= "\n";
                 }
                 $output = "/*BEGIN header */\n" . $header . "\n" . $output;
-                Utils::mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
-                file_put_contents(PHPWG_ROOT_PATH . $file, $output);
-                @chmod(PHPWG_ROOT_PATH . $file, 0644);
+                Utils::mkgetdir(dirname(__DIR__ . '/../../../' . $file));
+                file_put_contents(__DIR__ . '/../../../' . $file, $output);
+                @chmod(__DIR__ . '/../../../' . $file, 0644);
             }
             $result[] = new Combinable("combi", $file, false);
         } elseif (count($pending) == 1) {
@@ -162,10 +162,10 @@ final class FileCombiner
             if (!$return_content) {
                 $key = [$combinable->path, $combinable->version];
                 if ($conf['template_compile_check']) {
-                    $key[] = filemtime(PHPWG_ROOT_PATH . $combinable->path);
+                    $key[] = filemtime(__DIR__ . '/../../../' . $combinable->path);
                 }
                 $file = PWG_COMBINED_DIR . 't' . base_convert(crc32(implode(',', $key)), 10, 36) . '.' . $this->type;
-                if (!$force && file_exists(PHPWG_ROOT_PATH . $file)) {
+                if (!$force && file_exists(__DIR__ . '/../../../' . $file)) {
                     $combinable->path = $file;
                     $combinable->version = false;
                     return;
@@ -173,7 +173,7 @@ final class FileCombiner
             }
 
             $handle = $this->type . '.' . $combinable->id;
-            $template->set_filename($handle, realpath(PHPWG_ROOT_PATH . $combinable->path));
+            $template->set_filename($handle, realpath(__DIR__ . '/../../../' . $combinable->path));
             Plugin::trigger_notify('combinable_preparse', $template, $combinable, $this); //allow themes and plugins to set their own vars to template ...
             $content = $template->parse($handle, true);
 
@@ -186,11 +186,11 @@ final class FileCombiner
             if ($return_content) {
                 return $content;
             }
-            Utils::mkgetdir(dirname(PHPWG_ROOT_PATH . $file));
-            file_put_contents(PHPWG_ROOT_PATH . $file, $content);
+            Utils::mkgetdir(dirname(__DIR__ . '/../../../' . $file));
+            file_put_contents(__DIR__ . '/../../../' . $file, $content);
             $combinable->path = $file;
         } elseif ($return_content) {
-            $content = file_get_contents(PHPWG_ROOT_PATH . $combinable->path);
+            $content = file_get_contents(__DIR__ . '/../../../' . $combinable->path);
             if ($this->is_css) {
                 $content = self::process_css($content, $combinable->path, $header);
             } else {
@@ -270,7 +270,7 @@ final class FileCombiner
 
                 if (strpos($match[1], '..') !== false // Possible attempt to get out of Piwigo's dir
                 or strpos($match[1], '://') !== false // Remote URL
-                or !is_readable(PHPWG_ROOT_PATH . $dir . '/' . $match[1])) {
+                or !is_readable(__DIR__ . '/../../../' . $dir . '/' . $match[1])) {
                     // If anything is suspicious, don't try to process the
                     // @import. Since @import need to be first and we are
                     // concatenating several CSS files, remove it from here and return
@@ -278,7 +278,7 @@ final class FileCombiner
                     $header .= $match[0];
                     $replace[] = '';
                 } else {
-                    $sub_css = file_get_contents(PHPWG_ROOT_PATH . $dir . "/$match[1]");
+                    $sub_css = file_get_contents(__DIR__ . '/../../../' . $dir . "/$match[1]");
                     $replace[] = self::process_css_rec($sub_css, dirname($dir . "/$match[1]"), $header);
                 }
             }

@@ -12,8 +12,7 @@
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 
-define('PHPWG_ROOT_PATH', '../../');
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 $services['users']->checkStatus(ACCESS_FREE);
 
 /**

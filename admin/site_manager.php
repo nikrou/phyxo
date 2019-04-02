@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 
@@ -107,12 +103,12 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
     $tpl_var =
         [
-        'NAME' => $row['galleries_url'],
-        'TYPE' => \Phyxo\Functions\Language::l10n($is_remote ? 'Remote' : 'Local'),
-        'CATEGORIES' => (int)@$sites_detail[$row['id']]['nb_categories'],
-        'IMAGES' => (int)@$sites_detail[$row['id']]['nb_images'],
-        'U_SYNCHRONIZE' => $update_url
-    ];
+            'NAME' => $row['galleries_url'],
+            'TYPE' => \Phyxo\Functions\Language::l10n($is_remote ? 'Remote' : 'Local'),
+            'CATEGORIES' => (int)@$sites_detail[$row['id']]['nb_categories'],
+            'IMAGES' => (int)@$sites_detail[$row['id']]['nb_images'],
+            'U_SYNCHRONIZE' => $update_url
+        ];
 
     if ($row['id'] != 1) {
         $tpl_var['U_DELETE'] = $base_url . 'delete';

@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
-
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 
@@ -48,7 +46,7 @@ $conn = $container->get('phyxo.conn');
 $conf = $container->get('phyxo.conf');
 $template = $container->get('templating.engine.smarty');
 
-include(PHPWG_ROOT_PATH . 'include/constants.php');
+include(__DIR__ . '/constants.php');
 
 if (!empty($conf['show_php_errors'])) {
     @ini_set('error_reporting', $conf['show_php_errors']);
@@ -56,7 +54,7 @@ if (!empty($conf['show_php_errors'])) {
 }
 
 // services
-include(PHPWG_ROOT_PATH . 'include/services.php');
+include(__DIR__ . '/services.php');
 
 if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {
@@ -91,7 +89,7 @@ if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $app_user->getLanguage()]);
 }
 \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
-\Phyxo\Functions\Language::load_language('lang', PHPWG_ROOT_PATH . PWG_LOCAL_DIR, ['local' => true]);
+\Phyxo\Functions\Language::load_language('lang', __DIR__ . '/' . PWG_LOCAL_DIR, ['local' => true]);
 
 if (!defined('IN_WS') || !IN_WS) {
     $template->setLang($lang);
@@ -99,10 +97,10 @@ if (!defined('IN_WS') || !IN_WS) {
     $template->setConf($conf);
     $template->postConstruct();
     if (defined('IN_ADMIN') && IN_ADMIN) { // Admin template
-        $template->set_theme(PHPWG_ROOT_PATH . 'admin/theme', '.');
+        $template->set_theme(__DIR__ . '/../admin/theme', '.');
     } else {
         $theme = $user['theme'];
-        $template->set_theme(PHPWG_ROOT_PATH . 'themes', $theme);
+        $template->set_theme(__DIR__ . '/../themes', $theme);
     }
 }
 

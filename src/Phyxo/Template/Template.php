@@ -20,7 +20,6 @@ use Phyxo\Image\ImageStdParams;
 
 use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
-use Phyxo\Functions\Utils;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -1022,12 +1021,12 @@ class Template implements EngineInterface
         $css = [];
         foreach ($smarty->getTemplateVars('themes') as $theme) {
             $f = PWG_LOCAL_DIR . 'css/' . $theme['id'] . '-rules.css';
-            if (file_exists(PHPWG_ROOT_PATH . $f)) {
+            if (file_exists(__DIR__ . '/../../../' . $f)) {
                 $css[] = "{combine_css path='$f' order=10}";
             }
         }
         $f = PWG_LOCAL_DIR . 'css/rules.css';
-        if (file_exists(PHPWG_ROOT_PATH . $f)) {
+        if (file_exists(__DIR__ . '/../../../' . $f)) {
             $css[] = "{combine_css path='$f' order=10}";
         }
 

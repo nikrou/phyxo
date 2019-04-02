@@ -16,8 +16,7 @@ use App\Repository\ImageRepository;
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
-define('PHPWG_ROOT_PATH', '../../');
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 
 if (!$conf['activate_comments']) {
     \Phyxo\Functions\HTTP::page_not_found(null);

@@ -11,7 +11,6 @@
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-define('PHPWG_ROOT_PATH', './../../');
 define('PEM_URL', 'http://localhost/pem');
 define('PHPWG_VERSION', 'tests');
 

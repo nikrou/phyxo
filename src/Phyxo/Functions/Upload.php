@@ -164,7 +164,7 @@ class Upload
 
             // upload directory hierarchy
             $upload_dir = sprintf(
-                PHPWG_ROOT_PATH . $conf['upload_dir'] . '/%s/%s/%s',
+                __DIR__ . '/../../../' . $conf['upload_dir'] . '/%s/%s/%s',
                 $year,
                 $month,
                 $day
@@ -346,7 +346,7 @@ class Upload
                 'file' => $file,
                 'name' => \Phyxo\Functions\Utils::get_name_from_file($file),
                 'date_available' => $dbnow,
-                'path' => preg_replace('#^' . preg_quote(PHPWG_ROOT_PATH) . '#', '', $file_path),
+                'path' => preg_replace('#^' . preg_quote(__DIR__ . '/../../../') . '#', '', $file_path),
                 'filesize' => $file_infos['filesize'],
                 'width' => $file_infos['width'],
                 'height' => $file_infos['height'],
@@ -526,8 +526,8 @@ class Upload
     {
         global $conf;
 
-        $relative_dir = preg_replace('#^' . realpath(PHPWG_ROOT_PATH) . '#', '', $conf['upload_dir']);
-        $absolute_dir = realpath(PHPWG_ROOT_PATH) . '/' . $conf['upload_dir'];
+        $relative_dir = preg_replace('#^' . realpath(__DIR__ . '/../../../') . '#', '', $conf['upload_dir']);
+        $absolute_dir = realpath(__DIR__ . '/../../../') . '/' . $conf['upload_dir'];
 
         if (!is_dir($absolute_dir)) {
             if (!is_writable(dirname($absolute_dir))) {

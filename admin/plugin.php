@@ -9,32 +9,28 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
-
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
-$sections = explode('/', $_GET['section'] );
-for ($i=0; $i<count($sections); $i++) {
-    if (empty($sections[$i]) or $sections[$i]=='..') {
+$sections = explode('/', $_GET['section']);
+for ($i = 0; $i < count($sections); $i++) {
+    if (empty($sections[$i]) or $sections[$i] == '..') {
         unset($sections[$i]);
         $i--;
     }
 }
 
-if (count($sections)<2) {
+if (count($sections) < 2) {
     die('Invalid plugin URL');
 }
 
 $plugin_id = $sections[0];
 if (!isset($pwg_loaded_plugins[$plugin_id])) {
-    die('Invalid URL - plugin '.$plugin_id.' not active');
+    die('Invalid URL - plugin ' . $plugin_id . ' not active');
 }
 
-$filename = PHPWG_PLUGINS_PATH.'/'.implode('/', $sections);
+$filename = PHPWG_PLUGINS_PATH . '/' . implode('/', $sections);
 if (is_readable($filename)) {
     include_once($filename);
 } else {
-    die('Missing file '.$filename);
+    die('Missing file ' . $filename);
 }

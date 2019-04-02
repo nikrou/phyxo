@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
-
 define('GROUPS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=groups');
 
 use Phyxo\TabSheet\TabSheet;
@@ -51,4 +47,4 @@ $template->assign([
 
 $template_filename = 'groups_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/groups_' . $page['section'] . '.php');
+include(__DIR__ . '/groups_' . $page['section'] . '.php');

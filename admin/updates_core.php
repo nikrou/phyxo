@@ -91,7 +91,7 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 if ($step == 2 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
+        $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
         $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
@@ -99,7 +99,7 @@ if ($step == 2 and $services['users']->isWebmaster()) {
         try {
             $updater->upgrade($zip);
 
-            \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
+            \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
             \Phyxo\Functions\Utils::invalidate_user_cache(true);
             $template->delete_compiled_templates();
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
@@ -122,7 +122,7 @@ if ($step == 2 and $services['users']->isWebmaster()) {
 // +-----------------------------------------------------------------------+
 if ($step == 3 and $services['users']->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-        $zip = PHPWG_ROOT_PATH . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
+        $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
         $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
@@ -130,10 +130,10 @@ if ($step == 3 and $services['users']->isWebmaster()) {
         try {
             $updater->upgrade($zip);
 
-            \Phyxo\Functions\Utils::deltree(PHPWG_ROOT_PATH . $conf['data_location'] . 'update');
+            \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
             \Phyxo\Functions\Utils::invalidate_user_cache(true);
             $template->delete_compiled_templates();
-            \Phyxo\Functions\Utils::redirect(PHPWG_ROOT_PATH . 'upgrade.php?now=');
+            \Phyxo\Functions\Utils::redirect(__DIR__ . '/../' . 'upgrade.php?now='); // @TODO: use symfony router
         } catch (Exception $e) {
             $step = 0;
             $message = $e->getMessage();

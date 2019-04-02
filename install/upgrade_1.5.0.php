@@ -11,14 +11,6 @@
 
 use App\Repository\UpgradeRepository;
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('This page cannot be loaded directly, load upgrade.php');
-} else {
-    if (!defined('PHPWG_IN_UPGRADE') or !PHPWG_IN_UPGRADE) {
-        die('Hacking attempt!');
-    }
-}
-
 $release_from = '1.5.0';
 $first_id = 146;
 $last_id = 146;

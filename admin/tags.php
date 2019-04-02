@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 define('TAGS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
 
 use Phyxo\TabSheet\TabSheet;
@@ -40,7 +36,7 @@ $template->assign([
     'U_PAGE' => TAGS_BASE_URL
 ]);
 
-include_once(PHPWG_ROOT_PATH . 'admin/tags_' . $page['section'] . '.php');
+include_once(__DIR__ . '/tags_' . $page['section'] . '.php');
 
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

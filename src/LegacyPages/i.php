@@ -10,19 +10,8 @@
  */
 
 use App\Repository\ImageRepository;
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
 
-define('PHPWG_ROOT_PATH', '../../');
-
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 
 $page = [];
 $begin = $step = microtime(true);
@@ -123,7 +112,7 @@ $timing['load'] = time_step($step);
 $changes = 0;
 
 // rotate
-if (0 != $page['rotation_angle']) {
+if (isset($page['rotation_angle']) && $page['rotation_angle'] != 0) {
     $image->rotate($page['rotation_angle']);
     $changes++;
     $timing['rotate'] = time_step($step);
@@ -152,7 +141,7 @@ if ($params->sharpen) {
 
 if ($params->will_watermark($d_size)) {
     $wm = \Phyxo\Image\ImageStdParams::get_watermark();
-    $wm_image = new \Phyxo\Image\Image(PHPWG_ROOT_PATH . $wm->file);
+    $wm_image = new \Phyxo\Image\Image(__DIR__ . '/../../' . $wm->file);
     $wm_size = [$wm_image->get_width(), $wm_image->get_height()];
     if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
         $wm_scaling_params = \Phyxo\Image\SizingParams::classic($d_size[0], $d_size[1]);
@@ -232,7 +221,7 @@ function ilog()
             $line .= $arg;
         }
     }
-    $file = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp/i.log';
+    $file = __DIR__ . '/../../' . $conf['data_location'] . 'tmp/i.log';
     if (false == file_put_contents($file, $line . "\n", FILE_APPEND)) {
         \Phyxo\Functions\Utils::mkgetdir(dirname($file));
     }
@@ -340,7 +329,7 @@ function parse_request()
         preg_match($conf['sync_chars_regex'], $token) or ierror('Invalid chars in request', 400);
     }
 
-    $page['derivative_path'] = PHPWG_ROOT_PATH . PWG_DERIVATIVE_DIR . $req;
+    $page['derivative_path'] = __DIR__ . '/../../' . PWG_DERIVATIVE_DIR . $req;
     $page['derivative_url'] = PWG_DERIVATIVE_DIR . $req;
 
     $pos = strrpos($req, '.');
@@ -393,14 +382,14 @@ function parse_request()
         }
     }
 
-    if (is_file(PHPWG_ROOT_PATH . $req . $ext)) {
+    if (is_file(__DIR__ . '/../../' . $req . $ext)) {
         $req = './' . $req; // will be used to match #iamges.path
-    } elseif (is_file(PHPWG_ROOT_PATH . '../' . $req . $ext)) {
+    } elseif (is_file(__DIR__ . '/../../../' . $req . $ext)) {
         $req = '../' . $req;
     }
 
     $page['src_location'] = $req . $ext;
-    $page['src_path'] = PHPWG_ROOT_PATH . $page['src_location'];
+    $page['src_path'] = __DIR__ . '/../../' . $page['src_location'];
     $page['src_url'] = $page['root_path'] . $page['src_location'];
 }
 
@@ -466,7 +455,7 @@ function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtim
         $params->use_watermark = false;
         $params->sharpen = min(1, $params->sharpen);
         $page['src_path'] = $candidate_path;
-        $page['src_url'] = $page['root_path'] . substr($candidate_path, strlen(PHPWG_ROOT_PATH));
+        $page['src_url'] = $page['root_path'] . substr($candidate_path, strlen(__DIR__ . '/../../'));
         $page['rotation_angle'] = 0;
         return true;
     }

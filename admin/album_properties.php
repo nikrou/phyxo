@@ -235,9 +235,9 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
 
         $tpl_representant['picture'] =
             [
-            'SRC' => $src,
-            'URL' => $url
-        ];
+                'SRC' => $src,
+                'URL' => $url
+            ];
     }
 
     // can the admin choose to set a new random representant ?

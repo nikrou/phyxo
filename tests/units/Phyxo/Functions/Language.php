@@ -40,7 +40,7 @@ class Language extends atoum
     {
         // not existing language file
         $this
-            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname(PHPWG_ROOT_PATH) . '/'))
+            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname(PHPWG_LANGUAGES_PATH) . '/'))
             ->isIdenticalTo(false);
 
         $this

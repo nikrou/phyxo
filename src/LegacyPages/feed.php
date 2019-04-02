@@ -9,8 +9,7 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', '../../');
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 
 use App\Repository\UserFeedRepository;
 use App\Repository\BaseRepository;
@@ -148,7 +147,7 @@ foreach ($dates as $date_detail) { // for each recent post date we create a feed
     $rss->addItem($item);
 }
 
-$fileName = PHPWG_ROOT_PATH . $conf['data_location'] . 'tmp';
+$fileName = __DIR__ . '/../../' . $conf['data_location'] . 'tmp';
 \Phyxo\Functions\Utils::mkgetdir($fileName); // just in case
 $fileName .= '/feed.xml';
 // send XML feed

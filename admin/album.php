@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 use Phyxo\TabSheet\TabSheet;
 use App\Repository\CategoryRepository;
 
@@ -60,4 +56,4 @@ $template->assign([
 
 $template_filename = 'album_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/album_' . $page['section'] . '.php');
+include(__DIR__ . '/album_' . $page['section'] . '.php');

@@ -19,10 +19,9 @@ $infos = [];
 $errors = [];
 $warnings = [];
 
-define('PHPWG_ROOT_PATH', '../../');
 define('IN_ADMIN', true);
 
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_admin');
 
@@ -88,7 +87,7 @@ if (isset($_GET['page']) and preg_match('/^album-(\d+)(?:-(.*))?$/', $_GET['page
 //     }
 // }
 
-if (isset($_GET['page']) and preg_match('/^[a-z_]*$/', $_GET['page']) and is_file(PHPWG_ROOT_PATH . 'admin/' . $_GET['page'] . '.php')) {
+if (isset($_GET['page']) && preg_match('/^[a-z_]*$/', $_GET['page']) && is_file(__DIR__ . '/../../admin/' . $_GET['page'] . '.php')) {
     $page['page'] = $_GET['page'];
 } else {
     $page['page'] = 'intro';
@@ -178,12 +177,12 @@ $template->assign('plugin_menu_items', $plugin_menu_links);
 // Only for pages witch change permissions
 if (in_array($page['page'], ['site_manager', 'site_update'])
     or (!empty($_POST) and in_array($page['page'], [
-    'album',        // public/private; lock/unlock, permissions
-    'albums_move',
-    'albums_options',  // public/private; lock/unlock
-    'user_list',    // group assoc; user level
-    'user_perm',
-]))) {
+        'album',        // public/private; lock/unlock, permissions
+        'albums_move',
+        'albums_options',  // public/private; lock/unlock
+        'user_list',    // group assoc; user level
+        'user_perm',
+    ]))) {
     \Phyxo\Functions\Utils::invalidate_user_cache();
 }
 
@@ -192,7 +191,7 @@ if (in_array($page['page'], ['site_manager', 'site_update'])
 // +-----------------------------------------------------------------------+
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_admin_page');
-include(PHPWG_ROOT_PATH . 'admin/' . $page['page'] . '.php');
+include(__DIR__ . '/../../admin/' . $page['page'] . '.php');
 
 $template->assign('ACTIVE_MENU', $link_start . $page['page']);
 
@@ -200,8 +199,8 @@ $template->assign('ACTIVE_MENU', $link_start . $page['page']);
 // | Sending html code                                                     |
 // +-----------------------------------------------------------------------+
 
-include(PHPWG_ROOT_PATH . '/admin/include/page_header.php');
-include(PHPWG_ROOT_PATH . '/admin/include/page_tail.php');
+include(__DIR__ . '/../../admin/include/page_header.php');
+include(__DIR__ . '/../../admin/include/page_tail.php');
 
 $template->assign([
     'errors' => $errors,

@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-define('PHPWG_ROOT_PATH', __DIR__ . '/../');
-
-require_once(PHPWG_ROOT_PATH . 'vendor/autoload.php');
+require_once(__DIR__ . '/../vendor/autoload.php');
 
 // @TODO: refactoring between that script and web install through ../install.php
 
@@ -40,21 +38,21 @@ try {
 }
 
 $conf = new Conf($conn);
-$conf->loadFromFile(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
+$conf->loadFromFile(__DIR__ . '/../include/config_default.inc.php');
 $languages = new Languages($conn);
 
-require_once(PHPWG_ROOT_PATH . 'include/constants.php');
+include_once(__DIR__ . '/../include/constants.php');
 
 // services
-include(PHPWG_ROOT_PATH . 'include/services.php');
+include(__DIR__ . '/../include/services.php');
 
 $conn->executeSqlFile(
-    PHPWG_ROOT_PATH . 'install/phyxo_structure-' . $conn->getLayer() . '.sql',
+    __DIR__ . '/../install/phyxo_structure-' . $conn->getLayer() . '.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
 $conn->executeSqlFile(
-    PHPWG_ROOT_PATH . 'install/config.sql',
+    __DIR__ . '/../install/config.sql',
     DEFAULT_PREFIX_TABLE,
     $prefixeTable
 );
@@ -87,7 +85,7 @@ foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
     }
 }
 
-(new SiteRepository($conn))->addSite(['id' => 1, 'galleries_url' => PHPWG_ROOT_PATH . 'galleries/']);
+(new SiteRepository($conn))->addSite(['id' => 1, 'galleries_url' => 'galleries/']);
 if ($conf['dblayer'] == 'pgsql') {
     $conn->db_query('ALTER SEQUENCE ' . strtolower(\App\Repository\BaseRepository::SITES_TABLE) . '_id_seq RESTART WITH 2');
 }
@@ -123,12 +121,12 @@ foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids() as $upgrade_id) {
     ];
 }
 (new UpgradeRepository($conn))->massInserts(array_keys($datas[0]), $datas);
-if (!is_dir(PHPWG_ROOT_PATH . $conf['data_location'])) {
-    mkdir(PHPWG_ROOT_PATH . $conf['data_location']);
+if (!is_dir(__DIR__ . '/../' . $conf['data_location'])) {
+    mkdir(__DIR__ . '/../' . $conf['data_location']);
 }
-if (!is_dir(PHPWG_ROOT_PATH . $conf['upload_dir'])) {
-    mkdir(PHPWG_ROOT_PATH . $conf['upload_dir']);
+if (!is_dir(__DIR__ . '/../' . $conf['upload_dir'])) {
+    mkdir(__DIR__ . '/../' . $conf['upload_dir']);
 }
 chmod($conf['data_location'], 0777);
 chmod($conf['upload_dir'], 0777);
-chmod(PHPWG_ROOT_PATH . 'db', 0777);
+chmod(__DIR__ . '/../' . 'db', 0777);

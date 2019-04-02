@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 define('ALBUMS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=albums');
 
 use Phyxo\TabSheet\TabSheet;
@@ -49,4 +45,4 @@ $template->assign([
 
 $template_filename = 'albums_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/albums_' . $page['section'] . '.php');
+include(__DIR__ . '/albums_' . $page['section'] . '.php');

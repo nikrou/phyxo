@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 /**
  * Display filtered history lines
  */
@@ -55,4 +51,4 @@ $template->assign([
 
 $template_filename = 'history_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/history_' . $page['section'] . '.php');
+include(__DIR__ . '/history_' . $page['section'] . '.php');

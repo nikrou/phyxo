@@ -13,8 +13,7 @@
 // |                           initialization                              |
 // +-----------------------------------------------------------------------+
 
-define('PHPWG_ROOT_PATH', '../../');
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
+include_once(__DIR__ . '/../../include/common.inc.php');
 
 use App\Repository\UserFeedRepository;
 

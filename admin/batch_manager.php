@@ -15,10 +15,6 @@
  *
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 define('BATCH_MANAGER_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=batch_manager');
 
 use Phyxo\TabSheet\TabSheet;
@@ -541,4 +537,4 @@ $template->assign('filesize', $filesize);
 
 $template_filename = 'batch_manager_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/batch_manager_' . $page['section'] . '.php');
+include(__DIR__ . '/batch_manager_' . $page['section'] . '.php');

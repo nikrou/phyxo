@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
-
 define('PHOTOS_ADD_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photos_add');
 
 use Phyxo\TabSheet\TabSheet;
@@ -58,4 +54,4 @@ $template->assign([
 
 $template_filename = 'photos_add_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/photos_add_' . $page['section'] . '.php');
+include(__DIR__ . '/photos_add_' . $page['section'] . '.php');

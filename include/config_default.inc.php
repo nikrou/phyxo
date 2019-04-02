@@ -122,10 +122,10 @@ $conf['links'] = [];
 //  for each link is associated a php condition
 //  '' condition is equivalent to 'return true;'
 //  $conf['random_index_redirect'] = array(
-//    PHPWG_ROOT_PATH.'index.php?/best_rated' => 'return true;',
-//    PHPWG_ROOT_PATH.'index.php?/recent_pics' => 'return Users::isGuest();',
-//    PHPWG_ROOT_PATH.'random.php' => '',
-//    PHPWG_ROOT_PATH.'index.php?/categories' => '',
+//    '/best_rated' => 'return true;',
+//    '/recent_pics' => 'return Users::isGuest();',
+//    '/random' => '',
+//    '/categories' => '',
 //    );
 $conf['random_index_redirect'] = [];
 

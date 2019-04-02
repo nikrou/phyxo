@@ -44,14 +44,14 @@ if ($conf['question_mark_in_urls'] == false and isset($_SERVER['PATH_INFO']) and
     $rewritten = $_SERVER['PATH_INFO'];
     $rewritten = str_replace('//', '/', $rewritten);
     $path_count = count(explode('/', $rewritten));
-    $page['root_path'] = PHPWG_ROOT_PATH . str_repeat('../', $path_count - 1);
+    $page['root_path'] = __DIR__ . '/../' . str_repeat('../', $path_count - 1);
 } else {
     $rewritten = '';
     foreach (array_keys($_GET) as $keynum => $key) {
         $rewritten = $key;
         break;
     }
-    $page['root_path'] = PHPWG_ROOT_PATH;
+    $page['root_path'] = __DIR__ . '/../';
 }
 
 if (strncmp($page['root_path'], './', 2) == 0) {

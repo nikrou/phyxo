@@ -55,9 +55,9 @@ class SrcImage
             $ext = strtolower($ext);
             $this->rel_path = Plugin::trigger_change('get_mimetype_location', \Phyxo\Functions\Theme::get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
             $this->flags |= self::IS_MIMETYPE;
-            if (($size = @getimagesize(PHPWG_ROOT_PATH . $this->rel_path)) === false) {
+            if (($size = @getimagesize(__DIR__ . '/../../../' . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';
-                $size = getimagesize(PHPWG_ROOT_PATH . $this->rel_path);
+                $size = getimagesize(__DIR__ . '/../../../' . $this->rel_path);
             }
             $this->size = [$size[0], $size[1]];
         }
@@ -103,7 +103,7 @@ class SrcImage
      */
     public function get_path()
     {
-        return PHPWG_ROOT_PATH . $this->rel_path;
+        return __DIR__ . '/../../../' . $this->rel_path;
     }
 
     /**

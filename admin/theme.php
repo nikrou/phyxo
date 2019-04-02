@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
-
 use Phyxo\Theme\Themes;
 
 $services['users']->checkStatus(ACCESS_ADMINISTRATOR);

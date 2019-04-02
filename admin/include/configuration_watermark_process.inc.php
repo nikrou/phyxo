@@ -1,17 +1,13 @@
 <?php
-    /*
-     * This file is part of Phyxo package
-     *
-     * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-     * Licensed under the GPL version 2.0 license.
-     *
-     * For the full copyright and license information, please view the LICENSE
-     * file that was distributed with this source code.
-     */
-
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 $errors = [];
 $pwatermark = $_POST['w'];
@@ -25,13 +21,14 @@ if (isset($_FILES['watermarkImage']) and !empty($_FILES['watermarkImage']['tmp_n
             'PNG'
         );
     } else {
-        $upload_dir = PHPWG_ROOT_PATH . PWG_LOCAL_DIR . 'watermarks';
+        $base_dir = __DIR__ . '/../../';
+        $upload_dir = $base_dir . PWG_LOCAL_DIR . 'watermarks';
         if (\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
             $new_name = \Phyxo\Functions\Utils::get_filename_wo_extension($_FILES['watermarkImage']['name']) . '.png';
             $file_path = $upload_dir . '/' . $new_name;
 
             if (move_uploaded_file($_FILES['watermarkImage']['tmp_name'], $file_path)) {
-                $pwatermark['file'] = substr($file_path, strlen(PHPWG_ROOT_PATH));
+                $pwatermark['file'] = substr($file_path, strlen($base_dir));
             } else {
                 $page['errors'][] = $errors['watermarkImage'] = "$file_path " . \Phyxo\Functions\Language::l10n('no write access');
             }

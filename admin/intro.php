@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
 use GuzzleHttp\Client;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
@@ -24,8 +20,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\BaseRepository;
-
-include_once PHPWG_ROOT_PATH . 'include/dblayers.inc.php';
+use Phyxo\DBLayer\DBLayer;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -84,7 +79,7 @@ $template->assign(
         'PWG_VERSION' => PHPWG_VERSION,
         'OS' => PHP_OS,
         'PHP_VERSION' => phpversion(),
-        'DB_ENGINE' => $dblayers[$conn->getLayer()]['engine'],
+        'DB_ENGINE' => DBLayer::availableEngines()[$conn->getLayer()],
         'DB_VERSION' => $db_version,
         'DB_ELEMENTS' => \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $nb_elements),
         'DB_CATEGORIES' =>

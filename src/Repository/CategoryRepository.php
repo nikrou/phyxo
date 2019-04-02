@@ -82,7 +82,7 @@ class CategoryRepository extends BaseRepository
         $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'], ' AND ');
         $query .= ' LIMIT 1';
 
-        return ($this->conn->db_num_rows($this->conn->db_query($query)) == 0);
+        return ($this->conn->db_num_rows($this->conn->db_query($query)) >= 1);
     }
 
     public function findCommentable(int $image_id)

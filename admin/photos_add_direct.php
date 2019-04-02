@@ -47,7 +47,7 @@ if (isset($_GET['batch'])) {
 // |                             prepare form                              |
 // +-----------------------------------------------------------------------+
 
-include_once(PHPWG_ROOT_PATH . 'admin/include/photos_add_direct_prepare.inc.php');
+include_once(__DIR__ . '/include/photos_add_direct_prepare.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

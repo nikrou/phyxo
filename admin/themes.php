@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PHPWG_ROOT_PATH")) {
-    die("Hacking attempt!");
-}
-
 define('THEMES_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=themes');
 
 use Phyxo\TabSheet\TabSheet;
@@ -48,4 +44,4 @@ $template->assign([
 
 $template_filename = 'themes_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/themes_' . $page['section'] . '.php');
+include(__DIR__ . '/themes_' . $page['section'] . '.php');

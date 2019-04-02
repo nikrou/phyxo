@@ -43,9 +43,6 @@ class SecurityController extends AbstractController
         // default theme
         $template->set_template_dir(sprintf('%s/../../themes/%s/template', __DIR__, $defaultTheme));
 
-        // to be removed
-        define('PHPWG_ROOT_PATH', __DIR__ . '/../../');
-
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
             __DIR__ . '/../../',

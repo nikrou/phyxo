@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
 use Phyxo\Template\FileCombiner;
 use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;

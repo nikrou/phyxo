@@ -9,26 +9,16 @@
  * file that was distributed with this source code.
  */
 
-// +-----------------------------------------------------------------------+
-// | include                                                               |
-// +-----------------------------------------------------------------------+
-
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
-include_once(PHPWG_ROOT_PATH . 'include/common.inc.php');
-
 define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');
 
 use Phyxo\TabSheet\TabSheet;
 
-/* nbm_global_var */
-$env_nbm = array(
+// nbm_global_var
+$env_nbm = [
     'start_time' => microtime(true),
     'sendmail_timeout' => (intval(ini_get('max_execution_time')) * $conf['nbm_max_treatment_timeout_percent']),
     'is_sendmail_timeout' => false
-);
+];
 
 if ((!isset($env_nbm['sendmail_timeout'])) or (!is_numeric($env_nbm['sendmail_timeout'])) or ($env_nbm['sendmail_timeout'] <= 0)) {
     $env_nbm['sendmail_timeout'] = $conf['nbm_treatment_timeout_default'];
@@ -102,4 +92,4 @@ if ($must_repost) {
 
 $template_filename = 'notification_by_mail_' . $page['section'];
 
-include(PHPWG_ROOT_PATH . 'admin/notification_by_mail_' . $page['section'] . '.php');
+include(__DIR__ . '/notification_by_mail_' . $page['section'] . '.php');

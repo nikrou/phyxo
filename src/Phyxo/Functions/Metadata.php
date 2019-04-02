@@ -321,7 +321,7 @@ class Metadata
     {
         global $conf;
 
-        $file = PHPWG_ROOT_PATH . $infos['path'];
+        $file = __DIR__ . '/../../../' . $infos['path'];
         $fs = @filesize($file);
 
         if ($fs === false) {

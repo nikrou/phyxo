@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die("Hacking attempt!");
-}
-
 define('ALBUMS_OPTIONS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=albums_options');
 
 use Phyxo\TabSheet\TabSheet;
@@ -52,7 +48,7 @@ $template->assign([
 // |                       modification registration                       |
 // +-----------------------------------------------------------------------+
 
-if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) > 0) {
+if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 0) {
     switch ($_GET['section']) {
         case 'comments':
             {
@@ -75,7 +71,7 @@ if (isset($_POST['falsify'], $_POST['cat_true'])   && count($_POST['cat_true']) 
                 break;
             }
     }
-} elseif (isset($_POST['trueify'], $_POST['cat_false'])   && count($_POST['cat_false']) > 0) {
+} elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
     switch ($_GET['section']) {
         case 'comments':
             {

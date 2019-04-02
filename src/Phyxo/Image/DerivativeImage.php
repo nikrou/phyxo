@@ -195,7 +195,7 @@ class DerivativeImage
 
         $url_style = $conf['derivative_url_style'];
         if (!$url_style) {
-            $mtime = @filemtime(PHPWG_ROOT_PATH . $rel_path);
+            $mtime = @filemtime(__DIR__ . '/../../../' . $rel_path);
             if ($mtime === false or $mtime < $params->last_mod_time) {
                 $is_cached = false;
                 $url_style = 2;
@@ -219,7 +219,7 @@ class DerivativeImage
      */
     public function get_path()
     {
-        return PHPWG_ROOT_PATH . $this->rel_path;
+        return __DIR__ . '/../../../' . $this->rel_path;
     }
 
     /**

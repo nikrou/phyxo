@@ -9,10 +9,6 @@
  * file that was distributed with this source code.
  */
 
-if (!defined('PHPWG_ROOT_PATH')) {
-    die('Hacking attempt!');
-}
-
 use Phyxo\Language\Languages;
 use App\Repository\UpgradeRepository;
 use App\Repository\BaseRepository;
@@ -98,7 +94,7 @@ $mysql_changes = [];
 \Phyxo\Functions\Upgrade::check_upgrade_access_rights();
 
 if (isset($_POST['submit']) && \Phyxo\Functions\Upgrade::check_upgrade()) {
-    $upgrade_file = PHPWG_ROOT_PATH . 'install/upgrade_' . $current_release . '.php';
+    $upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
         $page['upgrade_start'] = microtime(true);
         $conf['die_on_sql_error'] = false;
