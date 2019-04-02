@@ -58,10 +58,6 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
     } catch (\Exception $e) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Unable to check for upgrade.');
     }
-} elseif (isset($_GET['action']) and 'phpinfo' == $_GET['action']) {
-    // Show phpinfo() output
-    phpinfo();
-    exit();
 }
 
 // +-----------------------------------------------------------------------+
@@ -102,7 +98,6 @@ $template->assign(
         'DB_GROUPS' => \Phyxo\Functions\Language::l10n_dec('%d group', '%d groups', $nb_groups),
         'DB_RATES' => ($nb_rates == 0) ? \Phyxo\Functions\Language::l10n('no rate') : \Phyxo\Functions\Language::l10n('%d rates', $nb_rates),
         'U_CHECK_UPGRADE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?action=check_upgrade',
-        'U_PHPINFO' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?action=phpinfo',
         'PHP_DATATIME' => $php_current_timestamp,
         'DB_DATATIME' => $db_current_date,
     ]
