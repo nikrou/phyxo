@@ -78,13 +78,13 @@ if ($block != null) {
 $block = $menu->get_block('mbTags');
 if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Utils::script_basename()) {
     if (!empty($page['section']) && 'tags' == $page['section']) {
-        $tags = $services['tags']->getCommonTags(
+        $tags = $tagMapper->getCommonTags(
             $user,
             $page['items'],
             $conf['menubar_tag_cloud_items_number'],
             $page['tag_ids']
         );
-        $tags = $services['tags']->addLevelToTags($tags);
+        $tags = $tagMapper->addLevelToTags($tags);
 
         foreach ($tags as $tag) {
             $block->data[] = array_merge(
@@ -104,8 +104,8 @@ if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Ut
         }
     } else {
         $selection = array_slice($page['items'], $page['start'], $page['nb_image_page']);
-        $tags = $services['tags']->addLevelToTags(
-            $services['tags']->getCommonTags($user, $selection, $conf['content_tag_cloud_items_number'])
+        $tags = $tagMapper->addLevelToTags(
+            $tagMapper->getCommonTags($user, $selection, $conf['content_tag_cloud_items_number'])
         );
         foreach ($tags as $tag) {
             $block->data[] = array_merge($tag, ['URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]])]);
@@ -186,7 +186,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
         'TITLE' => \Phyxo\Functions\Language::l10n('display available tags'),
         'NAME' => \Phyxo\Functions\Language::l10n('Tags'),
         'URL' => \Phyxo\Functions\URL::get_root_url() . 'tags.php',
-        'COUNTER' => $services['tags']->getNbAvailableTags($user),
+        'COUNTER' => $tagMapper->getNbAvailableTags($user),
     ];
 
     // search link

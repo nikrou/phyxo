@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Model\Repository;
+namespace App\DataMapper;
 
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Functions\Plugin;
@@ -18,8 +18,10 @@ use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
+use Phyxo\Functions\Metadata;
+use App\Repository\ImageRepository;
 
-class Tags
+class TagMapper
 {
     private $conn, $conf;
 
@@ -538,5 +540,62 @@ class Tags
         }
 
         \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+    }
+
+    /**
+     * Sync all metadata of a list of images.
+     * Metadata are fetched from original files and saved in database.
+     */
+    public function sync_metadata(array $ids)
+    {
+        $now = date('Y-m-d');
+
+        $datas = [];
+        $tags_of = [];
+        $result = (new ImageRepository($this->conn))->findByIds($ids);
+        while ($data = $this->conn->db_fetch_assoc($result)) {
+            $data = Metadata::get_sync_metadata($data);
+            if ($data === false) {
+                continue;
+            }
+
+            $id = $data['id'];
+            foreach (['keywords', 'tags'] as $key) {
+                if (isset($data[$key])) {
+                    if (!isset($tags_of[$id])) {
+                        $tags_of[$id] = [];
+                    }
+
+                    foreach (explode(',', $data[$key]) as $tag_name) {
+                        $tags_of[$id][] = $this->tagIdFromTagName($tag_name);
+                    }
+                }
+            }
+
+            $data['date_metadata_update'] = $now;
+
+            $datas[] = $data;
+        }
+
+        if (count($datas) > 0) {
+            $update_fields = Metadata::get_sync_metadata_attributes();
+            $update_fields[] = 'date_metadata_update';
+
+            $update_fields = array_diff(
+                $update_fields,
+                ['tags', 'keywords']
+            );
+
+            (new ImageRepository($this->conn))->massUpdates(
+                [
+                    'primary' => ['id'],
+                    'update' => $update_fields
+                ],
+                $datas,
+                MASS_UPDATES_SKIP_EMPTY
+            );
+        }
+
+        $this->setTagsOf($tags_of);
     }
 }

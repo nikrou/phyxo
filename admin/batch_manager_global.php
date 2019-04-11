@@ -83,8 +83,8 @@ if (isset($_POST['submit'])) {
         if (empty($_POST['add_tags'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one tag');
         } else {
-            $tag_ids = $services['tags']->getTagsIds($_POST['add_tags']);
-            $services['tags']->addTags($tag_ids, $collection);
+            $tag_ids = $tagMapper->getTagsIds($_POST['add_tags']);
+            $tagMapper->addTags($tag_ids, $collection);
 
             if ('no_tag' == $page['prefilter']) {
                 $redirect = true;
@@ -231,7 +231,7 @@ if (isset($_POST['submit'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('You need to confirm deletion');
         }
     } elseif ('metadata' == $action) {
-        \Phyxo\Functions\Metadata::sync_metadata($collection);
+        $tagMapper->sync_metadata($collection);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
     } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
         $result = (new ImageRepository($conn))->findByIds($collection);
@@ -327,7 +327,7 @@ $filter_tags = [];
 
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
     $tags = $conn->result2array((new TagRepository($conn))->findTags($_SESSION['bulk_manager_filter']['tags']));
-    $filter_tags = $services['tags']->prepareTagsListForUI($tags);
+    $filter_tags = $tagMapper->prepareTagsListForUI($tags);
 }
 
 $template->assign('filter_tags', $filter_tags);
@@ -354,7 +354,7 @@ if (count($page['cat_elements_id']) > 0) {
 
 if (count($page['cat_elements_id']) > 0) {
     // remove tags
-    $template->assign('associated_tags', $services['tags']->getCommonTags($user, $page['cat_elements_id'], -1));
+    $template->assign('associated_tags', $tagMapper->getCommonTags($user, $page['cat_elements_id'], -1));
 }
 
 // creation date

@@ -63,9 +63,9 @@ if (isset($_POST['submit'])) {
         // tags management
         $tag_ids = [];
         if (!empty($_POST['tags-' . $row['id']])) {
-            $tag_ids = $services['tags']->getTagIds($_POST['tags-' . $row['id']]);
+            $tag_ids = $tagMapper->getTagIds($_POST['tags-' . $row['id']]);
         }
-        $services['tags']->setTags($tag_ids, $row['id']);
+        $tagMapper->setTags($tag_ids, $row['id']);
     }
 
     (new ImageRepository($conn))->massUpdates(
@@ -147,7 +147,7 @@ if (count($page['cat_elements_id']) > 0) {
         $src_image = new \Phyxo\Image\SrcImage($row);
 
         $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($row['id']));
-        $tag_selection = $services['tags']->prepareTagsListForUI($tags);
+        $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
         $legend = \Phyxo\Functions\Utils::render_element_name($row);
         if ($legend != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) {

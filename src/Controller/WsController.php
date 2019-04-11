@@ -18,10 +18,11 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use App\DataMapper\TagMapper;
 
 class WsController extends Controller
 {
-    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
+    public function index(string $legacyBaseDir, Request $request, TagMapper $tagMapper, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
     {
         $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
 

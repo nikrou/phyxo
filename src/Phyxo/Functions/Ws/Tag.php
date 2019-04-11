@@ -17,6 +17,7 @@ use Phyxo\Ws\NamedStruct;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
+use Phyxo\Ws\Server;
 
 class Tag
 {
@@ -28,11 +29,9 @@ class Tag
      *    @option q     subtsring of tag o search for
      *    @option limit limit the number of tags to retrieved
      */
-    public static function getFilteredList($params, &$service)
+    public static function getFilteredList($params, Server $service)
     {
-        global $services;
-
-        return self::tagsList($services['tags']->getAllTags($params['q']), $params);
+        return self::tagsList($service->getTagMapper()->getAllTags($params['q']), $params);
     }
 
     /**
@@ -41,11 +40,11 @@ class Tag
      * @param mixed[] $params
      *    @option bool sort_by_counter
      */
-    public static function getList($params, &$service)
+    public static function getList($params, Server $service)
     {
-        global $services, $user;
+        global $user;
 
-        return self::tagsList($services['tags']->getAvailableTags($user), $params);
+        return self::tagsList($service->getTagMapper()->getAvailableTags($user), $params);
     }
 
     /**
@@ -56,13 +55,11 @@ class Tag
      * Only admin can run this method and permissions are not taken into
      * account.
      */
-    public static function getAdminList($params, &$service)
+    public static function getAdminList($params, Server $service)
     {
-        global $services;
-
         return [
             'tags' => new NamedArray(
-                $services['tags']->getAllTags(),
+                $service->getTagMapper()->getAllTags(),
                 'tag',
                 \Phyxo\Functions\Ws\Main::stdGetTagXmlAttributes()
             )
@@ -211,11 +208,9 @@ class Tag
      * @param mixed[] $params
      *    @option string name
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
-        global $services;
-
-        $creation_output = $services['tags']->createTag($params['name']);
+        $creation_output = $service->getTagMapper()->createTag($params['name']);
 
         if (isset($creation_output['error'])) {
             return new Error(500, $creation_output['error']);

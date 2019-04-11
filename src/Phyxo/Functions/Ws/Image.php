@@ -34,7 +34,7 @@ class Image
      *    @option string content
      *    @option string key
      */
-    public static function addComment($params, $service)
+    public static function addComment($params, Server $service)
     {
         global $conn, $services;
 
@@ -77,7 +77,7 @@ class Image
      *    @option int comments_page
      *    @option int comments_per_page
      */
-    public static function getInfo($params, $service)
+    public static function getInfo($params, Server $service)
     {
         global $user, $conf, $conn, $services;
 
@@ -117,7 +117,7 @@ class Image
         }
 
         //-------------------------------------------------------------- related tags
-        $related_tags = $services['tags']->getCommonTags($user, [$image_row['id']], -1);
+        $related_tags = $service->getTagMapper()->getCommonTags($user, [$image_row['id']], -1);
         foreach ($related_tags as $i => $tag) {
             $tag['url'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
             $tag['page_url'] = \Phyxo\Functions\URL::make_picture_url(
@@ -213,13 +213,9 @@ class Image
             ['id', 'date']
         );
 
-        if ($service->_responseFormat != 'rest') {
-            return $ret; // for backward compatibility only
-        } else {
-            return [
-                'image' => new NamedStruct($ret, null, ['name', 'comment'])
-            ];
-        }
+        return [
+            'image' => new NamedStruct($ret, null, ['name', 'comment'])
+        ];
     }
 
     /**
@@ -229,7 +225,7 @@ class Image
      *    @option int image_id
      *    @option float rate
      */
-    public static function rate($params, $service)
+    public static function rate($params, Server $service)
     {
         global $conf, $conn;
 
@@ -254,7 +250,7 @@ class Image
      *    @option int page
      *    @option string order (optional)
      */
-    public static function search($params, $service)
+    public static function search($params, Server $service)
     {
         global $conf, $conn;
 
@@ -327,7 +323,7 @@ class Image
      *    @option int image_id
      *    @option int level
      */
-    public static function setPrivacyLevel($params, $service)
+    public static function setPrivacyLevel($params, Server $service)
     {
         global $conf, $conn;
 
@@ -351,7 +347,7 @@ class Image
      *    @option int category_id
      *    @option int rank
      */
-    public static function setRank($params, $service)
+    public static function setRank($params, Server $service)
     {
         global $conn;
 
@@ -397,7 +393,7 @@ class Image
      *    @option string type = 'file'
      *    @option int position
      */
-    public static function addChunk($params, $service)
+    public static function addChunk($params, Server $service)
     {
         global $conf;
 
@@ -451,7 +447,7 @@ class Image
      *    @option string type = 'file'
      *    @option string sum
      */
-    public static function addFile($params, $service)
+    public static function addFile($params, Server $service)
     {
         global $conf, $conn;
 
@@ -509,6 +505,7 @@ class Image
             $params['image_id'],
             $image['md5sum'] // we force the md5sum to remain the same
         );
+        $service->getTagMapper()->sync_metadata([$image_id]);
     }
 
     /**
@@ -527,7 +524,7 @@ class Image
      *    @option bool check_uniqueness
      *    @option int image_id (optional)
      */
-    public static function add($params, $service)
+    public static function add($params, Server $service)
     {
         global $conf, $user, $conn, $services;
 
@@ -583,6 +580,7 @@ class Image
             $params['image_id'] > 0 ? $params['image_id'] : null,
             $params['original_sum']
         );
+        $service->getTagMapper()->sync_metadata([$image_id]);
 
         $info_columns = [
             'name',
@@ -620,7 +618,7 @@ class Image
 
         // and now, let's create tag associations
         if (!empty($params['tag_ids'])) {
-            $services['tags']->setTags(explode(',', $params['tag_ids']), $image_id);
+            $service->getTagMapper()->setTags(explode(',', $params['tag_ids']), $image_id);
         }
 
         \Phyxo\Functions\Utils::invalidate_user_cache();
@@ -643,9 +641,9 @@ class Image
      *    @option string|string[] tags
      *    @option int image_id (optional)
      */
-    public static function addSimple($params, $service)
+    public static function addSimple($params, Server $service)
     {
-        global $conf, $conn, $services;
+        global $conn;
 
         if (!isset($_FILES['image'])) {
             return new Error(405, 'The image (file) is missing');
@@ -666,6 +664,7 @@ class Image
             8,
             $params['image_id'] > 0 ? $params['image_id'] : null
         );
+        $service->getTagMapper()->sync_metadata([$image_id]);
 
         $info_columns = [
             'name',
@@ -688,16 +687,16 @@ class Image
             $tag_ids = [];
             if (is_array($params['tags'])) {
                 foreach ($params['tags'] as $tag_name) {
-                    $tag_ids[] = $services['tags']->tagIdFromTagName($tag_name);
+                    $tag_ids[] = $service->getTag['tags']->tagIdFromTagName($tag_name);
                 }
             } else {
                 $tag_names = preg_split('~(?<!\\\),~', $params['tags']);
                 foreach ($tag_names as $tag_name) {
-                    $tag_ids[] = $services['tags']->tagIdFromTagName(preg_replace('#\\\\*,#', ',', $tag_name));
+                    $tag_ids[] = $service->getTagMapper()->tagIdFromTagName(preg_replace('#\\\\*,#', ',', $tag_name));
                 }
             }
 
-            $services['tags']->addTags($tag_ids, [$image_id]);
+            $service->getTagMapper()->addTags($tag_ids, [$image_id]);
         }
 
         $url_params = ['image_id' => $image_id];
@@ -708,9 +707,6 @@ class Image
             $url_params['section'] = 'categories';
             $url_params['category'] = $category;
         }
-
-        // update metadata from the uploaded file (exif/iptc), even if the sync was already performed by add_uploaded_file().
-        \Phyxo\Functions\Metadata::sync_metadata([$image_id]);
 
         return [
             'image_id' => $image_id,
@@ -730,7 +726,7 @@ class Image
      *    @option string|string[] tags
      *    @option int image_id (optional)
      */
-    public static function upload($params, $service)
+    public static function upload($params, Server $service)
     {
         global $conf, $conn;
 
@@ -799,6 +795,7 @@ class Image
                 $params['level'],
                 null // image_id = not provided, this is a new photo
             );
+            $service->getTagMapper()->sync_metadata([$image_id]);
 
             $result = (new ImageRepository($conn))->findById($image_id);
             $image_infos = $conn->db_fetch_assoc($result);
@@ -827,7 +824,7 @@ class Image
      *    @option string md5sum_list (optional)
      *    @option string filename_list (optional)
      */
-    public static function exist($params, $service)
+    public static function exist($params, Server $service)
     {
         global $conf, $conn;
 
@@ -892,7 +889,7 @@ class Image
      *    @option int image_id
      *    @option string file_sum
      */
-    public static function checkFiles($params, $service)
+    public static function checkFiles($params, Server $service)
     {
         global $conn;
 
@@ -940,7 +937,7 @@ class Image
      * @param mixed[] $params
      *    @option bool sort_by_counter
      */
-    public static function setRelatedTags($params, &$service)
+    public static function setRelatedTags($params, Server $service)
     {
         global $conf, $conn, $services, $user;
 
@@ -984,7 +981,7 @@ class Image
         try {
             if (empty($params['tags'])) { // remove all tags for an image
                 if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
-                    $services['tags']->toBeValidatedTags(
+                    $service->getTagMapper()->toBeValidatedTags(
                         $current_tags_ids,
                         $params['image_id'],
                         ['status' => 0, 'user_id' => $user['id']]
@@ -995,28 +992,28 @@ class Image
             } else {
                 // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
                 if (count($removed_tags) > 0) {
-                    $removed_tags_ids = $services['tags']->getTagsIds($removed_tags);
+                    $removed_tags_ids = $service->getTagMapper()->getTagsIds($removed_tags);
                     if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
-                        $services['tags']->toBeValidatedTags(
+                        $service->getTagMapper()->toBeValidatedTags(
                             $removed_tags_ids,
                             $params['image_id'],
                             ['status' => 0, 'user_id' => $user['id']]
                         );
                     } else {
-                        $services['tags']->dissociateTags($removed_tags_ids, $params['image_id']);
+                        $service->getTagMapper()->dissociateTags($removed_tags_ids, $params['image_id']);
                     }
                 }
 
                 if (count($new_tags) > 0) {
-                    $new_tags_ids = $services['tags']->getTagsIds($new_tags);
+                    $new_tags_ids = $service->getTagMapper()->getTagsIds($new_tags);
                     if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] == 0) {
-                        $services['tags']->toBeValidatedTags(
+                        $service->getTagMapper()->toBeValidatedTags(
                             $new_tags_ids,
                             $params['image_id'],
                             ['status' => 1, 'user_id' => $user['id']]
                         );
                     } else {
-                        $services['tags']->associateTags($new_tags_ids, $params['image_id']);
+                        $service->getTagMapper()->associateTags($new_tags_ids, $params['image_id']);
                     }
                 }
             }
@@ -1041,7 +1038,7 @@ class Image
      *    @option string single_value_mode
      *    @option string multiple_value_mode
      */
-    public static function setInfo($params, $service)
+    public static function setInfo($params, Server $service)
     {
         global $conn, $services;
 
@@ -1121,9 +1118,9 @@ class Image
             }
 
             if ('replace' == $params['multiple_value_mode']) {
-                $services['tags']->setTags($tag_ids, $params['image_id']);
+                $service->getT['tags']->setTags($tag_ids, $params['image_id']);
             } elseif ('append' == $params['multiple_value_mode']) {
-                $services['tags']->addTags($tag_ids, [$params['image_id']]);
+                $service->getTagMapper()->addTags($tag_ids, [$params['image_id']]);
             } else {
                 return new Error(
                     500,

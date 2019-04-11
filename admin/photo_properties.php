@@ -77,7 +77,7 @@ if (isset($_GET['delete'])) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['sync_metadata'])) {
-    \Phyxo\Functions\Metadata::sync_metadata([intval($_GET['image_id'])]);
+    $tagMapper->sync_metadata([intval($_GET['image_id'])]);
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
 }
 
@@ -109,9 +109,9 @@ if (isset($_POST['submit'])) {
     // time to deal with tags
     $tag_ids = [];
     if (!empty($_POST['tags'])) {
-        $tag_ids = $services['tags']->getTagsIds($_POST['tags']);
+        $tag_ids = $tagMapper->getTagsIds($_POST['tags']);
     }
-    $services['tags']->setTags($tag_ids, $_GET['image_id']);
+    $tagMapper->setTags($tag_ids, $_GET['image_id']);
 
     // association to albums
     if (!isset($_POST['associate'])) {
@@ -144,7 +144,7 @@ if (isset($_POST['submit'])) {
 
 // tags
 $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($_GET['image_id'], $validated = true));
-$tag_selection = $services['tags']->prepareTagsListForUI($tags);
+$tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
 // retrieving direct information about picture
 $result = (new ImageRepository($conn))->findById($_GET['image_id']);
@@ -226,8 +226,11 @@ $template->assign(
 );
 
 // associate to albums
+$cache_categories = $conn->result2array((new CategoryRepository($conn))->findAll(), 'id');
+
 $result = (new CategoryRepository($conn))->findCategoriesForImage($_GET['image_id']);
 $associated_albums = $conn->result2array($result, 'id');
+
 foreach ($associated_albums as $album) {
     $name = \Phyxo\Functions\Category::get_cat_display_name_cache($album['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
 
@@ -257,7 +260,7 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
         [
             'image_id' => $_GET['image_id'],
             'image_file' => $image_file,
-            'category' => $cache['cat_names'][$_GET['cat_id']],
+            'category' => $cache_categories[$_GET['cat_id']],
         ]
     );
 } else {
@@ -266,7 +269,7 @@ if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {
             [
                 'image_id' => $_GET['image_id'],
                 'image_file' => $image_file,
-                'category' => $cache['cat_names'][$category],
+                'category' => $cache_categories[$category],
             ]
         );
         break;

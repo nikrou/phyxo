@@ -15,10 +15,10 @@ if (!defined('TAGS_BASE_URL')) {
 
 if (!empty($_POST['tag_ids'])) {
     if (!empty($_POST['validate'])) {
-        $services['tags']->validateTags($_POST['tag_ids']);
+        $tagMapper->validateTags($_POST['tag_ids']);
     } elseif ($_POST['reject']) {
-        $services['tags']->rejectTags($_POST['tag_ids']);
+        $tagMapper->rejectTags($_POST['tag_ids']);
     }
 }
 
-$template->assign('tags', $services['tags']->getPendingTags());
+$template->assign('tags', $tagMapper->getPendingTags());

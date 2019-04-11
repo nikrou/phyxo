@@ -14,6 +14,7 @@ namespace Phyxo\Functions;
 use GuzzleHttp\Client;
 use App\Repository\ImageRepository;
 use App\Repository\ConfigRepository;
+use App\Repository\BaseRepository;
 
 class Upload
 {
@@ -159,8 +160,8 @@ class Upload
             \Phyxo\Functions\Utils::delete_element_files([$image_id]);
         } else {
             // this photo is new current date. @TODO: really need a query for that ?
-            list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
-            list($year, $month, $day) = preg_split('/[^\d]/', $dbnow, 4);
+            $now = (new BaseRepository($conn))->getNow();
+            list($year, $month, $day) = preg_split('/[^\d]/', $now, 4);
 
             // upload directory hierarchy
             $upload_dir = sprintf(
@@ -171,7 +172,7 @@ class Upload
             );
 
             // compute file path
-            $date_string = preg_replace('/[^\d]/', '', $dbnow);
+            $date_string = preg_replace('/[^\d]/', '', $now);
             $random_string = substr($md5sum, 0, 8);
             $filename_wo_ext = $date_string . '-' . $random_string;
             $file_path = $upload_dir . '/' . $filename_wo_ext . '.';
@@ -345,7 +346,7 @@ class Upload
             $insert = [
                 'file' => $file,
                 'name' => \Phyxo\Functions\Utils::get_name_from_file($file),
-                'date_available' => $dbnow,
+                'date_available' => $now,
                 'path' => preg_replace('#^' . preg_quote(__DIR__ . '/../../../') . '#', '', $file_path),
                 'filesize' => $file_infos['filesize'],
                 'width' => $file_infos['width'],
@@ -377,7 +378,6 @@ class Upload
         if ($conf['use_exif'] and !function_exists('exif_read_data')) {
             $conf['use_exif'] = false;
         }
-        \Phyxo\Functions\Metadata::sync_metadata([$image_id]);
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
         // cache thumbnail

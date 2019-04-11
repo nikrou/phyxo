@@ -97,7 +97,7 @@ if (isset($_POST['submitFilter'])) {
     }
 
     if (isset($_POST['filter_tags_use'])) {
-        $_SESSION['bulk_manager_filter']['tags'] = $services['tags']->getTagsIds($_POST['filter_tags']);
+        $_SESSION['bulk_manager_filter']['tags'] = $tagMapper->getTagsIds($_POST['filter_tags']);
 
         if (isset($_POST['tag_mode']) and in_array($_POST['tag_mode'], ['AND', 'OR'])) {
             $_SESSION['bulk_manager_filter']['tag_mode'] = $_POST['tag_mode'];

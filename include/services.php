@@ -9,12 +9,10 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Model\Repository\Tags;
 use Phyxo\Model\Repository\Comments;
 use Phyxo\Model\Repository\Users;
 
 $services = [];
-$services['tags'] = new Tags($conn, $conf);
 $services['comments'] = new Comments($conn, $conf);
 $services['users'] = new Users($conn, $conf, $user);
 if (isset($passwordEncoder)) {

@@ -561,7 +561,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
                     }
 
                     foreach (explode(',', $data[$key]) as $tag_name) {
-                        $tags_of[$id][] = $services['tags']->TagIdFromTagName($tag_name);
+                        $tags_of[$id][] = $tagMapper->TagIdFromTagName($tag_name);
                     }
                 }
             }
@@ -593,7 +593,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
                 isset($_POST['meta_empty_overrides']) ? 0 : MASS_UPDATES_SKIP_EMPTY
             );
         }
-        $services['tags']->setTagsOf($tags_of);
+        $tagMapper->setTagsOf($tags_of);
     }
 
     $template->append('footer_elements', '<!-- metadata update : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');

@@ -149,7 +149,7 @@ if (isset($_POST['merge_submit'])) {
             $result = (new ImageTagRepository($conn))->findImageByTags($tag_ids_to_delete);
             $image_ids = $conn->result2array($result, null, 'image_id');
 
-            $services['tags']->deleteTags($tag_ids_to_delete);
+            $tagMapper->deleteTags($tag_ids_to_delete);
 
             $result = (new ImageTagRepository($conn))->findBy('tag_id', $destination_tag_id);
             $destination_tag_image_ids = $conn->result2array($result, null, 'image_id');
@@ -197,7 +197,7 @@ if (isset($_POST['delete']) and isset($_POST['tags'])) {
     $result = (new TagRepository($conn))->findTags($_POST['tags']);
     $tag_names = $conn->result2array($result, null, 'name');
 
-    $services['tags']->deleteTags($_POST['tags']);
+    $tagMapper->deleteTags($_POST['tags']);
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
         'The following tag was deleted',
@@ -213,7 +213,7 @@ if (isset($_POST['delete']) and isset($_POST['tags'])) {
 if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
     \Phyxo\Functions\Utils::check_token();
 
-    $services['tags']->deleteOrphanTags();
+    $tagMapper->deleteOrphanTags();
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Orphan tags deleted');
     \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=tags');
 }
@@ -223,7 +223,7 @@ if (isset($_GET['action']) and 'delete_orphans' == $_GET['action']) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_POST['add']) and !empty($_POST['add_tag'])) {
-    $ret = $services['tags']->createTag($_POST['add_tag']);
+    $ret = $tagMapper->createTag($_POST['add_tag']);
 
     if (isset($ret['error'])) {
         $page['errors'][] = $ret['error'];

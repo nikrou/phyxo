@@ -165,7 +165,7 @@ $template->assign(
     ]
 );
 
-$available_tags = $services['tags']->getAvailableTags($user);
+$available_tags = $tagMapper->getAvailableTags($user);
 
 if (count($available_tags) > 0) {
     usort($available_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');

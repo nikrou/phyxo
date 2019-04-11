@@ -64,7 +64,7 @@ switch ($action) {
         }
     case 'delete_orphan_tags':
         {
-            $services['tags']->deleteOrphanTags();
+            $tagMapper->deleteOrphanTags();
             break;
         }
     case 'user_cache':

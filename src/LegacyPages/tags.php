@@ -61,7 +61,7 @@ foreach (['cloud', 'letters'] as $mode) {
 $template->assign('display_mode', $page['display_mode']);
 
 // find all tags available for the current user
-$tags = $services['tags']->getAvailableTags($user);
+$tags = $tagMapper->getAvailableTags($user);
 
 // +-----------------------------------------------------------------------+
 // |                       letter groups construction                      |
@@ -137,7 +137,7 @@ if ($page['display_mode'] == 'letters') {
     $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
     // depending on its counter and the other tags counter, each tag has a level
-    $tags = $services['tags']->addLevelToTags($tags);
+    $tags = $tagMapper->addLevelToTags($tags);
 
     // we want tags diplayed in alphabetic order
     usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');

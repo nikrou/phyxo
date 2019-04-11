@@ -647,7 +647,7 @@ $template->assign($infos);
 $template->assign('display_info', json_decode($conf['picture_informations'], true));
 
 // related tags
-$tags = $services['tags']->getCommonTags($user, [$page['image_id']], -1);
+$tags = $tagMapper->getCommonTags($user, [$page['image_id']], -1);
 if (count($tags)) {
     foreach ($tags as $tag) {
         $template->append(

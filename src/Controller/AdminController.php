@@ -17,15 +17,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\DataMapper\TagMapper;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper;
 
-    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, TagMapper $tagMapper)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->tagMapper = $tagMapper;
+
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -44,6 +47,7 @@ class AdminController extends Controller
         $app_user = $this->getUser();
         $passwordEncoder = $this->passwordEncoder;
         $csrf_token = $this->csrfTokenManager->getToken('authenticate');
+        $tagMapper = $this->tagMapper;
 
         try {
             global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page,

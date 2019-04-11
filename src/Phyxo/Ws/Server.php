@@ -13,9 +13,12 @@ namespace Phyxo\Ws;
 
 use Phyxo\Functions\Plugin;
 use Phyxo\Ws\Error;
+use App\DataMapper\TagMapper;
 
 class Server
 {
+    private $tagMapper;
+
     private $_requestHandler;
     private $_requestFormat;
     private $_responseEncoder;
@@ -42,6 +45,16 @@ class Server
 
     public function __construct()
     {
+    }
+
+    public function addTagMapper(TagMapper $tagMapper)
+    {
+        $this->tagMapper = $tagMapper;
+    }
+
+    public function getTagMapper()
+    {
+        return $this->tagMapper;
     }
 
     /**
