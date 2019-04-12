@@ -14,10 +14,11 @@ namespace Phyxo\Ws;
 use Phyxo\Functions\Plugin;
 use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
+use App\DataMapper\CommentMapper;
 
 class Server
 {
-    private $tagMapper;
+    private $tagMapper, $commentMapper;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -55,6 +56,16 @@ class Server
     public function getTagMapper()
     {
         return $this->tagMapper;
+    }
+
+    public function addCommentMapper(CommentMapper $commentMapper)
+    {
+        $this->commentMapper = $commentMapper;
+    }
+
+    public function getCommentMapper()
+    {
+        return $this->commentMapper;
     }
 
     /**

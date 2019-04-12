@@ -195,20 +195,20 @@ if (isset($action)) {
 
         if ('delete' == $action) {
             \Phyxo\Functions\Utils::check_token();
-            $services['comments']->deleteUserComment($comment_id);
+            $commentMapper->deleteUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('validate' == $action) {
             \Phyxo\Functions\Utils::check_token();
-            $services['comments']->validateUserComment($comment_id);
+            $commentMapper->validateUserComment($comment_id);
             $perform_redirect = true;
         }
 
         if ('edit' == $action) {
             if (!empty($_POST['content'])) {
                 \Phyxo\Functions\Utils::check_token();
-                $comment_action = $services['comments']->updateUserComment(
+                $comment_action = $commentMapper->updateUserComment(
                     [
                         'comment_id' => $_GET['edit'],
                         'image_id' => $_POST['image_id'],

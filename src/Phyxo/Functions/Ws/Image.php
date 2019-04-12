@@ -36,7 +36,7 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        global $conn, $services;
+        global $conn;
 
         $result = (new CategoryRepository($conn))->findCommentable($params['image_id']);
         if (!$conn->db_num_rows($result)) {
@@ -50,7 +50,7 @@ class Image
         ];
 
         $infos = [];
-        $comment_action = $services['comments']->insertUserComment($comm, $params['key'], $infos);
+        $comment_action = $service->getCommentMapper()->insertUserComment($comm, $params['key'], $infos);
 
         switch ($comment_action) {
             case 'reject':

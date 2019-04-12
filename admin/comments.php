@@ -37,7 +37,7 @@ if (!empty($_POST)) {
         \Phyxo\Functions\Utils::check_input_parameter('comments', $_POST, true, PATTERN_ID);
 
         if (isset($_POST['validate'])) {
-            $services['comments']->validateUserComment($_POST['comments']);
+            $commentMapper->validateUserComment($_POST['comments']);
 
             $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
                 '%d user comment validated',
@@ -47,7 +47,7 @@ if (!empty($_POST)) {
         }
 
         if (isset($_POST['reject'])) {
-            $services['comments']->deleteUserComment($_POST['comments']);
+            $commentMapper->deleteUserComment($_POST['comments']);
 
             $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
                 '%d user comment rejected',

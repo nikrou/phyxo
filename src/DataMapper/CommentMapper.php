@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Model\Repository;
+namespace App\DataMapper;
 
 use Phyxo\Functions\Plugin;
 use Phyxo\DBLayer\iDBLayer;
@@ -17,17 +17,19 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class Comments
+class CommentMapper
 {
-    private $conn, $conf;
+    private $conn, $conf, $user, $autorizationChecker;
 
-    public function __construct(iDBLayer $conn, Conf $conf)
+    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker)
     {
         $this->conn = $conn;
         $this->conf = $conf;
-
-        \Phyxo\Functions\Plugin::add_event_handler('user_comment_check', [$this, 'userCommentCheck']);
+        $this->user = $tokenStorage->getToken()->getUser();
+        $this->autorizationChecker = $autorizationChecker;
     }
 
     /**
@@ -40,9 +42,7 @@ class Comments
      */
     public function userCommentCheck($action, $comment)
     {
-        global $user, $services;
-
-        if ($action == 'reject') {
+        if ($action === 'reject') {
             return $action;
         }
 
@@ -53,7 +53,7 @@ class Comments
         }
 
         // we do here only BASIC spam check (plugins can do more)
-        if (!$services['users']->isGuest()) {
+        if (!$this->user->isGuest()) {
             return $action;
         }
 
@@ -81,8 +81,6 @@ class Comments
      */
     public function insertUserComment(&$comm, $key, &$infos)
     {
-        global $user, $services;
-
         $comm = array_merge(
             $comm,
             [
@@ -99,7 +97,7 @@ class Comments
         }
 
         // display author field if the user status is guest or generic
-        if (!$services['users']->isClassicUser()) {
+        if (!$this->autorizationChecker->isGranted('ROLE_USER')) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
                     $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
@@ -117,8 +115,8 @@ class Comments
                 }
             }
         } else {
-            $comm['author'] = addslashes($user['username']); // @TODO: remove addslashes
-            $comm['author_id'] = $user['id'];
+            $comm['author'] = $this->user->getUsername();
+            $comm['author_id'] = $this->user->getId();
         }
 
         if (empty($comm['content'])) { // empty comment content
@@ -149,8 +147,8 @@ class Comments
 
         // email
         if (empty($comm['email'])) {
-            if (!empty($user['email'])) {
-                $comm['email'] = $user['email'];
+            if (!empty($this->user->getMailAddress())) {
+                $comm['email'] = $this->user->getMailAddress();
             } elseif ($this->conf['comments_email_mandatory']) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
@@ -167,12 +165,12 @@ class Comments
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 and !$services['users']->isAdmin()) { // anti-flood system
+        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 and !$this->autorizationChecker->isGranted('ROLE_ADMIN')) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
             $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
                 $comm['author_id'],
                 $reference_date,
-                !$services['users']->isClassicUser() ? $anonymous_id : null
+                !$this->user->isGuest() ? $anonymous_id : null
             );
             if ($counter > 0) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
@@ -201,7 +199,7 @@ class Comments
             $this->invalidateUserCacheNbComments();
 
             if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
-                || ($this->conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action)) {
+                || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
 
                 $keyargs_content = [
@@ -236,15 +234,13 @@ class Comments
      */
     public function deleteUserComment($comment_id)
     {
-        global $user, $services;
-
-        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$services['users']->isAdmin() ? $user['id'] : null)) {
+        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->autorizationChecker->isGranted('ROLE_ADMIN') ? $this->user->getId() : null)) {
             $this->invalidateUserCacheNbComments();
 
             $this->email_admin(
                 'delete',
                 [
-                    'author' => $user['username'],
+                    'author' => $this->user->getUsername(),
                     'comment_id' => $comment_id
                 ]
             );
@@ -267,13 +263,11 @@ class Comments
      */
     public function updateUserComment($comment, $post_key)
     {
-        global $page, $user, $services;
-
         $comment_action = 'validate';
 
         if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action = 'reject';
-        } elseif (!$this->conf['comments_validation'] or $services['users']->isAdmin()) { // should the updated comment must be validated
+        } elseif (!$this->conf['comments_validation'] or $this->autorizationChecker->isGranted('ROLE_ADMIN')) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
@@ -286,7 +280,7 @@ class Comments
             $comment_action,
             array_merge(
                 $comment,
-                ['author' => $user['username']]
+                ['author' => $this->user->getUsername()]
             )
         );
 
@@ -297,15 +291,15 @@ class Comments
                 $comment['website_url'] = 'http://' . $comment['website_url'];
             }
             if (!\Phyxo\Functions\Utils::url_check_format($comment['website_url'])) {
-                $page['errors'][] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
+                //$page['errors'][] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
                 $comment_action = 'reject';
             }
         }
 
         if ($comment_action != 'reject') {
             $user_where_clause = '';
-            if (!$services['users']->isAdmin()) {
-                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($user['id']) . '\'';
+            if (!$this->autorizationChecker->isGranted('ROLE_ADMIN')) {
+                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->user->getId()) . '\'';
             }
 
             $comment['website_url'] = !empty($comment['website_url']) ? $comment['website_url'] : '';
@@ -314,11 +308,11 @@ class Comments
 
             $result = (new CommentRepository($this->conn))->updateComment($comment, $user_where_clause);
             // mail admin and ask to validate the comment
-            if ($result && $this->conf['email_admin_on_comment_validation'] and 'moderate' == $comment_action) {
+            if ($result && $this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action) {
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
                 $keyargs_content = [
-                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($user['username'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($this->user->getUsername())),
                     \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comment['content'])),
                     \Phyxo\Functions\Language::get_l10n_args(''),
                     \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
@@ -326,12 +320,12 @@ class Comments
                 ];
 
                 \Phyxo\Functions\Mail::mail_notification_admins(
-                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($user['username'])),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($this->user->getUsername())),
                     $keyargs_content
                 );
             } elseif ($result) {
                 // just mail admin
-                $this->email_admin('edit', ['author' => $user['username'], 'content' => stripslashes($comment['content'])]);
+                $this->email_admin('edit', ['author' => $this->user->getUsername(), 'content' => stripslashes($comment['content'])]);
             }
         }
 
@@ -356,10 +350,6 @@ class Comments
      */
     private function invalidateUserCacheNbComments()
     {
-        global $user;
-
-        unset($user['nb_available_comments']);
-
         (new UserCacheRepository($this->conn))->invalidateUserCache('nb_available_comments');
     }
 

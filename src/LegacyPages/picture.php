@@ -259,7 +259,7 @@ if (isset($_GET['action'])) {
                 if ($services['users']->canManageComment('edit', $author_id)) {
                     if (!empty($_POST['content'])) {
                         \Phyxo\Functions\Utils::check_token();
-                        $comment_action = $services['comments']->updateUserComment(
+                        $comment_action = $commentMapper->updateUserComment(
                             [
                                 'comment_id' => $_GET['comment_to_edit'],
                                 'image_id' => $page['image_id'],
@@ -301,7 +301,7 @@ if (isset($_GET['action'])) {
                 $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_delete']);
 
                 if ($services['users']->canManageComment('delete', $author_id)) {
-                    $services['comments']->deleteUserComment($_GET['comment_to_delete']);
+                    $commentMapper->deleteUserComment($_GET['comment_to_delete']);
                     delete_user_comment($_GET['comment_to_delete']);
                 }
 
@@ -314,7 +314,7 @@ if (isset($_GET['action'])) {
                 $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_validate']);
 
                 if ($services['users']->canManageComment('validate', $author_id)) {
-                    $services['comments']->validateUserComment($_GET['comment_to_validate']);
+                    $commentMapper->validateUserComment($_GET['comment_to_validate']);
                 }
                 \Phyxo\Functions\Utils::redirect($url_self);
             }

@@ -32,6 +32,7 @@ if (!$conf['allow_web_services']) {
 
 $service = new Server();
 $service->addTagMapper($tagMapper);
+$service->addCommentMapper($commentMapper);
 $service->setHandler(new RestRequestHandler());
 $service->setEncoder(new JsonEncoder());
 \Phyxo\Functions\URL::set_make_full_url();

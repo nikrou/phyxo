@@ -43,7 +43,7 @@ if ($page['show_comments'] and isset($_POST['content'])) {
     if (empty($_POST['key'])) {
         $comment_action = 'reject';
     } else {
-        $comment_action = $services['comments']->insertUserComment($comm, $_POST['key'], $page['errors']);
+        $comment_action = $commentMapper->insertUserComment($comm, $_POST['key'], $page['errors']);
     }
 
     switch ($comment_action) {
@@ -138,7 +138,7 @@ if ($page['show_comments']) {
                     [
                         'action' => 'delete_comment',
                         'comment_to_delete' => $row['id'],
-                        'pwg_token' => \Phyxo\Functions\Utils::get_token(),
+                        // 'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                     ]
                 );
             }
@@ -155,7 +155,7 @@ if ($page['show_comments']) {
                     $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $page['image_id']);
                     $tpl_comment['KEY'] = $key;
                     $tpl_comment['CONTENT'] = $row['content'];
-                    $tpl_comment['PWG_TOKEN'] = \Phyxo\Functions\Utils::get_token();
+                    //$tpl_comment['PWG_TOKEN'] = \Phyxo\Functions\Utils::get_token(); @TODO: use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
                     $tpl_comment['U_CANCEL'] = $url_self;
                 }
             }
@@ -168,7 +168,7 @@ if ($page['show_comments']) {
                         [
                             'action' => 'validate_comment',
                             'comment_to_validate' => $row['id'],
-                            'pwg_token' => \Phyxo\Functions\Utils::get_token(),
+                            // 'pwg_token' => \Phyxo\Functions\Utils::get_token(),
                         ]
                     );
                 }

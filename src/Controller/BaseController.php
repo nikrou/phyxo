@@ -16,17 +16,19 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\HttpFoundation\Response;
 use App\Security\UserProvider;
 use App\DataMapper\TagMapper;
+use App\DataMapper\CommentMapper;
 
 abstract class BaseController extends Controller
 {
-    protected $tagMapper;
+    protected $tagMapper, $commentMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
+        $this->commentMapper = $commentMapper;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -37,6 +39,7 @@ abstract class BaseController extends Controller
 
         $container = $this->container; // allow accessing container as global variable
         $tagMapper = $this->tagMapper;
+        $commentMapper = $this->commentMapper;
         
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
