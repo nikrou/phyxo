@@ -179,7 +179,7 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
 
     public function setNbAvailableTags(int $number_of_tags)
     {
-        $this->infos->setNbAvailableTags($number_of_tags);
+        $this->user_infos->setNbAvailableTags($number_of_tags);
     }
 
     public function setNumebrAvailableComments(int $number_available_comments)

@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
+
+
 class CategoryRepository extends BaseRepository
 {
     public function count(string $condition = '') : int
@@ -444,16 +447,16 @@ class CategoryRepository extends BaseRepository
         return $image_id;
     }
 
-    public function getCategoriesForMenu($user, bool $filter_enabled, array $ids_uppercat = [])
+    public function getCategoriesForMenu(User $user, bool $filter_enabled, array $ids_uppercat = [])
     {
         $query = 'SELECT id, name, permalink, nb_images, global_rank,uppercats,';
         $query .= 'date_last, max_date_last, count_images, count_categories';
         $query .= ' FROM ' . self::CATEGORIES_TABLE;
         $query .= ' INNER JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
-        $query .= ' ON id = cat_id and user_id = ' . $user['id'];
+        $query .= ' ON id = cat_id and user_id = ' . $user->getId();
         $query .= ' WHERE';
         // Always expand when filter is activated
-        if (!$user['expand'] and !$filter_enabled) {
+        if (!$user->wantExpand() && !$filter_enabled) {
             $query .= ' (id_uppercat is NULL';
             if (!empty($ids_uppercat)) {
                 $query .= ' OR id_uppercat ' . $this->conn->in($ids_uppercat);

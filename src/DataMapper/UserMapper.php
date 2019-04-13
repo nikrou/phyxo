@@ -689,20 +689,16 @@ class UserMapper
 
     /**
      * returns the number of available comments for the connected user
-     *
-     * @return int
      */
     public function getNumberAvailableComments(): int
     {
-        if ($this->user->getNumberAvailableComments()) {
-            $this->user->setNumberAvailableComments((new ImageCategoryRepository($this->conn))->countAvailableComments($this > isAdmin()));
+        $number_of_available_comments = (new ImageCategoryRepository($this->conn))->countAvailableComments($this->isAdmin());
 
-            (new UserCacheRepository($this->conn))->updateUserCache(
-                ['nb_available_comments' => $this->user->getNumberAvailableComments()],
-                ['user_id' => $this->user->getId()]
-            );
-        }
+        (new UserCacheRepository($this->conn))->updateUserCache(
+            ['nb_available_comments' => $number_of_available_comments],
+            ['user_id' => $this->user->getId()]
+        );
 
-        return $this->user->getNumberAvailableComments();
+        return $number_of_available_comments;
     }
 }

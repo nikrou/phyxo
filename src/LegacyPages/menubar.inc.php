@@ -68,7 +68,7 @@ if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && \Phyxo\Func
 if ($block != null) {
     $block->data = [
         'NB_PICTURE' => $user['nb_total_images'],
-        'MENU_CATEGORIES' => \Phyxo\Functions\Category::get_recursive_categories_menu(),
+        'MENU_CATEGORIES' => $categoryMapper->getRecursiveCategoriesMenu(),
         'U_CATEGORIES' => \Phyxo\Functions\URL::make_index_url(['section' => 'categories']),
     ];
     $block->template = 'menubar_categories.tpl';
@@ -84,7 +84,7 @@ if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Ut
             $conf['menubar_tag_cloud_items_number'],
             $page['tag_ids']
         );
-        $tags = $tagMapper->addLevelToTags($tags);
+        $tags = \Phyxo\Functions\Tag::addLevelToTags($tags);
 
         foreach ($tags as $tag) {
             $block->data[] = array_merge(
@@ -104,7 +104,7 @@ if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Ut
         }
     } else {
         $selection = array_slice($page['items'], $page['start'], $page['nb_image_page']);
-        $tags = $tagMapper->addLevelToTags(
+        $tags = \Phyxo\Functions\Tag::addLevelToTags(
             $tagMapper->getCommonTags($user, $selection, $conf['content_tag_cloud_items_number'])
         );
         foreach ($tags as $tag) {

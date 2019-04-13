@@ -134,7 +134,7 @@ class TagMapper
             return [];
         }
 
-        $result = (new TagRepository($this->conn))->getCommonTags($user, $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
+        $result = (new TagRepository($this->conn))->getCommonTags($user['id'], $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
         $tags = [];
         while ($row = $this->conn->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
@@ -333,55 +333,6 @@ class TagMapper
 
             \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
         }
-    }
-
-    /**
-     * Giving a set of tags with a counter for each one, calculate the display
-     * level of each tag.
-     *
-     * The level of each tag depends on the average count of tags. This
-     * calculation method avoid having very different levels for tags having
-     * nearly the same count when set are small.
-     *
-     * @param array $tags at least [id, counter]
-     * @return array [..., level]
-     */
-    public function addLevelToTags(array $tags) : array
-    {
-        if (count($tags) == 0) {
-            return $tags;
-        }
-
-        $total_count = 0;
-
-        foreach ($tags as $tag) {
-            $total_count += $tag['counter'];
-        }
-
-        // average count of available tags will determine the level of each tag
-        $tag_average_count = $total_count / count($tags);
-
-        // tag levels threshold calculation: a tag with an average rate must have
-        // the middle level.
-        for ($i = 1; $i < $this->conf['tags_levels']; $i++) {
-            $threshold_of_level[$i] = 2 * $i * $tag_average_count / $this->conf['tags_levels'];
-        }
-
-        // display sorted tags
-        foreach ($tags as &$tag) {
-            $tag['level'] = 1;
-
-            // based on threshold, determine current tag level
-            for ($i = $this->conf['tags_levels'] - 1; $i >= 1; $i--) {
-                if ($tag['counter'] > $threshold_of_level[$i]) {
-                    $tag['level'] = $i + 1;
-                    break;
-                }
-            }
-        }
-        unset($tag);
-
-        return $tags;
     }
 
     /**

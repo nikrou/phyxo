@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
+
+
 class TagRepository extends BaseRepository
 {
     public function findAll(string $q = '')
@@ -128,10 +131,11 @@ class TagRepository extends BaseRepository
         }
 
         if (!is_null($extra_images_where_sql)) {
-            $query .= ' AND (' . $extra_images_where_sql . ')' . ' GROUP BY id';
+            $query .= ' AND (' . $extra_images_where_sql . ')' . ' GROUP BY i.id';
         }
 
         if ($mode == 'AND' and count($tag_ids) > 1) {
+            $query .= ' GROUP BY i.id';
             $query .= ' HAVING COUNT(DISTINCT tag_id)=' . count($tag_ids);
         }
 
@@ -187,13 +191,13 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getCommonTags($user, array $items, int $max_tags, bool $show_pending_added_tags, array $excluded_tag_ids = [])
+    public function getCommonTags(int $user_id, array $items, int $max_tags, bool $show_pending_added_tags, array $excluded_tag_ids = [])
     {
         $query = 'SELECT id,name,validated,created_by,status,';
         $query .= ' url_name, count(1) AS counter FROM ' . self::TAGS_TABLE . ' AS t';
         $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' ON tag_id = id';
         $query .= ' WHERE image_id ' . $this->conn->in($items);
-        $query .= ' AND (' . $this->validatedCondition($user['id'], $show_pending_added_tags) . ')';
+        $query .= ' AND (' . $this->validatedCondition($user_id, $show_pending_added_tags) . ')';
         if (!empty($excluded_tag_ids)) {
             $query .= ' AND tag_id NOT ' . $this->conn->in($excluded_tag_ids);
         }

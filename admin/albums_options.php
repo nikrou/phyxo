@@ -52,7 +52,7 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
             }
         case 'visible':
             {
-                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_true'], 'false');
+                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_true'], false);
                 break;
             }
         case 'status':
@@ -75,7 +75,7 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
             }
         case 'visible':
             {
-                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_false'], 'true');
+                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_false'], true);
                 break;
             }
         case 'status':

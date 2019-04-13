@@ -18,20 +18,22 @@ use App\Security\UserProvider;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
+use App\DataMapper\CategoryMapper;
 
 
 abstract class BaseController extends Controller
 {
-    protected $tagMapper, $commentMapper, $userMapper;
+    protected $tagMapper, $commentMapper, $userMapper, $categroyMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
         $this->userMapper = $userMapper;
+        $this->categroyMapper = $categoryMapper;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -44,6 +46,7 @@ abstract class BaseController extends Controller
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
         $userMapper = $this->userMapper;
+        $categoryMapper = $this->categroyMapper;
         
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');

@@ -77,7 +77,7 @@ if ($page['display_mode'] == 'letters') {
     $letter = ['tags' => []];
 
     foreach ($tags as $tag) {
-        $tag_letter = mb_strtoupper(mb_substr(\Phyxo\Functions\Language::transliterate($tag['name']), 0, 1, PWG_CHARSET), PWG_CHARSET);
+        $tag_letter = mb_strtoupper(mb_substr(\Phyxo\Functions\Language::transliterate($tag['name']), 0, 1, 'utf-8'), 'utf-8');
 
         if ($current_tag_idx == 0) {
             $current_letter = $tag_letter;
@@ -135,7 +135,7 @@ if ($page['display_mode'] == 'letters') {
     $tags = array_slice($tags, 0, $conf['full_tag_cloud_items_number']);
 
     // depending on its counter and the other tags counter, each tag has a level
-    $tags = $tagMapper->addLevelToTags($tags);
+    $tags = \Phyxo\Functions\Tag::addLevelToTags($tags);
 
     // we want tags diplayed in alphabetic order
     usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
