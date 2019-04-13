@@ -15,12 +15,6 @@ use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (isset($_GET['action'])) {
     \Phyxo\Functions\Utils::check_token();
 }

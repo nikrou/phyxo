@@ -20,11 +20,12 @@ use App\Security\UserProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
+use App\DataMapper\UserMapper;
 
 class WsController extends Controller
 {
     public function index(string $legacyBaseDir, Request $request, TagMapper $tagMapper, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                            UserProvider $userProvider, CommentMapper $commentMapper)
+                            UserProvider $userProvider, CommentMapper $commentMapper, UserMapper $userMapper)
     {
         $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
 
@@ -40,7 +41,7 @@ class WsController extends Controller
 
         try {
             global
-                $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user,
+                $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $filter, $template, $user,
                 $page, $lang, $lang_info;
 
             ob_start();

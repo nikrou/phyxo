@@ -17,18 +17,21 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Security\UserProvider;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
+use App\DataMapper\UserMapper;
+
 
 abstract class BaseController extends Controller
 {
-    protected $tagMapper, $commentMapper;
+    protected $tagMapper, $commentMapper, $userMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
+        $this->userMapper = $userMapper;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -40,6 +43,7 @@ abstract class BaseController extends Controller
         $container = $this->container; // allow accessing container as global variable
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
+        $userMapper = $this->userMapper;
         
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
@@ -48,7 +52,7 @@ abstract class BaseController extends Controller
         $tpl_params = [];
 
         try {
-            global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $services, $filter, $template, $user,
+            global $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $filter, $template, $user,
                 $page, $lang, $lang_info;
 
             ob_start();
@@ -72,7 +76,7 @@ abstract class BaseController extends Controller
                 $tpl_params['header_notes'] = $header_notes;
             }
 
-            if (!$services['users']->isGuest()) {
+            if (!$userMapper->isGuest()) {
                 $tpl_params['CONTACT_MAIL'] = \Phyxo\Functions\Utils::get_webmaster_mail_address();
             }
             $debug_vars = [];

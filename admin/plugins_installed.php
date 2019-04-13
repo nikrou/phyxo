@@ -39,7 +39,7 @@ $plugins = new Plugins($conn);
 
 //--------------------------------------------------perform requested actions
 if (isset($_GET['action']) and isset($_GET['plugin'])) {
-    if (!$services['users']->isWebmaster()) {
+    if (!$userMapper->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         \Phyxo\Functions\Utils::check_token();

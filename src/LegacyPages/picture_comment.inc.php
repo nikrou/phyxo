@@ -28,7 +28,7 @@ foreach ($related_categories as $category) {
 
 
 if ($page['show_comments'] and isset($_POST['content'])) {
-    if ($services['users']->isGuest() and !$conf['comments_forall']) {
+    if ($userMapper->isGuest() and !$conf['comments_forall']) {
         die('Session expired'); // TODO : better end of request ; better response
     }
 
@@ -68,7 +68,7 @@ if ($page['show_comments'] and isset($_POST['content'])) {
 }
 
 if ($page['show_comments']) {
-    $nb_comments = (new CommentRepository($conn))->countByImage($page['image_id'], $services['users']->isAdmin());
+    $nb_comments = (new CommentRepository($conn))->countByImage($page['image_id'], $userMapper->isAdmin());
     // navigation bar creation
     if (!isset($page['start'])) {
         $page['start'] = 0;
@@ -109,7 +109,7 @@ if ($page['show_comments']) {
             $comments_order,
             $conf['nb_comment_page'],
             $page['start'],
-            $services['users']->isAdmin()
+            $userMapper->isAdmin()
         );
         while ($row = $conn->db_fetch_assoc($result)) {
             if ($row['author'] == 'guest') {
@@ -132,7 +132,7 @@ if ($page['show_comments']) {
                     'WEBSITE_URL' => $row['website_url'],
                 ];
 
-            if ($services['users']->canManageComment('delete', $row['author_id'])) {
+            if ($userMapper->canManageComment('delete', $row['author_id'])) {
                 $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
                     [
@@ -142,7 +142,7 @@ if ($page['show_comments']) {
                     ]
                 );
             }
-            if ($services['users']->canManageComment('edit', $row['author_id'])) {
+            if ($userMapper->canManageComment('edit', $row['author_id'])) {
                 $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,
                     [
@@ -159,7 +159,7 @@ if ($page['show_comments']) {
                     $tpl_comment['U_CANCEL'] = $url_self;
                 }
             }
-            if ($services['users']->isAdmin()) {
+            if ($userMapper->isAdmin()) {
                 $tpl_comment['EMAIL'] = $email;
 
                 if ($row['validated'] != 'true') {
@@ -181,7 +181,7 @@ if ($page['show_comments']) {
     if (isset($edit_comment)) {
         $show_add_comment_form = false;
     }
-    if ($services['users']->isGuest() and !$conf['comments_forall']) {
+    if ($userMapper->isGuest() and !$conf['comments_forall']) {
         $show_add_comment_form = false;
     }
 
@@ -192,11 +192,11 @@ if ($page['show_comments']) {
             'F_ACTION' => $url_self,
             'KEY' => $key,
             'CONTENT' => '',
-            'SHOW_AUTHOR' => !$services['users']->isClassicUser(),
+            'SHOW_AUTHOR' => !$userMapper->isClassicUser(),
             'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
             'AUTHOR' => '',
             'WEBSITE_URL' => '',
-            'SHOW_EMAIL' => !$services['users']->isClassicUser() or empty($user['email']),
+            'SHOW_EMAIL' => !$userMapper->isClassicUser() or empty($user['email']),
             'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
             'EMAIL' => '',
             'SHOW_WEBSITE' => $conf['comments_enable_website'],

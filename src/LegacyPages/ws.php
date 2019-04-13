@@ -16,23 +16,23 @@ use Phyxo\Ws\Protocols\RestRequestHandler;
 use Phyxo\Ws\Protocols\JsonEncoder;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
-$services['users']->checkStatus(ACCESS_FREE);
 
 if (!$conf['allow_web_services']) {
     \Phyxo\Functions\HTTP::page_forbidden('Web services are disabled');
 }
 
 \Phyxo\Functions\Plugin::add_event_handler('ws_add_methods', 'addDefaultMethods');
-\Phyxo\Functions\Plugin::add_event_handler(
-    'ws_invoke_allowed',
-    '\Phyxo\Functions\Ws\Main::isInvokeAllowed',
-    \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL,
-    3
-);
+// \Phyxo\Functions\Plugin::add_event_handler(
+//     'ws_invoke_allowed',
+//     '\Phyxo\Functions\Ws\Main::isInvokeAllowed',
+//     \Phyxo\Functions\Plugin::EVENT_HANDLER_PRIORITY_NEUTRAL,
+//     3
+// );
 
 $service = new Server();
 $service->addTagMapper($tagMapper);
 $service->addCommentMapper($commentMapper);
+$service->addUserMapper($userMapper);
 $service->setHandler(new RestRequestHandler());
 $service->setEncoder(new JsonEncoder());
 \Phyxo\Functions\URL::set_make_full_url();
@@ -43,7 +43,7 @@ $service->run();
  */
 function addDefaultMethods($arr)
 {
-    global $conf, $user, $services;
+    global $conf, $user;
 
     $service = &$arr[0];
 
@@ -134,7 +134,7 @@ function addDefaultMethods($arr)
         '\Phyxo\Functions\Ws\Image::addComment',
         [
             'image_id' => ['type' => Server::WS_TYPE_ID],
-            'author' => ['default' => $services['users']->isGuest() ? 'guest' : $user['username']],
+            'author' => ['default' => $service->getUserMapper()->isGuest() ? 'guest' : $user['username']],
             'content' => [],
             'key' => [],
         ],

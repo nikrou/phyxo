@@ -44,7 +44,7 @@ class Languages extends Extensions
      */
     function performAction($action, $language_id)
     {
-        global $conf, $services;
+        global $conf, $userMapper;
 
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -76,7 +76,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                if ($language_id == $services['users']->getDefaultLanguage()) {
+                if ($language_id == $userMapper->getDefaultLanguage()) {
                     $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
                     break;
                 }
@@ -95,7 +95,7 @@ class Languages extends Extensions
                 }
 
                 // Set default language to user who are using this language
-                (new LanguageRepository($this->conn))->updateLanguage(['language' => $services['users']->getDefaultLanguage()], ['id' => $language_id]);
+                (new LanguageRepository($this->conn))->updateLanguage(['language' => $userMapper->getDefaultLanguage()], ['id' => $language_id]);
                 \Phyxo\Functions\Utils::deltree($this->languages_base_path . '/language/' . $language_id, $this->languages_base_path . '/language/trash');
                 break;
 

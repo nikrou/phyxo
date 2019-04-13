@@ -27,9 +27,9 @@ if ($conf['rate']) {
 
     $user_rate = null;
     $anonymous_id = null;
-    if ($conf['rate_anonymous'] or $services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
+    if ($conf['rate_anonymous'] || $userMapper->isClassicUser()) {
         if ($rate_summary['count'] > 0) {
-            if (!$services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
+            if (!$userMapper->isClassicUser()) {
                 $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
                 if (count($ip_components) > 3) {
                     array_pop($ip_components);

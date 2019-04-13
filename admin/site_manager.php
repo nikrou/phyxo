@@ -12,15 +12,9 @@
 use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
 if (!$conf['enable_synchronization']) {
     die('synchronization is disabled');
 }
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 if (!empty($_POST) or isset($_GET['action'])) {
     \Phyxo\Functions\Utils::check_token();

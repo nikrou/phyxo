@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 $sections = explode('/', $_GET['section']);
 for ($i = 0; $i < count($sections); $i++) {
     if (empty($sections[$i]) or $sections[$i] == '..') {

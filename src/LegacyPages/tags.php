@@ -15,8 +15,6 @@
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
-$services['users']->checkStatus(ACCESS_GUEST);
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_tags');
 
 // +-----------------------------------------------------------------------+

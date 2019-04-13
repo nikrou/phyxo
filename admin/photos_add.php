@@ -14,12 +14,6 @@ define('PHOTOS_ADD_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/inde
 use Phyxo\TabSheet\TabSheet;
 
 // +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
 // |                          Load configuration                           |
 // +-----------------------------------------------------------------------+
 

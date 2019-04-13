@@ -27,11 +27,6 @@ if ((!isset($env_nbm['sendmail_timeout'])) or (!is_numeric($env_nbm['sendmail_ti
 $must_repost = false;
 
 // +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
 if (isset($_GET['section'])) {

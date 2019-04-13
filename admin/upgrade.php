@@ -13,8 +13,6 @@ use Phyxo\Language\Languages;
 use App\Repository\UpgradeRepository;
 use App\Repository\BaseRepository;
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 define('UPGRADE_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=upgrade');
 define('PREFIX_TABLE', $prefixeTable);
 

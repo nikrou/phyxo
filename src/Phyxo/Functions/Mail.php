@@ -302,14 +302,14 @@ class Mail
      */
     public static function mail_notification_admins($subject, $content, $send_technical_details = true)
     {
-        global $conf, $user, $services;
+        global $conf, $user, $userMapper;
 
         if (empty($subject) or empty($content)) {
             return false;
         }
 
         if (is_array($subject) or is_array($content)) {
-            self::switch_lang_to($services['users']->getDefaultLanguage());
+            self::switch_lang_to($userMapper->getDefaultLanguage());
 
             if (is_array($subject)) {
                 $subject = \Phyxo\Functions\Language::l10n_args($subject);
@@ -356,7 +356,7 @@ class Mail
      */
     public static function mail_admins($args = [], $tpl = [])
     {
-        global $conf, $user, $conn, $services;
+        global $user, $conn, $userMapper;
 
         if (empty($args['content']) and empty($tpl)) {
             return false;
@@ -371,7 +371,7 @@ class Mail
             return $return;
         }
 
-        self::switch_lang_to($services['users']->getDefaultLanguage());
+        self::switch_lang_to($userMapper->getDefaultLanguage());
 
         $return = self::mail($admins, $args, $tpl);
 
@@ -459,7 +459,7 @@ class Mail
      */
     public static function mail($to, $args = [], $tpl = [])
     {
-        global $conf, $conf_mail, $lang_info, $page, $services;
+        global $conf, $conf_mail, $lang_info, $page;
 
         if (empty($to) && empty($args['Cc']) && empty($args['Bcc'])) {
             return true;

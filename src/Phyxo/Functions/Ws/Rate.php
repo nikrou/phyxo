@@ -12,6 +12,7 @@
 namespace Phyxo\Functions\Ws;
 
 use App\Repository\RateRepository;
+use Phyxo\Ws\Server;
 
 class Rate
 {
@@ -22,7 +23,7 @@ class Rate
      *    @option int user_id
      *    @option string anonymous_id (optional)
      */
-    function delete($params, &$service)
+    function delete($params, Server $service)
     {
         global $conn;
 

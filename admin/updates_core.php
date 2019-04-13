@@ -89,7 +89,7 @@ if ($step == 1) {
 // +-----------------------------------------------------------------------+
 // |                                Step 2                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 2 and $services['users']->isWebmaster()) {
+if ($step == 2 && $userMapper->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
         $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
@@ -120,7 +120,7 @@ if ($step == 2 and $services['users']->isWebmaster()) {
 // +-----------------------------------------------------------------------+
 // |                                Step 3                                 |
 // +-----------------------------------------------------------------------+
-if ($step == 3 and $services['users']->isWebmaster()) {
+if ($step == 3 && $userMapper->isWebmaster()) {
     if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
         $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
@@ -150,7 +150,7 @@ if ($step == 3 and $services['users']->isWebmaster()) {
 // |                        Process template                               |
 // +-----------------------------------------------------------------------+
 
-if (!$services['users']->isWebmaster()) {
+if (!$userMapper->isWebmaster()) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
 }
 

@@ -13,7 +13,6 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
-$services['users']->checkStatus(ACCESS_FREE);
 
 /**
  * returns language value 'included' or 'excluded' depending on boolean

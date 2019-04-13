@@ -22,12 +22,13 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $user, $autorizationChecker;
+    private $conn, $conf, $user, $autorizationChecker, $userMapper;
 
-    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker)
+    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker, UserMapper $userMapper)
     {
         $this->conn = $conn;
         $this->conf = $conf;
+        $this->userMapper = $userMapper;
         $this->user = $tokenStorage->getToken()->getUser();
         $this->autorizationChecker = $autorizationChecker;
     }
@@ -90,7 +91,7 @@ class CommentMapper
         );
 
         $infos = [];
-        if (!$this->conf['comments_validation'] || $services['users']->isAdmin()) {
+        if (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) {
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject

@@ -34,6 +34,9 @@ class MediaController extends BaseController
         $_SERVER['PATH_INFO'] .= ".$image_extension";
 
         $container = $this->container; // allow accessing container as global variable
+        $tagMapper = $this->tagMapper;
+        $commentMapper = $this->commentMapper;
+        $userMapper = $this->userMapper;
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
         }

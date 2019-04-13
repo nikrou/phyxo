@@ -120,7 +120,7 @@ class IndexController extends BaseController
 
     public function random(Request $request)
     {
-        global $conf, $conn, $services, $filter, $template, $user, $page, $lang, $lang_info;
+        global $conf, $conn, $filter, $template, $user, $page, $lang, $lang_info;
 
         $container = $this->container;
         if (!$app_user = $this->getUser()) {

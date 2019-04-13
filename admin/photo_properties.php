@@ -56,7 +56,7 @@ if (isset($_GET['delete'])) {
     $result = (new ImageCategoryRepository($conn))->findByImageId($_GET['image_id']);
     $authorizeds = array_diff(
         $conn->resulty2array($result, null, 'category_id'),
-        explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
+        explode(',', $userMapper->calculatePermissions($user['id'], $user['status']))
     );
 
     foreach ($authorizeds as $category_id) {
@@ -252,7 +252,7 @@ foreach ($associated_albums as $album) {
 $result = (new ImageCategoryRepository($conn))->findByImageId($_GET['image_id']);
 $authorizeds = array_diff(
     $conn->result2array($result, null, 'category_id'),
-    explode(',', $services['users']->calculatePermissions($user['id'], $user['status']))
+    explode(',', $userMapper->calculatePermissions($user['id'], $user['status']))
 );
 
 if (isset($_GET['cat_id']) && in_array($_GET['cat_id'], $authorizeds)) {

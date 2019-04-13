@@ -25,13 +25,13 @@ class Rate
      */
     public static function rate_picture($image_id, $rate)
     {
-        global $conf, $user, $conn, $services;
+        global $conf, $user, $conn, $userMapper;
 
         if (!isset($rate) || !$conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $conf['rate_items'])) {
             return false;
         }
 
-        $user_anonymous = $services['users']->isAuthorizeStatus(ACCESS_CLASSIC) ? false : true;
+        $user_anonymous = $userMapper->isClassicUser();
 
         if ($user_anonymous and !$conf['rate_anonymous']) {
             return false;

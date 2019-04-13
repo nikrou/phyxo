@@ -62,17 +62,14 @@ if (!empty($feed_id)) {
         \Phyxo\Functions\HTTP::page_not_found(\Phyxo\Functions\Language::l10n('Unknown feed identifier'));
     }
     if ($feed_row['user_id'] != $user['id']) { // new user
-        $user = $services['users']->buildUser($feed_row['user_id'], true);
+        $user = $userMapper->buildUser($feed_row['user_id'], true);
     }
 } else {
     $image_only = true;
-    if (!$services['users']->isGuest()) { // auto session was created - so switch to guest
-        $user = $services['users']->buildUser($conf['guest_id'], true);
+    if (!$userMapper->isGuest()) { // auto session was created - so switch to guest
+        $user = $userMapper->buildUser($conf['guest_id'], true);
     }
 }
-
-// Check the status now after the user has been loaded
-$services['users']->checkStatus(ACCESS_GUEST);
 
 $dbnow = (new BaseRepository($conn))->getNow();
 \Phyxo\Functions\URL::set_make_full_url();

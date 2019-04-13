@@ -150,7 +150,7 @@ if ('categories' == $page['section'] and !isset($page['flat'])) {
 if (!empty($_SESSION['image_order']) && $_SESSION['image_order'] > 0) {
     $image_order_id = $_SESSION['image_order'];
 
-    $orders = \Phyxo\Functions\Category::get_category_preferred_image_orders();
+    $orders = \Phyxo\Functions\Category::get_category_preferred_image_orders($userMapper);
 
     // the current session stored image_order might be not compatible with
     // current image set, for example if the current image_order is the rank

@@ -53,14 +53,11 @@ if (!empty($conf['show_php_errors'])) {
     @ini_set('display_errors', true);
 }
 
-// services
-include(__DIR__ . '/services.php');
-
-if ($services['users']->isAdmin() && $conf['check_upgrade_feed']) {
-    if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {
-        \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/?page=upgrade');
-    }
-}
+// if ($userMapper->isAdmin() && $conf['check_upgrade_feed']) {
+//     if (empty($conf['phyxo_db_version']) or $conf['phyxo_db_version'] != \Phyxo\Functions\Utils::get_branch_from_version(PHPWG_VERSION)) {
+//         \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::get_root_url() . 'admin/?page=upgrade');
+//     }
+// }
 
 \Phyxo\Image\ImageStdParams::load_from_db();
 \Phyxo\Functions\Plugin::load_plugins();
@@ -78,14 +75,14 @@ if ($app_user) {
     $user = $app_user->getInfos();
 }
 
-$services['users']->buildUser($app_user->getId(), (defined('IN_ADMIN') && IN_ADMIN) ? false : true);
+$userMapper->buildUser($app_user->getId(), (defined('IN_ADMIN') && IN_ADMIN) ? false : true);
 
 \Phyxo\Functions\Plugin::trigger_notify('user_init', $app_user);
 
 // language files
 \Phyxo\Functions\Language::load_language('common.lang', '', ['language' => $app_user->getLanguage()]);
 
-if ($services['users']->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
+if ($userMapper->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
     \Phyxo\Functions\Language::load_language('admin.lang', '', ['language' => $app_user->getLanguage()]);
 }
 \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
@@ -108,7 +105,7 @@ if (!defined('IN_WS') || !IN_WS) {
 if ($conf['gallery_locked']) {
     $header_msgs[] = \Phyxo\Functions\Language::l10n('The gallery is locked for maintenance. Please, come back later.');
 
-    if (\Phyxo\Functions\Utils::script_basename() != 'identification' && !$services['users']->isAdmin()) {
+    if (\Phyxo\Functions\Utils::script_basename() != 'identification' && !$userMapper->isAdmin()) {
         \Phyxo\Functions\HTTP::set_status_header(503, 'Service Unavailable');
         @header('Retry-After: 900');
         header('Content-Type: text/html; charset=' . \Phyxo\Functions\Utils::get_charset());

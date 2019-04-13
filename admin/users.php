@@ -21,8 +21,6 @@ use Phyxo\TabSheet\TabSheet;
 
 define('USERS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=users');
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (isset($_GET['section'])) {
     $page['section'] = $_GET['section'];
 } else {

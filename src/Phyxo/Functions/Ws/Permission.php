@@ -29,7 +29,7 @@ class Permission
      *    @option int[] group_id (optional)
      *    @option int[] user_id (optional)
      */
-    public static function getList($params, &$service)
+    public static function getList($params, Server $service)
     {
         global $conn;
 
@@ -122,7 +122,7 @@ class Permission
      *    @option int[] user_id (optional)
      *    @option bool recursive
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
         global $conn;
 
@@ -168,7 +168,7 @@ class Permission
      *    @option int[] group_id (optional)
      *    @option int[] user_id (optional)
      */
-    public static function remove($params, &$service)
+    public static function remove($params, Server $service)
     {
         global $conn;
 

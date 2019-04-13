@@ -12,13 +12,6 @@
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
 use Phyxo\TabSheet\TabSheet;
-use App\Repository\ConfigRepository;
-
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 //-------------------------------------------------------- sections definitions
 $Sections = ['main', 'sizes', 'watermark', 'display', 'comments', 'default'];
@@ -466,12 +459,12 @@ if ($section === 'main') {
         true
     );
 } elseif ($section === 'default') {
-    $edit_user = $services['users']->buildUser($conf['guest_id'], false);
+    $edit_user = $userMapper->buildUser($conf['guest_id'], false);
 
     $errors = [];
     if (\Phyxo\Functions\Utils::save_profile_from_post($edit_user, $errors)) {
         // Reload user
-        $edit_user = $services['users']->buildUser($conf['guest_id'], false);
+        $edit_user = $userMapper->buildUser($conf['guest_id'], false);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings have been saved');
     }
     $page['errors'] = array_merge($page['errors'], $errors);

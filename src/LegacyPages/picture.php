@@ -19,10 +19,6 @@ use App\Repository\CaddieRepository;
 include_once(__DIR__ . '/../../include/common.inc.php');
 include_once(__DIR__ . '/../../include/section_init.inc.php');
 
-
-// Check Access and exit when user status is not ok
-$services['users']->checkStatus(ACCESS_GUEST);
-
 // access authorization check
 if (isset($page['category'])) {
     \Phyxo\Functions\Utils::check_restrictions($page['category']['id']);
@@ -233,7 +229,7 @@ if (isset($_GET['action'])) {
             }
         case 'set_as_representative':
             {
-                if ($services['users']->isAdmin() and isset($page['category'])) {
+                if ($userMapper->isAdmin() and isset($page['category'])) {
                     (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $page['image_id']], $page['category']['id']);
                     \Phyxo\Functions\Utils::invalidate_user_cache();
                 }
@@ -256,7 +252,7 @@ if (isset($_GET['action'])) {
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_edit', $_GET, false, PATTERN_ID);
                 $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_edit']);
 
-                if ($services['users']->canManageComment('edit', $author_id)) {
+                if ($userMapper->canManageComment('edit', $author_id)) {
                     if (!empty($_POST['content'])) {
                         \Phyxo\Functions\Utils::check_token();
                         $comment_action = $commentMapper->updateUserComment(
@@ -300,7 +296,7 @@ if (isset($_GET['action'])) {
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_delete', $_GET, false, PATTERN_ID);
                 $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_delete']);
 
-                if ($services['users']->canManageComment('delete', $author_id)) {
+                if ($userMapper->canManageComment('delete', $author_id)) {
                     $commentMapper->deleteUserComment($_GET['comment_to_delete']);
                     delete_user_comment($_GET['comment_to_delete']);
                 }
@@ -313,7 +309,7 @@ if (isset($_GET['action'])) {
                 \Phyxo\Functions\Utils::check_input_parameter('comment_to_validate', $_GET, false, PATTERN_ID);
                 $author_id = (new CommentRepository($conn))->getCommentAuthorId($_GET['comment_to_validate']);
 
-                if ($services['users']->canManageComment('validate', $author_id)) {
+                if ($userMapper->canManageComment('validate', $author_id)) {
                     $commentMapper->validateUserComment($_GET['comment_to_validate']);
                 }
                 \Phyxo\Functions\Utils::redirect($url_self);
@@ -544,7 +540,7 @@ if ($conf['picture_metadata_icon']) {
 //------------------------------------------------------- upper menu management
 
 // admin links
-if ($services['users']->isAdmin()) {
+if ($userMapper->isAdmin()) {
     if (isset($page['category'])) {
         $template->assign(['U_SET_AS_REPRESENTATIVE' => \Phyxo\Functions\URL::add_url_params($url_self, ['action' => 'set_as_representative'])]);
     }
@@ -563,7 +559,7 @@ if ($services['users']->isAdmin()) {
 }
 
 // favorite manipulation
-if (!$services['users']->isGuest() and $conf['picture_favorite_icon']) {
+if (!$userMapper->isGuest() && $conf['picture_favorite_icon']) {
     // verify if the picture is already in the favorite of the user
     $is_favorite = (new FavoriteRepository($conn))->iSFavorite($user['id'], $page['image_id']);
     $template->assign(
@@ -671,7 +667,7 @@ if (count($tags)) {
 if (!empty($conf['tags_permission_add'])) {
     $template->assign(
         'TAGS_PERMISSION_ADD',
-        (int)$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))
+        0 // (int)$userMapper->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add'])) // @TODO: add Voter
     );
 } else {
     $template->assign('TAGS_PERMISSION_ADD', 0);
@@ -679,7 +675,7 @@ if (!empty($conf['tags_permission_add'])) {
 if (!empty($conf['tags_permission_delete'])) {
     $template->assign(
         'TAGS_PERMISSION_DELETE',
-        (int)$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))
+        0 // (int)$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])) // @TODO: add Voter
     );
 } else {
     $template->assign('TAGS_PERMISSION_DELETE', 0);

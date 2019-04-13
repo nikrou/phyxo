@@ -21,11 +21,6 @@ if (!defined('BATCH_MANAGER_BASE_URL')) {
     die('Hacking attempt!');
 }
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_unit');
 
 // +-----------------------------------------------------------------------+

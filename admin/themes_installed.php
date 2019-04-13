@@ -38,7 +38,7 @@ if (isset($_GET['action']) and isset($_GET['theme'])) {
 
 $themes->sortFsThemes();
 
-$default_theme = $services['users']->getDefaultTheme();
+$default_theme = $userMapper->getDefaultTheme();
 
 $db_themes = $themes->getDbThemes();
 $db_theme_ids = [];

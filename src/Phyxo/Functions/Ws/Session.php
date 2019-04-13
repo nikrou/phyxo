@@ -13,6 +13,7 @@ namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Error;
 use App\Repository\BaseRepository;
+use Phyxo\Ws\Server;
 
 class Session
 {
@@ -23,11 +24,9 @@ class Session
      *    @option string username
      *    @option string password
      */
-    public static function login($params, &$service)
+    public static function login($params, Server $service)
     {
-        global $conn, $services;
-
-        if ($services['users']->tryLogUser($params['username'], $params['password'], false)) {
+        if ($service->getUserMapper()->tryLogUser($params['username'], $params['password'], false)) {
             return true;
         }
 
@@ -39,12 +38,10 @@ class Session
      * Performs a logout
      * @param mixed[] $params
      */
-    public static function logout($params, &$service)
+    public static function logout($params, Server $service)
     {
-        global $services;
-
-        if (!$services['users']->isGuest()) {
-            $services['users']->logoutUser();
+        if (!$service->getUserMapper()->isGuest()) {
+            $service->getUserMapper()->logoutUser();
         }
 
         return true;
@@ -55,11 +52,11 @@ class Session
      * Returns info about the current user
      * @param mixed[] $params
      */
-    public static function getStatus($params, &$service)
+    public static function getStatus($params, Server $service)
     {
-        global $user, $conf, $conn, $services;
+        global $user, $conf, $conn;
 
-        $res['username'] = $services['users']->isGuest() ? 'guest' : stripslashes($user['username']);
+        $res['username'] = $service->getUserMapper()->isGuest() ? 'guest' : stripslashes($user['username']);
         foreach (['status', 'theme', 'language'] as $k) {
             $res[$k] = $user[$k];
         }
@@ -69,7 +66,7 @@ class Session
         $res['current_datetime'] = (new BaseRepository($conn))->getNow();
         $res['version'] = PHPWG_VERSION;
 
-        if ($services['users']->isAdmin()) {
+        if ($service->getUserMapper()->isAdmin()) {
             $res['upload_file_types'] = implode(
                 ',',
                 array_unique(

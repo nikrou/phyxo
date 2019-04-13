@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Model\Repository;
+namespace App\DataMapper;
 
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
@@ -29,18 +29,19 @@ use App\Repository\ThemeRepository;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Repository\BaseRepository;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class Users
+class UserMapper
 {
-    private $conn, $conf, $user, $passwordEncoder;
+    private $conn, $conf, $autorizationChecker, $user;
 
-    public function __construct(iDBLayer $conn, Conf $conf, array $user)
+    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker)
     {
         $this->conn = $conn;
         $this->conf = $conf;
-        $this->user = $user;
-
-        Plugin::add_event_handler('try_log_user', [$this, 'login']);
+        $this->user = $tokenStorage->getToken()->getUser();
+        $this->autorizationChecker = $autorizationChecker;
     }
 
     public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
@@ -584,153 +585,24 @@ class Users
         return $userdata['user_id'];
     }
 
-    /**
-     * Return user status.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return string
-     */
-    protected function getUserStatus($user_status = '')
+    public function isGuest(): bool
     {
-        global $user;
-
-        if (empty($user_status)) {
-            if (isset($user['status'])) {
-                $user_status = $user['status'];
-            } else {
-                // swicth to default value
-                $user_status = '';
-            }
-        }
-
-        return $user_status;
+        return $this->user->isGuest();
     }
 
-    /**
-     * Return ACCESS_* value for a given $status.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return int one of ACCESS_* constants
-     */
-    public function getAccessTypeStatus($user_status = '')
+    public function isClassicUser(): bool
     {
-        switch ($this->getUserStatus($user_status)) {
-            case 'guest':
-                {
-                    $access_type_status = ($this->conf['guest_access'] ? ACCESS_GUEST : ACCESS_FREE);
-                    break;
-                }
-            case 'generic':
-                {
-                    $access_type_status = ACCESS_GUEST;
-                    break;
-                }
-            case 'normal':
-                {
-                    $access_type_status = ACCESS_CLASSIC;
-                    break;
-                }
-            case 'admin':
-                {
-                    $access_type_status = ACCESS_ADMINISTRATOR;
-                    break;
-                }
-            case 'webmaster':
-                {
-                    $access_type_status = ACCESS_WEBMASTER;
-                    break;
-                }
-            default:
-                {
-                    $access_type_status = ACCESS_FREE;
-                    break;
-                }
-        }
-
-        return $access_type_status;
+        return $this->autorizationChecker->isGranted('ROLE_USER');
     }
 
-    /**
-     * Returns if user has access to a particular ACCESS_*
-     *
-     * @return int $access_type one of ACCESS_* constants
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isAuthorizeStatus($access_type, $user_status = '')
+    public function isAdmin(): bool
     {
-        return ($this->getAccessTypeStatus($user_status) >= $access_type);
+        return $this->autorizationChecker->isGranted('ROLE_ADMIN');
     }
 
-    /**
-     * Abord script if user has no access to a particular ACCESS_*
-     *
-     * @return int $access_type one of ACCESS_* constants
-     * @param string $user_status used if $user not initialized
-     */
-    public function checkStatus($access_type, $user_status = '')
+    public function isWebmaster(): bool
     {
-        trigger_error('checkStatus is deprecated. Use User methods instead isGranted,...', E_USER_DEPRECATED);
-
-        return true;
-        if (!$this->isAuthorizeStatus($access_type, $user_status)) {
-            \Phyxo\Functions\HTTP::access_denied();
-        }
-    }
-
-    /**
-     * Returns if user is generic.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isGeneric($user_status = '')
-    {
-        return $this->getUserStatus($user_status) == 'generic';
-    }
-
-    /**
-     * Returns if user is a guest.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isGuest($user_status = '')
-    {
-        return $this->getUserStatus($user_status) == 'guest';
-    }
-
-    /**
-     * Returns if user is, at least, a classic user.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isClassicUser($user_status = '')
-    {
-        return $this->isAuthorizeStatus(ACCESS_CLASSIC, $user_status);
-    }
-
-    /**
-     * Returns if user is, at least, an administrator.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isAdmin($user_status = '')
-    {
-        return $this->isAuthorizeStatus(ACCESS_ADMINISTRATOR, $user_status);
-    }
-
-    /**
-     * Returns if user is a webmaster.
-     *
-     * @param string $user_status used if $user not initialized
-     * @return bool
-     */
-    public function isWebmaster($user_status = '')
-    {
-        return $this->isAuthorizeStatus(ACCESS_WEBMASTER, $user_status);
+        return $this->autorizationChecker->isGranted('ROLE_WEBMASTER');
     }
 
     /**
@@ -813,5 +685,24 @@ class Users
         }
 
         return false;
+    }
+
+    /**
+     * returns the number of available comments for the connected user
+     *
+     * @return int
+     */
+    public function getNumberAvailableComments(): int
+    {
+        if ($this->user->getNumberAvailableComments()) {
+            $this->user->setNumberAvailableComments((new ImageCategoryRepository($this->conn))->countAvailableComments($this > isAdmin()));
+
+            (new UserCacheRepository($this->conn))->updateUserCache(
+                ['nb_available_comments' => $this->user->getNumberAvailableComments()],
+                ['user_id' => $this->user->getId()]
+            );
+        }
+
+        return $this->user->getNumberAvailableComments();
     }
 }

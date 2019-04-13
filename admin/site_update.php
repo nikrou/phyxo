@@ -27,8 +27,6 @@ if (!$conf['enable_synchronization']) {
     die('synchronization is disabled');
 }
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (!is_numeric($_GET['site'])) {
     die('site param missing or invalid');
 }

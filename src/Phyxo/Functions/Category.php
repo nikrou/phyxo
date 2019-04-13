@@ -19,6 +19,7 @@ use App\Repository\UserAccessRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\OldPermalinkRepository;
 use App\Repository\SiteRepository;
+use App\DataMapper\UserMapper;
 
 class Category
 {
@@ -166,9 +167,9 @@ class Category
      *
      * @return array[]
      */
-    public static function get_category_preferred_image_orders()
+    public static function get_category_preferred_image_orders(UserMapper $userMapper)
     {
-        global $conf, $page, $services;
+        global $conf;
 
         return \Phyxo\Functions\Plugin::trigger_change('get_category_preferred_image_orders', [
             [\Phyxo\Functions\Language::l10n('Default'), '', true],
@@ -182,7 +183,7 @@ class Category
             [\Phyxo\Functions\Language::l10n('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
             [\Phyxo\Functions\Language::l10n('Visits, high &rarr; low'), 'hit DESC', true],
             [\Phyxo\Functions\Language::l10n('Visits, low &rarr; high'), 'hit ASC', true],
-            [\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $services['users']->isAdmin()],
+            [\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $userMapper->isAdmin()],
         ]);
     }
 

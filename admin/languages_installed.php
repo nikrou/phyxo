@@ -31,7 +31,7 @@ if (isset($_GET['action']) and isset($_GET['language'])) {
 // +-----------------------------------------------------------------------+
 // |                     start template output                             |
 // +-----------------------------------------------------------------------+
-$default_language = $services['users']->getDefaultLanguage();
+$default_language = $userMapper->getDefaultLanguage();
 
 $tpl_languages = [];
 
@@ -74,5 +74,5 @@ $missing_language_ids = array_diff(
 );
 
 if (count($missing_language_ids) > 0) {
-    (new UserInfosRepository($conn))->updateLanguageForLanguages($services['users']->getDefaultLanguage(), $missing_language_ids);
+    (new UserInfosRepository($conn))->updateLanguageForLanguages($userMapper->getDefaultLanguage(), $missing_language_ids);
 }

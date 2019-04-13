@@ -39,7 +39,7 @@ class User
      *    @option string order
      *    @option string display
      */
-    public static function getList($params, &$service)
+    public static function getList($params, Server $service)
     {
         global $conf, $conn;
 
@@ -200,9 +200,9 @@ class User
      *    @option string password (optional)
      *    @option string email (optional)
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
-        global $conf, $services;
+        global $conf;
 
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
@@ -215,7 +215,7 @@ class User
         }
 
         $errors = [];
-        $user_id = $services['users']->registerUser(
+        $user_id = $service->getUserMapper()->registerUser(
             $params['username'],
             $params['password'],
             $params['email'],
@@ -238,7 +238,7 @@ class User
      *    @option int[] user_id
      *    @option string pwg_token
      */
-    public static function delete($params, &$service)
+    public static function delete($params, Server $service)
     {
         global $conf, $user, $conn;
 
@@ -295,9 +295,9 @@ class User
      *    @option bool show_nb_hits (optional)
      *    @option bool enabled_high (optional)
      */
-    public static function setInfo($params, &$service)
+    public static function setInfo($params, Server $service)
     {
-        global $conf, $user, $conn, $services;
+        global $conf, $user, $conn;
 
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
@@ -312,7 +312,7 @@ class User
             }
 
             if (!empty($params['username'])) {
-                $user_id = $services['users']->getUserId($params['username']);
+                $user_id = $service->getUserMapper()->getUserId($params['username']);
                 if ($user_id and $user_id != $params['user_id'][0]) {
                     return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('this login is already used'));
                 }
@@ -323,19 +323,19 @@ class User
             }
 
             if (!empty($params['email'])) {
-                if (($error = $services['users']->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
+                if (($error = $service->getUserMapper()->validateMailAddress($params['user_id'][0], $params['email'])) != '') {
                     return new Error(Server::WS_ERR_INVALID_PARAM, $error);
                 }
                 $updates['mail_address'] = $params['email'];
             }
 
             if (!empty($params['password'])) {
-                $updates['password'] = $services['users']->passwordHash($params['password']);
+                $updates['password'] = $service->getUserMapper()->passwordHash($params['password']);
             }
         }
 
         if (!empty($params['status'])) {
-            if (in_array($params['status'], ['webmaster', 'admin']) and !$services['users']->isWebmaster()) {
+            if (in_array($params['status'], ['webmaster', 'admin']) && !$service->getUserMapper()->isWebmaster()) {
                 return new Error(403, 'Only webmasters can grant "webmaster/admin" status');
             }
 

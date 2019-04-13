@@ -13,6 +13,7 @@ namespace Phyxo\Functions\Ws;
 
 use Phyxo\Ws\Error;
 use Phyxo\Plugin\Plugins;
+use Phyxo\Ws\Server;
 
 class Plugin
 {
@@ -21,7 +22,7 @@ class Plugin
      * Returns the list of all plugins
      * @param mixed[] $params
      */
-    public static function getList($params, $service)
+    public static function getList($params, Server $service)
     {
         $plugins = new Plugins($GLOBALS['conn']);
         $plugins->sortFsPlugins('name');
@@ -54,7 +55,7 @@ class Plugin
      *    @option string plugin
      *    @option string pwg_token
      */
-    public static function performAction($params, $service)
+    public static function performAction($params, Server $service)
     {
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');

@@ -11,8 +11,6 @@
 
 use App\Repository\UpgradeRepository;
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (!$conf['check_upgrade_feed']) {
     die("upgrade feed is not active");
 }
@@ -33,8 +31,6 @@ $existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 
 foreach ($to_apply as $upgrade_id) {
     unset($upgrade_description);

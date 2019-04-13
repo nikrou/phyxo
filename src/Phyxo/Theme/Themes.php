@@ -58,7 +58,7 @@ class Themes extends Extensions
      */
     public function performAction($action, $theme_id)
     {
-        global $conf, $services;
+        global $conf, $userMapper;
 
         if (!$this->db_themes_retrieved) {
             $this->getDbThemes();
@@ -122,7 +122,7 @@ class Themes extends Extensions
                     break;
                 }
 
-                if ($theme_id == $services['users']->getDefaultTheme()) {
+                if ($theme_id == $userMapper->getDefaultTheme()) {
                     // find a random theme to replace
                     $new_theme = null;
                     $result = (new ThemeRepository($this->conn))->findById($theme_id);
@@ -207,10 +207,10 @@ class Themes extends Extensions
 
     public function setDefaultTheme($theme_id)
     {
-        global $conf, $services;
+        global $conf, $userMapper;
 
         // first we need to know which users are using the current default theme
-        $default_theme = $services['users']->getDefaultTheme();
+        $default_theme = $userMapper->getDefaultTheme();
         $result = (new UserInfosRepository($this->conn))->findByTheme($default_theme);
         $user_ids = array_unique(
             array_merge(

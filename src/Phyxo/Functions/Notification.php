@@ -168,11 +168,11 @@ class Notification
      */
     public static function news_exists($start = null, $end = null)
     {
-        global $services;
+        global $userMapper;
 
         return ((self::nb_new_comments($start, $end) > 0) || (self::nb_new_elements($start, $end) > 0)
-            || (self::nb_updated_categories($start, $end) > 0) || (($services['users']->isAdmin())
-            && (self::nb_unvalidated_comments($start, $end) > 0)) || (($services['users']->isAdmin()) && (self::nb_new_users($start, $end) > 0)));
+            || (self::nb_updated_categories($start, $end) > 0) || (($userMapper->isAdmin())
+            && (self::nb_unvalidated_comments($start, $end) > 0)) || (($userMapper->isAdmin()) && (self::nb_new_users($start, $end) > 0)));
     }
 
     /**
@@ -212,7 +212,7 @@ class Notification
      */
     public static function news($start = null, $end = null, $exclude_img_cats = false, $add_url = false)
     {
-        global $services;
+        global $userMapper;
 
         $news = [];
 
@@ -247,7 +247,7 @@ class Notification
             $add_url
         );
 
-        if ($services['users']->isAdmin()) {
+        if ($userMapper->isAdmin()) {
             self::add_news_line(
                 $news,
                 self::nb_unvalidated_comments($start, $end),
@@ -521,9 +521,9 @@ class Notification
  */
     public static function set_user_on_env_nbm(&$nbm_user, $is_action_send)
     {
-        global $user, $lang, $lang_info, $env_nbm, $services;
+        global $user, $env_nbm, $userMapper;
 
-        $user = $services['users']->buildUser($nbm_user['user_id'], true);
+        $user = $userMapper->buildUser($nbm_user['user_id'], true);
 
         \Phyxo\Functions\Mail::switch_lang_to($user['language']);
 

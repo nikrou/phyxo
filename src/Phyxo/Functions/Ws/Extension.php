@@ -17,6 +17,7 @@ use Phyxo\Language\Languages;
 use Phyxo\Update\Updates;
 
 use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class Extension
 {
@@ -30,11 +31,9 @@ class Extension
      *    @option string pwg_token
      *    @option bool reactivate (optional - undocumented)
      */
-    public static function update($params, $service)
+    public static function update($params, Server $service)
     {
-        global $services;
-
-        if (!$services['users']->isWebmaster()) {
+        if (!$service->getUserMapper()->isWebmaster()) {
             return new Error(401, \Phyxo\Functions\Language::l10n('Webmaster status is required.'));
         }
 
@@ -96,13 +95,13 @@ class Extension
      *    @option bool reset
      *    @option string pwg_token
      */
-    public static function ignoreupdate($params, $service)
+    public static function ignoreupdate($params, Server $service)
     {
-        global $conf, $services;
+        global $conf;
 
         define('IN_ADMIN', true);
 
-        if (!$services['users']->isWebmaster()) {
+        if (!$service->getUserMapper()->isWebmaster()) {
             return new Error(401, 'Access denied');
         }
 
@@ -146,7 +145,7 @@ class Extension
      * Checks for updates (core and extensions)
      * @param mixed[] $params
      */
-    public static function checkupdates($params, $service)
+    public static function checkupdates($params, Server $service)
     {
         global $conf;
 

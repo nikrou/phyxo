@@ -15,11 +15,6 @@ use App\Repository\SearchRepository;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_GUEST);
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_search');
 
 //------------------------------------------------------------------ form check

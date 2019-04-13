@@ -78,9 +78,9 @@ class Tag
      *    @option int page
      *    @option string order
      */
-    public static function getImages($params, &$service)
+    public static function getImages($params, Server $service)
     {
-        global $conn, $services;
+        global $conn;
 
         // first build all the tag_ids we are interested in
         $tags = $conn->result2array((new TagRepository($conn))->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']));

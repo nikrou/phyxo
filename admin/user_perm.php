@@ -18,11 +18,6 @@ if (!defined('IN_ADMIN')) {
 }
 
 // +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
 // |                            variables init                             |
 // +-----------------------------------------------------------------------+
 
@@ -54,15 +49,15 @@ $template->set_filenames(['double_select' => 'double_select.tpl']);
 $template->assign(
     [
         'TITLE' =>
-            \Phyxo\Functions\Language::l10n(
-            'Manage permissions for user "%s"',
-            \Phyxo\Functions\Utils::get_username($page['user'])
+        \Phyxo\Functions\Language::l10n(
+        'Manage permissions for user "%s"',
+        \Phyxo\Functions\Utils::get_username($page['user'])
         ),
         'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
         'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),
 
         'F_ACTION' =>
-            \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_perm&amp;user_id=' . $page['user']
+        \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_perm&amp;user_id=' . $page['user']
     ]
 );
 

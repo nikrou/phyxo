@@ -82,7 +82,7 @@ class Upgrade
     // Check access rights
     public static function check_upgrade_access_rights()
     {
-        global $conf, $page, $current_release, $conn, $services;
+        global $page, $current_release, $conn, $userMapper;
 
         if (version_compare($current_release, '1.0', '>=') and isset($_COOKIE[session_name()])) {
             // Check if user is already connected as webmaster
@@ -106,7 +106,7 @@ class Upgrade
 
         $result = (new UserRepository($conn))->getUserInfosByUsername($username);
         $row = $conn->db_fetch_assoc($result);
-        if (!$services['users']->passwordVerify($password, $row['password'])) {
+        if (!$userMapper->passwordVerify($password, $row['password'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Invalid password!');
         } elseif ($row['status'] != 'admin' and $row['status'] != 'webmaster') {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('You do not have access rights to run upgrade');

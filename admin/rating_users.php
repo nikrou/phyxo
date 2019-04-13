@@ -33,7 +33,7 @@ $result = (new UserRepository($conn))->getUserInfosList();
 while ($row = $conn->db_fetch_assoc($result)) {
     $users_by_id[(int)$row['id']] = [
         'name' => $row['username'],
-        'anon' => $services['users']->isAuthorizeStatus(ACCESS_CLASSIC, $row['status']) ? false : true
+        'anon' => $userMapper->isClassicUser()
     ];
 }
 

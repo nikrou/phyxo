@@ -18,6 +18,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
+use Phyxo\Ws\Server;
 
 class Category
 {
@@ -31,7 +32,7 @@ class Category
      *    @option int page
      *    @option string order (optional)
      */
-    public static function getImages($params, &$service)
+    public static function getImages($params, Server $service)
     {
         global $user, $conf, $conn;
 
@@ -143,9 +144,9 @@ class Category
      *    @option bool tree_output
      *    @option bool fullname
      */
-    public static function getList($params, &$service)
+    public static function getList($params, Server $service)
     {
-        global $user, $conf, $conn, $services;
+        global $user, $conf, $conn;
 
         $where = ['1=1'];
         $join_type = 'INNER';
@@ -166,7 +167,7 @@ class Category
             $where[] = 'visible = \'' . $conn->boolean_to_db(true) . '\'';
 
             $join_user = $conf['guest_id'];
-        } elseif ($services['users']->isAdmin()) {
+        } elseif ($service->getUserMapper()->isAdmin()) {
             /* in this very specific case, we don't want to hide empty
              * categories. Method calculatePermissions will only return
              * categories that are either locked or private and not permitted
@@ -174,7 +175,7 @@ class Category
              * calculatePermissions does not consider empty categories as forbidden
              * @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
              */
-            $forbidden_categories = $services['users']->calculatePermissions($user['id'], $user['status']);
+            $forbidden_categories = $service->getUserMapper()->calculatePermissions($user['id'], $user['status']);
             $where[] = 'id NOT IN (' . $forbidden_categories . ')';
             $join_type = 'LEFT';
         }
@@ -364,7 +365,7 @@ class Category
      * Only admin can run this method and permissions are not taken into
      * account.
      */
-    public static function getAdminList($params, &$service)
+    public static function getAdminList($params, Server $service)
     {
         global $conn;
 
@@ -420,7 +421,7 @@ class Category
      *    @option string status (optional)
      *    @option bool commentable
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
         $options = [];
         if (!empty($params['status']) and in_array($params['status'], ['private', 'public'])) {
@@ -454,7 +455,7 @@ class Category
      *    @option string name (optional)
      *    @option string comment (optional)
      */
-    public static function setInfo($params, &$service)
+    public static function setInfo($params, Server $service)
     {
         global $conn;
 
@@ -484,7 +485,7 @@ class Category
      *    @option int category_id
      *    @option int image_id
      */
-    public static function setRepresentative($params, &$service)
+    public static function setRepresentative($params, Server $service)
     {
         global $conn;
 
@@ -513,7 +514,7 @@ class Category
      *    @option string photo_deletion_mode
      *    @option string pwg_token
      */
-    public static function delete($params, &$service)
+    public static function delete($params, Server $service)
     {
         global $conn;
 
@@ -571,7 +572,7 @@ class Category
      *    @option int parent
      *    @option string pwg_token
      */
-    public static function move($params, &$service)
+    public static function move($params, Server $service)
     {
         global $page, $conn;
 

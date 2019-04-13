@@ -11,8 +11,6 @@
 
 use Phyxo\Theme\Themes;
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (empty($_GET['theme'])) {
     die('Invalid theme URL'); // @TODO: handle error instead of simple die
 }

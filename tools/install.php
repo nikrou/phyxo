@@ -43,9 +43,6 @@ $languages = new Languages($conn);
 
 include_once(__DIR__ . '/../include/constants.php');
 
-// services
-include(__DIR__ . '/../include/services.php');
-
 $conn->executeSqlFile(
     __DIR__ . '/../install/phyxo_structure-' . $conn->getLayer() . '.sql',
     DEFAULT_PREFIX_TABLE,
@@ -108,7 +105,7 @@ if ($conf['dblayer'] == 'pgsql') {
     $conn->db_query('ALTER SEQUENCE ' . strtolower(\App\Repository\BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
 }
 
-$services['users']->createUserInfos([1, 2], ['language' => 'en']);
+$userMapper->createUserInfos([1, 2], ['language' => 'en']);
 
 list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
 define('CURRENT_DATE', $dbnow);

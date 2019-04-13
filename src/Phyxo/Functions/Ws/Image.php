@@ -79,7 +79,7 @@ class Image
      */
     public static function getInfo($params, Server $service)
     {
-        global $user, $conf, $conn, $services;
+        global $user, $conf, $conn;
 
         $result = (new ImageRepository($conn))->findById($params['image_id'], $visible_images = true);
         if ($conn->db_num_rows($result) == 0) {
@@ -151,7 +151,7 @@ class Image
         //---------------------------------------------------------- related comments
         $related_comments = [];
 
-        $nb_comments = (new CommentRepository($conn))->countByImage($image_row['id'], $services['users']->isAdmin());
+        $nb_comments = (new CommentRepository($conn))->countByImage($image_row['id'], $service->getUserMapper()->isAdmin());
 
         if ($nb_comments > 0 and $params['comments_per_page'] > 0) {
             $result = (new CommentRepository($conn))->getCommentsByImagePerPage(
@@ -166,7 +166,7 @@ class Image
         }
 
         $comment_post_data = null;
-        if ($is_commentable && (!$services['users']->isGuest() || ($services['users']->isGuest() && $conf['comments_forall']))) {
+        if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $conf['comments_forall']))) {
             $comment_post_data['author'] = stripslashes($user['username']);
             $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id']);
         }
@@ -526,7 +526,7 @@ class Image
      */
     public static function add($params, Server $service)
     {
-        global $conf, $user, $conn, $services;
+        global $conf, $conn;
 
         foreach ($params as $param_key => $param_value) {
             \Phyxo\Functions\Ws\Main::logFile(
@@ -939,15 +939,16 @@ class Image
      */
     public static function setRelatedTags($params, Server $service)
     {
-        global $conf, $conn, $services, $user;
+        global $conf, $conn, $user;
 
         if (!$service->isPost()) {
             return new Error(405, "This method requires HTTP POST");
         }
 
-        if ((empty($conf['tags_permission_add'])
-            || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) && (empty($conf['tags_permission_delete'])
-            || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
+        // @TODO : add voters
+        if (empty($conf['tags_permission_add'])) {
+            // || !$service->getUserMapper()->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) && (empty($conf['tags_permission_delete'])
+            // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
             return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
         }
 
@@ -966,14 +967,16 @@ class Image
         $new_tags = array_diff($params['tags'], $current_tags);
 
         if (count($removed_tags) > 0) {
-            if (empty($conf['tags_permission_delete'])
-                || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
+            // @TODO : add voters
+            if (empty($conf['tags_permission_delete'])) {
+                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to delete tags'));
             }
         }
         if (count($new_tags) > 0) {
-            if (empty($conf['tags_permission_add'])
-                || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
+            // @TODO : add voters
+            if (empty($conf['tags_permission_add'])) {
+                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add tags'));
             }
         }
@@ -1040,7 +1043,7 @@ class Image
      */
     public static function setInfo($params, Server $service)
     {
-        global $conn, $services;
+        global $conn;
 
         $result = (new ImageRepository($conn))->findById($params['image_id']);
 
@@ -1141,7 +1144,7 @@ class Image
      *    @option int|int[] image_id
      *    @option string pwg_token
      */
-    public static function delete($params, $service)
+    public static function delete($params, Server $service)
     {
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
@@ -1176,7 +1179,7 @@ class Image
      * Checks if Piwigo is ready for upload
      * @param mixed[] $params
      */
-    public static function checkUpload($params, $service)
+    public static function checkUpload($params, Server $service)
     {
         $ret['message'] = \Phyxo\Functions\Upload::ready_for_upload_message();
         $ret['ready_for_upload'] = true;

@@ -28,7 +28,7 @@ class Group
      *    @option int[] group_id (optional)
      *    @option string name (optional)
      */
-    public static function getList($params, &$service)
+    public static function getList($params, Server $service)
     {
         global $conn;
 
@@ -58,7 +58,7 @@ class Group
      *    @option string name
      *    @option bool is_default
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
         global $conn;
 
@@ -84,7 +84,7 @@ class Group
      *    @option int[] group_id
      *    @option string pwg_token
      */
-    public static function delete($params, &$service)
+    public static function delete($params, Server $service)
     {
         global $conn;
 
@@ -117,7 +117,7 @@ class Group
      *    @option string name (optional)
      *    @option bool is_default (optional)
      */
-    public static function setInfo($params, &$service)
+    public static function setInfo($params, Server $service)
     {
         global $conn;
 
@@ -155,7 +155,7 @@ class Group
      *    @option int group_id
      *    @option int[] user_id
      */
-    public static function addUser($params, &$service)
+    public static function addUser($params, Server $service)
     {
         global $conn;
 
@@ -189,7 +189,7 @@ class Group
      *    @option int group_id
      *    @option int[] user_id
      */
-    public static function deleteUser($params, &$service)
+    public static function deleteUser($params, Server $service)
     {
         global $conn;
 

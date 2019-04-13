@@ -13,6 +13,7 @@ namespace Phyxo\Functions\Ws;
 
 use Phyxo\Theme\Themes;
 use Phyxo\Ws\Error;
+use Phyxo\Ws\Server;
 
 class Theme
 {
@@ -24,7 +25,7 @@ class Theme
      *    @option string theme
      *    @option string pwg_token
      */
-    public static function performAction($params, $service)
+    public static function performAction($params, Server $service)
     {
         global $template;
 

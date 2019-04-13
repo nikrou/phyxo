@@ -18,12 +18,12 @@ class HTTP
      */
     public static function access_denied()
     {
-        global $user, $services;
+        global $userMapper;
 
         $login_url = \Phyxo\Functions\URL::get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
 
         self::set_status_header(401);
-        if (isset($user) and !$services['users']->isGuest()) {
+        if (!$userMapper->isGuest()) {
             echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
             echo '<div style="text-align:center;">' . \Phyxo\Functions\Language::l10n('You are not authorized to access the requested page') . '<br>';
             echo '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'identification.php">' . \Phyxo\Functions\Language::l10n('Identification') . '</a>&nbsp;';
@@ -182,5 +182,4 @@ class HTTP
         header("$protocol $code $text", true, $code);
         \Phyxo\Functions\Plugin::trigger_notify('set_status_header', $code, $text);
     }
-
 }

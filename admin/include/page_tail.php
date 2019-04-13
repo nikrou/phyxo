@@ -12,15 +12,15 @@
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_page_tail');
 
 $template->assign(
-    array(
+    [
         'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
         'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
-    )
+    ]
 );
 
 //--------------------------------------------------------------------- contact
 
-if (!$services['users']->isGuest()) {
+if (!$userMapper->isGuest()) {
     $template->assign(
         'CONTACT_MAIL',
         \Phyxo\Functions\Utils::get_webmaster_mail_address()
@@ -28,12 +28,12 @@ if (!$services['users']->isGuest()) {
 }
 
 //------------------------------------------------------------- generation time
-$debug_vars = array();
+$debug_vars = [];
 
 if ($conf['show_queries'] && !empty($conn)) {
     $debug_vars = array_merge(
         $debug_vars,
-        array('QUERIES_LIST' => $conn->getQueries())
+        ['QUERIES_LIST' => $conn->getQueries()]
     );
 }
 
@@ -47,11 +47,11 @@ if ($conf['show_gt']) {
     if (!empty($conn)) {
         $debug_vars = array_merge(
             $debug_vars,
-            array(
+            [
                 'TIME' => $time,
                 'NB_QUERIES' => $conn->getQueriesCount(),
                 'SQL_TIME' => number_format($conn->getQueriesTime(), 3, '.', ' ') . ' s'
-            )
+            ]
         );
     }
 }

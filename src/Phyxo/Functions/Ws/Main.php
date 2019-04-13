@@ -34,7 +34,7 @@ class Main
      *    @option int max_urls
      *    @option int prev_page (optional)
      */
-    public static function getMissingDerivatives($params, &$service)
+    public static function getMissingDerivatives($params, Server $service)
     {
         global $conf, $conn;
 
@@ -116,7 +116,7 @@ class Main
      * Returns Phyxo version
      * @param mixed[] $params
      */
-    public static function getVersion($params, &$service)
+    public static function getVersion($params, Server $service)
     {
         return PHPWG_VERSION;
     }
@@ -126,7 +126,7 @@ class Main
      * Returns general informations about the installation
      * @param mixed[] $params
      */
-    public static function getInfos($params, &$service)
+    public static function getInfos($params, Server $service)
     {
         global $conn;
 
@@ -160,25 +160,6 @@ class Main
         }
 
         return ['infos' => new NamedArray($output, 'item')];
-    }
-
-    /**
-     * Event handler for method invocation security check. Should return a Phyxo\Ws\Error
-     * if the preconditions are not satifsied for method invocation.
-     */
-    public static function isInvokeAllowed($res, $methodName, $params)
-    {
-        global $conf, $services;
-
-        if (strpos($methodName, 'reflection.') === 0) { // OK for reflection
-            return $res;
-        }
-
-        if (!$services['users']->isAuthorizeStatus(ACCESS_GUEST) && strpos($methodName, 'pwg.session.') !== 0) {
-            return new Error(401, 'Access denied');
-        }
-
-        return $res;
     }
 
     /**

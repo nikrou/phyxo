@@ -11,11 +11,6 @@
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_GUEST);
-
 //----------------------------------------------------- template initialization
 //
 // Start output of page

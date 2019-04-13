@@ -118,7 +118,7 @@ if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Ut
 
 //----------------------------------------------------------- special categories
 if (($block = $menu->get_block('mbSpecials')) != null) {
-    if (!$services['users']->isGuest()) { // favorites
+    if (!$userMapper->isGuest()) { // favorites
         $block->data['favorites'] = [
             'URL' => \Phyxo\Functions\URL::make_index_url(['section' => 'favorites']),
             'TITLE' => \Phyxo\Functions\Language::l10n('display your favorites photos'),
@@ -203,7 +203,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
             'TITLE' => \Phyxo\Functions\Language::l10n('display last user comments'),
             'NAME' => \Phyxo\Functions\Language::l10n('Comments'),
             'URL' => \Phyxo\Functions\URL::get_root_url() . 'comments.php',
-            'COUNTER' => \Phyxo\Functions\Utils::get_nb_available_comments(),
+            'COUNTER' => $userMapper->getNumberAvailableComments(),
         ];
     }
 
@@ -226,7 +226,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
 
 
 //--------------------------------------------------------------- identification
-if ($services['users']->isGuest()) {
+if ($userMapper->isGuest()) {
     $template->assign(
         [
             'U_LOST_PASSWORD' => \Phyxo\Functions\URL::get_root_url() . 'password.php',
@@ -238,11 +238,11 @@ if ($services['users']->isGuest()) {
     }
 } else {
     $template->assign('USERNAME', stripslashes($user['username']));
-    if ($services['users']->isAuthorizeStatus(ACCESS_CLASSIC)) {
+    if ($userMapper->isClassicUser()) {
         $template->assign('U_PROFILE', \Phyxo\Functions\URL::get_root_url() . 'profile.php');
     }
 
-    if ($services['users']->isAdmin()) {
+    if ($userMapper->isAdmin()) {
         $template->assign('U_ADMIN', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php');
     }
 }

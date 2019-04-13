@@ -17,11 +17,6 @@ include_once(__DIR__ . '/../../include/common.inc.php');
 
 use App\Repository\UserFeedRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_GUEST);
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_notification');
 
 // +-----------------------------------------------------------------------+
@@ -31,7 +26,7 @@ $services['users']->checkStatus(ACCESS_GUEST);
 $page['feed'] = md5(uniqid(true));
 (new UserFeedRepository($conn))->addUserFeed(['id' => $page['feed'], 'user_id' => $user['id']]);
 $feed_url = \Phyxo\Functions\URL::get_root_url() . 'feed.php';
-if ($services['users']->isGuest()) {
+if ($userMapper->isGuest()) {
     $feed_image_only_url = $feed_url;
     $feed_url .= '?feed=' . $page['feed'];
 } else {

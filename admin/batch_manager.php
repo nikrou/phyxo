@@ -25,11 +25,6 @@ use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageCategoryRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 \Phyxo\Functions\Utils::check_input_parameter('selection', $_POST, true, PATTERN_ID);
 
 

@@ -15,11 +15,6 @@ use Phyxo\TabSheet\TabSheet;
 use App\Repository\CategoryRepository;
 
 // +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
 if (isset($_GET['section'])) {

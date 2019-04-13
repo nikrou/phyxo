@@ -15,10 +15,11 @@ use Phyxo\Functions\Plugin;
 use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
+use App\DataMapper\UserMapper;
 
 class Server
 {
-    private $tagMapper, $commentMapper;
+    private $tagMapper, $commentMapper, $userMapper;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -66,6 +67,16 @@ class Server
     public function getCommentMapper()
     {
         return $this->commentMapper;
+    }
+
+    public function addUserMapper(UserMapper $userMapper)
+    {
+        $this->userMapper = $userMapper;
+    }
+
+    public function getUserMapper()
+    {
+        return $this->userMapper;
     }
 
     /**
@@ -292,19 +303,17 @@ class Server
      */
     public function invoke($methodName, $params)
     {
-        global $services;
-
         $method = @$this->_methods[$methodName];
 
         if ($method == null) {
             return new Error(self::WS_ERR_INVALID_METHOD, 'Method name is not valid');
         }
 
-        if (isset($method['options']['post_only']) and $method['options']['post_only'] and !self::isPost()) {
+        if (isset($method['options']['post_only']) && $method['options']['post_only'] && !self::isPost()) {
             return new Error(405, 'This method requires HTTP POST');
         }
 
-        if (isset($method['options']['admin_only']) and $method['options']['admin_only'] and !$services['users']->isAdmin()) {
+        if (isset($method['options']['admin_only']) && $method['options']['admin_only'] && !$this->userMapper->isAdmin()) {
             return new Error(401, 'Access denied');
         }
 
@@ -355,12 +364,32 @@ class Server
             return new Error(self::WS_ERR_MISSING_PARAM, 'Missing parameters: ' . implode(',', $missing_params));
         }
 
-        $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
-        if ((is_bool($result) && $result === true) || get_class($result) != 'Phyxo\Ws\Error') {
+        if ($result = $this->isInvokeAllowed($methodName, $params)) {
             $result = call_user_func_array($method['callback'], [$params, &$this]);
         }
 
+        // $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
+        // if ((is_bool($result) && $result === true) || get_class($result) != 'Phyxo\Ws\Error') {
+        // }
+
         return $result;
+    }
+
+    /**
+     * Event handler for method invocation security check. Should return a Phyxo\Ws\Error
+     * if the preconditions are not satifsied for method invocation.
+     */
+    public function isInvokeAllowed(string $methodName, array $params = []): bool
+    {
+        if (strpos($methodName, 'reflection.') === 0) { // OK for reflection
+            return true;
+        }
+
+        if (!$this->userMapper->isClassicUser()) {
+            return new Error(401, 'Access denied');
+        }
+
+        return true;
     }
 
     /**

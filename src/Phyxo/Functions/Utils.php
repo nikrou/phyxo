@@ -458,42 +458,45 @@ class Utils
      */
     public static function log($image_id = null, $image_type = null)
     {
-        global $conf, $user, $page, $conn, $services;
+        // no more log. @TODO: use monolog
+        return;
 
-        $do_log = $conf['log'];
-        if ($services['users']->isAdmin()) {
-            $do_log = $conf['history_admin'];
-        }
-        if ($services['users']->isGuest()) {
-            $do_log = $conf['history_guest'];
-        }
+        // global $conf, $user, $page, $conn, $services;
 
-        $do_log = \Phyxo\Functions\Plugin::trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
+        // $do_log = $conf['log'];
+        // if ($services['users']->isAdmin()) {
+        //     $do_log = $conf['history_admin'];
+        // }
+        // if ($services['users']->isGuest()) {
+        //     $do_log = $conf['history_guest'];
+        // }
 
-        if (!$do_log) {
-            return false;
-        }
+        // $do_log = \Phyxo\Functions\Plugin::trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
 
-        $tags_string = null;
-        if (!empty($page['section']) && $page['section'] == 'tags') {
-            $tags_string = implode(',', $page['tag_ids']);
-        }
+        // if (!$do_log) {
+        //     return false;
+        // }
 
-        (new HistoryRepository($conn))->addHistory(
-            [
-                'date' => 'CURRENT_DATE',
-                'time' => 'CURRENT_TIME',
-                'user_id' => $user['id'],
-                'IP' => $_SERVER['REMOTE_ADDR'],
-                'section' => $page['section'] ?? null,
-                'category_id' => $page['category']['id'] ?? '',
-                'image_id' => $image_id ?? '',
-                'image_type' => $image_type ?? '',
-                'tag_ids' => $tags_string ?? ''
-            ]
-        );
+        // $tags_string = null;
+        // if (!empty($page['section']) && $page['section'] == 'tags') {
+        //     $tags_string = implode(',', $page['tag_ids']);
+        // }
 
-        return true;
+        // (new HistoryRepository($conn))->addHistory(
+        //     [
+        //         'date' => 'CURRENT_DATE',
+        //         'time' => 'CURRENT_TIME',
+        //         'user_id' => $user['id'],
+        //         'IP' => $_SERVER['REMOTE_ADDR'],
+        //         'section' => $page['section'] ?? null,
+        //         'category_id' => $page['category']['id'] ?? '',
+        //         'image_id' => $image_id ?? '',
+        //         'image_type' => $image_type ?? '',
+        //         'tag_ids' => $tags_string ?? ''
+        //     ]
+        // );
+
+        // return true;
     }
 
     /**
@@ -736,27 +739,6 @@ class Utils
     public static function email_check_format($mail_address)
     {
         return filter_var($mail_address, FILTER_VALIDATE_EMAIL) !== false;
-    }
-
-    /**
-     * returns the number of available comments for the connected user
-     *
-     * @return int
-     */
-    public static function get_nb_available_comments()
-    {
-        global $user, $conn, $services;
-
-        if (!isset($user['nb_available_comments'])) {
-            $user['nb_available_comments'] = (new ImageCategoryRepository($conn))->countAvailableComments($services['users']->isAdmin());
-
-            (new UserCacheRepository($conn))->updateUserCache(
-                ['nb_available_comments' => $user['nb_available_comments']],
-                ['user_id' => $user['id']]
-            );
-        }
-
-        return $user['nb_available_comments'];
     }
 
     /**
@@ -1576,7 +1558,7 @@ class Utils
      */
     public static function sync_users()
     {
-        global $conf, $conn, $services;
+        global $conf, $conn, $userMapper;
 
         $result = (new UserRepository($conn))->findAll();
         $base_users = $conn->result2array($result, null, 'id');
@@ -1588,7 +1570,7 @@ class Utils
         $to_create = array_diff($base_users, $infos_users);
 
         if (count($to_create) > 0) {
-            $services['users']->createUserInfos($to_create);
+            $userMapper->createUserInfos($to_create);
         }
 
         // users present in user related tables must be present in the base user table

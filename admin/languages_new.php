@@ -31,7 +31,7 @@ if (!is_writable($languages_dir)) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['revision'])) {
-    if (!$services['users']->isWebmaster()) {
+    if (!$userMapper->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         \Phyxo\Functions\Utils::check_token();

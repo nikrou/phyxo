@@ -14,11 +14,6 @@ define('LANGUAGES_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index
 use Phyxo\TabSheet\TabSheet;
 
 // +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
-// +-----------------------------------------------------------------------+
 // |                                 Tabs                                  |
 // +-----------------------------------------------------------------------+
 if (isset($_GET['section'])) {

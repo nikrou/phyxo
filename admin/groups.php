@@ -13,11 +13,6 @@ define('GROUPS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.ph
 
 use Phyxo\TabSheet\TabSheet;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (!empty($_POST) or isset($_GET['delete']) or isset($_GET['toggle_is_default'])) {
     \Phyxo\Functions\Utils::check_token();
 }

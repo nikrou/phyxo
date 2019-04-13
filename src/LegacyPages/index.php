@@ -15,10 +15,6 @@ use App\Repository\CaddieRepository;
 include_once(__DIR__ . '/../../include/common.inc.php');
 include(__DIR__ . '/../../include/section_init.inc.php');
 
-// Check Access and exit when user status is not ok
-$services['users']->checkStatus(ACCESS_GUEST);
-
-
 // access authorization check
 if (isset($page['category'])) {
     \Phyxo\Functions\Utils::check_restrictions($page['category']['id']);
@@ -158,14 +154,14 @@ if (empty($page['is_external']) or !$page['is_external']) {
         );
     }
 
-    if (isset($page['category']) and $services['users']->isAdmin()) {
+    if (isset($page['category']) and $userMapper->isAdmin()) {
         $template->assign(
             'U_EDIT',
             \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-' . $page['category']['id']
         );
     }
 
-    if ($services['users']->isAdmin() and !empty($page['items'])) {
+    if ($userMapper->isAdmin() and !empty($page['items'])) {
         $template->assign(
             'U_CADDIE',
             \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), ['caddie' => 1])
@@ -201,7 +197,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
 
     // image order
     if ($conf['index_sort_order_input'] && count($page['items']) > 0 && $page['section'] != 'most_visited' && $page['section'] != 'best_rated') {
-        $preferred_image_orders = \Phyxo\Functions\Category::get_category_preferred_image_orders();
+        $preferred_image_orders = \Phyxo\Functions\Category::get_category_preferred_image_orders($userMapper);
         $order_idx = isset($_SESSION['image_order']) ? $_SESSION['image_order'] : 0;
 
         // get first order field and direction

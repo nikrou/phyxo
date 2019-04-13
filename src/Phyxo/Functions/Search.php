@@ -160,7 +160,7 @@ class Search
      */
     public static function get_regular_search_results($search, $images_where = '')
     {
-        global $conf, $conn, $services;
+        global $conf, $conn;
 
         $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
             [
@@ -478,7 +478,7 @@ class Search
      */
     public static function get_quick_search_results_no_cache($q, $options)
     {
-        global $conf, $template, $conn, $services;
+        global $conf, $template, $conn, $userMapper;
 
         $q = trim(stripslashes($q));
         $search_results = [
@@ -517,7 +517,7 @@ class Search
 
         // get inflections for terms
         $inflector = null;
-        $lang_code = ucfirst(substr($services['users']->getDefaultLanguage(), 0, 2));
+        $lang_code = ucfirst(substr($userMapper->getDefaultLanguage(), 0, 2));
         $class_name = '\Phyxo\Search\Inflector' . $lang_code;
         if (class_exists($class_name)) {
             $inflector = new $class_name;

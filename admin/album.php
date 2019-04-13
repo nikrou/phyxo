@@ -16,7 +16,6 @@ use App\Repository\CategoryRepository;
 // | Basic checks                                                          |
 // +-----------------------------------------------------------------------+
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
 
 $category = (new CategoryRepository($conn))->findById($_GET['cat_id']);

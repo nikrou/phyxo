@@ -30,7 +30,7 @@ if (!is_writable(PHPWG_THEMES_PATH)) {
 // +-----------------------------------------------------------------------+
 
 if (isset($_GET['revision']) and isset($_GET['extension'])) {
-    if (!$services['users']->isWebmaster()) {
+    if (!$userMapper->isWebmaster()) {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
     } else {
         \Phyxo\Functions\Utils::check_token();

@@ -73,13 +73,13 @@ final class FileCombiner
      */
     public function combine()
     {
-        global $conf, $services;
+        global $conf, $userMapper;
 
         $force = false;
-        if (!empty($services['users']) && $services['users']->isAdmin() && ($this->is_css || !$conf['template_compile_check'])) {
-            $force = (isset($_SERVER['HTTP_CACHE_CONTROL']) && strpos($_SERVER['HTTP_CACHE_CONTROL'], 'max-age=0') !== false)
-                || (isset($_SERVER['HTTP_PRAGMA']) && strpos($_SERVER['HTTP_PRAGMA'], 'no-cache'));
-        }
+        // if ($userMapper->isAdmin() && ($this->is_css || !$conf['template_compile_check'])) {
+        //     $force = (isset($_SERVER['HTTP_CACHE_CONTROL']) && strpos($_SERVER['HTTP_CACHE_CONTROL'], 'max-age=0') !== false)
+        //         || (isset($_SERVER['HTTP_PRAGMA']) && strpos($_SERVER['HTTP_PRAGMA'], 'no-cache'));
+        // }
 
         $result = [];
         $pending = [];

@@ -19,17 +19,20 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
+use App\DataMapper\UserMapper;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper;
 
-    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, TagMapper $tagMapper, CommentMapper $commentMapper)
+    public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
+                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
+        $this->userMapper = $userMapper;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -51,9 +54,10 @@ class AdminController extends Controller
         $csrf_token = $this->csrfTokenManager->getToken('authenticate');
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
+        $userMapper = $this->userMapper;
 
         try {
-            global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $services, $filter, $template, $user, $page,
+            global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $filter, $template, $user, $page,
                 $lang, $lang_info;
 
             ob_start();

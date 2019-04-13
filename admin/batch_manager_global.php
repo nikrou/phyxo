@@ -26,12 +26,6 @@ use App\Repository\CaddieRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_global');
 
 \Phyxo\Functions\Utils::check_input_parameter('del_tags', $_POST, true, PATTERN_ID);

@@ -22,11 +22,6 @@ if (!$conf['activate_comments']) {
     \Phyxo\Functions\HTTP::page_not_found(null);
 }
 
-// +-----------------------------------------------------------------------+
-// | Check Access and exit when user status is not ok                      |
-// +-----------------------------------------------------------------------+
-$services['users']->checkStatus(ACCESS_GUEST);
-
 $url_self = \Phyxo\Functions\URL::get_root_url() . 'comments.php' . \Phyxo\Functions\URL::get_query_string_diff(['delete', 'edit', 'validate', 'pwg_token']);
 
 $sort_order = [
@@ -131,7 +126,7 @@ if (!empty($_GET['comment_id'])) {
 
     // currently, the $_GET['comment_id'] is only used by admins from email
     // for management purpose (validate/delete)
-    if (!$services['users']->isAdmin()) {
+    if (!$userMapper->isAdmin()) {
         // double urlencode because redirect makes a decode !!
         $login_url = \Phyxo\Functions\URL::get_root_url() . 'identification.php?redirect=' . urlencode(urlencode($_SERVER['REQUEST_URI']));
         \Phyxo\Functions\Utils::redirect($login_url);
@@ -156,7 +151,7 @@ if (!empty($_GET['keyword'])) {
 $page['where_clauses'][] = $since_options[$page['since']]['clause'];
 
 // which status to filter on ?
-if (!$services['users']->isAdmin()) {
+if (!$userMapper->isAdmin()) {
     $page['where_clauses'][] = 'validated = \'' . $conn->boolean_to_db(true) . '\'';
 }
 
@@ -190,7 +185,7 @@ foreach ($actions as $loop_action) {
 if (isset($action)) {
     $comment_author_id = (new CommentRepository($conn))->getCommentAuthorId($comment_id);
 
-    if ($services['users']->canManageComment($action, $comment_author_id)) {
+    if ($userMapper->canManageComment($action, $comment_author_id)) {
         $perform_redirect = false;
 
         if ('delete' == $action) {
@@ -384,11 +379,11 @@ if (count($comments) > 0) {
             'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $comment['content']),
         ];
 
-        if ($services['users']->isAdmin()) {
+        if ($userMapper->isAdmin()) {
             $tpl_comment['EMAIL'] = $email;
         }
 
-        if ($services['users']->canManageComment('delete', $comment['author_id'])) {
+        if ($userMapper->canManageComment('delete', $comment['author_id'])) {
             $tpl_comment['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
                 [
@@ -398,7 +393,7 @@ if (count($comments) > 0) {
             );
         }
 
-        if ($services['users']->canManageComment('edit', $comment['author_id'])) {
+        if ($userMapper->canManageComment('edit', $comment['author_id'])) {
             $tpl_comment['U_EDIT'] = \Phyxo\Functions\URL::add_url_params(
                 $url_self,
                 [
@@ -417,7 +412,7 @@ if (count($comments) > 0) {
             }
         }
 
-        if ($services['users']->canManageComment('validate', $comment['author_id'])) {
+        if ($userMapper->canManageComment('validate', $comment['author_id'])) {
             if ($conn->is_boolean($comment['validated']) && !$conn->get_boolean($comment['validated'])) {
                 $tpl_comment['U_VALIDATE'] = \Phyxo\Functions\URL::add_url_params(
                     $url_self,

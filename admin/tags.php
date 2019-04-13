@@ -13,8 +13,6 @@ define('TAGS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?
 
 use Phyxo\TabSheet\TabSheet;
 
-$services['users']->checkStatus(ACCESS_ADMINISTRATOR);
-
 if (!empty($_POST)) {
     \Phyxo\Functions\Utils::check_token();
 }

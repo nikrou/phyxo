@@ -13,6 +13,7 @@ namespace Phyxo\Functions\Ws;
 
 use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
+use Phyxo\Ws\Server;
 
 class Caddie
 {
@@ -22,7 +23,7 @@ class Caddie
      * @param mixed[] $params
      *    @option int[] image_id
      */
-    public static function add($params, &$service)
+    public static function add($params, Server $service)
     {
         global $user, $conn;
 

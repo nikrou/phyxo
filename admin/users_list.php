@@ -49,7 +49,7 @@ $template->assign(
     ]
 );
 
-$default_user = $services['users']->getDefaultUserInfo(true);
+$default_user = $userMapper->getDefaultUserInfo(true);
 
 $protected_users = [
     $user['id'],
@@ -71,9 +71,9 @@ $template->assign(
         'NB_IMAGE_PAGE' => $default_user['nb_image_page'],
         'RECENT_PERIOD' => $default_user['recent_period'],
         'theme_options' => $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name'),
-        'theme_selected' => $services['users']->getDefaultTheme(),
+        'theme_selected' => $userMapper->getDefaultTheme(),
         'language_options' => $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name'),
-        'language_selected' => $services['users']->getDefaultLanguage(),
+        'language_selected' => $userMapper->getDefaultLanguage(),
         'association_options' => $groups,
         'protected_users' => implode(',', array_unique($protected_users)),
         'guest_user' => $conf['guest_id'],
