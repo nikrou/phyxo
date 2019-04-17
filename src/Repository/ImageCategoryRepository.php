@@ -40,10 +40,12 @@ class ImageCategoryRepository extends BaseRepository
         $query = 'SELECT COUNT(DISTINCT(image_id)) as total FROM ' . self::IMAGE_CATEGORY_TABLE;
         $query .= ' WHERE category_id NOT' . $this->conn->in($forbidden_categories);
 
-        if ($access_type === 'NOT IN') {
-            $query .= ' AND image_id NOT ' . $this->conn->in($image_ids);
-        } else {
-            $query .= ' AND image_id ' . $this->conn->in($image_ids);
+        if (count($image_ids) > 0) {
+            if ($access_type === 'NOT IN') {
+                $query .= ' AND image_id NOT ' . $this->conn->in($image_ids);
+            } else {
+                $query .= ' AND image_id ' . $this->conn->in($image_ids);
+            }
         }
 
         $result = $this->conn->db_query($query);

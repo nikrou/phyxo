@@ -14,6 +14,7 @@ namespace App\Entity;
 class UserInfos implements \ArrayAccess
 {
     private $infos = [];
+    private $forbidden_categories = [], $image_access_list = [], $image_access_type = 'NOT IN';
 
     public function __construct(array $infos = [])
     {
@@ -139,5 +140,35 @@ class UserInfos implements \ArrayAccess
         } else {
             return [];
         }
+    }
+
+    public function getForbiddenCategories(): array
+    {
+        return $this->forbidden_categories;
+    }
+
+    public function setForbiddenCategories(array $forbidden_categories = [])
+    {
+        $this->forbidden_categories = $forbidden_categories;
+    }
+
+    public function getImageAccessList(): array
+    {
+        return $this->image_access_list;
+    }
+
+    public function setImageAccessList(array $image_access_list = [])
+    {
+        $this->image_access_list = $image_access_list;
+    }
+
+    public function getImageAccessType(): string
+    {
+        return $this->image_access_type;
+    }
+
+    public function setImageAccessType(string $image_access_type = 'NOT IN')
+    {
+        $this->image_access_type = $image_access_type;
     }
 }

@@ -29,19 +29,37 @@ use App\Repository\ThemeRepository;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Repository\BaseRepository;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
+use App\Security\UserProvider;
 
 class UserMapper
 {
-    private $conn, $conf, $autorizationChecker, $user;
+    private $conn, $conf, $autorizationChecker, $userProvider, $security, $user;
 
-    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker)
+    public function __construct(iDBLayer $conn, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, UserProvider $userProvider)
     {
         $this->conn = $conn;
         $this->conf = $conf;
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->userProvider = $userProvider;
+        $this->security = $security;
         $this->autorizationChecker = $autorizationChecker;
+    }
+
+    public function getUser()
+    {
+        if ($this->user instanceof User) {
+            return $this->user;
+        }
+
+        if ($this->security->getToken() instanceof AnonymousToken) {
+            $this->user = $this->userProvider->loadUserByUsername('guest');
+        } else {
+            $this->user = $this->security->getUser();
+        }
+
+        return $this->user;
     }
 
     public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
@@ -228,38 +246,6 @@ class UserMapper
         }
 
         return $user;
-    }
-
-    /**
-     * Performs all required actions for user login.
-     *
-     * @param int $user_id
-     * @param bool $remember_me
-     */
-    public function logUser($user_id, $remember_me)
-    {
-        if ($remember_me && $this->conf['authorize_remembering']) {
-            $now = time();
-            $key = $this->calculateAutoLoginKey($user_id, $now, $username);
-            if ($key !== false) {
-                $cookie = $user_id . '-' . $now . '-' . $key;
-                setcookie(
-                    $this->conf['remember_me_name'],
-                    $cookie,
-                    time() + $this->conf['remember_me_length'],
-                    Utils::cookie_path(),
-                    ini_get('session.cookie_domain'),
-                    ini_get('session.cookie_secure'),
-                    ini_get('session.cookie_httponly')
-                );
-            }
-        } else { // make sure we clean any remember me ...
-            setcookie($this->conf['remember_me_name'], '', 0, Utils::cookie_path(), ini_get('session.cookie_domain'));
-        }
-
-        $_SESSION['pwg_uid'] = (int)$user_id;
-        $this->user['id'] = $_SESSION['pwg_uid'];
-        Plugin::trigger_notify('user_login', $this->user['id']);
     }
 
     /**
@@ -587,7 +573,7 @@ class UserMapper
 
     public function isGuest(): bool
     {
-        return $this->user->isGuest();
+        return $this->getUser()->isGuest();
     }
 
     public function isClassicUser(): bool
@@ -673,13 +659,13 @@ class UserMapper
         }
 
         if ('edit' == $action and $this->conf['user_can_edit_comment']) {
-            if ($comment_author_id == $this->user['id']) {
+            if ($comment_author_id == $this->getUser()->getId()) {
                 return true;
             }
         }
 
         if ('delete' == $action and $this->conf['user_can_delete_comment']) {
-            if ($comment_author_id == $this->user['id']) {
+            if ($comment_author_id == $this->getUser()->getId()) {
                 return true;
             }
         }
@@ -696,7 +682,7 @@ class UserMapper
 
         (new UserCacheRepository($this->conn))->updateUserCache(
             ['nb_available_comments' => $number_of_available_comments],
-            ['user_id' => $this->user->getId()]
+            ['user_id' => $this->getUser()->getId()]
         );
 
         return $number_of_available_comments;

@@ -25,8 +25,6 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     private $user_infos = null;
     private $roles = [];
 
-    private $number_available_comments = 0;
-
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
@@ -127,10 +125,6 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return $this->getRoles() === ['ROLE_USER'];
     }
 
-    public function isAdmin(): bool {
-        return in_array('ROLE_ADMIN', $this->getRoles());
-    }
-
     public function getPassword()
     {
         return $this->password;
@@ -175,20 +169,5 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         }
 
         return true;
-    }
-
-    public function setNbAvailableTags(int $number_of_tags)
-    {
-        $this->user_infos->setNbAvailableTags($number_of_tags);
-    }
-
-    public function setNumebrAvailableComments(int $number_available_comments)
-    {
-        $this->number_available_comments = $number_available_comments;
-    }
-
-    public function getNumberAvailableComments(): int
-    {
-        return $this->number_available_comments;
     }
 }

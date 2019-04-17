@@ -386,7 +386,7 @@ class Server
         }
 
         if (!$this->userMapper->isClassicUser()) {
-            return new Error(401, 'Access denied');
+            return false;
         }
 
         return true;

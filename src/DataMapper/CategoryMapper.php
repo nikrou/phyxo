@@ -13,23 +13,25 @@ namespace App\DataMapper;
 
 use App\Repository\CategoryRepository;
 use Phyxo\Functions\Category;
-use Phyxo\DBLayer\iDBLayer;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class CategoryMapper
 {
-    private $conn, $em, $conf, $user;
+    private $em, $conf;
 
-    public function __construct(iDBLayer $conn, Conf $conf, EntityManager $em, TokenStorageInterface $tokenStorage, RouterInterface $router)
+    public function __construct(Conf $conf, EntityManager $em, UserMapper $userMapper, RouterInterface $router)
     {
-        $this->conn = $conn;
         $this->conf = $conf;
         $this->em = $em;
-        $this->user = $tokenStorage->getToken()->getUser();
+        $this->userMapper = $userMapper;
         $this->router = $router;
+    }
+
+    public function getUser()
+    {
+        return $this->userMapper->getUser();
     }
 
     /**
@@ -65,7 +67,7 @@ class CategoryMapper
             }
         }
     }
-    
+
     /**
      * Returns template vars for main categories menu.
      *
@@ -73,13 +75,13 @@ class CategoryMapper
     protected function getCategoriesMenu(array $selected_category = []): array
     {
         $result = $this->em->getRepository(CategoryRepository::class)->getCategoriesForMenu(
-            $this->user,
+            $this->getUser(),
             false, //$filter['enabled'], ?? is it usefull ?
             isset($selected_category['uppercats']) ? explode(',', $selected_category['uppercats']) : []
         );
 
         $cats = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $child_date_last = (isset($row['max_date_last'], $row['date_last']) && ($row['max_date_last'] > $row['date_last']));
 
             $row = array_merge(

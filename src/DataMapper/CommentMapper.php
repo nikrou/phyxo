@@ -17,20 +17,21 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $user, $autorizationChecker, $userMapper;
+    private $conn, $conf, $userMapper;
 
-    public function __construct(iDBLayer $conn, Conf $conf, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $autorizationChecker, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
-        $this->user = $tokenStorage->getToken()->getUser();
-        $this->autorizationChecker = $autorizationChecker;
+    }
+
+    public function getUser()
+    {
+        return $this->userMapper->getUser();
     }
 
     /**
@@ -54,7 +55,7 @@ class CommentMapper
         }
 
         // we do here only BASIC spam check (plugins can do more)
-        if (!$this->user->isGuest()) {
+        if (!$this->userMapper->isGuest()) {
             return $action;
         }
 
@@ -116,8 +117,8 @@ class CommentMapper
                 }
             }
         } else {
-            $comm['author'] = $this->user->getUsername();
-            $comm['author_id'] = $this->user->getId();
+            $comm['author'] = $this->getUser()->getUsername();
+            $comm['author_id'] = $this->getUser()->getId();
         }
 
         if (empty($comm['content'])) { // empty comment content
@@ -148,8 +149,8 @@ class CommentMapper
 
         // email
         if (empty($comm['email'])) {
-            if (!empty($this->user->getMailAddress())) {
-                $comm['email'] = $this->user->getMailAddress();
+            if (!empty($this->getUser()->getMailAddress())) {
+                $comm['email'] = $this->getUser()->getMailAddress();
             } elseif ($this->conf['comments_email_mandatory']) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
@@ -171,7 +172,7 @@ class CommentMapper
             $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
                 $comm['author_id'],
                 $reference_date,
-                !$this->user->isGuest() ? $anonymous_id : null
+                !$this->userMapper->isGuest() ? $anonymous_id : null
             );
             if ($counter > 0) {
                 $infos[] = \Phyxo\Functions\Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
@@ -235,13 +236,13 @@ class CommentMapper
      */
     public function deleteUserComment($comment_id)
     {
-        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->autorizationChecker->isGranted('ROLE_ADMIN') ? $this->user->getId() : null)) {
+        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->autorizationChecker->isGranted('ROLE_ADMIN') ? $this->getUser()->getId() : null)) {
             $this->invalidateUserCacheNbComments();
 
             $this->email_admin(
                 'delete',
                 [
-                    'author' => $this->user->getUsername(),
+                    'author' => $this->getUser()->getUsername(),
                     'comment_id' => $comment_id
                 ]
             );
@@ -281,7 +282,7 @@ class CommentMapper
             $comment_action,
             array_merge(
                 $comment,
-                ['author' => $this->user->getUsername()]
+                ['author' => $this->getUser()->getUsername()]
             )
         );
 
@@ -300,7 +301,7 @@ class CommentMapper
         if ($comment_action != 'reject') {
             $user_where_clause = '';
             if (!$this->autorizationChecker->isGranted('ROLE_ADMIN')) {
-                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->user->getId()) . '\'';
+                $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->getUser()->getId()) . '\'';
             }
 
             $comment['website_url'] = !empty($comment['website_url']) ? $comment['website_url'] : '';
@@ -313,7 +314,7 @@ class CommentMapper
                 $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
 
                 $keyargs_content = [
-                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($this->user->getUsername())),
+                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($this->getUser()->getUsername())),
                     \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comment['content'])),
                     \Phyxo\Functions\Language::get_l10n_args(''),
                     \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
@@ -321,12 +322,12 @@ class CommentMapper
                 ];
 
                 \Phyxo\Functions\Mail::mail_notification_admins(
-                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($this->user->getUsername())),
+                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($this->getUser()->getUsername())),
                     $keyargs_content
                 );
             } elseif ($result) {
                 // just mail admin
-                $this->email_admin('edit', ['author' => $this->user->getUsername(), 'content' => stripslashes($comment['content'])]);
+                $this->email_admin('edit', ['author' => $this->getUser()->getUsername(), 'content' => stripslashes($comment['content'])]);
             }
         }
 
