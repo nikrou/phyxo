@@ -12,6 +12,7 @@
 define('NOTIFICATION_BY_MAIL_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=notification_by_mail');
 
 use Phyxo\TabSheet\TabSheet;
+use Phyxo\Functions\Notification;
 
 // nbm_global_var
 $env_nbm = [
@@ -49,13 +50,14 @@ $template->assign([
 // +-----------------------------------------------------------------------+
 // | Add event handler                                                     |
 // +-----------------------------------------------------------------------+
-\Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', '\Phyxo\Functions\Notification::render_global_customize_mail_content');
-\Phyxo\Functions\Plugin::trigger_notify('nbm_event_handler_added');
+$notification = new Notification($conn, $userMapper);
 
+\Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', [$notification, 'render_global_customize_mail_content']);
+\Phyxo\Functions\Plugin::trigger_notify('nbm_event_handler_added');
 
 if (!isset($_POST) or (count($_POST) == 0)) {
     // No insert data in post mode
-    \Phyxo\Functions\Notification::insert_new_data_user_mail_notification();
+    $notification->insert_new_data_user_mail_notification();
 }
 
 // +-----------------------------------------------------------------------+

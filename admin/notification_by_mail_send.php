@@ -9,22 +9,26 @@
  * file that was distributed with this source code.
  */
 
+use Phyxo\Functions\Notification;
+
 if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+$notification = new Notification($conn, $userMapper);
+
 if (isset($_POST['send_submit']) and isset($_POST['send_selection']) and isset($_POST['send_customize_mail_content'])) {
-    $check_key_treated = \Phyxo\Functions\Notification::do_action_send_mail_notification(
+    $check_key_treated = $notification->do_action_send_mail_notification(
         'send',
         $_POST['send_selection'],
         stripslashes($_POST['send_customize_mail_content'])
     );
-    \Phyxo\Functions\Notification::do_timeout_treatment('send_selection', $check_key_treated);
+    $notification->do_timeout_treatment('send_selection', $check_key_treated);
 }
 
-$tpl_var = array('users' => array());
+$tpl_var = ['users' => []];
 
-$data_users = \Phyxo\Functions\Notification::do_action_send_mail_notification('list_to_send');
+$data_users = $notification->do_action_send_mail_notification('list_to_send');
 
 $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = isset($_POST['send_customize_mail_content']) ? stripslashes($_POST['send_customize_mail_content']) : $conf['nbm_complementary_mail_content'];
 
@@ -33,7 +37,7 @@ if (count($data_users) > 0) {
         if ((!$must_repost) or // Not timeout, normal treatment
         (($must_repost) and in_array($nbm_user['check_key'], $_POST['send_selection']))  // Must be repost, show only user to send
         ) {
-            $tpl_var['users'][] = array(
+            $tpl_var['users'][] = [
                 'ID' => $nbm_user['check_key'],
                 'CHECKED' => ( // not check if not selected,  on init select<all
                 isset($_POST['send_selection']) and // not init
@@ -42,7 +46,7 @@ if (count($data_users) > 0) {
                 'USERNAME' => stripslashes($nbm_user['username']),
                 'EMAIL' => $nbm_user['mail_address'],
                 'LAST_SEND' => $nbm_user['last_send']
-            );
+            ];
         }
     }
 }

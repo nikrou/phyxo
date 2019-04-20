@@ -189,7 +189,7 @@ class Mail
         global $conf, $lang, $lang_info;
 
         $template = new \Phyxo\Template\Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
-        $template->set_theme(__DIR__ . '/../../../themes', 'trelfez', 'template/mail/' . $email_format);
+        $template->set_theme(__DIR__ . '/../../../admin/theme', '.', 'template/mail/' . $email_format);
 
         return $template;
     }

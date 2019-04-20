@@ -12,6 +12,7 @@
 namespace App\Repository;
 
 use Phyxo\DBLayer\iDBLayer;
+use App\Entity\User;
 
 class BaseRepository
 {
@@ -69,6 +70,8 @@ class BaseRepository
      * Compute sql WHERE condition with restrict and filter data.
      * "FandF" means Forbidden and Filters.
      *
+     * @param array  $UserConditions     array with keys forbidden_categories, image_access_list and image_access_type
+     * @param array  $filter
      * @param array  $condition_fields    one witch fields apply each filter
      *                                    - forbidden_categories
      *                                    - visible_categories
@@ -76,56 +79,47 @@ class BaseRepository
      *                                    - visible_images
      * @param string $prefix_condition    prefixes query if condition is not empty
      * @param bool   $force_one_condition use at least "1 = 1"
-     *
-     * @return string
      */
-    public function getSQLConditionFandF(array $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false)
+    public function getSQLConditionFandF(array $UserConditions = [], array $filter = [], $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false): string
     {
-        global $user, $filter;
-
         $sql_list = [];
 
         foreach ($condition_fields as $condition => $field_name) {
             switch ($condition) {
                 case 'forbidden_categories':
 
-                        if (!empty($user['forbidden_categories'])) {
-                            $sql_list[] = $field_name . ' NOT IN (' . $user['forbidden_categories'] . ')';
+                        if (!empty($UserConditions['forbidden_categories'])) {
+                            $sql_list[] = $field_name . ' NOT ' . $this->conn->in($UserConditions['forbidden_categories']);
                         }
                         break;
 
                 case 'visible_categories':
 
                         if (!empty($filter['visible_categories'])) {
-                            $sql_list[] = $field_name . ' IN (' . $filter['visible_categories'] . ')';
+                            $sql_list[] = $field_name . ' ' . $this->in($filter['visible_categories']);
                         }
                         break;
 
                 case 'visible_images':
                     if (!empty($filter['visible_images'])) {
-                        $sql_list[] = $field_name . ' IN (' . $filter['visible_images'] . ')';
+                        $sql_list[] = $field_name . ' ' . $this->in($filter['visible_images']);
                     }
-                // note there is no break - visible include forbidden
-                // no break
+                // note there is no break - visible include forbidden no break
                 case 'forbidden_images':
-                    if (!empty($user['image_access_list']) or $user['image_access_type'] != 'NOT IN') {
+                    if (count($UserConditions['image_access_list']) > 0 || $UserConditions['image_access_type'] !== 'NOT IN') {
                         $table_prefix = null;
-                        if ($field_name == 'id') {
+                        if ($field_name === 'id') {
                             $table_prefix = '';
-                        } elseif ($field_name == 'i.id') {
+                        } elseif ($field_name === 'i.id') {
                             $table_prefix = 'i.';
                         }
                         if (isset($table_prefix)) {
-                            $sql_list[] = $table_prefix . 'level<=' . $user['level'];
-                        } elseif (!empty($user['image_access_list']) and !empty($user['image_access_type'])) {
-                            $sql_list[] = $field_name . ' ' . $user['image_access_type'] . ' (' . $user['image_access_list'] . ')';
+                            $sql_list[] = $table_prefix . 'level<=' . $UserConditions['level'];
+                        } elseif (count($UserConditions['image_access_list']) > 0 && !empty($UserConditions['image_access_type'])) {
+                            $sql_list[] = $field_name . ' ' . $UserConditions['image_access_type'] . ' (' . $UserConditions['image_access_list'] . ')';
                         }
                     }
                     break;
-                default:
-
-                        die('Unknown condition: ' . $condition);
-                        break;
             }
         }
 
@@ -135,10 +129,46 @@ class BaseRepository
             $sql = $force_one_condition ? '1 = 1' : '';
         }
 
-        if (isset($prefix_condition) and !empty($sql)) {
+        if (isset($prefix_condition) && !empty($sql)) {
             $sql = $prefix_condition . ' ' . $sql;
         }
 
         return $sql;
+    }
+
+    /**
+     * Returns sql WHERE condition for recent photos/albums for current user.
+     * @param array $UserConditions with keys recent_period ans last_photo_date
+     */
+    public static function getRecentPhotos(array $UserConditions = [], string $db_field): string
+    {
+        if (!isset($UserConditions['last_photo_date'])) {
+            return '0=1';
+        }
+
+        return $db_field . '>=LEAST('
+            . $this->conn->db_get_recent_period_expression($UserConditions['recent_period'])
+            . ',' . $this->conn->db_get_recent_period_expression(1, $UserConditions['last_photo_date']) . ')';
+    }
+
+    /**
+     * Get standard sql where in order to restrict and filter categories and images.
+     * IMAGE_CATEGORY_TABLE must be named "ic" in the query
+     * @param array  $UserConditions     array with keys forbidden_categories, image_access_list and image_access_type
+     * @param array  $filter
+     */
+    public function getStandardSQLWhereRestrictFilter(array $UserConditions = [], array $filter = [], string $prefix_condition, string $img_field = 'ic.image_id', bool $force_one_condition = false): string
+    {
+        return $this->getSQLConditionFandF(
+            $UserConditions,
+            $filter,
+            [
+                'forbidden_categories' => 'ic.category_id',
+                'visible_categories' => 'ic.category_id',
+                'visible_images' => $img_field
+            ],
+            $prefix_condition,
+            $force_one_condition
+        );
     }
 }

@@ -1,4 +1,5 @@
 {
+    "php-cs-fixer.config": "/var/projets/git/phyxo/.php_cs.dist",
     "files.exclude": {
         "**/.dist": true,
         "**/_data": true,

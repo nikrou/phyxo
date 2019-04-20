@@ -18,14 +18,16 @@ use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
+use App\DataMapper\UserMapper;
 
 class Notification
 {
-    private $conn;
+    private $conn, $userMapper;
 
-    public function __construct(iDBLayer $conn)
+    public function __construct(iDBLayer $conn, UserMapper $userMapper)
     {
         $this->conn = $conn;
+        $this->userMapper = $userMapper;
     }
 
     /**
@@ -35,11 +37,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int
      */
-    public static function nb_new_comments($start = null, $end = null)
+    public function nb_new_comments($start = null, $end = null)
     {
-        global $conn;
-
-        return (new CommentRepository($conn))->getNewComments($start, $end, $count_only = true);
+        return (new CommentRepository($this->conn))->getNewComments($start, $end, $count_only = true);
     }
 
     /**
@@ -49,11 +49,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int[] comment ids
      */
-    public static function new_comments($start = null, $end = null)
+    public function new_comments($start = null, $end = null)
     {
-        global $conn;
-
-        return (new CommentRepository($conn))->getNewComments($start, $end);
+        return (new CommentRepository($this->conn))->getNewComments($start, $end);
     }
 
     /**
@@ -63,11 +61,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int
      */
-    public static function nb_unvalidated_comments($start = null, $end = null)
+    public function nb_unvalidated_comments($start = null, $end = null)
     {
-        global $conn;
-
-        (new CommentRepository($conn))->getUnvalidatedComments($start, $end, $count_only = true);
+        (new CommentRepository($this->conn))->getUnvalidatedComments($start, $end, $count_only = true);
     }
 
     /**
@@ -77,11 +73,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int
      */
-    public static function nb_new_elements($start = null, $end = null)
+    public function nb_new_elements($start = null, $end = null)
     {
-        global $conn;
-
-        return (new ImageRepository($conn))->getNewElements($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getNewElements($start, $end, $count_only = true);
     }
 
     /**
@@ -91,11 +85,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int[] photos ids
      */
-    public static function new_elements($start = null, $end = null)
+    public function new_elements($start = null, $end = null)
     {
-        global $conn;
-
-        return (new ImageRepository($conn))->getNewElements($start, $end);
+        return (new ImageRepository($this->conn))->getNewElements($start, $end);
     }
 
     /**
@@ -105,11 +97,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int
      */
-    public static function nb_updated_categories($start = null, $end = null)
+    public function nb_updated_categories($start = null, $end = null)
     {
-        global $conn;
-
-        return (new ImageRepository($conn))->getUpdatedCategories($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($start, $end, $count_only = true);
     }
 
     /**
@@ -119,11 +109,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int[] categories ids
      */
-    public static function updated_categories($start = null, $end = null)
+    public function updated_categories($start = null, $end = null)
     {
-        global $conn;
-
-        return (new ImageRepository($conn))->getUpdatedCategories($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($start, $end, $count_only = true);
     }
 
     /**
@@ -133,11 +121,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int
      */
-    public static function nb_new_users($start = null, $end = null)
+    public function nb_new_users($start = null, $end = null)
     {
-        global $conn;
-
-        return (new UserInfosRepository($conn))->getNewUsers($start, $end, $count_only = true);
+        return (new UserInfosRepository($this->conn))->getNewUsers($start, $end, $count_only = true);
     }
 
     /**
@@ -147,11 +133,9 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return int[] user ids
      */
-    public static function new_users($start = null, $end = null)
+    public function new_users($start = null, $end = null)
     {
-        global $conn;
-
-        return (new UserInfosRepository($conn))->getNewUsers($start, $end);
+        return (new UserInfosRepository($this->conn))->getNewUsers($start, $end);
     }
 
     /**
@@ -166,13 +150,11 @@ class Notification
      * @param string $end (mysql datetime format)
      * @return boolean
      */
-    public static function news_exists($start = null, $end = null)
+    public function news_exists($start = null, $end = null)
     {
-        global $userMapper;
-
-        return ((self::nb_new_comments($start, $end) > 0) || (self::nb_new_elements($start, $end) > 0)
-            || (self::nb_updated_categories($start, $end) > 0) || (($userMapper->isAdmin())
-            && (self::nb_unvalidated_comments($start, $end) > 0)) || (($userMapper->isAdmin()) && (self::nb_new_users($start, $end) > 0)));
+        return (($this->nb_new_comments($start, $end) > 0) || ($this->nb_new_elements($start, $end) > 0)
+            || ($this->nb_updated_categories($start, $end) > 0) || (($this->userMapper->isAdmin())
+            && ($this->nb_unvalidated_comments($start, $end) > 0)) || (($this->userMapper->isAdmin()) && ($this->nb_new_users($start, $end) > 0)));
     }
 
     /**
@@ -185,7 +167,7 @@ class Notification
      * @param string $url
      * @param bool $add_url
      */
-    public static function add_news_line(&$news, $count, $singular_key, $plural_key, $url = '', $add_url = false)
+    public function add_news_line(&$news, $count, $singular_key, $plural_key, $url = '', $add_url = false)
     {
         if ($count > 0) {
             $line = \Phyxo\Functions\Language::l10n_dec($singular_key, $plural_key, $count);
@@ -210,16 +192,14 @@ class Notification
      * @param bool $add_url add html link around news
      * @return array
      */
-    public static function news($start = null, $end = null, $exclude_img_cats = false, $add_url = false)
+    public function news($start = null, $end = null, $exclude_img_cats = false, $add_url = false)
     {
-        global $userMapper;
-
         $news = [];
 
         if (!$exclude_img_cats) {
-            self::add_news_line(
+            $this->add_news_line(
                 $news,
-                self::nb_new_elements($start, $end),
+                $this->nb_new_elements($start, $end),
                 '%d new photo',
                 '%d new photos',
                 \Phyxo\Functions\URL::make_index_url(['section' => 'recent_pics']),
@@ -228,9 +208,9 @@ class Notification
         }
 
         if (!$exclude_img_cats) {
-            self::add_news_line(
+            $this->add_news_line(
                 $news,
-                self::nb_updated_categories($start, $end),
+                $this->b_updated_categories($start, $end),
                 '%d album updated',
                 '%d albums updated',
                 \Phyxo\Functions\URL::make_index_url(['section' => 'recent_cats']),
@@ -238,28 +218,28 @@ class Notification
             );
         }
 
-        self::add_news_line(
+        $this->add_news_line(
             $news,
-            self::nb_new_comments($start, $end),
+            $this->nb_new_comments($start, $end),
             '%d new comment',
             '%d new comments',
             \Phyxo\Functions\URL::get_root_url() . 'comments.php',
             $add_url
         );
 
-        if ($userMapper->isAdmin()) {
-            self::add_news_line(
+        if ($this->userMapper->isAdmin()) {
+            $this->add_news_line(
                 $news,
-                self::nb_unvalidated_comments($start, $end),
+                $this->nb_unvalidated_comments($start, $end),
                 '%d comment to validate',
                 '%d comments to validate',
                 \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments',
                 $add_url
             );
 
-            self::add_news_line(
+            $this->add_news_line(
                 $news,
-                self::nb_new_users($start, $end),
+                $this->nb_new_users($start, $end),
                 '%d new user',
                 '%d new users',
                 \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_list',
@@ -278,24 +258,22 @@ class Notification
      * @param int $max_cats maximum number of categories per date
      * @return array
      */
-    public static function get_recent_post_dates($max_dates, $max_elements, $max_cats)
+    public function get_recent_post_dates($max_dates, $max_elements, $max_cats)
     {
-        global $conn;
-
         $where_sql = \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
 
-        $result = (new ImageRepository($conn))->getRecentPostedImages($where_sql, $max_dates);
-        $dates = $conn->result2array($result);
+        $result = (new ImageRepository($this->conn))->getRecentPostedImages($where_sql, $max_dates);
+        $dates = $this->conn->result2array($result);
 
         for ($i = 0; $i < count($dates); $i++) {
             if ($max_elements > 0) { // get some thumbnails ...
-                $result = (new ImageRepository($conn))->findRandomImages($where_sql, '', $max_elements);
-                $dates[$i]['elements'] = $conn->result2array($result);
+                $result = (new ImageRepository($this->conn))->findRandomImages($where_sql, '', $max_elements);
+                $dates[$i]['elements'] = $this->conn->result2array($result);
             }
 
             if ($max_cats > 0) { // get some categories ...
-                $result = (new ImageRepository($conn))->getRecentImages($where_sql, $dates[$i]['date_available'], $max_cats);
-                $dates[$i]['categories'] = $conn->result2array($result);
+                $result = (new ImageRepository($this->conn))->getRecentImages($where_sql, $dates[$i]['date_available'], $max_cats);
+                $dates[$i]['categories'] = $this->conn->result2array($result);
             }
         }
 
@@ -310,9 +288,9 @@ class Notification
      * @param array $args
      * @return array
      */
-    public static function get_recent_post_dates_array($args)
+    public function get_recent_post_dates_array($args)
     {
-        return self::get_recent_post_dates(
+        return $this->get_recent_post_dates(
             (empty($args['max_dates']) ? 3 : $args['max_dates']),
             (empty($args['max_elements']) ? 3 : $args['max_elements']),
             (empty($args['max_cats']) ? 3 : $args['max_cats'])
@@ -326,10 +304,8 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public static function get_html_description_recent_post_date($date_detail)
+    public function get_html_description_recent_post_date($date_detail)
     {
-        global $conf;
-
         $description = '<ul>';
 
         $description .=
@@ -378,7 +354,7 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public static function get_title_recent_post_date($date_detail)
+    public function get_title_recent_post_date($date_detail)
     {
         global $lang;
 
@@ -396,7 +372,7 @@ class Notification
      *
      * @return true, if it's timeout
      */
-    public static function check_sendmail_timeout()
+    public function check_sendmail_timeout()
     {
         global $env_nbm;
 
@@ -410,7 +386,7 @@ class Notification
      *
      * @return quoted check key list
      */
-    public static function quote_check_key_list($check_key_list = [])
+    public function quote_check_key_list($check_key_list = [])
     {
         return array_map(function ($s) {
             return '\'' . $s . '\'';
@@ -424,10 +400,8 @@ class Notification
      *
      * return array of users
      */
-    public static function get_user_notifications($action, $check_key_list = [], $enabled_filter_value = false)
+    public function get_user_notifications($action, $check_key_list = [], $enabled_filter_value = false)
     {
-        global $conf, $conn;
-
         $data_users = [];
 
         if (in_array($action, ['subscribe', 'send'])) {
@@ -437,13 +411,13 @@ class Notification
                 $order_by = ' ORDER BY username';
             }
 
-            $result = (new UserMailNotificationRepository($conn))->findInfosForUsers(
+            $result = (new UserMailNotificationRepository($this->conn))->findInfosForUsers(
                 $no_mail_empty = ($action === 'send'),
                 $enabled_filter_value,
                 $check_key_list,
                 $order_by
             );
-            while ($nbm_user = $conn->db_fetch_assoc($result)) {
+            while ($nbm_user = $this->conn->db_fetch_assoc($result)) {
                 $data_users[] = $nbm_user;
             }
         }
@@ -457,9 +431,9 @@ class Notification
      *
      * Return none
      */
-    public static function begin_users_env_nbm($is_to_send_mail = false)
+    public function begin_users_env_nbm($is_to_send_mail = false)
     {
-        global $user, $lang, $lang_info, $conf, $env_nbm;
+        global $user, $conf, $env_nbm;
 
         // Save $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
         $env_nbm['save_user'] = $user;
@@ -489,9 +463,9 @@ class Notification
      *
      * Return none
      */
-    public static function end_users_env_nbm()
+    public function end_users_env_nbm()
     {
-        global $user, $lang, $lang_info, $env_nbm;
+        global $user, $env_nbm;
 
         // Restore $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
         $user = $env_nbm['save_user'];
@@ -519,11 +493,11 @@ class Notification
  *
  * Return none
  */
-    public static function set_user_on_env_nbm(&$nbm_user, $is_action_send)
+    public function set_user_on_env_nbm(&$nbm_user, $is_action_send)
     {
-        global $user, $env_nbm, $userMapper;
+        global $user, $env_nbm;
 
-        $user = $userMapper->buildUser($nbm_user['user_id'], true);
+        $user = $this->userMapper->buildUser($nbm_user['user_id'], true);
 
         \Phyxo\Functions\Mail::switch_lang_to($user['language']);
 
@@ -538,7 +512,7 @@ class Notification
      *
      * Return none
      */
-    public static function unset_user_on_env_nbm()
+    public function unset_user_on_env_nbm()
     {
         global $env_nbm;
 
@@ -551,7 +525,7 @@ class Notification
      *
      * Return none
      */
-    public static function inc_mail_sent_success($nbm_user)
+    public function inc_mail_sent_success($nbm_user)
     {
         global $page, $env_nbm;
 
@@ -564,7 +538,7 @@ class Notification
      *
      * Return none
      */
-    public static function inc_mail_sent_failed($nbm_user)
+    public function inc_mail_sent_failed($nbm_user)
     {
         global $page, $env_nbm;
 
@@ -577,7 +551,7 @@ class Notification
      *
      * Return none
      */
-    public static function display_counter_info()
+    public function display_counter_info()
     {
         global $page, $env_nbm;
 
@@ -608,7 +582,7 @@ class Notification
         }
     }
 
-    public static function assign_vars_nbm_mail_content($nbm_user)
+    public function assign_vars_nbm_mail_content($nbm_user)
     {
         global $env_nbm;
 
@@ -635,9 +609,9 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
+    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
     {
-        global $conf, $page, $env_nbm, $conf, $conn;
+        global $page, $env_nbm, $conf;
 
         \Phyxo\Functions\URL::set_make_full_url();
 
@@ -655,17 +629,17 @@ class Notification
 
         if (count($check_key_list) != 0) {
             $updates = [];
-            $enabled_value = $conn->boolean_to_db($is_subscribe);
-            $data_users = self::get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
+            $enabled_value = $this->conn->boolean_to_db($is_subscribe);
+            $data_users = $this->get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
             // Prepare message after change language
             $msg_break_timeout = \Phyxo\Functions\Language::l10n('Time to send mail is limited. Others mails are skipped.');
 
             // Begin nbm users environment
-            self::begin_users_env_nbm(true);
+            $this->begin_users_env_nbm(true);
 
             foreach ($data_users as $nbm_user) {
-                if (self::check_sendmail_timeout()) {
+                if ($this->check_sendmail_timeout()) {
                     // Stop fill list on 'send', if the quota is override
                     $page['errors'][] = $msg_break_timeout;
                     break;
@@ -677,12 +651,12 @@ class Notification
                 $do_update = true;
                 if ($nbm_user['mail_address'] != '') {
                     // set env nbm user
-                    self::set_user_on_env_nbm($nbm_user, true);
+                    $this->set_user_on_env_nbm($nbm_user, true);
 
                     $subject = '[' . $conf['gallery_title'] . '] ' . ($is_subscribe ? \Phyxo\Functions\Language::l10n('Subscribe to notification by mail') : \Phyxo\Functions\Language::l10n('Unsubscribe from notification by mail'));
 
                     // Assign current var for nbm mail
-                    self::assign_vars_nbm_mail_content($nbm_user);
+                    $this->assign_vars_nbm_mail_content($nbm_user);
 
                     $section_action_by = ($is_subscribe ? 'subscribe_by_' : 'unsubscribe_by_');
                     $section_action_by .= ($is_admin_request ? 'admin' : 'himself');
@@ -709,14 +683,14 @@ class Notification
                     );
 
                     if ($ret) {
-                        self::inc_mail_sent_success($nbm_user);
+                        $this->inc_mail_sent_success($nbm_user);
                     } else {
-                        self::inc_mail_sent_failed($nbm_user);
+                        $this->inc_mail_sent_failed($nbm_user);
                         $do_update = false;
                     }
 
                     // unset env nbm user
-                    self::unset_user_on_env_nbm();
+                    $this->unset_user_on_env_nbm();
                 }
 
                 if ($do_update) {
@@ -733,11 +707,11 @@ class Notification
             }
 
             // Restore nbm environment
-            self::end_users_env_nbm();
+            $this->end_users_env_nbm();
 
-            self::display_counter_info();
+            $this->display_counter_info();
 
-            (new UserMailNotificationRepository($conn))->massUpdates(
+            (new UserMailNotificationRepository($this->conn))->massUpdates(
                 [
                     'primary' => ['check_key'],
                     'update' => ['enabled']
@@ -774,9 +748,9 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = [])
+    public function unsubscribe_notification_by_mail($is_admin_request, $check_key_list = [])
     {
-        return self::do_subscribe_unsubscribe_notification_by_mail($is_admin_request, false, $check_key_list);
+        return $this->do_subscribe_unsubscribe_notification_by_mail($is_admin_request, false, $check_key_list);
     }
 
     /*
@@ -786,9 +760,9 @@ class Notification
      *
      * @return check_key list treated
      */
-    public static function subscribe_notification_by_mail($is_admin_request, $check_key_list = [])
+    public function subscribe_notification_by_mail($is_admin_request, $check_key_list = [])
     {
-        return self::do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
+        return $this->do_subscribe_unsubscribe_notification_by_mail($is_admin_request, true, $check_key_list);
     }
 
     /*
@@ -798,9 +772,9 @@ class Notification
      * @param check_key_treated: array of check_key treated
      * @return none
      */
-    public static function do_timeout_treatment($post_keyname, $check_key_treated = [])
+    public function do_timeout_treatment($post_keyname, $check_key_treated = [])
     {
-        global $env_nbm, $base_url, $page, $must_repost;
+        global $env_nbm, $page, $must_repost;
 
         if ($env_nbm['is_sendmail_timeout']) {
             if (isset($_POST[$post_keyname])) {
@@ -824,17 +798,17 @@ class Notification
     }
 
     // Inserting News users
-    public static function insert_new_data_user_mail_notification()
+    public function insert_new_data_user_mail_notification()
     {
-        global $conf, $page, $env_nbm, $conn, $base_url;
+        global $conf, $page, $env_nbm, $base_url;
 
         // null mail_address are not selected in the list
-        $result = (new UserRepository($conn))->findUsersWithNoMailNotificationInfos();
-        if ($conn->db_num_rows($result) > 0) {
+        $result = (new UserRepository($this->conn))->findUsersWithNoMailNotificationInfos();
+        if ($this->conn->db_num_rows($result) > 0) {
             $inserts = [];
             $check_key_list = [];
 
-            while ($nbm_user = $conn->db_fetch_assoc($result)) {
+            while ($nbm_user = $this->conn->db_fetch_assoc($result)) {
                 // Calculate key
                 $nbm_user['check_key'] = \Phyxo\Functions\Utils::generate_key(16);
 
@@ -856,9 +830,9 @@ class Notification
             }
 
             // Insert new nbm_users
-            (new UserMailNotificationRepository($conn))->massInserts(['user_id', 'check_key', 'enabled'], $inserts);
+            (new UserMailNotificationRepository($this->conn))->massInserts(['user_id', 'check_key', 'enabled'], $inserts);
             // Update field enabled with specific function
-            $check_key_treated = self::do_subscribe_unsubscribe_notification_by_mail(
+            $check_key_treated = $this->do_subscribe_unsubscribe_notification_by_mail(
                 true,
                 $conf['nbm_default_value_user_enabled'],
                 $check_key_list
@@ -868,7 +842,7 @@ class Notification
             if ($env_nbm['is_sendmail_timeout']) {
                 $check_key_list = array_diff($check_key_list, $check_key_treated);
                 if (count($check_key_list) > 0) {
-                    (new UserMailNotificationRepository($conn))->deleteByCheckKeys($check_key_list);
+                    (new UserMailNotificationRepository($this->conn))->deleteByCheckKeys($check_key_list);
                     \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff([], false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
                 }
             }
@@ -879,7 +853,7 @@ class Notification
      * Apply global functions to mail content
      * return customize mail content rendered
      */
-    public static function render_global_customize_mail_content($customize_mail_content)
+    public function render_global_customize_mail_content($customize_mail_content)
     {
         global $conf;
 
@@ -898,19 +872,19 @@ class Notification
      * Return list of "selected" users for 'list_to_send'
      * Return list of "treated" check_key for 'send'
      */
-    public static function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
+    public function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
     {
-        global $conf, $page, $user, $lang_info, $lang, $env_nbm, $conn;
+        global $conf, $page, $env_nbm;
 
         $return_list = [];
 
         if (in_array($action, ['list_to_send', 'send'])) {
-            $dbnow = (new BaseRepository($conn))->getNow();
+            $dbnow = (new BaseRepository($this->conn))->getNow();
 
             $is_action_send = ($action == 'send');
 
             // disabled and null mail_address are not selected in the list
-            $data_users = self::get_user_notifications('send', $check_key_list);
+            $data_users = $this->get_user_notifications('send', $check_key_list);
 
             // List all if it's define on options or on timeout
             $is_list_all_without_test = ($env_nbm['is_sendmail_timeout'] or $conf['nbm_list_all_enabled_users_to_send']);
@@ -934,22 +908,22 @@ class Notification
                     }
 
                     // Begin nbm users environment
-                    self::begin_users_env_nbm($is_action_send);
+                    $this->begin_users_env_nbm($is_action_send);
 
                     foreach ($data_users as $nbm_user) {
-                        if ((!$is_action_send) && self::check_sendmail_timeout()) {
+                        if ((!$is_action_send) && $this->check_sendmail_timeout()) {
                            // Stop fill list on 'list_to_send', if the quota is override
                             $page['infos'][] = $msg_break_timeout;
                             break;
                         }
-                        if (($is_action_send) && self::check_sendmail_timeout()) {
+                        if (($is_action_send) && $this->check_sendmail_timeout()) {
                             // Stop fill list on 'send', if the quota is override
                             $page['errors'][] = $msg_break_timeout;
                             break;
                         }
 
                         // set env nbm user
-                        self::set_user_on_env_nbm($nbm_user, $is_action_send);
+                        $this->set_user_on_env_nbm($nbm_user, $is_action_send);
 
                         if ($is_action_send) {
                             \Phyxo\Functions\URL::set_make_full_url();
@@ -957,17 +931,17 @@ class Notification
                             $return_list[] = $nbm_user['check_key'];
 
                             if ($conf['nbm_send_detailed_content']) {
-                                $news = \Phyxo\Functions\Notification::news($nbm_user['last_send'], $dbnow, false, $conf['nbm_send_html_mail']);
+                                $news = $this->news($nbm_user['last_send'], $dbnow, false, $conf['nbm_send_html_mail']);
                                 $exist_data = count($news) > 0;
                             } else {
-                                $exist_data = \Phyxo\Functions\Notification::news_exists($nbm_user['last_send'], $dbnow);
+                                $exist_data = $this->news_exists($nbm_user['last_send'], $dbnow);
                             }
 
                             if ($exist_data) {
                                 $subject = '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('New photos added');
 
                                 // Assign current var for nbm mail
-                                self::assign_vars_nbm_mail_content($nbm_user);
+                                $this->assign_vars_nbm_mail_content($nbm_user);
 
                                 if (!is_null($nbm_user['last_send'])) {
                                     $env_nbm['mail_template']->assign(
@@ -998,15 +972,15 @@ class Notification
                                 }
 
                                 if ($conf['nbm_send_html_mail'] && $conf['nbm_send_recent_post_dates']) {
-                                    $recent_post_dates = \Phyxo\Functions\Notification::get_recent_post_dates_array(
+                                    $recent_post_dates = $this->get_recent_post_dates_array(
                                         $conf['recent_post_dates']['NBM']
                                     );
                                     foreach ($recent_post_dates as $date_detail) {
                                         $env_nbm['mail_template']->append(
                                             'recent_posts',
                                             [
-                                                'TITLE' => \Phyxo\Functions\Notification::get_title_recent_post_date($date_detail),
-                                                'HTML_DATA' => \Phyxo\Functions\Notification::get_html_description_recent_post_date($date_detail)
+                                                'TITLE' => $this->get_title_recent_post_date($date_detail),
+                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail)
                                             ]
                                         );
                                     }
@@ -1035,34 +1009,34 @@ class Notification
                                 );
 
                                 if ($ret) {
-                                    self::inc_mail_sent_success($nbm_user);
+                                    $this->inc_mail_sent_success($nbm_user);
 
                                     $datas[] = [
                                         'user_id' => $nbm_user['user_id'],
                                         'last_send' => $dbnow
                                     ];
                                 } else {
-                                    self::inc_mail_sent_failed($nbm_user);
+                                    $this->inc_mail_sent_failed($nbm_user);
                                 }
 
                                 \Phyxo\Functions\URL::unset_make_full_url();
                             }
                         } else {
-                            if (\Phyxo\Functions\Notification::news_exists($nbm_user['last_send'], $dbnow)) {
+                            if ($this->news_exists($nbm_user['last_send'], $dbnow)) {
                                 // Fill return list of "selected" users for 'list_to_send'
                                 $return_list[] = $nbm_user;
                             }
                         }
 
                         // unset env nbm user
-                        self::unset_user_on_env_nbm();
+                        $this->unset_user_on_env_nbm();
                     }
 
                     // Restore nbm environment
-                    self::end_users_env_nbm();
+                    $this->end_users_env_nbm();
 
                     if ($is_action_send) {
-                        (new UserMailNotificationRepository($conn))->massUpdates(
+                        (new UserMailNotificationRepository($this->conn))->massUpdates(
                             [
                                 'primary' => ['user_id'],
                                 'update' => ['last_send']
@@ -1070,7 +1044,7 @@ class Notification
                             $datas
                         );
 
-                        self::display_counter_info();
+                        $this->display_counter_info();
                     }
                 } else {
                     if ($is_action_send) {
