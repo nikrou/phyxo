@@ -82,14 +82,14 @@ class UserInfosRepository extends BaseRepository
         $query .= ' WHERE';
 
         if (!empty($start)) {
-            $query .= ' date_available > \'' . $this->conn->db_real_escape_string($start) . '\'';
+            $query .= ' registration_date > \'' . $this->conn->db_real_escape_string($start) . '\'';
         }
 
         if (!empty($end)) {
             if (!is_null($start)) {
                 $query .= ' AND';
             }
-            $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
+            $query .= ' registration_date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
         }
 
         if ($count_only) {

@@ -16,14 +16,14 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 
 class User implements UserInterface, EquatableInterface, \ArrayAccess
 {
-    private $id;
-    private $username;
-    private $password;
-    private $mail_address;
-    private $salt;
+    protected $id;
+    protected $username;
+    protected $password;
+    protected $mail_address;
+    protected $salt;
 
-    private $user_infos = null;
-    private $roles = [];
+    protected $user_infos = null;
+    protected $roles = [];
 
     public function __construct()
     {

@@ -16,31 +16,26 @@ use Phyxo\Functions\Category;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
+use App\Entity\User;
 
 class CategoryMapper
 {
     private $em, $conf;
 
-    public function __construct(Conf $conf, EntityManager $em, UserMapper $userMapper, RouterInterface $router)
+    public function __construct(Conf $conf, EntityManager $em, RouterInterface $router)
     {
         $this->conf = $conf;
         $this->em = $em;
-        $this->userMapper = $userMapper;
         $this->router = $router;
-    }
-
-    public function getUser()
-    {
-        return $this->userMapper->getUser();
     }
 
     /**
      * Returns template vars for main categories menu.
      *
      */
-    public function getRecursiveCategoriesMenu(array $selected_category = []): array
+    public function getRecursiveCategoriesMenu(User $user, bool $filter_enabled = false, array $selected_category = []): array
     {
-        $flat_categories = $this->getCategoriesMenu($selected_category);
+        $flat_categories = $this->getCategoriesMenu($user, $filter_enabled, $selected_category);
 
         $categories = [];
         foreach ($flat_categories as $category) {
@@ -72,11 +67,11 @@ class CategoryMapper
      * Returns template vars for main categories menu.
      *
      */
-    protected function getCategoriesMenu(array $selected_category = []): array
+    protected function getCategoriesMenu(User $user, bool $filter_enabled = false, array $selected_category = []): array
     {
         $result = $this->em->getRepository(CategoryRepository::class)->getCategoriesForMenu(
-            $this->getUser(),
-            false, //$filter['enabled'], ?? is it usefull ?
+            $user,
+            $filter_enabled,
             isset($selected_category['uppercats']) ? explode(',', $selected_category['uppercats']) : []
         );
 
@@ -116,5 +111,88 @@ class CategoryMapper
         Category::update_cats_with_filtered_data($cats);
 
         return $cats;
+    }
+
+    /**
+     * Get computed array of categories, that means cache data of all categories
+     * available for the current user (count_categories, count_images, etc.).
+     */
+    public function getComputedCategories(&$userdata, $filter_days = null)
+    {
+        $result = $this->em->getRepository(CategoryRepository::class)->getComputedCategories($userdata, $filter_days);
+        $userdata['last_photo_date'] = null;
+        $cats = [];
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
+            $row['nb_categories'] = 0;
+            $row['count_categories'] = 0;
+            $row['count_images'] = (int)$row['nb_images'];
+            $row['max_date_last'] = $row['date_last'];
+            if ($row['date_last'] > $userdata['last_photo_date']) {
+                $userdata['last_photo_date'] = $row['date_last'];
+            }
+
+            $cats[$row['cat_id']] = $row;
+        }
+
+        foreach ($cats as $cat) {
+            if (!isset($cat['id_uppercat'])) {
+                continue;
+            }
+
+            if (!isset($cats[ $cat['id_uppercat'] ])) {
+                continue;
+            }
+
+            $parent = &$cats[$cat['id_uppercat']];
+            $parent['nb_categories']++;
+
+            do {
+                $parent['count_images'] += $cat['nb_images'];
+                $parent['count_categories']++;
+
+                if ((empty($parent['max_date_last'])) or ($parent['max_date_last'] < $cat['date_last'])) {
+                    $parent['max_date_last'] = $cat['date_last'];
+                }
+
+                if (!isset($parent['id_uppercat'])) {
+                    break;
+                }
+                $parent = &$cats[$parent['id_uppercat']];
+            } while (true);
+            unset($parent);
+        }
+
+        if (isset($filter_days)) {
+            foreach ($cats as $category) {
+                if (empty($category['max_date_last'])) {
+                    $this->removeComputedCategory($cats, $category);
+                }
+            }
+        }
+
+        return $cats;
+    }
+
+    /**
+     * Removes a category from computed array of categories and updates counters.
+     */
+    public function removeComputedCategory(&$cats, $cat)
+    {
+        if (isset($cats[$cat['id_uppercat']])) {
+            $parent = &$cats[$cat['id_uppercat']];
+            $parent['nb_categories']--;
+
+            do {
+                $parent['count_images'] -= $cat['nb_images'];
+                $parent['count_categories'] -= 1 + $cat['count_categories'];
+
+                if (!isset($cats[$parent['id_uppercat']])) {
+                    break;
+                }
+                $parent = &$cats[$parent['id_uppercat']];
+            } while (true);
+        }
+
+        unset($cats[$cat['cat_id']]);
     }
 }

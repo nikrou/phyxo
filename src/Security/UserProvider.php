@@ -15,21 +15,25 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Phyxo\DBLayer\iDBLayer;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\User;
 use App\Entity\UserInfos;
 use App\Utils\DataTransformer;
+use Phyxo\EntityManager;
+use App\DataMapper\CategoryMapper;
+use App\DataMapper\UserMapper;
 
 class UserProvider implements UserProviderInterface
 {
-    private $conn, $data_transformer;
+    private $em, $dataTransformer, $categoryMapper, $userMapper;
 
-    public function __construct(iDBLayer $conn, DataTransformer $data_transformer)
+    public function __construct(EntityManager $em, DataTransformer $dataTransformer, CategoryMapper $categoryMapper, UserMapper $userMapper)
     {
-        $this->conn = $conn;
-        $this->data_transformer = $data_transformer;
+        $this->em = $em;
+        $this->dataTransformer = $dataTransformer;
+        $this->categoryMapper = $categoryMapper;
+        $this->userMapper = $userMapper;
     }
 
     public function loadUserByUsername($username)
@@ -55,22 +59,28 @@ class UserProvider implements UserProviderInterface
         return User::class === $class;
     }
 
-    private function fetchUser($username)
+    private function fetchUser(string $username)
     {
-        $result = (new UserRepository($this->conn))->findByUsername($username);
-        $userData = $this->conn->db_fetch_assoc($result);
+        $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
+        $userData = $this->em->getConnection()->db_fetch_assoc($result);
 
         // pretend it returns an array on success, false if there is no user
         if ($userData) {
-            $result = (new UserInfosRepository($this->conn))->getInfos($userData['id']);
-            $user_infos = $this->data_transformer->map($this->conn->db_fetch_assoc($result));
+            $result = $this->em->getRepository(UserInfosRepository::class)->getInfos($userData['id']);
+            $userInfosData = $this->dataTransformer->map($this->em->getConnection()->db_fetch_assoc($result));
 
             $user = new User();
             $user->setId($userData['id']);
             $user->setUsername($userData['username']);
             $user->setPassword($userData['password']);
             $user->setMailAddress($userData['mail_address']);
-            $user->setInfos(new UserInfos($user_infos));
+
+            $extra_infos = $this->userMapper->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
+            $user_infos = new UserInfos($userInfosData);
+            $user_infos->setForbiddenCategories(explode(',', $extra_infos['forbidden_categories']));
+            $user_infos->setImageAccessList(explode(',', $extra_infos['image_access_list']));
+            $user_infos->setImageAccessType($extra_infos['image_access_type']);
+            $user->setInfos($user_infos);
 
             return $user;
         }

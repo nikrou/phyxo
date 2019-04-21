@@ -187,7 +187,7 @@ class CategoryRepository extends BaseRepository
         }
 
         if (!empty($userdata['forbidden_categories'])) {
-            $query .= ' WHERE c.id NOT IN (' . $userdata['forbidden_categories'] . ')';
+            $query .= ' WHERE c.id NOT ' . $this->conn->in(explode(',', $userdata['forbidden_categories']));
         }
 
         $query .= ' GROUP BY c.id';

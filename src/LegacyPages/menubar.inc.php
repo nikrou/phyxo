@@ -68,7 +68,7 @@ if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && \Phyxo\Func
 if ($block != null) {
     $block->data = [
         'NB_PICTURE' => $user['nb_total_images'],
-        'MENU_CATEGORIES' => $categoryMapper->getRecursiveCategoriesMenu(),
+        'MENU_CATEGORIES' => $categoryMapper->getRecursiveCategoriesMenu($userMapper->getUser(), $filter['enabled']),
         'U_CATEGORIES' => \Phyxo\Functions\URL::make_index_url(['section' => 'categories']),
     ];
     $block->template = 'menubar_categories.tpl';
