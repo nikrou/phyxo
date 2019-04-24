@@ -41,7 +41,7 @@ class WsController extends Controller
 
         try {
             global
-                $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $filter, $template, $user,
+                $conf, $conn, $title, $t2, $pwg_loaded_plugins, $prefixeTable, $header_notes, $filter, $template, $user, $userMapper,
                 $page, $lang, $lang_info;
 
             ob_start();

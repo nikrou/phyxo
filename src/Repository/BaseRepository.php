@@ -12,7 +12,7 @@
 namespace App\Repository;
 
 use Phyxo\DBLayer\iDBLayer;
-use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class BaseRepository
 {
@@ -80,7 +80,7 @@ class BaseRepository
      * @param string $prefix_condition    prefixes query if condition is not empty
      * @param bool   $force_one_condition use at least "1 = 1"
      */
-    public function getSQLConditionFandF(array $UserConditions = [], array $filter = [], $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false): string
+    public function getSQLConditionFandF(UserInterface $user, array $filter = [], $condition_fields, ? string $prefix_condition = null, bool $force_one_condition = false): string
     {
         $sql_list = [];
 
@@ -88,8 +88,8 @@ class BaseRepository
             switch ($condition) {
                 case 'forbidden_categories':
 
-                        if (!empty($UserConditions['forbidden_categories'])) {
-                            $sql_list[] = $field_name . ' NOT ' . $this->conn->in($UserConditions['forbidden_categories']);
+                        if ($user->getForbiddenCategories()) {
+                            $sql_list[] = $field_name . ' NOT ' . $this->conn->in($user->getForbiddenCategories());
                         }
                         break;
 
@@ -106,7 +106,7 @@ class BaseRepository
                     }
                 // note there is no break - visible include forbidden no break
                 case 'forbidden_images':
-                    if (count($UserConditions['image_access_list']) > 0 || $UserConditions['image_access_type'] !== 'NOT IN') {
+                    if (count($user->getImageAccessList()) > 0 || $user->getImageAccessType() !== 'NOT IN') {
                         $table_prefix = null;
                         if ($field_name === 'id') {
                             $table_prefix = '';
@@ -114,9 +114,13 @@ class BaseRepository
                             $table_prefix = 'i.';
                         }
                         if (isset($table_prefix)) {
-                            $sql_list[] = $table_prefix . 'level<=' . $UserConditions['level'];
-                        } elseif (count($UserConditions['image_access_list']) > 0 && !empty($UserConditions['image_access_type'])) {
-                            $sql_list[] = $field_name . ' ' . $UserConditions['image_access_type'] . ' (' . $UserConditions['image_access_list'] . ')';
+                            $sql_list[] = $table_prefix . 'level<=' . $user->getLevel();
+                        } elseif (count($user->getImageAccessList()) > 0 && !empty($user->getImageAccessType())) {
+                            if ($user->getImageAccessType() === 'IN') {
+                                $sql_list[] = $field_name . ' ' . $this->conn->in($user->getImageAccessList());
+                            } elseif ($user->getImageAccessType() === 'NOT IN') {
+                                $sql_list[] = $field_name . ' NOT ' . $this->conn->in($user->getImageAccessList());
+                            }
                         }
                     }
                     break;
@@ -140,27 +144,25 @@ class BaseRepository
      * Returns sql WHERE condition for recent photos/albums for current user.
      * @param array $UserConditions with keys recent_period ans last_photo_date
      */
-    public static function getRecentPhotos(array $UserConditions = [], string $db_field): string
+    public static function getRecentPhotos(UserInterface $user, string $db_field): string
     {
-        if (!isset($UserConditions['last_photo_date'])) {
+        if ($user->getLastPhotoDate()) {
             return '0=1';
         }
 
         return $db_field . '>=LEAST('
-            . $this->conn->db_get_recent_period_expression($UserConditions['recent_period'])
-            . ',' . $this->conn->db_get_recent_period_expression(1, $UserConditions['last_photo_date']) . ')';
+            . $this->conn->db_get_recent_period_expression($user->getRecentPeriod())
+            . ',' . $this->conn->db_get_recent_period_expression(1, $user->getLastPhotoDate()) . ')';
     }
 
     /**
      * Get standard sql where in order to restrict and filter categories and images.
      * IMAGE_CATEGORY_TABLE must be named "ic" in the query
-     * @param array  $UserConditions     array with keys forbidden_categories, image_access_list and image_access_type
-     * @param array  $filter
      */
-    public function getStandardSQLWhereRestrictFilter(array $UserConditions = [], array $filter = [], string $prefix_condition, string $img_field = 'ic.image_id', bool $force_one_condition = false): string
+    public function getStandardSQLWhereRestrictFilter(UserInterface $user, array $filter = [], string $prefix_condition, string $img_field = 'ic.image_id', bool $force_one_condition = false): string
     {
         return $this->getSQLConditionFandF(
-            $UserConditions,
+            $user,
             $filter,
             [
                 'forbidden_categories' => 'ic.category_id',

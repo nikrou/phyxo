@@ -19,6 +19,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
+use App\Repository\BaseRepository;
 
 class Category
 {
@@ -34,7 +35,7 @@ class Category
      */
     public static function getImages($params, Server $service)
     {
-        global $user, $conf, $conn;
+        global $conf, $conn, $filter;
 
         $images = [];
 
@@ -50,7 +51,9 @@ class Category
         if (!empty($where_clauses)) {
             $where_clauses = ['(' . implode(' OR ', $where_clauses) . ')'];
         }
-        $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
+            $service->getUserMapper()->getUser(),
+            $filter,
             ['forbidden_categories' => 'id'],
             null,
             true
@@ -67,7 +70,9 @@ class Category
         if (!empty($cats)) {
             $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
             $where_clauses[] = 'category_id ' . $conn->in(array_keys($cats));
-            $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
+                $service->getUserMapper()->getUser(),
+                $filter,
                 ['visible_images' => 'i.id'],
                 null,
                 true
@@ -146,11 +151,11 @@ class Category
      */
     public static function getList($params, Server $service)
     {
-        global $user, $conf, $conn;
+        global $conf, $conn, $filter;
 
         $where = ['1=1'];
         $join_type = 'INNER';
-        $join_user = $user['id'];
+        $join_user = $service->getUserMapper()->getUser()->getId();
 
         if (!$params['recursive']) {
             if ($params['cat_id'] > 0) {
@@ -175,7 +180,7 @@ class Category
              * calculatePermissions does not consider empty categories as forbidden
              * @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
              */
-            $forbidden_categories = $service->getUserMapper()->calculatePermissions($user['id'], $user['status']);
+            $forbidden_categories = $service->getUserMapper()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->getUser()->getStatus());
             $where[] = 'id NOT IN (' . $forbidden_categories . ')';
             $join_type = 'LEFT';
         }
@@ -237,10 +242,10 @@ class Category
                 $image_id = $row['representative_picture_id'];
             } elseif ($conf['allow_random_representative']) {
                 // searching a random representant among elements in sub-categories
-                $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
+                $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($service->getUserMapper()->getUser(), $filter, $row);
             } else { // searching a random representant among representant of sub-categories
                 if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
-                    $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($user['id'], $row['uppercats']);
+                    $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($service->getUserMapper()->getUser(), $filter, $row['uppercats']);
                     if ($conn->db_num_rows($result) > 0) {
                         list($image_id) = $conn->db_fetch_row($result);
                     }
@@ -270,7 +275,7 @@ class Category
 
             $result = (new ImageRepository($conn))->findByIds($image_ids);
             while ($row = $conn->db_fetch_assoc($result)) {
-                if ($row['level'] <= $user['level']) {
+                if ($row['level'] <= $service->getUserMapper()->getUser()->getLevel()) {
                     $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
                 } else {
                     /* problem: we must not display the thumbnail of a photo which has a
@@ -284,7 +289,7 @@ class Category
                     foreach ($categories as &$category) {
                         if ($row['id'] == $category['representative_picture_id']) {
                             // searching a random representant among elements in sub-categories
-                            $image_id = (new CategoryRepository($conn))->getRandomImageInCategory(category);
+                            $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($service->getUserMapper()->getUser(), $filter, category);
 
                             if (isset($image_id) and !in_array($image_id, $image_ids)) {
                                 $new_image_ids[] = $image_id;
@@ -317,7 +322,7 @@ class Category
 
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
                 $updates[] = [
-                    'user_id' => $user['id'],
+                    'user_id' => $service->getUserMapper()->getUser()->getId(),
                     'cat_id' => $cat_id,
                     'user_representative_picture_id' => $image_id,
                 ];

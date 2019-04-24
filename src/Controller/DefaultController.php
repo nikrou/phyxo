@@ -97,13 +97,13 @@ class DefaultController extends BaseController
         chdir(dirname($legacy_file));
         require $legacy_file;
 
-        $result = (new ImageRepository($conn))->findById($image_id);
+        $result = (new ImageRepository($conn))->findById($this->getUser(), $filter, $image_id);
         $element_info = $conn->db_fetch_assoc($result);
 
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!(new CategoryRepository($conn))->hasAccessToImage($image_id)) {
+        if (!(new CategoryRepository($conn))->hasAccessToImage($this->getUser(), $filter, $image_id)) {
             throw new AccessDeniedException('Access denied');
         }
 

@@ -13,6 +13,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\BaseRepository;
 
 /**
  * This file is included by the main page to show subcategories of a category
@@ -29,7 +30,7 @@ if ('recent_cats' == $page['section']) {
     $where[] = 'id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }
 
-$where[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], '', $force_on_condition = true);
+$where[] = (new BaseRepository($conn))->getSQLConditionFandF($app_user, $filter, ['visible_categories' => 'id'], '', $force_on_condition = true);
 
 if ('recent_cats' != $page['section']) {
     $order = 'rank';
@@ -50,9 +51,9 @@ while ($row = $conn->db_fetch_assoc($result)) {
     } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
         $image_id = $row['representative_picture_id'];
     } elseif ($conf['allow_random_representative']) { // searching a random representant among elements in sub-categories
-        $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($row);
+        $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($app_user, $filter, $row);
     } elseif ($row['count_categories'] > 0 and $row['count_images'] > 0) { // searching a random representant among representant of sub-categories
-        $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($user['id'], $row['uppercats']);
+        $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($app_user, $filter, $row['uppercats']);
         if ($conn->db_num_rows($result) > 0) {
             list($image_id) = $conn->db_fetch_row($result);
         }
@@ -73,7 +74,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
 if ($conf['display_fromto']) {
     if (count($category_ids) > 0) {
-        $result = (new ImageCategoryRepository($conn))->dateOfCategories($category_ids);
+        $result = (new ImageCategoryRepository($conn))->dateOfCategories($app_user, $filter, $category_ids);
         $dates_of_category = $conn->result2array($result, 'category_id');
     }
 }
@@ -102,7 +103,7 @@ if (count($categories) > 0) {
             foreach ($categories as &$category) {
                 if ($row['id'] == $category['representative_picture_id']) {
                     // searching a random representant among elements in sub-categories
-                    $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($category);
+                    $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($app_user, $filter, $category);
 
                     if (isset($image_id) and !in_array($image_id, $image_ids)) {
                         $new_image_ids[] = $image_id;

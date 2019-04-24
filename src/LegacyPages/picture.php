@@ -44,7 +44,7 @@ $page['rank_of'] = array_flip($page['items']);
 // displayed, and execution is stopped
 if (!isset($page['rank_of'][$page['image_id']])) {
     if ($page['image_id'] > 0) {
-        $result = (new ImageRepository($conn))->findById($page['image_id']);
+        $result = (new ImageRepository($conn))->findById($app_user, $filter, $page['image_id']);
     } else { // url given by file name
         $result = (new ImageRepository($conn))->searchByField('file', str_replace(['_', '%'], ['/_', '/%'], $page['image_file']) . '.%');
     }
@@ -70,7 +70,7 @@ if (!isset($page['rank_of'][$page['image_id']])) {
         if ('categories' == $page['section'] and !isset($page['category'])) { // flat view - all items
             \Phyxo\Functions\HTTP::access_denied();
         } else { // try to see if we can access it differently
-            if (!(new ImageRepository($conn))->isImageAuthorized($page['image_id'])) {
+            if (!(new ImageRepository($conn))->isImageAuthorized($app_user, $filter, $page['image_id'])) {
                 \Phyxo\Functions\HTTP::access_denied();
             } else {
                 if ('best_rated' == $page['section']) {
@@ -338,7 +338,7 @@ if (\Phyxo\Functions\Plugin::trigger_change('allow_increment_element_hit_count',
 }
 
 //---------------------------------------------------------- related categories
-$result = (new ImageCategoryRepository($conn))->getRelatedCategory($page['image_id']);
+$result = (new ImageCategoryRepository($conn))->getRelatedCategory($app_user, $filter, $page['image_id']);
 $related_categories = $conn->result2array($result);
 usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 //-------------------------first, prev, current, next & last picture management
@@ -643,7 +643,7 @@ $template->assign($infos);
 $template->assign('display_info', json_decode($conf['picture_informations'], true));
 
 // related tags
-$tags = $tagMapper->getCommonTags($user, [$page['image_id']], -1);
+$tags = $tagMapper->getCommonTags($app_user, [$page['image_id']], -1);
 if (count($tags)) {
     foreach ($tags as $tag) {
         $template->append(

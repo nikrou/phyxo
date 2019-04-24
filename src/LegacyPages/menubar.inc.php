@@ -68,7 +68,7 @@ if ($conf['menubar_filter_icon'] && !empty($conf['filter_pages']) && \Phyxo\Func
 if ($block != null) {
     $block->data = [
         'NB_PICTURE' => $user['nb_total_images'],
-        'MENU_CATEGORIES' => $categoryMapper->getRecursiveCategoriesMenu($userMapper->getUser(), $filter['enabled']),
+        'MENU_CATEGORIES' => $categoryMapper->getRecursiveCategoriesMenu($userMapper->getUser(), $filter),
         'U_CATEGORIES' => \Phyxo\Functions\URL::make_index_url(['section' => 'categories']),
     ];
     $block->template = 'menubar_categories.tpl';
@@ -79,7 +79,7 @@ $block = $menu->get_block('mbTags');
 if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Utils::script_basename()) {
     if (!empty($page['section']) && 'tags' == $page['section']) {
         $tags = $tagMapper->getCommonTags(
-            $user,
+            $app_user,
             $page['items'],
             $conf['menubar_tag_cloud_items_number'],
             $page['tag_ids']
@@ -105,7 +105,7 @@ if ($block != null && !empty($page['items']) && 'picture' != \Phyxo\Functions\Ut
     } else {
         $selection = array_slice($page['items'], $page['start'], $page['nb_image_page']);
         $tags = \Phyxo\Functions\Tag::addLevelToTags(
-            $tagMapper->getCommonTags($user, $selection, $conf['content_tag_cloud_items_number'])
+            $tagMapper->getCommonTags($app_user, $selection, $conf['content_tag_cloud_items_number'])
         );
         foreach ($tags as $tag) {
             $block->data[] = array_merge($tag, ['URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]])]);
@@ -186,7 +186,7 @@ if (($block = $menu->get_block('mbMenu')) != null) {
         'TITLE' => \Phyxo\Functions\Language::l10n('display available tags'),
         'NAME' => \Phyxo\Functions\Language::l10n('Tags'),
         'URL' => \Phyxo\Functions\URL::get_root_url() . 'tags.php',
-        'COUNTER' => $tagMapper->getNbAvailableTags($user),
+        'COUNTER' => $tagMapper->getNbAvailableTags($app_user, $filter),
     ];
 
     // search link

@@ -13,6 +13,7 @@ use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
+use App\Repository\BaseRepository;
 
 /**
  * This included page checks section related parameter and provides
@@ -170,7 +171,9 @@ if (!empty($_SESSION['image_order']) && $_SESSION['image_order'] > 0) {
     }
 }
 
-$forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+$forbidden = (new BaseRepository($conn))->getSQLConditionFandF(
+    $app_user,
+    $filter,
     [
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -210,12 +213,12 @@ if ('categories' == $page['section']) {
         if (isset($page['flat'])) {
             // get all allowed sub-categories
             if (isset($page['category'])) {
-                $result = (new CategoryRepository($conn))->findAllowedSubCategories($page['category']['uppercats']);
+                $result = (new CategoryRepository($conn))->findAllowedSubCategories($app_user, $filter, $page['category']['uppercats']);
                 $subcat_ids = $conn->result2array($result, null, 'id');
                 $subcat_ids[] = $page['category']['id'];
                 $where_sql = 'category_id ' . $conn->in($subcat_ids);
                 // remove categories from forbidden because just checked above
-                $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
+                $forbidden = (new BaseRepository($conn))->getSQLConditionFandF($app_user, $filter, ['visible_images' => 'id'], 'AND');
             } else {
                 unset($page['is_homepage']);
                 $where_sql = '1=1';
@@ -239,7 +242,7 @@ if ('categories' == $page['section']) {
         }
 
         $items = $conn->result2array(
-            (new TagRepository($conn))->getImageIdsForTags($page['tag_ids']),
+            (new TagRepository($conn))->getImageIdsForTags($app_user, $filter, $page['tag_ids']),
             null,
             'id'
         );
@@ -273,7 +276,7 @@ if ('categories' == $page['section']) {
         // |                           favorite section                            |
         // +-----------------------------------------------------------------------+
         if ($user['forbidden_categories']) {
-            (new FavoriteRepository($conn))->deleteUnauthorizedImagesFromFavorites($user['id']);
+            (new FavoriteRepository($conn))->deleteUnauthorizedImagesFromFavorites($app_user, $filter);
         }
 
         $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Favorites')]);
@@ -282,7 +285,7 @@ if ('categories' == $page['section']) {
             (new FavoriteRepository($conn))->removeAllFavorites($user['id']);
             \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(['section' => 'favorites']));
         } else {
-            $result = (new ImageRepository($conn))->getFavorites($user['id'], $conf['order_by']);
+            $result = (new ImageRepository($conn))->getFavorites($app_user, $filter, $conf['order_by']);
             $page = array_merge($page, ['items' => $conn->result2array($result, null, 'image_id')]);
 
             if (count($page['items']) > 0) {
@@ -460,13 +463,15 @@ if (isset($page['chronology_field'])) {
     if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
         if (isset($page['category'])) {
             $calendar->findByConditionAndCategory(
-                \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND', false),
+                (new BaseRepository($conn))->getSQLConditionFandF($app_user, $filter, ['visible_images' => 'id'], 'AND', false),
                 $page['category']['id'],
                 explode(',', $user['forbidden_categories'])
             );
         } else {
             $calendar->findByCondition(
-                \Phyxo\Functions\SQL::get_sql_condition_FandF(
+                (new BaseRepository($conn))->getSQLConditionFandF(
+                    $app_user,
+                    $filter,
                     [
 
                         'forbidden_categories' => 'category_id',

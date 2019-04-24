@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
+
 class CommentRepository extends BaseRepository
 {
     public function count(? bool $validated = null) : int
@@ -233,7 +236,7 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getNewComments(? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getNewComments(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1)';
@@ -255,7 +258,7 @@ class CommentRepository extends BaseRepository
             $query .= ' c.validation_date <= \'' . $this->conn->db_real_escape_string($end) . '\'';
         }
 
-        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND');
+        $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ');
 
         if ($count_only) {
             list($nb_comments) = $this->conn->db_fetch_row($this->conn->db_query($query));

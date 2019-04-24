@@ -11,8 +11,7 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
-
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class TagRepository extends BaseRepository
 {
@@ -103,7 +102,7 @@ class TagRepository extends BaseRepository
      * @param bool $use_permissions
      * @return array
      */
-    public function getImageIdsForTags(array $tag_ids, string $mode = 'AND', ? string $extra_images_where_sql = null, string $order_by = '', bool $use_permissions = true)
+    public function getImageIdsForTags(UserInterface $user, array $filter = [], array $tag_ids, string $mode = 'AND', ? string $extra_images_where_sql = null, string $order_by = '', bool $use_permissions = true)
     {
         if (empty($tag_ids)) {
             return [];
@@ -120,7 +119,9 @@ class TagRepository extends BaseRepository
 
         // need $user
         if ($use_permissions) {
-            $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            $query .= ' ' . $this->getSQLConditionFandF(
+                $user,
+                $filter,
                 [
                     'forbidden_categories' => 'category_id',
                     'visible_categories' => 'category_id',
@@ -171,13 +172,15 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getAvailableTags($user, bool $show_pending_added_tags = false)
+    public function getAvailableTags(UserInterface $user, array $filter = [], bool $show_pending_added_tags = false)
     {
         // we can find top fatter tags among reachable images
         $query = 'SELECT tag_id, validated, status, created_by,';
         $query .= ' COUNT(DISTINCT(it.image_id)) AS counter FROM ' . self::IMAGE_CATEGORY_TABLE . ' ic';
         $query .= ' LEFT JOIN ' . self::IMAGE_TAG_TABLE . ' AS it ON ic.image_id=it.image_id';
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $query .= ' ' . $this->getSQLConditionFandF(
+            $user,
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -185,7 +188,7 @@ class TagRepository extends BaseRepository
             ],
             ' WHERE '
         );
-        $query .= ' AND (' . $this->validatedCondition($user['id'], $show_pending_added_tags) . ')';
+        $query .= ' AND (' . $this->validatedCondition($user->getId(), $show_pending_added_tags) . ')';
         $query .= ' GROUP BY tag_id,validated,created_by,status';
 
         return $this->conn->db_query($query);

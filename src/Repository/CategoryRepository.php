@@ -12,6 +12,7 @@
 namespace App\Repository;
 
 use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 
 class CategoryRepository extends BaseRepository
@@ -77,24 +78,26 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function hasAccessToImage(int $image_id) : bool
+    public function hasAccessToImage(UserInterface $user, array $filter = [], int $image_id) : bool
     {
         $query = 'SELECT id FROM ' . self::CATEGORIES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON category_id = id';
         $query .= ' WHERE image_id = ' . $image_id;
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'], ' AND ');
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'category_id', 'forbidden_images' => 'image_id'], ' AND ');
         $query .= ' LIMIT 1';
 
         return ($this->conn->db_num_rows($this->conn->db_query($query)) >= 1);
     }
 
-    public function findCommentable(int $image_id)
+    public function findCommentable(UserInterface $user, array $filter = [], int $image_id)
     {
         $query = 'SELECT DISTINCT image_id  FROM ' . self::CATEGORIES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON category_id = id';
         $query .= ' WHERE commentable = \'' . $this->conn->boolean_to_db(true) . '\'';
         $query .= ' AND image_id = ' . $image_id;
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $query .= ' ' . $this->getSQLConditionFandF(
+            $user,
+            $filter,
             [
                 'forbidden_categories' => 'id',
                 'visible_categories' => 'id',
@@ -115,12 +118,12 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findRelative(int $image_id)
+    public function findRelative(UserInterface $user, array $filter = [], int $image_id)
     {
         $query = 'SELECT id, name, permalink, uppercats, global_rank, commentable FROM ' . self::CATEGORIES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON category_id = id';
         $query .= ' WHERE image_id = ' . $image_id;
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'category_id'], ' AND ');
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'category_id'], ' AND ');
 
         return $this->conn->db_query($query);
     }
@@ -163,13 +166,13 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findRandomRepresentantAmongSubCategories(int $user_id, string $uppercats)
+    public function findRandomRepresentantAmongSubCategories(UserInterface $user, array $filter = [], string $uppercats)
     {
         $query = 'SELECT representative_picture_id FROM ' . self::CATEGORIES_TABLE;
         $query .= ' INNER JOIN ' . self::USER_CACHE_CATEGORIES_TABLE;
-        $query .= ' ON id = cat_id AND user_id=' . $user_id;
+        $query .= ' ON id = cat_id AND user_id=' . $user->getId();
         $query .= ' WHERE uppercats LIKE \'' . $this->conn->db_real_escape_string($uppercats) . ',%\' AND representative_picture_id IS NOT NULL';
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], ' AND ');
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_categories' => 'id'], ' AND ');
         $query .= ' ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
 
         return $this->conn->db_query($query);
@@ -261,11 +264,11 @@ class CategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findAllowedSubCategories(string $uppercats)
+    public function findAllowedSubCategories(UserInterface $user, array $filter = [], string $uppercats)
     {
         $query = 'SELECT id FROM ' . self::CATEGORIES_TABLE;
         $query .= ' WHERE uppercats LIKE \'' . $this->conn->db_real_escape_string($uppercats) . ',%\'';
-        $query .= ' AND ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id']);
+        $query .= ' AND ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'id', 'visible_categories' => 'id']);
 
         return $this->conn->db_query($query);
     }
@@ -418,7 +421,7 @@ class CategoryRepository extends BaseRepository
     /**
      * Find a random photo among all photos inside an album (including sub-albums)
      */
-    public function getRandomImageInCategory(array $category, bool $recursive = true)
+    public function getRandomImageInCategory(UserInterface $user, array $filter = [], array $category, bool $recursive = true)
     {
         $image_id = null;
         if ($category['count_images'] > 0) {
@@ -429,7 +432,9 @@ class CategoryRepository extends BaseRepository
             } else {
                 $query .= ' c.id=' . $category['id'];
             }
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            $query .= ' ' . $this->getSQLConditionFandF(
+                $user,
+                $filter,
                 [
                     'forbidden_categories' => 'c.id',
                     'visible_categories' => 'c.id',
@@ -447,7 +452,7 @@ class CategoryRepository extends BaseRepository
         return $image_id;
     }
 
-    public function getCategoriesForMenu(User $user, bool $filter_enabled, array $ids_uppercat = [])
+    public function getCategoriesForMenu(UserInterface $user, array $filter = [], array $ids_uppercat = [])
     {
         $query = 'SELECT id, name, permalink, nb_images, global_rank,uppercats,';
         $query .= 'date_last, max_date_last, count_images, count_categories';
@@ -456,14 +461,14 @@ class CategoryRepository extends BaseRepository
         $query .= ' ON id = cat_id and user_id = ' . $user->getId();
         $query .= ' WHERE';
         // Always expand when filter is activated
-        if (!$user->wantExpand() && !$filter_enabled) {
+        if (!$user->wantExpand() && empty($filter['enabled'])) {
             $query .= ' (id_uppercat is NULL';
             if (!empty($ids_uppercat)) {
                 $query .= ' OR id_uppercat ' . $this->conn->in($ids_uppercat);
             }
             $query .= ')';
         } else {
-            $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'id'], null, true);
+            $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_categories' => 'id'], null, true);
         }
 
         return $this->conn->db_query($query);

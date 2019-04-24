@@ -318,6 +318,8 @@ if (isset($_SESSION['bulk_manager_filter']['level'])) {
 if (!empty($_SESSION['bulk_manager_filter']['tags'])) {
     $filter_sets[] = $conn->result2array(
         (new TagRepository($conn))->getImageIdsForTags(
+            $app_user,
+            [],
             $_SESSION['bulk_manager_filter']['tags'],
             $_SESSION['bulk_manager_filter']['tag_mode'],
             null,

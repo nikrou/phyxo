@@ -227,7 +227,7 @@ class DBLayer
     /**
      * Inserts one line in a table.
      */
-    public function single_insert(string $table_name, array $data, $auto_increment_for_table = true): ? int
+    public function single_insert(string $table_name, array $data, $auto_increment_for_table = true): ?int
     {
         if (count($data) != 0) {
             $query = 'INSERT INTO ' . $table_name . ' (' . implode(',', array_keys($data)) . ')';

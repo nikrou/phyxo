@@ -38,7 +38,7 @@ class Image
     {
         global $conn;
 
-        $result = (new CategoryRepository($conn))->findCommentable($params['image_id']);
+        $result = (new CategoryRepository($conn))->findCommentable($service->getUserMapper()->getUser(), [], $params['image_id']);
         if (!$conn->db_num_rows($result)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
         }
@@ -79,9 +79,9 @@ class Image
      */
     public static function getInfo($params, Server $service)
     {
-        global $user, $conf, $conn;
+        global $conf, $conn, $filter;
 
-        $result = (new ImageRepository($conn))->findById($params['image_id'], $visible_images = true);
+        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id'], $visible_images = true);
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
         }
@@ -90,7 +90,7 @@ class Image
         $image_row = array_merge($image_row, \Phyxo\Functions\Ws\Main::stdGetUrls($image_row));
 
         //-------------------------------------------------------- related categories
-        $result = (new CategoryRepository($conn))->findRelative($image_row['id']);
+        $result = (new CategoryRepository($conn))->findRelative($service->getUserMapper()->getUser(), $filter, $image_row['id']);
 
         $is_commentable = false;
         $related_categories = [];
@@ -117,7 +117,7 @@ class Image
         }
 
         //-------------------------------------------------------------- related tags
-        $related_tags = $service->getTagMapper()->getCommonTags($user, [$image_row['id']], -1);
+        $related_tags = $service->getTagMapper()->getCommonTags($service->getUserMapper()->getUser(), [$image_row['id']], -1);
         foreach ($related_tags as $i => $tag) {
             $tag['url'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
             $tag['page_url'] = \Phyxo\Functions\URL::make_picture_url(
@@ -167,7 +167,7 @@ class Image
 
         $comment_post_data = null;
         if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $conf['comments_forall']))) {
-            $comment_post_data['author'] = stripslashes($user['username']);
+            $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
             $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id']);
         }
 
@@ -227,9 +227,9 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        global $conf, $conn;
+        global $conf, $conn, $filter;
 
-        if (!(new ImageRepository($conn))->isImageAuthorized($params['image_id'])) {
+        if (!(new ImageRepository($conn))->isImageAuthorized($service->getUserMapper()->getUser(), $filter, $params['image_id'])) {
             return new Error(404, 'Invalid image_id or access denied');
         }
         $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
@@ -449,12 +449,12 @@ class Image
      */
     public static function addFile($params, Server $service)
     {
-        global $conf, $conn;
+        global $conf, $conn, $filter;
 
         \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
         // what is the path and other infos about the photo?
-        $result = (new ImageRepository($conn))->findById($params['image_id']);
+        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new \Phyxo\Ws\Error(404, "image_id not found");
@@ -526,7 +526,7 @@ class Image
      */
     public static function add($params, Server $service)
     {
-        global $conf, $conn;
+        global $conf, $conn, $filter;
 
         foreach ($params as $param_key => $param_value) {
             \Phyxo\Functions\Ws\Main::logFile(
@@ -609,7 +609,7 @@ class Image
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
 
-                $result = (new CategoryRepository($conn))->findById($category_id);
+                $result = (new CategoryRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $category_id);
                 $category = $conn->db_fetch_assoc($result);
                 $url_params['section'] = 'categories';
                 $url_params['category'] = $category;
@@ -643,14 +643,14 @@ class Image
      */
     public static function addSimple($params, Server $service)
     {
-        global $conn;
+        global $conn, $filter;
 
         if (!isset($_FILES['image'])) {
             return new Error(405, 'The image (file) is missing');
         }
 
         if ($params['image_id'] > 0) {
-            $result = (new ImageRepository($conn))->findById($params['image_id']);
+            $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
             list($count) = $conn->db_fetch_row($result);
             if ($count == 0) {
                 return new Error(404, 'image_id not found');
@@ -728,7 +728,7 @@ class Image
      */
     public static function upload($params, Server $service)
     {
-        global $conf, $conn;
+        global $conf, $conn, $filter;
 
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
@@ -797,7 +797,7 @@ class Image
             );
             $service->getTagMapper()->sync_metadata([$image_id]);
 
-            $result = (new ImageRepository($conn))->findById($image_id);
+            $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $image_id);
             $image_infos = $conn->db_fetch_assoc($result);
 
             $result = (new ImageCategoryRepository($conn))->countByCategory($params['category'][0]);
@@ -891,11 +891,11 @@ class Image
      */
     public static function checkFiles($params, Server $service)
     {
-        global $conn;
+        global $conn, $filter;
 
         \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
 
-        $result = (new ImageRepository($conn))->findById($params['image_id']);
+        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
@@ -1043,9 +1043,9 @@ class Image
      */
     public static function setInfo($params, Server $service)
     {
-        global $conn;
+        global $conn, $filter;
 
-        $result = (new ImageRepository($conn))->findById($params['image_id']);
+        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
 
         if ($conn->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');

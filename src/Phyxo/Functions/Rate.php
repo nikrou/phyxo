@@ -18,12 +18,8 @@ class Rate
 {
     /**
      * Rate a picture by the current user.
-     *
-     * @param int $image_id
-     * @param float $rate
-     * @return array as return by update_rating_score()
      */
-    public static function rate_picture($image_id, $rate)
+    public static function rate_picture(int $image_id, float $rate): array
     {
         global $conf, $user, $conn, $userMapper;
 

@@ -348,7 +348,7 @@ if (count($page['cat_elements_id']) > 0) {
 
 if (count($page['cat_elements_id']) > 0) {
     // remove tags
-    $template->assign('associated_tags', $tagMapper->getCommonTags($user, $page['cat_elements_id'], -1));
+    $template->assign('associated_tags', $tagMapper->getCommonTags($app_user, [], $page['cat_elements_id'], -1));
 }
 
 // creation date

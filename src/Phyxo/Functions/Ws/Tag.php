@@ -42,9 +42,7 @@ class Tag
      */
     public static function getList($params, Server $service)
     {
-        global $user;
-
-        return self::tagsList($service->getTagMapper()->getAvailableTags($user), $params);
+        return self::tagsList($service->getTagMapper()->getAvailableTags($service->getUserMapper->getUser()), $params);
     }
 
     /**
@@ -104,6 +102,8 @@ class Tag
 
         $image_ids = $conn->result2array(
             (new TagRepository($conn))->getImageIdsForTags(
+                $service->getUserMapper()->getUser(),
+                [],
                 $tag_ids,
                 $params['tag_mode_and'] ? 'AND' : 'OR',
                 $where_clauses,

@@ -12,6 +12,7 @@
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
+use App\Repository\BaseRepository;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
@@ -160,7 +161,7 @@ $template->assign(
     ]
 );
 
-$available_tags = $tagMapper->getAvailableTags($user);
+$available_tags = $tagMapper->getAvailableTags($app_user, $filter);
 
 if (count($available_tags) > 0) {
     usort($available_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
@@ -171,7 +172,7 @@ if (count($available_tags) > 0) {
 // authors
 $authors = [];
 $author_counts = [];
-$result = (new ImageRepository($conn))->findGroupByAuthor();
+$result = (new ImageRepository($conn))->findGroupByAuthor($app_user, $filter);
 while ($row = $conn->db_fetch_assoc($result)) {
     if (!isset($author_counts[$row['author']])) {
         $author_counts[$row['author']] = 0;
@@ -191,14 +192,15 @@ $template->assign('AUTHORS', $authors);
 
 //------------------------------------------------------------- categories form
 $where = [];
-if ($filter_condition = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+$where[] = (new BaseRepository($conn))->getSQLConditionFandF(
+    $app_user,
+    $filter,
     [
         'forbidden_categories' => 'id',
         'visible_categories' => 'id'
     ]
-)) {
-    $where[] = $filter_condition;
-}
+);
+
 $result = (new CategoryRepository($conn))->findWithCondition($where);
 $categories = $conn->result2array($result);
 \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_options', true);

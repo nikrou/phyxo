@@ -59,7 +59,7 @@ foreach (['cloud', 'letters'] as $mode) {
 $template->assign('display_mode', $page['display_mode']);
 
 // find all tags available for the current user
-$tags = $tagMapper->getAvailableTags($user);
+$tags = $tagMapper->getAvailableTags($app_user, $filter);
 
 // +-----------------------------------------------------------------------+
 // |                       letter groups construction                      |

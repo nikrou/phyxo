@@ -17,16 +17,18 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper;
+    private $conn, $conf, $userMapper, $authorizationChecker;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function getUser()
@@ -99,7 +101,7 @@ class CommentMapper
         }
 
         // display author field if the user status is guest or generic
-        if (!$this->autorizationChecker->isGranted('ROLE_USER')) {
+        if (!$this->authorizationChecker->isGranted('ROLE_USER')) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
                     $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
@@ -167,7 +169,7 @@ class CommentMapper
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 and !$this->autorizationChecker->isGranted('ROLE_ADMIN')) { // anti-flood system
+        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->authorizationChecker->isGranted('ROLE_ADMIN')) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
             $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
                 $comm['author_id'],

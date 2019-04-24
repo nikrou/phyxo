@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
+
 class FavoriteRepository extends BaseRepository
 {
     public function findAll(int $user_id)
@@ -70,12 +73,12 @@ class FavoriteRepository extends BaseRepository
         return ($row['nb_fav'] != 0);
     }
 
-    public function findAuthorizedImagesInFavorite(int $user_id)
+    public function findAuthorizedImagesInFavorite(UserInterface $user, array $filter = [])
     {
         $query = 'SELECT DISTINCT f.image_id FROM ' . self::FAVORITES_TABLE . ' AS f';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON f.image_id = ic.image_id';
-        $query .= ' WHERE f.user_id = ' . $user_id;
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'ic.category_id'], ' AND ');
+        $query .= ' WHERE f.user_id = ' . $user->getId();
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'ic.category_id'], ' AND ');
 
         return $this->conn->db_query($query);
     }
@@ -83,20 +86,20 @@ class FavoriteRepository extends BaseRepository
     /**
      * Deletes favorites of the current user if he's not allowed to see them.
      */
-    public function deleteUnauthorizedImagesFromFavorites(int $user_id)
+    public function deleteUnauthorizedImagesFromFavorites(UserInterface $user, array $filter = [])
     {
         // $filter['visible_categories'] and $filter['visible_images']
         // must be not used because filter <> restriction
         // retrieving images allowed : belonging to at least one authorized category
-        $result = $this->findAuthorizedImagesInFavorite($user_id);
+        $result = $this->findAuthorizedImagesInFavorite($user, $filter);
         $authorizeds = $this->conn->result2array($result, null, 'image_id');
 
-        $result = $this->findAll($user_id);
+        $result = $this->findAll($user->getId());
         $favorites = $this->conn->result2array($result, null, 'image_id');
 
         $to_deletes = array_diff($favorites, $authorizeds);
         if (count($to_deletes) > 0) {
-            (new FavoriteRepository($this->conn))->deleteImagesFromFavorite($to_deletes, $user_id);
+            (new FavoriteRepository($this->conn))->deleteImagesFromFavorite($to_deletes, $user->getId());
         }
     }
 }

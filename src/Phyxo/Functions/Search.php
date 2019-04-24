@@ -22,6 +22,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
+use App\Repository\BaseRepository;
 
 class Search
 {
@@ -160,9 +161,11 @@ class Search
      */
     public static function get_regular_search_results($search, $images_where = '')
     {
-        global $conf, $conn;
+        global $conf, $conn, $app_user, $filter;
 
-        $forbidden = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $forbidden = (new BaseRepository($conn))->getSQLConditionFandF(
+            $app_user,
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -176,6 +179,8 @@ class Search
         if (isset($search['fields']['tags'])) {
             $tag_items = $conn->result2array(
                 (new TagRepository($conn))->getImageIdsForTags(
+                    $app_user,
+                    $filter,
                     $search['fields']['tags']['words'],
                     $search['fields']['tags']['mode']
                 ),
@@ -478,7 +483,7 @@ class Search
      */
     public static function get_quick_search_results_no_cache($q, $options)
     {
-        global $conf, $template, $conn, $userMapper;
+        global $conf, $template, $conn, $userMapper, $filter;
 
         $q = trim(stripslashes($q));
         $search_results = [
@@ -575,7 +580,9 @@ class Search
             $where_clauses[] = '(' . $options['images_where'] . ')';
         }
         if ($permissions) {
-            $where_clauses[] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+            $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
+                $userMapper->getUser(),
+                $filter,
                 [
                     'forbidden_categories' => 'category_id',
                     'forbidden_images' => 'i.id'

@@ -12,6 +12,7 @@
 use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
+use App\Repository\BaseRepository;
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
@@ -155,7 +156,9 @@ if (!$userMapper->isAdmin()) {
     $page['where_clauses'][] = 'validated = \'' . $conn->boolean_to_db(true) . '\'';
 }
 
-$page['where_clauses'][] = \Phyxo\Functions\SQL::get_sql_condition_FandF(
+$page['where_clauses'][] = (new BaseRepository($conn))->getSQLConditionFandF(
+    $app_user,
+    $filter,
     [
         'forbidden_categories' => 'category_id',
         'visible_categories' => 'category_id',
@@ -258,7 +261,7 @@ $template->assign(
 $blockname = 'categories';
 
 $result = (new CategoryRepository($conn))->findWithCondition(
-    [\Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
+    [(new BaseRepository($conn))->getSQLConditionFandF($app_user, $filter, ['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
 );
 $categories = $conn->result2array($result);
 \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [@$_GET['cat']], $blockname, true);

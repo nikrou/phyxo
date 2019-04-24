@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
+
 class ImageCategoryRepository extends BaseRepository
 {
     public function count() : int
@@ -80,13 +83,13 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function dateOfCategories(array $category_ids)
+    public function dateOfCategories(UserInterface $user, array $filter = [], array $category_ids)
     {
         $query = 'SELECT category_id, MIN(date_creation) AS _from,';
         $query .= ' MAX(date_creation) AS _to FROM ' . self::IMAGE_CATEGORY_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' ON image_id = id';
         $query .= ' WHERE category_id ' . $this->conn->in($category_ids);
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_categories' => 'category_id', 'visible_images' => 'id'], 'AND');
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_categories' => 'category_id', 'visible_images' => 'id'], ' AND ');
         $query .= ' GROUP BY category_id';
 
         return $this->conn->db_query($query);
@@ -109,11 +112,13 @@ class ImageCategoryRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function countAvailableComments(bool $isAdmin = false)
+    public function countAvailableComments(UserInterface $user, array $filter = [], bool $isAdmin = false)
     {
         $query = 'SELECT COUNT(DISTINCT(com.id)) FROM ' . self::IMAGE_CATEGORY_TABLE . ' AS ic';
         $query .= ' LEFT JOIN ' . self::COMMENTS_TABLE . ' AS com ON ic.image_id = com.image_id';
-        $query .= ' WHERE ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $query .= ' WHERE ' . $this->getSQLConditionFandF(
+            $user,
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'forbidden_images' => 'ic.image_id'
@@ -131,12 +136,12 @@ class ImageCategoryRepository extends BaseRepository
         return $nb_available_comments;
     }
 
-    public function getRelatedCategory(int $image_id)
+    public function getRelatedCategory(UserInterface $user, array $filter = [], int $image_id)
     {
         $query = 'SELECT id,uppercats,commentable,visible,status,global_rank  FROM ' . self::IMAGE_CATEGORY_TABLE;
         $query .= ' LEFT JOIN ' . self::CATEGORIES_TABLE . ' ON category_id = id';
         $query .= ' WHERE image_id = ' . $image_id;
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['forbidden_categories' => 'id', 'visible_categories' => 'id'], ' AND ');
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['forbidden_categories' => 'id', 'visible_categories' => 'id'], ' AND ');
 
         return $this->conn->db_query($query);
     }

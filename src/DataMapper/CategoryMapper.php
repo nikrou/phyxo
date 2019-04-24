@@ -16,7 +16,7 @@ use Phyxo\Functions\Category;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
-use App\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class CategoryMapper
 {
@@ -33,9 +33,9 @@ class CategoryMapper
      * Returns template vars for main categories menu.
      *
      */
-    public function getRecursiveCategoriesMenu(User $user, bool $filter_enabled = false, array $selected_category = []): array
+    public function getRecursiveCategoriesMenu(UserInterface $user, array $filter = [], array $selected_category = []): array
     {
-        $flat_categories = $this->getCategoriesMenu($user, $filter_enabled, $selected_category);
+        $flat_categories = $this->getCategoriesMenu($user, $filter, $selected_category);
 
         $categories = [];
         foreach ($flat_categories as $category) {
@@ -67,11 +67,11 @@ class CategoryMapper
      * Returns template vars for main categories menu.
      *
      */
-    protected function getCategoriesMenu(User $user, bool $filter_enabled = false, array $selected_category = []): array
+    protected function getCategoriesMenu(UserInterface $user, array $filter = [], array $selected_category = []): array
     {
         $result = $this->em->getRepository(CategoryRepository::class)->getCategoriesForMenu(
             $user,
-            $filter_enabled,
+            $filter,
             isset($selected_category['uppercats']) ? explode(',', $selected_category['uppercats']) : []
         );
 

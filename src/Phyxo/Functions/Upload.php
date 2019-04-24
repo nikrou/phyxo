@@ -125,7 +125,7 @@ class Upload
         return false;
     }
 
-    public static function add_uploaded_file($source_filepath, $original_filename = null, $categories = null, $level = null, $image_id = null, $original_md5sum = null)
+    public static function add_uploaded_file($source_filepath, $original_filename = null, $categories = null, $level = null, $image_id = null, $original_md5sum = null): int
     {
         global $conn, $conf, $user;
 
@@ -381,7 +381,7 @@ class Upload
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
         // cache thumbnail
-        $result = (new ImageRepository($conn))->findByField('id', $image_id);
+        $result = (new ImageRepository($conn))->findByField('id', (string) $image_id);
         $image_infos = $conn->db_fetch_assoc($result);
 
         \Phyxo\Functions\URL::set_make_full_url();

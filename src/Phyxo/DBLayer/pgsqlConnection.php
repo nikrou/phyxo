@@ -313,7 +313,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return $d;
     }
 
-    function db_get_flood_period_expression($seconds)
+    function db_get_flood_period_expression($seconds): string
     {
         return '(now() - \'' . $seconds . ' SECOND\'::interval)::timestamp';
     }

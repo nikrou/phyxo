@@ -39,7 +39,7 @@ class Notification
      */
     public function nb_new_comments($start = null, $end = null)
     {
-        return (new CommentRepository($this->conn))->getNewComments($start, $end, $count_only = true);
+        return (new CommentRepository($this->conn))->getNewComments($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -51,7 +51,7 @@ class Notification
      */
     public function new_comments($start = null, $end = null)
     {
-        return (new CommentRepository($this->conn))->getNewComments($start, $end);
+        return (new CommentRepository($this->conn))->getNewComments($this->userMapper->getUser(), [], $start, $end);
     }
 
     /**
@@ -75,7 +75,7 @@ class Notification
      */
     public function nb_new_elements($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getNewElements($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getNewElements($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -87,7 +87,7 @@ class Notification
      */
     public function new_elements($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getNewElements($start, $end);
+        return (new ImageRepository($this->conn))->getNewElements($this->userMapper()->getUser(), [], $start, $end);
     }
 
     /**
@@ -99,7 +99,7 @@ class Notification
      */
     public function nb_updated_categories($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getUpdatedCategories($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -111,7 +111,7 @@ class Notification
      */
     public function updated_categories($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getUpdatedCategories($start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -260,7 +260,7 @@ class Notification
      */
     public function get_recent_post_dates($max_dates, $max_elements, $max_cats)
     {
-        $where_sql = \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('WHERE', 'i.id', true);
+        $where_sql = (new BaseRepository($this->conn))->getStandardSQLWhereRestrictFilter($this->userMapper->getUser(), [], 'WHERE', 'i.id', true);
 
         $result = (new ImageRepository($this->conn))->getRecentPostedImages($where_sql, $max_dates);
         $dates = $this->conn->result2array($result);

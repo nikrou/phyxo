@@ -11,6 +11,9 @@
 
 namespace App\Repository;
 
+use Symfony\Component\Security\Core\User\UserInterface;
+
+
 class ImageRepository extends BaseRepository
 {
     public function count() : int
@@ -22,7 +25,7 @@ class ImageRepository extends BaseRepository
         return $nb_images;
     }
 
-    public function addImage(array $datas)
+    public function addImage(array $datas): int
     {
         return $this->conn->single_insert(self::IMAGES_TABLE, $datas);
     }
@@ -41,11 +44,13 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findGroupByAuthor()
+    public function findGroupByAuthor(UserInterface $user, array $filter = [])
     {
         $query = 'SELECT author, id FROM ' . self::IMAGES_TABLE . ' AS i';
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON ic.image_id = i.id';
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $query .= ' ' . $this->getSQLConditionFandF(
+            $user,
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -60,7 +65,7 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findById(int $image_id, ? bool $visible_images = null)
+    public function findById(UserInterface $user, array $filter = [], int $image_id, ? bool $visible_images = null)
     {
         $query = 'SELECT id, file, date_available, date_creation, name, comment, author, hit, filesize,';
         $query .= ' width, height, coi, representative_ext, date_metadata_update, rating_score, path,';
@@ -69,7 +74,7 @@ class ImageRepository extends BaseRepository
         $query .= ' WHERE id =' . $image_id;
 
         if (!is_null($visible_images)) {
-            $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], ' AND ');
+            $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_images' => 'id'], ' AND ');
         }
 
         return $this->conn->db_query($query);
@@ -249,12 +254,14 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function isImageAuthorized(int $image_id) : bool
+    public function isImageAuthorized(UserInterface $user, array $filter = [], int $image_id) : bool
     {
         $query = 'SELECT DISTINCT id FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
         $query .= ' WHERE id=' . $image_id;
-        $query .= \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $query .= ' ' . $this->getSQLConditionFandF(
+            $user,
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'forbidden_images' => 'id',
@@ -513,7 +520,7 @@ class ImageRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getNewElements(? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getNewElements(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1) ';
@@ -535,7 +542,7 @@ class ImageRepository extends BaseRepository
             $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
         }
 
-        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
+        $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ', 'id');
 
         if ($count_only) {
             list($nb_images) = $this->conn->db_fetch_row($this->conn->db_query($query));
@@ -546,7 +553,7 @@ class ImageRepository extends BaseRepository
         }
     }
 
-    public function getUpdatedCategories(? string $start = null, ? string $end = null, bool $count_only = false)
+    public function getUpdatedCategories(UserInterface $user, array $filter = [], ? string $start = null, ? string $end = null, bool $count_only = false)
     {
         if ($count_only) {
             $query = 'SELECT count(1) ';
@@ -568,7 +575,7 @@ class ImageRepository extends BaseRepository
             $query .= ' date_available <= \'' . $this->conn->db_real_escape_string($end) . '\'';
         }
 
-        $query .= \Phyxo\Functions\SQL::get_std_sql_where_restrict_filter('AND', 'id');
+        $query .= ' ' . $this->getStandardSQLWhereRestrictFilter($user, $filter, ' AND ', 'id');
 
         if ($count_only) {
             list($nb_categories) = $this->conn->db_fetch_row($this->conn->db_query($query));
@@ -587,12 +594,12 @@ class ImageRepository extends BaseRepository
         $this->conn->db_query($query);
     }
 
-    public function getFavorites(int $user_id, string $order_by)
+    public function getFavorites(UserInterface $user, array $filter = [], string $order_by)
     {
         $query = 'SELECT image_id FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::FAVORITES_TABLE . ' ON image_id = id';
-        $query .= ' WHERE user_id = ' . $user_id;
-        $query .= ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(['visible_images' => 'id'], 'AND');
+        $query .= ' WHERE user_id = ' . $user->getId();
+        $query .= ' ' . $this->getSQLConditionFandF($user, $filter, ['visible_images' => 'id'], 'AND');
         $query .= ' ' . $order_by;
 
         return $this->conn->db_query($query);
@@ -711,7 +718,7 @@ class ImageRepository extends BaseRepository
                 $sub_queries[] = $this->conn->db_cast_to_text($calendar_levels[$i]['sql']);
             }
         }
-    
+
         $query = 'SELECT ' . $this->conn->db_concat_ws($sub_queries, '-') . ' AS period';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
@@ -720,7 +727,7 @@ class ImageRepository extends BaseRepository
             $query .= ' category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' AND ' . $date_field . ' IS NOT NULL GROUP BY period';
-    
+
         return $this->conn->db_query($query);
     }
 
@@ -749,10 +756,10 @@ class ImageRepository extends BaseRepository
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period';
         $query .= ' ORDER BY period ASC';
-    
+
         return $this->conn->db_query($query);
     }
-    
+
     // calendar query
     public function findDayOfMonthPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
     {
@@ -781,10 +788,10 @@ class ImageRepository extends BaseRepository
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period';
         $query .= ' ORDER BY period ASC';
-    
+
         return $this->conn->db_query($query);
     }
-    
+
     // calendar query
     public function findYYYYMMPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
     {
@@ -802,7 +809,7 @@ class ImageRepository extends BaseRepository
 
         return $this->conn->db_query($query);
     }
-    
+
     // calendar query
     public function findMMDDPeriodAndImagesCountByIds(string $date_field, string $date_where = '', array $ids)
     {
@@ -813,10 +820,10 @@ class ImageRepository extends BaseRepository
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period';
         $query .= ' ORDER BY period ASC';
-    
+
         return $this->conn->db_query($query);
     }
-    
+
     // calendar query
     public function findMMDDPeriodAndImagesCount(string $date_field, string $date_where = '', string $condition, array $category_ids = [])
     {
@@ -861,10 +868,10 @@ class ImageRepository extends BaseRepository
         }
         $query .= ' ' . $date_where;
         $query .= 'ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
-    
+
         return $this->conn->db_query($query);
     }
-    
+
     public function deleteByElementIds(array $ids)
     {
         $query = 'DELETE FROM ' . self::IMAGES_TABLE;

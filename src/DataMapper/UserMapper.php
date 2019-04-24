@@ -36,15 +36,16 @@ use App\Utils\DataTransformer;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer;
+    private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper;
 
-    public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer)
+    public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer, CategoryMapper $categoryMapper)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->security = $security;
         $this->autorizationChecker = $autorizationChecker;
         $this->dataTransformer = $dataTransformer;
+        $this->categoryMapper = $categoryMapper;
     }
 
     public function getUser()
@@ -604,7 +605,8 @@ class UserMapper
      */
     public function getNumberAvailableComments(): int
     {
-        $number_of_available_comments = $this->em->getRepository(ImageCategoryRepository::class)->countAvailableComments($this->isAdmin());
+        $filter = [];
+        $number_of_available_comments = $this->em->getRepository(ImageCategoryRepository::class)->countAvailableComments($this->getUser(), $filter, $this->isAdmin());
 
         $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
             ['nb_available_comments' => $number_of_available_comments],

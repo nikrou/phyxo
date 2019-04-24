@@ -342,7 +342,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
         return $d;
     }
 
-    public function db_get_flood_period_expression($seconds)
+    public function db_get_flood_period_expression($seconds): string
     {
         return 'date(' . $seconds . ',\'' . -$seconds . ' SECOND\')';
     }

@@ -13,21 +13,22 @@ namespace App\DataMapper;
 
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Functions\Plugin;
-use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
 use Phyxo\Functions\Metadata;
 use App\Repository\ImageRepository;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Phyxo\EntityManager;
 
 class TagMapper
 {
-    private $conn, $conf;
+    private $em, $conf;
 
-    public function __construct(iDBLayer $conn, Conf $conf)
+    public function __construct(EntityManager $em, Conf $conf)
     {
-        $this->conn = $conn;
+        $this->em = $em;
         $this->conf = $conf;
     }
 
@@ -40,9 +41,9 @@ class TagMapper
      */
     public function getAllTags(string $q = '')
     {
-        $result = (new TagRepository($this->conn))->findAll($q);
+        $result = $this->em->getRepository(TagRepository::class)->findAll($q);
         $tags = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
@@ -54,9 +55,9 @@ class TagMapper
 
     public function getPendingTags()
     {
-        $result = (new TagRepository($this->conn))->getPendingTags();
+        $result = $this->em->getRepository(TagRepository::class)->getPendingTags();
         $tags = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $row['thumb_src'] = DerivativeImage::thumb_url(['id' => $row['image_id'], 'path' => $row['path']]);
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
@@ -73,17 +74,17 @@ class TagMapper
      *
      * @return int
      */
-    public function getNbAvailableTags($user)
+    public function getNbAvailableTags(UserInterface $user, array $filter = [])
     {
-        if (!isset($user['nb_available_tags'])) {
-            $user['nb_available_tags'] = count($this->getAvailableTags($user));
-            (new UserCacheRepository($this->conn))->updateUserCache(
-                ['nb_available_tags' => $user['nb_available_tags']],
-                ['user_id' => $user['id']]
+        if ($user->getNbAvailableTags()) {
+            $user->setNbAvailableTags(count($this->getAvailableTags($user, $filter)));
+            $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
+                ['nb_available_tags' => $user->getNbAvailableTags()],
+                ['user_id' => $user->getId()]
             );
         }
 
-        return $user['nb_available_tags'];
+        return $user->getNbAvailableTags();
     }
 
     /**
@@ -93,13 +94,13 @@ class TagMapper
      *
      * @return array [id, name, counter, url_name]
      */
-    public function getAvailableTags($user)
+    public function getAvailableTags(UserInterface $user, array $filter = [])
     {
-        $result = (new TagRepository($this->conn))->getAvailableTags($user, $this->conf['show_pending_added_tags'] ?? false);
+        $result = $this->em->getRepository(TagRepository::class)->getAvailableTags($user, $filter, $this->conf['show_pending_added_tags'] ?? false);
 
         // merge tags whether they are validated or not
         $tag_counters = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             if (!isset($tag_counters[$row['tag_id']])) {
                 $tag_counters[$row['tag_id']] = $row;
             } else {
@@ -111,16 +112,16 @@ class TagMapper
             return [];
         }
 
-        $result = (new TagRepository($this->conn))->findAll();
+        $result = $this->em->getRepository(TagRepository::class)->findAll();
 
         $tags = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             if (!empty($tag_counters[$row['id']])) {
                 $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
                 $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
                 $row['status'] = $tag_counters[$row['id']]['status'];
                 $row['created_by'] = $tag_counters[$row['id']]['created_by'];
-                $row['validated'] = $this->conn->get_boolean($tag_counters[$row['id']]['validated']);
+                $row['validated'] = $this->em->getConnection()->get_boolean($tag_counters[$row['id']]['validated']);
                 $tags[] = $row;
             }
         }
@@ -128,17 +129,17 @@ class TagMapper
         return $tags;
     }
 
-    public function getCommonTags($user, $items, $max_tags, $excluded_tag_ids = [])
+    public function getCommonTags(UserInterface $user, $items, $max_tags, $excluded_tag_ids = [])
     {
         if (empty($items)) {
             return [];
         }
 
-        $result = (new TagRepository($this->conn))->getCommonTags($user['id'], $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
+        $result = $this->em->getRepository(TagRepository::class)->getCommonTags($user->getId(), $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
         $tags = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
-            $row['validated'] = $this->conn->get_boolean($row['validated']);
+            $row['validated'] = $this->em->getConnection()->get_boolean($row['validated']);
             $tags[] = $row;
         }
         usort($tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
@@ -228,17 +229,17 @@ class TagMapper
         $tag_name = trim($tag_name);
 
         // search existing by exact name
-        $result = (new TagRepository($this->conn))->findBy('name', $tag_name);
-        $existing_tags = $this->conn->result2array($result, null, 'id');
+        $result = $this->em->getRepository(TagRepository::class)->findBy('name', $tag_name);
+        $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
 
         if (count($existing_tags) === 0) {
             $url_name = Plugin::trigger_change('render_tag_url', $tag_name);
             // search existing by url name
-            $result = (new TagRepository($this->conn))->findBy('url_name', $url_name);
-            $existing_tags = $this->conn->result2array($result, null, 'id');
+            $result = $this->em->getRepository(TagRepository::class)->findBy('url_name', $url_name);
+            $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
 
             if (count($existing_tags) === 0) { // finally create the tag
-                $insert_tag_id = (new TagRepository($this->conn))->insertTag($tag_name, $url_name);
+                $insert_tag_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, $url_name);
 
                 \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
 
@@ -260,7 +261,7 @@ class TagMapper
 
         // we can't insert twice the same {image_id,tag_id} so we must first
         // delete lines we'll insert later
-        (new TagRepository($this->conn))->deleteByImagesAndTags($images, $tags);
+        $this->em->getRepository(TagRepository::class)->deleteByImagesAndTags($images, $tags);
 
         $inserts = [];
         foreach ($images as $image_id) {
@@ -271,7 +272,7 @@ class TagMapper
                 ];
             }
         }
-        (new ImageTagRepository($this->conn))->insertImageTags(
+        $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
             array_keys($inserts[0]),
             $inserts
         );
@@ -297,8 +298,8 @@ class TagMapper
      */
     public function deleteTags(array $tag_ids)
     {
-        (new ImageTagRepository($this->conn))->deleteBy('tag_id', $tag_ids);
-        (new TagRepository($this->conn))->deleteBy('id', $tag_ids);
+        $this->em->getRepository(ImageTagRepository::class)->deleteBy('tag_id', $tag_ids);
+        $this->em->getRepository(TagRepository::class)->deleteBy('id', $tag_ids);
 
         \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
@@ -311,7 +312,7 @@ class TagMapper
     public function setTagsOf(array $tags_of)
     {
         if (count($tags_of) > 0) {
-            (new ImageTagRepository($this->conn))->deleteBy('image_id', array_keys($tags_of));
+            $this->em->getRepository(ImageTagRepository::class)->deleteBy('image_id', array_keys($tags_of));
 
             $inserts = [];
 
@@ -325,7 +326,7 @@ class TagMapper
             }
 
             if (count($inserts)) {
-                (new ImageTagRepository($this->conn))->insertImageTags(
+                $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
                     array_keys($inserts[0]),
                     $inserts
                 );
@@ -340,8 +341,8 @@ class TagMapper
      */
     public function deleteOrphanTags()
     {
-        $result = (new TagRepository($this->conn))->getOrphanTags();
-        $orphan_tags = $this->conn->result2array($result);
+        $result = $this->em->getRepository(TagRepository::class)->getOrphanTags();
+        $orphan_tags = $this->em->getConnection()->result2array($result);
 
         if (count($orphan_tags) > 0) {
             $orphan_tag_ids = [];
@@ -362,11 +363,11 @@ class TagMapper
     public function createTag(string $tag_name) : array
     {
         // does the tag already exists?
-        $result = (new TagRepository($this->conn))->findBy('name', $tag_name);
-        $existing_tags = $this->conn->result2array($result, null, 'id');
+        $result = $this->em->getRepository(TagRepository::class)->findBy('name', $tag_name);
+        $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
 
         if (count($existing_tags) === 0) {
-            $inserted_id = (new TagRepository($this->conn))->insertTag($tag_name, Plugin::trigger_change('render_tag_url', $tag_name));
+            $inserted_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, Plugin::trigger_change('render_tag_url', $tag_name));
 
             return [
                 'info' => \Phyxo\Functions\Language::l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
@@ -390,7 +391,7 @@ class TagMapper
                 'tag_id' => $tag_id
             ];
         }
-        (new ImageTagRepository($this->conn))->insertImageTags(
+        $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
             array_keys($inserts[0]),
             $inserts
         );
@@ -412,7 +413,7 @@ class TagMapper
                 ];
             }
         }
-        (new ImageTagRepository($this->conn))->deleteImageTags($deletes);
+        $this->em->getRepository(ImageTagRepository::class)->deleteImageTags($deletes);
     }
 
     // @param $elements in an array of tags indexed by image_id
@@ -427,18 +428,18 @@ class TagMapper
                 $updates[] = [
                     'image_id' => $image_id,
                     'tag_id' => $tag_id,
-                    'validated' => $this->conn->boolean_to_db(true)
+                    'validated' => $this->em->getConnection()->boolean_to_db(true)
                 ];
             }
         }
-        (new ImageTagRepository($this->conn))->updateImageTags(
+        $this->em->getRepository(ImageTagRepository::class)->updateImageTags(
             [
                 'primary' => ['tag_id', 'image_id'],
                 'update' => ['validated']
             ],
             $updates
         );
-        (new TagRepository($this->conn))->deleteValidated();
+        $this->em->getRepository(TagRepository::class)->deleteValidated();
         \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
     }
 
@@ -448,7 +449,7 @@ class TagMapper
             return;
         }
 
-        (new TagRepository($this->conn))->deleteByImageAndTags($image_id, $tag_ids);
+        $this->em->getRepository(TagRepository::class)->deleteByImageAndTags($image_id, $tag_ids);
     }
 
     /**
@@ -475,12 +476,12 @@ class TagMapper
 
         if (count($rows) > 0) {
             if ($infos['status'] === 1) {
-                (new ImageTagRepository($this->conn))->insertImageTags(
+                $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
                     array_keys($rows[0]),
                     $rows
                 );
             } else {
-                (new ImageTagRepository($this->conn))->updateImageTags(
+                $this->em->getRepository(ImageTagRepository::class)->updateImageTags(
                     [
                         'primary' => ['tag_id', 'image_id'],
                         'update' => ['status', 'validated', 'created_by']
@@ -503,8 +504,8 @@ class TagMapper
 
         $datas = [];
         $tags_of = [];
-        $result = (new ImageRepository($this->conn))->findByIds($ids);
-        while ($data = $this->conn->db_fetch_assoc($result)) {
+        $result = $this->em->getRepository(ImageRepository::class)->findByIds($ids);
+        while ($data = $this->em->getConnection()->db_fetch_assoc($result)) {
             $data = Metadata::get_sync_metadata($data);
             if ($data === false) {
                 continue;
@@ -537,7 +538,7 @@ class TagMapper
                 ['tags', 'keywords']
             );
 
-            (new ImageRepository($this->conn))->massUpdates(
+            $this->em->getRepository(ImageRepository::class)->massUpdates(
                 [
                     'primary' => ['id'],
                     'update' => $update_fields

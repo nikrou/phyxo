@@ -77,7 +77,7 @@ $dbnow = (new BaseRepository($conn))->getNow();
 
 $rss = new UniversalFeedCreator();
 $rss->title = $conf['gallery_title'];
-$rss->title .= ' (as ' . stripslashes($user['username']) . ')';
+$rss->title .= ' (as ' . stripslashes($app_user->getUsername()) . ')';
 
 $rss->link = \Phyxo\Functions\URL::get_gallery_home_url();
 

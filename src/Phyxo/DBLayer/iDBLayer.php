@@ -294,7 +294,7 @@ interface iDBLayer
 
     public function db_get_recent_period_expression($period, $date = 'CURRENT_DATE');
 
-    public function db_get_flood_period_expression($seconds);
+    public function db_get_flood_period_expression($seconds): string;
 
     public function db_date_to_ts($date);
 
@@ -371,7 +371,7 @@ interface iDBLayer
      * @param string $table_name
      * @param array $data
      */
-    public function single_insert(string $table_name, array $data);
+    public function single_insert(string $table_name, array $data): ?int;
 
     /**
      * updates multiple lines in a table

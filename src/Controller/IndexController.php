@@ -14,6 +14,7 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use App\Repository\BaseRepository;
 
 class IndexController extends BaseController
 {
@@ -132,7 +133,9 @@ class IndexController extends BaseController
         chdir(dirname($legacy_file));
         require $legacy_file;
 
-        $where_sql = ' ' . \Phyxo\Functions\SQL::get_sql_condition_FandF(
+        $where_sql = ' ' . (new BaseRepository($conn))->getSQLConditionFandF(
+            $this->getUser(),
+            $filter,
             [
                 'forbidden_categories' => 'category_id',
                 'visible_categories' => 'category_id',
@@ -153,7 +156,7 @@ class IndexController extends BaseController
     public function randomList(string $legacyBaseDir, Request $request, $list, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;
-        
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
