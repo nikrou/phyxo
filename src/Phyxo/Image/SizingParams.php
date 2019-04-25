@@ -49,7 +49,7 @@ class SizingParams
      */
     public static function classic($w, $h)
     {
-        return new SizingParams(array($w, $h));
+        return new SizingParams([$w, $h]);
     }
 
     /**
@@ -60,7 +60,7 @@ class SizingParams
      */
     public static function square($w)
     {
-        return new SizingParams(array($w, $w), 1, array($w, $w));
+        return new SizingParams([$w, $w], 1, [$w, $w]);
     }
 
     /**
@@ -115,7 +115,7 @@ class SizingParams
             }
         }
 
-        $scale_size = array($destCrop->width(), $destCrop->height());
+        $scale_size = [$destCrop->width(), $destCrop->height()];
 
         $ratio_w = $destCrop->width() / $this->ideal_size[0];
         $ratio_h = $destCrop->height() / $this->ideal_size[1];

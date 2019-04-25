@@ -14,6 +14,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\BaseRepository;
+use Phyxo\Image\ImageStdParams;
 
 /**
  * This file is included by the main page to show subcategories of a category
@@ -228,7 +229,7 @@ if (count($categories) > 0) {
         $conf['nb_categories_page']
     );
 
-    $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
+    $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB));
     $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
     $template->assign([
         'maxRequests' => $conf['max_requests'],

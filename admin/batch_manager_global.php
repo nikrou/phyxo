@@ -25,6 +25,7 @@ use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use Phyxo\Image\ImageStdParams;
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_global');
 
@@ -374,7 +375,7 @@ foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     $del_deriv_map[$params->type] = \Phyxo\Functions\Language::l10n($params->type);
 }
 $gen_deriv_map = $del_deriv_map;
-$del_deriv_map[IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(IMG_CUSTOM);
+$del_deriv_map[ImageStdParams::IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(ImageStdParams::IMG_CUSTOM);
 $template->assign(
     [
         'del_derivatives_types' => $del_deriv_map,
@@ -432,7 +433,7 @@ if (count($page['cat_elements_id']) > 0) {
         $page['nb_images'],
         $page['start']
     );
-    $thumb_params = \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB);
+    $thumb_params = \Phyxo\Image\ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB);
     // template thumbnail initialization
     while ($row = $conn->db_fetch_assoc($result)) {
         $nb_thumbs_page++;
@@ -450,7 +451,7 @@ if (count($page['cat_elements_id']) > 0) {
                 [
                     'thumb' => new \Phyxo\Image\DerivativeImage($thumb_params, $src_image),
                     'TITLE' => $ttitle,
-                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
+                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $src_image),
                     'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
                 ]
             )

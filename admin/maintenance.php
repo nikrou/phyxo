@@ -14,6 +14,7 @@ use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
+use Phyxo\Image\ImageStdParams;
 
 if (isset($_GET['action'])) {
     \Phyxo\Functions\Utils::check_token();
@@ -127,7 +128,7 @@ $purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'deri
 foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     $purge_urls[\Phyxo\Functions\Language::l10n($params->type)] = sprintf($url_format, 'derivatives') . '&amp;type=' . $params->type;
 }
-$purge_urls[\Phyxo\Functions\Language::l10n(IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . IMG_CUSTOM;
+$purge_urls[\Phyxo\Functions\Language::l10n(ImageStdParams::IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . ImageStdParams::IMG_CUSTOM;
 
 $template->assign(
     [

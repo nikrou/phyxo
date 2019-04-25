@@ -13,6 +13,7 @@ use App\Repository\CommentRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\BaseRepository;
+use Phyxo\Image\ImageStdParams;
 
 // +-----------------------------------------------------------------------+
 // |                           initialization                              |
@@ -430,7 +431,7 @@ if (count($comments) > 0) {
     }
 }
 
-$derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', \Phyxo\Image\ImageStdParams::get_by_type(IMG_THUMB));
+$derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB));
 $template->assign('derivative_params', $derivative_params);
 
 // include menubar

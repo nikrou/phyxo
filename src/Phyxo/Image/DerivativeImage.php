@@ -58,7 +58,7 @@ class DerivativeImage
      */
     public static function thumb_url($infos)
     {
-        return self::url(IMG_THUMB, $infos);
+        return self::url(ImageStdParams::IMG_THUMB, $infos);
     }
 
     /**
@@ -179,7 +179,7 @@ class DerivativeImage
         $tokens = [];
         $tokens[] = substr($params->type, 0, 2);
 
-        if ($params->type == IMG_CUSTOM) {
+        if ($params->type == ImageStdParams::IMG_CUSTOM) {
             $params->add_url_tokens($tokens);
         }
 

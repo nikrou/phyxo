@@ -16,6 +16,7 @@ if (!defined('ALBUM_BASE_URL')) {
 use App\Repository\ImageRepository;
 use App\Repository\GroupRepository;
 use App\Repository\GroupAccessRepository;
+use Phyxo\Image\ImageStdParams;
 
 // +-----------------------------------------------------------------------+
 // |                       variable initialization                         |
@@ -34,16 +35,16 @@ if (isset($_POST['submitEmail']) and !empty($_POST['group'])) {
     /* @TODO: if $category['representative_picture_id']
        is empty find child representative_picture_id */
     if (!empty($category['representative_picture_id'])) {
-        $result = (new ImageRepository())->findById($category['representative_picture_id']);
+        $result = (new ImageRepository($conn))->findById($app_user, [], $category['representative_picture_id']);
         if ($conn->db_num_rows($result) > 0) {
             $element = $conn->db_fetch_assoc($result);
 
             $img_url = '<a href="' .
                 \Phyxo\Functions\URL::make_picture_url([
-                'image_id' => $element['id'],
-                'image_file' => $element['file'],
-                'category' => $category
-            ]) . '" class="thumblnk"><img src="' . \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $element) . '"></a>';
+                    'image_id' => $element['id'],
+                    'image_file' => $element['file'],
+                    'category' => $category
+                ]) . '" class="thumblnk"><img src="' . \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_THUMB, $element) . '"></a>';
         }
     }
 

@@ -11,6 +11,7 @@
 
 use App\Repository\CommentRepository;
 use App\Repository\ImageRepository;
+use Phyxo\Image\ImageStdParams;
 /**
  * This file is included by the main page to show thumbnails for the default
  * case
@@ -116,7 +117,7 @@ foreach ($pictures as $row) {
 
 $derivative_params = \Phyxo\Functions\Plugin::trigger_change(
     'get_index_derivative_params',
-    \Phyxo\Image\ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : IMG_THUMB)
+    ImageStdParams::get_by_type(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : ImageStdParams::IMG_THUMB)
 );
 $template->assign(
     [

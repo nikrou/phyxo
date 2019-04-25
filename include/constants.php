@@ -71,14 +71,3 @@ define('PATTERN_ID', '/^\d+$/');
 if (!defined('MASS_UPDATES_SKIP_EMPTY')) {
     define('MASS_UPDATES_SKIP_EMPTY', 1);
 }
-
-define('IMG_SQUARE', 'square');
-define('IMG_THUMB', 'thumb');
-define('IMG_XXSMALL', '2small');
-define('IMG_XSMALL', 'xsmall');
-define('IMG_SMALL', 'small');
-define('IMG_MEDIUM', 'medium');
-define('IMG_LARGE', 'large');
-define('IMG_XLARGE', 'xlarge');
-define('IMG_XXLARGE', 'xxlarge');
-define('IMG_CUSTOM', 'custom');

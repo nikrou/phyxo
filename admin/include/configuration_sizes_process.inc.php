@@ -9,6 +9,17 @@
  * file that was distributed with this source code.
  */
 
+use Phyxo\Image\ImageStdParams;
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 $errors = [];
 
 // original resize
@@ -36,12 +47,12 @@ $pderivatives = $_POST['d'];
 
 // step 1 - sanitize HTML input
 foreach ($pderivatives as $type => &$pderivative) {
-    if ($pderivative['must_square'] = ($type == IMG_SQUARE ? true : false)) {
+    if ($pderivative['must_square'] = ($type == ImageStdParams::IMG_SQUARE ? true : false)) {
         $pderivative['h'] = $pderivative['w'];
         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
         $pderivative['crop'] = 100;
     }
-    $pderivative['must_enable'] = ($type == IMG_SQUARE || $type == IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
+    $pderivative['must_enable'] = ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
     $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'] ? true : false;
 
     if (isset($pderivative['crop'])) {
@@ -64,7 +75,7 @@ foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
         continue;
     }
 
-    if ($type == IMG_THUMB) {
+    if ($type == ImageStdParams::IMG_THUMB) {
         $w = intval($pderivative['w']);
         if ($w <= 0) {
             $errors[$type]['w'] = '>0';

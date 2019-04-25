@@ -10,6 +10,7 @@
  */
 
 use App\Repository\CaddieRepository;
+use Phyxo\Image\ImageStdParams;
 
 //--------------------------------------------------------------------- include
 include_once(__DIR__ . '/../../include/common.inc.php');
@@ -262,7 +263,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
         $type_map = \Phyxo\Image\ImageStdParams::get_defined_type_map();
-        unset($type_map[IMG_XXLARGE], $type_map[IMG_XLARGE]);
+        unset($type_map[ImageStdParams::IMG_XXLARGE], $type_map[ImageStdParams::IMG_XLARGE]);
 
         foreach ($type_map as $params) {
             $template->append(

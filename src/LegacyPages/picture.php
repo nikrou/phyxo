@@ -15,6 +15,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
+use Phyxo\Image\ImageStdParams;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 include_once(__DIR__ . '/../../include/section_init.inc.php');
@@ -131,7 +132,7 @@ function default_picture_content($content, $element_info)
     $show_original = isset($element_info['element_url']);
     $added = [];
     foreach ($element_info['derivatives'] as $type => $derivative) {
-        if ($type == IMG_SQUARE || $type == IMG_THUMB) {
+        if ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB) {
             continue;
         }
         if (!array_key_exists($type, \Phyxo\Image\ImageStdParams::get_defined_type_map())) {

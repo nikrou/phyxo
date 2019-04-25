@@ -12,6 +12,7 @@
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
 use Phyxo\TabSheet\TabSheet;
+use Phyxo\Image\ImageStdParams;
 
 //-------------------------------------------------------- sections definitions
 $Sections = ['main', 'sizes', 'watermark', 'display', 'comments', 'default'];
@@ -346,8 +347,8 @@ if ($section === 'main') {
         foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
             $tpl_var = [];
 
-            $tpl_var['must_square'] = ($type == IMG_SQUARE ? true : false);
-            $tpl_var['must_enable'] = ($type == IMG_SQUARE || $type == IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
+            $tpl_var['must_square'] = ($type == ImageStdParams::IMG_SQUARE ? true : false);
+            $tpl_var['must_enable'] = ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
 
             if (!empty($enabled[$type]) && ($params = $enabled[$type])) {
                 $tpl_var['enabled'] = true;

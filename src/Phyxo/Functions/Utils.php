@@ -34,6 +34,7 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\UserGroupRepository;
+use Phyxo\Image\ImageStdParams;
 
 class Utils
 {
@@ -1724,19 +1725,19 @@ class Utils
     {
         if ($types === 'all') {
             $types = \Phyxo\Image\ImageStdParams::get_all_types();
-            $types[] = IMG_CUSTOM;
+            $types[] = ImageStdParams::IMG_CUSTOM;
         } elseif (!is_array($types)) {
             $types = [$types];
         }
 
         for ($i = 0; $i < count($types); $i++) {
             $type = $types[$i];
-            if ($type == IMG_CUSTOM) {
+            if ($type == ImageStdParams::IMG_CUSTOM) {
                 $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
             } elseif (in_array($type, \Phyxo\Image\ImageStdParams::get_all_types())) {
                 $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type);
             } else { //assume a custom type
-                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) . '_' . $type;
+                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(ImageStdParams::IMG_CUSTOM) . '_' . $type;
             }
             $types[$i] = $type;
         }

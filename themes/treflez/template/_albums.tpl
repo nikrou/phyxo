@@ -1,7 +1,7 @@
 <div class="row">
     {* this might sound ridiculous, but we want to fit the thumbnails to 90% of col-xs-12 without them being too blurry *}
     {define_derivative name='album_derivative_params' width=520 height=360 crop=true}
-    {define_derivative name='album_derivative_params_square' type=IMG_SQUARE}
+    {define_derivative name='album_derivative_params_square' type=\Phyxo\Image\ImageStdParams::IMG_SQUARE}
 
     {foreach $category_thumbnails as $cat}
 	{if $theme_config->category_wells == 'never'}

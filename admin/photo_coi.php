@@ -14,6 +14,7 @@ if (!defined("PHOTO_BASE_URL")) {
 }
 
 use App\Repository\ImageRepository;
+use Phyxo\Image\ImageStdParams;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
@@ -33,7 +34,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
-$result = (new ImageRepository($conn))->findById($_GET['image_id']);
+$result = (new ImageRepository($conn))->findById($app_user, [], $_GET['image_id']);
 $row = $conn->db_fetch_assoc($result);
 
 if (isset($_POST['submit'])) {
@@ -42,7 +43,7 @@ if (isset($_POST['submit'])) {
             \Phyxo\Functions\Utils::delete_element_derivatives($row, $params->type);
         }
     }
-    \Phyxo\Functions\Utils::delete_element_derivatives($row, IMG_CUSTOM);
+    \Phyxo\Functions\Utils::delete_element_derivatives($row, ImageStdParams::IMG_CUSTOM);
     $uid = '&b=' . time();
     $conf['question_mark_in_urls'] = $conf['php_extension_in_urls'] = true;
     if ($conf['derivative_url_style'] == 1) {
@@ -55,7 +56,7 @@ if (isset($_POST['submit'])) {
 $tpl_var = [
     'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
     'ALT' => $row['file'],
-    'U_IMG' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $row),
+    'U_IMG' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $row),
 ];
 
 if (!empty($row['coi'])) {

@@ -22,7 +22,7 @@ class DerivativeParams
     /** @var SizingParams */
     public $sizing;
     /** @var string among IMG_* */
-    public $type = IMG_CUSTOM;
+    public $type = ImageStdParams::IMG_CUSTOM;
     /** @var int used for non-custom images to regenerate the cached files */
     public $last_mod_time = 0;
     /** @var bool */
@@ -43,7 +43,7 @@ class DerivativeParams
      */
     public function __sleep()
     {
-        return array('last_mod_time', 'sizing', 'sharpen');
+        return ['last_mod_time', 'sizing', 'sharpen'];
     }
 
     /**
@@ -107,6 +107,7 @@ class DerivativeParams
     }
 
     //
+
     /**
      * Formats a size name into a 2 chars identifier usable in filename.
      *

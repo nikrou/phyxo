@@ -21,6 +21,7 @@ if (!defined('ALBUM_BASE_URL')) {
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use Phyxo\Image\ImageStdParams;
 
 $page['category_id'] = $category['id'];
 
@@ -105,7 +106,7 @@ $result = (new ImageRepository($conn))->findImagesInCategory($page['category_id'
 if ($conn->db_num_rows($result) > 0) {
 	// template thumbnail initialization
     $current_rank = 1;
-    $derivativeParams = \Phyxo\Image\ImageStdParams::get_by_type(IMG_SQUARE);
+    $derivativeParams = ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
         $derivative = new \Phyxo\Image\DerivativeImage($derivativeParams, new \Phyxo\Image\SrcImage($row));
 

@@ -359,11 +359,11 @@ class CalendarMonthly extends CalendarBase
                 }
                 $result = (new ImageRepository($this->conn))->findOneRandomInWeek($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
             }
-    
+
             unset($page['chronology_date'][self::CDAY]);
 
             $row = $this->conn->db_fetch_assoc($result);
-            $derivative = new DerivativeImage(IMG_SQUARE, new SrcImage($row));
+            $derivative = new DerivativeImage(ImageStdParams::IMG_SQUARE, new SrcImage($row));
             $items[$day]['derivative'] = $derivative;
             $items[$day]['file'] = $row['file'];
             $items[$day]['dow'] = $row['dow'];
@@ -389,7 +389,7 @@ class CalendarMonthly extends CalendarBase
                 $wday_labels[] = array_shift($wday_labels);
             }
 
-            list($cell_width, $cell_height) = ImageStdParams::get_by_type(IMG_SQUARE)->sizing->ideal_size;
+            list($cell_width, $cell_height) = ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)->sizing->ideal_size;
 
             $tpl_weeks = [];
             $tpl_crt_week = [];

@@ -257,10 +257,10 @@ class ThemeController
         $template->assign('thumbnails', $tpl_thumbnails_var);
 
         $template->assign([
-            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(IMG_SQUARE)),
-            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(IMG_MEDIUM)),
-            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(IMG_LARGE)),
-            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(IMG_XXLARGE)),
+            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)),
+            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_MEDIUM)),
+            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_LARGE)),
+            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_XXLARGE)),
         ]);
 
         unset($tpl_thumbnails_var, $pictures);

@@ -10,6 +10,7 @@
  */
 
 use App\Repository\ImageRepository;
+use Phyxo\Image\ImageStdParams;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
@@ -91,7 +92,7 @@ if (strpos($page['src_location'], '/pwg_representative/') === false
 }
 $conn->db_close();
 
-if (!try_switch_source($params, $src_mtime) && $params->type == IMG_CUSTOM) {
+if (!try_switch_source($params, $src_mtime) && $params->type == ImageStdParams::IMG_CUSTOM) {
     $sharpen = 0;
     foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $std_params) {
         $sharpen += $std_params->sharpen;
@@ -354,15 +355,15 @@ function parse_request()
     }
 
     if (!isset($page['derivative_type'])) {
-        if (\Phyxo\Image\DerivativeParams::derivative_to_url(IMG_CUSTOM) == $deriv[0]) {
-            $page['derivative_type'] = IMG_CUSTOM;
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url(ImageStdParams::IMG_CUSTOM) == $deriv[0]) {
+            $page['derivative_type'] = ImageStdParams::IMG_CUSTOM;
         } else {
             ierror('Unknown parsing type', 400);
         }
     }
     array_shift($deriv);
 
-    if ($page['derivative_type'] == IMG_CUSTOM) {
+    if ($page['derivative_type'] == ImageStdParams::IMG_CUSTOM) {
         $params = $page['derivative_params'] = parse_custom_params($deriv);
         \Phyxo\Image\ImageStdParams::apply_global($params);
 
@@ -372,7 +373,7 @@ function parse_request()
         if ($params->sizing->max_crop < 0 or $params->sizing->max_crop > 1) {
             ierror('Invalid crop', 400);
         }
-        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(IMG_XXLARGE);
+        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(ImageStdParams::IMG_XXLARGE);
 
         $key = [];
         $params->add_url_tokens($key);

@@ -19,6 +19,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserRepository;
+use Phyxo\Image\ImageStdParams;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -147,7 +148,7 @@ $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($_GET['im
 $tag_selection = $tagMapper->prepareTagsListForUI($tags);
 
 // retrieving direct information about picture
-$result = (new ImageRepository($conn))->findById($_GET['image_id']);
+$result = (new ImageRepository($conn))->findById($app_user, [], $_GET['image_id']);
 $row = $conn->db_fetch_assoc($result);
 
 $storage_category_id = null;
@@ -172,8 +173,8 @@ $template->assign(
         'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
         'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
         'PATH' => $row['path'],
-        'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
-        'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
+        'TN_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_THUMB, $src_image),
+        'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $src_image),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
         'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
         'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],

@@ -11,6 +11,7 @@
 
 use App\Repository\TagRepository;
 use App\Repository\ImageRepository;
+use Phyxo\Image\ImageStdParams;
 /**
  * Management of elements set. Elements can belong to a category or to the
  * user caddie.
@@ -155,8 +156,8 @@ if (count($page['cat_elements_id']) > 0) {
                 $row,
                 [
                     'ID' => $row['id'],
-                    'TN_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_THUMB, $src_image),
-                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(IMG_LARGE, $src_image),
+                    'TN_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_THUMB, $src_image),
+                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $src_image),
                     'LEGEND' => $legend,
                     'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['id'],
                     'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
