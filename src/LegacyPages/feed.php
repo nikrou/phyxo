@@ -86,7 +86,7 @@ $rss->link = \Phyxo\Functions\URL::get_gallery_home_url();
 // +-----------------------------------------------------------------------+
 
 $news = [];
-$notification = new Notification($conn, $userMapper);
+$notification = new Notification($conn, $userMapper, $categoryMapper);
 if (!$image_only) {
     $news = $notification->news($feed_row['last_check'], $dbnow, true, true);
 

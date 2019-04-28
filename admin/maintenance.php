@@ -15,6 +15,7 @@ use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
 use Phyxo\Image\ImageStdParams;
+use App\Repository\ImageRepository;
 
 if (isset($_GET['action'])) {
     \Phyxo\Functions\Utils::check_token();
@@ -43,8 +44,8 @@ switch ($action) {
     case 'categories':
         {
             \Phyxo\Functions\Utils::images_integrity();
-            \Phyxo\Functions\Category::update_uppercats();
-            \Phyxo\Functions\Category::update_category('all');
+            $categoryMapper->updateUppercats();
+            $categoryMapper->updateCategory('all');
             \Phyxo\Functions\Utils::update_global_rank();
             \Phyxo\Functions\Utils::invalidate_user_cache(true);
             break;
@@ -52,7 +53,15 @@ switch ($action) {
     case 'images':
         {
             \Phyxo\Functions\Utils::images_integrity();
-            \Phyxo\Functions\Utils::update_path();
+
+            $result = (new ImageRepository($conn))->findDistinctStorageId();
+            $cat_ids = $conn->result2array($result, null, 'storage_category_id');
+            $fulldirs = $categoryMapper->getFulldirs($cat_ids);
+
+            foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
+                (new ImageRepository($conn))->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
+            }
+
             \Phyxo\Functions\Rate::update_rating_score();
             \Phyxo\Functions\Utils::invalidate_user_cache();
             break;

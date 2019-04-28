@@ -54,13 +54,13 @@ if (isset($_POST['submit'])) {
     }
 
     // retrieve cat infos before continuing (following updates are expensive)
-    $cat_info = \Phyxo\Functions\Category::get_cat_info($_GET['cat_id']);
+    $cat_info = $categoryMapper->getCatInfo($_GET['cat_id']);
 
     if (!empty($_POST['visible'])) {
-        if ($_POST['visible'] == 'true_sub') {
-            \Phyxo\Functions\Category::set_cat_visible([$_GET['cat_id']], true, true);
+        if ($_POST['visible'] === 'true_sub') {
+            $categoryMapper->setCatVisible([$_GET['cat_id']], true, true);
         } elseif ($cat_info['visible'] != $conn->get_boolean($_POST['visible'])) {
-            \Phyxo\Functions\Category::set_cat_visible([$_GET['cat_id']], $conn->get_boolean($_POST['visible']));
+            $categoryMapper->setCatVisible([$_GET['cat_id']], $conn->get_boolean($_POST['visible']));
         }
     }
 
@@ -72,8 +72,8 @@ if (isset($_POST['submit'])) {
     }
 
     // only move virtual albums
-    if (empty($cat_info['dir']) and $cat_info['id_uppercat'] != $_POST['parent']) {
-        \Phyxo\Functions\Category::move_categories([$_GET['cat_id']], $_POST['parent']);
+    if (empty($cat_info['dir']) && $cat_info['id_uppercat'] != $_POST['parent']) {
+        $categoryMapper->moveCategories([$_GET['cat_id']], $_POST['parent']);
     }
 
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Album updated successfully');
@@ -102,7 +102,7 @@ $result = (new ImageCategoryRepository($conn))->findDistinctCategoryId($_GET['ca
 $category['has_images'] = $conn->db_num_rows($result) > 0 ? true : false;
 
 // Navigation path
-$navigation = \Phyxo\Functions\Category::get_cat_display_name_cache(
+$navigation = $categoryMapper->getCatDisplayNameCache(
     $category['uppercats'],
     ALBUM_BASE_URL . '&amp;section=properties&amp;cat_id='
 );

@@ -124,7 +124,7 @@ if (count($page['cat_elements_id']) > 0) {
     }
 
     if ($is_category) {
-        $category_info = \Phyxo\Functions\Category::get_cat_info($_SESSION['bulk_manager_filter']['category']);
+        $category_info = $categoryMapper->getCatInfo($_SESSION['bulk_manager_filter']['category']);
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {
             $conf['order_by'] = ' ORDER BY ' . $category_info['image_order'];

@@ -19,15 +19,17 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
+use App\DataMapper\CategoryMapper;
 
 class Notification
 {
-    private $conn, $userMapper;
+    private $conn, $userMapper, $categoryMapper;
 
-    public function __construct(iDBLayer $conn, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
         $this->conn = $conn;
         $this->userMapper = $userMapper;
+        $this->categoryMapper = $categoryMapper;
     }
 
     /**
@@ -304,7 +306,7 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public function get_html_description_recent_post_date($date_detail)
+    public function get_html_description_recent_post_date(array $date_detail): string
     {
         $description = '<ul>';
 
@@ -336,14 +338,13 @@ class Notification
         foreach ($date_detail['categories'] as $cat) {
             $description .=
                 '<li>'
-                . \Phyxo\Functions\Category::get_cat_display_name_cache($cat['uppercats'])
-                . ' (' .
-                \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
+                . $this->categoryMapper->getCatDisplayNameCache($cat['uppercats'])
+                . ' (' . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
                 . '</li>';
         }
         $description .= '</ul>';
 
-        $description .= '</ul>'; // @TODO: fix html output. Cannot have to </ul>
+        $description .= '</ul>'; // @TODO: fix html output. Cannot have two </ul>
 
         return $description;
     }

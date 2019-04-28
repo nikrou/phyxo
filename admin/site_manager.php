@@ -62,11 +62,15 @@ if (isset($_POST['submit']) and !empty($_POST['galleries_url'])) {
 if (isset($_GET['site']) and is_numeric($_GET['site'])) {
     $page['site'] = $_GET['site'];
 }
-if (isset($_GET['action']) and isset($page['site'])) {
+if (isset($_GET['action'], $page['site'])) {
     $result = (new SiteRepository($conn))->findById($page['site']);
     list($galleries_url) = $conn->db_fetch_row($result);
-    if ($_GET['action'] == 'delete') {
-        \Phyxo\Functions\Utils::delete_site($page['site']);
+    if ($_GET['action'] === 'delete') {
+        // destruction of the categories of the site
+        $result = (new CategoryRepository($conn))->findByField('site_id', $page['site']);
+        $category_ids = $conn->result2array($result, null, 'id');
+        $categoryMapper->deleteCategories($category_ids);
+        (new SiteRepository($conn))->deleteSite($page['site']);
         $page['infos'][] = $galleries_url . ' ' . \Phyxo\Functions\Language::l10n('deleted');
     }
 }

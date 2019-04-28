@@ -203,7 +203,7 @@ $where[] = (new BaseRepository($conn))->getSQLConditionFandF(
 
 $result = (new CategoryRepository($conn))->findWithCondition($where);
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_options', true);
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_options', true));
 
 // include menubar
 $themeconf = $template->get_template_vars('themeconf');

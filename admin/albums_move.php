@@ -22,7 +22,7 @@ use App\Repository\CategoryRepository;
 if (isset($_POST['submit'])) {
     if (count($_POST['selection']) > 0) {
         // @TODO: tests
-        \Phyxo\Functions\Category::move_categories($_POST['selection'], $_POST['parent']);
+        $categoryMapper->moveCategories($_POST['selection'], $_POST['parent']);
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one album');
     }
@@ -43,8 +43,8 @@ $template->assign(
 // +-----------------------------------------------------------------------+
 $result = (new CategoryRepository($conn))->findWithCondition(['dir IS NULL']);
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_to_move_options');
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_to_move_options'));
 
 $result = (new CategoryRepository($conn))->findAll();
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_parent_options');
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_parent_options'));

@@ -205,7 +205,7 @@ class Category
             }
 
             if ($params['fullname']) {
-                $row['name'] = strip_tags(\Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats'], null));
+                $row['name'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
             } else {
                 $row['name'] = strip_tags(
                     \Phyxo\Functions\Plugin::trigger_change(
@@ -388,12 +388,7 @@ class Category
                     '\Phyxo\Functions\Ws\Categories::getAdminList'
                 )
             );
-            $row['fullname'] = strip_tags(
-                \Phyxo\Functions\Category::get_cat_display_name_cache(
-                    $row['uppercats'],
-                    null
-                )
-            );
+            $row['fullname'] = strip_tags($service->getCatDisplayNameCache($row['uppercats']));
             $row['comment'] = strip_tags(
                 \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_description',
@@ -437,11 +432,7 @@ class Category
             $options['comment'] = $params['comment'];
         }
 
-        $creation_output = \Phyxo\Functions\Category::create_virtual_category(
-            $params['name'],
-            $params['parent'],
-            $options
-        );
+        $creation_output = $service->getCategoryMapper()->createVirtualCategory($params['name'], $params['parent'], $service->getUserMapper()->getUser()->getId(), $options);
 
         if (isset($creation_output['error'])) {
             return new Error(500, $creation_output['error']);
@@ -565,7 +556,7 @@ class Category
             return;
         }
 
-        \Phyxo\Functions\Category::delete_categories($category_ids, $params['photo_deletion_mode']);
+        $service->getCategoryMapper()->deleteCategories($category_ids, $params['photo_deletion_mode']);
         \Phyxo\Functions\Utils::update_global_rank();
     }
 
@@ -641,7 +632,7 @@ class Category
         }
 
         /* does this parent exists? This check should be made in the
-         * move_categories function, not here
+         * CategoryMapper::moveCategories function, not here
          * 0 as parent means "move categories at gallery root"
          */
         if (0 != $params['parent']) {
@@ -654,7 +645,7 @@ class Category
         $page['infos'] = [];
         $page['errors'] = [];
 
-        \Phyxo\Functions\Category::move_categories($category_ids, $params['parent']);
+        $service->getCategoryMapper()->moveCategories($category_ids, $params['parent']);
         \Phyxo\Functions\Utils::invalidate_user_cache();
 
         if (count($page['errors']) != 0) {

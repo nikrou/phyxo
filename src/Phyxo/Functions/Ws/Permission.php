@@ -131,7 +131,7 @@ class Permission
         }
 
         if (!empty($params['group_id'])) {
-            $cat_ids = \Phyxo\Functions\Category::get_uppercat_ids($params['cat_id']);
+            $cat_ids = $service->getCategoryMapper()->getUppercatIds($params['cat_id']);
             if ($params['recursive']) {
                 $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds($params['cat_id']));
             }
@@ -153,8 +153,10 @@ class Permission
         }
 
         if (!empty($params['user_id'])) {
-            if ($params['recursive']) $_POST['apply_on_sub'] = true;
-            \Phyxo\Functions\Category::add_permission_on_category($params['cat_id'], $params['user_id']);
+            if ($params['recursive']) {
+                $_POST['apply_on_sub'] = true;
+            }
+            $service->getCategoryMapper()->addPermissionOnCategory($params['cat_id'], $params['user_id']);
         }
 
         return $service->invoke('pwg.permissions.getList', ['cat_id' => $params['cat_id']]);

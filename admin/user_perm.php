@@ -36,7 +36,7 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
     $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
     (new UserAccessRepository($conn))->deleteByUserIdsAndCatIds([$page['user']], $subcats);
 } elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
-    \Phyxo\Functions\Category::add_permission_on_category($_POST['cat_false'], $page['user']);
+    $categoryMapper->addPermissionOnCategory($_POST['cat_false'], $page['user']);
 }
 
 // +-----------------------------------------------------------------------+
@@ -77,7 +77,7 @@ if ($conn->db_num_rows($result) > 0) {
     foreach ($cats as $category) {
         $template->append(
             'categories_because_of_groups',
-            \Phyxo\Functions\Category::get_cat_display_name_cache($category['uppercats'], null)
+            $categoryMapper->getCatDisplayNameCache($category['uppercats'])
         );
     }
 }
@@ -85,7 +85,7 @@ if ($conn->db_num_rows($result) > 0) {
 // only private categories are listed
 $result = (new CategoryRepository($conn))->findWithUserAccess($page['user'], $group_authorized);
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_true');
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
 $authorized_ids = [];
 foreach ($categories as $category) {
     $authorized_ids[] = $category['id'];
@@ -93,7 +93,7 @@ foreach ($categories as $category) {
 
 $result = (new CategoryRepository($conn))->findUnauthorized(array_merge($authorized_ids, $group_authorized));
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_false');
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_false'));
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

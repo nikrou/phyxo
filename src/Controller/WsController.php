@@ -21,11 +21,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
+use App\DataMapper\CategoryMapper;
 
 class WsController extends Controller
 {
     public function index(string $legacyBaseDir, Request $request, TagMapper $tagMapper, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                            UserProvider $userProvider, CommentMapper $commentMapper, UserMapper $userMapper)
+                            UserProvider $userProvider, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
         $legacy_file = sprintf('%s/ws.php', $legacyBaseDir);
 

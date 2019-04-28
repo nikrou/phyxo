@@ -63,19 +63,6 @@ class Permalink
         return $ret;
     }
 
-    public static function get_cat_id_from_permalink($permalink)
-    {
-        global $conn;
-
-        $result = (new CategoryRepository($conn))->findByField('permalink', $permalink);
-        $ids = $conn->result2array($result, null, 'id');
-        if (!empty($ids)) {
-            return $ids[0];
-        }
-
-        return null;
-    }
-
     /** deletes the permalink associated with a category
      * returns true on success
      * @param int cat_id the target category id

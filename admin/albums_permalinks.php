@@ -34,7 +34,7 @@ if (isset($_POST['set_permalink']) and $_POST['cat_id'] > 0) {
 
 $result = (new CategoryRepository($conn))->findAll();
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, $selected_cat, 'categories', false);
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, $selected_cat, 'categories', false));
 
 // --- generate display of active permalinks -----------------------------------
 $sort_by = \Phyxo\Functions\Permalink::parse_sort_variables(
@@ -53,7 +53,7 @@ if ($sort_by[0] == 'id' or $sort_by[0] == 'permalink') {
 $result = (new CategoryRepository($conn))->findWithPermalinks($order);
 $categories = [];
 while ($row = $conn->db_fetch_assoc($result)) {
-    $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['uppercats']);
+    $row['name'] = $categoryMapper->getCatDisplayNameCache($row['uppercats']);
     $categories[] = $row;
 }
 
@@ -77,7 +77,7 @@ $url_del_base = ALBUMS_BASE_URL . '&map;section=permalinks';
 $result = (new OldPermalinkRepository($conn))->findAll((count($sort_by)) > 0 ? $sort_by[0] : null);
 $deleted_permalinks = [];
 while ($row = $conn->db_fetch_assoc($result)) {
-    $row['name'] = \Phyxo\Functions\Category::get_cat_display_name_cache($row['cat_id']);
+    $row['name'] = $categoryMapper->getCatDisplayNameCache($row['cat_id']);
     $row['U_DELETE'] = \Phyxo\Functions\URL::add_url_params(
         $url_del_base,
         ['delete_permanent' => $row['permalink']]

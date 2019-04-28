@@ -20,19 +20,21 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
+use App\DataMapper\CategoryMapper;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper)
+                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
         $this->userMapper = $userMapper;
+        $this->categoryMapper = $categoryMapper;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -55,6 +57,7 @@ class AdminController extends Controller
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
         $userMapper = $this->userMapper;
+        $categoryMapper = $this->categoryMapper;
 
         try {
             global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $filter, $template, $user, $page,

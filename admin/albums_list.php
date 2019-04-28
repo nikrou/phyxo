@@ -143,7 +143,7 @@ $navigation .= '</a>';
 // +-----------------------------------------------------------------------+
 // request to delete a virtual category
 if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
-    \Phyxo\Functions\Category::delete_categories([$_GET['delete']]);
+    $categoryMapper->deleteCategories([$_GET['delete']]);
     $_SESSION['page_infos'] = [\Phyxo\Functions\Language::l10n('Virtual album deleted')];
     \Phyxo\Functions\Utils::update_global_rank();
     \Phyxo\Functions\Utils::invalidate_user_cache();
@@ -154,10 +154,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     }
     \Phyxo\Functions\Utils::redirect($redirect_url);
 } elseif (isset($_POST['submitAdd'])) { // request to add a virtual category
-    $output_create = \Phyxo\Functions\Category::create_virtual_category(
-        $_POST['virtual_name'],
-        @$_GET['parent_id']
-    );
+    $output_create = $categoryMapper->createVirtualCategory($_POST['virtual_name'], @$_GET['parent_id'], $app_user->getId());
 
     \Phyxo\Functions\Utils::invalidate_user_cache();
     if (isset($output_create['error'])) {
@@ -230,11 +227,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
 
 if (isset($_GET['parent_id'])) {
     $navigation .= $conf['level_separator'];
-
-    $navigation .= \Phyxo\Functions\Category::get_cat_display_name_from_id(
-        $_GET['parent_id'],
-        ALBUMS_BASE_URL . '&amp;section=list&amp;parent_id='
-    );
+    $navigation .= $categoryMapper->getCatDisplayNameFromId($_GET['parent_id'], ALBUMS_BASE_URL . '&amp;section=list&amp;parent_id=');
 }
 // +-----------------------------------------------------------------------+
 // |                       template initialization                         |

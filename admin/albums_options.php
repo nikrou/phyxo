@@ -52,12 +52,12 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
             }
         case 'visible':
             {
-                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_true'], false);
+                $categoryMapper->setCatVisible($_POST['cat_true'], false);
                 break;
             }
         case 'status':
             {
-                \Phyxo\Functions\Category::set_cat_status($_POST['cat_true'], 'private');
+                $categoryMapper->setCatStatus($_POST['cat_true'], 'private');
                 break;
             }
         case 'representative':
@@ -75,12 +75,12 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
             }
         case 'visible':
             {
-                \Phyxo\Functions\Category::set_cat_visible($_POST['cat_false'], true);
+                $categoryMapper->setCatVisible($_POST['cat_false'], true);
                 break;
             }
         case 'status':
             {
-                \Phyxo\Functions\Category::set_cat_status($_POST['cat_false'], 'public');
+                $categoryMapper->setCatStatus($_POST['cat_false'], 'public');
                 break;
             }
         case 'representative':
@@ -111,7 +111,7 @@ $template->assign(
 // - NA : (not applicable) for virtual categories
 //
 // for true and false status, we associates an array of category ids,
-// function display_select_categories will use the given CSS class for each
+// CategoryMapper::displaySelectCategories will use the given CSS class for each
 // option
 $cats_true = [];
 $cats_false = [];
@@ -173,8 +173,8 @@ switch ($page['section']) {
             break;
         }
 }
-\Phyxo\Functions\Category::display_select_cat_wrapper($cats_true, [], 'category_option_true');
-\Phyxo\Functions\Category::display_select_cat_wrapper($cats_false, [], 'category_option_false');
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($cats_true, [], 'category_option_true'));
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($cats_false, [], 'category_option_false'));
 
 // +-----------------------------------------------------------------------+
 // |                           sending html code                           |

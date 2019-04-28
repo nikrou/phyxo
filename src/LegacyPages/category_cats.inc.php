@@ -176,7 +176,7 @@ if (count($categories) > 0) {
         );
 
         if ($page['section'] == 'recent_cats') {
-            $name = \Phyxo\Functions\Category::get_cat_display_name_cache($category['uppercats'], null);
+            $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
         } else {
             $name = $category['name'];
         }

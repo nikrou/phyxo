@@ -16,10 +16,11 @@ use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
+use App\DataMapper\CategoryMapper;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -77,6 +78,16 @@ class Server
     public function getUserMapper()
     {
         return $this->userMapper;
+    }
+
+    public function addCategoryMapper(CategoryMapper $categoryMapper)
+    {
+        $this->categoryMapper = $categoryMapper;
+    }
+
+    public function getCategoryMapper()
+    {
+        return $this->categoryMapper;
     }
 
     /**

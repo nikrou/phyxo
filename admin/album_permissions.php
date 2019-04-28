@@ -34,7 +34,7 @@ if (!empty($_POST)) {
     \Phyxo\Functions\Utils::check_token();
 
     if ($category['status'] != $_POST['status']) {
-        \Phyxo\Functions\Category::set_cat_status([$page['cat']], $_POST['status']);
+        $categoryMapper->setCatStatus([$page['cat']], $_POST['status']);
         $category['status'] = $_POST['status'];
     }
 
@@ -64,7 +64,7 @@ if (!empty($_POST)) {
         //
         $grant_groups = $_POST['groups'];
         if (count($grant_groups) > 0) {
-            $cat_ids = \Phyxo\Functions\Category::get_uppercat_ids([$page['cat']]);
+            $cat_ids = $categoryMapper->getUppercatIds([$page['cat']]);
             if (isset($_POST['apply_on_sub'])) {
                 $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds([$page['cat']]));
             }
@@ -109,7 +109,7 @@ if (!empty($_POST)) {
         //
         $grant_users = $_POST['users'];
         if (count($grant_users) > 0) {
-            \Phyxo\Functions\Category::add_permission_on_category($page['cat'], $grant_users);
+            $categoryMapper->addPermissionOnCategory($page['cat'], $grant_users);
         }
     }
 
@@ -122,12 +122,7 @@ if (!empty($_POST)) {
 
 $template->assign(
     [
-        'CATEGORIES_NAV' =>
-            \Phyxo\Functions\Category::get_cat_display_name_from_id(
-            $page['cat'],
-            'admin/index.php?page=album&amp;cat_id='
-        ),
-        //'U_HELP' => \Phyxo\Functions\URL::get_root_url().'admin/popuphelp.php?page=cat_perm',
+        'CATEGORIES_NAV' => $categoryMapper->getCatDisplayNameFromId($page['cat'], 'admin/index.php?page=album&amp;cat_id='),
         'F_ACTION' => ALBUM_BASE_URL . '&amp;section=permissions',
         'private' => ('private' == $category['status']),
     ]

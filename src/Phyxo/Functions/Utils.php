@@ -1169,24 +1169,6 @@ class Utils
     }
 
     /**
-     * Deletes a site and call delete_categories for each primary category of the site
-     *
-     * @param int $id
-     */
-    public static function delete_site($id)
-    {
-        global $conn;
-
-        // destruction of the categories of the site
-        $result = (new CategoryRepository($conn))->findByField('site_id', $id);
-        $category_ids = $conn->result2array($result, null, 'id');
-        \Phyxo\Functions\Category::delete_categories($category_ids);
-
-        // destruction of the site
-        (new SiteRepository($conn))->deleteSite($id);
-    }
-
-    /**
      * Deletes all files (on disk) related to given image ids.
      *
      * @param int[] $ids
@@ -1588,22 +1570,6 @@ class Utils
             if (count($to_delete) > 0) {
                 (new $repository($conn))->deleteByUserIds($to_delete);
             }
-        }
-    }
-
-    /**
-     * Update images.path field base on images.file and storage categories fulldirs.
-     */
-    public static function update_path()
-    {
-        global $conn;
-
-        $result = (new ImageRepository($conn))->findDistinctStorageId();
-        $cat_ids = $conn->result2array($result, null, 'storage_category_id');
-        $fulldirs = \Phyxo\Functions\Category::get_fulldirs($cat_ids);
-
-        foreach ($cat_ids as $cat_id) { // @TODO : use mass_updates ?
-            (new ImageRepository($conn))->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
         }
     }
 

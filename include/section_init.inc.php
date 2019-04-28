@@ -195,7 +195,7 @@ if ('categories' == $page['section']) {
                     $page['category']['comment'],
                     'main_page_category_description'
                 ),
-                'title' => \Phyxo\Functions\Category::get_cat_display_name($page['category']['upper_names'], '', false),
+                'title' => $categoryMapper->getCatDisplayName($page['category']['upper_names'], '', false),
             ]
         );
     } else {

@@ -166,7 +166,7 @@ if (!empty($conf['filter_pages']) and \Phyxo\Functions\Utils::get_filter_page_va
                 'date' => date('Ymd')
             ];
 
-            $filter['categories'] = \Phyxo\Functions\Category::get_computed_categories($user, (int)$filter['recent_period']);
+            $filter['categories'] = $categoryMapper->getComputedCategories($user, (int)$filter['recent_period']);
 
             $filter['visible_categories'] = implode(',', array_keys($filter['categories']));
             if (empty($filter['visible_categories'])) {

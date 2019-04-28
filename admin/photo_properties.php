@@ -48,7 +48,7 @@ if (isset($_GET['delete'])) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 [
-                    'category' => \Phyxo\Functions\Category::get_cat_info($_GET['cat_id'])
+                    'category' => $categoryMapper->getCatInfo($_GET['cat_id'])
                 ]
             )
         );
@@ -64,7 +64,7 @@ if (isset($_GET['delete'])) {
         \Phyxo\Functions\Utils::redirect(
             \Phyxo\Functions\URL::make_index_url(
                 [
-                    'category' => \Phyxo\Functions\Category::get_cat_info($category_id)
+                    'category' => $categoryMapper->getCatInfo($category_id)
                 ]
             )
         );
@@ -119,7 +119,7 @@ if (isset($_POST['submit'])) {
         $_POST['associate'] = [];
     }
     \Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, true, PATTERN_ID);
-    \Phyxo\Functions\Category::move_images_to_categories([$_GET['image_id']], $_POST['associate']);
+    $categoryMapper->moveImagesToCategories([$_GET['image_id']], $_POST['associate']);
 
     \Phyxo\Functions\Utils::invalidate_user_cache();
 
@@ -233,7 +233,7 @@ $result = (new CategoryRepository($conn))->findCategoriesForImage($_GET['image_i
 $associated_albums = $conn->result2array($result, 'id');
 
 foreach ($associated_albums as $album) {
-    $name = \Phyxo\Functions\Category::get_cat_display_name_cache($album['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
+    $name = $categoryMapper->getCatDisplayNameCache($album['uppercats'], \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-');
 
     if ($album['category_id'] == $storage_category_id) {
         $template->assign('STORAGE_CATEGORY', $name);

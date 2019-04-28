@@ -9,12 +9,9 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Functions\Notification;
-
 if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
     die("Hacking attempt!");
 }
-$notification = new Notification($conn, $userMapper);
 
 if (isset($_POST['falsify']) and isset($_POST['cat_true'])) {
     $check_key_treated = $notification->unsubscribe_notification_by_mail(true, $_POST['cat_true']);

@@ -178,7 +178,7 @@ if (empty($page['is_external']) or !$page['is_external']) {
             usort($cats, '\Phyxo\Functions\Utils::name_compare');
             $hints = [];
             foreach ($cats as $cat) {
-                $hints[] = \Phyxo\Functions\Category::get_cat_display_name([$cat], '');
+                $hints[] = $categoryMapper->getCatDisplayName([$cat]);
             }
             $template->assign('category_search_results', $hints);
         }

@@ -265,7 +265,7 @@ $result = (new CategoryRepository($conn))->findWithCondition(
     [(new BaseRepository($conn))->getSQLConditionFandF($app_user, $filter, ['forbidden_categories' => 'id', 'visible_categories' => 'id'])]
 );
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, [@$_GET['cat']], $blockname, true);
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [@$_GET['cat']], $blockname, true));
 
 // Filter on recent comments...
 $tpl_var = [];

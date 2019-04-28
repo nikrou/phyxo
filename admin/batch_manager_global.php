@@ -69,12 +69,12 @@ if (isset($_POST['submit'])) {
     $action = $_POST['selectAction'];
     $redirect = false;
 
-    if ('remove_from_caddie' == $action) {
+    if ($action === 'remove_from_caddie') {
         (new CaddieRepository($conn))->deleteElements($collection, $user['id']);
 
         // remove from caddie action available only in caddie so reload content
         $redirect = true;
-    } elseif ('add_tags' == $action) {
+    } elseif ($action === 'add_tags') {
         if (empty($_POST['add_tags'])) {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('Select at least one tag');
         } else {
@@ -85,7 +85,7 @@ if (isset($_POST['submit'])) {
                 $redirect = true;
             }
         }
-    } elseif ('del_tags' == $action) {
+    } elseif ($action === 'del_tags') {
         if (isset($_POST['del_tags']) and count($_POST['del_tags']) > 0) {
             (new ImageTagRepository($conn))->deleteByImagesAndTags($collection, $_POST['del_tags']);
 
@@ -98,11 +98,8 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    if ('associate' == $action) {
-        \Phyxo\Functions\Category::associate_images_to_categories(
-            $collection,
-            [$_POST['associate']]
-        );
+    if ($action === 'associate') {
+        $categoryMapper->associateImagesToCategories($collection, [$_POST['associate']]);
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
@@ -110,13 +107,13 @@ if (isset($_POST['submit'])) {
         if ('no_album' == $page['prefilter']) {
             $redirect = true;
         } elseif ('no_virtual_album' == $page['prefilter']) {
-            $category_info = \Phyxo\Functions\Category::get_cat_info($_POST['associate']);
+            $category_info = $categoryMapper->getCatInfo($_POST['associate']);
             if (empty($category_info['dir'])) {
                 $redirect = true;
             }
         }
-    } elseif ('move' == $action) {
-        \Phyxo\Functions\Category::move_images_to_categories($collection, [$_POST['move']]);
+    } elseif ($action === 'move') {
+        $categoryMapper->moveImagesToCategories($collection, [$_POST['move']]);
 
         $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Information data registered in database');
 
@@ -124,7 +121,7 @@ if (isset($_POST['submit'])) {
         if ('no_album' == $page['prefilter']) {
             $redirect = true;
         } elseif ('no_virtual_album' == $page['prefilter']) {
-            $category_info = \Phyxo\Functions\Category::get_cat_info($_POST['move']);
+            $category_info = $categoryMapper->getCatInfo($_POST['move']);
             if (empty($category_info['dir'])) {
                 $redirect = true;
             }
@@ -132,7 +129,7 @@ if (isset($_POST['submit'])) {
             and $_POST['move'] != $_SESSION['bulk_manager_filter']['category']) {
             $redirect = true;
         }
-    } elseif ('dissociate' == $action) {
+    } elseif ($action === 'dissociate') {
         // physical links must not be broken, so we must first retrieve image_id
         // which create virtual links with the category to "dissociate from".
         $result = (new ImageRepository($conn))->findImagesInVirtualCategory($collection, $_POST['dissociate']);
@@ -145,7 +142,7 @@ if (isset($_POST['submit'])) {
             // let's refresh the page because the current set might be modified
             $redirect = true;
         }
-    } elseif ('author' == $action) {
+    } elseif ($action === 'author') {
         if (isset($_POST['remove_author'])) {
             $_POST['author'] = null;
         }
@@ -159,7 +156,7 @@ if (isset($_POST['submit'])) {
         }
 
         (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['author']], $datas);
-    } elseif ('title' == $action) {
+    } elseif ($action === 'title') {
         if (isset($_POST['remove_title'])) {
             $_POST['title'] = null;
         }
@@ -173,7 +170,7 @@ if (isset($_POST['submit'])) {
         }
 
         (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['name']], $datas);
-    } elseif ('date_creation' == $action) {
+    } elseif ($action === 'date_creation') {
         if (isset($_POST['remove_date_creation']) || empty($_POST['date_creation'])) {
             $date_creation = null;
         } else {
@@ -189,7 +186,7 @@ if (isset($_POST['submit'])) {
         }
 
         (new ImageRepository($conn))->massUpdates(['primary' => ['id'], 'update' => ['date_creation']], $datas);
-    } elseif ('level' == $action) { // privacy_level
+    } elseif ($action === 'level') { // privacy_level
         $datas = [];
         foreach ($collection as $image_id) {
             $datas[] = [
@@ -205,9 +202,9 @@ if (isset($_POST['submit'])) {
                 $redirect = true;
             }
         }
-    } elseif ('add_to_caddie' == $action) {
+    } elseif ($action === 'add_to_caddie') {
         (new CaddieRepository($conn))->fillCaddie($user['id'], $collection);
-    } elseif ('delete' == $action) {
+    } elseif ($action === 'delete') {
         if (isset($_POST['confirm_deletion']) and 1 == $_POST['confirm_deletion']) {
             $deleted_count = \Phyxo\Functions\Utils::delete_elements($collection, true);
             if ($deleted_count > 0) {
@@ -225,17 +222,17 @@ if (isset($_POST['submit'])) {
         } else {
             $page['errors'][] = \Phyxo\Functions\Language::l10n('You need to confirm deletion');
         }
-    } elseif ('metadata' == $action) {
+    } elseif ($action === 'metadata') {
         $tagMapper->sync_metadata($collection);
         $page['infos'][] = \Phyxo\Functions\Language::l10n('Metadata synchronized from file');
-    } elseif ('delete_derivatives' == $action && !empty($_POST['del_derivatives_type'])) {
+    } elseif ($action === 'delete_derivatives' && !empty($_POST['del_derivatives_type'])) {
         $result = (new ImageRepository($conn))->findByIds($collection);
         while ($info = $conn->db_fetch_assoc($result)) {
             foreach ($_POST['del_derivatives_type'] as $type) {
                 \Phyxo\Functions\Utils::delete_element_derivatives($info, $type);
             }
         }
-    } elseif ('generate_derivatives' == $action) {
+    } elseif ($action === 'generate_derivatives') {
         if ($_POST['regenerateSuccess'] != '0') {
             $page['infos'][] = \Phyxo\Functions\Language::l10n('%s photos have been regenerated', $_POST['regenerateSuccess']);
         }
@@ -419,7 +416,7 @@ if (count($page['cat_elements_id']) > 0) {
     }
 
     if ($is_category) {
-        $category_info = \Phyxo\Functions\Category::get_cat_info($_SESSION['bulk_manager_filter']['category']);
+        $category_info = $categoryMapper->getCatInfo($_SESSION['bulk_manager_filter']['category']);
 
         $conf['order_by'] = $conf['order_by_inside_category'];
         if (!empty($category_info['image_order'])) {

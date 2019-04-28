@@ -97,10 +97,7 @@ if (isset($search['fields']['cat'])) {
     foreach ($categories as $category) {
         $template->append(
             'search_categories',
-            \Phyxo\Functions\Category::get_cat_display_name_cache(
-                $category['uppercats'],
-                null // no url on category names
-            )
+            $categoryMapper->getCatDisplayNameCache($category['uppercats'])
         );
     }
 }

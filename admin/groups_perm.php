@@ -34,7 +34,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         $subcats = (new CategoryRepository($conn))->getSubcatIds($_POST['cat_true']);
         (new GroupAccessRepository($conn))->deleteByGroupIdsAndCatIds($page['group'], $subcats);
     } elseif (isset($_POST['trueify'], $_POST['cat_false']) && count($_POST['cat_false']) > 0) {
-        $uppercats = \Phyxo\Functions\Category::get_uppercat_ids($_POST['cat_false']);
+        $uppercats = $categoryMapper->getUppercatIds($_POST['cat_false']);
         $private_uppercats = [];
 
         $result = (new CategoryRepository($conn))->findByIds($uppercats, 'private');
@@ -74,9 +74,9 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     $template->assign(
         [
             'TITLE' =>
-                \Phyxo\Functions\Language::l10n(
-                'Manage permissions for group "%s"',
-                \Phyxo\Functions\Utils::get_groupname($page['group'])
+            \Phyxo\Functions\Language::l10n(
+            'Manage permissions for group "%s"',
+            \Phyxo\Functions\Utils::get_groupname($page['group'])
             ),
             'L_CAT_OPTIONS_TRUE' => \Phyxo\Functions\Language::l10n('Authorized'),
             'L_CAT_OPTIONS_FALSE' => \Phyxo\Functions\Language::l10n('Forbidden'),
@@ -88,7 +88,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
     // only private categories are listed
     $result = (new CategoryRepository($conn))->findWithGroupAccess($page['group']);
     $categories = $conn->result2array($result);
-    \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_true');
+    $template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_true'));
     $authorized_ids = [];
     foreach ($categories as $category) {
         $authorized_ids[] = $category['id'];
@@ -96,7 +96,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
 
     $result = (new CategoryRepository($conn))->findUnauthorized($authorized_ids);
     $categories = $conn->result2array($result);
-    \Phyxo\Functions\Category::display_select_cat_wrapper($categories, [], 'category_option_false');
+    $template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_false'));
 
     // +-----------------------------------------------------------------------+
     // |                           html code display                           |

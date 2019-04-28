@@ -64,7 +64,7 @@ if (isset($_POST['submit'])) {
     (new CategoryRepository($conn))->updateCategory(['image_order' => $image_order], $page['category_id']);
 
     if (isset($_POST['image_order_subcats'])) {
-        $cat_info = \Phyxo\Functions\Category::get_cat_info($page['category_id']);
+        $cat_info = $categoryMapper->getCatInfo($page['category_id']);
 
         (new CategoryRepository($conn))->updateByUppercats(['image_order' => $image_order], $cat_info['uppercats']);
     }
@@ -86,7 +86,7 @@ if ($category['image_order'] == 'rank ASC') {
 }
 
 // Navigation path
-$navigation = \Phyxo\Functions\Category::get_cat_display_name_cache(
+$navigation = $categoryMapper->getCatDisplayNameCache(
     $category['uppercats'],
     \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=album-'
 );

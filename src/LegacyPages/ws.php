@@ -33,6 +33,7 @@ $service = new Server();
 $service->addTagMapper($tagMapper);
 $service->addCommentMapper($commentMapper);
 $service->addUserMapper($userMapper);
+$service->addCategoryMapper($categoryMapper);
 $service->setHandler(new RestRequestHandler());
 $service->setEncoder(new JsonEncoder());
 \Phyxo\Functions\URL::set_make_full_url();

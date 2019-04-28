@@ -93,7 +93,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
     // get categort full directories in an array for comparison with file
     // system directory tree
-    $db_fulldirs = \Phyxo\Functions\Category::get_fulldirs(array_keys($db_categories));
+    $db_fulldirs = $categoryMapper->getFulldirs(array_keys($db_categories));
 
     // what is the base directory to search file system sub-directories ?
     if (isset($_POST['cat']) and is_numeric($_POST['cat'])) {
@@ -295,7 +295,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
                 $insert_granted_users = array_unique($insert_granted_users, SORT_REGULAR);
                 (new UserAccessRepository($conn))->massInserts(['user_id', 'cat_id'], $insert_granted_users);
             } else {
-                \Phyxo\Functions\Category::add_permission_on_category($category_ids, \Phyxo\Functions\Utils::get_admins());
+                $categoryMapper->addPermissionOnCategory($category_ids, \Phyxo\Functions\Utils::get_admins());
             }
         }
 
@@ -323,7 +323,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
 
     if (count($to_delete) > 0) {
         if (!$simulate) {
-            \Phyxo\Functions\Category::delete_categories($to_delete);
+            $categoryMapper->deleteCategories($to_delete);
             foreach ($to_delete_derivative_dirs as $to_delete_dir) {
                 if (is_dir($to_delete_dir)) {
                     \Phyxo\Functions\Utils::clear_derivative_cache_rec($to_delete_dir, '#.+#');
@@ -450,8 +450,8 @@ if (isset($_POST['submit']) and $_POST['sync'] == 'files' and !$general_failure)
 if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == 'files') and !$general_failure) {
     if (!$simulate) {
         $start = microtime(true);
-        \Phyxo\Functions\Category::update_category('all');
-        $template->append('footer_elements', '<!-- update_category(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
+        $categoryMapper->updateCategory('all');
+        $template->append('footer_elements', '<!-- updateCategory(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
         $start = microtime(true);
         \Phyxo\Functions\Utils::update_global_rank();
         $template->append('footer_elements', '<!-- ordering categories : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
@@ -681,7 +681,7 @@ $template->assign('introduction', $tpl_introduction);
 
 $result = (new CategoryRepository($conn))->findByField('site_id', $site_id);
 $categories = $conn->result2array($result);
-\Phyxo\Functions\Category::display_select_cat_wrapper($categories, $cat_selected, 'category_options', false);
+$template->assign($categoryMapper->displaySelectCategoriesWrapper($categories, $cat_selected, 'category_options', false));
 
 if (count($errors) > 0) {
     foreach ($errors as $error) {

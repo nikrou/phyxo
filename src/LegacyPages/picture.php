@@ -694,7 +694,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
     // no need to go to db, we have all the info
     $template->append(
         'related_categories',
-        \Phyxo\Functions\Category::get_cat_display_name($page['category']['upper_names'])
+        $categoryMapper->getCatDisplayName($page['category']['upper_names'])
     );
 } else { // use only 1 sql query to get names for all related categories
     $ids = [];
@@ -709,7 +709,7 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
         foreach (explode(',', $category['uppercats']) as $id) {
             $cats[] = $cat_map[$id];
         }
-        $template->append('related_categories', \Phyxo\Functions\Category::get_cat_display_name($cats));
+        $template->append('related_categories', $categoryMapper->getCatDisplayName($cats));
     }
 }
 

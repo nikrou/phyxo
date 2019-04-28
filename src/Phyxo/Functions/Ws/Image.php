@@ -604,7 +604,7 @@ class Image
 
         // let's add links between the image and the categories
         if (isset($params['categories'])) {
-            self::addImageCategoryRelations($image_id, $params['categories']);
+            self::addImageCategoryRelations($image_id, $params['categories'], $replace_mode = false, $service);
 
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
@@ -802,7 +802,7 @@ class Image
 
             $result = (new ImageCategoryRepository($conn))->countByCategory($params['category'][0]);
             list(, $nb_photos) = $conn->db_fetch_row($result);
-            $category_name = \Phyxo\Functions\Category::get_cat_display_name_from_id($params['category'][0], null);
+            $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
 
             return [
                 'image_id' => $image_id,
@@ -1104,7 +1104,8 @@ class Image
             self::addImageCategoryRelations(
                 $params['image_id'],
                 $params['categories'],
-                ('replace' == $params['multiple_value_mode'] ? true : false)
+                ('replace' == $params['multiple_value_mode'] ? true : false),
+                $service
             );
         }
 
@@ -1198,7 +1199,7 @@ class Image
      * @param string $categories_string - "cat_id[,rank];cat_id[,rank]"
      * @param bool $replace_mode - removes old associations
      */
-    protected static function addImageCategoryRelations($image_id, $categories_string, $replace_mode = false)
+    protected static function addImageCategoryRelations($image_id, $categories_string, $replace_mode = false, Server $service)
     {
         global $conn;
 
@@ -1264,7 +1265,7 @@ class Image
             $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
             if (count($to_remove_cat_ids) > 0) {
                 (new ImageCategoryRepository($conn))->deleteByCategory($to_remove_cat_ids, [$image_id]);
-                \Phyxo\Functions\Category::update_category($to_remove_cat_ids);
+                $service->getCategoryMapper()->updateCategory($to_remove_cat_ids);
             }
         }
 
@@ -1300,7 +1301,7 @@ class Image
 
         (new ImageCategoryRepository($conn))->insertImageCategories(array_keys($inserts[0]), $inserts);
 
-        \Phyxo\Functions\Category::update_category($new_cat_ids);
+        $service->getCategoryMapper()->updateCategory($new_cat_ids);
     }
 
     /**
