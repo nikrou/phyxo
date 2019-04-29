@@ -23,10 +23,14 @@ class Plugins extends Extensions
     private static $plugins_root_path = PHPWG_PLUGINS_PATH;
     private $conn;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn, $plugins_root_path = PHPWG_PLUGINS_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn)
+    {
+        $this->conn = $conn;
+    }
+
+    public function setPluginsRootPath(string $plugins_root_path)
     {
         self::$plugins_root_path = $plugins_root_path;
-        $this->conn = $conn;
     }
 
     /**
@@ -179,7 +183,7 @@ class Plugins extends Extensions
     public function getFsPlugins()
     {
         if (!$this->fs_plugins_retrieved) {
-            foreach (glob(PHPWG_PLUGINS_PATH . '/*/main.inc.php') as $main_file) {
+            foreach (glob(self::$plugins_root_path . '/*/main.inc.php') as $main_file) {
                 $plugin_dir = basename(dirname($main_file));
                 if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
                     $this->getFsPlugin($plugin_dir);

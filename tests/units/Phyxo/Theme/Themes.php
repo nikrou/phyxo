@@ -15,9 +15,12 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 use atoum;
 use Phyxo\DBLayer\pgsqlConnection;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends atoum
 {
+    protected  $themes_dir = PHPWG_TMP_PATH . '/themes';
+
     private function getLocalThemes()
     {
         return [
@@ -71,28 +74,54 @@ class Themes extends atoum
         ];
     }
 
+    public function setUp()
+    {
+        $fs = new Filesystem();
+        $fs->mkdir($this->themes_dir);
+    }
+
+    public function tearDown()
+    {
+        $fs = new Filesystem();
+        $fs->remove($this->themes_dir);
+     }
+
+    private function mirrorToWorkspace(): string
+    {
+        $workspace = $this->themes_dir . '/' . md5(random_bytes(15));
+        $fs = new Filesystem();
+        $fs->mkdir($workspace);
+        $fs->mirror(PHPWG_THEMES_PATH, $workspace);
+
+        return $workspace;
+    }
+
     public function testFsThemes()
     {
         $controller = new \atoum\mock\controller();
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $themes = new \Phyxo\Theme\Themes($conn);
+        $themes = new \mock\Phyxo\Theme\Themes($conn);
+        $themes->setThemesRootPath($workspace);
 
         $this
             ->array($themes->getFsThemes())
             ->isEqualTo($this->getLocalThemes());
     }
 
-    public function testSortThemes($sort_type, $order)
+    public function _testSortThemes($sort_type, $order)
     {
         $controller = new \atoum\mock\controller();
         $controller->__construct = function () {
         };
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $themes = new \Phyxo\Theme\Themes($conn);
+        $themes = new \mock\Phyxo\Theme\Themes($conn);
+        $themes->setThemesRootPath(PHPWG_TMP_PATH . '/themes');
 
         $themes->sortFsThemes($sort_type);
 

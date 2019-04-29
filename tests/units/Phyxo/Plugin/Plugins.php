@@ -14,29 +14,32 @@ namespace tests\units\Phyxo\Plugin;
 require_once __DIR__ . '/../../bootstrap.php';
 
 use atoum;
-use Phyxo\DBLayer\pgsqlConnection;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamWrapper;
-
 use Symfony\Component\Filesystem\Filesystem;
 
 class Plugins extends atoum
 {
-    private $plugins_dir = '';
-    private $fs = null;
+    protected  $plugins_dir = PHPWG_TMP_PATH . '/plugins';
 
     public function setUp()
     {
-        $this->fs = new Filesystem();
-
-        $this->fs->remove(PHPWG_TMP_PATH . '/plugins'); // in case tearDown has not been called
-        $this->fs->mkdir(PHPWG_TMP_PATH . '/plugins');
-        $this->fs->mirror(PHPWG_PLUGINS_PATH, PHPWG_TMP_PATH . '/plugins/');
+        $fs = new Filesystem();
+        $fs->mkdir($this->plugins_dir);
     }
 
     public function tearDown()
     {
-        $this->fs->remove(PHPWG_TMP_PATH . '/plugins');
+        $fs = new Filesystem();
+        $fs->remove($this->plugins_dir);
+     }
+
+    private function mirrorToWorkspace(): string
+    {
+        $workspace = $this->plugins_dir . '/' . md5(random_bytes(15));
+        $fs = new Filesystem();
+        $fs->mkdir($workspace);
+        $fs->mirror(PHPWG_PLUGINS_PATH, $workspace);
+
+        return $workspace;
     }
 
     public function testFsPlugins()
@@ -45,8 +48,11 @@ class Plugins extends atoum
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
+        $plugins->setPluginsRootPath($workspace);
 
         $this
             ->array($plugins->getFsPlugins())
@@ -59,8 +65,11 @@ class Plugins extends atoum
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
+        $plugins->setPluginsRootPath($workspace);
 
         $plugins->sortFsPlugins($sort_type);
 
@@ -78,8 +87,12 @@ class Plugins extends atoum
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
+        $plugins->setPluginsRootPath($workspace);
+
         $this->calling($plugins)->download = function () {
             // copy archive in right place
         };
@@ -99,8 +112,12 @@ class Plugins extends atoum
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
+        $plugins->setPluginsRootPath($workspace);
+
         $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
             copy(PHPWG_ZIP_PATH . '/myPlugin1-0.1.0.zip', $archive);
@@ -134,8 +151,11 @@ class Plugins extends atoum
         $controller->__construct = function () {
         };
 
+        $workspace = $this->mirrorToWorkspace();
+
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $plugins = new \mock\Phyxo\Plugin\Plugins($conn, PHPWG_TMP_PATH . '/plugins/');
+        $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
+        $plugins->setPluginsRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
@@ -213,20 +233,20 @@ class Plugins extends atoum
             'plugin3' => [
                 'name' => 'My Plugin',
                 'version' => '2.1.0',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=40',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=30',
                 'description' => 'A simple description',
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '40'
+                'extension' => '30'
             ],
             'plugin4' => [
                 'name' => 'Photos Plugin',
                 'version' => '3.1.3',
-                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=30',
+                'uri' => 'http://ext.phyxo.net/extension_view.php?eid=40',
                 'description' => 'The best plugin',
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net/',
-                'extension' => '30'
+                'extension' => '40'
             ],
 
         ];

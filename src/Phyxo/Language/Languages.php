@@ -18,17 +18,20 @@ use App\Repository\UserInfosRepository;
 class Languages extends Extensions
 {
     private $conn;
-    private $languages_base_path;
+    private static $languages_root_path = PHPWG_LANGUAGES_PATH;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null, string $languages_base_path = PHPWG_LANGUAGES_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null)
     {
         if (!is_null($conn)) {
             $this->conn = $conn;
         }
+    }
 
-        $this->languages_base_path = $languages_base_path;
+    public static function setLanguagesRootPath(string $languages_root_path)
+    {
+        self::$languages_root_path = $languages_root_path;
     }
 
     public function setConnection(\Phyxo\DBLayer\iDBLayer $conn)
@@ -96,7 +99,7 @@ class Languages extends Extensions
 
                 // Set default language to user who are using this language
                 (new LanguageRepository($this->conn))->updateLanguage(['language' => $userMapper->getDefaultLanguage()], ['id' => $language_id]);
-                \Phyxo\Functions\Utils::deltree($this->languages_base_path . '/language/' . $language_id, $this->languages_base_path . '/language/trash');
+                \Phyxo\Functions\Utils::deltree(self::$languages_root_path . '/language/' . $language_id, self::$languages_root_path . '/language/trash');
                 break;
 
             case 'set_default':
@@ -124,7 +127,7 @@ class Languages extends Extensions
             }
             $target_charset = strtolower($target_charset);
 
-            foreach (glob($this->languages_base_path . '/*/common.lang.php') as $common_lang) {
+            foreach (glob(self::$languages_root_path . '/*/common.lang.php') as $common_lang) {
                 $language_dir = basename(dirname($common_lang));
 
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
@@ -273,7 +276,7 @@ class Languages extends Extensions
      */
     public function extractLanguageFiles($action, $revision, $dest = '')
     {
-        $archive = tempnam($this->languages_base_path . '/language', 'zip');
+        $archive = tempnam(self::$languages_root_path . '/language', 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action,
@@ -286,7 +289,7 @@ class Languages extends Extensions
             throw new \Exception("Cannot download language archive");
         }
 
-        $extract_path = $this->languages_base_path . '/language';
+        $extract_path = self::$languages_root_path . '/language';
         try {
             $this->extractZipFiles($archive, 'common.lang.php', $extract_path);
             $this->getFsLanguages();

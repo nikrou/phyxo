@@ -19,14 +19,18 @@ use App\Repository\UserInfosRepository;
 class Themes extends Extensions
 {
     private $conn;
-    private static $themes_base_path;
+    private static $themes_root_path = PHPWG_THEMES_PATH;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn, string $themes_base_path = PHPWG_THEMES_PATH)
+    public function __construct(\Phyxo\DBLayer\iDBLayer $conn)
     {
         $this->conn = $conn;
-        self::$themes_base_path = $themes_base_path;
+    }
+
+    public function setThemesRootPath(string $themes_root_path)
+    {
+        self::$themes_root_path = $themes_root_path;
     }
 
     /**
@@ -36,7 +40,7 @@ class Themes extends Extensions
      */
     private static function build_maintain_class($theme_id)
     {
-        $file_to_include = self::$themes_base_path . '/' . $theme_id . '/admin/maintain.inc.php';
+        $file_to_include = self::$themes_root_path . '/' . $theme_id . '/admin/maintain.inc.php';
         $classname = $theme_id . '_maintain';
 
         if (file_exists($file_to_include)) {
@@ -160,7 +164,7 @@ class Themes extends Extensions
 
                 $theme_maintain->delete();
 
-                \Phyxo\Functions\Utils::deltree(self::$themes_base_path . '/' . $theme_id, self::$themes_base_path . '/trash');
+                \Phyxo\Functions\Utils::deltree(self::$themes_root_path . '/' . $theme_id, self::$themes_root_path . '/trash');
                 break;
 
             case 'set_default':
@@ -246,7 +250,7 @@ class Themes extends Extensions
         global $conf, $user;
 
         if (!$this->fs_themes_retrieved) {
-            foreach (glob(self::$themes_base_path . '/*/themeconf.inc.php') as $themeconf) {
+            foreach (glob(self::$themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
                 $theme_dir = basename(dirname($themeconf));
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
                     continue;
@@ -456,7 +460,7 @@ class Themes extends Extensions
      */
     public function extractThemeFiles($action, $revision, $dest)
     {
-        $archive = tempnam(self::$themes_base_path, 'zip');
+        $archive = tempnam(self::$themes_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action
@@ -468,7 +472,7 @@ class Themes extends Extensions
             throw new \Exception("Cannot download theme archive");
         }
 
-        $extract_path = self::$themes_base_path;
+        $extract_path = self::$themes_root_path;
         try {
             $this->extractZipFiles($archive, 'themeconf.inc.php', $extract_path);
         } catch (\Exception $e) {
