@@ -129,7 +129,7 @@ if (count($categories) > 0) {
     }
 
     foreach ($infos_of_image as &$info) {
-        $info['src_image'] = new \Phyxo\Image\SrcImage($info);
+        $info['src_image'] = new \Phyxo\Image\SrcImage($info, $conf['picture_ext']);
     }
     unset($info);
 }

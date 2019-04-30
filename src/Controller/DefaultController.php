@@ -112,7 +112,7 @@ class DefaultController extends BaseController
         switch ($part) {
             case 'e':
                 if (!$user['enabled_high']) {
-                    $deriv = new \Phyxo\Image\DerivativeImage(ImageStdParams::IMG_XXLARGE, new \Phyxo\Image\SrcImage($element_info));
+                    $deriv = new \Phyxo\Image\DerivativeImage(ImageStdParams::IMG_XXLARGE, new \Phyxo\Image\SrcImage($element_info, $conf['picture_ext']));
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');
                     }

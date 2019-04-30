@@ -56,9 +56,9 @@ class DerivativeImage
      * @param array|SrcImage $infos array of info from db or SrcImage
      * @return string
      */
-    public static function thumb_url($infos)
+    public static function thumb_url($infos, array $picture_ext = [])
     {
-        return self::url(ImageStdParams::IMG_THUMB, $infos);
+        return self::url(ImageStdParams::IMG_THUMB, $infos, $picture_ext);
     }
 
     /**
@@ -69,9 +69,9 @@ class DerivativeImage
      * @param array|SrcImage $infos array of info from db or SrcImage
      * @return string
      */
-    public static function url($type, $infos)
+    public static function url($type, $infos, array $picture_ext = [])
     {
-        $src_image = is_object($infos) ? $infos : new SrcImage($infos);
+        $src_image = is_object($infos) ? $infos : new SrcImage($infos, $picture_ext);
         $params = is_string($type) ? ImageStdParams::get_by_type($type) : $type;
         self::build($src_image, $params, $rel_path, $rel_url);
         if ($params == null) {
@@ -100,8 +100,10 @@ class DerivativeImage
      */
     public static function get_all($src_image)
     {
+        global $conf;
+
         if (!is_object($src_image)) {
-            $src_image = new SrcImage($src_image);
+            $src_image = new SrcImage($src_image, $conf['picture_ext']);
         }
 
         $ret = [];
@@ -128,8 +130,10 @@ class DerivativeImage
      */
     public static function get_one($type, $src_image)
     {
+        global $conf;
+
         if (!is_object($src_image)) {
-            $src_image = new SrcImage($src_image);
+            $src_image = new SrcImage($src_image, $conf['picture_ext']);
         }
 
         $defined = ImageStdParams::get_defined_type_map();
@@ -191,7 +195,7 @@ class DerivativeImage
         }
         $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
 
-        $rel_path = PWG_DERIVATIVE_DIR . $loc;
+        $rel_path = $conf['data_location'] . 'i/' . $loc;
 
         $url_style = $conf['derivative_url_style'];
         if (!$url_style) {

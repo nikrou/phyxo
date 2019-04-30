@@ -434,7 +434,7 @@ if (count($page['cat_elements_id']) > 0) {
     // template thumbnail initialization
     while ($row = $conn->db_fetch_assoc($result)) {
         $nb_thumbs_page++;
-        $src_image = new \Phyxo\Image\SrcImage($row);
+        $src_image = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
 
         $ttitle = \Phyxo\Functions\Utils::render_element_name($row);
         if ($ttitle != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read

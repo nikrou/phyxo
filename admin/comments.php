@@ -109,7 +109,8 @@ while ($row = $conn->db_fetch_assoc($result)) {
         [
             'id' => $row['image_id'],
             'path' => $row['path'],
-        ]
+        ],
+        $conf['picture_ext']
     );
     if (empty($row['author_id'])) {
         $author_name = $row['author'];

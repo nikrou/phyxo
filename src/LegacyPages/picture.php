@@ -369,7 +369,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
         $i = 'current';
     }
 
-    $row['src_image'] = new \Phyxo\Image\SrcImage($row);
+    $row['src_image'] = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
     $row['derivatives'] = \Phyxo\Image\DerivativeImage::get_all($row['src_image']);
 
     if ($i == 'current') {

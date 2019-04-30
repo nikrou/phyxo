@@ -363,7 +363,7 @@ class CalendarMonthly extends CalendarBase
             unset($page['chronology_date'][self::CDAY]);
 
             $row = $this->conn->db_fetch_assoc($result);
-            $derivative = new DerivativeImage(ImageStdParams::IMG_SQUARE, new SrcImage($row));
+            $derivative = new DerivativeImage(ImageStdParams::IMG_SQUARE, new SrcImage($row, $conf['picture_ext']));
             $items[$day]['derivative'] = $derivative;
             $items[$day]['file'] = $row['file'];
             $items[$day]['dow'] = $row['dow'];

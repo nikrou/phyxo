@@ -111,6 +111,11 @@ class UserInfos implements \ArrayAccess
         return $this->infos['expand'] ?? false;
     }
 
+    public function hasEnabledHigh(): bool
+    {
+        return $this->infos['enabled_high'];
+    }
+
     /**
      * return an array which will be sent to template to display recent icon
      *

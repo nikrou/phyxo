@@ -86,7 +86,7 @@ foreach ($pictures as $row) {
         'TN_TITLE' => \Phyxo\Functions\Utils::get_thumbnail_title($row, $name, $desc),
         'URL' => $url,
         'DESCRIPTION' => $desc,
-        'src_image' => new \Phyxo\Image\SrcImage($row),
+        'src_image' => new \Phyxo\Image\SrcImage($row, $conf['picture_ext']),
     ]);
 
     if ($conf['index_new_icon']) {

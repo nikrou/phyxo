@@ -354,7 +354,7 @@ if (count($comments) > 0) {
         }
 
         // source of the thumbnail picture
-        $src_image = new \Phyxo\Image\SrcImage($elements[$comment['image_id']]);
+        $src_image = new \Phyxo\Image\SrcImage($elements[$comment['image_id']], $conf['picture_ext']);
 
         // link to the full size picture
         $url = \Phyxo\Functions\URL::make_picture_url(

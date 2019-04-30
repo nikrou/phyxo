@@ -108,7 +108,7 @@ if ($conn->db_num_rows($result) > 0) {
     $current_rank = 1;
     $derivativeParams = ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
-        $derivative = new \Phyxo\Image\DerivativeImage($derivativeParams, new \Phyxo\Image\SrcImage($row));
+        $derivative = new \Phyxo\Image\DerivativeImage($derivativeParams, new \Phyxo\Image\SrcImage($row, $conf['picture_ext']));
 
         if (!empty($row['name'])) {
             $thumbnail_name = $row['name'];

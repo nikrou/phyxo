@@ -230,7 +230,7 @@ class ThemeController
                 'TN_TITLE' => \Phyxo\Functions\Utils::get_thumbnail_title($row, $row['name'], $row['comment']),
                 'URL' => $url,
                 'DESCRIPTION' => htmlspecialchars(strip_tags($desc)),
-                'src_image' => new SrcImage($row),
+                'src_image' => new SrcImage($row, $this->core_config['picture_ext']),
                 'SIZE' => $row['width'] . 'x' . $row['height'],
                 'PATH' => $row['path'],
                 'DATE_CREATED' => $row['date_creation'],

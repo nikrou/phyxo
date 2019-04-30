@@ -308,6 +308,8 @@ class Notification
      */
     public function get_html_description_recent_post_date(array $date_detail): string
     {
+        global $conf;
+
         $description = '<ul>';
 
         $description .=
@@ -320,7 +322,7 @@ class Notification
             . '</li><br>';
 
         foreach ($date_detail['elements'] as $element) {
-            $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element);
+            $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element, $conf['picture_ext']);
             $description .= '<a href="' .
                 \Phyxo\Functions\URL::make_picture_url([
                     'image_id' => $element['id'],

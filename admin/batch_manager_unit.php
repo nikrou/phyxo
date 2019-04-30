@@ -140,7 +140,7 @@ if (count($page['cat_elements_id']) > 0) {
     while ($row = $conn->db_fetch_assoc($result)) {
         $element_ids[] = $row['id'];
 
-        $src_image = new \Phyxo\Image\SrcImage($row);
+        $src_image = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
 
         $tags = $conn->result2array((new TagRepository($conn))->getTagsByImage($row['id']));
         $tag_selection = $tagMapper->prepareTagsListForUI($tags);

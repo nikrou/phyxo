@@ -123,28 +123,20 @@ class ImageStdParams
     /**
      * Loads derivative configuration from database or initializes it.
      */
-    public static function load_from_db()
+    public static function load_from_db(array $conf_derivatives = [])
     {
-        global $conf;
-
-        // ugly hack before refactoring
-        if (!empty($conf['dblayer']) && $conf['dblayer'] === 'mysql') {
-            $arr = @unserialize(stripslashes($conf['derivatives']));
-        } else {
-            $arr = @unserialize($conf['derivatives']);
-        }
-        if (false !== $arr) {
-            self::$type_map = $arr['d'];
-            self::$watermark = @$arr['w'];
+        if (!empty($conf_derivatives)) {
+            self::$type_map = $conf_derivatives['d'];
+            self::$watermark = @$conf_derivatives['w'];
             if (!self::$watermark) {
                 self::$watermark = new WatermarkParams();
             }
-            self::$custom = @$arr['c'];
+            self::$custom = @$conf_derivatives['c'];
             if (!self::$custom) {
                 self::$custom = [];
             }
-            if (isset($arr['q'])) {
-                self::$quality = $arr['q'];
+            if (isset($conf_derivatives['q'])) {
+                self::$quality = $conf_derivatives['q'];
             }
         } else {
             self::$watermark = new WatermarkParams();

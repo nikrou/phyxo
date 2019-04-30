@@ -40,13 +40,11 @@ class SrcImage
     /**
      * @param array $infos assoc array of data from images table
      */
-    public function __construct($infos)
+    public function __construct(array $infos, array $picture_ext)
     {
-        global $conf;
-
         $this->id = $infos['id'];
         $ext = Utils::get_extension($infos['path']);
-        if (in_array($ext, $conf['picture_ext'])) {
+        if (in_array($ext, $picture_ext)) {
             $this->rel_path = $infos['path'];
             $this->flags |= self::IS_ORIGINAL;
         } elseif (!empty($infos['representative_ext'])) {

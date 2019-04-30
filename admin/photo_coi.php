@@ -70,7 +70,7 @@ if (!empty($row['coi'])) {
 
 foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
     if ($params->sizing->max_crop != 0) {
-        $derivative = new \Phyxo\Image\DerivativeImage($params, new \Phyxo\Image\SrcImage($row));
+        $derivative = new \Phyxo\Image\DerivativeImage($params, new \Phyxo\Image\SrcImage($row, $conf['picture_ext']));
         $template->append('cropped_derivatives', [
             'U_IMG' => $derivative->get_url() . $uid,
             'HTM_SIZE' => $derivative->get_size_htm(),

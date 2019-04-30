@@ -165,7 +165,7 @@ $image_file = $row['file'];
 $admin_url_start = PHOTO_BASE_URL . '&amp;section=properties';
 $admin_url_start .= isset($_GET['cat_id']) ? '&amp;cat_id=' . $_GET['cat_id'] : '';
 
-$src_image = new \Phyxo\Image\SrcImage($row);
+$src_image = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
 
 $template->assign(
     [

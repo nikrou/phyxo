@@ -58,7 +58,7 @@ class TagMapper
         $result = $this->em->getRepository(TagRepository::class)->getPendingTags();
         $tags = [];
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['thumb_src'] = DerivativeImage::thumb_url(['id' => $row['image_id'], 'path' => $row['path']]);
+            $row['thumb_src'] = DerivativeImage::thumb_url(['id' => $row['image_id'], 'path' => $row['path']], $this->conf['picture_ext']);
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
