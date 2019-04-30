@@ -33,99 +33,6 @@ $sort_orders = [
 ];
 
 // +-----------------------------------------------------------------------+
-// |                               functions                               |
-// +-----------------------------------------------------------------------+
-
-/**
- * save the rank depending on given categories order
- *
- * The list of ordered categories id is supposed to be in the same parent
- * category
- *
- * @param array categories
- * @return void
- */
-function save_categories_order($categories)
-{
-    global $conn;
-
-    $current_rank_for_id_uppercat = [];
-    $current_rank = 0;
-
-    $datas = [];
-    foreach ($categories as $category) {
-        if (is_array($category)) {
-            $id = $category['id'];
-            $id_uppercat = $category['id_uppercat'];
-
-            if (!isset($current_rank_for_id_uppercat[$id_uppercat])) {
-                $current_rank_for_id_uppercat[$id_uppercat] = 0;
-            }
-            $current_rank = ++$current_rank_for_id_uppercat[$id_uppercat];
-        } else {
-            $id = $category;
-            $current_rank++;
-        }
-
-        $datas[] = ['id' => $id, 'rank' => $current_rank];
-    }
-    $fields = ['primary' => ['id'], 'update' => ['rank']];
-    (new CategoryRepository($conn))->massUpdatesCategories($fields, $datas);
-
-    \Phyxo\Functions\Utils::update_global_rank();
-}
-
-function get_categories_ref_date($ids, $field = 'date_available', $minmax = 'max')
-{
-    global $conn;
-
-    // we need to work on the whole tree under each category, even if we don't
-    // want to sort sub categories
-    $category_ids = (new CategoryRepository($conn))->getSubcatIds($ids);
-
-    // search for the reference date of each album
-    $result = (new ImageRepository($conn))->getReferenceDateForCategories('date_available', $minmax, $category_ids);
-    $ref_dates = $conn->result2array($result, 'category_id', 'ref_date');
-
-    // the iterate on all albums (having a ref_date or not) to find the
-    // reference_date, with a search on sub-albums
-    $result = (new CategoryRepository($conn))->findByIds($category_ids);
-    $uppercats_of = $conn->result2array($result, 'id', 'uppercats');
-
-    foreach (array_keys($uppercats_of) as $cat_id) {
-        // find the subcats
-        $subcat_ids = [];
-
-        foreach ($uppercats_of as $id => $uppercats) {
-            if (preg_match('/(^|,)' . $cat_id . '(,|$)/', $uppercats)) {
-                $subcat_ids[] = $id;
-            }
-        }
-
-        $to_compare = [];
-        foreach ($subcat_ids as $id) {
-            if (isset($ref_dates[$id])) {
-                $to_compare[] = $ref_dates[$id];
-            }
-        }
-
-        if (count($to_compare) > 0) {
-            $ref_dates[$cat_id] = 'max' == $minmax ? max($to_compare) : min($to_compare);
-        } else {
-            $ref_dates[$cat_id] = null;
-        }
-    }
-
-    // only return the list of $ids, not the sub-categories
-    $return = [];
-    foreach ($ids as $id) {
-        $return[$id] = $ref_dates[$id];
-    }
-
-    return $return;
-}
-
-// +-----------------------------------------------------------------------+
 // |                            initialization                             |
 // +-----------------------------------------------------------------------+
 
@@ -145,7 +52,7 @@ $navigation .= '</a>';
 if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     $categoryMapper->deleteCategories([$_GET['delete']]);
     $_SESSION['page_infos'] = [\Phyxo\Functions\Language::l10n('Virtual album deleted')];
-    \Phyxo\Functions\Utils::update_global_rank();
+    $categoryMapper->updateGlobalRanks();
     \Phyxo\Functions\Utils::invalidate_user_cache();
 
     $redirect_url = ALBUMS_BASE_URL . '&amp;section=list';
@@ -164,7 +71,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     }
 } elseif (isset($_POST['submitManualOrder'])) { // save manual category ordering
     asort($_POST['catOrd'], SORT_NUMERIC);
-    save_categories_order(array_keys($_POST['catOrd']));
+    $categoryMapper->saveCategoriesOrder(array_keys($_POST['catOrd']));
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Album manual order was saved');
 } elseif (isset($_POST['submitAutoOrder'])) {
@@ -188,11 +95,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     if (strpos($order_by_field, 'date_') === 0) {
         $order_by_date = true;
 
-        $ref_dates = get_categories_ref_date(
-            $category_ids,
-            $order_by_field,
-            'ASC' == $order_by_asc ? 'min' : 'max'
-        );
+        $ref_dates = $categoryMapper->getCategoriesRefDate($category_ids, $order_by_field, 'ASC' == $order_by_asc ? 'min' : 'max');
     }
 
     $result = (new CategoryRepository($conn))->findByIds($category_ids);
@@ -216,7 +119,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
         $categories
     );
 
-    save_categories_order($categories);
+    $categoryMapper->saveCategoriesOrder($categories);
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Albums automatically sorted');
 }

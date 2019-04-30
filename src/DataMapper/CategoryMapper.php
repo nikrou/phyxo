@@ -496,7 +496,7 @@ class CategoryMapper
 
         $this->em->getRepository(CategoryRepository::class)->updateCategories(['id_uppercat' => $new_parent], $category_ids);
         $this->updateUppercats();
-        \Phyxo\Functions\Utils::update_global_rank();
+        $this->updateGlobalRank();
 
         // status and related permissions management
         if ($new_parent === null) {
@@ -826,7 +826,7 @@ class CategoryMapper
         $inserted_id = $this->em->getRepository(CategoryRepository::class)->insertCategory($insert);
         $this->em->getRepository(CategoryRepository::class)->updateCategory(['uppercats' => $uppercats_prefix . $inserted_id], $inserted_id);
 
-        \Phyxo\Functions\Utils::update_global_rank();
+        $this->updateGlobalRank();
 
         if ($insert['status'] === 'private' && !empty($insert['id_uppercat']) && ((isset($options['inherit']) && $options['inherit']) || $this->conf['inheritance_by_default'])) {
             $result = $this->em->getRepository(GroupAccessRepository::class)->findFieldByCatId($insert['id_uppercat'], 'group_id');
@@ -1057,5 +1057,147 @@ class CategoryMapper
         unset($cat_dirs);
 
         return $cat_fulldirs;
+    }
+
+    /**
+     * Orders categories (update categories.rank and global_rank database fields)
+     * so that rank field are consecutive integers starting at 1 for each child.
+     */
+    public function updateGlobalRank()
+    {
+        $cat_map = [];
+        $current_rank = 0;
+        $current_uppercat = '';
+
+        $result = $this->em->getRepository(CategoryRepository::class)->findAll('id_uppercat, rank, name');
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
+            if ($row['id_uppercat'] != $current_uppercat) {
+                $current_rank = 0;
+                $current_uppercat = $row['id_uppercat'];
+            }
+            ++$current_rank;
+            $cat = [
+                'rank' => $current_rank,
+                'rank_changed' => $current_rank != $row['rank'],
+                'global_rank' => $row['global_rank'],
+                'uppercats' => $row['uppercats'],
+            ];
+            $cat_map[$row['id']] = $cat;
+        }
+
+        $datas = [];
+
+        $cat_map_callback = function ($m) use ($cat_map) {
+            return $cat_map[$m[1]]['rank'];
+        };
+
+        foreach ($cat_map as $id => $cat) {
+            $new_global_rank = preg_replace_callback(
+                '/(\d+)/',
+                $cat_map_callback,
+                str_replace(',', '.', $cat['uppercats'])
+            );
+
+            if ($cat['rank_changed'] || $new_global_rank != $cat['global_rank']) {
+                $datas[] = [
+                    'id' => $id,
+                    'rank' => $cat['rank'],
+                    'global_rank' => $new_global_rank,
+                ];
+            }
+        }
+
+        unset($cat_map);
+
+        $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories(
+            [
+                'primary' => ['id'],
+                'update' => ['rank', 'global_rank']
+            ],
+            $datas
+        );
+
+        return count($datas);
+    }
+
+    /**
+     * save the rank depending on given categories order
+     *
+     * The list of ordered categories id is supposed to be in the same parent
+     * category
+     */
+    public function saveCategoriesOrder(array $categories)
+    {
+        $current_rank_for_id_uppercat = [];
+        $current_rank = 0;
+
+        $datas = [];
+        foreach ($categories as $category) {
+            if (is_array($category)) {
+                $id = $category['id'];
+                $id_uppercat = $category['id_uppercat'];
+
+                if (!isset($current_rank_for_id_uppercat[$id_uppercat])) {
+                    $current_rank_for_id_uppercat[$id_uppercat] = 0;
+                }
+                $current_rank = ++$current_rank_for_id_uppercat[$id_uppercat];
+            } else {
+                $id = $category;
+                $current_rank++;
+            }
+
+            $datas[] = ['id' => $id, 'rank' => $current_rank];
+        }
+        $fields = ['primary' => ['id'], 'update' => ['rank']];
+        $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories($fields, $datas);
+
+        $this->updateGlobalRank();
+    }
+
+    public function getCategoriesRefDate(array $ids, string $field = 'date_available', string $minmax = 'max')
+    {
+        // we need to work on the whole tree under each category, even if we don't want to sort sub categories
+        $category_ids = $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids);
+
+        // search for the reference date of each album
+        $result = $this->em->getRepository(ImageRepository::class)->getReferenceDateForCategories($field, $minmax, $category_ids);
+        $ref_dates = $this->em->getConnection()->result2array($result, 'category_id', 'ref_date');
+
+        // the iterate on all albums (having a ref_date or not) to find the
+        // reference_date, with a search on sub-albums
+        $result = $this->em->getRepository(CategoryRepository::class)->findByIds($category_ids);
+        $uppercats_of = $this->em->getConnection()->result2array($result, 'id', 'uppercats');
+
+        foreach (array_keys($uppercats_of) as $cat_id) {
+            // find the subcats
+            $subcat_ids = [];
+
+            foreach ($uppercats_of as $id => $uppercats) {
+                if (preg_match('/(^|,)' . $cat_id . '(,|$)/', $uppercats)) {
+                    $subcat_ids[] = $id;
+                }
+            }
+
+            $to_compare = [];
+            foreach ($subcat_ids as $id) {
+                if (isset($ref_dates[$id])) {
+                    $to_compare[] = $ref_dates[$id];
+                }
+            }
+
+            if (count($to_compare) > 0) {
+                $ref_dates[$cat_id] = 'max' == $minmax ? max($to_compare) : min($to_compare);
+            } else {
+                $ref_dates[$cat_id] = null;
+            }
+        }
+
+        // only return the list of $ids, not the sub-categories
+        $return = [];
+        foreach ($ids as $id) {
+            $return[$id] = $ref_dates[$id];
+        }
+
+        return $return;
     }
 }

@@ -1376,69 +1376,6 @@ class Utils
     }
 
     /**
-     * Orders categories (update categories.rank and global_rank database fields)
-     * so that rank field are consecutive integers starting at 1 for each child.
-     */
-    public static function update_global_rank()
-    {
-        global $cat_map, $conn;
-
-        $cat_map = [];
-        $current_rank = 0;
-        $current_uppercat = '';
-
-        $result = (new CategoryRepository($conn))->findAll('id_uppercat, rank, name');
-        while ($row = $conn->db_fetch_assoc($result)) {
-            if ($row['id_uppercat'] != $current_uppercat) {
-                $current_rank = 0;
-                $current_uppercat = $row['id_uppercat'];
-            }
-            ++$current_rank;
-            $cat = [
-                'rank' => $current_rank,
-                'rank_changed' => $current_rank != $row['rank'],
-                'global_rank' => $row['global_rank'],
-                'uppercats' => $row['uppercats'],
-            ];
-            $cat_map[$row['id']] = $cat;
-        }
-
-        $datas = [];
-
-        $cat_map_callback = function ($m) use ($cat_map) {
-            return $cat_map[$m[1]]['rank'];
-        };
-
-        foreach ($cat_map as $id => $cat) {
-            $new_global_rank = preg_replace_callback(
-                '/(\d+)/',
-                $cat_map_callback,
-                str_replace(',', '.', $cat['uppercats'])
-            );
-
-            if ($cat['rank_changed'] || $new_global_rank != $cat['global_rank']) {
-                $datas[] = [
-                    'id' => $id,
-                    'rank' => $cat['rank'],
-                    'global_rank' => $new_global_rank,
-                ];
-            }
-        }
-
-        unset($cat_map);
-
-        (new CategoryRepository($conn))->massUpdatesCategories(
-            [
-                'primary' => ['id'],
-                'update' => ['rank', 'global_rank']
-            ],
-            $datas
-        );
-
-        return count($datas);
-    }
-
-    /**
      * Set a new random representant to the categories.
      *
      * @param int[] $categories

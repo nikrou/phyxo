@@ -46,7 +46,7 @@ switch ($action) {
             \Phyxo\Functions\Utils::images_integrity();
             $categoryMapper->updateUppercats();
             $categoryMapper->updateCategory('all');
-            \Phyxo\Functions\Utils::update_global_rank();
+            $categoryMapper->updateGlobalRank();
             \Phyxo\Functions\Utils::invalidate_user_cache(true);
             break;
         }

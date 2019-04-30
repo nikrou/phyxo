@@ -453,7 +453,7 @@ if (isset($_POST['submit']) and ($_POST['sync'] == 'dirs' or $_POST['sync'] == '
         $categoryMapper->updateCategory('all');
         $template->append('footer_elements', '<!-- updateCategory(all) : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
         $start = microtime(true);
-        \Phyxo\Functions\Utils::update_global_rank();
+        $categoryMapper->updateGlobalRanlk();
         $template->append('footer_elements', '<!-- ordering categories : ' . \Phyxo\Functions\Utils::get_elapsed_time($start, microtime(true)) . ' -->');
     }
 
