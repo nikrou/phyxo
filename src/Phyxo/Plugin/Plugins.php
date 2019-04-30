@@ -20,7 +20,7 @@ class Plugins extends Extensions
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
-    private static $plugins_root_path = PHPWG_PLUGINS_PATH;
+    private static $plugins_root_path;
     private $conn;
 
     public function __construct(\Phyxo\DBLayer\iDBLayer $conn)
@@ -28,7 +28,7 @@ class Plugins extends Extensions
         $this->conn = $conn;
     }
 
-    public function setPluginsRootPath(string $plugins_root_path)
+    public function setPluginsRootPath(string $plugins_root_path = PHPWG_PLUGINS_PATH)
     {
         self::$plugins_root_path = $plugins_root_path;
     }
