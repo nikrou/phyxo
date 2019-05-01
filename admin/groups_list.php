@@ -177,7 +177,7 @@ if (isset($_POST['submit']) and isset($_POST['selectAction']) and isset($_POST['
 
         $page['infos'][] = \Phyxo\Functions\Language::l10n('groups "%s" updated', implode(', ', $groups));
     }
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 }
 // +-----------------------------------------------------------------------+
 // |                             template init                             |

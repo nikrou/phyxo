@@ -100,7 +100,7 @@ if ($step == 2 && $userMapper->isWebmaster()) {
             $updater->upgrade($zip);
 
             \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
-            \Phyxo\Functions\Utils::invalidate_user_cache(true);
+            $userMapper->invalidateUserCache(true);
             $template->delete_compiled_templates();
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
             $page['infos'][] = $upgrade_to;
@@ -131,7 +131,7 @@ if ($step == 3 && $userMapper->isWebmaster()) {
             $updater->upgrade($zip);
 
             \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
-            \Phyxo\Functions\Utils::invalidate_user_cache(true);
+            $userMapper->invalidateUserCache(true);
             $template->delete_compiled_templates();
             \Phyxo\Functions\Utils::redirect(__DIR__ . '/../' . 'upgrade.php?now='); // @TODO: use symfony router
         } catch (Exception $e) {

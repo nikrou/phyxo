@@ -443,7 +443,7 @@ class User
             }
         }
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return $service->invoke('pwg.users.getList', [
             'user_id' => $params['user_id'],

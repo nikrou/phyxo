@@ -87,7 +87,7 @@ if (isset($_POST['falsify'], $_POST['cat_true']) && count($_POST['cat_true']) > 
             {
                 // theoretically, all categories in $_POST['cat_false'] contain at
                 // least one element, so Phyxo can find a representant.
-                \Phyxo\Functions\Category::set_random_representant($_POST['cat_false']);
+                $categoryMapper->setRandomRepresentant($_POST['cat_false']);
                 break;
             }
     }

@@ -232,7 +232,7 @@ if (isset($_GET['action'])) {
             {
                 if ($userMapper->isAdmin() and isset($page['category'])) {
                     (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $page['image_id']], $page['category']['id']);
-                    \Phyxo\Functions\Utils::invalidate_user_cache();
+                    $userMapper->invalidateUserCache();
                 }
                 \Phyxo\Functions\Utils::redirect($url_self);
                 break;

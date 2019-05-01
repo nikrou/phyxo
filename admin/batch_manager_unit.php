@@ -73,7 +73,7 @@ if (isset($_POST['submit'])) {
     );
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Photo informations updated');
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 }
 
 // +-----------------------------------------------------------------------+

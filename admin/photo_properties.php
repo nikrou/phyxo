@@ -36,7 +36,7 @@ if (isset($_GET['delete'])) {
     \Phyxo\Functions\Utils::check_token();
 
     \Phyxo\Functions\Utils::delete_elements([$_GET['image_id']], true);
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 
     // where to redirect the user now?
     //
@@ -121,7 +121,7 @@ if (isset($_POST['submit'])) {
     \Phyxo\Functions\Utils::check_input_parameter('associate', $_POST, true, PATTERN_ID);
     $categoryMapper->moveImagesToCategories([$_GET['image_id']], $_POST['associate']);
 
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 
     // thumbnail for albums
     if (!isset($_POST['represent'])) {
@@ -131,7 +131,7 @@ if (isset($_POST['submit'])) {
 
     $no_longer_thumbnail_for = array_diff($represented_albums, $_POST['represent']);
     if (count($no_longer_thumbnail_for) > 0) {
-        \Phyxo\Functions\Utils::set_random_representant($no_longer_thumbnail_for);
+        $categoryMapper->setRandomRepresentant($no_longer_thumbnail_for);
     }
 
     $new_thumbnail_for = array_diff($_POST['represent'], $represented_albums);

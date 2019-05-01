@@ -54,7 +54,7 @@ if (!empty($_POST['submit'])) {
     $Permissions['show_pending_deleted_tags'] = empty($_POST['show_pending_deleted_tags']) ? 0 : 1;
     $conf['show_pending_deleted_tags'] = $Permissions['show_pending_deleted_tags'];
 
-    \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+    $tagMapper->invalidateUserCacheNbTags();
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Settings have been updated');
 }

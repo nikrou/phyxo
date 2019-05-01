@@ -1200,4 +1200,29 @@ class CategoryMapper
 
         return $return;
     }
+
+    /**
+     * Set a new random representant to the categories.
+     */
+    public function setRandomRepresentant(array $categories)
+    {
+        $datas = [];
+        foreach ($categories as $category_id) {
+            $result = $this->em->getRepository(ImageCategoryRepository::class)->findRandomRepresentant($category_id);
+            list($representative) = $this->em->getConnection()->db_fetch_row($result);
+
+            $datas[] = [
+                'id' => $category_id,
+                'representative_picture_id' => $representative,
+            ];
+        }
+
+        $this->em->getRepository(CategoryRepository)->massUpdatesCategories(
+            [
+                'primary' => ['id'],
+                'update' => ['representative_picture_id']
+            ],
+            $datas
+        );
+    }
 }

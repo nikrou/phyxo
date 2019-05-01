@@ -62,7 +62,7 @@ if (isset($_GET['group_id']) and is_numeric($_GET['group_id'])) {
         }
 
         (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts);
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $userMapper->invalidateUserCache();
     }
 
     // +-----------------------------------------------------------------------+

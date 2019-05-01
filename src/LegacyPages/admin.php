@@ -177,7 +177,7 @@ if (in_array($page['page'], ['site_manager', 'site_update'])
         'user_list',    // group assoc; user level
         'user_perm',
     ]))) {
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 }
 
 // +-----------------------------------------------------------------------+

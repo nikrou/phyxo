@@ -79,7 +79,7 @@ if (isset($_POST['submit'])) {
     $_SESSION['page_infos'][] = \Phyxo\Functions\Language::l10n('Album updated successfully');
     $redirect = true;
 } elseif (isset($_POST['set_random_representant'])) {
-    \Phyxo\Functions\Utils::set_random_representant([$_GET['cat_id']]);
+    $categoryMapper->setRandomRepresentant([$_GET['cat_id']]);
     $redirect = true;
 } elseif (isset($_POST['delete_representant'])) {
     (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => null], $_GET['cat_id']);

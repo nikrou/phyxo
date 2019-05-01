@@ -13,7 +13,6 @@ namespace Phyxo\Functions;
 
 use Phyxo\Block\RegisteredBlock;
 use App\Repository\CommentRepository;
-use App\Repository\ImageCategory;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserCacheCategoriesRepository;
@@ -21,18 +20,15 @@ use App\Repository\FavoriteRepository;
 use App\Repository\RateRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
-use App\Repository\SiteRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\LanguageRepository;
 use App\Repository\UserFeedRepository;
-use App\Repository\HistoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\UserGroupRepository;
 use Phyxo\Image\ImageStdParams;
 
@@ -1376,35 +1372,6 @@ class Utils
     }
 
     /**
-     * Set a new random representant to the categories.
-     *
-     * @param int[] $categories
-     */
-    public static function set_random_representant($categories)
-    {
-        global $conn;
-
-        $datas = [];
-        foreach ($categories as $category_id) {
-            $result = (new ImageCategoryRepository($conn))->findRandomRepresentant($category_id);
-            list($representative) = $conn->db_fetch_row($result);
-
-            $datas[] = [
-                'id' => $category_id,
-                'representative_picture_id' => $representative,
-            ];
-        }
-
-        (new CategoryRepository($conn))->massUpdatesCategories(
-            [
-                'primary' => ['id'],
-                'update' => ['representative_picture_id']
-            ],
-            $datas
-        );
-    }
-
-    /**
      * Returns an array with all file system files according to $conf['file_ext']
      *
      * @param string $path
@@ -1508,34 +1475,6 @@ class Utils
                 (new $repository($conn))->deleteByUserIds($to_delete);
             }
         }
-    }
-
-    /**
-     * Invalidates cached data (permissions and category counts) for all users.
-     */
-    public static function invalidate_user_cache($full = true)
-    {
-        global $conn;
-
-        if ($full) {
-            (new UserCacheRepository($conn))->deleteUserCache();
-            (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories();
-        } else {
-            (new UserCacheRepository($conn))->updateUserCache(['need_update' => true]);
-        }
-        \Phyxo\Functions\Plugin::trigger_notify('invalidate_user_cache', $full);
-    }
-
-    /**
-     * Invalidates cached tags counter for all users.
-     */
-    public static function invalidate_user_cache_nb_tags()
-    {
-        global $user, $conn;
-
-        unset($user['nb_available_tags']);
-
-        (new UserCacheRepository($conn))->updateUserCache(['nb_available_tags' => null]);
     }
 
     /**

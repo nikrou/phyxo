@@ -438,7 +438,7 @@ class Category
             return new Error(500, $creation_output['error']);
         }
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return $creation_output;
     }
@@ -646,7 +646,7 @@ class Category
         $page['errors'] = [];
 
         $service->getCategoryMapper()->moveCategories($category_ids, $params['parent']);
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         if (count($page['errors']) != 0) {
             return new Error(403, implode('; ', $page['errors']));

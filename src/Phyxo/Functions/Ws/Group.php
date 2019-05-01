@@ -104,7 +104,7 @@ class Group
         // destruction of the group
         (new GroupRepository($conn))->deleteByIds($params['group_id']);
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return new NamedArray($groupnames, 'group_deleted');
     }
@@ -177,7 +177,7 @@ class Group
 
         (new UserGroupRepository($conn))->massInserts(['group_id', 'user_id'], $inserts);
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return $service->invoke('pwg.groups.getList', ['group_id' => $params['group_id']]);
     }
@@ -203,7 +203,7 @@ class Group
 
         (new UserGroupRepository($conn))->delete($params['group_id'], $params['user_id']);
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return $service->invoke('pwg.groups.getList', ['group_id' => $params['group_id']]);
     }

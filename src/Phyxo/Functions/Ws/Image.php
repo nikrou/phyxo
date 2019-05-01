@@ -333,7 +333,7 @@ class Image
 
         $result = (new ImageRepository($conn))->updateImages(['level' => (int)$params['level']], $params['image_id']);
         if ($affected_rows = $conn->db_changes($result)) {
-            \Phyxo\Functions\Utils::invalidate_user_cache();
+            $service->getUserMapper()->invalidateUserCache();
         }
 
         return $affected_rows;
@@ -621,7 +621,7 @@ class Image
             $service->getTagMapper()->setTags(explode(',', $params['tag_ids']), $image_id);
         }
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return [
             'image_id' => $image_id,
@@ -1135,7 +1135,7 @@ class Image
             }
         }
 
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
     }
 
     /**
@@ -1170,7 +1170,7 @@ class Image
         }
 
         $number_of_elements_deleted = \Phyxo\Functions\Utils::delete_elements($image_ids, true);
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $service->getUserMapper()->invalidateUserCache();
 
         return $number_of_elements_deleted;
     }

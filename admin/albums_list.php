@@ -53,7 +53,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
     $categoryMapper->deleteCategories([$_GET['delete']]);
     $_SESSION['page_infos'] = [\Phyxo\Functions\Language::l10n('Virtual album deleted')];
     $categoryMapper->updateGlobalRanks();
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
 
     $redirect_url = ALBUMS_BASE_URL . '&amp;section=list';
     if (isset($_GET['parent_id'])) {
@@ -63,7 +63,7 @@ if (isset($_GET['delete']) and is_numeric($_GET['delete'])) {
 } elseif (isset($_POST['submitAdd'])) { // request to add a virtual category
     $output_create = $categoryMapper->createVirtualCategory($_POST['virtual_name'], @$_GET['parent_id'], $app_user->getId());
 
-    \Phyxo\Functions\Utils::invalidate_user_cache();
+    $userMapper->invalidateUserCache();
     if (isset($output_create['error'])) {
         $page['errors'][] = $output_create['error'];
     } else {

@@ -133,7 +133,7 @@ if (isset($_POST['submit']) && \Phyxo\Functions\Upgrade::check_upgrade()) {
         $page['infos'] = [];
 
         // Delete cache data
-        \Phyxo\Functions\Utils::invalidate_user_cache(true);
+        $userMapper->invalidateUserCache(true);
         $template->delete_compiled_templates();
 
         // Tables Maintenance

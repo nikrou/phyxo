@@ -242,7 +242,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (!in_array($action, ['remove_from_caddie', 'add_to_caddie', 'delete_derivatives', 'generate_derivatives'])) {
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+        $userMapper->invalidateUserCache();
     }
 
     \Phyxo\Functions\Plugin::trigger_notify('element_set_global_action', $action, $collection);

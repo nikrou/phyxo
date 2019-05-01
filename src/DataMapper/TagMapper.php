@@ -242,7 +242,7 @@ class TagMapper
             if (count($existing_tags) === 0) { // finally create the tag
                 $insert_tag_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, $url_name);
 
-                \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+                $this->invalidateUserCacheNbTags();
 
                 return $insert_tag_id;
             }
@@ -277,7 +277,7 @@ class TagMapper
             array_keys($inserts[0]),
             $inserts
         );
-        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+        $this->invalidateUserCacheNbTags();
     }
 
     /**
@@ -302,7 +302,7 @@ class TagMapper
         $this->em->getRepository(ImageTagRepository::class)->deleteBy('tag_id', $tag_ids);
         $this->em->getRepository(TagRepository::class)->deleteBy('id', $tag_ids);
 
-        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+        $this->invalidateUserCacheNbTags();
     }
 
     /**
@@ -333,7 +333,7 @@ class TagMapper
                 );
             }
 
-            \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+            $this->invalidateUserCacheNbTags();
         }
     }
 
@@ -396,7 +396,7 @@ class TagMapper
             array_keys($inserts[0]),
             $inserts
         );
-        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+        $this->invalidateUserCacheNbTags();
     }
 
     // @param $elements in an array of tags indexed by image_id
@@ -441,7 +441,7 @@ class TagMapper
             $updates
         );
         $this->em->getRepository(TagRepository::class)->deleteValidated();
-        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+        $this->invalidateUserCacheNbTags();
     }
 
     public function dissociateTags($tag_ids, $image_id)
@@ -492,7 +492,7 @@ class TagMapper
             }
         }
 
-        \Phyxo\Functions\Utils::invalidate_user_cache_nb_tags();
+        $this->invalidateUserCacheNbTags();
     }
 
     /**
@@ -550,5 +550,13 @@ class TagMapper
         }
 
         $this->setTagsOf($tags_of);
+    }
+
+    /**
+     * Invalidates cached tags counter for all users.
+     */
+    public function invalidateUserCacheNbTags()
+    {
+        $this->em->getRepository(UserCacheRepository::class)->updateUserCache(['nb_available_tags' => null]);
     }
 }

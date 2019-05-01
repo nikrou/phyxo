@@ -15,6 +15,8 @@ use GuzzleHttp\Client;
 use App\Repository\ImageRepository;
 use App\Repository\ConfigRepository;
 use App\Repository\BaseRepository;
+use App\Repository\UserCacheRepository;
+use App\Repository\UserCacheCategoriesRepository;
 
 class Upload
 {
@@ -378,7 +380,10 @@ class Upload
         if ($conf['use_exif'] and !function_exists('exif_read_data')) {
             $conf['use_exif'] = false;
         }
-        \Phyxo\Functions\Utils::invalidate_user_cache();
+
+        // @TODO : need refactoring. Copy UserMapper::invalidateUserCache
+        (new UserCacheRepository($conn))->deleteUserCache();
+        (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories();
 
         // cache thumbnail
         $result = (new ImageRepository($conn))->findByField('id', (string) $image_id);

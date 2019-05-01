@@ -47,7 +47,7 @@ switch ($action) {
             $categoryMapper->updateUppercats();
             $categoryMapper->updateCategory('all');
             $categoryMapper->updateGlobalRank();
-            \Phyxo\Functions\Utils::invalidate_user_cache(true);
+            $userMapper->invalidateUserCache(true);
             break;
         }
     case 'images':
@@ -63,7 +63,7 @@ switch ($action) {
             }
 
             \Phyxo\Functions\Rate::update_rating_score();
-            \Phyxo\Functions\Utils::invalidate_user_cache();
+            $userMapper->invalidateUserCache();
             break;
         }
     case 'delete_orphan_tags':
@@ -73,7 +73,7 @@ switch ($action) {
         }
     case 'user_cache':
         {
-            \Phyxo\Functions\Utils::invalidate_user_cache();
+            $userMapper->invalidateUserCache();
             break;
         }
     case 'history_detail':

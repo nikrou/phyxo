@@ -611,4 +611,18 @@ class UserMapper
 
         return $number_of_available_comments;
     }
+
+    /**
+     * Invalidates cached data (permissions and category counts) for all users.
+     */
+    public function invalidateUserCache(bool $full = true)
+    {
+        if ($full) {
+            $this->em->getRepository(UserCacheRepository::class)->deleteUserCache();
+            $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteUserCacheCategories();
+        } else {
+            $this->em->getRepository(UserCacheRepository::class)->updateUserCache(['need_update' => true]);
+        }
+        \Phyxo\Functions\Plugin::trigger_notify('UserMapper::invalidateUserCache', $full);
+    }
 }
