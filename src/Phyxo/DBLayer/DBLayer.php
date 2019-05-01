@@ -13,6 +13,8 @@ namespace Phyxo\DBLayer;
 
 class DBLayer
 {
+    const MASS_UPDATES_SKIP_EMPTY = 1;
+
     protected $db_link = null;
     protected $queries = [];
     protected $queries_time = 0;

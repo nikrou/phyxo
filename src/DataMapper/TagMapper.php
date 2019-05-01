@@ -21,6 +21,7 @@ use Phyxo\Functions\Metadata;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Phyxo\EntityManager;
+use Phyxo\DBLayer\DBLayer;
 
 class TagMapper
 {
@@ -544,7 +545,7 @@ class TagMapper
                     'update' => $update_fields
                 ],
                 $datas,
-                MASS_UPDATES_SKIP_EMPTY
+                DBLayer::MASS_UPDATES_SKIP_EMPTY
             );
         }
 

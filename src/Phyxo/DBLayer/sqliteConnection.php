@@ -22,8 +22,6 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_connect(string $host, string $user, string $password, string $database)
     {
-        global $conf;
-
         $db_file = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
 
         try {
@@ -244,28 +242,26 @@ class sqliteConnection extends DBLayer implements iDBLayer
      */
     public function get_enums(string $table, string $field) : array
     {
-        global $prefixeTable;
-
         $list = [];
 
         $Enums = [];
-        $Enums[$prefixeTable . 'categories']['status'] = ['public', 'private'];
-        $Enums[$prefixeTable . 'categories']['visible'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'categories']['commentable'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'comments']['validated'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'groups']['is_default'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'history']['section'] = ['categories', 'tags', 'search', 'list', 'favorites', 'most_visited', 'best_rated', 'recent_pics', 'recent_cats'];
-        $Enums[$prefixeTable . 'history']['summarized'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'history']['image_type'] = ['picture', 'high', 'other'];
-        $Enums[$prefixeTable . 'plugins']['state'] = ['inactive', 'active'];
-        $Enums[$prefixeTable . 'user_cache']['need_update'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'user_cache']['image_access_type'] = ['NOT IN', 'IN'];
-        $Enums[$prefixeTable . 'user_infos']['status'] = ['webmaster', 'admin', 'normal', 'generic', 'guest'];
-        $Enums[$prefixeTable . 'user_infos']['expand'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'user_infos']['show_nb_comments'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'user_infos']['show_nb_hits'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'user_infos']['enabled_high'] = ['true', 'false'];
-        $Enums[$prefixeTable . 'user_mail_notification']['enabled'] = ['true', 'false'];
+        $Enums[$this->prefix . 'categories']['status'] = ['public', 'private'];
+        $Enums[$this->prefix . 'categories']['visible'] = ['true', 'false'];
+        $Enums[$this->prefix . 'categories']['commentable'] = ['true', 'false'];
+        $Enums[$this->prefix . 'comments']['validated'] = ['true', 'false'];
+        $Enums[$this->prefix . 'groups']['is_default'] = ['true', 'false'];
+        $Enums[$this->prefix . 'history']['section'] = ['categories', 'tags', 'search', 'list', 'favorites', 'most_visited', 'best_rated', 'recent_pics', 'recent_cats'];
+        $Enums[$this->prefix . 'history']['summarized'] = ['true', 'false'];
+        $Enums[$this->prefix . 'history']['image_type'] = ['picture', 'high', 'other'];
+        $Enums[$this->prefix . 'plugins']['state'] = ['inactive', 'active'];
+        $Enums[$this->prefix . 'user_cache']['need_update'] = ['true', 'false'];
+        $Enums[$this->prefix . 'user_cache']['image_access_type'] = ['NOT IN', 'IN'];
+        $Enums[$this->prefix . 'user_infos']['status'] = ['webmaster', 'admin', 'normal', 'generic', 'guest'];
+        $Enums[$this->prefix . 'user_infos']['expand'] = ['true', 'false'];
+        $Enums[$this->prefix . 'user_infos']['show_nb_comments'] = ['true', 'false'];
+        $Enums[$this->prefix . 'user_infos']['show_nb_hits'] = ['true', 'false'];
+        $Enums[$this->prefix . 'user_infos']['enabled_high'] = ['true', 'false'];
+        $Enums[$this->prefix . 'user_mail_notification']['enabled'] = ['true', 'false'];
 
         if (!empty($Enums[$table][$field])) {
             $list = $Enums[$table][$field];
@@ -441,7 +437,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
                     } elseif (isset($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                     } else {
-                        if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+                        if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                             continue; // next field
                         }
                         $query .= "$separator$key = NULL";
@@ -474,7 +470,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
             $this->db_query($query);
             $this->mass_inserts($temporary_tablename, $all_fields, $datas);
-            if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+            if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                 $func_set = function ($s) use ($tablename, $temporary_tablename) {
                     return sprintf(
                         '%1$s = IFNULL(%3$s.%1$s, %2$s.%1$s)',
@@ -520,12 +516,10 @@ class sqliteConnection extends DBLayer implements iDBLayer
      */
     public function do_maintenance_all_tables() : bool
     {
-        global $prefixeTable;
-
         $all_tables = [];
 
         // List all tables
-        $query = 'SELECT name FROM SQLITE_MASTER WHERE name LIKE \'' . $prefixeTable . '%\'';
+        $query = 'SELECT name FROM SQLITE_MASTER WHERE name LIKE \'' . $this->prefix . '%\'';
 
         $all_tables = $this->query2array($query, null, 'name');
         foreach ($all_tables as $table_name) {

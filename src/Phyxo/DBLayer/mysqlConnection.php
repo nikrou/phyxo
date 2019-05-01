@@ -496,7 +496,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
                     } elseif (isset($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                     } else {
-                        if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+                        if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                             continue; // next field
                         }
                         $query .= " $separator $key = null ";
@@ -558,7 +558,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
             $this->db_query($query);
             $this->mass_inserts($temporary_tablename, $all_fields, $datas);
-            if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+            if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                 $func_set = function ($s) {
                     return " t1 . $s = IFNULL(t2 . $s, t1 . $s) ";
                 };
@@ -592,12 +592,10 @@ class mysqlConnection extends DBLayer implements iDBLayer
      */
     public function do_maintenance_all_tables() : bool
     {
-        global $prefixeTable;
-
         $all_tables = [];
 
         // List all tables
-        $query = 'SHOW TABLES LIKE \'' . $prefixeTable . '%\'';
+        $query = 'SHOW TABLES LIKE \'' . $this->prefix . '%\'';
         $result = $this->db_query($query);
         while ($row = $this->db_fetch_row($result)) {
             $all_tables[] = $row[0];

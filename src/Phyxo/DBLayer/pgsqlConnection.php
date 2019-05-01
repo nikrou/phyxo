@@ -461,7 +461,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
                     } elseif (isset($data[$key])) {
                         $query .= $separator . $key . ' = \'' . $this->db_real_escape_string($data[$key]) . '\'';
                     } else {
-                        if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+                        if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                             continue; // next field
                         }
                         $query .= "$separator$key = NULL";
@@ -495,7 +495,7 @@ class pgsqlConnection extends DBLayer implements iDBLayer
 
             $this->db_query($query);
             $this->mass_inserts($temporary_tablename, $all_fields, $datas);
-            if ($flags & MASS_UPDATES_SKIP_EMPTY) {
+            if ($flags & self::MASS_UPDATES_SKIP_EMPTY) {
                 $func_set = function ($s) use ($tablename, $temporary_tablename) {
                     return sprintf(
                         '%1$s = IFNULL(%3$s.%1$s, %2$s.%1$s)',
@@ -541,13 +541,11 @@ class pgsqlConnection extends DBLayer implements iDBLayer
      */
     public function do_maintenance_all_tables() : bool
     {
-        global $prefixeTable;
-
         $all_tables = [];
 
         // List all tables
         $query = 'SELECT tablename FROM pg_tables';
-        $query .= ' WHERE tablename like \'' . $prefixeTable . '%\'';
+        $query .= ' WHERE tablename like \'' . $this->prefix . '%\'';
 
         $all_tables = $this->query2array($query, null, 'tablename');
         // Optimize all tables

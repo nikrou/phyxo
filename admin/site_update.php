@@ -18,6 +18,7 @@ use App\Repository\GroupAccessRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\BaseRepository;
+use Phyxo\DBLayer\DBLayer;
 
 // +-----------------------------------------------------------------------+
 // | Check Access and exit when user status is not ok                      |
@@ -588,7 +589,7 @@ if (isset($_POST['submit']) and isset($_POST['sync_meta']) and !$general_failure
                     )
                 ],
                 $datas,
-                isset($_POST['meta_empty_overrides']) ? 0 : MASS_UPDATES_SKIP_EMPTY
+                isset($_POST['meta_empty_overrides']) ? 0 : DBLayer::MASS_UPDATES_SKIP_EMPTY
             );
         }
         $tagMapper->setTagsOf($tags_of);

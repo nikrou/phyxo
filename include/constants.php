@@ -67,7 +67,3 @@ define('ACCESS_CLOSED', 5);
 
 // Sanity checks
 define('PATTERN_ID', '/^\d+$/');
-
-if (!defined('MASS_UPDATES_SKIP_EMPTY')) {
-    define('MASS_UPDATES_SKIP_EMPTY', 1);
-}
