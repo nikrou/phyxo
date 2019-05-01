@@ -373,10 +373,6 @@ class UserMapper
             $forbidden_array = array_unique($forbidden_array);
         }
 
-        if (empty($forbidden_array)) {
-            $forbidden_array[] = 0;
-        }
-
         return implode(',', $forbidden_array);
     }
 

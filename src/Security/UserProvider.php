@@ -77,8 +77,8 @@ class UserProvider implements UserProviderInterface
 
             $extra_infos = $this->userMapper->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
             $user_infos = new UserInfos($userInfosData);
-            $user_infos->setForbiddenCategories(explode(',', $extra_infos['forbidden_categories']));
-            $user_infos->setImageAccessList(explode(',', $extra_infos['image_access_list']));
+            $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:explode(',', $extra_infos['forbidden_categories']));
+            $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
             $user_infos->setImageAccessType($extra_infos['image_access_type']);
             $user->setInfos($user_infos);
 
