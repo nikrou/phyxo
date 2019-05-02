@@ -15,12 +15,15 @@ use Phyxo\Functions\Plugin;
 use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
-use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\UserMapper;
+use Phyxo\Conf;
+use Phyxo\DBLayer\iDBLayer;
+use Symfony\Component\Routing\RouterInterface;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $phyxoVersion, $conn, $conf, $router;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -90,6 +93,46 @@ class Server
         return $this->categoryMapper;
     }
 
+    public function setCoreVersion(string $phyxoVersion)
+    {
+        $this->phyxoVersion = $phyxoVersion;
+    }
+
+    public function getCoreVersion()
+    {
+        return $this->phyxoVersion;
+    }
+
+    public function setConf(Conf $conf)
+    {
+        $this->conf = $conf;
+    }
+
+    public function getConf()
+    {
+        return $this->conf;
+    }
+
+    public function setConnection(iDBLayer $conn)
+    {
+        $this->conn = $conn;
+    }
+
+    public function getConnection()
+    {
+        return $this->conn;
+    }
+
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
+    public function getRouter()
+    {
+        return $this->router;
+    }
+
     /**
      *  Initializes the request handler.
      */
@@ -138,7 +181,8 @@ class Server
 
         Plugin::trigger_notify('ws_add_methods', [&$this]);
         uksort($this->_methods, 'strnatcmp');
-        $this->_requestHandler->handleRequest($this);
+
+        return $this->_requestHandler->handleRequest($this);
     }
 
     /**
@@ -150,7 +194,7 @@ class Server
         $encodedResponse = $this->_responseEncoder->encodeResponse($response);
         Plugin::trigger_notify('sendResponse', $encodedResponse);
 
-        echo $encodedResponse;
+        return $encodedResponse;
     }
 
     /**

@@ -31,8 +31,6 @@ class Permission
      */
     public static function getList($params, Server $service)
     {
-        global $conn;
-
         $my_params = array_intersect(array_keys($params), ['cat_id', 'group_id', 'user_id']);
         if (count($my_params) > 1) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Too many parameters, provide cat_id OR user_id OR group_id');
@@ -40,7 +38,7 @@ class Permission
 
         $cat_filter = '';
         if (!empty($params['cat_id'])) {
-            $cat_filter = 'WHERE cat_id ' . $conn->in($params['cat_id']);
+            $cat_filter = 'WHERE cat_id ' . $service->getConnection()->in($params['cat_id']);
         }
 
         $filters = ['group_id' => '', 'user_id' => ''];
@@ -54,8 +52,8 @@ class Permission
         $perms = [];
 
         // direct users
-        $result = (new UserAccessRepository($conn))->findByCatId($params['cat_id'] ?? null);
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = (new UserAccessRepository($service->getConnection()))->findByCatId($params['cat_id'] ?? null);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             if (!isset($perms[$row['cat_id']])) {
                 $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
             }
@@ -63,8 +61,8 @@ class Permission
         }
 
         // indirect users
-        $result = (new UserGroupRepository($conn))->findIndirectUsersByCatIds($params['cat_id'] ?? []);
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = (new UserGroupRepository($service->getConnection()))->findIndirectUsersByCatIds($params['cat_id'] ?? []);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             if (!empty($row['cat_id'])) {
                 if (!isset($perms[$row['cat_id']])) {
                     $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
@@ -74,8 +72,8 @@ class Permission
         }
 
         // groups
-        $result = (new GroupAccessRepository($conn))->findByCatId($params['cat_id'] ?? null);
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = (new GroupAccessRepository($service->getConnection()))->findByCatId($params['cat_id'] ?? null);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             if (!isset($perms[$row['cat_id']])) {
                 $perms[$row['cat_id']]['id'] = intval($row['cat_id']);
             }
@@ -124,8 +122,6 @@ class Permission
      */
     public static function add($params, Server $service)
     {
-        global $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
@@ -133,11 +129,11 @@ class Permission
         if (!empty($params['group_id'])) {
             $cat_ids = $service->getCategoryMapper()->getUppercatIds($params['cat_id']);
             if ($params['recursive']) {
-                $cat_ids = array_merge($cat_ids, (new CategoryRepository($conn))->getSubcatIds($params['cat_id']));
+                $cat_ids = array_merge($cat_ids, (new CategoryRepository($service->getConnection()))->getSubcatIds($params['cat_id']));
             }
 
-            $result = (new CategoryRepository($conn))->findByIdsAndStatus($cat_ids, 'private');
-            $private_cats = $conn->result2array($result, null, 'id');
+            $result = (new CategoryRepository($service->getConnection()))->findByIdsAndStatus($cat_ids, 'private');
+            $private_cats = $service->getConnection()->result2array($result, null, 'id');
 
             $inserts = [];
             foreach ($private_cats as $cat_id) {
@@ -149,7 +145,7 @@ class Permission
                 }
             }
 
-            (new GroupAccessRepository($conn))->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
+            (new GroupAccessRepository($service->getConnection()))->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
         }
 
         if (!empty($params['user_id'])) {
@@ -172,20 +168,18 @@ class Permission
      */
     public static function remove($params, Server $service)
     {
-        global $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
 
-        $cat_ids = (new CategoryRepository($conn))->getSubcatIds($params['cat_id']);
+        $cat_ids = (new CategoryRepository($service->getConnection()))->getSubcatIds($params['cat_id']);
 
         if (!empty($params['group_id'])) {
-            (new GroupAccessRepository($conn))->deleteByGroupIdsAndCatIds($params['group_id'], $cat_ids);
+            (new GroupAccessRepository($service->getConnection()))->deleteByGroupIdsAndCatIds($params['group_id'], $cat_ids);
         }
 
         if (!empty($params['user_id'])) {
-            (new UserAccessRepository($conn))->deleteByUserIdsAndCatIds($params['user_id'], $cat_ids);
+            (new UserAccessRepository($service->getConnection()))->deleteByUserIdsAndCatIds($params['user_id'], $cat_ids);
         }
 
         return $service->invoke('pwg.permissions.getList', ['cat_id' => $params['cat_id']]);

@@ -25,17 +25,15 @@ class Theme
      *    @option string theme
      *    @option string pwg_token
      */
-    public static function performAction($params, Server $service)
+    public static function performAction(array $params, Template $template, Server $service)
     {
-        global $template;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
 
-        define('IN_ADMIN', true);
+        define('IN_ADMIN', true); // @TODO: remove ?
 
-        $themes = new Themes($GLOBALS['conn']);
+        $themes = new Themes($service->getConnection());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
         if (!empty($errors)) {

@@ -50,7 +50,7 @@ class Extension
         $extension_id = $params['id'];
         $revision = $params['revision'];
 
-        $extension = new $typeClassName($GLOBALS['conn']);
+        $extension = new $typeClassName($service->getConnection());
 
         try {
             if ($type == 'plugins') {
@@ -97,9 +97,7 @@ class Extension
      */
     public static function ignoreupdate($params, Server $service)
     {
-        global $conf;
-
-        define('IN_ADMIN', true);
+        define('IN_ADMIN', true); //@TODO: to remove ?
 
         if (!$service->getUserMapper()->isWebmaster()) {
             return new Error(401, 'Access denied');
@@ -109,14 +107,14 @@ class Extension
             return new Error(403, 'Invalid security token');
         }
 
-        $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
+        $service->getConf()['updates_ignored'] = json_decode($service->getConf()['updates_ignored'], true);
 
         // Reset ignored extension
         if ($params['reset']) {
-            if (!empty($params['type']) and isset($conf['updates_ignored'][$params['type']])) {
-                $conf['updates_ignored'][$params['type']] = [];
+            if (!empty($params['type']) and isset($service->getConf()['updates_ignored'][$params['type']])) {
+                $service->getConf()['updates_ignored'][$params['type']] = [];
             } else {
-                $conf['updates_ignored'] = [
+                $service->getConf()['updates_ignored'] = [
                     'plugins' => [],
                     'themes' => [],
                     'languages' => []
@@ -132,8 +130,8 @@ class Extension
         }
 
         // Add or remove extension from ignore list
-        if (!in_array($params['id'], $conf['updates_ignored'][$params['type']])) {
-            $conf['updates_ignored'][$params['type']][] = $params['id'];
+        if (!in_array($params['id'], $service->getConf()['updates_ignored'][$params['type']])) {
+            $service->getConf()['updates_ignored'][$params['type']][] = $params['id'];
         }
 
         unset($_SESSION['extensions_need_update']);
@@ -147,9 +145,7 @@ class Extension
      */
     public static function checkupdates($params, Server $service)
     {
-        global $conf;
-
-        $update = new Updates($GLOBALS['conn']);
+        $update = new Updates($service->getConnection());
         $result = [];
 
         if (!isset($_SESSION['need_update'])) {
@@ -158,8 +154,8 @@ class Extension
 
         $result['phyxo_need_update'] = $_SESSION['need_update'];
 
-        if (!empty($conf['updates_ignored'])) {
-            $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
+        if (!empty($service->getConf()['updates_ignored'])) {
+            $service->getConf()['updates_ignored'] = json_decode($service->getConf()['updates_ignored'], true);
         }
 
         if (!isset($_SESSION['extensions_need_update'])) {

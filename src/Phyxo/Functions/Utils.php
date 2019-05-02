@@ -1276,41 +1276,6 @@ class Utils
     }
 
     /**
-     * Deletes an user.
-     * It also deletes all related data (accesses, favorites, permissions, etc.)
-     * @todo : accept array input
-     *
-     * @param int $user_id
-     */
-    public static function delete_user($user_id)
-    {
-        global $conn;
-
-        // destruction of the group links for this user
-        (new UserGroupRepository($conn))->deleteByUserId($user_id);
-        // destruction of the access linked to the user(new UserAccessRepository($conn))->deleteByUserId($user_id);
-        // deletion of phyxo specific informations
-        (new UserInfosRepository($conn))->deleteByUserId($user_id);
-        // destruction of data notification by mail for this user
-        (new UserMailNotificationRepository($conn))->deleteByUserId($user_id);
-        // destruction of data RSS notification for this user
-        (new UserFeedRepository($conn))->deleteUserOnes($user_id);
-        // deletion of calculated permissions linked to the user
-        (new UserCacheRepository($conn))->deleteUserCache($user_id);
-        // deletion of computed cache data linked to the user
-        (new UserCacheCategoriesRepository($conn))->deleteUserCacheCategories($user_id);
-        // destruction of the favorites associated with the user
-        (new FavoriteRepository($conn))->removeAllFavorites($user_id);
-        // destruction of the caddie associated with the user
-        (new CaddieRepository($conn))->emptyCaddie($user_id);
-
-        // destruction of the user
-        (new UserRepository($conn))->deleteById($user_id);
-
-        \Phyxo\Functions\Plugin::trigger_notify('delete_user', $user_id);
-    }
-
-    /**
      * Checks and repairs IMAGE_CATEGORY_TABLE integrity.
      * Removes all entries from the table which correspond to a deleted image.
      */

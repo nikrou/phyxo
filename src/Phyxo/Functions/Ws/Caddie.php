@@ -25,19 +25,17 @@ class Caddie
      */
     public static function add($params, Server $service)
     {
-        global $user, $conn;
-
-        $result = (new ImageRepository($conn))->getImagesFromCaddie($params['image_id'], $user['id']);
-        $ids = $conn->result2array($result, null, 'id');
+        $result = (new ImageRepository($service->getConnection()))->getImagesFromCaddie($params['image_id'], $service->getUserMapper()->getUser()->getId());
+        $ids = $service->getConnection()->result2array($result, null, 'id');
         $datas = [];
         foreach ($ids as $id) {
             $datas[] = [
                 'element_id' => $id,
-                'user_id' => $user['id'],
+                'user_id' => $service->getUserMapper()->getUser()->getId(),
             ];
         }
         if (count($datas)) {
-            (new CaddieRepository($conn))->addElements(
+            (new CaddieRepository($service->getConnection()))->addElements(
                 ['element_id', 'user_id'],
                 $datas
             );

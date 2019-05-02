@@ -41,34 +41,32 @@ class User
      */
     public static function getList($params, Server $service)
     {
-        global $conf, $conn;
-
         $where_clauses = ['1=1'];
 
         if (!empty($params['user_id'])) {
-            $where_clauses[] = 'u.id ' . $conn->in($params['user_id']);
+            $where_clauses[] = 'u.id ' . $service->getConnection()->in($params['user_id']);
         }
 
         if (!empty($params['username'])) {
-            $where_clauses[] = 'u.username LIKE \'' . $conn->db_real_escape_string($params['username']) . '\'';
+            $where_clauses[] = 'u.username LIKE \'' . $service->getConnection()->db_real_escape_string($params['username']) . '\'';
         }
 
         if (!empty($params['status'])) {
-            $params['status'] = array_intersect($params['status'], $conn->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status'));
+            $params['status'] = array_intersect($params['status'], $service->getConnection()->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status'));
             if (count($params['status']) > 0) {
-                $where_clauses[] = 'ui.status ' . $conn->in($params['status']);
+                $where_clauses[] = 'ui.status ' . $service->getConnection()->in($params['status']);
             }
         }
 
         if (!empty($params['min_level'])) {
-            if (!in_array($params['min_level'], $conf['available_permission_levels'])) {
+            if (!in_array($params['min_level'], $service->getConf()['available_permission_levels'])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
             }
             $where_clauses[] = 'ui.level >= ' . $params['min_level'];
         }
 
         if (!empty($params['group_id'])) {
-            $where_clauses[] = 'ug.group_id ' . $conn->in($params['group_id']);
+            $where_clauses[] = 'ug.group_id ' . $service->getConnection()->in($params['group_id']);
         }
 
         $display = ['u.id' => 'id'];
@@ -124,11 +122,11 @@ class User
         $booleanFields = ['expand', 'show_nb_comments', 'show_nb_hits', 'enabled_high'];
 
         $users = [];
-        $result = (new UserRepository($conn))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = (new UserRepository($service->getConnection()))->getList($display, $where_clauses, $params['order'], $params['per_page'], $params['per_page'] * $params['page']);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             foreach ($booleanFields as $field) {
                 if (isset($row[$field])) {
-                    $row[$field] = $conn->get_boolean($row[$field]);
+                    $row[$field] = $service->getConnection()->get_boolean($row[$field]);
                 }
             }
             $users[$row['id']] = $row;
@@ -136,8 +134,8 @@ class User
 
         if (count($users) > 0) {
             if (isset($params['display']['groups'])) {
-                $result = (new UserGroupRepository($conn))->findByUserIds(array_keys($users));
-                while ($row = $conn->db_fetch_assoc($result)) {
+                $result = (new UserGroupRepository($service->getConnection()))->findByUserIds(array_keys($users));
+                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                     $users[$row['user_id']]['groups'][] = intval($row['group_id']);
                 }
             }
@@ -155,15 +153,15 @@ class User
             }
 
             if (isset($params['display']['last_visit'])) {
-                $result = (new HistoryRepository($conn))->getMaxIdForUsers(array_keys($users));
-                $history_ids = $conn->result2array($result, null, 'history_id');
+                $result = (new HistoryRepository($service->getConnection()))->getMaxIdForUsers(array_keys($users));
+                $history_ids = $service->getConnection()->result2array($result, null, 'history_id');
 
                 if (count($history_ids) == 0) {
                     $history_ids[] = -1;
                 }
 
-                $result = (new HistoryRepository($conn))->findByIds($history_ids);
-                while ($row = $conn->db_fetch_assoc($result)) {
+                $result = (new HistoryRepository($service->getConnection()))->findByIds($history_ids);
+                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                     $last_visit = $row['date'] . ' ' . $row['time'];
                     $users[$row['user_id']]['last_visit'] = $last_visit;
 
@@ -202,13 +200,11 @@ class User
      */
     public static function add($params, Server $service)
     {
-        global $conf;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
 
-        if ($conf['double_password_type_in_admin']) {
+        if ($service->getConf()['double_password_type_in_admin']) {
             if ($params['password'] != $params['password_confirm']) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('The passwords do not match'));
             }
@@ -240,32 +236,29 @@ class User
      */
     public static function delete($params, Server $service)
     {
-        global $conf, $user, $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
 
         $protected_users = [
-            $user['id'],
-            $conf['guest_id'],
-            $conf['default_user_id'],
-            $conf['webmaster_id'],
+            $service->getUserMapper()->getUser()->getId(),
+            $service->getConf()['guest_id'],
+            $service->getConf()['default_user_id'],
+            $service->getConf()['webmaster_id'],
         ];
 
         // an admin can't delete other admin/webmaster
-        if ('admin' == $user['status']) {
-            $result = (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
-            $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
+        if ($service->getUserMapper()->isAdmin()) {
+            $result = (new UserInfosRepository($service->getConnection()))->findByStatuses(['webmaster', 'admin']);
+            $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
         }
 
         // protect some users
         $params['user_id'] = array_diff($params['user_id'], $protected_users);
 
         $counter = 0;
-
         foreach ($params['user_id'] as $user_id) {
-            \Phyxo\Functions\Utils::delete_user($user_id);
+            $service->getUserMapper()->deleteUser($user_id);
             $counter++;
         }
 
@@ -297,8 +290,6 @@ class User
      */
     public static function setInfo($params, Server $service)
     {
-        global $conf, $user, $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
@@ -344,15 +335,15 @@ class User
             }
 
             $protected_users = [
-                $user['id'],
-                $conf['guest_id'],
-                $conf['webmaster_id'],
+                $service->getUserMapper()->getUser()->getId(),
+                $service->getConf()['guest_id'],
+                $service->getConf()['webmaster_id'],
             ];
 
             // an admin can't change status of other admin/webmaster
-            if ('admin' == $user['status']) {
-                $result = (new UserInfosRepository($conn))->findByStatuses(['webmaster', 'admin']);
-                $protected_users = array_merge($protected_users, $conn->result2array($result, null, 'user_id'));
+            if ($service->getUserMapper()->isAdmin()) {
+                $result = (new UserInfosRepository($service->getConnection()))->findByStatuses(['webmaster', 'admin']);
+                $protected_users = array_merge($protected_users, $service->getConnection()->result2array($result, null, 'user_id'));
             }
 
             // status update query is separated from the rest as not applying to the same
@@ -363,14 +354,14 @@ class User
         }
 
         if (!empty($params['level']) || (isset($params['level']) && $params['level'] === 0)) {
-            if (!in_array($params['level'], $conf['available_permission_levels'])) {
+            if (!in_array($params['level'], $service->getConf()['available_permission_levels'])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
             }
             $updates_infos['level'] = $params['level'];
         }
 
         if (!empty($params['language'])) {
-            $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
+            $languages = $service->getConnection()->result2array((new LanguageRepository($service->getConnection()))->findAll(), 'id', 'name');
 
             if (!isset($languages[$params['language']])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid language');
@@ -379,7 +370,7 @@ class User
         }
 
         if (!empty($params['theme'])) {
-            $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
+            $themes = $service->getConnection()->result2array((new ThemeRepository($service->getConnection()))->findAll(), 'id', 'name');
             if (!isset($themes[$params['theme']])) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid theme');
             }
@@ -395,39 +386,39 @@ class User
         }
 
         if (!empty($params['expand']) || (isset($params['expand']) && $params['expand'] === false)) {
-            $updates_infos['expand'] = $conn->boolean_to_string($params['expand']);
+            $updates_infos['expand'] = $service->getConnection()->boolean_to_string($params['expand']);
         }
 
         if (!empty($params['show_nb_comments']) || (isset($params['show_nb_comments']) && $params['show_nb_comments'] === false)) {
-            $updates_infos['show_nb_comments'] = $conn->boolean_to_string($params['show_nb_comments']);
+            $updates_infos['show_nb_comments'] = $service->getConnection()->boolean_to_string($params['show_nb_comments']);
         }
 
         if (!empty($params['show_nb_hits']) || (isset($params['show_nb_hits']) && $params['show_nb_hits'] === false)) {
-            $updates_infos['show_nb_hits'] = $conn->boolean_to_string($params['show_nb_hits']);
+            $updates_infos['show_nb_hits'] = $service->getConnection()->boolean_to_string($params['show_nb_hits']);
         }
 
         if (!empty($params['enabled_high']) || (isset($params['enabled_high']) && $params['enabled_high'] === false)) {
-            $updates_infos['enabled_high'] = $conn->boolean_to_string($params['enabled_high']);
+            $updates_infos['enabled_high'] = $service->getConnection()->boolean_to_string($params['enabled_high']);
         }
 
         // perform updates
-        (new UserRepository($conn))->updateUser($updates, $params['user_id'][0]);
+        (new UserRepository($service->getConnection()))->updateUser($updates, $params['user_id'][0]);
 
         if (isset($update_status) && count($params['user_id_for_status']) > 0) {
-            (new UserInfosRepository($conn))->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
+            (new UserInfosRepository($service->getConnection()))->updateFieldForUsers('status', $update_status, $params['user_id_for_status']);
         }
 
         if (count($updates_infos) > 0) {
-            (new UserInfosRepository($conn))->updateFieldsForUsers($updates_infos, $params['user_id']);
+            (new UserInfosRepository($service->getConnection()))->updateFieldsForUsers($updates_infos, $params['user_id']);
         }
 
         // manage association to groups
         if (!empty($params['group_id'])) {
-            (new UserGroupRepository($conn))->deleteByUserIds($params['user_id']);
+            (new UserGroupRepository($service->getConnection()))->deleteByUserIds($params['user_id']);
 
             // we remove all provided groups that do not really exist
-            $result = (new GroupRepository($conn))->findByIds($params['group_id']);
-            $group_ids = $conn->result2array($result, null, 'id');
+            $result = (new GroupRepository($service->getConnection()))->findByIds($params['group_id']);
+            $group_ids = $service->getConnection()->result2array($result, null, 'id');
 
             // if only -1 (a group id that can't exist) is in the list, then no group is associated
             if (count($group_ids) > 0) {
@@ -439,7 +430,7 @@ class User
                     }
                 }
 
-                (new UserGroupRepository($conn))->massInserts(array_keys($inserts[0]), $inserts);
+                (new UserGroupRepository($service->getConnection()))->massInserts(array_keys($inserts[0]), $inserts);
             }
         }
 

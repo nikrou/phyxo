@@ -299,7 +299,6 @@ if (isset($_GET['action'])) {
 
                 if ($userMapper->canManageComment('delete', $author_id)) {
                     $commentMapper->deleteUserComment($_GET['comment_to_delete']);
-                    delete_user_comment($_GET['comment_to_delete']);
                 }
 
                 \Phyxo\Functions\Utils::redirect($url_self);

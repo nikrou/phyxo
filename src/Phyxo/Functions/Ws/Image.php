@@ -22,6 +22,10 @@ use App\Repository\ImageTagRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use App\Repository\BaseRepository;
+use Phyxo\Functions\Upload;
+use Phyxo\Functions\Utils;
+use GuzzleHttp\Client;
 
 class Image
 {
@@ -36,10 +40,8 @@ class Image
      */
     public static function addComment($params, Server $service)
     {
-        global $conn;
-
-        $result = (new CategoryRepository($conn))->findCommentable($service->getUserMapper()->getUser(), [], $params['image_id']);
-        if (!$conn->db_num_rows($result)) {
+        $result = (new CategoryRepository($service->getConnection()))->findCommentable($service->getUserMapper()->getUser(), [], $params['image_id']);
+        if (!$service->getConnection()->db_num_rows($result)) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid image_id');
         }
 
@@ -79,23 +81,21 @@ class Image
      */
     public static function getInfo($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
-        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id'], $visible_images = true);
-        if ($conn->db_num_rows($result) == 0) {
+        $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $params['image_id'], $visible_images = true);
+        if ($service->getConnection()->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
         }
 
-        $image_row = $conn->db_fetch_assoc($result);
-        $image_row = array_merge($image_row, \Phyxo\Functions\Ws\Main::stdGetUrls($image_row));
+        $image_row = $service->getConnection()->db_fetch_assoc($result);
+        $image_row = array_merge($image_row, \Phyxo\Functions\Ws\Main::stdGetUrls($image_row, $service));
 
         //-------------------------------------------------------- related categories
-        $result = (new CategoryRepository($conn))->findRelative($service->getUserMapper()->getUser(), $filter, $image_row['id']);
+        $result = (new CategoryRepository($service->getConnection()))->findRelative($service->getUserMapper()->getUser(), [], $image_row['id']);
 
         $is_commentable = false;
         $related_categories = [];
-        while ($row = $conn->db_fetch_assoc($result)) {
-            $is_commentable = $conn->get_boolean($row['commentable']);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
+            $is_commentable = $service->getConnection()->get_boolean($row['commentable']);
             unset($row['commentable']);
 
             $row['url'] = \Phyxo\Functions\URL::make_index_url(['category' => $row]);
@@ -140,8 +140,8 @@ class Image
             'average' => null,
         ];
         if (isset($rating['score'])) {
-            $result = (new RateRepository($conn))->calculateRateSummary($image_row['id']);
-            $row = $conn->db_fetch_assoc($result);
+            $result = (new RateRepository($service->getConnection()))->calculateRateSummary($image_row['id']);
+            $row = $service->getConnection()->db_fetch_assoc($result);
 
             $rating['score'] = (float)$rating['score'];
             $rating['average'] = (float)$row['average'];
@@ -151,22 +151,22 @@ class Image
         //---------------------------------------------------------- related comments
         $related_comments = [];
 
-        $nb_comments = (new CommentRepository($conn))->countByImage($image_row['id'], $service->getUserMapper()->isAdmin());
+        $nb_comments = (new CommentRepository($service->getConnection()))->countByImage($image_row['id'], $service->getUserMapper()->isAdmin());
 
-        if ($nb_comments > 0 and $params['comments_per_page'] > 0) {
-            $result = (new CommentRepository($conn))->getCommentsByImagePerPage(
+        if ($nb_comments > 0 && $params['comments_per_page'] > 0) {
+            $result = (new CommentRepository($service->getConnection()))->getCommentsByImagePerPage(
                 $image_row['id'],
                 $params['comments_per_page'],
                 $params['comments_per_page'] * $params['comments_page']
             );
-            while ($row = $conn->db_fetch_assoc($result)) {
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $row['id'] = (int)$row['id'];
                 $related_comments[] = $row;
             }
         }
 
         $comment_post_data = null;
-        if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $conf['comments_forall']))) {
+        if ($is_commentable && (!$service->getUserMapper()->isGuest() || ($service->getUserMapper()->isGuest() && $service->getConf()['comments_forall']))) {
             $comment_post_data['author'] = $service->getUserMapper()->getUser()->getUsername();
             $comment_post_data['key'] = \Phyxo\Functions\Utils::get_ephemeral_key(2, $params['image_id']);
         }
@@ -227,15 +227,13 @@ class Image
      */
     public static function rate($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
-        if (!(new ImageRepository($conn))->isImageAuthorized($service->getUserMapper()->getUser(), $filter, $params['image_id'])) {
+        if (!(new ImageRepository($service->getConnection()))->isImageAuthorized($service->getUserMapper()->getUser(), [], $params['image_id'])) {
             return new Error(404, 'Invalid image_id or access denied');
         }
         $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
 
         if ($res == false) {
-            return new Error(403, 'Forbidden or rate not in ' . implode(',', $conf['rate_items']));
+            return new Error(403, 'Forbidden or rate not in ' . implode(',', $service->getConf()['rate_items']));
         }
 
         return $res;
@@ -252,15 +250,13 @@ class Image
      */
     public static function search($params, Server $service)
     {
-        global $conf, $conn;
-
         $images = [];
         $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
-        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.');
+        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
 
         $super_order_by = false;
         if (!empty($order_by)) {
-            $conf['order_by'] = 'ORDER BY ' . $order_by;
+            $service->getConf()['order_by'] = 'ORDER BY ' . $order_by;
             $super_order_by = true; // quick_search_result might be faster
         }
 
@@ -279,9 +275,9 @@ class Image
         );
 
         if (count($image_ids)) {
-            $result = (new ImageRepository($conn))->findByIds($image_ids);
+            $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
             $image_ids = array_flip($image_ids);
-            while ($row = $conn->db_fetch_assoc($result)) {
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $image = [];
                 foreach (['id', 'width', 'height', 'hit'] as $k) {
                     if (isset($row[$k])) {
@@ -292,7 +288,7 @@ class Image
                     $image[$k] = $row[$k];
                 }
 
-                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row));
+                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
                 $images[$image_ids[$image['id']]] = $image;
             }
             ksort($images, SORT_NUMERIC);
@@ -325,14 +321,12 @@ class Image
      */
     public static function setPrivacyLevel($params, Server $service)
     {
-        global $conf, $conn;
-
-        if (!in_array($params['level'], $conf['available_permission_levels'])) {
+        if (!in_array($params['level'], $service->getConf()['available_permission_levels'])) {
             return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid level');
         }
 
-        $result = (new ImageRepository($conn))->updateImages(['level' => (int)$params['level']], $params['image_id']);
-        if ($affected_rows = $conn->db_changes($result)) {
+        $result = (new ImageRepository($service->getConnection()))->updateImages(['level' => (int)$params['level']], $params['image_id']);
+        if ($affected_rows = $service->getConnection()->db_changes($result)) {
             $service->getUserMapper()->invalidateUserCache();
         }
 
@@ -349,20 +343,18 @@ class Image
      */
     public static function setRank($params, Server $service)
     {
-        global $conn;
-
         // does the image really exist?
-        if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
+        if (!(new ImageRepository($service->getConnection()))->isImageExists($params['image_id'])) {
             return new Error(404, 'image_id not found');
         }
 
         // is the image associated to this category?
-        if (!(new ImageCategoryRepository($conn))->isImageAssociatedToCategory($params['image_id'], $params['category_id'])) {
+        if (!(new ImageCategoryRepository($service->getConnection()))->isImageAssociatedToCategory($params['image_id'], $params['category_id'])) {
             return new Error(404, 'This image is not associated to this category');
         }
 
         // what is the current higher rank for this category?
-        if ($max_rank = (new ImageCategoryRepository($conn))->maxRankForCategory($params['category_id'])) {
+        if ($max_rank = (new ImageCategoryRepository($service->getConnection()))->maxRankForCategory($params['category_id'])) {
             if ($params['rank'] > $max_rank) {
                 $params['rank'] = $max_rank + 1;
             }
@@ -371,10 +363,10 @@ class Image
         }
 
         // update rank for all other photos in the same category
-        (new ImageCategoryRepository($conn))->updateRankForCategory($params['rank'], $params['category_id']);
+        (new ImageCategoryRepository($service->getConnection()))->updateRankForCategory($params['rank'], $params['category_id']);
 
         // set the new rank for the photo
-        (new ImageCategoryRepository($conn))->updateRankForImage($params['rank'], $params['image_id'], $params['category_id']);
+        (new ImageCategoryRepository($service->getConnection()))->updateRankForImage($params['rank'], $params['image_id'], $params['category_id']);
 
         // return data for client
         return [
@@ -395,22 +387,13 @@ class Image
      */
     public static function addChunk($params, Server $service)
     {
-        global $conf;
-
         foreach ($params as $param_key => $param_value) {
             if ('data' == $param_key) {
                 continue;
             }
-            \Phyxo\Functions\Ws\Main::logFile(
-                sprintf(
-                    '[\Phyxo\Functions\Ws\Images::addChunk] input param "%s" : "%s"',
-                    $param_key,
-                    is_null($param_value) ? 'NULL' : $param_value
-                )
-            );
         }
 
-        $upload_dir = $conf['upload_dir'] . '/buffer';
+        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
 
         // create the upload directory tree if not exists
         if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
@@ -423,8 +406,6 @@ class Image
             $params['type'],
             $params['position']
         );
-
-        \Phyxo\Functions\Ws\Main::logFile('[\Phyxo\Functions\Ws\Images::addChunk] data length : ' . strlen($params['data']));
 
         $bytes_written = file_put_contents(
             $upload_dir . '/' . $filename,
@@ -449,22 +430,18 @@ class Image
      */
     public static function addFile($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
-        \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
-
         // what is the path and other infos about the photo?
-        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
+        $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $params['image_id']);
 
-        if ($conn->db_num_rows($result) == 0) {
+        if ($service->getConnection()->db_num_rows($result) == 0) {
             return new \Phyxo\Ws\Error(404, "image_id not found");
         }
 
-        $image = $conn->db_fetch_assoc($result);
+        $image = $service->getConnection()->db_fetch_assoc($result);
 
         // we do not take the imported "thumb" into account
         if ('thumb' == $params['type']) {
-            self::remove_chunks($image['md5sum'], $params['type']);
+            self::remove_chunks($image['md5sum'], $params['type'], $service);
             return true;
         }
 
@@ -474,16 +451,16 @@ class Image
             $original_type = 'high';
         }
 
-        $file_path = $conf['upload_dir'] . '/buffer/' . $image['md5sum'] . '-original';
+        $file_path = $service->getConf()['upload_dir'] . '/buffer/' . $image['md5sum'] . '-original';
 
-        self::merge_chunks($file_path, $image['md5sum'], $original_type);
+        $this->merge_chunks($file_path, $image['md5sum'], $original_type, $service);
         chmod($file_path, 0644);
 
         // if we receive the "file", we only update the original if the "file" is bigger than current original
         if ('file' == $params['type']) {
             $do_update = false;
 
-            $infos = \Phyxo\Functions\Upload::image_infos($file_path);
+            $infos = self::image_infos($file_path);
 
             foreach (['width', 'height', 'filesize'] as $image_info) {
                 if ($infos[$image_info] > $image[$image_info]) {
@@ -497,10 +474,11 @@ class Image
             }
         }
 
-        $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
+        $image_id = self::addUploadedFile(
+            $service,
             $file_path,
             $image['file'],
-            null,
+            [],
             null,
             $params['image_id'],
             $image['md5sum'] // we force the md5sum to remain the same
@@ -526,56 +504,45 @@ class Image
      */
     public static function add($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
-        foreach ($params as $param_key => $param_value) {
-            \Phyxo\Functions\Ws\Main::logFile(
-                sprintf(
-                    '[pwg.images.add] input param "%s" : "%s"',
-                    $param_key,
-                    is_null($param_value) ? 'NULL' : $param_value
-                )
-            );
-        }
-
         if ($params['image_id'] > 0) {
-            if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
+            if (!(new ImageRepository($service->getConnection()))->isImageExists($params['image_id'])) {
                 return new Error(404, 'image_id not found');
             }
         }
 
         // does the image already exists ?
         if ($params['check_uniqueness']) {
-            if ('md5sum' == $conf['uniqueness_mode']) {
-                $result = (new ImageRepository($conn))->findByField('md5sum', $params['original_sum']);
-            } elseif ('filename' == $conf['uniqueness_mode']) {
-                $result = (new ImageRepository($conn))->findByField('file', $params['original_filename']);
+            if ('md5sum' == $service->getConf()['uniqueness_mode']) {
+                $result = (new ImageRepository($service->getConnection()))->findByField('md5sum', $params['original_sum']);
+            } elseif ('filename' == $service->getConf()['uniqueness_mode']) {
+                $result = (new ImageRepository($service->getConnection()))->findByField('file', $params['original_filename']);
             }
-            $row = $conn->db_fetch_row($result);
+            $row = $service->getConnection()->db_fetch_row($result);
             if (empty($row)) {
                 return new Error(500, 'file already exists');
             }
         }
 
         // we only take the biggest photos sent on addChunk. If "high" is available we use it as "original" else we use "file".
-        self::remove_chunks($params['original_sum'], 'thumb');
+        self::remove_chunks($params['original_sum'], 'thumb', $service);
 
         if (isset($params['high_sum'])) {
             $original_type = 'high';
-            self::remove_chunks($params['original_sum'], 'file');
+            self::remove_chunks($params['original_sum'], 'file', $service);
         } else {
             $original_type = 'file';
         }
 
-        $file_path = $conf['upload_dir'] . '/buffer/' . $params['original_sum'] . '-original';
+        $file_path = $service->getConf()['upload_dir'] . '/buffer/' . $params['original_sum'] . '-original';
 
-        self::merge_chunks($file_path, $params['original_sum'], $original_type);
+        self::merge_chunks($file_path, $params['original_sum'], $original_type, $service);
         chmod($file_path, 0644);
 
-        $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
+        $image_id = self::addUploadedFile(
+            $service,
             $file_path,
             $params['original_filename'],
-            null, // categories
+            [], // categories
             isset($params['level']) ? $params['level'] : null,
             $params['image_id'] > 0 ? $params['image_id'] : null,
             $params['original_sum']
@@ -597,7 +564,7 @@ class Image
         }
 
         if (count(array_keys($update)) > 0) {
-            (new ImageRepository($conn))->updateImage($update, $image_id);
+            (new ImageRepository($service->getConnection()))->updateImage($update, $image_id);
         }
 
         $url_params = ['image_id' => $image_id];
@@ -609,8 +576,8 @@ class Image
             if (preg_match('/^\d+/', $params['categories'], $matches)) {
                 $category_id = $matches[0];
 
-                $result = (new CategoryRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $category_id);
-                $category = $conn->db_fetch_assoc($result);
+                $result = (new CategoryRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $category_id);
+                $category = $service->getConnection()->db_fetch_assoc($result);
                 $url_params['section'] = 'categories';
                 $url_params['category'] = $category;
             }
@@ -643,21 +610,20 @@ class Image
      */
     public static function addSimple($params, Server $service)
     {
-        global $conn, $filter;
-
         if (!isset($_FILES['image'])) {
             return new Error(405, 'The image (file) is missing');
         }
 
         if ($params['image_id'] > 0) {
-            $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
-            list($count) = $conn->db_fetch_row($result);
+            $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $params['image_id']);
+            list($count) = $service->getConnection()->db_fetch_row($result);
             if ($count == 0) {
                 return new Error(404, 'image_id not found');
             }
         }
 
-        $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
+        $image_id = self::addUploadedFile(
+            $service,
             $_FILES['image']['tmp_name'],
             $_FILES['image']['name'],
             $params['category'],
@@ -681,7 +647,7 @@ class Image
             }
         }
 
-        (new ImageRepository($conn))->updateImage($update, $image_id);
+        (new ImageRepository($service->getConnection()))->updateImage($update, $image_id);
 
         if (!empty($params['tags'])) {
             $tag_ids = [];
@@ -702,8 +668,8 @@ class Image
         $url_params = ['image_id' => $image_id];
 
         if (!empty($params['category'])) {
-            $result = (new CategoryRepository($conn))->findById($params['category'][0]);
-            $category = $conn->db_fetch_assoc($result);
+            $result = (new CategoryRepository($service->getConnection()))->findById($params['category'][0]);
+            $category = $service->getConnection()->db_fetch_assoc($result);
             $url_params['section'] = 'categories';
             $url_params['category'] = $category;
         }
@@ -728,13 +694,11 @@ class Image
      */
     public static function upload($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
 
-        $upload_dir = __DIR__ . '/../../../../' . $conf['upload_dir'] . '/buffer';
+        $upload_dir = __DIR__ . '/../../../../' . $service->getConf()['upload_dir'] . '/buffer';
 
         // create the upload directory tree if not exists
         if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
@@ -788,7 +752,8 @@ class Image
             // Strip the temp .part suffix off
             rename("{$filePath}.part", $filePath);
 
-            $image_id = \Phyxo\Functions\Upload::add_uploaded_file(
+            $image_id = self::addUploadedFile(
+                $service,
                 $filePath,
                 $params['name'],
                 $params['category'],
@@ -797,16 +762,16 @@ class Image
             );
             $service->getTagMapper()->sync_metadata([$image_id]);
 
-            $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $image_id);
-            $image_infos = $conn->db_fetch_assoc($result);
+            $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $image_id);
+            $image_infos = $service->getConnection()->db_fetch_assoc($result);
 
-            $result = (new ImageCategoryRepository($conn))->countByCategory($params['category'][0]);
-            list(, $nb_photos) = $conn->db_fetch_row($result);
+            $result = (new ImageCategoryRepository($service->getConnection()))->countByCategory($params['category'][0]);
+            list(, $nb_photos) = $service->getConnection()->db_fetch_row($result);
             $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
 
             return [
                 'image_id' => $image_id,
-                'src' => \Phyxo\Image\DerivativeImage::thumb_url($image_infos),
+                'src' => \Phyxo\Image\DerivativeImage::thumb_url($image_infos, $service->getConf()['picture_ext']),
                 'name' => $image_infos['name'],
                 'category' => [
                     'id' => $params['category'][0],
@@ -826,14 +791,10 @@ class Image
      */
     public static function exist($params, Server $service)
     {
-        global $conf, $conn;
-
-        \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ' ' . var_export($params, true));
-
         $split_pattern = '/[\s,;\|]/';
         $res = [];
 
-        if ('md5sum' == $conf['uniqueness_mode']) {
+        if ('md5sum' == $service->getConf()['uniqueness_mode']) {
             if (empty($params['md5sum_list'])) {
                 return [];
             }
@@ -846,8 +807,8 @@ class Image
                 PREG_SPLIT_NO_EMPTY
             );
 
-            $result = (new ImageRepository($conn))->findByFields('md5sum', $md5sums);
-            $id_of_md5 = $conn->result2array($result, 'md5sum', 'id');
+            $result = (new ImageRepository($service->getConnection()))->findByFields('md5sum', $md5sums);
+            $id_of_md5 = $service->getConnection()->result2array($result, 'md5sum', 'id');
 
             foreach ($md5sums as $md5sum) {
                 $res[$md5sum] = null;
@@ -855,7 +816,7 @@ class Image
                     $res[$md5sum] = $id_of_md5[$md5sum];
                 }
             }
-        } elseif ('filename' == $conf['uniqueness_mode']) {
+        } elseif ('filename' == $service->getConf()['uniqueness_mode']) {
             if (empty($params['filename_list'])) {
                 return [];
             }
@@ -868,8 +829,8 @@ class Image
                 PREG_SPLIT_NO_EMPTY
             );
 
-            $result = (new ImageRepository($conn))->findByFields('file', $filenames);
-            $id_of_filename = $conn->result2array($result, 'file', 'id');
+            $result = (new ImageRepository($service->getConnection()))->findByFields('file', $filenames);
+            $id_of_filename = $service->getConnection()->result2array($result, 'file', 'id');
 
             foreach ($filenames as $filename) {
                 $res[$filename] = null;
@@ -891,17 +852,13 @@ class Image
      */
     public static function checkFiles($params, Server $service)
     {
-        global $conn, $filter;
+        $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $params['image_id']);
 
-        \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', input :  ' . var_export($params, true));
-
-        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
-
-        if ($conn->db_num_rows($result) == 0) {
+        if ($service->getConnection()->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
         }
 
-        list($path) = $conn->db_fetch_row($result);
+        list($path) = $service->getConnection()->db_fetch_row($result);
 
         $ret = [];
 
@@ -918,15 +875,12 @@ class Image
         }
 
         if (isset($compare_type)) {
-            \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', md5_file($path) = ' . md5_file($path));
             if (md5_file($path) != $params[$compare_type . '_sum']) {
                 $ret[$compare_type] = 'differs';
             } else {
                 $ret[$compare_type] = 'equals';
             }
         }
-
-        \Phyxo\Functions\Ws\Main::logFile(__FUNCTION__ . ', output :  ' . var_export($ret, true));
 
         return $ret;
     }
@@ -939,16 +893,14 @@ class Image
      */
     public static function setRelatedTags($params, Server $service)
     {
-        global $conf, $conn, $user;
-
         if (!$service->isPost()) {
             return new Error(405, "This method requires HTTP POST");
         }
 
         // @TODO : add voters
-        if (empty($conf['tags_permission_add'])) {
-            // || !$service->getUserMapper()->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) && (empty($conf['tags_permission_delete'])
-            // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])))) {
+        if (empty($service->getConf()['tags_permission_add'])) {
+            // || !$service->getUserMapper()->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_add']))) && (empty($service->getConf()['tags_permission_delete'])
+            // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_delete'])))) {
             return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
         }
 
@@ -957,9 +909,9 @@ class Image
             $params['tags'] = [];
         }
 
-        $result = (new TagRepository($conn))->getTagsByImage($params['image_id']);
+        $result = (new TagRepository($service->getConnection()))->getTagsByImage($params['image_id']);
         $removed_tags_ids = $new_tags_ids = [];
-        $current_tags_ids = $conn->result2array($result, null, 'id');
+        $current_tags_ids = $service->getConnection()->result2array($result, null, 'id');
         $current_tags = array_map(function ($id) {
             return '~~' . $id . '~~';
         }, $current_tags_ids);
@@ -968,39 +920,39 @@ class Image
 
         if (count($removed_tags) > 0) {
             // @TODO : add voters
-            if (empty($conf['tags_permission_delete'])) {
-                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete']))) {
+            if (empty($service->getConf()['tags_permission_delete'])) {
+                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_delete']))) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to delete tags'));
             }
         }
         if (count($new_tags) > 0) {
             // @TODO : add voters
-            if (empty($conf['tags_permission_add'])) {
-                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add']))) {
+            if (empty($service->getConf()['tags_permission_add'])) {
+                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_add']))) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add tags'));
             }
         }
 
         try {
             if (empty($params['tags'])) { // remove all tags for an image
-                if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
+                if (isset($service->getConf()['delete_tags_immediately']) && $service->getConf()['delete_tags_immediately'] == 0) {
                     $service->getTagMapper()->toBeValidatedTags(
                         $current_tags_ids,
                         $params['image_id'],
-                        ['status' => 0, 'user_id' => $user['id']]
+                        ['status' => 0, 'user_id' => $service->getUserMapper()->getUser->getId()]
                     );
                 } else {
-                    (new ImageTagRepository($conn))->deleteBy('image_id', $params['image_id']);
+                    (new ImageTagRepository($service->getConnection()))->deleteBy('image_id', $params['image_id']);
                 }
             } else {
                 // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
                 if (count($removed_tags) > 0) {
                     $removed_tags_ids = $service->getTagMapper()->getTagsIds($removed_tags);
-                    if (isset($conf['delete_tags_immediately']) && $conf['delete_tags_immediately'] == 0) {
+                    if (isset($service->getConf()['delete_tags_immediately']) && $service->getConf()['delete_tags_immediately'] == 0) {
                         $service->getTagMapper()->toBeValidatedTags(
                             $removed_tags_ids,
                             $params['image_id'],
-                            ['status' => 0, 'user_id' => $user['id']]
+                            ['status' => 0, 'user_id' => $service->getUserMapper()->getUser()->getId()]
                         );
                     } else {
                         $service->getTagMapper()->dissociateTags($removed_tags_ids, $params['image_id']);
@@ -1009,11 +961,11 @@ class Image
 
                 if (count($new_tags) > 0) {
                     $new_tags_ids = $service->getTagMapper()->getTagsIds($new_tags);
-                    if (isset($conf['publish_tags_immediately']) && $conf['publish_tags_immediately'] == 0) {
+                    if (isset($service->getConf()['publish_tags_immediately']) && $service->getConf()['publish_tags_immediately'] == 0) {
                         $service->getTagMapper()->toBeValidatedTags(
                             $new_tags_ids,
                             $params['image_id'],
-                            ['status' => 1, 'user_id' => $user['id']]
+                            ['status' => 1, 'user_id' => $service->getUserMapper()->getUser()->getId()]
                         );
                     } else {
                         $service->getTagMapper()->associateTags($new_tags_ids, $params['image_id']);
@@ -1043,15 +995,13 @@ class Image
      */
     public static function setInfo($params, Server $service)
     {
-        global $conn, $filter;
+        $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $params['image_id']);
 
-        $result = (new ImageRepository($conn))->findById($service->getUserMapper()->getUser(), $filter, $params['image_id']);
-
-        if ($conn->db_num_rows($result) == 0) {
+        if ($service->getConnection()->db_num_rows($result) == 0) {
             return new Error(404, 'image_id not found');
         }
 
-        $image_row = $conn->db_fetch_assoc($result);
+        $image_row = $service->getConnection()->db_fetch_assoc($result);
 
         // database registration
         $update = [];
@@ -1097,7 +1047,7 @@ class Image
         if (count(array_keys($update)) > 0) {
             $update['id'] = $params['image_id'];
 
-            (new ImageRepository($conn))->updateImage($update, $update['id']);
+            (new ImageRepository($service->getConnection()))->updateImage($update, $update['id']);
         }
 
         if (isset($params['categories'])) {
@@ -1182,7 +1132,7 @@ class Image
      */
     public static function checkUpload($params, Server $service)
     {
-        $ret['message'] = \Phyxo\Functions\Upload::ready_for_upload_message();
+        $ret['message'] = \Phyxo\Functions\Utils::ready_for_upload_message();
         $ret['ready_for_upload'] = true;
         if (!empty($ret['message'])) {
             $ret['ready_for_upload'] = false;
@@ -1201,8 +1151,6 @@ class Image
      */
     protected static function addImageCategoryRelations($image_id, $categories_string, $replace_mode = false, Server $service)
     {
-        global $conn;
-
         /* let's add links between the image and the categories
          *
          * $params['categories'] should look like 123,12;456,auto;789 which means:
@@ -1244,8 +1192,8 @@ class Image
             );
         }
 
-        $result = (new CategoryRepository($conn))->findByIds($cat_ids);
-        $db_cat_ids = $conn->result2array($result, null, 'id');
+        $result = (new CategoryRepository($service->getConnection()))->findByIds($cat_ids);
+        $db_cat_ids = $service->getConnection()->result2array($result, null, 'id');
 
         $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
         if (count($unknown_cat_ids) != 0) {
@@ -1258,13 +1206,13 @@ class Image
         $to_update_cat_ids = [];
 
         // in case of replace mode, we first check the existing associations
-        $result = (new ImageCategoryRepository($conn))->findByImageId($image_id);
-        $existing_cat_ids = $conn->result2array($result, null, 'category_id');
+        $result = (new ImageCategoryRepository($service->getConnection()))->findByImageId($image_id);
+        $existing_cat_ids = $service->getConnection()->result2array($result, null, 'category_id');
 
         if ($replace_mode) {
             $to_remove_cat_ids = array_diff($existing_cat_ids, $cat_ids);
             if (count($to_remove_cat_ids) > 0) {
-                (new ImageCategoryRepository($conn))->deleteByCategory($to_remove_cat_ids, [$image_id]);
+                (new ImageCategoryRepository($service->getConnection()))->deleteByCategory($to_remove_cat_ids, [$image_id]);
                 $service->getCategoryMapper()->updateCategory($to_remove_cat_ids);
             }
         }
@@ -1275,8 +1223,8 @@ class Image
         }
 
         if ($search_current_ranks) {
-            $result = (new ImageCategoryRepository($conn))->findMaxRankForEachCategories($new_cat_ids);
-            $current_rank_of = $conn->result2array($result, 'category_id', 'max_rank');
+            $result = (new ImageCategoryRepository($service->getConnection()))->findMaxRankForEachCategories($new_cat_ids);
+            $current_rank_of = $service->getConnection()->result2array($result, 'category_id', 'max_rank');
 
             foreach ($new_cat_ids as $cat_id) {
                 if (!isset($current_rank_of[$cat_id])) {
@@ -1299,7 +1247,7 @@ class Image
             ];
         }
 
-        (new ImageCategoryRepository($conn))->insertImageCategories(array_keys($inserts[0]), $inserts);
+        (new ImageCategoryRepository($service->getConnection()))->insertImageCategories(array_keys($inserts[0]), $inserts);
 
         $service->getCategoryMapper()->updateCategory($new_cat_ids);
     }
@@ -1310,12 +1258,8 @@ class Image
      * @param string $original_sum
      * @param string $type
      */
-    protected static function merge_chunks($output_filepath, $original_sum, $type)
+    protected static function merge_chunks(string $output_filepath, string $original_sum, string $type, Server $service)
     {
-        global $conf;
-
-        \Phyxo\Functions\Ws\Main::logFile('[merge_chunks] input parameter $output_filepath : ' . $output_filepath);
-
         if (is_file($output_filepath)) {
             unlink($output_filepath);
 
@@ -1324,14 +1268,13 @@ class Image
             }
         }
 
-        $upload_dir = $conf['upload_dir'] . '/buffer';
+        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
         $pattern = '/' . $original_sum . '-' . $type . '/';
         $chunks = [];
 
         if ($handle = opendir($upload_dir)) {
             while (false !== ($file = readdir($handle))) {
                 if (preg_match($pattern, $file)) {
-                    \Phyxo\Functions\Ws\Main::logFile($file);
                     $chunks[] = $upload_dir . '/' . $file;
                 }
             }
@@ -1340,28 +1283,16 @@ class Image
 
         sort($chunks);
 
-        if (function_exists('memory_get_usage')) {
-            \Phyxo\Functions\Ws\Main::logFile('[merge_chunks] memory_get_usage before loading chunks: ' . memory_get_usage());
-        }
-
         $i = 0;
 
         foreach ($chunks as $chunk) {
             $string = file_get_contents($chunk);
-
-            if (function_exists('memory_get_usage')) {
-                \Phyxo\Functions\Ws\Main::logFile('[merge_chunks] memory_get_usage on chunk ' . ++$i . ': ' . memory_get_usage());
-            }
 
             if (!file_put_contents($output_filepath, $string, FILE_APPEND)) {
                 return new Error(500, '[merge_chunks] error while writting chunks for ' . $output_filepath);
             }
 
             unlink($chunk);
-        }
-
-        if (function_exists('memory_get_usage')) {
-            \Phyxo\Functions\Ws\Main::logFile('[merge_chunks] memory_get_usage after loading chunks: ' . memory_get_usage());
         }
     }
 
@@ -1377,11 +1308,9 @@ class Image
      * will be the biggest (we could remove the thumb, but let's use the same
      * algorithm)
      */
-    protected static function remove_chunks($original_sum, $type)
+    protected static function remove_chunks(string $original_sum, string $type, Server $service)
     {
-        global $conf;
-
-        $upload_dir = $conf['upload_dir'] . '/buffer';
+        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
         $pattern = '/' . $original_sum . '-' . $type . '/';
         $chunks = [];
 
@@ -1397,5 +1326,290 @@ class Image
         foreach ($chunks as $chunk) {
             unlink($chunk);
         }
+    }
+
+    protected static function addUploadedFile(Server $service, string $source_filepath, string $original_filename = '', array $categories = [], $level = null, $image_id = null, $original_md5sum = null): int
+    {
+        // 1) move uploaded file to upload/2010/01/22/20100122003814-449ada00.jpg
+        //
+        // 2) keep/resize original
+        //
+        // 3) register in database
+
+        // TODO
+        // * check md5sum (already exists?)
+        if (isset($original_md5sum)) {
+            $md5sum = $original_md5sum;
+        } else {
+            $md5sum = md5_file($source_filepath);
+        }
+
+        $file_path = null;
+        $is_tiff = false;
+
+        if (isset($image_id)) { // this photo already exists, we update it
+            $result = (new ImageRepository($service->getConnection()))->findByField('id', $image_id);
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
+                $file_path = $row['path'];
+            }
+
+            if (!isset($file_path)) {
+                throw new \Exception('[' . __FUNCTION__ . '] this photo does not exist in the database');
+            }
+
+            // delete all physical files related to the photo (thumbnail, web site, HD)
+            \Phyxo\Functions\Utils::delete_element_files([$image_id]);
+        } else {
+            // this photo is new current date. @TODO: really need a query for that ?
+            $now = (new BaseRepository($service->getConnection()))->getNow();
+            list($year, $month, $day) = preg_split('/[^\d]/', $now, 4);
+
+            $upload_dir = realpath(__DIR__ . '/../../../../' . $service->getConf()['upload_dir']);
+
+            // upload directory hierarchy
+            $filename_dir = sprintf('%s/%s/%s/%s', $upload_dir, $year, $month, $day);
+
+            // compute file path
+            $date_string = preg_replace('/[^\d]/', '', $now);
+            $random_string = substr($md5sum, 0, 8);
+            $filename_wo_ext = $date_string . '-' . $random_string;
+            $file_path = $filename_dir . '/' . $filename_wo_ext . '.';
+
+            list($width, $height, $type) = getimagesize($source_filepath);
+
+            if (IMAGETYPE_PNG == $type) {
+                $file_path .= 'png';
+            } elseif (IMAGETYPE_GIF == $type) {
+                $file_path .= 'gif';
+            } elseif (IMAGETYPE_TIFF_MM == $type or IMAGETYPE_TIFF_II == $type) {
+                $is_tiff = true;
+                $file_path .= 'tif';
+            } elseif (IMAGETYPE_JPEG == $type) {
+                $file_path .= 'jpg';
+            } elseif (isset($service->getConf()['upload_form_all_types']) && $service->getConf()['upload_form_all_types']) {
+                $original_extension = strtolower(\Phyxo\Functions\Utils::get_extension($original_filename));
+
+                if (in_array($original_extension, $service->getConf()['file_ext'])) {
+                    $file_path .= $original_extension;
+                } else {
+                    throw new \Exception('unexpected file type');
+                }
+            } else {
+                throw new \Exception('forbidden file type');
+            }
+
+            Utils::prepare_directory($filename_dir);
+        }
+
+        if (is_uploaded_file($source_filepath)) {
+            move_uploaded_file($source_filepath, $file_path);
+        } else {
+            rename($source_filepath, $file_path);
+        }
+        @chmod($file_path, 0644);
+
+        if ($is_tiff && \Phyxo\Image\Image::get_library() === 'ExtImagick') {
+            // move the uploaded file to pwg_representative sub-directory
+            $representative_file_path = dirname($file_path) . '/pwg_representative/';
+            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
+
+            $representative_ext = $service->getConf()['tiff_representative_ext'];
+            $representative_file_path .= $representative_ext;
+
+            Utils::prepare_directory(dirname($representative_file_path));
+
+            $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
+
+            if ('jpg' == $service->getConf()['tiff_representative_ext']) {
+                $exec .= ' -quality 98';
+            }
+
+            $exec .= ' "' . realpath($file_path) . '"';
+
+            $dest = pathinfo($representative_file_path);
+            $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
+
+            $exec .= ' 2>&1';
+            @exec($exec, $returnarray);
+
+            // sometimes ImageMagick creates file-0.jpg (full size) + file-1.jpg
+            // (thumbnail). I don't know how to avoid it.
+            $representative_file_abspath = realpath($dest['dirname']) . '/' . $dest['basename'];
+            if (!file_exists($representative_file_abspath)) {
+                $first_file_abspath = preg_replace(
+                    '/\.' . $representative_ext . '$/',
+                    '-0.' . $representative_ext,
+                    $representative_file_abspath
+                );
+
+                if (file_exists($first_file_abspath)) {
+                    rename($first_file_abspath, $representative_file_abspath);
+                }
+            }
+        }
+
+        // generate pwg_representative in case of video
+        $ffmpeg_video_exts = [ // extensions tested with FFmpeg
+            'wmv', 'mov', 'mkv', 'mp4', 'mpg', 'flv', 'asf', 'xvid', 'divx', 'mpeg',
+            'avi', 'rm',
+        ];
+
+        if (isset($original_extension) && in_array($original_extension, $ffmpeg_video_exts)) {
+            $representative_file_path = dirname($file_path) . '/pwg_representative/';
+            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
+
+            $representative_ext = 'jpg';
+            $representative_file_path .= $representative_ext;
+
+            Utils::prepare_directory(dirname($representative_file_path));
+
+            $second = 1;
+
+            $ffmpeg = $service->getConf()['ffmpeg_dir'] . 'ffmpeg';
+            $ffmpeg .= ' -i "' . $file_path . '"';
+            $ffmpeg .= ' -an -ss ' . $second;
+            $ffmpeg .= ' -t 1 -r 1 -y -vcodec mjpeg -f mjpeg';
+            $ffmpeg .= ' "' . $representative_file_path . '"';
+            @exec($ffmpeg);
+
+            if (!file_exists($representative_file_path)) {
+                $representative_ext = null;
+            }
+        }
+
+        if (isset($original_extension) && 'pdf' == $original_extension && \Phyxo\Image\Image::get_library() === 'ExtImagick') {
+            $representative_file_path = dirname($file_path) . '/pwg_representative/';
+            $representative_file_path .= \Phyxo\Functions\Utils::get_filename_wo_extension(basename($file_path)) . '.';
+
+            $representative_ext = 'jpg';
+            $representative_file_path .= $representative_ext;
+
+            Utils::prepare_directory(dirname($representative_file_path));
+
+            $exec = $service->getConf()['ext_imagick_dir'] . 'convert';
+            $exec .= ' -quality 98';
+            $exec .= ' "' . realpath($file_path) . '"[0]';
+
+            $dest = pathinfo($representative_file_path);
+            $exec .= ' "' . realpath($dest['dirname']) . '/' . $dest['basename'] . '"';
+            $exec .= ' 2>&1';
+            @exec($exec, $returnarray);
+        }
+
+        if (\Phyxo\Image\Image::get_library() !== 'GD') {
+            if ($service->getConf()['original_resize']) {
+                if (Utils::need_resize($file_path, $service->getConf()['original_resize_maxwidth'], $service->getConf()['original_resize_maxheight'])) {
+                    $img = new \Phyxo\Image\Image($file_path);
+
+                    $img->pwg_resize(
+                        $file_path,
+                        $service->getConf()['original_resize_maxwidth'],
+                        $service->getConf()['original_resize_maxheight'],
+                        $service->getConf()['original_resize_quality'],
+                        $service->getConf()['upload_form_automatic_rotation'],
+                        false
+                    );
+
+                    $img->destroy();
+                }
+            }
+        }
+
+        // we need to save the rotation angle in the database to compute
+        // width/height of "multisizes"
+        $rotation_angle = \Phyxo\Image\Image::get_rotation_angle($file_path);
+        $rotation = \Phyxo\Image\Image::get_rotation_code_from_angle($rotation_angle);
+
+        $file_infos = self::image_infos($file_path);
+
+        if (isset($image_id)) {
+            $update = [
+                'file' => $service->getConnection()->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path)),
+                'filesize' => $file_infos['filesize'],
+                'width' => $file_infos['width'],
+                'height' => $file_infos['height'],
+                'md5sum' => $md5sum,
+                'added_by' => $service->getUserMapper()->getUser()->getId(),
+                'rotation' => $rotation,
+            ];
+
+            if (isset($level)) {
+                $update['level'] = $level;
+            }
+
+            (new ImageRepository($service->getConnection()))->updateImage($update, $image_id);
+        } else {
+            $file = $service->getConnection()->db_real_escape_string(isset($original_filename) ? $original_filename : basename($file_path));
+            $insert = [
+                'file' => $file,
+                'name' => \Phyxo\Functions\Utils::get_name_from_file($file),
+                'date_available' => $now,
+                'path' => preg_replace('#^' . preg_quote(dirname($upload_dir)) . '#', '.', realpath($file_path)),
+                'filesize' => $file_infos['filesize'],
+                'width' => $file_infos['width'],
+                'height' => $file_infos['height'],
+                'md5sum' => $md5sum,
+                'added_by' => $service->getUserMapper()->getUser()->getId(),
+                'rotation' => $rotation,
+            ];
+
+            if (isset($level)) {
+                $insert['level'] = $level;
+            }
+
+            if (isset($representative_ext)) {
+                $insert['representative_ext'] = $representative_ext;
+            }
+
+            $image_id = (new ImageRepository($service->getConnection()))->addImage($insert);
+        }
+
+        if (isset($categories) && count($categories) > 0) {
+            $service->getCategoryMapper()->associateImagesToCategories(
+                [$image_id],
+                $categories
+            );
+        }
+
+        // update metadata from the uploaded file (exif/iptc)
+        if ($service->getConf()['use_exif'] && !function_exists('exif_read_data')) {
+            $service->getConf()['use_exif'] = false;
+        }
+
+        $service->getUserMapper()->invalidateUserCache();
+
+        // cache thumbnail
+        $result = (new ImageRepository($service->getConnection()))->findByField('id', (string) $image_id);
+        $image_infos = $service->getConnection()->db_fetch_assoc($result);
+
+        \Phyxo\Functions\URL::set_make_full_url();
+
+        if ($service->getConnection()->getLayer() === 'mysql') {
+            $conf_derivatives = @unserialize(stripslashes($service->getConf()['derivatives']));
+        } else {
+            $conf_derivatives = @unserialize($service->getConf()['derivatives']);
+        }
+        \Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
+
+        $thumb_url = \Phyxo\Image\DerivativeImage::thumb_url($image_infos, $service->getConf()['picture_ext']);
+        \Phyxo\Functions\URL::unset_make_full_url();
+
+        // force cache generation
+        $client = new Client(['http_errors' => false]);
+        $client->request('GET', $thumb_url);
+
+        return $image_id;
+    }
+
+    protected static function image_infos($path)
+    {
+        list($width, $height) = getimagesize($path);
+        $filesize = floor(filesize($path) / 1024);
+
+        return [
+            'width' => $width,
+            'height' => $height,
+            'filesize' => $filesize,
+        ];
     }
 }

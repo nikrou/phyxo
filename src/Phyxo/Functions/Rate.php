@@ -24,13 +24,13 @@ class Rate
         global $conf, $user, $conn, $userMapper;
 
         if (!isset($rate) || !$conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $conf['rate_items'])) {
-            return false;
+            return [];
         }
 
         $user_anonymous = $userMapper->isClassicUser();
 
         if ($user_anonymous and !$conf['rate_anonymous']) {
-            return false;
+            return [];
         }
 
         $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
@@ -60,7 +60,6 @@ class Rate
         } // end anonymous user
 
         (new RateRepository($conn))->deleteRate($user['id'], $image_id, $user_anonymous ? $anonymous_id : null);
-
         (new RateRepository($conn))->addRate($user['id'], $image_id, $anonymous_id, $rate, 'now()');
 
         return self::update_rating_score($image_id);

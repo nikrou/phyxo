@@ -36,8 +36,6 @@ class Main
      */
     public static function getMissingDerivatives($params, Server $service)
     {
-        global $conf, $conn;
-
         if (empty($params['types'])) {
             $types = array_keys(\Phyxo\Image\ImageStdParams::get_defined_type_map());
         } else {
@@ -48,8 +46,8 @@ class Main
         }
 
         $max_urls = $params['max_urls'];
-        $result = (new ImageRepository($conn))->findMaxIdAndCount();
-        list($max_id, $image_count) = $conn->db_fetch_row($result);
+        $result = (new ImageRepository($service->getConnection()))->findMaxIdAndCount();
+        list($max_id, $image_count) = $service->getConnection()->db_fetch_row($result);
 
         if (0 == $image_count) {
             return [];
@@ -62,24 +60,24 @@ class Main
 
         $uid = '&b=' . time();
 
-        $conf['question_mark_in_urls'] = $conf['php_extension_in_urls'] = true;
+        $conf['question_mark_in_urls'] = $service->getConf()['php_extension_in_urls'] = true;
         $conf['derivative_url_style'] = 2; //script
 
         $qlimit = min(5000, ceil(max($image_count / 500, $max_urls / count($types))));
         $where_clauses[] = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, '');
 
         if (!empty($params['ids'])) {
-            $where_clauses[] = 'id ' . $conn->in($params['ids']);
+            $where_clauses[] = 'id ' . $service->getConnection()->in($params['ids']);
         }
 
         $urls = [];
         do {
-            $result = (new ImageRepository($conn))->findWithConditions($where_clauses, $start_id, $qlimit);
-            $is_last = $conn->db_num_rows($result) < $qlimit;
+            $result = (new ImageRepository($service->getConnection()))->findWithConditions($where_clauses, $start_id, $qlimit);
+            $is_last = $service->getConnection()->db_num_rows($result) < $qlimit;
 
-            while ($row = $conn->db_fetch_assoc($result)) {
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $start_id = $row['id'];
-                $src_image = new \Phyxo\Image\SrcImage($row);
+                $src_image = new \Phyxo\Image\SrcImage($row, $service->getConf()['picture_ext']);
                 if ($src_image->is_mimetype()) {
                     continue;
                 }
@@ -118,7 +116,7 @@ class Main
      */
     public static function getVersion($params, Server $service)
     {
-        return PHPWG_VERSION;
+        return $service->getCoreVersion();
     }
 
     /**
@@ -128,28 +126,26 @@ class Main
      */
     public static function getInfos($params, Server $service)
     {
-        global $conn;
-
-        $infos['version'] = PHPWG_VERSION;
-        $infos['nb_elements'] = (new ImageRepository($conn))->count();
-        $infos['nb_categories'] = (new CategoryRepository($conn))->count();
-        $infos['nb_virtual'] = (new CategoryRepository($conn))->count('dir IS NULL');
-        $infos['nb_physical'] = (new CategoryRepository($conn))->count('dir IS NOT NULL');
-        $infos['nb_image_category'] = (new ImageCategoryRepository($conn))->count();
-        $infos['nb_tags'] = (new TagRepository($conn))->count();
-        $infos['nb_image_tag'] = (new ImageTagRepository($conn))->count();
-        $infos['nb_users'] = (new UserRepository($conn))->count();
-        $infos['nb_groups'] = (new GroupRepository($conn))->count();
-        $infos['nb_comments'] = (new CommentRepository($conn))->count();
+        $infos['version'] = $service->getCoreVersion();
+        $infos['nb_elements'] = (new ImageRepository($service->getConnection()))->count();
+        $infos['nb_categories'] = (new CategoryRepository($service->getConnection()))->count();
+        $infos['nb_virtual'] = (new CategoryRepository($service->getConnection()))->count('dir IS NULL');
+        $infos['nb_physical'] = (new CategoryRepository($service->getConnection()))->count('dir IS NOT NULL');
+        $infos['nb_image_category'] = (new ImageCategoryRepository($service->getConnection()))->count();
+        $infos['nb_tags'] = (new TagRepository($service->getConnection()))->count();
+        $infos['nb_image_tag'] = (new ImageTagRepository($service->getConnection()))->count();
+        $infos['nb_users'] = (new UserRepository($service->getConnection()))->count();
+        $infos['nb_groups'] = (new GroupRepository($service->getConnection()))->count();
+        $infos['nb_comments'] = (new CommentRepository($service->getConnection()))->count();
 
         // first element
         if ($infos['nb_elements'] > 0) {
-            $infos['first_date'] = (new ImageRepository($conn))->findFirstDate();
+            $infos['first_date'] = (new ImageRepository($service->getConnection()))->findFirstDate();
         }
 
         // unvalidated comments
         if ($infos['nb_comments'] > 0) {
-            $infos['nb_unvalidated_comments'] = (new CommentRepository($conn))->count($validated = false);
+            $infos['nb_unvalidated_comments'] = (new CommentRepository($service->getConnection()))->count($validated = false);
         }
 
         foreach ($infos as $name => $value) {
@@ -209,10 +205,8 @@ class Main
     /**
      * returns a "standard" (for our web service) ORDER BY sql clause for images
      */
-    public static function stdImageSqlOrder($params, $tbl_name = '')
+    public static function stdImageSqlOrder(array $params, string $tbl_name = '', Server $service)
     {
-        global $conn;
-
         $ret = '';
         if (empty($params['order'])) {
             return $ret;
@@ -229,18 +223,18 @@ class Main
                     break;
                 case 'rand':
                 case 'random':
-                    $matches[1][$i] = $conn::RANDOM_FUNCTION . '()';
+                    $matches[1][$i] = $service->getConnection()::RANDOM_FUNCTION . '()';
                     break;
             }
             $sortable_fields = [
                 'id', 'file', 'name', 'hit', 'rating_score',
-                'date_creation', 'date_available', $conn::RANDOM_FUNCTION . '()'
+                'date_creation', 'date_available', $service->getConnection()::RANDOM_FUNCTION . '()'
             ];
             if (in_array($matches[1][$i], $sortable_fields)) {
                 if (!empty($ret)) {
                     $ret .= ', ';
                 }
-                if ($matches[1][$i] != $conn::RANDOM_FUNCTION . '()') {
+                if ($matches[1][$i] != $service->getConnection()::RANDOM_FUNCTION . '()') {
                     $ret .= $tbl_name;
                 }
                 $ret .= $matches[1][$i];
@@ -255,10 +249,8 @@ class Main
      * returns an array map of urls (thumb/element) for image_row - to be returned
      * in a standard way by different web service methods
      */
-    public static function stdGetUrls($image_row)
+    public static function stdGetUrls(array $image_row, Server $service)
     {
-        global $user;
-
         $ret = [];
         $ret['page_url'] = \Phyxo\Functions\URL::make_picture_url(
             [
@@ -267,10 +259,10 @@ class Main
             ]
         );
 
-        $src_image = new \Phyxo\Image\SrcImage($image_row);
+        $src_image = new \Phyxo\Image\SrcImage($image_row, $service->getConf()['picture_ext']);
 
         if ($src_image->is_original()) { // we have a photo
-            if ($user['enabled_high']) {
+            if ($service->getUserMapper()->getUser()->hasEnableHigh()) {
                 $ret['element_url'] = $src_image->get_url();
             }
         } else {
@@ -306,23 +298,5 @@ class Main
     public static function stdGetTagXmlAttributes()
     {
         return ['id', 'name', 'url_name', 'counter', 'url', 'page_url'];
-    }
-
-    /**
-     * Writes info to the log file
-     */
-    public static function logFile($string)
-    {
-        global $conf;
-
-        if (!$conf['ws_enable_log']) {
-            return true;
-        }
-
-        file_put_contents(
-            $conf['ws_log_filepath'],
-            '[' . date('c') . '] ' . $string . "\n",
-            FILE_APPEND
-        );
     }
 }

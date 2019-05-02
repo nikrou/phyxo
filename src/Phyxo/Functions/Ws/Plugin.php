@@ -24,7 +24,8 @@ class Plugin
      */
     public static function getList($params, Server $service)
     {
-        $plugins = new Plugins($GLOBALS['conn']);
+        $plugins = new Plugins($service->getConnection());
+        $plugins->setPluginsRootPath(__DIR__ . '/../../../plugins');
         $plugins->sortFsPlugins('name');
         $plugin_list = [];
 
@@ -63,7 +64,8 @@ class Plugin
 
         define('IN_ADMIN', true);
 
-        $plugins = new Plugins($GLOBALS['conn']);
+        $plugins = new Plugins($service->getConnection());
+        $plugins->setPluginsRootPath(__DIR__ . '/../../../plugins');
         $errors = $plugins->performAction($params['action'], $params['plugin']);
 
         if (!empty($errors)) {

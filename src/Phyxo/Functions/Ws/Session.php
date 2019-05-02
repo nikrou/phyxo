@@ -54,17 +54,15 @@ class Session
      */
     public static function getStatus($params, Server $service)
     {
-        global $user, $conf, $conn;
-
-        $res['username'] = $service->getUserMapper()->isGuest() ? 'guest' : stripslashes($user['username']);
-        foreach (['status', 'theme', 'language'] as $k) {
-            $res[$k] = $user[$k];
+        $res['username'] = $service->getUserMapper()->getUser()->getUsername();
+        foreach (['status' => 'getStatus', 'theme' => 'getTheme', 'language' => 'getLanguage'] as $key => $getMethod) {
+            $res[$key] = $service->getUserMapper()->getUser()->$getMethod();
         }
         $res['pwg_token'] = \Phyxo\Functions\Utils::get_token();
         $res['charset'] = \Phyxo\Functions\Utils::get_charset();
 
-        $res['current_datetime'] = (new BaseRepository($conn))->getNow();
-        $res['version'] = PHPWG_VERSION;
+        $res['current_datetime'] = (new BaseRepository($service->getConnection()))->getNow();
+        $res['version'] = $service->getCoreVersion();
 
         if ($service->getUserMapper()->isAdmin()) {
             $res['upload_file_types'] = implode(
@@ -72,7 +70,7 @@ class Session
                 array_unique(
                     array_map(
                         'strtolower',
-                        $conf['upload_form_all_types'] ? $conf['file_ext'] : $conf['picture_ext']
+                        $service->getConf()['upload_form_all_types'] ? $service->getConf()['file_ext'] : $service->getConf()['picture_ext']
                     )
                 )
             );

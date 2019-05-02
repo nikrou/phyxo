@@ -20,6 +20,7 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
+use Phyxo\Image\ImageStdParams;
 
 class Category
 {
@@ -35,33 +36,31 @@ class Category
      */
     public static function getImages($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
         $images = [];
 
         //------------------------------------------------- get the related categories
         $where_clauses = [];
         foreach ($params['cat_id'] as $cat_id) {
             if ($params['recursive']) {
-                $where_clauses[] = 'uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . $conn->db_real_escape_string($cat_id) . '(,|$)\'';
+                $where_clauses[] = 'uppercats ' . $service->getConnection()::REGEX_OPERATOR . ' \'(^|,)' . $service->getConnection()->db_real_escape_string($cat_id) . '(,|$)\'';
             } else {
-                $where_clauses[] = 'id=' . $conn->db_real_escape_string($cat_id);
+                $where_clauses[] = 'id=' . $service->getConnection()->db_real_escape_string($cat_id);
             }
         }
         if (!empty($where_clauses)) {
             $where_clauses = ['(' . implode(' OR ', $where_clauses) . ')'];
         }
-        $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
+        $where_clauses[] = (new BaseRepository($service->getConnection()))->getSQLConditionFandF(
             $service->getUserMapper()->getUser(),
-            $filter,
+            [],
             ['forbidden_categories' => 'id'],
             null,
             true
         );
 
-        $result = (new CategoryRepository($conn))->findWithCondition($where_clauses);
+        $result = (new CategoryRepository($service->getConnection()))->findWithCondition($where_clauses);
         $cats = [];
-        while ($row = $conn->db_fetch_assoc($result)) {
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             $row['id'] = (int)$row['id'];
             $cats[$row['id']] = $row;
         }
@@ -69,23 +68,23 @@ class Category
         //-------------------------------------------------------- get the images
         if (!empty($cats)) {
             $where_clauses = \Phyxo\Functions\Ws\Main::stdImageSqlFilter($params, 'i.');
-            $where_clauses[] = 'category_id ' . $conn->in(array_keys($cats));
-            $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
+            $where_clauses[] = 'category_id ' . $service->getConnection()->in(array_keys($cats));
+            $where_clauses[] = (new BaseRepository($service->getConnection()))->getSQLConditionFandF(
                 $service->getUserMapper()->getUser(),
-                $filter,
+                [],
                 ['visible_images' => 'i.id'],
                 null,
                 true
             );
 
-            $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.');
+            $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
             if (empty($order_by) and count($params['cat_id']) == 1 and isset($cats[$params['cat_id'][0]]['image_order'])) {
                 $order_by = $cats[$params['cat_id'][0]]['image_order'];
             }
-            $order_by = empty($order_by) ? $conf['order_by'] : 'ORDER BY ' . $order_by;
-            $result = (new ImageRepository($conn))->getImagesFromCategories($where_clauses, $order_by, $params['per_page'], $params['per_page'] * $params['page']);
+            $order_by = empty($order_by) ? $service->getConf()['order_by'] : 'ORDER BY ' . $order_by;
+            $result = (new ImageRepository($service->getConnection()))->getImagesFromCategories($where_clauses, $order_by, $params['per_page'], $params['per_page'] * $params['page']);
 
-            while ($row = $conn->db_fetch_assoc($result)) {
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $image = [];
                 foreach (['id', 'width', 'height', 'hit'] as $k) {
                     if (isset($row[$k])) {
@@ -95,7 +94,7 @@ class Category
                 foreach (['file', 'name', 'comment', 'date_creation', 'date_available'] as $k) {
                     $image[$k] = $row[$k];
                 }
-                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row));
+                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
 
                 $image_cats = [];
                 foreach (explode(',', $row['cat_ids']) as $cat_id) {
@@ -151,8 +150,6 @@ class Category
      */
     public static function getList($params, Server $service)
     {
-        global $conf, $conn, $filter;
-
         $where = ['1=1'];
         $join_type = 'INNER';
         $join_user = $service->getUserMapper()->getUser()->getId();
@@ -164,14 +161,14 @@ class Category
                 $where[] = 'id_uppercat IS NULL';
             }
         } elseif ($params['cat_id'] > 0) {
-            $where[] = 'uppercats ' . $conn::REGEX_OPERATOR . ' \'(^|,)' . (int)($params['cat_id']) . '(,|$)\'';
+            $where[] = 'uppercats ' . $service->getConnection()::REGEX_OPERATOR . ' \'(^|,)' . (int)($params['cat_id']) . '(,|$)\'';
         }
 
         if ($params['public']) {
             $where[] = 'status = \'public\'';
-            $where[] = 'visible = \'' . $conn->boolean_to_db(true) . '\'';
+            $where[] = 'visible = \'' . $service->getConnection()->boolean_to_db(true) . '\'';
 
-            $join_user = $conf['guest_id'];
+            $join_user = $service->getConf()['guest_id'];
         } elseif ($service->getUserMapper()->isAdmin()) {
             /* in this very specific case, we don't want to hide empty
              * categories. Method calculatePermissions will only return
@@ -180,12 +177,12 @@ class Category
              * calculatePermissions does not consider empty categories as forbidden
              * @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
              */
-            $forbidden_categories = $service->getUserMapper()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->getUser()->getStatus());
+            $forbidden_categories = $service->getUserMapper()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->isAdmin());
             $where[] = 'id NOT IN (' . $forbidden_categories . ')';
             $join_type = 'LEFT';
         }
 
-        $result = (new CategoryRepository($conn))->findWithUserAndCondition($join_user, $where);
+        $result = (new CategoryRepository($service->getConnection()))->findWithUserAndCondition($join_user, $where);
 
         // management of the album thumbnail -- starts here
         $image_ids = [];
@@ -194,7 +191,7 @@ class Category
         // management of the album thumbnail -- stops here
 
         $cats = [];
-        while ($row = $conn->db_fetch_assoc($result)) {
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             $row['url'] = \Phyxo\Functions\URL::make_index_url(
                 [
                     'category' => $row
@@ -240,20 +237,20 @@ class Category
                 $image_id = $row['user_representative_picture_id'];
             } elseif (!empty($row['representative_picture_id'])) { // if a representative picture is set, it has priority
                 $image_id = $row['representative_picture_id'];
-            } elseif ($conf['allow_random_representative']) {
+            } elseif ($service->getConf()['allow_random_representative']) {
                 // searching a random representant among elements in sub-categories
-                $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($service->getUserMapper()->getUser(), $filter, $row);
+                $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], $row);
             } else { // searching a random representant among representant of sub-categories
                 if ($row['count_categories'] > 0 and $row['count_images'] > 0) {
-                    $result = (new CategoryRepository($conn))->findRandomRepresentantAmongSubCategories($service->getUserMapper()->getUser(), $filter, $row['uppercats']);
-                    if ($conn->db_num_rows($result) > 0) {
-                        list($image_id) = $conn->db_fetch_row($result);
+                    $result = (new CategoryRepository($service->getConnection()))->findRandomRepresentantAmongSubCategories($service->getUserMapper()->getUser(), [], $row['uppercats']);
+                    if ($service->getConnection()->db_num_rows($result) > 0) {
+                        list($image_id) = $service->getConnection()->db_fetch_row($result);
                     }
                 }
             }
 
             if (isset($image_id)) {
-                if ($conf['representative_cache_on_subcats'] and $row['user_representative_picture_id'] != $image_id) {
+                if ($service->getConf()['representative_cache_on_subcats'] and $row['user_representative_picture_id'] != $image_id) {
                     $user_representative_updates_for[$row['id']] = $image_id;
                 }
 
@@ -273,10 +270,16 @@ class Category
             $thumbnail_src_of = [];
             $new_image_ids = [];
 
-            $result = (new ImageRepository($conn))->findByIds($image_ids);
-            while ($row = $conn->db_fetch_assoc($result)) {
+            if (!empty($service->getConf()['dblayer']) && $service->getConf()['dblayer'] === 'mysql') {
+                $derivatives = @unserialize(stripslashes($service->getConf()['derivatives']));
+            } else {
+                $derivatives = @unserialize($service->getConf()['derivatives']);
+            }
+            ImageStdParams::load_from_db($derivatives);
+            $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 if ($row['level'] <= $service->getUserMapper()->getUser()->getLevel()) {
-                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
+                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row, $service->getConf()['picture_ext']);
                 } else {
                     /* problem: we must not display the thumbnail of a photo which has a
                      * higher privacy level than user privacy level
@@ -289,12 +292,12 @@ class Category
                     foreach ($categories as &$category) {
                         if ($row['id'] == $category['representative_picture_id']) {
                             // searching a random representant among elements in sub-categories
-                            $image_id = (new CategoryRepository($conn))->getRandomImageInCategory($service->getUserMapper()->getUser(), $filter, category);
+                            $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], category);
 
                             if (isset($image_id) and !in_array($image_id, $image_ids)) {
                                 $new_image_ids[] = $image_id;
                             }
-                            if ($conf['representative_cache_on_level']) {
+                            if ($service->getConf()['representative_cache_on_level']) {
                                 $user_representative_updates_for[$category['id']] = $image_id;
                             }
 
@@ -306,9 +309,9 @@ class Category
             }
 
             if (count($new_image_ids) > 0) {
-                $result = (new ImageRepository($conn))->findByIds($new_image_ids);
-                while ($row = $conn->db_fetch_assoc($result)) {
-                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row);
+                $result = (new ImageRepository($service->getConnection()))->findByIds($new_image_ids);
+                while ($row = $service->getConnection()->db_fetch_assoc($result)) {
+                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row, $service->getConf()['picture_ext']);
                 }
             }
         }
@@ -328,7 +331,7 @@ class Category
                 ];
             }
 
-            (new UserCacheCategoriesRepository($conn))->massUpdatesUserCacheCategories(
+            (new UserCacheCategoriesRepository($service->getConnection()))->massUpdatesUserCacheCategories(
                 [
                     'primary' => ['user_id', 'cat_id'],
                     'update' => ['user_representative_picture_id']
@@ -372,12 +375,10 @@ class Category
      */
     public static function getAdminList($params, Server $service)
     {
-        global $conn;
-
-        $nb_images_of = $conn->result2array((new ImageCategoryRepository($conn))->countByCategory(), 'category_id', 'counter');
-        $result = (new CategoryRepository($conn))->findAll();
+        $nb_images_of = $service->getConnection()->result2array((new ImageCategoryRepository($service->getConnection()))->countByCategory(), 'category_id', 'counter');
+        $result = (new CategoryRepository($service->getConnection()))->findAll();
         $cats = [];
-        while ($row = $conn->db_fetch_assoc($result)) {
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             $id = $row['id'];
             $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
 
@@ -388,7 +389,7 @@ class Category
                     '\Phyxo\Functions\Ws\Categories::getAdminList'
                 )
             );
-            $row['fullname'] = strip_tags($service->getCatDisplayNameCache($row['uppercats']));
+            $row['fullname'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
             $row['comment'] = strip_tags(
                 \Phyxo\Functions\Plugin::trigger_change(
                     'render_category_description',
@@ -453,8 +454,6 @@ class Category
      */
     public static function setInfo($params, Server $service)
     {
-        global $conn;
-
         $update = [
             'id' => $params['category_id'],
         ];
@@ -470,7 +469,7 @@ class Category
         }
 
         if ($perform_update) {
-            (new CategoryRepository($conn))->updateCategory($update, $update['id']);
+            (new CategoryRepository($service->getConnection()))->updateCategory($update, $update['id']);
         }
     }
 
@@ -483,23 +482,21 @@ class Category
      */
     public static function setRepresentative($params, Server $service)
     {
-        global $conn;
-
         // does the category really exist?
-        $result = (new CategoryRepository($conn))->findById($params['category_id']);
-        list($count) = $conn->db_fetch_row($result);
+        $result = (new CategoryRepository($service->getConnection()))->findById($params['category_id']);
+        list($count) = $service->getConnection()->db_fetch_row($result);
         if ($count == 0) {
             return new Error(404, 'category_id not found');
         }
 
         // does the image really exist?
-        if (!(new ImageRepository($conn))->isImageExists($params['image_id'])) {
+        if (!(new ImageRepository($service->getConnection()))->isImageExists($params['image_id'])) {
             return new Error(404, 'image_id not found');
         }
 
         // apply change
-        (new CategoryRepository($conn))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
-        (new UserCacheCategoriesRepository($conn))->updateUserCacheCategory(['user_representative_picture_id' => null], ['cat_id' => $params['category_id']]);
+        (new CategoryRepository($service->getConnection()))->updateCategory(['representative_picture_id' => $params['image_id']], $params['category_id']);
+        (new UserCacheCategoriesRepository($service->getConnection()))->updateUserCacheCategory(['user_representative_picture_id' => null], ['cat_id' => $params['category_id']]);
     }
 
     /**
@@ -512,8 +509,6 @@ class Category
      */
     public static function delete($params, Server $service)
     {
-        global $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
@@ -549,15 +544,15 @@ class Category
             return;
         }
 
-        $result = (new CategoryRepository($conn))->findByIds($category_ids);
-        $category_ids = $conn->result2array($result, null, 'id');
+        $result = (new CategoryRepository($service->getConnection()))->findByIds($category_ids);
+        $category_ids = $service->getConnection()->result2array($result, null, 'id');
 
         if (count($category_ids) == 0) {
             return;
         }
 
         $service->getCategoryMapper()->deleteCategories($category_ids, $params['photo_deletion_mode']);
-        \Phyxo\Functions\Utils::update_global_rank();
+        $service->getCategoryMapper()->updateGlobalRank();
     }
 
     /**
@@ -570,8 +565,6 @@ class Category
      */
     public static function move($params, Server $service)
     {
-        global $page, $conn;
-
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
             return new Error(403, 'Invalid security token');
         }
@@ -600,8 +593,8 @@ class Category
         // we can't move physical categories
         $categories_in_db = [];
 
-        $result = (new CategoryRepository($conn))->findByIds($category_ids);
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = (new CategoryRepository($service->getConnection()))->findByIds($category_ids);
+        while ($row = $service->getConnection()->db_fetch_assoc($result)) {
             $categories_in_db[$row['id']] = $row;
 
             // we break on error at first physical category detected
@@ -636,7 +629,7 @@ class Category
          * 0 as parent means "move categories at gallery root"
          */
         if (0 != $params['parent']) {
-            $subcat_ids = (new CategoryRepository($conn))->getSubcatIds([$params['parent']]);
+            $subcat_ids = (new CategoryRepository($service->getConnection()))->getSubcatIds([$params['parent']]);
             if (count($subcat_ids) == 0) {
                 return new Error(403, 'Unknown parent category id');
             }

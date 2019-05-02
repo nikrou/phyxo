@@ -885,7 +885,7 @@ class CategoryMapper
             $result = $this->em->getRepository(CategoryRepository::class)->findRandomRepresentant($where_cats);
             $to_rand = $this->em->getConnection()->result2array($result, null, 'id');
             if (count($to_rand) > 0) {
-                \Phyxo\Functions\Utils::set_random_representant($to_rand);
+                $this->setRandomRepresentant($to_rand);
             }
         }
     }
@@ -1217,7 +1217,7 @@ class CategoryMapper
             ];
         }
 
-        $this->em->getRepository(CategoryRepository)->massUpdatesCategories(
+        $this->em->getRepository(CategoryRepository::class)->massUpdatesCategories(
             [
                 'primary' => ['id'],
                 'update' => ['representative_picture_id']

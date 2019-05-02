@@ -625,4 +625,35 @@ class UserMapper
         }
         \Phyxo\Functions\Plugin::trigger_notify('UserMapper::invalidateUserCache', $full);
     }
+
+    /**
+     * Deletes an user.
+     * It also deletes all related data (accesses, favorites, permissions, etc.)
+     * @todo : accept array input
+     */
+    public function deleteUser(int $user_id)
+    {
+        // destruction of the group links for this user
+        $this->em->getRepository(UserGroupRepository::class)->deleteByUserId($user_id);
+        // destruction of the access linked to the user(new UserAccessRepository($conn))->deleteByUserId($user_id);
+        // deletion of phyxo specific informations
+        $this->em->getRepository(UserInfosRepository::class)->deleteByUserId($user_id);
+        // destruction of data notification by mail for this user
+        $this->em->getRepository(UserMailNotificationRepository::class)->deleteByUserId($user_id);
+        // destruction of data RSS notification for this user
+        $this->em->getRepository(UserFeedRepository::class)->deleteUserOnes($user_id);
+        // deletion of calculated permissions linked to the user
+        $this->em->getRepository(UserCacheRepository::class)->deleteUserCache($user_id);
+        // deletion of computed cache data linked to the user
+        $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteUserCacheCategories($user_id);
+        // destruction of the favorites associated with the user
+        $this->em->getRepository(FavoriteRepository::class)->removeAllFavorites($user_id);
+        // destruction of the caddie associated with the user
+        $this->em->getRepository(CaddieRepository::class)->emptyCaddie($user_id);
+
+        // destruction of the user
+        $this->em->getRepository(UserRepository::class)->deleteById($user_id);
+
+        \Phyxo\Functions\Plugin::trigger_notify('UserMapper::deleteUser', $user_id);
+    }
 }

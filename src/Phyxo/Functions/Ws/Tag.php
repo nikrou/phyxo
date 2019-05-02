@@ -42,7 +42,7 @@ class Tag
      */
     public static function getList($params, Server $service)
     {
-        return self::tagsList($service->getTagMapper()->getAvailableTags($service->getUserMapper->getUser()), $params);
+        return self::tagsList($service->getTagMapper()->getAvailableTags($service->getUserMapper()->getUser()), $params);
     }
 
     /**
@@ -78,10 +78,8 @@ class Tag
      */
     public static function getImages($params, Server $service)
     {
-        global $conn;
-
         // first build all the tag_ids we are interested in
-        $tags = $conn->result2array((new TagRepository($conn))->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']));
+        $tags = $service->getConnection()->result2array((new TagRepository($service->getConnection()))->findTags($params['tag_id'], $params['tag_url_name'], $params['tag_name']));
         $tags_by_id = [];
         foreach ($tags as $tag) {
             $tags['id'] = (int)$tag['id'];
@@ -95,13 +93,13 @@ class Tag
             $where_clauses = implode(' AND ', $where_clauses);
         }
 
-        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.');
+        $order_by = \Phyxo\Functions\Ws\Main::stdImageSqlOrder($params, 'i.', $service);
         if (!empty($order_by)) {
             $order_by = 'ORDER BY ' . $order_by;
         }
 
-        $image_ids = $conn->result2array(
-            (new TagRepository($conn))->getImageIdsForTags(
+        $image_ids = $service->getConnection()->result2array(
+            (new TagRepository($service->getConnection()))->getImageIdsForTags(
                 $service->getUserMapper()->getUser(),
                 [],
                 $tag_ids,
@@ -119,9 +117,9 @@ class Tag
         $image_tag_map = [];
         // build list of image ids with associated tags per image
         if (!empty($image_ids) and !$params['tag_mode_and']) {
-            $result = (new ImageTagRepository($conn))->findImageTags($tag_ids, $image_ids);
+            $result = (new ImageTagRepository($service->getConnection()))->findImageTags($tag_ids, $image_ids);
 
-            while ($row = $conn->db_fetch_assoc($result)) {
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $row['image_id'] = (int)$row['image_id'];
                 $image_tag_map[$row['image_id']] = explode(',', $row['tag_ids']);
             }
@@ -131,8 +129,8 @@ class Tag
         if (!empty($image_ids)) {
             $rank_of = array_flip($image_ids);
 
-            $result = (new ImageRepository($conn))->findByIds($image_ids);
-            while ($row = $conn->db_fetch_assoc($result)) {
+            $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
+            while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 $image = [];
                 $image['rank'] = $rank_of[$row['id']];
 
@@ -144,7 +142,7 @@ class Tag
                 foreach (['file', 'name', 'comment', 'date_creation', 'date_available'] as $k) {
                     $image[$k] = $row[$k];
                 }
-                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row));
+                $image = array_merge($image, \Phyxo\Functions\Ws\Main::stdGetUrls($row, $service));
 
                 $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image['id']];
                 $image_tags = [];

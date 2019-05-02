@@ -25,9 +25,7 @@ class Rate
      */
     function delete($params, Server $service)
     {
-        global $conn;
-
-        $changes = (new RateRepository($conn))->deleteRate(
+        $changes = (new RateRepository($service->getConnection()))->deleteRate(
             $params['user_id'],
             !empty($params['image_id']) ? $params['image_id'] : null,
             !empty($params['anonymous_id']) ? $params['anonymous_id'] : null
