@@ -37,7 +37,7 @@ foreach ($original_fields as $field) {
     $updates[$field] = $value;
 }
 
-\Phyxo\Functions\Upload::save_upload_form_config($updates, $page['errors'], $errors);
+\Phyxo\Functions\Upload::save_upload_form_config($conn, $updates, $page['errors'], $errors);
 
 if ($_POST['resize_quality'] < 50 or $_POST['resize_quality'] > 98) {
     $errors['resize_quality'] = '[50..98]';

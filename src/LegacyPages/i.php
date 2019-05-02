@@ -21,12 +21,12 @@ foreach (explode(',', 'load,rotate,crop,scale,sharpen,watermark,save,send') as $
     $timing[$k] = '';
 }
 
-if (!empty($conf['dblayer']) && $conf['dblayer'] === 'mysql') {
-    $conf['derivatives'] = @unserialize(stripslashes($conf['derivatives']));
+if ($conn->getLayer() === 'mysql') {
+    $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
 } else {
-    $conf['derivatives'] = @unserialize($conf['derivatives']);
+    $conf_derivatives = @unserialize($conf['derivatives']);
 }
-\Phyxo\Image\ImageStdParams::load_from_db($conf['derivatives']);
+\Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
 
 parse_request();
 $params = $page['derivative_params'];

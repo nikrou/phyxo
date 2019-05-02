@@ -1874,4 +1874,103 @@ class Utils
 
         $template->assign('PWG_TOKEN', \Phyxo\Functions\Utils::get_token());
     }
+
+    public static function prepare_directory($directory)
+    {
+        if (!is_dir($directory)) {
+            if (substr(PHP_OS, 0, 3) == 'WIN') {
+                $directory = str_replace('/', DIRECTORY_SEPARATOR, $directory);
+            }
+            umask(0000);
+            $recursive = true;
+            if (!@mkdir($directory, 0777, $recursive)) {
+                throw new \Exception('[prepare_directory] cannot create directory "' . $directory . '"');
+            }
+        }
+
+        if (!is_writable($directory)) {
+            // last chance to make the directory writable
+            @chmod($directory, 0777);
+
+            if (!is_writable($directory)) {
+                throw new \Exception('[prepare_directory] directory "' . $directory . '" has no write access');
+            }
+        }
+    }
+
+    public static function need_resize($image_filepath, $max_width, $max_height)
+    {
+        // TODO : the resize check should take the orientation into account. If a
+        // rotation must be applied to the resized photo, then we should test
+        // invert width and height.
+        list($width, $height) = getimagesize($image_filepath);
+
+        if ($width > $max_width or $height > $max_height) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function ready_for_upload_message()
+    {
+        global $conf;
+
+        $relative_dir = preg_replace('#^' . realpath(__DIR__ . '/../../../') . '#', '', $conf['upload_dir']);
+        $absolute_dir = realpath(__DIR__ . '/../../../') . '/' . $conf['upload_dir'];
+
+        if (!is_dir($absolute_dir)) {
+            if (!is_writable(dirname($absolute_dir))) {
+                return sprintf(
+                    \Phyxo\Functions\Language::l10n('Create the "%s" directory at the root of your Phyxo installation'),
+                    $relative_dir
+                );
+            }
+        } else {
+            if (!is_writable($absolute_dir)) {
+                @chmod($absolute_dir, 0777);
+
+                if (!is_writable($absolute_dir)) {
+                    return sprintf(
+                        \Phyxo\Functions\Language::l10n('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'),
+                        $relative_dir
+                    );
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static function get_ini_size($ini_key, $in_bytes = true)
+    {
+        $size = ini_get($ini_key);
+
+        if ($in_bytes) {
+            $size = self::convert_shorthand_notation_to_bytes($size);
+        }
+
+        return $size;
+    }
+
+    public static function convert_shorthand_notation_to_bytes($value)
+    {
+        $suffix = substr($value, -1);
+        $multiply_by = null;
+
+        if ('K' == $suffix) {
+            $multiply_by = 1024;
+        } elseif ('M' == $suffix) {
+            $multiply_by = 1024 * 1024;
+        } elseif ('G' == $suffix) {
+            $multiply_by = 1024 * 1024 * 1024;
+        }
+
+        if (isset($multiply_by)) {
+            $value = substr($value, 0, -1);
+            $value *= $multiply_by;
+        }
+
+        return $value;
+    }
 }

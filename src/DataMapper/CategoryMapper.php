@@ -245,7 +245,7 @@ class CategoryMapper
      * Generates breadcrumb for a category.
      * @see getCatDisplayName()
      */
-    public static function getCatDisplayNameFromId(int $cat_id, string $url = ''): string
+    public function getCatDisplayNameFromId(int $cat_id, string $url = ''): string
     {
         $cat_info = $this->getCatInfo($cat_id);
 

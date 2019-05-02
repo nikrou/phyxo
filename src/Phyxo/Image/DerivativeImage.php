@@ -80,7 +80,7 @@ class DerivativeImage
         return \Phyxo\Functions\URL::embellish_url(
             Plugin::trigger_change(
                 'get_derivative_url',
-                \Phyxo\Functions\URL::get_absolute_root_url() . $rel_url,
+                \Phyxo\Functions\URL::get_absolute_root_url() . '/' . $rel_url,
                 $params,
                 $src_image,
                 $rel_url

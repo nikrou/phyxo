@@ -734,7 +734,7 @@ class ImageRepository extends BaseRepository
     // calendar query
     public function findDistincIds(string $condition, array $category_ids = [], string $order_by)
     {
-        $query = 'SELECT DISTINCT id,' . \Phyxo\Functions\SQL::addOrderByFields($order_by);
+        $query = 'SELECT DISTINCT id,' . $this->addOrderByFields($order_by);
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
         $query .= ' WHERE ' . $condition;

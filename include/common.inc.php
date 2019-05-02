@@ -59,7 +59,7 @@ if (!empty($conf['show_php_errors'])) {
 //     }
 // }
 
-if (!empty($conf['dblayer']) && $conf['dblayer'] === 'mysql') {
+if ($conn->getLayer() === 'mysql') {
     $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
 } else {
     $conf_derivatives = @unserialize($conf['derivatives']);

@@ -12,10 +12,7 @@
 namespace Phyxo\Functions;
 
 use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
-use App\Repository\ImageCategoryRepository;
 use App\Repository\OldPermalinkRepository;
-use App\Repository\SiteRepository;
 use App\DataMapper\UserMapper;
 
 class Category
@@ -216,71 +213,6 @@ class Category
     public static function render_category_literal_description($desc)
     {
         return strip_tags($desc, '<span><p><a><br><b><i><small><big><strong><em>');
-    }
-
-    /**
-     * Associate a list of images to a list of categories.
-     * The function will not duplicate links and will preserve ranks.
-     *
-     * @param int[] $images
-     * @param int[] $categories
-     */
-    public static function associate_images_to_categories($images, $categories)
-    {
-        global $conn;
-
-        trigger_error('associate_images_to_categories is deprecated. Use CategoryMapper::associateImagesToCategories instead', E_USER_DEPRECATED);
-
-        if (count($images) == 0 || count($categories) == 0) {
-            return false;
-        }
-
-        // get existing associations
-        $result = (new ImageCategoryRepository($conn))->findAll($images, $categories);
-
-        $existing = [];
-        while ($row = $conn->db_fetch_assoc($result)) {
-            $existing[$row['category_id']][] = $row['image_id'];
-        }
-
-        // get max rank of each categories
-        $current_rank_of = $conn->result2array(
-            (new ImageCategoryRepository($conn))->findMaxRankForEachCategories($categories),
-            'category_id',
-            'max_rank'
-        );
-
-        // associate only not already associated images
-        $inserts = [];
-        foreach ($categories as $category_id) {
-            if (!isset($current_rank_of[$category_id])) {
-                $current_rank_of[$category_id] = 0;
-            }
-            if (!isset($existing[$category_id])) {
-                $existing[$category_id] = [];
-            }
-
-            foreach ($images as $image_id) {
-                if (!in_array($image_id, $existing[$category_id])) {
-                    $rank = ++$current_rank_of[$category_id];
-
-                    $inserts[] = [
-                        'image_id' => $image_id,
-                        'category_id' => $category_id,
-                        'rank' => $rank,
-                    ];
-                }
-            }
-        }
-
-        if (count($inserts)) {
-            (new ImageCategoryRepository($conn))->insertImageCategories(
-                array_keys($inserts[0]),
-                $inserts
-            );
-
-            \Phyxo\Functions\Category::update_category($categories);
-        }
     }
 
     /**
