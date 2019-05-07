@@ -14,6 +14,7 @@ namespace Phyxo\Image;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStdParams;
 use Phyxo\Functions\Plugin;
+use Phyxo\Functions\Utils;
 
 /**
  * Holds information (path, url, dimensions) about a derivative image.
@@ -54,6 +55,19 @@ class DerivativeImage
      * Generates the url of a thumbnail.
      *
      * @param array|SrcImage $infos array of info from db or SrcImage
+     */
+    public static function relativeThumbInfos($infos, array $picture_ext = []): array
+    {
+        $src_image = is_object($infos) ? $infos : new SrcImage($infos, $picture_ext);
+        $params = is_string(ImageStdParams::IMG_THUMB) ? ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB) : ImageStdParams::IMG_THUMB;
+
+        return self::buildInfos($src_image, $params);
+    }
+
+    /**
+     * Generates the url of a thumbnail.
+     *
+     * @param array|SrcImage $infos array of info from db or SrcImage
      * @return string
      */
     public static function thumb_url($infos, array $picture_ext = [])
@@ -77,6 +91,7 @@ class DerivativeImage
         if ($params == null) {
             return $src_image->get_url();
         }
+
         return \Phyxo\Functions\URL::embellish_url(
             Plugin::trigger_change(
                 'get_derivative_url',
@@ -147,6 +162,63 @@ class DerivativeImage
         }
 
         return null;
+    }
+
+    private static function buildInfos($src, $params): array
+    {
+        if ($src->has_size() && $params->is_identity($src->get_size())) {
+            // the source image is smaller than what we should do - we do not upsample
+            if (!$params->will_watermark($src->get_size()) && !$src->rotation) {
+                // no watermark, no rotation required -> we will use the source image
+                return [
+                    'path' => Utils::get_filename_wo_extension($src->rel_path),
+                    'derivative' => substr($params->type, 0, 2),
+                    'sizes' => '',
+                    'image_extension' => Utils::get_extension($src->rel_path)
+                ];
+            }
+
+            $defined_types = array_keys(ImageStdParams::get_defined_type_map());
+            for ($i = 0; $i < count($defined_types); $i++) {
+                if ($defined_types[$i] == $params->type) {
+                    for ($i--; $i >= 0; $i--) {
+                        $smaller = ImageStdParams::get_by_type($defined_types[$i]);
+                        if ($smaller->sizing->max_crop === $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
+                            $params = $smaller;
+                            return [
+                                'path' => Utils::get_filename_wo_extension($src->rel_path),
+                                'derivative' => substr($params->type, 0, 2),
+                                'sizes' => '',
+                                'image_extension' => Utils::get_extension($src->rel_path)
+                            ];
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        $tokens = [];
+        $tokens[] = substr($params->type, 0, 2);
+
+        if ($params->type == ImageStdParams::IMG_CUSTOM) {
+            $params->add_url_tokens($tokens);
+        }
+
+        $loc = $src->rel_path;
+        if (substr_compare($loc, './', 0, 2) == 0) {
+            $loc = substr($loc, 2);
+        } elseif (substr_compare($loc, '../', 0, 3) == 0) {
+            $loc = substr($loc, 3);
+        }
+        $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
+
+        return [
+            'path' => Utils::get_filename_wo_extension($src->rel_path),
+            'derivative' => substr($params->type, 0, 2),
+            'sizes' => '',
+            'image_extension' => Utils::get_extension($src->rel_path)
+        ];
     }
 
     /**

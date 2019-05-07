@@ -64,36 +64,30 @@ if (!$need_generate) {
 }
 
 $page['coi'] = null;
-if (strpos($page['src_location'], '/pwg_representative/') === false
-    && strpos($page['src_location'], 'themes/') === false && strpos($page['src_location'], 'plugins/') === false) {
-    try {
-        $result = (new ImageRepository($conn))->findByField('path', $page['src_location']);
-        if (($row = $conn->db_fetch_assoc($result))) {
-            if (isset($row['width'])) {
-                $page['original_size'] = [$row['width'], $row['height']];
-            }
-            $page['coi'] = $row['coi'];
-
-            if (!isset($row['rotation'])) {
-                $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle($page['src_path']);
-
-                $conn->single_update(
-                    $prefixeTable . 'images',
-                    ['rotation' => \Phyxo\Image\Image::get_rotation_code_from_angle($page['rotation_angle'])],
-                    ['id' => $row['id']]
-                );
-            } else {
-                $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle_from_code($row['rotation']);
-            }
+try {
+    $result = (new ImageRepository($conn))->findByField('path', $page['src_location']);
+    if (($row = $conn->db_fetch_assoc($result))) {
+        if (isset($row['width'])) {
+            $page['original_size'] = [$row['width'], $row['height']];
         }
-        if (!$row) {
-            ierror('Db file path not found', 404);
+        $page['coi'] = $row['coi'];
+        if (!isset($row['rotation'])) {
+            $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle($page['src_path']);
+
+            $conn->single_update(
+                $prefixeTable . 'images',
+                ['rotation' => \Phyxo\Image\Image::get_rotation_code_from_angle($page['rotation_angle'])],
+                ['id' => $row['id']]
+            );
+        } else {
+            $page['rotation_angle'] = \Phyxo\Image\Image::get_rotation_angle_from_code($row['rotation']);
         }
-    } catch (Exception $e) {
-        ilog("db error", $e->getMessage());
     }
-} else {
-    $page['rotation_angle'] = 0;
+    if (!$row) {
+        throw new \Exception('Db file path not found');
+    }
+} catch (\Exception $e) {
+    ilog("db error", $e->getMessage());
 }
 $conn->db_close();
 

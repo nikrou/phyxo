@@ -771,7 +771,7 @@ class Image
 
             return [
                 'image_id' => $image_id,
-                'src' => \Phyxo\Image\DerivativeImage::thumb_url($image_infos, $service->getConf()['picture_ext']),
+                'src' => $service->getRouter()->generate('media', \Phyxo\Image\DerivativeImage::relativeThumbInfos($image_infos, $service->getConf()['picture_ext'])),
                 'name' => $image_infos['name'],
                 'category' => [
                     'id' => $params['category'][0],

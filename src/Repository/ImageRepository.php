@@ -386,7 +386,7 @@ class ImageRepository extends BaseRepository
 
     public function findByField(string $field, string $value, ? string $order_by = null)
     {
-        $query = 'SELECT id, path FROM ' . self::IMAGES_TABLE;
+        $query = 'SELECT id, path, rotation, coi FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
 
         if (!is_null($order_by)) {
