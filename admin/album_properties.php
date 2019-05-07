@@ -228,7 +228,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     // picture to display : the identified representant or the generic random
     // representant ?
     if (!empty($category['representative_picture_id'])) {
-        $result = (new ImageRepository($conn))->findById($category['representative_picture_id']);
+        $result = (new ImageRepository($conn))->findById($app_user, [], $category['representative_picture_id']);
         $row = $conn->db_fetch_assoc($result);
         $src = \Phyxo\Image\DerivativeImage::thumb_url($row, $conf['picture_ext']);
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];

@@ -314,7 +314,7 @@ if ('categories' == $page['section']) {
 
         $result = (new ImageRepository($conn))->searchDistinctId(
             'id',
-            [\Phyxo\Functions\SQL::get_recent_photos('date_available') . ' ' . $forbidden],
+            [(new BaseRepository($conn))->getRecentPhotos($app_user, 'date_available') . ' ' . $forbidden],
             true,
             $conf['order_by']
         );

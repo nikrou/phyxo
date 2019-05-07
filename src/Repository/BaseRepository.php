@@ -144,7 +144,7 @@ class BaseRepository
      * Returns sql WHERE condition for recent photos/albums for current user.
      * @param array $UserConditions with keys recent_period ans last_photo_date
      */
-    public static function getRecentPhotos(UserInterface $user, string $db_field): string
+    public function getRecentPhotos(UserInterface $user, string $db_field): string
     {
         if ($user->getLastPhotoDate()) {
             return '0=1';

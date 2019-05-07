@@ -26,7 +26,7 @@ use Phyxo\Image\ImageStdParams;
 $order = '';
 $where = [];
 if ('recent_cats' == $page['section']) {
-    $where[] = \Phyxo\Functions\SQL::get_recent_photos('date_last');
+    $where[] = (new BaseRepository($conn))->getRecentPhotos($app_user, 'date_last');
 } else {
     $where[] = 'id_uppercat ' . (!isset($page['category']) ? 'is NULL' : '=' . $page['category']['id']);
 }

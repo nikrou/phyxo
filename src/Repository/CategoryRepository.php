@@ -488,8 +488,9 @@ class CategoryRepository extends BaseRepository
             }
             $query .= 'uppercats ' . $this->conn::REGEX_OPERATOR . ' \'(^|,)' . $this->conn->db_real_escape_string($category_id) . '(,|$)\'';
         }
+        $result = $this->conn->db_query($query);
 
-        return $this->conn->query2array($query, null, 'id');
+        return $this->conn->result2array($result, null, 'id');
     }
 
     public function deleteByIds(array $ids)
