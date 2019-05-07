@@ -71,24 +71,6 @@ class TagMapper
     }
 
     /**
-     * Returns the number of available tags for the connected user.
-     *
-     * @return int
-     */
-    public function getNbAvailableTags(UserInterface $user, array $filter = [])
-    {
-        if ($user->getNbAvailableTags()) {
-            $user->setNbAvailableTags(count($this->getAvailableTags($user, $filter)));
-            $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
-                ['nb_available_tags' => $user->getNbAvailableTags()],
-                ['user_id' => $user->getId()]
-            );
-        }
-
-        return $user->getNbAvailableTags();
-    }
-
-    /**
      * Returns all available tags for the connected user (not sorted).
      * The returned list can be a subset of all existing tags due to permissions,
      * also tags with no images are not returned.

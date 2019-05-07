@@ -106,9 +106,9 @@ class CategoryMapper
                     'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $row['id'] ? true : false,
                 ]
             );
-            if ($this->conf['index_new_icon']) {
-                $row['icon_ts'] = \Phyxo\Functions\Utils::get_icon($row['max_date_last'], $child_date_last);
-            }
+            // if ($this->conf['index_new_icon']) {
+            //     $row['icon_ts'] = \Phyxo\Functions\Utils::get_icon($row['max_date_last'], $child_date_last);
+            // }
             $cats[$row['id']] = $row;
         }
         uasort($cats, '\Phyxo\Functions\Utils::global_rank_compare');
@@ -405,7 +405,7 @@ class CategoryMapper
      *    - delete_orphans : delete photos that are no longer linked to any category
      *    - force_delete : delete photos even if they are linked to another category
      */
-    public function deleteCategories($ids, $photo_deletion_mode = 'no_delete')
+    public function deleteCategories(array $ids, $photo_deletion_mode = 'no_delete')
     {
         if (count($ids) == 0) {
             return;
@@ -413,7 +413,7 @@ class CategoryMapper
 
         // add sub-category ids to the given ids : if a category is deleted, all
         // sub-categories must be so
-        $ids = $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids);
+        $ids = array_merge($ids, $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids));
 
         // destruction of all photos physically linked to the category
         $result = $this->em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $ids);

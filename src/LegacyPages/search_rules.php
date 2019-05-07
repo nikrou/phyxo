@@ -26,9 +26,7 @@ function inc_exc_str($is_included)
     return $is_included ? \Phyxo\Functions\Language::l10n('included') : \Phyxo\Functions\Language::l10n('excluded');
 }
 
-
 $title = \Phyxo\Functions\Language::l10n('Search rules');
-include(__DIR__ . '/menubar.inc.php');
 
 // +-----------------------------------------------------------------------+
 // |                        Textual rules creation                         |

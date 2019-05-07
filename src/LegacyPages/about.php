@@ -25,10 +25,4 @@ if ($theme_about !== false) {
     $template->assign('THEME_ABOUT', $theme_about);
 }
 
-// include menubar
-$themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) or !in_array('theAboutPage', $themeconf['hide_menu_on'])) {
-    include(__DIR__ . '/menubar.inc.php');
-}
-
 \Phyxo\Functions\Utils::flush_page_messages();

@@ -36,9 +36,10 @@ use App\Utils\DataTransformer;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper;
+    private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper, $tagMapper;
 
-    public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer, CategoryMapper $categoryMapper)
+    public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
+                                CategoryMapper $categoryMapper, TagMapper $tagMapper)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -46,6 +47,7 @@ class UserMapper
         $this->autorizationChecker = $autorizationChecker;
         $this->dataTransformer = $dataTransformer;
         $this->categoryMapper = $categoryMapper;
+        $this->tagMapper = $tagMapper;
     }
 
     public function getUser()
@@ -267,7 +269,11 @@ class UserMapper
             /* now we build the list of forbidden images (this list does not contain
              * images that are not in at least an authorized category)
              */
-            $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages(explode(',', $userdata['forbidden_categories']), $userdata['level']);
+            $forbidden_categories = [];
+            if (!empty($userdata['forbidden_categories'])) {
+                $forbidden_categories = explode(',', $userdata['forbidden_categories']);
+            }
+            $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $userdata['level']);
             $forbidden_ids = $this->em->getConnection()->result2array($result, null, 'id');
 
             if (empty($forbidden_ids)) {
@@ -278,7 +284,7 @@ class UserMapper
             $userdata['image_access_list'] = implode(',', $forbidden_ids);
 
             $userdata['nb_total_images'] = $this->em->getRepository(ImageCategoryRepository::class)->countTotalImages(
-                explode(',', $userdata['forbidden_categories']),
+                $forbidden_categories,
                 $userdata['image_access_type'],
                 $forbidden_ids
             );
@@ -594,6 +600,22 @@ class UserMapper
         }
 
         return false;
+    }
+
+    /**
+     * Returns the number of available tags for the connected user.
+     */
+    public function getNumberAvailableTags(): int
+    {
+        $filter = [];
+        $number_of_available_tags = count($this->tagMapper->getAvailableTags($this->getUser(), $filter));
+
+        $this->em->getRepository(UserCacheRepository::class)->updateUserCache(
+            ['nb_available_tags' => $number_of_available_tags],
+            ['user_id' => $this->getUser()->getId()]
+        );
+
+        return $number_of_available_tags;
     }
 
     /**

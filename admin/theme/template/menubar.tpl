@@ -10,26 +10,26 @@
     <form id="menuOrdering" action="{$F_ACTION}" method="post">
 	<ul class="menuUl">
 	    {foreach from=$blocks item=block name="block_loop"}
-		<li class="menuLi {if $block.pos<0}menuLi_hidden{/if}" id="menu_{$block.reg->get_id()}">
+		<li class="menuLi {if $block.pos<0}menuLi_hidden{/if}" id="menu_{$block.reg->getId()}">
 		    <p>
 			<span>
-			    <strong>{'Hide'|translate} <input type="checkbox" name="hide_{$block.reg->get_id()}" {if $block.pos<0}checked="checked"{/if}></strong>
+			    <strong>{'Hide'|translate} <input type="checkbox" name="hide_{$block.reg->getId()}" {if $block.pos<0}checked="checked"{/if}></strong>
 			</span>
 
 			<i class="drag_button fa fa-move visibility-hidden" title="{'Drag to re-order'|translate}"></i>
-			<strong>{$block.reg->get_name()|translate}</strong> ({$block.reg->get_id()})
+			<strong>{$block.reg->getName()|translate}</strong> ({$block.reg->getId()})
 		    </p>
 
-		    {if $block.reg->get_owner() != 'piwigo'}
+		    {if $block.reg->getOwner() != 'piwigo'}
 			<p class="menuAuthor">
-			    {'Author'|translate}: <i>{$block.reg->get_owner()}</i>
+			    {'Author'|translate}: <i>{$block.reg->getOwner()}</i>
 			</p>
 		    {/if}
 
 		    <p class="menuPos">
 			<label>
 			    {'Position'|translate} :
-			    <input type="text" size="4" name="pos_{$block.reg->get_id()}" maxlength="4" value="{math equation="abs(pos)" pos=$block.pos}">
+			    <input type="text" size="4" name="pos_{$block.reg->getId()}" maxlength="4" value="{math equation="abs(pos)" pos=$block.pos}">
 			</label>
 		    </p>
 		</li>

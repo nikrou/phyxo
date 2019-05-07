@@ -20,18 +20,20 @@ class PictureController extends BaseController
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
+        $tpl_params = [];
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type . '/' . $element_id;
 
-        return $this->doResponse($legacy_file, 'picture.tpl');
+        return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
     }
 
     public function picturesByTypes(string $legacyBaseDir, Request $request, $image_id, $type, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
+        $tpl_params = [];
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -41,13 +43,14 @@ class PictureController extends BaseController
             $_SERVER['PATH_INFO'] .= '/' . $start_id;
         }
 
-        return $this->doResponse($legacy_file, 'picture.tpl');
+        return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
     }
 
     public function pictureFromCalendar(string $legacyBaseDir, Request $request, int $image_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;
-        
+
+        $tpl_params = [];
         $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -57,6 +60,6 @@ class PictureController extends BaseController
             $_SERVER['PATH_INFO'] .= '/' . $extra;
         }
 
-        return $this->doResponse($legacy_file, 'picture.tpl');
+        return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
     }
 }

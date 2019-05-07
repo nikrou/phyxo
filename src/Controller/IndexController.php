@@ -15,10 +15,13 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Repository\BaseRepository;
+use Phyxo\MenuBar;
+use Phyxo\EntityManager;
+use Phyxo\Conf;
 
 class IndexController extends BaseController
 {
-    public function favorites(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function favorites(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -36,10 +39,12 @@ class IndexController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function mostVisited(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function mostVisited(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -57,10 +62,12 @@ class IndexController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function recentPics(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function recentPics(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -78,10 +85,12 @@ class IndexController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function recentCats(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function recentCats(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -99,10 +108,12 @@ class IndexController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function bestRated(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function bestRated(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -116,24 +127,15 @@ class IndexController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function random(Request $request)
+    public function random(EntityManager $em, Conf $conf)
     {
-        global $conf, $conn, $filter, $template, $user, $page, $lang, $lang_info;
-
-        $container = $this->container;
-        if (!$app_user = $this->getUser()) {
-            $app_user = $this->userProvider->loadUserByUsername('guest');
-        }
-        $legacy_file = __DIR__ . '/../../include/common.inc.php';
-
-        ob_start();
-        chdir(dirname($legacy_file));
-        require $legacy_file;
-
-        $where_sql = ' ' . (new BaseRepository($conn))->getSQLConditionFandF(
+        $filter = [];
+        $where_sql = ' ' . (new BaseRepository($em->getConnection()))->getSQLConditionFandF(
             $this->getUser(),
             $filter,
             [
@@ -143,8 +145,8 @@ class IndexController extends BaseController
             ],
             'WHERE'
         );
-        $result = (new ImageRepository($conn))->findRandomImages($where_sql, '', min(50, $conf['top_number'], $user['nb_image_page']));
-        $list = $conn->result2array($result, null, 'id');
+        $result = $em->getRepository(ImageRepository::class)->findRandomImages($where_sql, '', min(50, $conf['top_number'], $this->getUser()->getNbImagePage()));
+        $list = $em->getConnection()->result2array($result, null, 'id');
 
         if (empty($list)) {
             return $this->redirectToRoute('homepage');
@@ -153,7 +155,7 @@ class IndexController extends BaseController
         }
     }
 
-    public function randomList(string $legacyBaseDir, Request $request, $list, CsrfTokenManagerInterface $csrfTokenManager)
+    public function randomList(string $legacyBaseDir, Request $request, $list, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -166,6 +168,8 @@ class IndexController extends BaseController
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
+
+        // menuBar : inject items
 
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }

@@ -915,15 +915,15 @@ class Utils
     public static function register_default_menubar_blocks($menu_ref_arr)
     {
         $menu = &$menu_ref_arr[0];
-        if ($menu->get_id() != 'menubar') {
+        if ($menu->getId() != 'menubar') {
             return;
         }
-        $menu->register_block(new RegisteredBlock('mbLinks', 'Links', 'core'));
-        $menu->register_block(new RegisteredBlock('mbCategories', 'Albums', 'core'));
-        $menu->register_block(new RegisteredBlock('mbTags', 'Related tags', 'core'));
-        $menu->register_block(new RegisteredBlock('mbSpecials', 'Specials', 'core'));
-        $menu->register_block(new RegisteredBlock('mbMenu', 'Menu', 'core'));
-        $menu->register_block(new RegisteredBlock('mbIdentification', 'Identification', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbLinks', 'Links', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbCategories', 'Albums', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbTags', 'Related tags', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbSpecials', 'Specials', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbMenu', 'Menu', 'core'));
+        $menu->registerBlock(new RegisteredBlock('mbIdentification', 'Identification', 'core'));
     }
 
     /**

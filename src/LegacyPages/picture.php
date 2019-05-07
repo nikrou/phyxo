@@ -755,7 +755,6 @@ if ($metadata_showable && !empty($_SESSION['show_metadata'])) {
 if (!isset($page['start'])) {
     $page['start'] = 0;
 }
-include(__DIR__ . '/menubar.inc.php');
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture');
 \Phyxo\Functions\Utils::flush_page_messages();

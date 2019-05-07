@@ -30,6 +30,7 @@ use App\Repository\UserInfosRepository;
 use App\Entity\UserInfos;
 use App\Repository\UserRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Phyxo\MenuBar;
 
 class SecurityController extends AbstractController
 {
@@ -132,7 +133,7 @@ class SecurityController extends AbstractController
         return $this->render('register.tpl', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager)
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar)
     {
         $errors = [];
 
@@ -252,6 +253,8 @@ class SecurityController extends AbstractController
 
         $tpl_params['themes'] = $themes;
         $tpl_params['languages'] = $languages;
+
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         return $this->render('profile.tpl', $tpl_params);
     }

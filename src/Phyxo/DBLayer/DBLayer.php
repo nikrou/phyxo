@@ -13,6 +13,7 @@ namespace Phyxo\DBLayer;
 
 class DBLayer
 {
+    const DEFAULT_PREFIX = 'phyxo_';
     const MASS_UPDATES_SKIP_EMPTY = 1;
 
     protected $db_link = null;

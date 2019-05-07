@@ -321,11 +321,14 @@ class ImageRepository extends BaseRepository
     /**
      * this list does not contain images that are not in at least an authorized category
      */
-    public function getForbiddenImages(array $forbidden_categories, int $level)
+    public function getForbiddenImages(array $forbidden_categories = [], int $level = 0)
     {
         $query = 'SELECT DISTINCT(id) FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE category_id NOT ' . $this->conn->in($forbidden_categories) . ' AND level > ' . $level;
+        $query .= ' WHERE level > ' . $level;
+        if (count($forbidden_categories) > 0) {
+            $query .= ' AND category_id NOT ' . $this->conn->in($forbidden_categories);
+        }
 
         return $this->conn->db_query($query);
     }

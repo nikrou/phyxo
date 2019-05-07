@@ -27,29 +27,29 @@ function make_consecutive(&$orders, $step = 50)
 }
 
 $menu = new BlockManager('menubar');
-$menu->load_registered_blocks();
-$reg_blocks = $menu->get_registered_blocks();
+$menu->loadRegisteredBlocks();
+$reg_blocks = $menu->getRegisteredBlocks();
 
-$mb_conf = $conf['blk_' . $menu->get_id()];
-if (is_string($mb_conf)) {
-    $mb_conf = json_decode($mb_conf, true);
-}
+// $mb_conf = $conf['blk_' . $menu->get_id()];
+// if (is_string($mb_conf)) {
+//     $mb_conf = json_decode($mb_conf, true);
+// }
 
-if (!is_array($mb_conf)) {
-    $mb_conf = [];
-}
+// if (!is_array($mb_conf)) {
+//     $mb_conf = [];
+// }
 
 
-foreach ($mb_conf as $id => $pos) {
-    if (!isset($reg_blocks[$id])) {
-        unset($mb_conf[$id]);
-    }
-}
+// foreach ($mb_conf as $id => $pos) {
+//     if (!isset($reg_blocks[$id])) {
+//         unset($mb_conf[$id]);
+//     }
+// }
 
-if (isset($_POST['reset'])) {
-    $mb_conf = [];
-    $conf['blk_' . $menu->get_id()] = '';
-}
+// if (isset($_POST['reset'])) {
+//     $mb_conf = [];
+//     $conf['blk_' . $menu->get_id()] = '';
+// }
 
 $idx = 1;
 foreach ($reg_blocks as $id => $block) {
@@ -73,7 +73,7 @@ if (isset($_POST['submit'])) {
     make_consecutive($mb_conf);
 
     $mb_conf_db = $mb_conf;
-    $conf['blk_' . $menu->get_id()] = json_encode($mb_conf_db);
+    $conf['blk_' . $menu->getId()] = json_encode($mb_conf_db);
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Order of menubar items has been updated successfully.');
 }

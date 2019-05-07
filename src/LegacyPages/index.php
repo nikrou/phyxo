@@ -89,9 +89,6 @@ if (count($page['items']) > 0) {
 }
 $template->assign('TITLE', $template_title);
 
-//-------------------------------------------------------------- menubar
-include(__DIR__ . '/menubar.inc.php');
-
 // +-----------------------------------------------------------------------+
 // |  index page (categories, thumbnails, search, calendar, random, etc.)  |
 // +-----------------------------------------------------------------------+

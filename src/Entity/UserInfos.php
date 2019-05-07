@@ -56,21 +56,6 @@ class UserInfos implements \ArrayAccess
         return $this->infos['nb_image_page'] ?? null;
     }
 
-    public function getNbAvailableTags()
-    {
-        return $this->infos['nb_available_tags'] ?? null;
-    }
-
-    public function setNbAvailableTags(int $number_of_tags)
-    {
-        $this->infos['nb_available_tags'] = $number_of_tags;
-    }
-
-    public function setNbAvailableComments(int $number_of_comments)
-    {
-        $this->infos['nb_available_comments'] = $number_of_comments;
-    }
-
     public function getNbTotalImages()
     {
         return $this->infos['nb_total_images'] ?? null;
@@ -114,6 +99,11 @@ class UserInfos implements \ArrayAccess
     public function hasEnabledHigh(): bool
     {
         return $this->infos['enabled_high'];
+    }
+
+    public function getLastPhotoDate()
+    {
+        return $this->infos['last_photo_date'] ?? null;
     }
 
     /**

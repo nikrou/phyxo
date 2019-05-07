@@ -17,10 +17,11 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\Image\ImageStdParams;
+use Phyxo\MenuBar;
 
 class DefaultController extends BaseController
 {
-    public function home(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function home(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
@@ -34,19 +35,24 @@ class DefaultController extends BaseController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
+        // menuBar : inject items
+
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function about(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function about(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
+        $tpl_params = [];
         $legacy_file = sprintf('%s/about.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/about";
 
-        return $this->doResponse($legacy_file, 'about.tpl');
+        // menuBar : inject items
+
+        return $this->doResponse($legacy_file, 'about.tpl', $tpl_params);
     }
 
     public function feed(string $legacyBaseDir, Request $request)
@@ -59,28 +65,34 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'feed.tpl');
     }
 
-    public function notification(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function notification(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
+        $tpl_params = [];
         $legacy_file = sprintf('%s/notification.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/notification";
 
-        return $this->doResponse($legacy_file, 'notification.tpl');
+        // menuBar : inject items
+
+        return $this->doResponse($legacy_file, 'notification.tpl', $tpl_params);
     }
 
-    public function comments(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager)
+    public function comments(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;
 
+        $tpl_params = [];
         $legacy_file = sprintf('%s/comments.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/comments";
 
-        return $this->doResponse($legacy_file, 'comments.tpl');
+        // menuBar : inject items
+
+        return $this->doResponse($legacy_file, 'comments.tpl', $tpl_params);
     }
 
     public function action(Request $request, $image_id, $part, $download = false)

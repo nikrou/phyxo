@@ -434,12 +434,6 @@ if (count($comments) > 0) {
 $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB));
 $template->assign('derivative_params', $derivative_params);
 
-// include menubar
-$themeconf = $template->get_template_vars('themeconf');
-if (!isset($themeconf['hide_menu_on']) or !in_array('theCommentsPage', $themeconf['hide_menu_on'])) {
-    include(__DIR__ . '/menubar.inc.php');
-}
-
 // +-----------------------------------------------------------------------+
 // |                           html code display                           |
 // +-----------------------------------------------------------------------+

@@ -85,6 +85,8 @@ services:
 
     Phyxo\EntityManager: ~
 
+    Phyxo\MenuBar: ~
+
     phyxo.conf:
       public: true
       alias: 'Phyxo\Conf'

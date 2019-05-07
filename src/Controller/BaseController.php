@@ -19,6 +19,7 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use Phyxo\MenuBar;
 
 
 abstract class BaseController extends Controller
@@ -26,14 +27,16 @@ abstract class BaseController extends Controller
     protected $tagMapper, $commentMapper, $userMapper, $categroyMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
+    protected $menuBar;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, MenuBar $menuBar)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
         $this->userMapper = $userMapper;
         $this->categroyMapper = $categoryMapper;
+        $this->menuBar = $menuBar;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -47,7 +50,7 @@ abstract class BaseController extends Controller
         $commentMapper = $this->commentMapper;
         $userMapper = $this->userMapper;
         $categoryMapper = $this->categroyMapper;
-        
+
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
         }
@@ -119,6 +122,11 @@ abstract class BaseController extends Controller
             $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $this->phyxoVersion : '';
 
             $tpl_params = array_merge($tpl_params, $extra_params);
+
+            if (isset($page['items'], $page['start'], $page['nb_image_page'])) {
+                $this->menuBar->setCurrentImages(array_slice($page['items'], $page['start'], $page['nb_image_page']));
+            }
+            $tpl_params = array_merge($tpl_params, $this->menuBar->getBlocks());
 
             return $this->render($template_name, $tpl_params);
         } catch (ResourceNotFoundException $e) {

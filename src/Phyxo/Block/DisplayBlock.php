@@ -1,22 +1,13 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Block;
 
@@ -25,63 +16,41 @@ namespace Phyxo\Block;
  */
 class DisplayBlock
 {
-    /** @var RegisteredBlock */
-    protected $_registeredBlock;
-    /** @var int */
-    protected $_position;
-    /** @var string */
-    protected $_title;
+    protected $registeredBlock;
+    protected $position;
+    protected $title;
 
-    /** @var mixed */
-    public $data;
-    /** @var string */
-    public $template;
-    /** @var string */
-    public $raw_content;
-
-    /**
-     * @param RegisteredBlock $block
-     */
-    public function __construct($block) {
-        $this->_registeredBlock = $block;
+    public function __construct(RegisteredBlock $block)
+    {
+        $this->registeredBlock = $block;
     }
 
-    /**
-     * @return RegisteredBlock
-     */
-    public function get_block() {
-        return $this->_registeredBlock;
+    public function getBlock(): RegisteredBlock
+    {
+        return $this->registeredBlock;
     }
 
-    /**
-     * @return int
-     */
-    public function get_position() {
-        return $this->_position;
+    public function getPosition(): int
+    {
+        return $this->position;
     }
 
-    /**
-     * @param int $position
-     */
-    public function set_position($position) {
-        $this->_position = $position;
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
-    /**
-     * @return string
-     */
-    public function get_title() {
-        if (isset($this->_title)) {
-            return $this->_title;
+    public function getTitle(): string
+    {
+        if (isset($this->title)) {
+            return $this->title;
         } else {
-            return $this->_registeredBlock->get_name();
+            return $this->registeredBlock->getName();
         }
     }
 
-    /**
-     * @param string
-     */
-    public function set_title($title) {
-        $this->_title = $title;
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 }
