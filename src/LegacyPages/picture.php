@@ -245,7 +245,7 @@ if (isset($_GET['action'])) {
             }
         case 'rate':
             {
-                \Phyxo\Functions\Rate::rate_picture($page['image_id'], $_POST['rate']);
+                $rateMapper->ratePicture($page['image_id'], $_POST['rate']);
                 \Phyxo\Functions\Utils::redirect($url_self);
             }
         case 'edit_comment':

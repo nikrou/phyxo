@@ -20,22 +20,24 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use Phyxo\MenuBar;
+use App\DataMapper\RateMapper;
 
 
 abstract class BaseController extends Controller
 {
-    protected $tagMapper, $commentMapper, $userMapper, $categroyMapper;
+    protected $tagMapper, $commentMapper, $userMapper, $categroyMapper, $rateMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
     protected $menuBar;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, MenuBar $menuBar)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, MenuBar $menuBar)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
         $this->commentMapper = $commentMapper;
         $this->userMapper = $userMapper;
         $this->categroyMapper = $categoryMapper;
+        $this->rateMapper = $rateMapper;
         $this->menuBar = $menuBar;
     }
 

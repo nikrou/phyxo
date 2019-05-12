@@ -32,7 +32,7 @@ class Rate
         );
 
         if ($changes) {
-            \Phyxo\Functions\Rate::update_rating_score();
+            $service->getRateMapper()->UpdateRatingScore();
         }
 
         return $changes;

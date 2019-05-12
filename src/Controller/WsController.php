@@ -23,18 +23,21 @@ use Phyxo\Ws\Protocols\JsonEncoder;
 use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
+use App\DataMapper\RateMapper;
 
 class WsController extends Controller
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, RouterInterface $router, string $phyxoVersion)
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, RateMapper $rateMapper,
+                            RouterInterface $router, string $phyxoVersion)
     {
         $this->service = new Server();
         $this->service->addUserMapper($userMapper);
         $this->service->addTagMapper($tagMapper);
         $this->service->addCommentMapper($commentMapper);
         $this->service->addCategoryMapper($categoryMapper);
+        $this->service->addRateMapper($rateMapper);
         $this->service->setHandler(new RestRequestHandler());
         $this->service->setEncoder(new JsonEncoder());
         $this->service->setCoreVersion($phyxoVersion);

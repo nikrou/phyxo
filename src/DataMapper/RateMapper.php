@@ -9,27 +9,36 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Functions;
+namespace App\DataMapper;
 
+use Phyxo\EntityManager;
+use Phyxo\Conf;
 use App\Repository\RateRepository;
 use App\Repository\ImageRepository;
 
-class Rate
+class RateMapper
 {
+    private $em, $conf, $userMapper;
+
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper)
+    {
+        $this->em = $em;
+        $this->conf = $conf;
+        $this->userMapper = $userMapper;
+    }
+
     /**
      * Rate a picture by the current user.
      */
-    public static function rate_picture(int $image_id, float $rate): array
+    public function ratePicture(int $image_id, float $rate): array
     {
-        global $conf, $user, $conn, $userMapper;
-
-        if (!isset($rate) || !$conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $conf['rate_items'])) {
+        if (!isset($rate) || !$this->conf['rate'] || !preg_match('/^[0-9]+$/', $rate) || !in_array($rate, $this->conf['rate_items'])) {
             return [];
         }
 
-        $user_anonymous = $userMapper->isClassicUser();
+        $user_anonymous = $this->userMapper->isClassicUser();
 
-        if ($user_anonymous and !$conf['rate_anonymous']) {
+        if ($user_anonymous && !$this->conf['rate_anonymous']) {
             return [];
         }
 
@@ -43,26 +52,26 @@ class Rate
             $save_anonymous_id = isset($_COOKIE['anonymous_rater']) ? $_COOKIE['anonymous_rater'] : $anonymous_id;
 
             if ($anonymous_id != $save_anonymous_id) { // client has changed his IP address or he's trying to fool us
-                $result = (new RateRepository($conn))->findByUserAndAnonymousId($user['id'], $anonymous_id);
-                $already_there = $conn->result2array($result, null, 'element_id');
+                $result = $this->em->getRepository(RateRepository::class)->findByUserAndAnonymousId($this->userMapper->getUser()->getId(), $anonymous_id);
+                $already_there = $this->em->getConnection()->result2array($result, null, 'element_id');
 
                 if (count($already_there) > 0) {
-                    (new RateRepository($conn))->deleteRates($user['id'], $save_anonymous_id, $already_there);
+                    $this->em->getRepository(RateRepository::class)->deleteRates($this->userMapper->getUser()->getId(), $save_anonymous_id, $already_there);
                 }
 
-                (new RateRepository($conn))->updateRate(
+                $this->em->getRepository(RateRepository::class)->updateRate(
                     ['anonymous_id' => $anonymous_id],
-                    ['user_id' => $user['id'], 'anonymous_id' => $save_anonymous_id]
+                    ['user_id' => $this->userMapper->getUser()->getId(), 'anonymous_id' => $save_anonymous_id]
                 );
             } // end client changed ip
 
             setcookie('anonymous_rater', $anonymous_id, strtotime('+1year'), \Phyxo\Functions\Utils::cookie_path());
         } // end anonymous user
 
-        (new RateRepository($conn))->deleteRate($user['id'], $image_id, $user_anonymous ? $anonymous_id : null);
-        (new RateRepository($conn))->addRate($user['id'], $image_id, $anonymous_id, $rate, 'now()');
+        $this->em->getRepository(RateRepository::class)->deleteRate($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);
+        $this->em->getRepository(RateRepository::class)->addRate($this->userMapper->getUser()->getId(), $image_id, $anonymous_id, $rate, 'now()');
 
-        return self::update_rating_score($image_id);
+        return $this->updateRatingScore($image_id);
     }
 
     /**
@@ -74,11 +83,9 @@ class Rate
      * @param int|false $element_id if false applies to all
      * @return array (score, average, count) values are null if $element_id is false
      */
-    public static function update_rating_score($element_id = false)
+    public function updateRatingScore($element_id = false)
     {
-        global $conn;
-
-        if (($alt_result = \Phyxo\Functions\Plugin::trigger_change('update_rating_score', false, $element_id)) !== false) {
+        if (($alt_result = \Phyxo\Functions\Plugin::trigger_change('RatingMapper::updateRatingScore', false, $element_id)) !== false) {
             return $alt_result;
         }
 
@@ -87,8 +94,8 @@ class Rate
         $item_ratecount_avg = 0;
         $by_item = [];
 
-        $result = (new RateRepository($conn))->calculateRateByElement();
-        while ($row = $conn->db_fetch_assoc($result)) {
+        $result = $this->em->getRepository(RateRepository::class)->calculateRateByElement();
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $all_rates_count += $row['rcount'];
             $all_rates_avg += $row['rsum'];
             $by_item[$row['element_id']] = $row;
@@ -112,7 +119,7 @@ class Rate
             }
             $updates[] = ['id' => $id, 'rating_score' => $score];
         }
-        (new ImageRepository($conn))->massUpdates(
+        $this->em->getRepository(ImageRepository::class)->massUpdates(
             [
                 'primary' => ['id'],
                 'update' => ['rating_score']

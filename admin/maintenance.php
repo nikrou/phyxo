@@ -62,7 +62,7 @@ switch ($action) {
                 (new ImageRepository($conn))->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
             }
 
-            \Phyxo\Functions\Rate::update_rating_score();
+            $ratingMapper->updateRatingScore();
             $userMapper->invalidateUserCache();
             break;
         }

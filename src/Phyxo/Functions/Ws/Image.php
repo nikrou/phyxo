@@ -230,7 +230,7 @@ class Image
         if (!(new ImageRepository($service->getConnection()))->isImageAuthorized($service->getUserMapper()->getUser(), [], $params['image_id'])) {
             return new Error(404, 'Invalid image_id or access denied');
         }
-        $res = \Phyxo\Functions\Rate::rate_picture($params['image_id'], (int)$params['rate']);
+        $res = $service->getRateMapper()->ratePicture($params['image_id'], (int)$params['rate']);
 
         if ($res == false) {
             return new Error(403, 'Forbidden or rate not in ' . implode(',', $service->getConf()['rate_items']));

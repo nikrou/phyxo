@@ -21,13 +21,14 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\RateMapper;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper)
+                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -35,6 +36,7 @@ class AdminController extends Controller
         $this->commentMapper = $commentMapper;
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
+        $this->rateMapper = $rateMapper;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -58,6 +60,7 @@ class AdminController extends Controller
         $commentMapper = $this->commentMapper;
         $userMapper = $this->userMapper;
         $categoryMapper = $this->categoryMapper;
+        $rateMapper = $this->rateMapper;
 
         try {
             global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $filter, $template, $user, $page,

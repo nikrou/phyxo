@@ -20,10 +20,11 @@ use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
+use App\DataMapper\RateMapper;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $phyxoVersion, $conn, $conf, $router;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $phyxoVersion, $conn, $conf, $router;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -91,6 +92,16 @@ class Server
     public function getCategoryMapper()
     {
         return $this->categoryMapper;
+    }
+
+    public function addRateMapper(RateMapper $rateMapper)
+    {
+        $this->rateMapper = $rateMapper;
+    }
+
+    public function getRateMapper()
+    {
+        return $this->rateMapper;
     }
 
     public function setCoreVersion(string $phyxoVersion)

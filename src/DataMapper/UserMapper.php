@@ -33,6 +33,10 @@ use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Phyxo\EntityManager;
 use App\Entity\GuestUser;
 use App\Utils\DataTransformer;
+use App\Repository\UserMailNotificationRepository;
+use App\Repository\UserFeedRepository;
+use App\Repository\FavoriteRepository;
+use App\Repository\CaddieRepository;
 
 class UserMapper
 {
