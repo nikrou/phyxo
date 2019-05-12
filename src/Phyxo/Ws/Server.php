@@ -286,7 +286,15 @@ class Server
 
     public static function isPost()
     {
-        return !empty($_POST);
+        $contentType = isset($_SERVER['CONTENT_TYPE']) ? trim($_SERVER['CONTENT_TYPE']) : '';
+        if ($contentType === "application/json") {
+            //Receive the RAW post data.
+            $content = trim(file_get_contents("php://input"));
+
+            return !empty($content);
+        } else {
+            return !empty($_POST);
+        }
     }
 
     public static function makeArrayParam(&$param)
