@@ -16,15 +16,19 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class AlbumController extends BaseController
 {
-    public function album(string $legacyBaseDir, Request $request, $category_id, $start_id = null, CsrfTokenManagerInterface $csrfTokenManager)
+    public function album(string $legacyBaseDir, Request $request, $category_id, $start_id = null, $extra_params = null, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;
-        
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = "/category/$category_id";
+
+        if (!is_null($extra_params)) {
+            $_SERVER['PATH_INFO'] .= "/$extra_params";
+        }
 
         if (!is_null($start_id)) {
             $_SERVER['PATH_INFO'] .= "/$start_id";
@@ -40,13 +44,13 @@ class AlbumController extends BaseController
     public function albumByParams(string $legacyBaseDir, Request $request, $extra_params = null, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;
-        
+
         $tpl_params = [];
         $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-        
+
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $_SERVER['PATH_INFO'] = '/categories';
-        
+
         if (!is_null($extra_params)) {
             $_SERVER['PATH_INFO'] .= "/$extra_params";
         }
