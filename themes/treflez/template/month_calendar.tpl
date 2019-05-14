@@ -145,6 +145,8 @@
     {/if}
 
     {if !empty($thumbnails)}
-	{include file="_thumbnails.tpl"}
+	<div id="content" class="{if $category_view == 'list'}content-list{else}content-grid{/if}">
+	    {include file="_thumbnails.tpl"}
+	</div>
     {/if}
 {/block}

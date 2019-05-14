@@ -3,6 +3,7 @@ import 'jquery-equalheights';
 
 $(function () {
     const cookie_name = 'category_view';
+    const cookie_params = { path: phyxo_root_url};
 
     // Grid view button click
     $('#btn-grid').click(function () {
@@ -10,7 +11,7 @@ $(function () {
             return;
         }
 
-        $.cookie(cookie_name, 'grid');
+        $.cookie(cookie_name, 'grid', cookie_params);
         $('#btn-grid').addClass('active');
         $('#btn-list').removeClass('active');
         $('#content')
@@ -29,7 +30,7 @@ $(function () {
         if ($(this).hasClass('active')) {
             return;
         }
-        $.cookie(cookie_name, 'list');
+        $.cookie(cookie_name, 'list', cookie_params);
         $('#btn-list').addClass('active');
         $('#btn-grid').removeClass('active');
         $('#content')
