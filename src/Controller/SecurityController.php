@@ -72,7 +72,7 @@ class SecurityController extends AbstractController
             'password_route' => $this->generateUrl('forgot_password'),
             'last_username' => $last_username,
             'csrf_token' => $token,
-            'errors' => $error ? $error->getMessage() : '',
+            'errors' => $error ? \Phyxo\Functions\Language::l10n('Invalid credentials') : '',
         ];
 
         return $this->render('identification.tpl', $tpl_params);

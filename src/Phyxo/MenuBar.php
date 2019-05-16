@@ -291,7 +291,7 @@ class MenuBar
         } else {
             $tpl_params['USERNAME'] = $this->userMapper->getUser()->getUsername();
             $tpl_params['U_PROFILE'] = $this->router->generate('profile');
-
+            $tpl_params['U_LOGOUT'] = $this->router->generate('logout');
 
             if ($this->userMapper->isAdmin()) {
                 $tpl_params['U_ADMIN'] = $this->router->generate('admin_home');

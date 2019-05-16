@@ -32,14 +32,14 @@
 	{if isset($U_REGISTER)}
             <a class="dropdown-item" href="{$U_REGISTER}" title="{'Create a new account'|translate}" rel="nofollow">{'Register'|translate}</a>
 	{/if}
-	{if isset($U_LOGOUT)}
-            <a class="dropdown-item" href="{$U_LOGOUT}">{'Logout'|translate}</a>
-	{/if}
 	{if isset($U_PROFILE)}
             <a class="dropdown-item" href="{$U_PROFILE}" title="{'customize the appareance of the gallery'|translate}">{'Customize'|translate}</a>
 	{/if}
 	{if isset($U_ADMIN)}
             <a class="dropdown-item" href="{$U_ADMIN}" title="{'available for administrators only'|translate}">{'Administration'|translate}</a>
+	{/if}
+	{if isset($U_LOGOUT)}
+            <a class="dropdown-item" href="{$U_LOGOUT}">{'Logout'|translate}</a>
 	{/if}
     </div>
 </li>

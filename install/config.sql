@@ -33,7 +33,7 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment',
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment_validation','true','Send an email to the administrators when a comment requires validation');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('obligatory_user_mail_address','false','Mail address is obligatory for users');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('c13y_ignore',null,'List of ignored anomalies');
-INSERT INTO phyxo_config (param,value,comment) VALUES ('blk_menubar','','Menubar options');
+INSERT INTO phyxo_config (param,value,comment) VALUES ('blk_menubar','{}','Menubar options');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('menubar_filter_icon','false','Display filter icon');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('index_sort_order_input','true','Display image order selection list');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('index_flat_icon','false','Display flat icon');
