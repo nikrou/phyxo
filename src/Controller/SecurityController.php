@@ -31,6 +31,7 @@ use App\Entity\UserInfos;
 use App\Repository\UserRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
+use Phyxo\Extension\Theme;
 
 class SecurityController extends AbstractController
 {
@@ -41,17 +42,18 @@ class SecurityController extends AbstractController
     {
         $this->conf = $conf;
 
-        // default theme
-        $template->set_template_dir(sprintf('%s/../../themes/%s/template', __DIR__, $defaultTheme));
-
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
             ['language' => $defaultLanguage, 'return_vars' => true]
         );
+        $template->setConf($conf);
         $template->setLang($this->language_load['lang']);
         $template->setLangInfo($this->language_load['lang_info']);
         $template->postConstruct();
+
+        // default theme
+        $template->setTheme(new Theme(__DIR__ . '/../../themes', $defaultTheme));
 
         $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
         $template->assign('PHYXO_URL', $phyxoWebsite);
@@ -136,6 +138,12 @@ class SecurityController extends AbstractController
     public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar)
     {
         $errors = [];
+
+        $this->language_load = \Phyxo\Functions\Language::load_language(
+            'common.lang',
+            __DIR__ . '/../../',
+            ['language' => $this->getUser()->getLanguage(), 'return_vars' => true]
+        );
 
         $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
         $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
@@ -249,12 +257,16 @@ class SecurityController extends AbstractController
                 'false' => \Phyxo\Functions\Language::l10n('No'),
             ],
             'errors' => $errors,
+            'U_HOME' => $this->generateUrl('homepage'),
+            'GALLERY_TITLE' => $this->conf['gallery_title']
         ];
 
         $tpl_params['themes'] = $themes;
         $tpl_params['languages'] = $languages;
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        \Phyxo\Functions\Plugin::trigger_notify('init');
 
         return $this->render('profile.tpl', $tpl_params);
     }

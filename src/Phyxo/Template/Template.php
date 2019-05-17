@@ -22,9 +22,12 @@ use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Phyxo\Extension\Theme;
 
 class Template implements EngineInterface
 {
+    protected static $instance = null;
+
     private $stats = ['render_time' => null, 'files' => []];
     private $manifest_content = '';
 
@@ -61,6 +64,8 @@ class Template implements EngineInterface
      */
     private $options = [];
 
+    private $theme = null;
+
     public function __construct(array $options = [])
     {
         $this->options = array_merge(
@@ -93,10 +98,10 @@ class Template implements EngineInterface
 
     public static function init($compile_dir)
     {
-        $template = new Template();
-        $template->setCompileDir($compile_dir);
+        self::$instance = new Template();
+        self::$instance->setCompileDir($compile_dir);
 
-        return $template;
+        return self::$instance;
     }
 
     public function postConstruct()
@@ -153,55 +158,38 @@ class Template implements EngineInterface
         $this->smarty->setCompileDir($compile_dir);
     }
 
-    /**
-     * Loads theme's parameters.
-     *
-     * @param string $root
-     * @param string $theme
-     * @param string $path
-     * @param bool $load_css
-     * @param bool $load_local_head
+    /*
+     * @TODO ?
+     * Add load_css for theme
+     * Load parent theme
      */
-    public function set_theme($root, $theme = '', $template = 'template', $load_css = true, $load_local_head = true, $colorscheme = 'dark')
+    public  function setTheme(Theme $theme)
     {
-        if (!empty($theme)) {
-            $this->set_template_dir($root . '/' . $theme . '/' . $template);
-            if (!defined('IN_ADMIN')) {
-                $this->set_prefilter('header', [__class__, 'prefilter_local_css']);
-            }
-        } else {
-            $this->set_template_dir($root);
-        }
-        $themeconf = $this->load_themeconf($root . '/' . $theme);
+        $this->theme = $theme;
 
-        if (isset($themeconf['load_css'])) {
-            $load_css = $themeconf['load_css'];
-        }
+        $this->set_template_dir($theme->getRoot() . '/' . $theme->getId() . '/' . $theme->getTemplate());
 
-        if (isset($themeconf['parent']) && $themeconf['parent'] != $theme) {
-            $this->set_theme(
-                $root,
-                $themeconf['parent'],
-                $template,
-                isset($themeconf['load_parent_css']) ? $themeconf['load_parent_css'] : $load_css,
-                isset($themeconf['load_parent_local_head']) ? $themeconf['load_parent_local_head'] : $load_local_head
-            );
-        }
+        $this->loadThemeConf($theme->getRoot() . '/' . $theme->getId());
 
-        $tpl_var = [
-            'id' => $theme,
-            'load_css' => $load_css,
-        ];
-        if (!empty($themeconf['local_head']) and $load_local_head) {
-            $tpl_var['local_head'] = realpath($root . '/' . $theme . '/' . $themeconf['local_head']);
-        }
-        $themeconf['id'] = $theme;
-        if (!isset($themeconf['colorscheme'])) {
-            $themeconf['colorscheme'] = $colorscheme;
-        }
+        $tpl_var = ['id' => $theme->getId()];
 
         $this->smarty->append('themes', $tpl_var);
-        $this->smarty->append('themeconf', $themeconf, true);
+        $this->smarty->append('themeconf', ['id' => $theme->getId()]);
+    }
+
+    protected function loadThemeConf(string $dir)
+    {
+        $themeconf_filename = realpath($dir) . '/themeconf.inc.php';
+        if (!is_readable($themeconf_filename)) {
+            return;
+        }
+
+        ob_start();
+        // inject variables and objects in loaded theme
+        $conf = $this->options['conf'];
+        $template = self::$instance;
+        require $themeconf_filename;
+        ob_end_clean();
     }
 
     /**
@@ -1035,25 +1023,6 @@ class Template implements EngineInterface
         }
 
         return $source;
-    }
-
-    /**
-     * Loads the configuration file from a theme directory and returns it.
-     *
-     * @param string $dir
-     * @return array
-     */
-    protected function load_themeconf($dir)
-    {
-        $dir = realpath($dir);
-        if (!isset($this->themeconfs[$dir])) {
-            $themeconf = [];
-            include($dir . '/themeconf.inc.php');
-            // Put themeconf in cache
-            $this->themeconfs[$dir] = $themeconf;
-        }
-
-        return $this->themeconfs[$dir];
     }
 
     public function renderResponse($view, array $parameters = [], Response $response = null)

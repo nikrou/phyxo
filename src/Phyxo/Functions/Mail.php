@@ -13,6 +13,7 @@ namespace Phyxo\Functions;
 
 use Pelago\Emogrifier;
 use App\Repository\UserRepository;
+use Phyxo\Extension\Theme;
 
 class Mail
 {
@@ -189,7 +190,7 @@ class Mail
         global $conf, $lang, $lang_info;
 
         $template = new \Phyxo\Template\Template(['conf' => $conf, 'lang' => $lang, 'lang_info' => $lang_info]);
-        $template->set_theme(__DIR__ . '/../../../admin/theme', '.', 'template/mail/' . $email_format);
+        $template->setTheme(new Theme(__DIR__ . '/../../../admin/theme', '.', 'template/mail/' . $email_format));
 
         return $template;
     }

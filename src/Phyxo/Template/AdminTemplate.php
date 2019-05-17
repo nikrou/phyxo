@@ -11,6 +11,8 @@
 
 namespace Phyxo\Template;
 
+use Phyxo\Extension\Theme;
+
 class AdminTemplate extends Template
 {
     public function __construct(array $options = [])
@@ -22,7 +24,7 @@ class AdminTemplate extends Template
     {
         $template = new self();
         $template->setCompileDir($compile_dir);
-        $template->set_theme($theme, '.');
+        $template->setTheme(new Theme($theme, '.', ''));
 
         return $template;
     }

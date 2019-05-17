@@ -23,6 +23,7 @@ use Phyxo\Theme\Themes;
 use App\Utils\UserManager;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Phyxo\Extension\Theme;
 
 class InstallController extends Controller
 {
@@ -49,7 +50,7 @@ class InstallController extends Controller
         $this->databaseConfigFile = $databaseConfigFile;
         $this->passwordEncoder = $passwordEncoder;
 
-        $template->set_theme(__DIR__ . '/../../admin/theme', '.');
+        $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
         $template->assign([
             'RELEASE' => $phyxoVersion,
             'PHPWG_URL' => $phyxoWebsite,
@@ -59,11 +60,11 @@ class InstallController extends Controller
         ]);
         $template->postConstruct();
     }
-    
+
     public function index(Request $request, Template $template, string $step = 'language')
     {
         $tpl_params = [];
-        
+
         if (is_readable($this->databaseConfigFile)) {
             return  $this->redirectToRoute('homepage', []);
         }

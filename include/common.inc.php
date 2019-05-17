@@ -11,6 +11,7 @@
 
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
+use Phyxo\Extension\Theme;
 
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
@@ -99,10 +100,10 @@ if (!defined('IN_WS') || !IN_WS) {
     $template->setConf($conf);
     $template->postConstruct();
     if (defined('IN_ADMIN') && IN_ADMIN) { // Admin template
-        $template->set_theme(__DIR__ . '/../admin/theme', '.');
+        $template->setTheme(new Theme(__DIR__ . '/../admin/theme', '.'));
     } else {
         $theme = $user['theme'];
-        $template->set_theme(__DIR__ . '/../themes', $theme);
+        $template->setTheme(new Theme(__DIR__ . '/../themes', 'treflez'));
     }
 }
 

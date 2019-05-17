@@ -85,7 +85,7 @@
 		{if isset($U_MODE_NORMAL)}
                     <li class="nav-item">
                         <a class="nav-link" href="{$U_MODE_NORMAL}" title="{'return to normal view mode'|translate}">
-                            <i class="fa fa-home" aria-hidden="true"></i>
+                            <i class="fa fa-sitemap" aria-hidden="true"></i>
 			    <span class="d-lg-none ml-2">{'return to normal view mode'|translate}</span>
                         </a>
                     </li>

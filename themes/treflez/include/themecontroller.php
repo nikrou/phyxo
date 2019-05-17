@@ -19,22 +19,24 @@ use Phyxo\Functions\Utils;
 use Phyxo\Functions\Metadata;
 use Phyxo\Functions\URL;
 use App\Repository\ImageRepository;
+use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
 class ThemeController
 {
-    private $config, $core_config;
+    private $config, $core_config, $template;
 
-    public function __construct(\Phyxo\Conf $conf)
+    public function __construct(\Phyxo\Conf $conf, EngineInterface $template)
     {
         $this->core_config = $conf;
         $this->config = new Config($conf);
+        $this->template = $template;
     }
 
     public function init()
     {
         global $user;
 
-        Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/treflez/', ['language' => $user['language']]);
+        Language::load_language('theme.lang', __DIR__ . '/../themes/treflez/', ['language' => $user['language']]);
 
         Plugin::add_event_handler('init', [$this, 'assignConfig']);
         Plugin::add_event_handler('init', [$this, 'setInitValues']);
@@ -49,8 +51,6 @@ class ThemeController
 
     public function assignConfig()
     {
-        global $template;
-
         if (array_key_exists('bootstrap_darkroom_navbar_main_style', $this->core_config) && !empty($this->core_config['bootstrap_darkroom_navbar_main_style'])) {
             $this->config->navbar_main_style = $this->core_config['bootstrap_darkroom_navbar_main_style'];
         }
@@ -64,40 +64,32 @@ class ThemeController
             $this->config->navbar_contextual_bg = $this->core_config['bootstrap_darkroom_navbar_contextual_bg'];
         }
 
-        $template->assign('theme_config', $this->config);
-    }
-
-    public function hideMenus($menus)
-    {
-        $menu = &$menus[0];
-
-        $mbMenu = $menu->get_block('mbMenu');
-        unset($mbMenu->data['comments']);
+        $this->template->assign('theme_config', $this->config);
     }
 
     public function returnPageStart()
     {
-        global $page, $template;
+        global $page;
 
-        $template->assign('START_ID', $page['start']);
+        $this->template->assign('START_ID', $page['start']);
     }
 
     public function checkIfHomepage()
     {
-        global $template, $page;
+        global $page;
 
         if (isset($page['is_homepage'])) {
-            $template->assign('is_homepage', true);
+            $this->template->assign('is_homepage', true);
         } else {
-            $template->assign('is_homepage', false);
+            $this->template->assign('is_homepage', false);
         }
     }
 
     public function setInitValues()
     {
-        global $template, $pwg_loaded_plugins, $user;
+        global $pwg_loaded_plugins, $user;
 
-        $template->assign([
+        $this->template->assign([
             'loaded_plugins' => $GLOBALS['pwg_loaded_plugins'],
             'meta_ref_enabled' => $this->core_config['meta_ref']
         ]);
@@ -131,19 +123,17 @@ class ThemeController
     // register additional template files
     public function registerPictureTemplates()
     {
-        global $template;
-
-        $template->set_filenames(['picture_nav' => 'picture_nav.tpl']);
-        $template->assign_var_from_handle('PICTURE_NAV', 'picture_nav');
+        $this->template->set_filenames(['picture_nav' => 'picture_nav.tpl']);
+        $this->template->assign_var_from_handle('PICTURE_NAV', 'picture_nav');
     }
 
     public function stripBreadcrumbs()
     {
-        global $page, $template;
+        global $page;
 
-        $l_sep = $template->get_template_vars('LEVEL_SEPARATOR');
-        $title = $template->get_template_vars('TITLE');
-        $section_title = $template->get_template_vars('SECTION_TITLE');
+        $l_sep = $this->template->get_template_vars('LEVEL_SEPARATOR');
+        $title = $this->template->get_template_vars('TITLE');
+        $section_title = $this->template->get_template_vars('SECTION_TITLE');
         if (empty($title)) {
             $title = $section_title;
         }
@@ -160,16 +150,16 @@ class ThemeController
                 $title = preg_replace('/<\/a>([a-zA-Z0-9]+)/', '</a><a class="nav-breadcrumb-item" href="' . \Phyxo\Functions\URL::make_index_url(['section' => $page['section']]) . '">${1}', $title) . '</a>';
             }
             if (empty($section_title)) {
-                $template->assign('TITLE', $title);
+                $this->template->assign('TITLE', $title);
             } else {
-                $template->assign('SECTION_TITLE', $title);
+                $this->template->assign('SECTION_TITLE', $title);
             }
         }
     }
 
     public function getAllThumbnailsInCategory()
     {
-        global $template, $page, $conn;
+        global $page, $conn;
 
         if (!$page['items'] || ($page['section'] == 'categories' && !isset($page['category']))) {
             return;
@@ -193,7 +183,7 @@ class ThemeController
 
         $tpl_thumbnails_var = [];
 
-        $theme_config = $template->get_template_vars('theme_config');
+        $theme_config = $this->template->get_template_vars('theme_config');
 
         if ($theme_config->photoswipe_metadata) {
             if (array_key_exists('bootstrap_darkroom_ps_exif_mapping', $this->core_config)) {
@@ -254,9 +244,9 @@ class ThemeController
             $tpl_thumbnails_var[] = $tpl_var;
         }
 
-        $template->assign('thumbnails', $tpl_thumbnails_var);
+        $this->template->assign('thumbnails', $tpl_thumbnails_var);
 
-        $template->assign([
+        $this->template->assign([
             'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)),
             'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_MEDIUM)),
             'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_LARGE)),
