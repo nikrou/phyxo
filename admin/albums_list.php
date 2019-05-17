@@ -213,7 +213,8 @@ foreach ($categories as $category) {
         'U_JUMPTO' => \Phyxo\Functions\URL::make_index_url(['category' => $category]),
         'U_CHILDREN' => $cat_list_url . '&amp;parent_id=' . $category['id'],
         'U_EDIT' => $base_url . 'album&amp;cat_id=' . $category['id'],
-        'IS_VIRTUAL' => empty($category['dir'])
+        'IS_VIRTUAL' => empty($category['dir']),
+        'IS_PRIVATE' => $category['status'] === 'private'
     ];
 
     if (empty($category['dir'])) {

@@ -37,11 +37,10 @@
 		<h3>{'Automatic sort order'|translate}</h3>
 		<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 
-		<p><strong>{'Sort order'|translate}</strong>
-		    {foreach from=$sort_orders key=sort_code item=sort_label}
-			<br><label><input type="radio" value="{$sort_code}" name="order_by" {if $sort_code eq $sort_order_checked}checked="checked"{/if}> {$sort_label}</label>
-		    {/foreach}
-		</p>
+		<p><strong>{'Sort order'|translate}</strong></p>
+		{foreach $sort_orders as $sort_code => $sort_label}
+		    <p><label><input type="radio" value="{$sort_code}" name="order_by" {if $sort_code eq $sort_order_checked}checked="checked"{/if}> {$sort_label}</label></p>
+		{/foreach}
 
 		<p>
 		    <label><input type="checkbox" name="recursive"> <strong>{'Apply to sub-albums'|translate}</strong></label>
@@ -65,8 +64,17 @@
 	{if count($categories)}
 	    <div class="albums">
 		{foreach $categories as $category}
+		    {if $category.IS_PRIVATE}
+			{assign var="status_icon" value="fa-lock"}
+			{assign var="status_title" value="{'Private'|translate}"}
+		    {else}
+			{assign var="status_icon" value="fa-unlock"}
+			{assign var="status_title" value="{'Public'|translate}"}
+		    {/if}
+
 		    <div class="album{if $category.IS_VIRTUAL} virtual_cat{/if}" id="cat_{$category.ID}">
 			<p class="album-title">
+			    <i class="fa infos {$status_icon}" title="{$status_title}"></i>
 			    <i class="drag_button move visibility-hidden" title="{'Drag to re-order'|translate}"></i>
 			    <strong><a href="{$category.U_CHILDREN}" title="{'manage sub-albums'|translate}">{$category.NAME}</a></strong>
 			    <span class="albumInfos"><span class="userSeparator">&middot;</span> {$category.NB_PHOTOS|translate_dec:'%d photo':'%d photos'} <span class="userSeparator">&middot;</span> {$category.NB_SUB_PHOTOS|translate_dec:'%d photo':'%d photos'} {$category.NB_SUB_ALBUMS|translate_dec:'in %d sub-album':'in %d sub-albums'}</span>
