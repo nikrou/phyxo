@@ -17,18 +17,16 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $authorizationChecker;
+    private $conn, $conf, $userMapper;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     public function getUser()
@@ -101,7 +99,7 @@ class CommentMapper
         }
 
         // display author field if the user status is guest or generic
-        if (!$this->authorizationChecker->isGranted('ROLE_USER')) {
+        if ($this->userMapper->isGuest()) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
                     $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
@@ -169,7 +167,7 @@ class CommentMapper
         }
         $anonymous_id = implode('.', $ip_components);
 
-        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->authorizationChecker->isGranted('ROLE_ADMIN')) { // anti-flood system
+        if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
             $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
                 $comm['author_id'],
@@ -238,7 +236,7 @@ class CommentMapper
      */
     public function deleteUserComment($comment_id)
     {
-        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->autorizationChecker->isGranted('ROLE_ADMIN') ? $this->getUser()->getId() : null)) {
+        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null)) {
             $this->invalidateUserCacheNbComments();
 
             $this->email_admin(
@@ -271,7 +269,7 @@ class CommentMapper
 
         if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action = 'reject';
-        } elseif (!$this->conf['comments_validation'] or $this->autorizationChecker->isGranted('ROLE_ADMIN')) { // should the updated comment must be validated
+        } elseif (!$this->conf['comments_validation'] or $this->userMapper->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
@@ -302,7 +300,7 @@ class CommentMapper
 
         if ($comment_action != 'reject') {
             $user_where_clause = '';
-            if (!$this->autorizationChecker->isGranted('ROLE_ADMIN')) {
+            if (!$this->userMapper->isAdmin()) {
                 $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->getUser()->getId()) . '\'';
             }
 

@@ -557,7 +557,7 @@ class UserMapper
 
     public function isClassicUser(): bool
     {
-        return $this->autorizationChecker->isGranted('ROLE_USER');
+        return $this->autorizationChecker->isGranted('ROLE_NORMAL');
     }
 
     public function isAdmin(): bool

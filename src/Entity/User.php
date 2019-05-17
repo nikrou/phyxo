@@ -79,6 +79,10 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     {
         $this->roles = ['ROLE_USER'];
 
+        if ($this->user_infos['status'] === 'normal') {
+            $this->roles[] = 'ROLE_NORMAL';
+        }
+
         if ($this->user_infos['status'] === 'admin') {
             $this->roles[] = 'ROLE_ADMIN';
         }

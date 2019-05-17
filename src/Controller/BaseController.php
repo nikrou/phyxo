@@ -108,7 +108,7 @@ abstract class BaseController extends Controller
             $tpl_params['debug'] = $debug_vars;
 
             // user & connection infos
-            if ($this->isGranted('ROLE_USER')) {
+            if ($this->isGranted('ROLE_NORMAL')) {
                 $tpl_params['APP_USER'] = $this->getUser();
                 $tpl_params['U_LOGOUT'] = $this->generateUrl('logout');
                 if ($this->isGranted('ROLE_ADMIN')) {

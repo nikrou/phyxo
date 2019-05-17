@@ -14,7 +14,8 @@ security:
         cost: 12
 
     role_hierarchy:
-      ROLE_ADMIN: ROLE_USER
+      ROLE_NORMAL: ROLE_USER
+      ROLE_ADMIN: ROLE_NORMAL
       ROLE_WEBMASTER: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
 
     firewalls:
@@ -54,6 +55,6 @@ security:
     access_control:
         - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
         - { path: ^/(identification|password|register)(\.php)?$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/profile(\.php)?$, roles: ROLE_USER }
+        - { path: ^/profile(\.php)?$, roles: ROLE_NORMAL }
         - { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

@@ -289,6 +289,7 @@ class MenuBar
                 $tpl_params['U_REGISTER'] = $this->router->generate('register');
             }
         } else {
+            $tpl_params['APP_USER'] = $this->userMapper->getUser();
             $tpl_params['USERNAME'] = $this->userMapper->getUser()->getUsername();
             $tpl_params['U_PROFILE'] = $this->router->generate('profile');
             $tpl_params['U_LOGOUT'] = $this->router->generate('logout');
