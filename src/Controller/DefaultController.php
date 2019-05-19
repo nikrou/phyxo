@@ -40,31 +40,6 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function feed(string $legacyBaseDir, Request $request)
-    {
-        $legacy_file = sprintf('%s/feed.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/feed";
-
-        return $this->doResponse($legacy_file, 'feed.tpl');
-    }
-
-    public function notification(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/notification.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/notification";
-
-        // menuBar : inject items
-
-        return $this->doResponse($legacy_file, 'notification.tpl', $tpl_params);
-    }
-
     public function comments(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;

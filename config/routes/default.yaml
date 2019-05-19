@@ -7,16 +7,18 @@ about:
   controller: App\Controller\AboutController::index
 
 feed:
-  path: /feed.{extension}
-  controller: App\Controller\DefaultController::feed
+  path: /feed/{feed_id}
+  controller: App\Controller\FeedController::feed
+
+feed_image_only:
+  path: /feed/{feed_id}/image-only
+  controller: App\Controller\FeedController::feed
   defaults:
-    extension: php
+    image_only: true
 
 notification:
-  path: /notification.{extension}
-  controller: App\Controller\DefaultController::notification
-  defaults:
-    extension: php
+  path: /notification
+  controller: App\Controller\FeedController::notification
 
 comments:
   path: /comments.{extension}

@@ -23,6 +23,8 @@ src/Log.php
 src/LegacyPages/about.php
 src/LegacyPages/identification.php
 src/LegacyPages/install.php
+src/LegacyPages/feed.php
+src/LegacyPages/notification.php
 src/LegacyPages/register.php
 src/LegacyPages/profile.php
 src/LegacyPages/ws.php

@@ -306,10 +306,8 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public function get_html_description_recent_post_date(array $date_detail): string
+    public function get_html_description_recent_post_date(array $date_detail, array $picture_ext): string
     {
-        global $conf;
-
         $description = '<ul>';
 
         $description .=
@@ -322,7 +320,7 @@ class Notification
             . '</li><br>';
 
         foreach ($date_detail['elements'] as $element) {
-            $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element, $conf['picture_ext']);
+            $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element, $picture_ext);
             $description .= '<a href="' .
                 \Phyxo\Functions\URL::make_picture_url([
                     'image_id' => $element['id'],
@@ -983,7 +981,7 @@ class Notification
                                             'recent_posts',
                                             [
                                                 'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail)
+                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $conf['picture_ext'])
                                             ]
                                         );
                                     }
