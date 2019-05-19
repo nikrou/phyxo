@@ -3,10 +3,8 @@ homepage:
   controller: App\Controller\DefaultController::home
 
 about:
-  path: /about.{extension}
-  controller: App\Controller\DefaultController::about
-  defaults:
-    extension: php
+  path: /about
+  controller: App\Controller\AboutController::index
 
 feed:
   path: /feed.{extension}

@@ -20,6 +20,7 @@ upgrade_feed.php
 upgrade.php
 doc
 src/Log.php
+src/LegacyPages/about.php
 src/LegacyPages/identification.php
 src/LegacyPages/install.php
 src/LegacyPages/register.php
