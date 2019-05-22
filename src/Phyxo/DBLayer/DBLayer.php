@@ -17,6 +17,7 @@ class DBLayer
     const MASS_UPDATES_SKIP_EMPTY = 1;
 
     protected $db_link = null;
+    protected $dblayer;
     protected $queries = [];
     protected $queries_time = 0;
     protected $prefix = 'phyxo_';

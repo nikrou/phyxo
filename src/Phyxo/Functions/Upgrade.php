@@ -120,9 +120,9 @@ class Upgrade
      *
      * @return array
      */
-    public static function get_available_upgrade_ids()
+    public static function get_available_upgrade_ids(string $root_dir)
     {
-        $upgrades_path = __DIR__ . '/../../../install/db';
+        $upgrades_path = $root_dir . '/install/db';
 
         $available_upgrade_ids = [];
 

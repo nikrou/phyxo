@@ -24,6 +24,7 @@ use App\Utils\UserManager;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Extension\Theme;
+use App\Repository\BaseRepository;
 
 class InstallController extends Controller
 {
@@ -35,6 +36,7 @@ class InstallController extends Controller
         'success' => ['label' => 'Installation completed']
     ];
 
+    private $languages_options;
     private $passwordEncoder;
     private $phyxoVersion;
     private $databaseConfigFile;
@@ -71,7 +73,8 @@ class InstallController extends Controller
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $languages = new Languages(null, __DIR__ . '/../../language');
+        $languages = new Languages(null);
+        $languages->setLanguagesRootPath(__DIR__ . '/../../language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $this->languages_options[$language_code] = $fs_language['name'];
         }
@@ -332,7 +335,7 @@ class InstallController extends Controller
                     $user_manager->register($webmaster);
                     $user_manager->register($guest);
                     if ($conn->getLayer() === 'pgsql') {
-                        $conn->db_query('ALTER SEQUENCE ' . strtolower(App\Repository\BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
+                        $conn->db_query('ALTER SEQUENCE ' . strtolower(BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
                     }
 
                     rename($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php', $this->get('kernel')->getProjectDir() . '/local/config/database.inc.php');
@@ -392,14 +395,16 @@ class InstallController extends Controller
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
-        $languages = new Languages($conn, $this->get('kernel')->getProjectDir() . '/language');
+        $languages = new Languages($conn);
+        $languages->setLanguagesRootPath($this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
         }
 
         $conf->loadFromDB();
 
-        $themes = new Themes($conn, $this->get('kernel')->getProjectDir() . '/themes');
+        $themes = new Themes($conn);
+        $themes->setThemesRootPath($this->get('kernel')->getProjectDir() . '/themes');
         foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
             if ($theme_id === $this->default_theme) {
                 $themes->performAction('activate', $theme_id);

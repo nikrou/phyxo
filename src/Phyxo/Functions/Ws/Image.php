@@ -453,7 +453,7 @@ class Image
 
         $file_path = $service->getConf()['upload_dir'] . '/buffer/' . $image['md5sum'] . '-original';
 
-        $this->merge_chunks($file_path, $image['md5sum'], $original_type, $service);
+        self::merge_chunks($file_path, $image['md5sum'], $original_type, $service);
         chmod($file_path, 0644);
 
         // if we receive the "file", we only update the original if the "file" is bigger than current original

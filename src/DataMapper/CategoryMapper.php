@@ -23,10 +23,11 @@ use App\Repository\UserAccessRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\OldPermalinkRepository;
 use App\Repository\UserCacheCategoriesRepository;
+use App\Repository\SiteRepository;
 
 class CategoryMapper
 {
-    private $em, $conf;
+    private $em, $conf, $router;
 
     public function __construct(Conf $conf, EntityManager $em, RouterInterface $router)
     {

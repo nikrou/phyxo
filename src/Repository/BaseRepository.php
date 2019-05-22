@@ -96,13 +96,13 @@ class BaseRepository
                 case 'visible_categories':
 
                         if (!empty($filter['visible_categories'])) {
-                            $sql_list[] = $field_name . ' ' . $this->in($filter['visible_categories']);
+                            $sql_list[] = $field_name . ' ' . $this->conn->in($filter['visible_categories']);
                         }
                         break;
 
                 case 'visible_images':
                     if (!empty($filter['visible_images'])) {
-                        $sql_list[] = $field_name . ' ' . $this->in($filter['visible_images']);
+                        $sql_list[] = $field_name . ' ' . $this->conn->in($filter['visible_images']);
                     }
                 // note there is no break - visible include forbidden no break
                 case 'forbidden_images':

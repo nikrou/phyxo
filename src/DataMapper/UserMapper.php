@@ -41,6 +41,7 @@ use App\Repository\CaddieRepository;
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper, $tagMapper;
+    private $passwordEncoder;
 
     public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
                                 CategoryMapper $categoryMapper, TagMapper $tagMapper)
@@ -142,9 +143,12 @@ class UserMapper
 
         // if no error until here, registration of the user
         if (empty($errors)) {
+            $user = new User();
+            $user->setUsername($login);
+            $user->setPassword($password);
             $insert = [
                 'username' => $login,
-                'password' => $this->passwordEncoder->encodePassword(new User(null, $login, $password, null), $password),
+                'password' => $this->passwordEncoder->encodePassword($user, $password),
                 'mail_address' => $mail_address
             ];
 

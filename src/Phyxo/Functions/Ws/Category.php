@@ -292,7 +292,7 @@ class Category
                     foreach ($categories as &$category) {
                         if ($row['id'] == $category['representative_picture_id']) {
                             // searching a random representant among elements in sub-categories
-                            $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], category);
+                            $image_id = (new CategoryRepository($service->getConnection()))->getRandomImageInCategory($service->getUserMapper()->getUser(), [], $category);
 
                             if (isset($image_id) and !in_array($image_id, $image_ids)) {
                                 $new_image_ids[] = $image_id;

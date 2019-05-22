@@ -14,6 +14,7 @@ namespace Phyxo\Functions\Ws;
 use Phyxo\Theme\Themes;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\Server;
+use Phyxo\Template\Template;
 
 class Theme
 {

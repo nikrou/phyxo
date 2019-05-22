@@ -77,7 +77,7 @@ class Notification
      */
     public function nb_new_elements($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getNewElements($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getNewElements($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -89,7 +89,7 @@ class Notification
      */
     public function new_elements($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getNewElements($this->userMapper()->getUser(), [], $start, $end);
+        return (new ImageRepository($this->conn))->getNewElements($this->userMapper->getUser(), [], $start, $end);
     }
 
     /**
@@ -101,7 +101,7 @@ class Notification
      */
     public function nb_updated_categories($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -113,7 +113,7 @@ class Notification
      */
     public function updated_categories($start = null, $end = null)
     {
-        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper()->getUser(), [], $start, $end, $count_only = true);
+        return (new ImageRepository($this->conn))->getUpdatedCategories($this->userMapper->getUser(), [], $start, $end, $count_only = true);
     }
 
     /**
@@ -212,7 +212,7 @@ class Notification
         if (!$exclude_img_cats) {
             $this->add_news_line(
                 $news,
-                $this->b_updated_categories($start, $end),
+                $this->nb_updated_categories($start, $end),
                 '%d album updated',
                 '%d albums updated',
                 \Phyxo\Functions\URL::make_index_url(['section' => 'recent_cats']),

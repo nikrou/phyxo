@@ -13,7 +13,7 @@ namespace Phyxo\Extension;
 
 class Theme extends Extension
 {
-    protected $id, $name, $template;
+    protected $id, $root, $template;
 
     public function __construct(string $root, string $id, string $template = 'template')
     {

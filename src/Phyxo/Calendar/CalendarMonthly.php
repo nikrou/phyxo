@@ -17,6 +17,7 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStdParams;
 use Phyxo\DBLayer\iDBLayer;
 use App\Repository\ImageRepository;
+use App\Repository\CategoryRepository;
 
 /**
  * Monthly calendar style (composed of years/months and days)

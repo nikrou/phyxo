@@ -15,6 +15,8 @@ use Phyxo\DBLayer\iDBLayer;
 
 class DataTransformer
 {
+    protected $conn;
+
     public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;

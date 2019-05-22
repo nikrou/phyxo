@@ -145,7 +145,7 @@ class Permission
                 }
             }
 
-            (new GroupAccessRepository($service->getConnection()))->massInserts(['group_id', 'cat_id'], $inserts, ['ignore' => true]);
+            (new GroupAccessRepository($service->getConnection()))->massInserts(['group_id', 'cat_id'], $inserts);
         }
 
         if (!empty($params['user_id'])) {

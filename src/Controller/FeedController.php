@@ -27,18 +27,20 @@ use Phyxo\Functions\Notification;
 
 class FeedController extends AbstractController
 {
+    private $conf;
+
     public function notification(Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
     {
         $this->conf = $conf;
 
-        $this->language_load = Language::load_language(
+        $language_load = Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
             ['language' => $this->getUser()->getLanguage(), 'return_vars' => true]
         );
         $template->setConf($conf);
-        $template->setLang($this->language_load['lang']);
-        $template->setLangInfo($this->language_load['lang_info']);
+        $template->setLang($language_load['lang']);
+        $template->setLangInfo($language_load['lang_info']);
         $template->postConstruct();
 
         // default theme
