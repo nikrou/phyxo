@@ -89,9 +89,7 @@ $page['infos'] = [];
 $page['errors'] = [];
 $mysql_changes = [];
 
-\Phyxo\Functions\Upgrade::check_upgrade_access_rights();
-
-if (isset($_POST['submit']) && \Phyxo\Functions\Upgrade::check_upgrade()) {
+if (isset($_POST['submit']) && $upgrade->checkUpgrade()) {
     $upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php';
     if (is_file($upgrade_file)) {
         $page['upgrade_start'] = microtime(true);
@@ -101,10 +99,18 @@ if (isset($_POST['submit']) && \Phyxo\Functions\Upgrade::check_upgrade()) {
 
         // Plugins deactivation
         if (in_array(PREFIX_TABLE . 'plugins', $tables)) {
-            \Phyxo\Functions\Upgrade::deactivate_non_standard_plugins();
+            $deactivate_plugins = $upgrade->deactivateNonStandardPlugins();
+            if (count($deactivate_plugins) > 0) {
+                $page['infos'][] = Language::l10n('As a precaution, following plugins have been deactivated. You must check for plugins upgrade before reactiving them:') .
+                 '<p><i>' . implode(', ', $plugins) . '</i></p>';
+            }
         }
 
-        \Phyxo\Functions\Upgrade::deactivate_non_standard_themes();
+        $deactivate_themes = $upgrade->deactivateNonStandardThemes();
+        if (count($deactivate_themes) > 0) {
+            $page['infos'][] = \Phyxo\Functions\Language::l10n('As a precaution, following themes have been deactivated. You must check for themes upgrade before reactiving them:') .
+            '<p><i>' . implode(', ', $deactivate_themes) . '</i></p>';
+        }
 
         $page['upgrade_end'] = microtime(true);
 

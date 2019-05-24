@@ -27,7 +27,7 @@ $result = (new UpgradeRepository($conn))->findAll();
 $applied = $conn->result2array($result, null, 'id');
 
 // retrieve existing upgrades
-$existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
+$existing = $upgrade->getAvailableUpgradeIds(__DIR__ . '/..');
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);

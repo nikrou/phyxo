@@ -91,6 +91,12 @@ services:
 
     Phyxo\MenuBar: ~
 
+    Phyxo\Upgrade: ~
+
+    phyxo.upgrade:
+      public: true
+      alias: 'Phyxo\Upgrade'
+
     phyxo.conf:
       public: true
       alias: 'Phyxo\Conf'

@@ -45,6 +45,8 @@ if (!Utils::phyxoInstalled($db_config_file)) {
 
 $conn = $container->get('phyxo.conn');
 $conf = $container->get('phyxo.conf');
+$upgrade = $container->get('phyxo.upgrade');
+
 $template = $container->get('templating.engine.smarty');
 
 include(__DIR__ . '/constants.php');
@@ -122,7 +124,7 @@ if ($conf['gallery_locked']) {
 }
 
 if ($conf['check_upgrade_feed']) {
-    if (\Phyxo\Functions\Upgrade::check_upgrade_feed()) {
+    if ($upgrade->checkUpgradeFeed(__DIR__ . '/..')) {
         $header_msgs[] = 'Some database upgrades are missing, <a class="alert-link" href="' . \Phyxo\Functions\URL::get_root_url() . 'admin/?page=upgrade_feed">upgrade now</a>';
     }
 }

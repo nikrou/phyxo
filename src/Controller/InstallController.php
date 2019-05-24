@@ -25,6 +25,7 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Extension\Theme;
 use App\Repository\BaseRepository;
+use Phyxo\Upgrade;
 
 class InstallController extends Controller
 {
@@ -44,13 +45,17 @@ class InstallController extends Controller
     private $default_theme;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, string $databaseConfigFile, UserPasswordEncoderInterface $passwordEncoder)
+    private $upgrade;
+
+    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, string $databaseConfigFile,
+                                UserPasswordEncoderInterface $passwordEncoder, Upgrade $upgrade)
     {
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->databaseConfigFile = $databaseConfigFile;
         $this->passwordEncoder = $passwordEncoder;
+        $this->upgrade = $upgrade;
 
         $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
         $template->assign([
@@ -415,7 +420,7 @@ class InstallController extends Controller
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         $datas = [];
-        foreach (\Phyxo\Functions\Upgrade::get_available_upgrade_ids($this->get('kernel')->getProjectDir()) as $upgrade_id) {
+        foreach ($this->upgrade->getAvailableUpgradeIds($this->get('kernel')->getProjectDir()) as $upgrade_id) {
             $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => $dbnow,
