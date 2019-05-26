@@ -148,7 +148,7 @@ class UserRepository extends BaseRepository
         $query = 'SELECT COUNT(1) AS user_exists FROM ' . self::USERS_TABLE;
         $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
         $result = $this->conn->db_query($query);
-        $row = $this->conn->db_fetch_assoc();
+        $row = $this->conn->db_fetch_assoc($result);
 
         return $row['user_exists'] == 1;
     }

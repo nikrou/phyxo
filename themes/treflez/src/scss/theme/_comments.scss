@@ -10,14 +10,18 @@
 	margin-right: 10px;
     }
 
-    .description form {
-	margin-top: 15px;
-	margin-bottom: 15px;
-    }
+    .description {
+	margin-left: 100px;
 
-    .description .actions {
-	float: right;
-	font-size: 90%;
+	form {
+	    margin-top: 15px;
+	    margin-bottom: 15px;
+	}
+
+	.actions {
+	    float: right;
+	    font-size: 90%;
+	}
     }
 }
 

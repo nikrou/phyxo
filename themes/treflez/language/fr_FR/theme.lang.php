@@ -86,3 +86,4 @@ $lang['Background image'] = "Image de fond";
 $lang['URL or releative path to the image'] = "URL ou chemin relatif vers l'image";
 $lang['Span the full viewport height'] = "Utiliser toute la hauteur de la vue";
 $lang['Use 6 colums for viewports >= 1680px'] = "Utiliser les 6 colonnes pour les vues >= 1680px";
+$lang['Filter and display comments'] = "Filtrer les commentaires";

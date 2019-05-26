@@ -73,7 +73,10 @@ class CommentRepository extends BaseRepository
         if (!$count_only) {
             $query .= ' GROUP BY com.id, ic.category_id, u.mail_address';
             $query .= ' ORDER BY ' . $params['order_by'];
-            $query .= ' LIMIT ' . $params['limit'] . ' OFFSET ' . $params['offset'];
+
+            if (!empty($params['limit'])) {
+                $query .= ' LIMIT ' . $params['limit'] . ' OFFSET ' . $params['offset'];
+            }
         }
 
         if ($count_only) {

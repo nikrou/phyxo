@@ -40,21 +40,6 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function comments(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/comments.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/comments";
-
-        // menuBar : inject items
-
-        return $this->doResponse($legacy_file, 'comments.tpl', $tpl_params);
-    }
-
     public function action(Request $request, $image_id, $part, $download = false)
     {
         global $conf, $conn, $filter, $template, $user, $page, $lang, $lang_info;

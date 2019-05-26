@@ -20,12 +20,6 @@ notification:
   path: /notification
   controller: App\Controller\FeedController::notification
 
-comments:
-  path: /comments.{extension}
-  controller: App\Controller\DefaultController::comments
-  defaults:
-    extension: php
-
 ws:
   path: /ws.{extension}
   controller: App\Controller\WsController::index
@@ -33,7 +27,7 @@ ws:
     extension: php
 
 media:
-  path: /i.{extension}/{path}-{derivative}{sizes}.{image_extension}
+  path: /i/{path}-{derivative}{sizes}.{image_extension}
   controller: App\Controller\MediaController::index
   requirements:
     path: '[^_]*'
@@ -41,7 +35,6 @@ media:
     image_extension: jpg|jpeg
     sizes: '(?:|_[^\.]*)'
   defaults:
-    extension: php
     sizes: null
 
 action:

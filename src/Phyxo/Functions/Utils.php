@@ -31,6 +31,7 @@ use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
 use Phyxo\Image\ImageStdParams;
+use Symfony\Component\Routing\RouterInterface;
 
 class Utils
 {
@@ -496,6 +497,40 @@ class Utils
         // return true;
     }
 
+    // first/prev/next/last/current
+    public static function createNavigationBar(RouterInterface $router, string $route, array $query_params, int $nb_elements, int $start, int $nb_element_page, int $pages_around = 2): array
+    {
+        $navbar = [];
+
+        if ($nb_elements > $nb_element_page) {
+            $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
+            $maximum = ceil($nb_elements / $nb_element_page);
+
+            $start = $nb_element_page * round($start / $nb_element_page);
+            $previous = $start - $nb_element_page;
+            $next = $start + $nb_element_page;
+            $last = ($maximum - 1) * $nb_element_page;
+
+            if ($cur_page != 1) {
+                $navbar['URL_FIRST'] = $router->generate($route, $query_params);
+                $navbar['URL_PREV'] = $previous > 0 ? $router->generate($route, array_merge($query_params, ['start' => $previous])) : '';
+            }
+            if ($cur_page != $maximum) {
+                $navbar['URL_NEXT'] = $router->generate($route, array_merge($query_params, ['start' => $next < $last ? $next : $last]));
+                $navbar['URL_LAST'] = $router->generate($route, array_merge($query_params, ['start' => $last]));
+            }
+
+            $navbar['pages'] = [];
+            $navbar['pages'][1] = $router->generate($route, array_merge($query_params, ['start' => 0]));
+            for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
+                $navbar['pages'][$i] = $router->generate($route, array_merge($query_params, ['start' => (($i - 1) * $nb_element_page)]));
+            }
+            $navbar['pages'][$maximum] = $router->generate($route, array_merge($query_params, ['start' => $last]));
+        }
+
+        return $navbar;
+    }
+
     /**
      * return an array which will be sent to template to display navigation bar
      *
@@ -510,6 +545,8 @@ class Utils
     public static function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $clean_url = false, $param_name = 'start')
     {
         global $conf;
+
+        trigger_error('create_navigation_bar function is deprecated. Use createNavigationBar that used symfony router instead.', E_USER_DEPRECATED);
 
         $navbar = [];
         $pages_around = $conf['paginate_pages_around'];

@@ -11,7 +11,6 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
@@ -25,40 +24,19 @@ use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use Phyxo\Functions\Notification;
 
-class FeedController extends AbstractController
+class FeedController extends CommonController
 {
     private $conf;
 
     public function notification(Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
     {
-        $this->conf = $conf;
-
-        $language_load = Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../',
-            ['language' => $this->getUser()->getLanguage(), 'return_vars' => true]
-        );
-        $template->setConf($conf);
-        $template->setLang($language_load['lang']);
-        $template->setLangInfo($language_load['lang_info']);
-        $template->postConstruct();
-
-        // default theme
-        $template->setTheme(new Theme(__DIR__ . '/../../themes', $this->getUser()->getTheme()));
-
-        $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
-        $template->assign('PHYXO_URL', $phyxoWebsite);
-
         $tpl_params = [];
+
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params['PAGE_TITLE'] = Language::l10n('Notification');
-        $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
-        $tpl_params['CONTENT_ENCODING'] = 'utf-8';
-        $tpl_params['U_HOME'] = $this->generateUrl('homepage');
-        $tpl_params['LEVEL_SEPARATOR'] = $conf['level_separator'];
 
         $feed_id = md5(uniqid(true));
         $em->getRepository(UserFeedRepository::class)->addUserFeed(['id' => $feed_id, 'user_id' => $this->getUser()->getId()]);
-        $feed_url = \Phyxo\Functions\URL::get_root_url() . 'feed.php';
         if ($this->getUser()->isGuest()) {
             $tpl_params['U_FEED'] = $this->generateUrl('feed', ['feed_id' => $feed_id]);
             $tpl_params['U_FEED_IMAGE_ONLY'] = $this->generateUrl('feed', ['feed_id' => $feed_id]);

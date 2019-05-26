@@ -372,7 +372,7 @@ class CommentMapper
             return;
         }
 
-        $keyargs_content = [\Phyxo\Functions\Language::l10n_args('Author: %s', $comment['author'])];
+        $keyargs_content = [\Phyxo\Functions\Language::get_l10n_args('Author: %s', $comment['author'])];
 
         if ($action == 'delete') {
             $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author removed the comment with id %d', $comment['comment_id']);
@@ -381,9 +381,9 @@ class CommentMapper
             $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('Comment: %s', $comment['content']);
         }
 
-        \Phyxo\Functions\Mail::mail_notification_admins(
-            \Phyxo\Functions\Language::get_l10n_args('Comment by %s', $comment['author']),
-            $keyargs_content
-        );
+        // \Phyxo\Functions\Mail::mail_notification_admins(
+        //     \Phyxo\Functions\Language::get_l10n_args('Comment by %s', $comment['author']),
+        //     $keyargs_content
+        // );
     }
 }

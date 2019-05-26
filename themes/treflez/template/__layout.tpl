@@ -90,7 +90,7 @@
 		</nav>
 	    {/if}
 
-	    {if !isset($slideshow) && !empty($MENUBAR)}
+	    {if !isset($slideshow) && !empty($blocks)}
 		{if $theme_config->page_header == 'jumbotron'}
 		    <div class="jumbotron mb-0">
 			<div class="container{if $theme_config->fluid_width}-fluid{/if}">
@@ -110,13 +110,11 @@
 	    {/if}
 
 	    {if not empty($header_msgs)}
-		{foreach $header_msgs as $msg}
-		{/foreach}
+		{foreach $header_msgs as $msg}{$msg}{/foreach}
 	    {/if}
 
 	    {if not empty($header_notes)}
-		{foreach $header_notes as $note}
-		{/foreach}
+		{foreach $header_notes as $note}{$note}{/foreach}
 	    {/if}
 
 	    {block name="content"}{/block}

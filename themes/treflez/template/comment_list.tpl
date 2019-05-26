@@ -18,25 +18,27 @@
 		{if isset($comment.U_DELETE) or isset($comment.U_VALIDATE) or isset($comment.U_EDIT)}
 		    <div class="actions">
 			{if isset($comment.U_DELETE)}
-			    <a href="{$comment.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">
-				{'Delete'|translate}
-			    </a>{if isset($comment.U_VALIDATE) or isset($comment.U_EDIT) or isset($comment.U_CANCEL)} | {/if}
+			    <form method="post" action="{$comment.U_DELETE}" class="form-inline-action">
+				<input type="hidden" name="_csrf_token" value="{$csrf_token}">
+				<input class="btn btn-danger btn-sm" type="submit" value="{'Delete'|translate}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">
+			    </form>
 			{/if}
 			{if isset($comment.U_CANCEL)}
-			    <a href="{$comment.U_CANCEL}">
+			    <a class="btn btn-info btn-sm" href="{$comment.U_CANCEL}">
 				{'Cancel'|translate}
-			    </a>{if isset($comment.U_VALIDATE)} | {/if}
+			    </a>
 			{/if}
 			{if isset($comment.U_EDIT) and !isset($comment.IN_EDIT)}
-			    <a class="editComment" href="{$comment.U_EDIT}#edit_comment">
+			    <a class="btn btn-primary btn-sm" href="{$comment.U_EDIT}#edit_comment">
 				{'Edit'|translate}
-			    </a>{if isset($comment.U_VALIDATE)} | {/if}
+			    </a>
 			{/if}
 			{if isset($comment.U_VALIDATE)}
-			    <a href="{$comment.U_VALIDATE}">
-				{'Validate'|translate}
-			    </a>
-			{/if}&nbsp;
+			    <form method="post" action="{$comment.U_VALIDATE}" class="form-inline-action">
+				<input type="hidden" name="_csrf_token" value="{$csrf_token}">
+				<input type="submit" class="btn btn-success btn-sm" value="{'Validate'|translate}">
+			    </form>
+			{/if}
 		    </div>
 		{/if}
 
@@ -45,7 +47,7 @@
                 - <span class="commentDate">{$comment.DATE}</span>
 		{if isset($comment.IN_EDIT)}
 		    <a name="edit_comment"></a>
-		    <form method="post" action="{$comment.U_EDIT}">
+		    <form method="post" action="{$comment.U_SAVE}">
 			<div class="form-group">
 			    <label for="website_url">{'Website'|translate} :</label>
 			    <input class="form-control" type="text" name="website_url" id="website_url" value="{$comment.WEBSITE_URL}">
@@ -55,9 +57,9 @@
 			    <textarea class="form-control" name="content" id="contenteditid" rows="5" cols="80">{$comment.CONTENT|@escape}</textarea>
 			</div>
 			<input type="hidden" name="key" value="{$comment.KEY}">
-			<input type="hidden" name="pwg_token" value="{$comment.PWG_TOKEN}">
+			<input type="hidden" name="_csrf_token" value="{$csrf_token}">
 			<input type="hidden" name="image_id" value="{$comment.IMAGE_ID|default:$current.id}">
-			<button type="submit" class="btn btn-primary btn-raised">{'Submit'|translate}</button>
+			<button type="submit" class="btn btn-primary">{'Submit'|translate}</button>
 		    </form>
 		{else}
 		    <blockquote><div>{$comment.CONTENT}</div></blockquote>
