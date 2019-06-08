@@ -14,8 +14,8 @@ use App\Repository\UserFeedRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\HistorySummaryRepository;
 use App\Repository\SearchRepository;
-use Phyxo\Image\ImageStdParams;
 use App\Repository\ImageRepository;
+use Phyxo\Image\ImageStandardParams;
 
 if (isset($_GET['action'])) {
     \Phyxo\Functions\Utils::check_token();
@@ -118,7 +118,7 @@ switch ($action) {
         }
     case 'derivatives':
         {
-            \Phyxo\Functions\Utils::clear_derivative_cache($_GET['type']);
+            \Phyxo\Functions\Utils::clear_derivative_cache([$_GET['type']], $image_std_params->getAllTypes());
             break;
         }
     default:
@@ -134,10 +134,10 @@ switch ($action) {
 $url_format = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=maintenance&amp;action=%s&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
 
 $purge_urls[\Phyxo\Functions\Language::l10n('All')] = sprintf($url_format, 'derivatives') . '&amp;type=all';
-foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
+foreach ($image_std_params->getDefinedTypeMap() as $params) {
     $purge_urls[\Phyxo\Functions\Language::l10n($params->type)] = sprintf($url_format, 'derivatives') . '&amp;type=' . $params->type;
 }
-$purge_urls[\Phyxo\Functions\Language::l10n(ImageStdParams::IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . ImageStdParams::IMG_CUSTOM;
+$purge_urls[\Phyxo\Functions\Language::l10n(ImageStandardParams::IMG_CUSTOM)] = sprintf($url_format, 'derivatives') . '&amp;type=' . ImageStandardParams::IMG_CUSTOM;
 
 $template->assign(
     [

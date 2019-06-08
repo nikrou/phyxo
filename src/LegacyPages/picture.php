@@ -15,7 +15,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\CaddieRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 include_once(__DIR__ . '/../../include/section_init.inc.php');
@@ -26,7 +26,7 @@ if (isset($page['category'])) {
 }
 
 if (!empty($_GET['display'])) {
-    if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
+    if (array_key_exists($_GET['display'], $image_std_params->getDefinedTypeMap())) {
         $_SESSION['picture_deriv'] = $_GET['display'];
     }
 }
@@ -111,7 +111,7 @@ if (isset($_GET['metadata'])) {
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_picture');
 
 // this is the default handler that generates the display for the element
-function default_picture_content($content, $element_info)
+function default_picture_content($content, $element_info, $image_std_params)
 {
     global $conf, $page, $template;
 
@@ -120,7 +120,7 @@ function default_picture_content($content, $element_info)
     }
 
     if (isset($_COOKIE['picture_deriv'])) {
-        if (array_key_exists($_COOKIE['picture_deriv'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
+        if (array_key_exists($_COOKIE['picture_deriv'], $image_std_params->getDefinedTypeMap())) {
             $_SESSION['picture_deriv'] = $_COOKIE['picture_deriv'];
         }
         setcookie('picture_deriv', false, 0, \Phyxo\Functions\Utils::cookie_path());
@@ -132,10 +132,10 @@ function default_picture_content($content, $element_info)
     $show_original = isset($element_info['element_url']);
     $added = [];
     foreach ($element_info['derivatives'] as $type => $derivative) {
-        if ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB) {
+        if ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB) {
             continue;
         }
-        if (!array_key_exists($type, \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
+        if (!array_key_exists($type, $image_std_params->getDefinedTypeMap())) {
             continue;
         }
         $url = $derivative->get_url();
@@ -369,7 +369,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
     }
 
     $row['src_image'] = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
-    $row['derivatives'] = \Phyxo\Image\DerivativeImage::get_all($row['src_image']);
+    $row['derivatives'] = $image_std_params->getAll($row['src_image']);
 
     if ($i == 'current') {
         $row['element_path'] = \Phyxo\Functions\Utils::get_element_path($row);
@@ -455,6 +455,7 @@ $metadata_showable = \Phyxo\Functions\Plugin::trigger_change(
 // allow plugins to change what we computed before passing data to template
 $picture = \Phyxo\Functions\Plugin::trigger_change('picture_pictures_data', $picture);
 
+$template->assign('image_std_params', $image_std_params);
 //------------------------------------------------------- navigation management
 foreach (['first', 'previous', 'next', 'last', 'current'] as $which_image) {
     if (isset($picture[$which_image])) {
@@ -717,7 +718,8 @@ if (count($related_categories) == 1 and isset($page['category']) and $related_ca
 $element_content = \Phyxo\Functions\Plugin::trigger_change(
     'render_element_content',
     '',
-    $picture['current']
+    $picture['current'],
+    $image_std_params
 );
 $template->assign('ELEMENT_CONTENT', $element_content);
 

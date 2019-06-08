@@ -12,7 +12,7 @@
 define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=configuration');
 
 use Phyxo\TabSheet\TabSheet;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
 
 //-------------------------------------------------------- sections definitions
 $Sections = ['main', 'sizes', 'watermark', 'display', 'comments', 'default'];
@@ -336,7 +336,7 @@ if ($section === 'main') {
         }
 
         // derivatives = multiple size
-        $enabled = \Phyxo\Image\ImageStdParams::get_defined_type_map();
+        $enabled = $image_std_params->getDefinedTypeMap();
         if (!empty($conf['disabled_derivatives'])) {
             $disabled = unserialize($conf['disabled_derivatives']);
         } else {
@@ -344,11 +344,11 @@ if ($section === 'main') {
         }
 
         $tpl_vars = [];
-        foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
+        foreach ($image_std_params->getAllTypes() as $type) {
             $tpl_var = [];
 
-            $tpl_var['must_square'] = ($type == ImageStdParams::IMG_SQUARE ? true : false);
-            $tpl_var['must_enable'] = ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
+            $tpl_var['must_square'] = ($type == ImageStandardParams::IMG_SQUARE ? true : false);
+            $tpl_var['must_enable'] = ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
 
             if (!empty($enabled[$type]) && ($params = $enabled[$type])) {
                 $tpl_var['enabled'] = true;
@@ -369,11 +369,11 @@ if ($section === 'main') {
             $tpl_vars[$type] = $tpl_var;
         }
         $template->assign('derivatives', $tpl_vars);
-        $template->assign('resize_quality', \Phyxo\Image\ImageStdParams::$quality);
+        $template->assign('resize_quality', ImageStandardParams::$quality);
 
         $tpl_vars = [];
         $now = time();
-        foreach (\Phyxo\Image\ImageStdParams::$custom as $custom => $time) {
+        foreach ($image_std_params->getCustom() as $custom => $time) {
             $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? \Phyxo\Functions\Language::l10n('today') : \Phyxo\Functions\DateTime::time_since($time, 'day');
         }
         $template->assign('custom_derivatives', $tpl_vars);
@@ -397,7 +397,7 @@ if ($section === 'main') {
     $template->assign('watermark_files', $watermark_filemap);
 
     if ($template->get_template_vars('watermark') === null) {
-        $wm = \Phyxo\Image\ImageStdParams::get_watermark();
+        $wm = $image_std_params->getWatermark();
 
         $position = 'custom';
         if ($wm->xpos == 0 and $wm->ypos == 0) {

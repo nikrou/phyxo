@@ -12,6 +12,7 @@
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 use Phyxo\Extension\Theme;
+use Phyxo\Image\ImageStandardParams;
 
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
@@ -67,7 +68,8 @@ if ($conn->getLayer() === 'mysql') {
 } else {
     $conf_derivatives = @unserialize($conf['derivatives']);
 }
-\Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
+$image_std_params = new ImageStandardParams($em, $conf_derivatives);
+
 \Phyxo\Functions\Plugin::load_plugins();
 
 // users can have defined a custom order pattern, incompatible with GUI form
@@ -97,6 +99,7 @@ if ($userMapper->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
 \Phyxo\Functions\Language::load_language('lang', __DIR__ . '/' . PWG_LOCAL_DIR, ['local' => true]);
 
 if (!defined('IN_WS') || !IN_WS) {
+    $template->setImageStandardParams($image_std_params);
     $template->setLang($lang);
     $template->setLangInfo($lang_info);
     $template->setConf($conf);

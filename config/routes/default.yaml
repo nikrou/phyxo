@@ -27,7 +27,7 @@ ws:
     extension: php
 
 media:
-  path: /i/{path}-{derivative}{sizes}.{image_extension}
+  path: /i.{extension}/{path}-{derivative}{sizes}.{image_extension}
   controller: App\Controller\MediaController::index
   requirements:
     path: '[^_]*'
@@ -36,6 +36,7 @@ media:
     sizes: '(?:|_[^\.]*)'
   defaults:
     sizes: null
+    extension: php
 
 action:
   path: /action.{extension}/{image_id}/{part}/{download}

@@ -22,13 +22,14 @@ use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\RateMapper;
+use Phyxo\EntityManager;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $em;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
-                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper)
+                        TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, EntityManager $em)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -37,6 +38,7 @@ class AdminController extends Controller
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->rateMapper = $rateMapper;
+        $this->em = $em;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -61,6 +63,7 @@ class AdminController extends Controller
         $userMapper = $this->userMapper;
         $categoryMapper = $this->categoryMapper;
         $rateMapper = $this->rateMapper;
+        $em = $this->em;
 
         try {
             global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $filter, $template, $user, $page,

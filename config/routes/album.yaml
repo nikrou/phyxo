@@ -1,11 +1,18 @@
 album:
-  path: /category/{category_id}/{extra_params}/{start_id}
+  path: /category/{category_id}/{start_id}
   controller: App\Controller\AlbumController::album
   defaults:
     start_id: null
-    extra_params: null
   requirements:
+    start_id: start-\d+
+
+album_flat:
+  path: /category/{category_id}/flat/{start_id}
+  controller: App\Controller\AlbumController::album
+  defaults:
+    start_id: null
     extra_params: flat
+  requirements:
     start_id: start-\d+
 
 album_by_params:

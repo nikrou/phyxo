@@ -14,6 +14,7 @@ namespace Phyxo\Calendar;
 use App\Repository\ImageRepository;
 use App\Repository\CategoryRepository;
 use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Image\ImageStandardParams;
 
 /**
  * Base class for monthly and weekly calendar styles
@@ -30,6 +31,7 @@ abstract class CalendarBase
 
     protected $conn;
     protected $calendar_levels;
+    protected $image_std_params;
 
     public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
@@ -40,6 +42,11 @@ abstract class CalendarBase
         } else {
             $this->date_field = 'date_creation';
         }
+    }
+
+    public function setImageStandardParams(ImageStandardParams $image_std_params)
+    {
+        $this->image_std_params = $image_std_params;
     }
 
     public function findByConditionAndCategory(string $condition, int $category_id = null, array $forbidden_categories = [])

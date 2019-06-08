@@ -41,6 +41,7 @@ class MediaController extends BaseController
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');
         }
+        $em = $this->em;
 
         try {
             global $conf, $conn, $page, $user, $services, $template;

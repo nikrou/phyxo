@@ -13,21 +13,25 @@ namespace Phyxo\Functions;
 
 use App\Repository\ImageRepository;
 use App\Repository\CommentRepository;
-use Phyxo\DBLayer\iDBLayer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\EntityManager;
+use Phyxo\Image\ImageStandardParams;
 
 class Notification
 {
-    private $conn, $userMapper, $categoryMapper;
+    private $em, $conn, $userMapper, $categoryMapper;
 
-    public function __construct(iDBLayer $conn, UserMapper $userMapper, CategoryMapper $categoryMapper)
+    public function __construct(EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
-        $this->conn = $conn;
+        $this->em = $em;
+        $this->conn = $em->getConnection();
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
     }
@@ -306,7 +310,7 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public function get_html_description_recent_post_date(array $date_detail, array $picture_ext): string
+    public function get_html_description_recent_post_date(array $date_detail, array $conf_derivatives, array $picture_ext): string
     {
         $description = '<ul>';
 
@@ -319,8 +323,11 @@ class Notification
             . ')'
             . '</li><br>';
 
+        $image_std_params = new ImageStandardParams($this->em, $conf_derivatives);
+        $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+
         foreach ($date_detail['elements'] as $element) {
-            $tn_src = \Phyxo\Image\DerivativeImage::thumb_url($element, $picture_ext);
+            $tn_src = (new DerivativeImage(new SrcImage($element, $picture_ext), $params, $image_std_params))->getUrl();
             $description .= '<a href="' .
                 \Phyxo\Functions\URL::make_picture_url([
                     'image_id' => $element['id'],
@@ -610,7 +617,7 @@ class Notification
      *
      * @return check_key list treated
      */
-    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
+    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [], array $conf_derivatives)
     {
         global $page, $env_nbm, $conf;
 
@@ -981,7 +988,7 @@ class Notification
                                             'recent_posts',
                                             [
                                                 'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $conf['picture_ext'])
+                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $conf_derivatives, $conf['picture_ext'])
                                             ]
                                         );
                                     }

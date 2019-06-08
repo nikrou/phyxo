@@ -16,8 +16,10 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Phyxo\Image\ImageStdParams;
 use Phyxo\MenuBar;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Image\SrcImage;
 
 class DefaultController extends BaseController
 {
@@ -69,7 +71,7 @@ class DefaultController extends BaseController
         switch ($part) {
             case 'e':
                 if (!$user['enabled_high']) {
-                    $deriv = new \Phyxo\Image\DerivativeImage(ImageStdParams::IMG_XXLARGE, new \Phyxo\Image\SrcImage($element_info, $conf['picture_ext']));
+                    $deriv = new DerivativeImage(new SrcImage($element_info, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');
                     }

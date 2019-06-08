@@ -10,7 +10,7 @@
  */
 
 use App\Repository\CaddieRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
 
 //--------------------------------------------------------------------- include
 include_once(__DIR__ . '/../../include/common.inc.php');
@@ -43,7 +43,7 @@ if (isset($_GET['image_order'])) {
 }
 
 if (isset($_GET['display'])) {
-    if (array_key_exists($_GET['display'], \Phyxo\Image\ImageStdParams::get_defined_type_map())) {
+    if (array_key_exists($_GET['display'], $image_std_params->getDefinedTypeMap())) {
         $_SESSION['index_deriv'] = $_GET['display'];
     }
 }
@@ -259,8 +259,8 @@ if (empty($page['is_external']) or !$page['is_external']) {
         $url = \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), ['display' => '']);
 
         $selected_type = $template->get_template_vars('derivative_params')->type;
-        $type_map = \Phyxo\Image\ImageStdParams::get_defined_type_map();
-        unset($type_map[ImageStdParams::IMG_XXLARGE], $type_map[ImageStdParams::IMG_XLARGE]);
+        $type_map = $image_std_params->getDefinedTypeMap();
+        unset($type_map[ImageStandardParams::IMG_XXLARGE], $type_map[ImageStandardParams::IMG_XLARGE]);
 
         foreach ($type_map as $params) {
             $template->append(

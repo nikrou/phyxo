@@ -21,6 +21,7 @@ use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use Phyxo\MenuBar;
 use App\DataMapper\RateMapper;
+use Phyxo\EntityManager;
 
 
 abstract class BaseController extends Controller
@@ -28,9 +29,10 @@ abstract class BaseController extends Controller
     protected $tagMapper, $commentMapper, $userMapper, $categroyMapper, $rateMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
-    protected $menuBar;
+    protected $menuBar, $em;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, MenuBar $menuBar)
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper,
+                                RateMapper $rateMapper, MenuBar $menuBar, EntityManager $em)
     {
         $this->userProvider = $userProvider;
         $this->tagMapper = $tagMapper;
@@ -39,6 +41,7 @@ abstract class BaseController extends Controller
         $this->categroyMapper = $categoryMapper;
         $this->rateMapper = $rateMapper;
         $this->menuBar = $menuBar;
+        $this->em = $em;
     }
 
     protected function doResponse($legacy_file, string $template_name, array $extra_params = [])
@@ -50,8 +53,9 @@ abstract class BaseController extends Controller
         $container = $this->container; // allow accessing container as global variable
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
-        $userMapper = $this->userMapper;
         $categoryMapper = $this->categroyMapper;
+        $userMapper = $this->userMapper;
+        $em = $this->em;
 
         if (!$app_user = $this->getUser()) {
             $app_user = $this->userProvider->loadUserByUsername('guest');

@@ -10,12 +10,14 @@
  */
 
 use App\Repository\TagRepository;
-use App\Repository\HistorySummaryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\HistoryRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\SearchRepository;
 use App\Repository\UserRepository;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
 
 if (!defined('HISTORY_BASE_URL')) {
     die("Hacking attempt!");
@@ -286,6 +288,12 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
 
             $image_string = '';
 
+            if ($thumbnail_display === 'display_thumbnail_classic' || $thumbnail_display === 'display_thumbnail_hoverbox') {
+                $src_image = new SrcImage($element, $conf['picture_ext']);
+                $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
+                $thumb_url = (new DerivativeImage($src_image, $params, $image_std_params))->getUrl();
+            }
+
             switch ($thumbnail_display) {
                 case 'no_display_thumbnail':
                     {
@@ -296,7 +304,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                     {
                         $image_string =
                             '<a class="thumbnail" href="' . $picture_url . '">'
-                            . '<span><img src="' . \Phyxo\Image\DerivativeImage::thumb_url($element, $conf['picture_ext'])
+                            . '<span><img src="' . $thumb_url
                             . '" alt="' . $image_title . '" title="' . $image_title . '">'
                             . '</span></a>';
                         break;
@@ -305,7 +313,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
                     {
                         $image_string =
                             '<a class="over" href="' . $picture_url . '">'
-                            . '<span><img src="' . \Phyxo\Image\DerivativeImage::thumb_url($element, $conf['picture_ext'])
+                            . '<span><img src="' . $thumb_url
                             . '" alt="' . $image_title . '" title="' . $image_title . '">'
                             . '</span>' . $image_title . '</a>';
                         break;

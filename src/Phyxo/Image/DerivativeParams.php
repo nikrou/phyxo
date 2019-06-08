@@ -11,7 +11,6 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\Image\ImageStdParams;
 use Phyxo\Image\SizingParams;
 
 /**
@@ -22,7 +21,7 @@ class DerivativeParams
     /** @var SizingParams */
     public $sizing;
     /** @var string among IMG_* */
-    public $type = ImageStdParams::IMG_CUSTOM;
+    public $type = ImageStandardParams::IMG_CUSTOM;
     /** @var int used for non-custom images to regenerate the cached files */
     public $last_mod_time = 0;
     /** @var bool */
@@ -97,10 +96,10 @@ class DerivativeParams
     /**
      * @return bool
      */
-    public function will_watermark($out_size)
+    public function will_watermark($out_size, ImageStandardParams $image_std_params)
     {
         if ($this->use_watermark) {
-            $min_size = ImageStdParams::get_watermark()->min_size;
+            $min_size = $image_std_params->getWatermark()->min_size;
             return $min_size[0] <= $out_size[0] || $min_size[1] <= $out_size[1];
         }
         return false;

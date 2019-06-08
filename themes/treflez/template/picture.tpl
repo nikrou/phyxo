@@ -127,23 +127,23 @@
 		<div class="col-lg-10 col-md-12 mx-auto">
 		    <div id="thumbnailCarousel" class="slick-carousel{if $theme_config->slick_centered} center{/if}">
 			{foreach $thumbnails as $thumbnail}
-			    {assign var=derivative value=$pwg->derivative($derivative_params_square, $thumbnail.src_image)}
+			    {assign var=derivative value=$pwg->derivative($thumbnail.src_image, $derivative_params_square, $image_std_params)}
 			    {if !$theme_config->slick_infinite}
-				{assign var=derivative_medium value=$pwg->derivative($derivative_params_medium, $thumbnail.src_image)}
-				{assign var=derivative_large value=$pwg->derivative($derivative_params_large, $thumbnail.src_image)}
-				{assign var=derivative_xxlarge value=$pwg->derivative($derivative_params_xxlarge, $thumbnail.src_image)}
+				{assign var=derivative_medium value=$pwg->derivative($thumbnail.src_image, $derivative_params_medium, $image_std_params )}
+				{assign var=derivative_large value=$pwg->derivative($thumbnail.src_image, $derivative_params_large, $image_std_params)}
+				{assign var=derivative_xxlarge value=$pwg->derivative($thumbnail.src_image, $derivative_params_xxlarge, $image_std_params)}
 			    {/if}
 
 			    {if $theme_config->photoswipe && !$theme_config->slick_infinite}
 				<div class="text-center{if $thumbnail.id eq $current.id && !$theme_config->slick_infinite} thumbnail-active{/if}">
-				    <a{if $thumbnail.id eq $current.id} id="thumbnail-active"{/if} href="{$thumbnail.URL}" data-index="{$thumbnail@index}" data-name="{$thumbnail.NAME}" data-description="{$thumbnail.DESCRIPTION}" {if !$theme_config->slick_infinite}data-src-xlarge="{$derivative_xxlarge->get_url()}" data-size-xlarge="{$derivative_xxlarge->get_size_hr()}" data-src-large="{$derivative_large->get_url()}" data-size-large="{$derivative_large->get_size_hr()}" data-src-medium="{$derivative_medium->get_url()}" data-size-medium="{$derivative_medium->get_size_hr()}" {if preg_match("/(mp4|m4v)$/", $thumbnail.PATH)} data-src-original="{$U_HOME}{$thumbnail.PATH}" data-size-original="{$thumbnail.SIZE}" data-video="true"{else}{if $theme_config->photoswipe_metadata} data-exif-make="{$thumbnail.EXIF.make}" data-exif-model="{$thumbnail.EXIF.model}" data-exif-lens="{$thumbnail.EXIF.lens}" data-exif-iso="{$thumbnail.EXIF.iso}" data-exif-apperture="{$thumbnail.EXIF.apperture}" data-exif-shutter-speed="{$thumbnail.EXIF.shutter_speed}" data-exif-focal-length="{$thumbnail.EXIF.focal_length}" data-date-created="{$thumbnail.DATE_CREATED}"{/if}{/if}{/if}>
-					<img {if $derivative->is_cached()}data-lazy="{$derivative->get_url()}"{else}data-lazy="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}" class="img-fluid">
+				    <a{if $thumbnail.id eq $current.id} id="thumbnail-active"{/if} href="{$thumbnail.URL}" data-index="{$thumbnail@index}" data-name="{$thumbnail.NAME}" data-description="{$thumbnail.DESCRIPTION}" {if !$theme_config->slick_infinite}data-src-xlarge="{$derivative_xxlarge->getUrl()}" data-size-xlarge="{$derivative_xxlarge->get_size_hr()}" data-src-large="{$derivative_large->getUrl()}" data-size-large="{$derivative_large->get_size_hr()}" data-src-medium="{$derivative_medium->getUrl()}" data-size-medium="{$derivative_medium->get_size_hr()}" {if preg_match("/(mp4|m4v)$/", $thumbnail.PATH)} data-src-original="{$U_HOME}{$thumbnail.PATH}" data-size-original="{$thumbnail.SIZE}" data-video="true"{else}{if $theme_config->photoswipe_metadata} data-exif-make="{$thumbnail.EXIF.make}" data-exif-model="{$thumbnail.EXIF.model}" data-exif-lens="{$thumbnail.EXIF.lens}" data-exif-iso="{$thumbnail.EXIF.iso}" data-exif-apperture="{$thumbnail.EXIF.apperture}" data-exif-shutter-speed="{$thumbnail.EXIF.shutter_speed}" data-exif-focal-length="{$thumbnail.EXIF.focal_length}" data-date-created="{$thumbnail.DATE_CREATED}"{/if}{/if}{/if}>
+					<img {if $derivative->is_cached()}data-lazy="{$derivative->getUrl()}"{else}data-lazy="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->getUrl()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}" class="img-fluid">
 				    </a>
 				</div>
 			    {else}
 				<div class="text-center{if $thumbnail.id eq $current.id} thumbnail-active{/if}">
 				    <a href="{$thumbnail.URL}">
-					<img {if $derivative->is_cached()}data-lazy="{$derivative->get_url()}"{else}data-lazy="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}" class="img-fluid">
+					<img {if $derivative->is_cached()}data-lazy="{$derivative->getUrl()}"{else}data-lazy="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->getUrl()}"{/if} alt="{$thumbnail.TN_ALT}" title="{$thumbnail.TN_TITLE}" class="img-fluid">
 				    </a>
 				</div>
 			    {/if}
@@ -155,10 +155,10 @@
 	    {if $theme_config->photoswipe && $theme_config->slick_infinite}
 		<div id="photoSwipeData" class="d-none">
 		    {foreach $thumbnails as $thumbnail}
-			{assign var=derivative_medium value=$pwg->derivative($derivative_params_medium, $thumbnail.src_image)}
-			{assign var=derivative_large value=$pwg->derivative($derivative_params_large, $thumbnail.src_image)}
-			{assign var=derivative_xxlarge value=$pwg->derivative($derivative_params_xxlarge, $thumbnail.src_image)}
-			<a{if $thumbnail.id eq $current.id} id="thumbnail-active"{/if} href="{$thumbnail.URL}" data-index="{$thumbnail@index}" data-name="{$thumbnail.NAME}" data-description="{$thumbnail.DESCRIPTION}" data-src-xlarge="{$derivative_xxlarge->get_url()}" data-size-xlarge="{$derivative_xxlarge->get_size_hr()}" data-src-large="{$derivative_large->get_url()}" data-size-large="{$derivative_large->get_size_hr()}" data-src-medium="{$derivative_medium->get_url()}" data-size-medium="{$derivative_medium->get_size_hr()}"{if preg_match("/(mp4|m4v)$/", $thumbnail.PATH)} data-src-original="{$U_HOME}{$thumbnail.PATH}" data-size-original="{$thumbnail.SIZE}" data-video="true"{else}{if $theme_config->photoswipe_metadata} data-exif-make="{$thumbnail.EXIF.make}" data-exif-model="{$thumbnail.EXIF.model}" data-exif-lens="{$thumbnail.EXIF.lens}" data-exif-iso="{$thumbnail.EXIF.iso}" data-exif-apperture="{$thumbnail.EXIF.apperture}" data-exif-shutter-speed="{$thumbnail.EXIF.shutter_speed}" data-exif-focal-length="{$thumbnail.EXIF.focal_length}" data-date-created="{$thumbnail.DATE_CREATED}"{/if}{/if}></a>
+			{assign var=derivative_medium value=$pwg->derivative($thumbnail.src_image, $derivative_params_medium, $image_std_params)}
+			{assign var=derivative_large value=$pwg->derivative($thumbnail.src_image, $derivative_params_large, $image_std_params)}
+			{assign var=derivative_xxlarge value=$pwg->derivative($thumbnail.src_image, $derivative_params_xxlarge, $image_std_params)}
+			<a{if $thumbnail.id eq $current.id} id="thumbnail-active"{/if} href="{$thumbnail.URL}" data-index="{$thumbnail@index}" data-name="{$thumbnail.NAME}" data-description="{$thumbnail.DESCRIPTION}" data-src-xlarge="{$derivative_xxlarge->getUrl()}" data-size-xlarge="{$derivative_xxlarge->get_size_hr()}" data-src-large="{$derivative_large->getUrl()}" data-size-large="{$derivative_large->get_size_hr()}" data-src-medium="{$derivative_medium->getUrl()}" data-size-medium="{$derivative_medium->get_size_hr()}"{if preg_match("/(mp4|m4v)$/", $thumbnail.PATH)} data-src-original="{$U_HOME}{$thumbnail.PATH}" data-size-original="{$thumbnail.SIZE}" data-video="true"{else}{if $theme_config->photoswipe_metadata} data-exif-make="{$thumbnail.EXIF.make}" data-exif-model="{$thumbnail.EXIF.model}" data-exif-lens="{$thumbnail.EXIF.lens}" data-exif-iso="{$thumbnail.EXIF.iso}" data-exif-apperture="{$thumbnail.EXIF.apperture}" data-exif-shutter-speed="{$thumbnail.EXIF.shutter_speed}" data-exif-focal-length="{$thumbnail.EXIF.focal_length}" data-date-created="{$thumbnail.DATE_CREATED}"{/if}{/if}></a>
 		    {/foreach}
 		</div>
 	    {/if}

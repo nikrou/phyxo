@@ -14,7 +14,10 @@ if (!defined("PHOTO_BASE_URL")) {
 }
 
 use App\Repository\ImageRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\DerivativeParams;
+use Phyxo\Image\ImageStandardParams;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 
@@ -38,12 +41,12 @@ $result = (new ImageRepository($conn))->findById($app_user, [], $_GET['image_id'
 $row = $conn->db_fetch_assoc($result);
 
 if (isset($_POST['submit'])) {
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
+    foreach ($image_std_params->getDefinedTypeMap() as $params) {
         if ($params->sizing->max_crop != 0) {
             \Phyxo\Functions\Utils::delete_element_derivatives($row, $params->type);
         }
     }
-    \Phyxo\Functions\Utils::delete_element_derivatives($row, ImageStdParams::IMG_CUSTOM);
+    \Phyxo\Functions\Utils::delete_element_derivatives($row, ImageStandardParams::IMG_CUSTOM);
     $uid = '&b=' . time();
     $conf['question_mark_in_urls'] = $conf['php_extension_in_urls'] = true;
     if ($conf['derivative_url_style'] == 1) {
@@ -53,26 +56,27 @@ if (isset($_POST['submit'])) {
     $uid = '';
 }
 
+$src_image = new SrcImage($row, $conf['picture_ext']);
 $tpl_var = [
     'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
     'ALT' => $row['file'],
-    'U_IMG' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $row),
+    'U_IMG' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
 ];
 
 if (!empty($row['coi'])) {
     $tpl_var['coi'] = [
-        'l' => \Phyxo\Image\DerivativeParams::char_to_fraction($row['coi'][0]),
-        't' => \Phyxo\Image\DerivativeParams::char_to_fraction($row['coi'][1]),
-        'r' => \Phyxo\Image\DerivativeParams::char_to_fraction($row['coi'][2]),
-        'b' => \Phyxo\Image\DerivativeParams::char_to_fraction($row['coi'][3]),
+        'l' => DerivativeParams::char_to_fraction($row['coi'][0]),
+        't' => DerivativeParams::char_to_fraction($row['coi'][1]),
+        'r' => DerivativeParams::char_to_fraction($row['coi'][2]),
+        'b' => DerivativeParams::char_to_fraction($row['coi'][3]),
     ];
 }
 
-foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
+foreach ($image_std_params->getDefinedTypeMap() as $params) {
     if ($params->sizing->max_crop != 0) {
-        $derivative = new \Phyxo\Image\DerivativeImage($params, new \Phyxo\Image\SrcImage($row, $conf['picture_ext']));
+        $derivative = new DerivativeImage($src_image, $params, $image_std_params);
         $template->append('cropped_derivatives', [
-            'U_IMG' => $derivative->get_url() . $uid,
+            'U_IMG' => $derivative->getUrl(),
             'HTM_SIZE' => $derivative->get_size_htm(),
         ]);
     }

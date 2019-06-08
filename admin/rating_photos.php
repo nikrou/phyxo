@@ -15,6 +15,9 @@ if (!defined('RATING_BASE_URL')) {
 
 use App\Repository\RateRepository;
 use App\Repository\UserRepository;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageStandardParams;
 
 // +-----------------------------------------------------------------------+
 // |                            initialization                             |
@@ -113,7 +116,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
 $template->assign('images', []);
 foreach ($images as $image) {
-    $thumbnail_src = \Phyxo\Image\DerivativeImage::thumb_url($image, $conf['picture_ext']);
+    $thumbnail_src = (new DerivativeImage(new SrcImage($image, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
 
     $image_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $image['id'];
 

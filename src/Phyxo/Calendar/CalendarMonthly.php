@@ -14,10 +14,10 @@ namespace Phyxo\Calendar;
 use Phyxo\Calendar\CalendarBase;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\Image\ImageStdParams;
 use Phyxo\DBLayer\iDBLayer;
 use App\Repository\ImageRepository;
 use App\Repository\CategoryRepository;
+use Phyxo\Image\ImageStandardParams;
 
 /**
  * Monthly calendar style (composed of years/months and days)
@@ -364,7 +364,7 @@ class CalendarMonthly extends CalendarBase
             unset($page['chronology_date'][self::CDAY]);
 
             $row = $this->conn->db_fetch_assoc($result);
-            $derivative = new DerivativeImage(ImageStdParams::IMG_SQUARE, new SrcImage($row, $conf['picture_ext']));
+            $derivative = new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE), $this->image_std_params);
             $items[$day]['derivative'] = $derivative;
             $items[$day]['file'] = $row['file'];
             $items[$day]['dow'] = $row['dow'];
@@ -390,7 +390,7 @@ class CalendarMonthly extends CalendarBase
                 $wday_labels[] = array_shift($wday_labels);
             }
 
-            list($cell_width, $cell_height) = ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)->sizing->ideal_size;
+            list($cell_width, $cell_height) = $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE)->sizing->ideal_size;
 
             $tpl_weeks = [];
             $tpl_crt_week = [];

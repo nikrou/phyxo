@@ -25,7 +25,9 @@ use App\Repository\ImageTagRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_begin_element_set_global');
 
@@ -368,11 +370,11 @@ $template->assign(['used_metadata' => $used_metadata]);
 
 //derivatives
 $del_deriv_map = [];
-foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $params) {
+foreach ($image_std_params->getDefinedTypeMap() as $params) {
     $del_deriv_map[$params->type] = \Phyxo\Functions\Language::l10n($params->type);
 }
 $gen_deriv_map = $del_deriv_map;
-$del_deriv_map[ImageStdParams::IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(ImageStdParams::IMG_CUSTOM);
+$del_deriv_map[ImageStandardParams::IMG_CUSTOM] = \Phyxo\Functions\Language::l10n(ImageStandardParams::IMG_CUSTOM);
 $template->assign(
     [
         'del_derivatives_types' => $del_deriv_map,
@@ -430,11 +432,11 @@ if (count($page['cat_elements_id']) > 0) {
         $page['nb_images'],
         $page['start']
     );
-    $thumb_params = \Phyxo\Image\ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB);
+    $thumb_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
     // template thumbnail initialization
     while ($row = $conn->db_fetch_assoc($result)) {
         $nb_thumbs_page++;
-        $src_image = new \Phyxo\Image\SrcImage($row, $conf['picture_ext']);
+        $src_image = new SrcImage($row, $conf['picture_ext']);
 
         $ttitle = \Phyxo\Functions\Utils::render_element_name($row);
         if ($ttitle != \Phyxo\Functions\Utils::get_name_from_file($row['file'])) { // @TODO: simplify. code difficult to read
@@ -446,9 +448,9 @@ if (count($page['cat_elements_id']) > 0) {
             array_merge(
                 $row,
                 [
-                    'thumb' => new \Phyxo\Image\DerivativeImage($thumb_params, $src_image),
+                    'thumb' => new DerivativeImage($src_image, $thumb_params, $image_std_params),
                     'TITLE' => $ttitle,
-                    'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $src_image),
+                    'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
                     'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
                 ]
             )

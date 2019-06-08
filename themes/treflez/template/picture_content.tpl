@@ -10,13 +10,13 @@
 	    <div id="video-modal" class="col-lg-3 col-md-5 col-sm-6 col-xs-8 mx-auto">
 		<div class="embed-responsive embed-responsive-9by16">
     {/if}
-    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{$current.selected_derivative->get_url()}">
+    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{$current.selected_derivative->getUrl()}">
 	<source src="{$ROOT_URL}{$current.path}" type="video/mp4"></source>
     </video>
 		</div>
 	    </div>
 {else}
-	    <img {if $current.selected_derivative->is_cached()}src="{$current.selected_derivative->get_url()}" {$current.selected_derivative->get_size_htm()}{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$current.selected_derivative->get_url()}"{/if} alt="{$ALT_IMG}" id="theMainImage" usemap="#map{$current.selected_derivative->get_type()}" title="{if isset($COMMENT_IMG)}{$COMMENT_IMG|@strip_tags:false|@replace:'"':' '}{else}{$current.TITLE_ESC} - {$ALT_IMG}{/if}">
+	    <img {if $current.selected_derivative->is_cached()}src="{$current.selected_derivative->getUrl()}" {$current.selected_derivative->get_size_htm()}{else}src="{$ROOT_URL}themes/treflez/img/transparent.png" data-src="{$current.selected_derivative->getUrl()}"{/if} alt="{$ALT_IMG}" id="theMainImage" usemap="#map{$current.selected_derivative->get_type()}" title="{if isset($COMMENT_IMG)}{$COMMENT_IMG|@strip_tags:false|@replace:'"':' '}{else}{$current.TITLE_ESC} - {$ALT_IMG}{/if}">
 
 	    {foreach $current.unique_derivatives as $derivative}{strip}
 		<map name="map{$derivative->get_type()}">

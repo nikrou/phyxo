@@ -21,10 +21,12 @@ use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
+use Phyxo\EntityManager;
+use Phyxo\Image\ImageStandardParams;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $phyxoVersion, $conn, $conf, $router;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $phyxoVersion, $conn, $em, $conf, $router, $image_std_params;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -132,6 +134,26 @@ class Server
     public function getConnection()
     {
         return $this->conn;
+    }
+
+    public function setEntityManager(EntityManager $em)
+    {
+        $this->em = $em;
+    }
+
+    public function getEntityManager()
+    {
+        return $this->em;
+    }
+
+    public function setImageStandardParams(ImageStandardParams $image_std_params)
+    {
+        $this->image_std_params = $image_std_params;
+    }
+
+    public function getImageStandardParams()
+    {
+        return $this->image_std_params;
     }
 
     public function setRouter(RouterInterface $router)

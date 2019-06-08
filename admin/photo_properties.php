@@ -19,7 +19,8 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\UserRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\ImageStandardParams;
 
 \Phyxo\Functions\Utils::check_input_parameter('image_id', $_GET, false, PATTERN_ID);
 \Phyxo\Functions\Utils::check_input_parameter('cat_id', $_GET, false, PATTERN_ID);
@@ -173,8 +174,8 @@ $template->assign(
         'U_SYNC' => $admin_url_start . '&amp;sync_metadata=1',
         'U_DELETE' => $admin_url_start . '&amp;delete=1&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token(),
         'PATH' => $row['path'],
-        'TN_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_THUMB, $src_image),
-        'FILE_SRC' => \Phyxo\Image\DerivativeImage::url(ImageStdParams::IMG_LARGE, $src_image),
+        'TN_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl(),
+        'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
         'NAME' => isset($_POST['name']) ? stripslashes($_POST['name']) : @$row['name'],
         'TITLE' => \Phyxo\Functions\Utils::render_element_name($row),
         'DIMENSIONS' => @$row['width'] . ' * ' . @$row['height'],

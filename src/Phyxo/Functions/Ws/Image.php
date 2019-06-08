@@ -26,6 +26,9 @@ use App\Repository\BaseRepository;
 use Phyxo\Functions\Upload;
 use Phyxo\Functions\Utils;
 use GuzzleHttp\Client;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageStandardParams;
 
 class Image
 {
@@ -768,10 +771,15 @@ class Image
             $result = (new ImageCategoryRepository($service->getConnection()))->countByCategory($params['category'][0]);
             list(, $nb_photos) = $service->getConnection()->db_fetch_row($result);
             $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
+            $derivative_image = new DerivativeImage(
+                new SrcImage($image_infos, $service->getConf()['picture_ext']),
+                $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
+                $service->getImageStandardParams()
+            );
 
             return [
                 'image_id' => $image_id,
-                'src' => $service->getRouter()->generate('media', \Phyxo\Image\DerivativeImage::relativeThumbInfos($image_infos, $service->getConf()['picture_ext'])),
+                'src' => $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos()),
                 'name' => $image_infos['name'],
                 'category' => [
                     'id' => $params['category'][0],
@@ -1584,14 +1592,8 @@ class Image
 
         \Phyxo\Functions\URL::set_make_full_url();
 
-        if ($service->getConnection()->getLayer() === 'mysql') {
-            $conf_derivatives = @unserialize(stripslashes($service->getConf()['derivatives']));
-        } else {
-            $conf_derivatives = @unserialize($service->getConf()['derivatives']);
-        }
-        \Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
-
-        $thumb_url = \Phyxo\Image\DerivativeImage::thumb_url($image_infos, $service->getConf()['picture_ext']);
+        $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
+        $thumb_url = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
         \Phyxo\Functions\URL::unset_make_full_url();
 
         // force cache generation

@@ -37,9 +37,9 @@ class Main
     public static function getMissingDerivatives($params, Server $service)
     {
         if (empty($params['types'])) {
-            $types = array_keys(\Phyxo\Image\ImageStdParams::get_defined_type_map());
+            $types = array_keys($service->getImageStandardParams()->getDefinedTypeMap());
         } else {
-            $types = array_intersect(array_keys(\Phyxo\Image\ImageStdParams::get_defined_type_map()), $params['types']);
+            $types = array_intersect(array_keys($service->getImageStandardParams()->getDefinedTypeMap()), $params['types']);
             if (count($types) == 0) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, "Invalid types");
             }
@@ -269,7 +269,7 @@ class Main
             $ret['element_url'] = \Phyxo\Functions\URL::get_element_url($image_row);
         }
 
-        $derivatives = \Phyxo\Image\DerivativeImage::get_all($src_image);
+        $derivatives = $service->getImageStandardParams()->getAll($src_image);
         $derivatives_arr = [];
         foreach ($derivatives as $type => $derivative) {
             $size = $derivative->get_size();

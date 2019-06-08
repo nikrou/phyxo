@@ -22,6 +22,8 @@ use App\Repository\ImageRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Phyxo\EntityManager;
 use Phyxo\DBLayer\DBLayer;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageStandardParams;
 
 class TagMapper
 {
@@ -58,8 +60,11 @@ class TagMapper
     {
         $result = $this->em->getRepository(TagRepository::class)->getPendingTags();
         $tags = [];
+        $image_std_params = new ImageStandardParams($this->em, $this->conf['conf_derivatives']);
+        $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['thumb_src'] = DerivativeImage::thumb_url(['id' => $row['image_id'], 'path' => $row['path']], $this->conf['picture_ext']);
+
+            $row['thumb_src'] = (new DerivativeImage(new SrcImage($row, $this->conf['picture_ext']), $params, $image_std_params))->getUrl();
             $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;

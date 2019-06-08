@@ -16,13 +16,13 @@ use Smarty;
 use Phyxo\Template\TemplateAdapter;
 use Phyxo\Template\ScriptLoader;
 use Phyxo\Template\CssLoader;
-use Phyxo\Image\ImageStdParams;
 
 use Phyxo\Conf;
 use Phyxo\Functions\Plugin;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Extension\Theme;
+use Phyxo\Image\ImageStandardParams;
 
 class Template implements EngineInterface
 {
@@ -30,6 +30,8 @@ class Template implements EngineInterface
 
     private $stats = ['render_time' => null, 'files' => []];
     private $manifest_content = '';
+
+    private $image_std_params;
 
     /** @var Smarty */
     public $smarty;
@@ -102,6 +104,11 @@ class Template implements EngineInterface
         self::$instance->setCompileDir($compile_dir);
 
         return self::$instance;
+    }
+
+    public function setImageStandardParams(ImageStandardParams $image_std_params)
+    {
+        $this->image_std_params = $image_std_params;
     }
 
     public function postConstruct()
@@ -188,6 +195,7 @@ class Template implements EngineInterface
         // inject variables and objects in loaded theme
         $conf = $this->options['conf'];
         $template = self::$instance;
+        $image_std_params = $this->image_std_params;
         require $themeconf_filename;
         ob_end_clean();
     }
@@ -629,7 +637,7 @@ class Template implements EngineInterface
     {
         !empty($params['name']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing name');
         if (isset($params['type'])) {
-            $derivative = ImageStdParams::get_by_type($params['type']);
+            $derivative = $this->image_std_params->getByType($params['type']);
             $smarty->assign($params['name'], $derivative);
             return;
         }
@@ -657,7 +665,7 @@ class Template implements EngineInterface
             }
         }
 
-        $smarty->assign($params['name'], ImageStdParams::get_custom($w, $h, $crop, $minw, $minh));
+        $smarty->assign($params['name'], $this->image_std_params->makeCustom($w, $h, $crop, $minw, $minh));
     }
 
     public function func_asset($params, $smarty)

@@ -13,6 +13,9 @@ use App\Repository\CategoryRepository;
 use App\Repository\SiteRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageStandardParams;
 
 if (!defined('ALBUM_BASE_URL')) {
     die('Hacking attempt!');
@@ -230,7 +233,7 @@ if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     if (!empty($category['representative_picture_id'])) {
         $result = (new ImageRepository($conn))->findById($app_user, [], $category['representative_picture_id']);
         $row = $conn->db_fetch_assoc($result);
-        $src = \Phyxo\Image\DerivativeImage::thumb_url($row, $conf['picture_ext']);
+        $src = (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $category['representative_picture_id'];
 
         $tpl_representant['picture'] =

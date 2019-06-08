@@ -9,16 +9,7 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Image\ImageStdParams;
-/*
- * This file is part of Phyxo package
- *
- * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
- * Licensed under the GPL version 2.0 license.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+use Phyxo\Image\ImageStandardParams;
 
 $errors = [];
 
@@ -47,12 +38,12 @@ $pderivatives = $_POST['d'];
 
 // step 1 - sanitize HTML input
 foreach ($pderivatives as $type => &$pderivative) {
-    if ($pderivative['must_square'] = ($type == ImageStdParams::IMG_SQUARE ? true : false)) {
+    if ($pderivative['must_square'] = ($type == ImageStandardParams::IMG_SQUARE ? true : false)) {
         $pderivative['h'] = $pderivative['w'];
         $pderivative['minh'] = $pderivative['minw'] = $pderivative['w'];
         $pderivative['crop'] = 100;
     }
-    $pderivative['must_enable'] = ($type == ImageStdParams::IMG_SQUARE || $type == ImageStdParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
+    $pderivative['must_enable'] = ($type == ImageStandardParams::IMG_SQUARE || $type == ImageStandardParams::IMG_THUMB || $type == $conf['derivative_default_size']) ? true : false;
     $pderivative['enabled'] = isset($pderivative['enabled']) || $pderivative['must_enable'] ? true : false;
 
     if (isset($pderivative['crop'])) {
@@ -69,13 +60,13 @@ unset($pderivative);
 
 // step 2 - check validity
 $prev_w = $prev_h = 0;
-foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
+foreach ($image_std_params->getAllTypes() as $type) {
     $pderivative = $pderivatives[$type];
     if (!$pderivative['enabled']) {
         continue;
     }
 
-    if ($type == ImageStdParams::IMG_THUMB) {
+    if ($type == ImageStandardParams::IMG_THUMB) {
         $w = intval($pderivative['w']);
         if ($w <= 0) {
             $errors[$type]['w'] = '>0';
@@ -114,10 +105,10 @@ foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
 
 // step 3 - save data
 if (count($errors) == 0) {
-    $quality_changed = \Phyxo\Image\ImageStdParams::$quality != intval($_POST['resize_quality']);
-    \Phyxo\Image\ImageStdParams::$quality = intval($_POST['resize_quality']);
+    $quality_changed = $image_std_params->getQuality() != intval($_POST['resize_quality']);
+    $image_std_params->setQuality(intval($_POST['resize_quality']));
 
-    $enabled = \Phyxo\Image\ImageStdParams::get_defined_type_map();
+    $enabled = $image_std_params->getDefinedTypeMap();
     if (!empty($conf['disabled_derivatives'])) {
         $disabled = unserialize($conf['disabled_derivatives']);
     } else {
@@ -125,7 +116,7 @@ if (count($errors) == 0) {
     }
     $changed_types = [];
 
-    foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
+    foreach ($image_std_params->getAllTypes() as $type) {
         $pderivative = $pderivatives[$type];
 
         if ($pderivative['enabled']) {
@@ -138,7 +129,7 @@ if (count($errors) == 0) {
             );
             $new_params->sharpen = intval($pderivative['sharpen']);
 
-            \Phyxo\Image\ImageStdParams::apply_global($new_params);
+            $image_std_params->applyWatermark($new_params);
 
             if (isset($enabled[$type])) {
                 $old_params = $enabled[$type];
@@ -179,20 +170,20 @@ if (count($errors) == 0) {
     }
 
     $enabled_by = []; // keys ordered by all types
-    foreach (\Phyxo\Image\ImageStdParams::get_all_types() as $type) {
+    foreach ($image_std_params->getAllTypes() as $type) {
         if (isset($enabled[$type])) {
             $enabled_by[$type] = $enabled[$type];
         }
     }
 
-    foreach (array_keys(\Phyxo\Image\ImageStdParams::$custom) as $custom) {
+    foreach (array_keys($image_std_params->getCustom()) as $custom) {
         if (isset($_POST['delete_custom_derivative_' . $custom])) {
             $changed_types[] = $custom;
-            unset(\Phyxo\Image\ImageStdParams::$custom[$custom]);
+            $image_std_params->unsetCustom($custom);
         }
     }
 
-    \Phyxo\Image\ImageStdParams::set_and_save($enabled_by);
+    $image_std_params->setAndSave($enabled_by);
     if (count($disabled) == 0) {
         unset($conf['disabled_derivatives']);
     } else {
@@ -200,7 +191,7 @@ if (count($errors) == 0) {
     }
 
     if (count($changed_types)) {
-        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types);
+        \Phyxo\Functions\Utils::clear_derivative_cache($changed_types, $image_std_params->getAllTypes());
     }
 
     $page['infos'][] = \Phyxo\Functions\Language::l10n('Your configuration settings have been saved');

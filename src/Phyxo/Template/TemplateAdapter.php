@@ -12,26 +12,19 @@
 namespace Phyxo\Template;
 
 use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\DerivativeParams;
+use Phyxo\Image\ImageStandardParams;
 
 class TemplateAdapter
 {
-    /**
-     * @param string $type
-     * @param array $img
-     * @return DerivativeImage
-     */
-    public function derivative($type, $img)
+    public function derivative(SrcImage $img, DerivativeParams $params, ImageStandardParams $image_std_params): DerivativeImage
     {
-        return new DerivativeImage($type, $img);
+        return new DerivativeImage($img, $params, $image_std_params);
     }
 
-    /**
-     * @param string $type
-     * @param array $img
-     * @return string
-     */
-    public function derivative_url($type, $img)
+    public function derivative_url(SrcImage $img, DerivativeParams $params, ImageStandardParams $image_std_params): string
     {
-        return DerivativeImage::url($type, $img);
+        return (new DerivativeImage($img, $params, $image_std_params))->getUrl();
     }
 }

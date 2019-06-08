@@ -10,7 +10,7 @@
  */
 
 use App\Repository\ImageRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
 
 include_once(__DIR__ . '/../../include/common.inc.php');
 
@@ -26,9 +26,9 @@ if ($conn->getLayer() === 'mysql') {
 } else {
     $conf_derivatives = @unserialize($conf['derivatives']);
 }
-\Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
+$image_std_params = new ImageStandardParams($em, $conf_derivatives);
 
-parse_request();
+parse_request($image_std_params);
 $params = $page['derivative_params'];
 
 $src_mtime = @filemtime($page['src_path']);
@@ -91,12 +91,12 @@ try {
 }
 $conn->db_close();
 
-if (!try_switch_source($params, $src_mtime) && $params->type == ImageStdParams::IMG_CUSTOM) {
+if (!try_switch_source($params, $src_mtime) && $params->type == ImageStandardParams::IMG_CUSTOM) {
     $sharpen = 0;
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $std_params) {
+    foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
         $sharpen += $std_params->sharpen;
     }
-    $params->sharpen = round($sharpen / count(\Phyxo\Image\ImageStdParams::get_defined_type_map()));
+    $params->sharpen = round($sharpen / count($image_std_params->getDefinedTypeMap()));
 }
 
 if (!\Phyxo\Functions\Utils::mkgetdir(dirname($page['derivative_path']), \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE)) {
@@ -139,8 +139,8 @@ if ($params->sharpen) {
     $timing['sharpen'] = time_step($step);
 }
 
-if ($params->will_watermark($d_size)) {
-    $wm = \Phyxo\Image\ImageStdParams::get_watermark();
+if ($params->will_watermark($d_size, $image_std_params)) {
+    $wm = $image_std_params->getWatermark();
     $wm_image = new \Phyxo\Image\Image(__DIR__ . '/../../' . $wm->file);
     $wm_size = [$wm_image->get_width(), $wm_image->get_height()];
     if ($d_size[0] < $wm_size[0] or $d_size[1] < $wm_size[1]) {
@@ -183,7 +183,7 @@ if ($d_size[0] * $d_size[1] < $conf['derivatives_strip_metadata_threshold']) {//
     $image->strip();
 }
 
-$image->set_compression_quality(\Phyxo\Image\ImageStdParams::$quality);
+$image->set_compression_quality($image_std_params->getQuality());
 $image->write($page['derivative_path']);
 $image->destroy();
 @chmod($page['derivative_path'], 0644);
@@ -305,7 +305,7 @@ function parse_custom_params($tokens)
     return new \Phyxo\Image\DerivativeParams(new \Phyxo\Image\SizingParams($size, $crop, $min_size));
 }
 
-function parse_request()
+function parse_request($image_std_params)
 {
     global $conf, $page;
 
@@ -345,7 +345,7 @@ function parse_request()
 
     $deriv = explode('_', $deriv);
 
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $type => $params) {
+    foreach ($image_std_params->getDefinedTypeMap() as $type => $params) {
         if (\Phyxo\Image\DerivativeParams::derivative_to_url($type) == $deriv[0]) {
             $page['derivative_type'] = $type;
             $page['derivative_params'] = $params;
@@ -354,17 +354,17 @@ function parse_request()
     }
 
     if (!isset($page['derivative_type'])) {
-        if (\Phyxo\Image\DerivativeParams::derivative_to_url(ImageStdParams::IMG_CUSTOM) == $deriv[0]) {
-            $page['derivative_type'] = ImageStdParams::IMG_CUSTOM;
+        if (\Phyxo\Image\DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) == $deriv[0]) {
+            $page['derivative_type'] = ImageStandardParams::IMG_CUSTOM;
         } else {
             ierror('Unknown parsing type', 400);
         }
     }
     array_shift($deriv);
 
-    if ($page['derivative_type'] == ImageStdParams::IMG_CUSTOM) {
+    if ($page['derivative_type'] == ImageStandardParams::IMG_CUSTOM) {
         $params = $page['derivative_params'] = parse_custom_params($deriv);
-        \Phyxo\Image\ImageStdParams::apply_global($params);
+        $image_std_params->applyWatermark($params);
 
         if ($params->sizing->ideal_size[0] < 20 or $params->sizing->ideal_size[1] < 20) {
             ierror('Invalid size', 400);
@@ -372,12 +372,11 @@ function parse_request()
         if ($params->sizing->max_crop < 0 or $params->sizing->max_crop > 1) {
             ierror('Invalid crop', 400);
         }
-        $greatest = \Phyxo\Image\ImageStdParams::get_by_type(ImageStdParams::IMG_XXLARGE);
 
         $key = [];
         $params->add_url_tokens($key);
         $key = implode('_', $key);
-        if (!isset(\Phyxo\Image\ImageStdParams::$custom[$key])) {
+        if (!isset($image_std_params->getCustom()[$key])) {
             ierror('Size not allowed', 403);
         }
     }
@@ -395,7 +394,7 @@ function parse_request()
 
 function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtime)
 {
-    global $page;
+    global $page, $image_std_params;
 
     if (!isset($page['original_size'])) {
         return false;
@@ -411,11 +410,11 @@ function try_switch_source(\Phyxo\Image\DerivativeParams $params, $original_mtim
 
     $use_watermark = $params->use_watermark;
     if ($use_watermark) {
-        $use_watermark = $params->will_watermark($dsize);
+        $use_watermark = $params->will_watermark($dsize, $image_std_params);
     }
 
     $candidates = [];
-    foreach (\Phyxo\Image\ImageStdParams::get_defined_type_map() as $candidate) {
+    foreach ($image_std_params->getDefinedTypeMap() as $candidate) {
         if ($candidate->type == $params->type) {
             continue;
         }

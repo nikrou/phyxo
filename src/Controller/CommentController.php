@@ -21,13 +21,13 @@ use App\Repository\CommentRepository;
 use App\Repository\BaseRepository;
 use App\Repository\ImageRepository;
 use App\Repository\CategoryRepository;
-use Phyxo\Image\ImageStdParams;
 use App\DataMapper\UserMapper;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\DataMapper\CommentMapper;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use App\DataMapper\CategoryMapper;
+use Phyxo\Image\ImageStandardParams;
 
 class CommentController extends CommonController
 {
@@ -43,7 +43,7 @@ class CommentController extends CommonController
         } else {
             $conf_derivatives = @unserialize($conf['derivatives']);
         }
-        \Phyxo\Image\ImageStdParams::load_from_db($conf_derivatives);
+        $image_std_params = new ImageStandardParams($em, $conf_derivatives);
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -241,8 +241,9 @@ class CommentController extends CommonController
             }
         }
 
-        $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB));
+        $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
         $tpl_params['derivative_params'] = $derivative_params;
+        $tpl_params['image_std_params'] = $image_std_params;
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
 

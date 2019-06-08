@@ -14,7 +14,7 @@
 {assign var=idx value=0+$START_ID}
 <div class="row">
     {foreach $thumbnails as $thumbnail}
-	{assign var=derivative value=$pwg->derivative($derivative_params, $thumbnail.src_image)}
+	{assign var=derivative value=$pwg->derivative($thumbnail.src_image, $derivative_params, $image_std_params)}
 	{include file="grid_classes.tpl" width=$rwidth height=$rheight}
 	<div class="col-outer {if $category_view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
 	    <div class="card card-thumbnail">

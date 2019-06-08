@@ -20,7 +20,10 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\DerivativeParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\ImageStandardParams;
 
 class Category
 {
@@ -270,16 +273,11 @@ class Category
             $thumbnail_src_of = [];
             $new_image_ids = [];
 
-            if (!empty($service->getConf()['dblayer']) && $service->getConf()['dblayer'] === 'mysql') {
-                $derivatives = @unserialize(stripslashes($service->getConf()['derivatives']));
-            } else {
-                $derivatives = @unserialize($service->getConf()['derivatives']);
-            }
-            ImageStdParams::load_from_db($derivatives);
             $result = (new ImageRepository($service->getConnection()))->findByIds($image_ids);
             while ($row = $service->getConnection()->db_fetch_assoc($result)) {
                 if ($row['level'] <= $service->getUserMapper()->getUser()->getLevel()) {
-                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row, $service->getConf()['picture_ext']);
+                    $src_image = new SrcImage($row, $service->getConf()['picture_ext']);
+                    $thumbnail_src_of[$row['id']] = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
                 } else {
                     /* problem: we must not display the thumbnail of a photo which has a
                      * higher privacy level than user privacy level
@@ -311,7 +309,8 @@ class Category
             if (count($new_image_ids) > 0) {
                 $result = (new ImageRepository($service->getConnection()))->findByIds($new_image_ids);
                 while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-                    $thumbnail_src_of[$row['id']] = \Phyxo\Image\DerivativeImage::thumb_url($row, $service->getConf()['picture_ext']);
+                    $src_image = new SrcImage($row, $service->getConf()['picture_ext']);
+                    $thumbnail_src_of[$row['id']] = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
                 }
             }
         }

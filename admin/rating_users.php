@@ -16,7 +16,9 @@ if (!defined("RATING_BASE_URL")) {
 use App\Repository\RateRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
-use Phyxo\Image\ImageStdParams;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
 
 $filter_min_rates = 2;
 if (isset($_GET['f_min_rates'])) {
@@ -80,10 +82,10 @@ while ($row = $conn->db_fetch_assoc($result)) {
 $image_urls = [];
 if (count($image_ids) > 0) {
     $result = (new ImageRepository($conn))->findByIds(array_keys($image_ids));
-    $params = ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE);
+    $params = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
     while ($row = $conn->db_fetch_assoc($result)) {
         $image_urls[$row['id']] = [
-            'tn' => \Phyxo\Image\DerivativeImage::url($params, $row),
+            'tn' => (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $params, $image_std_params))->getUrl(),
             'page' => \Phyxo\Functions\URL::make_picture_url(['image_id' => $row['id'], 'image_file' => $row['file']]),
         ];
     }
@@ -202,5 +204,5 @@ $template->assign([
     'available_rates' => $conf['rate_items'],
     'ratings' => $by_user_ratings,
     'image_urls' => $image_urls,
-    'TN_WIDTH' => ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)->sizing->ideal_size[0],
+    'TN_WIDTH' => $image_std_params->getByType(ImageStandardParams::IMG_SQUARE)->sizing->ideal_size[0],
 ]);

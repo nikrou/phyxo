@@ -30,8 +30,8 @@ use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
-use Phyxo\Image\ImageStdParams;
 use Symfony\Component\Routing\RouterInterface;
+use Phyxo\Image\ImageStandardParams;
 
 class Utils
 {
@@ -1565,23 +1565,16 @@ class Utils
      *
      * @param 'all'|int[] $types
      */
-    public static function clear_derivative_cache($types = 'all')
+    public static function clear_derivative_cache(array $types, array $all_types)
     {
-        if ($types === 'all') {
-            $types = \Phyxo\Image\ImageStdParams::get_all_types();
-            $types[] = ImageStdParams::IMG_CUSTOM;
-        } elseif (!is_array($types)) {
-            $types = [$types];
-        }
-
         for ($i = 0; $i < count($types); $i++) {
             $type = $types[$i];
-            if ($type == ImageStdParams::IMG_CUSTOM) {
+            if ($type === ImageStandardParams::IMG_CUSTOM) {
                 $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '[a-zA-Z0-9]+';
-            } elseif (in_array($type, \Phyxo\Image\ImageStdParams::get_all_types())) {
+            } elseif (in_array($type, $all_types)) {
                 $type = \Phyxo\Image\DerivativeParams::derivative_to_url($type);
             } else { //assume a custom type
-                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(ImageStdParams::IMG_CUSTOM) . '_' . $type;
+                $type = \Phyxo\Image\DerivativeParams::derivative_to_url(ImageStandardParams::IMG_CUSTOM) . '_' . $type;
             }
             $types[$i] = $type;
         }

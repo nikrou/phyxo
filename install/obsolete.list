@@ -32,6 +32,7 @@ src/LegacyPages/ws.php
 src/Controller/UserController.php
 src/Phyxo/Functions/Rate.php
 src/Phyxo/Functions/SQL.php
+src/Phyxo/Image/ImageStdParams.php
 src/Phyxo/Model/Repository/Comments.php
 src/Phyxo/Model/Repository/Tags.php
 src/Phyxo/Model/Repository/Users.php

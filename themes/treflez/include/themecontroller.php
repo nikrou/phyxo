@@ -12,7 +12,6 @@
 namespace Treflez;
 
 use Phyxo\Image\SrcImage;
-use Phyxo\Image\ImageStdParams;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
@@ -20,16 +19,19 @@ use Phyxo\Functions\Metadata;
 use Phyxo\Functions\URL;
 use App\Repository\ImageRepository;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
+use Phyxo\Conf;
+use Phyxo\Image\ImageStandardParams;
 
 class ThemeController
 {
-    private $config, $core_config, $template;
+    private $config, $core_config, $template, $image_std_params;
 
-    public function __construct(\Phyxo\Conf $conf, EngineInterface $template)
+    public function __construct(Conf $conf, EngineInterface $template, ImageStandardParams $image_std_params)
     {
         $this->core_config = $conf;
         $this->config = new Config($conf);
         $this->template = $template;
+        $this->image_std_params = $image_std_params;
     }
 
     public function init()
@@ -247,10 +249,10 @@ class ThemeController
         $this->template->assign('thumbnails', $tpl_thumbnails_var);
 
         $this->template->assign([
-            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_SQUARE)),
-            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_MEDIUM)),
-            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_LARGE)),
-            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', ImageStdParams::get_by_type(ImageStdParams::IMG_XXLARGE)),
+            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE)),
+            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_MEDIUM)),
+            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_LARGE)),
+            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_XXLARGE)),
         ]);
 
         unset($tpl_thumbnails_var, $pictures);

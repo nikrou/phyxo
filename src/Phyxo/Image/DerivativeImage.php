@@ -12,7 +12,6 @@
 namespace Phyxo\Image;
 
 use Phyxo\Image\SrcImage;
-use Phyxo\Image\ImageStdParams;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 
@@ -23,173 +22,49 @@ use Phyxo\Functions\Utils;
  */
 class DerivativeImage
 {
-    /** @var SrcImage */
-    public $src_image;
-    /** @var array */
-    private $params;
-    /** @var string */
-    private $rel_path;
-    /** @var string */
-    private $rel_url;
-    /** @var bool */
-    private $is_cached = true;
+    private $src_image, $params, $rel_path, $rel_url, $image_std_params;
 
-    /**
-     * @param string|DerivativeParams $type standard derivative param type (e.g. IMG_*)
-     *    or a DerivativeParams object
-     * @param SrcImage $src_image the source image of this derivative
-     */
-    public function __construct($type, SrcImage $src_image)
+    public function __construct(SrcImage $src_image, DerivativeParams $params, ImageStandardParams $image_std_params)
     {
         $this->src_image = $src_image;
-        if (is_string($type)) {
-            $this->params = ImageStdParams::get_by_type($type);
-        } else {
-            $this->params = $type;
-        }
-
-        self::build($src_image, $this->params, $this->rel_path, $this->rel_url, $this->is_cached);
+        $this->params = $params;
+        $this->image_std_params = $image_std_params;
     }
 
     /**
      * Generates the url of a thumbnail.
-     *
-     * @param array|SrcImage $infos array of info from db or SrcImage
      */
-    public static function relativeThumbInfos($infos, array $picture_ext = []): array
+    public function relativeThumbInfos(): array
     {
-        $src_image = is_object($infos) ? $infos : new SrcImage($infos, $picture_ext);
-        $params = is_string(ImageStdParams::IMG_THUMB) ? ImageStdParams::get_by_type(ImageStdParams::IMG_THUMB) : ImageStdParams::IMG_THUMB;
-
-        return self::buildInfos($src_image, $params);
+        return $this->buildInfos();
     }
 
-    /**
-     * Generates the url of a thumbnail.
-     *
-     * @param array|SrcImage $infos array of info from db or SrcImage
-     * @return string
-     */
-    public static function thumb_url($infos, array $picture_ext = [])
+    private static function buildInfos(): array
     {
-        return self::url(ImageStdParams::IMG_THUMB, $infos, $picture_ext);
-    }
-
-    /**
-     * Generates the url for a particular photo size.
-     *
-     * @param string|DerivativeParams $type standard derivative param type (e.g. IMG_*)
-     *    or a DerivativeParams object
-     * @param array|SrcImage $infos array of info from db or SrcImage
-     * @return string
-     */
-    public static function url($type, $infos, array $picture_ext = [])
-    {
-        $src_image = is_object($infos) ? $infos : new SrcImage($infos, $picture_ext);
-        $params = is_string($type) ? ImageStdParams::get_by_type($type) : $type;
-        self::build($src_image, $params, $rel_path, $rel_url);
-        if ($params == null) {
-            return $src_image->get_url();
-        }
-
-        return \Phyxo\Functions\URL::embellish_url(
-            Plugin::trigger_change(
-                'get_derivative_url',
-                \Phyxo\Functions\URL::get_absolute_root_url() . '/' . $rel_url,
-                $params,
-                $src_image,
-                $rel_url
-            )
-        );
-    }
-
-    /**
-     * Return associative an array of all DerivativeImage for a specific image.
-     * Disabled derivative types can be still found in the return, mapped to an
-     * enabled derivative (e.g. the values are not unique in the return array).
-     * This is useful for any plugin/theme to just use $deriv[IMG_XLARGE] even if
-     * the XLARGE is disabled.
-     *
-     * @param array|SrcImage $src_image array of info from db or SrcImage
-     * @return DerivativeImage[]
-     */
-    public static function get_all($src_image)
-    {
-        global $conf;
-
-        if (!is_object($src_image)) {
-            $src_image = new SrcImage($src_image, $conf['picture_ext']);
-        }
-
-        $ret = [];
-        // build enabled types
-        foreach (ImageStdParams::get_defined_type_map() as $type => $params) {
-            $derivative = new DerivativeImage($params, $src_image);
-            $ret[$type] = $derivative;
-        }
-        // disabled types, fallback to enabled types
-        foreach (ImageStdParams::get_undefined_type_map() as $type => $type2) {
-            $ret[$type] = $ret[$type2];
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Returns an instance of DerivativeImage for a specific image and size.
-     * Disabled derivatives fallback to an enabled derivative.
-     *
-     * @param string $type standard derivative param type (e.g. IMG_*)
-     * @param array|SrcImage $src_image array of info from db or SrcImage
-     * @return DerivativeImage|null null if $type not found
-     */
-    public static function get_one($type, $src_image)
-    {
-        global $conf;
-
-        if (!is_object($src_image)) {
-            $src_image = new SrcImage($src_image, $conf['picture_ext']);
-        }
-
-        $defined = ImageStdParams::get_defined_type_map();
-        if (isset($defined[$type])) {
-            return new DerivativeImage($defined[$type], $src_image);
-        }
-
-        $undefined = ImageStdParams::get_undefined_type_map();
-        if (isset($undefined[$type])) {
-            return new DerivativeImage($defined[$undefined[$type]], $src_image);
-        }
-
-        return null;
-    }
-
-    private static function buildInfos($src, $params): array
-    {
-        if ($src->has_size() && $params->is_identity($src->get_size())) {
+        if ($this->src_image->has_size() && $this->params->is_identity($this->src_image->get_size())) {
             // the source image is smaller than what we should do - we do not upsample
-            if (!$params->will_watermark($src->get_size()) && !$src->rotation) {
+            if (!$this->params->will_watermark($this->src_image->get_size(), $this->image_std_params) && !$this->src_image->rotation) {
                 // no watermark, no rotation required -> we will use the source image
                 return [
-                    'path' => Utils::get_filename_wo_extension($src->rel_path),
-                    'derivative' => substr($params->type, 0, 2),
+                    'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+                    'derivative' => substr($this->params->type, 0, 2),
                     'sizes' => '',
-                    'image_extension' => Utils::get_extension($src->rel_path)
+                    'image_extension' => Utils::get_extension($this->src_image->rel_path)
                 ];
             }
 
-            $defined_types = array_keys(ImageStdParams::get_defined_type_map());
+            $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
             for ($i = 0; $i < count($defined_types); $i++) {
-                if ($defined_types[$i] == $params->type) {
+                if ($defined_types[$i] == $this->params->type) {
                     for ($i--; $i >= 0; $i--) {
-                        $smaller = ImageStdParams::get_by_type($defined_types[$i]);
-                        if ($smaller->sizing->max_crop === $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
-                            $params = $smaller;
+                        $smaller = $this->image_std_params->getByType($defined_types[$i]);
+                        if ($smaller->sizing->max_crop === $this->params->sizing->max_crop && $smaller->is_identity($this->src_image->get_size())) {
+                            $this->params = $smaller;
                             return [
-                                'path' => Utils::get_filename_wo_extension($src->rel_path),
-                                'derivative' => substr($params->type, 0, 2),
+                                'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+                                'derivative' => substr($this->params->type, 0, 2),
                                 'sizes' => '',
-                                'image_extension' => Utils::get_extension($src->rel_path)
+                                'image_extension' => Utils::get_extension($this->src_image->rel_path)
                             ];
                         }
                     }
@@ -199,48 +74,61 @@ class DerivativeImage
         }
 
         $tokens = [];
-        $tokens[] = substr($params->type, 0, 2);
+        $tokens[] = substr($this->params->type, 0, 2);
 
-        if ($params->type == ImageStdParams::IMG_CUSTOM) {
-            $params->add_url_tokens($tokens);
+        if ($this->params->type === ImageStandardParams::IMG_CUSTOM) {
+            $this->params->add_url_tokens($tokens);
         }
-
-        $loc = $src->rel_path;
-        if (substr_compare($loc, './', 0, 2) == 0) {
-            $loc = substr($loc, 2);
-        } elseif (substr_compare($loc, '../', 0, 3) == 0) {
-            $loc = substr($loc, 3);
-        }
-        $loc = substr_replace($loc, '-' . implode('_', $tokens), strrpos($loc, '.'), 0);
 
         return [
-            'path' => Utils::get_filename_wo_extension($src->rel_path),
-            'derivative' => substr($params->type, 0, 2),
+            'path' => Utils::get_filename_wo_extension($this->src_image->rel_path),
+            'derivative' => substr($this->params->type, 0, 2),
             'sizes' => '',
-            'image_extension' => Utils::get_extension($src->rel_path)
+            'image_extension' => Utils::get_extension($this->src_image->rel_path)
         ];
+    }
+
+    /**
+     * Generates the url for a particular photo size.
+     */
+    public function getUrl(): string
+    {
+        $this->build($this->src_image, $this->params, $rel_path, $rel_url);
+        if ($this->params == null) {
+            return $this->src_image->get_url();
+        }
+
+        return \Phyxo\Functions\URL::embellish_url(
+            Plugin::trigger_change(
+                'get_derivative_url',
+                \Phyxo\Functions\URL::get_absolute_root_url() . $rel_url,
+                $this->params,
+                $this->src_image,
+                $rel_url
+            )
+        );
     }
 
     /**
      * @TODO : documentation of DerivativeImage::build
      */
-    private static function build($src, &$params, &$rel_path, &$rel_url, &$is_cached = null)
+    private function build($src, &$params, &$rel_path, &$rel_url, &$is_cached = null)
     {
         global $conf;
 
         if ($src->has_size() && $params->is_identity($src->get_size())) {
             // the source image is smaller than what we should do - we do not upsample
-            if (!$params->will_watermark($src->get_size()) && !$src->rotation) {
+            if (!$params->will_watermark($src->get_size(), $this->image_std_params) && !$src->rotation) {
                 // no watermark, no rotation required -> we will use the source image
                 $params = null;
                 $rel_path = $rel_url = $src->rel_path;
                 return;
             }
-            $defined_types = array_keys(ImageStdParams::get_defined_type_map());
+            $defined_types = array_keys($this->image_std_params->getDefinedTypeMap());
             for ($i = 0; $i < count($defined_types); $i++) {
                 if ($defined_types[$i] == $params->type) {
                     for ($i--; $i >= 0; $i--) {
-                        $smaller = ImageStdParams::get_by_type($defined_types[$i]);
+                        $smaller = $this->image_std_params->getByType($defined_types[$i]);
                         if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
                             $params = $smaller;
                             self::build($src, $params, $rel_path, $rel_url, $is_cached);
@@ -255,7 +143,7 @@ class DerivativeImage
         $tokens = [];
         $tokens[] = substr($params->type, 0, 2);
 
-        if ($params->type == ImageStdParams::IMG_CUSTOM) {
+        if ($params->type === ImageStandardParams::IMG_CUSTOM) {
             $params->add_url_tokens($tokens);
         }
 
@@ -290,18 +178,12 @@ class DerivativeImage
         }
     }
 
-    /**
-     * @return string
-     */
-    public function get_path()
+    public function get_path(): string
     {
         return __DIR__ . '/../../../' . $this->rel_path;
     }
 
-    /**
-     * @return string
-     */
-    public function get_url()
+    public function get_url(): string
     {
         if ($this->params == null) {
             return $this->src_image->get_url();
@@ -317,10 +199,7 @@ class DerivativeImage
         );
     }
 
-    /**
-     * @return bool
-     */
-    public function same_as_source()
+    public function same_as_source(): bool
     {
         return $this->params == null;
     }
@@ -333,6 +212,7 @@ class DerivativeImage
         if ($this->params == null) {
             return 'Original';
         }
+
         return $this->params->type;
     }
 
@@ -344,6 +224,7 @@ class DerivativeImage
         if ($this->params == null) {
             return $this->src_image->get_size();
         }
+
         return $this->params->compute_final_size($this->src_image->get_size());
     }
 

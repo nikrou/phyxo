@@ -1,11 +1,11 @@
 <div class="row">
     {* this might sound ridiculous, but we want to fit the thumbnails to 90% of col-xs-12 without them being too blurry *}
     {define_derivative name='album_derivative_params' width=520 height=360 crop=true}
-    {define_derivative name='album_derivative_params_square' type=\Phyxo\Image\ImageStdParams::IMG_SQUARE}
+    {define_derivative name='album_derivative_params_square' type=\Phyxo\Image\ImageStandarddParams::IMG_SQUARE}
 
     {foreach $category_thumbnails as $cat}
 	{if $theme_config->category_wells == 'never'}
-	    {assign var="album_derivative" value=$pwg->derivative($album_derivative_params, $cat.representative.src_image)}
+	    {assign var="album_derivative" value=$pwg->derivative($cat.representative.src_image, $album_derivative_params, $image_std_params)}
 	    {* this needs a fixed size else it messes up the grid on tablets *}
 	    {include file="grid_classes.tpl" width=260 height=180}
 	    <div class="col-outer mt-3 {if $category_view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
@@ -37,7 +37,7 @@
 		</div>
 	    </div>
 	{else}
-	    {assign var="album_derivative_square" value=$pwg->derivative($album_derivative_params_square, $cat.representative.src_image)}
+	    {assign var="album_derivative_square" value=$pwg->derivative($cat.representative.src_image, $album_derivative_params_square, $image_std_params)}
 	    <div class="col-outer col-12">
 		<div class="card">
 		    <div class="card-body p-0">

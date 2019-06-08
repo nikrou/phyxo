@@ -50,7 +50,7 @@ $template->assign([
 // +-----------------------------------------------------------------------+
 // | Add event handler                                                     |
 // +-----------------------------------------------------------------------+
-$notification = new Notification($conn, $userMapper, $categoryMapper);
+$notification = new Notification($em, $userMapper, $categoryMapper);
 
 \Phyxo\Functions\Plugin::add_event_handler('nbm_render_global_customize_mail_content', [$notification, 'render_global_customize_mail_content']);
 \Phyxo\Functions\Plugin::trigger_notify('nbm_event_handler_added');

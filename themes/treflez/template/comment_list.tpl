@@ -8,7 +8,7 @@
 		    {else}
 			{define_derivative name='cropped_derivative_params' width=$derivative_params->sizing->ideal_size[0] height=$derivative_params->sizing->ideal_size[0] crop=true}
 		    {/if}
-		    {assign var=derivative value=$pwg->derivative($cropped_derivative_params, $comment.src_image)}
+		    {assign var=derivative value=$pwg->derivative($comment.src_image, $cropped_derivative_params, $image_std_params)}
 		    <a href="{$comment.U_PICTURE}">
 			<img {if $derivative->is_cached()}src="{$derivative->get_url()}"{else}src="{$ROOT_URL}{$themeconf.icon_dir}/img_small.png" data-src="{$derivative->get_url()}"{/if} alt="{$comment.ALT}">
 		    </a>

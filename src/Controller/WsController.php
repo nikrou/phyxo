@@ -24,13 +24,15 @@ use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
 use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
+use Phyxo\EntityManager;
+use Phyxo\Image\ImageStandardParams;
 
 class WsController extends Controller
 {
     private $service;
 
-    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, RateMapper $rateMapper,
-                            RouterInterface $router, string $phyxoVersion)
+    public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
+                            RateMapper $rateMapper, RouterInterface $router, string $phyxoVersion)
     {
         $this->service = new Server();
         $this->service->addUserMapper($userMapper);
@@ -44,6 +46,14 @@ class WsController extends Controller
         $this->service->setConf($conf);
         $this->service->setConnection($conn);
         $this->service->setRouter($router);
+        $this->service->setEntityManager($em);
+
+        if ($conn->getLayer() === 'mysql') {
+            $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
+        } else {
+            $conf_derivatives = @unserialize($conf['derivatives']);
+        }
+        $this->service->setImageStandardParams(new ImageStandardParams($em, $conf_derivatives));
 
         $this->addDefaultMethods();
 

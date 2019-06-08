@@ -17,14 +17,15 @@ if (isset($_POST['send_submit']) and isset($_POST['send_selection']) and isset($
     $check_key_treated = $notification->do_action_send_mail_notification(
         'send',
         $_POST['send_selection'],
-        stripslashes($_POST['send_customize_mail_content'])
+        stripslashes($_POST['send_customize_mail_content']),
+        $conf_derivatives
     );
     $notification->do_timeout_treatment('send_selection', $check_key_treated);
 }
 
 $tpl_var = ['users' => []];
 
-$data_users = $notification->do_action_send_mail_notification('list_to_send');
+$data_users = $notification->do_action_send_mail_notification('list_to_send', [], '', $conf_derivatives);
 
 $tpl_var['CUSTOMIZE_MAIL_CONTENT'] = isset($_POST['send_customize_mail_content']) ? stripslashes($_POST['send_customize_mail_content']) : $conf['nbm_complementary_mail_content'];
 

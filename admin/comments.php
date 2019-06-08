@@ -13,6 +13,9 @@ define('COMMENTS_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/index.
 
 use Phyxo\TabSheet\TabSheet;
 use App\Repository\CommentRepository;
+use Phyxo\Image\DerivativeImage;
+use Phyxo\Image\SrcImage;
+use Phyxo\Image\ImageStandardParams;
 
 if (isset($_GET['start']) and is_numeric($_GET['start'])) {
     $page['start'] = $_GET['start'];
@@ -105,13 +108,7 @@ $result = (new CommentRepository($conn))->getCommentOnImages(
     $validated = $page['section'] === 'pending' ? false : null
 );
 while ($row = $conn->db_fetch_assoc($result)) {
-    $thumb = \Phyxo\Image\DerivativeImage::thumb_url(
-        [
-            'id' => $row['image_id'],
-            'path' => $row['path'],
-        ],
-        $conf['picture_ext']
-    );
+    $thumb = (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
     if (empty($row['author_id'])) {
         $author_name = $row['author'];
     } else {
