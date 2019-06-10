@@ -42,7 +42,7 @@ class DefaultController extends BaseController
         return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
     }
 
-    public function action(Request $request, $image_id, $part, $download = false)
+    public function action(Request $request, $image_id, $part, $download = false, ImageStandardParams $image_std_params)
     {
         global $conf, $conn, $filter, $template, $user, $page, $lang, $lang_info;
 

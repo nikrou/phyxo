@@ -27,16 +27,25 @@ ws:
     extension: php
 
 media:
-  path: /i.{extension}/{path}-{derivative}{sizes}.{image_extension}
+  path: /media/{path}-{derivative}.{image_extension}
   controller: App\Controller\MediaController::index
   requirements:
     path: '[^_]*'
-    derivative: sq|th|2s|xs|sm|me|la|xl|xx|cu
+    derivative: sq|th|2s|xs|sm|me|la|xl|xx
     image_extension: jpg|jpeg
     sizes: '(?:|_[^\.]*)'
   defaults:
-    sizes: null
-    extension: php
+    sizes: ''
+
+media_custom:
+  path: /media/{path}-cu_{sizes}.{image_extension}
+  controller: App\Controller\MediaController::index
+  requirements:
+    path: '[^_]*'
+    image_extension: jpg|jpeg
+    sizes: 'e[^\.]*'
+  defaults:
+    derivative: cu
 
 action:
   path: /action.{extension}/{image_id}/{part}/{download}

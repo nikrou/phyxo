@@ -23,15 +23,17 @@ use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
+use Phyxo\Conf;
 
 class Notification
 {
-    private $em, $conn, $userMapper, $categoryMapper;
+    private $em, $conn, $conf, $userMapper, $categoryMapper;
 
-    public function __construct(EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
+        $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
     }
@@ -310,7 +312,7 @@ class Notification
      * @param array $date_detail returned value of get_recent_post_dates()
      * @return string
      */
-    public function get_html_description_recent_post_date(array $date_detail, array $conf_derivatives, array $picture_ext): string
+    public function get_html_description_recent_post_date(array $date_detail, array $picture_ext): string
     {
         $description = '<ul>';
 
@@ -323,7 +325,7 @@ class Notification
             . ')'
             . '</li><br>';
 
-        $image_std_params = new ImageStandardParams($this->em, $conf_derivatives);
+        $image_std_params = new ImageStandardParams($this->conf);
         $params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
         foreach ($date_detail['elements'] as $element) {
@@ -441,7 +443,7 @@ class Notification
      */
     public function begin_users_env_nbm($is_to_send_mail = false)
     {
-        global $user, $conf, $env_nbm;
+        global $user, $env_nbm;
 
         // Save $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
         $env_nbm['save_user'] = $user;
@@ -452,8 +454,8 @@ class Notification
 
         if ($is_to_send_mail) {
             // Init mail configuration
-            $env_nbm['email_format'] = \Phyxo\Functions\Mail::get_str_email_format($conf['nbm_send_html_mail']);
-            $env_nbm['send_as_name'] = !empty($conf['nbm_send_mail_as']) ? $conf['nbm_send_mail_as'] : \Phyxo\Functions\Mail::get_mail_sender_name();
+            $env_nbm['email_format'] = \Phyxo\Functions\Mail::get_str_email_format($this->conf['nbm_send_html_mail']);
+            $env_nbm['send_as_name'] = !empty($this->conf['nbm_send_mail_as']) ? $this->conf['nbm_send_mail_as'] : \Phyxo\Functions\Mail::get_mail_sender_name();
             $env_nbm['send_as_mail_address'] = \Phyxo\Functions\Utils::get_webmaster_mail_address();
             $env_nbm['send_as_mail_formated'] = \Phyxo\Functions\Mail::format_email($env_nbm['send_as_name'], $env_nbm['send_as_mail_address']);
             // Init mail counter
@@ -617,9 +619,9 @@ class Notification
      *
      * @return check_key list treated
      */
-    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [], array $conf_derivatives)
+    public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
     {
-        global $page, $env_nbm, $conf;
+        global $page, $env_nbm;
 
         \Phyxo\Functions\URL::set_make_full_url();
 
@@ -661,7 +663,7 @@ class Notification
                     // set env nbm user
                     $this->set_user_on_env_nbm($nbm_user, true);
 
-                    $subject = '[' . $conf['gallery_title'] . '] ' . ($is_subscribe ? \Phyxo\Functions\Language::l10n('Subscribe to notification by mail') : \Phyxo\Functions\Language::l10n('Unsubscribe from notification by mail'));
+                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? \Phyxo\Functions\Language::l10n('Subscribe to notification by mail') : \Phyxo\Functions\Language::l10n('Unsubscribe from notification by mail'));
 
                     // Assign current var for nbm mail
                     $this->assign_vars_nbm_mail_content($nbm_user);
@@ -671,7 +673,7 @@ class Notification
                     $env_nbm['mail_template']->assign(
                         [
                             $section_action_by => true,
-                            'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
+                            'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
                             'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                         ]
                     );
@@ -808,7 +810,7 @@ class Notification
     // Inserting News users
     public function insert_new_data_user_mail_notification()
     {
-        global $conf, $page, $env_nbm, $base_url;
+        global $page, $env_nbm, $base_url;
 
         // null mail_address are not selected in the list
         $result = (new UserRepository($this->conn))->findUsersWithNoMailNotificationInfos();
@@ -842,7 +844,7 @@ class Notification
             // Update field enabled with specific function
             $check_key_treated = $this->do_subscribe_unsubscribe_notification_by_mail(
                 true,
-                $conf['nbm_default_value_user_enabled'],
+                $this->conf['nbm_default_value_user_enabled'],
                 $check_key_list
             );
 
@@ -863,10 +865,8 @@ class Notification
      */
     public function render_global_customize_mail_content($customize_mail_content)
     {
-        global $conf;
-
         // @TODO : find a better way to detect html or remove test
-        if ($conf['nbm_send_html_mail'] and !(strpos($customize_mail_content, '<') === 0)) {
+        if ($this->conf['nbm_send_html_mail'] and !(strpos($customize_mail_content, '<') === 0)) {
             // On HTML mail, detects if the content are HTML format.
             // If it's plain text format, convert content to readable HTML
             return nl2br(htmlspecialchars($customize_mail_content));
@@ -882,7 +882,7 @@ class Notification
      */
     public function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
     {
-        global $conf, $page, $env_nbm;
+        global $page, $env_nbm;
 
         $return_list = [];
 
@@ -895,7 +895,7 @@ class Notification
             $data_users = $this->get_user_notifications('send', $check_key_list);
 
             // List all if it's define on options or on timeout
-            $is_list_all_without_test = ($env_nbm['is_sendmail_timeout'] or $conf['nbm_list_all_enabled_users_to_send']);
+            $is_list_all_without_test = ($env_nbm['is_sendmail_timeout'] || $this->conf['nbm_list_all_enabled_users_to_send']);
 
             // Check if exist news to list user or send mails
             if ((!$is_list_all_without_test) or ($is_action_send)) {
@@ -903,7 +903,7 @@ class Notification
                     $datas = [];
 
                     if (!isset($customize_mail_content)) {
-                        $customize_mail_content = $conf['nbm_complementary_mail_content'];
+                        $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
                     }
 
                     $customize_mail_content = \Phyxo\Functions\Plugin::trigger_change('nbm_render_global_customize_mail_content', $customize_mail_content);
@@ -938,15 +938,15 @@ class Notification
                             // Fill return list of "treated" check_key for 'send'
                             $return_list[] = $nbm_user['check_key'];
 
-                            if ($conf['nbm_send_detailed_content']) {
-                                $news = $this->news($nbm_user['last_send'], $dbnow, false, $conf['nbm_send_html_mail']);
+                            if ($this->conf['nbm_send_detailed_content']) {
+                                $news = $this->news($nbm_user['last_send'], $dbnow, false, $this->conf['nbm_send_html_mail']);
                                 $exist_data = count($news) > 0;
                             } else {
                                 $exist_data = $this->news_exists($nbm_user['last_send'], $dbnow);
                             }
 
                             if ($exist_data) {
-                                $subject = '[' . $conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('New photos added');
+                                $subject = '[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('New photos added');
 
                                 // Assign current var for nbm mail
                                 $this->assign_vars_nbm_mail_content($nbm_user);
@@ -966,7 +966,7 @@ class Notification
                                     );
                                 }
 
-                                if ($conf['nbm_send_detailed_content']) {
+                                if ($this->conf['nbm_send_detailed_content']) {
                                     $env_nbm['mail_template']->assign('global_new_lines', $news);
                                 }
 
@@ -979,16 +979,16 @@ class Notification
                                     $env_nbm['mail_template']->assign('custom_mail_content', $nbm_user_customize_mail_content);
                                 }
 
-                                if ($conf['nbm_send_html_mail'] && $conf['nbm_send_recent_post_dates']) {
+                                if ($this->conf['nbm_send_html_mail'] && $this->conf['nbm_send_recent_post_dates']) {
                                     $recent_post_dates = $this->get_recent_post_dates_array(
-                                        $conf['recent_post_dates']['NBM']
+                                        $this->conf['recent_post_dates']['NBM']
                                     );
                                     foreach ($recent_post_dates as $date_detail) {
                                         $env_nbm['mail_template']->append(
                                             'recent_posts',
                                             [
                                                 'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $conf_derivatives, $conf['picture_ext'])
+                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
                                             ]
                                         );
                                     }
@@ -996,7 +996,7 @@ class Notification
 
                                 $env_nbm['mail_template']->assign(
                                     [
-                                        'GOTO_GALLERY_TITLE' => $conf['gallery_title'],
+                                        'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
                                         'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
                                         'SEND_AS_NAME' => $env_nbm['send_as_name'],
                                     ]

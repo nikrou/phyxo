@@ -1562,8 +1562,6 @@ class Utils
 
     /**
      * Delete all derivative files for one or several types
-     *
-     * @param 'all'|int[] $types
      */
     public static function clear_derivative_cache(array $types, array $all_types)
     {

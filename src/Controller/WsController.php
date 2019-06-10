@@ -32,7 +32,7 @@ class WsController extends Controller
     private $service;
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
-                            RateMapper $rateMapper, RouterInterface $router, string $phyxoVersion)
+                            RateMapper $rateMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
     {
         $this->service = new Server();
         $this->service->addUserMapper($userMapper);
@@ -45,15 +45,10 @@ class WsController extends Controller
         $this->service->setCoreVersion($phyxoVersion);
         $this->service->setConf($conf);
         $this->service->setConnection($conn);
+        $this->service->setEntityManager($em);
         $this->service->setRouter($router);
         $this->service->setEntityManager($em);
-
-        if ($conn->getLayer() === 'mysql') {
-            $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
-        } else {
-            $conf_derivatives = @unserialize($conf['derivatives']);
-        }
-        $this->service->setImageStandardParams(new ImageStandardParams($em, $conf_derivatives));
+        $this->service->setImageStandardParams($image_std_params);
 
         $this->addDefaultMethods();
 

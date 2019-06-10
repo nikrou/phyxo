@@ -30,10 +30,6 @@ interface iDBLayer
      * Database query
      *
      * This method should run an SQL query and return a resource result.
-     *
-     * @param resource   $handle		Resource link
-     * @param string	    $query		SQL query string
-     * @return resource
      */
     public function db_query(string $query);
 

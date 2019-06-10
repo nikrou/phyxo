@@ -15,7 +15,7 @@
 			</button>
 			<div class="dropdown-menu dropdown-menu-right" role="menu">
 			    {foreach $current.unique_derivatives as $derivative_type => $derivative}
-				<button type="button" id="derivative{$derivative->get_type()}" class="dropdown-item derivative-li{if $derivative->get_type() == $current.selected_derivative->get_type()} active{/if}" data-action="changeImgSrc" data-url="{$derivative->get_url()}" data-type-save="{$derivative_type}" data-type-map="{$derivative->get_type()}"">
+				<button type="button" id="derivative{$derivative->get_type()}" class="dropdown-item derivative-li{if $derivative->get_type() == $current.selected_derivative->get_type()} active{/if}" data-action="changeImgSrc" data-url="{$derivative->getUrl()}" data-type-save="{$derivative_type}" data-type-map="{$derivative->get_type()}"">
                                     {$derivative->get_type()|translate}
 				    <span class="derivativeSizeDetails"> ({$derivative->get_size_hr()})</span>
 				</button>

@@ -113,7 +113,7 @@ if (isset($_GET['metadata'])) {
 // this is the default handler that generates the display for the element
 function default_picture_content($content, $element_info, $image_std_params)
 {
-    global $conf, $page, $template;
+    global $conf, $template;
 
     if (!empty($content)) { // someone hooked us - so we skip;
         return $content;
@@ -138,7 +138,7 @@ function default_picture_content($content, $element_info, $image_std_params)
         if (!array_key_exists($type, $image_std_params->getDefinedTypeMap())) {
             continue;
         }
-        $url = $derivative->get_url();
+        $url = $derivative->getUrl();
         if (isset($added[$url])) {
             continue;
         }
@@ -376,7 +376,7 @@ while ($row = $conn->db_fetch_assoc($result)) {
 
         if ($row['src_image']->is_original()) { // we have a photo
             if (!empty(['enabled_high'])) {
-                $row['element_url'] = $row['src_image']->get_url();
+                $row['element_url'] = $row['src_image']->getUrl();
                 $row['download_url'] = \Phyxo\Functions\URL::get_action_url($row['id'], 'e', true);
             }
         } else { // not a pic - need download link
@@ -727,7 +727,7 @@ if (isset($picture['next']) and $picture['next']['src_image']->is_original() and
     and strpos(@$_SERVER['HTTP_USER_AGENT'], 'Chrome/') === false) {
     $template->assign(
         'U_PREFETCH',
-        $picture['next']['derivatives'][isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size']]->get_url()
+        $picture['next']['derivatives'][isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size']]->getUrl()
     );
 }
 

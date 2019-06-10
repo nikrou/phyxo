@@ -22,6 +22,7 @@ doc
 src/Log.php
 src/LegacyPages/about.php
 src/LegacyPages/comments.php
+src/LegacyPages/i.php
 src/LegacyPages/identification.php
 src/LegacyPages/install.php
 src/LegacyPages/feed.php

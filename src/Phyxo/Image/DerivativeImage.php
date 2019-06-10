@@ -39,7 +39,7 @@ class DerivativeImage
         return $this->buildInfos();
     }
 
-    private static function buildInfos(): array
+    private function buildInfos(): array
     {
         if ($this->src_image->has_size() && $this->params->is_identity($this->src_image->get_size())) {
             // the source image is smaller than what we should do - we do not upsample
@@ -94,9 +94,6 @@ class DerivativeImage
     public function getUrl(): string
     {
         $this->build($this->src_image, $this->params, $rel_path, $rel_url);
-        if ($this->params == null) {
-            return $this->src_image->get_url();
-        }
 
         return \Phyxo\Functions\URL::embellish_url(
             Plugin::trigger_change(
@@ -131,7 +128,7 @@ class DerivativeImage
                         $smaller = $this->image_std_params->getByType($defined_types[$i]);
                         if ($smaller->sizing->max_crop == $params->sizing->max_crop && $smaller->is_identity($src->get_size())) {
                             $params = $smaller;
-                            self::build($src, $params, $rel_path, $rel_url, $is_cached);
+                            $this->build($src, $params, $rel_path, $rel_url, $is_cached);
                             return;
                         }
                     }
@@ -169,9 +166,9 @@ class DerivativeImage
         }
 
         if ($url_style == 2) {
-            $rel_url = 'i';
-            if ($conf['php_extension_in_urls']) $rel_url .= '.php';
-            if ($conf['question_mark_in_urls']) $rel_url .= '?';
+            $rel_url = 'media';
+            // if ($conf['php_extension_in_urls']) $rel_url .= '.php';
+            // if ($conf['question_mark_in_urls']) $rel_url .= '?';
             $rel_url .= '/' . $loc;
         } else {
             $rel_url = $rel_path;
@@ -181,22 +178,6 @@ class DerivativeImage
     public function get_path(): string
     {
         return __DIR__ . '/../../../' . $this->rel_path;
-    }
-
-    public function get_url(): string
-    {
-        if ($this->params == null) {
-            return $this->src_image->get_url();
-        }
-        return \Phyxo\Functions\URL::embellish_url(
-            Plugin::trigger_change(
-                'get_derivative_url',
-                \Phyxo\Functions\URL::get_root_url() . $this->rel_url,
-                $this->params,
-                $this->src_image,
-                $this->rel_url
-            )
-        );
     }
 
     public function same_as_source(): bool
@@ -318,6 +299,6 @@ class DerivativeImage
      */
     public function is_cached()
     {
-        return $this->is_cached;
+        return true;
     }
 }

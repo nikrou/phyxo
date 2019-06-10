@@ -11,8 +11,7 @@
 
 namespace Phyxo\Image;
 
-use Phyxo\EntityManager;
-use App\Repository\ConfigRepository;
+use Phyxo\Conf;
 
 class ImageStandardParams
 {
@@ -29,18 +28,18 @@ class ImageStandardParams
     const IMG_XXLARGE = 'xxlarge';
     const IMG_CUSTOM = 'custom';
 
-    private $em, $derivatives;
-    private $all_type_map = [], $type_map = [], $watermark = [], $custom = [], $quality = 95, $undefined_type_map = [];
+    private $conf, $derivatives;
+    private $all_type_map = [], $type_map = [], $watermark = [], $customs = [], $quality = 95, $undefined_type_map = [];
 
     private  $all_types = [
         self::IMG_SQUARE, self::IMG_THUMB, self::IMG_XXSMALL, self::IMG_XSMALL, self::IMG_SMALL,
         self::IMG_MEDIUM, self::IMG_LARGE, self::IMG_XLARGE, self::IMG_XXLARGE
     ];
 
-    public function __construct(EntityManager $em, array $conf_derivatives)
+    public function __construct(Conf $conf)
     {
-        $this->em = $em;
-        $this->derivatives = $conf_derivatives;
+        $this->conf = $conf;
+        $this->derivatives = @unserialize($conf[$this->conf_key]); // @TODO: use better serializer
 
         $this->loadFromConf();
     }
@@ -78,7 +77,7 @@ class ImageStandardParams
 
     public function getByType(string $type): DerivativeParams
     {
-        return $this->all_type_map[$type];
+            return $this->all_type_map[$type];
     }
 
     public function getQuality()
@@ -96,14 +95,22 @@ class ImageStandardParams
         return $this->watermark;
     }
 
-    public function getCustom()
+    public function getCustoms()
     {
-        return $this->custom;
+        return $this->customs;
+    }
+
+    public function hasCustom(string $key): bool
+    {
+        return isset($this->customs[$key]);
     }
 
     public function unsetCustom(string $custom)
     {
-        unset($this->custom[$custom]);
+        if (isset($this->customs[$custom])) {
+            unset($this->customs[$custom]);
+            $this->save();
+        }
     }
 
     public function getUndefinedTypeMap(): array
@@ -119,8 +126,8 @@ class ImageStandardParams
         $key = [];
         $params->add_url_tokens($key);
         $key = implode('_', $key);
-        if ($this->custom[$key] < time() - 24 * 3600) {
-            $this->custom[$key] = time();
+        if (!isset($this->customs[$key]) || $this->customs[$key] < time() - 24 * 3600) {
+            $this->customs[$key] = time();
             $this->save();
         }
 
@@ -180,7 +187,7 @@ class ImageStandardParams
             $this->type_map = $this->derivatives['d'];
             $this->watermark = isset($this->derivatives['w']) ? $this->derivatives['w'] : new WatermarkParams();
             if (isset($this->derivatives['c'])) {
-                $this->custom = $this->derivatives['c'];
+                $this->customs = $this->derivatives['c'];
             }
             if (isset($this->derivatives['q'])) {
                 $this->quality = $this->derivatives['q'];
@@ -196,8 +203,7 @@ class ImageStandardParams
 
     public function applyWatermark(DerivativeParams $params)
     {
-        $params->use_watermark = !empty($this->watermark->file)
-                                    && ($this->watermark->min_size[0] <= $params->sizing->ideal_size[0] || $this->watermark->min_size[1] <= $params->sizing->ideal_size[1]);
+        $params->use_watermark = !empty($this->watermark->file) && ($this->watermark->min_size[0] <= $params->sizing->ideal_size[0] || $this->watermark->min_size[1] <= $params->sizing->ideal_size[1]);
     }
 
     protected function buildMaps()
@@ -234,13 +240,13 @@ class ImageStandardParams
 
     public function save()
     {
-        $ser = serialize([
+        $conf_derivatives = [
             'd' => $this->type_map,
             'q' => $this->quality,
             'w' => $this->watermark,
-            'c' => $this->custom,
-        ]);
+            'c' => $this->customs,
+        ];
 
-        $this->em->getRepository(ConfigRepository::class)->addOrUpdateParam($this->conf_key, $ser);
+        $this->conf->addOrUpdateParam($this->conf_key, serialize($conf_derivatives));
     }
 }

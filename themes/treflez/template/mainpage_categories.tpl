@@ -5,7 +5,7 @@
     {assign var=width value=520}
     {assign var=height value=360}
     {define_derivative name='derivative_params' width=$width height=$height crop=true}
-    {define_derivative name='derivative_params_square' type=\Phxyo\Image\ImageStandarddParams::IMG_SQUARE}
+    {define_derivative name='derivative_params_square' type=\Phxyo\Image\ImageStandardParams::IMG_SQUARE}
 
     {include file='_albums.tpl'}
 {/block}

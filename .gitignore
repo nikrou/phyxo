@@ -45,7 +45,6 @@
 ;; atoum
 /coverage
 
-###> symfony/framework-bundle ###
 /.env
 /public/bundles/
 /var/
@@ -54,3 +53,6 @@
 ;; php-cs-fixer
 .php_cs
 .php_cs.cache
+
+.phpunit
+/phpunit.xml

@@ -63,13 +63,6 @@ if (!empty($conf['show_php_errors'])) {
 //     }
 // }
 
-if ($conn->getLayer() === 'mysql') {
-    $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
-} else {
-    $conf_derivatives = @unserialize($conf['derivatives']);
-}
-$image_std_params = new ImageStandardParams($em, $conf_derivatives);
-
 \Phyxo\Functions\Plugin::load_plugins();
 
 // users can have defined a custom order pattern, incompatible with GUI form

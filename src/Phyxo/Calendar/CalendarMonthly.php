@@ -425,7 +425,7 @@ class CalendarMonthly extends CalendarBase
                         'DAY' => $day,
                         'DOW' => $dow,
                         'NB_ELEMENTS' => $items[$day]['nb_images'],
-                        'IMAGE' => $items[$day]['derivative']->get_url(),
+                        'IMAGE' => $items[$day]['derivative']->getUrl(),
                         'U_IMG_LINK' => $url,
                         'IMAGE_ALT' => $items[$day]['file'],
                     ];

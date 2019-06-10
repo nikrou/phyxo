@@ -83,12 +83,12 @@ class Main
                 }
 
                 foreach ($types as $type) {
-                    $derivative = new \Phyxo\Image\DerivativeImage($type, $src_image);
+                    $derivative = new \Phyxo\Image\DerivativeImage($src_image, $type, $service->getImageStandardParams());
                     if ($type != $derivative->get_type()) {
                         continue;
                     }
                     if (@filemtime($derivative->get_path()) === false) {
-                        $urls[] = $derivative->get_url() . $uid;
+                        $urls[] = $derivative->getUrl() . $uid;
                     }
                 }
 
@@ -263,7 +263,7 @@ class Main
 
         if ($src_image->is_original()) { // we have a photo
             if ($service->getUserMapper()->getUser()->hasEnableHigh()) {
-                $ret['element_url'] = $src_image->get_url();
+                $ret['element_url'] = $src_image->getUrl();
             }
         } else {
             $ret['element_url'] = \Phyxo\Functions\URL::get_element_url($image_row);
@@ -274,7 +274,7 @@ class Main
         foreach ($derivatives as $type => $derivative) {
             $size = $derivative->get_size();
             $size != null or $size = [null, null];
-            $derivatives_arr[$type] = ['url' => $derivative->get_url(), 'width' => $size[0], 'height' => $size[1]];
+            $derivatives_arr[$type] = ['url' => $derivative->getUrl(), 'width' => $size[0], 'height' => $size[1]];
         }
         $ret['derivatives'] = $derivatives_arr;
 

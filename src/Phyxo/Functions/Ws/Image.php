@@ -766,7 +766,7 @@ class Image
             $service->getTagMapper()->sync_metadata([$image_id]);
 
             $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $image_id);
-            $image_infos = $service->getConnection()->db_fetch_assoc($result);
+            $image_infos = new SrcImage($service->getConnection()->db_fetch_assoc($result), $service->getConf()['picture_ext']);
 
             $result = (new ImageCategoryRepository($service->getConnection()))->countByCategory($params['category'][0]);
             list(, $nb_photos) = $service->getConnection()->db_fetch_row($result);

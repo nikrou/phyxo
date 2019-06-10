@@ -13,6 +13,7 @@ define('CONFIGURATION_BASE_URL', \Phyxo\Functions\URL::get_root_url() . 'admin/i
 
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Image\ImageStandardParams;
+use App\Repository\ConfigRepository;
 
 //-------------------------------------------------------- sections definitions
 $Sections = ['main', 'sizes', 'watermark', 'display', 'comments', 'default'];
@@ -132,10 +133,19 @@ $mail_themes = [
 ];
 
 $conf_updated = false;
+// @TODO : need POST action or redirect
+if (!empty($_GET['action']) && $_GET['action'] === 'restore_settings') {
+    $image_std_params->setAndSave($image_std_params->getDefaultSizes());
+    (new ConfigRepository($conn))->delete(['disabled_derivatives']);
+    \Phyxo\Functions\Utils::clear_derivative_cache(array_merge($image_std_params->getAllTypes(), [ImageStandardParams::IMG_CUSTOM]), $image_std_params->getAllTypes());
+
+    $conf_updated = true;
+}
+
 if (isset($_POST['submit'])) {
     $int_pattern = '/^\d+$/';
 
-    \Phyxo\Functions\Utils::check_token();
+    // \Phyxo\Functions\Utils::check_token();
 
     if ($section === 'main') {
         if (isset($_POST['gallery_title']) && $conf['gallery_title'] !== $_POST['gallery_title']) {
@@ -369,11 +379,11 @@ if ($section === 'main') {
             $tpl_vars[$type] = $tpl_var;
         }
         $template->assign('derivatives', $tpl_vars);
-        $template->assign('resize_quality', ImageStandardParams::$quality);
+        $template->assign('resize_quality', $image_std_params->getQuality());
 
         $tpl_vars = [];
         $now = time();
-        foreach ($image_std_params->getCustom() as $custom => $time) {
+        foreach ($image_std_params->getCustoms() as $custom => $time) {
             $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? \Phyxo\Functions\Language::l10n('today') : \Phyxo\Functions\DateTime::time_since($time, 'day');
         }
         $template->assign('custom_derivatives', $tpl_vars);

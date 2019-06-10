@@ -69,7 +69,7 @@ class FeedController extends CommonController
         $rss->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $news = [];
-        $notification = new Notification($em, $userMapper, $categoryMapper);
+        $notification = new Notification($em, $conf, $userMapper, $categoryMapper);
         if (!$image_only) {
             $news = $notification->news($feed_row['last_check'], $dbnow, true, true);
             if (count($news) > 0) {
@@ -101,12 +101,6 @@ class FeedController extends CommonController
             }
         }
 
-        if ($em->getConnection()->getLayer() === 'mysql') {
-            $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
-        } else {
-            $conf_derivatives = @unserialize($conf['derivatives']);
-        }
-
         $dates = $notification->get_recent_post_dates_array($conf['recent_post_dates']['RSS']);
 
         foreach ($dates as $date_detail) { // for each recent post date we create a feed item
@@ -125,7 +119,7 @@ class FeedController extends CommonController
             );
 
             $item->description .= '<a href="' . $this->generateUrl('homepage') . '">' . $conf['gallery_title'] . '</a><br> ';
-            $item->description .= $notification->get_html_description_recent_post_date($date_detail, $conf_derivatives, $conf['picture_ext']);
+            $item->description .= $notification->get_html_description_recent_post_date($date_detail, $conf['picture_ext']);
 
             $item->descriptionHtmlSyndicated = true;
 

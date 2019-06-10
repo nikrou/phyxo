@@ -107,7 +107,7 @@ class SrcImage
     /**
      * @return string
      */
-    public function get_url()
+    public function getUrl()
     {
         $url = \Phyxo\Functions\URL::get_root_url() . $this->rel_path;
         if (!($this->flags & self::IS_MIMETYPE)) {

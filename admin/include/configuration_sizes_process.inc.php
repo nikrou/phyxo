@@ -176,7 +176,7 @@ if (count($errors) == 0) {
         }
     }
 
-    foreach (array_keys($image_std_params->getCustom()) as $custom) {
+    foreach (array_keys($image_std_params->getCustoms()) as $custom) {
         if (isset($_POST['delete_custom_derivative_' . $custom])) {
             $changed_types[] = $custom;
             $image_std_params->unsetCustom($custom);

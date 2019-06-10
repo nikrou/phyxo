@@ -460,6 +460,7 @@ if (isset($page['chronology_field'])) {
     }
 
     $calendar = new $classname($conn, $page['chronology_field']);
+    $calendar->setImageStandardParams($image_std_params);
     if ($page['section'] == 'categories') { // we will regenerate the items by including subcats elements
         if (isset($page['category'])) {
             $calendar->findByConditionAndCategory(

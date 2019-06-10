@@ -16,6 +16,9 @@ parameters:
     default_theme: 'treflez'
     user_config_file: '%kernel.project_dir%/local/config/config.inc.php'
     constants_file: '%kernel.project_dir%/include/constants.php'
+    media_cache_dir: '%kernel.project_dir%/_data/i'
+    root_project_dir: '%kernel.project_dir%'
+    locale: 'en'
 
 services:
     # default configuration for services in *this* file
@@ -31,6 +34,8 @@ services:
           $legacyBaseDir: '%legacy_base_dir%'
           $themesDir: '%themes_dir%'
           $cacheDir: '%cache_dir%'
+          $mediaCacheDir: '%media_cache_dir%'
+          $rootProjectDir: '%root_project_dir%'
           $databaseConfigFile: '%database_config_file%'
           $phyxoVersion: '%core_version%'
           $phyxoWebsite: '%phyxo_website%'
@@ -89,9 +94,15 @@ services:
 
     Phyxo\EntityManager: ~
 
+    phyxo.em:
+      public: true
+      alias: 'Phyxo\EntityManager'
+
     Phyxo\MenuBar: ~
 
     Phyxo\Upgrade: ~
+
+    Phyxo\Image\ImageStandardParams: ~
 
     phyxo.upgrade:
       public: true

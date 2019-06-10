@@ -124,7 +124,7 @@ if ($conn->db_num_rows($result) > 0) {
             [
                 'ID' => $row['id'],
                 'NAME' => $thumbnail_name,
-                'TN_SRC' => $derivative->get_url(),
+                'TN_SRC' => $derivative->getUrl(),
                 'RANK' => $current_rank * 10,
                 'SIZE' => $derivative->get_size(),
             ]

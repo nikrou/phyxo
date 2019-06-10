@@ -32,18 +32,11 @@ use Phyxo\Image\ImageStandardParams;
 class CommentController extends CommonController
 {
     public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir,
-    UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper)
+                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params)
     {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        if ($em->getConnection()->getLayer() === 'mysql') {
-            $conf_derivatives = @unserialize(stripslashes($conf['derivatives']));
-        } else {
-            $conf_derivatives = @unserialize($conf['derivatives']);
-        }
-        $image_std_params = new ImageStandardParams($em, $conf_derivatives);
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());

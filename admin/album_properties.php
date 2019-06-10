@@ -228,8 +228,7 @@ if ($category['is_virtual']) {
 if ($category['has_images'] || !empty($category['representative_picture_id'])) {
     $tpl_representant = [];
 
-    // picture to display : the identified representant or the generic random
-    // representant ?
+    // picture to display : the identified representant or the generic random representant ?
     if (!empty($category['representative_picture_id'])) {
         $result = (new ImageRepository($conn))->findById($app_user, [], $category['representative_picture_id']);
         $row = $conn->db_fetch_assoc($result);

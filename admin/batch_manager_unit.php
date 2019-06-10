@@ -102,8 +102,6 @@ if (!empty($_GET['display'])) {
     $page['nb_images'] = 5;
 }
 
-
-
 if (count($page['cat_elements_id']) > 0) {
     $nav_bar = \Phyxo\Functions\Utils::create_navigation_bar(
         $base_url . \Phyxo\Functions\URL::get_query_string_diff(['start']),
