@@ -48,7 +48,7 @@
 {block name="content"}
     {if !empty($PLUGIN_PICTURE_BEFORE)}{$PLUGIN_PICTURE_BEFORE}{/if}
 
-    {$PICTURE_NAV}
+    {include file='picture_nav.tpl'}
 
     <div id="main-picture-container" class="container{if $theme_config->fluid_width}-fluid{/if}">
 	{include file='infos_errors.tpl'}

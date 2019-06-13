@@ -24,14 +24,15 @@ use App\DataMapper\CategoryMapper;
 use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
+use Phyxo\Image\ImageStandardParams;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $em, $router;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $em, $router, $image_std_params;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
                         TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, EntityManager $em,
-                        RouterInterface $router)
+                        RouterInterface $router, ImageStandardParams $image_std_params)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -42,6 +43,7 @@ class AdminController extends Controller
         $this->rateMapper = $rateMapper;
         $this->em = $em;
         $this->router = $router;
+        $this->image_std_params = $image_std_params;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -69,6 +71,7 @@ class AdminController extends Controller
         $rateMapper = $this->rateMapper;
         $em = $this->em;
         $router = $this->router;
+        $image_std_params = $this->image_std_params;
 
         try {
             global $pwg_loaded_plugins, $header_notes, $env_nbm, $prefixeTable, $conf, $conn, $filter, $template, $user, $page,

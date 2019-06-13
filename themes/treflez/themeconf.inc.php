@@ -38,5 +38,5 @@ if (!empty($conf['file_ext'])) {
     $conf['file_ext'] = array_merge($conf['file_ext'], $video_ext, array_map('strtoupper', $video_ext));
 }
 
-$controller = new \Treflez\ThemeController($conf, $template, $image_std_params);
+$controller = new \Treflez\ThemeController($conf, $template);
 $controller->init();

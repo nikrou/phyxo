@@ -24,14 +24,13 @@ use Phyxo\Image\ImageStandardParams;
 
 class ThemeController
 {
-    private $config, $core_config, $template, $image_std_params;
+    private $config, $core_config, $template;
 
-    public function __construct(Conf $conf, EngineInterface $template, ImageStandardParams $image_std_params)
+    public function __construct(Conf $conf, EngineInterface $template)
     {
         $this->core_config = $conf;
         $this->config = new Config($conf);
         $this->template = $template;
-        $this->image_std_params = $image_std_params;
     }
 
     public function init()
@@ -45,7 +44,6 @@ class ThemeController
         Plugin::add_event_handler('loc_begin_page_header', [$this, 'checkIfHomepage']);
         Plugin::add_event_handler('loc_after_page_header', [$this, 'stripBreadcrumbs']);
         Plugin::add_event_handler('format_exif_data', [$this, 'exifReplacements']);
-        Plugin::add_event_handler('loc_end_picture', [$this, 'registerPictureTemplates']);
         Plugin::add_event_handler('loc_begin_index_thumbnails', [$this, 'returnPageStart']);
 
         Plugin::add_event_handler('loc_end_picture', [$this, 'getAllThumbnailsInCategory']);
@@ -120,13 +118,6 @@ class ThemeController
             }
         }
         return $exif;
-    }
-
-    // register additional template files
-    public function registerPictureTemplates()
-    {
-        $this->template->set_filenames(['picture_nav' => 'picture_nav.tpl']);
-        $this->template->assign_var_from_handle('PICTURE_NAV', 'picture_nav');
     }
 
     public function stripBreadcrumbs()
@@ -249,10 +240,10 @@ class ThemeController
         $this->template->assign('thumbnails', $tpl_thumbnails_var);
 
         $this->template->assign([
-            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_SQUARE)),
-            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_MEDIUM)),
-            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_LARGE)),
-            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', $this->image_std_params->getByType(ImageStandardParams::IMG_XXLARGE)),
+            'derivative_params_square' => Plugin::trigger_change('get_index_derivative_params', $this->template->getImageStandardParams()->getByType(ImageStandardParams::IMG_SQUARE)),
+            'derivative_params_medium' => Plugin::trigger_change('get_index_derivative_params', $this->template->getImageStandardParams()->getByType(ImageStandardParams::IMG_MEDIUM)),
+            'derivative_params_large' => Plugin::trigger_change('get_index_derivative_params', $this->template->getImageStandardParams()->getByType(ImageStandardParams::IMG_LARGE)),
+            'derivative_params_xxlarge' => Plugin::trigger_change('get_index_derivative_params', $this->template->getImageStandardParams()->getByType(ImageStandardParams::IMG_XXLARGE)),
         ]);
 
         unset($tpl_thumbnails_var, $pictures);

@@ -23,6 +23,8 @@ use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Extension\Theme;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class Template implements EngineInterface
 {
@@ -30,6 +32,7 @@ class Template implements EngineInterface
 
     private $stats = ['render_time' => null, 'files' => []];
     private $manifest_content = '';
+    private $router;
 
     private $image_std_params;
 
@@ -96,6 +99,9 @@ class Template implements EngineInterface
         $this->smarty->registerPlugin('compiler', 'get_combined_css', [$this, 'func_get_combined_css']);
         $this->smarty->registerPlugin('block', 'footer_script', [$this, 'block_footer_script']);
         $this->smarty->registerFilter('pre', [__class__, 'prefilter_white_space']);
+
+        $this->smarty->registerPlugin('function', 'media', [$this, 'func_media']);
+        $this->smarty->registerPlugin('function', 'path', [$this, 'func_path']);
     }
 
     public static function init($compile_dir)
@@ -106,9 +112,19 @@ class Template implements EngineInterface
         return self::$instance;
     }
 
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
     public function setImageStandardParams(ImageStandardParams $image_std_params)
     {
         $this->image_std_params = $image_std_params;
+    }
+
+    public function getImageStandardParams()
+    {
+        return $this->image_std_params;
     }
 
     public function postConstruct()
@@ -1031,6 +1047,16 @@ class Template implements EngineInterface
         }
 
         return $source;
+    }
+
+    public function func_path(array $parameters = [], $smarty)
+    {
+        return $this->router->generate($parameters['name'], $parameters['params'], $parameters['absolute'] ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH);
+    }
+
+    public function func_media(array $parameters = [], $smarty)
+    {
+        return $this->router->generate($parameters['name'], $parameters['params']);
     }
 
     public function renderResponse($view, array $parameters = [], Response $response = null)

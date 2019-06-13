@@ -12,7 +12,6 @@
 use Phyxo\Functions\Utils;
 use App\Repository\ImageRepository;
 use Phyxo\Extension\Theme;
-use Phyxo\Image\ImageStandardParams;
 
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
@@ -93,6 +92,7 @@ if ($userMapper->isAdmin() || (defined('IN_ADMIN') && IN_ADMIN)) {
 
 if (!defined('IN_WS') || !IN_WS) {
     $template->setImageStandardParams($image_std_params);
+    $template->setRouter($container->get('router'));
     $template->setLang($lang);
     $template->setLangInfo($lang_info);
     $template->setConf($conf);

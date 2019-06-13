@@ -17,6 +17,7 @@ use App\Entity\User;
 use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Phyxo\Functions\Language;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class CommonController extends AbstractController
 {
@@ -29,6 +30,8 @@ abstract class CommonController extends AbstractController
             __DIR__ . '/../../',
             ['language' => $user->getLanguage(), 'return_vars' => true]
         );
+
+        $template->setRouter($this->get('router'));
         $template->setConf($conf);
         $template->setLang($language_load['lang']);
         $template->setLangInfo($language_load['lang_info']);

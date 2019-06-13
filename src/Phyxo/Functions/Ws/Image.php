@@ -29,6 +29,7 @@ use GuzzleHttp\Client;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\RouterInterface;
 
 class Image
 {
@@ -766,13 +767,14 @@ class Image
             $service->getTagMapper()->sync_metadata([$image_id]);
 
             $result = (new ImageRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $image_id);
-            $image_infos = new SrcImage($service->getConnection()->db_fetch_assoc($result), $service->getConf()['picture_ext']);
+            $image_infos = $service->getConnection()->db_fetch_assoc($result);
+            $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
 
             $result = (new ImageCategoryRepository($service->getConnection()))->countByCategory($params['category'][0]);
             list(, $nb_photos) = $service->getConnection()->db_fetch_row($result);
             $category_name = $service->getCategoryMapper()->getCatDisplayNameFromId($params['category'][0]);
             $derivative_image = new DerivativeImage(
-                new SrcImage($image_infos, $service->getConf()['picture_ext']),
+                $src_image,
                 $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB),
                 $service->getImageStandardParams()
             );
@@ -1590,15 +1592,12 @@ class Image
         $result = (new ImageRepository($service->getConnection()))->findByField('id', (string) $image_id);
         $image_infos = $service->getConnection()->db_fetch_assoc($result);
 
-        \Phyxo\Functions\URL::set_make_full_url();
-
         $src_image = new SrcImage($image_infos, $service->getConf()['picture_ext']);
-        $thumb_url = (new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams()))->getUrl();
-        \Phyxo\Functions\URL::unset_make_full_url();
+        $derivative_image = new DerivativeImage($src_image, $service->getImageStandardParams()->getByType(ImageStandardParams::IMG_THUMB), $service->getImageStandardParams());
 
         // force cache generation
         $client = new Client(['http_errors' => false]);
-        $client->request('GET', $thumb_url);
+        $client->request('GET', $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos(), RouterInterface::ABSOLUTE_URL));
 
         return $image_id;
     }
