@@ -37,6 +37,7 @@ src/Phyxo/Image/ImageStdParams.php
 src/Phyxo/Model/Repository/Comments.php
 src/Phyxo/Model/Repository/Tags.php
 src/Phyxo/Model/Repository/Users.php
+src/Phyxo/Template/TemplateAdapter.php
 admin/index.php
 include/cache.class.php
 include/derivative.inc.php

@@ -13,7 +13,6 @@ namespace Phyxo\Template;
 
 use SmartyException;
 use Smarty;
-use Phyxo\Template\TemplateAdapter;
 use Phyxo\Template\ScriptLoader;
 use Phyxo\Template\CssLoader;
 
@@ -25,6 +24,7 @@ use Phyxo\Extension\Theme;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Phyxo\Image\DerivativeImage;
 
 class Template implements EngineInterface
 {
@@ -84,7 +84,6 @@ class Template implements EngineInterface
         $this->cssLoader = new CssLoader();
         $this->smarty = new Smarty();
 
-        $this->smarty->assign('pwg', new TemplateAdapter());
         $this->smarty->registerPlugin('modifiercompiler', 'translate', [$this, 'modcompiler_translate']);
         $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', [$this, 'modcompiler_translate_dec']);
         $this->smarty->registerPlugin('modifier', 'explode', [__class__, 'mod_explode']);
@@ -102,6 +101,7 @@ class Template implements EngineInterface
 
         $this->smarty->registerPlugin('function', 'media', [$this, 'func_media']);
         $this->smarty->registerPlugin('function', 'path', [$this, 'func_path']);
+        $this->smarty->registerPlugin('function', 'derivative_from_image', [$this, 'func_derivative_from_image']);
     }
 
     public static function init($compile_dir)
@@ -682,6 +682,15 @@ class Template implements EngineInterface
         }
 
         $smarty->assign($params['name'], $this->image_std_params->makeCustom($w, $h, $crop, $minw, $minh));
+    }
+
+    public function func_derivative_from_image(array $params = [], $smarty) //SrcImage $img, DerivativeParams $params): DerivativeImage
+    {
+        if (empty($params['name']) || empty($params['image']) || empty($params['params'])) {
+            return;
+        }
+
+        $smarty->assign($params['name'], new DerivativeImage($params['image'], $params['params'], $this->image_std_params));
     }
 
     public function func_asset($params, $smarty)

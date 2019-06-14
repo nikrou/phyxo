@@ -38,5 +38,4 @@ before_script:
 
 script:
   - php ./bin/atoum
-  - php ./bin/simple-phpunit
   # - php ./bin/behat -c behat.travis.yml.dist --suite=web --tags=admin

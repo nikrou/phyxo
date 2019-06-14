@@ -5,7 +5,8 @@
 
     {foreach $category_thumbnails as $cat}
 	{if $theme_config->category_wells == 'never'}
-	    {assign var="album_derivative" value=$pwg->derivative($cat.representative.src_image, $album_derivative_params, $image_std_params)}
+	    {derivative_from_image name="album_derivative" image=$cat.representative.src_image params=$album_derivative_params}
+
 	    {* this needs a fixed size else it messes up the grid on tablets *}
 	    {include file="grid_classes.tpl" width=260 height=180}
 	    <div class="col-outer mt-3 {if $category_view == 'list'}col-12{else}{$col_class}{/if}" data-grid-classes="{$col_class}">
@@ -37,7 +38,7 @@
 		</div>
 	    </div>
 	{else}
-	    {assign var="album_derivative_square" value=$pwg->derivative($cat.representative.src_image, $album_derivative_params_square, $image_std_params)}
+	    {derivative_from_image name="album_derivative_square" image=$cat.representative.src_image params=$album_derivative_params_square}
 	    <div class="col-outer col-12">
 		<div class="card">
 		    <div class="card-body p-0">

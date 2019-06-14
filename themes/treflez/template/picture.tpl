@@ -127,11 +127,11 @@
 		<div class="col-lg-10 col-md-12 mx-auto">
 		    <div id="thumbnailCarousel" class="slick-carousel{if $theme_config->slick_centered} center{/if}">
 			{foreach $thumbnails as $thumbnail}
-			    {assign var=derivative value=$pwg->derivative($thumbnail.src_image, $derivative_params_square, $image_std_params)}
+			    {derivative_from_image name="derivative" image=$thumbnail.src_image params=$derivative_params_square}
 			    {if !$theme_config->slick_infinite}
-				{assign var=derivative_medium value=$pwg->derivative($thumbnail.src_image, $derivative_params_medium, $image_std_params )}
-				{assign var=derivative_large value=$pwg->derivative($thumbnail.src_image, $derivative_params_large, $image_std_params)}
-				{assign var=derivative_xxlarge value=$pwg->derivative($thumbnail.src_image, $derivative_params_xxlarge, $image_std_params)}
+				{derivative_from_image name="derivative_medium" image=$thumbnail.src_image params=$derivative_params_medium}
+				{derivative_from_image name="derivative_large" image=$thumbnail.src_image params=$derivative_params_large}
+				{derivative_from_image name="derivative_xxlarge" image=$thumbnail.src_image params=$derivative_params_xxlarge}
 			    {/if}
 
 			    {if $theme_config->photoswipe && !$theme_config->slick_infinite}
@@ -155,9 +155,9 @@
 	    {if $theme_config->photoswipe && $theme_config->slick_infinite}
 		<div id="photoSwipeData" class="d-none">
 		    {foreach $thumbnails as $thumbnail}
-			{assign var=derivative_medium value=$pwg->derivative($thumbnail.src_image, $derivative_params_medium, $image_std_params)}
-			{assign var=derivative_large value=$pwg->derivative($thumbnail.src_image, $derivative_params_large, $image_std_params)}
-			{assign var=derivative_xxlarge value=$pwg->derivative($thumbnail.src_image, $derivative_params_xxlarge, $image_std_params)}
+			{derivative_from_image name="derivative_medium" image=$thumbnail.src_image params=$derivative_params_medium}
+			{derivative_from_image name="derivative_large" image=$thumbnail.src_image params=$derivative_params_large}
+			{derivative_from_image name="derivative_xxlarge" image=$thumbnail.src_image params=$derivative_params_xxlarge}
 			<a{if $thumbnail.id eq $current.id} id="thumbnail-active"{/if} href="{$thumbnail.URL}" data-index="{$thumbnail@index}" data-name="{$thumbnail.NAME}" data-description="{$thumbnail.DESCRIPTION}" data-src-xlarge="{$derivative_xxlarge->getUrl()}" data-size-xlarge="{$derivative_xxlarge->get_size_hr()}" data-src-large="{$derivative_large->getUrl()}" data-size-large="{$derivative_large->get_size_hr()}" data-src-medium="{$derivative_medium->getUrl()}" data-size-medium="{$derivative_medium->get_size_hr()}"{if preg_match("/(mp4|m4v)$/", $thumbnail.PATH)} data-src-original="{$U_HOME}{$thumbnail.PATH}" data-size-original="{$thumbnail.SIZE}" data-video="true"{else}{if $theme_config->photoswipe_metadata} data-exif-make="{$thumbnail.EXIF.make}" data-exif-model="{$thumbnail.EXIF.model}" data-exif-lens="{$thumbnail.EXIF.lens}" data-exif-iso="{$thumbnail.EXIF.iso}" data-exif-apperture="{$thumbnail.EXIF.apperture}" data-exif-shutter-speed="{$thumbnail.EXIF.shutter_speed}" data-exif-focal-length="{$thumbnail.EXIF.focal_length}" data-date-created="{$thumbnail.DATE_CREATED}"{/if}{/if}></a>
 		    {/foreach}
 		</div>
