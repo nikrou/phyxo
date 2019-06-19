@@ -93,6 +93,10 @@ class DerivativeImage
      */
     public function getUrl(): string
     {
+        if (empty($this->paramsms)) { //@TODO: why params can be empty ?
+            return $this->src_image->getUrl();
+        }
+
         $this->build($this->src_image, $this->params, $rel_path, $rel_url);
 
         return \Phyxo\Functions\URL::embellish_url(
@@ -156,13 +160,26 @@ class DerivativeImage
 
         $url_style = $conf['derivative_url_style'];
         if (!$url_style) {
-            $mtime = @filemtime(__DIR__ . '/../../../' . $rel_path);
-            if ($mtime === false or $mtime < $params->last_mod_time) {
+            if (is_readable(__DIR__ . '/../../../' . $rel_path)) {
+                if (filemtime(__DIR__ . '/../../../' . $rel_path) < $params->last_mod_time) {
+                    $is_cached = false;
+                    $url_style = 2;
+                } else {
+                    $url_style = 1;
+                }
+
+            } else {
                 $is_cached = false;
                 $url_style = 2;
-            } else {
-                $url_style = 1;
             }
+
+            // $mtime = @filemtime(__DIR__ . '/../../../' . $rel_path);
+            // if ($mtime === false or $mtime < $params->last_mod_time) {
+            //     $is_cached = false;
+            //     $url_style = 2;
+            // } else {
+            //     $url_style = 1;
+            // }
         }
 
         if ($url_style == 2) {
