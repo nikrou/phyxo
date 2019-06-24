@@ -251,7 +251,14 @@ if (empty($page['is_external']) or !$page['is_external']) {
     }
 
     if (!empty($page['items'])) {
-        include(__DIR__ . '/category_default.inc.php');
+        $template->assign(
+            $imageMapper->getPicturesFromSelection(
+                array_slice($page['items'], $page['start'], $page['nb_image_page']),
+                isset($page['category']['id'])?$page['category']['id']:0,
+                $page['section'],
+                $page['start']
+            )
+        );
 
         if (!isset($page['chronology_field'])) {
             $template_filename = 'thumbnails';

@@ -21,6 +21,7 @@ upgrade.php
 doc
 src/Log.php
 src/LegacyPages/about.php
+src/LegacyPages/category_default.inc.php
 src/LegacyPages/comments.php
 src/LegacyPages/i.php
 src/LegacyPages/identification.php

@@ -23,16 +23,16 @@ use Phyxo\MenuBar;
 use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
-
+use App\DataMapper\ImageMapper;
 
 abstract class BaseController extends Controller
 {
-    protected $tagMapper, $commentMapper, $userMapper, $categroyMapper, $rateMapper;
+    protected $tagMapper, $commentMapper, $userMapper, $categroyMapper, $rateMapper, $imageMapper;
     protected $csrfTokenManager, $userProvider, $passwordEncoder;
     protected $phyxoVersion, $phyxoWebsite;
     protected $menuBar, $em, $image_std_params;
 
-    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper,
+    public function __construct(UserProvider $userProvider, TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper,
                                 RateMapper $rateMapper, MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params)
     {
         $this->userProvider = $userProvider;
@@ -41,6 +41,7 @@ abstract class BaseController extends Controller
         $this->userMapper = $userMapper;
         $this->categroyMapper = $categoryMapper;
         $this->rateMapper = $rateMapper;
+        $this->imageMapper = $imageMapper;
         $this->em = $em;
         $this->menuBar = $menuBar;
         $this->em = $em;
@@ -57,6 +58,7 @@ abstract class BaseController extends Controller
         $tagMapper = $this->tagMapper;
         $commentMapper = $this->commentMapper;
         $categoryMapper = $this->categroyMapper;
+        $imageMapper = $this->imageMapper;
         $userMapper = $this->userMapper;
         $em = $this->em;
         $image_std_params = $this->image_std_params;
