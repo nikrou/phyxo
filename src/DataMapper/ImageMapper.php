@@ -20,6 +20,7 @@ use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;
+use Phyxo\Functions\Language;
 
 class ImageMapper
 {
@@ -52,6 +53,11 @@ class ImageMapper
 
         usort($pictures, '\Phyxo\Functions\Utils::rank_compare');
         unset($rank_of);
+
+        // temporary fix
+        if ($section === 'categories') {
+            $section = 'category';
+        }
 
         if (count($pictures) > 0) {
             // define category slideshow url
@@ -122,7 +128,7 @@ class ImageMapper
             ]);
 
             if ($this->conf['index_new_icon']) {
-                $tpl_var['icon_ts'] = Utils::get_icon($row['date_available']);
+                $tpl_var['icon_ts'] = $this->getIcon($row['date_available']);
             }
 
             if ($this->userMapper->getUser()->getShowNbHits()) {
@@ -147,5 +153,20 @@ class ImageMapper
         );
 
         return $tpl_params;
+    }
+
+    public function getIcon(string $date, bool $is_child_date = false): array
+    {
+        if (empty($date)) {
+            return [];
+        }
+
+        $icon = [
+            'TITLE' => Language::l10n('photos posted during the last %d days', $this->userMapper->getUser()->getRecentPeriod()),
+            'IS_CHILD_DATE' => $is_child_date,
+            'sql_recent_date' => $this->em->getConnection()->db_get_recent_period($this->userMapper->getUser()->getRecentPeriod()),
+        ];
+
+        return ($date > $icon['sql_recent_date']) ? $icon : [];
     }
 }

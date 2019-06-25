@@ -1060,7 +1060,7 @@ class Template implements EngineInterface
 
     public function func_path(array $parameters = [], $smarty)
     {
-        return $this->router->generate($parameters['name'], $parameters['params'], $parameters['absolute'] ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH);
+        return $this->router->generate($parameters['name'], isset($parameters['params'])?$parameters['params']:[], $parameters['absolute'] ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH);
     }
 
     public function func_media(array $parameters = [], $smarty)

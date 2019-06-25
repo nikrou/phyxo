@@ -46,6 +46,21 @@ class PictureController extends BaseController
         return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
     }
 
+    public function pictureBySearch(string $legacyBaseDir, Request $request, $image_id, $search_id, CsrfTokenManagerInterface $csrfTokenManager)
+    {
+        $this->csrfTokenManager = $csrfTokenManager;
+
+        $tpl_params = [];
+        $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $_SERVER['PATH_INFO'] = '/' . $image_id . '/search' . $search_id;
+
+        // menuBar : inject items
+
+        return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
+    }
+
     public function pictureFromCalendar(string $legacyBaseDir, Request $request, int $image_id, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->csrfTokenManager = $csrfTokenManager;

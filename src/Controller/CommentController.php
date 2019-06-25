@@ -35,6 +35,7 @@ class CommentController extends CommonController
                         UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params)
     {
         $tpl_params = [];
+        $this->image_std_params = $image_std_params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -236,7 +237,6 @@ class CommentController extends CommonController
 
         $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
         $tpl_params['derivative_params'] = $derivative_params;
-        $tpl_params['image_std_params'] = $image_std_params;
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
 

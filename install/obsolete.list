@@ -28,8 +28,11 @@ src/LegacyPages/identification.php
 src/LegacyPages/install.php
 src/LegacyPages/feed.php
 src/LegacyPages/notification.php
-src/LegacyPages/register.php
 src/LegacyPages/profile.php
+src/LegacyPages/qsearch.php
+src/LegacyPages/register.php
+src/LegacyPages/search_rules.php
+src/LegacyPages/search.php
 src/LegacyPages/ws.php
 src/Controller/UserController.php
 src/Phyxo/Functions/Rate.php

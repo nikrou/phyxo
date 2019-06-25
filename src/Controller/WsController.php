@@ -26,13 +26,14 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
+use App\DataMapper\SearchMapper;
 
 class WsController extends Controller
 {
     private $service;
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
-                            RateMapper $rateMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
+                            RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
     {
         $this->service = new Server();
         $this->service->addUserMapper($userMapper);
@@ -40,6 +41,7 @@ class WsController extends Controller
         $this->service->addCommentMapper($commentMapper);
         $this->service->addCategoryMapper($categoryMapper);
         $this->service->addRateMapper($rateMapper);
+        $this->service->addSearchMapper($searchMapper);
         $this->service->setHandler(new RestRequestHandler());
         $this->service->setEncoder(new JsonEncoder());
         $this->service->setCoreVersion($phyxoVersion);

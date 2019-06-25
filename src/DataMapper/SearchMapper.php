@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Functions;
+namespace App\DataMapper;
 
 use Phyxo\Search\QExpression;
 use Phyxo\Search\QSearchScope;
@@ -23,39 +23,43 @@ use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\BaseRepository;
+use Phyxo\EntityManager;
+use Phyxo\Conf;
+use Symfony\Component\Security\Core\User\UserInterface;
+use App\DataMapper\UserMapper;
 
-class Search
+class SearchMapper
 {
+    private $em, $conf, $userMapper;
+
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper)
+    {
+        $this->em = $em;
+        $this->conf = $conf;
+        $this->userMapper = $userMapper;
+    }
+
     /**
      * Returns search rules stored into a serialized array in "search"
      * table. Each search rules set is numericaly identified.
-     *
-     * @param int $search_id
-     * @return array
      */
-    public static function get_search_array(int $search_id)
+    public function getSearchArray(int $search_id): array
     {
-        global $conn;
-
-        $result = (new SearchRepository($conn))->findById($search_id);
-        list($serialized_rules) = $conn->db_fetch_row($result);
-
-        return unserialize($serialized_rules); // @TODO: remove unserialize
+        $result = $this->em->getRepository(SearchRepository::class)->findById($search_id);
+        if (($row = $this->em->getConnection()->db_fetch_row($result)) !== false) {
+            return unserialize($row[0]); // @TODO: remove unserialize
+        } else {
+            return [];
+        }
     }
 
     /**
      * Returns the SQL clause for a search.
-     * Transforms the array returned by get_search_array() into SQL sub-query.
-     *
-     * @param array $search
-     * @return string
+     * Transforms the array returned by getSearchArray() into SQL sub-query.
      */
-    public static function get_sql_search_clause($search)
+    public function getSqlSearchClause(array $search): string
     {
-        global $conn;
-
-        // SQL where clauses are stored in $clauses array during query
-        // construction
+        // SQL where clauses are stored in $clauses array during query construction
         $clauses = [];
 
         foreach (['file', 'name', 'comment', 'author'] as $textfield) {
@@ -63,9 +67,9 @@ class Search
                 $local_clauses = [];
                 foreach ($search['fields'][$textfield]['words'] as $word) {
                     if ($textfield == 'author') {
-                        $local_clauses[] = $textfield . " = '" . $conn->db_real_escape_string($word) . "'";
+                        $local_clauses[] = $textfield . " = '" . $this->em->getConnection()->db_real_escape_string($word) . "'";
                     } else {
-                        $local_clauses[] = $textfield . " LIKE '%" . $conn->db_real_escape_string($word) . "%'";
+                        $local_clauses[] = $textfield . " LIKE '%" . $this->em->getConnection()->db_real_escape_string($word) . "%'";
                     }
                 }
 
@@ -94,7 +98,7 @@ class Search
             foreach ($search['fields']['allwords']['words'] as $word) {
                 $field_clauses = [];
                 foreach ($fields as $field) {
-                    $field_clauses[] = $field . " LIKE '%" . $conn->db_real_escape_string($word) . "%'";
+                    $field_clauses[] = $field . " LIKE '%" . $this->em->getConnection()->db_real_escape_string($word) . "%'";
                 }
                 // adds brackets around where clauses
                 $word_clauses[] = implode(' OR ', $field_clauses);
@@ -133,12 +137,12 @@ class Search
         if (isset($search['fields']['cat'])) {
             if ($search['fields']['cat']['sub_inc']) {
                 // searching all the categories id of sub-categories
-                $cat_ids = (new CategoryRepository($conn))->getSubcatIds($search['fields']['cat']['words']);
+                $cat_ids = $this->em->getRepository(CategoryRepository::class)->getSubcatIds($search['fields']['cat']['words']);
             } else {
                 $cat_ids = $search['fields']['cat']['words'];
             }
 
-            $local_clause = 'category_id ' . $conn->in($cat_ids);
+            $local_clause = 'category_id ' . $this->em->getConnection()->in($cat_ids);
             $clauses[] = $local_clause;
         }
 
@@ -159,12 +163,10 @@ class Search
      * @param string $images_where optional additional restriction on images table
      * @return array
      */
-    public static function get_regular_search_results($search, $images_where = '')
+    public function getRegularSearchResults(array $search, UserInterface $user, array $filter, string $images_where = ''): array
     {
-        global $conf, $conn, $app_user, $filter;
-
-        $forbidden = (new BaseRepository($conn))->getSQLConditionFandF(
-            $app_user,
+        $forbidden = $this->em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+            $user,
             $filter,
             [
                 'forbidden_categories' => 'category_id',
@@ -177,9 +179,9 @@ class Search
         $tag_items = [];
 
         if (isset($search['fields']['tags'])) {
-            $tag_items = $conn->result2array(
-                (new TagRepository($conn))->getImageIdsForTags(
-                    $app_user,
+            $tag_items = $this->em->getConnection()->result2array(
+                $this->em->getRepository(TagRepository::class)->getImageIdsForTags(
+                    $user,
                     $filter,
                     $search['fields']['tags']['words'],
                     $search['fields']['tags']['mode']
@@ -189,11 +191,11 @@ class Search
             );
         }
 
-        $search_clause = self::get_sql_search_clause($search);
+        $search_clause = $this->getSqlSearchClause($search);
 
         if (!empty($search_clause)) {
-            $result = (new ImageRepository($conn))->searchDistinctId('id', [$search_clause, $forbidden, $images_where], true, $conf['order_by']);
-            $items = $conn->result2array($result, null, 'id');
+            $result = $this->em->getRepository(ImageRepository::class)->searchDistinctId('id', [$search_clause, $forbidden, $images_where], true, $this->conf['order_by']);
+            $items = $this->em->getConnection()->result2array($result, null, 'id');
         }
 
         if (!empty($tag_items)) {
@@ -220,10 +222,8 @@ class Search
         return $items;
     }
 
-    public static function qsearch_get_text_token_search_sql($token, $fields)
+    public function qsearchGetTextTokenSearchSql($token, $fields)
     {
-        global $conn;
-
         $clauses = [];
         $variants = array_merge([$token->term], $token->variants);
         $fts = [];
@@ -251,7 +251,7 @@ class Search
                 $pre = ($token->modifier & QSearchScope::QST_WILDCARD_BEGIN) ? '' : '[[:<:]]';
                 $post = ($token->modifier & QSearchScope::QST_WILDCARD_END) ? '' : '[[:>:]]';
                 foreach ($fields as $field) {
-                    $clauses[] = $field . ' ' . $conn::REGEX_OPERATOR . ' \'' . $pre . $conn->db_real_escape_string(preg_quote($variant)) . $post . '\'';
+                    $clauses[] = $field . ' ' . $this->em->getConnection()::REGEX_OPERATOR . ' \'' . $pre . $this->em->getConnection()->db_real_escape_string(preg_quote($variant)) . $post . '\'';
                 }
             } else {
                 $ft = $variant;
@@ -266,16 +266,14 @@ class Search
         }
 
         if (count($fts)) {
-            $clauses[] = $conn->db_full_text_search($fields, $fts);
+            $clauses[] = $this->em->getConnection()->db_full_text_search($fields, $fts);
         }
 
         return $clauses;
     }
 
-    public static function qsearch_get_images(QExpression $expr, QResults $qsr)
+    public function qsearchGetImages(QExpression $expr, QResults $qsr)
     {
-        global $conn;
-
         $qsr->images_iids = array_fill(0, count($expr->stokens), []);
 
         for ($i = 0; $i < count($expr->stokens); $i++) {
@@ -283,14 +281,14 @@ class Search
             $scope_id = isset($token->scope) ? $token->scope->id : 'photo';
             $clauses = [];
 
-            $like = $conn->db_real_escape_string($token->term);
+            $like = $this->em->getConnection()->db_real_escape_string($token->term);
             $like = str_replace(['%', '_'], ['\\%', '\\_'], $like); // escape LIKE specials %_
             $file_like = 'file LIKE \'%' . $like . '%\'';
 
             switch ($scope_id) {
                 case 'photo':
                     $clauses[] = $file_like;
-                    $clauses = array_merge($clauses, self::qsearch_get_text_token_search_sql($token, ['name', 'comment']));
+                    $clauses = array_merge($clauses, $this->qsearchGetTextTokenSearchSql($token, ['name', 'comment']));
                     break;
 
                 case 'file':
@@ -331,16 +329,14 @@ class Search
                     break;
             }
             if (!empty($clauses)) {
-                $result = (new ImageRepository($conn))->qsearchImages($clauses);
-                $qsr->images_iids[$i] = $conn->result2array($result, null, 'id');
+                $result = $this->em->getRepository(ImageRepository::class)->qsearchImages($clauses);
+                $qsr->images_iids[$i] = $this->em->getConnection()->result2array($result, null, 'id');
             }
         }
     }
 
-    public static function qsearch_get_tags(QExpression $expr, QResults $qsr)
+    public function qsearchGetTags(QExpression $expr, QResults $qsr)
     {
-        global $conn;
-
         $token_tag_ids = $qsr->tag_iids = array_fill(0, count($expr->stokens), []);
         $all_tags = [];
 
@@ -353,9 +349,9 @@ class Search
                 continue;
             }
 
-            $clauses = self::qsearch_get_text_token_search_sql($token, ['name']);
-            $result = (new TagRepository($conn))->findByClause(implode(' OR ', $clauses));
-            while ($tag = $conn->db_fetch_assoc($result)) {
+            $clauses = $this->qsearchGetTextTokenSearchSql($token, ['name']);
+            $result = $this->em->getRepository(TagRepository::class)->findByClause(implode(' OR ', $clauses));
+            while ($tag = $this->em->getConnection()->db_fetch_assoc($result)) {
                 $token_tag_ids[$i][] = $tag['id'];
                 $all_tags[$tag['id']] = $tag;
             }
@@ -380,8 +376,8 @@ class Search
             $token = $expr->stokens[$i];
 
             if (!empty($tag_ids)) {
-                $result = (new ImageTagRepository($conn))->findImageByTags($tag_ids);
-                $qsr->tag_iids[$i] = $conn->result2array($result, null, 'image_id');
+                $result = $this->em->getRepository(ImageTagRepository::class)->findImageByTags($tag_ids);
+                $qsr->tag_iids[$i] = $this->em->getConnection()->result2array($result, null, 'image_id');
                 if ($expr->stoken_modifiers[$i] & QSearchScope::QST_NOT) {
                     $not_ids = array_merge($not_ids, $tag_ids);
                 } else {
@@ -393,11 +389,11 @@ class Search
                 }
             } elseif (isset($token->scope) && 'tag' == $token->scope->id && strlen($token->term) == 0) {
                 if ($token->modifier & QSearchScope::QST_WILDCARD) { // eg. 'tag:*' returns all tagged images
-                    $result = (new ImageTagRepository($conn))->findImageIds();
-                    $qsr->tag_iids[$i] = $conn->result2array($result, null, 'image_id');
+                    $result = $this->em->getRepository(ImageTagRepository::class)->findImageIds();
+                    $qsr->tag_iids[$i] = $this->em->getConnection()->result2array($result, null, 'image_id');
                 } else { // eg. 'tag:' returns all untagged images
-                    $result = (new ImageRepository($conn))->findImageWithNoTag();
-                    $qsr->tag_iids[$i] = $conn->result2array($result, null, 'id');
+                    $result = $this->em->getRepository(ImageRepository::class)->findImageWithNoTag();
+                    $qsr->tag_iids[$i] = $this->em->getConnection()->result2array($result, null, 'id');
                 }
             }
         }
@@ -411,7 +407,7 @@ class Search
         $qsr->tag_ids = $token_tag_ids;
     }
 
-    public static function qsearch_eval(QMultipleToken $expr, QResults $qsr, &$qualifies, &$ignored_terms)
+    public function qsearchEval(QMultipleToken $expr, QResults $qsr, &$qualifies, &$ignored_terms)
     {
         $qualifies = false; // until we find at least one positive term
         $ignored_terms = [];
@@ -425,7 +421,7 @@ class Search
                 $crt_qualifies = count($crt_ids) > 0 || count($qsr->tag_ids[$crt->idx]) > 0;
                 $crt_ignored_terms = $crt_qualifies ? [] : [(string)$crt];
             } else {
-                $crt_ids = self::qsearch_eval($crt, $qsr, $crt_qualifies, $crt_ignored_terms);
+                $crt_ids = $this->qsearchEval($crt, $qsr, $crt_qualifies, $crt_ignored_terms);
             }
 
             $modifier = $crt->modifier;
@@ -467,24 +463,17 @@ class Search
      *      'matching_cats_no_images' =>array(99) - matching categories without images
      *      )
      *    )
-     *
-     * @param string $q
-     * @param bool $super_order_by
-     * @param string $images_where optional additional restriction on images table
-     * @return array
      */
-    public static function get_quick_search_results($q, $options)
+    public function getQuickSearchResults(string $q, $options, array $filter = []): array
     {
-        return self::get_quick_search_results_no_cache($q, $options);
+        return $this->getQuickSearchResultsNoCache($q, $options, $filter);
     }
 
     /**
-     * @see get_quick_search_results but without result caching
+     * @see getQuickSearchResults but without result caching
      */
-    public static function get_quick_search_results_no_cache($q, $options)
+    public function getQuickSearchResultsNoCache(string $q, $options, array $filter = [])
     {
-        global $conf, $template, $conn, $userMapper, $filter;
-
         $q = trim(stripslashes($q));
         $search_results = [
             'items' => [],
@@ -508,7 +497,7 @@ class Search
 
         $createdDateAliases = ['taken', 'shot'];
         $postedDateAliases = ['added'];
-        if ($conf['calendar_datefield'] == 'date_creation') {
+        if ($this->conf['calendar_datefield'] === 'date_creation') {
             $createdDateAliases[] = 'date';
         } else {
             $postedDateAliases[] = 'date';
@@ -522,7 +511,7 @@ class Search
 
         // get inflections for terms
         $inflector = null;
-        $lang_code = ucfirst(substr($userMapper->getDefaultLanguage(), 0, 2));
+        $lang_code = ucfirst(substr($this->userMapper->getDefaultLanguage(), 0, 2));
         $class_name = '\Phyxo\Search\Inflector' . $lang_code;
         if (class_exists($class_name)) {
             $inflector = new $class_name;
@@ -543,14 +532,14 @@ class Search
         if (count($expression->stokens) == 0) {
             return $search_results;
         }
-        $qsr = new QResults;
-        self::qsearch_get_tags($expression, $qsr);
-        self::qsearch_get_images($expression, $qsr);
+        $qsr = new QResults();
+        $this->qsearchGetTags($expression, $qsr);
+        $this->qsearchGetImages($expression, $qsr);
 
         // allow plugins to evaluate their own scopes
         \Phyxo\Functions\Plugin::trigger_notify('qsearch_before_eval', $expression, $qsr);
 
-        $ids = self::qsearch_eval($expression, $qsr, $tmp, $search_results['qs']['unmatched_terms']);
+        $ids = $this->qsearchEval($expression, $qsr, $tmp, $search_results['qs']['unmatched_terms']);
 
         $debug[] = "<!--\nparsed: " . $expression;
         $debug[] = count($expression->stokens) . ' tokens';
@@ -566,22 +555,20 @@ class Search
 
         if (empty($ids)) {
             $debug[] = '-->';
-            if ($template->smarty->debugging) {
-                $template->append('footer_elements', implode("\n", $debug));
-            }
+
             return $search_results;
         }
 
         $permissions = !isset($options['permissions']) ? true : $options['permissions'];
 
         $where_clauses = [];
-        $where_clauses[] = 'i.id ' . $conn->in($ids);
+        $where_clauses[] = 'i.id ' . $this->em->getConnection()->in($ids);
         if (!empty($options['images_where'])) {
             $where_clauses[] = '(' . $options['images_where'] . ')';
         }
         if ($permissions) {
-            $where_clauses[] = (new BaseRepository($conn))->getSQLConditionFandF(
-                $userMapper->getUser(),
+            $where_clauses[] = $this->em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+                $this->userMapper->getUser(),
                 $filter,
                 [
                     'forbidden_categories' => 'category_id',
@@ -592,33 +579,27 @@ class Search
             );
         }
 
-        $result = (new ImageRepository($conn))->searchDistinctId('id', $where_clauses, $permissions, $conf['order_by']);
-        $ids = $conn->result2array($result, null, 'id');
+        $result = $this->em->getRepository(ImageRepository::class)->searchDistinctId('id', $where_clauses, $permissions, $this->conf['order_by']);
+        $ids = $this->em->getConnection()->result2array($result, null, 'id');
 
         $debug[] = count($ids) . ' final photo count -->';
-        $template->append('footer_elements', implode("\n", $debug));
 
         $search_results['items'] = $ids;
+
         return $search_results;
     }
 
     /**
      * Returns an array of 'items' corresponding to the search id.
      * It can be either a quick search or a regular search.
-     *
-     * @param int $search_id
-     * @param bool $super_order_by
-     * @param string $images_where optional aditional restriction on images table
-     * @return array
      */
-    public static function get_search_results($search_id, $super_order_by, $images_where = '')
+    public function getSearchResults(int $search_id, UserInterface $user, array $filter, bool $super_order_by, string $images_where = ''): array
     {
-        $search = self::get_search_array($search_id);
+        $search = $this->getSearchArray($search_id);
         if (!isset($search['q'])) {
-            $result['items'] = self::get_regular_search_results($search, $images_where);
-            return $result;
+            return ['items' => $this->getRegularSearchResults($search, $user, $filter, $images_where)];
         } else {
-            return self::get_quick_search_results($search['q'], ['super_order_by' => $super_order_by, 'images_where' => $images_where]);
+            return $this->getQuickSearchResults($search['q'], ['super_order_by' => $super_order_by, 'images_where' => $images_where], $filter);
         }
     }
 }

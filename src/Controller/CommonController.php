@@ -21,11 +21,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class CommonController extends AbstractController
 {
+    protected $language_load;
+
     public function addThemeParams(Template $template, Conf $conf, User $user, string $themesDir, string $phyxoVersion, string $phyxoWebsite): array
     {
         $tpl_params = [];
 
-        $language_load = Language::load_language(
+        $this->language_load = Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
             ['language' => $user->getLanguage(), 'return_vars' => true]
@@ -33,11 +35,14 @@ abstract class CommonController extends AbstractController
 
         $template->setRouter($this->get('router'));
         $template->setConf($conf);
-        $template->setLang($language_load['lang']);
-        $template->setLangInfo($language_load['lang_info']);
+        $template->setLang($this->language_load['lang']);
+        $template->setLangInfo($this->language_load['lang_info']);
         $template->postConstruct();
 
         // default theme
+        if (isset($this->image_std_params)) {
+            $template->setImageStandardParams($this->image_std_params);
+        }
         $template->setTheme(new Theme($themesDir, $this->getUser()->getTheme()));
 
         $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $phyxoVersion : '';

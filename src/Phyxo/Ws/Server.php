@@ -23,10 +23,11 @@ use Symfony\Component\Routing\RouterInterface;
 use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
+use App\DataMapper\SearchMapper;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $phyxoVersion, $conn, $em, $conf, $router, $image_std_params;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn, $em, $conf, $router, $image_std_params;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -104,6 +105,16 @@ class Server
     public function getRateMapper()
     {
         return $this->rateMapper;
+    }
+
+    public function setSearchMapper(SearchMapper $searchMapper)
+    {
+        $this->searchMapper = $searchMapper;
+    }
+
+    public function getSearchMapper(): SearchMapper
+    {
+        return $this->searchMapper;
     }
 
     public function setCoreVersion(string $phyxoVersion)

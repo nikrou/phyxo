@@ -20,7 +20,7 @@
 
 	<title>{if $PAGE_TITLE!=\Phyxo\Functions\Language::l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
 	<link rel="start" title="{'Home'|translate}" href="{$U_HOME}" >
-	<link rel="search" title="{'Search'|translate}" href="{$ROOT_URL}search.php">
+	<link rel="search" title="{'Search'|translate}" href="{path name="search"}">
 	{if isset($first.U_IMG)}
 	    <link rel="first" title="{'First'|translate}" href="{$first.U_IMG}">
 	{/if}
@@ -75,7 +75,7 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbar-menubar">
 			    {if $theme_config->quicksearch_navbar}
-				<form class="form-inline navbar-form ml-auto" role="search" action="{$ROOT_URL}qsearch.php" method="get" id="quicksearch" onsubmit="return this.q.value!='' && this.q.value!=qsearch_prompt;">
+				<form class="form-inline navbar-form ml-auto" role="search" action="{path name="qsearch"}" method="get" id="quicksearch" onsubmit="return this.q.value!='' && this.q.value!=qsearch_prompt;">
 				    <i class="fa fa-search" title="{'Search'|translate}" aria-hidden="true"></i>
 				    <div class="form-group">
 					<input type="text" name="q" id="qsearchInput" class="form-control" placeholder="{'Search'|translate}" />

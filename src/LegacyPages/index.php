@@ -90,7 +90,7 @@ if (count($page['items']) > 0) {
 $template->assign('TITLE', $template_title);
 
 // +-----------------------------------------------------------------------+
-// |  index page (categories, thumbnails, search, calendar, random, etc.)  |
+// |  index page (categories, thumbnails, calendar, random, etc.)  |
 // +-----------------------------------------------------------------------+
 if (empty($page['is_external']) or !$page['is_external']) {
     //----------------------------------------------------- template initialization
@@ -145,13 +145,6 @@ if (empty($page['is_external']) or !$page['is_external']) {
         }
     }
 
-    if ($page['section'] == 'search') {
-        $template->assign(
-            'U_SEARCH_RULES',
-            \Phyxo\Functions\URL::get_root_url() . 'search_rules.php?search_id=' . $page['search']
-        );
-    }
-
     if (isset($page['category']) and $userMapper->isAdmin()) {
         $template->assign(
             'U_EDIT',
@@ -164,33 +157,6 @@ if (empty($page['is_external']) or !$page['is_external']) {
             'U_CADDIE',
             \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::duplicate_index_url(), ['caddie' => 1])
         );
-    }
-
-    if ($page['section'] == 'search' && $page['start'] == 0 && !isset($page['chronology_field']) && isset($page['qsearch_details'])) {
-        $cats = array_merge(
-            (array)@$page['qsearch_details']['matching_cats_no_images'],
-            (array)@$page['qsearch_details']['matching_cats']
-        );
-        if (count($cats)) {
-            usort($cats, '\Phyxo\Functions\Utils::name_compare');
-            $hints = [];
-            foreach ($cats as $cat) {
-                $hints[] = $categoryMapper->getCatDisplayName([$cat]);
-            }
-            $template->assign('category_search_results', $hints);
-        }
-
-        $tags = (array)@$page['qsearch_details']['matching_tags'];
-        foreach ($tags as $tag) {
-            $tag['URL'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
-            $template->append('tag_search_results', $tag);
-        }
-
-        if (empty($page['items'])) {
-            $template->append('no_search_results', htmlspecialchars($page['qsearch_details']['q']));
-        } elseif (!empty($page['qsearch_details']['unmatched_terms'])) {
-            $template->assign('no_search_results', array_map($page['qsearch_details']['unmatched_terms'], 'htmlspecialchars'));
-        }
     }
 
     // image order

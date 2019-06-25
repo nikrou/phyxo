@@ -1,6 +1,6 @@
 {if isset($blocks.mbMenu->data.qsearch) and  $blocks.mbMenu->data.qsearch==true and !$theme_config->quicksearch_navbar}
     <div class="dropdown-header">
-        <form class="navbar-form" role="search" action="{$ROOT_URL}qsearch.php" method="get" id="quicksearch" onsubmit="return this.q.value!='';">
+        <form class="navbar-form" role="search" action="{path name="qsearch"}" method="get" id="quicksearch" onsubmit="return this.q.value!='';">
             <div class="form-group">
                 <input type="text" name="q" id="qsearchInput" class="form-control" placeholder="{'Quick search'|translate}" />
             </div>

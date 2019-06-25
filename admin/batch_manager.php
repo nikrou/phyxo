@@ -373,7 +373,7 @@ if (isset($_SESSION['bulk_manager_filter']['filesize'])) {
 }
 
 if (isset($_SESSION['bulk_manager_filter']['search']) && strlen($_SESSION['bulk_manager_filter']['search']['q'])) {
-    $res = \Phyxo\Functions\Search::get_quick_search_results_no_cache($_SESSION['bulk_manager_filter']['search']['q'], ['permissions' => false]);
+    $res = $searchMapper->getQuickSearchResultsNoCache($_SESSION['bulk_manager_filter']['search']['q'], ['permissions' => false]);
     if (!empty($res['items']) && !empty($res['qs']['unmatched_terms'])) {
         $template->assign('no_search_results', $res['qs']['unmatched_terms']);
     }

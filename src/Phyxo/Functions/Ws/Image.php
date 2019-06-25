@@ -264,7 +264,7 @@ class Image
             $super_order_by = true; // quick_search_result might be faster
         }
 
-        $search_result = \Phyxo\Functions\Search::get_quick_search_results(
+        $search_result = $service->getSearchMapper()->getQuickSearchResults(
             $params['query'],
             [
                 'super_order_by' => $super_order_by,

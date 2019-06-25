@@ -25,14 +25,15 @@ use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
+use App\DataMapper\SearchMapper;
 
 class AdminController extends Controller
 {
-    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $em, $router, $image_std_params;
+    protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $em, $router, $image_std_params;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
                         TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, EntityManager $em,
-                        RouterInterface $router, ImageStandardParams $image_std_params)
+                        RouterInterface $router, ImageStandardParams $image_std_params, SearchMapper $searchMapper)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -41,6 +42,7 @@ class AdminController extends Controller
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->rateMapper = $rateMapper;
+        $this->searchMapper = $searchMapper;
         $this->em = $em;
         $this->router = $router;
         $this->image_std_params = $image_std_params;
@@ -69,6 +71,8 @@ class AdminController extends Controller
         $userMapper = $this->userMapper;
         $categoryMapper = $this->categoryMapper;
         $rateMapper = $this->rateMapper;
+        $searchMapper = $this->searchMapper;
+
         $em = $this->em;
         $router = $this->router;
         $image_std_params = $this->image_std_params;

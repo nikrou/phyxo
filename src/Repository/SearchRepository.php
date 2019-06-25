@@ -25,8 +25,14 @@ class SearchRepository extends BaseRepository
     {
         $query = 'SElECT id FROM ' . self::SEARCH_TABLE;
         $query .= ' WHERE rules = \'' . $this->conn->db_real_escape_string($rules) . '\'';
+        $result = $this->conn->db_query($query);
+        $row = $this->conn->db_fetch_assoc($result);
 
-        return $this->conn->db_query($query);
+        if ($row !== false) {
+            return $row['id'];
+        } else {
+            return false;
+        }
     }
 
     public function updateLastSeen(int $id)
@@ -40,7 +46,7 @@ class SearchRepository extends BaseRepository
     {
         $query = 'INSERT INTO ' . self::SEARCH_TABLE;
         $query .= ' (rules, last_seen) VALUES (\'' . $rules . '\', NOW())';
-        $result = $this->conn->db_query($query);
+        $this->conn->db_query($query);
 
         return $this->conn->db_insert_id(self::SEARCH_TABLE);
     }
