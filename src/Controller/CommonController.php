@@ -21,6 +21,7 @@ use Phyxo\Functions\Language;
 abstract class CommonController extends AbstractController
 {
     protected $language_load;
+    protected $image_std_params;
 
     public function addThemeParams(Template $template, Conf $conf, User $user, string $themesDir, string $phyxoVersion, string $phyxoWebsite): array
     {

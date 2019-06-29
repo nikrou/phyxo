@@ -27,8 +27,9 @@ use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class WsController extends Controller
+class WsController extends AbstractController
 {
     private $service;
 

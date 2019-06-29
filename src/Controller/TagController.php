@@ -23,7 +23,6 @@ use App\DataMapper\ImageMapper;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
-use App\Router\RouterPageDispatch;
 
 class TagController extends CommonController
 {

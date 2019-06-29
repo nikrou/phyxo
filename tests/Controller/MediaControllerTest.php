@@ -23,7 +23,7 @@ class MediaContollerTest extends WebTestCase
         $client = static::createClient();
         $client->request(
             'GET',
-            "/media/$image_path",
+            "/media/$image_path"
         );
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
@@ -57,7 +57,7 @@ class MediaContollerTest extends WebTestCase
         $client = static::createClient();
         $client->request(
             'GET',
-            "/media/$image_path",
+            "/media/$image_path"
         );
 
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
@@ -77,7 +77,7 @@ class MediaContollerTest extends WebTestCase
 
         $client->request(
             'GET',
-            "/media/$image_path",
+            "/media/$image_path"
         );
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
 
@@ -86,7 +86,7 @@ class MediaContollerTest extends WebTestCase
         $this->assertTrue($image_std_params->hasCustom($custom));
         $client->request(
             'GET',
-            "/media/$image_path",
+            "/media/$image_path"
         );
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }

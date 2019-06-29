@@ -107,7 +107,7 @@ class Server
         return $this->rateMapper;
     }
 
-    public function setSearchMapper(SearchMapper $searchMapper)
+    public function addSearchMapper(SearchMapper $searchMapper)
     {
         $this->searchMapper = $searchMapper;
     }

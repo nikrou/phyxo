@@ -1,0 +1,27 @@
+favorites:
+  path: /favorites
+  controller: App\Controller\FavoriteController::index
+  defaults:
+    start: 0
+  requirements:
+    start: \d+
+
+favorites__start:
+  path: /favorites/start-{start}
+  controller: App\Controller\FavoriteController::index
+  defaults:
+    start: 0
+  requirements:
+    start: \d+
+
+add_to_favorites:
+  path: /add-to-favorites/{image_id}
+  controller: App\Controller\FavoriteController::add
+
+remove_from_favorites:
+  path: /remove-from-favorites/{image_id}
+  controller: App\Controller\FavoriteController::remove
+
+remove_all_favorites:
+  path: /remove-all-favorites
+  controller: App\Controller\FavoriteController::removeAll

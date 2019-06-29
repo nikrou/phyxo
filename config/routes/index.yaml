@@ -1,11 +1,3 @@
-favorites:
-  path: /favorites/{start_id}
-  controller: App\Controller\IndexController::favorites
-  defaults:
-    start_id: null
-  requirements:
-    start_id: start-\d+
-
 most_visited:
   path: /most_visited/{start_id}
   controller: App\Controller\IndexController::mostVisited

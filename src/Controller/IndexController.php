@@ -21,29 +21,6 @@ use Phyxo\Conf;
 
 class IndexController extends BaseController
 {
-    public function favorites(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/favorites";
-
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
-
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
-
-        // menuBar : inject items
-
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
-    }
-
     public function mostVisited(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
     {
         $this->csrfTokenManager = $csrfTokenManager;

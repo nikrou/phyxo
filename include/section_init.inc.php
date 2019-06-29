@@ -254,35 +254,6 @@ if ('categories' == $page['section']) {
                 'items' => $items,
             ]
         );
-    } elseif ($page['section'] == 'favorites') {
-        // +-----------------------------------------------------------------------+
-        // |                           favorite section                            |
-        // +-----------------------------------------------------------------------+
-        if ($user['forbidden_categories']) {
-            (new FavoriteRepository($conn))->deleteUnauthorizedImagesFromFavorites($app_user, $filter);
-        }
-
-        $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Favorites')]);
-
-        if (!empty($_GET['action']) && ($_GET['action'] == 'remove_all_from_favorites')) {
-            (new FavoriteRepository($conn))->removeAllFavorites($user['id']);
-            \Phyxo\Functions\Utils::redirect(\Phyxo\Functions\URL::make_index_url(['section' => 'favorites']));
-        } else {
-            $result = (new ImageRepository($conn))->getFavorites($app_user, $filter, $conf['order_by']);
-            $page = array_merge($page, ['items' => $conn->result2array($result, null, 'image_id')]);
-
-            if (count($page['items']) > 0) {
-                $template->assign(
-                    'favorite',
-                    [
-                        'U_FAVORITE' => \Phyxo\Functions\URL::add_url_params(
-                            \Phyxo\Functions\URL::make_index_url(['section' => 'favorites']),
-                            ['action' => 'remove_all_from_favorites']
-                        ),
-                    ]
-                );
-            }
-        }
     } elseif ($page['section'] == 'recent_pics') {
         // +-----------------------------------------------------------------------+
         // |                       recent pictures section                         |

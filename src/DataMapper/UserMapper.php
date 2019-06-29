@@ -53,6 +53,7 @@ class UserMapper
         $this->dataTransformer = $dataTransformer;
         $this->categoryMapper = $categoryMapper;
         $this->tagMapper = $tagMapper;
+        $this->defaultLanguage = $defaultLanguage;
     }
 
     public function getUser()
