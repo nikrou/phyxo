@@ -29,6 +29,17 @@ class URL
         return '';
     }
 
+    public static function tagToUrl(array $tag, string $tag_url_style = 'id-tag'): string
+    {
+        $url_tag = $tag['id'];
+
+        if (($tag_url_style === 'id-tag') && !empty($tag['url_name'])) {
+            $url_tag .= '-' . $tag['url_name'];
+        }
+
+        return $url_tag;
+    }
+
     /**
      * build an index URL for a specific section
      *

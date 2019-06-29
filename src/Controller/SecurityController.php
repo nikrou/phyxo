@@ -32,13 +32,14 @@ use App\Repository\UserRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Phyxo\Extension\Theme;
+use Symfony\Component\Routing\RouterInterface;
 
 class SecurityController extends AbstractController
 {
     private $conf;
     private $language_load = [];
 
-    public function __construct(Template $template, Conf $conf, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
+    public function __construct(Template $template, RouterInterface $router, Conf $conf, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
     {
         $this->conf = $conf;
 
@@ -47,6 +48,7 @@ class SecurityController extends AbstractController
             __DIR__ . '/../../',
             ['language' => $defaultLanguage, 'return_vars' => true]
         );
+        $template->setRouter($router);
         $template->setConf($conf);
         $template->setLang($this->language_load['lang']);
         $template->setLangInfo($this->language_load['lang_info']);

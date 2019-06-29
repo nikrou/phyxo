@@ -17,7 +17,6 @@ use App\Entity\User;
 use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Phyxo\Functions\Language;
-use Symfony\Component\HttpFoundation\Request;
 
 abstract class CommonController extends AbstractController
 {

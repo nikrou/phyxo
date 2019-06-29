@@ -10,10 +10,20 @@ search_rules:
   path:  /search_rules/{search_id}
   controller: App\Controller\SearchController::searchRules
 
-search_results:
-  path:  /search/{search_id}/{start_id}
+search_results__start:
+  path:  /search/{search_id}/start-{start}
   controller: App\Controller\SearchController::searchResults
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    start: \d+
+    search_id: \d+
+
+# same as search_results__start without start param
+search_results:
+  path:  /search/{search_id}
+  controller: App\Controller\SearchController::searchResults
+  defaults:
+    start: 0
+  requirements:
+    search_id: \d+

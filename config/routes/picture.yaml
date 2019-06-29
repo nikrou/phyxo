@@ -22,6 +22,7 @@ picture:
   defaults:
     extension: php
   requirements:
+    element_id: .+
     type: category|list|tags|search
 
 picture_by_type:

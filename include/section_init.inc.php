@@ -250,25 +250,8 @@ if ('categories' == $page['section']) {
         $page = array_merge(
             $page,
             [
-                'title' => \Phyxo\Functions\Utils::get_tags_content_title(),
+                'title' => \Phyxo\Functions\Utils::getTagsContentTitle($container->get('router'), $page['tags']),
                 'items' => $items,
-            ]
-        );
-    } elseif ($page['section'] == 'search') {
-        // +-----------------------------------------------------------------------+
-        // |                           search section                              |
-        // +-----------------------------------------------------------------------+
-        $search_result = \Phyxo\Functions\Search::get_search_results($page['search'], @$page['super_order_by']);
-        //save the details of the query search
-        if (isset($search_result['qs'])) {
-            $page['qsearch_details'] = $search_result['qs'];
-        }
-
-        $page = array_merge(
-            $page,
-            [
-                'items' => $search_result['items'],
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Search results') . '</a>'
             ]
         );
     } elseif ($page['section'] == 'favorites') {

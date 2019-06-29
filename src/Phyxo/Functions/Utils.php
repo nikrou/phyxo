@@ -32,6 +32,7 @@ use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class Utils
 {
@@ -501,31 +502,37 @@ class Utils
     public static function createNavigationBar(RouterInterface $router, string $route, array $query_params, int $nb_elements, int $start, int $nb_element_page, int $pages_around = 2): array
     {
         $navbar = [];
+        $start_param = 'start';
+        $route_with_start = $route . '__' . $start_param;
 
         if ($nb_elements > $nb_element_page) {
-            $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
-            $maximum = ceil($nb_elements / $nb_element_page);
+            try {
+                $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
+                $maximum = ceil($nb_elements / $nb_element_page);
 
-            $start = $nb_element_page * round($start / $nb_element_page);
-            $previous = $start - $nb_element_page;
-            $next = $start + $nb_element_page;
-            $last = ($maximum - 1) * $nb_element_page;
+                $start = $nb_element_page * round($start / $nb_element_page);
+                $previous = $start - $nb_element_page;
+                $next = $start + $nb_element_page;
+                $last = ($maximum - 1) * $nb_element_page;
 
-            if ($cur_page != 1) {
-                $navbar['URL_FIRST'] = $router->generate($route, $query_params);
-                $navbar['URL_PREV'] = $previous > 0 ? $router->generate($route, array_merge($query_params, ['start' => $previous])) : '';
-            }
-            if ($cur_page != $maximum) {
-                $navbar['URL_NEXT'] = $router->generate($route, array_merge($query_params, ['start' => $next < $last ? $next : $last]));
-                $navbar['URL_LAST'] = $router->generate($route, array_merge($query_params, ['start' => $last]));
-            }
+                if ($cur_page != 1) {
+                    $navbar['URL_FIRST'] = $router->generate($route, $query_params);
+                    $navbar['URL_PREV'] = $previous > 0 ? $router->generate($route_with_start, array_merge($query_params, [$start_param => $previous])) : '';
+                }
+                if ($cur_page != $maximum) {
+                    $navbar['URL_NEXT'] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $next < $last ? $next : $last]));
+                    $navbar['URL_LAST'] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $last]));
+                }
 
-            $navbar['pages'] = [];
-            $navbar['pages'][1] = $router->generate($route, array_merge($query_params, ['start' => 0]));
-            for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
-                $navbar['pages'][$i] = $router->generate($route, array_merge($query_params, ['start' => (($i - 1) * $nb_element_page)]));
+                $navbar['pages'] = [];
+                $navbar['pages'][1] = $router->generate($route_with_start, array_merge($query_params, [$start_param => 0]));
+                for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
+                    $navbar['pages'][$i] = $router->generate($route_with_start, array_merge($query_params, [$start_param => (($i - 1) * $nb_element_page)]));
+                }
+                $navbar['pages'][$maximum] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $last]));
+            } catch (RouteNotFoundException $e) {
+
             }
-            $navbar['pages'][$maximum] = $router->generate($route, array_merge($query_params, ['start' => $last]));
         }
 
         return $navbar;
@@ -849,6 +856,20 @@ class Utils
         return strcmp($cache[__FUNCTION__][$a['name']], $cache[__FUNCTION__][$b['name']]);
     }
 
+    public static function counter_compare($a, $b)
+    {
+        if ($a['counter'] == $b['counter']) {
+            return self::id_compare($a, $b);
+        }
+
+        return ($a['counter'] < $b['counter']) ? +1 : -1;
+    }
+
+    public static function id_compare($a, $b)
+    {
+        return ($a['id'] < $b['id']) ? -1 : 1;
+    }
+
     /**
      * Is the category accessible to the connected user ?
      * If the user is not authorized to see this category, script exits
@@ -908,34 +929,31 @@ class Utils
 
     /**
      * Returns the breadcrumb to be displayed above thumbnails on tag page.
-     *
-     * @return string
      */
-    public static function get_tags_content_title()
+    public static function getTagsContentTitle(RouterInterface $router, array $tags = []): string
     {
-        global $page;
-
-        $title = '<a href="' . \Phyxo\Functions\URL::get_root_url() . 'tags.php" title="' . \Phyxo\Functions\Language::l10n('display available tags') . '">';
-        $title .= \Phyxo\Functions\Language::l10n(count($page['tags']) > 1 ? 'Tags' : 'Tag');
+        $title = '<a href="' . $router->generate('tags') . '" title="' . Language::l10n('display available tags') . '">';
+        $title .= Language::l10n(count($tags) > 1 ? 'Tags' : 'Tag');
         $title .= '</a>&nbsp;';
 
-        for ($i = 0; $i < count($page['tags']); $i++) {
+        for ($i = 0; $i < count($tags); $i++) {
             $title .= $i > 0 ? ' + ' : '';
-            $title .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['tags' => [$page['tags'][$i]]]) . '"';
-            $title .= ' title="' . \Phyxo\Functions\Language::l10n('display photos linked to this tag') . '">';
-            $title .= \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $page['tags'][$i]['name'], $page['tags'][$i]);
+            $title .= '<a href="' . $router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]) . '"';
+            $title .= ' title="' . Language::l10n('display photos linked to this tag') . '">';
+            $title .= Plugin::trigger_change('render_tag_name', $tags[$i]['name'], $tags[$i]);
             $title .= '</a>';
 
-            if (count($page['tags']) > 2) {
-                $other_tags = $page['tags'];
+            if (count($tags) > 2) {
+                $other_tags = $tags;
                 unset($other_tags[$i]);
-                $remove_url = \Phyxo\Functions\URL::make_index_url(['tags' => $other_tags]);
+                $remove_url = $router->generate(
+                    'images_by_tags',
+                    ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', $other_tags))]
+                );
 
-                $title .= '<a href="' . $remove_url . '" style="border:none;" title="';
-                $title .= \Phyxo\Functions\Language::l10n('remove this tag from the list');
-                $title .= '"><img src="';
-                $title .= \Phyxo\Functions\URL::get_root_url() . \Phyxo\Functions\Theme::get_themeconf('icon_dir') . '/remove_s.png';
-                $title .= '" alt="x" style="vertical-align:bottom;">';
+                $title .= '<a href="' . $remove_url . '" title="';
+                $title .= Language::l10n('remove this tag from the list');
+                $title .= '"><i class="fa fa-remove"></i>';
                 $title .= '</a>';
             }
         }

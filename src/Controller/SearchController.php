@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Phyxo\MenuBar;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
@@ -29,6 +28,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\ImageMapper;
 use App\Repository\TagRepository;
 use Phyxo\Functions\DateTime;
+use Phyxo\Functions\Utils;
 
 class SearchController extends CommonController
 {
@@ -239,7 +239,7 @@ class SearchController extends CommonController
     }
 
     public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Template $template,
-                                    Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, $start_id = null)
+                                    Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, int $start = 0)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -276,7 +276,7 @@ class SearchController extends CommonController
 
             if (!empty($search_results['qsearch_details']['matching_tags'])) {
                 foreach ($search_results['qsearch_details']['matching_tags'] as $tag) {
-                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_id' => $tag['id']]);
+                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => $tag['id'] . '-' . $tag['url_name']]);
                     $tpl_params['tag_search_results'] = $tag;
                 }
             }
@@ -284,14 +284,23 @@ class SearchController extends CommonController
         }
 
         if (count($tpl_params['items']) > 0) {
-            $start = 0;
-            $nb_image_page = 8;
+            $nb_image_page = $this->getUser()->getNbImagePage();
+
+            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $this->get('router'),
+                'search_results',
+                ['search_id' => $search_id],
+                count($tpl_params['items']),
+                $start,
+                $nb_image_page,
+                $conf['paginate_pages_around']
+            );
 
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
                     array_slice($tpl_params['items'], $start, $nb_image_page),
-                    0,
+                    $search_id,
                     'search',
                     $start
                 )

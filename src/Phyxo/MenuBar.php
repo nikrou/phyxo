@@ -18,6 +18,7 @@ use App\DataMapper\CategoryMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use Phyxo\Functions\Tag;
+use Phyxo\Functions\URL;
 
 class MenuBar
 {
@@ -114,28 +115,26 @@ class MenuBar
     {
         if (($block = $this->menu->getBlock('mbTags')) != null) {
             if ($this->route === 'images_by_tags') {
-                $page_tags = [];
-
                 $tags = $this->tagMapper->getCommonTags(
                     $this->userMapper->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
-                    $this->tags
+                    array_map(function($tag) { return $tag['id'];}, $this->tags)
                 );
+
                 $tags = Tag::addLevelToTags($tags);
                 foreach ($tags as $tag) {
                     $block->data[] = array_merge(
                         $tag,
                         [
-                            'U_ADD' => \Phyxo\Functions\URL::make_index_url(
-                                [
-                                    'tags' => array_merge(
-                                        $page_tags,
-                                        [$tag]
-                                    )
-                                ]
+                            'U_ADD' => $this->router->generate(
+                                'images_by_tags',
+                                ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', array_merge($this->tags, [$tag])))]
                             ),
-                            'URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]),
+                            'URL' => $this->router->generate(
+                                'images_by_tags',
+                                ['tag_ids' => URL::tagToUrl($tag)]
+                            )
                         ]
                     );
                 }
@@ -143,28 +142,18 @@ class MenuBar
                 $tags = $this->tagMapper->getAvailableTags($this->userMapper->getUser());
                 foreach ($tags as $tag)
                 {
-                    // @TODO : deal with tag url format
-                    $tag_id = $tag['id'];
-                    if (isset($tag['url_name'])) {
-                        $tag_id .= '-' . $tag['url_name'];
-                    }
                     $block->data[] = array_merge(
-                        $tag,
-                        [
-                            'URL' => $this->router->generate('images_by_tags', ['tag_id' => $tag_id])
-                        ]
+                        $tag, ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])                        ]
                     );
                 }
             } else {
-                $start = 0; // @TODO: retrieve from context
-                $nb_image_page = 10; // @TODO: retrieve from context
-                $selection = array_slice($this->items, $start, $nb_image_page);
-
                 $tags = Tag::addLevelToTags(
-                    $this->tagMapper->getCommonTags($this->userMapper->getUser(), $selection, $this->conf['content_tag_cloud_items_number'])
+                    $this->tagMapper->getCommonTags($this->userMapper->getUser(), $this->items, $this->conf['content_tag_cloud_items_number'])
                 );
                 foreach ($tags as $tag) {
-                    $block->data[] = array_merge($tag, ['URL' => \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]])]);
+                    $block->data[] = array_merge(
+                        $tag, ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])                        ]
+                    );
                 }
             }
 
