@@ -26,7 +26,7 @@
 	{block name="header"}
 	    <header>
 		<nav class="navbar navbar-expand-lg navbar-dark">
-		    <a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Visit Gallery'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
+		    <a class="navbar-brand mr-auto" href="{$U_ADMIN}" title="{'Administration'|translate}"><i class="fa fa-home"></i> {$GALLERY_TITLE}</a>
 		    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse">
 			<i class="fa fa-align-justify"></i>
 		    </button>
