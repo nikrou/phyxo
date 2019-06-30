@@ -18,101 +18,199 @@ use App\Repository\BaseRepository;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
 use Phyxo\Conf;
+use Phyxo\Functions\Language;
+use App\DataMapper\ImageMapper;
+use Phyxo\Template\Template;
+use Phyxo\Image\ImageStandardParams;
+use Phyxo\Functions\Utils;
 
-class IndexController extends BaseController
+class IndexController extends CommonController
 {
-    public function mostVisited(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
+    public function mostVisited(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $this->image_std_params = $image_std_params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/most_visited";
-
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        // menuBar : inject items
+        $filter = [];
+        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+            $this->getUser(),
+            $filter,
+            [
+                'forbidden_categories' => 'category_id',
+                'visible_categories' => 'category_id',
+                'visible_images' => 'id'
+            ],
+            'AND'
+        );
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        $tpl_params['PAGE_TITLE'] = Language::l10n('Most visited');
+
+        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('id', ['hit > 0 ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
+        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        if (count($tpl_params['items']) > 0) {
+            $nb_image_page = $this->getUser()->getNbImagePage();
+
+            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $this->get('router'),
+                'most_visited',
+                [],
+                count($tpl_params['items']),
+                $start,
+                $nb_image_page,
+                $conf['paginate_pages_around']
+            );
+
+            $tpl_params = array_merge(
+                $tpl_params,
+                $imageMapper->getPicturesFromSelection(
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
+                    '',
+                    'most_visited',
+                    $start
+                )
+            );
+        }
+
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('thumbnails.tpl', $tpl_params);
     }
 
-    public function recentPics(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
+    public function recentPics(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $this->image_std_params = $image_std_params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/recent_pics";
-
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
 
         if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        // menuBar : inject items
+        $filter = [];
+        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+            $this->getUser(),
+            $filter,
+            [
+                'forbidden_categories' => 'category_id',
+                'visible_categories' => 'category_id',
+                'visible_images' => 'id'
+            ],
+            'AND'
+        );
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        $tpl_params['PAGE_TITLE'] = Language::l10n('Recent photos');
+        $result = $em->getRepository(ImageRepository::class)->searchDistinctId(
+            'id',
+            [$em->getRepository(BaseRepository::class)->getRecentPhotos($this->getUser(), 'date_available') . ' ' . $forbidden], true, $conf['order_by']
+        );
+        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+
+        if (count($tpl_params['items']) > 0) {
+            $nb_image_page = $this->getUser()->getNbImagePage();
+
+            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $this->get('router'),
+                'recent_pics',
+                [],
+                count($tpl_params['items']),
+                $start,
+                $nb_image_page,
+                $conf['paginate_pages_around']
+            );
+
+            $tpl_params = array_merge(
+                $tpl_params,
+                $imageMapper->getPicturesFromSelection(
+                array_slice($tpl_params['items'], $start, $nb_image_page),
+                '',
+                'recent_pics',
+                $start
+                )
+            );
+        }
+
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('thumbnails.tpl', $tpl_params);
     }
 
-    public function recentCats(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
+    public function bestRated(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $this->image_std_params = $image_std_params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/recent_cats";
-
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        // menuBar : inject items
+        $filter = [];
+        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+        $this->getUser(),
+        $filter,
+        [
+            'forbidden_categories' => 'category_id',
+            'visible_categories' => 'category_id',
+            'visible_images' => 'id'
+        ],
+        'AND'
+        );
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
-    }
+        $tpl_params['PAGE_TITLE'] = Language::l10n('Best rated');
 
-    public function bestRated(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
+        $super_order_by = true;
+        $order_by = ' ORDER BY rating_score DESC, id DESC';
 
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('id', ['rating_score IS NOT NULL ' . $forbidden], true, $order_by, $conf['top_number']);
+        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/best_rated";
+        if (count($tpl_params['items']) > 0) {
+            $nb_image_page = $this->getUser()->getNbImagePage();
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
+            $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                $this->get('router'),
+                'best_rated',
+                [],
+                count($tpl_params['items']),
+                $start,
+                $nb_image_page,
+                $conf['paginate_pages_around']
+            );
+
+            $tpl_params = array_merge(
+                $tpl_params,
+                $imageMapper->getPicturesFromSelection(
+                array_slice($tpl_params['items'], $start, $nb_image_page),
+                '',
+                'best_rated',
+                $start
+                )
+            );
         }
 
-        // menuBar : inject items
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        return $this->render('thumbnails.tpl', $tpl_params);
     }
 
     public function random(EntityManager $em, Conf $conf)
     {
         $filter = [];
-        $where_sql = ' ' . (new BaseRepository($em->getConnection()))->getSQLConditionFandF(
+        $where_sql = ' ' . $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
             $this->getUser(),
             $filter,
             [
@@ -132,22 +230,51 @@ class IndexController extends BaseController
         }
     }
 
-    public function randomList(string $legacyBaseDir, Request $request, $list, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
+    public function randomList(Request $request, EntityManager $em, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
+                                Template $template, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $this->image_std_params = $image_std_params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/list/$list";
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        // menuBar : inject items
+        $filter = [];
+        $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+            $this->getUser(),
+            $filter,
+            [
+                'forbidden_categories' => 'category_id',
+                'visible_categories' => 'category_id',
+                'visible_images' => 'id'
+            ],
+            'AND'
+        );
 
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        $tpl_params['PAGE_TITLE'] = Language::l10n('Random photos');
+        $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $list), $forbidden, $conf['order_by']);
+        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+
+        if (count($tpl_params['items']) > 0) {
+            $nb_image_page = $this->getUser()->getNbImagePage();
+
+            $tpl_params = array_merge(
+                $tpl_params,
+                $imageMapper->getPicturesFromSelection(
+                    array_slice($tpl_params['items'], $start, $nb_image_page),
+                    $list,
+                    'list',
+                    $start
+                )
+            );
+        }
+
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('thumbnails.tpl', $tpl_params);
     }
 }

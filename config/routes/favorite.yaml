@@ -1,13 +1,13 @@
-favorites:
-  path: /favorites
+favorites__start:
+  path: /favorites/start-{start}
   controller: App\Controller\FavoriteController::index
   defaults:
     start: 0
   requirements:
     start: \d+
 
-favorites__start:
-  path: /favorites/start-{start}
+favorites:
+  path: /favorites
   controller: App\Controller\FavoriteController::index
   defaults:
     start: 0

@@ -1,40 +1,62 @@
 most_visited:
-  path: /most_visited/{start_id}
+  path: /most_visited
   controller: App\Controller\IndexController::mostVisited
   defaults:
-    start_id: null
-  requirements:
-    start_id: start-\d+
+    start: 0
 
-recent_pics:
-  path: /recent_pics/{start_id}
+most_visited__start:
+  path: /most_visited/start-{start}
+  controller: App\Controller\IndexController::mostVisited
+  defaults:
+    start: 0
+  requirements:
+    start: \d+
+
+recent_pics__start:
+  path: /recent_pics/start-{start}
   controller: App\Controller\IndexController::recentPics
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    start: \d+
+
+recent_pics:
+  path: /recent_pics
+  controller: App\Controller\IndexController::recentPics
+  defaults:
+    start: 0
+
+recent_cats__start:
+  path: /recent_cats/start-{start}
+  controller: App\Controller\CategoryController::recentCats
+  defaults:
+    start: 0
+  requirements:
+    start_id: \d+
 
 recent_cats:
-  path: /recent_cats/{start_id}
-  controller: App\Controller\IndexController::recentCats
+  path: /recent_cats
+  controller: App\Controller\CategoryController::recentCats
   defaults:
-    start_id: null
-  requirements:
-    start_id: start-\d+
+    start: 0
 
-best_rated:
-  path: /best_rated/{start_id}
+best_rated__start:
+  path: /best_rated/start-{start}
   controller: App\Controller\IndexController::bestRated
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    start: \d+
+
+best_rated:
+  path: /best_rated
+  controller: App\Controller\IndexController::bestRated
+  defaults:
+    start: 0
 
 random:
-  path: /random.{extension}
+  path: /random
   controller: App\Controller\IndexController::random
-  defaults:
-    extension: php
 
 random_list:
   path: /list/{list}

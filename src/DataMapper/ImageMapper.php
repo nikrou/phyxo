@@ -78,7 +78,7 @@ class ImageMapper
                     [
                         'image_id' => $row['id'],
                         'type' => $section,
-                        'start_id' => 'start-' . $start_id,
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
                         'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
                     ]
                 );
@@ -107,7 +107,7 @@ class ImageMapper
                     [
                         'image_id' => $row['id'],
                         'type' => $section,
-                        'start_id' => 'start-' . $start_id
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : ''
                     ]
                 );
             }

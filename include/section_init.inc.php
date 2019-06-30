@@ -11,7 +11,6 @@
 
 use App\Repository\TagRepository;
 use App\Repository\CategoryRepository;
-use App\Repository\FavoriteRepository;
 use App\Repository\ImageRepository;
 use App\Repository\BaseRepository;
 
@@ -252,78 +251,6 @@ if ('categories' == $page['section']) {
             [
                 'title' => \Phyxo\Functions\Utils::getTagsContentTitle($container->get('router'), $page['tags']),
                 'items' => $items,
-            ]
-        );
-    } elseif ($page['section'] == 'recent_pics') {
-        // +-----------------------------------------------------------------------+
-        // |                       recent pictures section                         |
-        // +-----------------------------------------------------------------------+
-        if (!isset($page['super_order_by'])) {
-            $conf['order_by'] = str_replace(
-                'ORDER BY ',
-                'ORDER BY date_available DESC,',
-                $conf['order_by']
-            );
-        }
-
-        $result = (new ImageRepository($conn))->searchDistinctId(
-            'id',
-            [(new BaseRepository($conn))->getRecentPhotos($app_user, 'date_available') . ' ' . $forbidden],
-            true,
-            $conf['order_by']
-        );
-        $page = array_merge(
-            $page,
-            [
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>',
-                'items' => $conn->result2array($result, null, 'id')
-            ]
-        );
-    } elseif ($page['section'] == 'recent_cats') {
-        // +-----------------------------------------------------------------------+
-        // |                 recently updated categories section                   |
-        // +-----------------------------------------------------------------------+
-        $page = array_merge($page, ['title' => \Phyxo\Functions\Language::l10n('Recent albums')]);
-    } elseif ($page['section'] == 'most_visited') {
-        // +-----------------------------------------------------------------------+
-        // |                        most visited section                           |
-        // +-----------------------------------------------------------------------+
-        $page['super_order_by'] = true;
-        $conf['order_by'] = ' ORDER BY hit DESC, id DESC';
-
-        $result = (new ImageRepository($conn))->searchDistinctId('id', ['hit > 0 ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
-        $page = array_merge(
-            $page,
-            [
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Most visited') . '</a>',
-                'items' => $conn->result2array($result, null, 'id'),
-            ]
-        );
-    } elseif ($page['section'] == 'best_rated') {
-        // +-----------------------------------------------------------------------+
-        // |                          best rated section                           |
-        // +-----------------------------------------------------------------------+
-        $page['super_order_by'] = true;
-        $conf['order_by'] = ' ORDER BY rating_score DESC, id DESC';
-
-        $result = (new ImageRepository($conn))->searchDistinctId('id', ['rating_score IS NOT NULL ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
-        $page = array_merge(
-            $page,
-            [
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . $conf['top_number'] . ' ' . \Phyxo\Functions\Language::l10n('Best rated') . '</a>',
-                'items' => $conn->result2array($result, null, 'id'),
-            ]
-        );
-    } elseif ($page['section'] == 'list') {
-        // +-----------------------------------------------------------------------+
-        // |                             list section                              |
-        // +-----------------------------------------------------------------------+
-        $result = (new ImageRepository($conn))->findList($page['list'], $forbidden, $conf['order_by']);
-        $page = array_merge(
-            $page,
-            [
-                'title' => '<a href="' . \Phyxo\Functions\URL::duplicate_index_url(['start' => 0]) . '">' . \Phyxo\Functions\Language::l10n('Random photos') . '</a>',
-                'items' => $conn->result2array($result, null, 'id'),
             ]
         );
     }

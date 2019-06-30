@@ -1,26 +1,48 @@
-album:
-  path: /category/{category_id}/{start_id}
+album__start:
+  path: /category/{category_id}/start-{start}
   controller: App\Controller\AlbumController::album
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    start: \d+
 
-album_flat:
-  path: /category/{category_id}/flat/{start_id}
+album:
+  path: /category/{category_id}
   controller: App\Controller\AlbumController::album
   defaults:
-    start_id: null
+    start: 0
+
+album_flat__start:
+  path: /category/{category_id}/flat/start-{start}
+  controller: App\Controller\AlbumController::album
+  defaults:
+    start: 0
     extra_params: flat
   requirements:
-    start_id: start-\d+
+    start: \d+
 
-album_by_params:
-  path:  /categories/{extra_params}/{start_id}
+album_flat:
+  path: /category/{category_id}/flat
+  controller: App\Controller\AlbumController::album
+  defaults:
+    start: 0
+    extra_params: flat
+
+album_by_params__start:
+  path:  /categories/{extra_params}/start-{start}
   controller: App\Controller\AlbumController::albumByParams
   defaults:
-    start_id: null
+    start: 0
     extra_params: null
   requirements:
     extra_params: flat
-    start_id: start-\d+
+    start: \d+
+
+album_by_params:
+  path:  /categories/{extra_params}
+  controller: App\Controller\AlbumController::albumByParams
+  defaults:
+    start: 0
+    extra_params: null
+  requirements:
+    extra_params: flat

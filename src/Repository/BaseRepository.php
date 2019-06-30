@@ -146,7 +146,7 @@ class BaseRepository
      */
     public function getRecentPhotos(UserInterface $user, string $db_field): string
     {
-        if ($user->getLastPhotoDate()) {
+        if (!$user->getLastPhotoDate()) {
             return '0=1';
         }
 
