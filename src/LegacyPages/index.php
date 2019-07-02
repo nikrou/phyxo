@@ -209,13 +209,6 @@ if (empty($page['is_external']) or !$page['is_external']) {
     }
 
     //------------------------------------------------------ main part : thumbnails
-    if (0 == $page['start'] && !isset($page['flat']) && !isset($page['chronology_field']) && ('recent_cats' == $page['section'] or 'categories' == $page['section'])
-        && (!isset($page['category']['count_categories']) || $page['category']['count_categories'] > 0)) {
-        include(__DIR__ . '/category_cats.inc.php');
-
-        $template_filename = 'mainpage_categories';
-    }
-
     if (!empty($page['items'])) {
         $template->assign(
             $imageMapper->getPicturesFromSelection(

@@ -28,7 +28,7 @@ recent_pics:
 
 recent_cats__start:
   path: /recent_cats/start-{start}
-  controller: App\Controller\CategoryController::recentCats
+  controller: App\Controller\AlbumController::recentCats
   defaults:
     start: 0
   requirements:
@@ -36,7 +36,7 @@ recent_cats__start:
 
 recent_cats:
   path: /recent_cats
-  controller: App\Controller\CategoryController::recentCats
+  controller: App\Controller\AlbumController::recentCats
   defaults:
     start: 0
 

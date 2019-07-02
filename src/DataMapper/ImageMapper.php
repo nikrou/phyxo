@@ -35,7 +35,7 @@ class ImageMapper
         $this->image_std_params = $image_std_params;
     }
 
-    public function getPicturesFromSelection(array $selection = [], string $element_id, string $section = '', int $start_id = 0): array
+    public function getPicturesFromSelection(array $selection = [], $element_id, string $section = '', int $start_id = 0): array
     {
         $tpl_params = [];
 

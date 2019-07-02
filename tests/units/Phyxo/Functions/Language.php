@@ -17,7 +17,7 @@ use atoum;
 
 class Language extends atoum
 {
-    public function _testLoadLanguagePluginDescription()
+    public function testLoadLanguagePluginDescription()
     {
         // load plugin description file
         $plugin3_dir = PHPWG_PLUGINS_PATH . '/plugin3/';
@@ -27,7 +27,7 @@ class Language extends atoum
             ->isEqualTo('A simple description');
     }
 
-    public function _testLoadLanguageAboutPage()
+    public function testLoadLanguageAboutPage()
     {
         $theme3_dir = PHPWG_THEMES_PATH . '/theme3/';
 
@@ -36,7 +36,7 @@ class Language extends atoum
             ->isEqualTo('<p>This photo gallery is based on Phyxo.</p>' . "\n" . '<p><a href="https://www.phyxo.net">Visit the Phyxo website</a></p>');
     }
 
-    public function _testLoadLanguageCommonLang()
+    public function testLoadLanguageCommonLang()
     {
         // not existing language file
         $this

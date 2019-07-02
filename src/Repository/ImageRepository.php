@@ -195,7 +195,11 @@ class ImageRepository extends BaseRepository
         if ($permissions) {
             $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
         }
-        $query .= ' WHERE ' . implode(' AND ', $where);
+
+        if (!empty($where)) {
+            $query .= ' WHERE ' . implode(' AND ', $where);
+        }
+
         $query .= ' ' . $order_by;
 
         if (!is_null($limit)) {

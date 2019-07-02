@@ -508,18 +508,18 @@ class Utils
         if ($nb_elements > $nb_element_page) {
             try {
                 $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
-                $maximum = ceil($nb_elements / $nb_element_page);
+                $maximum = (int) ceil($nb_elements / $nb_element_page);
 
                 $start = $nb_element_page * round($start / $nb_element_page);
                 $previous = $start - $nb_element_page;
                 $next = $start + $nb_element_page;
                 $last = ($maximum - 1) * $nb_element_page;
 
-                if ($cur_page != 1) {
+                if ($cur_page > 1) {
                     $navbar['URL_FIRST'] = $router->generate($route, $query_params);
-                    $navbar['URL_PREV'] = $previous > 0 ? $router->generate($route, array_merge($query_params, [$start_param => $previous])) : '';
+                    $navbar['URL_PREV'] = $router->generate(($cur_page > 2 ? $route_with_start:$route), array_merge($query_params, [$start_param => $previous]));
                 }
-                if ($cur_page != $maximum) {
+                if ($cur_page < $maximum) {
                     $navbar['URL_NEXT'] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $next < $last ? $next : $last]));
                     $navbar['URL_LAST'] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $last]));
                 }
@@ -531,7 +531,7 @@ class Utils
                 }
                 $navbar['pages'][$maximum] = $router->generate($route_with_start, array_merge($query_params, [$start_param => $last]));
             } catch (RouteNotFoundException $e) {
-
+                // do something : route with start param probably not exists
             }
         }
 

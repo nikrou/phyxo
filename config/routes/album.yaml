@@ -1,3 +1,29 @@
+albums_flat__start:
+  path:  /categories/flat/start-{start}
+  controller: App\Controller\AlbumController::albumsFlat
+  defaults:
+    start: 0
+  requirements:
+    start: \d+
+
+albums_flat:
+  path:  /categories/flat
+  controller: App\Controller\AlbumController::albumsFlat
+  defaults:
+    start: 0
+
+albums__start:
+  path: /categories/start-{start}
+  controller: App\Controller\AlbumController::albums
+  requirements:
+    start: \d+
+
+albums:
+  path: /categories
+  controller: App\Controller\AlbumController::albums
+  defaults:
+    start: 0
+
 album__start:
   path: /category/{category_id}/start-{start}
   controller: App\Controller\AlbumController::album
@@ -14,7 +40,7 @@ album:
 
 album_flat__start:
   path: /category/{category_id}/flat/start-{start}
-  controller: App\Controller\AlbumController::album
+  controller: App\Controller\AlbumController::albumFlat
   defaults:
     start: 0
     extra_params: flat
@@ -23,26 +49,7 @@ album_flat__start:
 
 album_flat:
   path: /category/{category_id}/flat
-  controller: App\Controller\AlbumController::album
+  controller: App\Controller\AlbumController::albumFlat
   defaults:
     start: 0
-    extra_params: flat
-
-album_by_params__start:
-  path:  /categories/{extra_params}/start-{start}
-  controller: App\Controller\AlbumController::albumByParams
-  defaults:
-    start: 0
-    extra_params: null
-  requirements:
-    extra_params: flat
-    start: \d+
-
-album_by_params:
-  path:  /categories/{extra_params}
-  controller: App\Controller\AlbumController::albumByParams
-  defaults:
-    start: 0
-    extra_params: null
-  requirements:
     extra_params: flat

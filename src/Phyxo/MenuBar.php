@@ -105,7 +105,7 @@ class MenuBar
             $block->data = [
                 'NB_PICTURE' => $this->userMapper->getUser()->getNbTotalImages(),
                 'MENU_CATEGORIES' => $this->categoryMapper->getRecursiveCategoriesMenu($this->userMapper->getUser(), []),
-                'U_CATEGORIES' => $this->router->generate('album_by_params'),
+                'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ];
             $block->template = 'menubar_categories.tpl';
         }
