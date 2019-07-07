@@ -1,53 +1,88 @@
-#/categories/(created|posted)-monthly-(list|calendar)/{start_id}
-#/categories/(created|posted)-monthly-(list|calendar)-YEAR/{start_id}
-#/categories/(created|posted)-monthly-(list|calendar)-YEAR-MONTH/{start_id}
-#/categories/(created|posted)-monthly-(list|calendar)-YEAR-MONTH-DAY/{start_id}
+# start param is managed by Utils::createNavigationBar
+#/categories/(created|posted)-monthly-(list|calendar)/start-{start}
+#/categories/(created|posted)-monthly-(list|calendar)-YEAR/start-{start}
+#/categories/(created|posted)-monthly-(list|calendar)-YEAR-MONTH/start-{start}
+#/categories/(created|posted)-monthly-(list|calendar)-YEAR-MONTH-DAY/start-{start}
 
-#/categories/(created|posted)-weekly-list/{start_id}
-#/categories/(created|posted)-weekly-list-YEAR/{start_id}
-#/categories/(created|posted)-weekly-list-YEAR-WEEK/{start_id}
-#/categories/(created|posted)-weekly-list-YEAR-WEEK-WDAY/{start_id}
+#/categories/(created|posted)-weekly-list/start-{start}
+#/categories/(created|posted)-weekly-list-YEAR/start-{start}
+#/categories/(created|posted)-weekly-list-YEAR-WEEK/start-{start}
+#/categories/(created|posted)-weekly-list-YEAR-WEEK-WDAY/start-{start}
 
-calendar_categories_monthly:
-  path: /categories/{date_type}-monthly-{view_type}/{start_id}
+calendar_categories_monthly__start:
+  path: /categories/{date_type}-monthly-{view_type}/start-{start}
   controller: App\Controller\CalendarController::categoriesMonthly
-  defaults:
-    start_id: null
   requirements:
-    start_id: start-\d+
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
 
-calendar_categories_monthly_year:
-  path: /categories/{date_type}-monthly-{view_type}-{year}/{start_id}
+calendar_categories_monthly:
+  path: /categories/{date_type}-monthly-{view_type}
   controller: App\Controller\CalendarController::categoriesMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+
+calendar_categories_monthly_year__start:
+  path: /categories/{date_type}-monthly-{view_type}-{year}/start-{start}
+  controller: App\Controller\CalendarController::categoriesMonthly
+  requirements:
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
 
-calendar_categories_monthly_year_month:
-  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}/{start_id}
+calendar_categories_monthly_year:
+  path: /categories/{date_type}-monthly-{view_type}-{year}
   controller: App\Controller\CalendarController::categoriesMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+
+calendar_categories_monthly_year_month__start:
+  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}/start-{start}
+  controller: App\Controller\CalendarController::categoriesMonthly
+  requirements:
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
     month: \d{1,2}
 
-calendar_categories_monthly_year_month_day:
-  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}-{day}/{start_id}
+calendar_categories_monthly_year_month:
+  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}
   controller: App\Controller\CalendarController::categoriesMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+
+calendar_categories_monthly_year_month_day__start:
+  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}-{day}/start-{start}
+  controller: App\Controller\CalendarController::categoriesMonthly
+  requirements:
+    start: \d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+calendar_categories_monthly_year_month_day:
+  path: /categories/{date_type}-monthly-{view_type}-{year}-{month}-{day}
+  controller: App\Controller\CalendarController::categoriesMonthly
+  defaults:
+    start: 0
+  requirements:
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
@@ -55,43 +90,67 @@ calendar_categories_monthly_year_month_day:
     day: \d{1,2}
 
 # no view_type calendar when navigation is by week
-calendar_categories_weekly:
-  path: /categories/{date_type}-weekly-list/{start_id}
+calendar_categories_weekly__start:
+  path: /categories/{date_type}-weekly-list/start-{start}
   controller: App\Controller\CalendarController::categoriesWeekly
-  defaults:
-    start_id: null
   requirements:
-    start_id: start-\d+
+    start: \d+
     date_type: created|posted
 
-calendar_categories_weekly_year:
-  path: /categories/{date_type}-weekly-list-{year}/{start_id}
+calendar_categories_weekly:
+  path: /categories/{date_type}-weekly-list
   controller: App\Controller\CalendarController::categoriesWeekly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+
+calendar_categories_weekly_year__start:
+  path: /categories/{date_type}-weekly-list-{year}/start-{start}
+  controller: App\Controller\CalendarController::categoriesWeekly
+  defaults:
+    week: 0
+  requirements:
+    start: \d+
+    date_type: created|posted
+    year: \d{4}
+
+calendar_categories_weekly_year:
+  path: /categories/{date_type}-weekly-list-{year}
+  controller: App\Controller\CalendarController::categoriesWeekly
+  defaults:
+    start: 0
+    week: 0
+  requirements:
     date_type: created|posted
     year: \d{4}
 
 calendar_categories_weekly_year_week:
-  path: /categories/{date_type}-weekly-list-{year}-{week}/{start_id}
+  path: /categories/{date_type}-weekly-list-{year}-{week}
   controller: App\Controller\CalendarController::categoriesWeekly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
     date_type: created|posted
     year: \d{4}
     week: \d{1,2}
 
+calendar_categories_weekly_year_week_wday__start:
+  path: /categories/{date_type}-weekly-list-{year}-{week}-{wday}/start-{start}
+  controller: App\Controller\CalendarController::categoriesWeekly
+  requirements:
+    start: \d+
+    date_type: created|posted
+    year: \d{4}
+    week: \d{1,2}
+    wday: 0|1|2|3|4|5|6
+
 calendar_categories_weekly_year_week_wday:
-  path: /categories/{date_type}-weekly-list-{year}-{week}-{wday}/{start_id}
+  path: /categories/{date_type}-weekly-list-{year}-{week}-{wday}
   controller: App\Controller\CalendarController::categoriesWeekly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
     date_type: created|posted
     year: \d{4}
     week: \d{1,2}
@@ -99,56 +158,90 @@ calendar_categories_weekly_year_week_wday:
 
 # by single category
 
-#/category/{category_id}/(created|posted)-monthly-(list|calendar)/{start_id}
-#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR/{start_id}
-#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR-MONTH/{start_id}
-#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR-MONTH-DAY/{start_id}
+#/category/{category_id}/(created|posted)-monthly-(list|calendar)/start-{start}
+#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR/start-{start}
+#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR-MONTH/start-{start}
+#/category/{category_id}/(created|posted)-monthly-(list|calendar)-YEAR-MONTH-DAY/start-{start}
 
-#/category/{category_id}/(created|posted)-weekly-list/{start_id}
-#/category/{category_id}/(created|posted)-weekly-list-YEAR/{start_id}
-#/category/{category_id}/(created|posted)-weekly-list-YEAR-WEEK/{start_id}
-#/category/{category_id}/(created|posted)-weekly-list-YEAR-WEEK-WDAY/{start_id}
+#/category/{category_id}/(created|posted)-weekly-list/start-{start}
+#/category/{category_id}/(created|posted)-weekly-list-YEAR/start-{start}
+#/category/{category_id}/(created|posted)-weekly-list-YEAR-WEEK/start-{start}
+#/category/{category_id}/(created|posted)-weekly-list-YEAR-WEEK-WDAY/start-{start}
 
-calendar_category_monthly:
-  path: /category/{category_id}/{date_type}-monthly-{view_type}/{start_id}
+calendar_category_monthly__start:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}/start-{start}
   controller: App\Controller\CalendarController::categoryMonthly
-  defaults:
-    start_id: null
   requirements:
-    start_id: start-\d+
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
 
-calendar_category_monthly_year:
-  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}/{start_id}
+calendar_category_monthly:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}
   controller: App\Controller\CalendarController::categoryMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+
+calendar_category_monthly_year__start:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}/start-{start}
+  controller: App\Controller\CalendarController::categoryMonthly
+  requirements:
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
 
-calendar_category_monthly_year_month:
-  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}/{start_id}
+calendar_category_monthly_year:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}
   controller: App\Controller\CalendarController::categoryMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+
+calendar_category_monthly_year_month__start:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}/start-{start}
+  controller: App\Controller\CalendarController::categoryMonthly
+  requirements:
+    start: \d+
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
     month: \d{1,2}
 
-calendar_category_monthly_year_month_day:
-  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}-{day}/{start_id}
+calendar_category_monthly_year_month:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}
   controller: App\Controller\CalendarController::categoryMonthly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+
+calendar_category_monthly_year_month_day__start:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}-{day}/start-{start}
+  controller: App\Controller\CalendarController::categoryMonthly
+  requirements:
+    start: \d+
+    date_type: created|posted
+    view_type: list|calendar
+    year: \d{4}
+    month: \d{1,2}
+    day: \d{1,2}
+
+calendar_category_monthly_year_month_day:
+  path: /category/{category_id}/{date_type}-monthly-{view_type}-{year}-{month}-{day}
+  controller: App\Controller\CalendarController::categoryMonthly
+  defaults:
+    start: 0
+  requirements:
     date_type: created|posted
     view_type: list|calendar
     year: \d{4}
@@ -156,43 +249,76 @@ calendar_category_monthly_year_month_day:
     day: \d{1,2}
 
 # no view_type calendar when navigation is by week
-calendar_category_weekly:
-  path: /category/{category_id}/{date_type}-weekly-list/{start_id}
+calendar_category_weekly__start:
+  path: /category/{category_id}/{date_type}-weekly-list/start-{start}
   controller: App\Controller\CalendarController::categoryWeekly
   defaults:
-    start_id: null
+    week: 0
   requirements:
-    start_id: start-\d+
+    start: \d+
     date_type: created|posted
 
-calendar_category_weekly_year:
-  path: /category/{category_id}/{date_type}-weekly-list-{year}/{start_id}
+calendar_category_weekly:
+  path: /category/{category_id}/{date_type}-weekly-list
   controller: App\Controller\CalendarController::categoryWeekly
   defaults:
-    start_id: null
+    start: 0
+    week: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+
+calendar_category_weekly_year__start:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}/start-{start}
+  controller: App\Controller\CalendarController::categoryWeekly
+  requirements:
+    start: \d+
     date_type: created|posted
     year: \d{4}
 
-calendar_category_weekly_year_week:
-  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}/{start_id}
+calendar_category_weekly_year:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}
   controller: App\Controller\CalendarController::categoryWeekly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    year: \d{4}
+
+calendar_category_weekly_year_week__start:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}/start-{start}
+  controller: App\Controller\CalendarController::categoryWeekly
+  requirements:
+    start: \d+
     date_type: created|posted
     year: \d{4}
     week: \d{1,2}
 
-calendar_category_weekly_year_week_wday:
-  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}-{wday}/{start_id}
+calendar_category_weekly_year_week:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}
   controller: App\Controller\CalendarController::categoryWeekly
   defaults:
-    start_id: null
+    start: 0
   requirements:
-    start_id: start-\d+
+    date_type: created|posted
+    year: \d{4}
+    week: \d{1,2}
+
+calendar_category_weekly_year_week_wday__start:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}-{wday}/start-{start}
+  controller: App\Controller\CalendarController::categoryWeekly
+  requirements:
+    start: \d+
+    date_type: created|posted
+    year: \d{4}
+    week: \d{1,2}
+    wday: 0|1|2|3|4|5|6
+
+calendar_category_weekly_year_week_wday:
+  path: /category/{category_id}/{date_type}-weekly-list-{year}-{week}-{wday}
+  controller: App\Controller\CalendarController::categoryWeekly
+  defaults:
+    start: 0
+  requirements:
     date_type: created|posted
     year: \d{4}
     week: \d{1,2}

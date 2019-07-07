@@ -22,7 +22,7 @@ class EntityManager
         $this->conn = $conn;
     }
 
-    public function getConnection()
+    public function getConnection(): iDBLayer
     {
         return $this->conn;
     }

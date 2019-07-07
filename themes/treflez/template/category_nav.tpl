@@ -1,10 +1,22 @@
 <nav class="navbar navbar-expand-lg navbar-contextual {$theme_config->navbar_contextual_style} {$theme_config->navbar_contextual_bg}{if $theme_config->page_header == 'fancy' && $theme_config->page_header_both_navs} navbar-transparent navbar-sm{/if} sticky-top mb-2">
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
         <div class="navbar-brand mr-auto">
-	    {if isset($chronology.TITLE)}
-                <a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>{$LEVEL_SEPARATOR}{$chronology.TITLE}
+	    {if is_array($TITLE)}
+		<a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>
+		{foreach $TITLE as $breadcrum_element}
+		    {$LEVEL_SEPARATOR}
+		    {if $breadcrum_element.url}
+			<a href="{$breadcrum_element.url}">{$breadcrum_element.label}</a>
+		    {else}
+			<span>{$breadcrum_element.label}</span>
+		    {/if}
+		{/foreach}
 	    {else}
-                <div class="nav-breadcrumb d-inline-flex">{$TITLE}</div>
+		{if isset($chronology.TITLE)}
+                    <a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>{$LEVEL_SEPARATOR}{$chronology.TITLE}
+		{else}
+                    <div class="nav-breadcrumb d-inline-flex">{$TITLE}</div>
+		{/if}
 	    {/if}
         </div>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">

@@ -12,141 +12,457 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Phyxo\Template\Template;
+use Phyxo\Conf;
+use Phyxo\MenuBar;
+use Phyxo\Functions\Language;
+use Phyxo\Calendar\CalendarMonthly;
+use Phyxo\EntityManager;
+use Phyxo\Image\ImageStandardParams;
+use App\Repository\BaseRepository;
+use App\DataMapper\ImageMapper;
+use Phyxo\Calendar\CalendarWeekly;
+use Phyxo\Functions\Utils;
 
-class CalendarController extends BaseController
+class CalendarController extends CommonController
 {
-    public function categoriesMonthly(string $legacyBaseDir, Request $request, string $date_type, string $view_type, CsrfTokenManagerInterface $csrfTokenManager)
+    public function categoriesMonthly(Request $request, string $date_type, string $view_type, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
+                                        EntityManager $em, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/categories/%s-monthly-%s', $date_type, $view_type);
 
+        $this->loadLanguage($this->getUser());
+        $this->image_std_params = $image_std_params;
+
+        $tpl_params['PAGE_TITLE'] = 'Calendar';
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        $tpl_params['chronology_views'] = [
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'list']),
+                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'SELECTED' => $view_type === 'list',
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'calendar']),
+                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'SELECTED' => $view_type === 'calendar',
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_weekly', ['date_type' => $date_type]),
+                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'SELECTED' => false,
+            ],
+        ];
+
+        $filter = [];
+        $calendar = new CalendarMonthly($em->getConnection(), $date_type);
+        $chronology_date = [];
         if ($year = $request->get('year')) {
-            $_SERVER['PATH_INFO'] .= '-' . $year;
+            $chronology_date[] = $year;
         }
 
         if ($month = $request->get('month')) {
-            $_SERVER['PATH_INFO'] .= '-' . $month;
+            $chronology_date[] = $month;
         }
 
         if ($day = $request->get('day')) {
-            $_SERVER['PATH_INFO'] .= '-' . $day;
+            $chronology_date[] = $day;
+        }
+        $calendar->setChronologyDate($chronology_date);
+
+        $calendar->setRouter($this->get('router'));
+        $calendar->setConf($conf);
+        $calendar->setTemplate($template);
+        $calendar->setViewType($view_type);
+        $calendar->setLang($this->language_load['lang']);
+        $calendar->setImageStandardParams($image_std_params);
+        $calendar->findByCondition(
+            $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+                $this->getUser(),
+                $filter,
+                [
+
+                    'forbidden_categories' => 'category_id',
+                    'visible_categories' => 'category_id',
+                    'visible_images' => 'id'
+                ],
+                '',
+                true
+            )
+        );
+
+        if ($calendar->generateCategoryContent()) {
+            $tpl_params['items'] = [];
+        } else {
+            $order_by = $conf['order_by'];
+            $tpl_params['items'] = $calendar->getItems($order_by);
+
+            if (count($tpl_params['items']) > 0) {
+                $nb_image_page = $this->getUser()->getNbImagePage();
+
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'calendar_categories_monthly',
+                    ['date_type' => $date_type, 'view_type' => $view_type],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+
+                $tpl_params = array_merge(
+                    $tpl_params,
+                    $imageMapper->getPicturesFromSelection(
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
+                        '',
+                        'calendar_categories',
+                        $start
+                    )
+                );
+            }
         }
 
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => $view_type]);
+
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('month_calendar.tpl', $tpl_params);
+    }
+
+    public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+                                    ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0)
+    {
+        $tpl_params = [];
+        $this->image_std_params = $image_std_params;
+        $this->loadLanguage($this->getUser());
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
-    }
+        $tpl_params['chronology_views'] = [
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'list']),
+                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'SELECTED' => false,
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'calendar']),
+                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'SELECTED' => false,
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_categories_weekly', ['date_type' => $date_type]),
+                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'SELECTED' => true,
+            ],
+        ];
 
-    public function categoriesWeekly(string $legacyBaseDir, Request $request, string $date_type, CsrfTokenManagerInterface $csrfTokenManager)
-    {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/categories/%s-weekly-list', $date_type);
-
+        $filter = [];
+        $calendar = new CalendarWeekly($em->getConnection(), $date_type);
+        $chronology_date = [];
         if ($year = $request->get('year')) {
-            $_SERVER['PATH_INFO'] .= '-' . $year;
+            $chronology_date[] = $year;
         }
 
         if ($week = $request->get('week')) {
-            $_SERVER['PATH_INFO'] .= '-' . $week;
+            $chronology_date[] = $week;
         }
 
         if ($wday = $request->get('wday')) {
-            $_SERVER['PATH_INFO'] .= '-' . $wday;
+            $chronology_date[] = $wday;
+        }
+        $calendar->setChronologyDate($chronology_date);
+        if ($week) {
+            $calendar->setWeek($week);
         }
 
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        $calendar->setRouter($this->get('router'));
+        $calendar->setConf($conf);
+        $calendar->setTemplate($template);
+        $calendar->setViewType('list');
+        $calendar->setLang($this->language_load['lang']);
+        $calendar->setImageStandardParams($image_std_params);
+        $calendar->findByCondition(
+            $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
+                $this->getUser(),
+                $filter,
+                [
+
+                    'forbidden_categories' => 'category_id',
+                    'visible_categories' => 'category_id',
+                    'visible_images' => 'id'
+                ],
+                '',
+                true
+            )
+        );
+
+        if ($calendar->generateCategoryContent()) {
+            $tpl_params['items'] = [];
+        } else {
+            $order_by = $conf['order_by'];
+            $tpl_params['items'] = $calendar->getItems($order_by);
+
+            if (count($tpl_params['items']) > 0) {
+                $nb_image_page = $this->getUser()->getNbImagePage();
+
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'calendar_categories_weekly',
+                    ['date_type' => $date_type],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+
+                $tpl_params = array_merge(
+                    $tpl_params,
+                    $imageMapper->getPicturesFromSelection(
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
+                        3,
+                        'calendar_categories',
+                        $start
+                    )
+                );
+            }
         }
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_weekly', ['date_type' => $date_type]);
 
-        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('month_calendar.tpl', $tpl_params);
     }
 
-    public function categoryMonthly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, string $view_type, CsrfTokenManagerInterface $csrfTokenManager)
+    public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
+                                    string $phyxoWebsite, MenuBar $menuBar, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/category/%d/%s-monthly-%s', $category_id, $date_type, $view_type);
 
+        $this->loadLanguage($this->getUser());
+        $this->image_std_params = $image_std_params;
+
+        $tpl_params['PAGE_TITLE'] = 'Calendar';
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+
+        $tpl_params['chronology_views'] = [
+            [
+                'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'SELECTED' => $view_type === 'list',
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'calendar', 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'SELECTED' => $view_type === 'calendar',
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'SELECTED' => false,
+            ],
+        ];
+
+        $filter = [];
+        $calendar = new CalendarMonthly($em->getConnection(), $date_type);
+        $chronology_date = [];
         if ($year = $request->get('year')) {
-            $_SERVER['PATH_INFO'] .= '-' . $year;
+            $chronology_date[] = $year;
         }
 
         if ($month = $request->get('month')) {
-            $_SERVER['PATH_INFO'] .= '-' . $month;
+            $chronology_date[] = $month;
         }
 
         if ($day = $request->get('day')) {
-            $_SERVER['PATH_INFO'] .= '-' . $day;
+            $chronology_date[] = $day;
         }
+        $calendar->setChronologyDate($chronology_date);
 
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
+        $calendar->setRouter($this->get('router'));
+        $calendar->setConf($conf);
+        $calendar->setTemplate($template);
+        $calendar->setViewType($view_type);
+        $calendar->setLang($this->language_load['lang']);
+        $calendar->setImageStandardParams($image_std_params);
+        $calendar->findByConditionAndCategory(
+            $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),
+            $category_id,
+            $this->getUser()->getForbiddenCategories()
+        );
+
+        if ($calendar->generateCategoryContent()) {
+            $tpl_params['items'] = [];
+        } else {
+            $order_by = $conf['order_by'];
+            $tpl_params['items'] = $calendar->getItems($order_by);
+
+            if (count($tpl_params['items']) > 0) {
+                $nb_image_page = $this->getUser()->getNbImagePage();
+
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'calendar_category_monthly',
+                    ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+
+                $tpl_params = array_merge(
+                    $tpl_params,
+                    $imageMapper->getPicturesFromSelection(
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
+                        '',
+                        'calendar_category',
+                        $start
+                    )
+                );
+            }
         }
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id]);
 
-        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        return $this->render('month_calendar.tpl', $tpl_params);
     }
 
-    public function categoryWeekly(string $legacyBaseDir, Request $request, int $category_id, string $date_type, CsrfTokenManagerInterface $csrfTokenManager)
+    public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
+                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, EntityManager $em, int $start = 0)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-        
         $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
+        $this->loadLanguage($this->getUser());
+        $this->image_std_params = $image_std_params;
+
+        $tpl_params['PAGE_TITLE'] = 'Calendar';
+
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = sprintf('/category/%d/%s-weekly-list', $category_id, $date_type);
-        
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        $chronology_date = [];
         if ($year = $request->get('year')) {
-            $_SERVER['PATH_INFO'] .= '-' . $year;
+            $chronology_date[] = $year;
+        }
+
+        if ($month = $request->get('month')) {
+            $chronology_date[] = $month;
+        }
+
+        if ($day = $request->get('day')) {
+            $chronology_date[] = $day;
+        }
+
+        if ($request->cookies->has('category_view')) {
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        $tpl_params['chronology_views'] = [
+            [
+                'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'SELECTED' => false,
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'calendar', 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'SELECTED' => false,
+            ],
+            [
+                'VALUE' => $this->generateUrl('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]),
+                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'SELECTED' => true,
+            ],
+        ];
+
+        $filter = [];
+        $calendar = new CalendarWeekly($em->getConnection(), $date_type);
+        $chronology_date = [];
+        if ($year = $request->get('year')) {
+            $chronology_date[] = $year;
         }
 
         if ($week = $request->get('week')) {
-            $_SERVER['PATH_INFO'] .= '-' . $week;
+            $chronology_date[] = $week;
         }
 
         if ($wday = $request->get('wday')) {
-            $_SERVER['PATH_INFO'] .= '-' . $wday;
+            $chronology_date[] = $wday;
+        }
+        $calendar->setChronologyDate($chronology_date);
+        if ($week) {
+            $calendar->setWeek($week);
+        }
+        $calendar->setRouter($this->get('router'));
+        $calendar->setConf($conf);
+        $calendar->setTemplate($template);
+        $calendar->setViewType('list');
+        $calendar->setLang($this->language_load['lang']);
+        $calendar->setImageStandardParams($image_std_params);
+        $calendar->findByConditionAndCategory(
+            $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),
+            $category_id,
+            $this->getUser()->getForbiddenCategories()
+        );
+
+        if ($calendar->generateCategoryContent()) {
+            $tpl_params['items'] = [];
+        } else {
+            $order_by = $conf['order_by'];
+            $tpl_params['items'] = $calendar->getItems($order_by);
+
+            if (count($tpl_params['items']) > 0) {
+                $nb_image_page = $this->getUser()->getNbImagePage();
+
+                $tpl_params['thumb_navbar'] = Utils::createNavigationBar(
+                    $this->get('router'),
+                    'calendar_category_monthly',
+                    ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id],
+                    count($tpl_params['items']),
+                    $start,
+                    $nb_image_page,
+                    $conf['paginate_pages_around']
+                );
+
+                $tpl_params = array_merge(
+                    $tpl_params,
+                    $imageMapper->getPicturesFromSelection(
+                        array_slice($tpl_params['items'], $start, $nb_image_page),
+                        3,
+                        'calendar_category',
+                        $start
+                    )
+                );
+            }
         }
 
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]);
 
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
+        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
+        $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        return $this->doResponse($legacy_file, 'month_calendar.tpl', $tpl_params);
+        return $this->render('month_calendar.tpl', $tpl_params);
     }
 }

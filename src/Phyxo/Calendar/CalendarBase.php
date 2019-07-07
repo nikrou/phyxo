@@ -15,12 +15,19 @@ use App\Repository\ImageRepository;
 use App\Repository\CategoryRepository;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Image\ImageStandardParams;
+use Phyxo\Template\Template;
+use Phyxo\Conf;
+use Symfony\Component\Routing\RouterInterface;
+use Phyxo\Functions\Language;
 
 /**
  * Base class for monthly and weekly calendar styles
  */
 abstract class CalendarBase
 {
+    const CAL_VIEW_LIST = 'list';
+    const CAL_VIEW_CALENDAR = 'calendar';
+
     /** db column on which this calendar works */
     public $date_field;
     protected $find_by_items = false;
@@ -30,13 +37,15 @@ abstract class CalendarBase
     protected $items = [];
 
     protected $conn;
-    protected $calendar_levels;
     protected $image_std_params;
+    protected $lang = [];
+    protected $conf, $template, $date_type, $view_type, $chronology_date = [], $router;
 
     public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
         $this->conn = $conn;
 
+        $this->date_type = $date_type;
         if ($date_type === 'posted') {
             $this->date_field = 'date_available';
         } else {
@@ -44,9 +53,39 @@ abstract class CalendarBase
         }
     }
 
+    public function setConf(Conf $conf)
+    {
+        $this->conf = $conf;
+    }
+
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
+    public function setTemplate(Template $template)
+    {
+        $this->template = $template;
+    }
+
+    public function setViewType(string $view_type = self::CAL_VIEW_LIST)
+    {
+        $this->view_type = $view_type;
+    }
+
+    public function setChronologyDate(array $chronology_date = [])
+    {
+        $this->chronology_date = $chronology_date;
+    }
+
     public function setImageStandardParams(ImageStandardParams $image_std_params)
     {
         $this->image_std_params = $image_std_params;
+    }
+
+    public function setLang(array $lang)
+    {
+        $this->lang = $lang;
     }
 
     public function findByConditionAndCategory(string $condition, int $category_id = null, array $forbidden_categories = [])
@@ -69,60 +108,85 @@ abstract class CalendarBase
         $this->items = $items;
     }
 
+    public function areThumbnailsIncluded(): bool
+    {
+        return ($this->view_type === self::CAL_VIEW_CALENDAR);
+    }
+
     /**
      * Generate navigation bars for category page.
      *
      * @return boolean false indicates that thumbnails where not included
      */
-    public abstract function generateCategoryContent();
+    public abstract function generateCategoryContent(): bool;
 
     /**
      * Returns a sql WHERE subquery for the date field.
      *
      * @param int $max_levels (e.g. 2=only year and month)
-     * @return string
      */
-    public abstract function getDateWhere(int $max_levels = 3);
+    public abstract function getDateWhere(int $max_levels = 3): string;
+
+    public function getBreadcrumb(string $route, array $params): array
+    {
+        $elements = [];
+
+        $elements[] = [
+            'label' => $this->date_type === 'posted' ? Language::l10n('Post date') : Language::l10n('Creation date'),
+            'url' => $this->router->generate($route, $params)
+        ];
+
+        for ($i = 0; $i < count($this->chronology_date); $i++) {
+            $element = [];
+            $element['label'] = $this->getDateComponentLabel($i, $this->chronology_date[$i]);
+            if (isset($this->chronology_date[$i + 1])) {
+                $route .= '_' . $this->parts[$i];
+                $params[$this->parts[$i]] = $this->chronology_date[$i];
+                $element['url'] = $this->router->generate($route, $params);
+            }
+
+            $elements[] = $element;
+        }
+
+        return $elements;
+    }
 
     /**
      * Returns the calendar title (with HTML).
-     *
-     * @return string
      */
-    public function getDisplayName()
+    public function getDisplayName(): string
     {
-        global $conf, $page;
         $res = '';
 
-        for ($i = 0; $i < count($page['chronology_date']); $i++) {
-            $res .= $conf['level_separator'];
-            if (isset($page['chronology_date'][$i + 1])) {
-                $chronology_date = array_slice($page['chronology_date'], 0, $i + 1);
+        for ($i = 0; $i < count($this->chronology_date); $i++) {
+            $res .= $this->conf['level_separator'];
+            if (isset($this->chronology_date[$i + 1])) {
+                $chronology_date = array_slice($this->chronology_date, 0, $i + 1);
                 $url = \Phyxo\Functions\URL::duplicate_index_url(
                     ['chronology_date' => $chronology_date],
                     ['start']
                 );
-                $res .= '<a href="' . $url . '">' . $this->getDateComponentLabel($i, $page['chronology_date'][$i]) . '</a>';
+                $res .= '<a href="' . $url . '">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</a>';
             } else {
-                $res .= '<span class="calInHere">' . $this->getDateComponentLabel($i, $page['chronology_date'][$i]) . '</span>';
+                $res .= '<span class="calInHere">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</span>';
             }
         }
+
         return $res;
     }
 
     /**
      * Returns a display name for a date component optionally using labels.
-     *
-     * @return string
      */
-    protected function getDateComponentLabel($level, $date_component)
+    protected function getDateComponentLabel($level, $date_component): string
     {
         $label = $date_component;
-        if (isset($this->calendar_levels[$level]['labels'][$date_component])) {
-            $label = $this->calendar_levels[$level]['labels'][$date_component];
+        if (isset($this->getCalendarLevels()[$level]['labels'][$date_component])) {
+            $label = $this->getCalendarLevels()[$level]['labels'][$date_component];
         } elseif ('any' === $date_component) {
-            $label = \Phyxo\Functions\Language::l10n('All');
+            $label = Language::l10n('All');
         }
+
         return $label;
     }
 
@@ -130,9 +194,8 @@ abstract class CalendarBase
      * Gets a nice display name for a date to be shown in previous/next links
      *
      * @param string $date
-     * @return string
      */
-    protected function getDateNiceName($date)
+    protected function getDateNiceName($date): string
     {
         $date_components = explode('-', $date);
         $res = '';
@@ -145,6 +208,7 @@ abstract class CalendarBase
                 $res .= $label;
             }
         }
+
         return $res;
     }
 
@@ -156,22 +220,19 @@ abstract class CalendarBase
      * @param bool $show_any - adds any link to the end of the bar
      * @param bool $show_empty - shows all labels even those without items
      * @param array $labels - optional labels for items (e.g. Jan,Feb,...)
-     * @return string
      */
-    protected function getNavigationBarFromItems($date_components, $items, $show_any, $show_empty = false, $labels = null)
+    protected function getNavigationBarFromItems(array $date_components, array $items, bool $show_any, bool $show_empty = false, array $labels = []): array
     {
-        global $conf;
-
         $nav_bar_datas = [];
 
-        if ($conf['calendar_show_empty'] and $show_empty and !empty($labels)) {
+        if ($this->conf['calendar_show_empty'] && $show_empty && !empty($labels)) {
             foreach ($labels as $item => $label) {
                 if (!isset($items[$item])) {
                     $items[$item] = -1;
                 }
             }
-            ksort($items);
         }
+        ksort($items);
 
         foreach ($items as $item => $nb_images) {
             $label = $item;
@@ -183,10 +244,7 @@ abstract class CalendarBase
                     'LABEL' => $label
                 ];
             } else {
-                $url = \Phyxo\Functions\URL::duplicate_index_url(
-                    ['chronology_date' => array_merge($date_components, [$item])],
-                    ['start']
-                );
+                $url = $this->urlFromDateComponents($item, $date_components);
                 $tmp_datas = [
                     'LABEL' => $label,
                     'URL' => $url
@@ -196,17 +254,15 @@ abstract class CalendarBase
                 $tmp_datas['NB_IMAGES'] = $nb_images;
             }
             $nav_bar_datas[] = $tmp_datas;
-
         }
 
-        if ($conf['calendar_show_any'] && $show_any && count($items) > 1
-            && count($date_components) < count($this->calendar_levels) - 1) {
+        if ($this->conf['calendar_show_any'] && $show_any && count($items) > 1 && count($date_components) < count($this->getCalendarLevels()) - 1) {
             $url = \Phyxo\Functions\URL::duplicate_index_url(
                 ['chronology_date' => array_merge($date_components, ['any'])],
                 ['start']
             );
             $nav_bar_datas[] = [
-                'LABEL' => \Phyxo\Functions\Language::l10n('All'),
+                'LABEL' => Language::l10n('All'),
                 'URL' => $url
             ];
         }
@@ -219,12 +275,10 @@ abstract class CalendarBase
      *
      * @param int $level - 0-year, 1-month/week, 2-day
      */
-    protected function buildNavigationBar($level, $labels = null)
+    protected function buildNavigationBar(int $level, $labels = [])
     {
-        global $page, $template;
-
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findImagesInPeriodsByIds($this->calendar_levels[$level]['sql'], $this->items, $this->getDateWhere($level));
+            $result = (new ImageRepository($this->conn))->findImagesInPeriodsByIds($this->getCalendarLevels()[$level]['sql'], $this->items, $this->getDateWhere($level));
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
@@ -234,23 +288,23 @@ abstract class CalendarBase
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findImagesInPeriods($this->calendar_levels[$level]['sql'], $this->getDateWhere($level), $this->condition, $sub_ids);
+            $result = (new ImageRepository($this->conn))->findImagesInPeriods($this->getCalendarLevels()[$level]['sql'], $this->getDateWhere($level), $this->condition, $sub_ids);
         }
 
         $level_items = $this->conn->result2array($result, 'period', 'nb_images');
 
-        if (count($level_items) == 1 && count($page['chronology_date']) < count($this->calendar_levels) - 1) {
-            if (!isset($page['chronology_date'][$level])) {
+        if (count($level_items) == 1 && count($this->chronology_date) < count($this->getCalendarLevels()) - 1) {
+            if (!isset($this->chronology_date[$level])) {
                 list($key) = array_keys($level_items);
-                $page['chronology_date'][$level] = (int)$key;
+                $this->chronology_date[$level] = (int)$key;
 
-                if ($level < count($page['chronology_date']) && $level != count($this->calendar_levels) - 1) {
+                if ($level < count($this->chronology_date) && $level != count($this->getCalendarLevels()) - 1) {
                     return;
                 }
             }
         }
 
-        $dates = $page['chronology_date'];
+        $dates = $this->chronology_date;
         while ($level < count($dates)) {
             array_pop($dates);
         }
@@ -260,10 +314,10 @@ abstract class CalendarBase
             $level_items,
             true,
             true,
-            isset($labels) ? $labels : $this->calendar_levels[$level]['labels']
+            $labels
         );
 
-        $template->append('chronology_navigation_bars', ['items' => $nav_bar]);
+        $this->template->append('chronology_navigation_bars', ['items' => $nav_bar]);
     }
 
     /**
@@ -272,15 +326,13 @@ abstract class CalendarBase
      */
     protected function buildNextPrev()
     {
-        global $template, $page;
-
         $prev = $next = null;
-        if (empty($page['chronology_date'])) {
+        if (empty($this->chronology_date)) {
             return;
         }
 
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findNextPrevPeriodByIds($this->items, $page['chronology_date'], $this->calendar_levels, $this->date_field);
+            $result = (new ImageRepository($this->conn))->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
@@ -290,11 +342,11 @@ abstract class CalendarBase
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findNextPrevPeriod($page['chronology_date'], $this->calendar_levels, $this->date_field, $this->condition, $sub_ids);
+            $result = (new ImageRepository($this->conn))->findNextPrevPeriod($this->chronology_date, $this->getCalendarLevels(), $this->date_field, $this->condition, $sub_ids);
         }
 
         $upper_items = $this->conn->result2array($result, null, 'period');
-        $current = implode('-', $page['chronology_date']);
+        $current = implode('-', $this->chronology_date);
 
         usort($upper_items, 'version_compare');
         $upper_items_rank = array_flip($upper_items);
@@ -312,25 +364,26 @@ abstract class CalendarBase
             $chronology_date = explode('-', $prev);
             $tpl_var['previous'] = [
                 'LABEL' => $this->getDateNiceName($prev),
-                'URL' => \Phyxo\Functions\URL::duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+                'URL' => $this->getNextPrevUrl($chronology_date)
             ];
         }
 
         if ($current_rank < count($upper_items) - 1) { // has next
             $next = $upper_items[$current_rank + 1];
             $chronology_date = explode('-', $next);
+
             $tpl_var['next'] = [
                 'LABEL' => $this->getDateNiceName($next),
-                'URL' => \Phyxo\Functions\URL::duplicate_index_url(['chronology_date' => $chronology_date], ['start'])
+                'URL' => $this->getNextPrevUrl($chronology_date)
             ];
         }
 
         if (!empty($tpl_var)) {
-            $existing = $template->getVariable('chronology_navigation_bars');
+            $existing = $this->template->getVariable('chronology_navigation_bars');
             if (!($existing instanceof \Smarty_Undefined_Variable)) {
                 $existing->value[sizeof($existing->value) - 1] = array_merge($existing->value[sizeof($existing->value) - 1], $tpl_var);
             } else {
-                $template->append('chronology_navigation_bars', $tpl_var);
+                $this->template->append('chronology_navigation_bars', $tpl_var);
             }
         }
     }

@@ -39,7 +39,11 @@ picture_by_type:
 picture_category_from_calendar:
   path:  /picture.{extension}/{image_id}/category/{category_id}/{extra}
   controller: App\Controller\PictureController::pictureFromCalendar
+  defaults:
+    extension: php
 
 picture_categories_from_calendar:
   path:  /picture.{extension}/{image_id}/categories/{extra}
   controller: App\Controller\PictureController::pictureFromCalendar
+  defaults:
+    extension: php

@@ -72,6 +72,26 @@ class ImageMapper
                         'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
                     ]
                 );
+            } elseif (in_array($section, ['calendar_categories'])) {
+                $tpl_params['cat_slideshow_url'] = $this->router->generate(
+                    'picture_categories_from_calendar',
+                    [
+                        'image_id' => $row['id'],
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'extra' => 'ext',
+                        'slideshow' => (isset($_GET['slideshow']) ? $_GET['slideshow'] : '')
+                    ]
+                );
+            } elseif (in_array($section, ['calendar_category'])) {
+                $url = $this->router->generate(
+                    'picture_categories_from_calendar',
+                    [
+                        'image_id' => $row['id'],
+                        'category_id' => $element_id,
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'extra' => 'extr',
+                    ]
+                );
             } else {
                 $tpl_params['cat_slideshow_url'] = $this->router->generate(
                     'picture_by_type',
@@ -99,6 +119,25 @@ class ImageMapper
                         'image_id' => $row['id'],
                         'type' => $section,
                         'element_id' => $element_id,
+                    ]
+                );
+            } elseif (in_array($section, ['calendar_categories'])) {
+                $url = $this->router->generate(
+                    'picture_categories_from_calendar',
+                    [
+                        'image_id' => $row['id'],
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'extra' => 'extr',
+                    ]
+                );
+            } elseif (in_array($section, ['calendar_category'])) {
+                $url = $this->router->generate(
+                    'picture_categories_from_calendar',
+                    [
+                        'image_id' => $row['id'],
+                        'category_id' => $element_id,
+                        'start_id' => $start_id !== 0 ? 'start-' . $start_id : '',
+                        'extra' => 'extr',
                     ]
                 );
             } else {

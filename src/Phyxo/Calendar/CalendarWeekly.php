@@ -13,6 +13,7 @@ namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
 use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Functions\Language;
 
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
@@ -21,21 +22,33 @@ class CalendarWeekly extends CalendarBase
 {
     const CYEAR = 0, CWEEK = 1, CDAY = 2;
 
+    protected $parts = [self::CYEAR => 'year', self::CWEEK => 'week', self::CDAY => 'wday'];
+
+    protected $week;
+
+    protected $calendar_type = 'weekly';
+
     public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
-        global $lang, $conf;
-
         parent::__construct($conn, $date_type);
+    }
 
+    public function setWeek(int $week)
+    {
+        $this->week = $week;
+    }
+
+    public function getCalendarLevels(): array
+    {
         $week_no_labels = [];
         for ($i = 1; $i <= 53; $i++) {
-            $week_no_labels[$i] = \Phyxo\Functions\Language::l10n('Week %d', $i);
+            $week_no_labels[$i] = Language::l10n('Week %d', $i);
         }
 
-        $this->calendar_levels = [
+        $calendar_levels = [
             [
                 'sql' => $this->conn->db_get_year($this->date_field),
-                'labels' => null
+                'labels' => []
             ],
             [
                 'sql' => $this->conn->db_get_week($this->date_field) . '+1',
@@ -43,16 +56,100 @@ class CalendarWeekly extends CalendarBase
             ],
             [
                 'sql' => $this->conn->db_get_dayofweek($this->date_field) . '-1',
-                'labels' => $lang['day']
+                'labels' => $this->lang['day']
             ],
         ];
+
         //Comment next lines for week starting on Sunday or if MySQL version<4.0.17
         //WEEK(date,5) = "0-53 - Week 1=the first week with a Monday in this year"
-        if ('monday' == $conf['week_starts_on']) {
-            $this->calendar_levels[self::CWEEK]['sql'] = $this->conn->db_get_week($this->date_field, 5) . '+1';
-            $this->calendar_levels[self::CDAY]['sql'] = $this->conn->db_get_weekday($this->date_field);
-            $this->calendar_levels[self::CDAY]['labels'][] = array_shift($this->calendar_levels[self::CDAY]['labels']);
+        if ($this->conf['week_starts_on'] === 'monday') {
+            $calendar_levels[self::CWEEK]['sql'] = $this->conn->db_get_week($this->date_field, 5) . '+1';
+            $calendar_levels[self::CDAY]['sql'] = $this->conn->db_get_weekday($this->date_field);
+            $calendar_levels[self::CDAY]['labels'][] = array_shift($calendar_levels[self::CDAY]['labels']);
         }
+
+        return $calendar_levels;
+    }
+
+    protected function urlFromDateComponents($item, array $date_components = []): string
+    {
+        $route = '';
+        $params = [
+            'date_type' => $this->date_type,
+        ];
+
+        if (count($date_components) === 2) {
+            if (!is_null($this->category_id)) {
+                $route = 'calendar_category_weekly_year_week_wday';
+                $params['category_id'] = $this->category_id;
+            } else {
+                $route = 'calendar_categories_weekly_year_week_wday';
+            }
+
+            $params = array_merge($params, [
+                'year' => $date_components[0],
+                'week' => $date_components[1],
+                'wday' => $item
+            ]);
+        } elseif (count($date_components) === 1) {
+            if (!is_null($this->category_id)) {
+                $params['category_id'] = $this->category_id;
+                $route = 'calendar_category_weekly_year_week';
+            } else {
+                $route = 'calendar_categories_weekly_year_week';
+            }
+            $params = array_merge($params, [
+                'year' => $date_components[0],
+                'week' => $item,
+            ]);
+        } else {
+            if (!is_null($this->category_id)) {
+                $params['category_id'] = $this->category_id;
+                $route = 'calendar_category_weekly_year';
+            } else {
+                $route = 'calendar_categories_weekly_year';
+            }
+            $params['year'] = $item;
+        }
+
+        return $this->router->generate($route, $params);
+    }
+
+    public function getNextPrevUrl(array $date_components = []): string
+    {
+        $route = '';
+        $params = [
+            'date_type' => $this->date_type,
+            'year' => $date_components[0],
+        ];
+
+        if (count($date_components) === 3) {
+            if (!is_null($this->category_id)) {
+                $params['category_id'] = $this->category_id;
+                $route = 'calendar_categories_weekly_year_week_wday';
+            } else {
+                $route = 'calendar_categories_weekly_year_week_wday';
+            }
+            $params['week'] = $date_components[1];
+            $params['wday'] = $date_components[2];
+        } elseif (count($date_components) === 2) {
+            if (!is_null($this->category_id)) {
+                $params['category_id'] = $this->category_id;
+                $route = 'calendar_categories_weekly_year_week';
+            } else {
+                $route = 'calendar_categories_weekly_year_week';
+            }
+            $params['week'] = $date_components[1];
+        } elseif (count($date_components) === 1) {
+            if (!is_null($this->category_id)) {
+                $params['category_id'] = $this->category_id;
+                $route = 'calendar_categories_weekly_year';
+            } else {
+                $route = 'calendar_categories_weekly_year';
+            }
+        }
+
+        return $this->router->generate($route, $params);
     }
 
     /**
@@ -60,18 +157,16 @@ class CalendarWeekly extends CalendarBase
      *
      * @return boolean false indicates that thumbnails where not included
      */
-    public function generateCategoryContent()
+    public function generateCategoryContent(): bool
     {
-        global $page;
-
-        if (count($page['chronology_date']) == 0) {
+        if (count($this->chronology_date) === 0) {
             $this->buildNavigationBar(self::CYEAR); // years
         }
-        if (count($page['chronology_date']) == 1) {
-            $this->buildNavigationBar(self::CWEEK, []); // week nav bar 1-53
+        if (count($this->chronology_date) === 1) {
+            $this->buildNavigationBar(self::CWEEK); // week nav bar 1-53
         }
-        if (count($page['chronology_date']) == 2) {
-            $this->buildNavigationBar(self::CDAY); // days nav bar Mon-Sun
+        if (count($this->chronology_date) === 2) {
+            $this->buildNavigationBar(self::CDAY, $this->getCalendarLevels()[self::CDAY]['labels']); // days nav bar Mon-Sun
         }
         $this->buildNextPrev();
 
@@ -82,13 +177,10 @@ class CalendarWeekly extends CalendarBase
      * Returns a sql WHERE subquery for the date field.
      *
      * @param int $max_levels (e.g. 2=only year and month)
-     * @return string
      */
-    function getDateWhere($max_levels = 3)
+    function getDateWhere(int $max_levels = 3): string
     {
-        global $page;
-
-        $date = $page['chronology_date'];
+        $date = $this->chronology_date;
         while (count($date) > $max_levels) {
             array_pop($date);
         }
@@ -99,14 +191,15 @@ class CalendarWeekly extends CalendarBase
         }
 
         if (isset($date[self::CWEEK]) and $date[self::CWEEK] !== 'any') {
-            $res .= ' AND ' . $this->calendar_levels[self::CWEEK]['sql'] . '=' . $date[self::CWEEK];
+            $res .= ' AND ' . $this->getCalendarLevels()[self::CWEEK]['sql'] . '=' . $date[self::CWEEK];
         }
         if (isset($date[self::CDAY]) and $date[self::CDAY] !== 'any') {
-            $res .= ' AND ' . $this->calendar_levels[self::CDAY]['sql'] . '=' . $date[self::CDAY];
+            $res .= ' AND ' . $this->getCalendarLevels()[self::CDAY]['sql'] . '=' . $date[self::CDAY];
         }
         if (empty($res)) {
             $res = ' AND ' . $this->date_field . ' IS NOT NULL';
         }
+
         return $res;
     }
 }

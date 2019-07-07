@@ -24,7 +24,7 @@
         </button>
         <div class="dropdown-menu" aria-labelledby="calendar-view">
             {foreach $chronology_views as $view}
-                <a class="dropdown-item {if $view.SELECTED} active{/if}" href="{$view.VALUE}">{$view.CONTENT}</a>
+                <a class="dropdown-item{if $view.SELECTED} active{/if}" href="{$view.VALUE}">{$view.CONTENT}</a>
             {/foreach}
         </div>
     </div>
