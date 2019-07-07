@@ -29,11 +29,18 @@ comment_validate:
   path: /comments/{start}/validate/{comment_id}
   controller: App\Controller\CommentController::validate
 
-comments:
-  path: /comments/{start}
+comments__start:
+  path: /comments/start-{start}
   controller: App\Controller\CommentController::index
   defaults:
     comment_id: 0
     start: 0
   requirements:
     start: \d+
+
+comments:
+  path: /comments
+  controller: App\Controller\CommentController::index
+  defaults:
+    start: 0
+    comment_id: 0

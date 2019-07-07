@@ -295,6 +295,9 @@ class AlbumController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
+        $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
+        $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'created', 'view_type' => 'calendar', 'category_id' => $category_id]);
+
         return $this->render('thumbnails.tpl', $tpl_params);
     }
 
@@ -571,7 +574,7 @@ class AlbumController extends CommonController
                     'representative' => $representative_infos,
                     'TN_ALT' => strip_tags($category['name']),
                     'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
-                    'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
+                    'URL' => $this->generateUrl($start > 0 ? 'album__start' : 'album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => Category::get_display_images_count(
                         $category['nb_images'],
                         $category['count_images'],

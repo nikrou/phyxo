@@ -15,62 +15,36 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Phyxo\MenuBar;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
+use Phyxo\EntityManager;
+use Phyxo\Conf;
 
-class DefaultController extends BaseController
+class DefaultController extends CommonController
 {
-    public function home(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, MenuBar $menuBar)
+    public function home(Request $request)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/index.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = "/";
-
-        if ($request->cookies->has('category_view')) {
-            $tpl_params['category_view'] = $request->cookies->get('category_view');
-        }
-
-        // menuBar : inject items
-
-        return $this->doResponse($legacy_file, 'thumbnails.tpl', $tpl_params);
+        return $this->forward('App\Controller\AlbumController::albums');
     }
 
-    public function action(Request $request, $image_id, $part, $download = false, ImageStandardParams $image_std_params)
+    public function action(Request $request, int $image_id, string $part, $download = false, EntityManager $em, Conf $conf, ImageStandardParams $image_std_params)
     {
-        global $conf, $conn, $filter, $template, $user, $page, $lang, $lang_info;
-
-        $container = $this->container;
-        if (!$app_user = $this->getUser()) {
-            $app_user = $this->userProvider->loadUserByUsername('guest');
-        }
-
-        $legacy_file = __DIR__ . '/../../include/common.inc.php';
-
-        ob_start();
-        chdir(dirname($legacy_file));
-        require $legacy_file;
-
-        $result = (new ImageRepository($conn))->findById($this->getUser(), $filter, $image_id);
-        $element_info = $conn->db_fetch_assoc($result);
+        $filter = [];
+        $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), $filter, $image_id);
+        $element_info = $em->getConnection()->db_fetch_assoc($result);
 
         /* $filter['visible_categories'] and $filter['visible_images']
         /* are not used because it's not necessary (filter <> restriction)
          */
-        if (!(new CategoryRepository($conn))->hasAccessToImage($this->getUser(), $filter, $image_id)) {
+        if (!$em->getRepository(CategoryRepository::class)->hasAccessToImage($this->getUser(), $filter, $image_id)) {
             throw new AccessDeniedException('Access denied');
         }
 
         $file = '';
         switch ($part) {
             case 'e':
-                if (!$user['enabled_high']) {
+                if (!$this->getUser()->hasEnabledHigh()) {
                     $deriv = new DerivativeImage(new SrcImage($element_info, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE), $image_std_params);
                     if (!$deriv->same_as_source()) {
                         throw new AccessDeniedException('Access denied');

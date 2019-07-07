@@ -48,10 +48,9 @@ media_custom:
     derivative: cu
 
 action:
-  path: /action.{extension}/{image_id}/{part}/{download}
+  path: /action/{image_id}/{part}/{download}
   controller: App\Controller\DefaultController::action
   defaults:
-    extension: php
     download: false
   requirements:
     image_id: \d+
