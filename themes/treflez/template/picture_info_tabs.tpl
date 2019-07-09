@@ -80,7 +80,7 @@
 				{if $display_info.posted_on}
 				    <tr>
 					<th scope="row">{'Posted on'|translate}</th>
-					<td><div id="datepost" class="imageInfo">{$INFO_POSTED_DATE}</div></td>
+					<td><div id="datepost" class="imageInfo"><a href="{$INFO_POSTED_DATE.url}">{$INFO_POSTED_DATE.label}</a></div></td>
 				    </tr>
 				{/if}
 				{if $display_info.visits}
@@ -123,7 +123,7 @@
 					<td>
 					    <div id="Categories" class="imageInfo">
 						{foreach $related_categories as $cat}
-						    {if !$cat@first}<br />{/if}{$cat}
+						    {if !$cat@first}, {/if}{$cat}
 						{/foreach}
 					    </div>
 					</td>

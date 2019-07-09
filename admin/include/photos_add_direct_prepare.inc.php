@@ -131,7 +131,7 @@ $template->assign('selected_category', $selected_category);
 $selected_level = isset($_POST['level']) ? $_POST['level'] : 0;
 $template->assign(
     [
-        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']),
         'level_options_selected' => [$selected_level]
     ]
 );

@@ -60,7 +60,7 @@
 		    <div id="datecreate" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{'Created on'|translate}</dt>
-			    <dd class="col-sm-7">{$INFO_CREATION_DATE}</dd>
+			    <dd class="col-sm-7"><a href="{$INFO_CREATION_DATE.url}">{$INFO_CREATION_DATE.label}</a></dd>
 			</dl>
 		    </div>
 		{/if}
@@ -68,7 +68,7 @@
 		    <div id="datepost" class="imageInfo">
 			<dl class="row mb-0">
 			    <dt class="col-sm-5">{'Posted on'|translate}</dt>
-			    <dd class="col-sm-7">{$INFO_POSTED_DATE}</dd>
+			    <dd class="col-sm-7"><a href="{$INFO_POSTED_DATE.url}">{$INFO_POSTED_DATE.label}</a></dd>
 			</dl>
 		    </div>
 		{/if}
@@ -110,7 +110,7 @@
 			    <dt class="col-sm-5">{'Albums'|translate}</dt>
 			    <dd class="col-sm-7">
 				{foreach $related_categories as $cat}
-				    {if !$cat@first}<br />{/if}{$cat}
+				    {if !$cat@first}, {/if}{$cat}
 				{/foreach}
 			    </dd>
 			</dl>
@@ -235,16 +235,18 @@
 		    </div>
 		    <button type="button" id="show_exif_data" class="btn btn-primary btn-raised mt-1"><i class="fa fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
 		    <div id="full_exif_data" class="d-none flex-column mt-2">
-			{foreach $metadata as $meta}
-			    {foreach $meta.lines as $label => $value}
+			{if isset($metadata)}
+			    {foreach $metadata as $key => $meta}
 				<div>
 				    <dl class="row mb-0">
-					<dt class="col-sm-6">{$label}</dt>
-					<dd class="col-sm-6">{$value}</dd>
+					{foreach $meta.lines as $label => $value}
+					    <dt class="col-sm-6">{$label}</dt>
+					    <dd class="col-sm-6">{$value}</dd>
+					{/foreach}
 				    </dl>
 				</div>
 			    {/foreach}
-			{/foreach}
+			{/if}
 		    </div>
 		</div>
 	    </div>

@@ -222,7 +222,7 @@ if (in_array(\Phyxo\Functions\Utils::get_extension($row['path']), $conf['picture
 $selected_level = isset($_POST['level']) ? $_POST['level'] : $row['level'];
 $template->assign(
     [
-        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']),
         'level_options_selected' => [$selected_level]
     ]
 );

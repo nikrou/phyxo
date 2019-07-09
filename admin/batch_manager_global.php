@@ -357,7 +357,7 @@ $template->assign('DATE_CREATION', empty($_POST['date_creation']) ? date('Y-m-d'
 // image level options
 $template->assign(
     [
-        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']),
         'level_options_selected' => 0,
     ]
 );

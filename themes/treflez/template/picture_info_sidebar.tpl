@@ -118,12 +118,15 @@
 	    {/if}
 	    {if isset($metadata)}
 		{foreach $metadata as $meta}
-		    <br />
 		    <h4>{$meta.TITLE}</h4>
-		    {foreach $meta.lines as $label => $value}
-			<dt>{$label}</dt>
-			<dd>{$value}</dd>
-		    {/foreach}
+		    <div>
+			<dl class="row mb-0">
+			    {foreach $meta.lines as $label => $value}
+				<dt>{$label}</dt>
+				<dd>{$value}</dd>
+			    {/foreach}
+			</dl>
+		    </div>
 		{/foreach}
 	    {/if}
         </dl>

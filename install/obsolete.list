@@ -26,9 +26,12 @@ src/LegacyPages/category_default.inc.php
 src/LegacyPages/comments.php
 src/LegacyPages/i.php
 src/LegacyPages/identification.php
+src/LegacyPages/index.php
 src/LegacyPages/install.php
 src/LegacyPages/feed.php
 src/LegacyPages/notification.php
+src/LegacyPages/picture.php
+src/LegacyPages/picture_comment.inc.php
 src/LegacyPages/profile.php
 src/LegacyPages/qsearch.php
 src/LegacyPages/register.php
@@ -71,6 +74,7 @@ include/page_tail.inc.php
 include/picture_comment.inc.php
 include/picture_metadata.inc.php
 include/picture_rate.inc.php
+include/section_init.inc.php
 include/services.php
 include/user.inc.php
 include/ws_functions

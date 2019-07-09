@@ -676,7 +676,7 @@ if (isset($_POST['submit'])) {
     }
 }
 
-$tpl_introduction['privacy_level_options'] = \Phyxo\Functions\Utils::get_privacy_level_options();
+$tpl_introduction['privacy_level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
 
 $template->assign('introduction', $tpl_introduction);
 

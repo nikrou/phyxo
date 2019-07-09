@@ -87,7 +87,7 @@ $template->assign(
     [
         'U_ELEMENTS_PAGE' => $base_url . \Phyxo\Functions\URL::get_query_string_diff(['display', 'start']),
         'F_ACTION' => $base_url . \Phyxo\Functions\URL::get_query_string_diff([]),
-        'level_options' => \Phyxo\Functions\Utils::get_privacy_level_options(),
+        'level_options' => \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']),
     ]
 );
 

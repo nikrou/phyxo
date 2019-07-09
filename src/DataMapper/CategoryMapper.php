@@ -281,7 +281,7 @@ class CategoryMapper
             if (!isset($url)) {
                 $output .= $cat['name'];
             } elseif ($url == '') {
-                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['category' => $cat]) . '">';
+                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">';
                 $output .= $cat['name'] . '</a>';
             } else {
                 $output .= '<a href="' . $url . $cat['id'] . '">';
@@ -335,7 +335,7 @@ class CategoryMapper
             if (!isset($url) or $single_link) {
                 $output .= $cat['name'];
             } elseif ($url == '') {
-                $output .= '<a href="' . \Phyxo\Functions\URL::make_index_url(['category' => $cat]) . '">' . $cat['name'] . '</a>';
+                $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">' . $cat['name'] . '</a>';
             } else {
                 $output .= '<a href="' . $url . $category_id . '">' . $cat['name'] . '</a>';
             }

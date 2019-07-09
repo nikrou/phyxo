@@ -684,16 +684,12 @@ class Utils
 
     /**
      * get localized privacy level values
-     *
-     * @return string[]
      */
-    public static function get_privacy_level_options()
+    public static function getPrivacyLevelOptions(array $available_permission_levels = []): array
     {
-        global $conf;
-
         $options = [];
         $label = '';
-        foreach (array_reverse($conf['available_permission_levels']) as $level) {
+        foreach (array_reverse($available_permission_levels) as $level) {
             if (0 == $level) {
                 $label = \Phyxo\Functions\Language::l10n('Everybody');
             } else {

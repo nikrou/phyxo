@@ -29,6 +29,7 @@ use App\DataMapper\ImageMapper;
 use App\Repository\TagRepository;
 use Phyxo\Functions\DateTime;
 use Phyxo\Functions\Utils;
+use Phyxo\Functions\URL;
 
 class SearchController extends CommonController
 {
@@ -276,7 +277,7 @@ class SearchController extends CommonController
 
             if (!empty($search_results['qsearch_details']['matching_tags'])) {
                 foreach ($search_results['qsearch_details']['matching_tags'] as $tag) {
-                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => $tag['id'] . '-' . $tag['url_name']]);
+                    $tag['URL'] = $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
                     $tpl_params['tag_search_results'] = $tag;
                 }
             }

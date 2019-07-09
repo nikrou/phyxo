@@ -58,7 +58,7 @@
 	</div>
 
 	<div id="theImage" class="row d-block justify-content-center mb-3">
-	    {$ELEMENT_CONTENT}
+	    {include file='picture_content.tpl'}
 	</div>
 
 	{if $theme_config->picture_info == 'sidebar'}
