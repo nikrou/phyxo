@@ -18,6 +18,8 @@ class Plugin
     /** default priority for plugins handlers */
     const EVENT_HANDLER_PRIORITY_NEUTRAL = 50;
 
+    private static $plugins_path = __DIR__ . '/../../../plugins';
+
     /**
      * Register an event handler.
      *
@@ -175,7 +177,7 @@ class Plugin
      */
     public static function load_plugin($plugin)
     {
-        $file_name = PHPWG_PLUGINS_PATH . '/' . $plugin['id'] . '/main.inc.php';
+        $file_name = self::$plugins_path . '/' . $plugin['id'] . '/main.inc.php';
         if (file_exists($file_name)) {
             self::autoupdate_plugin($plugin);
             global $pwg_loaded_plugins;
@@ -214,7 +216,7 @@ class Plugin
         global $conn;
 
         // try to find the filesystem version in lines 2 to 10 of main.inc.php
-        $fh = fopen(PHPWG_PLUGINS_PATH . '/' . $plugin['id'] . '/main.inc.php', 'r');
+        $fh = fopen(self::$plugins_path . '/' . $plugin['id'] . '/main.inc.php', 'r');
         $fs_version = null;
         $i = -1;
 
@@ -235,7 +237,7 @@ class Plugin
             version_compare($plugin['version'], $fs_version, '<'))) {
             $plugin['version'] = $fs_version;
 
-            $maintain_file = PHPWG_PLUGINS_PATH . '/' . $plugin['id'] . '/maintain.class.php';
+            $maintain_file = self::$plugins_path . '/' . $plugin['id'] . '/maintain.class.php';
 
             // autoupdate is applicable only to plugins with 2.7 architecture
             if (file_exists($maintain_file)) {
@@ -266,7 +268,7 @@ class Plugin
         $real_file = realpath($file);
         $url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=plugin';
         if (false !== $real_file) {
-            $real_plugin_path = rtrim(realpath(PHPWG_PLUGINS_PATH), '\\/');
+            $real_plugin_path = rtrim(realpath(self::$plugins_path), '\\/');
             $file = substr($real_file, strlen($real_plugin_path) + 1);
             $file = str_replace('\\', '/', $file);//Windows
             $url .= '&amp;section=' . urlencode($file);

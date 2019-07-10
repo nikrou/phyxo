@@ -16,7 +16,7 @@ if (!defined("PLUGINS_BASE_URL")) {
 use Phyxo\Plugin\Plugins;
 
 $plugins = new Plugins($conn);
-$plugins->setPluginsRootPath(PHPWG_PLUGINS_PATH);
+$plugins->setPluginsRootPath(__DIR__ . '/../plugins'); //@TODO : retrieve from config/service: $pluginsPath
 
 //------------------------------------------------------automatic installation
 if (isset($_GET['revision']) and isset($_GET['extension'])) {

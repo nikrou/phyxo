@@ -26,7 +26,7 @@ if (!isset($pwg_loaded_plugins[$plugin_id])) {
     die('Invalid URL - plugin ' . $plugin_id . ' not active');
 }
 
-$filename = PHPWG_PLUGINS_PATH . '/' . implode('/', $sections);
+$filename = __DIR__ . '/../plugins/' . implode('/', $sections);
 if (is_readable($filename)) {
     include_once($filename);
 } else {

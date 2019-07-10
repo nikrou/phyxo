@@ -28,7 +28,7 @@ class Plugins extends Extensions
         $this->conn = $conn;
     }
 
-    public function setPluginsRootPath(string $plugins_root_path = PHPWG_PLUGINS_PATH)
+    public function setPluginsRootPath(string $plugins_root_path)
     {
         self::$plugins_root_path = $plugins_root_path;
     }

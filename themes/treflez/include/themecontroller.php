@@ -104,7 +104,7 @@ class ThemeController
         }
 
         if (isset($pwg_loaded_plugins['exif_view'])) {
-            Language::load_language('lang.exif', PHPWG_PLUGINS_PATH . '/exif_view/', ['language' => $user['language']]);
+            Language::load_language('lang.exif', __DIR__ . '/../../../plugins/exif_view/', ['language' => $user['language']]);
         }
     }
 

@@ -19,7 +19,7 @@ use App\Repository\UserInfosRepository;
 class Themes extends Extensions
 {
     private $conn;
-    private static $themes_root_path = PHPWG_THEMES_PATH;
+    private static $themes_root_path;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 

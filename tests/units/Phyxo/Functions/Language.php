@@ -17,10 +17,14 @@ use atoum;
 
 class Language extends atoum
 {
+    private $plugins_path = __DIR__ . '/../../fixtures/plugins';
+    private $themes_path = __DIR__ . '/../../fixtures/themes';
+    private $languages_path = __DIR__ . '/../../fixtures/language';
+
     public function testLoadLanguagePluginDescription()
     {
         // load plugin description file
-        $plugin3_dir = PHPWG_PLUGINS_PATH . '/plugin3/';
+        $plugin3_dir = $this->plugins_path . '/plugin3/';
 
         $this
             ->string(trim(\Phyxo\Functions\Language::load_language('description.txt', $plugin3_dir, ['return' => true])))
@@ -29,7 +33,7 @@ class Language extends atoum
 
     public function testLoadLanguageAboutPage()
     {
-        $theme3_dir = PHPWG_THEMES_PATH . '/theme3/';
+        $theme3_dir = $this->themes_path . '/theme3/';
 
         $this
             ->string(trim(\Phyxo\Functions\Language::load_language('about.html', $theme3_dir, ['return' => true])))
@@ -40,24 +44,24 @@ class Language extends atoum
     {
         // not existing language file
         $this
-            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname(PHPWG_LANGUAGES_PATH) . '/'))
+            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname($this->languages_path) . '/'))
             ->isIdenticalTo(false);
 
         $this
-            ->boolean(\Phyxo\Functions\Language::load_language('common.lang', dirname(PHPWG_LANGUAGES_PATH) . '/'))
+            ->boolean(\Phyxo\Functions\Language::load_language('common.lang', dirname($this->languages_path) . '/'))
             ->isIdenticalTo(true);
     }
 
     public function testLoadLanguageInArray()
     {
         $language_load = (function () {
-            include(PHPWG_LANGUAGES_PATH . 'en_GB/common.lang.php');
+            include($this->languages_path . '/en_GB/common.lang.php');
 
             return ['lang' => $lang, 'lang_info' => $lang_info];
         });
 
         $this
-            ->array(\Phyxo\Functions\Language::load_language('common.lang', dirname(PHPWG_LANGUAGES_PATH) . '/', ['return_vars' => true]))
+            ->array(\Phyxo\Functions\Language::load_language('common.lang', dirname($this->languages_path) . '/', ['return_vars' => true]))
             ->isIdenticalTo($language_load());
     }
 }

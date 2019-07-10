@@ -18,6 +18,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Plugins extends atoum
 {
+    private $plugins_path = __DIR__ . '/../../fixtures/plugins';
     protected  $plugins_dir = PHPWG_TMP_PATH . '/plugins';
 
     public function setUp()
@@ -37,7 +38,7 @@ class Plugins extends atoum
         $workspace = $this->plugins_dir . '/' . md5(random_bytes(15));
         $fs = new Filesystem();
         $fs->mkdir($workspace);
-        $fs->mirror(PHPWG_PLUGINS_PATH, $workspace);
+        $fs->mirror($this->plugins_path, $workspace);
 
         return $workspace;
     }

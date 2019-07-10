@@ -102,7 +102,7 @@ class PictureController extends CommonController
                 $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
             }
         } else { // not a pic - need download link
-            $row['download_url'] = $row['element_url'] = \Phyxo\Functions\URL::get_element_url($row);;
+            $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);;
         }
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
@@ -314,7 +314,7 @@ class PictureController extends CommonController
                         $tpl_params['errors'][] = Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
                         break;
                     default:
-                        throw new Exception('Invalid comment action ' . $comment_action);
+                        throw new \Exception('Invalid comment action ' . $comment_action);
                 }
             }
 
@@ -482,21 +482,16 @@ class PictureController extends CommonController
         return $this->render('picture.tpl', $tpl_params);
     }
 
-    public function picturesByTypes(string $legacyBaseDir, Request $request, $image_id, $type, CsrfTokenManagerInterface $csrfTokenManager)
+    public function picturesByTypes(Request $request, $image_id, $type)
     {
-        $this->csrfTokenManager = $csrfTokenManager;
-
-        $tpl_params = [];
-        $legacy_file = sprintf('%s/picture.php', $legacyBaseDir);
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-        $_SERVER['PATH_INFO'] = '/' . $image_id . '/' . $type;
-
-        if ($start_id = $request->get('start_id')) {
-            $_SERVER['PATH_INFO'] .= '/' . $start_id;
-        }
-
-        return $this->doResponse($legacy_file, 'picture.tpl', $tpl_params);
+        return $this->forward(
+            'App\Controller\PictureController::picture',
+            [
+                'image_id' => $image_id,
+                'type' => 'category',
+                'element_id' => 'n/a'
+            ]
+        );
     }
 
     public function pictureBySearch(Request $request, $image_id, $search_id)

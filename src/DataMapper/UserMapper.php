@@ -41,10 +41,10 @@ use App\Repository\CaddieRepository;
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper, $tagMapper;
-    private $passwordEncoder, $defaultLanguage;
+    private $passwordEncoder, $defaultLanguage, $themesPath;
 
     public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
-                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage)
+                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesPath)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -54,6 +54,7 @@ class UserMapper
         $this->categoryMapper = $categoryMapper;
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
+        $this->themesPath = $themesPath;
     }
 
     public function getUser()
@@ -534,7 +535,7 @@ class UserMapper
     public function getDefaultTheme()
     {
         $theme = $this->getDefaultUserValue('theme', $this->defaultLanguage);
-        if (\Phyxo\Functions\Theme::check_theme_installed($theme)) {
+        if (is_readable($this->themesPath . '/' . $theme . '/' . 'themeconf.inc.php')) {
             return $theme;
         }
 

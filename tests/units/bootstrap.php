@@ -14,9 +14,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 define('PEM_URL', 'http://localhost/pem');
 define('PHPWG_VERSION', 'tests');
 
-define('PHPWG_THEMES_PATH', __DIR__ . '/fixtures/themes/');
-define('PHPWG_PLUGINS_PATH', __DIR__ . '/fixtures/plugins');
-define('PHPWG_LANGUAGES_PATH', __DIR__ . '/fixtures/language/');
 define('TESTS_CONFIG_PATH', __DIR__ . '/fixtures/config/');
 
 define('PHPWG_TMP_PATH', __DIR__ . '/tmp');

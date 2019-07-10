@@ -19,16 +19,6 @@ if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
 if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
     define('PHPWG_DEFAULT_TEMPLATE', 'treflez');
 }
-
-if (!defined('PHPWG_THEMES_PATH')) {
-    define('PHPWG_THEMES_PATH', __DIR__ . '/../themes');
-}
-if (!defined('PHPWG_PLUGINS_PATH')) {
-    define('PHPWG_PLUGINS_PATH', __DIR__ . '/../plugins');
-}
-if (!defined('PHPWG_LANGUAGES_PATH')) {
-    define('PHPWG_LANGUAGES_PATH', __DIR__ . '/../language');
-}
 if (!defined('PWG_COMBINED_DIR')) {
     define('PWG_COMBINED_DIR', $conf['data_location'] . 'combined/');
 }

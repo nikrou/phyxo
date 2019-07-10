@@ -37,6 +37,7 @@ abstract class CalendarBase
     protected $items = [];
 
     protected $conn;
+    protected $parts;
     protected $image_std_params;
     protected $lang = [];
     protected $conf, $template, $date_type, $view_type, $chronology_date = [], $router;
@@ -113,6 +114,10 @@ abstract class CalendarBase
         return ($this->view_type === self::CAL_VIEW_CALENDAR);
     }
 
+    public abstract function getCalendarLevels(): array;
+
+    protected abstract function urlFromDateComponents($item, array $date_components = []): string;
+
     /**
      * Generate navigation bars for category page.
      *
@@ -139,7 +144,7 @@ abstract class CalendarBase
         for ($i = 0; $i < count($this->chronology_date); $i++) {
             $element = [];
             $element['label'] = $this->getDateComponentLabel($i, $this->chronology_date[$i]);
-            if (isset($this->chronology_date[$i + 1])) {
+            if (isset($this->chronology_date[$i + 1])) { // parts property defined in child class
                 $route .= '_' . $this->parts[$i];
                 $params[$this->parts[$i]] = $this->chronology_date[$i];
                 $element['url'] = $this->router->generate($route, $params);

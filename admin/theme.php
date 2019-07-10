@@ -16,11 +16,12 @@ if (empty($_GET['theme'])) {
 }
 
 $themes = new Themes($conn);
+$themes->setThemesRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
 if (!in_array($_GET['theme'], array_keys($themes->getFsThemes()))) {
     die('Invalid theme'); // @TODO: handle error instead of simple die
 }
 
-$filename = PHPWG_THEMES_PATH . '/' . $_GET['theme'] . '/admin/admin.inc.php';
+$filename = __DIR__ . '/../themes/' . $_GET['theme'] . '/admin/admin.inc.php';
 if (is_file($filename)) {
     include_once($filename);
 } else {

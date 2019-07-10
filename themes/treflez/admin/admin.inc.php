@@ -15,7 +15,7 @@ use Phyxo\Functions\URL;
 // Includes
 require_once(__DIR__ . '/../include/config.php');
 
-Language::load_language('theme.lang', PHPWG_THEMES_PATH . '/treflez/', ['language' => $user['language']]);
+Language::load_language('theme.lang', __DIR__ . '/../', ['language' => $user['language']]);
 
 // Constants
 define('THEME_ID', basename(dirname(dirname(__FILE__))));

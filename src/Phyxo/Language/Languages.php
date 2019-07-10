@@ -18,7 +18,7 @@ use App\Repository\UserInfosRepository;
 class Languages extends Extensions
 {
     private $conn;
-    private static $languages_root_path = PHPWG_LANGUAGES_PATH;
+    private static $languages_root_path;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
@@ -189,7 +189,7 @@ class Languages extends Extensions
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function getServerLanguages($new = false)
+    public function getServerLanguages($new = false, string $phyxo_version)
     {
         global $user, $conf;
 
@@ -199,7 +199,7 @@ class Languages extends Extensions
             ];
 
             // Retrieve PEM versions
-            $version = PHPWG_VERSION;
+            $version = $phyxo_version;
             $versions_to_check = [];
             $url = PEM_URL . '/api/get_version_list.php';
 

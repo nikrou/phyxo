@@ -16,12 +16,13 @@ if (!defined("THEMES_BASE_URL")) {
 use Phyxo\Theme\Themes;
 
 $themes = new Themes($conn);
+$themes->setThemesRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |
 // +-----------------------------------------------------------------------+
 
-if (!is_writable(PHPWG_THEMES_PATH)) {
+if (!is_writable(__DIR__ . '/../themes')) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Add write access to the "%s" directory', 'themes');
 }
 

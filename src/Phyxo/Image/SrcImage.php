@@ -51,10 +51,10 @@ class SrcImage
             $this->rel_path = \Phyxo\Functions\Utils::original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
-            $this->rel_path = Plugin::trigger_change('get_mimetype_location', \Phyxo\Functions\Theme::get_themeconf('mime_icon_dir') . $ext . '.png', $ext);
+            $this->rel_path = Plugin::trigger_change('get_mimetype_location', 'themes/treflez/icon' . $ext . '.png', $ext);
             $this->flags |= self::IS_MIMETYPE;
             if (($size = @getimagesize(__DIR__ . '/../../../' . $this->rel_path)) === false) {
-                $this->rel_path = 'themes/default/icon/mimetypes/unknown.png';
+                $this->rel_path = 'themes/treflez/icon/mimetypes/unknown.png';
                 $size = getimagesize(__DIR__ . '/../../../' . $this->rel_path);
             }
             $this->size = [$size[0], $size[1]];

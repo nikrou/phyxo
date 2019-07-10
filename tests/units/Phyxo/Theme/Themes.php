@@ -19,6 +19,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends atoum
 {
+    private $themes_path = __DIR__ . '/../../fixtures/themes';
     protected  $themes_dir = PHPWG_TMP_PATH . '/themes';
 
     private function getLocalThemes()
@@ -91,7 +92,7 @@ class Themes extends atoum
         $workspace = $this->themes_dir . '/' . md5(random_bytes(15));
         $fs = new Filesystem();
         $fs->mkdir($workspace);
-        $fs->mirror(PHPWG_THEMES_PATH, $workspace);
+        $fs->mirror($this->themes_path, $workspace);
 
         return $workspace;
     }
@@ -121,7 +122,7 @@ class Themes extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \mock\Phyxo\Theme\Themes($conn);
-        $themes->setThemesRootPath(PHPWG_TMP_PATH . '/themes');
+        $themes->setThemesRootPath($this->themes_path . '/themes');
 
         $themes->sortFsThemes($sort_type);
 
