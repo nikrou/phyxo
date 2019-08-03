@@ -36,11 +36,13 @@ class UserManager
             'password' => $user->getPassword(),
             'mail_address' => $user->getMailAddress()
         ];
-        if ($user->getId()) {
-            $insert['id'] = $user->getId();
-        }
 
-        $user_id = (new UserRepository($this->conn))->addUser($insert);
+        if ($user->getId()) {
+            $user_id = $insert['id'] = $user->getId();
+            (new UserRepository($this->conn))->addUser($insert, $auto_increment_for_table = false);
+        } else {
+            $user_id = (new UserRepository($this->conn))->addUser($insert, $auto_increment_for_table = true);
+        }
 
         // Assign by default groups
         $result = (new GroupRepository($this->conn))->findByField('is_default', true, 'ORDER BY id ASC');
@@ -113,7 +115,7 @@ class UserManager
                     $value = $this->conn->get_boolean($value);
                 }
             }
-    
+
             return $default_user;
         } else {
             return [];

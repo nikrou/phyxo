@@ -81,12 +81,6 @@ services:
         public: true
         alias: 'Phyxo\DBLayer\iDBLayer'
 
-    Phyxo\DataCollector\SmartyCollector:
-        tags:
-            - name: data_collector
-              template: 'data_collector/smarty.html.twig'
-              id: 'app.smarty_collector'
-
     Phyxo\Template\AdminTemplate:
         factory: 'Phyxo\Template\AdminTemplate::initialize'
         arguments: ['%kernel.cache_dir%/smarty', '%kernel.project_dir%/admin/theme']
@@ -104,6 +98,10 @@ services:
           - method: init
             arguments: ['%default_config_file%', '%user_config_file%']
 
+    phyxo.conf:
+      public: true
+      alias: 'Phyxo\Conf'
+
     Phyxo\EntityManager: ~
 
     phyxo.em:
@@ -112,18 +110,10 @@ services:
 
     Phyxo\MenuBar: ~
 
-    Phyxo\Upgrade: ~
-
     Phyxo\Image\ImageStandardParams: ~
+
+    Phyxo\Upgrade: ~
 
     phyxo.upgrade:
       public: true
       alias: 'Phyxo\Upgrade'
-
-    phyxo.conf:
-      public: true
-      alias: 'Phyxo\Conf'
-
-    # services with iDBLayer as dependency ; activated in services_extra.yaml
-    App\Command\UserCreateCommand:
-      autoconfigure: false

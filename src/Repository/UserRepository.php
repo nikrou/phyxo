@@ -207,9 +207,9 @@ class UserRepository extends BaseRepository
         $this->conn->single_update(self::USERS_TABLE, $datas, ['id' => $user_id]);
     }
 
-    public function addUser(array $datas)
+    public function addUser(array $datas, bool $auto_increment_for_table = true)
     {
-        return $this->conn->single_insert(self::USERS_TABLE, $datas);
+        return $this->conn->single_insert(self::USERS_TABLE, $datas, $auto_increment_for_table);
     }
 
     public function massInserts(array $fields, array $datas)

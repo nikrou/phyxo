@@ -26,6 +26,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Extension\Theme;
 use App\Repository\BaseRepository;
 use Phyxo\Upgrade;
+use Phyxo\EntityManager;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use App\Event\CoreInstalledEvent;
 
 class InstallController extends Controller
 {
@@ -37,6 +40,7 @@ class InstallController extends Controller
         'success' => ['label' => 'Installation completed']
     ];
 
+    private $eventDispatcher;
     private $languages_options;
     private $passwordEncoder;
     private $phyxoVersion;
@@ -45,17 +49,14 @@ class InstallController extends Controller
     private $default_theme;
     private $default_prefix = 'phyxo_';
 
-    private $upgrade;
-
     public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, string $databaseConfigFile,
-                                UserPasswordEncoderInterface $passwordEncoder, Upgrade $upgrade)
+                                UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->databaseConfigFile = $databaseConfigFile;
         $this->passwordEncoder = $passwordEncoder;
-        $this->upgrade = $upgrade;
 
         $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
         $template->assign([
@@ -68,13 +69,15 @@ class InstallController extends Controller
         $template->postConstruct();
     }
 
-    public function index(Request $request, Template $template, string $step = 'language')
+    public function index(Request $request, Template $template, string $step = 'language', EventDispatcherInterface $eventDispatcher)
     {
         $tpl_params = [];
 
-        if (is_readable($this->databaseConfigFile)) {
+        if (is_readable($this->databaseConfigFile) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
         }
+
+        $this->eventDispatcher = $eventDispatcher;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -365,6 +368,8 @@ class InstallController extends Controller
         $tpl_params['STEP'] = 'success';
         $tpl_params['HOMEPAGE_URL'] = $this->generateUrl('homepage');
 
+        $request->attributes->set('core.installed', true);
+
         return $tpl_params;
     }
 
@@ -420,7 +425,9 @@ class InstallController extends Controller
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
         list($dbnow) = $conn->db_fetch_row($conn->db_query('SELECT NOW();'));
         $datas = [];
-        foreach ($this->upgrade->getAvailableUpgradeIds($this->get('kernel')->getProjectDir()) as $upgrade_id) {
+
+        $upgrade = new Upgrade(new EntityManager($conn), $conf);
+        foreach ($upgrade->getAvailableUpgradeIds($this->get('kernel')->getProjectDir()) as $upgrade_id) {
             $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => $dbnow,

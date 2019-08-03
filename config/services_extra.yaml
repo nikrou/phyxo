@@ -19,6 +19,12 @@ services:
         template: 'data_collector/queries.html.twig'
         id: 'app.dblayer_collector'
 
+  Phyxo\DataCollector\SmartyCollector:
+    tags:
+      - name: data_collector
+        template: 'data_collector/smarty.html.twig'
+        id: 'app.smarty_collector'
+
   Phyxo\DBLayer\SessionHandler: ~
 
   App\Command\UserCreateCommand:
