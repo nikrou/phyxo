@@ -84,4 +84,4 @@ Todo
 ----
 
  * Add more tests
- * See [TODO file](TODO.md)
+ * See [TODO file](TODO.md).
