@@ -1452,48 +1452,6 @@ class Utils
     }
 
     /**
-     * Synchronize base users list and related users list.
-     *
-     * Compares and synchronizes base users table (USERS_TABLE) with its child
-     * tables (USER_INFOS_TABLE, USER_ACCESS, USER_CACHE, USER_GROUP) : each
-     * base user must be present in child tables, users in child tables not
-     * present in base table must be deleted.
-     */
-    public static function sync_users()
-    {
-        global $conf, $conn, $userMapper;
-
-        $result = (new UserRepository($conn))->findAll();
-        $base_users = $conn->result2array($result, null, 'id');
-
-        $result = (new UserInfosRepository($conn))->findAll();
-        $infos_users = $conn->result2array($result, null, 'user_id');
-
-        // users present in $base_users and not in $infos_users must be added
-        $to_create = array_diff($base_users, $infos_users);
-
-        if (count($to_create) > 0) {
-            $userMapper->createUserInfos($to_create);
-        }
-
-        // users present in user related tables must be present in the base user table
-        $Repositories = [
-            'UserInfosRepository', 'UserMailNotificationRepository', 'UserFeedRepository',
-            'UserCacheRepository', 'UserCacheCategoriesRepository', 'UserAccessRepository', 'UserGroupRepository'
-        ];
-
-        foreach ($Repositories as $repository) {
-            $to_delete = array_diff(
-                $conn->result2array((new $repository($conn))->getDistinctUser(), null, 'user_id'),
-                $base_users
-            );
-            if (count($to_delete) > 0) {
-                (new $repository($conn))->deleteByUserIds($to_delete);
-            }
-        }
-    }
-
-    /**
      * Returns the groupname corresponding to the given group identifier if exists.
      *
      * @param int $group_id

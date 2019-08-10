@@ -24,10 +24,13 @@ use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\Utils\UserManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn, $em, $conf, $router, $image_std_params;
+    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -175,6 +178,26 @@ class Server
     public function getRouter()
     {
         return $this->router;
+    }
+
+    public function setUserManager(UserManager $userManager)
+    {
+        $this->userManager = $userManager;
+    }
+
+    public function getUserManager()
+    {
+        return $this->userManager;
+    }
+
+    public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
+    public function getPasswordEncoder()
+    {
+        return $this->passwordEncoder;
     }
 
     /**

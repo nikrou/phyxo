@@ -22,6 +22,7 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
+use App\Entity\User as EntityUser;
 
 class User
 {
@@ -210,18 +211,19 @@ class User
             }
         }
 
-        $errors = [];
-        $user_id = $service->getUserMapper()->registerUser(
-            $params['username'],
-            $params['password'],
-            $params['email'],
-            false, // notify admin
-            $errors,
-            $params['send_password_by_mail']
-        );
+        try {
+            $user = new EntityUser();
+            $user->setUsername($params['username']);
+            $user->setMailAddress($params['email']);
+            $user->setPassword($service->getPasswordEncoder()->encodePassword($user, $params['password']));
 
-        if (!$user_id) {
-            return new Error(Server::WS_ERR_INVALID_PARAM, $errors[0]);
+            $user_id = $service->getUserManager()->register($user);
+
+            if ($params['send_password_by_mail']) {
+                // send password by mail
+            }
+        } catch (\Exception $e) {
+            return new Error(Server::WS_ERR_INVALID_PARAM, $e->getMessage());
         }
 
         return $service->invoke('pwg.users.getList', ['user_id' => $user_id]);

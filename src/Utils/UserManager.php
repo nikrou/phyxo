@@ -21,7 +21,7 @@ use App\Repository\UserInfosRepository;
 
 class UserManager
 {
-    private $conn, $conf, $passwordEncoder;
+    private $conn, $conf;
 
     public function __construct(iDBLayer $conn, Conf $conf)
     {
@@ -59,12 +59,14 @@ class UserManager
         }
 
         $this->createUserInfos([$user_id]);
+
+        return $user_id;
     }
 
     /**
      * Creates user informations based on default values.
      */
-    public function createUserInfos(array $user_ids, array $override_values = [])
+    protected function createUserInfos(array $user_ids, array $override_values = [])
     {
         if (!empty($user_ids)) {
             $inserts = [];

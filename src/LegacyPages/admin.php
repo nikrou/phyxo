@@ -36,15 +36,6 @@ if (isset($_GET['plugins_new_order'])) {
 }
 
 // +-----------------------------------------------------------------------+
-// | Synchronize user informations                                         |
-// +-----------------------------------------------------------------------+
-
-// sync_user() is only useful when external authentication is activated
-if ($conf['external_authentification']) {
-    \Phyxo\Functions\Utils::sync_users();
-}
-
-// +-----------------------------------------------------------------------+
 // | Variables init                                                        |
 // +-----------------------------------------------------------------------+
 

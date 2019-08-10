@@ -12,7 +12,6 @@
 namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
@@ -28,13 +27,15 @@ use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Utils\UserManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class WsController extends AbstractController
 {
     private $service;
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
-                            RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
+                           UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
     {
         $this->service = new Server();
         $this->service->addUserMapper($userMapper);
@@ -51,7 +52,9 @@ class WsController extends AbstractController
         $this->service->setEntityManager($em);
         $this->service->setRouter($router);
         $this->service->setEntityManager($em);
+        $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);
+        $this->service->setPasswordEncoder($passwordEncoder);
 
         $this->addDefaultMethods();
 
