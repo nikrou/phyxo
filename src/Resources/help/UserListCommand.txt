@@ -1,0 +1,1 @@
+The <info>%command.name%</info> command list all users with their roles.

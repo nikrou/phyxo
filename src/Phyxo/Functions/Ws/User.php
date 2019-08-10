@@ -298,7 +298,7 @@ class User
         $update_status = null;
 
         if (count($params['user_id']) == 1) {
-            if (\Phyxo\Functions\Utils::get_username($params['user_id'][0]) === false) {
+            if (!$service->getEntityManager()->getRepository(UserRepository::class)->isUserExists($params['user_id'][0], 'id')) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'This user does not exist.');
             }
 

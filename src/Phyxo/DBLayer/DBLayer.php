@@ -20,7 +20,7 @@ class DBLayer
     protected $dblayer;
     protected $queries = [];
     protected $queries_time = 0;
-    protected $prefix = 'phyxo_';
+    protected $prefix = self::DEFAULT_PREFIX;
     protected $dsn = '';
 
     public static function init($layer, $host, $user, $password, $database, $prefix = 'phyxo_')
