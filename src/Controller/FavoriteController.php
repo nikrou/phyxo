@@ -24,6 +24,7 @@ use Phyxo\Functions\Plugin;
 use App\Repository\ImageRepository;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class FavoriteController extends CommonController
 {
@@ -78,19 +79,37 @@ class FavoriteController extends CommonController
         return $this->render('thumbnails.tpl', $tpl_params);
     }
 
-    public function add(int $image_id, EntityManager $em)
+    public function add(int $image_id, EntityManager $em, Request $request)
     {
         $em->getRepository(FavoriteRepository::class)->addFavorite($this->getUser()->getId(), $image_id);
 
-        // @TODO: that action can be call with XmlHttpRequest header
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(
+                [
+                    'status' => 'ok',
+                    'href' => $this->generateUrl('remove_from_favorites', ['image_id' => $image_id]),
+                    'title' => Language::l10n('delete this photo from your favorites'),
+                ]
+            );
+        }
+
         return $this->redirectToRoute('favorites');
     }
 
-    public function remove(int $image_id, EntityManager $em)
+    public function remove(int $image_id, EntityManager $em, Request $request)
     {
         $em->getRepository(FavoriteRepository::class)->deleteFavorite($this->getUser()->getId(), $image_id);
 
-        // @TODO: that action can be call with XmlHttpRequest header
+        if ($request->isXmlHttpRequest()) {
+            return new JsonResponse(
+                [
+                    'status' => 'ok',
+                    'href' => $this->generateUrl('add_to_favorites', ['image_id' => $image_id]),
+                    'title' => Language::l10n('add this photo to your favorites'),
+                ]
+            );
+        }
+
         return $this->redirectToRoute('favorites');
     }
 

@@ -72,8 +72,8 @@
 		{/if}
 		{if isset($favorite)}
                     <li class="nav-item">
-			<a class="nav-link" href="{$favorite.U_FAVORITE}" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}" rel="nofollow">
-                            <i class="fa {if !$favorite.IS_FAVORITE}fa-heart-o{else}fa-heart{/if}"></i><span class="d-lg-none ml-2">{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}</span>
+			<a class="nav-link" href="{$favorite.U_FAVORITE}" data-action="addOrRemoveFavorite" title="{if $favorite.IS_FAVORITE}{'delete this photo from your favorites'|translate}{else}{'add this photo to your favorites'|translate}{/if}" rel="nofollow">
+                            <i class="fa {if !$favorite.IS_FAVORITE}fa-heart-o{else}fa-heart{/if}"></i>
 			</a>
                     </li>
 		{/if}

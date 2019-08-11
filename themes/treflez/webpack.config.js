@@ -22,9 +22,16 @@ const HOST = process.env.HOST ? process.env.HOST : 'localhost';
 const PORT = process.env.PORT ? process.env.PORT : 8080;
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
+/**
+ * PATH_PREFIX is used to add a prefix to phyxo urls.
+ * For example if you install Phyxo under /photos rebuild theme with:
+ * PATH_PREFIX=/photos/ npm run build
+ *
+ */
+const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : '/';
+
 const TARGET_NAME = 'build';
-const TARGET = path.join(__dirname, TARGET_NAME);
-const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : '/phyxo/dev/themes/treflez/build/';
+const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`;
 const ASSETS_PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : './';
 
 const PATHS = {
@@ -44,39 +51,39 @@ module.exports = {
     devtool: 'source-map',
 
     entry: {
-	theme: './src/js',
+        theme: './src/js',
     },
 
     output: {
-	filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[hash].js'),
-	path: PATHS.target,
-	publicPath: PUBLIC_PATH,
+        filename: path.join('js', IS_DEV ? '[name].js' : '[name]-[hash].js'),
+        path: PATHS.target,
+        publicPath: PUBLIC_PATH,
     },
 
     optimization: {
-	minimizer: [
-	    new UglifyJsPlugin({
-		cache: true,
-		parallel: true,
-		sourceMap: true // set to true if you want JS source maps
-	    }),
-	    new OptimizeCSSAssetsPlugin({})
-	]
+        minimizer: [
+            new UglifyJsPlugin({
+                cache: true,
+                parallel: true,
+                sourceMap: true // set to true if you want JS source maps
+            }),
+            new OptimizeCSSAssetsPlugin({})
+        ]
     },
 
     module: {
         rules: [
-	    {
-		test: /\.js$/,
-		exclude: /node_modules/,
-		use: {
-		    options: {
-			cacheDirectory: true,
-			presets: [['env', { modules: false }]],
-		    },
-		    loader: 'babel-loader'
-		},
-	    },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    options: {
+                        cacheDirectory: true,
+                        presets: [['env', { modules: false }]],
+                    },
+                    loader: 'babel-loader'
+                },
+            },
 
             {
                 test: /\.scss$/,
@@ -84,7 +91,7 @@ module.exports = {
                     // fallback to style-loader in development
                     IS_DEV ? 'style-loader' : MiniCssExtractPlugin.loader,
                     'css-loader',
-		    'postcss-loader',
+                    'postcss-loader',
                     'sass-loader'
                 ]
             },
@@ -118,19 +125,19 @@ module.exports = {
     },
 
     plugins: [
-	new ManifestPlugin({
-	    publicPath: PUBLIC_PATH,
-	    writeToFileEmit: true,
-	}),
+        new ManifestPlugin({
+            publicPath: PUBLIC_PATH,
+            writeToFileEmit: true,
+        }),
 
-	new webpack.ProvidePlugin({
-	    $: 'jquery',
-	    jQuery: 'jquery',
-	    'window.jQuery': 'jquery',
-	    'window.$': 'jquery',
-	    Popper: ['popper.js', 'default'],
-	    'jquery-migrate': 'jquery-migrate',
-	}),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+            'window.$': 'jquery',
+            Popper: ['popper.js', 'default'],
+            'jquery-migrate': 'jquery-migrate',
+        }),
 
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output
@@ -139,15 +146,16 @@ module.exports = {
             chunkFilename: IS_DEV ? '[id].css' : '[id].[hash].css' // @TODO: find a way to inject [hash] in templates
         }),
 
-	new webpack.HotModuleReplacementPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
 
         new CleanWebpackPlugin()
     ],
 
     devServer: {
-	contentBase: path.target,
-	disableHostCheck: true,
-	hot: true,
+        contentBase: path.target,
+        disableHostCheck: true,
+        hot: true,
+        port: PORT,
         inline: true,
         overlay: true,
         headers: { 'Access-Control-Allow-Origin': '*' },

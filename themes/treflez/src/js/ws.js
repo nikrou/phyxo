@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
     function setPrivacyLevel(id, level, label) {
         const url = phyxo_root_url + 'ws.php?method=pwg.images.setPrivacyLevel';
 
@@ -65,16 +65,42 @@ $(function() {
             .catch(err => console.log(err));
     }
 
-    $('#rateForm input[name="rating"]').change(function(e) {
+    $('#rateForm input[name="rating"]').change(function (e) {
         updateRating(phyxo_image_id, this.value);
     });
 
-    $('[data-action="setPrivacyLevel"]').click(function(e) {
+    $('[data-action="setPrivacyLevel"]').click(function (e) {
         setPrivacyLevel($(this).data('id'), $(this).data('level'), $(this).data('label'));
     });
 
-    $('[data-action="addToCaddie"]').click(function(e) {
+    $('[data-action="addToCaddie"]').click(function (e) {
         e.preventDefault();
         addToCaddie($(this), $(this).data('id'));
+    });
+
+    $('[data-action="addOrRemoveFavorite"]').on('click', function (e) {
+        e.preventDefault();
+
+        const tag_a = this;
+        const fetch_params = {
+            method: 'GET',
+            mode: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        };
+
+        fetch(tag_a.href, fetch_params)
+            .then(response => response.json())
+            .then(response => {
+                tag_a.href = response.href;
+                tag_a.title = response.title;
+                const icon = $(tag_a).find('i.fa');
+                console.log(icon);
+                if (icon.hasClass('fa-heart')) {
+                    icon.removeClass('fa-heart').addClass('fa-heart-o');
+                } else {
+                    icon.removeClass('fa-heart-o').addClass('fa-heart');
+                }
+            });
     });
 });
