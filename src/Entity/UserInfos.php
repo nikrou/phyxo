@@ -91,6 +91,11 @@ class UserInfos implements \ArrayAccess
         return $this->infos['level'] ?? null;
     }
 
+    public function getStatus()
+    {
+        return $this->infos['status'] ?? null;
+    }
+
     public function wantExpand()
     {
         return $this->infos['expand'] ?? false;

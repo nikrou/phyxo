@@ -86,12 +86,6 @@ class pgsqlConnection extends DBLayer implements iDBLayer
         return false;
     }
 
-    public function db_currval(string $column, string $table) : void
-    {
-        $query = 'SELECT CURRVAL(\'' . $table . '_' . $column . '_seq\')';
-        $this->db_query($query);
-    }
-
     public function db_nextval(string $column, string $table) : int
     {
         $query = 'SELECT NEXTVAL(\'' . $table . '_' . $column . '_seq\')';

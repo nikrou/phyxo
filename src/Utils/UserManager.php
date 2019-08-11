@@ -11,21 +11,21 @@
 
 namespace App\Utils;
 
-use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\UserRepository;
 use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use App\Entity\User;
 use App\Repository\UserInfosRepository;
+use Phyxo\EntityManager;
 
 class UserManager
 {
-    private $conn, $conf;
+    private $em, $conf;
 
-    public function __construct(iDBLayer $conn, Conf $conf)
+    public function __construct(EntityManager $em, Conf $conf)
     {
-        $this->conn = $conn;
+        $this->em = $em;
         $this->conf = $conf;
     }
 
@@ -38,16 +38,16 @@ class UserManager
         ];
 
         if ($user->getId()) {
-            $user_id = $insert['id'] = $user->getId();
-            (new UserRepository($this->conn))->addUser($insert, $auto_increment_for_table = false);
+            $user_id = $user->getId();
+            $this->em->getRepository(UserRepository::class)->addUser($insert, $auto_increment_for_table = false);
         } else {
-            $user_id = (new UserRepository($this->conn))->addUser($insert, $auto_increment_for_table = true);
+            $user_id = $this->em->getRepository(UserRepository::class)->addUser($insert, $auto_increment_for_table = true);
         }
 
         // Assign by default groups
-        $result = (new GroupRepository($this->conn))->findByField('is_default', true, 'ORDER BY id ASC');
+        $result = $this->em->getRepository(GroupRepository::class)->findByField('is_default', true, 'ORDER BY id ASC');
         $inserts = [];
-        while ($row = $this->conn->db_fetch_assoc($result)) {
+        while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $inserts[] = [
                 'user_id' => $user_id,
                 'group_id' => $row['id']
@@ -55,10 +55,10 @@ class UserManager
         }
 
         if (count($inserts) !== 0) {
-            (new UserGroupRepository($this->conn))->massInserts(['user_id', 'group_id'], $inserts);
+            $this->em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $inserts);
         }
 
-        $this->createUserInfos([$user_id]);
+        $this->createUserInfos($user_id, $user->getStatus());
 
         return $user_id;
     }
@@ -66,55 +66,43 @@ class UserManager
     /**
      * Creates user informations based on default values.
      */
-    protected function createUserInfos(array $user_ids, array $override_values = [])
+    protected function createUserInfos(int $user_id, string $status = User::STATUS_NORMAL, array $override_values = [])
     {
-        if (!empty($user_ids)) {
-            $inserts = [];
+        $default_user = $this->getDefaultUserInfo();
 
-            $default_user = $this->getDefaultUserInfo();
-
-            if (!empty($override_values)) {
-                $default_user = array_merge($default_user, $override_values);
-            }
-
-            $now = (new \DateTime())->format('Y-m-d H:i:s');
-            foreach ($user_ids as $user_id) {
-                $level = isset($default_user['level']) ? $default_user['level'] : 0;
-
-                if ($user_id == $this->conf['webmaster_id']) {
-                    $status = 'webmaster';
-                    $level = max($this->conf['available_permission_levels']);
-                } elseif (($user_id == $this->conf['guest_id']) or ($user_id == $this->conf['default_user_id'])) {
-                    $status = 'guest';
-                } else {
-                    $status = 'normal';
-                }
-
-                $insert = array_merge(
-                    $default_user,
-                    [
-                        'user_id' => $user_id,
-                        'status' => $status,
-                        'registration_date' => $now,
-                        'level' => $level
-                    ]
-                );
-
-                $inserts[] = $insert;
-            }
-
-            (new UserInfosRepository($this->conn))->massInserts(array_keys($inserts[0]), $inserts);
+        if (!empty($override_values)) {
+            $default_user = array_merge($default_user, $override_values);
         }
+
+        $now = (new \DateTime())->format('Y-m-d H:i:s');
+        $level = isset($default_user['level']) ? $default_user['level'] : 0;
+
+        // @TODO: only one webmaster and only one guest
+        if ($status === User::STATUS_WEBMASTER) {
+            $level = max($this->conf['available_permission_levels']);
+        }
+
+        $inserts[] = array_merge(
+            $default_user,
+            [
+                'user_id' => $user_id,
+                'status' => $status,
+                'registration_date' => $now,
+                'level' => $level
+            ]
+        );
+
+        $this->em->getRepository(UserInfosRepository::class)->massInserts(array_keys($inserts[0]), $inserts);
     }
 
     public function getDefaultUserInfo(): array
     {
-        $result = (new UserInfosRepository($this->conn))->findByUserId($this->conf['default_user_id']);
-        if ($default_user = $this->conn->db_fetch_assoc($result)) {
+        $result = $this->em->getRepository(UserInfosRepository::class)->findByUserId($this->conf['default_user_id']);
+        if ($default_user = $this->em->getConnection()->db_fetch_assoc($result)) {
             foreach ($default_user as &$value) {
                 // If the field is true or false, the variable is transformed into a boolean value.
-                if (!is_null($value) && $this->conn->is_boolean($value)) {
-                    $value = $this->conn->get_boolean($value);
+                if (!is_null($value) && $this->em->getConnection()->is_boolean($value)) {
+                    $value = $this->em->getConnection()->get_boolean($value);
                 }
             }
 
@@ -126,16 +114,16 @@ class UserManager
 
     public function findUserByUsernameOrEmail(string $username_or_email)
     {
-        $result = (new UserRepository($this->conn))->findByEmail($username_or_email);
-        if ($this->conn->db_num_rows($result) > 0) {
-            return $this->conn->db_fetch_assoc($result);
+        $result = $this->em->getRepository(UserRepository::class)->findByEmail($username_or_email);
+        if ($this->em->getConnection()->db_num_rows($result) > 0) {
+            return $this->em->getConnection()->db_fetch_assoc($result);
         }
 
-        $result = (new UserRepository($this->conn))->findByUsername($username_or_email);
-        if ($this->conn->db_num_rows($result) == 0) {
+        $result = $this->em->getRepository(UserRepository::class)->findByUsername($username_or_email);
+        if ($this->em->getConnection()->db_num_rows($result) == 0) {
             return false;
         } else {
-            return $this->conn->db_fetch_assoc($result);
+            return $this->em->getConnection()->db_fetch_assoc($result);
         }
     }
 

@@ -16,6 +16,13 @@ use Symfony\Component\Security\Core\User\EquatableInterface;
 
 class User implements UserInterface, EquatableInterface, \ArrayAccess
 {
+    const STATUS_WEBMASTER = 'webmaster';
+    const STATUS_ADMIN = 'admin';
+    const STATUS_NORMAL = 'normal';
+    const STATUS_GUEST = 'guest';
+
+    const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
+
     protected $id;
     protected $username;
     protected $password;
@@ -79,15 +86,15 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     {
         $this->roles = ['ROLE_USER'];
 
-        if ($this->user_infos['status'] === 'normal') {
+        if ($this->user_infos['status'] === self::STATUS_NORMAL) {
             $this->roles[] = 'ROLE_NORMAL';
         }
 
-        if ($this->user_infos['status'] === 'admin') {
+        if ($this->user_infos['status'] === self::STATUS_ADMIN) {
             $this->roles[] = 'ROLE_ADMIN';
         }
 
-        if ($this->user_infos['status'] === 'webmaster') {
+        if ($this->user_infos['status'] === self::STATUS_WEBMASTER) {
             $this->roles[] = 'ROLE_WEBMASTER';
         }
     }
@@ -119,6 +126,17 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         }
 
         return null;
+    }
+
+    public function setStatus(string $status)
+    {
+        $this->user_infos['status'] = $status;
+        $this->setRolesByStatus();
+    }
+
+    public function addRole(string $role)
+    {
+        $this->roles[] = $role;
     }
 
     public function getRoles()

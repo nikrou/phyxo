@@ -324,6 +324,7 @@ class InstallController extends Controller
 
             if (empty($errors)) {
                 $conn = DBLayer::initFromConfigFile($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php');
+                $em = new EntityManager($conn);
                 $conf = new Conf($conn);
                 $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/include/config_default.inc.php');
                 $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/local/config/config.inc.php');
@@ -333,18 +334,17 @@ class InstallController extends Controller
                 $webmaster->setUsername($db_params['username']);
                 $webmaster->setMailAddress($db_params['mail_address']);
                 $webmaster->setPassword($this->passwordEncoder->encodePassword($webmaster, $db_params['password']));
+                $webmaster->setStatus(User::STATUS_WEBMASTER);
 
                 $guest = new User();
                 $guest->setId($conf['guest_id']);
                 $guest->setUsername('guest');
-                $user_manager = new UserManager($conn, $conf);
+                $guest->setStatus(User::STATUS_GUEST);
+                $user_manager = new UserManager($em, $conf);
 
                 try {
                     $user_manager->register($webmaster);
                     $user_manager->register($guest);
-                    if ($conn->getLayer() === 'pgsql') {
-                        $conn->db_query('ALTER SEQUENCE ' . strtolower(BaseRepository::USERS_TABLE) . '_id_seq RESTART WITH 3');
-                    }
 
                     rename($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php', $this->get('kernel')->getProjectDir() . '/local/config/database.inc.php');
                 } catch (\Exception $e) {
