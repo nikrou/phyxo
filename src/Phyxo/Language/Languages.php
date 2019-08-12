@@ -189,7 +189,7 @@ class Languages extends Extensions
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function getServerLanguages($new = false, string $phyxo_version)
+    public function getServerLanguages($new = false, string $phyxo_version = PHPWG_VERSION)
     {
         global $user, $conf;
 

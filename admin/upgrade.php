@@ -27,6 +27,7 @@ if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
 // |                             language                                  |
 // +-----------------------------------------------------------------------+
 $languages = new Languages($conn);
+$languages->setLanguagesRootPath(__DIR__ . '/../language');
 
 if (isset($_GET['language'])) {
     if (!in_array($_GET['language'], array_keys($languages->getFsLanguages()))) {
@@ -158,6 +159,7 @@ if (isset($_POST['submit']) && $upgrade->checkUpgrade()) {
     }
 
     $languages = new Languages($conn);
+    $languages->setLanguagesRootPath(__DIR__ . '/../language');
 
     foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
         if ($language == $language_code) {

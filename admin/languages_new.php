@@ -16,6 +16,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 use Phyxo\Language\Languages;
 
 $languages = new Languages($conn);
+$languages->setLanguagesRootPath(__DIR__ . '/../language');
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |
