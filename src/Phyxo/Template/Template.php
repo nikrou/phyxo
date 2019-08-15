@@ -11,6 +11,7 @@
 
 namespace Phyxo\Template;
 
+use App\Entity\User;
 use SmartyException;
 use Smarty;
 use Phyxo\Template\ScriptLoader;
@@ -33,6 +34,7 @@ class Template implements EngineInterface
     private $stats = ['render_time' => null, 'files' => []];
     private $manifest_content = '';
     private $router;
+    private $user;
 
     private $image_std_params;
 
@@ -112,6 +114,16 @@ class Template implements EngineInterface
         return self::$instance;
     }
 
+    public function setUser(User $user)
+    {
+        $this->user = $user;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
     public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
@@ -166,9 +178,13 @@ class Template implements EngineInterface
         $this->options['conf'] = $conf;
     }
 
-    public function setLang(array $lang)
+    public function setLang(array $lang, bool $merge = true)
     {
-        $this->options['lang'] = $lang;
+        if ($merge) {
+            $this->options['lang'] = array_merge($this->options['lang'], $lang);
+        } else {
+            $this->options['lang'] = $lang;
+        }
     }
 
     public function setLangInfo(array $lang_info)
@@ -1060,7 +1076,11 @@ class Template implements EngineInterface
 
     public function func_path(array $parameters = [], $smarty)
     {
-        return $this->router->generate($parameters['name'], isset($parameters['params'])?$parameters['params']:[], $parameters['absolute'] ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH);
+        return $this->router->generate(
+            $parameters['name'],
+            isset($parameters['params']) ? $parameters['params'] : [],
+            isset($parameters['absolute']) ? UrlGeneratorInterface::ABSOLUTE_URL : UrlGeneratorInterface::ABSOLUTE_PATH
+        );
     }
 
     public function func_media(array $parameters = [], $smarty)

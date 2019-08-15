@@ -117,6 +117,8 @@ class PictureController extends CommonController
                 ];
                 $tpl_params['previous'] = [
                     'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'type' => $type, 'element_id' => $element_id]),
+                    // 'TITLE_ESC' => str_replace('"', '&quot;', $tpl_params['items'][$current_index]['TITLE'])
+
                 ];
             }
             if ($current_index < (count($tpl_params['items']) - 1)) {

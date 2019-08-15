@@ -30,7 +30,7 @@
 			<label for="password" class="control-label">{'Password'|translate}</label>
                         <input tabindex="2" class="form-control" type="password" name="_password" id="password" placeholder="{'Password'|translate}">
                     </div>
-		    {if $authorize_remembering }
+		    {if $AUTHORIZE_REMEMBERING }
 			<div class="form-group">
 			    <div class="col-sm-offset-2 col-sm-10">
 				<div class="checkbox">

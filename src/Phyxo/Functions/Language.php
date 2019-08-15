@@ -152,7 +152,7 @@ class Language
      *     @option string language - language to load
      *     @option bool return - if true the file content is returned
      *     @option bool local - if true load file from local directory
-     * @return boolean|string
+     * @return boolean|string|array
      */
     public static function load_language($filename, $dirname = '', $options = [])
     {

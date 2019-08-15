@@ -297,6 +297,7 @@ class AlbumController extends CommonController
 
         $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
         $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'created', 'view_type' => 'calendar', 'category_id' => $category_id]);
+        $tpl_params['START_ID'] = $start;
 
         return $this->render('thumbnails.tpl', $tpl_params);
     }
@@ -354,6 +355,7 @@ class AlbumController extends CommonController
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+        $tpl_params['START_ID'] = $start;
 
         return $this->render('thumbnails.tpl', $tpl_params);
     }
@@ -410,6 +412,7 @@ class AlbumController extends CommonController
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+        $tpl_params['START_ID'] = $start;
 
         return $this->render('thumbnails.tpl', $tpl_params);
     }

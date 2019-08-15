@@ -19,9 +19,6 @@ Author URI: https://www.phyxo.net
 The theme is based on the original one for piwigo.
  */
 
-require_once(__DIR__ . '/include/themecontroller.php');
-require_once(__DIR__ . '/include/config.php');
-
 $themeconf = [
     'name' => 'treflez',
     'load_parent_css' => false,
@@ -29,14 +26,8 @@ $themeconf = [
     'url' => 'https://www.phyxo.net/'
 ];
 
-// always show metadata initially
-$_SESSION['show_metadata'] = true;
-
-// register video files
-$video_ext = ['mp4', 'm4v'];
-if (!empty($conf['file_ext'])) {
-    $conf['file_ext'] = array_merge($conf['file_ext'], $video_ext, array_map('strtoupper', $video_ext));
-}
+require_once(__DIR__ . '/include/themecontroller.php');
+require_once(__DIR__ . '/include/config.php');
 
 $controller = new \Treflez\ThemeController($conf, $template);
 $controller->init();

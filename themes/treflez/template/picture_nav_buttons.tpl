@@ -28,7 +28,7 @@
 	   </a>
 	   {/if} *}
 	{if isset($first)}
-	    <a href="{$first.U_IMG}" title="{'First'|translate} : {$first.TITLE}">
+	    <a href="{$first.U_IMG}" title="{'First'|translate}{if isset($first.TITLE)} : {$first.TITLE}{/if}">
 		<i class="fa fa-fast-backward" aria-hidden="true"></i>
 	    </a>
 	{else}
@@ -36,7 +36,7 @@
 	{/if}
 
 	{if isset($previous)}
-	    <a href="{$previous.U_IMG}" title="{'Previous'|translate} : {$previous.TITLE_ESC}" id="navPrevPicture">
+	    <a href="{$previous.U_IMG}" title="{'Previous'|translate}{if isset($previous.TITLE_ESC)} : {$previous.TITLE_ESC}{/if}" id="navPrevPicture">
 		<i class="fa fa-chevron-left" aria-hidden="true"></i>
 	    </a>
 	{else}
@@ -69,7 +69,7 @@
 	{/if}
 
 	{if isset($next)}
-	    <a href="{$next.U_IMG}" title="{'Next'|translate} : {$next.TITLE_ESC}" id="navNextPicture">
+	    <a href="{$next.U_IMG}" title="{'Next'|translate}{if isset($next.TITLE_ESC)} : {$next.TITLE_ESC}{/if}" id="navNextPicture">
 		<i class="fa fa-chevron-right" aria-hidden="true"></i>
 	    </a>
 	{else}
@@ -77,7 +77,7 @@
 	{/if}
 
 	{if isset($last)}
-	    <a href="{$last.U_IMG}" title="{'Last'|translate} : {$last.TITLE}">
+	    <a href="{$last.U_IMG}" title="{'Last'|translate}{if isset($last.TITLE)} : {$last.TITLE}{/if}">
 		<i class="fa fa-fast-forward" aria-hidden="true"></i>
 	    </a>
 	{else}

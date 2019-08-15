@@ -25,10 +25,17 @@ abstract class CommonController extends AbstractController
 
     public function loadLanguage(User $user)
     {
-        $this->language_load = Language::load_language(
+        $this->language_load = array_merge(
+            Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
             ['language' => $user->getLanguage(), 'return_vars' => true]
+            ),
+            Language::load_language(
+                'admin.lang',
+                __DIR__ . '/../../',
+                ['language' => $user->getLanguage(), 'return_vars' => true]
+            )
         );
     }
 
@@ -38,6 +45,7 @@ abstract class CommonController extends AbstractController
 
         $this->loadLanguage($user);
 
+        $template->setUser($this->getUser());
         $template->setRouter($this->get('router'));
         $template->setConf($conf);
         $template->setLang($this->language_load['lang']);
@@ -54,9 +62,11 @@ abstract class CommonController extends AbstractController
         $tpl_params['PHYXO_URL'] = $phyxoWebsite;
 
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
+        $tpl_params['PAGE_TITLE'] = $tpl_params['GALLERY_TITLE'];
         $tpl_params['CONTENT_ENCODING'] = 'utf-8';
         $tpl_params['U_HOME'] = $this->generateUrl('homepage');
         $tpl_params['LEVEL_SEPARATOR'] = $conf['level_separator'];
+        $tpl_params['category_view'] = 'grid';
 
         \Phyxo\Functions\Plugin::trigger_notify('init');
 

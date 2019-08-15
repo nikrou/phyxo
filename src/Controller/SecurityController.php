@@ -48,6 +48,8 @@ class SecurityController extends AbstractController
             __DIR__ . '/../../',
             ['language' => $defaultLanguage, 'return_vars' => true]
         );
+
+        $template->setUser($this->getUser());
         $template->setRouter($router);
         $template->setConf($conf);
         $template->setLang($this->language_load['lang']);
@@ -57,6 +59,7 @@ class SecurityController extends AbstractController
         // default theme
         $template->setTheme(new Theme(__DIR__ . '/../../themes', $defaultTheme));
 
+        $template->assign('CONTENT_ENCODING', 'utf-8');
         $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
         $template->assign('PHYXO_URL', $phyxoWebsite);
     }

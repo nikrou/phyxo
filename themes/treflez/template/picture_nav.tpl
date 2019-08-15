@@ -6,7 +6,7 @@
 		    <a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>
 		    {foreach $TITLE as $breadcrum_element}
 			{$LEVEL_SEPARATOR}
-			{if $breadcrum_element.url}
+			{if isset($breadcrum_element.url)}
 			    <a href="{$breadcrum_element.url}">{$breadcrum_element.label}</a>
 			{else}
 			    <span>{$breadcrum_element.label}</span>
