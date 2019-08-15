@@ -40,6 +40,11 @@ class UserListCommand extends Command
         $this->em = $em;
     }
 
+    public function isEnabled()
+    {
+        return is_readable($this->getApplication()->getKernel()->getDbConfigFile());
+    }
+
     public function configure()
     {
         $this

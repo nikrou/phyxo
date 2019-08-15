@@ -88,7 +88,7 @@ class Themes extends Extensions
                 }
 
                 if ($theme_id === 'treflez') {
-                // you can't activate the "default" theme
+                    // you can't activate the "default" theme
                     break;
                 }
 
@@ -117,6 +117,11 @@ class Themes extends Extensions
             case 'deactivate':
                 if (!isset($crt_db_theme)) {
                 // the theme is already inactive
+                    break;
+                }
+
+                if ($theme_id === 'treflez') {
+                    // you can't deactivate the "default" theme
                     break;
                 }
 

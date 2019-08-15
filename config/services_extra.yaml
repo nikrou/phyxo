@@ -29,3 +29,6 @@ services:
 
   App\Command\UserCreateCommand:
     autoconfigure: true
+
+  App\Command\UserListCommand:
+    autoconfigure: true

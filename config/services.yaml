@@ -43,7 +43,6 @@ services:
           $cacheDir: '%cache_dir%'
           $mediaCacheDir: '%media_cache_dir%'
           $rootProjectDir: '%root_project_dir%'
-          $databaseConfigFile: '%database_config_file%'
           $phyxoVersion: '%core_version%'
           $phyxoWebsite: '%phyxo_website%'
           $defaultLanguage: '%kernel.default_locale%'
@@ -58,7 +57,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages}'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
 
     # service is  enabled after installation in services_extra.yaml (because of csrf protection not enabled by default)
     App\Security\LoginFormAuthenticator:
@@ -117,3 +116,5 @@ services:
     phyxo.upgrade:
       public: true
       alias: 'Phyxo\Upgrade'
+
+    App\Command\InstallCommand: ~

@@ -34,6 +34,11 @@ class UserCreateCommand extends Command
         $this->passwordEncoder = $passwordEncoder;
     }
 
+    public function isEnabled()
+    {
+        return is_readable($this->getApplication()->getKernel()->getDbConfigFile());
+    }
+
     public function configure()
     {
         $this

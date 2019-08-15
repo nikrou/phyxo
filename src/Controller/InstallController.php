@@ -28,7 +28,6 @@ use App\Repository\BaseRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use App\Event\CoreInstalledEvent;
 
 class InstallController extends Controller
 {
@@ -44,18 +43,15 @@ class InstallController extends Controller
     private $languages_options;
     private $passwordEncoder;
     private $phyxoVersion;
-    private $databaseConfigFile;
     private $default_language;
     private $default_theme;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, string $databaseConfigFile,
-                                UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
-        $this->databaseConfigFile = $databaseConfigFile;
         $this->passwordEncoder = $passwordEncoder;
 
         $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
@@ -73,7 +69,7 @@ class InstallController extends Controller
     {
         $tpl_params = [];
 
-        if (is_readable($this->databaseConfigFile) && ($step !== 'success')) {
+        if (is_readable($this->get('kernel')->getDbConfigFile()) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
         }
 
@@ -323,8 +319,9 @@ class InstallController extends Controller
             }
 
             if (empty($errors)) {
-                $conn = DBLayer::initFromConfigFile($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php');
+                $conn = DBLayer::initFromConfigFile($this->get('kernel')->getDbConfigFile() . '.tmp');
                 $em = new EntityManager($conn);
+
                 $conf = new Conf($conn);
                 $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/include/config_default.inc.php');
                 $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/local/config/config.inc.php');
@@ -346,7 +343,7 @@ class InstallController extends Controller
                     $user_manager->register($webmaster);
                     $user_manager->register($guest);
 
-                    rename($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php', $this->get('kernel')->getProjectDir() . '/local/config/database.inc.php');
+                    rename($this->get('kernel')->getDbConfigFile() . '.tmp', $this->get('kernel')->getDbConfigFile());
                 } catch (\Exception $e) {
                     $errors[] = $e->getMessage();
                 }
@@ -411,15 +408,10 @@ class InstallController extends Controller
             $languages->performAction('activate', $language_code);
         }
 
-        $conf->loadFromDB();
+        // activate default theme
+        (new ThemeRepository($conn))->addTheme('treflez', '0.1.0', 'Treflez');
 
-        $themes = new Themes($conn);
-        $themes->setThemesRootPath($this->get('kernel')->getProjectDir() . '/themes');
-        foreach ($themes->getFsThemes() as $theme_id => $fs_theme) {
-            if ($theme_id === $this->default_theme) {
-                $themes->performAction('activate', $theme_id);
-            }
-        }
+        $conf->loadFromDB();
 
         // Available upgrades must be ignored after a fresh installation.
         // To make Phyxo avoid upgrading, we must tell it upgrades have already been made.
@@ -446,8 +438,8 @@ class InstallController extends Controller
         }
         $file_content .= '$conf[\'db_prefix\'] = \'' . $db_params['db_prefix'] . "';\n\n";
 
-        file_put_contents($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php', $file_content);
-        if (!is_readable($this->get('kernel')->getProjectDir() . '/local/config/database.inc.tmp.php')) {
+        file_put_contents($this->get('kernel')->getDbConfigFile() . '.tmp', $file_content);
+        if (!is_readable($this->get('kernel')->getDbConfigFile() . '.tmp')) {
             throw new \Exception(\Phyxo\Functions\Language::l10n('All tables in database have been created'));
         }
     }
