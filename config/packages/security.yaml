@@ -35,7 +35,7 @@ security:
 
             remember_me:
               secret: '%kernel.secret%'
-              name: remember_me
+              name: '%remember_cookie%'
               lifetime: 2592000 # 30 days in seconds
 
             logout:
@@ -55,5 +55,5 @@ security:
     access_control:
         - { path: ^/admin, roles: [ROLE_WEBMASTER,ROLE_ADMIN] }
         - { path: ^/(identification|password|register)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/profile(\.php)?$, roles: ROLE_NORMAL }
+        - { path: ^/profile$, roles: ROLE_NORMAL }
         - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

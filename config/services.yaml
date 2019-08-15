@@ -27,6 +27,10 @@ parameters:
     themes_path: '%kernel.project_dir%/themes'
     plugins_path: '%kernel.project_dir%/plugins'
 
+    # cookies
+    main_cookie: phyxo_id
+    remember_cookie: phyxo_remember_me
+
 services:
     # default configuration for services in *this* file
     _defaults:
