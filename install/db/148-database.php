@@ -11,34 +11,50 @@
 
 $upgrade_description = 'Change sessions table schema';
 
-if (in_array($conf['dblayer'], ['mysql'])) {
-    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
-    $query .= ' DROP COLUMN id,';
-    $query .= ' DROP COLUMN data,';
-    $query .= ' DROP COLUMN expiration,';
-    $query .= ' ADD COLUMN sess_id VARCHAR(128) NOT NULL PRIMARY KEY,';
-    $query .= ' ADD COLUMN sess_data BLOB NOT NULL,';
-    $query .= ' ADD COLUMN  sess_time INTEGER UNSIGNED NOT NULL,';
-    $query .= ' ADD COLUMN  sess_lifetime MEDIUMINT NOT NULL';
+$temporary_table = $conn->getTemporaryTable(App\Repository\BaseRepository::SESSIONS_TABLE);
+
+if (in_array($conn->getLayer(), ['mysql'])) {
+    $query = 'CREATE TABLE ' . $temporary_table;
+    $query .= '(';
+    $query .= '`sess_id` VARCHAR(128) NOT NULL PRIMARY KEY,';
+    $query .= '`sess_data` BLOB NOT NULL,';
+    $query .= '`sess_time` INTEGER UNSIGNED NOT NULL,';
+    $query .= '`sess_lifetime` MEDIUMINT NOT NULL';
+    $query .= ') ENGINE=MyISAM;';
     $conn->db_query($query);
-} elseif ($conf['dblayer'] == 'pgsql') {
-    $query = 'ALTER TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
-    $query .= ' DROP COLUMN id,';
-    $query .= ' DROP COLUMN data,';
-    $query .= ' DROP COLUMN expiration,';
-    $query .= ' ADD COLUMN sess_id VARCHAR(128) NOT NULL PRIMARY KEY,';
-    $query .= ' ADD COLUMN sess_data BYTEA NOT NULL,';
-    $query .= ' ADD COLUMN sess_time INTEGER NOT NULL,';
-    $query .= ' ADD COLUMN sess_lifetime INTEGER NOT NULL;';
+
+    $query = 'DROP TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
     $conn->db_query($query);
-} elseif ($conf['dblayer'] == 'sqlite') {
-    $query = 'DROP TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE . ';';
-    $query = 'CREATE TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
+
+    $query = 'ALTER TABLE ' . $temporary_table . ' RENAME TO ' . App\Repository\BaseRepository::SESSIONS_TABLE;
+    $conn->db_query($query);
+} elseif ($conn->getLayer() === 'pgsql') {
+    $query = 'CREATE TABLE ' . $temporary_table;
+    $query .= '(';
+    $query .= '"sess_id" VARCHAR(128) NOT NULL PRIMARY KEY,';
+    $query .= '"sess_data" BYTEA NOT NULL,';
+    $query .= '"sess_time" INTEGER NOT NULL,';
+    $query .= '"sess_lifetime" INTEGER NOT NULL';
+    $query .= ');';
+    $conn->db_query($query);
+
+    $query = 'DROP TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
+    $conn->db_query($query);
+
+    $query = 'ALTER TABLE ' . $temporary_table . ' RENAME TO ' . App\Repository\BaseRepository::SESSIONS_TABLE;
+    $conn->db_query($query);
+} elseif ($conn->getLayer() === 'sqlite') {
+    $query = 'CREATE TABLE ' . $temporary_table;
     $query .= ' (sess_id VARCHAR(128) NOT NULL PRIMARY KEY,';
     $query .= ' sess_data TEXT NOT NULL,';
     $query .= ' sess_time INTEGER NOT NULL,';
     $query .= ' sess_lifetime INTEGER NOT NULL)';
-  
+    $conn->db_query($query);
+
+    $query = 'DROP TABLE ' . App\Repository\BaseRepository::SESSIONS_TABLE;
+    $conn->db_query($query);
+
+    $query = 'ALTER TABLE ' . $temporary_table . ' RENAME TO ' . App\Repository\BaseRepository::SESSIONS_TABLE;
     $conn->db_query($query);
 }
 

@@ -134,6 +134,10 @@ class InstallCommand extends Command
 
             rename($this->getApplication()->getKernel()->getDbConfigFile() . '.tmp', $this->getApplication()->getKernel()->getDbConfigFile());
 
+            $env_file_content = 'APP_ENV=prod' . "\n";
+            $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
+            file_put_contents($this->getApplication()->getKernel()->getProjectDir() . '/.env', $env_file_content);
+
             // clear cache
             $command = $this->getApplication()->find('cache:clear');
             $arguments = [

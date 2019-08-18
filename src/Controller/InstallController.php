@@ -19,12 +19,10 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Conf;
 use App\Repository\ConfigRepository;
 use App\Repository\UpgradeRepository;
-use Phyxo\Theme\Themes;
 use App\Utils\UserManager;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Extension\Theme;
-use App\Repository\BaseRepository;
 use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
@@ -345,6 +343,10 @@ class InstallController extends Controller
                     $user_manager->register($guest);
 
                     rename($this->get('kernel')->getDbConfigFile() . '.tmp', $this->get('kernel')->getDbConfigFile());
+
+                    $env_file_content = 'APP_ENV=prod' . "\n";
+                    $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
+                    file_put_contents($this->get('kernel')->getProjectDir() . '/.env', $env_file_content);
                 } catch (\Exception $e) {
                     $errors[] = $e->getMessage();
                 }

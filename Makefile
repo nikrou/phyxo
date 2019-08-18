@@ -17,6 +17,9 @@ config: clean
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
+	# Update script is broken. Add new one for 1.10.0 to fix it.
+	cp -p tools/fix_upgrade.php $(DIST)/$(APP_NAME)/
+
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -a -d $(DIST)/$(APP_NAME)
 	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist

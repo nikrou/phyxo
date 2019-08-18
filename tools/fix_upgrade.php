@@ -66,3 +66,24 @@ foreach ($to_apply as $upgrade_id) {
     // notify upgrade
     (new UpgradeRepository($conn))->addUpgrade($upgrade_id, $upgrade_description);
 }
+
+$env_file = __DIR__ . '/.env';
+if (!file_exists($env_file)) {
+    $env_file_content = 'APP_ENV=prod' . "\n";
+    $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
+    file_put_contents($env_file, $env_file_content);
+    echo 'Env file ".env" created.' . "<br/>\n";
+}
+
+$obsolete_files = __DIR__ . '/install/obsolete.list';
+if (is_readable($obsolete_files)) {
+    foreach (file($obsolete_files, FILE_IGNORE_NEW_LINES) as $old_file) {
+        $path = $old_file;
+        if (is_writable($path)) {
+            @unlink($path);
+        } elseif (is_dir($path)) {
+            \Phyxo\Functions\Utils::deltree($path);
+        }
+    }
+    echo 'Remove obsolete files.' . "<br/>\n";
+}
