@@ -30,7 +30,7 @@ class Language
         global $lang, $conf;
 
         if (($val = @$lang[$key]) === null) {
-            if ($conf['debug_l10n'] and !isset($lang[$key]) and !empty($key)) {
+            if (!empty($conf['debug_l10n']) && !isset($lang[$key]) && !empty($key)) {
                 trigger_error('[l10n] language key "' . $key . '" not defined', E_USER_WARNING);
             }
             $val = $key;

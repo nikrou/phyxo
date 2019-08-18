@@ -202,13 +202,16 @@ class Template implements EngineInterface
      * Add load_css for theme
      * Load parent theme
      */
-    public  function setTheme(Theme $theme)
+    public function setTheme(Theme $theme)
     {
         $this->theme = $theme;
 
         $this->set_template_dir($theme->getRoot() . '/' . $theme->getId() . '/' . $theme->getTemplate());
+        $themeconf = $this->loadThemeConf($theme->getRoot() . '/' . $theme->getId());
 
-        $this->loadThemeConf($theme->getRoot() . '/' . $theme->getId());
+        if (isset($themeconf['parent']) && $themeconf['parent'] !== $theme->getId()) {
+            $this->setTheme(new Theme($theme->getRoot(), $themeconf['parent']));
+        }
 
         $tpl_var = ['id' => $theme->getId()];
 
@@ -230,6 +233,8 @@ class Template implements EngineInterface
         $image_std_params = $this->image_std_params;
         require $themeconf_filename;
         ob_end_clean();
+
+        return $themeconf;
     }
 
     /**
@@ -478,7 +483,7 @@ class Template implements EngineInterface
         foreach ($css as $combi) {
             $href = \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_root_url() . $combi->path);
             if ($combi->version !== false) {
-                $href .= '?v' . ($combi->version ? $combi->version : PHPWG_VERSION);
+                $href .= '?v' . ($combi->version ? $combi->version : '1.10.0');
             }
             // trigger the event for eventual use of a cdn
             $href = Plugin::trigger_change('combined_css', $href, $combi);
@@ -837,7 +842,7 @@ class Template implements EngineInterface
         } else {
             $ret = \Phyxo\Functions\URL::get_root_url() . $script->path;
             if ($script->version !== false) {
-                $ret .= '?v' . ($script->version ? $script->version : PHPWG_VERSION);
+                $ret .= '?v' . ($script->version ? $script->version : '1.10.0');
             }
         }
         // trigger the event for eventual use of a cdn
