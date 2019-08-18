@@ -15,7 +15,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 
 use Phyxo\Update\Updates;
 
-$autoupdate = new Updates($conn, 'languages');
+$autoupdate = new Updates($conn, $userMapper, 'languages');
 
 $show_reset = false;
 $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
@@ -35,7 +35,7 @@ try {
             if (!version_compare($fs_extension['version'], $extension_info['revision_name'], '>=')) {
                 $template->append(
                     'update_languages',
-                    array(
+                    [
                         'ID' => $extension_info['extension_id'],
                         'REVISION_ID' => $extension_info['revision_id'],
                         'EXT_ID' => $extension_id,
@@ -49,7 +49,7 @@ try {
                         'DOWNLOADS' => $extension_info['extension_nb_downloads'],
                         'URL_DOWNLOAD' => $extension_info['download_url'] . '&amp;origin=phyxo',
                         'IGNORED' => !empty($conf['updates_ignored']['languages']) && in_array($extension_id, $conf['updates_ignored']['languages']),
-                    )
+                    ]
                 );
             }
         }
@@ -65,6 +65,6 @@ try {
 } catch (\Exception $e) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
     $template->append(
-        array('error' => $page['error'])
+        ['error' => $page['error']]
     );
 }

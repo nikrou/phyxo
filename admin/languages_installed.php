@@ -16,7 +16,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 use Phyxo\Language\Languages;
 use App\Repository\UserInfosRepository;
 
-$languages = new Languages($conn);
+$languages = new Languages($conn, $userMapper);
 $languages->setLanguagesRootPath(__DIR__ . '/../language');
 
 //--------------------------------------------------perform requested actions

@@ -11,11 +11,13 @@
 
 namespace Phyxo\Update;
 
+use App\DataMapper\UserMapper;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Theme\Themes;
 use Phyxo\Language\Languages;
 use PclZip;
 use GuzzleHttp\Client;
+use Phyxo\DBLayer\iDBLayer;
 
 class Updates
 {
@@ -24,7 +26,7 @@ class Updates
     private $default_themes = [], $default_plugins = [], $default_languages = [];
     private $update_url, $missing = [];
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null, $page = 'updates')
+    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, $page = 'updates')
     {
         $this->types = ['plugins', 'themes', 'languages'];
 
@@ -37,7 +39,7 @@ class Updates
 
         foreach ($this->types as $type) {
             $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
-            $this->$type = new $typeClassName($conn);
+            $this->$type = new $typeClassName($conn, $userMapper);
         }
     }
 
@@ -152,8 +154,6 @@ class Updates
 
     public function getServerExtensions($version = PHPWG_VERSION)
     {
-        global $user;
-
         $get_data = [
             'format' => 'json',
         ];
@@ -203,7 +203,7 @@ class Updates
         $get_data = array_merge($get_data, [
             'last_revision_only' => 'true',
             'version' => implode(',', $versions_to_check),
-            'lang' => substr($user['language'], 0, 2),
+            'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
             'get_nb_downloads' => 'true',
             'format' => 'json'
         ]);

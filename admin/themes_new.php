@@ -15,7 +15,7 @@ if (!defined("THEMES_BASE_URL")) {
 
 use Phyxo\Theme\Themes;
 
-$themes = new Themes($conn);
+$themes = new Themes($conn, $userMapper);
 $themes->setThemesRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
 
 // +-----------------------------------------------------------------------+

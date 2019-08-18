@@ -18,7 +18,7 @@ use Phyxo\Update\Updates;
 $show_reset = false;
 $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
-$autoupdate = new Updates($conn, $page['page']);
+$autoupdate = new Updates($conn, $userMapper, $page['page']);
 try {
     $autoupdate->getServerExtensions();
     $server_plugins = $autoupdate->getType('plugins')->getServerPlugins();
@@ -34,7 +34,7 @@ try {
             if (!version_compare($fs_extension['version'], $extension_info['revision_name'], '>=')) {
                 $template->append(
                     'update_plugins',
-                    array(
+                    [
                         'ID' => $extension_info['extension_id'],
                         'REVISION_ID' => $extension_info['revision_id'],
                         'EXT_ID' => $extension_id,
@@ -48,7 +48,7 @@ try {
                         'DOWNLOADS' => $extension_info['extension_nb_downloads'],
                         'URL_DOWNLOAD' => $extension_info['download_url'] . '&amp;origin=phyxo',
                         'IGNORED' => !empty($conf['updates_ignored']['plugins']) && in_array($extension_id, $conf['updates_ignored']['plugins']),
-                    )
+                    ]
                 );
             }
         }
@@ -64,6 +64,6 @@ try {
 } catch (\Exception $e) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
     $template->append(
-        array('error' => $page['errors'])
+        ['error' => $page['errors']]
     );
 }

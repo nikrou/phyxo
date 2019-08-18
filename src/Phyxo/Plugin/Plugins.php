@@ -11,21 +11,24 @@
 
 namespace Phyxo\Plugin;
 
+use App\DataMapper\UserMapper;
 use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
+use Phyxo\DBLayer\iDBLayer;
 
 class Plugins extends Extensions
 {
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
-    private static $plugins_root_path;
+    private static $plugins_root_path, $userMapper;
     private $conn;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn)
+    public function __construct(iDBLayer $conn, UserMapper $userMapper)
     {
         $this->conn = $conn;
+        self::$userMapper = $userMapper;
     }
 
     public function setPluginsRootPath(string $plugins_root_path)
@@ -201,8 +204,6 @@ class Plugins extends Extensions
      */
     public function getFsPlugin($plugin_id)
     {
-        global $user;
-
         $path = self::$plugins_root_path . '/' . $plugin_id;
         $main_file = $path . '/main.inc.php';
 
@@ -228,7 +229,7 @@ class Plugins extends Extensions
         if (preg_match("|Plugin URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
             $plugin['uri'] = trim($val[1]);
         }
-        if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($main_file) . '/', ['language' => $user['language'], 'return' => true])) {
+        if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($main_file) . '/', ['language' => self::$userMapper->getUser()->getLanguage(), 'return' => true])) {
             $plugin['description'] = trim($desc);
         } elseif (preg_match("|Description:\\s*(.+)|", $plugin_data, $val)) {
             $plugin['description'] = trim($val[1]);
@@ -326,7 +327,7 @@ class Plugins extends Extensions
      */
     public function getServerPlugins($new = false)
     {
-        global $user, $conf;
+        global $conf;
 
         if (!$this->server_plugins_retrieved) {
             $versions_to_check = $this->getVersionsToCheck();
@@ -349,7 +350,7 @@ class Plugins extends Extensions
                 'format' => 'php',
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
-                'lang' => substr($user['language'], 0, 2),
+                'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
                 'get_nb_downloads' => 'true',
             ];
 

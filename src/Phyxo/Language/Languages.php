@@ -11,22 +11,26 @@
 
 namespace Phyxo\Language;
 
+use App\DataMapper\UserMapper;
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
+use Phyxo\DBLayer\iDBLayer;
 
 class Languages extends Extensions
 {
     private $conn;
-    private static $languages_root_path;
+    private static $languages_root_path, $userMapper;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn = null)
+    public function __construct(iDBLayer $conn = null, UserMapper $userMapper = null)
     {
         if (!is_null($conn)) {
             $this->conn = $conn;
         }
+
+        self::$userMapper = $userMapper;
     }
 
     public static function setLanguagesRootPath(string $languages_root_path)
@@ -47,7 +51,7 @@ class Languages extends Extensions
      */
     function performAction($action, $language_id)
     {
-        global $conf, $userMapper;
+        global $conf;
 
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
@@ -79,7 +83,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                if ($language_id == $userMapper->getDefaultLanguage()) {
+                if ($language_id == self::$userMapper->getDefaultLanguage()) {
                     $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
                     break;
                 }
@@ -98,7 +102,7 @@ class Languages extends Extensions
                 }
 
                 // Set default language to user who are using this language
-                (new LanguageRepository($this->conn))->updateLanguage(['language' => $userMapper->getDefaultLanguage()], ['id' => $language_id]);
+                (new LanguageRepository($this->conn))->updateLanguage(['language' => self::$userMapper->getDefaultLanguage()], ['id' => $language_id]);
                 \Phyxo\Functions\Utils::deltree(self::$languages_root_path . '/language/' . $language_id, self::$languages_root_path . '/language/trash');
                 break;
 
@@ -191,7 +195,7 @@ class Languages extends Extensions
      */
     public function getServerLanguages($new = false, string $phyxo_version = PHPWG_VERSION)
     {
-        global $user, $conf;
+        global $conf;
 
         if (!$this->server_languages_retrieved) {
             $get_data = [
@@ -235,7 +239,7 @@ class Languages extends Extensions
             $get_data = array_merge($get_data, [
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
-                'lang' => $user['language'],
+                'lang' => self::$userMapper->getUser()->getLanguage(),
                 'get_nb_downloads' => 'true',
             ]);
             if (!empty($languages_to_check)) {

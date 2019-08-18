@@ -405,7 +405,7 @@ class InstallController extends Controller
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
-        $languages = new Languages($conn);
+        $languages = new Languages($conn, $this->us);
         $languages->setLanguagesRootPath($this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);

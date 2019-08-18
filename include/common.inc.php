@@ -62,7 +62,7 @@ if (!empty($conf['show_php_errors'])) {
 //     }
 // }
 
-\Phyxo\Functions\Plugin::load_plugins();
+\Phyxo\Functions\Plugin::load_plugins($userMapper);
 
 // users can have defined a custom order pattern, incompatible with GUI form
 if (isset($conf['order_by_custom'])) {

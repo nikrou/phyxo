@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions;
 
+use App\DataMapper\UserMapper;
 use App\Repository\PluginRepository;
 
 class Plugin
@@ -189,14 +190,14 @@ class Plugin
     /**
      * Loads all the registered plugins.
      */
-    public static function load_plugins()
+    public static function load_plugins(UserMapper $userMapper)
     {
         global $conf, $pwg_loaded_plugins, $conn;
 
         $pwg_loaded_plugins = [];
 
         if ($conf['enable_plugins']) {
-            $plugins = new \Phyxo\Plugin\Plugins($conn);
+            $plugins = new \Phyxo\Plugin\Plugins($conn, $userMapper);
             $db_plugins = $plugins->getDbPlugins('active');
             foreach ($db_plugins as $plugin) { // include main from a function to avoid using same function context
                 self::load_plugin($plugin);

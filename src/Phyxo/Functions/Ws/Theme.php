@@ -34,7 +34,7 @@ class Theme
 
         define('IN_ADMIN', true); // @TODO: remove ?
 
-        $themes = new Themes($service->getConnection());
+        $themes = new Themes($service->getConnection(), $service->getUserMapper());
         $errors = $themes->performAction($params['action'], $params['theme']);
 
         if (!empty($errors)) {

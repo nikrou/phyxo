@@ -145,7 +145,7 @@ class Extension
      */
     public static function checkupdates($params, Server $service)
     {
-        $update = new Updates($service->getConnection());
+        $update = new Updates($service->getConnection(), $service->getUserMapper());
         $result = [];
 
         if (!isset($_SESSION['need_update'])) {

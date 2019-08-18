@@ -15,7 +15,7 @@ if (!defined("THEMES_BASE_URL")) {
 
 use Phyxo\Update\Updates;
 
-$autoupdate = new Updates($conn, 'themes');
+$autoupdate = new Updates($conn, $userMapper, 'themes');
 
 $show_reset = false;
 $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
@@ -35,7 +35,7 @@ try {
             if (!version_compare($fs_extension['version'], $ext_info['revision_name'], '>=')) {
                 $template->append(
                     'update_themes',
-                    array(
+                    [
                         'ID' => $ext_info['extension_id'],
                         'REVISION_ID' => $ext_info['revision_id'],
                         'EXT_ID' => $extension_id,
@@ -49,7 +49,7 @@ try {
                         'DOWNLOADS' => $ext_info['extension_nb_downloads'],
                         'URL_DOWNLOAD' => $ext_info['download_url'] . '&amp;origin=phyxo',
                         'IGNORED' => !empty($conf['updates_ignored']['themes']) && in_array($extension_id, $conf['updates_ignored']['themes']),
-                    )
+                    ]
                 );
             }
         }
@@ -65,6 +65,6 @@ try {
 } catch (\Exception $e) {
     $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
     $template->append(
-        array('error' => $page['error'])
+        ['error' => $page['error']]
     );
 }

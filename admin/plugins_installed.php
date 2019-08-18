@@ -35,7 +35,7 @@ if (isset($_GET['show_details'])) {
 $pwg_token = \Phyxo\Functions\Utils::get_token();
 $action_url = PLUGINS_BASE_URL . '&amp;section=installed&amp;plugin=' . '%s' . '&amp;pwg_token=' . $pwg_token;
 
-$plugins = new Plugins($conn);
+$plugins = new Plugins($conn, $userMapper);
 $plugins->setPluginsRootPath(__DIR__ . '/../plugins'); //@TODO : retrieve from config/service: $pluginsPath
 
 //--------------------------------------------------perform requested actions

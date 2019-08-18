@@ -15,7 +15,7 @@ if (!defined("PLUGINS_BASE_URL")) {
 
 use Phyxo\Plugin\Plugins;
 
-$plugins = new Plugins($conn);
+$plugins = new Plugins($conn, $userMapper);
 $plugins->setPluginsRootPath(__DIR__ . '/../plugins'); //@TODO : retrieve from config/service: $pluginsPath
 
 //------------------------------------------------------automatic installation

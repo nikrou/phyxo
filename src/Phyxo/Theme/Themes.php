@@ -11,21 +11,24 @@
 
 namespace Phyxo\Theme;
 
+use App\DataMapper\UserMapper;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use Phyxo\DBLayer\iDBLayer;
 
 class Themes extends Extensions
 {
     private $conn;
-    private static $themes_root_path;
+    private static $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
-    public function __construct(\Phyxo\DBLayer\iDBLayer $conn)
+    public function __construct(iDBLayer $conn, UserMapper $userMapper)
     {
         $this->conn = $conn;
+        self::$userMapper = $userMapper;
     }
 
     public function setThemesRootPath(string $themes_root_path)
@@ -62,7 +65,7 @@ class Themes extends Extensions
      */
     public function performAction($action, $theme_id)
     {
-        global $conf, $userMapper;
+        global $conf;
 
         if (!$this->db_themes_retrieved) {
             $this->getDbThemes();
@@ -121,7 +124,7 @@ class Themes extends Extensions
                     break;
                 }
 
-                if ($theme_id == $userMapper->getDefaultTheme()) {
+                if ($theme_id == self::$userMapper->getDefaultTheme()) {
                     // find a random theme to replace
                     $new_theme = null;
                     $result = (new ThemeRepository($this->conn))->findById($theme_id);
@@ -206,10 +209,10 @@ class Themes extends Extensions
 
     public function setDefaultTheme($theme_id)
     {
-        global $conf, $userMapper;
+        global $conf;
 
         // first we need to know which users are using the current default theme
-        $default_theme = $userMapper->getDefaultTheme();
+        $default_theme = self::$userMapper->getDefaultTheme();
         $result = (new UserInfosRepository($this->conn))->findByTheme($default_theme);
         $user_ids = array_unique(
             array_merge(
@@ -242,7 +245,7 @@ class Themes extends Extensions
      */
     public function getFsThemes()
     {
-        global $conf, $user;
+        global $conf;
 
         if (!$this->fs_themes_retrieved) {
             foreach (glob(self::$themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
@@ -271,7 +274,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['language' => $user['language'], 'return' => true])) {
+                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['language' => self::$userMapper->getUser()->getLanguage(), 'return' => true])) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);
@@ -347,7 +350,7 @@ class Themes extends Extensions
      */
     public function getServerThemes($new = false)
     {
-        global $user, $conf;
+        global $conf;
 
         if (!$this->server_themes_retrieved) {
             $get_data = [
@@ -393,7 +396,7 @@ class Themes extends Extensions
                 [
                     'last_revision_only' => 'true',
                     'version' => implode(',', $versions_to_check),
-                    'lang' => substr($user['language'], 0, 2),
+                    'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
                     'get_nb_downloads' => 'true',
                 ]
             );

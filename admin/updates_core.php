@@ -36,7 +36,7 @@ if ($step == 0) {
         'DEV_VERSION' => false,
     ]);
 
-    $updater = new Updates($conn);
+    $updater = new Updates($conn, $userMapper);
     $updater->setUpdateUrl(PHYXO_UPDATE_URL);
 
     if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {

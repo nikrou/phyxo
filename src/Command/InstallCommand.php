@@ -11,6 +11,7 @@
 
 namespace App\Command;
 
+use App\DataMapper\UserMapper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Phyxo\DBLayer\DBLayer;
@@ -34,14 +35,15 @@ class InstallCommand extends Command
     protected static $defaultName = 'phyxo:install';
 
     private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $phyxoVersion, $defaultTheme;
+    private $phyxoVersion, $defaultTheme, $userMapper;
 
-    public function __construct(string $phyxoVersion, string $defaultTheme)
+    public function __construct(string $phyxoVersion, string $defaultTheme, UserMapper $userMapper)
     {
         parent::__construct();
 
         $this->phyxoVersion = $phyxoVersion;
         $this->defaultTheme = $defaultTheme;
+        $this->userMapper = $userMapper;
     }
 
     public function isEnabled()
@@ -192,7 +194,7 @@ class InstallCommand extends Command
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
-        $languages = new Languages($conn);
+        $languages = new Languages($conn, $this->userMapper);
         $languages->setLanguagesRootPath($this->getApplication()->getKernel()->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);

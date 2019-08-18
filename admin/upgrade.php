@@ -26,7 +26,7 @@ if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
 // +-----------------------------------------------------------------------+
 // |                             language                                  |
 // +-----------------------------------------------------------------------+
-$languages = new Languages($conn);
+$languages = new Languages($conn, $userMapper);
 $languages->setLanguagesRootPath(__DIR__ . '/../language');
 
 if (isset($_GET['language'])) {
@@ -158,7 +158,7 @@ if (isset($_POST['submit']) && $upgrade->checkUpgrade()) {
         define('PWG_CHARSET', 'utf-8');
     }
 
-    $languages = new Languages($conn);
+    $languages = new Languages($conn, $userMapper);
     $languages->setLanguagesRootPath(__DIR__ . '/../language');
 
     foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
