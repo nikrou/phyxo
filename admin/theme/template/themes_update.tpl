@@ -162,7 +162,7 @@
 	<div>
 	    <fieldset id="themes">
 		<legend>{'Themes'|translate}</legend>
-		{foreach from=$update_themes item=theme name=themes_loop}
+		{foreach $update_themes as $theme}
 		    <div class="pluginBox" id="themes_{$theme.EXT_ID}" {if $theme.IGNORED}style="display:none;"{/if}>
 			<table>
 			    <tr>
@@ -181,8 +181,6 @@
 				</td>
 				<td class="pluginDesc" id="desc_{$theme.ID}">
 				    <em>{'Downloads'|translate}: {$theme.DOWNLOADS}</em>
-				    <img src="./theme/icon/plus.gif" alt="" class="button_{$theme.ID}">
-				    <img src="./theme/icon/minus.gif" alt="" class="button_{$theme.ID}" style="display:none;">
 				    {'New Version'|translate} : {$theme.NEW_VERSION}
 				    | {'By %s'|translate:$theme.AUTHOR}
 				</td>

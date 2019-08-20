@@ -31,7 +31,7 @@ class Plugins extends Extensions
         self::$userMapper = $userMapper;
     }
 
-    public function setPluginsRootPath(string $plugins_root_path)
+    public function setRootPath(string $plugins_root_path)
     {
         self::$plugins_root_path = $plugins_root_path;
     }
@@ -303,7 +303,7 @@ class Plugins extends Extensions
         global $conf;
 
         $versions_to_check = [];
-        $url = PEM_URL . '/api/get_version_list.php?category_id=' . $conf['pem_plugins_category'];
+        $url = $this->pem_url . '/api/get_version_list.php?category_id=' . $conf['pem_plugins_category'];
         try {
             $pem_versions = $this->getJsonFromServer($url);
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
@@ -344,7 +344,7 @@ class Plugins extends Extensions
             }
 
             // Retrieve PEM plugins infos
-            $url = PEM_URL . '/api/get_revision_list.php';
+            $url = $this->pem_url . '/api/get_revision_list.php';
             $get_data = [
                 'category_id' => $conf['pem_plugins_category'],
                 'format' => 'php',
@@ -406,7 +406,7 @@ class Plugins extends Extensions
         }
 
         // Retrieve PEM plugins infos
-        $url = PEM_URL . '/api/get_revision_list.php';
+        $url = $this->pem_url . '/api/get_revision_list.php';
         $get_data = [
             'category_id' => $conf['pem_plugins_category'],
             'format' => 'php',

@@ -16,13 +16,15 @@ use PclZip;
 
 class Extensions
 {
-    protected $directory_pattern = '';
+    const TYPES = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
 
-    public function getJsonFromServer($url, $params=[]) {
+    protected $directory_pattern = '', $pem_url;
+
+    public function getJsonFromServer($url, $params = []) {
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
-            if ($response->getStatusCode()===200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() === 200 && $response->getBody()->isReadable()) {
                 return json_decode($response->getBody(), true);
             } else {
                 throw new \Exception("Response is not readable");
@@ -32,12 +34,21 @@ class Extensions
         }
     }
 
-    public function download($params=[], $filename) {
-        $url = PEM_URL . '/download.php';
+    public function setExtensionsURL(string $url) {
+        $this->pem_url = $url;
+    }
+
+    public function getExtensionsURL() {
+        return $this->pem_url;
+    }
+
+    public function download($params = [], $filename) {
+        $url = $this->pem_url . '/download.php';
+        \App\Log::getInstance()->debug($filename, $url);
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
-            if ($response->getStatusCode()===200 && $response->getBody()->isReadable()) {
+            if ($response->getStatusCode() === 200 && $response->getBody()->isReadable()) {
                 file_put_contents($filename, $response->getBody());
             } else {
                 throw new \Exception("Response is not readable");
@@ -47,7 +58,7 @@ class Extensions
         }
     }
 
-    protected function extractZipFiles($zip_file, $main_file, $extract_path='') {
+    protected function extractZipFiles($zip_file, $main_file, $extract_path = '') {
         $zip = new PclZip($zip_file);
         if ($list = $zip->listContent()) {
             // find main file
@@ -59,7 +70,7 @@ class Extensions
 
             if (!empty($main_filepath)) {
                 $root = basename(dirname($main_filepath)); // dirname($main_filepath) cannot be null throw Exception if needed
-                $extract_path .= '/'.$root;
+                $extract_path .= '/' . $root;
 
                 if (!empty($this->directory_pattern)) {
                     if (!preg_match($this->directory_pattern, $root)) {
@@ -69,8 +80,8 @@ class Extensions
 
                 // @TODO: use native zip library ; use arobase before
                 if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $root, PCLZIP_OPT_REPLACE_NEWER)) {
-                    $errors = array_filter($results, function($f) { return ($f['status'] !== 'ok' && $f['status']!=='filtered') && $f['status']!=='already_a_directory'; });
-                    if (count($errors)>0) {
+                    $errors = array_filter($results, function($f) { return ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory'; });
+                    if (count($errors) > 0) {
                         throw new \Exception("Error while extracting some files from archive");
                     }
                 } else {

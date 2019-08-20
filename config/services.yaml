@@ -6,6 +6,7 @@
 parameters:
     core_version: 1.10.0-dev
     phyxo_website: https://www.phyxo.net
+    pem_url: 'https://ext.phyxo.net'
 
     legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
@@ -49,6 +50,7 @@ services:
           $rootProjectDir: '%root_project_dir%'
           $phyxoVersion: '%core_version%'
           $phyxoWebsite: '%phyxo_website%'
+          $pemURL: '%pem_url%'
           $defaultLanguage: '%kernel.default_locale%'
           $defaultTheme: '%default_theme%'
           $startParam: '%start_param%'

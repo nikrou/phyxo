@@ -53,7 +53,7 @@ class Plugins extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
-        $plugins->setPluginsRootPath($workspace);
+        $plugins->setRootPath($workspace);
 
         $this
             ->array($plugins->getFsPlugins())
@@ -70,7 +70,7 @@ class Plugins extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
-        $plugins->setPluginsRootPath($workspace);
+        $plugins->setRootPath($workspace);
 
         $plugins->sortFsPlugins($sort_type);
 
@@ -92,7 +92,7 @@ class Plugins extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
-        $plugins->setPluginsRootPath($workspace);
+        $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function () {
             // copy archive in right place
@@ -117,7 +117,7 @@ class Plugins extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
-        $plugins->setPluginsRootPath($workspace);
+        $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place
@@ -156,7 +156,7 @@ class Plugins extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $plugins = new \mock\Phyxo\Plugin\Plugins($conn);
-        $plugins->setPluginsRootPath($workspace);
+        $plugins->setRootPath($workspace);
 
         $this->calling($plugins)->download = function ($get_data, $archive) {
             // copy archive in right place

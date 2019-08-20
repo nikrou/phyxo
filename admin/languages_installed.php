@@ -17,7 +17,7 @@ use Phyxo\Language\Languages;
 use App\Repository\UserInfosRepository;
 
 $languages = new Languages($conn, $userMapper);
-$languages->setLanguagesRootPath(__DIR__ . '/../language');
+$languages->setRootPath(__DIR__ . '/../language');
 
 //--------------------------------------------------perform requested actions
 if (isset($_GET['action']) and isset($_GET['language'])) {

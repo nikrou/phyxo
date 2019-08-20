@@ -16,9 +16,6 @@ if (!defined('PHPWG_VERSION')) { // can be defined in tests
 if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 }
-if (!defined('PHPWG_DEFAULT_TEMPLATE')) {
-    define('PHPWG_DEFAULT_TEMPLATE', 'treflez');
-}
 if (!defined('PWG_COMBINED_DIR')) {
     define('PWG_COMBINED_DIR', $conf['data_location'] . 'combined/');
 }
@@ -38,13 +35,6 @@ if (!defined('PHYXO_UPDATE_URL')) {
 }
 if (!defined('PHYXO_UPDATE_VERSION')) {
     define('PHYXO_UPDATE_VERSION', 'stable');
-}
-if (!defined('PEM_URL')) {
-    if (!empty($conf['alternative_pem_url'])) {
-        define('PEM_URL', $conf['alternative_pem_url']);
-    } else {
-        define('PEM_URL', 'https://ext.' . PHPWG_DOMAIN);
-    }
 }
 
 // Access codes

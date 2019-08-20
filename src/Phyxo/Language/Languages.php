@@ -33,7 +33,7 @@ class Languages extends Extensions
         self::$userMapper = $userMapper;
     }
 
-    public static function setLanguagesRootPath(string $languages_root_path)
+    public static function setRootPath(string $languages_root_path)
     {
         self::$languages_root_path = $languages_root_path;
     }
@@ -205,7 +205,7 @@ class Languages extends Extensions
             // Retrieve PEM versions
             $version = $phyxo_version;
             $versions_to_check = [];
-            $url = PEM_URL . '/api/get_version_list.php';
+            $url = $this->pem_url . '/api/get_version_list.php';
 
             try {
                 $pem_versions = $this->getJsonFromServer($url, $get_data);
@@ -235,7 +235,7 @@ class Languages extends Extensions
             }
 
             // Retrieve PEM languages infos
-            $url = PEM_URL . '/api/get_revision_list.php';
+            $url = $this->pem_url . '/api/get_revision_list.php';
             $get_data = array_merge($get_data, [
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),

@@ -13,20 +13,21 @@ if (!defined("LANGUAGES_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-use Phyxo\Update\Updates;
+use Phyxo\Language\Languages;
 
-$autoupdate = new Updates($conn, $userMapper, 'languages');
+$languages = new Languages($conn, $userMapper);
+$languages->setRootPath(__DIR__ . '/../language');
+$languages->setExtensionsURL($pemURL);
 
 $show_reset = false;
 $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
 try {
-    $autoupdate->getServerExtensions();
-    $server_languages = $autoupdate->getType('languages')->getServerLanguages();
+    $server_languages = $languages->getServerLanguages();
 
     if (count($server_languages) > 0) {
-        foreach ($autoupdate->getType('languages')->getFsLanguages() as $extension_id => $fs_extension) {
-            if (!isset($fs_extension['extension']) or !isset($server_languages[$fs_extension['extension']])) {
+        foreach ($languages->getFsLanguages() as $extension_id => $fs_extension) {
+            if (!isset($fs_extension['extension']) || !isset($server_languages[$fs_extension['extension']])) {
                 continue;
             }
 
@@ -40,7 +41,7 @@ try {
                         'REVISION_ID' => $extension_info['revision_id'],
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
-                        'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $extension_info['extension_id'],
+                        'EXT_URL' => $pemURL . '/extension_view.php?eid=' . $extension_info['extension_id'],
                         'EXT_DESC' => trim($extension_info['extension_description'], " \n\r"),
                         'REV_DESC' => trim($extension_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],

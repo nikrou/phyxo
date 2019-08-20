@@ -9,115 +9,67 @@
  * file that was distributed with this source code.
  */
 
-if (!defined("PLUGINS_BASE_URL")) {
-    die("Hacking attempt!");
-}
+namespace Phyxo\Functions\Ws;
 
+use Phyxo\Ws\Error;
 use Phyxo\Plugin\Plugins;
+use Phyxo\Ws\Server;
 
-$plugins = new Plugins($conn, $userMapper);
-$plugins->setPluginsRootPath(__DIR__ . '/../plugins'); //@TODO : retrieve from config/service: $pluginsPath
+class Plugin
+{
+    /**
+     * API method
+     * Returns the list of all plugins
+     * @param mixed[] $params
+     */
+    public static function getList($params, Server $service)
+    {
+        $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
+        $plugins->setRootPath(__DIR__ . '/../../../plugins');
+        $plugins->sortFsPlugins('name');
+        $plugin_list = [];
 
-//------------------------------------------------------automatic installation
-if (isset($_GET['revision']) and isset($_GET['extension'])) {
-    if (!$userMapper->isWebmaster()) {
-        $page['errors'][] = \Phyxo\Functions\Language::l10n('Webmaster status is required.');
-    } else {
-        \Phyxo\Functions\Utils::check_token();
+        foreach ($plugins->getFsPlugins() as $plugin_id => $fs_plugin) {
+            if (isset($plugins->getDbPlugins()[$plugin_id])) {
+                $state = $plugins->getDbPlugins()[$plugin_id]['state'];
+            } else {
+                $state = 'uninstalled';
+            }
 
-        try {
-            $plugins->extractPluginFiles('install', $_GET['revision'], $_GET['extension'], $plugin_id);
-            $install_status = 'ok';
-        } catch (\Exception $e) {
-            $install_status = 'nok';
-            $page['errors'] = $e->getMessage();
+            $plugin_list[] = [
+                'id' => $plugin_id,
+                'name' => $fs_plugin['name'],
+                'version' => $fs_plugin['version'],
+                'state' => $state,
+                'description' => $fs_plugin['description'],
+            ];
         }
 
-        \Phyxo\Functions\Utils::redirect(PLUGINS_BASE_URL . '&installstatus=' . $install_status . '&plugin_id=' . $plugin_id);
+        return $plugin_list;
     }
-}
 
-//--------------------------------------------------------------install result
-if (isset($_GET['installstatus'])) {
-    switch ($_GET['installstatus']) {
-        case 'ok':
-            $activate_url = PLUGINS_BASE_URL
-                . '&amp;plugin=' . $_GET['plugin_id']
-                . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token()
-                . '&amp;action=activate';
-
-            $page['infos'][] = \Phyxo\Functions\Language::l10n('Plugin has been successfully copied');
-            $page['infos'][] = '<a href="' . $activate_url . '">' . \Phyxo\Functions\Language::l10n('Activate it now') . '</a>';
-            break;
-
-        case 'temp_path_error':
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t create temporary file.');
-            break;
-
-        case 'dl_archive_error':
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t download archive.');
-            break;
-
-        case 'archive_error':
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t read or extract archive.');
-            break;
-
-        default:
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('An error occured during extraction (%s).', htmlspecialchars($_GET['installstatus']));
-            $page['errors'][] = \Phyxo\Functions\Language::l10n('Please check "plugins" folder and sub-folders permissions (CHMOD).');
-    }
-}
-
-//---------------------------------------------------------------Order options
-$template->assign('order_options', [
-    'date' => \Phyxo\Functions\Language::l10n('Post date'),
-    'revision' => \Phyxo\Functions\Language::l10n('Last revisions'),
-    'name' => \Phyxo\Functions\Language::l10n('Name'),
-    'author' => \Phyxo\Functions\Language::l10n('Author'),
-    'downloads' => \Phyxo\Functions\Language::l10n('Number of downloads')
-]);
-
-// +-----------------------------------------------------------------------+
-// |                     start template output                             |
-// +-----------------------------------------------------------------------+
-
-try {
-    if (count($plugins->getServerPlugins(true)) > 0) {
-        // order plugins
-        if (!empty($_SESSION['plugins_new_order'])) {
-            $order_selected = $_SESSION['plugins_new_order'];
-            $plugins->sortServerPlugins($order_selected);
-            $template->assign('order_selected', $order_selected);
-        } else {
-            $plugins->sortServerPlugins('date');
-            $template->assign('order_selected', 'date');
+    /**
+     * API method
+     * Performs an action on a plugin
+     * @param mixed[] $params
+     *    @option string action
+     *    @option string plugin
+     *    @option string pwg_token
+     */
+    public static function performAction($params, Server $service)
+    {
+        if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
+            return new Error(403, 'Invalid security token');
         }
 
-        foreach ($plugins->getServerPlugins() as $plugin) {
-            $ext_desc = trim($plugin['extension_description'], " \n\r");
-            list($small_desc) = explode("\n", wordwrap($ext_desc, 200));
+        define('IN_ADMIN', true);
 
-            $url_auto_install = htmlentities(PLUGINS_BASE_URL)
-                . '&amp;section=new'
-                . '&amp;revision=' . $plugin['revision_id']
-                . '&amp;extension=' . $plugin['extension_id']
-                . '&amp;pwg_token=' . \Phyxo\Functions\Utils::get_token();
+        $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
+        $plugins->setRootPath(__DIR__ . '/../../../plugins');
+        $errors = $plugins->performAction($params['action'], $params['plugin']);
 
-            $template->append('plugins', [
-                'ID' => $plugin['extension_id'],
-                'EXT_NAME' => $plugin['extension_name'],
-                'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $plugin['extension_id'],
-                'SMALL_DESC' => trim($small_desc, " \r\n"),
-                'BIG_DESC' => $ext_desc,
-                'VERSION' => $plugin['revision_name'],
-                'REVISION_DATE' => preg_replace('/[^0-9]/', '', $plugin['revision_date']),
-                'AUTHOR' => $plugin['author_name'],
-                'DOWNLOADS' => $plugin['extension_nb_downloads'],
-                'URL_INSTALL' => $url_auto_install,
-                'URL_DOWNLOAD' => $plugin['download_url'] . '&amp;origin=phyxo_download'
-            ]);
+        if (!empty($errors)) {
+            return new Error(500, $errors);
         }
     }
-} catch (\Exception $e) {
-    $page['errors'][] = \Phyxo\Functions\Language::l10n('Can\'t connect to server.');
 }

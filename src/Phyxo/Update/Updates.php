@@ -18,29 +18,26 @@ use Phyxo\Language\Languages;
 use PclZip;
 use GuzzleHttp\Client;
 use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Extension\Extensions;
 
 class Updates
 {
     private $versions = [], $version = [];
     private $types = [];
     private $default_themes = [], $default_plugins = [], $default_languages = [];
-    private $update_url, $missing = [];
+    private $update_url, $pem_url, $missing = [];
+    private $userMapper, $conn;
 
-    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, $page = 'updates')
+    public function __construct(iDBLayer $conn = null, UserMapper $userMapper)
     {
-        $this->types = ['plugins', 'themes', 'languages'];
+        $this->conn = $conn;
+        $this->userMapper = $userMapper;
 
-        if (in_array($page, $this->types)) {
-            $this->types = [$page];
-        }
+        $this->types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
+
         $this->default_themes = ['treflez'];
         $this->default_plugins = [];
         $this->default_languages = [];
-
-        foreach ($this->types as $type) {
-            $typeClassName = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
-            $this->$type = new $typeClassName($conn, $userMapper);
-        }
     }
 
     public function setUpdateUrl($url)
@@ -48,10 +45,20 @@ class Updates
         $this->update_url = $url;
     }
 
-    public function getType($type)
+    public function setExtensionsURL(string $url) {
+        $this->pem_url = $url;
+    }
+
+    protected function getType(string $type): Extensions
     {
         if (!in_array($type, $this->types)) {
             return null;
+        }
+
+        if (!isset($this->$type)) {
+            $classname = sprintf('\Phyxo\%s\%s', ucfirst(substr($type, 0, -1)), ucfirst($type));
+            $this->$type = new $classname($this->conn, $this->userMapper);
+            $this->$type->setRootPath(__DIR__ . '/../../../' . $this->types[$type]);
         }
 
         return $this->$type;
@@ -160,7 +167,7 @@ class Updates
 
         // Retrieve PEM versions
         $versions_to_check = [];
-        $url = PEM_URL . '/api/get_version_list.php';
+        $url = $this->pem_url . '/api/get_version_list.php';
 
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
@@ -199,11 +206,11 @@ class Updates
         }
 
         // Retrieve PEM plugins infos
-        $url = PEM_URL . '/api/get_revision_list.php';
+        $url = $this->pem_url . '/api/get_revision_list.php';
         $get_data = array_merge($get_data, [
             'last_revision_only' => 'true',
             'version' => implode(',', $versions_to_check),
-            'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
+            'lang' => substr($this->userMapper->getUser()->getLanguage(), 0, 2),
             'get_nb_downloads' => 'true',
             'format' => 'json'
         ]);

@@ -30,10 +30,11 @@ use App\DataMapper\SearchMapper;
 class AdminController extends Controller
 {
     protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $em, $router, $image_std_params;
+    protected $pemURL;
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
                         TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, EntityManager $em,
-                        RouterInterface $router, ImageStandardParams $image_std_params, SearchMapper $searchMapper)
+                        RouterInterface $router, ImageStandardParams $image_std_params, SearchMapper $searchMapper, string $pemURL)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -46,6 +47,7 @@ class AdminController extends Controller
         $this->em = $em;
         $this->router = $router;
         $this->image_std_params = $image_std_params;
+        $this->pemURL = $pemURL;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -73,6 +75,7 @@ class AdminController extends Controller
         $rateMapper = $this->rateMapper;
         $searchMapper = $this->searchMapper;
 
+        $pemURL = $this->pemURL;
         $em = $this->em;
         $router = $this->router;
         $image_std_params = $this->image_std_params;

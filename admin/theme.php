@@ -16,7 +16,7 @@ if (empty($_GET['theme'])) {
 }
 
 $themes = new Themes($conn, $userMapper);
-$themes->setThemesRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
+$themes->setRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
 if (!in_array($_GET['theme'], array_keys($themes->getFsThemes()))) {
     die('Invalid theme'); // @TODO: handle error instead of simple die
 }

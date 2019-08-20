@@ -31,7 +31,7 @@ class Themes extends Extensions
         self::$userMapper = $userMapper;
     }
 
-    public function setThemesRootPath(string $themes_root_path)
+    public function setRootPath(string $themes_root_path)
     {
         self::$themes_root_path = $themes_root_path;
     }
@@ -245,8 +245,6 @@ class Themes extends Extensions
      */
     public function getFsThemes()
     {
-        global $conf;
-
         if (!$this->fs_themes_retrieved) {
             foreach (glob(self::$themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
                 $theme_dir = basename(dirname($themeconf));
@@ -360,7 +358,7 @@ class Themes extends Extensions
             // Retrieve PEM versions
             $version = PHPWG_VERSION;
             $versions_to_check = [];
-            $url = PEM_URL . '/api/get_version_list.php';
+            $url = $this->pem_url . '/api/get_version_list.php';
 
             try {
                 $pem_versions = $this->getJsonFromServer($url, $get_data);
@@ -390,7 +388,7 @@ class Themes extends Extensions
             }
 
             // Retrieve PEM themes infos
-            $url = PEM_URL . '/api/get_revision_list.php';
+            $url = $this->pem_url . '/api/get_revision_list.php';
             $get_data = array_merge(
                 $get_data,
                 [
@@ -465,6 +463,8 @@ class Themes extends Extensions
         ];
 
         try {
+            \App\Log::getInstance()->debug("will try to download $archive", $get_data);
+
             $this->download($get_data, $archive);
         } catch (\Exception $e) {
             throw new \Exception("Cannot download theme archive");
@@ -475,8 +475,7 @@ class Themes extends Extensions
             $this->extractZipFiles($archive, 'themeconf.inc.php', $extract_path);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }
-        finally {
+        } finally {
             unlink($archive);
         }
     }

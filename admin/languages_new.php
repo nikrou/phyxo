@@ -16,7 +16,7 @@ if (!defined("LANGUAGES_BASE_URL")) {
 use Phyxo\Language\Languages;
 
 $languages = new Languages($conn, $userMapper);
-$languages->setLanguagesRootPath(__DIR__ . '/../language');
+$languages->setRootPath(__DIR__ . '/../language');
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |
@@ -86,7 +86,7 @@ foreach ($languages->getServerLanguages(true) as $language) {
     $template->append('languages', [
         'EXT_NAME' => $language['extension_name'],
         'EXT_DESC' => $language['extension_description'],
-        'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $language['extension_id'],
+        'EXT_URL' => $pemURL . '/extension_view.php?eid=' . $language['extension_id'],
         'VERSION' => $language['revision_name'],
         'VER_DESC' => $language['revision_description'],
         'DATE' => $date,

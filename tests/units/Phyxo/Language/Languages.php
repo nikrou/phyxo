@@ -77,7 +77,7 @@ class Languages extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $languages = new \Phyxo\Language\Languages($conn);
-        $languages->setLanguagesRootPath($this->languages_path);
+        $languages->setRootPath($this->languages_path);
 
         $this
             ->array($languages->getFsLanguages())

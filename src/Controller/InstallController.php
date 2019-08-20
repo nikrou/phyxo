@@ -77,7 +77,7 @@ class InstallController extends Controller
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = new Languages(null);
-        $languages->setLanguagesRootPath(__DIR__ . '/../../language');
+        $languages->setRootPath(__DIR__ . '/../../language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $this->languages_options[$language_code] = $fs_language['name'];
         }
@@ -406,7 +406,7 @@ class InstallController extends Controller
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
         $languages = new Languages($conn, $this->us);
-        $languages->setLanguagesRootPath($this->get('kernel')->getProjectDir() . '/language');
+        $languages->setRootPath($this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
         }

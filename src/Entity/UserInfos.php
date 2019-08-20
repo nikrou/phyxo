@@ -48,7 +48,7 @@ class UserInfos implements \ArrayAccess
 
     public function getTheme()
     {
-        return $this->infos['theme'] ?? null;
+        return $this->infos['theme'] ? $this->infos['theme'] : 'treflez'; // @TODO: inject defaultTheme
     }
 
     public function getNbImagePage()

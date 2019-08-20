@@ -107,7 +107,7 @@ class Themes extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \mock\Phyxo\Theme\Themes($conn);
-        $themes->setThemesRootPath($workspace);
+        $themes->setRootPath($workspace);
 
         $this
             ->array($themes->getFsThemes())
@@ -122,7 +122,7 @@ class Themes extends atoum
 
         $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
         $themes = new \mock\Phyxo\Theme\Themes($conn);
-        $themes->setThemesRootPath($this->themes_path . '/themes');
+        $themes->setRootPath($this->themes_path . '/themes');
 
         $themes->sortFsThemes($sort_type);
 

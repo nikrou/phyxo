@@ -37,7 +37,7 @@ class WsController extends AbstractController
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
-                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel)
+                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel, string $pemURL)
     {
         $this->service = new Server($kernel->getUploadDir());
         $this->service->addUserMapper($userMapper);
@@ -57,6 +57,7 @@ class WsController extends AbstractController
         $this->service->setUserManager($userManager);
         $this->service->setImageStandardParams($image_std_params);
         $this->service->setPasswordEncoder($passwordEncoder);
+        $this->service->setExtensionsURL($pemURL);
 
         $this->addDefaultMethods();
 

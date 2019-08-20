@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use Phyxo\Extension\Extensions;
 use Phyxo\Theme\Themes;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Language\Languages;
@@ -41,7 +42,7 @@ class Extension
             return new Error(403, 'Invalid security token');
         }
 
-        if (!in_array($params['type'], ['plugins', 'themes', 'languages'])) {
+        if (!isset(Extensions::TYPES[$params['type']])) {
             return new Error(403, "invalid extension type");
         }
 
@@ -50,7 +51,9 @@ class Extension
         $extension_id = $params['id'];
         $revision = $params['revision'];
 
-        $extension = new $typeClassName($service->getConnection());
+        $extension = new $typeClassName($service->getConnection(), $service->getUserMapper());
+        $extension->setExtensionsURL($service->getExtensionsURL());
+        $extension->setRootPath(__DIR__ . '/../../../../' . Extensions::TYPES[$type]);
 
         try {
             if ($type == 'plugins') {
@@ -97,7 +100,7 @@ class Extension
      */
     public static function ignoreupdate($params, Server $service)
     {
-        define('IN_ADMIN', true); //@TODO: to remove ?
+        $conf = $service->getConf();
 
         if (!$service->getUserMapper()->isWebmaster()) {
             return new Error(401, 'Access denied');
@@ -111,10 +114,10 @@ class Extension
 
         // Reset ignored extension
         if ($params['reset']) {
-            if (!empty($params['type']) and isset($service->getConf()['updates_ignored'][$params['type']])) {
-                $service->getConf()['updates_ignored'][$params['type']] = [];
+            if (!empty($params['type']) && !empty($conf['updates_ignored'][$params['type']])) {
+                $conf['updates_ignored'][$params['type']] = [];
             } else {
-                $service->getConf()['updates_ignored'] = [
+                $conf['updates_ignored'] = [
                     'plugins' => [],
                     'themes' => [],
                     'languages' => []
@@ -125,16 +128,17 @@ class Extension
             return true;
         }
 
-        if (empty($params['id']) or empty($params['type']) or !in_array($params['type'], ['plugins', 'themes', 'languages'])) {
+        if (empty($params['id']) || empty($params['type']) || !isset(Extensions::TYPES[$params['type']])) {
             return new Error(403, 'Invalid parameters');
         }
 
         // Add or remove extension from ignore list
-        if (!in_array($params['id'], $service->getConf()['updates_ignored'][$params['type']])) {
-            $service->getConf()['updates_ignored'][$params['type']][] = $params['id'];
+        if (!in_array($params['id'], $conf['updates_ignored'][$params['type']])) {
+            $conf['updates_ignored'][$params['type']][] = $params['id'];
         }
 
         unset($_SESSION['extensions_need_update']);
+
         return true;
     }
 

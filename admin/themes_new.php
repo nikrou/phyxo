@@ -16,7 +16,7 @@ if (!defined("THEMES_BASE_URL")) {
 use Phyxo\Theme\Themes;
 
 $themes = new Themes($conn, $userMapper);
-$themes->setThemesRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
+$themes->setRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |
@@ -92,8 +92,8 @@ foreach ($themes->getServerThemes(true) as $theme) {
         'new_themes',
         [
             'name' => $theme['extension_name'],
-            'thumbnail' => PEM_URL . '/upload/extension-' . $theme['extension_id'] . '/thumbnail.jpg',
-            'screenshot' => PEM_URL . '/upload/extension-' . $theme['extension_id'] . '/screenshot.jpg',
+            'thumbnail' => $pemURL . '/upload/extension-' . $theme['extension_id'] . '/thumbnail.jpg',
+            'screenshot' => $pemURL . '/upload/extension-' . $theme['extension_id'] . '/screenshot.jpg',
             'install_url' => $url_auto_install,
         ]
     );

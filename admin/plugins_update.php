@@ -9,22 +9,24 @@
  * file that was distributed with this source code.
  */
 
+use Phyxo\Plugin\Plugins;
+
 if (!defined("PLUGINS_BASE_URL")) {
     die("Hacking attempt!");
 }
 
-use Phyxo\Update\Updates;
+$plugins = new Plugins($conn, $userMapper);
+$plugins->setRootPath(__DIR__ . '/../plugins');
+$plugins->setExtensionsURL($pemURL);
 
 $show_reset = false;
 $conf['updates_ignored'] = json_decode($conf['updates_ignored'], true);
 
-$autoupdate = new Updates($conn, $userMapper, $page['page']);
 try {
-    $autoupdate->getServerExtensions();
-    $server_plugins = $autoupdate->getType('plugins')->getServerPlugins();
+    $server_plugins = $plugins->getServerPlugins();
 
     if (count($server_plugins) > 0) {
-        foreach ($autoupdate->getType('plugins')->getFsPlugins() as $extension_id => $fs_extension) {
+        foreach ($plugins->getFsPlugins() as $extension_id => $fs_extension) {
             if (!isset($fs_extension['extension']) || !isset($server_plugins[$fs_extension['extension']])) {
                 continue;
             }
@@ -39,7 +41,7 @@ try {
                         'REVISION_ID' => $extension_info['revision_id'],
                         'EXT_ID' => $extension_id,
                         'EXT_NAME' => $fs_extension['name'],
-                        'EXT_URL' => PEM_URL . '/extension_view.php?eid=' . $extension_info['extension_id'],
+                        'EXT_URL' => $pemURL . '/extension_view.php?eid=' . $extension_info['extension_id'],
                         'EXT_DESC' => trim($extension_info['extension_description'], " \n\r"),
                         'REV_DESC' => trim($extension_info['revision_description'], " \n\r"),
                         'CURRENT_VERSION' => $fs_extension['version'],

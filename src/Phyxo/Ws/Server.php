@@ -30,7 +30,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder;
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -59,6 +59,14 @@ class Server
     public function __construct(string $upload_dir = '.')
     {
         $this->upload_dir = $upload_dir;
+    }
+
+    public function setExtensionsURL(string $url) {
+        $this->pem_url = $url;
+    }
+
+    public function getExtensionsURL() {
+        return $this->pem_url;
     }
 
     public function getUploadDir()
