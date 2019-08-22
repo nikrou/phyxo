@@ -23,12 +23,13 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\BaseRepository;
-use Phyxo\Functions\Upload;
 use Phyxo\Functions\Utils;
 use GuzzleHttp\Client;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\RouterInterface;
 
 class Image
@@ -397,10 +398,11 @@ class Image
             }
         }
 
-        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
-
-        // create the upload directory tree if not exists
-        if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
+        $upload_dir = $service->getUploadDir() . '/buffer';
+        try {
+            $fs = new Filesystem();
+            $fs->mkdir($upload_dir);
+        } catch (IOException $e) {
             return new Error(500, 'error during buffer directory creation');
         }
 
@@ -455,7 +457,7 @@ class Image
             $original_type = 'high';
         }
 
-        $file_path = $service->getConf()['upload_dir'] . '/buffer/' . $image['md5sum'] . '-original';
+        $file_path = $upload_dir = $service->getUploadDir() . '/buffer/' . $image['md5sum'] . '-original';
 
         self::merge_chunks($file_path, $image['md5sum'], $original_type, $service);
         chmod($file_path, 0644);
@@ -537,7 +539,7 @@ class Image
             $original_type = 'file';
         }
 
-        $file_path = $service->getConf()['upload_dir'] . '/buffer/' . $params['original_sum'] . '-original';
+        $file_path = $service->getUploadDir() . '/buffer/' . $params['original_sum'] . '-original';
 
         self::merge_chunks($file_path, $params['original_sum'], $original_type, $service);
         chmod($file_path, 0644);
@@ -702,10 +704,11 @@ class Image
             return new Error(403, 'Invalid security token');
         }
 
-        $upload_dir = __DIR__ . '/../../../../' . $service->getConf()['upload_dir'] . '/buffer';
-
-        // create the upload directory tree if not exists
-        if (!\Phyxo\Functions\Utils::mkgetdir($upload_dir, \Phyxo\Functions\Utils::MKGETDIR_DEFAULT & ~\Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR)) {
+        $upload_dir = $service->getUploadDir() . '/buffer';
+        try {
+            $fs = new Filesystem();
+            $fs->mkdir($upload_dir);
+        } catch (IOException $e) {
             return new Error(500, 'error during buffer directory creation');
         }
 
@@ -1278,7 +1281,7 @@ class Image
             }
         }
 
-        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
+        $upload_dir = $service->getUploadDir() . '/buffer';
         $pattern = '/' . $original_sum . '-' . $type . '/';
         $chunks = [];
 
@@ -1320,7 +1323,7 @@ class Image
      */
     protected static function remove_chunks(string $original_sum, string $type, Server $service)
     {
-        $upload_dir = $service->getConf()['upload_dir'] . '/buffer';
+        $upload_dir = $service->getUploadDir() . '/buffer';
         $pattern = '/' . $original_sum . '-' . $type . '/';
         $chunks = [];
 
@@ -1374,7 +1377,7 @@ class Image
             $now = (new BaseRepository($service->getConnection()))->getNow();
             list($year, $month, $day) = preg_split('/[^\d]/', $now, 4);
 
-            $upload_dir = realpath(__DIR__ . '/../../../../' . $service->getConf()['upload_dir']);
+            $upload_dir = $service->getUploadDir();
 
             // upload directory hierarchy
             $filename_dir = sprintf('%s/%s/%s/%s', $upload_dir, $year, $month, $day);

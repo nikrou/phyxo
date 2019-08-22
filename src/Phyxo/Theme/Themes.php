@@ -87,11 +87,6 @@ class Themes extends Extensions
                     break;
                 }
 
-                if ($theme_id === 'treflez') {
-                    // you can't activate the "default" theme
-                    break;
-                }
-
                 $missing_parent = $this->missingParentTheme($theme_id);
                 if (isset($missing_parent)) {
                     $errors[] = \Phyxo\Functions\Language::l10n(
@@ -117,11 +112,6 @@ class Themes extends Extensions
             case 'deactivate':
                 if (!isset($crt_db_theme)) {
                 // the theme is already inactive
-                    break;
-                }
-
-                if ($theme_id === 'treflez') {
-                    // you can't deactivate the "default" theme
                     break;
                 }
 

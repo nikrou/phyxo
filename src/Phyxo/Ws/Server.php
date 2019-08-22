@@ -29,7 +29,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class Server
 {
-    private $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
+    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
             $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder;
 
     private $_requestHandler;
@@ -56,8 +56,14 @@ class Server
 
     const WS_XML_ATTRIBUTES = 'attributes_xml_';
 
-    public function __construct()
+    public function __construct(string $upload_dir = '.')
     {
+        $this->upload_dir = $upload_dir;
+    }
+
+    public function getUploadDir()
+    {
+        return $this->upload_dir;
     }
 
     public function addTagMapper(TagMapper $tagMapper)
@@ -198,6 +204,11 @@ class Server
     public function getPasswordEncoder()
     {
         return $this->passwordEncoder;
+    }
+
+    public function getProjectDir()
+    {
+
     }
 
     /**

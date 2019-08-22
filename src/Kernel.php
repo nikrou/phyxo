@@ -30,6 +30,11 @@ class Kernel extends BaseKernel
         return realpath(__DIR__ . '/../');
     }
 
+    public function getUploadDir()
+    {
+        return $this->getProjectDir() . '/upload';
+    }
+
     public function getCacheDir()
     {
         return $this->getProjectDir() . '/var/cache/' . $this->environment;

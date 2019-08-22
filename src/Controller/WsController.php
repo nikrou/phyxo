@@ -28,6 +28,7 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class WsController extends AbstractController
@@ -35,9 +36,10 @@ class WsController extends AbstractController
     private $service;
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
-                           UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router, string $phyxoVersion, ImageStandardParams $image_std_params)
+                           UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
+                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel)
     {
-        $this->service = new Server();
+        $this->service = new Server($kernel->getUploadDir());
         $this->service->addUserMapper($userMapper);
         $this->service->addTagMapper($tagMapper);
         $this->service->addCommentMapper($commentMapper);
