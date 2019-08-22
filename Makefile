@@ -19,6 +19,7 @@ config: clean
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -a -d $(DIST)/$(APP_NAME)
+	rm -f $(DIST)/$(APP_NAME)/bin/phpunit $(DIST)/$(APP_NAME)/bin/simple-phpunit $(DIST)/$(APP_NAME)/phpunit.xml.dist
 	rm -fr $(DIST)/$(APP_NAME)/config/packages/dev $(DIST)/$(APP_NAME)/config/packages/test $(DIST)/$(APP_NAME)/config/routes/dev
 	rm -f $(DIST)/$(APP_NAME)/composer.* $(DIST)/$(APP_NAME)/symfony.lock $(DIST)/$(APP_NAME)/src/Log.php
 
@@ -47,6 +48,8 @@ config: clean
 	find $(DIST) -name '.env*' -exec rm \{\} \;
 	rm -fr $(DIST)/$(APP_NAME)/public
 	rm -fr $(DIST)/$(APP_NAME)/vendor/atoum
+	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/panther/
+	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/phpunit-bridge
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
@@ -57,19 +60,19 @@ admin_assets:;
 	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
 
 assets:;
-	cd $(DIST)/$(APP_NAME)/themes/treflez ;	\
-	npm ci ;				\
-	npm run build ;				\
+	cd $(DIST)/$(APP_NAME)/themes/treflez ;								\
+	npm ci ;											\
+	npm run build ;											\
 	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
 
-dist-tgz: config
+dist-tgz: config admin_assets assets
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
 
-dist-zip: config
+dist-zip: config admin_assets assets
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
