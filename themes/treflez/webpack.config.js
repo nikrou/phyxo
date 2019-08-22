@@ -28,7 +28,7 @@ const IS_DEV = process.env.NODE_ENV !== 'production';
  * PATH_PREFIX=/photos/ npm run build
  *
  */
-const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : '/';
+const PATH_PREFIX = process.env.PATH_PREFIX ? process.env.PATH_PREFIX : '';
 
 const TARGET_NAME = 'build';
 const PUBLIC_PATH = IS_DEV ? `http://${HOST}:${PORT}/` : `${PATH_PREFIX}themes/treflez/${TARGET_NAME}/`;

@@ -15,7 +15,6 @@ config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
 	cp -pr *.php admin include install language templates config src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
-	cp -p tools/index_prod.php $(DIST)/$(APP_NAME)/index.php
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
