@@ -68,7 +68,7 @@ class DBLayer
                 isset($conf['db_user']) ? $conf['db_user'] : '',
                 isset($conf['db_password']) ? $conf['db_password'] : '',
                 $conf['db_base'],
-                $conf['db_prefix'] ? $conf['db_prefix'] : $prefixeTable,
+                isset($conf['db_prefix']) ? $conf['db_prefix'] : $prefixeTable,
             ];
         });
 

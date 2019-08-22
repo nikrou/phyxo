@@ -25,6 +25,7 @@ use Phyxo\Functions\Language;
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params;
+    private $sql_recent_date;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params)
     {
@@ -200,10 +201,14 @@ class ImageMapper
             return [];
         }
 
+        if (empty($this->sql_recent_date)) {
+            $this->sql_recent_date = $this->em->getConnection()->db_get_recent_period($this->userMapper->getUser()->getRecentPeriod());
+        }
+
         $icon = [
             'TITLE' => Language::l10n('photos posted during the last %d days', $this->userMapper->getUser()->getRecentPeriod()),
             'IS_CHILD_DATE' => $is_child_date,
-            'sql_recent_date' => $this->em->getConnection()->db_get_recent_period($this->userMapper->getUser()->getRecentPeriod()),
+            'sql_recent_date' => $this->sql_recent_date
         ];
 
         return ($date > $icon['sql_recent_date']) ? $icon : [];

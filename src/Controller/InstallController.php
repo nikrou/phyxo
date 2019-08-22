@@ -25,6 +25,7 @@ use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Phyxo\Extension\Theme;
 use App\Repository\BaseRepository;
+use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -140,7 +140,8 @@ class AlbumController extends CommonController
             }
             unset($info);
         }
-        if (count($user_representative_updates_for)) {
+
+        if (count($user_representative_updates_for) > 0) {
             $updates = [];
 
             foreach ($user_representative_updates_for as $cat_id => $image_id) {
@@ -223,11 +224,8 @@ class AlbumController extends CommonController
             // pagination
             $total_categories = count($tpl_thumbnails_var);
 
-            $tpl_thumbnails_var_selection = array_slice(
-                $tpl_thumbnails_var,
-                $start,
-                $conf['nb_categories_page']
-            );
+            // @TODO : a category can contain more than $conf['nb_categories_page']
+            $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
 
             $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
             $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
@@ -249,7 +247,6 @@ class AlbumController extends CommonController
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']
                 );
-
             }
         }
 
@@ -284,7 +281,7 @@ class AlbumController extends CommonController
             $tpl_params = array_merge(
                 $tpl_params,
                 $imageMapper->getPicturesFromSelection(
-                    array_slice($tpl_params['items'], $start, $nb_image_page),
+                    array_slice($tpl_params['items'], 0, $nb_image_page),
                     $category_id,
                     'category',
                     $start

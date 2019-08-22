@@ -93,7 +93,7 @@ class DerivativeImage
      */
     public function getUrl(): string
     {
-        if (empty($this->paramsms)) { //@TODO: why params can be empty ?
+        if (empty($this->params)) { //@TODO: why params can be empty ?
             return $this->src_image->getUrl();
         }
 
