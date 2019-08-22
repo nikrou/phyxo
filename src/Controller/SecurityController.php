@@ -29,6 +29,7 @@ use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\UserInfos;
 use App\Repository\UserRepository;
+use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Phyxo\Extension\Theme;
@@ -36,36 +37,48 @@ use Symfony\Component\Routing\RouterInterface;
 
 class SecurityController extends AbstractController
 {
-    private $conf;
+    private $template, $router, $conf;
     private $language_load = [];
+    private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(Template $template, RouterInterface $router, Conf $conf, $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite)
-    {
+    public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite) {
+        $this->template = $template;
+        $this->router = $router;
         $this->conf = $conf;
 
+        $this->defaultLanguage = $defaultLanguage;
+        $this->defaultTheme = $defaultTheme;
+        $this->phyxoVersion = $phyxoVersion;
+        $this->phyxoWebsite = $phyxoWebsite;
+    }
+
+    protected function init(User $user)
+    {
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
-            ['language' => $defaultLanguage, 'return_vars' => true]
+            ['language' => $user->getLanguage(), 'return_vars' => true]
         );
 
-        $template->setUser($this->getUser());
-        $template->setRouter($router);
-        $template->setConf($conf);
-        $template->setLang($this->language_load['lang']);
-        $template->setLangInfo($this->language_load['lang_info']);
-        $template->postConstruct();
+        $this->template->setUser($user);
+        $this->template->setRouter($this->router);
+        $this->template->setConf($this->conf);
+        $this->template->setLang($this->language_load['lang']);
+        $this->template->setLangInfo($this->language_load['lang_info']);
+        $this->template->postConstruct();
 
         // default theme
-        $template->setTheme(new Theme(__DIR__ . '/../../themes', $defaultTheme));
+        $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $this->defaultTheme));
 
-        $template->assign('CONTENT_ENCODING', 'utf-8');
-        $template->assign('PHYXO_VERSION', $conf['show_version'] ? $phyxoVersion : '');
-        $template->assign('PHYXO_URL', $phyxoWebsite);
+        $this->template->assign('CONTENT_ENCODING', 'utf-8');
+        $this->template->assign('PHYXO_VERSION', $this->conf['show_version'] ? $this->phyxoVersion : '');
+        $this->template->assign('PHYXO_URL', $this->phyxoWebsite);
     }
 
-    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request)
+    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider)
     {
+        $this->init($userProvider->loadUserByUsername('guest'));
+
         $error = $authenticationUtils->getLastAuthenticationError();
         $last_username = $authenticationUtils->getLastUsername();
 
@@ -85,14 +98,11 @@ class SecurityController extends AbstractController
         return $this->render('identification.tpl', $tpl_params);
     }
 
-    public function register(
-        Request $request,
-        UserManager $user_manager,
-        UserPasswordEncoderInterface $passwordEncoder,
-        LoginFormAuthenticator $loginAuthenticator,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        GuardAuthenticatorHandler $guardHandler
-    ) {
+    public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,
+                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, UserProvider $userProvider)
+    {
+        $this->init($userProvider->loadUserByUsername('guest'));
+
         $errors = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -142,6 +152,8 @@ class SecurityController extends AbstractController
 
     public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar)
     {
+        $this->init($this->getUser());
+
         $errors = [];
 
         $this->language_load = \Phyxo\Functions\Language::load_language(
@@ -276,16 +288,11 @@ class SecurityController extends AbstractController
         return $this->render('profile.tpl', $tpl_params);
     }
 
-    public function forgotPassword(
-        Request $request,
-        iDBLayer $conn,
-        UserManager $user_manager,
-        \Swift_Mailer $mailer,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        AdminTemplate $admin_template,
-        $phyxoVersion,
-        $phyxoWebsite)
+    public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, \Swift_Mailer $mailer, CsrfTokenManagerInterface $csrfTokenManager,
+                                    AdminTemplate $admin_template, UserProvider $userProvider)
     {
+        $this->init($userProvider->loadUserByUsername('guest'));
+
         $tpl_params = [];
 
         $errors = [];
@@ -319,8 +326,6 @@ class SecurityController extends AbstractController
                         'GALLERY_URL' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
                         'CONTACT_MAIL' => $webmaster_mail_address,
                         'GALLERY_TITLE' => $this->conf['gallery_title'],
-                        'PHYXO_URL' => $phyxoWebsite,
-                        'VERSION' => $phyxoVersion,
                     ];
 
                     if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address)) {
@@ -365,8 +370,10 @@ class SecurityController extends AbstractController
         return $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
     {
+        $this->init($userProvider->loadUserByUsername('guest'));
+
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
         $infos = [];
