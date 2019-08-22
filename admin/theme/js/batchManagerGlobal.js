@@ -2,24 +2,24 @@
 /* ********** Filters*/
 function filter_enable(filter) {
 	/* show the filter*/
-	$("#"+filter).show();
+	$("#" + filter).show();
 
 	/* check the checkbox to declare we use this filter */
-	$("input[type=checkbox][name="+filter+"_use]").prop("checked", true);
+	$("input[type=checkbox][name=" + filter + "_use]").prop("checked", true);
 
 	/* forbid to select this filter in the addFilter list */
-	$("#addFilter").children("option[value="+filter+"]").attr("disabled", "disabled");
+	$("#addFilter").children("option[value=" + filter + "]").attr("disabled", "disabled");
 }
 
 function filter_disable(filter) {
 	/* hide the filter line */
-	$("#"+filter).hide();
+	$("#" + filter).hide();
 
 	/* uncheck the checkbox to declare we do not use this filter */
-	$("input[name="+filter+"_use]").prop("checked", false);
+	$("input[name=" + filter + "_use]").prop("checked", false);
 
 	/* give the possibility to show it again */
-	$("#addFilter").children("option[value="+filter+"]").removeAttr("disabled");
+	$("#addFilter").children("option[value=" + filter + "]").removeAttr("disabled");
 }
 
 $(".removeFilter").click(function () {
@@ -35,8 +35,8 @@ $("#addFilter").change(function () {
 	$(this).prop("value", -1);
 });
 
-$("#removeFilters").click(function() {
-	$("#filterList li").each(function() {
+$("#removeFilters").click(function () {
+	$("#filterList li").each(function () {
 		var filter = $(this).attr("id");
 		filter_disable(filter);
 	});
@@ -52,33 +52,31 @@ $('[data-slider=filesizes]').pwgDoubleSlider(sliders.filesizes);
 /* ********** Thumbs */
 
 /* Shift-click: select all photos between the click and the shift+click */
-jQuery(document).ready(function() {
-	var last_clicked=0,
-		last_clickedstatus=true;
-	jQuery.fn.enableShiftClick = function() {
+jQuery(document).ready(function () {
+	var last_clicked = 0,
+		last_clickedstatus = true;
+	jQuery.fn.enableShiftClick = function () {
 		var inputs = [],
-			count=0;
-		this.find('input[type=checkbox]').each(function() {
-			var pos=count;
-			inputs[count++]=this;
-			$(this).bind("shclick", function (dummy,event) {
+			count = 0;
+		this.find('input[type=checkbox]').each(function () {
+			var pos = count;
+			inputs[count++] = this;
+			$(this).bind("shclick", function (dummy, event) {
 				if (event.shiftKey) {
 					var first = last_clicked;
 					var last = pos;
 					if (first > last) {
-						first=pos;
-						last=last_clicked;
+						first = pos;
+						last = last_clicked;
 					}
 
-					for (var i=first; i<=last;i++) {
+					for (var i = first; i <= last; i++) {
 						input = $(inputs[i]);
 						$(input).prop('checked', last_clickedstatus);
-						if (last_clickedstatus)
-						{
+						if (last_clickedstatus) {
 							$(input).siblings(".wrapper-thumbnail").addClass("thumbSelected");
 						}
-						else
-						{
+						else {
 							$(input).siblings(".wrapper-thumbnail").removeClass("thumbSelected");
 						}
 					}
@@ -89,7 +87,7 @@ jQuery(document).ready(function() {
 				}
 				return true;
 			});
-			$(this).click(function(event) { $(this).triggerHandler("shclick",event)});
+			$(this).click(function (event) { $(this).triggerHandler("shclick", event) });
 		});
 	}
 	$('ul.thumbnails').enableShiftClick();
@@ -139,22 +137,22 @@ var derivatives = {
 	done: 0,
 	total: 0,
 
-	finished: function() {
-		return derivatives.done == derivatives.total && derivatives.elements && derivatives.elements.length==0;
+	finished: function () {
+		return derivatives.done == derivatives.total && derivatives.elements && derivatives.elements.length == 0;
 	}
 };
 
 function progress(success) {
-  jQuery('#progressBar').progressBar(derivatives.done, {
-    max: derivatives.total,
-    textFormat: 'fraction',
-    boxImage: 'theme/images/progressbar.gif',
-    barImage: 'theme/images/progressbg_orange.gif'
-  });
+	jQuery('#progressBar').progressBar(derivatives.done, {
+		max: derivatives.total,
+		textFormat: 'fraction',
+		boxImage: 'theme/images/progressbar.gif',
+		barImage: 'theme/images/progressbg_orange.gif'
+	});
 	if (success !== undefined) {
-		var type = success ? 'regenerateSuccess': 'regenerateError',
-			s = jQuery('[name="'+type+'"]').val();
-		jQuery('[name="'+type+'"]').val(++s);
+		var type = success ? 'regenerateSuccess' : 'regenerateError',
+			s = jQuery('[name="' + type + '"]').val();
+		jQuery('[name="' + type + '"]').val(++s);
 	}
 
 	if (derivatives.finished()) {
@@ -164,36 +162,36 @@ function progress(success) {
 
 function getDerivativeUrls() {
 	var ids = derivatives.elements.splice(0, 500);
-	var params = {max_urls: 100000, ids: ids, types: []};
-	jQuery("#action_generate_derivatives input").each( function(i, t) {
+	var params = { max_urls: 100000, ids: ids, types: [] };
+	jQuery("#action_generate_derivatives input").each(function (i, t) {
 		if ($(t).is(":checked"))
-			params.types.push( t.value );
-	} );
+			params.types.push(t.value);
+	});
 
-	jQuery.ajax( {
+	jQuery.ajax({
 		type: "POST",
-		url: 'ws.php?method=pwg.getMissingDerivatives',
+		url: 'ws?method=pwg.getMissingDerivatives',
 		data: params,
 		dataType: "json",
-		success: function(data) {
+		success: function (data) {
 			if (!data.stat || data.stat != "ok") {
 				return;
 			}
 			derivatives.total += data.result.urls.length;
 			progress();
-			for (var i=0; i < data.result.urls.length; i++) {
+			for (var i = 0; i < data.result.urls.length; i++) {
 				jQuery.manageAjax.add("queued", {
 					type: 'GET',
 					url: data.result.urls[i] + "&ajaxload=true",
 					dataType: 'json',
-					success: ( function(data) { derivatives.done++; progress(true) }),
-					error: ( function(data) { derivatives.done++; progress(false) })
+					success: (function (data) { derivatives.done++; progress(true) }),
+					error: (function (data) { derivatives.done++; progress(false) })
 				});
 			}
 			if (derivatives.elements.length)
-				setTimeout( getDerivativeUrls, 25 * (derivatives.total-derivatives.done));
+				setTimeout(getDerivativeUrls, 25 * (derivatives.total - derivatives.done));
 		}
-	} );
+	});
 }
 
 function selectGenerateDerivAll() {

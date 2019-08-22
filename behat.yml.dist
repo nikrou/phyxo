@@ -65,6 +65,6 @@ default:
         - ApiContext:
             parameters:
               base_url: http://127.0.0.1/phyxo/behat
-              api_base_url: "%mink.base_url%/ws.php"
+              api_base_url: "%mink.base_url%/ws"
 
               data_location: sites/behat/_data/

@@ -1,33 +1,23 @@
 register:
-  path: /register.{extension}
+  path: /register
   controller: App\Controller\SecurityController::register
-  defaults:
-    extension: php
 
 reset_password:
-  path: /password.{extension}/{activation_key}
+  path: /password/{activation_key}
   controller: App\Controller\SecurityController::resetPassword
-  defaults:
-    extension: php
 
 forgot_password:
-  path: /password.{extension}
+  path: /password
   controller: App\Controller\SecurityController::forgotPassword
-  defaults:
-    extension: php
 
 login:
-  path: /identification.{extension}
+  path: /identification
   controller: App\Controller\SecurityController::login
-  defaults:
-    extension: php
 
 logout:
   path: /logout
   controller: App\Controller\SecurityController::logout
 
 profile:
-  path: /profile.{extension}
+  path: /profile
   controller: App\Controller\SecurityController::profile
-  defaults:
-    extension: php

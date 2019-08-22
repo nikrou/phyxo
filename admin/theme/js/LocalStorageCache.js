@@ -1,4 +1,4 @@
-(function($, exports) {
+(function ($, exports) {
   "use strict";
 
   /**
@@ -12,17 +12,17 @@
    *    - loader (required) function called to fetch data, takes a callback as first argument
    *        which must be called with the loaded date
    */
-  var LocalStorageCache = function(options) {
+  var LocalStorageCache = function (options) {
     this._init(options);
   };
 
   /*
    * Constructor (deported for easy inheritance)
    */
-  LocalStorageCache.prototype._init = function(options) {
+  LocalStorageCache.prototype._init = function (options) {
     this.key = options.key + '_' + options.serverId;
     this.serverKey = options.serverKey;
-    this.lifetime = options.lifetime ? options.lifetime*1000 : 3600*1000;
+    this.lifetime = options.lifetime ? options.lifetime * 1000 : 3600 * 1000;
     this.loader = options.loader;
 
     this.storage = window.localStorage;
@@ -33,9 +33,9 @@
    * Get the cache content
    * @param callback {function} called with the data as first parameter
    */
-  LocalStorageCache.prototype.get = function(callback) {
+  LocalStorageCache.prototype.get = function (callback) {
     var now = new Date().getTime(),
-        that = this;
+      that = this;
 
     if (this.ready && this.storage[this.key] != undefined) {
       var cache = JSON.parse(this.storage[this.key]);
@@ -46,7 +46,7 @@
       }
     }
 
-    this.loader(function(data) {
+    this.loader(function (data) {
       that.set.call(that, data);
       callback(data);
     });
@@ -56,7 +56,7 @@
    * Manually set the cache content
    * @param data {mixed}
    */
-  LocalStorageCache.prototype.set = function(data) {
+  LocalStorageCache.prototype.set = function (data) {
     if (this.ready) {
       this.storage[this.key] = JSON.stringify({
         timestamp: new Date().getTime(),
@@ -69,7 +69,7 @@
   /*
    * Manually clear the cache
    */
-  LocalStorageCache.prototype.clear = function() {
+  LocalStorageCache.prototype.clear = function () {
     if (this.ready) {
       this.storage.removeItem(this.key);
     }
@@ -79,7 +79,7 @@
   /**
    * Abstract class containing common initialization code for selectize
    */
-  var AbstractSelectizer = function(){};
+  var AbstractSelectizer = function () { };
   AbstractSelectizer.prototype = new LocalStorageCache({});
 
   /*
@@ -93,11 +93,11 @@
    *      takes two parameters: cache data, options
    *      must return new data
    */
-  AbstractSelectizer.prototype._selectize = function($target, globalOptions) {
-    this.get(function(data) {
-      $target.each(function() {
+  AbstractSelectizer.prototype._selectize = function ($target, globalOptions) {
+    this.get(function (data) {
+      $target.each(function () {
         var filtered, value, defaultValue,
-            options = $.extend({}, globalOptions);
+          options = $.extend({}, globalOptions);
 
         // apply filter function
         if (options.filter != undefined) {
@@ -116,7 +116,7 @@
         this.selectize.settings.create = !!options.create;
 
         // load options
-        this.selectize.load(function(callback) {
+        this.selectize.load(function (callback) {
           if ($.isEmptyObject(this.options)) {
             callback(filtered);
           }
@@ -127,14 +127,14 @@
           options.value = value;
         }
         if (options.value != undefined) {
-            $.each(value, $.proxy(function(i, cat) {
-		if (cat) {
-		    if ($.isNumeric(cat))
-			this.selectize.addItem(cat);
-		    else
-			this.selectize.addItem(cat.id);
-		}
-            }, this));
+          $.each(value, $.proxy(function (i, cat) {
+            if (cat) {
+              if ($.isNumeric(cat))
+                this.selectize.addItem(cat);
+              else
+                this.selectize.addItem(cat.id);
+            }
+          }, this));
         }
 
         // set default
@@ -155,7 +155,7 @@
           if (this.multiple) {
             this.selectize.getItem(options.default).find('.remove').hide();
 
-            this.selectize.on('item_remove', function(id) {
+            this.selectize.on('item_remove', function (id) {
               if (id == options.default) {
                 this.addItem(id);
                 this.getItem(id).find('.remove').hide();
@@ -164,7 +164,7 @@
           }
           // if single: restore default on blur
           else {
-            this.selectize.on('dropdown_close', function() {
+            this.selectize.on('dropdown_close', function () {
               if (this.getValue() == '') {
                 this.addItem(options.default);
               }
@@ -176,17 +176,17 @@
   };
 
   // redefine Selectize templates without escape
-  AbstractSelectizer.getRender = function(field_label, lang) {
+  AbstractSelectizer.getRender = function (field_label, lang) {
     lang = lang || { 'Add': 'Add' };
 
-  	return {
-      'option': function(data, escape) {
+    return {
+      'option': function (data, escape) {
         return '<div class="option">' + data[field_label] + '</div>';
       },
-      'item': function(data, escape) {
+      'item': function (data, escape) {
         return '<div class="item">' + data[field_label] + '</div>';
       },
-      'option_create': function(data, escape) {
+      'option_create': function (data, escape) {
         return '<div class="create">' + lang['Add'] + ' <strong>' + data.input + '</strong>&hellip;</div>';
       }
     };
@@ -201,12 +201,12 @@
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
-  var CategoriesCache = function(options) {
+  var CategoriesCache = function (options) {
     options.key = 'categoriesAdminList';
 
-      options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?method=pwg.categories.getAdminList', function(data) {
-        var cats = data.result.categories.map(function(c, i) {
+    options.loader = function (callback) {
+      $.getJSON(options.rootUrl + 'ws?method=pwg.categories.getAdminList', function (data) {
+        var cats = data.result.categories.map(function (c, i) {
           c.pos = i;
           delete c['comment'];
           delete c['uppercats'];
@@ -226,7 +226,7 @@
    * Init Selectize with cache content
    * @see AbstractSelectizer._selectize
    */
-  CategoriesCache.prototype.selectize = function($target, options) {
+  CategoriesCache.prototype.selectize = function ($target, options) {
     options = options || {};
 
     $target.selectize({
@@ -250,12 +250,12 @@
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
-  var TagsCache = function(options) {
+  var TagsCache = function (options) {
     options.key = 'tagsAdminList';
 
-    options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?method=pwg.tags.getAdminList', function(data) {
-        var tags = data.result.tags.map(function(t) {
+    options.loader = function (callback) {
+      $.getJSON(options.rootUrl + 'ws?method=pwg.tags.getAdminList', function (data) {
+        var tags = data.result.tags.map(function (t) {
           t.id = '~~' + t.id + '~~';
           delete t['url_name'];
           delete t['lastmodified'];
@@ -275,7 +275,7 @@
    * Init Selectize with cache content
    * @see AbstractSelectizer._selectize
    */
-  TagsCache.prototype.selectize = function($target, options) {
+  TagsCache.prototype.selectize = function ($target, options) {
     options = options || {};
 
     $target.selectize({
@@ -299,12 +299,12 @@
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
-  var GroupsCache = function(options) {
+  var GroupsCache = function (options) {
     options.key = 'groupsAdminList';
 
-    options.loader = function(callback) {
-      $.getJSON(options.rootUrl + 'ws.php?method=pwg.groups.getList&per_page=9999', function(data) {
-        var groups = data.result.groups.map(function(g) {
+    options.loader = function (callback) {
+      $.getJSON(options.rootUrl + 'ws?method=pwg.groups.getList&per_page=9999', function (data) {
+        var groups = data.result.groups.map(function (g) {
           delete g['lastmodified'];
           return g;
         });
@@ -322,7 +322,7 @@
    * Init Selectize with cache content
    * @see AbstractSelectizer._selectize
    */
-  GroupsCache.prototype.selectize = function($target, options) {
+  GroupsCache.prototype.selectize = function ($target, options) {
     options = options || {};
 
     $target.selectize({
@@ -346,15 +346,15 @@
    *    - serverKey (required) state of collection server-side
    *    - rootUrl (required) used for WS call
    */
-  var UsersCache = function(options) {
+  var UsersCache = function (options) {
     options.key = 'usersAdminList';
 
-    options.loader = function(callback) {
+    options.loader = function (callback) {
       var users = [];
 
       // recursive loader
-      (function load(page){
-        jQuery.getJSON(options.rootUrl + 'ws.php?method=pwg.users.getList&display=username&per_page=9999&page='+ page, function(data) {
+      (function load(page) {
+        jQuery.getJSON(options.rootUrl + 'ws?method=pwg.users.getList&display=username&per_page=9999&page=' + page, function (data) {
           users = users.concat(data.result.users);
 
           if (data.result.paging.count == data.result.paging.per_page) {
@@ -376,7 +376,7 @@
    * Init Selectize with cache content
    * @see AbstractSelectizer._selectize
    */
-  UsersCache.prototype.selectize = function($target, options) {
+  UsersCache.prototype.selectize = function ($target, options) {
     options = options || {};
 
     $target.selectize({

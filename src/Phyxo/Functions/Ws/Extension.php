@@ -57,7 +57,7 @@ class Extension
                 if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
                     $extension->performAction('deactivate', $extension_id);
 
-                    \Phyxo\Functions\Utils::redirect('ws.php'
+                    \Phyxo\Functions\Utils::redirect('ws'
                         . '?method=pwg.extensions.update'
                         . '&type=plugins'
                         . '&id=' . $extension_id

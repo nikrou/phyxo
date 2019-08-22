@@ -1,4 +1,4 @@
-jQuery.fn.pwgAddAlbum = function(options) {
+jQuery.fn.pwgAddAlbum = function (options) {
   if (!options.cache) {
     jQuery.error('pwgAddAlbum: missing categories cache');
   }
@@ -13,7 +13,7 @@ jQuery.fn.pwgAddAlbum = function(options) {
 
     options.cache.selectize($popup.find('[name="category_parent"]'), {
       'default': 0,
-      'filter': function(categories) {
+      'filter': function (categories) {
         categories.push({
           id: 0,
           fullname: '------------',
@@ -24,18 +24,18 @@ jQuery.fn.pwgAddAlbum = function(options) {
       }
     });
 
-    $popup.find('form').on('submit', function(e) {
+    $popup.find('form').on('submit', function (e) {
       e.preventDefault();
 
       jQuery('#categoryNameError').text('');
 
       var albumParent = $popup.find('[name="category_parent"]'),
-          parent_id = albumParent.val(),
-          name = $popup.find('[name=category_name]').val(),
-          target = $popup.data('target');
+        parent_id = albumParent.val(),
+        name = $popup.find('[name=category_name]').val(),
+        target = $popup.data('target');
 
       jQuery.ajax({
-        url: '../ws.php?',
+        url: '../ws?',
         type: 'POST',
         dataType: 'json',
         data: {
@@ -43,39 +43,39 @@ jQuery.fn.pwgAddAlbum = function(options) {
           parent: parent_id,
           name: name
         },
-        beforeSend: function() {
+        beforeSend: function () {
           jQuery('#albumCreationLoading').show();
         },
-        success: function(data) {
+        success: function (data) {
           jQuery('#albumCreationLoading').hide();
-          jQuery('[data-add-album="'+ target +'"]').colorbox.close();
+          jQuery('[data-add-album="' + target + '"]').colorbox.close();
 
           var newAlbum = data.result.id,
-              newAlbum_name = '',
-              newAlbum_rank = '0';
+            newAlbum_name = '',
+            newAlbum_rank = '0';
 
           if (parent_id != 0) {
-            newAlbum_name = albumParent[0].selectize.options[parent_id].fullname +' / ';
-            newAlbum_rank = albumParent[0].selectize.options[parent_id].global_rank +'.1';
+            newAlbum_name = albumParent[0].selectize.options[parent_id].fullname + ' / ';
+            newAlbum_rank = albumParent[0].selectize.options[parent_id].global_rank + '.1';
           }
-          newAlbum_name+= name;
+          newAlbum_name += name;
 
-          var $albumSelect = jQuery('[name="'+ target +'"]');
+          var $albumSelect = jQuery('[name="' + target + '"]');
 
           // target is a normal select
           if (!$albumSelect[0].selectize) {
             var new_option = jQuery('<option/>')
-                .attr('value', newAlbum)
-                .attr('selected', 'selected')
-                .text(newAlbum_name);
+              .attr('value', newAlbum)
+              .attr('selected', 'selected')
+              .text(newAlbum_name);
 
             $albumSelect.find('option').removeAttr('selected');
 
-            if (parent_id==0) {
+            if (parent_id == 0) {
               $albumSelect.prepend(new_option);
             }
             else {
-              $albumSelect.find('option[value='+ parent_id +']').after(new_option);
+              $albumSelect.find('option[value=' + parent_id + ']').after(new_option);
             }
           }
           // target is selectize
@@ -103,9 +103,9 @@ jQuery.fn.pwgAddAlbum = function(options) {
           albumParent.val('');
           jQuery('#albumSelection, .selectFiles, .showFieldset').show();
         },
-        error: function(XMLHttpRequest, textStatus, errorThrows) {
-            jQuery('#albumCreationLoading').hide();
-            jQuery('#categoryNameError').text(errorThrows).css('color', 'red');
+        error: function (XMLHttpRequest, textStatus, errorThrows) {
+          jQuery('#albumCreationLoading').hide();
+          jQuery('#categoryNameError').text(errorThrows).css('color', 'red');
         }
       });
     });
@@ -115,7 +115,7 @@ jQuery.fn.pwgAddAlbum = function(options) {
     inline: true,
     href: '#addAlbumForm',
     width: 650, height: 300,
-    onComplete: function() {
+    onComplete: function () {
       init();
       $popup.data('target', jQuery(this).data('addAlbum'));
       $popup.find('[name=category_name]').focus();

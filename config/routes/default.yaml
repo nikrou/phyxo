@@ -21,10 +21,8 @@ notification:
   controller: App\Controller\FeedController::notification
 
 ws:
-  path: /ws.{extension}
+  path: /ws
   controller: App\Controller\WsController::index
-  defaults:
-    extension: php
 
 media:
   path: /media/{path}-{derivative}.{image_extension}

@@ -1,8 +1,8 @@
-$(function() {
+$(function () {
     $('#uploadedPhotos')
         .parent()
         .hide();
-    $('#uploadWarningsSummary a.showInfo').click(function() {
+    $('#uploadWarningsSummary a.showInfo').click(function () {
         $('#uploadWarningsSummary').hide();
         $('#uploadWarnings').show();
         return false;
@@ -11,7 +11,7 @@ $(function() {
     $('#uploader').pluploadQueue({
         browse_button: 'addFiles',
         runtimes: 'html5',
-        url: '../ws.php?method=pwg.images.upload',
+        url: '../ws?method=pwg.images.upload',
         chunk_size: '500kb',
         filters: {
             max_file_size: '1000mb',
@@ -19,15 +19,15 @@ $(function() {
         },
         dragdrop: true,
         preinit: {
-            Init: function(up, info) {
+            Init: function (up, info) {
                 $('#uploader_container').removeAttr('title');
 
-                $('#startUpload').on('click', function(e) {
+                $('#startUpload').on('click', function (e) {
                     e.preventDefault();
                     up.start();
                 });
 
-                $('#cancelUpload').on('click', function(e) {
+                $('#cancelUpload').on('click', function (e) {
                     e.preventDefault();
                     up.stop();
                     up.trigger('UploadComplete', up.files);
@@ -37,19 +37,19 @@ $(function() {
 
         init: {
             // update custom button state on queue change
-            QueueChanged: function(up) {
+            QueueChanged: function (up) {
                 $('#startUpload').prop('disabled', up.files.length == 0);
             },
 
-            UploadProgress: function(up, file) {
+            UploadProgress: function (up, file) {
                 $('#uploadingActions .progressbar').width(up.total.percent + '%');
             },
 
-            BeforeUpload: function(up, file) {
+            BeforeUpload: function (up, file) {
                 $('#startUpload, #addFiles').hide();
                 $('#uploadingActions').show();
 
-                $(window).bind('beforeunload', function() {
+                $(window).bind('beforeunload', function () {
                     return 'Upload in progress';
                 });
 
@@ -61,7 +61,7 @@ $(function() {
                 });
             },
 
-            FileUploaded: function(up, file, info) {
+            FileUploaded: function (up, file, info) {
                 $('#' + file.id).hide();
                 var data = $.parseJSON(info.response);
                 $('#uploadedPhotos')
@@ -77,7 +77,7 @@ $(function() {
                 uploadCategory = data.result.category;
             },
 
-            UploadComplete: function(up, files) {
+            UploadComplete: function (up, files) {
                 $('.selectAlbum, .selectFiles, #permissions, .showFieldset').hide();
                 $('.infos').append('<ul><li>' + sprintf(photosUploaded_label, uploadedPhotos.length) + '</li></ul>');
 

@@ -47,7 +47,7 @@
     function resetIgnored() {
     jQuery.ajax({
     type: 'GET',
-    url: '../ws.php',
+    url: '../ws',
     dataType: 'json',
     data: { method: 'pwg.extensions.ignoreUpdate', reset: true, type: extType, pwg_token: pwg_token, format: 'json' },
     success: function(data) {
@@ -95,7 +95,7 @@
     queuedManager.add({
     type: 'GET',
     dataType: 'json',
-    url: '../ws.php',
+    url: '../ws',
     data: { method: 'pwg.extensions.update', type: type, id: id, revision: revision, pwg_token: pwg_token, format: 'json' },
     success: function(data) {
     if (data['stat'] == 'ok') {
@@ -115,7 +115,7 @@
     function ignoreExtension(type, id) {
     queuedManager.add({
     type: 'GET',
-    url: '../ws.php',
+    url: '../ws',
     dataType: 'json',
     data: { method: 'pwg.extensions.ignoreUpdate', type: type, id: id, pwg_token: pwg_token, format: 'json' },
     success: function(data) {

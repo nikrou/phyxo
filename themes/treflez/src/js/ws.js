@@ -1,6 +1,6 @@
 $(function () {
     function setPrivacyLevel(id, level, label) {
-        const url = phyxo_root_url + 'ws.php?method=pwg.images.setPrivacyLevel';
+        const url = phyxo_root_url + 'ws?method=pwg.images.setPrivacyLevel';
 
         const fetch_params = {
             method: 'POST',
@@ -21,7 +21,7 @@ $(function () {
     }
 
     function addToCaddie(aElement, image_id) {
-        const url = phyxo_root_url + `ws.php?method=pwg.caddie.add&image_id=${image_id}`;
+        const url = phyxo_root_url + `ws?method=pwg.caddie.add&image_id=${image_id}`;
 
         const fetch_params = {
             method: 'GET',
@@ -38,7 +38,7 @@ $(function () {
     }
 
     function updateRating(image_id, rate) {
-        const url = phyxo_root_url + 'ws.php?method=pwg.images.rate';
+        const url = phyxo_root_url + 'ws?method=pwg.images.rate';
 
         const fetch_params = {
             method: 'POST',
