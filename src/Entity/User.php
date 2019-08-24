@@ -35,7 +35,7 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
-        $this->setInfos(new UserInfos());
+        $this->setInfos(new UserInfos(['status' => self::STATUS_NORMAL]));
     }
 
     public function setId($id)

@@ -16,7 +16,7 @@
     {include file='infos_errors.tpl'}
 
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
-	<form method="post" action="{$register_route}" class="form-horizontal" name="register_form">
+	<form method="post" action="{$register_action}" class="form-horizontal" name="register_form">
 	    <div class="card col-lg-6">
 		<h4 class="card-header">
                     {'Connection settings'|translate}

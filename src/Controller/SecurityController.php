@@ -70,9 +70,13 @@ class SecurityController extends AbstractController
         // default theme
         $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $user->getTheme()));
 
-        $this->template->assign('CONTENT_ENCODING', 'utf-8');
-        $this->template->assign('PHYXO_VERSION', $this->conf['show_version'] ? $this->phyxoVersion : '');
-        $this->template->assign('PHYXO_URL', $this->phyxoWebsite);
+        $this->template->assign([
+            'CONTENT_ENCODING' => 'utf-8',
+            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
+            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
+            'PHYXO_URL' => $this->phyxoWebsite,
+            'U_HOME' => $this->generateUrl('homepage'),
+        ]);
     }
 
     public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider)
@@ -235,6 +239,14 @@ class SecurityController extends AbstractController
                     }
                 }
 
+                if ($request->request->get('theme')) {
+                    if (!isset($themes[$request->request->get('theme')])) {
+                        $errors[] = \Phyxo\Functions\Language::l10n('Incorrect theme value');
+                    } else {
+                        $data['theme'] = $request->request->get('theme');
+                    }
+                }
+
                 if ($request->request->get('expand')) {
                     $data['expand'] = $request->request->get('expand');
                 }
@@ -245,6 +257,10 @@ class SecurityController extends AbstractController
 
                 if ($request->request->get('show_nb_hits')) {
                     $data['show_nb_hits'] = $request->request->get('show_nb_hits');
+                }
+
+                if ($request->request->get('recent_period')) {
+                    $data['recent_period'] = $request->request->get('recent_period');
                 }
 
                 if (empty($errors) && !empty($data)) {
@@ -328,7 +344,7 @@ class SecurityController extends AbstractController
                         'GALLERY_TITLE' => $this->conf['gallery_title'],
                     ];
 
-                    if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address)) {
+                    if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address, $userProvider)) {
                         $title = \Phyxo\Functions\Language::l10n('Password reset');
 
                         $infos[] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
@@ -353,11 +369,27 @@ class SecurityController extends AbstractController
         return $this->render('forgot_password.tpl', $tpl_params);
     }
 
-    protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address)
+    protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address, UserProvider $userProvider)
     {
-        $template->setLang($this->language_load['lang']);
-        $template->setLangInfo($this->language_load['lang_info']);
-        $template->postConstruct();
+        $user = $userProvider->loadUserByUsername('guest');
+
+        $language_load = \Phyxo\Functions\Language::load_language(
+            'common.lang',
+            __DIR__ . '/../../',
+            ['language' => $user->getLanguage(), 'return_vars' => true]
+        );
+
+        $template->setLang($language_load['lang']);
+        $template->setLangInfo($language_load['lang_info']);
+
+        $template->assign([
+            'gallery_url' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'lang_info' => $language_load['lang_info'],
+            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
+            'CONTENT_ENCODING' => 'utf-8',
+            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
+            'PHYXO_URL' => $this->phyxoWebsite,
+        ]);
 
         $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset')))
             ->addTo($params['user']['mail_address'])
@@ -372,26 +404,23 @@ class SecurityController extends AbstractController
 
     public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
     {
-        $this->init($userProvider->loadUserByUsername('guest'));
-
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
         $infos = [];
 
-        $result = (new UserInfosRepository($conn))->findByActivationKey($activation_key);
-        if ($conn->db_num_rows($result) === 0) {
-            throw new \Exception(\Phyxo\Functions\Language::l10n('Invalid key'));
-        }
-        $user_infos = $conn->db_fetch_assoc($result);
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+
+        $user = $userProvider->loadByActivationKey($activation_key);
+        $this->init($user);
 
         // @TODO: use symfony forms
         if ($request->isMethod('POST')) {
             if ($request->request->get('_password') && $request->request->get('_password_confirmation') &&
                 $request->request->get('_password') != $request->request->get('_password_confirm')) {
                 (new UserRepository($conn))->updateUser(
-                    ['password' => $passwordEncoder->encodePassword(new User(), $request->request->get('_password'))], $user_infos['user_id']
+                    ['password' => $passwordEncoder->encodePassword(new User(), $request->request->get('_password'))], $user->getId()
                 );
-                (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => null, 'activation_key_expire' => null], $user_infos['user_id']);
+                (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => null, 'activation_key_expire' => null], $user->getId());
                 $infos[] = \Phyxo\Functions\Language::l10n('Your password has been reset');
             } else {
                 $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');

@@ -46,6 +46,16 @@ class UserRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findByActivationKey(string $key)
+    {
+        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
+        $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
+        $query .= ' AND activation_key_expire >= now()';
+
+        return $this->conn->db_query($query);
+    }
+
     public function findByIds(array $ids)
     {
         $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;

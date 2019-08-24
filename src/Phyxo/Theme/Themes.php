@@ -463,8 +463,6 @@ class Themes extends Extensions
         ];
 
         try {
-            \App\Log::getInstance()->debug("will try to download $archive", $get_data);
-
             $this->download($get_data, $archive);
         } catch (\Exception $e) {
             throw new \Exception("Cannot download theme archive");

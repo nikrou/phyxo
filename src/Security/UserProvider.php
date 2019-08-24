@@ -23,6 +23,7 @@ use App\Utils\DataTransformer;
 use Phyxo\EntityManager;
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\UserMapper;
+use Symfony\Component\Security\Csrf\Exception\TokenNotFoundException;
 
 class UserProvider implements UserProviderInterface
 {
@@ -39,6 +40,11 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
         return $this->fetchUser($username);
+    }
+
+    public function loadByActivationKey(string $key)
+    {
+        return $this->fetchUserByActivationKey($key);
     }
 
     public function refreshUser(UserInterface $user)
@@ -66,27 +72,48 @@ class UserProvider implements UserProviderInterface
 
         // pretend it returns an array on success, false if there is no user
         if ($userData) {
-            $result = $this->em->getRepository(UserInfosRepository::class)->getInfos($userData['id']);
-            $userInfosData = $this->dataTransformer->map($this->em->getConnection()->db_fetch_assoc($result));
-
-            $user = new User();
-            $user->setId($userData['id']);
-            $user->setUsername($userData['username']);
-            $user->setPassword($userData['password']);
-            $user->setMailAddress($userData['mail_address']);
-
-            $extra_infos = $this->userMapper->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
-            $user_infos = new UserInfos($userInfosData);
-            $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:explode(',', $extra_infos['forbidden_categories']));
-            $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
-            $user_infos->setImageAccessType($extra_infos['image_access_type']);
-            $user->setInfos($user_infos);
-
-            return $user;
+            return $this->createUserFromDb($userData);
         }
 
         throw new UsernameNotFoundException(
             sprintf('Username "%s" does not exist.', $username)
         );
+    }
+
+    private function fetchUserByActivationKey(string $key)
+    {
+        $result = $this->em->getRepository(UserRepository::class)->findByActivationKey($key);
+        $userData = $this->em->getConnection()->db_fetch_assoc($result);
+
+        // pretend it returns an array on success, false if there is no user
+        if ($userData) {
+            return $this->createUserFromDb($userData);
+        }
+
+        throw new TokenNotFoundException(
+            sprintf('Activation key "%s" does not exist.', $key)
+        );
+    }
+
+    private function createUserFromDb(array $userData): User
+    {
+        $result = $this->em->getRepository(UserInfosRepository::class)->getInfos($userData['id']);
+        $userInfosData = $this->dataTransformer->map($this->em->getConnection()->db_fetch_assoc($result));
+
+        $user = new User();
+        $user->setId($userData['id']);
+        $user->setUsername($userData['username']);
+        $user->setPassword($userData['password']);
+        $user->setMailAddress($userData['mail_address']);
+
+        $extra_infos = $this->userMapper->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
+        $user_infos = new UserInfos($userInfosData);
+        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:explode(',', $extra_infos['forbidden_categories']));
+        $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
+        $user_infos->setImageAccessType($extra_infos['image_access_type']);
+        $user->setInfos($user_infos);
+
+        return $user;
+
     }
 }

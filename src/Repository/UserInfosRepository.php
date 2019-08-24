@@ -52,17 +52,6 @@ class UserInfosRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function findByActivationKey(string $key)
-    {
-        $query = 'SELECT user_id, nb_image_page, status, language, expand, show_nb_comments,';
-        $query .= ' show_nb_hits, recent_period, theme, registration_date, enabled_high,';
-        $query .= ' level, activation_key, activation_key_expire, lastmodified FROM ' . self::USER_INFOS_TABLE;
-        $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
-        $query .= ' AND activation_key_expire >= now()';
-
-        return $this->conn->db_query($query);
-    }
-
     public function getDistinctUser()
     {
         $query = 'SELECT DISTINCT user_id FROM ' . self::USER_INFOS_TABLE;

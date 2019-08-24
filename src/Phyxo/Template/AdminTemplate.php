@@ -24,7 +24,7 @@ class AdminTemplate extends Template
     {
         $template = new self();
         $template->setCompileDir($compile_dir);
-        $template->setTheme(new Theme($theme, '.', ''));
+        $template->setTheme(new Theme($theme, '.'));
 
         return $template;
     }
