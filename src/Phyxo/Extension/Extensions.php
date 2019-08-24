@@ -44,7 +44,7 @@ class Extensions
 
     public function download($params = [], $filename) {
         $url = $this->pem_url . '/download.php';
-        \App\Log::getInstance()->debug($filename, $url);
+
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);

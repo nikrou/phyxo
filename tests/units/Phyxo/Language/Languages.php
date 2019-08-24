@@ -14,7 +14,7 @@ namespace tests\units\Phyxo\Language;
 require_once __DIR__ . '/../../bootstrap.php';
 
 use atoum;
-use Phyxo\DBLayer\pgsqlConnection;
+use Prophecy\Prophet;
 
 class Languages extends atoum
 {
@@ -71,12 +71,15 @@ class Languages extends atoum
 
     public function testFsLanguages()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $languages = new \Phyxo\Language\Languages($conn);
+        $userMapper->getUser()->willReturn(new class {
+            function getLanguage() { return 'en_GB';}
+        });
+
+        $languages = new \Phyxo\Language\Languages($conn->reveal(), $userMapper->reveal());
         $languages->setRootPath($this->languages_path);
 
         $this

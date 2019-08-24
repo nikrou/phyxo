@@ -14,7 +14,7 @@ namespace tests\units\Phyxo\Theme;
 require_once __DIR__ . '/../../bootstrap.php';
 
 use atoum;
-use Phyxo\DBLayer\pgsqlConnection;
+use Prophecy\Prophet;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends atoum
@@ -99,14 +99,19 @@ class Themes extends atoum
 
     public function testFsThemes()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
-
         $workspace = $this->mirrorToWorkspace();
 
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $themes = new \mock\Phyxo\Theme\Themes($conn);
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn->get_boolean('true')->willReturn(true);
+
+        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
+
+        $userMapper->getUser()->willReturn(new class {
+            function getLanguage() { return 'en_GB';}
+        });
+
+        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());
         $themes->setRootPath($workspace);
 
         $this
@@ -114,15 +119,22 @@ class Themes extends atoum
             ->isEqualTo($this->getLocalThemes());
     }
 
-    public function _testSortThemes($sort_type, $order)
+    public function testSortThemes($sort_type, $order)
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
+        $workspace = $this->mirrorToWorkspace();
 
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $themes = new \mock\Phyxo\Theme\Themes($conn);
-        $themes->setRootPath($this->themes_path . '/themes');
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conn->get_boolean('true')->willReturn(true);
+
+        $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
+
+        $userMapper->getUser()->willReturn(new class {
+            function getLanguage() { return 'en_GB';}
+        });
+
+        $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());
+        $themes->setRootPath($workspace);
 
         $themes->sortFsThemes($sort_type);
 

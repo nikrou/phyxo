@@ -14,18 +14,15 @@ namespace tests\units\Phyxo;
 require_once __DIR__ . '/../bootstrap.php';
 
 use atoum;
-use PhpParser\Node\Expr\Cast\Object_;
+use Prophecy\Prophet;
 
 class Conf extends atoum
 {
     public function testLoadFile()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
-
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $this
@@ -43,12 +40,9 @@ class Conf extends atoum
 
     public function testUpdateConfValue()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
-
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $conf['simple_value'] = 'another value';
@@ -68,12 +62,9 @@ class Conf extends atoum
 
     public function testDeleteConfParam()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
-
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         unset($conf['simple_value']);
@@ -93,12 +84,9 @@ class Conf extends atoum
 
     public function testAddNewKey()
     {
-        $controller = new \atoum\mock\controller();
-        $controller->__construct = function () {
-        };
-
-        $conn = new \mock\Phyxo\DBLayer\pgsqlConnection('', '', '', '', $controller);
-        $conf = new \Phyxo\Conf($conn);
+        $prophet = new Prophet();
+        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $conf = new \Phyxo\Conf($conn->reveal());
         $conf->loadFromFile(TESTS_CONFIG_PATH . 'config_default.inc.php');
 
         $conf['new_key'] = 'new value';

@@ -49,6 +49,7 @@
         "dmore/behat-chrome-extension": "^1.1",
         "friendsofphp/php-cs-fixer": "^2.14",
         "jdorn/sql-formatter": "^1.2",
+        "phpspec/prophecy": "^1.8",
         "symfony/dom-crawler": "^3.3",
         "symfony/profiler-pack": "^1.0",
         "symfony/test-pack": "^1.0"

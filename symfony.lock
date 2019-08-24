@@ -59,6 +59,9 @@
             "ref": "cb4152ebcadbe620ea2261da1a1c5a9b8cea7672"
         }
     },
+    "doctrine/instantiator": {
+        "version": "1.2.0"
+    },
     "doctrine/lexer": {
         "version": "v1.0.1"
     },
@@ -122,6 +125,18 @@
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
     },
+    "phpdocumentor/reflection-common": {
+        "version": "1.0.1"
+    },
+    "phpdocumentor/reflection-docblock": {
+        "version": "4.3.1"
+    },
+    "phpdocumentor/type-resolver": {
+        "version": "0.4.0"
+    },
+    "phpspec/prophecy": {
+        "version": "1.8.1"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -139,6 +154,18 @@
     },
     "ralouphie/getallheaders": {
         "version": "2.0.5"
+    },
+    "sebastian/comparator": {
+        "version": "3.0.2"
+    },
+    "sebastian/diff": {
+        "version": "3.0.2"
+    },
+    "sebastian/exporter": {
+        "version": "3.1.1"
+    },
+    "sebastian/recursion-context": {
+        "version": "3.0.0"
     },
     "smarty/smarty": {
         "version": "v3.1.33"
@@ -377,5 +404,8 @@
     },
     "twig/twig": {
         "version": "v2.5.0"
+    },
+    "webmozart/assert": {
+        "version": "1.4.0"
     }
 }
