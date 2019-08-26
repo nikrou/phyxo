@@ -17,6 +17,7 @@ use Phyxo\Language\Languages;
 
 $languages = new Languages($conn, $userMapper);
 $languages->setRootPath(__DIR__ . '/../language');
+$languages->setExtensionsURL($pemURL);
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |

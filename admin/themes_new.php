@@ -17,6 +17,7 @@ use Phyxo\Theme\Themes;
 
 $themes = new Themes($conn, $userMapper);
 $themes->setRootPath(__DIR__ . '/../themes'); //@TODO : retrieve from config/service: $themesPath
+$themes->setExtensionsURL($pemURL);
 
 // +-----------------------------------------------------------------------+
 // |                           setup check                                 |
