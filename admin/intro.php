@@ -13,6 +13,7 @@ if (!defined('PHPWG_ROOT_PATH')) {
     die("Hacking attempt!");
 }
 
+use App\Repository\BaseRepository;
 use GuzzleHttp\Client;
 use App\Repository\TagRepository;
 use App\Repository\CommentRepository;
@@ -36,10 +37,10 @@ $services['users']->checkStatus(ACCESS_ADMINISTRATOR);
 // +-----------------------------------------------------------------------+
 
 // Check for upgrade : code inspired from punbb
-if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
+if (isset($_GET['action']) && 'check_upgrade' == $_GET['action']) {
     try {
         $client = new Client();
-        $response = $client->request('GET', PHPWG_URL . '/download/');
+        $response = $client->request('GET', PHYXO_UPDATE_URL);
         if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
             $versions = json_decode($response->getBody(), true);
             $latest_version = $versions[0]['version'];
@@ -50,7 +51,7 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
         if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
             $page['infos'][] = \Phyxo\Functions\Language::l10n('You are running on development sources, no check possible.');
         } elseif (version_compare(PHPWG_VERSION, $latest_version) < 0) {
-            $page['infos'][] = \Phyxo\Functions\Language::l10n('A new version of Phyxo is available.');
+            $page['infos'][] = '<a href="./index.php?page=updates">'.\Phyxo\Functions\Language::l10n('A new version of Phyxo is available.').'</a>';
         } else {
             $page['infos'][] = \Phyxo\Functions\Language::l10n('You are running the latest version of Phyxo.');
         }
@@ -69,8 +70,7 @@ if (isset($_GET['action']) and 'check_upgrade' == $_GET['action']) {
 
 $php_current_timestamp = date("Y-m-d H:i:s");
 $db_version = $conn->db_version();
-list($db_current_date) = $conn->db_fetch_row($conn->db_query('SELECT now();'));
-
+$db_current_date = (new BaseRepository($conn))->getNow();
 $nb_elements = (new ImageRepository($conn))->count();
 $nb_categories = (new CategoryRepository($conn))->count();
 $nb_virtual = (new CategoryRepository($conn))->count('dir IS NULL');

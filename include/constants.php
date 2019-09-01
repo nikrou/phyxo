@@ -11,7 +11,7 @@
 
 // Default settings
 if (!defined('PHPWG_VERSION')) { // can be defined in tests
-    define('PHPWG_VERSION', '1.9.7');
+    define('PHPWG_VERSION', '1.9.8');
 }
 if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');

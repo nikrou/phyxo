@@ -45,7 +45,7 @@ class ThemeRepository extends BaseRepository
     public function deleteById(string $theme_id)
     {
         $query = 'DELETE FROM ' . self::THEMES_TABLE;
-        $query .= ' WHERE id \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
+        $query .= ' WHERE id = \'' . $this->conn->db_real_escape_string($theme_id) . '\'';
         $this->conn->db_query($query);
     }
 

@@ -257,7 +257,7 @@ class Updates
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
             try {
                 $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
-                $response = $client->request('GET', PHPWG_URL . '/download/all_versions.php');
+                $response = $client->request('GET', PHYXO_UPDATE_URL);
                 if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
                 }

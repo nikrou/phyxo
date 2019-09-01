@@ -4,12 +4,16 @@ install:
     extension: php
   controller: App\Controller\AdminController::install
 
+upgrade:
+  path: /upgrade
+  controller: App\Controller\AdminController::upgrade
+
 legacy_home:
   path:  /index.{extension}
   defaults:
     extension: php
   controller: App\Controller\AdminController::index
 
-home:
+admin_home:
   path:  /
   controller: App\Controller\AdminController::index

@@ -31,13 +31,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    Phyxo\DBLayer\DBLayer:
+    Phyxo\DBLayer\iDBLayer:
         factory: 'Phyxo\DBLayer\DBLayer::initFromConfigFile'
         arguments: ['%database_config_file%']
 
     phyxo.conn:
         public: true
-        alias: 'Phyxo\DBLayer\DBLayer'
+        alias: 'Phyxo\DBLayer\iDBLayer'
 
     # Phyxo\DataCollector\DBLayerCollector:
     #     tags:

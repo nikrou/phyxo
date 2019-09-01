@@ -152,12 +152,10 @@ class Extension
     {
         global $conf;
 
-        $update = new Updates($GLOBALS['conn']);
         $result = [];
 
-        if (!isset($_SESSION['need_update'])) {
-            $update->checkCoreUpgrade();
-        }
+        $update = new Updates($GLOBALS['conn']);
+        $update->checkCoreUpgrade();
 
         $result['phyxo_need_update'] = $_SESSION['need_update'];
 

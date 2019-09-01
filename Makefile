@@ -4,19 +4,21 @@ APP_VERSION=$(shell grep "PHPWG_VERSION'," ./include/constants.php| cut -d"'" -f
 SOURCE=./*
 TARGET=../target
 
+ADMIN_MANIFEST=$(DIST)/$(APP_NAME)/admin/theme/build/manifest.json
+
 all:;
 	@echo "make config or make dist"
 
 
-dist: config admin_assets dist-tgz dist-zip
+dist: config $(ADMIN_MANIFEST) dist-tgz dist-zip
 
 
 config: clean
 	mkdir -p $(DIST)/$(APP_NAME)
 	cp -pr *.php admin include install language templates config src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
-	cp -p tools/index_prod.php $(DIST)/$(APP_NAME)/index.php
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
+	cp -p tools/index_prod.php $(DIST)/$(APP_NAME)/index.php
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -d $(DIST)/$(APP_NAME)
@@ -52,30 +54,33 @@ config: clean
 	find ./$(DIST)/ -type d -name '.svn' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
-admin_assets:;
-	cd $(DIST)/$(APP_NAME)/admin/theme ;	\
-	npm ci ;				\
-	npm run build ;				\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json
+# rules based on files
+admin/theme/package-lock.json: admin/theme/package.json
+	npm i
 
-assets:;
-	cd $(DIST)/$(APP_NAME)/themes/treflez ;	\
-	npm ci ;				\
-	npm run build ;				\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json
+admin/theme/node_modules: admin/theme/package-lock.json
+	npm ci
 
-dist-tgz: config
+admin_js_files := $(wildcard admin/theme/src/*/*.js)
+admin_scss_files := $(wildcard admin/theme/src/*/*.scss)
+
+$(ADMIN_MANIFEST): $(admin_js_files) $(admin_scss_files) admin/theme/webpack.config.js
+	cd $(DIST)/$(APP_NAME)/admin/theme ;						\
+	npm ci ;									\
+	npm run build ;									\
+	rm -fr src node_modules webpack.config.js package.json package-lock.json ;	\
+
+dist-tgz: config $(ADMIN_MANIFEST)
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
-
-dist-zip: config
-	cd $(DIST); \
-	mkdir -p $(TARGET); \
-	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \
-	zip -v -r9 $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip $(APP_NAME) ; \
+dist-zip: config $(ADMIN_MANIFEST)
+	cd $(DIST);								\
+	mkdir -p $(TARGET);							\
+	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ;				\
+	zip -v -r9 $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip $(APP_NAME) ;	\
 	cd ..
 
 clean:

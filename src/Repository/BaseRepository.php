@@ -11,7 +11,7 @@
 
 namespace App\Repository;
 
-use Phyxo\DBLayer\DBLayer;
+use Phyxo\DBLayer\iDBLayer;
 
 class BaseRepository
 {
@@ -48,9 +48,16 @@ class BaseRepository
 
     protected $conn = null;
 
-    public function __construct(DBLayer $conn)
+    public function __construct(iDBLayer $conn)
     {
         $this->conn = $conn;
+    }
+
+    public function getNow()
+    {
+        list($dbnow) = $this->conn->db_fetch_row($this->conn->db_query('SELECT NOW();'));
+
+        return $dbnow;
     }
 
     public function addOrderByFields(string $order_by_string)
