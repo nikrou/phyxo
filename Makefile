@@ -1,14 +1,16 @@
 DIST=.dist
 APP_NAME=phyxo
-APP_VERSION=$(shell grep "PHPWG_VERSION'," ./include/constants.php| cut -d"'" -f4)
+APP_VERSION=$(shell grep "core_version:" ./config/services.yaml| sed -e 's/.*: //')
 SOURCE=./*
 TARGET=../target
+
+ADMIN_MANIFEST=$(DIST)/$(APP_NAME)/admin/theme/build/manifest.json
+FRONT_MANIFEST=$(DIST)/$(APP_NAME)/themes/treflez/build/manifest.json
 
 all:;
 	@echo "make config or make dist"
 
-
-dist: config admin_assets assets dist-tgz dist-zip
+dist: config $(ADMIN_MANIFEST) $(FRONT_MANIFEST) dist-tgz dist-zip
 
 
 config: clean
@@ -16,9 +18,6 @@ config: clean
 	cp -pr *.php admin include install language templates config src \
 	CHANGELOG.md LICENSE README.md $(DIST)/$(APP_NAME)/
 	cp -p tools/.htaccess $(DIST)/$(APP_NAME)/
-
-	# Update script is broken. Add new one for 1.10.0 to fix it.
-	cp -p tools/fix_upgrade.php $(DIST)/$(APP_NAME)/
 
 	cp -p composer.* $(DIST)/$(APP_NAME)/
 	composer install --no-dev -o -a -d $(DIST)/$(APP_NAME)
@@ -56,26 +55,48 @@ config: clean
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
 
-admin_assets:;
-	cd $(DIST)/$(APP_NAME)/admin/theme ;	\
-	npm ci ;				\
-	npm run build ;				\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
 
-assets:;
+# rules based on files
+admin/theme/package-lock.json: admin/theme/package.json
+	npm i
+
+admin/theme/node_modules: admin/theme/package-lock.json
+	npm ci
+
+admin_js_files := $(wildcard admin/theme/src/*/*.js)
+admin_scss_files := $(wildcard admin/theme/src/*/*.scss)
+
+$(ADMIN_MANIFEST): $(admin_js_files) $(admin_scss_files) admin/theme/webpack.config.js
+	cd $(DIST)/$(APP_NAME)/admin/theme ;								\
+	npm ci ;											\
+	npm run build ;											\
+	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js ;	\
+	cd .. ;
+
+# rules based on files
+themes/treflez/package-lock.json: themes/treflez/package.json
+	npm i
+
+themes/treflez/node_modules: themes/treflez/package-lock.json
+	npm ci
+
+front_js_files := $(wildcard themes/trelfez/src/*/*.js)
+front_scss_files := $(wildcard themes/treflez/src/*/*.scss)
+
+$(FRONT_MANIFEST): $(front_js_files) $(front_scss_files) themes/treflez/webpack.config.js
 	cd $(DIST)/$(APP_NAME)/themes/treflez ;								\
 	npm ci ;											\
 	npm run build ;											\
-	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js
+	rm -fr src node_modules webpack.config.js package.json package-lock.json postcss.config.js ;	\
+	cd .. ;
 
-dist-tgz: config admin_assets assets
+dist-tgz: config $(ADMIN_MANIFEST) $(FRONT_MANIFEST)
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	tar zcvf $(TARGET)/$(APP_NAME)-$(APP_VERSION).tgz $(APP_NAME) ; \
 	cd ..
 
-
-dist-zip: config admin_assets assets
+dist-zip: config $(ADMIN_MANIFEST) $(FRONT_MANIFEST)
 	cd $(DIST); \
 	mkdir -p $(TARGET); \
 	rm $(TARGET)/$(APP_NAME)-$(APP_VERSION).zip ; \

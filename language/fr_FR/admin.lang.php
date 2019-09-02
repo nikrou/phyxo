@@ -1011,3 +1011,4 @@ $lang['You are about to delete one element, this procedure is irreversible'] = "
 $lang['Do you want to proceed?'] = "Voulez-vous continuer ? ";
 $lang['All database upgrades have been made. Go to'] = "Toutes les mises à jour de la base de données ont été faites. Aller sur";
 $lang['dashboard'] = "le tableau de bord";
+$lang['Some files or directories are not writable'] = "Certains Fichiers ou Répertoires ne sont pas accessibles en écriture";

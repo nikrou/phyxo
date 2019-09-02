@@ -79,8 +79,10 @@ if (!in_array(142, $applied_upgrades)) {
     $current_release = '1.5.0';
 } elseif (!in_array(147, $applied_upgrades)) {
     $current_release = '1.6.0';
-} elseif (!in_array(148, $applied_upgrades)) {
+} elseif (!is_dir(__DIR__ . '/../src/LegacyPages')) {
     $current_release = '1.8.0';
+} else {
+    $current_release = '1.9.0';
 }
 
 // +-----------------------------------------------------------------------+

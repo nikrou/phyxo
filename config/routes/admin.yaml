@@ -6,6 +6,10 @@ install:
   requirements:
     step: language|check|database|user|success
 
+upgrade:
+  path: /upgrade
+  controller: App\Controller\AdminController::upgrade
+
 legacy_home:
   path:  /index.{extension}
   controller: App\Controller\AdminController::index

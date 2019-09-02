@@ -12,6 +12,8 @@
 use App\Repository\UpgradeRepository;
 
 $release_from = '1.8.0';
+$first_id = 147;
+$last_id = 147;
 
 $filesToRemove = [
     'about.php', 'action.php', 'comments.php', 'feed.php', 'identification.php',
@@ -22,10 +24,6 @@ $filesToRemove = [
 foreach ($filesToRemove as $file_to_remove) {
     unlink($file_to_remove);
 }
-
-$release_from = '1.9.0';
-$first_id = 148;
-$last_id = 148;
 
 // retrieve already applied upgrades
 $query = 'SELECT id  FROM ' . PREFIX_TABLE . 'upgrade;';

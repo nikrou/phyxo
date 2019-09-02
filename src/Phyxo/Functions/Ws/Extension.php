@@ -149,23 +149,23 @@ class Extension
      */
     public static function checkupdates($params, Server $service)
     {
-        $update = new Updates($service->getConnection(), $service->getUserMapper());
         $result = [];
-
-        if (!isset($_SESSION['need_update'])) {
-            $update->checkCoreUpgrade();
-        }
+        $update = new Updates($service->getConnection(), $service->getUserMapper(), $service->getCoreVersion());
+        $update->setExtensionsURL($service->getExtensionsURL());
+        $update->checkCoreUpgrade();
 
         $result['phyxo_need_update'] = $_SESSION['need_update'];
 
         if (!empty($service->getConf()['updates_ignored'])) {
-            $service->getConf()['updates_ignored'] = json_decode($service->getConf()['updates_ignored'], true);
+            $updates_ignored = json_decode($service->getConf()['updates_ignored'], true);
+        } else {
+            $updates_ignored = [];
         }
 
         if (!isset($_SESSION['extensions_need_update'])) {
-            $update->checkExtensions();
+            $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkExtensions($updates_ignored));
         } else {
-            $update->checkUpdatedExtensions();
+            $service->getConf()->addOrUpdateParam('updates_ignored', $update->checkUpdatedExtensions($updates_ignored));
         }
 
         if (!isset($_SESSION['extensions_need_update'])) {

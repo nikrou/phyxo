@@ -13,7 +13,10 @@ if (!defined("UPDATES_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+use App\Repository\UpgradeRepository;
+use Phyxo\Functions\Upgrade;
 use Phyxo\Update\Updates;
+use Symfony\Component\Filesystem\Filesystem;
 
 /*
 STEP:
@@ -36,7 +39,7 @@ if ($step == 0) {
         'DEV_VERSION' => false,
     ]);
 
-    $updater = new Updates($conn, $userMapper);
+    $updater = new Updates($conn, $userMapper, PHPWG_VERSION);
     $updater->setUpdateUrl(PHYXO_UPDATE_URL);
 
     if (preg_match('/.*-dev$/', PHPWG_VERSION, $matches)) {
@@ -94,14 +97,15 @@ if ($step == 2 && $userMapper->isWebmaster()) {
         $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
-        $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
 
         try {
             $updater->upgrade($zip);
+            $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
 
-            \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
             $userMapper->invalidateUserCache(true);
             $template->delete_compiled_templates();
+            unlink(__DIR__ . '/../' . $conf['data_location'] . 'update');
+
             $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
             $page['infos'][] = $upgrade_to;
             $step = -1;
@@ -125,15 +129,57 @@ if ($step == 3 && $userMapper->isWebmaster()) {
         $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
         $updater->upgradeTo($_POST['upgrade_to']);
         $updater->download($zip);
-        $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
 
         try {
             $updater->upgrade($zip);
 
-            \Phyxo\Functions\Utils::deltree(__DIR__ . '/../' . $conf['data_location'] . 'update');
-            $userMapper->invalidateUserCache(true);
+            $upgrade = new Upgrade();
+            $upgrade->deactivate_non_standard_plugins();
+            $upgrade->deactivate_non_standard_themes();
+
+            $tables = $conn->db_get_tables($conn->getPrefix());
+            $columns_of = $conn->db_get_columns_of($tables);
+
+            $result = (new UpgradeRepository($conn))->findAll();
+            $applied_upgrades = $conn->result2array($result, null, 'id');
+
+            if (!in_array(142, $applied_upgrades)) {
+                $current_release = '1.0.0';
+            } elseif (!in_array(144, $applied_upgrades)) {
+                $current_release = '1.1.0';
+            } elseif (!in_array(145, $applied_upgrades)) {
+                $current_release = '1.2.0';
+            } elseif (in_array('validated', $columns_of[$conn->getPrefix() . 'tags'])) {
+                $current_release = '1.3.0';
+            } elseif (!in_array(146, $applied_upgrades)) {
+                $current_release = '1.5.0';
+            } elseif (!in_array(147, $applied_upgrades)) {
+                $current_release = '1.6.0';
+            } elseif (!is_dir(__DIR__ . '/../src/LegacyPages')) {
+                $current_release = '1.8.0';
+            } else {
+                $current_release = '1.9.0';
+            }
+
+            $upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php';
+            if (is_readable($upgrade_file)) {
+                ob_start();
+                include($upgrade_file);
+                ob_end_clean();
+            }
+
+            $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
+
+            $fs = new Filesystem();
+            $fs->remove(__DIR__ . '/../' . $conf['data_location'] . 'update');
+            $fs->remove(__DIR__ . '/../var/cache');
+
+            \Phyxo\Functions\Utils::invalidate_user_cache(true);
             $template->delete_compiled_templates();
-            \Phyxo\Functions\Utils::redirect(__DIR__ . '/../' . 'upgrade.php?now='); // @TODO: use symfony router
+
+            // @TODO: add flash message
+            file_get_contents('./'); // cache warmup
+            \Phyxo\Functions\Utils::redirect('./?now=' . time());
         } catch (Exception $e) {
             $step = 0;
             $message = $e->getMessage();

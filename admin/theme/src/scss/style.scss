@@ -54,6 +54,10 @@ section[role='content'] {
         margin-bottom: 1em;
     }
 
+    .alert.hide {
+	display: none;
+    }
+
     // temporary, until theme.css and clear.css will be removed
     form {
         ul {

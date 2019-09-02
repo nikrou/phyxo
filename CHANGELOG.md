@@ -3,7 +3,12 @@
 -   Use symfony sessions
 -   Default theme is now Treflez.
 
-# Phyxo 1.9.7 - 2018-01-12
+# Phyxo 1.9.8 - 2019-09-02
+-   Fix issue with upgrade link on admin area index page.
+-   URL update was not correct
+-   Prepare upgrade process for next major release
+
+# Phyxo 1.9.7 - 2019-01-12
 -   Fix issue preventing users using nginx as http server to connect.
 
 # Phyxo 1.9.6 - 2018-12-31

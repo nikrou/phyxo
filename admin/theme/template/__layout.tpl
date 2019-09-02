@@ -5,7 +5,7 @@
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-	<link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./admin/theme/build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./build/manifest.json' src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	{get_combined_css}
@@ -39,7 +39,7 @@
 		    </div>
 		</nav>
 
-	    	{if !empty($header_msgs)}
+		{if !empty($header_msgs)}
 		    <div class="alert alert-dark" role="alert">
 			{foreach $header_msgs as $elt}
 			    {$elt}
@@ -101,6 +101,12 @@
 			</div>
 		    {/if}
 
+		    <div class="alert alert-dismissible fade hide" role="alert">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <i class="fa fa-times"></i>
+			</button>
+		    </div>
+
 		    {if !empty($infos)}
 			<div class="alert alert-success alert-dismissible fade show" role="alert">
 			    {foreach $infos as $info}
@@ -154,7 +160,7 @@
 	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
-	    <script src="{$ROOT_URL}{asset manifest="./admin/theme/build/manifest.json" src='app.js'}"></script>
+	    <script src="{$ROOT_URL}{asset manifest='./build/manifest.json' src='app.js'}"></script>
 	{/block}
     </body>
 </html>

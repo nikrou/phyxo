@@ -22,16 +22,17 @@ use Phyxo\Extension\Extensions;
 
 class Updates
 {
-    private $versions = [], $version = [];
+    private $versions = [], $version = [], $core_version;
     private $types = [];
     private $default_themes = [], $default_plugins = [], $default_languages = [];
     private $update_url, $pem_url, $missing = [];
     private $userMapper, $conn;
 
-    public function __construct(iDBLayer $conn = null, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn = null, UserMapper $userMapper, string $core_version = PHPWG_VERSION)
     {
         $this->conn = $conn;
         $this->userMapper = $userMapper;
+        $this->core_version = $core_version;
 
         $this->types = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
 
@@ -159,7 +160,7 @@ class Updates
         );
     }
 
-    public function getServerExtensions($version = PHPWG_VERSION)
+    public function getServerExtensions()
     {
         $get_data = [
             'format' => 'json',
@@ -178,6 +179,7 @@ class Updates
                 throw new \Exception("Reponse from server is not readable");
             }
 
+            $version = $this->core_version;
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
                 $version = $pem_versions[0]['name'];
             }
@@ -261,10 +263,10 @@ class Updates
     {
         $_SESSION['need_update'] = false;
 
-        if (preg_match('/(\d+\.\d+)\.(\d+)$/', PHPWG_VERSION, $matches)) {
+        if (preg_match('/(\d+\.\d+)\.(\d+)$/', $this->core_version, $matches)) {
             try {
                 $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
-                $response = $client->request('GET', PHPWG_URL . '/download/all_versions.php');
+                $response = $client->request('GET', PHYXO_UPDATE_URL);
                 if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
                 }
@@ -273,15 +275,13 @@ class Updates
             }
 
             $new_version = trim($all_versions[0]['version']);
-            $_SESSION['need_update'] = version_compare(PHPWG_VERSION, $new_version, '<');
+            $_SESSION['need_update'] = version_compare($this->core_version, $new_version, '<');
         }
     }
 
     // Check all extensions upgrades
-    public function checkExtensions()
+    public function checkExtensions(array $updates_ignored = [])
     {
-        global $conf;
-
         if (!$this->getServerExtensions()) {
             return false;
         }
@@ -292,11 +292,11 @@ class Updates
             $ignore_list = [];
 
             foreach ($this->getType($type)->getFsExtensions() as $ext_id => $fs_ext) {
-                if (isset($fs_ext['extension']) and isset($this->getServerExtensions()[$fs_ext['extension']])) {
+                if (isset($fs_ext['extension'], $this->getServerExtensions()[$fs_ext['extension']])) {
                     $ext_info = $this->getServerExtensions()[$fs_ext['extension']];
 
                     if (!version_compare($fs_ext['version'], $ext_info['revision_name'], '>=')) {
-                        if (in_array($ext_id, $conf['updates_ignored'][$type])) {
+                        if (in_array($ext_id, $updates_ignored[$type])) {
                             $ignore_list[] = $ext_id;
                         } else {
                             $_SESSION['extensions_need_update'][$type][$ext_id] = $ext_info['revision_name'];
@@ -304,12 +304,14 @@ class Updates
                     }
                 }
             }
-            $conf['updates_ignored'][$type] = $ignore_list;
         }
+        $updates_ignored[$type] = $ignore_list;
+
+        return $updates_ignored;
     }
 
     // Check if extension have been upgraded since last check
-    public function checkUpdatedExtensions()
+    public function checkUpdatedExtensions(array $updates_ignored = [])
     {
         foreach ($this->types as $type) {
             if (!empty($_SESSION['extensions_need_update'][$type])) {
@@ -317,8 +319,7 @@ class Updates
                     if (isset($_SESSION['extensions_need_update'][$type][$ext_id])
                         && version_compare($fs_ext['version'], $_SESSION['extensions_need_update'][$type][$ext_id], '>=')) {
                         // Extension have been upgraded
-                        $this->checkExtensions();
-                        break;
+                        return $this->checkExtensions($updates_ignored);
                     }
                 }
             }

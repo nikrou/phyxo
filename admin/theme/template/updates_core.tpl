@@ -49,8 +49,8 @@
 	    {'This is a minor update, with only bug corrections.'|translate}
 	</p>
 	<form action="" method="post">
-	    <p><input type="submit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}"></p>
-	    <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="./admin/theme/images/ajax-loader-bar.gif" alt=""></p>
+	    <p><input type="submit" class="btn btn-sbumit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}"></p>
+	    <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress... Please wait.'|translate}</p>
 	    <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>
 	</form>
     {/if}
@@ -77,9 +77,9 @@
 		    {if !empty($missing.plugins) or !empty($missing.themes)}
 			<p><label><input type="checkbox" name="understand"> &nbsp;{'I decide to update anyway'|translate}</label></p>
 		    {/if}
-		    <p><input type="submit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}" {if !empty($missing.plugins) or !empty($missing.themes)}disabled="disabled"{/if}>
+		    <p><input type="submit" name="submit" class="btn btn-submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}" {if !empty($missing.plugins) or !empty($missing.themes)}disabled="disabled"{/if}>
 		    </p>
-		    <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress...'|translate}<br><img src="./admin/theme/images/ajax-loader-bar.gif" alt=""></p>
+		    <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress... Please wait.'|translate}</p>
 	    </fieldset>
 
 	    <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>
