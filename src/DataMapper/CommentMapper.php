@@ -98,7 +98,7 @@ class CommentMapper
             $comment_action = 'moderate'; //one of validate, moderate, reject
         }
 
-        // display author field if the user status is guest or generic
+        // display author field if the user status is guest
         if ($this->userMapper->isGuest()) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {

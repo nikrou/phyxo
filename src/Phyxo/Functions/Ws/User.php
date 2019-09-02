@@ -53,7 +53,7 @@ class User
         }
 
         if (!empty($params['status'])) {
-            $params['status'] = array_intersect($params['status'], $service->getConnection()->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status'));
+            $params['status'] = array_intersect($params['status'], EntityUser::ALL_STATUS);
             if (count($params['status']) > 0) {
                 $where_clauses[] = 'ui.status ' . $service->getConnection()->in($params['status']);
             }
@@ -332,7 +332,7 @@ class User
                 return new Error(403, 'Only webmasters can grant "webmaster/admin" status');
             }
 
-            if (!in_array($params['status'], ['guest', 'generic', 'normal', 'admin', 'webmaster'])) {
+            if (!in_array($params['status'], EntityUser::ALL_STATUS)) {
                 return new Error(Server::WS_ERR_INVALID_PARAM, 'Invalid status');
             }
 

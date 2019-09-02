@@ -23,6 +23,13 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
 
     const ALL_STATUS = [self::STATUS_WEBMASTER, self::STATUS_ADMIN, self::STATUS_NORMAL, self::STATUS_GUEST];
 
+    const STATUS_TO_ROLE = [
+        self::STATUS_WEBMASTER => 'ROLE_WEBMASTER',
+        self::STATUS_ADMIN => 'ROLE_ADMIN',
+        self::STATUS_NORMAL => 'ROLE_NORMAL',
+        self::STATUS_GUEST => 'ROLE_USER'
+    ];
+
     protected $id;
     protected $username;
     protected $password;
@@ -97,6 +104,11 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         if ($this->user_infos['status'] === self::STATUS_WEBMASTER) {
             $this->roles[] = 'ROLE_WEBMASTER';
         }
+    }
+
+    public static function getRoleFromStatus(string $status)
+    {
+        return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
     }
 
     public function offsetExists($offset)

@@ -30,6 +30,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Security;
 
 class WsController extends AbstractController
 {
@@ -37,7 +38,7 @@ class WsController extends AbstractController
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
-                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel, string $pemURL)
+                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel, string $pemURL, Security $security)
     {
         $this->service = new Server($kernel->getUploadDir());
         $this->service->addUserMapper($userMapper);
@@ -58,6 +59,7 @@ class WsController extends AbstractController
         $this->service->setImageStandardParams($image_std_params);
         $this->service->setPasswordEncoder($passwordEncoder);
         $this->service->setExtensionsURL($pemURL);
+        $this->service->setSecurity($security);
 
         $this->addDefaultMethods();
 
@@ -683,7 +685,7 @@ class WsController extends AbstractController
                     'type' => Server::WS_TYPE_ID
                 ],
                 'username' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'Use "%" as wildcard.'],
-                'status' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,generic,normal,admin,webmaster'],
+                'status' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'info' => 'guest,normal,admin,webmaster'],
                 'min_level' => ['default' => 0, 'maxValue' => max($this->service->getConf()['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
                 'group_id' => ['flags' => Server::WS_PARAM_OPTIONAL | Server::WS_PARAM_FORCE_ARRAY, 'type' => Server::WS_TYPE_ID],
                 'per_page' => ['default' => 100, 'maxValue' => $this->service->getConf()['ws_max_users_per_page'], 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
@@ -729,7 +731,7 @@ class WsController extends AbstractController
                 'username' => ['flags' => Server::WS_PARAM_OPTIONAL],
                 'password' => ['flags' => Server::WS_PARAM_OPTIONAL],
                 'email' => ['flags' => Server::WS_PARAM_OPTIONAL],
-                'status' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'guest,generic,normal,admin,webmaster'],
+                'status' => ['flags' => Server::WS_PARAM_OPTIONAL, 'info' => 'guest,normal,admin,webmaster'],
                 'level' => ['flags' => Server::WS_PARAM_OPTIONAL, 'maxValue' => max($this->service->getConf()['available_permission_levels']), 'type' => Server::WS_TYPE_INT | Server::WS_TYPE_POSITIVE],
                 'language' => ['flags' => Server::WS_PARAM_OPTIONAL],
                 'theme' => ['flags' => Server::WS_PARAM_OPTIONAL],

@@ -432,7 +432,7 @@ CREATE TABLE "phyxo_user_group"
 DROP TABLE IF EXISTS "phyxo_user_infos";
 DROP TYPE IF EXISTS USER_INFOS_STATUS;
 
-CREATE TYPE USER_INFOS_STATUS AS ENUM('webmaster','admin','normal','generic','guest');
+CREATE TYPE USER_INFOS_STATUS AS ENUM('webmaster','admin','normal','guest');
 CREATE TABLE "phyxo_user_infos"
 (
   "user_id" INTEGER default 0 NOT NULL,

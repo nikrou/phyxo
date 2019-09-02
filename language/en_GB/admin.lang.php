@@ -150,7 +150,6 @@ $lang['Development'] = "Developement";
 $lang['Javascript tests'] = "Javascript tests";
 $lang['Preview'] = "Preview";
 $lang['user_status_admin'] = "Administrator";
-$lang['user_status_generic'] = "Generic";
 $lang['user_status_guest'] = "Guest";
 $lang['user_status_normal'] = "User";
 $lang['user_status_webmaster'] = "Webmaster";

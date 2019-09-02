@@ -36,6 +36,7 @@ use App\Repository\CommentRepository;
 use App\DataMapper\CommentMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
+use App\Entity\Image;
 use Phyxo\Functions\Plugin;
 
 class PictureController extends CommonController
@@ -233,17 +234,9 @@ class PictureController extends CommonController
             }
         }
 
-        if (!empty($conf['tags_permission_add'])) {
-            $tpl_params['TAGS_PERMISSION_ADD'] = 0; // (int)$userMapper->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_add'])) // @TODO: add Voter
-        } else {
-            $tpl_params['TAGS_PERMISSION_ADD'] = 0;
-        }
-
-        if (!empty($conf['tags_permission_delete'])) {
-            $tpl_params['TAGS_PERMISSION_DELETE'] = 0; // (int)$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($conf['tags_permission_delete'])) // @TODO: add Voter
-        } else {
-            $tpl_params['TAGS_PERMISSION_DELETE'] = 0;
-        }
+        $image = new Image($image_id);
+        $tpl_params['TAGS_PERMISSION_ADD'] = (int) $this->isGranted('add', $image);
+        $tpl_params['TAGS_PERMISSION_DELETE'] = (int) $this->isGranted('delete', $image);
         if (isset($conf['tags_existing_tags_only'])) {
             $tpl_params['TAGS_PERMISSION_ALLOW_CREATION'] = $conf['tags_existing_tags_only'] == 1 ? 0 : 1;
         } else {

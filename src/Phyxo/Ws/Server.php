@@ -26,11 +26,12 @@ use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Utils\UserManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Security;
 
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url;
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -214,9 +215,14 @@ class Server
         return $this->passwordEncoder;
     }
 
-    public function getProjectDir()
+    public function setSecurity(Security $security)
     {
+        $this->security = $security;
+    }
 
+    public function getSecurity()
+    {
+        return $this->security;
     }
 
     /**

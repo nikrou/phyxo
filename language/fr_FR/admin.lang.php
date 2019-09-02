@@ -363,7 +363,6 @@ $lang['Upload'] = "Ajout";
 $lang['user "%s" added'] = "utilisateur \"%s\" ajouté";
 $lang['User status'] = "Statut de l'utilisateur";
 $lang['user_status_admin'] = "Administrateur";
-$lang['user_status_generic'] = "Générique";
 $lang['user_status_guest'] = "Invité";
 $lang['user_status_normal'] = "Visiteur";
 $lang['user_status_webmaster'] = "Webmestre";

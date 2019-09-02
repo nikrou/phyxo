@@ -9,12 +9,14 @@
  * file that was distributed with this source code.
  */
 
+use App\Entity\User;
+
 if (!defined('TAGS_BASE_URL')) {
     die('Hacking attempt!');
 }
 
 $status_options[null] = '----------';
-foreach ($conn->get_enums(\App\Repository\BaseRepository::USER_INFOS_TABLE, 'status') as $status) {
+foreach (User::ALL_STATUS as $status) {
     $status_options[$status] = \Phyxo\Functions\Language::l10n('user_status_' . $status);
 }
 

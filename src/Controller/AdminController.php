@@ -60,7 +60,7 @@ class AdminController extends Controller
             $current_release = '1.9.0';
         }
 
-        if (\Phyxo\Functions\Upgrade::check_upgrade() && file_exists($upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php')) {
+        if (is_readable($upgrade_file = __DIR__ . '/../install/upgrade_' . $current_release . '.php')) {
             ob_start();
             include($upgrade_file);
             ob_end_clean();

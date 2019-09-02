@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Entity\Image as EntityImage;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Error;
 use Phyxo\Ws\NamedStruct;
@@ -910,10 +911,8 @@ class Image
             return new Error(405, "This method requires HTTP POST");
         }
 
-        // @TODO : add voters
-        if (empty($service->getConf()['tags_permission_add'])) {
-            // || !$service->getUserMapper()->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_add']))) && (empty($service->getConf()['tags_permission_delete'])
-            // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_delete'])))) {
+        $image = new EntityImage($params['image_id']);
+        if (!$service->getSecurity()->isGranted('add-tag', $image) || !$service->getSecurity()->isGranted('delete-tag', $image)) {
             return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
         }
 
@@ -932,16 +931,12 @@ class Image
         $new_tags = array_diff($params['tags'], $current_tags);
 
         if (count($removed_tags) > 0) {
-            // @TODO : add voters
-            if (empty($service->getConf()['tags_permission_delete'])) {
-                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_delete']))) {
+            if (!$service->getSecurity()->isGranted('delete-tag')) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to delete tags'));
             }
         }
         if (count($new_tags) > 0) {
-            // @TODO : add voters
-            if (empty($service->getConf()['tags_permission_add'])) {
-                // || !$services['users']->isAuthorizeStatus($services['users']->getAccessTypeStatus($service->getConf()['tags_permission_add']))) {
+            if (!$service->getSecurity()->isGranted('add-tag')) {
                 return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add tags'));
             }
         }

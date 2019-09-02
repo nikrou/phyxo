@@ -11,6 +11,7 @@
 
 namespace App\Controller;
 
+use App\DataMapper\UserMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Template\Template;
@@ -42,15 +43,17 @@ class InstallController extends Controller
     private $languages_options;
     private $passwordEncoder;
     private $phyxoVersion;
+    private $userMapper;
     private $default_language;
     private $default_theme;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, UserMapper $userMapper, UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
+        $this->userMapper = $userMapper;
         $this->passwordEncoder = $passwordEncoder;
 
         $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
@@ -405,7 +408,7 @@ class InstallController extends Controller
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
-        $languages = new Languages($conn, $this->us);
+        $languages = new Languages($conn, $this->userMapper);
         $languages->setRootPath($this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
