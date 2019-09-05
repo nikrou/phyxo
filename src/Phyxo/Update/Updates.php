@@ -52,7 +52,7 @@ class Updates
 
     protected function getType(string $type): Extensions
     {
-        if (!in_array($type, $this->types)) {
+        if (!isset($this->types[$type])) {
             return null;
         }
 
@@ -199,7 +199,7 @@ class Updates
 
         // Extensions to check
         $ext_to_check = [];
-        foreach ($this->types as $type) {
+        foreach (array_keys($this->types) as $type) {
             foreach ($this->getType($type)->getFsExtensions() as $ext) {
                 if (isset($ext['extension'])) {
                     $ext_to_check[$ext['extension']] = $type;

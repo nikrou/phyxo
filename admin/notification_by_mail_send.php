@@ -13,6 +13,7 @@ if (!defined("NOTIFICATION_BY_MAIL_BASE_URL")) {
     die("Hacking attempt!");
 }
 
+$conf_derivatives = $conf['derivatives'];
 if (isset($_POST['send_submit']) and isset($_POST['send_selection']) and isset($_POST['send_customize_mail_content'])) {
     $check_key_treated = $notification->do_action_send_mail_notification(
         'send',
