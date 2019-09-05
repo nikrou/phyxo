@@ -1,7 +1,8 @@
-# Phyxo 1.10.0 - YYYY-MM-DD
+# Phyxo 1.10.0 - 2019-09-05
 -   Move webservice and media factory (i.php) under symfony router.
--   Use symfony sessions
+-   Use symfony sessions.
 -   Default theme is now Treflez.
+-   Add symfony commands to install phyxo, create or list users.
 
 # Phyxo 1.9.8 - 2019-09-02
 -   Fix issue with upgrade link on admin area index page.
