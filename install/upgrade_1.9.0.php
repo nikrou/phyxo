@@ -10,17 +10,30 @@
  */
 
 use App\Repository\UpgradeRepository;
+use Phyxo\Functions\Upgrade;
 
 $release_from = '1.9.0';
 $first_id = 148;
 $last_id = 148;
 
+if (!defined('PHPWG_ROOT_PATH')) {
+    define('PHPWG_ROOT_PATH', __DIR__ . '/../');
+}
+
+$env_file = __DIR__ . '/../.env';
+if (!file_exists($env_file)) {
+    $env_file_content = 'APP_ENV=prod' . "\n";
+    $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
+    file_put_contents($env_file, $env_file_content);
+    echo 'Env file ".env" created.' . "<br/>\n";
+}
+
 // retrieve already applied upgrades
-$query = 'SELECT id  FROM ' . PREFIX_TABLE . 'upgrade;';
-$applied = $conn->query2array($query, null, 'id');
+$result = (new UpgradeRepository($conn))->findAll();
+$applied = $conn->result2array($result, null, 'id');
 
 // retrieve existing upgrades
-$existing = \Phyxo\Functions\Upgrade::get_available_upgrade_ids();
+$existing = Upgrade::get_available_upgrade_ids();
 
 // which upgrades need to be applied?
 $to_apply = array_diff($existing, $applied);
@@ -32,7 +45,7 @@ foreach ($to_apply as $upgrade_id) {
 
     $inserts[] = [
         'id' => $upgrade_id,
-        'applied' => CURRENT_DATE,
+        'applied' => 'now()',
         'description' => sprintf('[migration from %s to %s] not applied', $release_from, PHPWG_VERSION)
     ];
 }
@@ -49,7 +62,8 @@ ob_start();
 echo '<pre>';
 
 for ($upgrade_id = $first_id; $upgrade_id <= $last_id; $upgrade_id++) {
-    if (!file_exists(UPGRADES_PATH . '/' . $upgrade_id . '-database.php')) {
+    $upgrade_file = __DIR__ . '/db/' . $upgrade_id . '-database.php';
+    if (!is_readable($upgrade_file)) {
         continue;
     }
 
@@ -67,13 +81,10 @@ for ($upgrade_id = $first_id; $upgrade_id <= $last_id; $upgrade_id++) {
     // include & execute upgrade script. Each upgrade script must contain
     // $upgrade_description variable which describe briefly what the upgrade
     // script does.
-    include(UPGRADES_PATH . '/' . $upgrade_id . '-database.php');
+    include($upgrade_file);
 
     // notify upgrade (TODO change on each release)
-    $query = 'INSERT INTO ' . PREFIX_TABLE . 'upgrade (id, applied, description)';
-    $query .= ' VALUES';
-    $query .= '(\'' . $upgrade_id . '\', NOW(), \'[migration from ' . $release_from . ' to ' . PHPWG_VERSION . '] ' . $upgrade_description . '\');';
-    $conn->db_query($query);
+    (new UpgradeRepository($conn))->addUpgrade("$upgrade_id", '[migration from ' . $release_from . ' to ' . PHPWG_VERSION . '] ' . $upgrade_description);
 }
 
 echo '</pre>';

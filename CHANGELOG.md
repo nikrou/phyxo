@@ -1,6 +1,9 @@
 # Phyxo 2.0.0 - YYYY-MM-DD
 -   nothing yet
 
+# Phyxo 1.10.1 - 2019-09-07
+-   Fix upgrade from branch 1.9. Upgrade script has not the correct name.
+
 # Phyxo 1.10.0 - 2019-09-05
 -   Move webservice and media factory (i.php) under symfony router.
 -   Use symfony sessions.

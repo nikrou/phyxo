@@ -17,16 +17,14 @@ class URL
 {
     /**
      * returns a prefix for each url link on displayed page
-     * and return an empty string for current path
-     * @return string
      */
-    public static function get_root_url()
+    public static function get_root_url(): string
     {
         if (!empty($_SERVER['PUBLIC_BASE_PATH'])) {
             return $_SERVER['PUBLIC_BASE_PATH'] . '/';
         }
 
-        return '';
+        return '/';
     }
 
     public static function tagToUrl(array $tag, string $tag_url_style = 'id-tag'): string
