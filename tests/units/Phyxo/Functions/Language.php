@@ -19,7 +19,7 @@ class Language extends atoum
 {
     private $plugins_path = __DIR__ . '/../../fixtures/plugins';
     private $themes_path = __DIR__ . '/../../fixtures/themes';
-    private $languages_path = __DIR__ . '/../../fixtures/language';
+    private $languages_path = __DIR__ . '/../../fixtures/languages';
 
     public function testLoadLanguagePluginDescription()
     {

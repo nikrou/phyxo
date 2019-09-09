@@ -37,13 +37,5 @@ if (!defined('PHYXO_UPDATE_VERSION')) {
     define('PHYXO_UPDATE_VERSION', 'stable');
 }
 
-// Access codes
-define('ACCESS_FREE', 0);
-define('ACCESS_GUEST', 1);
-define('ACCESS_CLASSIC', 2);
-define('ACCESS_ADMINISTRATOR', 3);
-define('ACCESS_WEBMASTER', 4);
-define('ACCESS_CLOSED', 5);
-
 // Sanity checks
 define('PATTERN_ID', '/^\d+$/');

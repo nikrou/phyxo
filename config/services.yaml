@@ -12,6 +12,8 @@ parameters:
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
 
     themes_dir: '%kernel.project_dir%/themes'
+    plugins_dir: '%kernel.project_dir%/plugins'
+    languages_dir: '%kernel.project_dir%/languages'
     cache_dir: '%kernel.cache_dir%'
     default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
     default_theme: 'treflez'
@@ -45,6 +47,8 @@ services:
         bind:
           $legacyBaseDir: '%legacy_base_dir%'
           $themesDir: '%themes_dir%'
+          $pluginsDir: '%plugins_dir%'
+          $languagesDir: '%languages_dir%'
           $cacheDir: '%cache_dir%'
           $mediaCacheDir: '%media_cache_dir%'
           $rootProjectDir: '%root_project_dir%'

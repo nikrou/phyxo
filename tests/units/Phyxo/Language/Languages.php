@@ -18,7 +18,7 @@ use Prophecy\Prophet;
 
 class Languages extends atoum
 {
-    private $languages_path = __DIR__ . '/../../fixtures/language/';
+    private $languages_path = __DIR__ . '/../../fixtures/languages/';
 
     private function getLocalLanguages()
     {

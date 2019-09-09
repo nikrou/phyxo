@@ -130,7 +130,7 @@ class Language
         if (empty($lang_id)) {
             return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
         } else {
-            $f = __DIR__ . '/../../../language/' . $lang_id . '/common.lang.php';
+            $f = __DIR__ . '/../../../languages/' . $lang_id . '/common.lang.php';
             if (file_exists($f)) {
                 include($f);
                 return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
@@ -175,7 +175,7 @@ class Language
             $dirname = __DIR__ . '/../../..' . '/';
         }
 
-        $dirname .= 'language/';
+        $dirname .= 'languages/';
         $language_file = $options['local'] ? $dirname . $options['language'] . '.' . $filename : $dirname . $options['language'] . '/' . $filename;
 
         if (!is_readable($language_file)) {
