@@ -77,3 +77,7 @@ admin/include/functions_plugins.inc.php
 admin/include/functions_upgrade.inc.php
 admin/include/functions_upload.inc.php
 admin/include/image.class.php
+admin/languages.php
+admin/languages_installed.php
+admin/languages_new.php
+admin/languages_update.php

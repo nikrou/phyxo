@@ -16,11 +16,12 @@ use PclZip;
 
 class Extensions
 {
-    const TYPES = ['plugins' => 'plugins', 'themes' => 'themes', 'languages' => 'language'];
+    const TYPES = ['plugins', 'themes', 'languages'];
 
     protected $directory_pattern = '', $pem_url;
 
-    public function getJsonFromServer($url, $params = []) {
+    public function getJsonFromServer($url, $params = [])
+    {
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
             $response = $client->request('GET', $url, ['query' => $params]);
@@ -34,15 +35,18 @@ class Extensions
         }
     }
 
-    public function setExtensionsURL(string $url) {
+    public function setExtensionsURL(string $url)
+    {
         $this->pem_url = $url;
     }
 
-    public function getExtensionsURL() {
+    public function getExtensionsURL()
+    {
         return $this->pem_url;
     }
 
-    public function download($params = [], $filename) {
+    public function download($params = [], $filename)
+    {
         $url = $this->pem_url . '/download.php';
 
         try {
@@ -58,12 +62,13 @@ class Extensions
         }
     }
 
-    protected function extractZipFiles($zip_file, $main_file, $extract_path = '') {
+    protected function extractZipFiles($zip_file, $main_file, $extract_path = ''): string
+    {
         $zip = new PclZip($zip_file);
         if ($list = $zip->listContent()) {
             // find main file
             foreach ($list as $file) {
-                if (basename($file['filename']) === $main_file && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {
+                if (isset($file['filename']) && basename($file['filename']) === $main_file && (!isset($main_filepath) || strlen($file['filename']) < strlen($main_filepath))) {
                     $main_filepath = $file['filename'];
                 }
             }
@@ -88,6 +93,8 @@ class Extensions
                     throw new \Exception("Error while extracting archive");
                 }
             }
+
+            return $root;
         } else {
             throw new \Exception("Can't read or extract archive.");
         }

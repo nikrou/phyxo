@@ -6,7 +6,7 @@
 {/block}
 
 {block name="content"}
-    {foreach from=$language_states item=language_state}
+    {foreach $language_states as $language_state}
 	<div class="state state-{$language_state}">
 	    {if $language_state === 'active'}
 		<h3>{'Active Languages'|translate}</h3>
@@ -14,28 +14,33 @@
 		<h3>{'Inactive Languages'|translate}</h3>
 	    {/if}
 
-	    <div class="languages">
+	    <div class="extensions">
 		{foreach $languages as $language}
 		    {if $language.state === $language_state}
-			<div class="language{if $language.is_default} language-default{/if}">
-			    <div class="language-name">{$language.name}{if $language.is_default} <em>({'default'|translate})</em>{/if}</div>
-			    <div class="language-actions">
+			<div class="row extension{if $language.is_default} extension-default{/if}">
+			    <div class="col-2">
+				<div>{$language.name}{if $language.is_default} <em>({'default'|translate})</em>{/if}</div>
+				{if $language_state === 'active'}
+				    <div>{'Version'|translate} {$language.CURRENT_VERSION}</div>
+				{/if}
+			    </div>
+			    <div class="col-10">
 				<div>
 				    {if $language_state === 'active'}
 					{if $language.deactivable}
-					    <a href="{$language.u_action}&amp;action=deactivate" class="deactivate" title="{'Forbid this language to users'|translate}">{'Deactivate'|translate}</a>
+					    <a class="btn btn-sm btn-info" href="{$language.action}" title="{'Forbid this language to users'|translate}">{'Deactivate'|translate}</a>
 					{else}
-					    <span title="{$language.deactivate_tooltip}">{'Deactivate'|translate}</span>
+					    <span class="btn btn-sm btn-info disabled" title="{$language.deactivate_tooltip}">{'Deactivate'|translate}</span>
 					{/if}
 
-					{if not $language.is_default}
-					    | <a href="{$language.u_action}&amp;action=set_default" title="{'Set as default language for unregistered and new users'|translate}">{'Default'|translate}</a>
+					{if !$language.is_default}
+					    <a class="btn btn-sm btn-success" href="{$language.set_default}" title="{'Set as default language for unregistered and new users'|translate}">{'Default'|translate}</a>
 					{/if}
 				    {/if}
 
 				    {if $language_state === 'inactive'}
-					<a href="{$language.u_action}&amp;action=activate" class="activate" title="{'Make this language available to users'|translate}">{'Activate'|translate}</a>
-					| <a href="{$language.u_action}&amp;action=delete" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');" title="{'Delete this language'|translate}">{'Delete'|translate}</a>
+					<a class="btn btn-sm btn-submit" href="{$language.action}" class="activate" title="{'Make this language available to users'|translate}">{'Activate'|translate}</a>
+					<a class="btn btn-sm btn-danger" href="{$language.delete}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');" title="{'Delete this language'|translate}">{'Delete'|translate}</a>
 				    {/if}
 				</div>
 			    </div> <!-- languageActions -->

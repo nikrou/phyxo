@@ -6,11 +6,8 @@
 !/db/index.php
 
 
-;; plugins
-/plugins
-
-
 ;; conf
+/config/services_dev.yaml
 /local/config/config.inc.php
 /local/config/database.*.php
 !/local/config/database.*.travis.php
@@ -40,7 +37,14 @@
 /themes/**/build
 /themes/**/node_modules
 /themes/**/*.log
-/themes/simple-responsive
+
+;;
+/languages/*
+!/languages/fr_FR
+!/languages/en_GB
+
+;; plugins
+/plugins
 
 ;; atoum
 /coverage

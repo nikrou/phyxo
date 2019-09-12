@@ -19,3 +19,28 @@ legacy_home:
 admin_home:
   path:  /
   controller: App\Controller\AdminController::index
+
+admin_languages_installed:
+  path:  /languages
+  controller: App\Controller\Admin\LanguagesController::installed
+
+admin_languages_new:
+  path:  /languages/new
+  controller: App\Controller\Admin\LanguagesController::new
+
+admin_languages_update:
+  path:  /languages/update
+  controller: App\Controller\Admin\LanguagesController::update
+
+admin_languages_action:
+  path:  /languages/{action}/{language}
+  controller: App\Controller\Admin\LanguagesController::action
+  requirements:
+    action: activate|deactivate|delete|set_default
+    language: '[a-z]{2}_[A-Z]{2}'
+
+admin_languages_install:
+  path:  /languages/install/{revision}
+  controller: App\Controller\Admin\LanguagesController::install
+  requirements:
+    revision: \d+

@@ -11,6 +11,7 @@
 
 namespace Phyxo\Functions\Ws;
 
+use App\Repository\ConfigRepository;
 use Phyxo\Extension\Extensions;
 use Phyxo\Theme\Themes;
 use Phyxo\Plugin\Plugins;
@@ -42,7 +43,7 @@ class Extension
             return new Error(403, 'Invalid security token');
         }
 
-        if (!isset(Extensions::TYPES[$params['type']])) {
+        if (!in_array($params['type'], Extensions::TYPES)) {
             return new Error(403, "invalid extension type");
         }
 
@@ -53,7 +54,7 @@ class Extension
 
         $extension = new $typeClassName($service->getConnection(), $service->getUserMapper());
         $extension->setExtensionsURL($service->getExtensionsURL());
-        $extension->setRootPath(__DIR__ . '/../../../../' . Extensions::TYPES[$type]);
+        $extension->setRootPath(__DIR__ . '/../../../../' . $type);
 
         try {
             if ($type == 'plugins') {
@@ -110,33 +111,35 @@ class Extension
             return new Error(403, 'Invalid security token');
         }
 
-        $service->getConf()['updates_ignored'] = json_decode($service->getConf()['updates_ignored'], true);
+        if (!empty($conf['updates_ignored'])) {
+            $updates_ignored = json_decode($conf['updates_ignored'], true);
+        } else {
+            $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
+        }
 
         // Reset ignored extension
         if ($params['reset']) {
-            if (!empty($params['type']) && !empty($conf['updates_ignored'][$params['type']])) {
-                $conf['updates_ignored'][$params['type']] = [];
+            if (!empty($params['type']) && !empty($updates_ignored[$params['type']])) {
+                $updates_ignored[$params['type']] = [];
             } else {
-                $conf['updates_ignored'] = [
-                    'plugins' => [],
-                    'themes' => [],
-                    'languages' => []
-                ];
+                $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
             }
 
             unset($_SESSION['extensions_need_update']);
+            $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
             return true;
         }
 
-        if (empty($params['id']) || empty($params['type']) || !isset(Extensions::TYPES[$params['type']])) {
+        if (empty($params['id']) || empty($params['type']) || !in_array($params['type'], Extensions::TYPES)) {
             return new Error(403, 'Invalid parameters');
         }
 
         // Add or remove extension from ignore list
-        if (!in_array($params['id'], $conf['updates_ignored'][$params['type']])) {
-            $conf['updates_ignored'][$params['type']][] = $params['id'];
+        if (!in_array($params['id'], $updates_ignored[$params['type']])) {
+            $updates_ignored[$params['type']][] = $params['id'];
         }
 
+        $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
         unset($_SESSION['extensions_need_update']);
 
         return true;

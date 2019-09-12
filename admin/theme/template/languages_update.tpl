@@ -11,7 +11,8 @@
     {combine_css path="admin/theme/js/plugins/jquery.jgrowl.css"}
 
     {footer_script require='jquery.ui.effect-blind,jquery.ajaxmanager,jquery.jgrowl'}
-    var pwg_token = '{$PWG_TOKEN}';
+    var ws_url = '{$ws}';
+    var pwg_token = '{$csrf_token}';
     var extType = '{$EXT_TYPE}';
     var confirmMsg  = '{'Are you sure?'|translate|@escape:'javascript'}';
     var errorHead   = '{'ERROR'|translate|@escape:'javascript'}';
@@ -47,9 +48,9 @@
     function resetIgnored() {
     jQuery.ajax({
     type: 'GET',
-    url: '../ws',
+    url: ws_url,
     dataType: 'json',
-    data: { method: 'pwg.extensions.ignoreUpdate', reset: true, type: extType, pwg_token: pwg_token, format: 'json' },
+    data: { method: 'pwg.extensions.ignoreUpdate', reset: true, type: extType, pwg_token: pwg_token },
     success: function(data) {
     if (data['stat'] == 'ok') {
     jQuery(".pluginBox, fieldset").show();
@@ -95,8 +96,8 @@
     queuedManager.add({
     type: 'GET',
     dataType: 'json',
-    url: '../ws',
-    data: { method: 'pwg.extensions.update', type: type, id: id, revision: revision, pwg_token: pwg_token, format: 'json' },
+    url: ws_url,
+    data: { method: 'pwg.extensions.update', type: type, id: id, revision: revision, pwg_token: pwg_token },
     success: function(data) {
     if (data['stat'] == 'ok') {
     jQuery.jGrowl( data['result'], { theme: 'success', header: successHead, life: 4000, sticky: false });
@@ -115,9 +116,9 @@
     function ignoreExtension(type, id) {
     queuedManager.add({
     type: 'GET',
-    url: '../ws',
+    url: ws_url,
     dataType: 'json',
-    data: { method: 'pwg.extensions.ignoreUpdate', type: type, id: id, pwg_token: pwg_token, format: 'json' },
+    data: { method: 'pwg.extensions.ignoreUpdate', type: type, id: id, pwg_token: pwg_token },
     success: function(data) {
     if (data['stat'] == 'ok') {
     jQuery("#"+type+"_"+id).hide();
@@ -148,57 +149,45 @@
     {/footer_script}
 
     <div class="autoupdate_bar">
-	<button id="update_all" onClick="updateAll(); return false;">{'Update All'|translate}</button>
-	<button id="ignore_all" onClick="ignoreAll(); return false;">{'Ignore All'|translate}</button>
+	<button type="button" class="btn btn-submit" id="update_all" onClick="updateAll(); return false;">{'Update All'|translate}</button>
+	<button type="button" class="btn btn-warning" id="ignore_all" onClick="ignoreAll(); return false;">{'Ignore All'|translate}</button>
 	{if $SHOW_RESET}
-	    <button id="reset_ignore" onClick="resetIgnored(); return false;" >{'Reset ignored updates'|translate}</button>
+	    <button type="button" class="btn btn-warning" id="reset_ignore" onClick="resetIgnored(); return false;" >{'Reset ignored updates'|translate}</button>
 	{/if}
     </div>
-    <div class="autoupdate_bar" style="display:none;">
-	{'Please wait...'|translate}<br><img src="./theme/images/ajax-loader-bar.gif" alt="">
+    <div class="autoupdate_bar d-none">
+	{'Please wait...'|translate}
     </div>
 
     <p id="up_to_date" style="display:none; text-align:left; margin-left:20px;">{'All %s are up to date.'|@sprintf:$EXT_TYPE|translate}</p>
 
-    {if not empty($update_languages)}
-	<div>
-	    <fieldset id="languages">
-		<legend>{'Languages'|translate}</legend>
-		{foreach from=$update_languages item=language name=languages_loop}
-		    <div class="pluginBox" id="languages_{$language.EXT_ID}" {if $language.IGNORED}style="display:none;"{/if}>
-			<table>
-			    <tr>
-				<td class="pluginBoxNameCell">
-				    {$language.EXT_NAME}
-				</td>
-				<td>
-				    <a href="#" onClick="updateExtension('languages', '{$language.EXT_ID}', {$language.REVISION_ID});" class="updateExtension">{'Install'|translate}</a>
-				    | <a href="{$language.URL_DOWNLOAD}">{'Download'|translate}</a>
-				    | <a href="#" onClick="ignoreExtension('languages', '{$language.EXT_ID}'); return false;" class="ignoreExtension">{'Ignore this update'|translate}</a>
-				</td>
-			    </tr>
-			    <tr>
-				<td>
-				    {'Version'|translate} {$language.CURRENT_VERSION}
-				</td>
-				<td class="pluginDesc" id="desc_{$language.ID}">
-				    <em>{'Downloads'|translate}: {$language.DOWNLOADS}</em>
-				    <img src="./theme/icon/plus.gif" alt="" class="button_{$language.ID}">
-				    <img src="./theme/icon/minus.gif" alt="" class="button_{$language.ID}" style="display:none;">
-				    {'New Version'|translate} : {$language.NEW_VERSION}
-				    | {'By %s'|translate:$language.AUTHOR}
-				</td>
-			    </tr>
-			    <tr>
-				<td></td>
-				<td class="pluginDesc">
-				    <p id="revdesc_{$language.ID}" style="display:none;">{$language.REV_DESC|@htmlspecialchars|@nl2br}</p>
-				</td>
-			    </tr>
-			</table>
+    {if !empty($update_languages)}
+	<h3>{'Languages'|translate}</h3>
+	<div class="extensions">
+	    {foreach $update_languages as $language}
+		<div class="extension row{if $language.IGNORED} d-none{/if}" id="languages_{$language.EXT_ID}">
+		    <div class="col-2">
+			<div>{$language.EXT_NAME}</div>
+			<div>{'Version'|translate} {$language.CURRENT_VERSION}</div>
 		    </div>
-		{/foreach}
-	    </fieldset>
+		    <div class="col-10">
+			<button type="button" class="btn btn-sm btn-submit" onClick="updateExtension('languages', '{$language.EXT_ID}', {$language.REVISION_ID});">{'Install'|translate}</button>
+			<a class="btn btn-sm btn-success" href="{$language.URL_DOWNLOAD}">{'Download'|translate}</a>
+			<button type="button" class="btn btn-sm btn-warning" onClick="ignoreExtension('languages', '{$language.EXT_ID}'); return false;">{'Ignore this update'|translate}</button>
+
+			<div class="extension description" id="desc_{$language.ID}">
+			    <em>{'Downloads'|translate}: {$language.DOWNLOADS}</em>
+			    <button type="button" class="btn btn-link show-description" data-target="#description-{$language.EXT_ID}" data-toggle="collapse"><i class="fa fa-plus-square-o"></i></button>
+			    {'New Version'|translate} : {$language.NEW_VERSION} | {'By %s'|translate:$language.AUTHOR}
+			</div>
+			<div class="revision description collapse" id="description-{$language.EXT_ID}">
+			    <p>{$language.EXT_DESC|@htmlspecialchars|@nl2br}</p>
+			    <hr>
+			    {$language.REV_DESC|@htmlspecialchars|@nl2br}
+			</div>
+		    </div>
+		</div>
+	    {/foreach}
 	</div>
     {/if}
 {/block}

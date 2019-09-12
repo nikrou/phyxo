@@ -11,6 +11,7 @@ parameters:
     legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
     database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
 
+    admin_theme_dir: '%kernel.project_dir%/admin/theme'
     themes_dir: '%kernel.project_dir%/themes'
     plugins_dir: '%kernel.project_dir%/plugins'
     languages_dir: '%kernel.project_dir%/languages'
@@ -62,6 +63,8 @@ services:
           $languagesPath: '%languages_path%'
           $themesPath: '%themes_path%'
           $pluginsPath: '%plugins_path%'
+
+          $adminThemeDir: '%admin_theme_dir%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

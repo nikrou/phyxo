@@ -101,7 +101,7 @@ $template->assign(
         'U_CONFIG_GENERAL' => $link_start . 'configuration',
         'U_CONFIG_DISPLAY' => $conf_link . 'default',
         'U_CONFIG_MENUBAR' => $link_start . 'menubar',
-        'U_CONFIG_LANGUAGES' => $link_start . 'languages',
+        'U_CONFIG_LANGUAGES' => $router->generate('admin_languages'),
         'U_CONFIG_THEMES' => $link_start . 'themes',
         'U_ALBUMS' => $link_start . 'albums',
         'U_ALBUMS_OPTIONS' => $link_start . 'albums_options',

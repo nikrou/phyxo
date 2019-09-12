@@ -16,6 +16,7 @@ use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\DBLayer\iDBLayer;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
@@ -49,10 +50,8 @@ class Languages extends Extensions
      * @param string - language id
      * @param array - errors
      */
-    function performAction($action, $language_id)
+    function performAction(string $action, string $language_id, array $user_ids = [])
     {
-        global $conf;
-
         if (!$this->db_languages_retrieved) {
             $this->getDbLanguages();
         }
@@ -65,12 +64,12 @@ class Languages extends Extensions
             $crt_db_language = $this->db_languages[$language_id];
         }
 
-        $errors = [];
+        $error = '';
 
         switch ($action) {
             case 'activate':
                 if (isset($crt_db_language)) {
-                    $errors[] = 'CANNOT ACTIVATE - LANGUAGE IS ALREADY ACTIVATED';
+                    $error = 'CANNOT ACTIVATE - LANGUAGE IS ALREADY ACTIVATED';
                     break;
                 }
 
@@ -79,12 +78,12 @@ class Languages extends Extensions
 
             case 'deactivate':
                 if (!isset($crt_db_language)) {
-                    $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS ALREADY DEACTIVATED';
+                    $error = 'CANNOT DEACTIVATE - LANGUAGE IS ALREADY DEACTIVATED';
                     break;
                 }
 
                 if ($language_id == self::$userMapper->getDefaultLanguage()) {
-                    $errors[] = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
+                    $error = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
                     break;
                 }
 
@@ -93,25 +92,26 @@ class Languages extends Extensions
 
             case 'delete':
                 if (!empty($crt_db_language)) {
-                    $errors[] = 'CANNOT DELETE - LANGUAGE IS ACTIVATED';
+                    $error = 'CANNOT DELETE - LANGUAGE IS ACTIVATED';
                     break;
                 }
                 if (!isset($this->fs_languages[$language_id])) {
-                    $errors[] = 'CANNOT DELETE - LANGUAGE DOES NOT EXIST';
+                    $error = 'CANNOT DELETE - LANGUAGE DOES NOT EXIST';
                     break;
                 }
 
                 // Set default language to user who are using this language
                 (new LanguageRepository($this->conn))->updateLanguage(['language' => self::$userMapper->getDefaultLanguage()], ['id' => $language_id]);
-                \Phyxo\Functions\Utils::deltree(self::$languages_root_path . '/language/' . $language_id, self::$languages_root_path . '/language/trash');
+                $fs = new Filesystem();
+                $fs->remove(self::$languages_root_path . '/' . $language_id, self::$languages_root_path . '/trash');
                 break;
 
             case 'set_default':
-                (new UserInfosRepository($this->conn))->updateFieldForUsers('language', $language_id, [$conf['default_user_id'], $conf['guest_id']]);
+                (new UserInfosRepository($this->conn))->updateFieldForUsers('language', $language_id, $user_ids);
                 break;
         }
 
-        return $errors;
+        return $error;
     }
 
     // for Update/Updates
@@ -183,7 +183,7 @@ class Languages extends Extensions
     public function getDbLanguages()
     {
         if (!$this->db_languages_retrieved) {
-            $this->db_languages = $this->conn->result2array((new LanguageRepository($this->conn))->findAll(), 'id', 'name');
+            $this->db_languages = $this->conn->result2array((new LanguageRepository($this->conn))->findAll(), 'id');
             $this->db_languages_retrieved = true;
         }
 
@@ -278,9 +278,9 @@ class Languages extends Extensions
      * @param string - remote revision identifier (numeric)
      * @param string - language id or extension id
      */
-    public function extractLanguageFiles($action, $revision, $dest = '')
+    public function extractLanguageFiles($action, $revision, $language_id = '')
     {
-        $archive = tempnam(self::$languages_root_path . '/language', 'zip');
+        $archive = tempnam(self::$languages_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action,
@@ -293,12 +293,11 @@ class Languages extends Extensions
             throw new \Exception("Cannot download language archive");
         }
 
-        $extract_path = self::$languages_root_path . '/language';
         try {
-            $this->extractZipFiles($archive, 'common.lang.php', $extract_path);
+            $language_id = $this->extractZipFiles($archive, 'common.lang.php', self::$languages_root_path);
             $this->getFsLanguages();
-            if ($action == 'install') {
-                $this->performAction('activate', $dest);
+            if ($action === 'install') {
+                $this->performAction('activate', $language_id);
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

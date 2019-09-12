@@ -12,6 +12,7 @@
 /*
 Language Name: English [GB]
 Version: 2.7.0
+Language URI: https://ext.phyxo.net/extension_view.php?eid=8
 Author: Nicolas Roudaie
 Author URI: https://www.phyxo.net
  */
