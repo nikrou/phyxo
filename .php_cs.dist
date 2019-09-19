@@ -51,5 +51,9 @@ return PhpCsFixer\Config::create()
         'no_trailing_whitespace' => true,
         'single_blank_line_at_eof' => true,
         'single_line_comment_style' => true,
+        'braces' => [
+            'position_after_control_structures' => 'same',
+            'position_after_functions_and_oop_constructs' => 'next'
+        ]
     ])
     ->setFinder($finder);

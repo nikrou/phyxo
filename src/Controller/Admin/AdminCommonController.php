@@ -73,7 +73,7 @@ abstract class AdminCommonController extends AbstractController
             'U_RETURN' => $router->generate('homepage'),
             'U_ADMIN' => $router->generate('admin_home'),
             'U_LOGOUT' => $router->generate('logout'),
-            'U_PLUGINS' => $link_start . 'plugins',
+            'U_PLUGINS' => $router->generate('admin_plugins_installed'),
             'U_ADD_PHOTOS' => $link_start . 'photos_add',
             'U_UPDATES' => $link_start . 'updates',
             'U_DEV_VERSION' => strpos($core_version, 'dev') !== false,

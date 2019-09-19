@@ -62,14 +62,12 @@ class Plugin
             return new Error(403, 'Invalid security token');
         }
 
-        define('IN_ADMIN', true);
-
         $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
         $plugins->setRootPath(__DIR__ . '/../../../plugins');
-        $errors = $plugins->performAction($params['action'], $params['plugin']);
+        $error = $plugins->performAction($params['action'], $params['plugin']);
 
-        if (!empty($errors)) {
-            return new Error(500, $errors);
+        if (!empty($error)) {
+            return new Error(500, $error);
         }
     }
 }

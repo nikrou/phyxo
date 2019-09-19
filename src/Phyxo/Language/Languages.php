@@ -101,7 +101,7 @@ class Languages extends Extensions
                 }
 
                 // Set default language to user who are using this language
-                (new LanguageRepository($this->conn))->updateLanguage(['language' => self::$userMapper->getDefaultLanguage()], ['id' => $language_id]);
+                (new LanguageRepository($this->conn))->deleteLanguage($language_id);
                 $fs = new Filesystem();
                 $fs->remove(self::$languages_root_path . '/' . $language_id, self::$languages_root_path . '/trash');
                 break;
@@ -177,7 +177,6 @@ class Languages extends Extensions
         }
 
         return $this->fs_languages;
-
     }
 
     public function getDbLanguages()
@@ -193,13 +192,11 @@ class Languages extends Extensions
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function getServerLanguages($new = false, string $phyxo_version = PHPWG_VERSION)
+    public function getServerLanguages($new = false, string $pem_category, string $phyxo_version = '')
     {
-        global $conf;
-
         if (!$this->server_languages_retrieved) {
             $get_data = [
-                'category_id' => $conf['pem_languages_category'],
+                'category_id' => $pem_category,
             ];
 
             // Retrieve PEM versions
@@ -276,9 +273,8 @@ class Languages extends Extensions
      *
      * @param string - install or upgrade
      * @param string - remote revision identifier (numeric)
-     * @param string - language id or extension id
      */
-    public function extractLanguageFiles($action, $revision, $language_id = '')
+    public function extractLanguageFiles($action, $revision)
     {
         $archive = tempnam(self::$languages_root_path, 'zip');
         $get_data = [
@@ -301,8 +297,7 @@ class Languages extends Extensions
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }
-        finally {
+        } finally {
             unlink($archive);
         }
     }

@@ -81,3 +81,7 @@ admin/languages.php
 admin/languages_installed.php
 admin/languages_new.php
 admin/languages_update.php
+admin/plugins.php
+admin/plugins_installed.php
+admin/plugins_new.php
+admin/plugins_update.php

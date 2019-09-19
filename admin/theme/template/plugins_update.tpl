@@ -11,7 +11,8 @@
     {combine_css path="admin/theme/js/plugins/jquery.jgrowl.css"}
 
     {footer_script require='jquery.ui.effect-blind,jquery.ajaxmanager,jquery.jgrowl'}
-    var pwg_token = '{$PWG_TOKEN}';
+    var ws_url = '{$ws}';
+    var pwg_token = '{$csrf_token}';
     var extType = '{$EXT_TYPE}';
     var confirmMsg  = '{'Are you sure?'|translate|@escape:'javascript'}';
     var errorHead   = '{'ERROR'|translate|@escape:'javascript'}';
@@ -47,7 +48,7 @@
     function resetIgnored() {
     jQuery.ajax({
     type: 'GET',
-    url: '../ws',
+    url: ws_url,
     dataType: 'json',
     data: { method: 'pwg.extensions.ignoreUpdate', reset: true, type: extType, pwg_token: pwg_token, format: 'json' },
     success: function(data) {
@@ -95,7 +96,7 @@
     queuedManager.add({
     type: 'GET',
     dataType: 'json',
-    url: '../ws',
+    url: ws_url,
     data: { method: 'pwg.extensions.update', type: type, id: id, revision: revision, pwg_token: pwg_token, format: 'json' },
     success: function(data) {
     if (data['stat'] == 'ok') {
@@ -115,7 +116,7 @@
     function ignoreExtension(type, id) {
     queuedManager.add({
     type: 'GET',
-    url: '../ws',
+    url: ws_url,
     dataType: 'json',
     data: { method: 'pwg.extensions.ignoreUpdate', type: type, id: id, pwg_token: pwg_token, format: 'json' },
     success: function(data) {

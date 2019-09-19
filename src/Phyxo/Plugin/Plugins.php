@@ -16,6 +16,7 @@ use Phyxo\Plugin\DummyPluginMaintain;
 use Phyxo\Extension\Extensions;
 use App\Repository\PluginRepository;
 use Phyxo\DBLayer\iDBLayer;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Plugins extends Extensions
 {
@@ -64,14 +65,9 @@ class Plugins extends Extensions
 
     /**
      * Perform requested actions
-     * @param string - action
-     * @param string - plugin id
-     * @param array - errors
      */
-    public function performAction($action, $plugin_id, $options = [])
+    public function performAction(string $action, string $plugin_id, int $revision = null):  string
     {
-        global $conf;
-
         if (!$this->db_plugins_retrieved) {
             $this->getDbPlugins();
         }
@@ -84,21 +80,21 @@ class Plugins extends Extensions
             $crt_db_plugin = $this->db_plugins[$plugin_id];
         }
 
-        if ($action != 'update') { // wait for files to be updated
+        if ($action !== 'update') { // wait for files to be updated
             $plugin_maintain = self::build_maintain_class($plugin_id);
         }
 
-        $errors = [];
+        $error = '';
 
         switch ($action) {
             case 'install':
-                if (!empty($crt_db_plugin) or !isset($this->fs_plugins[$plugin_id])) {
+                if (!empty($crt_db_plugin) || !isset($this->fs_plugins[$plugin_id])) {
                     break;
                 }
 
-                $plugin_maintain->install($this->fs_plugins[$plugin_id]['version'], $errors);
+                $plugin_maintain->install($this->fs_plugins[$plugin_id]['version'], $error);
 
-                if (empty($errors)) {
+                if (empty($error)) {
                     (new PluginRepository($this->conn))->addPlugin($plugin_id, $this->fs_plugins[$plugin_id]['version']);
                 }
                 break;
@@ -106,27 +102,26 @@ class Plugins extends Extensions
             case 'update':
                 $previous_version = $this->fs_plugins[$plugin_id]['version'];
                 try {
-                    $this->extractPluginFiles('upgrade', $options['revision'], $plugin_id);
+                    $this->extractPluginFiles('upgrade', $revision, $plugin_id);
 
                     $this->getFsPlugin($plugin_id); // refresh plugins list
                     $new_version = $this->fs_plugins[$plugin_id]['version'];
 
                     $plugin_maintain = self::build_maintain_class($plugin_id);
                     $plugin_maintain->update($previous_version, $new_version, $errors);
-                    if ($new_version != 'auto') {
+                    if ($new_version !== 'auto') {
                         (new PluginRepository($this->conn))->updatePlugin(['version' => $new_version], ['id' => $plugin_id]);
                     }
                 } catch (\Exception $e) {
-                    $errors[] = $e->getMessage();
+                    $error = $e->getMessage();
                 }
                 break;
 
             case 'activate':
                 if (!isset($crt_db_plugin)) {
-                    $errors = $this->performAction('install', $plugin_id);
+                    $error = $this->performAction('install', $plugin_id);
                     $this->getDbPlugins(null, $plugin_id);
-                    $conf->loadFromDB();
-                } elseif ($crt_db_plugin['state'] == 'active') {
+                } elseif ($crt_db_plugin['state'] === 'active') {
                     break;
                 }
 
@@ -136,7 +131,7 @@ class Plugins extends Extensions
                 break;
 
             case 'deactivate':
-                if (!isset($crt_db_plugin) or $crt_db_plugin['state'] != 'active') {
+                if (!isset($crt_db_plugin) || $crt_db_plugin['state'] !== 'active') {
                     break;
                 }
                 (new PluginRepository($this->conn))->updatePlugin(['state' => 'inactive'], ['id' => $plugin_id]);
@@ -147,7 +142,7 @@ class Plugins extends Extensions
                 if (!isset($crt_db_plugin)) {
                     break;
                 }
-                if ($crt_db_plugin['state'] == 'active') {
+                if ($crt_db_plugin['state'] === 'active') {
                     $this->performAction('deactivate', $plugin_id);
                 }
                 (new PluginRepository($this->conn))->deletePlugin($plugin_id);
@@ -157,7 +152,7 @@ class Plugins extends Extensions
             case 'restore':
                 $this->performAction('uninstall', $plugin_id);
                 unset($this->db_plugins[$plugin_id]);
-                $errors = $this->performAction('activate', $plugin_id);
+                $error = $this->performAction('activate', $plugin_id);
                 break;
 
             case 'delete':
@@ -168,11 +163,12 @@ class Plugins extends Extensions
                     break;
                 }
 
-                \Phyxo\Functions\Utils::deltree(self::$plugins_root_path . $plugin_id, self::$plugins_root_path . 'trash');
+                $fs = new Filesystem();
+                $fs->remove([self::$plugins_root_path . '/' . $plugin_id, self::$plugins_root_path . '/trash']);
                 break;
         }
 
-        return $errors;
+        return $error;
     }
 
     public function getFsExtensions()
@@ -240,7 +236,8 @@ class Plugins extends Extensions
         if (preg_match("|Author URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
             $plugin['author uri'] = trim($val[1]);
         }
-        if (!empty($plugin['uri']) and strpos($plugin['uri'], 'extension_view.php?eid=')) {
+
+        if (!empty($plugin['uri']) && ($pos = strpos($plugin['uri'], 'extension_view.php?eid=')) !== false) {
             list(, $extension) = explode('extension_view.php?eid=', $plugin['uri']);
             if (is_numeric($extension)) {
                 $plugin['extension'] = $extension;
@@ -298,12 +295,10 @@ class Plugins extends Extensions
     }
 
     // Retrieve PEM versions
-    public function getVersionsToCheck($version = PHPWG_VERSION)
+    public function getVersionsToCheck(string $pem_category, string $version)
     {
-        global $conf;
-
         $versions_to_check = [];
-        $url = $this->pem_url . '/api/get_version_list.php?category_id=' . $conf['pem_plugins_category'];
+        $url = $this->pem_url . '/api/get_version_list.php?category_id=' . $pem_category;
         try {
             $pem_versions = $this->getJsonFromServer($url);
             if (!preg_match('/^\d+\.\d+\.\d+$/', $version)) {
@@ -325,12 +320,10 @@ class Plugins extends Extensions
     /**
      * Retrieve PEM server datas to $server_plugins
      */
-    public function getServerPlugins($new = false)
+    public function getServerPlugins($new = false, string $pem_category, string $core_version)
     {
-        global $conf;
-
         if (!$this->server_plugins_retrieved) {
-            $versions_to_check = $this->getVersionsToCheck();
+            $versions_to_check = $this->getVersionsToCheck($core_version, $pem_category);
             if (empty($versions_to_check)) {
                 return [];
             }
@@ -346,8 +339,7 @@ class Plugins extends Extensions
             // Retrieve PEM plugins infos
             $url = $this->pem_url . '/api/get_revision_list.php';
             $get_data = [
-                'category_id' => $conf['pem_plugins_category'],
-                'format' => 'php',
+                'category_id' => $pem_category,
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
                 'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
@@ -361,6 +353,7 @@ class Plugins extends Extensions
                     $get_data['extension_include'] = implode(',', $plugins_to_check);
                 }
             }
+
             try {
                 $pem_plugins = $this->getJsonFromServer($url, $get_data);
 
@@ -380,22 +373,12 @@ class Plugins extends Extensions
         return $this->server_plugins;
     }
 
-    public function getIncompatiblePlugins($actualize = false)
+    public function getIncompatiblePlugins(string $pem_category, string $core_version)
     {
-        global $conf;
-
-        if (isset($_SESSION['incompatible_plugins']) and !$actualize
-            and $_SESSION['incompatible_plugins']['~~expire~~'] > time()) {
-            return $_SESSION['incompatible_plugins'];
-        }
-
-        $_SESSION['incompatible_plugins'] = ['~~expire~~' => time() + 300];
-
-        $versions_to_check = $this->getVersionsToCheck();
+        $versions_to_check = $this->getVersionsToCheck($pem_category, $core_version);
         if (empty($versions_to_check)) {
             return [];
         }
-
 
         // Plugins to check
         $plugins_to_check = [];
@@ -408,8 +391,7 @@ class Plugins extends Extensions
         // Retrieve PEM plugins infos
         $url = $this->pem_url . '/api/get_revision_list.php';
         $get_data = [
-            'category_id' => $conf['pem_plugins_category'],
-            'format' => 'php',
+            'category_id' => $pem_category,
             'version' => implode(',', $versions_to_check),
             'extension_include' => implode(',', $plugins_to_check),
         ];
@@ -429,16 +411,16 @@ class Plugins extends Extensions
                 $server_plugins[$plugin['extension_id']][] = $plugin['revision_name'];
             }
 
+            $incompatible_plugins = [];
             foreach ($this->getFsPlugins() as $plugin_id => $fs_plugin) {
-                if (isset($fs_plugin['extension'])
-                    and !in_array($plugin_id, $this->default_plugins)
-                    and $fs_plugin['version'] != 'auto'
-                    and (!isset($server_plugins[$fs_plugin['extension']])
-                    or !in_array($fs_plugin['version'], $server_plugins[$fs_plugin['extension']]))) {
-                    $_SESSION['incompatible_plugins'][$plugin_id] = $fs_plugin['version'];
+                if (isset($fs_plugin['extension']) && !in_array($plugin_id, $this->default_plugins)
+                    && $fs_plugin['version'] != 'auto' && (!isset($server_plugins[$fs_plugin['extension']])
+                    || !in_array($fs_plugin['version'], $server_plugins[$fs_plugin['extension']]))) {
+                    $incompatible_plugins[$plugin_id] = $fs_plugin['version'];
                 }
             }
-            return $_SESSION['incompatible_plugins'];
+
+            return $incompatible_plugins;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
@@ -472,11 +454,8 @@ class Plugins extends Extensions
 
     /**
      * Extract plugin files from archive
-     * @param string - install or upgrade
-     *  @param string - archive URL
-     * @param string - plugin id or extension id
      */
-    public function extractPluginFiles($action, $revision, $dest, &$plugin_id = null)
+    public function extractPluginFiles(string $action, int $revision)
     {
         $archive = tempnam(self::$plugins_root_path, 'zip');
         $get_data = [
@@ -495,8 +474,7 @@ class Plugins extends Extensions
             $this->extractZipFiles($archive, 'main.inc.php', $extract_path);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
-        }
-        finally {
+        } finally {
             unlink($archive);
         }
     }

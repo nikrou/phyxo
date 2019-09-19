@@ -58,7 +58,7 @@ class Extension
 
         try {
             if ($type == 'plugins') {
-                if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] == 'active') {
+                if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] === 'active') {
                     $extension->performAction('deactivate', $extension_id);
 
                     \Phyxo\Functions\Utils::redirect('ws'
@@ -70,7 +70,7 @@ class Extension
                         . '&pwg_token=' . \Phyxo\Functions\Utils::get_token()); // @TODO: use symfony router
                 }
 
-                $errors = $extension->performAction('update', $extension_id, ['revision' => $revision]);
+                $errors = $extension->performAction('update', $extension_id, $revision);
                 $extension_name = $extension->getFsPlugins()[$extension_id]['name'];
 
                 if (isset($params['reactivate'])) {
@@ -80,7 +80,7 @@ class Extension
                 $extension->extractThemeFiles('upgrade', $revision, $extension_id);
                 $extension_name = $extension->getFsThemes()[$extension_id]['name'];
             } elseif ($type == 'languages') {
-                $extension->extractLanguageFiles('upgrade', $revision, $extension_id);
+                $extension->extractLanguageFiles('upgrade', $revision);
                 $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
             }
 
@@ -125,7 +125,6 @@ class Extension
                 $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
             }
 
-            unset($_SESSION['extensions_need_update']);
             $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
             return true;
         }
@@ -140,7 +139,6 @@ class Extension
         }
 
         $service->getEntityManager()->getRepository(ConfigRepository::class)->addOrUpdateParam('updates_ignored', $updates_ignored);
-        unset($_SESSION['extensions_need_update']);
 
         return true;
     }
