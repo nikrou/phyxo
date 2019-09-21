@@ -23,18 +23,18 @@ class Plugins extends Extensions
     private $fs_plugins = [], $db_plugins = [], $server_plugins = [];
     private $fs_plugins_retrieved = false, $db_plugins_retrieved = false, $server_plugins_retrieved = false;
     private $default_plugins = [];
-    private static $plugins_root_path, $userMapper;
+    private $plugins_root_path, $userMapper;
     private $conn;
 
     public function __construct(iDBLayer $conn, UserMapper $userMapper)
     {
         $this->conn = $conn;
-        self::$userMapper = $userMapper;
+        $this->userMapper = $userMapper;
     }
 
     public function setRootPath(string $plugins_root_path)
     {
-        self::$plugins_root_path = $plugins_root_path;
+        $this->plugins_root_path = $plugins_root_path;
     }
 
     /**
@@ -42,17 +42,17 @@ class Plugins extends Extensions
      * or build a new class with the procedural methods
      * @param string $plugin_id
      */
-    private static function build_maintain_class($plugin_id)
+    private function buildMaintainClass($plugin_id)
     {
-        $file_to_include = self::$plugins_root_path . '/' . $plugin_id . '/maintain';
+        $file_to_include = $this->plugins_root_path . '/' . $plugin_id . '/maintain';
         $classname = $plugin_id . '_maintain';
 
-        if (file_exists($file_to_include . '.class.php')) {
+        if (is_readable($file_to_include . '.class.php')) {
             include_once($file_to_include . '.class.php');
             return new $classname($plugin_id);
         }
 
-        if (file_exists($file_to_include . '.inc.php')) {
+        if (is_readable($file_to_include . '.inc.php')) {
             include_once($file_to_include . '.inc.php');
 
             if (class_exists($classname)) {
@@ -81,7 +81,7 @@ class Plugins extends Extensions
         }
 
         if ($action !== 'update') { // wait for files to be updated
-            $plugin_maintain = self::build_maintain_class($plugin_id);
+            $plugin_maintain = $this->buildMaintainClass($plugin_id);
         }
 
         $error = '';
@@ -107,7 +107,7 @@ class Plugins extends Extensions
                     $this->getFsPlugin($plugin_id); // refresh plugins list
                     $new_version = $this->fs_plugins[$plugin_id]['version'];
 
-                    $plugin_maintain = self::build_maintain_class($plugin_id);
+                    $plugin_maintain = $this->buildMaintainClass($plugin_id);
                     $plugin_maintain->update($previous_version, $new_version, $errors);
                     if ($new_version !== 'auto') {
                         (new PluginRepository($this->conn))->updatePlugin(['version' => $new_version], ['id' => $plugin_id]);
@@ -157,14 +157,11 @@ class Plugins extends Extensions
 
             case 'delete':
                 if (!empty($crt_db_plugin)) {
-                    $this->performAction('uninstall', $plugin_id);
-                }
-                if (!isset($this->fs_plugins[$plugin_id])) {
-                    break;
+                    $error = $this->performAction('uninstall', $plugin_id);
                 }
 
                 $fs = new Filesystem();
-                $fs->remove([self::$plugins_root_path . '/' . $plugin_id, self::$plugins_root_path . '/trash']);
+                $fs->remove([$this->plugins_root_path . '/' . $plugin_id, $this->plugins_root_path . '/trash']);
                 break;
         }
 
@@ -182,7 +179,7 @@ class Plugins extends Extensions
     public function getFsPlugins()
     {
         if (!$this->fs_plugins_retrieved) {
-            foreach (glob(self::$plugins_root_path . '/*/main.inc.php') as $main_file) {
+            foreach (glob($this->plugins_root_path . '/*/main.inc.php') as $main_file) {
                 $plugin_dir = basename(dirname($main_file));
                 if (preg_match('`^[a-zA-Z0-9-_]+$`', $plugin_dir)) {
                     $this->getFsPlugin($plugin_dir);
@@ -200,7 +197,7 @@ class Plugins extends Extensions
      */
     public function getFsPlugin($plugin_id)
     {
-        $path = self::$plugins_root_path . '/' . $plugin_id;
+        $path = $this->plugins_root_path . '/' . $plugin_id;
         $main_file = $path . '/main.inc.php';
 
         if (!is_dir($path) && !is_readable($main_file)) {
@@ -225,7 +222,7 @@ class Plugins extends Extensions
         if (preg_match("|Plugin URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
             $plugin['uri'] = trim($val[1]);
         }
-        if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($main_file) . '/', ['language' => self::$userMapper->getUser()->getLanguage(), 'return' => true])) {
+        if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($main_file) . '/', ['language' => $this->userMapper->getUser()->getLanguage(), 'return' => true])) {
             $plugin['description'] = trim($desc);
         } elseif (preg_match("|Description:\\s*(.+)|", $plugin_data, $val)) {
             $plugin['description'] = trim($val[1]);
@@ -342,7 +339,7 @@ class Plugins extends Extensions
                 'category_id' => $pem_category,
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
-                'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
+                'lang' => substr($this->userMapper->getUser()->getLanguage(), 0, 2),
                 'get_nb_downloads' => 'true',
             ];
 
@@ -457,7 +454,7 @@ class Plugins extends Extensions
      */
     public function extractPluginFiles(string $action, int $revision)
     {
-        $archive = tempnam(self::$plugins_root_path, 'zip');
+        $archive = tempnam($this->plugins_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'piwigo_' . $action,
@@ -469,7 +466,7 @@ class Plugins extends Extensions
             throw new \Exception("Cannot download plugin file");
         }
 
-        $extract_path = self::$plugins_root_path;
+        $extract_path = $this->plugins_root_path;
         try {
             $this->extractZipFiles($archive, 'main.inc.php', $extract_path);
         } catch (\Exception $e) {

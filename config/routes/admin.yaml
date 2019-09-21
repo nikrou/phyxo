@@ -1,5 +1,5 @@
 install:
-  path:  /install/{step}
+  path: /install/{step}
   controller: App\Controller\InstallController::index
   defaults:
     step: language
@@ -11,63 +11,56 @@ upgrade:
   controller: App\Controller\AdminController::upgrade
 
 legacy_home:
-  path:  /index.{extension}
+  path: /index.{extension}
   controller: App\Controller\AdminController::index
   defaults:
     extension: php
 
 admin_home:
-  path:  /
+  path: /
   controller: App\Controller\AdminController::index
 
 # languages
 admin_languages_installed:
-  path:  /languages
+  path: /languages
   controller: App\Controller\Admin\LanguagesController::installed
 
 admin_languages_new:
-  path:  /languages/new
+  path: /languages/new
   controller: App\Controller\Admin\LanguagesController::new
 
 admin_languages_update:
-  path:  /languages/update
+  path: /languages/update
   controller: App\Controller\Admin\LanguagesController::update
 
 admin_languages_action:
-  path:  /languages/{action}/{language}
+  path: /languages/{action}/{language}
   controller: App\Controller\Admin\LanguagesController::action
   requirements:
     action: activate|deactivate|delete|set_default
     language: '[a-z]{2}_[A-Z]{2}'
 
 admin_languages_install:
-  path:  /languages/install/{revision}
+  path: /languages/install/{revision}
   controller: App\Controller\Admin\LanguagesController::install
   requirements:
     revision: \d+
 
 # plugins
 admin_plugins_installed:
-  path:  /plugins
+  path: /plugins
   controller: App\Controller\Admin\PluginsController::installed
 
 admin_plugins_new:
-  path:  /plugins/new
+  path: /plugins/new
   controller: App\Controller\Admin\PluginsController::new
 
 admin_plugins_update:
-  path:  /plugins/update
+  path: /plugins/update
   controller: App\Controller\Admin\PluginsController::update
 
-admin_plugins_action:
-  path:  /plugins/{action}/{plugin}
-  controller: App\Controller\Admin\PluginsController::action
-  requirements:
-    action: activate|deactivate|uninstall|delete|restore
-    plugin: .+
-
 admin_plugins_install:
-  path:  /plugins/install/{revision}
+  path: /plugins/install/{revision}
   controller: App\Controller\Admin\PluginsController::install
   requirements:
     revision: \d+

@@ -7,14 +7,14 @@
 
 {block name="content"}
     {foreach $language_states as $language_state}
-	<div class="state state-{$language_state}">
+	<div class="extensions state state-{$language_state}">
 	    {if $language_state === 'active'}
 		<h3>{'Active Languages'|translate}</h3>
 	    {elseif $language_state === 'inactive'}
 		<h3>{'Inactive Languages'|translate}</h3>
 	    {/if}
 
-	    <div class="extensions">
+	    <div>
 		{foreach $languages as $language}
 		    {if $language.state === $language_state}
 			<div class="row extension{if $language.is_default} extension-default{/if}">

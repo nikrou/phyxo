@@ -117,7 +117,7 @@ abstract class AdminCommonController extends AbstractController
 
         $template->setTheme(new Theme($params->get('admin_theme_dir'), '.'));
 
-        $tpl_params['PHYXO_VERSION'] = $this->conf['show_version'] ? $params->get('core_version') : '';
+        $tpl_params['PHYXO_VERSION'] = $params->get('core_version');
         $tpl_params['PHYXO_URL'] = $params->get('phyxo_website');
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
 

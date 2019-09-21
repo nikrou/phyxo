@@ -25,13 +25,14 @@ use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
 use App\Utils\UserManager;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security;
 
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security;
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -62,11 +63,23 @@ class Server
         $this->upload_dir = $upload_dir;
     }
 
-    public function setExtensionsURL(string $url) {
+    public function setParams(ParameterBagInterface $params)
+    {
+        $this->params = $params;
+    }
+
+    public function getParams()
+    {
+        return $this->params;
+    }
+
+    public function setExtensionsURL(string $url)
+    {
         $this->pem_url = $url;
     }
 
-    public function getExtensionsURL() {
+    public function getExtensionsURL()
+    {
         return $this->pem_url;
     }
 
@@ -282,7 +295,6 @@ class Server
      */
     public function sendResponse($response)
     {
-
         $encodedResponse = $this->_responseEncoder->encodeResponse($response);
         Plugin::trigger_notify('sendResponse', $encodedResponse);
 

@@ -6,361 +6,369 @@ $sidebar-width: 15em;
 $sidebar-install-width: $sidebar-width + 5em;
 
 .wrapper {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-    i {
-        margin-right: 0.2rem;
-    }
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+  i {
+    margin-right: 0.2rem;
+  }
 }
 
 .visually-hidden {
-    @include sr-only();
+  @include sr-only();
 }
 
 header {
-    background-color: $gray-600;
+  background-color: $gray-600;
+  color: $white;
+
+  a {
     color: $white;
+  }
 
-    a {
-        color: $white;
-    }
+  .navbar {
+    font-size: 0.9rem;
+    padding: 0.2rem 1rem;
+  }
 
-    .navbar {
-        font-size: 0.9rem;
-        padding: 0.2rem 1rem;
-    }
-
-    .alert {
-        margin-left: 1em;
-        margin-right: 1em;
-    }
+  .alert {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
 }
 
 main {
-    width: 100%;
-    padding: 1rem;
-    min-height: 100vh;
-    transition: all 0.3s;
-    order: 1;
+  width: 100%;
+  padding: 1rem;
+  min-height: 100vh;
+  transition: all 0.3s;
+  order: 1;
 }
 
 section[role='content'] {
-    flex: 1 1 auto;
-    order: 2;
-    padding: 0 1rem;
+  flex: 1 1 auto;
+  order: 2;
+  padding: 0 1rem;
 
-    .nav.nav-tabs {
-        margin-bottom: 1em;
+  .nav.nav-tabs {
+    margin-bottom: 1em;
+  }
+
+  .alert.hide {
+    display: none;
+  }
+
+  // temporary, until theme.css and clear.css will be removed
+  form {
+    ul {
+      list-style: none;
     }
 
-    .alert.hide {
-	display: none;
+    .fieldset,
+    .form-filter {
+      border: 2px solid $gray-200;
+      border-radius: 5px;
+      padding: 1em;
+      margin: 1em 0;
     }
 
-    // temporary, until theme.css and clear.css will be removed
-    form {
-        ul {
-            list-style: none;
-        }
-
-        .fieldset,
-        .form-filter {
-            border: 2px solid $gray-200;
-            border-radius: 5px;
-            padding: 1em;
-            margin: 1em 0;
-        }
-
-        .font-checkbox input[type='checkbox'],
-        .font-checkbox input[type='radio'] {
-            display: none;
-        }
-
-        #watermarkPositionBox {
-            border: 2px solid #ccc;
-            width: 500px;
-            padding: 5px;
-            background-color: #e5e5e5;
-
-            label {
-                font-weight: normal;
-                display: block;
-                color: #444;
-
-                &.middle {
-                    margin: 50px;
-                    text-align: center;
-                }
-
-                &.right {
-                    float: right;
-                }
-            }
-        }
-
-        .album {
-            border: 2px solid $gray-200;
-            border-radius: 5px;
-            padding: 1em;
-            margin: 1em 0;
-            cursor: move;
-        }
+    .font-checkbox input[type='checkbox'],
+    .font-checkbox input[type='radio'] {
+      display: none;
     }
 
-    // upload form
-    .plupload_header,
-    .plupload_buttons,
-    .plupload_progress {
+    #watermarkPositionBox {
+      border: 2px solid #ccc;
+      width: 500px;
+      padding: 5px;
+      background-color: #e5e5e5;
+
+      label {
+        font-weight: normal;
+        display: block;
+        color: #444;
+
+        &.middle {
+          margin: 50px;
+          text-align: center;
+        }
+
+        &.right {
+          float: right;
+        }
+      }
+    }
+
+    .album {
+      border: 2px solid $gray-200;
+      border-radius: 5px;
+      padding: 1em;
+      margin: 1em 0;
+      cursor: move;
+    }
+  }
+
+  // upload form
+  .plupload_header,
+  .plupload_buttons,
+  .plupload_progress {
+    display: none;
+  }
+
+  .menuUl {
+    margin: 0;
+    padding: 0;
+
+    .menuLi {
+      width: 100%;
+      background-color: $gray-200;
+      border: 1px solid #666;
+      padding: 1em;
+      margin-bottom: 5px;
+    }
+  }
+
+  .themeBox {
+    display: inline-block;
+    text-align: center;
+    width: 180px;
+    height: 222px;
+    background-color: #eee;
+    margin: 5px;
+    border-radius: 5px;
+    overflow: hidden;
+
+    img {
+      width: 150px;
+      height: 120px;
+    }
+  }
+
+  .double-select {
+    .form-select {
+      width: 49%;
+      display: inline-block;
+    }
+  }
+
+  .thumbnails {
+    .thumbnail {
+      display: inline-block;
+      margin: 5px;
+      border-radius: 5px;
+      background-color: $gray-200;
+      &:hover {
+        background-color: $pink;
+
+        a {
+          color: $white;
+        }
+      }
+    }
+
+    .wrapper-label {
+      margin: 5px;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+    }
+
+    .wrapper-thumbnail {
+      margin: 0;
+      display: table-cell;
+      vertical-align: middle;
+      border-radius: 4px;
+    }
+
+    label {
+      position: relative;
+      display: block;
+      border-bottom: none;
+      cursor: pointer;
+    }
+
+    img {
+      vertical-align: middle;
+      margin-top: 12px;
+    }
+
+    .actions {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+    }
+
+    input {
+      position: absolute;
+      left: 3px;
+      top: 3px;
+    }
+
+    .levelIndicatorB {
+      display: block;
+      position: absolute;
+      padding: 7px 0 0 2px;
+      color: $black;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .levelIndicatorF {
+      display: block;
+      position: absolute;
+      padding: 8px 0 0 3px;
+      color: $white;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  }
+
+  .sort-order {
+    @extend .clearfix;
+    .rank-of-image {
+      float: left;
+      cursor: move;
+    }
+  }
+
+  table .checkComment {
+    width: 2em;
+  }
+
+  .extensions {
+    h3 {
+      padding: 1em 0 0 1em;
+    }
+
+    .extension {
+      background-color: $gray-200;
+      border-color: $gray-400;
+      padding: 6px;
+      border-radius: 5px;
+      margin: 5px;
+
+      &.ignore {
         display: none;
-    }
+      }
 
-    .menuUl {
-        margin: 0;
-        padding: 0;
-
-        .menuLi {
-            width: 100%;
-            background-color: $gray-200;
-            border: 1px solid #666;
-            padding: 1em;
-            margin-bottom: 5px;
-        }
-    }
-
-    .themeBox {
+      &.no-details {
         display: inline-block;
-        text-align: center;
-        width: 180px;
-        height: 222px;
-        background-color: #eee;
-        margin: 5px;
-        border-radius: 5px;
-        overflow: hidden;
+      }
 
-        img {
-            width: 150px;
-            height: 120px;
-        }
+      &.inactive {
+        background-color: $gray-400;
+      }
     }
+  }
 
-    .double-select {
-        .form-select {
-            width: 49%;
-            display: inline-block;
-        }
-    }
+  .filter {
+    margin-bottom: 5px;
+  }
 
-    .thumbnails {
-        .thumbnail {
-            display: inline-block;
-            margin: 5px;
-            border-radius: 5px;
-            background-color: $gray-200;
-            &:hover {
-                background-color: $pink;
-
-                a {
-                    color: $white;
-                }
-            }
-        }
-
-        .wrapper-label {
-            margin: 5px;
-            display: inline-block;
-            vertical-align: top;
-            text-align: center;
-        }
-
-        .wrapper-thumbnail {
-            margin: 0;
-            display: table-cell;
-            vertical-align: middle;
-            border-radius: 4px;
-        }
-
-        label {
-            position: relative;
-            display: block;
-            border-bottom: none;
-            cursor: pointer;
-        }
-
-        img {
-            vertical-align: middle;
-            margin-top: 12px;
-        }
-
-        .actions {
-            position: absolute;
-            top: 3px;
-            right: 3px;
-        }
-
-        input {
-            position: absolute;
-            left: 3px;
-            top: 3px;
-        }
-
-        .levelIndicatorB {
-            display: block;
-            position: absolute;
-            padding: 7px 0 0 2px;
-            color: $black;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        .levelIndicatorF {
-            display: block;
-            position: absolute;
-            padding: 8px 0 0 3px;
-            color: $white;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-    }
-
-    .sort-order {
-        @extend .clearfix;
-        .rank-of-image {
-            float: left;
-            display: inline-block;
-            cursor: move;
-        }
-    }
-
-    table .checkComment {
-	width: 2em;
-    }
-
-    .language,
-    .plugin,
-    .theme {
-        background-color: $gray-200;
-        border-color: $gray-400;
-        padding: 6px;
-        border-radius: 5px;
-        margin: 5px;
-
-        &.no-details {
-            display: inline-block;
-        }
-
-        &.inactive {
-            background-color: $gray-400;
-        }
-    }
-
-    .filter {
-        margin-bottom: 5px;
-    }
-
-    i.infos {
-	color: $blue;
-    }
+  i.infos {
+    color: $blue;
+  }
 }
 
 #addAlbumForm {
-    padding: 1em;
+  padding: 1em;
 }
 
 aside[role='navigation'] {
-    min-width: $sidebar-width;
-    margin-top: 1rem;
-    max-width: $sidebar-width;
+  min-width: $sidebar-width;
+  margin-top: 1rem;
+  max-width: $sidebar-width;
+  &.active {
+    margin-left: -$sidebar-width;
+  }
+
+  &.install {
+    min-width: $sidebar-install-width;
+    margin-top: 2em;
     &.active {
-	margin-left: - $sidebar-width;
+      margin-left: -$sidebar-install-width;
     }
+  }
+  transition: all 0.3s;
 
-    &.install {
-	min-width: $sidebar-install-width;
-	margin-top: 2em;
-	&.active {
-	    margin-left: - $sidebar-install-width;
-	}
-    }
-    transition: all 0.3s;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-    ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
+  padding-left: 0.4rem;
+  .accordion {
+    li {
+      a {
+        display: block;
+        color: $white;
+        text-decoration: none;
+        border-bottom: 1px solid $gray-100;
+        background-color: $gray-700;
+        padding: 0.3rem;
 
-    padding-left: 0.4rem;
-    .accordion {
-        li {
-            a {
-                display: block;
-                color: $white;
-                text-decoration: none;
-                border-bottom: 1px solid $gray-100;
-                background-color: $gray-700;
-                padding: 0.3rem;
-
-                &:hover {
-                    opacity: 0.6;
-                }
-
-                &.show {
-                    background-color: $pink;
-                }
-            }
-
-            li {
-                a {
-                    padding-left: 1rem;
-                    background-color: $gray-600;
-                }
-            }
-
-            .counter {
-                margin-left: 5px;
-                font-size: 0.8rem;
-            }
+        &:hover {
+          opacity: 0.6;
         }
+
+        &.show {
+          background-color: $pink;
+        }
+      }
+
+      li {
+        a {
+          padding-left: 1rem;
+          background-color: $gray-600;
+        }
+      }
+
+      .counter {
+        margin-left: 5px;
+        font-size: 0.8rem;
+      }
     }
+  }
 }
 
-a[data-toggle="collapse"] {
-    position: relative;
+a[data-toggle='collapse'] {
+  position: relative;
 }
 
 .dropdown-toggle::after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
+  display: block;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
 }
 
 footer {
-    flex: 1 0 auto;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding: 0.5rem;
-    background-color: $gray-200;
-    color: $gray-500;
-    font-size: 0.9rem;
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background-color: $gray-200;
+  color: $gray-500;
+  font-size: 0.9rem;
 }
 
 @include media-breakpoint-down(md) {
-    aside[role='navigation'] {
-        margin-left: - $sidebar-width;
-	&.install {
-	    margin-left: - $sidebar-install-width;
-	}
-
-	&.active,&.active.install {
-            margin-left: 0;
-	}
+  aside[role='navigation'] {
+    margin-left: -$sidebar-width;
+    &.install {
+      margin-left: -$sidebar-install-width;
     }
 
-    #sidebarCollapse span {
-        display: none;
+    &.active,
+    &.active.install {
+      margin-left: 0;
     }
+  }
+
+  #sidebarCollapse span {
+    display: none;
+  }
 }

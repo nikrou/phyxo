@@ -54,20 +54,14 @@ class Extension
 
         $extension = new $typeClassName($service->getConnection(), $service->getUserMapper());
         $extension->setExtensionsURL($service->getExtensionsURL());
-        $extension->setRootPath(__DIR__ . '/../../../../' . $type);
+        $extension->setRootPath($service->getParams()->get($type . '_dir'));
 
         try {
-            if ($type == 'plugins') {
+            if ($type === 'plugins') {
                 if (isset($extension->getDbPlugins()[$extension_id]) && $extension->getDbPlugins()[$extension_id]['state'] === 'active') {
                     $extension->performAction('deactivate', $extension_id);
 
-                    \Phyxo\Functions\Utils::redirect('ws'
-                        . '?method=pwg.extensions.update'
-                        . '&type=plugins'
-                        . '&id=' . $extension_id
-                        . '&revision=' . $revision
-                        . '&reactivate=true'
-                        . '&pwg_token=' . \Phyxo\Functions\Utils::get_token()); // @TODO: use symfony router
+                    return;
                 }
 
                 $errors = $extension->performAction('update', $extension_id, $revision);
@@ -76,10 +70,10 @@ class Extension
                 if (isset($params['reactivate'])) {
                     $extension->performAction('activate', $extension_id);
                 }
-            } elseif ($type == 'themes') {
+            } elseif ($type === 'themes') {
                 $extension->extractThemeFiles('upgrade', $revision, $extension_id);
                 $extension_name = $extension->getFsThemes()[$extension_id]['name'];
-            } elseif ($type == 'languages') {
+            } elseif ($type === 'languages') {
                 $extension->extractLanguageFiles('upgrade', $revision);
                 $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
             }

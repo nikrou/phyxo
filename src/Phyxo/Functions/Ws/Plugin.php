@@ -25,7 +25,7 @@ class Plugin
     public static function getList($params, Server $service)
     {
         $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
-        $plugins->setRootPath(__DIR__ . '/../../../plugins');
+        $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $plugins->sortFsPlugins('name');
         $plugin_list = [];
 
@@ -63,7 +63,7 @@ class Plugin
         }
 
         $plugins = new Plugins($service->getConnection(), $service->getUserMapper());
-        $plugins->setRootPath(__DIR__ . '/../../../plugins');
+        $plugins->setRootPath($service->getParams()->get('plugins_dir'));
         $error = $plugins->performAction($params['action'], $params['plugin']);
 
         if (!empty($error)) {

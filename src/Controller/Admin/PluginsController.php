@@ -63,10 +63,6 @@ class PluginsController extends AdminCommonController
             } else {
                 $tpl_plugin['state'] = 'inactive';
             }
-            $tpl_plugin['activate'] = $this->generateUrl('admin_plugins_action', ['action' => 'activate', 'plugin' => $plugin_id]);
-            $tpl_plugin['deactivate'] = $this->generateUrl('admin_plugins_action', ['action' => 'deactivate', 'plugin' => $plugin_id]);
-            $tpl_plugin['restore'] = $this->generateUrl('admin_plugins_action', ['action' => 'restore', 'plugin' => $plugin_id]);
-            $tpl_plugin['delete'] = $this->generateUrl('admin_plugins_action', ['action' => 'delete', 'plugin' => $plugin_id]);
             $tpl_params['plugins_by_state'][$tpl_plugin['state']]++;
 
             $tpl_plugins[] = $tpl_plugin;
@@ -83,7 +79,6 @@ class PluginsController extends AdminCommonController
                     'NAME' => $plugin_id,
                     'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
                     'DESC' => Language::l10n('Error! This plugin is missing but it is installed! Uninstall it now.'),
-                    'uninstall' => $this->generateUrl('admin_plugins_action', ['action' => 'uninstall', 'plugin' => $plugin_id]),
                     'state' => 'missing',
                 ];
                 $tpl_plugins[] = $tpl_plugin;
@@ -99,7 +94,11 @@ class PluginsController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        $tpl_params['incompatible_plugins'] = $plugins->getIncompatiblePlugins($conf['pem_plugins_category'], $params->get('core_version'));
+        try {
+            $tpl_params['incompatible_plugins'] = $plugins->getIncompatiblePlugins($conf['pem_plugins_category'], $params->get('core_version'));
+        } catch (\Exception $e) {
+            // @TODO : do something usefull
+        }
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
@@ -112,20 +111,6 @@ class PluginsController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
 
         return $this->render('plugins_installed.tpl', $tpl_params);
-    }
-
-    public function action(string $plugin, string $action, EntityManager $em, UserMapper $userMapper, ParameterBagInterface $params)
-    {
-        $plugins = new Plugins($em->getConnection(), $userMapper);
-        $plugins->setRootPath($params->get('plugins_dir'));
-
-        $error = $plugins->performAction($action, $plugin);
-
-        if (!empty($error)) {
-            $this->addFlash('error', $error);
-        }
-
-        return $this->redirectToRoute('admin_plugins_installed');
     }
 
     public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper)
@@ -144,7 +129,7 @@ class PluginsController extends AdminCommonController
             $plugins->extractPluginFiles('install', $revision);
             $this->addFlash('info', Language::l10n('Plugin has been successfully installed'));
 
-            return $this->redirectToRoute('admin_plugins_install');
+            return $this->redirectToRoute('admin_plugins_installed');
         } catch (\Exception $e) {
             $this->addFlash('error', Language::l10n($e->getMessage()));
 

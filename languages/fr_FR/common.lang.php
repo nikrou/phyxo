@@ -11,10 +11,10 @@
 
 /*
 Language Name: Français [FR]
-Version: 2.7.0
-Language URI: https://ext.phyxo.net/extension_view.php?eid=7
+Version: 2.7.1
 Author: Nicolas Roudaire
 Author URI: https://www.phyxo.net
+Language URI: https://ext.phyxo.net/extension_view.php?eid=7
  */
 
 // Langage informations

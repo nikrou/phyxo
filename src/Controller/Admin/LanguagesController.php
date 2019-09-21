@@ -203,7 +203,7 @@ class LanguagesController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params['SHOW_RESET'] = false;
+        $tpl_params['SHOW_RESET'] = 0;
         if (!empty($conf['updates_ignored'])) {
             $updates_ignored = json_decode($conf['updates_ignored'], true);
         } else {
@@ -215,6 +215,7 @@ class LanguagesController extends AdminCommonController
         $languages->setExtensionsURL($params->get('pem_url'));
 
         $server_languages = $languages->getServerLanguages($new = false, $conf['pem_languages_category'], $params->get('core_version'));
+        $tpl_params['update_languages'] = [];
 
         if (count($server_languages) > 0) {
             foreach ($languages->getFsLanguages() as $extension_id => $fs_extension) {
@@ -244,7 +245,7 @@ class LanguagesController extends AdminCommonController
             }
 
             if (!empty($updates_ignored['languages'])) {
-                $tpl_params['SHOW_RESET'] = true;
+                $tpl_params['SHOW_RESET'] = count($updates_ignored['languages']);
             }
         }
 
@@ -261,6 +262,7 @@ class LanguagesController extends AdminCommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_languages_installed');
+        $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_languages_installed');
 
         return $this->render('languages_update.tpl', $tpl_params);
     }

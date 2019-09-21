@@ -64,7 +64,7 @@ module.exports = {
 		use: {
 		    options: {
 			cacheDirectory: true,
-			presets: [['env', { modules: false }]],
+			presets: [['@babel/preset-env', { modules: false }]],
 		    },
 		    loader: 'babel-loader'
 		},
@@ -140,6 +140,7 @@ module.exports = {
     devServer: {
 	contentBase: path.target,
 	disableHostCheck: true,
+	port: PORT,
 	hot: true,
         inline: true,
         overlay: true,

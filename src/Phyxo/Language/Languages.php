@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
 class Languages extends Extensions
 {
     private $conn;
-    private static $languages_root_path, $userMapper;
+    private $languages_root_path, $userMapper;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
@@ -31,12 +31,12 @@ class Languages extends Extensions
             $this->conn = $conn;
         }
 
-        self::$userMapper = $userMapper;
+        $this->userMapper = $userMapper;
     }
 
-    public static function setRootPath(string $languages_root_path)
+    public function setRootPath(string $languages_root_path)
     {
-        self::$languages_root_path = $languages_root_path;
+        $this->languages_root_path = $languages_root_path;
     }
 
     public function setConnection(\Phyxo\DBLayer\iDBLayer $conn)
@@ -76,13 +76,24 @@ class Languages extends Extensions
                 (new LanguageRepository($this->conn))->addLanguage($language_id, $this->fs_languages[$language_id]['name'], $this->fs_languages[$language_id]['version']);
                 break;
 
+            case 'update':
+                try {
+                    $new_version = $this->getFsLanguages()[$language_id]['version'];
+                    if ($new_version !== 'auto') {
+                        (new LanguageRepository($this->conn))->updateLanguage(['version' => $new_version], ['id' => $language_id]);
+                    }
+                } catch (\Exception $e) {
+                    $error = $e->getMessage();
+                }
+                break;
+
             case 'deactivate':
                 if (!isset($crt_db_language)) {
                     $error = 'CANNOT DEACTIVATE - LANGUAGE IS ALREADY DEACTIVATED';
                     break;
                 }
 
-                if ($language_id == self::$userMapper->getDefaultLanguage()) {
+                if ($language_id == $this->userMapper->getDefaultLanguage()) {
                     $error = 'CANNOT DEACTIVATE - LANGUAGE IS DEFAULT LANGUAGE';
                     break;
                 }
@@ -103,7 +114,7 @@ class Languages extends Extensions
                 // Set default language to user who are using this language
                 (new LanguageRepository($this->conn))->deleteLanguage($language_id);
                 $fs = new Filesystem();
-                $fs->remove(self::$languages_root_path . '/' . $language_id, self::$languages_root_path . '/trash');
+                $fs->remove([$this->languages_root_path . '/' . $language_id, $this->languages_root_path . '/trash']);
                 break;
 
             case 'set_default':
@@ -131,7 +142,7 @@ class Languages extends Extensions
             }
             $target_charset = strtolower($target_charset);
 
-            foreach (glob(self::$languages_root_path . '/*/common.lang.php') as $common_lang) {
+            foreach (glob($this->languages_root_path . '/*/common.lang.php') as $common_lang) {
                 $language_dir = basename(dirname($common_lang));
 
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
@@ -236,7 +247,7 @@ class Languages extends Extensions
             $get_data = array_merge($get_data, [
                 'last_revision_only' => 'true',
                 'version' => implode(',', $versions_to_check),
-                'lang' => self::$userMapper->getUser()->getLanguage(),
+                'lang' => $this->userMapper->getUser()->getLanguage(),
                 'get_nb_downloads' => 'true',
             ]);
             if (!empty($languages_to_check)) {
@@ -276,7 +287,7 @@ class Languages extends Extensions
      */
     public function extractLanguageFiles($action, $revision)
     {
-        $archive = tempnam(self::$languages_root_path, 'zip');
+        $archive = tempnam($this->languages_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action,
@@ -290,10 +301,12 @@ class Languages extends Extensions
         }
 
         try {
-            $language_id = $this->extractZipFiles($archive, 'common.lang.php', self::$languages_root_path);
+            $language_id = $this->extractZipFiles($archive, 'common.lang.php', $this->languages_root_path);
             $this->getFsLanguages();
             if ($action === 'install') {
                 $this->performAction('activate', $language_id);
+            } elseif ($action === 'upgrade') {
+                $this->performAction('update', $language_id);
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

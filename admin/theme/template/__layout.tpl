@@ -4,14 +4,13 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
-	<link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 	<link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./build/manifest.json' src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	{get_combined_css}
 	{get_combined_scripts load='header'}
 
-	{if not empty($head_elements)}
+	{if !empty($head_elements)}
 	    {foreach $head_elements as $elt}
 		{$elt}
 	    {/foreach}
@@ -142,9 +141,7 @@
 
 	<footer>
 	    <div class="copyright">
-		{'Powered by'|translate}
-		<a class="external" href="{$PHPWG_URL}" title="{'Visit Phyxo project website'|translate}">Phyxo</a>
-		{$VERSION}
+		{'Powered by'|translate}&nbsp;<a href="{$PHYXO_URL}">Phyxo</a>&nbsp;{$PHYXO_VERSION}
 	    </div>
 
 	    <div id="page-infos">
@@ -160,7 +157,7 @@
 	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
-	    <script src="{$ROOT_URL}{asset manifest='./build/manifest.json' src='app.js'}"></script>
+	    <script src="{asset manifest='./build/manifest.json' src='app.js'}"></script>
 	{/block}
     </body>
 </html>
