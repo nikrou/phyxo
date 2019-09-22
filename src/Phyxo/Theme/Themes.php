@@ -17,23 +17,24 @@ use Phyxo\Theme\DummyThemeMaintain;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use Phyxo\DBLayer\iDBLayer;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Themes extends Extensions
 {
     private $conn;
-    private static $themes_root_path, $userMapper;
+    private $themes_root_path, $userMapper;
     private $fs_themes = [], $db_themes = [], $server_themes = [];
     private $fs_themes_retrieved = false, $db_themes_retrieved = false, $server_themes_retrieved = false;
 
     public function __construct(iDBLayer $conn, UserMapper $userMapper)
     {
         $this->conn = $conn;
-        self::$userMapper = $userMapper;
+        $this->userMapper = $userMapper;
     }
 
     public function setRootPath(string $themes_root_path)
     {
-        self::$themes_root_path = $themes_root_path;
+        $this->themes_root_path = $themes_root_path;
     }
 
     /**
@@ -41,9 +42,9 @@ class Themes extends Extensions
      * or build a new class with the procedural methods
      * @param string $theme_id
      */
-    private static function build_maintain_class($theme_id)
+    private function buildMaintainClass($theme_id)
     {
-        $file_to_include = self::$themes_root_path . '/' . $theme_id . '/admin/maintain.inc.php';
+        $file_to_include = $this->themes_root_path . '/' . $theme_id . '/admin/maintain.inc.php';
         $classname = $theme_id . '_maintain';
 
         if (file_exists($file_to_include)) {
@@ -59,14 +60,9 @@ class Themes extends Extensions
 
     /**
      * Perform requested actions
-     * @param string - action
-     * @param string - theme id
-     * @param array - errors
      */
-    public function performAction($action, $theme_id)
+    public function performAction($action, $theme_id, array $user_ids = []): string
     {
-        global $conf;
-
         if (!$this->db_themes_retrieved) {
             $this->getDbThemes();
         }
@@ -79,29 +75,24 @@ class Themes extends Extensions
             $crt_db_theme = $this->db_themes[$theme_id];
         }
 
-        $theme_maintain = self::build_maintain_class($theme_id);
+        $theme_maintain = $this->buildMaintainClass($theme_id);
 
-        $errors = [];
+        $error = '';
 
         switch ($action) {
             case 'activate':
                 if (isset($crt_db_theme)) {
-                // the theme is already active
+                    // the theme is already active
                     break;
                 }
 
                 $missing_parent = $this->missingParentTheme($theme_id);
                 if (isset($missing_parent)) {
-                    $errors[] = \Phyxo\Functions\Language::l10n(
+                    $error = \Phyxo\Functions\Language::l10n(
                         'Impossible to activate this theme, the parent theme is missing: %s',
                         $missing_parent
                     );
 
-                    break;
-                }
-
-                if ($this->fs_themes[$theme_id]['mobile'] and !empty($conf['mobile_theme']) and $conf['mobile_theme'] != $theme_id) {
-                    $errors[] = \Phyxo\Functions\Language::l10n('You can activate only one mobile theme.');
                     break;
                 }
 
@@ -114,17 +105,17 @@ class Themes extends Extensions
 
             case 'deactivate':
                 if (!isset($crt_db_theme)) {
-                // the theme is already inactive
+                    // the theme is already inactive
                     break;
                 }
 
                 // you can't deactivate the last theme
                 if (count($this->db_themes) <= 1) {
-                    $errors[] = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
+                    $error = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
                     break;
                 }
 
-                if ($theme_id == self::$userMapper->getDefaultTheme()) {
+                if ($theme_id == $this->userMapper->getDefaultTheme()) {
                     // find a random theme to replace
                     $new_theme = null;
                     $result = (new ThemeRepository($this->conn))->findById($theme_id);
@@ -143,7 +134,7 @@ class Themes extends Extensions
 
             case 'delete':
                 if (!empty($crt_db_theme)) {
-                    $errors[] = 'CANNOT DELETE - THEME IS INSTALLED';
+                    $error = 'CANNOT DELETE - THEME IS INSTALLED';
                     break;
                 }
                 if (!isset($this->fs_themes[$theme_id])) {
@@ -153,7 +144,7 @@ class Themes extends Extensions
 
                 $children = $this->getChildrenThemes($theme_id);
                 if (count($children) > 0) {
-                    $errors[] = \Phyxo\Functions\Language::l10n(
+                    $error = \Phyxo\Functions\Language::l10n(
                         'Impossible to delete this theme. Other themes depends on it: %s',
                         implode(', ', $children)
                     );
@@ -161,16 +152,17 @@ class Themes extends Extensions
                 }
 
                 $theme_maintain->delete();
-
-                \Phyxo\Functions\Utils::deltree(self::$themes_root_path . '/' . $theme_id, self::$themes_root_path . '/trash');
+                $fs = new Filesystem();
+                $fs->remove([$this->themes_root_path . '/' . $theme_id, $this->themes_root_path . '/trash']);
                 break;
 
             case 'set_default':
                 // first we need to know which users are using the current default theme
-                $this->setDefaultTheme($theme_id);
+                $this->setDefaultTheme($theme_id, $user_ids);
                 break;
         }
-        return $errors;
+
+        return $error;
     }
 
     public function missingParentTheme($theme_id)
@@ -207,19 +199,12 @@ class Themes extends Extensions
         return $children;
     }
 
-    public function setDefaultTheme($theme_id)
+    public function setDefaultTheme($theme_id, array $ids = [])
     {
-        global $conf;
-
         // first we need to know which users are using the current default theme
-        $default_theme = self::$userMapper->getDefaultTheme();
+        $default_theme = $this->userMapper->getDefaultTheme();
         $result = (new UserInfosRepository($this->conn))->findByTheme($default_theme);
-        $user_ids = array_unique(
-            array_merge(
-                $this->conn->result2array($result, null, 'user_id'),
-                [$conf['guest_id'], $conf['default_user_id']]
-            )
-        );
+        $user_ids = array_unique(array_merge($this->conn->result2array($result, null, 'user_id'), $ids));
 
         // $user_ids can't be empty, at least the default user has the default theme
         (new UserInfosRepository($this->conn))->updateFieldForUsers('theme', $theme_id, $user_ids);
@@ -246,7 +231,7 @@ class Themes extends Extensions
     public function getFsThemes()
     {
         if (!$this->fs_themes_retrieved) {
-            foreach (glob(self::$themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
+            foreach (glob($this->themes_root_path . '/*/themeconf.inc.php') as $themeconf) {
                 $theme_dir = basename(dirname($themeconf));
                 if (!preg_match('`^[a-zA-Z0-9-_]+$`', $theme_dir)) {
                     continue;
@@ -272,7 +257,7 @@ class Themes extends Extensions
                 if (preg_match("|Theme URI:\\s*(https?:\\/\\/.+)|", $theme_data, $val)) {
                     $theme['uri'] = trim($val[1]);
                 }
-                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['language' => self::$userMapper->getUser()->getLanguage(), 'return' => true])) {
+                if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($themeconf) . '/', ['language' => $this->userMapper->getUser()->getLanguage(), 'return' => true])) {
                     $theme['description'] = trim($desc);
                 } elseif (preg_match("|Description:\\s*(.+)|", $theme_data, $val)) {
                     $theme['description'] = trim($val[1]);
@@ -285,7 +270,9 @@ class Themes extends Extensions
                 }
                 if (!empty($theme['uri']) and strpos($theme['uri'], 'extension_view.php?eid=')) {
                     list(, $extension) = explode('extension_view.php?eid=', $theme['uri']);
-                    if (is_numeric($extension)) $theme['extension'] = $extension;
+                    if (is_numeric($extension)) {
+                        $theme['extension'] = $extension;
+                    }
                 }
                 if (preg_match('/["\']parent["\'][^"\']+["\']([^"\']+)["\']/', $theme_data, $val)) {
                     $theme['parent'] = $val[1];
@@ -299,10 +286,10 @@ class Themes extends Extensions
 
                 // screenshot
                 $screenshot_path = $theme_dir . '/screenshot.png';
-                if (is_readable("../../themes/" . $screenshot_path)) {
+                if (is_readable($this->themes_root_path . '/' . $screenshot_path)) {
                     $theme['screenshot'] = "themes/$screenshot_path";
                 } else {
-                    $theme['screenshot'] = \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png';
+                    $theme['screenshot'] = 'admin/theme/images/missing_screenshot.png';
                 }
 
                 $admin_file = dirname($themeconf) . '/admin/admin.inc.php';
@@ -346,17 +333,15 @@ class Themes extends Extensions
     /**
      * Retrieve PEM server datas to $server_themes
      */
-    public function getServerThemes($new = false)
+    public function getServerThemes($new = false, string $pem_category, string $phyxo_version = '')
     {
-        global $conf;
-
         if (!$this->server_themes_retrieved) {
             $get_data = [
-                'category_id' => $conf['pem_themes_category'],
+                'category_id' => $pem_category,
             ];
 
             // Retrieve PEM versions
-            $version = PHPWG_VERSION;
+            $version = $phyxo_version;
             $versions_to_check = [];
             $url = $this->pem_url . '/api/get_version_list.php';
 
@@ -394,7 +379,7 @@ class Themes extends Extensions
                 [
                     'last_revision_only' => 'true',
                     'version' => implode(',', $versions_to_check),
-                    'lang' => substr(self::$userMapper->getUser()->getLanguage(), 0, 2),
+                    'lang' => substr($this->userMapper->getUser()->getLanguage(), 0, 2),
                     'get_nb_downloads' => 'true',
                 ]
             );
@@ -454,9 +439,9 @@ class Themes extends Extensions
      * @param string - remote revision identifier (numeric)
      * @param string - theme id or extension id
      */
-    public function extractThemeFiles($action, $revision, $dest)
+    public function extractThemeFiles($action, $revision)
     {
-        $archive = tempnam(self::$themes_root_path, 'zip');
+        $archive = tempnam($this->themes_root_path, 'zip');
         $get_data = [
             'rid' => $revision,
             'origin' => 'phyxo_' . $action
@@ -468,7 +453,7 @@ class Themes extends Extensions
             throw new \Exception("Cannot download theme archive");
         }
 
-        $extract_path = self::$themes_root_path;
+        $extract_path = $this->themes_root_path;
         try {
             $this->extractZipFiles($archive, 'themeconf.inc.php', $extract_path);
         } catch (\Exception $e) {

@@ -85,3 +85,7 @@ admin/plugins.php
 admin/plugins_installed.php
 admin/plugins_new.php
 admin/plugins_update.php
+admin/themes.php
+admin/themes_installed.php
+admin/themes_new.php
+admin/themes_update.php

@@ -35,7 +35,7 @@ class Themes extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png'
             ],
             'theme2' => [
                 'id' => 'theme2',
@@ -46,7 +46,7 @@ class Themes extends atoum
                 'description' => 'Theme mobile without author uri',
                 'author' => 'Arthur',
                 'mobile' => true,
-                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png'
             ],
             'theme3' => [
                 'id' => 'theme3',
@@ -58,7 +58,7 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png'
             ],
             'theme4' => [
                 'id' => 'theme4',
@@ -70,7 +70,7 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => \Phyxo\Functions\URL::get_root_url() . 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png'
             ],
         ];
     }
@@ -85,7 +85,7 @@ class Themes extends atoum
     {
         $fs = new Filesystem();
         $fs->remove($this->themes_dir);
-     }
+    }
 
     private function mirrorToWorkspace(): string
     {
@@ -108,7 +108,10 @@ class Themes extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());
@@ -130,7 +133,10 @@ class Themes extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $themes = new \Phyxo\Theme\Themes($conn->reveal(), $userMapper->reveal());

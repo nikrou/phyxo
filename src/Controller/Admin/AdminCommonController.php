@@ -59,7 +59,7 @@ abstract class AdminCommonController extends AbstractController
             'U_CONFIG_DISPLAY' => $conf_link . 'default',
             'U_CONFIG_MENUBAR' => $link_start . 'menubar',
             'U_CONFIG_LANGUAGES' => $router->generate('admin_languages_installed'),
-            'U_CONFIG_THEMES' => $link_start . 'themes',
+            'U_CONFIG_THEMES' => $router->generate('admin_themes_installed'),
             'U_ALBUMS' => $link_start . 'albums',
             'U_ALBUMS_OPTIONS' => $link_start . 'albums_options',
             'U_CAT_UPDATE' => $link_start . 'site_update&amp;site=1',

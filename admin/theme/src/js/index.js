@@ -5,13 +5,14 @@ import './cat-list';
 import './users-list';
 import './plugins-list';
 import './extension';
+import 'jquery-colorbox';
 
 $(function() {
   $('#sidebarCollapse').on('click', function() {
     $('#sidebar').toggleClass('active');
   });
 
-  $('.collapse')
+  $('.extensions .collapse')
     .on('show.bs.collapse', ({ currentTarget }) => {
       const $icon = $(currentTarget)
         .parent()
@@ -128,9 +129,7 @@ $(function() {
       return false;
     });
 
-  if ($.fn.colorbox) {
-    $('.preview-box').colorbox();
-  }
+  $('.preview-box').colorbox();
 
   $("input[name='mail_theme']").change(function() {
     $("input[name='mail_theme']")

@@ -2,6 +2,8 @@
 @import 'fonts';
 @import 'users-list';
 
+@import '~jquery-colorbox/example1/colorbox.css';
+
 $sidebar-width: 15em;
 $sidebar-install-width: $sidebar-width + 5em;
 
@@ -128,19 +130,9 @@ section[role='content'] {
     }
   }
 
-  .themeBox {
-    display: inline-block;
-    text-align: center;
-    width: 180px;
-    height: 222px;
-    background-color: #eee;
-    margin: 5px;
-    border-radius: 5px;
-    overflow: hidden;
-
-    img {
-      width: 150px;
-      height: 120px;
+  .themes {
+    .card {
+      max-width: 20rem;
     }
   }
 
