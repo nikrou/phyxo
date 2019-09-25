@@ -67,6 +67,7 @@ class MenuBar
         $tpl_params = array_merge($tpl_params, $this->identificationBlock());
         $tpl_params['blocks'] = $this->menu->getDisplayBlocks();
 
+
         return $tpl_params;
     }
 
@@ -119,7 +120,9 @@ class MenuBar
                     $this->userMapper->getUser(),
                     $this->items,
                     $this->conf['menubar_tag_cloud_items_number'],
-                    array_map(function($tag) { return $tag['id'];}, $this->tags)
+                    array_map(function($tag) {
+                        return $tag['id'];
+                    }, $this->tags)
                 );
 
                 $tags = Tag::addLevelToTags($tags);
@@ -140,8 +143,7 @@ class MenuBar
                 }
             } elseif ($this->route === 'tags') {
                 $tags = $this->tagMapper->getAvailableTags($this->userMapper->getUser());
-                foreach ($tags as $tag)
-                {
+                foreach ($tags as $tag) {
                     $block->data[] = array_merge(
                         $tag, ['URL' => $this->router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)])                        ]
                     );
@@ -166,8 +168,7 @@ class MenuBar
     protected function specialsBlock()
     {
         if (($block = $this->menu->getBlock('mbSpecials')) != null) {
-            if (!$this->userMapper->getUser()->isGuest())
-            {
+            if (!$this->userMapper->getUser()->isGuest()) {
                 $block->data['favorites'] = [
                     'URL' => $this->router->generate('favorites'),
                     'TITLE' => \Phyxo\Functions\Language::l10n('display your favorites photos'),

@@ -90,3 +90,12 @@ admin_themes_install:
   controller: App\Controller\Admin\ThemesController::install
   requirements:
     revision: \d+
+
+admin_menubar:
+  path: /menubar
+  controller: App\Controller\Admin\MenubarController:index
+
+admin_menubar_update:
+  path: /menubar/update
+  controller: App\Controller\Admin\MenubarController:update
+  methods: POST

@@ -57,7 +57,7 @@ abstract class AdminCommonController extends AbstractController
             'U_MAINTENANCE' => $link_start . 'maintenance',
             'U_CONFIG_GENERAL' => $link_start . 'configuration',
             'U_CONFIG_DISPLAY' => $conf_link . 'default',
-            'U_CONFIG_MENUBAR' => $link_start . 'menubar',
+            'U_CONFIG_MENUBAR' => $router->generate('admin_menubar'),
             'U_CONFIG_LANGUAGES' => $router->generate('admin_languages_installed'),
             'U_CONFIG_THEMES' => $router->generate('admin_themes_installed'),
             'U_ALBUMS' => $link_start . 'albums',

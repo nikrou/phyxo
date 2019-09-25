@@ -7,9 +7,9 @@
 {block name="content"}
     {combine_script id="menubar" require="jquery.ui.sortable" load="footer" path="admin/theme/js/menubar.js"}
 
-    <form id="menuOrdering" action="{$F_ACTION}" method="post">
+    <form id="menuOrdering" action="{path name="admin_menubar_update"}" method="post">
 	<ul class="menuUl">
-	    {foreach from=$blocks item=block name="block_loop"}
+	    {foreach $blocks as $block}
 		<li class="menuLi {if $block.pos<0}menuLi_hidden{/if}" id="menu_{$block.reg->getId()}">
 		    <p>
 			<span>
@@ -20,7 +20,7 @@
 			<strong>{$block.reg->getName()|translate}</strong> ({$block.reg->getId()})
 		    </p>
 
-		    {if $block.reg->getOwner() != 'piwigo'}
+		    {if $block.reg->getOwner() !== 'core'}
 			<p class="menuAuthor">
 			    {'Author'|translate}: <i>{$block.reg->getOwner()}</i>
 			</p>

@@ -89,3 +89,4 @@ admin/themes.php
 admin/themes_installed.php
 admin/themes_new.php
 admin/themes_update.php
+admin/menubar.php
