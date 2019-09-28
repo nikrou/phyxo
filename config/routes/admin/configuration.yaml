@@ -1,0 +1,17 @@
+# options
+admin_configuration:
+  path: /configuration/{section}
+  controller: App\Controller\Admin\ConfigurationController:index
+  defaults:
+    section: main
+  requirements:
+    section: main|sizes|watermark|display|comments|default
+
+admin_configuration_update:
+  path: /configuration/{section}/update
+  controller: App\Controller\Admin\ConfigurationController:update
+  defaults:
+    section: main
+  requirements:
+    section: main|sizes|watermark|display|comments|default
+  methods: POST

@@ -77,7 +77,7 @@ class ImageStandardParams
 
     public function getByType(string $type): DerivativeParams
     {
-            return $this->all_type_map[$type];
+        return $this->all_type_map[$type];
     }
 
     public function getQuality()
@@ -88,6 +88,11 @@ class ImageStandardParams
     public function setQuality(int $quality)
     {
         $this->quality = $quality;
+    }
+
+    public function setWatermark(WatermarkParams $watermark)
+    {
+        $this->watermark = $watermark;
     }
 
     public function getWatermark()
@@ -154,7 +159,7 @@ class ImageStandardParams
         // disabled types, fallback to enabled types
         foreach ($this->getUndefinedTypeMap() as $type => $type2) {
             $ret[$type] = $ret[$type2];
-    }
+        }
 
         return $ret;
     }

@@ -4,130 +4,133 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    core_version: 2.0.0-dev
-    phyxo_website: https://www.phyxo.net
-    pem_url: 'https://ext.phyxo.net'
+  core_version: 2.0.0-dev
+  phyxo_website: https://www.phyxo.net
+  pem_url: 'https://ext.phyxo.net'
 
-    legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
-    database_config_file: '%kernel.project_dir%/local/config/database.inc.php'
+  legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
+  local_dir: '%kernel.project_dir%/local'
+  upload_dir: '%kernel.project_dir%/upload'
+  database_config_file: '%local_dir%/config/database.inc.php'
+  admin_theme_dir: '%kernel.project_dir%/admin/theme'
+  themes_dir: '%kernel.project_dir%/themes'
+  plugins_dir: '%kernel.project_dir%/plugins'
+  languages_dir: '%kernel.project_dir%/languages'
+  cache_dir: '%kernel.cache_dir%'
+  default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
+  default_theme: 'treflez'
+  user_config_file: '%local_dir%/config/config.inc.php'
+  constants_file: '%kernel.project_dir%/include/constants.php'
+  media_cache_dir: '%kernel.project_dir%/_data/i'
+  root_project_dir: '%kernel.project_dir%'
 
-    admin_theme_dir: '%kernel.project_dir%/admin/theme'
-    themes_dir: '%kernel.project_dir%/themes'
-    plugins_dir: '%kernel.project_dir%/plugins'
-    languages_dir: '%kernel.project_dir%/languages'
-    cache_dir: '%kernel.cache_dir%'
-    default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
-    default_theme: 'treflez'
-    user_config_file: '%kernel.project_dir%/local/config/config.inc.php'
-    constants_file: '%kernel.project_dir%/include/constants.php'
-    media_cache_dir: '%kernel.project_dir%/_data/i'
-    root_project_dir: '%kernel.project_dir%'
+  start_param: 'start'
+  locale: 'en'
 
-    start_param: 'start'
-    locale: 'en'
+  # old constants
+  languages_path: '%kernel.project_dir%/language'
+  themes_path: '%kernel.project_dir%/themes'
+  plugins_path: '%kernel.project_dir%/plugins'
 
-    # old constants
-    languages_path: '%kernel.project_dir%/language'
-    themes_path: '%kernel.project_dir%/themes'
-    plugins_path: '%kernel.project_dir%/plugins'
-
-    # cookies
-    main_cookie: phyxo_id
-    remember_cookie: phyxo_remember_me
+  # cookies
+  main_cookie: phyxo_id
+  remember_cookie: phyxo_remember_me
 
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        autowire: true # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        public:
-            false # Allows optimizing the container by removing unused services; this also means
-            # fetching services directly from the container via $container->get() won't work.
-            # The best practice is to be explicit about your dependencies anyway.
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    public:
+      false # Allows optimizing the container by removing unused services; this also means
+      # fetching services directly from the container via $container->get() won't work.
+      # The best practice is to be explicit about your dependencies anyway.
 
-        bind:
-          $legacyBaseDir: '%legacy_base_dir%'
-          $themesDir: '%themes_dir%'
-          $pluginsDir: '%plugins_dir%'
-          $languagesDir: '%languages_dir%'
-          $cacheDir: '%cache_dir%'
-          $mediaCacheDir: '%media_cache_dir%'
-          $rootProjectDir: '%root_project_dir%'
-          $phyxoVersion: '%core_version%'
-          $phyxoWebsite: '%phyxo_website%'
-          $pemURL: '%pem_url%'
-          $defaultLanguage: '%kernel.default_locale%'
-          $defaultTheme: '%default_theme%'
-          $startParam: '%start_param%'
+    bind:
+      $legacyBaseDir: '%legacy_base_dir%'
+      $localDir: '%local_dir%'
+      $uploadDir: '%upload_dir%'
+      $themesDir: '%themes_dir%'
+      $pluginsDir: '%plugins_dir%'
+      $languagesDir: '%languages_dir%'
+      $cacheDir: '%cache_dir%'
+      $mediaCacheDir: '%media_cache_dir%'
+      $rootProjectDir: '%root_project_dir%'
+      $phyxoVersion: '%core_version%'
+      $phyxoWebsite: '%phyxo_website%'
+      $pemURL: '%pem_url%'
+      $defaultLanguage: '%kernel.default_locale%'
+      $defaultTheme: '%default_theme%'
+      $startParam: '%start_param%'
 
-          $languagesPath: '%languages_path%'
-          $themesPath: '%themes_path%'
-          $pluginsPath: '%plugins_path%'
+      $languagesPath: '%languages_path%'
+      $themesPath: '%themes_path%'
+      $pluginsPath: '%plugins_path%'
 
-          $adminThemeDir: '%admin_theme_dir%'
+      $adminThemeDir: '%admin_theme_dir%'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    App\:
-        resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../src/*'
+    exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
 
-    # service is  enabled after installation in services_extra.yaml (because of csrf protection not enabled by default)
-    App\Security\LoginFormAuthenticator:
-        autowire: false
-        autoconfigure: false
+  # service is  enabled after installation in services_extra.yaml (because of csrf protection not enabled by default)
+  App\Security\LoginFormAuthenticator:
+    autowire: false
+    autoconfigure: false
 
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
+  # controllers are imported separately to make sure services can be injected
+  # as action arguments even if you don't extend any base controller class
+  App\Controller\:
+    resource: '../src/Controller'
+    tags: ['controller.service_arguments']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    Phyxo\DBLayer\iDBLayer:
-        factory: 'Phyxo\DBLayer\DBLayer::initFromConfigFile'
-        arguments: ['%database_config_file%']
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones
+  Phyxo\DBLayer\iDBLayer:
+    factory: 'Phyxo\DBLayer\DBLayer::initFromConfigFile'
+    arguments: ['%database_config_file%']
 
-    phyxo.conn:
-        public: true
-        alias: 'Phyxo\DBLayer\iDBLayer'
+  phyxo.conn:
+    public: true
+    alias: 'Phyxo\DBLayer\iDBLayer'
 
-    Phyxo\Template\AdminTemplate:
-        factory: 'Phyxo\Template\AdminTemplate::initialize'
-        arguments: ['%kernel.cache_dir%/smarty', '%kernel.project_dir%/admin/theme']
+  Phyxo\Template\AdminTemplate:
+    factory: 'Phyxo\Template\AdminTemplate::initialize'
+    arguments: ['%kernel.cache_dir%/smarty', '%kernel.project_dir%/admin/theme']
 
-    Phyxo\Template\Template:
-        factory: 'Phyxo\Template\Template::init'
-        arguments: ['%kernel.cache_dir%/smarty']
+  Phyxo\Template\Template:
+    factory: 'Phyxo\Template\Template::init'
+    arguments: ['%kernel.cache_dir%/smarty']
 
-    templating.engine.smarty:
-        public: true
-        alias: 'Phyxo\Template\Template'
+  templating.engine.smarty:
+    public: true
+    alias: 'Phyxo\Template\Template'
 
-    Phyxo\Conf:
-        calls:
-          - method: init
-            arguments: ['%default_config_file%', '%user_config_file%']
+  Phyxo\Conf:
+    calls:
+      - method: init
+        arguments: ['%default_config_file%', '%user_config_file%']
 
-    phyxo.conf:
-      public: true
-      alias: 'Phyxo\Conf'
+  phyxo.conf:
+    public: true
+    alias: 'Phyxo\Conf'
 
-    Phyxo\EntityManager: ~
+  Phyxo\EntityManager: ~
 
-    phyxo.em:
-      public: true
-      alias: 'Phyxo\EntityManager'
+  phyxo.em:
+    public: true
+    alias: 'Phyxo\EntityManager'
 
-    Phyxo\MenuBar: ~
+  Phyxo\MenuBar: ~
 
-    Phyxo\Image\ImageStandardParams: ~
+  Phyxo\Image\ImageStandardParams: ~
 
-    Phyxo\Upgrade: ~
+  Phyxo\Upgrade: ~
 
-    phyxo.upgrade:
-      public: true
-      alias: 'Phyxo\Upgrade'
+  phyxo.upgrade:
+    public: true
+    alias: 'Phyxo\Upgrade'
 
-    App\Command\InstallCommand: ~
+  App\Command\InstallCommand: ~

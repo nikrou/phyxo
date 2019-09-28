@@ -1,0 +1,25 @@
+# themes
+admin_themes_installed:
+  path: /themes
+  controller: App\Controller\Admin\ThemesController::installed
+
+admin_themes_new:
+  path: /themes/new
+  controller: App\Controller\Admin\ThemesController::new
+
+admin_themes_update:
+  path: /themes/update
+  controller: App\Controller\Admin\ThemesController::update
+
+admin_themes_action:
+  path: /themes/{action}/{theme}
+  controller: App\Controller\Admin\ThemesController::action
+  requirements:
+    action: activate|deactivate|delete|set_default
+    theme: .+
+
+admin_themes_install:
+  path: /themes/install/{revision}
+  controller: App\Controller\Admin\ThemesController::install
+  requirements:
+    revision: \d+

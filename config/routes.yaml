@@ -1,5 +1,5 @@
 admin_routes:
-  resource: routes/admin.yaml
+  resource: routes/admin/*.yaml
   prefix: /admin
 
 default_routes:

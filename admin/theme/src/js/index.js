@@ -160,5 +160,26 @@ $(function() {
     })(target);
   }
 
+  $('#addWatermark').on('click', () => {
+    $('#new-watermark').toggleClass('d-none');
+    $('#add-watermark').toggleClass('d-none');
+  });
+
+  $('#newWatermark').on('click', () => {
+    $('#add-watermark').toggleClass('d-none');
+    $('#new-watermark').toggleClass('d-none');
+  });
+  $('input[name="watermark[position]"]').change(function() {
+    if ($(this).val() === 'custom') {
+      $('#positionCustomDetails').removeClass('d-none');
+    } else {
+      $('#positionCustomDetails').addClass('d-none');
+    }
+  });
+
+  $('select[name="watermark[file]"').change(function(e) {
+    $('#seleted-watermark-file').attr('src', phyxo_root_url + $(this).val());
+  });
+
   $('.alert').alert();
 });

@@ -130,19 +130,14 @@
 				<input type="radio" name="mail_theme" value="{$theme}" {if $main.mail_theme==$theme}checked{/if}>
 				{$theme_name}
 			    </div>
-			    <div class="themeShot">
-				<img src="{$ROOT_URL}/themes/default/template/mail/screenshot-{$theme}.png" width="150" height="160"/>
-			    </div>
 			</label>
-			<a href="{$ROOT_URL}themes/default/template/mail/screenshot-{$theme}.png">{'Preview'|translate}</a>
-
 		    </div>
 		{/foreach}
 	    </div>
 	</div>
 
 	<p>
-	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
+	    <input type="hidden" name="pwg_token" value="{$csrf_token}">
 	    <input type="submit" class="btn btn-submit" name="submit" value="{'Save Settings'|translate}">
 	</p>
 

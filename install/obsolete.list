@@ -90,3 +90,6 @@ admin/themes_installed.php
 admin/themes_new.php
 admin/themes_update.php
 admin/menubar.php
+admin/configuration.php
+admin/include/configuration_sizes_process.php
+admin/include/configuration_watermark_process.php

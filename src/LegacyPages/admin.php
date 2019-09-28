@@ -97,7 +97,7 @@ $template->assign(
         'U_HISTORY_STAT' => $link_start . 'history',
         'U_SITES' => $link_start . 'remote_site',
         'U_MAINTENANCE' => $link_start . 'maintenance',
-        'U_CONFIG_GENERAL' => $link_start . 'configuration',
+        'U_CONFIG_GENERAL' => $router->generate('admin_configuration'),
         'U_CONFIG_DISPLAY' => $conf_link . 'default',
         'U_CONFIG_MENUBAR' => $router->generate('admin_menubar'),
         'U_CONFIG_LANGUAGES' => $router->generate('admin_languages_installed'),

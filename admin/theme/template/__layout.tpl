@@ -157,6 +157,9 @@
 	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
+	    <script>
+	     var phyxo_root_url = "{$ROOT_URL}";
+	    </script>
 	    <script src="{asset manifest='./build/manifest.json' src='app.js'}"></script>
 	{/block}
     </body>

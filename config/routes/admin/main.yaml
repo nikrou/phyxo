@@ -1,0 +1,30 @@
+install:
+  path: /install/{step}
+  controller: App\Controller\InstallController::index
+  defaults:
+    step: language
+  requirements:
+    step: language|check|database|user|success
+
+upgrade:
+  path: /upgrade
+  controller: App\Controller\AdminController::upgrade
+
+legacy_home:
+  path: /index.{extension}
+  controller: App\Controller\AdminController::index
+  defaults:
+    extension: php
+
+admin_home:
+  path: /
+  controller: App\Controller\AdminController::index
+
+admin_menubar:
+  path: /menubar
+  controller: App\Controller\Admin\MenubarController:index
+
+admin_menubar_update:
+  path: /menubar/update
+  controller: App\Controller\Admin\MenubarController:update
+  methods: POST
