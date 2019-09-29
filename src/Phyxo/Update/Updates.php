@@ -46,7 +46,8 @@ class Updates
         $this->update_url = $url;
     }
 
-    public function setExtensionsURL(string $url) {
+    public function setExtensionsURL(string $url)
+    {
         $this->pem_url = $url;
     }
 
@@ -266,7 +267,7 @@ class Updates
         if (preg_match('/(\d+\.\d+)\.(\d+)$/', $this->core_version, $matches)) {
             try {
                 $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);
-                $response = $client->request('GET', PHYXO_UPDATE_URL);
+                $response = $client->request('GET', $this->update_url);
                 if ($response->getStatusCode() == 200 && $response->getBody()->isReadable()) {
                     $all_versions = json_decode($response->getBody(), true);
                 }

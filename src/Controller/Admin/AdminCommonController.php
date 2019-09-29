@@ -75,7 +75,7 @@ abstract class AdminCommonController extends AbstractController
             'U_LOGOUT' => $router->generate('logout'),
             'U_PLUGINS' => $router->generate('admin_plugins_installed'),
             'U_ADD_PHOTOS' => $link_start . 'photos_add',
-            'U_UPDATES' => $link_start . 'updates',
+            'U_UPDATES' => $router->generate('admin_updates'),
             'U_DEV_VERSION' => strpos($core_version, 'dev') !== false,
             'U_DEV_API' => './api.php',
             'U_DEV_JS_TESTS' => '../tests/functional/'

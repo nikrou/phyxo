@@ -49,7 +49,7 @@
 	    {'This is a minor update, with only bug corrections.'|translate}
 	</p>
 	<form action="" method="post">
-	    <p><input type="submit" class="btn btn-sbumit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}"></p>
+	    <p><input type="submit" class="btn btn-submit" name="submit" value="{'Update to Phyxo %s'|translate:$UPGRADE_TO}"></p>
 	    <p class="autoupdate_bar" style="display:none;">&nbsp; {'Update in progress... Please wait.'|translate}</p>
 	    <p><input type="hidden" name="upgrade_to" value="{$UPGRADE_TO}"></p>
 	</form>

@@ -7,6 +7,7 @@ parameters:
   core_version: 2.0.0-dev
   phyxo_website: https://www.phyxo.net
   pem_url: 'https://ext.phyxo.net'
+  update_url: https://download.phyxo.net/versions
 
   legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
   local_dir: '%kernel.project_dir%/local'
@@ -16,6 +17,7 @@ parameters:
   themes_dir: '%kernel.project_dir%/themes'
   plugins_dir: '%kernel.project_dir%/plugins'
   languages_dir: '%kernel.project_dir%/languages'
+  install_dir: '%kernel.project_dir%/install'
   cache_dir: '%kernel.cache_dir%'
   default_config_file: '%kernel.project_dir%/include/config_default.inc.php'
   default_theme: 'treflez'
