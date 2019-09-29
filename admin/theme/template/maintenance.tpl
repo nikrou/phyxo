@@ -33,12 +33,12 @@
 	<li><a href="{$U_MAINT_ORPHAN_TAGS}">{'Delete orphan tags'|translate}</a></li>
 	<li><a href="{$U_MAINT_HISTORY_DETAIL}" onclick="return confirm('{'Purge history detail'|translate|@escape:'javascript'}');">{'Purge history detail'|translate}</a></li>
 	<li><a href="{$U_MAINT_HISTORY_SUMMARY}" onclick="return confirm('{'Purge history summary'|translate|@escape:'javascript'}');">{'Purge history summary'|translate}</a></li>
-	<li><a href="{$U_MAINT_SESSIONS}">{'Purge sessions'|translate}</a></li>
 	<li><a href="{$U_MAINT_FEEDS}">{'Purge never used notification feeds'|translate}</a></li>
 	<li><a href="{$U_MAINT_SEARCH}"onclick="return confirm('{'Purge search history'|translate|@escape:'javascript'}');">{'Purge search history'|translate}</a></li>
-	<li><a href="{$U_MAINT_COMPILED_TEMPLATES}">{'Purge compiled templates'|translate}</a></li>
 	<li>{'Delete multiple size images'|translate}:
-	    {foreach from=$purge_derivatives key=name item=url name=loop}{if !$smarty.foreach.loop.first}, {/if}<a href="{$url}"{if $smarty.foreach.loop.first} onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"{/if}>{$name}</a>{/foreach}
+	    {foreach $purge_derivatives as $name => $url}
+		{if !$url@first}, {/if}<a href="{$url}"{if $url@first} onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"{/if}>{$name}</a>
+	    {/foreach}
 	</li>
     </ul>
 {/block}

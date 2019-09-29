@@ -96,7 +96,7 @@ $template->assign(
         'U_SITE_MANAGER' => $link_start . 'site_manager',
         'U_HISTORY_STAT' => $link_start . 'history',
         'U_SITES' => $link_start . 'remote_site',
-        'U_MAINTENANCE' => $link_start . 'maintenance',
+        'U_MAINTENANCE' => $router->generate('admin_maintenance'),
         'U_CONFIG_GENERAL' => $router->generate('admin_configuration'),
         'U_CONFIG_DISPLAY' => $conf_link . 'default',
         'U_CONFIG_MENUBAR' => $router->generate('admin_menubar'),

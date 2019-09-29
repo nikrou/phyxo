@@ -30,6 +30,7 @@ use App\Repository\GroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
+use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -1330,15 +1331,13 @@ class Utils
      * Checks and repairs IMAGE_CATEGORY_TABLE integrity.
      * Removes all entries from the table which correspond to a deleted image.
      */
-    public static function images_integrity()
+    public static function imagesIntegrity(EntityManager $em)
     {
-        global $conn;
-
-        $result = (new ImageRepository($conn))->findOrphanImages();
-        $orphan_image_ids = $conn->result2array($result, null, 'image_id');
+        $result = $em->getRepository(ImageRepository::class)->findOrphanImages();
+        $orphan_image_ids = $em->getConnection()->result2array($result, null, 'image_id');
 
         if (count($orphan_image_ids) > 0) {
-            (new ImageCategoryRepository($conn))->deleteByCategory([], $orphan_image_ids);
+            $em->getRepository(ImageCategoryRepository::class)->deleteByCategory([], $orphan_image_ids);
         }
     }
 

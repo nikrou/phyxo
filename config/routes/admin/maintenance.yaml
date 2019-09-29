@@ -1,0 +1,13 @@
+admin_maintenance_derivatives:
+  path: /maintenance/derivatives/{type}
+  controller: App\Controller\Admin\MaintenanceController:derivatives
+  requirements:
+    type: '[0-9a-zA-Z_]*'
+
+admin_maintenance:
+  path: /maintenance/{action}
+  controller: App\Controller\Admin\MaintenanceController:index
+  defaults:
+    action: null
+  requirements:
+    action: '[a-zA-Z_]*'
