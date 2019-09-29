@@ -1,14 +1,11 @@
 {extends file="__layout.tpl"}
 
-
 {block name="breadcrumb-items"}
     <li class="breadcrumb-item"><a href="{$U_PAGE}">{'User comments'|translate}</a></li>
-    <li class="breadcrumb-item">{$NB_ELEMENTS} {$TABSHEET_TITLE}</li>
+    <li class="breadcrumb-item">{$NB_ELEMENTS} {$SECTION_TITLE}</li>
 {/block}
 
 {block name="content"}
-    {combine_script id="comments" load="footer" path="admin/theme/js/comments.js"}
-
     {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
 
     {if !empty($comments) }
@@ -37,9 +34,9 @@
 
 	    <p class="checkActions">
 		{'Select:'|translate}
-		<a href="#" id="commentSelectAll">{'All'|translate}</a>,
-		<a href="#" id="commentSelectNone">{'None'|translate}</a>,
-		<a href="#" id="commentSelectInvert">{'Invert'|translate}</a>
+		<button type="button" class="btn btn-sm btn-all" id="commentSelectAll">{'All'|translate}</button>
+		<button type="button" class="btn btn-sm btn-none" id="commentSelectNone">{'None'|translate}</button>
+		<button type="button" class="btn btn-sm btn-invert" id="commentSelectInvert">{'Invert'|translate}</button>
 	    </p>
 
 	    <p class="bottomButtons">
@@ -48,5 +45,7 @@
 	    </p>
 
 	</form>
+    {else}
+	<p>{'No comments'|translate}</p>
     {/if}
 {/block}

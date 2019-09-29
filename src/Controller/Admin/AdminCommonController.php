@@ -82,7 +82,7 @@ abstract class AdminCommonController extends AbstractController
         ];
 
         if ($conf['activate_comments']) {
-            $tpl_params['U_COMMENTS'] = $link_start . 'comments';
+            $tpl_params['U_COMMENTS'] = $router->generate('admin_comments');
 
             // pending comments
             $nb_comments = $em->getRepository(CommentRepository::class)->count($validated = false);

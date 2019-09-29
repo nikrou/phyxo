@@ -125,7 +125,7 @@ $template->assign(
 );
 
 if ($conf['activate_comments']) {
-    $template->assign('U_COMMENTS', $link_start . 'comments');
+    $template->assign('U_COMMENTS', $router->generate('admin_comments'));
 
     // pending comments
     $nb_comments = (new CommentRepository($conn))->count($validated = false);

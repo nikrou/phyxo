@@ -5,6 +5,7 @@ import './cat-list';
 import './users-list';
 import './plugins-list';
 import './extension';
+import './comments';
 import 'jquery-colorbox';
 
 $(function() {

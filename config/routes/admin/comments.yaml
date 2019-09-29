@@ -1,0 +1,27 @@
+admin_comments:
+  path: /comments/{section}/{start}
+  controller: App\Controller\Admin\CommentsController:index
+  defaults:
+    section: all
+    start: 0
+  requirements:
+    section: all|pending
+
+admin_comments__start:
+  path: /comments/{section}/{start}
+  controller: App\Controller\Admin\CommentsController:index
+  defaults:
+    section: all
+  requirements:
+    section: all|pending
+    start: \d+
+
+admin_comments_update:
+  path: /comments/update/{section}/{start}
+  controller: App\Controller\Admin\CommentsController:update
+  defaults:
+    section: all
+    start: 0
+  requirements:
+    start: \d+
+    section: all|pending

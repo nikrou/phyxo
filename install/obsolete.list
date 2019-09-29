@@ -93,3 +93,5 @@ admin/menubar.php
 admin/configuration.php
 admin/include/configuration_sizes_process.php
 admin/include/configuration_watermark_process.php
+admin/comments.php
+admin/theme/js/comments.js
