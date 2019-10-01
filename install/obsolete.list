@@ -99,4 +99,6 @@ admin/updates.php
 admin/updates_core.php
 admin/updates_ext.php
 admin/maintenance.php
-
+admin/history.php
+admin/history_search.php
+admin/history_stats.php

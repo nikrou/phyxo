@@ -1,5 +1,5 @@
 admin_comments:
-  path: /comments/{section}/{start}
+  path: /comments/{section}
   controller: App\Controller\Admin\CommentsController:index
   defaults:
     section: all

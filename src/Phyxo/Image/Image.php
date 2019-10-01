@@ -17,7 +17,8 @@ namespace Phyxo\Image;
 
 class Image
 {
-    private $image, $library = '', $source_filepath = '';
+    public $image;
+    private $library = '', $source_filepath = '';
     public static $ext_imagick_version = '';
 
     public function __construct($source_filepath, $library = null)
@@ -106,7 +107,6 @@ class Image
         $crop = false,
         $follow_orientation = true
     ) {
-
         $rotate_for_dimensions = false;
         if (isset($rotation) and in_array(abs($rotation), [90, 270])) {
             $rotate_for_dimensions = true;

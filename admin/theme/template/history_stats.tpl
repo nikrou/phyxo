@@ -17,7 +17,7 @@
 	    </tr>
 	</thead>
 	<tbody>
-	    {if not empty($statrows)}
+	    {if !empty($statrows)}
 		{foreach $statrows as $row}
 		    <tr>
 			<td>{$row.VALUE}</td>

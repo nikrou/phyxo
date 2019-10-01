@@ -13,16 +13,16 @@ namespace App\Repository;
 
 class HistoryRepository extends BaseRepository
 {
-    public function getHistory($search, $types)
+    public function getHistory($search, $types, int $limit, int $offset = 0, bool $count_only = false)
     {
         $clauses = [];
 
         if (isset($search['fields']['date-after'])) {
-            $clauses[] = "date >= '" . $search['fields']['date-after'] . "'";
+            $clauses[] = "date >= '" . $this->conn->db_real_escape_string($search['fields']['date-after']) . "'";
         }
 
         if (isset($search['fields']['date-before'])) {
-            $clauses[] = "date <= '" . $search['fields']['date-before'] . "'";
+            $clauses[] = "date <= '" . $this->conn->db_real_escape_string($search['fields']['date-before']) . "'";
         }
 
         if (isset($search['fields']['types'])) {
@@ -46,7 +46,7 @@ class HistoryRepository extends BaseRepository
             }
         }
 
-        if (isset($search['fields']['user']) and $search['fields']['user'] != -1) {
+        if (isset($search['fields']['user']) && $search['fields']['user'] != -1) {
             $clauses[] = 'user_id = ' . $search['fields']['user'];
         }
 
@@ -55,7 +55,7 @@ class HistoryRepository extends BaseRepository
         }
 
         if (isset($search['fields']['filename'])) {
-            if (count($search['image_ids']) == 0) {
+            if (count($search['image_ids']) === 0) {
                 // a clause that is always false
                 $clauses[] = '1 = 2 ';
             } else {
@@ -64,18 +64,34 @@ class HistoryRepository extends BaseRepository
         }
 
         if (isset($search['fields']['ip'])) {
-            $clauses[] = 'ip LIKE \'' . $search['fields']['ip'] . '\'';
+            $clauses[] = 'ip LIKE \'' . $this->conn->db_real_escape_string($search['fields']['ip']) . '\'';
         }
 
-        $clauses = \Phyxo\Functions\Utils::prepend_append_array_items($clauses, '(', ')');
-
+        $clauses = array_map(
+            function($clause) {
+                return '(' . $clause . ')';
+            }, $clauses
+        );
         $where_separator = implode(' AND ', $clauses);
 
-        $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,';
-        $query .= 'image_id,image_type FROM ' . self::HISTORY_TABLE;
+        if ($count_only) {
+            $query = 'SELECT count(1)';
+        } else {
+            $query = 'SELECT date,time,user_id,ip,section,category_id,tag_ids,image_id,image_type';
+        }
+        $query .= ' FROM ' . self::HISTORY_TABLE;
         $query .= ' WHERE ' . $where_separator;
 
-        return $this->conn->db_query($query);
+        if (!$count_only) {
+            $query .= ' LIMIT ' . $limit;
+            $query .= ' OFFSET ' . $offset;
+
+            return $this->conn->db_query($query);
+        } else {
+            list($nb_lines) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_lines;
+        }
     }
 
     public function getDetailsFromNotSummarized()

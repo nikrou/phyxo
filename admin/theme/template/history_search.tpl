@@ -6,79 +6,78 @@
 {/block}
 
 {block name="content"}
-    {include file='include/datepicker.inc.tpl'}
+    <form method="post" name="filter" action="{$F_ACTION}">
+	<p><button type="button" class="btn btn-submit" data-toggle="collapse" data-target="#filter">{'Search filter'|translate}</button></p>
 
-    {footer_script}
-    jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
-    jQuery('[data-datepicker]').pwgDatepicker();
-    });
-    {/footer_script}
-
-    <form class="filter" method="post" name="filter" action="{$F_ACTION}">
-	<div class="fieldset">
+	<div class="fieldset collapse" id="filter">
 	    <h3>{'Filter'|translate}</h3>
-	    <ul>
-		<li><label>{'Date'|translate}</label></li>
-		<li>
-		    <input type="hidden" name="start" value="{$START}">
-		    <label>
-			<i class="fa fa-calendar"></i>
-			<input type="text" data-datepicker="start" data-datepicker-end="end" data-datepicker-unset="start_unset" readonly>
-		    </label>
-		    <br>
-		    <a href="#" id="start_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
-		</li>
-	    </ul>
-	    <ul>
-		<li><label>{'End-Date'|translate}</label></li>
-		<li>
-		    <input type="hidden" name="end" value="{$END}">
-		    <label>
-			<i class="fa fa-calendar"></i>
-			<input type="text" data-datepicker="end" data-datepicker-start="start" data-datepicker-unset="end_unset" readonly>
-		    </label>
-		    <br>
-		    <a href="#" id="end_unset"><i class="fa fa-times-circle"></i> {'unset'|translate}</a>
-		</li>
-	    </ul>
-
-	    <label>
-		{'Element type'|translate}
-		<select class="custom-select" name="types[]" multiple="multiple" size="4">
-		    {html_options values=$type_option_values output=$type_option_values|translate selected=$type_option_selected}
-		</select>
-	    </label>
-
-	    <label>
-		{'User'|translate}
-		<select class="custom-select" name="user">
-		    <option value="-1">------------</option>
-		    {html_options options=$user_options selected=$user_options_selected}
-		</select>
-	    </label>
-
-	    <label>
-		{'Image id'|translate}
-		<input class="form-control" name="image_id" value="{$IMAGE_ID}" type="text" size="5">
-	    </label>
-
-	    <label>
-		{'File name'|translate}
-		<input class="form-control" name="filename" value="{$FILENAME}" type="text" size="12">
-	    </label>
-
-	    <label>
-		{'IP'|translate}
-		<input class="form-control" name="ip" value="{$IP}" type="text" size="12">
-	    </label>
-
-	    <label>
-		{'Thumbnails'|translate}
-		<select class="custom-select" name="display_thumbnail">
-		    {html_options options=$display_thumbnails selected=$display_thumbnail_selected}
-		</select>
-	    </label>
-
+	    <div class="row">
+		<div class="col-auto">
+		    <div>
+			<label>
+			    {'Date'|translate}
+			    <i class="fa fa-calendar"></i>
+			    <input type="date" class="form-control" name="start"/>
+			</label>
+		    </div>
+		    <div>
+			<label>
+			    {'End-Date'|translate}
+			    <i class="fa fa-calendar"></i>
+			    <input type="date" class="form-control" name="end"/>
+			</label>
+		    </div>
+		</div>
+		<div class="col-auto">
+		    <div>
+			<label>
+			    {'Element type'|translate}
+			    <select class="custom-select" name="types[]" multiple="multiple" size="4">
+				{html_options values=$type_option_values output=$type_option_values|translate selected=$type_option_selected}
+			    </select>
+			</label>
+		    </div>
+		</div>
+		<div class="col-auto">
+		    <div>
+			<label>
+			    {'Image id'|translate}
+			    <input class="form-control" name="image_id" value="{$IMAGE_ID}" type="text" size="5">
+			</label>
+		    </div>
+		    <div>
+			<label>
+			    {'File name'|translate}
+			    <input class="form-control" name="filename" value="{$FILENAME}" type="text" size="12">
+			</label>
+		    </div>
+		    <div>
+			<label>
+			    {'Thumbnails'|translate}
+			    <select class="custom-select" name="display_thumbnail">
+				{html_options options=$display_thumbnails selected=$display_thumbnail_selected}
+			    </select>
+			</label>
+		    </div>
+		</div>
+		<div class="col-auto">
+		    <div>
+			<label>
+			    {'User'|translate}
+			    <select class="custom-select" name="user">
+				<option value="-1">------------</option>
+				{html_options options=$user_options selected=$user_options_selected}
+			    </select>
+			</label>
+		    </div>
+		    <div>
+			<label>
+			    {'IP'|translate}
+			    <input class="form-control" name="ip" value="{$IP}" type="text" size="12">
+			</label>
+		    </div>
+		</div>
+	    </div>
 	    <input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
 	</div>
     </form>
@@ -100,7 +99,7 @@
 	</div>
     {/if}
 
-    {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
+    {if !empty($navbar)}{include file="navigation_bar.tpl"}{/if}
 
     <table class="table table-hover table-striped">
 	<thead>
@@ -116,8 +115,8 @@
 	    </tr>
 	</thead>
 	{if !empty($search_results)}
-	    {foreach from=$search_results item=detail name=res_loop}
-		<tr class="{if $smarty.foreach.res_loop.index is odd}row1{else}row2{/if}">
+	    {foreach $search_results as $detail}
+		<tr>
 		    <td class="hour">{$detail.DATE}</td>
 		    <td class="hour">{$detail.TIME}</td>
 		    <td>{$detail.USER}</td>
@@ -125,52 +124,11 @@
 		    <td>{$detail.IMAGE}</td>
 		    <td>{$detail.TYPE}</td>
 		    <td>{$detail.SECTION}</td>
-		    <td>{$detail.CATEGORY}{$detail.TAGS}</td>
+		    <td>{$detail.CATEGORY}{if $detail.TAGS}&nbsp;/&nbsp;{/if}{$detail.TAGS}</td>
 		</tr>
 	    {/foreach}
 	{/if}
     </table>
 
     {if !empty($navbar) }{include file="navigation_bar.tpl"}{/if}
-
-    {combine_script id="jquery.geoip" load="async" path="admin/theme/js/jquery.geoip.js"}
-
-    {footer_script}{literal}
-    jQuery(document).ready( function() {
-    jQuery(".IP").one( "mouseenter", function(){
-    var that = $(this);
-    that
-    .data("isOver", true)
-    .one("mouseleave", function() {
-    that.removeData("isOver");
-    });
-    GeoIp.get( that.text(), function(data) {
-    if (!data.fullName) return;
-
-    var content = data.fullName;
-    if (data.latitude && data.region_name) {
-    content += '<br><a class="ipGeoOpen" data-lat="'+data.latitude+'" data-lon="'+data.longitude+'"';
-		       content += ' href="#">show on a Google Map</a>';
-		       }
-
-  		       if (that.data("isOver"))
-  		       that.trigger("mouseenter");
-  		       });
-		       } );
-
-		       jQuery(document).on('click', '.ipGeoOpen',  function() {
-		       var lat = jQuery(this).data("lat");
-		       var lon = jQuery(this).data("lon");
-		       var parent = jQuery(this).parent();
-		       jQuery(this).remove();
-
-		       var append = '<br><img width=300 height=220 src="http://maps.googleapis.com/maps/api/staticmap';
-		       append += '?sensor=false&size=300x220&zoom=6&markers=size:tiny%7C' + lat + ',' + lon + '">';
-
-	jQuery(parent).append(append);
-	return false;
-	});
-	});
-    {/literal}
-    {/footer_script}
 {/block}

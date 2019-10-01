@@ -79,7 +79,6 @@ if (isset($_GET['page']) && preg_match('/^[a-z_]*$/', $_GET['page']) && is_file(
 }
 
 $link_start = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=';
-$conf_link = $link_start . 'configuration&amp;section=';
 
 // +-----------------------------------------------------------------------+
 // | Template init                                                         |
@@ -94,11 +93,10 @@ $template->assign(
         'USERNAME' => $user['username'],
         'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
         'U_SITE_MANAGER' => $link_start . 'site_manager',
-        'U_HISTORY_STAT' => $link_start . 'history',
+        'U_HISTORY_STAT' => $router->generate('admin_history'),
         'U_SITES' => $link_start . 'remote_site',
         'U_MAINTENANCE' => $router->generate('admin_maintenance'),
         'U_CONFIG_GENERAL' => $router->generate('admin_configuration'),
-        'U_CONFIG_DISPLAY' => $conf_link . 'default',
         'U_CONFIG_MENUBAR' => $router->generate('admin_menubar'),
         'U_CONFIG_LANGUAGES' => $router->generate('admin_languages_installed'),
         'U_CONFIG_THEMES' => $router->generate('admin_themes_installed'),
