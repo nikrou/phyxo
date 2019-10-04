@@ -148,7 +148,7 @@ class ConfigurationController extends AdminCommonController
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration', ['section' => $section]);
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_configuration');
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');

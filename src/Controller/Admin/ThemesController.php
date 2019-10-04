@@ -210,7 +210,7 @@ class ThemesController extends AdminCommonController
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_update');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
 
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
@@ -286,7 +286,7 @@ class ThemesController extends AdminCommonController
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_new');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_themes_installed');
         if ($this->get('session')->getFlashBag()->has('error')) {
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }

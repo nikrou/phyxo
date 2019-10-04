@@ -18,8 +18,8 @@
     {else}
 	<h3>{$TITLE}</h3>
 	<form method="post" action="{$F_ACTION}">
-	    {$DOUBLE_SELECT}
 	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
+	    {include file="double_select.tpl"}
 	</form>
 	<p>{'Only private albums are listed'|translate}</p>
     {/if}

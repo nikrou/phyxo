@@ -172,7 +172,7 @@ class PluginsController extends AdminCommonController
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_new');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
 
         return $this->render('plugins_new.tpl', $tpl_params);
     }
@@ -246,7 +246,7 @@ class PluginsController extends AdminCommonController
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
         $tpl_params['INSTALL_URL'] = $this->generateUrl('admin_plugins_installed');
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_update');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_plugins_installed');
 
         return $this->render('plugins_update.tpl', $tpl_params);
     }

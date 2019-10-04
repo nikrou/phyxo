@@ -213,7 +213,7 @@ class HistoryController extends AdminCommonController
 
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history_search');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history_search');
         $tpl_params['PAGE_TITLE'] = Language::l10n('History');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);

@@ -267,7 +267,6 @@ class UserMapper
     {
         $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
         if ($this->em->getConnection()->db_num_rows($result) === 0) {
-
             return false;
         } else {
             $user = $this->em->getConnection()->db_fetch_assoc($result);
@@ -291,6 +290,18 @@ class UserMapper
             $user = $this->em->getConnection()->db_fetch_assoc($result);
 
             return $user['id'];
+        }
+    }
+
+    public function getUsernameFromId(int $id)
+    {
+        $result = $this->em->getRepository(UserRepository::class)->findById($id);
+        if ($this->em->getConnection()->db_num_rows($result) > 0) {
+            $row = $this->em->getConnection()->db_fetch_assoc($result);
+
+            return $row['username'];
+        } else {
+            return false;
         }
     }
 

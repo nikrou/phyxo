@@ -3,6 +3,7 @@ import '../scss/style.scss';
 import 'bootstrap';
 import './cat-list';
 import './users-list';
+import './groups-list';
 import './plugins-list';
 import './extension';
 import './comments';

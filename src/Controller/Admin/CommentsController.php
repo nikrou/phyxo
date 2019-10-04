@@ -102,7 +102,7 @@ class CommentsController  extends AdminCommonController
             $tpl_params['SECTION_TITLE'] = Language::l10n('Pendings');
         }
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_comments', ['section' => $section, 'start' => $start]);
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_comments');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_comments_update', ['section' => $section, 'start' => $start]);
 
         if ($this->get('session')->getFlashBag()->has('error')) {

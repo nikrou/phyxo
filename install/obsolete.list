@@ -102,3 +102,9 @@ admin/maintenance.php
 admin/history.php
 admin/history_search.php
 admin/history_stats.php
+admin/users.php
+admin/user_perm.php
+admin/users_list.php
+admin/groups.php
+admin/groups_list.php
+admin/groups_perm.php

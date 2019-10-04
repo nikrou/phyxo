@@ -244,7 +244,7 @@ class UpdatesController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_updates_extensions');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_updates');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_updates_extensions');
         $tpl_params['PAGE_TITLE'] = Language::l10n('Updates');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);

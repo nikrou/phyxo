@@ -11,17 +11,17 @@
 
 namespace Phyxo\TabSheet;
 
-use Phyxo\Template\Template;
-
 class TabSheet implements \IteratorAggregate
 {
     private $elements = [], $position;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->position = 0;
     }
 
-    public function add($name, $caption, $url, $icon='') {
+    public function add($name, $caption, $url, $icon = '')
+    {
         if (!isset($this->elements[$name])) {
             $this->elements[$name] = [
                 'caption' => $caption,
@@ -36,7 +36,8 @@ class TabSheet implements \IteratorAggregate
         return false;
     }
 
-    public function delete($name) {
+    public function delete($name)
+    {
         if (isset($this->elements[$name])) {
             unset($this->elements[$name]);
 
@@ -46,13 +47,15 @@ class TabSheet implements \IteratorAggregate
         return false;
     }
 
-    public function select($name) {
+    public function select($name)
+    {
         if (!empty($this->elements[$name])) {
             $this->elements[$name]['selected'] = true;
         }
     }
 
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->elements);
     }
 }

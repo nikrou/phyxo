@@ -1,0 +1,18 @@
+admin_groups:
+  path: /groups
+  controller: App\Controller\Admin\GroupsController:list
+
+admin_groups_action:
+  path: /groups/{action}
+  controller: App\Controller\Admin\GroupsController:action
+  defaults:
+    action: null
+  methods: POST
+  requirements:
+    actions: rename|duplicate|merge|delete|toggle_default
+
+admin_group_perm:
+  path: /group/{group_id}/perm
+  controller: App\Controller\Admin\GroupsController:perm
+  requirements:
+    group_id: \d+

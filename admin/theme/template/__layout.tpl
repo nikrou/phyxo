@@ -82,7 +82,21 @@
 			    <ul class="nav nav-tabs">
 				{foreach $tabsheet as $name => $tab}
 				    <li class="nav-item">
-					<a class="nav-link{if $tab.selected} active{/if}" href="{$tab.url}">{$tab.caption}</a>
+					{if $tab.url !== null}
+					    <a class="nav-link{if $tab.selected} active{/if}" href="{$tab.url}">
+						{if $tab.icon}
+						    <i class="fa {$tab.icon}"></i>
+						{/if}
+						{$tab.caption}
+					    </a>
+					{else}
+					    <span class="nav-link disabled">
+						{if $tab.icon}
+						    <i class="fa {$tab.icon}"></i>
+						{/if}
+						{$tab.caption}
+					    </span>
+					{/if}
 				    </li>
 				{/foreach}
 			    </ul>

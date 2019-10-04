@@ -266,6 +266,10 @@ section[role='content'] {
   padding: 1em;
 }
 
+#permitAction select {
+  margin-bottom: 1em;
+}
+
 aside[role='navigation'] {
   min-width: $sidebar-width;
   margin-top: 1rem;

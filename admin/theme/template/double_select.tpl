@@ -4,7 +4,7 @@
       <select class="custom-select" id="cat-true" name="cat_true[]" multiple="multiple">
         {html_options options=$category_option_true selected=$category_option_true_selected}
       </select>
-      <p><input class="submit" type="submit" value="&raquo;" name="falsify"></p>
+      <p><input class="btn btn-sm btn-submit" type="submit" value="&raquo;" name="falsify"></p>
     </div>
 
     <div class="form-select">
@@ -12,6 +12,6 @@
       <select class="custom-select" id="cat-false" name="cat_false[]" multiple="multiple">
         {html_options options=$category_option_false selected=$category_option_false_selected}
       </select>
-      <p><input class="submit" type="submit" value="&laquo;" name="trueify"></p>
+      <p><input class="btn btn-sm btn-submit" type="submit" value="&laquo;" name="trueify"></p>
     </div>
 </div>
