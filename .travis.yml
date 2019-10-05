@@ -24,17 +24,18 @@ before_install:
 
 before_script:
   - composer install
-#   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
-#   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'create database phyxo;';fi"
-#   - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/.env.mysql.travis .env;fi"
-#   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo;' -U postgres; fi"
-#   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo;' -U postgres ;fi"
-#   - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/.env.pgsql.travis .env;fi"
-#   - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/phyxo.db;fi"
-#   - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/.env.sqlite.travis .env;fi"
 
-#   - php tools/install.php
-#   - php -S 127.0.0.1:1080 -t . &
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'create database phyxo;';fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then cp -p local/config/.env.mysql.travis .env;fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'drop database if exists phyxo;' -U postgres; fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'create database phyxo;' -U postgres ;fi"
+  - sh -c "if [ '$DB' = 'pgsql' ]; then cp -p local/config/.env.pgsql.travis .env;fi"
+  - sh -c "if [ '$DB' = 'sqlite' ]; then rm -f db/phyxo.db;fi"
+  - sh -c "if [ '$DB' = 'sqlite' ]; then cp -p local/config/.env.sqlite.travis .env;fi"
+
+  - php bin/console phyxo:install --db_prefix=phyxo_
+  #   - php -S 127.0.0.1:1080 -t . &
 
 script:
   - php ./bin/atoum
