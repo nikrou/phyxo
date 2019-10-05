@@ -11,8 +11,10 @@
 
 
 ;; conf
+/config/services_dev.yaml
 /local/config/config.inc.php
 /local/config/database.*.php
+/local/watermarks
 !/local/config/database.*.travis.php
 
 ;; external libraries
@@ -40,6 +42,7 @@
 /themes/**/build
 /themes/**/node_modules
 /themes/**/*.log
+/themes/**/watermarks
 /themes/simple-responsive
 
 ;; atoum

@@ -34,7 +34,6 @@ class DBLayer
 
         $instance = new $className($host, $user, $password, $database);
         $instance->prefix = $prefix;
-        $instance->dsn = sprintf('%s://%s@%s/%s', $layer, !empty($user) ? "$user:$password" : '', $host, $database);
 
         return $instance;
     }

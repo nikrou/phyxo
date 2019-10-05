@@ -1,3 +1,6 @@
+# Phyxo 1.10.2 - 2019-10-05
+-   Fix issue #36 installation process was broken. .env file was missing preventing installation process to start. Thanks to @regexgit
+
 # Phyxo 1.10.1 - 2019-09-07
 -   Fix upgrade from branch 1.9. Upgrade script has not the correct name.
 

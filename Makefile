@@ -45,6 +45,8 @@ config: clean
 
 	# copy only distrib plugins and themes
 	cp -pr themes/treflez $(DIST)/$(APP_NAME)/themes/
+	touch $(DIST)/$(APP_NAME)/themes/treflez/webpack.config.js
+	touch $(DIST)/$(APP_NAME)/admin/theme/webpack.config.js
 
 	find $(DIST) -name '*~' -exec rm \{\} \;
 	find $(DIST) -name '.env*' -exec rm \{\} \;
@@ -54,6 +56,9 @@ config: clean
 	rm -fr $(DIST)/$(APP_NAME)/vendor/symfony/phpunit-bridge
 	find ./$(DIST)/ -type d -name '.git' | xargs -r rm -rf
 	find ./$(DIST)/ -type f -name '.*ignore' | xargs -r rm -rf
+
+	# production env file
+	cp -p .env.prod.dist $(DIST)/$(APP_NAME)/.env
 
 
 # rules based on files

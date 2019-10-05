@@ -22,13 +22,13 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_connect(string $host, string $user, string $password, string $database)
     {
-        $db_file = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
+        $this->dsn = sprintf('sqlite:%s/db/%s.db', __DIR__ . '/../../..', $database);
 
         try {
-            $this->db_link = new \PDO($db_file, null, null, [\PDO::ATTR_PERSISTENT => true]);
+            $this->db_link = new \PDO($this->dsn, null, null, [\PDO::ATTR_PERSISTENT => true]);
 
         } catch (\Exception $e) {
-            throw new dbException('Failed to open database ' . $db_file . ':' . $e->getMessage());
+            throw new dbException('Failed to open database ' . $this->dsn . ':' . $e->getMessage());
         }
 
         $this->db_link->sqliteCreateFunction('now', [$this, '_now'], 0);
@@ -176,12 +176,12 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
     public function db_write_lock(string $table)
     {
-        $this->db_query('BEGIN EXCLUSIVE TRANSACTION');
+        // $this->db_query('BEGIN EXCLUSIVE TRANSACTION');
     }
 
     public function db_unlock()
     {
-        $this->db_query('END');
+        // $this->db_query('END');
     }
 
     public function db_group_concat($field)

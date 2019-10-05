@@ -32,6 +32,7 @@ class mysqlConnection extends DBLayer implements iDBLayer
             list($host, $port) = explode(':', $host);
         }
 
+        $this->dsn = sprintf('%s://%s@%s/%s', $this->dblayer, "$user:$password", $host, $database);
         $dbname = null;
 
         $this->db_link = @new \mysqli($host, $user, $password, $dbname, $port, $socket);

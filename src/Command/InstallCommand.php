@@ -11,7 +11,6 @@
 
 namespace App\Command;
 
-use App\DataMapper\UserMapper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Phyxo\DBLayer\DBLayer;
@@ -35,15 +34,14 @@ class InstallCommand extends Command
     protected static $defaultName = 'phyxo:install';
 
     private $db_params = ['db_layer' => '', 'db_host' => '', 'db_name' => '', 'db_user' => '', 'db_password' => '', 'db_prefix' => ''];
-    private $phyxoVersion, $defaultTheme, $userMapper;
+    private $phyxoVersion, $defaultTheme;
 
-    public function __construct(string $phyxoVersion, string $defaultTheme, UserMapper $userMapper)
+    public function __construct(string $phyxoVersion, string $defaultTheme)
     {
         parent::__construct();
 
         $this->phyxoVersion = $phyxoVersion;
         $this->defaultTheme = $defaultTheme;
-        $this->userMapper = $userMapper;
     }
 
     public function isEnabled()
@@ -67,6 +65,10 @@ class InstallCommand extends Command
 
     public function interact(InputInterface $input, OutputInterface $output)
     {
+        if (!empty($_SERVER['DATABASE_URL'])) {
+            return;
+        }
+
         $io = new SymfonyStyle($input, $output);
         $io->title('Phyxo installation');
 
@@ -127,8 +129,13 @@ class InstallCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?"), true)) {
-            return;
+        if (!empty($_SERVER['DATABASE_URL'])) {
+            $this->db_params['dsn'] = $_SERVER['DATABASE_URL'];
+            $this->db_params['db_prefix'] = $input->getOption('db_prefix') ? $input->getOption('db_prefix') : DBLayer::DEFAULT_PREFIX;
+        } else {
+            if (!$io->askQuestion(new ConfirmationQuestion("Install Phyxo using these settings?"), true)) {
+                return;
+            }
         }
 
         try {
@@ -163,7 +170,11 @@ class InstallCommand extends Command
 
     protected function installDatabase(array $db_params = [])
     {
-        $conn = DBLayer::init($db_params['db_layer'], $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'], $db_params['db_prefix']);
+        if (!empty($db_params['dsn'])) {
+            $conn = DBLayer::initFromDSN($db_params['dsn']);
+        } else {
+            $conn = DBLayer::init($db_params['db_layer'], $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'], $db_params['db_prefix']);
+        }
         $em = new EntityManager($conn);
 
         // load configuration
@@ -173,7 +184,7 @@ class InstallCommand extends Command
 
         // tables creation, based on phyxo_structure.sql
         $conn->executeSqlFile(
-            $this->getApplication()->getKernel()->getProjectDir() . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
+            $this->getApplication()->getKernel()->getProjectDir() . '/install/phyxo_structure-' . $conn->getLayer() . '.sql',
             DBLayer::DEFAULT_PREFIX,
             $db_params['db_prefix']
         );
@@ -194,7 +205,7 @@ class InstallCommand extends Command
         $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
 
-        $languages = new Languages($conn, $this->userMapper);
+        $languages = new Languages($conn, null);
         $languages->setRootPath($this->getApplication()->getKernel()->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
