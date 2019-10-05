@@ -58,8 +58,8 @@ class CommentsController  extends AdminCommonController
         $result = $em->getRepository(CommentRepository::class)->getCommentOnImages(
           $conf['comments_page_nb_comments'],
           $start,
-          $validated = $section === 'pending' ? false : true,
-      );
+          $validated = $section === 'pending' ? false : true
+        );
         while ($row = $em->getConnection()->db_fetch_assoc($result)) {
             $thumb = (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl();
             if (empty($row['author_id'])) {

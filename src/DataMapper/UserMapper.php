@@ -306,6 +306,16 @@ class UserMapper
     }
 
     /**
+     * Returns webmaster mail address depending on $conf['webmaster_id']
+     */
+    public function getWebmasterMailAddress(): string
+    {
+        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $row = $this->em->getConnection()->db_fetch_assoc($result);
+        return $row['mail_address'];
+    }
+
+    /**
      * Returns a array with default user valuees.
      *
      * @param convert_str ceonferts 'true' and 'false' into booleans
