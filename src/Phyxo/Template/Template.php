@@ -720,6 +720,12 @@ class Template implements EngineInterface
             return;
         }
 
+        if (!empty($params['prefix'])) {
+            $prefix = $params['prefix'];
+        } else {
+            $prefix = '';
+        }
+
         if (empty($this->manifest_content)) {
             $manifest_file = $this->theme->getRoot() . '/' . $this->theme->getId() . '/' . $params['manifest'];
             if (is_readable($manifest_file)) {
@@ -730,7 +736,11 @@ class Template implements EngineInterface
         }
 
         if (!empty($this->manifest_content[$params['src']])) {
-            return $this->manifest_content[$params['src']];
+            if (strpos($this->manifest_content[$params['src']], 'http') === 0) {
+                return $this->manifest_content[$params['src']];
+            } else {
+                return $prefix . $this->manifest_content[$params['src']];
+            }
         } else {
             return '';
         }

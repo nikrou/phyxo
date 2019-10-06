@@ -4,7 +4,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net">
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
-	<link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./build/manifest.json' src='app.css'}">
+	<link rel="stylesheet" href="{asset manifest='./build/manifest.json' prefix={$ROOT_URL} src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	{get_combined_css}
@@ -174,7 +174,7 @@
 	    <script>
 	     var phyxo_root_url = "{$ROOT_URL}";
 	    </script>
-	    <script src="{asset manifest='./build/manifest.json' src='app.js'}"></script>
+	    <script src="{asset manifest='./build/manifest.json' prefix={$ROOT_URL} src='app.js'}"></script>
 	{/block}
     </body>
 </html>

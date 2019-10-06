@@ -45,7 +45,7 @@
 
 	{block name="head_assets"}
 	    <!-- head_assets (LAYOUT) -->
-	    <link rel="stylesheet" href="{$ROOT_URL}{asset manifest='./build/manifest.json' src='theme.css'}">
+	    <link rel="stylesheet" href="{asset manifest='./build/manifest.json' prefix={$ROOT_URL} src='theme.css'}">
 	    {if file_exists("local/treflez/custom.css")}
 		<link rel="stylesheet" type="text/css" href="{$ROOT_URL}local/treflez/custom.css">
 	    {/if}
@@ -147,9 +147,7 @@
 	</div>
 
 	{block name="footer_assets"}
-	    <!-- footer_assets (LAYOUT) -->
-	    <script src="{$ROOT_URL}{asset manifest='build/manifest.json' src='theme.js'}"></script>
-	    <!-- /footer_assets (LAYOUT) -->
+	    <script src="{asset manifest='build/manifest.json' prefix={$ROOT_URL} src='theme.js'}"></script>
         {/block}
     </body>
 </html>
