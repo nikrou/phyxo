@@ -456,14 +456,17 @@ class mysqlConnection extends DBLayer implements iDBLayer
                         $query .= ',';
                     }
 
-                    if (!isset($insert[$dbfield]) or $insert[$dbfield] === '') {
-                        $query .= 'NULL';
-                    } else {
+                    if (isset($insert[$dbfield]) && is_bool($insert[$dbfield])) {
+                        $query .= "'" . $this->boolean_to_db($insert[$dbfield]) . "'";
+                    } elseif (isset($insert[$dbfield])) {
                         $query .= "'" . $this->db_real_escape_string($insert[$dbfield]) . "'";
+                    } else {
+                        $query .= 'NULL';
                     }
                 }
                 $query .= ')';
             }
+
             $this->db_query($query);
         }
     }
