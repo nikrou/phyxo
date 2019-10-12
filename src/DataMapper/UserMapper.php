@@ -37,6 +37,7 @@ use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserFeedRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
+use App\Repository\ImageTagRepository;
 
 class UserMapper
 {
@@ -493,6 +494,9 @@ class UserMapper
         $this->em->getRepository(FavoriteRepository::class)->removeAllFavorites($user_id);
         // destruction of the caddie associated with the user
         $this->em->getRepository(CaddieRepository::class)->emptyCaddie($user_id);
+
+        // remove  created_by user in image_tag
+        $this->em->getRepository(ImageTagRepository::class)->removeCreatedByKey($user_id);
 
         // destruction of the user
         $this->em->getRepository(UserRepository::class)->deleteById($user_id);
