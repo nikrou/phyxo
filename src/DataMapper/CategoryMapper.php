@@ -646,8 +646,8 @@ class CategoryMapper
             }
 
             $repositories = [
-                'UserAccessRepository::class' => 'user_id',
-                'GroupAccessRepository::class' => 'group_id'
+                UserAccessRepository::class => 'user_id',
+                GroupAccessRepository::class => 'group_id'
             ];
 
             foreach ($top_categories as $top_category) {
