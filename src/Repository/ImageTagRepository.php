@@ -99,4 +99,12 @@ class ImageTagRepository extends BaseRepository
         $query .= ' AND tag_id ' . $this->conn->in($tag_ids);
         $this->conn->db_query($query);
     }
+
+    public function removeCreatedByKey(int $user_id)
+    {
+        $query = 'UPDATE ' . self::IMAGE_TAG_TABLE;
+        $query .= ' SET created_by = null';
+        $query .= ' WHERE created_by = ' . $user_id;
+        $this->conn->db_query($query);
+    }
 }
