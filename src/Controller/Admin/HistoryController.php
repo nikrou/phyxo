@@ -237,7 +237,7 @@ class HistoryController extends AdminCommonController
         $result = $em->getRepository(SearchRepository::class)->findById($search_id);
         list($serialized_rules) = $em->getConnection()->db_fetch_row($result);
 
-        $search = unserialize($serialized_rules);
+        $search = unserialize(base64_decode($serialized_rules));
 
         if (isset($search['fields']['filename'])) {
             $result = $em->getRepository(ImageRepository::class)->findByFields('file', $search['fields']['filename']);
@@ -537,7 +537,7 @@ class HistoryController extends AdminCommonController
             // TODO manage inconsistency of having $_POST['image_id'] and $_POST['filename'] simultaneously
             if (!empty($search)) {
                 // register search rules in database, then they will be available on thumbnails page and picture page.
-                $search_id = $em->getRepository(SearchRepository::class)->addSearch(serialize($search));
+                $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
 
                 return $this->redirectToRoute('admin_history_search', ['search_id' => $search_id]);
             } else {

@@ -39,7 +39,8 @@ class ImageStandardParams
     public function __construct(Conf $conf)
     {
         $this->conf = $conf;
-        $this->derivatives = @unserialize($conf[$this->conf_key]); // @TODO: use better serializer
+
+        $this->derivatives = @unserialize(base64_decode($conf[$this->conf_key])); // @TODO: use better serializer
 
         $this->loadFromConf();
     }
@@ -252,6 +253,6 @@ class ImageStandardParams
             'c' => $this->customs,
         ];
 
-        $this->conf->addOrUpdateParam($this->conf_key, serialize($conf_derivatives));
+        $this->conf->addOrUpdateParam($this->conf_key, base64_encode(serialize($conf_derivatives)));
     }
 }

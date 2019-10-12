@@ -831,7 +831,7 @@ class ConfigurationController extends AdminCommonController
 
                     $enabled = $image_std_params->getDefinedTypeMap();
                     if (!empty($conf['disabled_derivatives'])) {
-                        $disabled = unserialize($conf['disabled_derivatives']);
+                        $disabled = unserialize(base64_decode($conf['disabled_derivatives']));
                     } else {
                         $disabled = [];
                     }
@@ -907,7 +907,7 @@ class ConfigurationController extends AdminCommonController
                     if (count($disabled) == 0) {
                         unset($conf['disabled_derivatives']);
                     } else {
-                        $conf['disabled_derivatives'] = serialize($disabled);
+                        $conf['disabled_derivatives'] = base64_encode(serialize($disabled));
                     }
 
                     if (count($changed_types)) {
