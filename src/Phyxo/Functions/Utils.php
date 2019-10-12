@@ -406,7 +406,11 @@ class Utils
      */
     public static function get_token()
     {
-        return $_SESSION['_sf2_attributes']['_csrf/authenticate'];
+        if (!empty($_SESSION['_sf2_attributes']['_csrf/https-authenticate'])) {
+            return $_SESSION['_sf2_attributes']['_csrf/https-authenticate'];
+        } else {
+            return $_SESSION['_sf2_attributes']['_csrf/authenticate'];
+        }
     }
 
     /**
