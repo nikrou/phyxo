@@ -160,6 +160,8 @@ class SecurityController extends AbstractController
 
         $errors = [];
 
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
             __DIR__ . '/../../',
