@@ -47,7 +47,7 @@ class SearchMapper
     {
         $result = $this->em->getRepository(SearchRepository::class)->findById($search_id);
         if (($row = $this->em->getConnection()->db_fetch_row($result)) !== false) {
-            return unserialize($row[0]); // @TODO: remove unserialize
+            return unserialize(base64_decode($row[0])); // @TODO: remove unserialize
         } else {
             return [];
         }

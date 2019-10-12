@@ -348,7 +348,7 @@ if ($section === 'main') {
         // derivatives = multiple size
         $enabled = $image_std_params->getDefinedTypeMap();
         if (!empty($conf['disabled_derivatives'])) {
-            $disabled = unserialize($conf['disabled_derivatives']);
+            $disabled = unserialize(base64_decode($conf['disabled_derivatives']));
         } else {
             $disabled = [];
         }

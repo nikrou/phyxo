@@ -98,7 +98,7 @@ if (isset($_POST['submit'])) {
     if (!empty($search)) {
         // register search rules in database, then they will be available on
         // thumbnails page and picture page.
-        $search_id = (new SearchRepository($conn))->addSearch(serialize($search));
+        $search_id = (new SearchRepository($conn))->addSearch(base64_encode(serialize($search)));
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&&search_id=' . $search_id);
     } else {
         $page['errors'][] = \Phyxo\Functions\Language::l10n('Empty query. No criteria has been entered.');
@@ -125,7 +125,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
     $result = (new SearchRepository($conn))->findById($page['search_id']);
     list($serialized_rules) = $conn->db_fetch_row($result);
 
-    $page['search'] = unserialize($serialized_rules);
+    $page['search'] = unserialize(base64_decode($serialized_rules));
 
     if (isset($_GET['user_id'])) {
         if (!is_numeric($_GET['user_id'])) {
@@ -133,7 +133,7 @@ if (isset($_GET['search_id']) && $page['search_id'] = (int)$_GET['search_id']) {
         }
 
         $page['search']['fields']['user'] = $_GET['user_id'];
-        $search_id = (new SearchRepository($conn))->addSearch(serialize($page['search']));
+        $search_id = (new SearchRepository($conn))->addSearch(base64_encode(serialize($page['search'])));
 
         \Phyxo\Functions\Utils::redirect(HISTORY_BASE_URL . '&section=search&search_id=' . $search_id);
     }

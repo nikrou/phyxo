@@ -47,12 +47,12 @@ class SearchController extends CommonController
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $search = ['q' => $request->get('q')];
-        $search_id = $em->getRepository(SearchRepository::class)->findByRules(serialize($search));
+        $search_id = $em->getRepository(SearchRepository::class)->findByRules(base64_encode(serialize($search)));
 
         if ($search_id !== false) {
             $em->getRepository(SearchRepository::class)->updateLastSeen($search_id);
         } else {
-            $search_id = $em->getRepository(SearchRepository::class)->addSearch(serialize($search));
+            $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
         }
 
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
@@ -210,7 +210,7 @@ class SearchController extends CommonController
                 $search['mode'] = 'AND';
 
                 // register search rules in database, then they will be available on thumbnails page and picture page.
-                $search_id = $em->getRepository(SearchRepository::class)->addSearch(serialize($search));
+                $search_id = $em->getRepository(SearchRepository::class)->addSearch(base64_encode(serialize($search)));
 
                 return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
             } else {
