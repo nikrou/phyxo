@@ -313,7 +313,7 @@
      var groups = [];
      {foreach $association_options as $id => $group}
      {if $id>0}
-     groups[{$id}] = "{$group}";
+     groups[{$id}] = "{$group|escape:'html'}";
      {/if}
      {/foreach}
 
