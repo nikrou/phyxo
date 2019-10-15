@@ -1,0 +1,53 @@
+admin_album:
+  path: /album/{album_id}/edit/{parent_id}
+  controller: App\Controller\Admin\AlbumController:properties
+  defaults:
+    parent_id: null
+  requirements:
+    album_id: \d+
+    parent_id: \d+
+
+admin_album_sort_order:
+  path: /album/{album_id}/sort_order/{parent_id}
+  controller: App\Controller\Admin\AlbumController:sort_order
+  defaults:
+    parent_id: null
+  requirements:
+    album_id: \d+
+    parent_id: \d+
+
+admin_album_permissions:
+  path: /album/{album_id}/permissions/{parent_id}
+  controller: App\Controller\Admin\AlbumController:permissions
+  defaults:
+    parent_id: null
+  requirements:
+    album_id: \d+
+    parent_id: \d+
+
+admin_album_notification:
+  path: /album/{album_id}/notification/{parent_id}
+  controller: App\Controller\Admin\AlbumController:notification
+  defaults:
+    parent_id: null
+  requirements:
+    album_id: \d+
+    parent_id: \d+
+
+admin_album_create:
+  path: /album/create/{parent_id}
+  controller: App\Controller\Admin\AlbumController:create
+  methods: ['POST']
+  defaults:
+    parent_id: null
+  requirements:
+    parent_id: \d+
+
+admin_album_delete:
+  path: /album/{album_id}/delete/{parent_id}
+  controller: App\Controller\Admin\AlbumController:delete
+  defaults:
+    parent_id: null
+  requirements:
+    album_id: \d+
+    parent_id: \d+

@@ -292,6 +292,24 @@ class CategoryMapper
         return $output;
     }
 
+    public function getAlbumsDisplayName(string $uppercats, string $route_name, array $params = []): array
+    {
+        $names = [];
+
+        $result = $this->em->getRepository(CategoryRepository::class)->findAll();
+        $cache = $this->em->getConnection()->result2array($result, 'id');
+
+
+        foreach (explode(',', $uppercats) as $category_id) {
+            $names[] = [
+                'name' => $cache[$category_id]['name'],
+                'url' => $this->router->generate($route_name, array_merge($params, ['album_id' => $cache[$category_id]['id']]))
+            ];
+        }
+
+        return $names;
+    }
+
     /**
      * Generates breadcrumb from categories list using a cache.
      * @see getCatDisplayName()
@@ -487,8 +505,8 @@ class CategoryMapper
             $new_parent_uppercats = $this->em->getRepository(CategoryRepository::class)->findById($new_parent)['uppercats'];
 
             foreach ($categories as $category) {
-            // technically, you can't move a category with uppercats 12,125,13,14
-            // into a new parent category with uppercats 12,125,13,14,24
+                // technically, you can't move a category with uppercats 12,125,13,14
+                // into a new parent category with uppercats 12,125,13,14,24
                 if (preg_match('/^' . $category['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
                     throw new \Exception(\Phyxo\Functions\Language::l10n('You cannot move an album in its own sub album'));
                 }

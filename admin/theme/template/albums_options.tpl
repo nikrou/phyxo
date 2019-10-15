@@ -9,10 +9,10 @@
     <h2>{$TABSHEET_TITLE}</h2>
 
     <form method="post" action="{$F_ACTION}" id="cat_options">
-	<fieldset>
-	    <legend>{$L_SECTION}</legend>
-	    {$DOUBLE_SELECT}
-	</fieldset>
+	<div class="fieldset">
+	    <h3>{$L_SECTION}</h3>
+	    {include file="double_select.tpl"}
+	</div>
     </form>
 
 {/block}

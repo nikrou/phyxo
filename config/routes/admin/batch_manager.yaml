@@ -1,0 +1,7 @@
+admin_batch_manager:
+  path: /batch/{album_id}
+  controller: App\Controller\Admin\BatchManagerController:index
+  defaults:
+    album_id: null
+  requirements:
+    album_id: \d+

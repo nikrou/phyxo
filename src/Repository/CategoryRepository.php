@@ -260,6 +260,7 @@ class CategoryRepository extends BaseRepository
         } else {
             $query .= ' WHERE ' . $field . ' = \'' . $this->conn->db_real_escape_string($value) . '\'';
         }
+        $query .= ' ORDER BY RANK ASC';
 
         return $this->conn->db_query($query);
     }

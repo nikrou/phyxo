@@ -108,3 +108,13 @@ admin/users_list.php
 admin/groups.php
 admin/groups_list.php
 admin/groups_perm.php
+admin/albums.php
+admin/albums_list.php
+admin/albums_move.php
+admin/albums_options.php
+admin/albums_permalinks.php
+admin/album.php
+admin/album_notification.php
+admin/album_properties.php
+admin/album_sort_order.php
+admin/album_permissions.php

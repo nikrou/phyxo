@@ -1,0 +1,40 @@
+admin_albums:
+  path: /albums/{parent_id}
+  controller: App\Controller\Admin\AlbumsController:list
+  defaults:
+    parent_id: null
+  requirements:
+    parent_id: \d+
+
+admin_albums_update:
+  path: /albums/update/{parent_id}
+  controller: App\Controller\Admin\AlbumsController:update
+  methods: ['POST']
+  defaults:
+    parent_id: null
+  requirements:
+    parent_id: \d+
+
+admin_albums_move:
+  path: /albums/move/{parent_id}
+  controller: App\Controller\Admin\AlbumsController:move
+  defaults:
+    parent_id: null
+  requirements:
+    parent_id: \d+
+
+admin_albums_permalinks:
+  path: /albums/permalinks/{parent_id}
+  controller: App\Controller\Admin\AlbumsController:permalinks
+  defaults:
+    parent_id: null
+  requirements:
+    parent_id: \d+
+
+admin_albums_options:
+  path: /albums/options/{section}
+  controller: App\Controller\Admin\AlbumsOptionsController:index
+  defaults:
+    section: status
+  requirements:
+    section: status|lock|comments|representative

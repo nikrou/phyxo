@@ -1,8 +1,13 @@
 {extends file="__layout.tpl"}
 
 {block name="breadcrumb-items"}
-    <li class="breadcrumb-item"><a href="{$U_ALBUMS}">{'Albums'|translate}</a></li>
-    <li class="breadcrumb-item">{'Album'|translate}: {$CATEGORIES_NAV}</li>
+    <li class="breadcrumb-item"><a href="{$U_PAGE}">{'Albums'|translate}</a></li>
+    <li class="breadcrumb-item">{'Album'|translate}:
+	{foreach $CATEGORIES_NAV as $category_nav}
+	    <a href="{$category_nav.url}">{$category_nav.name}</a>
+	    {if !$category_nav@last}/{/if}
+	{/foreach}
+    </li>
     <li class="breadcrumb-item">{'Notification'|translate}</li>
 {/block}
 

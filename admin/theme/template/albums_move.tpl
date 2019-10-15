@@ -12,26 +12,25 @@
 	    <h3>{'Move albums'|translate}</h3>
 
 	    <label>
-			{'Virtual albums to move'|translate}
+		{'Virtual albums to move'|translate}
 
-			<select class="custom-select" name="selection[]" multiple="multiple">
-				{html_options options=$category_to_move_options}
-			</select>
+		<select class="custom-select" name="selection[]" multiple="multiple">
+		    {html_options options=$category_to_move_options}
+		</select>
 	    </label>
 
 	    <label>
-			{'New parent album'|translate}
+		{'New parent album'|translate}
 
-			<select class="custom-select" name="parent">
-				<option value="0">------------</option>
-				{html_options options=$category_parent_options}
-			</select>
+		<select class="custom-select" name="parent">
+		    <option value="0">------------</option>
+		    {html_options options=$category_parent_options}
+		</select>
 	    </label>
 	</div>
 
 	<p>
 	    <input class="btn btn-submit" type="submit" name="submit" value="{'Submit'|translate}">
 	</p>
-
     </form>
 {/block}

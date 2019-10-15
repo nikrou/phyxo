@@ -1,0 +1,3 @@
+admin_photo:
+  path: /photo/{image_id}
+  controller: App\Controller\Admin\PhotoController:edit

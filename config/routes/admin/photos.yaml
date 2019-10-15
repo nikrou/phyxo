@@ -1,0 +1,3 @@
+admin_photos_add:
+  path: /photos/add/{album_id}
+  controller: App\Controller\Admin\PhotosController:add

@@ -7,17 +7,15 @@
 
 {block name="content"}
     <p>
-	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{'create a new album'|translate}</a>
-	{if !empty($categories)}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{'apply automatic sort order'|translate}</a>{/if}
-	{if !empty($PARENT_EDIT)}<a class="btn btn-edit" href="{$PARENT_EDIT}"></span>{'edit'|translate}</a>{/if}
+	<a class="btn btn-submit" data-toggle="collapse" href="#create-album">{'Create a new album'|translate}</a>
+	{if !empty($categories)}<a class="btn btn-submit" data-toggle="collapse" href="#apply-automatic-sort-order">{'Apply automatic sort order'|translate}</a>{/if}
+	{if !empty($PARENT_EDIT)}<a class="btn btn-edit" href="{$PARENT_EDIT}"></span>{'Edit'|translate}</a>{/if}
     </p>
 
     <div id="create-album" class="collapse">
-	<form id="formCreateAlbum" action="{$F_ACTION}" method="post">
+	<form id="formCreateAlbum" action="{$F_ACTION_CREATE}" method="post">
 	    <div class="fieldset">
-		<h3>{'create a new album'|translate}</h3>
-		<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
-
+		<h3>{'Create a new album'|translate}</h3>
 		<p>
 		    <label for="virtual_name">{'Album name'|translate}</label>
 		    <input class="form-control" type="text" name="virtual_name" id="virtual_name" maxlength="255">
@@ -25,6 +23,7 @@
 
 		<p>
 		    <input class="btn btn-submit" name="submitAdd" type="submit" value="{'Create'|translate}">
+		    <input type="hidden" name="pwg_token" value="{$csrf_token}">
 		    <a class="btn btn-cancel" href="#create-album" data-toggle="collapse">{'Cancel'|translate}</a>
 		</p>
 	    </div>
@@ -32,10 +31,9 @@
     </div>
 
     {if count($categories)}
-	<form id="apply-automatic-sort-order" action="{$F_ACTION}" method="post" class="collapse">
+	<form id="apply-automatic-sort-order" action="{$F_ACTION_UPDATE}" method="post" class="collapse">
 	    <div class="fieldset">
 		<h3>{'Automatic sort order'|translate}</h3>
-		<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
 
 		<p><strong>{'Sort order'|translate}</strong></p>
 		{foreach $sort_orders as $sort_code => $sort_label}
@@ -47,6 +45,7 @@
 		</p>
 
 		<p>
+		    <input type="hidden" name="pwg_token" value="{$csrf_token}">
 		    <input class="btn btn-submit" name="submitAutoOrder" type="submit" value="{'Save order'|translate}">
 		    <a href="#apply-automatic-sort-order" class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</a>
 		</p>
@@ -54,9 +53,9 @@
 	</form>
     {/if}
 
-    <form id="categoryOrdering" action="{$F_ACTION}" method="post">
+    <form id="categoryOrdering" action="{$F_ACTION_UPDATE}" method="post">
 	<p id="manualOrder" class="collapse">
-	    <input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
+	    <input type="hidden" name="pwg_token" value="{$csrf_token}">
 	    <input class="btn btn-submit3" name="submitManualOrder" type="submit" value="{'Save manual order'|translate}">
 	    {'... or '|translate} <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{'cancel manual order'|translate}</a>
 	</p>
@@ -83,17 +82,17 @@
 			<input type="hidden" name="catOrd[{$category.ID}]" value="{$category.RANK}">
 
 			<p class="album-actions">
-			    <a href="{$category.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
-			    | <a href="{$category.U_CHILDREN}"><i class="fa fa-sitemap"></i>{'manage sub-albums'|translate}</a>
+			    <a class="btn btn-sm btn-edit" href="{$category.U_EDIT}"><i class="fa fa-pencil"></i>{'Edit'|translate}</a>
+			    <a class="btn btn-sm btn-info" href="{$category.U_CHILDREN}"><i class="fa fa-sitemap"></i>{'manage sub-albums'|translate}</a>
 			    {if isset($category.U_SYNC) }
-				| <a href="{$category.U_SYNC}"><i class="fa fa-exchange"></i>{'Synchronize'|translate}</a>
+				<a href="{$category.U_SYNC}"><i class="fa fa-exchange"></i>{'Synchronize'|translate}</a>
 			    {/if}
 			    {if isset($category.U_DELETE) }
-				| <a href="{$category.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');"><i class="fa fa-trash"></i>{'delete album'|translate}</a>
+				<a class="btn btn-sm btn-danger" href="{$category.U_DELETE}" onclick="return confirm('{'Are you sure?'|translate|escape:javascript}');">
+				    <i class="fa fa-trash"></i>{'delete album'|translate}
+				</a>
 			    {/if}
-			    {if \Phyxo\Functions\Category::cat_admin_access($category.ID)}
-				| <a href="{$category.U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to album'|translate}</a>
-			    {/if}
+			    <a class="btn btn-sm btn-warning" href="{$category.U_JUMPTO}"><i class="fa fa-eye"></i> {'jump to album'|translate}</a>
 			</p>
 		    </div>
 		{/foreach}
