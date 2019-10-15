@@ -1,11 +1,11 @@
-admin_updates:
-  path: /updates/{step}
+admin_update:
+  path: /update/{step}
   controller: App\Controller\Admin\UpdatesController:core
   defaults:
     step: 0
   requirements:
     step: \d+
 
-admin_updates_extensions:
-  path: /updates/extensions
+admin_update_extensions:
+  path: /update/extensions
   controller: App\Controller\Admin\UpdatesController:extensions

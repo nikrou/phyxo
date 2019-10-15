@@ -6,19 +6,21 @@ install:
   requirements:
     step: language|check|database|user|success
 
-upgrade:
+admin_upgrade:
   path: /upgrade
   controller: App\Controller\AdminController::upgrade
 
-legacy_home:
-  path: /index.{extension}
-  controller: App\Controller\AdminController::index
+admin_check_upgrade:
+  path: /check_upgrade
+  controller: App\Controller\Admin\DashboardController::index
   defaults:
-    extension: php
+    check_upgrade: true
 
 admin_home:
   path: /
-  controller: App\Controller\AdminController::index
+  controller: App\Controller\Admin\DashboardController::index
+  defaults:
+    check_upgrade: false
 
 admin_menubar:
   path: /menubar

@@ -45,12 +45,12 @@
     <li>
 	<a data-toggle="collapse" href="#child-tools"><i class="fa fa-wrench"></i> {'Tools'|translate}</a>
 	<ul class="collapse" id="child-tools" data-parent=".accordion">
-		{*
+	    {*
 	    {if $ENABLE_SYNCHRONIZATION}
 		<li><a href="{$U_CAT_UPDATE}"><i class="fa fa-exchange"></i>{'Synchronize'|translate}</a></li>
 		<li><a href="{$U_SITE_MANAGER}"><i class="fa fa-code-fork"></i>{'Site manager'|translate}</a></li>
 	    {/if}
-		*}
+	    *}
 	    <li><a href="{$U_HISTORY_STAT}"><i class="fa fa-bar-chart"></i>{'History'|translate}</a></li>
 	    <li><a href="{$U_MAINTENANCE}"><i class="fa fa-cogs"></i>{'Maintenance'|translate}</a></li>
 	    {if isset($U_COMMENTS)}
@@ -62,7 +62,7 @@
 		    </a>
 		</li>
 	    {/if}
-	    <li><a href="{$U_UPDATES}"><i class="fa fa-refresh"></i>{'Updates'|translate}</a></li>
+	    <li><a href="{$U_UPDATE}"><i class="fa fa-refresh"></i>{'Updates'|translate}</a></li>
 	</ul>
     </li>
     <li>

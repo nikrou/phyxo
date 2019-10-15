@@ -1,10 +1,10 @@
 {extends file="__layout.tpl"}
 
-{block name="footer_assets" append}
-    <script src="./theme/js/intro.js"></script>
+{block name="footer_assets" prepend}
     <script>
-     var phyxo_need_update_msg = '<a href="./index.php?page=updates">{'A new version of Phyxo is available.'|translate|@escape:"javascript"}</a>';
-     var ext_need_update_msg = '<a href="./index.php?page=updates&amp;tab=ext">{'Some upgrades are available for extensions.'|translate|@escape:"javascript"}</a>';
+     var ws_url = '{$ws}';
+     var phyxo_need_update_msg = '<a href="{$U_UPDATE}">{'A new version of Phyxo is available.'|translate|escape:"javascript"}</a>';
+     var ext_need_update_msg = '<a href="{$U_UPDATE_EXTENSIONS}">{'Some upgrades are available for extensions.'|translate|escape:"javascript"}</a>';
      var phyxo_is_uptodate_msg = "{'You are running the latest version of Phyxo.'|translate}";
     </script>
 {/block}
@@ -17,7 +17,10 @@
 	    <ul>
 		<li>
 		    <a href="{$PHPWG_URL}" class="externalLink">Phyxo</a> {$PWG_VERSION}&nbsp;
-		    <span>(<a id="check-upgrade" href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|translate}</a>)</span>
+		    {if !$DEV}
+			<span>(<a id="check-upgrade" href="{$U_CHECK_UPGRADE}">{'Check for upgrade'|translate}</a>)</span>
+		    {/if}
+
 		</li>
 	    </ul>
 	</dd>
@@ -40,16 +43,16 @@
 		<li>
 		    {$DB_ELEMENTS}
 		    {if isset($first_added)}
-			({$first_added.DB_DATE})
+			({$first_added})
 		    {/if}
 		</li>
-		<li>{$DB_CATEGORIES} ({$DB_IMAGE_CATEGORY})</li>
+		<li>{$DB_CATEGORIES} {$PHYSICAL_CATEGORIES} {'and'|translate} {$VIRTUAL_CATEGORIES} ({$DB_IMAGE_CATEGORY})</li>
 		<li>{$DB_TAGS} ({$DB_IMAGE_TAG})</li>
 		<li>{$DB_USERS}</li>
 		<li>{$DB_GROUPS}</li>
 		{if isset($DB_COMMENTS)}
 		    <li>
-			{$DB_COMMENTS}{if !empty($NB_PENDING_COMMENTS)} (<a href="{$U_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
+			{$DB_COMMENTS}{if !empty($NB_PENDING_COMMENTS)} (<a href="{$U_PENDING_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
 		    </li>
 		{/if}
 		<li>{$DB_RATES}</li>

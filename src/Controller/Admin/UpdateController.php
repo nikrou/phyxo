@@ -23,13 +23,13 @@ use Phyxo\Upgrade;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class UpdatesController extends AdminCommonController
+class UpdateController extends AdminCommonController
 {
     protected function setTabsheet(string $section = 'core'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('core', Language::l10n('Phyxo Update'), $this->generateUrl('admin_updates'));
-        $tabsheet->add('extensions', Language::l10n('Extensions Update'), $this->generateUrl('admin_updates_extensions'));
+        $tabsheet->add('core', Language::l10n('Phyxo Update'), $this->generateUrl('admin_update'));
+        $tabsheet->add('extensions', Language::l10n('Extensions Update'), $this->generateUrl('admin_update_extensions'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -221,8 +221,8 @@ class UpdatesController extends AdminCommonController
         $tpl_params['UPGRADE_TO'] = $upgrade_to;
         $tpl_params['RELEASE_URL'] = $params->get('phyxo_website') . '/releases/' . $upgrade_to;
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_updates');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_updates');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
+        $tpl_params['U_PAGE'] = $this->generateUrl('admin_update');
         $tpl_params['PAGE_TITLE'] = Language::l10n('Updates');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
@@ -244,8 +244,8 @@ class UpdatesController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_updates');
-        $tpl_params['U_PAGE'] = $this->generateUrl('admin_updates_extensions');
+        $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
+        $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['PAGE_TITLE'] = Language::l10n('Updates');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);

@@ -115,7 +115,7 @@ $template->assign(
         'U_LOGOUT' => $router->generate('logout'),
         'U_PLUGINS' => $router->generate('admin_plugins_installed'),
         'U_ADD_PHOTOS' => $link_start . 'photos_add',
-        'U_UPDATES' => $router->generate('admin_updates'),
+        'U_UPDATE' => $router->generate('admin_update'),
         'U_DEV_VERSION' => strpos(PHPWG_VERSION, 'dev') !== false,
         'U_DEV_API' => './api.php',
         'U_DEV_JS_TESTS' => '../tests/functional/'

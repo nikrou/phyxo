@@ -1,6 +1,7 @@
 import '../scss/style.scss';
 
 import 'bootstrap';
+import './intro';
 import './cat-list';
 import './users-list';
 import './groups-list';

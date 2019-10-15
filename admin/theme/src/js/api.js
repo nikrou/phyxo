@@ -1,3 +1,8 @@
+const GET_PARAMS = {
+  method: 'GET',
+  credentials: 'same-origin'
+};
+
 const POST_PARAMS = {
   method: 'POST',
   headers: {
@@ -71,6 +76,14 @@ export const performAction = (plugin, action) => {
     ...POST_PARAMS,
     ...encodeParamsToBody(params)
   })
+    .then(response => response)
+    .catch(err => console.error(err));
+};
+
+export const checkUpdates = () => {
+  const fetch_url = `${ws_url}?pwg.extensions.checkUpdates`;
+
+  return fetch(fetch_url, GET_PARAMS)
     .then(response => response)
     .catch(err => console.error(err));
 };
