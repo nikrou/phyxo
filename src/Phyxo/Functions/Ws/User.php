@@ -95,7 +95,7 @@ class User
                 $params['display']['registration_date'] = true;
             }
 
-           // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
+            // if last_visit_string or last_visit_since is requested, then last_visit is automatically added
             if (isset($params['display']['last_visit_string']) or isset($params['display']['last_visit_since'])) {
                 $params['display']['last_visit'] = true;
             }
@@ -323,7 +323,7 @@ class User
             }
 
             if (!empty($params['password'])) {
-                $updates['password'] = $service->getUserMapper()->passwordHash($params['password']);
+                $updates['password'] = $service->getPasswordEncoder()->encodePassword(new EntityUser(), $params['password']);
             }
         }
 

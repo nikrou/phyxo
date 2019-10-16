@@ -1,0 +1,23 @@
+admin_rating:
+  path: /rating
+  controller: App\Controller\Admin\RatingController:photos
+  defaults:
+    start: 0
+
+admin_rating__start:
+  path: /rating/{start}
+  controller: App\Controller\Admin\RatingController:photos
+  requirements:
+    start: \d+
+
+admin_rating_users:
+  path: /rating/users
+  controller: App\Controller\Admin\RatingController:users
+  defaults:
+    start: 0
+
+admin_rating_users__start:
+  path: /rating/users/{start}
+  controller: App\Controller\Admin\RatingController:users
+  requirements:
+    start: \d+

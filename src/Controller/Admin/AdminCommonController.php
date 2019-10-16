@@ -61,7 +61,7 @@ abstract class AdminCommonController extends AbstractController
             'U_ALBUMS' => $router->generate('admin_albums'),
             'U_ALBUMS_OPTIONS' => $router->generate('admin_albums_options'),
             'U_CAT_UPDATE' => $router->generate('admin_site_update'),
-            'U_RATING' => $link_start . 'rating',
+            'U_RATING' => $router->generate('admin_rating'),
             'U_RECENT_SET' => $link_start . 'batch_manager&amp;filter=prefilter-last_import',
             'U_BATCH' => $link_start . 'batch_manager',
             'U_TAGS' => $link_start . 'tags',

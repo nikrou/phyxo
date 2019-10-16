@@ -476,7 +476,7 @@ $(function() {
         .val();
 
       $.ajax({
-        url: `{ws_url}?method=pwg.users.setInfo`,
+        url: `${ws_url}?method=pwg.users.setInfo`,
         type: 'POST',
         data: {
           pwg_token: pwg_token,

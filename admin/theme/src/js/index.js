@@ -69,7 +69,7 @@ $(function() {
       fetch(fetch_url, fetch_params)
         .then(function(response) {
           if (response.ok) {
-            $(button.data('delete')).remove();
+            $(button.data('delete')).remove(); // @TODO: need to remove whole table row
           } else {
             console.log(response.statusText);
           }

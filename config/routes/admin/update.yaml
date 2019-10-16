@@ -1,6 +1,6 @@
 admin_update:
   path: /update/{step}
-  controller: App\Controller\Admin\UpdatesController:core
+  controller: App\Controller\Admin\UpdateController:core
   defaults:
     step: 0
   requirements:
@@ -8,4 +8,4 @@ admin_update:
 
 admin_update_extensions:
   path: /update/extensions
-  controller: App\Controller\Admin\UpdatesController:extensions
+  controller: App\Controller\Admin\UpdateController:extensions

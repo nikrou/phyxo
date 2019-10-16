@@ -41,7 +41,7 @@ use Phyxo\Functions\Plugin;
 
 class PictureController extends CommonController
 {
-    private $em, $conf, $user;
+    private $em, $conf, $user, $userMapper;
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
                             MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper, CategoryMapper $categoryMapper,
@@ -51,6 +51,7 @@ class PictureController extends CommonController
         $this->em = $em;
         $this->conf = $conf;
         $this->user = $this->getUser();
+        $this->userMapper = $userMapper;
 
         $this->image_std_params = $image_std_params;
         $this->loadLanguage($this->getUser());
@@ -103,7 +104,8 @@ class PictureController extends CommonController
                 $picture['U_DOWNLOAD'] = $this->generateUrl('action', ['image_id' => $image_id, 'part' => 'e', 'download' => 'download']);
             }
         } else { // not a pic - need download link
-            $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);;
+            $picture['download_url'] = $picture['element_url'] = \Phyxo\Functions\URL::get_element_url($picture);
+            ;
         }
 
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('comment');
@@ -527,7 +529,7 @@ class PictureController extends CommonController
 
         $user_rate = null;
         $anonymous_id = null;
-        if ($this->conf['rate_anonymous'] || $this->user->isClassicUser()) {
+        if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
                 if (!$this->user->isClassicUser()) {
                     $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);

@@ -36,7 +36,7 @@ class RateMapper
             return [];
         }
 
-        $user_anonymous = $this->userMapper->isClassicUser();
+        $user_anonymous = $this->userMapper->isGuest();
 
         if ($user_anonymous && !$this->conf['rate_anonymous']) {
             return [];
