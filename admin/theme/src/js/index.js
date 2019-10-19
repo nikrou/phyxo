@@ -8,6 +8,7 @@ import './groups-list';
 import './plugins-list';
 import './extension';
 import './comments';
+import './tags';
 import 'jquery-colorbox';
 
 $(function() {

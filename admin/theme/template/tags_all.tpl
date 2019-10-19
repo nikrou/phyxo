@@ -5,125 +5,157 @@
     <li class="breadcrumb-item">{'Manage tags'|translate}</li>
 {/block}
 
-{block name="content"}
-    {html_head}
-    <script type="text/javascript">
+{block name="footer_assets" prepend}
+    <script>
      var phyxo_msg = phyxo_msg || {};
      phyxo_msg.select_at_least_two_tags = "{'Select at least two tags for merging'|translate}";
     </script>
-    {/html_head}
-    {combine_script id="tags" load="footer" path="admin/theme/js/tags.js"}
+{/block}
+
+{block name="content"}
+    <p>
+	<a href="#add-tag" data-toggle="collapse" class="btn btn-submit"><i class="fa fa-plus-circle"></i> {'Add a tag'|translate}</a>
+    </p>
+
+    <div id="add-tag" class="collapse">
+	<form action="{$F_ACTION_ADD}" method="post">
+	    <div class="fieldset">
+		<h3>{'Add a tag'|translate}</h3>
+
+		<label>
+		    {'New tag'|translate}
+		    <input type="text" class="form-control" name="add_tag" size="50">
+		</label>
+
+		<p>
+		    <input class="btn btn-submit" type="submit" name="add" value="{'Submit'|translate}">
+                    <a href="#add-tag" class="btn btn-cancel" data-toggle="collapse">{'Cancel'|translate}</a>
+		</p>
+	    </div>
+	</form>
+    </div>
 
     <form action="{$F_ACTION}" method="post">
-	<div class="fieldset">
-	    <h3>{'Add a tag'|translate}</h3>
-
-	    <label>
-		{'New tag'|translate}
-		<input type="text" class="form-control" name="add_tag" size="50">
-	    </label>
-
-	    <p><input class="btn btn-submit" type="submit" name="add" value="{'Submit'|translate}"></p>
-	</div>
-
-	{if isset($EDIT_TAGS_LIST)}
-	    <div class="fieldset">
-		<h3>{'Edit tags'|translate}</h3>
-		<input type="hidden" name="edit_list" value="{$EDIT_TAGS_LIST}">
-		<table class="table">
-		    <thead>
-			<tr>
-			    <th>{'Current name'|translate}</th>
-			    <th>{'New name'|translate}</th>
-			</tr>
-		    </thead>
-		    <tbody>
-			{foreach $tags as $tag}
-			    <tr>
-				<td>{$tag.NAME}</td>
-				<td><input type="text" class="form-control" name="tag_name-{$tag.ID}" value="{$tag.NAME}" size="50"></td>
-			    </tr>
-			{/foreach}
-		    </tbody>
-		</table>
-
-		<p>
-		    <input type="submit" class="btn btn-edit" name="edit_submit" value="{'Submit'|translate}">
-		    <input type="submit" class="btn btn-cancel" name="edit_cancel" value="{'Cancel'|translate}">
-		</p>
-	    </div>
-	{/if}
-
-	{if isset($DUPLIC_TAGS_LIST)}
-	    <div class="fieldset">
-		<h3>{'Edit tags'|translate}</h3>
-		<input type="hidden" name="edit_list" value="{$DUPLIC_TAGS_LIST}">
-		<table class="table">
-		    <tr class="throw">
-			<th>{'Source tag'|translate}</th>
-			<th>{'Name of the duplicate'|translate}</th>
-		    </tr>
-		    {foreach $tags as $tag}
-			<tr>
-			    <td>{$tag.NAME}</td>
-			    <td><input type="text" class="form-control" name="tag_name-{$tag.ID}" value="{$tag.NAME}" size="50"></td>
-			</tr>
-		    {/foreach}
-		</table>
-
-		<p>
-		    <input type="submit" class="btn btn-submit" name="duplic_submit" value="{'Submit'|translate}">
-		    <input type="submit" class="btn btn-cancel" name="duplic_cancel" value="{'Cancel'|translate}">
-		</p>
-	    </div>
-	{/if}
-
-	{if isset($MERGE_TAGS_LIST)}
-	    <div class="fieldset" id="mergeTags">
-		<h3>{'Merge tags'|translate}</h3>
-		{'Select the destination tag'|translate}
-
-		<p>
-		    {foreach $tags as $tag}
-			<label><input type="radio" class="form-control" name="destination_tag" value="{$tag.ID}"{if $tag@index == 0} checked="checked"{/if}> {$tag.NAME}<span class="warningDeletion"> {'(this tag will be deleted)'|translate}</span></label>
-		    {/foreach}
-		</p>
-
-		<p>
-		    <input type="hidden" name="merge_list" value="{$MERGE_TAGS_LIST}">
-		    <input type="submit" class="btn btn-submit" name="merge_submit" value="{'Confirm merge'|translate}">
-		    <input type="submit" class="btn btn-cancel" name="merge_cancel" value="{'Cancel'|translate}">
-		</p>
-	    </div>
-	{/if}
-
-	<div class="fieldset">
+	<div class="fieldset" id="tags">
 	    <h3>{'Tag selection'|translate}</h3>
 
-	    {if count($all_tags)}
-		<p><label><i class="fa fa-filter visibility-hidden" id="filterIcon"></i>{'Search'|translate}: <input id="searchInput" class="form-control" type="text" size="12"></label></p>
-	    {/if}
-
 	    {foreach $all_tags as $tag}
-		<div class="form-check form-check-inline">
-		    {capture name='showInfo'}{strip}
-		    <b>{$tag.name}</b> ({$tag.counter|translate_dec:'%d photo':'%d photos'})<br>
-		    <a href="{$tag.U_VIEW}">{'View in gallery'|translate}</a> |
-		    <a href="{$tag.U_EDIT}">{'Manage photos'|translate}</a>
-		    {if !empty($tag.alt_names)}<br>{$tag.alt_names}{/if}
-                    {/strip}{/capture}
-		    <a class="showInfo" title="{$smarty.capture.showInfo|@htmlspecialchars}"><i class="fa fa-info-circle"></i></a>
-		    <input type="checkbox" id="tag_id_{$tag.id}" name="tags[]" value="{$tag.id}">
-		    <label for="tag_id_{$tag.id}">{$tag.name}</label>
+		<div class="row tag">
+		    <div class="col checktag">
+			<input type="checkbox" id="tag_id_{$tag.id}" data-name="{$tag.name|escape:'html'}" name="tags[]" value="{$tag.id}">
+			<label for="tag_id_{$tag.id}">{$tag.name}</label> ({$tag.counter|translate_dec:'%d photo':'%d photos'})
+		    </div>
+		    <div class="col">
+			<a class="btn btn-sm btn-edit" href="{$tag.U_EDIT_PHOTOS}"><i class="fa fa-pencil"></i> {'Edit tag'|translate}</a>
+			<a class="btn btn-sm btn-submit3" href="{$tag.U_MANAGE_PHOTOS}"><i class="fa fa-tasks"></i> {'Manage photos'|translate}</a>
+			<a class="btn btn-sm btn-submit" href="{$tag.U_VIEW}"><i class="fa fa-eye"></i> {'View in gallery'|translate}</a>
+			{if !empty($tag.alt_names)}<br>{$tag.alt_names}{/if}
+		    </div>
 		</div>
 	    {/foreach}
 
-	    <p>
-		<input type="hidden" name="pwg_token" value="{$PWG_TOKEN}">
-		<input type="submit" class="btn btn-edit" name="edit" value="{'Edit selected tags'|translate}">
-		<input type="submit" class="btn btn-duplicate" name="duplicate" value="{'Duplicate selected tags'|translate}">
-		<input type="submit" class="btn btn-merge" name="merge" value="{'Merge selected tags'|translate}">
-		<input type="submit" class="btn btn-delete" name="delete" value="{'Delete selected tags'|translate}" onclick="return confirm('{'Are you sure?'|translate}');">
+	    <p class="checkActions">
+		{'Select:'|translate}
+		<button type="button" class="btn btn-sm btn-all" id="tagSelectAll">{'All'|translate}</button>
+		<button type="button" class="btn btn-sm btn-none" id="tagSelectNone">{'None'|translate}</button>
+		<button type="button" class="btn btn-sm btn-invert" id="tagSelectInvert">{'Invert'|translate}</button>
+	    </p>
+	</div>
+
+	<div class="fieldset" id="actions">
+	    <h3>{'Action'|translate}</h3>
+	    <div id="no-tag-selected">{'No tags selected, no action possible.'|translate}</div>
+
+	    <p class="d-none" id="selectAction">
+		<input type="hidden" name="pwg_token" value="{$csrf_token}">
+		<select class="custom-select" name="action">
+		    <option value="">{'Choose an action'|translate}</option>
+		    <option value="edit">{'Edit selected tags'|translate}</option>
+		    <option value="duplicate">{'Duplicate selected tags'|translate}</option>
+		    <option value="merge">{'Merge selected tags'|translate}</option>
+		    <option value="delete">{'Delete selected tags'|translate}</option>
+		</select>
+	    </p>
+
+	    <div id="action-edit" class="action d-none">
+		<div class="fieldset table-responsive">
+		    <h3>{'Edit selected tags'|translate}</h3>
+		    <table class="table table-striped table-hovered" style="width:100%">
+			<thead>
+			    <tr>
+				<th>{'Current name'|translate}</th>
+				<th>{'New name'|translate}</th>
+			    </tr>
+			</thead>
+			<script type="text/template" class="edit">
+			   <%_.each(tags, function(tag, index) { %>
+			   <tr>
+			     <td><%- tag.name %></td>
+			     <td>
+			       <input type="text" class="form-control" name="tag_name-<%- tag.id %>" value="<%- tag.name %>" size="50"/>
+			     </td>
+			   </tr>
+			   <% });%>
+			</script>
+			<tbody id="editHtml">
+			</tbody>
+		    </table>
+		</div>
+	    </div>
+
+	    <div id="action-merge" class="action d-none">
+		<div class="fieldset">
+		    <h3>{'Merge selected tags'|translate}</h3>
+		    {'Select the destination tag'|translate}
+		    <script type="text/template" class="merge">
+			<%_.each(tags, function(tag, index) { %>
+			<p>
+			    <label>
+				<input type="radio" name="destination_tag" value="<%- tag.id %>" <% if (index === 0) { %>checked="checked"<% } %>>
+				<%- tag.name %>
+
+				<span class="text-danger <% if (index === 0) { %>d-none<% } %>">
+				    {'(this tag will be deleted)'|translate}
+				</span>
+			    </label>
+			</p>
+			<% });%>
+		    </script>
+		    <div id="mergeHtml"></div>
+		</div>
+	    </div>
+
+	    <div id="action-duplicate" class="action d-none">
+		<div class="fieldset table-responsive">
+		    <h3>{'Duplicate selected tags'|translate}</h3>
+		    <table class="table table-striped table-hovered" style="width:100%">
+			<thead>
+			    <tr>
+				<th>{'Source tag'|translate}</th>
+				<th>{'Name of the duplicate'|translate}</th>
+			    </tr>
+			</thead>
+			<script type="text/template" class="duplicate">
+			 <%_.each(tags, function(tag, index) { %>
+			    <tr>
+				<td><%- tag.name %></td>
+				<td><input type="text" class="form-control" name="tag_name-<%- tag.id %>" value="<%- tag.name %>" size="50"></td>
+			    </tr>
+			 <% });%>
+			</script>
+			<tbody id="duplicateHtml">
+			</tbody>
+		    </table>
+		</div>
+	    </div>
+
+	    <p id="action-delete" class="action custom-control custom-checkbox d-none">
+		<input class="custom-control-input" type="checkbox" id="confirm-deletion" name="confirm_deletion" value="1">
+		<label class="custom-control-label" for="confirm-deletion">{'Are you sure?'|translate}</label>
+	    </p>
+
+	    <p id="applyAction" class="d-none">
+		<input class="btn btn-submit" type="submit" value="{'Apply action'|translate}" name="submit">
 	    </p>
 	</div>
     </form>

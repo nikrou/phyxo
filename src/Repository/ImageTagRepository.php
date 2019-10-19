@@ -24,7 +24,7 @@ class ImageTagRepository extends BaseRepository
 
     public function findBy(string $field, string $value)
     {
-        $query = 'SELECT id FROM ' . self::IMAGE_TAG_TABLE;
+        $query = 'SELECT tag_id, image_id FROM ' . self::IMAGE_TAG_TABLE;
         $query .= sprintf(' WHERE %s = \'%s\'', $field, $this->conn->db_real_escape_string($value));
 
         return $this->conn->db_query($query);

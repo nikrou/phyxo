@@ -106,7 +106,7 @@ $template->assign(
         'U_RATING' => $router->generate('admin_rating'),
         'U_RECENT_SET' => $link_start . 'batch_manager&amp;filter=prefilter-last_import',
         'U_BATCH' => $link_start . 'batch_manager',
-        'U_TAGS' => $link_start . 'tags',
+        'U_TAGS' => $router->generate('admin_tags'),
         'U_USERS' => $router->generate('admin_users'),
         'U_GROUPS' => $router->generate('admin_groups'),
         'U_NOTIFICATION_BY_MAIL' => $link_start . 'notification_by_mail',

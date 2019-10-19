@@ -83,6 +83,8 @@ $edit: $success;
 $cancel: $warning;
 $delete: $danger;
 $reset: $info;
+$duplicate: $warning;
+$merge: $info;
 
 $theme-colors: () !default;
 $theme-colors: map-merge(
@@ -105,7 +107,9 @@ $theme-colors: map-merge(
     'edit': $edit,
     'cancel': $cancel,
     'delete': $delete,
-    'reset': $reset
+    'reset': $reset,
+    'duplicate': $duplicate,
+    'merge': $merge
   ),
   $theme-colors
 );

@@ -328,6 +328,10 @@ aside[role='navigation'] {
   }
 }
 
+.tags .row.selected {
+  background-color: $gray-200;
+}
+
 a[data-toggle='collapse'] {
   position: relative;
 }

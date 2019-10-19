@@ -676,6 +676,7 @@ $lang['The whole page'] = 'Toute la page';
 $lang['The whole set'] = 'Tout le lot';
 $lang['No photo in the current set.'] = 'Aucune photo dans le lot.';
 $lang['No photo selected, no action possible.'] = 'Aucune photo sélectionnée, aucune action possible.';
+$lang['No tags selected, no action possible.'] = 'Aucun tag sélectionné, aucune action possible.';
 $lang['Choose an action'] = 'Choisir une action';
 $lang['remove author'] = 'supprimer l\'auteur';
 $lang['Type here the author name'] = 'Entrez ici le nom de l\'auteur';
