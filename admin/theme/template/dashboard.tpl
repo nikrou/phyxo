@@ -65,7 +65,7 @@
 	</dd>
     </dl>
 
-    {* if $ENABLE_SYNCHRONIZATION}
+    {if $ENABLE_SYNCHRONIZATION}
 	<form name="QuickSynchro" action="{$U_CAT_UPDATE}" method="post" id="QuickSynchro" style="display: block; text-align:right;">
 	    <div>
 		<input type="hidden" name="sync" value="files" checked="checked">
@@ -81,5 +81,5 @@
 		<input type="submit" value="{'Quick Local Synchronization'|translate}" name="submit">
 	    </div>
 	</form>
-    {/if *}
+    {/if}
 {/block}

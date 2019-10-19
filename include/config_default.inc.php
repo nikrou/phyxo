@@ -611,7 +611,7 @@ $conf['data_location'] = '_data/';
 $conf['upload_dir'] = './upload';
 
 // enable the synchronization method for adding photos
-$conf['enable_synchronization'] = true;
+$conf['enable_synchronization'] = false;
 
 // permitted characters for files/directoris during synchronization
 $conf['sync_chars_regex'] = '/^[a-zA-Z0-9-_.]+$/';

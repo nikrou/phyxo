@@ -50,7 +50,7 @@ abstract class AdminCommonController extends AbstractController
         $tpl_params = [
             'USERNAME' => $user->getUsername(),
             'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
-            'U_SITE_MANAGER' => $link_start . 'site_manager',
+            'U_SITE_MANAGER' => $router->generate('admin_site'),
             'U_HISTORY_STAT' => $router->generate('admin_history'),
             'U_SITES' => $link_start . 'remote_site',
             'U_MAINTENANCE' => $router->generate('admin_maintenance'),
@@ -60,7 +60,7 @@ abstract class AdminCommonController extends AbstractController
             'U_CONFIG_THEMES' => $router->generate('admin_themes_installed'),
             'U_ALBUMS' => $router->generate('admin_albums'),
             'U_ALBUMS_OPTIONS' => $router->generate('admin_albums_options'),
-            'U_CAT_UPDATE' => $router->generate('admin_site_update'),
+            'U_CAT_UPDATE' => $router->generate('admin_synchronize', ['site' => 1]),
             'U_RATING' => $router->generate('admin_rating'),
             'U_RECENT_SET' => $link_start . 'batch_manager&amp;filter=prefilter-last_import',
             'U_BATCH' => $link_start . 'batch_manager',

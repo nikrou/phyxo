@@ -1,0 +1,14 @@
+admin_site:
+  path: /site
+  controller: App\Controller\Admin\SiteController:index
+
+admin_site_delete:
+  path: /site/delete
+  controller: App\Controller\Admin\SiteController:delete
+  methods: ['POST']
+
+admin_synchronize:
+  path: /synchronize/{site}
+  controller: App\Controller\Admin\SiteController:synchronize
+  requirements:
+    site: \d+

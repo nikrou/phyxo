@@ -29,10 +29,21 @@ class SiteRepository extends BaseRepository
 
     public function findById(int $id)
     {
-        $query = 'SELECT id, galleries_url FROM ' . self::SITES_TABLE;
+        $query = 'SELECT galleries_url FROM ' . self::SITES_TABLE;
         $query .= ' WHERE id = ' . $id;
 
         return $this->conn->db_query($query);
+    }
+
+    public function isSiteExists(string $url): bool
+    {
+        $query = 'SELECT count(1) site_exists FROM ' . self::SITES_TABLE;
+        $query .= ' WHERE galleries_url = \'' . $this->conn->db_real_escape_string($url) . '\'';
+
+        $result = $this->conn->db_query($query);
+        $row = $this->conn->db_fetch_assoc($result);
+
+        return $row['site_exists'] == 1;
     }
 
     public function findAll()
