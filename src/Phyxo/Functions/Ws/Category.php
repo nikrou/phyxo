@@ -181,7 +181,9 @@ class Category
              * @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
              */
             $forbidden_categories = $service->getUserMapper()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->isAdmin());
-            $where[] = 'id NOT IN (' . $forbidden_categories . ')';
+            if (!empty($forbidden_categories)) {
+                $where[] = 'id NOT IN (' . $forbidden_categories . ')';
+            }
             $join_type = 'LEFT';
         }
 

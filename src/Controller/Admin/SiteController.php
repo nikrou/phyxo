@@ -122,7 +122,7 @@ class SiteController extends AdminCommonController
         return $this->redirectToRoute('admin_site');
     }
 
-    public function synchronize(Request $request, int $site, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager)
+    public function synchronize(Request $request, int $site, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
     {
         $tpl_params = [];
 

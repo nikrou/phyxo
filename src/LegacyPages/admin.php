@@ -116,7 +116,7 @@ $template->assign(
         'U_ADD_PHOTOS' => $link_start . 'photos_add',
         'U_UPDATE' => $router->generate('admin_update'),
         'U_DEV_VERSION' => strpos(PHPWG_VERSION, 'dev') !== false,
-        'U_DEV_API' => './api.php',
+        'U_DEV_API' => $router->generate('api'),
         'U_DEV_JS_TESTS' => '../tests/functional/'
     ]
 );

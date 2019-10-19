@@ -75,7 +75,7 @@ abstract class AdminCommonController extends AbstractController
             'U_ADD_PHOTOS' => $link_start . 'photos_add',
             'U_UPDATE' => $router->generate('admin_update'),
             'U_DEV_VERSION' => strpos($core_version, 'dev') !== false,
-            'U_DEV_API' => './api.php',
+            'U_DEV_API' => $router->generate('api'),
             'U_DEV_JS_TESTS' => '../tests/functional/'
         ];
 
