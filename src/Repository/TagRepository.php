@@ -159,17 +159,29 @@ class TagRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function getPendingTags()
+    public function getPendingTags(bool $count_only = false)
     {
-        $query = 'SELECT t.id, t.name,it.image_id, url_name, created_by,';
-        $query .= ' i.path,u.username, status FROM ' . self::IMAGE_TAG_TABLE . ' AS it';
+        if ($count_only) {
+            $query = 'SELECT count(1)';
+        } else {
+            $query = 'SELECT t.id, t.name,it.image_id, url_name, created_by,';
+            $query .= ' i.path,u.username, status';
+        }
+
+        $query .= ' FROM ' . self::IMAGE_TAG_TABLE . ' AS it';
         $query .= ' LEFT JOIN ' . self::TAGS_TABLE . ' AS t ON it.tag_id = t.id';
         $query .= ' LEFT JOIN ' . self::IMAGES_TABLE . ' AS i ON i.id = it.image_id';
         $query .= ' LEFT JOIN ' . self::USERS_TABLE . ' AS u ON u.id = created_by';
         $query .= ' WHERE validated=\'' . $this->conn->boolean_to_db(false) . '\'';
         $query .= ' AND created_by IS NOT NULL';
 
-        return $this->conn->db_query($query);
+        if ($count_only) {
+            list($nb_tags) = $this->conn->db_fetch_row($this->conn->db_query($query));
+
+            return $nb_tags;
+        } else {
+            return $this->conn->db_query($query);
+        }
     }
 
     public function getAvailableTags(UserInterface $user, array $filter = [], bool $show_pending_added_tags = false)

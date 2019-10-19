@@ -22,7 +22,6 @@ use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use GuzzleHttp\Client;
-use IntlDateFormatter;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\EntityManager;
@@ -90,6 +89,8 @@ class DashboardController extends AdminCommonController
                 'DB_IMAGE_CATEGORY' => Language::l10n_dec('%d association', '%d associations', $nb_image_category),
                 'DB_TAGS' => Language::l10n_dec('%d tag', '%d tags', $nb_tags),
                 'DB_IMAGE_TAG' => Language::l10n_dec('%d association', '%d associations', $nb_image_tag),
+                'NB_PENDING_TAGS' => $em->getRepository(TagRepository::class)->getPendingTags($count_only = true),
+                'U_PENDING_TAGS' => $this->generateUrl('admin_tags_pending'),
                 'DB_USERS' => Language::l10n_dec('%d user', '%d users', $nb_users),
                 'DB_GROUPS' => Language::l10n_dec('%d group', '%d groups', $nb_groups),
                 'DB_RATES' => ($nb_rates === 0) ? Language::l10n('no rate') : Language::l10n('%d rates', $nb_rates),

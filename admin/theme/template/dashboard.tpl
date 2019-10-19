@@ -47,7 +47,12 @@
 		    {/if}
 		</li>
 		<li>{$DB_CATEGORIES} {$PHYSICAL_CATEGORIES} {'and'|translate} {$VIRTUAL_CATEGORIES} ({$DB_IMAGE_CATEGORY})</li>
-		<li>{$DB_TAGS} ({$DB_IMAGE_TAG})</li>
+		<li>
+		    {$DB_TAGS} ({$DB_IMAGE_TAG})
+		    {if !empty($NB_PENDING_TAGS)}
+			(<a href="{$U_PENDING_TAGS}">{'%d waiting for validation'|translate:$NB_PENDING_TAGS}</a>)
+		    {/if}
+		</li>
 		<li>{$DB_USERS}</li>
 		<li>{$DB_GROUPS}</li>
 		{if isset($DB_COMMENTS)}
