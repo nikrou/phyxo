@@ -10,6 +10,7 @@ import './extension';
 import './comments';
 import './tags';
 import 'jquery-colorbox';
+import './add_album';
 
 $(function() {
   $('#sidebarCollapse').on('click', function() {

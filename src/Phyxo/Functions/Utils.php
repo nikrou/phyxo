@@ -27,6 +27,7 @@ use App\Repository\UserFeedRepository;
 use App\Repository\ImageRepository;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\GroupRepository;
+use App\Repository\TagRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
 use App\Repository\UserGroupRepository;
@@ -1689,25 +1690,18 @@ class Utils
      * last modification timestamp and the total of items (separated by a _).
      * Additionally returns the hash of root path.
      * Used to invalidate LocalStorage cache on admin pages.
-     *
      * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
-     * @return string[]
      */
-    public static function get_admin_client_cache_keys($requested = [])
+    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em): array
     {
-        global $conn;
-
         $tables = [
-            'categories' => '\App\Repository\CategoryRepository',
-            'groups' => '\App\Repository\GroupRepository',
-            'images' => '\App\Repository\ImageRepository',
-            'tags' => '\App\Repository\TagRepository',
-            'users' => '\App\Repository\UserInfosRepository'
+            'categories' => CategoryRepository::class,
+            'groups' => GroupRepository::class,
+            'images' => ImageRepository::class,
+            'tags' => TagRepository::class,
+            'users' => UserInfosRepository::class
         ];
 
-        if (!is_array($requested)) {
-            $requested = [$requested];
-        }
         if (empty($requested)) {
             $requested = array_keys($tables);
         } else {
@@ -1719,8 +1713,8 @@ class Utils
         ];
 
         foreach ($requested as $repository) {
-            $result = (new $tables[$repository]($conn))->getMaxLastModified();
-            $row = $conn->db_fetch_row($result);
+            $result = $em->getRepository($tables[$repository])->getMaxLastModified();
+            $row = $em->getConnection()->db_fetch_row($result);
 
             $keys[$repository] = sprintf('%s_%s', $row[0], $row[1]);
         }

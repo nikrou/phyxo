@@ -5,10 +5,16 @@
     <li class="breadcrumb-item">{'Properties'|translate}</li>
 {/block}
 
+{block name="head_assets" append}
+{/block}
+
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+{/block}
+
 {block name="content"}
     {include file='include/autosize.inc.tpl'}
     {include file='include/datepicker.inc.tpl'}
-    {include file='include/colorbox.inc.tpl'}
 
     {combine_script id='LocalStorageCache' load='footer' path='admin/theme/js/LocalStorageCache.js'}
 

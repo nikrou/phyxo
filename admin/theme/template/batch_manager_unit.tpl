@@ -5,13 +5,14 @@
     <li class="breadcrumb-item">{'unit mode'|translate}</li>
 {/block}
 
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+{/block}
+
 {block name="content"}
     {include file="include/autosize.inc.tpl"}
     {include file="include/datepicker.inc.tpl"}
-    {include file="include/colorbox.inc.tpl"}
-
     {combine_script id="LocalStorageCache" load="footer" path="admin/theme/js/LocalStorageCache.js"}
-
     {combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
     {combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
 

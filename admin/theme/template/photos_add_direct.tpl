@@ -5,45 +5,32 @@
     <li class="breadcrumb-item">{'Web Form'|translate}</li>
 {/block}
 
-{block name="head_assets"}
-    {combine_css path="admin/theme/js/plugins/jquery.jgrowl.css"}
-    {combine_css path="admin/theme/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"}
-    {combine_css id='jquery.selectize' path="admin/theme/js/plugins/selectize.clear.css"}
+{block name="head_assets" append}
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/plugins/jquery.jgrowl.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/plugins/selectize.clear.css">
 {/block}
 
-{block name="footer_assets" append}
-    <script src="./theme/js/common.js"></script>
-    <script src="./theme/js/plugins/jquery.jgrowl.js"></script>
-    <script src="./theme/js/plugins/plupload/moxie.js"></script>
-    <script src="./theme/js/plugins/plupload/plupload.js"></script>
-    <script src="./theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
-    <script src="./theme/js/LocalStorageCache.js"></script>
-    <script src="./theme/js/plugins/selectize.js"></script>
-    <script src="./theme/js/addAlbum.js"></script>
-    <script src="./theme/js/photos_add_direct.js"></script>
-    <script src="./theme/js/plugins/plupload/i18n/{$lang_info.plupload_code}.js"></script>
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/LocalStorageCache.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/plupload/moxie.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.jgrowl.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/selectize.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/plupload/plupload.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/plupload/i18n/{$lang_info.plupload_code}.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+    <script src="{$ROOT_URL}admin/theme/src/js/photos_add_direct.js"></script>
 
     <script>
-     {* <!-- CATEGORIES --> *}
      var categoriesCache = new CategoriesCache({
 	 serverKey: '{$CACHE_KEYS.categories}',
 	 serverId: '{$CACHE_KEYS._hash}',
 	 rootUrl: '{$ROOT_URL}'
      });
 
-     categoriesCache.selectize($('[data-selectize=categories]'), {
-	 filter: function(categories, options) {
-	     if (categories.length > 0) {
-		 jQuery("#albumSelection, .selectFiles, .showFieldset").show();
-	     }
-
-	     return categories;
-	 }
-     });
-
-     $('[data-add-album]').pwgAddAlbum({ cache: categoriesCache });
-
-     var pwg_token = '{$pwg_token}';
+     var ws_url = '{$ws}';
+     var pwg_token = '{$csrf_token}';
      var photosUploaded_label = "{'%d photos uploaded'|translate}";
      var batch_Label = "{'Manage this set of %d photos'|translate}";
      var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
@@ -55,27 +42,26 @@
 {/block}
 
 {block name="content"}
-    {include file='include/colorbox.inc.tpl'}
     {include file='include/add_album.inc.tpl'}
 
     <div id="photosAddContent">
 	<div class="infos" style="display:none"></div>
 	<p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="">{'Add another set of photos'|translate}</a></p>
 
-	{if count($setup_errors) > 0}
+	{if !empty($setup_errors) > 0}
 	    <div class="errors">
 		<ul>
-		    {foreach from=$setup_errors item=error}
+		    {foreach $setup_errors as $error}
 			<li>{$error}</li>
 		    {/foreach}
 		</ul>
 	    </div>
 	{else}
 
-	    {if count($setup_warnings) > 0}
+	    {if !empty($setup_warnings) > 0}
 		<div class="warnings">
 		    <ul>
-			{foreach from=$setup_warnings item=warning}
+			{foreach $setup_warnings as $warning}
 			    <li>{$warning}</li>
 			{/foreach}
 		    </ul>
@@ -88,11 +74,17 @@
 		<div class="fieldset">
 		    <h3>{'Drop into album'|translate}</h3>
 
-		    <span id="albumSelection" style="display:none">
-			<select data-selectize="categories" data-value="{$selected_category|@json_encode|escape:html}"
-						data-default="first" name="category"></select>
-			<br>{'... or '|translate}</span>
-			<button class="btn btn-sm btn-submit" data-add-album="category" title="{'create a new album'|translate}">{'create a new album'|translate}</button>
+		    <div class="row">
+			<div class="col">
+			    <select data-selectize="categories" data-value="{$selected_category|json_encode|escape:html}" data-default="first" name="category"></select>
+			</div>
+			<div class="col">
+			    {'... or '|translate}
+			</div>
+			<div class="col">
+			    <button type="button" class="btn btn-sm btn-submit" data-add-album="category" title="{'Create a new album'|translate}">{'Create a new album'|translate}</button>
+			</div>
+		    </div>
 		</div>
 
 		<p class="showFieldset">

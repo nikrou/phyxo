@@ -5,9 +5,12 @@
     <li class="breadcrumb-item">{'global mode'|translate}</li>
 {/block}
 
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+{/block}
+
 {block name="content"}
     {include file="include/datepicker.inc.tpl" load_mode="async"}
-    {include file="include/colorbox.inc.tpl" load_mode="async"}
     {include file="include/add_album.inc.tpl" load_mode="async"}
 
     {combine_css path="admin/theme/js/ui/theme/jquery.ui.core.css"}
@@ -26,7 +29,7 @@
     {combine_script id="jquery.ajaxmanager" load="async" path="admin/theme/js/plugins/jquery.ajaxmanager.js"}
 
     {combine_script id="addAlbum" load="footer" path="admin/theme/js/addAlbum.js"}
-    {combine_script id="batchManagerGlobal" load="async" require="jquery,datepicker,jquery.colorbox,addAlbum,doubleSlider" path="admin/theme/js/batchManagerGlobal.js"}
+    {combine_script id="batchManagerGlobal" load="async" require="jquery,datepicker,addAlbum,doubleSlider" path="admin/theme/js/batchManagerGlobal.js"}
 
     {footer_script}
     var lang = {

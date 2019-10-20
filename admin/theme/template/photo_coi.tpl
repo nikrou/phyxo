@@ -5,12 +5,15 @@
     <li class="breadcrumb-item">{'Center of interest'|translate}</li>
 {/block}
 
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+{/block}
+
 {block name="content"}
     {html_head}
     <link rel="stylesheet" type="text/css" href="./theme/js/plugins/jquery.Jcrop.css" />
     {/html_head}
     {combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.Jcrop.js'}
-    {include file='include/colorbox.inc.tpl'}
 
     <form method="post">
 	<div class="fieldset">

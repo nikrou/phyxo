@@ -6,8 +6,6 @@
 {/block}
 
 {block name="content"}
-    {include file="include/colorbox.inc.tpl"}
-
     {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
 
     <form method="post" action="{$F_ACTION}" class="properties">
