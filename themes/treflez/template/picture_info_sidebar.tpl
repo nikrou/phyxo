@@ -17,13 +17,14 @@
 	    {if $display_info.created_on and isset($INFO_CREATION_DATE)}
 		<div id="datecreate" class="imageInfo">
                     <dt>{'Created on'|translate}</dt>
-                    <dd>{$INFO_CREATION_DATE}</dd>
+                    <dd><a href="{$INFO_CREATION_DATE.url}">{$INFO_CREATION_DATE.label}</a></dd>
+
 		</div>
 	    {/if}
 	    {if $display_info.posted_on}
 		<div id="datepost" class="imageInfo">
                     <dt>{'Posted on'|translate}</dt>
-                    <dd>{$INFO_POSTED_DATE}</dd>
+                    <dd><a href="{$INFO_POSTED_DATE.url}">{$INFO_POSTED_DATE.label}</a></dd>
 		</div>
 	    {/if}
 	    {if $display_info.visits}

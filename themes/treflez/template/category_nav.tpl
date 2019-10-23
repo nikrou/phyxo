@@ -1,8 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-contextual {$theme_config->navbar_contextual_style} {$theme_config->navbar_contextual_bg}{if $theme_config->page_header == 'fancy' && $theme_config->page_header_both_navs} navbar-transparent navbar-sm{/if} sticky-top mb-2">
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
         <div class="navbar-brand mr-auto">
-	    {if is_array($TITLE)}
+	    {if isset($chronology.TITLE) || is_array($TITLE)}
 		<a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>
+	    {/if}
+	    {if is_array($TITLE)}
 		{foreach $TITLE as $breadcrum_element}
 		    {$LEVEL_SEPARATOR}
 		    {if $breadcrum_element.url}
@@ -13,9 +15,9 @@
 		{/foreach}
 	    {else}
 		{if isset($chronology.TITLE)}
-                    <a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>{$LEVEL_SEPARATOR}{$chronology.TITLE}
+		    {$LEVEL_SEPARATOR}{$chronology.TITLE}
 		{else}
-                    <div class="nav-breadcrumb d-inline-flex">{$TITLE}</div>
+		    <div class="nav-breadcrumb d-inline-flex">{$TITLE}</div>
 		{/if}
 	    {/if}
         </div>

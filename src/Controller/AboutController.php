@@ -16,11 +16,14 @@ use Phyxo\Conf;
 use Phyxo\Extension\Theme;
 use Phyxo\MenuBar;
 use Phyxo\Functions\Language;
+use Symfony\Component\HttpFoundation\Request;
 
 class AboutController extends CommonController {
-    public function index(Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
+    public function index(Request $request, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
     {
         $tpl_params = [];
+
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
 

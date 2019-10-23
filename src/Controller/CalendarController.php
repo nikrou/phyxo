@@ -128,7 +128,18 @@ class CalendarController extends CommonController
             }
         }
 
-        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => $view_type]);
+        // @TODO : better display in template
+        $tmp = '<a href="' . $this->generateUrl('homepage') . '">' . Language::l10n('Home') . '</a>';
+
+        foreach ($calendar->getBreadcrumb('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => $view_type]) as $part) {
+            $tmp .= ' / ';
+            if (!empty($part['url'])) {
+                $tmp .= '<a href="' . $part['url'] . '">' . $part['label'] . '</a>';
+            } else {
+                $tmp .= $part['label'];
+            }
+        }
+        $tpl_params['TITLE'] = $tmp;
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
