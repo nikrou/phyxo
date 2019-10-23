@@ -46,7 +46,6 @@ class AlbumController extends CommonController
         $category = $categoryMapper->getCatInfo($category_id);
 
         $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
-        $tpl_params['TITLE'] = $categoryMapper->getCatDisplayName($category['upper_names'], '', false);
 
         $order = 'rank';
         $filter = [];
@@ -292,6 +291,7 @@ class AlbumController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
+        $tpl_params['U_HOME'] = $this->generateUrl('homepage');
         $tpl_params['U_MODE_POSTED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'posted', 'view_type' => 'calendar', 'category_id' => $category_id]);
         $tpl_params['U_MODE_CREATED'] = $this->generateUrl('calendar_category_monthly', ['date_type' => 'created', 'view_type' => 'calendar', 'category_id' => $category_id]);
         $tpl_params['START_ID'] = $start;
@@ -567,7 +567,7 @@ class AlbumController extends CommonController
 
                 $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
 
-                $representative_infos = $infos_of_image[$category['representative_picture_id']];
+                $representative_infos = isset($infos_of_image[$category['representative_picture_id']]) ? $infos_of_image[$category['representative_picture_id']] : [];
 
                 $tpl_var = array_merge($category, [
                     'ID' => $category['id'] /*obsolete*/,

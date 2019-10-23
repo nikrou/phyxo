@@ -74,7 +74,7 @@
 				{if $display_info.created_on and isset($INFO_CREATION_DATE)}
 				    <tr>
 					<th scope="row">{'Created on'|translate}</th>
-					<td><div id="datecreate" class="imageInfo">{$INFO_CREATION_DATE}</div></td>
+					<td><div id="datecreate" class="imageInfo"><a href="{$INFO_CREATION_DATE.url}">{$INFO_CREATION_DATE.label}</a></div></td>
 				    </tr>
 				{/if}
 				{if $display_info.posted_on}

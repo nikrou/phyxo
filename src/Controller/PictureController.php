@@ -466,12 +466,14 @@ class PictureController extends CommonController
 
         $tpl_params['TITLE'] = [
             [
-                'url' => $this->generateUrl('album', ['category_id' => $category['id']])
+                'url' => $this->generateUrl('album', ['category_id' => $category['id']]),
+                'label' => $tpl_params['related_categories'][0],
             ],
             [
                 'label' => $picture['name']
             ]
         ];
+        $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . Language::l10n('Home') . '</a>';
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
