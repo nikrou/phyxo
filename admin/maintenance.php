@@ -62,7 +62,7 @@ switch ($action) {
                 (new ImageRepository($conn))->updatePathByStorageId($fulldirs[$cat_id], $cat_id);
             }
 
-            $ratingMapper->updateRatingScore();
+            $rateMapper->updateRatingScore();
             $userMapper->invalidateUserCache();
             break;
         }

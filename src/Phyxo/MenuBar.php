@@ -56,7 +56,11 @@ class MenuBar
         $this->menu = new BlockManager('menubar');
         $this->menu->loadDefaultBlocks();
         $this->menu->loadRegisteredBlocks();
-        $this->menu->loadMenuConfig(json_decode($this->conf['blk_menubar'], true));
+        if (empty($this->conf['blk_menubar'])) {
+            $this->menu->loadDefaultBlocks();
+        } else {
+            $this->menu->loadMenuConfig(json_decode($this->conf['blk_menubar'], true));
+        }
         $this->menu->prepareDisplay();
 
         $this->linksBlock();
