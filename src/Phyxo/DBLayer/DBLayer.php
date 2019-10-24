@@ -244,7 +244,7 @@ class DBLayer
                     $is_first = false;
                 }
 
-                if ($value === 'CURRENT_DATE' || $value === 'CURRENT_TIME') {
+                if ($value === 'CURRENT_DATE' || $value === 'CURRENT_TIME' || $value === 'CURRENT_TIMESTAMP') {
                     $query .= $value;
                 } elseif (is_bool($value)) {
                     $query .= '\'' . $this->boolean_to_db($value) . '\'';

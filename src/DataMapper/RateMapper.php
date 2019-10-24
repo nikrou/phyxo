@@ -69,7 +69,7 @@ class RateMapper
         } // end anonymous user
 
         $this->em->getRepository(RateRepository::class)->deleteRate($this->userMapper->getUser()->getId(), $image_id, $user_anonymous ? $anonymous_id : null);
-        $this->em->getRepository(RateRepository::class)->addRate($this->userMapper->getUser()->getId(), $image_id, $anonymous_id, $rate, 'now()');
+        $this->em->getRepository(RateRepository::class)->addRate($this->userMapper->getUser()->getId(), $image_id, $anonymous_id, $rate, 'CURRENT_DATE');
 
         return $this->updateRatingScore($image_id);
     }
