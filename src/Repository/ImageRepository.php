@@ -675,9 +675,9 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(DISTINCT id) as nb_images';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $date_where . ' GROUP BY period';
 
@@ -729,9 +729,9 @@ class ImageRepository extends BaseRepository
         $query = 'SELECT ' . $this->conn->db_concat_ws($sub_queries, '-') . ' AS period';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' AND ' . $date_field . ' IS NOT NULL GROUP BY period';
 
@@ -744,9 +744,9 @@ class ImageRepository extends BaseRepository
         $query = 'SELECT DISTINCT id,' . $this->addOrderByFields($order_by);
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $order_by;
 
@@ -774,9 +774,9 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period';
@@ -806,9 +806,9 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period, ' . $date_field;
@@ -838,9 +838,9 @@ class ImageRepository extends BaseRepository
         $query .= ' COUNT(distinct id) as count';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $date_where;
         $query .= ' GROUP BY period';
@@ -857,7 +857,7 @@ class ImageRepository extends BaseRepository
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' WHERE id ' . $this->conn->in($ids);
         $query .= ' ' . $date_where;
-        $query .= 'ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
+        $query .= ' ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
 
         return $this->conn->db_query($query);
     }
@@ -869,12 +869,12 @@ class ImageRepository extends BaseRepository
         $query .= $this->conn->db_get_dayofweek($date_field) . '-1 as dow';
         $query .= ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' ON id = image_id';
-        $query .= ' WHERE ' . $condition;
+        $query .= ' WHERE ' . (!empty($condition) ? $condition : '1 = 1');
         if (!empty($category_ids)) {
-            $query .= ' category_id ' . $this->conn->in($category_ids);
+            $query .= ' AND category_id ' . $this->conn->in($category_ids);
         }
         $query .= ' ' . $date_where;
-        $query .= 'ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
+        $query .= ' ORDER BY ' . $this->conn::RANDOM_FUNCTION . '() LIMIT 1';
 
         return $this->conn->db_query($query);
     }
