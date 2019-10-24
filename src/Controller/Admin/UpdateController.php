@@ -21,6 +21,7 @@ use Phyxo\Template\Template;
 use Phyxo\Update\Updates;
 use Phyxo\Upgrade;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 
 class UpdateController extends AdminCommonController
@@ -92,7 +93,7 @@ class UpdateController extends AdminCommonController
                             }
                         }
                     }
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $tpl_params['LAST_ERROR_MESSAGE'] = $e->getMessage();
                 }
             }
@@ -126,7 +127,7 @@ class UpdateController extends AdminCommonController
                     $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
                     $page['infos'][] = $upgrade_to;
                     $step = -1;
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $step = 0;
                     $message = $e->getMessage();
                     $message .= '<pre>';
@@ -191,12 +192,12 @@ class UpdateController extends AdminCommonController
                     $fs->remove(__DIR__ . '/../' . $conf['data_location'] . 'update');
                     $fs->remove(__DIR__ . '/../var/cache');
 
-                    \Phyxo\Functions\Utils::invalidate_user_cache(true);
+                    $userMapper->invalidateUserCache($full = true);
                     $template->delete_compiled_templates();
 
                     file_get_contents('./'); // cache warmup
                     \Phyxo\Functions\Utils::redirect('./?now=' . time());
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $step = 0;
                     $message = $e->getMessage();
                     $message .= '<pre>';

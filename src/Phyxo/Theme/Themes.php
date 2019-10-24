@@ -96,9 +96,9 @@ class Themes extends Extensions
                     break;
                 }
 
-                $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $errors);
+                $theme_maintain->activate($this->fs_themes[$theme_id]['version'], $error);
 
-                if (empty($errors)) {
+                if (empty($error)) {
                     (new ThemeRepository($this->conn))->addTheme($theme_id, $this->fs_themes[$theme_id]['version'], $this->fs_themes[$theme_id]['name']);
                 }
                 break;

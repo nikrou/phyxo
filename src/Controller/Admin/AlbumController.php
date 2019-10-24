@@ -145,7 +145,7 @@ class AlbumController extends AdminCommonController
                     'This album contains %d photos, added between %s and %s.',
                     $image_count,
                     (new \DateTime($min_date))->format('l d M Y'),
-                    (new \DateTime($max_date))->format('l d M Y'),
+                    (new \DateTime($max_date))->format('l d M Y')
                     );
             }
         } else {

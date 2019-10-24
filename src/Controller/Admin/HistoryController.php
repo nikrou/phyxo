@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HistoryController extends AdminCommonController
 {
-    private $image_std_params;
+    private $image_std_params, $types, $display_thumbnails;
 
     public function __construct(ImageStandardParams $image_std_params)
     {
@@ -204,12 +204,12 @@ class HistoryController extends AdminCommonController
               );
         }
 
-        $tpl_params['display_thumbnail_selected'] = @$form['display_thumbnail'];
-        $tpl_params['type_option_selected'] = @$form['types'];
+        $tpl_params['display_thumbnail_selected'] = $request->request->get('display_thumbnail') ?? '';
+        $tpl_params['type_option_selected'] = $request->request->get('types') ?? [];
 
         $result = $em->getRepository(UserRepository::class)->findAll('ORDER BY username ASC');
         $tpl_params['user_options'] = $em->getConnection()->result2array($result, 'id', 'username');
-        $tpl_params['user_options_selected'] = @$form['user'];
+        $tpl_params['user_options_selected'] = $request->request->get('user') ?? -1;
 
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
@@ -550,7 +550,7 @@ class HistoryController extends AdminCommonController
 
     protected function dateFormat(int $timestamp, string $format): string
     {
-        $date_time = (new \Datetime())->setTimestamp($timestamp);
+        $date_time = (new \DateTime())->setTimestamp($timestamp);
         $intl_date_formatter = new \IntlDateFormatter($this->getUser()->getLanguage(), \IntlDateFormatter::FULL, \IntlDateFormatter::NONE, null, null, $format);
 
         return $intl_date_formatter->format($date_time);

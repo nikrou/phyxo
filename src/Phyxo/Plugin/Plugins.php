@@ -102,13 +102,13 @@ class Plugins extends Extensions
             case 'update':
                 $previous_version = $this->fs_plugins[$plugin_id]['version'];
                 try {
-                    $this->extractPluginFiles('upgrade', $revision, $plugin_id);
+                    $this->extractPluginFiles('upgrade', $revision);
 
                     $this->getFsPlugin($plugin_id); // refresh plugins list
                     $new_version = $this->fs_plugins[$plugin_id]['version'];
 
                     $plugin_maintain = $this->buildMaintainClass($plugin_id);
-                    $plugin_maintain->update($previous_version, $new_version, $errors);
+                    $plugin_maintain->update($previous_version, $new_version, $error);
                     if ($new_version !== 'auto') {
                         (new PluginRepository($this->conn))->updatePlugin(['version' => $new_version], ['id' => $plugin_id]);
                     }

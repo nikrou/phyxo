@@ -30,6 +30,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class ConfigurationController extends AdminCommonController
 {
+    private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
+
     public function __construct()
     {
         $this->main_checkboxes = [
