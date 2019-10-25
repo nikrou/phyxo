@@ -16,6 +16,14 @@ admin_batch_manager_global__start:
     filter: caddie|favorites|last_import|no_album|no_tag|duplicates|all_photos
     start: \d+
 
+admin_batch_manager_global_empty_caddie:
+  path: /batch/global/empty_caddie/{start}
+  controller: App\Controller\Admin\BatchManagerController:emptyCaddie
+  defaults:
+    start: 0
+  requirements:
+    start: \d+
+
 admin_batch_manager_unit:
   path: /batch/unit/{filter}
   controller: App\Controller\Admin\BatchManagerController:unit

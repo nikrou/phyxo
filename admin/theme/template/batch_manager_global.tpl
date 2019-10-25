@@ -349,9 +349,11 @@
 				<option value="{$prefilter.id}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.id}selected="selected"{/if}>{$prefilter.name}</option>
 			    {/foreach}
 			</select>
-			<a id="empty_caddie" href="./index.php?page=batch_manager&amp;action=empty_caddie"
-			   class="btn btn-success {if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}visually-hidden{/if}">{'Empty caddie'|translate}
-			</a>
+			{if !empty($thumbnails)}
+			    <a id="empty_caddie" href="{$U_EMPTY_CADDIE}"
+			       class="btn btn-success {if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}visually-hidden{/if}">{'Empty caddie'|translate}
+			    </a>
+			{/if}
 
 			<span id="duplicates_options" class="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}visually-hidden{/if}">
 			    {'based on'|translate}

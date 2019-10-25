@@ -370,6 +370,7 @@ class BatchManagerController extends AdminCommonController
         }
 
         $tpl_params['IN_CADDIE'] = isset($this->getFilter()['prefilter']) && $this->getFilter()['prefilter'] === 'caddie';
+        $tpl_params['U_EMPTY_CADDIE'] = $this->generateUrl('admin_batch_manager_global_empty_caddie', ['start' => $start]);
         $tpl_params['prefilters'] = $prefilters;
         $tpl_params['filter'] = $this->getFilter();
         $tpl_params['selection'] = $collection;
@@ -393,6 +394,14 @@ class BatchManagerController extends AdminCommonController
         }
 
         return $this->render('batch_manager_global.tpl', $tpl_params);
+    }
+
+    public function emptyCaddie(Request $request, EntityManager $em)
+    {
+        $em->getRepository(CaddieRepository::class)->emptyCaddie($this->getUser()->getId());
+        $this->addFlash('info', Language::l10n('Caddie has been emptied'));
+
+        return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
     protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper, UserMapper $userMapper)
