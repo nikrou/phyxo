@@ -5,50 +5,57 @@
     <li class="breadcrumb-item">{'unit mode'|translate}</li>
 {/block}
 
+{block name="head_assets" append}
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.core.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/plugins/selectize.clear.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.datepicker.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css">
+{/block}
+
 {block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.mouse.js"></script>
     <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.datepicker.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/selectize.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/LocalStorageCache.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.datepicker.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.timepicker-addon.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/i18n/jquery.ui.datepicker-{$lang_info.jquery_code}.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/i18n/jquery.ui.timepicker-{$lang_info.jquery_code}.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/datepicker.js"></script>
+    <script>
+     {* <!-- TAGS --> *}
+     var tagsCache = new TagsCache({
+	 serverKey: '{$CACHE_KEYS.tags}',
+	 serverId: '{$CACHE_KEYS._hash}',
+	 rootUrl: '{$ROOT_URL}'
+     });
+
+     tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
+	 'Add': '{'Create'|translate}'
+     }});
+
+     $(function() {
+	 $('[data-datepicker]').pwgDatepicker({
+	     showTimepicker: true,
+	     cancelButton: '{'Cancel'|translate}'
+	 });
+
+	 $("a.preview-box").colorbox();
+     });
+    </script>
 {/block}
 
 {block name="content"}
-    {include file="include/autosize.inc.tpl"}
-    {include file="include/datepicker.inc.tpl"}
-    {combine_script id="LocalStorageCache" load="footer" path="admin/theme/js/LocalStorageCache.js"}
-    {combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
-    {combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
-
-    {footer_script}
-    (function(){
-    {* <!-- TAGS --> *}
-    var tagsCache = new TagsCache({
-    serverKey: '{$CACHE_KEYS.tags}',
-    serverId: '{$CACHE_KEYS._hash}',
-    rootUrl: '{$ROOT_URL}'
-    });
-
-    tagsCache.selectize(jQuery('[data-selectize=tags]'), { lang: {
-    'Add': '{'Create'|translate}'
-    }});
-
-    {* <!-- DATEPICKER --> *}
-    jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
-    jQuery('[data-datepicker]').pwgDatepicker({
-    showTimepicker: true,
-    cancelButton: '{'Cancel'|translate}'
-    });
-    });
-
-    {* <!-- THUMBNAILS --> *}
-    jQuery("a.preview-box").colorbox();
-    }());
-    {/footer_script}
-
     <form action="{$F_ACTION}" method="POST">
 	<div class="fieldset">
 	    <h3>{'Display options'|translate}</h3>
 	    <p>{'photos per page'|translate} :
-		<a href="{$U_ELEMENTS_PAGE}&amp;display=5">5</a>
-		| <a href="{$U_ELEMENTS_PAGE}&amp;display=10">10</a>
-		| <a href="{$U_ELEMENTS_PAGE}&amp;display=50">50</a>
+		<a href="{$F_ACTION}?display=5">5</a>
+		| <a href="{$F_ACTION}?display=10">10</a>
+		| <a href="{$F_ACTION}?display=50">50</a>
 	    </p>
 	</div>
 

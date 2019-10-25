@@ -5,325 +5,333 @@
     <li class="breadcrumb-item">{'global mode'|translate}</li>
 {/block}
 
+{block name="head_assets" append}
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.core.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.slider.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/plugins/selectize.clear.css">
+
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.theme.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.datepicker.css">
+    <link rel="stylesheet" href="{$ROOT_URL}admin/theme/js/ui/theme/jquery.ui.timepicker-addon.css">
+    {if $thumb_params}
+	<style type="text/css">
+	 .wrapper-thumbnail {ldelim}
+	 width: {$thumb_params->max_width()+2}px;
+	 height: {$thumb_params->max_height()+25}px;
+	 }
+	</style>
+    {/if}
+{/block}
+
 {block name="footer_assets" prepend}
     <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/common.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.mouse.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.slider.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/doubleSlider.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/LocalStorageCache.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/selectize.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.progressbar.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.ajaxmanager.js"></script>
+    <script src="{$ROOT_URL}admin/theme/src/js/add_album.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/batchManagerGlobal.js"></script>
+
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.datepicker.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.timepicker-addon.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/i18n/jquery.ui.datepicker-{$lang_info.jquery_code}.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/i18n/jquery.ui.timepicker-{$lang_info.jquery_code}.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/datepicker.js"></script>
+    <script>
+     var lang = {
+	 Cancel: '{'Cancel'|translate|escape:'javascript'}',
+	 AreYouSure: "{'Are you sure?'|translate|escape:'javascript'}"
+     };
+
+     {* <!-- TAGS --> *}
+     var tagsCache = new TagsCache({
+	 serverKey: '{$CACHE_KEYS.tags}',
+	 serverId: '{$CACHE_KEYS._hash}',
+	 rootUrl: '{$ROOT_URL}'
+     });
+
+     tagsCache.selectize($('[data-selectize=tags]'), { lang: {
+	 'Add': '{'Create'|translate}'
+     }});
+
+     {* <!-- CATEGORIES --> *}
+     var categoriesCache = new CategoriesCache({
+	 serverKey: '{$CACHE_KEYS.categories}',
+	 serverId: '{$CACHE_KEYS._hash}',
+	 rootUrl: '{$ROOT_URL}'
+     });
+
+     {*<!-- sliders config -->*}
+     var sliders = {
+	 widths: {
+	     values: [{$dimensions.widths}],
+	     selected: {
+		 min: {$dimensions.selected.min_width},
+		 max: {$dimensions.selected.max_width},
+	     },
+	     text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
+	 },
+
+	 heights: {
+	     values: [{$dimensions.heights}],
+	     selected: {
+		 min: {$dimensions.selected.min_height},
+		 max: {$dimensions.selected.max_height},
+	     },
+	     text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
+	 },
+
+	 ratios: {
+	     values: [{$dimensions.ratios}],
+	     selected: {
+		 min: {$dimensions.selected.min_ratio},
+		 max: {$dimensions.selected.max_ratio},
+	     },
+	     text: '{'between %.2f and %.2f'|translate|escape:'javascript'}'
+	 },
+
+	 filesizes: {
+	     values: [{$filesize.list}],
+	     selected: {
+		 min: {$filesize.selected.min},
+		 max: {$filesize.selected.max},
+	     },
+	     text: '{'between %s and %s MB'|translate|escape:'javascript'}'
+	 }
+     };
+
+     var nb_thumbs_page = {$nb_thumbs_page};
+     var nb_thumbs_set = {$nb_thumbs_set};
+     var applyOnDetails_pattern = "{'on the %d selected photos'|translate}";
+     var all_elements = [{if !empty($all_elements)}{','|@implode:$all_elements}{/if}];
+
+     var selectedMessage_pattern = "{'%d of %d photos selected'|translate}";
+     var selectedMessage_none = "{'No photo selected, %d photos in current set'|translate}";
+     var selectedMessage_all = "{'All %d photos are selected'|translate}";
+
+     $(function() {
+	 var associated_categories = {$associated_categories|@json_encode};
+
+	 if (associated_categories) {
+	     categoriesCache.selectize($('[data-selectize=categories]'), {
+		 filter: function(categories, options) {
+		     if (this.name == 'dissociate') {
+			 var filtered = $.grep(categories, function(cat) {
+			     return !!associated_categories[cat.id];
+			 });
+
+			 if (filtered.length > 0) {
+			     options.default = filtered[0].id;
+			 }
+
+			 return filtered;
+		     } else {
+			 return categories;
+		     }
+		 }
+	     });
+	 }
+
+	 function checkPermitAction() {
+	     var nbSelected = 0;
+	     if ($("input[name=setSelected]").is(':checked')) {
+		 nbSelected = nb_thumbs_set;
+	     } else {
+		 nbSelected = $(".thumbnails input[type=checkbox]").filter(':checked').length;
+	     }
+
+	     if (nbSelected == 0) {
+		 $("#permitAction").hide();
+		 $("#forbidAction").show();
+	     } else {
+		 $("#permitAction").show();
+		 $("#forbidAction").hide();
+	     }
+
+	     $("#applyOnDetails").text(
+		 sprintf(
+		     applyOnDetails_pattern,
+		     nbSelected
+		 )
+	     );
+
+	     // display the number of currently selected photos in the "Selection" fieldset
+	     if (nbSelected == 0) {
+		 $("#selectedMessage").text(
+		     sprintf(
+			 selectedMessage_none,
+			 nb_thumbs_set
+		     )
+		 );
+	     } else if (nbSelected == nb_thumbs_set) {
+		 $("#selectedMessage").text(
+		     sprintf(
+			 selectedMessage_all,
+			 nb_thumbs_set
+		     )
+		 );
+	     } else {
+		 $("#selectedMessage").text(
+		     sprintf(
+			 selectedMessage_pattern,
+			 nbSelected,
+			 nb_thumbs_set
+		     )
+		 );
+	     }
+	 }
+
+	 $("[id^=action_]").hide();
+
+	 $("select[name=selectAction]").change(function () {
+	     $("[id^=action_]").hide();
+	     $("#action_"+$(this).prop("value")).show();
+
+	     if ($(this).val() != -1) {
+		 $("#applyActionBlock").show();
+	     }
+	     else {
+		 $("#applyActionBlock").hide();
+	     }
+	 });
+
+	 $(".wrapper-label label").click(function (event) {
+	     $("input[name=setSelected]").prop('checked', false);
+
+	     var wrap2 = $(this).children(".wrapper-thumbnail");
+	     var checkbox = $(this).children("input[type=checkbox]");
+
+	     checkbox.triggerHandler("shclick",event);
+
+	     if ($(checkbox).is(':checked')) {
+		 $(wrap2).addClass("thumbSelected");
+	     }
+	     else {
+		 $(wrap2).removeClass('thumbSelected');
+	     }
+
+	     checkPermitAction();
+	 });
+
+	 $("#selectAll").click(function () {
+	     $("input[name=setSelected]").prop('checked', false);
+	     selectPageThumbnails();
+	     checkPermitAction();
+	     return false;
+	 });
+
+	 function selectPageThumbnails() {
+	     $(".thumbnails label").each(function() {
+		 var wrap2 = $(this).children(".wrapper-thumbnail");
+		 var checkbox = $(this).children("input[type=checkbox]");
+
+		 $(checkbox).prop('checked', true);
+		 $(wrap2).addClass("thumbSelected");
+	     });
+	 }
+
+	 $("#selectNone").click(function () {
+	     $("input[name=setSelected]").prop('checked', false);
+
+	     $(".thumbnails label").each(function() {
+		 var wrap2 = $(this).children(".wrapper-thumbnail");
+		 var checkbox = $(this).children("input[type=checkbox]");
+
+		 $(checkbox).prop('checked', false);
+		 $(wrap2).removeClass("thumbSelected");
+	     });
+	     checkPermitAction();
+	     return false;
+	 });
+
+	 $("#selectInvert").click(function () {
+	     $("input[name=setSelected]").prop('checked', false);
+
+	     $(".thumbnails label").each(function() {
+		 var wrap2 = $(this).children(".wrapper-thumbnail");
+		 var checkbox = $(this).children("input[type=checkbox]");
+
+		 $(checkbox).prop('checked', !$(checkbox).is(':checked'));
+
+		 if ($(checkbox).is(':checked')) {
+		     $(wrap2).addClass("thumbSelected");
+		 }
+		 else {
+		     $(wrap2).removeClass('thumbSelected');
+		 }
+	     });
+	     checkPermitAction();
+	     return false;
+	 });
+
+	 $("#selectSet").click(function () {
+	     selectPageThumbnails();
+	     $("input[name=setSelected]").prop('checked', true);
+	     checkPermitAction();
+	     return false;
+	 });
+
+
+	 $('#applyAction').click(function() {
+	     var action = $('[name="selectAction"]').val();
+	     if (action == 'delete_derivatives') {
+		 var d_count = $('#action_delete_derivatives input[type=checkbox]').filter(':checked').length
+		   , e_count = $('input[name="setSelected"]').is(':checked') ? nb_thumbs_set : $('.thumbnails input[type=checkbox]').filter(':checked').length;
+		 if (d_count*e_count > 500)
+		     return confirm(lang.AreYouSure);
+	     }
+
+	     if (action != 'generate_derivatives'
+		 || derivatives.finished() )
+		 {
+		     return true;
+		 }
+
+	     $('.bulkAction').hide();
+
+	     var queuedManager = $.manageAjax.create('queued', {
+		 queue: true,
+		 cacheResponse: false,
+		 maxRequests: 1
+	     });
+
+	     derivatives.elements = [];
+	     if ($('input[name="setSelected"]').is(':checked'))
+		 derivatives.elements = all_elements;
+	     else
+		 $('.thumbnails input[type=checkbox]').each(function() {
+		     if ($(this).is(':checked')) {
+			 derivatives.elements.push($(this).val());
+		     }
+		 });
+
+	     $('#applyActionBlock').hide();
+	     $('select[name="selectAction"]').hide();
+	     $('#regenerationMsg').show();
+
+	     progress();
+	     getDerivativeUrls();
+	     return false;
+	 });
+
+	 checkPermitAction();
+
+	 $("select[name=filter_prefilter]").change(function() {
+	     $("#empty_caddie").toggle($(this).val() == "caddie");
+	     $("#duplicates_options").toggle($(this).val() == "duplicates");
+	 });
+     });
+    </script>
 {/block}
 
 {block name="content"}
-    {include file="include/datepicker.inc.tpl" load_mode="async"}
     {include file="include/add_album.inc.tpl" load_mode="async"}
-
-    {combine_css path="admin/theme/js/ui/theme/jquery.ui.core.css"}
-    {combine_css path="admin/theme/js/ui/theme/jquery.ui.slider.css"}
-    {combine_css id="jquery.selectize" path="admin/theme/js/plugins/selectize.clear.css"}
-
-    {combine_script id="common" load="footer" path="admin/theme/js/common.js"}
-    {combine_script id="jquery.ui" path="admin/theme/js/ui/jquery.ui.core.js"}
-    {combine_script id="jquery.ui.slider" load="async" path="admin/theme/js/ui/jquery.ui.slider.js"}
-    {combine_script id="doubleSlider" load="async" path="admin/theme/js/doubleSlider.js"}
-    {combine_script id="LocalStorageCache" load="footer" path="admin/theme/js/LocalStorageCache.js"}
-
-    {combine_script id="jquery.selectize" load="footer" path="admin/theme/js/plugins/selectize.js"}
-
-    {combine_script id="jquery.progressBar" load="async" path="admin/theme/js/plugins/jquery.progressbar.js"}
-    {combine_script id="jquery.ajaxmanager" load="async" path="admin/theme/js/plugins/jquery.ajaxmanager.js"}
-
-    {combine_script id="addAlbum" load="footer" path="admin/theme/js/addAlbum.js"}
-    {combine_script id="batchManagerGlobal" load="async" require="jquery,datepicker,addAlbum,doubleSlider" path="admin/theme/js/batchManagerGlobal.js"}
-
-    {footer_script}
-    var lang = {
-    Cancel: '{'Cancel'|translate|escape:'javascript'}',
-    AreYouSure: "{'Are you sure?'|translate|escape:'javascript'}"
-    };
-
-    $(function() {
-
-    {* <!-- TAGS --> *}
-    var tagsCache = new TagsCache({
-    serverKey: '{$CACHE_KEYS.tags}',
-    serverId: '{$CACHE_KEYS._hash}',
-    rootUrl: '{$ROOT_URL}'
-    });
-
-    tagsCache.selectize($('[data-selectize=tags]'), { lang: {
-    'Add': '{'Create'|translate}'
-    }});
-
-    {* <!-- CATEGORIES --> *}
-    window.categoriesCache = new CategoriesCache({
-    serverKey: '{$CACHE_KEYS.categories}',
-    serverId: '{$CACHE_KEYS._hash}',
-    rootUrl: '{$ROOT_URL}'
-    });
-
-    var associated_categories = {$associated_categories|@json_encode};
-
-    categoriesCache.selectize($('[data-selectize=categories]'), {
-    filter: function(categories, options) {
-    if (this.name == 'dissociate') {
-    var filtered = $.grep(categories, function(cat) {
-    return !!associated_categories[cat.id];
-    });
-
-    if (filtered.length > 0) {
-    options.default = filtered[0].id;
-    }
-
-    return filtered;
-    } else {
-    return categories;
-    }
-    }
-    });
-
-    });
-
-    var nb_thumbs_page = {$nb_thumbs_page};
-    var nb_thumbs_set = {$nb_thumbs_set};
-    var applyOnDetails_pattern = "{'on the %d selected photos'|translate}";
-    var all_elements = [{if !empty($all_elements)}{','|@implode:$all_elements}{/if}];
-
-    var selectedMessage_pattern = "{'%d of %d photos selected'|translate}";
-    var selectedMessage_none = "{'No photo selected, %d photos in current set'|translate}";
-    var selectedMessage_all = "{'All %d photos are selected'|translate}";
-
-    $(document).ready(function() {
-    function checkPermitAction() {
-    var nbSelected = 0;
-    if ($("input[name=setSelected]").is(':checked')) {
-    nbSelected = nb_thumbs_set;
-    }
-    else {
-    nbSelected = $(".thumbnails input[type=checkbox]").filter(':checked').length;
-    }
-
-    if (nbSelected == 0) {
-    $("#permitAction").hide();
-    $("#forbidAction").show();
-    }
-    else {
-    $("#permitAction").show();
-    $("#forbidAction").hide();
-    }
-
-    $("#applyOnDetails").text(
-    sprintf(
-    applyOnDetails_pattern,
-    nbSelected
-    )
-    );
-
-    // display the number of currently selected photos in the "Selection" fieldset
-    if (nbSelected == 0) {
-    $("#selectedMessage").text(
-    sprintf(
-    selectedMessage_none,
-    nb_thumbs_set
-    )
-    );
-    }
-    else if (nbSelected == nb_thumbs_set) {
-    $("#selectedMessage").text(
-    sprintf(
-    selectedMessage_all,
-    nb_thumbs_set
-    )
-    );
-    }
-    else {
-    $("#selectedMessage").text(
-    sprintf(
-    selectedMessage_pattern,
-    nbSelected,
-    nb_thumbs_set
-    )
-    );
-    }
-    }
-
-    $("[id^=action_]").hide();
-
-    $("select[name=selectAction]").change(function () {
-    $("[id^=action_]").hide();
-    $("#action_"+$(this).prop("value")).show();
-
-    if ($(this).val() != -1) {
-    $("#applyActionBlock").show();
-    }
-    else {
-    $("#applyActionBlock").hide();
-    }
-    });
-
-    $(".wrapper-label label").click(function (event) {
-    $("input[name=setSelected]").prop('checked', false);
-
-    var wrap2 = $(this).children(".wrapper-thumbnail");
-    var checkbox = $(this).children("input[type=checkbox]");
-
-    checkbox.triggerHandler("shclick",event);
-
-    if ($(checkbox).is(':checked')) {
-    $(wrap2).addClass("thumbSelected");
-    }
-    else {
-    $(wrap2).removeClass('thumbSelected');
-    }
-
-    checkPermitAction();
-    });
-
-    $("#selectAll").click(function () {
-    $("input[name=setSelected]").prop('checked', false);
-    selectPageThumbnails();
-    checkPermitAction();
-    return false;
-    });
-
-    function selectPageThumbnails() {
-    $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrapper-thumbnail");
-    var checkbox = $(this).children("input[type=checkbox]");
-
-    $(checkbox).prop('checked', true);
-    $(wrap2).addClass("thumbSelected");
-    });
-    }
-
-    $("#selectNone").click(function () {
-    $("input[name=setSelected]").prop('checked', false);
-
-    $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrapper-thumbnail");
-    var checkbox = $(this).children("input[type=checkbox]");
-
-    $(checkbox).prop('checked', false);
-    $(wrap2).removeClass("thumbSelected");
-    });
-    checkPermitAction();
-    return false;
-    });
-
-    $("#selectInvert").click(function () {
-    $("input[name=setSelected]").prop('checked', false);
-
-    $(".thumbnails label").each(function() {
-    var wrap2 = $(this).children(".wrapper-thumbnail");
-    var checkbox = $(this).children("input[type=checkbox]");
-
-    $(checkbox).prop('checked', !$(checkbox).is(':checked'));
-
-    if ($(checkbox).is(':checked')) {
-    $(wrap2).addClass("thumbSelected");
-    }
-    else {
-    $(wrap2).removeClass('thumbSelected');
-    }
-    });
-    checkPermitAction();
-    return false;
-    });
-
-    $("#selectSet").click(function () {
-    selectPageThumbnails();
-    $("input[name=setSelected]").prop('checked', true);
-    checkPermitAction();
-    return false;
-    });
-
-
-    $('#applyAction').click(function() {
-    var action = $('[name="selectAction"]').val();
-    if (action == 'delete_derivatives') {
-    var d_count = $('#action_delete_derivatives input[type=checkbox]').filter(':checked').length
-    , e_count = $('input[name="setSelected"]').is(':checked') ? nb_thumbs_set : $('.thumbnails input[type=checkbox]').filter(':checked').length;
-    if (d_count*e_count > 500)
-    return confirm(lang.AreYouSure);
-    }
-
-    if (action != 'generate_derivatives'
-    || derivatives.finished() )
-    {
-    return true;
-    }
-
-    $('.bulkAction').hide();
-
-    var queuedManager = $.manageAjax.create('queued', {
-    queue: true,
-    cacheResponse: false,
-    maxRequests: 1
-    });
-
-    derivatives.elements = [];
-    if ($('input[name="setSelected"]').is(':checked'))
-    derivatives.elements = all_elements;
-    else
-    $('.thumbnails input[type=checkbox]').each(function() {
-    if ($(this).is(':checked')) {
-    derivatives.elements.push($(this).val());
-    }
-    });
-
-    $('#applyActionBlock').hide();
-    $('select[name="selectAction"]').hide();
-    $('#regenerationMsg').show();
-
-    progress();
-    getDerivativeUrls();
-    return false;
-    });
-
-    checkPermitAction();
-
-    $("select[name=filter_prefilter]").change(function() {
-    $("#empty_caddie").toggle($(this).val() == "caddie");
-    $("#duplicates_options").toggle($(this).val() == "duplicates");
-    });
-    });
-
-    {*<!-- sliders config -->*}
-    var sliders = {
-    widths: {
-    values: [{$dimensions.widths}],
-    selected: {
-    min: {$dimensions.selected.min_width},
-    max: {$dimensions.selected.max_width},
-    },
-    text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
-    },
-
-    heights: {
-    values: [{$dimensions.heights}],
-    selected: {
-    min: {$dimensions.selected.min_height},
-    max: {$dimensions.selected.max_height},
-    },
-    text: '{'between %d and %d pixels'|translate|escape:'javascript'}'
-    },
-
-    ratios: {
-    values: [{$dimensions.ratios}],
-    selected: {
-    min: {$dimensions.selected.min_ratio},
-    max: {$dimensions.selected.max_ratio},
-    },
-    text: '{'between %.2f and %.2f'|translate|escape:'javascript'}'
-    },
-
-    filesizes: {
-    values: [{$filesize.list}],
-    selected: {
-    min: {$filesize.selected.min},
-    max: {$filesize.selected.max},
-    },
-    text: '{'between %s and %s MB'|translate|escape:'javascript'}'
-    }
-    };
-
-    {/footer_script}
-
     <div id="batchManagerGlobal">
 	<form action="{$F_ACTION}" method="post">
 	    <input type="hidden" name="start" value="{$START}">
@@ -506,14 +514,7 @@
 		    </p>
 
 		    <div class="thumbnails">
-			{html_style}
-			.wrapper-thumbnail {ldelim}
-			width: {$thumb_params->max_width()+2}px;
-			height: {$thumb_params->max_height()+25}px;
-			}
-		        {/html_style}
-
-			{foreach from=$thumbnails item=thumbnail}
+			{foreach $thumbnails as $thumbnail}
 			    {assign var='isSelected' value=$thumbnail.id|@in_array:$selection}
 			    <div class="thumbnail{if $isSelected} thumbSelected{/if}">
 				<span class="wrapper-label">
@@ -541,10 +542,10 @@
 
 			<div>
 			    {'display'|translate}
-			    <a href="{$U_DISPLAY}&amp;display=20">20</a>
-			    &middot; <a href="{$U_DISPLAY}&amp;display=50">50</a>
-			    &middot; <a href="{$U_DISPLAY}&amp;display=100">100</a>
-			    &middot; <a href="{$U_DISPLAY}&amp;display=all">{'all'|translate}</a>
+			    <a href="{$F_ACTION}?display=20">20</a>
+			    &middot; <a href="{$F_ACTION}?display=50">50</a>
+			    &middot; <a href="{$F_ACTION}?display=100">100</a>
+			    &middot; <a href="{$F_ACTION}?display=all">{'all'|translate}</a>
 			    {'photos per page'|translate}
 			</div>
 		    {/if}

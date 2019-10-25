@@ -62,8 +62,8 @@ abstract class AdminCommonController extends AbstractController
             'U_ALBUMS_OPTIONS' => $router->generate('admin_albums_options'),
             'U_CAT_UPDATE' => $router->generate('admin_synchronize', ['site' => 1]),
             'U_RATING' => $router->generate('admin_rating'),
-            'U_RECENT_SET' => $link_start . 'batch_manager&amp;filter=prefilter-last_import',
-            'U_BATCH' => $link_start . 'batch_manager',
+            'U_RECENT_SET' => $router->generate('admin_batch_manager_global', ['filter' => 'last_import']),
+            'U_BATCH' => $router->generate('admin_batch_manager_global'),
             'U_TAGS' => $router->generate('admin_tags'),
             'U_USERS' => $router->generate('admin_users'),
             'U_GROUPS' => $router->generate('admin_groups'),
@@ -94,7 +94,7 @@ abstract class AdminCommonController extends AbstractController
 
         if ($nb_photos_in_caddie > 0) {
             $tpl_params['NB_PHOTOS_IN_CADDIE'] = $nb_photos_in_caddie;
-            $tpl_params['U_CADDIE'] = $link_start . 'batch_manager&amp;filter=prefilter-caddie';
+            $tpl_params['U_CADDIE'] = $router->generate('admin_batch_manager_global', ['filter' => 'caddie']);
         }
 
         return $tpl_params;

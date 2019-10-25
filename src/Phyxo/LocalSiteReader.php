@@ -17,13 +17,12 @@ use Phyxo\Functions\Utils;
 
 class LocalSiteReader
 {
-    var $site_url;
+    private $site_url, $conf;
 
-    public function __construct($url)
+    public function __construct(string $url, Conf $conf)
     {
-        global $conf;
-
         $this->site_url = $url;
+        $this->conf = $conf;
 
         if (!isset($conf['flip_file_ext'])) {
             $conf['flip_file_ext'] = array_flip($conf['file_ext']);
@@ -40,13 +39,11 @@ class LocalSiteReader
      */
     public function open()
     {
-        global $errors;
-
         if (!is_dir($this->site_url)) {
-            $errors[] = array(
+            $errors[] = [
                 'path' => $this->site_url,
                 'type' => 'PWG-ERROR-NO-FS'
-            );
+            ];
 
             return false;
         }
@@ -69,10 +66,8 @@ class LocalSiteReader
      */
     public function get_elements($path)
     {
-        global $conf;
-
-        $subdirs = array();
-        $fs = array();
+        $subdirs = [];
+        $fs = [];
         if (is_dir($path) && $contents = opendir($path)) {
             while (($node = readdir($contents)) !== false) {
                 if ($node == '.' or $node == '..') {
@@ -83,12 +78,12 @@ class LocalSiteReader
                     $extension = Utils::get_extension($node);
                     $filename_wo_ext = Utils::get_filename_wo_extension($node);
 
-                    if (isset($conf['flip_file_ext'][$extension])) {
+                    if (isset($this->conf['flip_file_ext'][$extension])) {
                         $representative_ext = null;
-                        if (!isset($conf['flip_picture_ext'][$extension])) {
+                        if (!isset($this->conf['flip_picture_ext'][$extension])) {
                             $representative_ext = $this->get_representative_ext($path, $filename_wo_ext);
                         }
-                        $fs[$path . '/' . $node] = array('representative_ext' => $representative_ext);
+                        $fs[$path . '/' . $node] = ['representative_ext' => $representative_ext];
                     }
                 } elseif (is_dir($path . '/' . $node) && $node != 'pwg_high' && $node != 'pwg_representative' && $node != 'thumbnail') {
                     $subdirs[] = $node;
@@ -109,19 +104,18 @@ class LocalSiteReader
     // files update/synchronization
     public function get_update_attributes()
     {
-        return array('representative_ext');
+        return ['representative_ext'];
     }
 
     public function get_element_update_attributes($file)
     {
-        global $conf;
-        $data = array();
+        $data = [];
 
         $filename = basename($file);
         $extension = Utils::get_extension($filename);
 
         $representative_ext = null;
-        if (!isset($conf['flip_picture_ext'][$extension])) {
+        if (!isset($this->conf['flip_picture_ext'][$extension])) {
             $dirname = dirname($file);
             $filename_wo_ext = Utils::get_filename_wo_extension($filename);
             $representative_ext = $this->get_representative_ext($dirname, $filename_wo_ext);
@@ -147,9 +141,8 @@ class LocalSiteReader
     //-------------------------------------------------- private functions --------
     public function get_representative_ext($path, $filename_wo_ext)
     {
-        global $conf;
         $base_test = $path . '/pwg_representative/' . $filename_wo_ext . '.';
-        foreach ($conf['picture_ext'] as $ext) {
+        foreach ($this->conf['picture_ext'] as $ext) {
             $test = $base_test . $ext;
             if (is_file($test)) {
                 return $ext;

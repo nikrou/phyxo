@@ -286,7 +286,7 @@ $template->assign([
     'associated_albums' => $associated_albums,
     'represented_albums' => $represented_albums,
     'STORAGE_ALBUM' => $storage_category_id,
-    'CACHE_KEYS' => \Phyxo\Functions\Utils::get_admin_client_cache_keys(['tags', 'categories']),
+    'CACHE_KEYS' => \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em)
 ]);
 
 \Phyxo\Functions\Plugin::trigger_notify('loc_end_picture_modify');
