@@ -60,18 +60,18 @@ section[role='content'] {
     display: none;
   }
 
-  // temporary, until theme.css and clear.css will be removed
-  form {
-    ul {
-      list-style: none;
-    }
-
-    .fieldset,
-    .form-filter {
+  .fieldset,
+  .form-filter {
       border: 2px solid $gray-200;
       border-radius: 5px;
       padding: 1em;
       margin: 1em 0;
+  }
+
+  // temporary, until theme.css and clear.css will be removed
+  form {
+    ul {
+      list-style: none;
     }
 
     .font-checkbox input[type='checkbox'],

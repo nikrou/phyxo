@@ -129,7 +129,7 @@ class AlbumController extends AdminCommonController
         }
 
         if ($category['has_images']) {
-            $tpl_params['U_MANAGE_ELEMENTS'] = $this->generateUrl('admin_batch_manager', ['album_id' => $category['id']]);
+            $tpl_params['U_MANAGE_ELEMENTS'] = $this->generateUrl('admin_batch_manager_global', ['album_id' => $category['id']]);
 
             $result = $em->getRepository(ImageRepository::class)->getImagesInfosInCategory($category['id']);
             list($image_count, $min_date, $max_date) = $em->getConnection()->db_fetch_row($result);

@@ -34,6 +34,7 @@ use App\Repository\UserGroupRepository;
 use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class Utils
@@ -1634,10 +1635,11 @@ class Utils
         } else {
             $pattern = '-' . \Phyxo\Image\DerivativeParams::derivative_to_url($type) . '*';
         }
+        $fs = new Filesystem();
         $path = substr_replace($path, $pattern, $dot, 0);
-        if (($glob = glob(__DIR__ . '/../../../' . PWG_DERIVATIVE_DIR . $path)) !== false) {
+        if (($glob = glob(__DIR__ . '/../../../_data/i/' . $path)) !== false) {
             foreach ($glob as $file) {
-                unlink($file);
+                $fs->remove($file);
             }
         }
     }

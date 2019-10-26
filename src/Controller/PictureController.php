@@ -201,14 +201,8 @@ class PictureController extends CommonController
                 $tpl_params['U_SET_AS_REPRESENTATIVE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'set_as_representative']);
             }
 
-            $params_admin = ['page' => 'photo', 'image_id' => $image_id];
-            if (!empty($category['id'])) {
-                $params_admin['cat_id'] = $category['id'];
-            }
-            $url_admin = $this->generateUrl('admin_home', $params_admin);
-
             $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
-            $tpl_params['U_PHOTO_ADMIN'] = $url_admin;
+            $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category['id']]);
 
             $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
         }

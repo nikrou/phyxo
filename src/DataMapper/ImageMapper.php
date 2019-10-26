@@ -27,6 +27,7 @@ use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Functions\Language;
+use Symfony\Component\Filesystem\Filesystem;
 
 class ImageMapper
 {
@@ -271,7 +272,7 @@ class ImageMapper
 
         // are the photo used as category representant?
         $result = $this->em->getRepository(CategoryRepository::class)->findRepresentants($ids);
-        $category_ids = $this->conn->result2array($result, null, 'id');
+        $category_ids = $this->em->getConnection()->result2array($result, null, 'id');
         if (count($category_ids) > 0) {
             $this->categoryMapper->updateCategory($category_ids);
         }
@@ -305,13 +306,14 @@ class ImageMapper
                 $files[] = \Phyxo\Functions\Utils::original_to_representative($files[0], $row['representative_ext']);
             }
 
+            $fs = new Filesystem();
             $ok = true;
             if (!isset($this->conf['never_delete_originals'])) {
                 foreach ($files as $path) {
-                    if (is_file($path) && !unlink($path)) {
-                        $ok = false;
-                        trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
-                        break;
+                    try {
+                        $fs->remove($path);
+                    } catch (\Exception $e) {
+                        $ok = false; //trigger_error('"' . $path . '" cannot be removed', E_USER_WARNING);
                     }
                 }
             }

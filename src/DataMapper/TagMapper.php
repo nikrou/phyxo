@@ -24,16 +24,18 @@ use Phyxo\EntityManager;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params;
+    private $em, $conf, $image_std_params, $router;
 
-    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params)
+    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
+        $this->router = $router;
     }
 
     /**
@@ -64,7 +66,7 @@ class TagMapper
         $params = $this->image_std_params->getByType(ImageStandardParams::IMG_THUMB);
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $row['thumb_src'] = (new DerivativeImage(new SrcImage($row, $this->conf['picture_ext']), $params, $this->image_std_params))->getUrl();
-            $row['picture_url'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo-' . $row['image_id'];
+            $row['picture_url'] = $this->router->generate('admin_photo', ['image_id' => $row['image_id']]);
             $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }

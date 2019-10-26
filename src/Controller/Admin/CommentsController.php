@@ -69,7 +69,7 @@ class CommentsController  extends AdminCommonController
             }
 
             $tpl_params['comments'][] = [
-                'U_PICTURE' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['image_id'],
+                'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $row['image_id']]),
                 'ID' => $row['id'],
                 'TN_SRC' => $thumb,
                 'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),
