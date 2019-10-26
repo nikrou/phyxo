@@ -352,7 +352,7 @@ class BatchManagerController extends AdminCommonController
                         'thumb' => new DerivativeImage($src_image, $thumb_params, $image_std_params),
                         'TITLE' => $ttitle,
                         'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
-                        'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&amp;image_id=' . $row['id'],
+                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $row['id']])
                     ]
                 );
             }
@@ -383,7 +383,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = Language::l10n('Site manager');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
-        $tpl_params = array_merge($this->setTabsheet('global', $conf['enable_synchronization']), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
@@ -555,8 +555,6 @@ class BatchManagerController extends AdminCommonController
                 $deleted_count = $imageMapper->deleteElements($collection, true);
                 if ($deleted_count > 0) {
                     $this->addFlash('info', Language::l10n_dec('%d photo was deleted', '%d photos were deleted', $deleted_count));
-
-                    // $redirect_url = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=' . $_GET['page'];
                     $redirect = true;
                 } else {
                     $this->addFlash('error', Language::l10n('No photo can be deleted'));
@@ -1088,7 +1086,7 @@ class BatchManagerController extends AdminCommonController
                         'TN_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl(),
                         'FILE_SRC' => (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_LARGE), $image_std_params))->getUrl(),
                         'LEGEND' => $legend,
-                        'U_EDIT' => \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=photo&image_id=' . $row['id'],
+                        'U_EDIT' => $this->generateUrl('admin_photo', ['image_id' => $row['id']]),
                         'NAME' => htmlspecialchars(@$row['name']), // @TODO: remove arobase
                         'AUTHOR' => htmlspecialchars(@$row['author']), // @TODO: remove arobase
                         'LEVEL' => !empty($row['level']) ? $row['level'] : '0',
@@ -1106,7 +1104,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['PAGE_TITLE'] = Language::l10n('Site manager');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
-        $tpl_params = array_merge($this->setTabsheet('unit', $conf['enable_synchronization']), $tpl_params);
+        $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');

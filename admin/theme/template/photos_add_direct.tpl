@@ -31,6 +31,8 @@
 
      var ws_url = '{$ws}';
      var pwg_token = '{$csrf_token}';
+     var u_edit_pattern = '{$U_EDIT_PATTERN}';
+     var u_album_pattern = '{$U_ALBUM_PATTERN}';
      var photosUploaded_label = "{'%d photos uploaded'|translate}";
      var batch_Label = "{'Manage this set of %d photos'|translate}";
      var albumSummary_label = "{'Album "%s" now contains %d photos'|translate|escape}";
@@ -46,7 +48,14 @@
 
     <div id="photosAddContent">
 	<div class="infos" style="display:none"></div>
-	<p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="">{'Add another set of photos'|translate}</a></p>
+	<div class="afterUploadActions btn-group d-none ">
+	    <form action="{$U_BATCH}" method="post">
+		<input type="hidden" id="batch_photos" name="batch">
+		<input type="submit" class="btn btn-sm btn-submit" value="">
+
+	    </form>
+	    <a class="btn btn-sm btn-success" href="{$F_ACTION}">{'Add another set of photos'|translate}</a>
+	</div>
 
 	{if !empty($setup_errors) > 0}
 	    <div class="errors">

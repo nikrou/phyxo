@@ -11,6 +11,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Conf;
@@ -138,6 +139,9 @@ class PhotosController extends AdminCommonController
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['csrf_token'] = $tokenManager->getToken('authenticate');
+        $tpl_params['U_EDIT_PATTERN'] = $this->generateUrl('admin_photo', ['image_id' => 0]);
+        $tpl_params['U_ALBUM_PATTERN'] = $this->generateUrl('admin_album', ['album_id' => 0]);
+        $tpl_params['U_BATCH'] = $this->generateUrl('admin_photos_add_batch');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photos_add');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
@@ -154,5 +158,22 @@ class PhotosController extends AdminCommonController
         }
 
         return $this->render('photos_add_direct.tpl', $tpl_params);
+    }
+
+    public function batch(Request $request, EntityManager $em)
+    {
+        $em->getRepository(CaddieRepository::class)->emptyCaddie($this->getUser()->getId());
+
+        $inserts = [];
+        foreach (explode(',', $request->request->get('batch')) as $image_id) {
+            $inserts[] = [
+                'user_id' => $this->getUser()->getId(),
+                'element_id' => $image_id,
+            ];
+        }
+
+        $em->getRepository(CaddieRepository::class)->addElements(array_keys($inserts[0]), $inserts);
+
+        return $this->redirectToRoute('admin_batch_manager_global', ['filter' => 'caddie']);
     }
 }

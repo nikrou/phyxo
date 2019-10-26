@@ -5,3 +5,12 @@ admin_photos_add:
     album_id: null
   requirements:
     album_id: \d+
+
+admin_photos_add_batch:
+  path: /photos/batch/{album_id}
+  controller: App\Controller\Admin\PhotosController:batch
+  methods: ['POST']
+  defaults:
+    album_id: null
+  requirements:
+    album_id: \d+

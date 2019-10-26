@@ -1,5 +1,5 @@
 $(function() {
-  var uploadPhotos = $('#uploadedPhotos');
+  const uploadPhotos = $('#uploadedPhotos');
   if (uploadPhotos.length === 0) {
     return;
   }
@@ -68,14 +68,12 @@ $(function() {
 
       FileUploaded: function(up, file, info) {
         $('#' + file.id).hide();
-        var data = $.parseJSON(info.response);
+        const data = $.parseJSON(info.response);
         $('#uploadedPhotos')
           .parent()
           .show();
-        var html =
-          '<a href="./index.php?page=photo&image_id=' +
-          data.result.image_id +
-          '">';
+        let html =
+          '<a href="' + u_edit_pattern.replace(0, data.result.image_id) + '">';
         html +=
           '<img src="' +
           data.result.src +
@@ -98,26 +96,25 @@ $(function() {
             '</li></ul>'
         );
 
-        var html = sprintf(
+        const album_link = `<a href="${u_album_pattern.replace(
+          '0',
+          uploadCategory.id
+        )}">${uploadCategory.label}</a>`;
+
+        const html_link = sprintf(
           albumSummary_label,
-          '<a href="./index.php?page=album&amp;cat_id=' +
-            uploadCategory.id +
-            '">' +
-            uploadCategory.label +
-            '</a>',
+          album_link,
           parseInt(uploadCategory.nb_photos)
         );
-        $('.infos ul').append('<li>' + html + '</li>');
+
+        $('.infos ul').append('<li>' + html_link + '</li>');
         $('.infos').show();
 
-        $('.batchLink').attr(
-          'href',
-          './index.php?page=photos_add&section=direct&batch=' +
-            uploadedPhotos.join(',')
-        );
-        $('.batchLink').html(sprintf(batch_Label, uploadedPhotos.length));
-
-        $('.afterUploadActions').show();
+        $('#batch_photos').val(uploadedPhotos.join(','));
+        $('.afterUploadActions')
+          .find('input[type="submit"]')
+          .attr('value', sprintf(batch_Label, uploadedPhotos.length));
+        $('.afterUploadActions').removeClass('d-none');
         $('#uploadingActions').hide();
         $(window).unbind('beforeunload');
       }

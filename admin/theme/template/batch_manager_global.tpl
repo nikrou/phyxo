@@ -524,14 +524,14 @@
 					<input type="checkbox" name="selection[]" value="{$thumbnail.id}" {if $isSelected}checked="checked"{/if}>
 					<span class="wrapper-thumbnail">
 					    <div class="actions">
-						<a href="{$thumbnail.FILE_SRC}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{'Zoom'|@translate}</span></a>
-						<a href="{$thumbnail.U_EDIT}" target="_blank"><i class="fa fa-pencil"></i><span class="visually-hidden">{'Edit'|@translate}</span></a>
+						<a href="{$thumbnail.FILE_SRC}" class="preview-box"><i class="fa fa-search-plus"></i><span class="visually-hidden">{'Zoom'|translate}</span></a>
+						<a href="{$thumbnail.U_EDIT}"><i class="fa fa-pencil"></i><span class="visually-hidden">{'Edit'|translate}</span></a>
 					    </div>
 					    {if $thumbnail.level > 0}
-						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
-						<em class="levelIndicatorF" title="{'Who can see these photos?'|@translate} : ">{'Level %d'|@sprintf:$thumbnail.level|@translate}</em>
+						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
+						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level %d'|sprintf:$thumbnail.level|translate}</em>
 					    {/if}
-					    <img src="{$thumbnail.thumb->getUrl()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|@escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
+					    <img src="{$thumbnail.thumb->getUrl()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
 					</span>
 				    </label>
 				</span>
