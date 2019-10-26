@@ -14,7 +14,6 @@ namespace App\Controller;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\Extension\Theme;
 use Phyxo\Functions\Language;
 use Phyxo\EntityManager;
 use App\Repository\UserFeedRepository;
@@ -22,12 +21,10 @@ use App\Repository\BaseRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
-use Phyxo\Functions\Notification;
+use App\Notification;
 
 class FeedController extends CommonController
 {
-    private $conf;
-
     public function notification(Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
     {
         $tpl_params = [];
@@ -52,7 +49,7 @@ class FeedController extends CommonController
         return $this->render('notification.tpl', $tpl_params);
     }
 
-    public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, string $cacheDir)
+    public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, string $cacheDir, Notification $notification)
     {
         $result = $em->getRepository(UserFeedRepository::class)->findById($feed_id);
         $feed_row = $em->getConnection()->db_fetch_assoc($result);
@@ -69,7 +66,6 @@ class FeedController extends CommonController
         $rss->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $news = [];
-        $notification = new Notification($em, $conf, $userMapper, $categoryMapper);
         if (!$image_only) {
             $news = $notification->news($feed_row['last_check'], $dbnow, true, true);
             if (count($news) > 0) {
@@ -87,7 +83,8 @@ class FeedController extends CommonController
 
                 $item->date = $this->ts_to_iso8601(strtotime($dbnow));
                 $item->author = $conf['rss_feed_author'];
-                $item->guid = sprintf('%s', $dbnow);;
+                $item->guid = sprintf('%s', $dbnow);
+                ;
 
                 $rss->addItem($item);
 
@@ -125,7 +122,8 @@ class FeedController extends CommonController
 
             $item->date = $this->ts_to_iso8601(strtotime($date));
             $item->author = $conf['rss_feed_author'];
-            $item->guid = sprintf('%s', 'pics-' . $date);;
+            $item->guid = sprintf('%s', 'pics-' . $date);
+            ;
 
             $rss->addItem($item);
         }

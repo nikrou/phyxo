@@ -40,7 +40,7 @@ class ImageStandardParams
     {
         $this->conf = $conf;
 
-        $this->derivatives = @unserialize(base64_decode($conf[$this->conf_key])); // @TODO: use better serializer
+        $this->derivatives = unserialize(base64_decode($conf[$this->conf_key]));
 
         $this->loadFromConf();
     }

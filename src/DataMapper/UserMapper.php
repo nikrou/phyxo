@@ -306,6 +306,14 @@ class UserMapper
         }
     }
 
+    public function getWebmasterEmail()
+    {
+        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $row = $this->em->getConnection()->db_fetch_assoc($result);
+
+        return $row['mail_address'];
+    }
+
     /**
      * Returns webmaster mail address depending on $conf['webmaster_id']
      */
@@ -314,6 +322,16 @@ class UserMapper
         $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
         $row = $this->em->getConnection()->db_fetch_assoc($result);
         return $row['mail_address'];
+    }
+
+    /**
+     * Returns webmaster mail address depending on $conf['webmaster_id']
+     */
+    public function getWebmasterUsername(): string
+    {
+        $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
+        $row = $this->em->getConnection()->db_fetch_assoc($result);
+        return $row['username'];
     }
 
     /**

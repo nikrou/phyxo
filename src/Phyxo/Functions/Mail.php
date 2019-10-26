@@ -50,8 +50,6 @@ class Mail
      * - smtp_user
      * - smtp_password
      * - smtp_secure
-     * - email_webmaster
-     * - name_webmaster
      *
      * @return array
      */
@@ -68,8 +66,6 @@ class Mail
             'smtp_user' => $conf['smtp_user'],
             'smtp_password' => $conf['smtp_password'],
             'smtp_secure' => $conf['smtp_secure'],
-            'email_webmaster' => self::get_mail_sender_email(),
-            'name_webmaster' => self::get_mail_sender_name(),
         ];
 
         return $conf_mail;
@@ -258,7 +254,7 @@ class Mail
             \Phyxo\Functions\Plugin::trigger_notify('loading_lang');
             \Phyxo\Functions\Language::load_language(
                 'lang',
-                __DIR__ . '/../../../' . PWG_LOCAL_DIR,
+                __DIR__ . '/../../../local',
                 ['language' => $language, 'local' => true]
             );
 
@@ -483,8 +479,8 @@ class Mail
 
         if (empty($args['from'])) {
             $from = [
-                'email' => $conf_mail['email_webmaster'],
-                'name' => $conf_mail['name_webmaster'],
+                'email' => isset($args['email_webmaster']) ? $args['email_webmaster'] : self::get_mail_sender_email(),
+                'name' => isset($args['name_webmaster']) ? $args['name_webmaster'] : self::get_mail_sender_name(),
             ];
         } else {
             $from = self::unformat_email($args['from']);
@@ -510,7 +506,7 @@ class Mail
         $Bcc = self::get_clean_recipients_list(@$args['Bcc']);
         if ($conf_mail['send_bcc_mail_webmaster']) {
             $Bcc[] = [
-                'email' => \Phyxo\Functions\Utils::get_webmaster_mail_address(),
+                'email' => isset($args['email_webmaster']) ? $args['email_webmaster']  : self::get_mail_sender_email(),
                 'name' => '',
             ];
         }
@@ -578,7 +574,7 @@ class Mail
                         'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
                         'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
                         'CONTENT_ENCODING' => \Phyxo\Functions\Utils::get_charset(),
-                        'CONTACT_MAIL' => $conf_mail['email_webmaster'],
+                        'CONTACT_MAIL' => isset($args['email_webmaster']) ? $args['email_webmaster'] : self::get_mail_sender_email(),
                     ]
                 );
 
