@@ -1,25 +1,25 @@
 // Extra social colors
 
 $social-colors: (
-    "facebook": #3B5998,
-    "twitter": #55ACEE,
-    "gplus": #DD4B39,
-    "youtube": #ED302F,
-    "pinterest": #C61118,
-    "instagram": #2E5E86,
-    "github": #333,
-    "vk": #4C75A3,
-    "email": #4B515D
+  'facebook': #3b5998,
+  'twitter': #55acee,
+  'gplus': #dd4b39,
+  'youtube': #ed302f,
+  'pinterest': #c61118,
+  'instagram': #2e5e86,
+  'github': #333,
+  'vk': #4c75a3,
+  'email': #4b515d
 );
 
 @each $name, $color in $social-colors {
-    .bg-social-#{$name} {
-	background-color: $color !important;
+  .bg-social-#{$name} {
+    background-color: $color !important;
+  }
+  .text-social-#{$name} {
+    color: $color !important;
+    &:hover {
+      color: lighten($color, 10%) !important;
     }
-    .text-social-#{$name} {
-	color: $color !important;
-	&:hover {
-            color: lighten($color, 10%) !important;
-	}
-    }
+  }
 }

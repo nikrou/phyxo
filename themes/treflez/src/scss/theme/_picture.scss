@@ -1,195 +1,198 @@
 // the image
 #theImage {
-    position: relative;
-    overflow-x: hidden;
-    text-align: center;
+  position: relative;
+  overflow-x: hidden;
+  text-align: center;
 }
 #theImage img {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 // Share buttons
 #share {
-    font-size: 2.5em;
-    text-align: center;
+  font-size: 2.5em;
+  text-align: center;
 
-    a:not(.btn-social) {
-	padding-left: 20px;
-	padding-right: 20px;
-	text-decoration: none;
-    }
+  a:not(.btn-social) {
+    padding-left: 20px;
+    padding-right: 20px;
+    text-decoration: none;
+  }
 
-    .btn-social {
-	min-width: 125px;
-    }
+  .btn-social {
+    min-width: 125px;
+  }
 }
 
 // Info tabs
 #theImageInfos {
-    .tab-pane {
-	margin: 10px 10px;
-    }
+  .tab-pane {
+    margin: 10px 10px;
+  }
 
-    .table-responsive {
-	border: none;
-    }
+  .table-responsive {
+    border: none;
+  }
 
-    .table>tbody>tr>td,
-    .table>tbody>tr>th {
-	border-top: none;
-    }
+  .table > tbody > tr > td,
+  .table > tbody > tr > th {
+    border-top: none;
+  }
 
-    @include media-breakpoint-up(lg) {
-	.table>tbody>tr>th {
-	    text-align: right;
-	}
+  @include media-breakpoint-up(lg) {
+    .table > tbody > tr > th {
+      text-align: right;
     }
+  }
 }
 
 // Slick Carousel
 #thumbnailCarousel {
-    opacity: 0;
-    visibility: hidden; /* hide initially until page is loaded */
-    transition: opacity 1s ease-in;
-    -webkit-transition: opacity 1s ease-in;
-    padding-top: 1em;
-    padding-bottom: 1.5em;
+  opacity: 0;
+  visibility: hidden; /* hide initially until page is loaded */
+  transition: opacity 1s ease-in;
+  -webkit-transition: opacity 1s ease-in;
+  padding-top: 1em;
+  padding-bottom: 1.5em;
 
-    &.slick-initialized {
-	opacity: 1;
-	visibility: visible;
-    }
+  &.slick-initialized {
+    opacity: 1;
+    visibility: visible;
+  }
 
-    &.center img {
-	transform: scale(0.95);
-	-moz-transform: scale(0.95);
-	-ms-transform: scale(0.95);
-	-o-transform: scale(0.95);
-	-webkit-transform: scale(0.95);
-	transition: all 300ms ease;
-    }
+  &.center img {
+    transform: scale(0.95);
+    -moz-transform: scale(0.95);
+    -ms-transform: scale(0.95);
+    -o-transform: scale(0.95);
+    -webkit-transform: scale(0.95);
+    transition: all 300ms ease;
+  }
 
-    &.center .slick-current.slick-active.slick-center img {
-	transform: scale(1.06);
-	-moz-transform: scale(1.06);
-	-ms-transform: scale(1.06);
-	-o-transform: scale(1.06);
-	-webkit-transform: scale(1.06);
-    }
+  &.center .slick-current.slick-active.slick-center img {
+    transform: scale(1.06);
+    -moz-transform: scale(1.06);
+    -ms-transform: scale(1.06);
+    -o-transform: scale(1.06);
+    -webkit-transform: scale(1.06);
+  }
 }
 
 .slick-slide {
-    img {
-	display: inherit;
-	box-shadow: $bd-boxshadow-sm;
-    }
+  img {
+    display: inherit;
+    box-shadow: $bd-boxshadow-sm;
+  }
 
-    &, & *{
-	outline: none;
-    }
+  &,
+  & * {
+    outline: none;
+  }
 }
 
-.slick-list { padding: 10px 0 !important; }
+.slick-list {
+  padding: 10px 0 !important;
+}
 
 #rating {
-    input {
-	display: none;
-    }
+  input {
+    display: none;
+  }
 
-    dd {
-	padding-left: 10px;
-    }
+  dd {
+    padding-left: 10px;
+  }
 
-    label {
-	cursor: pointer;
-	margin: 0 3px;
-	float: right;
-	&:before {
-	    font-size: 1.2em;
-    	    font-family: "FontAwesome";
-    	    font-weight: 900;
-	}
+  label {
+    cursor: pointer;
+    margin: 0 3px;
+    float: right;
+    &:before {
+      font-size: 1.2em;
+      font-family: 'FontAwesome';
+      font-weight: 900;
     }
+  }
 
-    label {
-	&:before {
-    	    content: "\f006";
-    	}
+  label {
+    &:before {
+      content: '\f006';
     }
+  }
 
-    &:hover label:hover,
-    &:hover label:hover ~ label,
-    input:checked ~ label {
-    	&:before {
-    	    content: "\f005";
-    	}
+  &:hover label:hover,
+  &:hover label:hover ~ label,
+  input:checked ~ label {
+    &:before {
+      content: '\f005';
     }
+  }
 }
 
 // Picture nav buttons
 #navigationButtons {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.6em;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.6em;
 
-    button {
-	font-size: 1em;
+  button {
+    font-size: 1em;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  i.fa {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+
+    @media (max-width: 320px) {
+      margin-left: 0.7rem;
+      margin-right: 0.7rem;
     }
-
-    a {
-	text-decoration: none;
-    }
-
-    i.fa {
-	margin-left: 1.5rem;
-	margin-right: 1.5rem;
-
-	@media (max-width: 320px) {
-	    margin-left: .7rem;
-	    margin-right: .7rem;
-	}
-    }
+  }
 }
 
 #slideshow #navigationButtons {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 // Video
 #thePicturePage {
-    .embed-responsive-16by9 video[poster] {
-	object-fit: cover;
-    }
-    // additional aspect ratios
-    .embed-responsive-9by16 {
-	padding-bottom: 177.78%;
-    }
+  .embed-responsive-16by9 video[poster] {
+    object-fit: cover;
+  }
+  // additional aspect ratios
+  .embed-responsive-9by16 {
+    padding-bottom: 177.78%;
+  }
 }
 
 // EXIF icons
 .exif-icon {
-    width: 25%;
+  width: 25%;
 
-    @include media-breakpoint-down(sm) {
-	width: 33%;
-    }
+  @include media-breakpoint-down(sm) {
+    width: 33%;
+  }
 }
 
 // tags
 .edit-tags {
-    cursor: pointer;
-    margin-right: 5px;
+  cursor: pointer;
+  margin-right: 5px;
 }
 
 .js-hidden {
-    display: none;
+  display: none;
 }
 
 .pending.deleted {
-    background-color: $pink;
+  background-color: $pink;
 }
 
 .pending.added {
-    background-color: $green;
+  background-color: $green;
 }

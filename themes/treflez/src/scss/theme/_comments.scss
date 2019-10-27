@@ -1,30 +1,30 @@
 // Comments
 #commentList .comment {
-    @include clearfix();
-    margin-bottom: 10px;
+  @include clearfix();
+  margin-bottom: 10px;
 
-    .image img {
-	float: left;
-	width: 80px;
-	height: 80px;
-	margin-right: 10px;
+  .image img {
+    float: left;
+    width: 80px;
+    height: 80px;
+    margin-right: 10px;
+  }
+
+  .description {
+    margin-left: 100px;
+
+    form {
+      margin-top: 15px;
+      margin-bottom: 15px;
     }
 
-    .description {
-	margin-left: 100px;
-
-	form {
-	    margin-top: 15px;
-	    margin-bottom: 15px;
-	}
-
-	.actions {
-	    float: right;
-	    font-size: 90%;
-	}
+    .actions {
+      float: right;
+      font-size: 90%;
     }
+  }
 }
 
 .comment-search {
-    margin-top: 20px;
+  margin-top: 20px;
 }

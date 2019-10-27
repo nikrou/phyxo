@@ -45,6 +45,7 @@ class AlbumController extends CommonController
 
         $category = $categoryMapper->getCatInfo($category_id);
 
+        $tpl_params['TITLE'] = $categoryMapper->getBreadcrumb($category['upper_names']);
         $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
 
         $order = 'rank';
@@ -431,6 +432,7 @@ class AlbumController extends CommonController
         $order = 'rank';
         $filter = [];
         $where[] = $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_categories' => 'id'], '', $force_on_condition = true);
+        $where[] = 'id_uppercat IS NULL';
 
         $result = $em->getRepository(CategoryRepository::class)->findWithUserAndCondition($this->getUser()->getId(), $where, $order);
         $categories = [];
@@ -636,7 +638,6 @@ class AlbumController extends CommonController
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']
                 );
-
             }
         }
 
@@ -869,7 +870,6 @@ class AlbumController extends CommonController
                     $conf['nb_categories_page'],
                     $conf['paginate_pages_around']
                 );
-
             }
         }
 

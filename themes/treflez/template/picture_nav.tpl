@@ -1,22 +1,7 @@
 <nav class="navbar navbar-contextual navbar-expand-lg {$theme_config->navbar_contextual_style} {$theme_config->navbar_contextual_bg} sticky-top mb-2">
     <div class="container{if $theme_config->fluid_width}-fluid{/if}">
-        <div class="navbar-brand">
-	    <div class="nav-breadcrumb d-inline-flex">
-		{if is_array($TITLE)}
-		    <a href="{$U_HOME}" title="{'Home'|translate}"><i class="fa fa-home" aria-hidden="true"></i></a>
-		    {foreach $TITLE as $breadcrum_element}
-			{$LEVEL_SEPARATOR}
-			{if isset($breadcrum_element.url)}
-			    <a href="{$breadcrum_element.url}">{$breadcrum_element.label}</a>
-			{else}
-			    <span>{$breadcrum_element.label}</span>
-			{/if}
-		    {/foreach}
-		{else}
-		    {$SECTION_TITLE} {$LEVEL_SEPARATOR} <span class="nav-breadcrumb-item active">{$current.TITLE}</span>
-		{/if}
-	    </div>
-        </div>
+	{include file="_breadcrumb.tpl" elements=$TITLE}
+
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#secondary-navbar" aria-controls="secondary-navbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="fa fa-bars"></span>
         </button>
