@@ -310,6 +310,20 @@ class CategoryMapper
         return $names;
     }
 
+    public function getBreadcrumb(array $upper_names = []): array
+    {
+        $breadcumb = [];
+
+        foreach ($upper_names as $category) {
+            $breadcumb[] = [
+                'url' => $this->router->generate('album', ['category_id' => $category['id']]),
+                'label' => $category['name']
+            ];
+        }
+
+        return $breadcumb;
+    }
+
     /**
      * Generates breadcrumb from categories list using a cache.
      * @see getCatDisplayName()

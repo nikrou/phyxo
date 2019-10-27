@@ -14,7 +14,6 @@ namespace App\Controller\Admin;
 use App\DataMapper\CategoryMapper;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
-use App\Repository\OldPermalinkRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
