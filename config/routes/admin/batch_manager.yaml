@@ -1,19 +1,21 @@
 admin_batch_manager_global:
-  path: /batch/global/{filter}
+  path: /batch/global/{filter}/{value}
   controller: App\Controller\Admin\BatchManagerController:global
   defaults:
     filter: null
+    value: null
     start: 0
   requirements:
-    filter: caddie|favorites|last_import|no_album|no_tag|duplicates|all_photos
+    filter: caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos
 
 admin_batch_manager_global__start:
-  path: /batch/global/{start}/{filter}
+  path: /batch/global/{start}/{filter}/{value}
   controller: App\Controller\Admin\BatchManagerController:global
   defaults:
     filter: null
+    value: null
   requirements:
-    filter: caddie|favorites|last_import|no_album|no_tag|duplicates|all_photos
+    filter: caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos
     start: \d+
 
 admin_batch_manager_global_empty_caddie:
@@ -25,19 +27,21 @@ admin_batch_manager_global_empty_caddie:
     start: \d+
 
 admin_batch_manager_unit:
-  path: /batch/unit/{filter}
+  path: /batch/unit/{filter}/{value}
   controller: App\Controller\Admin\BatchManagerController:unit
   defaults:
     filter: null
+    value: null
     start: 0
   requirements:
-    filter: caddie|favorites|last_import|no_album|no_tag|duplicates|all_photos
+    filter: caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos
 
 admin_batch_manager_unit__start:
-  path: /batch/unit/{start}/{filter}
+  path: /batch/unit/{start}/{filter}/{value}
   controller: App\Controller\Admin\BatchManagerController:unit
   defaults:
     filter: null
+    value: null
   requirements:
-    filter: caddie|favorites|last_import|no_album|no_tag|duplicates|all_photos
+    filter: caddie|favorites|last_import|album|no_album|tag|no_tag|duplicates|all_photos
     start: \d+

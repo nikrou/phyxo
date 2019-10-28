@@ -161,29 +161,16 @@ class BatchManagerController extends AdminCommonController
             } elseif ($filter === 'last_import') {
                 $this->appendFilter(['prefilter' => 'last_import']);
                 $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'last_import']);
+            } elseif ($filter === 'album' && $request->get('value') !== null) {
+                $this->appendFilter(['category' => (int) $request->get('value')]);
+                $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
+            } elseif ($filter === 'tag' && $request->get('value') !== null) {
+                $this->appendFilter(['tags' => [(int) $request->get('value')]]);
+                $this->appendFilter(['tag_mode' => 'AND']);
+                $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
             }
 
             // @TODO : add others based on following code
-
-            // switch ($filter) {
-            //       case 'prefilter':
-            //           $this->appendFilter(['prefilter' => $value]);
-            //           break;
-
-            //       case 'album':
-            //       case 'category':
-            //       case 'cat':
-            //           if (is_numeric($value)) {
-            //               $this->appendFilter(['category' => $value]);
-            //           }
-            //           break;
-
-            //       case 'tag':
-            //           if (is_numeric($value)) {
-            //               $this->appendFilter(['tags' => [$value], 'tag_mode' => 'AND']);
-            //           }
-            //           break;
-
             //       case 'level':
             //           if (is_numeric($value) && in_array($value, $conf['available_permission_levels'])) {
             //               $this->appendFilter(['level' => $value]);
@@ -209,11 +196,6 @@ class BatchManagerController extends AdminCommonController
             //           $values = explode('..', $value);
             //           $this->appendFilter(['filesize' => ['min' => $values[0], 'max' => $values[1]]]);
             //           break;
-
-            //       default:
-            //         $this->appendFilter(\Phyxo\Functions\Plugin::trigger_change('batch_manager_url_filter', $this->getFilter(), $filter));
-            //         break;
-            // }
         }
 
         $this->filterFromSession();
@@ -329,7 +311,7 @@ class BatchManagerController extends AdminCommonController
             }
             $result = $em->getRepository(ImageRepository::class)->findByImageIdsAndCategoryId(
                 $current_set,
-                $this->getFilter()['category'] ?? null,
+                $is_category ? ($this->getFilter()['category'] ?? null) : null,
                 $conf['order_by'] ?? '  ',
                 $nb_images,
                 $start
@@ -356,6 +338,7 @@ class BatchManagerController extends AdminCommonController
                     ]
                 );
             }
+
             $tpl_params['thumb_params'] = $thumb_params;
         }
 
@@ -407,7 +390,7 @@ class BatchManagerController extends AdminCommonController
     protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper, UserMapper $userMapper)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
-        if (count($collection) === 0) {
+        if (count($collection) === 0 && !$request->request->get('submitFilter')) {
             $this->addFlash('error', Language::l10n('Select at least one photo'));
             return;
         }

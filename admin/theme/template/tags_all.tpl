@@ -46,9 +46,12 @@
 			<label for="tag_id_{$tag.id}">{$tag.name}</label> ({$tag.counter|translate_dec:'%d photo':'%d photos'})
 		    </div>
 		    <div class="col">
-			<a class="btn btn-sm btn-edit" href="{$tag.U_EDIT_PHOTOS}"><i class="fa fa-pencil"></i> {'Edit tag'|translate}</a>
-			<a class="btn btn-sm btn-submit3" href="{$tag.U_MANAGE_PHOTOS}"><i class="fa fa-tasks"></i> {'Manage photos'|translate}</a>
-			<a class="btn btn-sm btn-submit" href="{$tag.U_VIEW}"><i class="fa fa-eye"></i> {'View in gallery'|translate}</a>
+			{if $tag.U_MANAGE_PHOTOS}
+			    <a class="btn btn-sm btn-submit3" href="{$tag.U_MANAGE_PHOTOS}"><i class="fa fa-tasks"></i> {'Manage photos'|translate}</a>
+			{/if}
+			{if $tag.U_VIEW}
+			    <a class="btn btn-sm btn-submit" href="{$tag.U_VIEW}"><i class="fa fa-eye"></i> {'View in gallery'|translate}</a>
+			{/if}
 			{if !empty($tag.alt_names)}<br>{$tag.alt_names}{/if}
 		    </div>
 		</div>

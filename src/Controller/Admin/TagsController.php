@@ -18,6 +18,7 @@ use App\Repository\TagRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
+use Phyxo\Functions\URL;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -80,8 +81,10 @@ class TagsController extends AdminCommonController
             } else {
                 $tag['counter'] = intval($tag_counters[$tag['id']]);
             }
-            $tag['U_VIEW'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
-            $tag['U_EDIT'] = 'admin/index.php?page=batch_manager&amp;filter=tag-' . $tag['id'];
+            if ($tag['counter'] > 0) {
+                $tag['U_VIEW'] = $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
+                $tag['U_MANAGE_PHOTOS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'tag', 'value' => $tag['id']]);
+            }
 
             $alt_names = \Phyxo\Functions\Plugin::trigger_change('get_tag_alt_names', [], $raw_name);
             $alt_names = array_diff(array_unique($alt_names), [$tag['name']]);
