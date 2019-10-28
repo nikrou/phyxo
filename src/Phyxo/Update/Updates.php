@@ -19,6 +19,7 @@ use PclZip;
 use GuzzleHttp\Client;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Extension\Extensions;
+use Symfony\Component\Filesystem\Filesystem;
 
 class Updates
 {
@@ -97,13 +98,14 @@ class Updates
             return;
         }
 
+        $fs = new Filesystem();
         $old_files = file($obsolete_file, FILE_IGNORE_NEW_LINES);
         foreach ($old_files as $old_file) {
             $path = $root . '/' . $old_file;
             if (is_writable($path)) {
-                @unlink($path);
+                $fs->remove($path);
             } elseif (is_dir($path)) {
-                \Phyxo\Functions\Utils::deltree($path);
+                $fs->remove($path);
             }
         }
     }

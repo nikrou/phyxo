@@ -1,8 +1,9 @@
 admin_update:
-  path: /update/{step}
+  path: /update/{step}/{version}
   controller: App\Controller\Admin\UpdateController:core
   defaults:
     step: 0
+    version: null
   requirements:
     step: \d+
 

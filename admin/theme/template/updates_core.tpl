@@ -39,8 +39,8 @@
 	<h4>{'Two updates are available'|translate}:</h4>
 	<p>
 	    <ul>
-		<li><a href="admin/index.php?page=updates&amp;step=2&amp;to={$MINOR_VERSION}"><strong>{'Update to Phyxo %s'|translate:$MINOR_VERSION}</strong></a>: {'This is a minor update, with only bug corrections.'|translate}</li>
-		<li><a href="admin/index.php?page=updates&amp;step=3&amp;to={$MAJOR_VERSION}"><strong>{'Update to Phyxo %s'|translate:$MAJOR_VERSION}</strong></a>: {'This is a major update, with <a href="%s">new exciting features</a>.'|translate:$RELEASE_URL} {'Some themes and plugins may be not available yet.'|translate}</li>
+		<li><a href="{$U_UPDATE_MINOR}"><strong>{'Update to Phyxo %s'|translate:$MINOR_VERSION}</strong></a>: {'This is a minor update, with only bug corrections.'|translate}</li>
+		<li><a href="{$U_UPDATE_MAJOR}"><strong>{'Update to Phyxo %s'|translate:$MAJOR_VERSION}</strong></a>: {'This is a major update, with <a href="%s">new exciting features</a>.'|translate:$RELEASE_URL} {'Some themes and plugins may be not available yet.'|translate}</li>
 	    </ul>
 	</p>
 	<p>{'You can update to Phyxo %s directly, without upgrading to Phyxo %s (recommended).'|translate:$MAJOR_VERSION:$MINOR_VERSION}</p>

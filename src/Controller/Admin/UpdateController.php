@@ -36,7 +36,7 @@ class UpdateController extends AdminCommonController
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, Template $template, Conf $conf, EntityManager $em, UserMapper $userMapper, ParameterBagInterface $params)
+    public function core(Request $request, int $step = 0, string $version = null, Template $template, Conf $conf, EntityManager $em, UserMapper $userMapper, ParameterBagInterface $params)
     {
         $tpl_params = [];
 
@@ -49,7 +49,7 @@ class UpdateController extends AdminCommonController
         2 = upgrade on same branch
         3 = upgrade on different branch
          */
-        $upgrade_to = isset($_GET['to']) ? $_GET['to'] : '';
+        $upgrade_to = $version;
         $obsolete_file = $params->get('install_dir') . '/obsolete.list';
 
         // +-----------------------------------------------------------------------+
@@ -105,26 +105,30 @@ class UpdateController extends AdminCommonController
         if ($step === 1) {
             $tpl_params['MINOR_VERSION'] = $version;
             $tpl_params['MAJOR_VERSION'] = $last_version;
+
+            $tpl_params['U_UPDATE_MINOR'] = $this->generateUrl('admin_update', ['step' => 2, 'version' => $version]);
+            $tpl_params['U_UPDATE_MAJOR'] = $this->generateUrl('admin_update', ['step' => 3, 'version' => $last_version]);
         }
 
         // +-----------------------------------------------------------------------+
         // |                                Step 2                                 |
         // +-----------------------------------------------------------------------+
         if ($step === 2 && $userMapper->isWebmaster()) {
-            if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-                $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
-                $updater->upgradeTo($_POST['upgrade_to']);
+            if ($request->isMethod('POST') && $request->request->get('upgrade_to')) {
+                $zip = $params->get('cache_dir') . '/update' . '/' . $request->request->get('upgrade_to') . '.zip';
+                $updater->upgradeTo($request->request->get('upgrade_to'));
                 $updater->download($zip);
 
+                $fs = new Filesystem();
                 try {
                     $updater->upgrade($zip);
-                    $updater->removeObsoleteFiles($obsolete_file, __DIR__ . '/..');
+                    $updater->removeObsoleteFiles($obsolete_file, $params->get('root_project_dir'));
 
                     $userMapper->invalidateUserCache(true);
                     $template->delete_compiled_templates();
-                    unlink(__DIR__ . '/../' . $conf['data_location'] . 'update');
+                    $fs->remove($params->get('cache_dir') . '/update');
 
-                    $page['infos'][] = \Phyxo\Functions\Language::l10n('Update Complete');
+                    $page['infos'][] = Language::l10n('Update Complete');
                     $page['infos'][] = $upgrade_to;
                     $step = -1;
                 } catch (\Exception $e) {
@@ -143,9 +147,9 @@ class UpdateController extends AdminCommonController
         // |                                Step 3                                 |
         // +-----------------------------------------------------------------------+
         if ($step === 3 && $userMapper->isWebmaster()) {
-            if (isset($_POST['submit']) and isset($_POST['upgrade_to'])) {
-                $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $_POST['upgrade_to'] . '.zip';
-                $updater->upgradeTo($_POST['upgrade_to']);
+            if ($request->isMethod('POST') && $request->request->get('upgrade_to')) {
+                $zip = __DIR__ . '/../' . $conf['data_location'] . 'update' . '/' . $request->request->get('upgrade_to') . '.zip';
+                $updater->upgradeTo($request->request->get('upgrade_to'));
                 $updater->download($zip);
 
                 try {
