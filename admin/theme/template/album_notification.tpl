@@ -35,7 +35,7 @@
 		</p>
 
 	    {elseif isset($no_group_in_gallery) and $no_group_in_gallery}
-		<p>{'There is no group in this gallery.'|translate} <a href="./index.php?page=groups">{'Group management'|translate}</a></p>
+		<p>{'There is no group in this gallery.'|translate} <a href="{$U_GROUPS}">{'Group management'|translate}</a></p>
 	    {else}
 		<p>
 		    {'No group is permitted to see this private album'|translate}.

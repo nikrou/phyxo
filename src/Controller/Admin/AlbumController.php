@@ -522,6 +522,8 @@ class AlbumController extends AdminCommonController
         }
 
         $tpl_params['CATEGORIES_NAV'] = $categoryMapper->getAlbumsDisplayName($category['uppercats'], 'admin_album', ['parent_id' => $parent_id]);
+        $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['groups', 'users'], $em);
 
         $tpl_params['private'] = ($category['status'] === 'private');
         $tpl_params['INHERIT'] = $conf['inheritance_by_default'];
@@ -637,6 +639,7 @@ class AlbumController extends AdminCommonController
         }
 
         $tpl_params['CATEGORIES_NAV'] = $categoryMapper->getAlbumsDisplayName($category['uppercats'], 'admin_album', ['parent_id' => $parent_id]);
+        $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');

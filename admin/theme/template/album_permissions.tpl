@@ -36,20 +36,20 @@
 	     rootUrl: '{$ROOT_URL}'
 	 });
 
-	 usersCache.selectize(jQuery('[data-selectize=users]'));
+	 usersCache.selectize($('[data-selectize=users]'));
 
 	 {* <!-- TOGGLES --> *}
 	 function checkStatusOptions() {
-	     if (jQuery("input[name=status]:checked").val() == "private") {
-		 jQuery("#privateOptions, #applytoSubAction").show();
+	     if ($("input[name=status]:checked").val() == "private") {
+		 $("#privateOptions, #applytoSubAction").show();
 	     }
 	     else {
-		 jQuery("#privateOptions, #applytoSubAction").hide();
+		 $("#privateOptions, #applytoSubAction").hide();
 	     }
 	 }
 
 	 checkStatusOptions();
-	 jQuery("#selectStatus").change(function() {
+	 $("#selectStatus").change(function() {
 	     checkStatusOptions();
 	 });
      }());
@@ -79,7 +79,7 @@
 				placeholder="{'Type in a search term'|translate}"
 				name="groups[]" multiple></select>
 		{else}
-		    {'There is no group in this gallery.'|translate} <a href="./index.php?page=groups&section=list" class="externalLink">{'Group management'|translate}</a>
+		    {'There is no group in this gallery.'|translate} <a href="{$U_GROUPS}">{'Group management'|translate}</a>
 		{/if}
 	    </p>
 
