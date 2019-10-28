@@ -6,8 +6,6 @@
 {/block}
 
 {block name="content"}
-    {combine_script id='common' load='footer' path='admin/theme/js/common.js'}
-
     <form method="post" action="{$F_ACTION}" class="properties">
 	<div class="fieldset">
 	    <h3>{'Main Page'|translate}</h3>

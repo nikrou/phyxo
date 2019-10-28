@@ -14,11 +14,8 @@ namespace Phyxo\Template;
 use App\Entity\User;
 use SmartyException;
 use Smarty;
-use Phyxo\Template\ScriptLoader;
-use Phyxo\Template\CssLoader;
 
 use Phyxo\Conf;
-use Phyxo\Functions\Plugin;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Phyxo\Extension\Theme;
@@ -38,32 +35,13 @@ class Template implements EngineInterface
 
     private $image_std_params;
 
-    /** @var Smarty */
-    public $smarty;
+    private $smarty;
     /** @var string */
     private $output = '';
 
     /** @var string[] - Hash of filenames for each template handle. */
     private $files = [];
-    /** @var array - Templates prefilter from external sources (plugins) */
-    private $external_filters = [];
 
-    /** @var string - Content to add before </head> tag */
-    private $html_head_elements = [];
-    /** @var string - Runtime CSS rules */
-    private $html_style = '';
-
-    /** @const string */
-    const COMBINED_SCRIPTS_TAG = '<!-- COMBINED_SCRIPTS -->';
-    /** @var ScriptLoader */
-    public $scriptLoader;
-
-    /** @const string */
-    const COMBINED_CSS_TAG = '<!-- COMBINED_CSS -->';
-    /** @var CssLoader */
-    private $cssLoader;
-
-    private $themeconfs = [];
     /**
      * @var string $root
      * @var string $theme
@@ -82,24 +60,12 @@ class Template implements EngineInterface
 
         SmartyException::$escape = false;
 
-        $this->scriptLoader = new ScriptLoader();
-        $this->cssLoader = new CssLoader();
         $this->smarty = new Smarty();
 
         $this->smarty->registerPlugin('modifiercompiler', 'translate', [$this, 'modcompiler_translate']);
         $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', [$this, 'modcompiler_translate_dec']);
-        $this->smarty->registerPlugin('modifier', 'explode', [__class__, 'mod_explode']);
-        $this->smarty->registerPlugin('modifier', 'ternary', [__class__, 'mod_ternary']);
-        $this->smarty->registerPlugin('block', 'html_head', [$this, 'block_html_head']);
-        $this->smarty->registerPlugin('block', 'html_style', [$this, 'block_html_style']);
-        $this->smarty->registerPlugin('function', 'combine_script', [$this, 'func_combine_script']);
-        $this->smarty->registerPlugin('function', 'get_combined_scripts', [$this, 'func_get_combined_scripts']);
-        $this->smarty->registerPlugin('function', 'combine_css', [$this, 'func_combine_css']);
         $this->smarty->registerPlugin('function', 'define_derivative', [$this, 'func_define_derivative']);
         $this->smarty->registerPlugin('function', 'asset', [$this, 'func_asset']);
-        $this->smarty->registerPlugin('compiler', 'get_combined_css', [$this, 'func_get_combined_css']);
-        $this->smarty->registerPlugin('block', 'footer_script', [$this, 'block_footer_script']);
-        $this->smarty->registerFilter('pre', [__class__, 'prefilter_white_space']);
 
         $this->smarty->registerPlugin('function', 'media', [$this, 'func_media']);
         $this->smarty->registerPlugin('function', 'path', [$this, 'func_path']);
@@ -155,10 +121,6 @@ class Template implements EngineInterface
 
         if (isset($this->options['conf']['template_force_compile'])) {
             $this->smarty->force_compile = $this->options['conf']['template_force_compile'];
-        }
-
-        if (!empty($this->options['conf']['compiled_template_cache_language'])) {
-            $this->smarty->registerFilter('post', [__class__, 'postfilter_language']);
         }
 
         // @TODO: to be removed ?
@@ -221,6 +183,8 @@ class Template implements EngineInterface
 
     protected function loadThemeConf(string $dir)
     {
+        $themeconf = null;
+
         $themeconf_filename = realpath($dir) . '/themeconf.inc.php';
         if (!is_readable($themeconf_filename)) {
             return;
@@ -430,16 +394,14 @@ class Template implements EngineInterface
         $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
 
         $save_compile_id = $this->smarty->compile_id;
-        $this->load_external_filters($handle);
 
-        if (!empty($this->options['conf']['compiled_template_cache_language']) && isset($this->options['lang_info']['code'])) {
+        if (isset($this->options['lang_info']['code'])) {
             $this->smarty->compile_id .= '_' . $this->options['lang_info']['code'];
         }
 
         $v = $this->smarty->fetch($this->files[$handle]);
 
         $this->smarty->compile_id = $save_compile_id;
-        $this->unload_external_filters($handle);
 
         if ($return) {
             return $v;
@@ -464,50 +426,7 @@ class Template implements EngineInterface
      */
     public function flush($return = false)
     {
-        if (!$this->scriptLoader->did_head()) {
-            $pos = strpos($this->output, self::COMBINED_SCRIPTS_TAG);
-            if ($pos !== false) {
-                $scripts = $this->scriptLoader->get_head_scripts();
-                $content = [];
-                foreach ($scripts as $script) {
-                    $content[] = '<script src="' . self::make_script_src($script) . '"></script>';
-                }
-
-                $this->output = substr_replace($this->output, implode("\n", $content), $pos, strlen(self::COMBINED_SCRIPTS_TAG));
-            } //else maybe error or warning ?
-        }
-
-        $css = $this->cssLoader->get_css();
-
         $content = [];
-        foreach ($css as $combi) {
-            $href = \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_root_url() . $combi->path);
-            if ($combi->version !== false) {
-                $href .= '?v' . ($combi->version ? $combi->version : '1.10.0');
-            }
-            // trigger the event for eventual use of a cdn
-            $href = Plugin::trigger_change('combined_css', $href, $combi);
-            $content[] = '<link rel="stylesheet" type="text/css" href="' . $href . '">';
-        }
-        $this->output = str_replace(
-            self::COMBINED_CSS_TAG,
-            implode("\n", $content),
-            $this->output
-        );
-        $this->cssLoader->clear();
-
-        if (count($this->html_head_elements) || strlen($this->html_style)) {
-            $search = "</head>";
-            if (($pos = strpos($this->output, $search)) !== false) {
-                $rep = implode("\n", $this->html_head_elements);
-                if (strlen($this->html_style)) {
-                    $rep .= '<style type="text/css">' . $this->html_style . '</style>' . "\n"; // @TODO: try to avoid inline style
-                }
-                $this->output = substr_replace($this->output, $rep, $pos, 0);
-            }
-            $this->html_head_elements = [];
-            $this->html_style = '';
-        }
 
         if ($return) {
             return $this->output;
@@ -598,65 +517,6 @@ class Template implements EngineInterface
     }
 
     /**
-     * "explode" variable modifier.
-     * Usage :
-     *    - {assign var=valueExploded value=$value|explode:','}
-     *
-     * @param string $text
-     * @param string $delimiter
-     * @return array
-     */
-    public static function mod_explode($text, $delimiter = ',')
-    {
-        return explode($delimiter, $text);
-    }
-
-    /**
-     * ternary variable modifier.
-     * Usage :
-     *    - {$variable|ternary:'yes':'no'}
-     *
-     * @param mixed $param
-     * @param mixed $true
-     * @param mixed $false
-     * @return mixed
-     */
-    public static function mod_ternary($param, $true, $false)
-    {
-        return $param ? $true : $false;
-    }
-
-    /**
-     * The "html_head" block allows to add content just before
-     * </head> element in the output after the head has been parsed.
-     *
-     * @param array $params (unused)
-     * @param string $content
-     */
-    public function block_html_head($params, $content)
-    {
-        $content = trim($content);
-        if (!empty($content)) { // second call
-            $this->html_head_elements[] = $content;
-        }
-    }
-
-    /**
-     * The "html_style" block allows to add CSS juste before
-     * </head> element in the output after the head has been parsed.
-     *
-     * @param array $params (unused)
-     * @param string $content
-     */
-    public function block_html_style($params, $content)
-    { // @TODO: inject as an external stylesheet
-        $content = trim($content);
-        if (!empty($content)) { // second call
-            $this->html_style .= "\n" . $content;
-        }
-    }
-
-    /**
      * The "define_derivative" function allows to define derivative from tpl file.
      * It assigns a DerivativeParams object to _name_ template variable.
      *
@@ -705,7 +565,7 @@ class Template implements EngineInterface
         $smarty->assign($params['name'], $this->image_std_params->makeCustom($w, $h, $crop, $minw, $minh));
     }
 
-    public function func_derivative_from_image(array $params = [], $smarty) //SrcImage $img, DerivativeParams $params): DerivativeImage
+    public function func_derivative_from_image(array $params = [], $smarty)
     {
         if (empty($params['name']) || empty($params['image']) || empty($params['params'])) {
             return;
@@ -744,349 +604,6 @@ class Template implements EngineInterface
         } else {
             return '';
         }
-    }
-
-    /**
-     * The "combine_script" functions allows inclusion of a javascript file in the current page.
-     * The engine will combine several js files into a single one.
-     *
-     * @param array $params
-     *   - id (required)
-     *   - path (required)
-     *   - load (optional) 'header', 'footer' or 'async'
-     *   - require (optional) comma separated list of script ids required to be loaded
-     *     and executed before this one
-     *   - version (optional) used to force a browser refresh
-     */
-    public function func_combine_script($params)
-    {
-        trigger_error('combined_scripts is deprecated. Use plain html instead', E_USER_DEPRECATED);
-
-        if (!isset($params['id'])) {
-            trigger_error("combine_script: missing 'id' parameter", E_USER_ERROR);
-        }
-        $load = 0;
-        if (isset($params['load'])) {
-            switch ($params['load']) {
-                case 'header':
-                    break;
-                case 'footer':
-                    $load = 1;
-                    break;
-                case 'async':
-                    $load = 2;
-                    break;
-                default:
-                    trigger_error("combine_script: invalid 'load' parameter", E_USER_ERROR);
-            }
-        }
-
-        $this->scriptLoader->add(
-            $params['id'],
-            $load,
-            empty($params['require']) ? [] : explode(',', $params['require']),
-            isset($params['path']) ? $params['path'] : '',
-            isset($params['version']) ? $params['version'] : 0,
-            isset($params['template']) ? $params['template'] : false
-        );
-    }
-
-    /**
-     * The "get_combined_scripts" function returns HTML tag of combined scripts.
-     * It can returns a placeholder for delayed JS files combination and minification.
-     *
-     * @param array $params
-     *    - load (required)
-     */
-    public function func_get_combined_scripts($params)
-    {
-        trigger_error('get_combined_scripts is deprecated. Merge scripts on your own', E_USER_DEPRECATED);
-
-        if (!isset($params['load'])) {
-            trigger_error("get_combined_scripts: missing 'load' parameter", E_USER_ERROR);
-        }
-        $load = $params['load'] == 'header' ? 0 : 1;
-        $content = [];
-
-        if ($load == 0) {
-            return self::COMBINED_SCRIPTS_TAG;
-        } else {
-            $scripts = $this->scriptLoader->get_footer_scripts();
-            foreach ($scripts[0] as $script) {
-                $content[] = '<script type="text/javascript" src="' . self::make_script_src($script) . '"></script>';
-            }
-            if (count($this->scriptLoader->inline_scripts)) {
-                $content[] = '<script type="text/javascript">//<![CDATA['; // @TODO: remove inline script
-                $content = array_merge($content, $this->scriptLoader->inline_scripts);
-                $content[] = '//]]></script>';
-            }
-
-            if (count($scripts[1])) { // @TODO: remove inline script
-                $content[] = '<script>';
-                $content[] = '(function() {var s,after = document.getElementsByTagName(\'script\')[document.getElementsByTagName(\'script\').length-1];';
-                foreach ($scripts[1] as $id => $script) {
-                    $content[] = 's=document.createElement(\'script\'); s.type=\'text/javascript\'; s.async=true; s.src=\''
-                        . self::make_script_src($script)
-                        . '\';';
-                    $content[] = 'after = after.parentNode.insertBefore(s, after);';
-                }
-                $content[] = '})();';
-                $content[] = '</script>';
-            }
-        }
-
-        return implode("\n", $content);
-    }
-
-    /**
-     * Returns clean relative URL to script file.
-     *
-     * @param Combinable $script
-     * @return string
-     */
-    private static function make_script_src($script)
-    {
-        $ret = '';
-        if ($script->is_remote()) {
-            $ret = $script->path;
-        } else {
-            $ret = \Phyxo\Functions\URL::get_root_url() . $script->path;
-            if ($script->version !== false) {
-                $ret .= '?v' . ($script->version ? $script->version : '1.10.0');
-            }
-        }
-        // trigger the event for eventual use of a cdn
-        $ret = Plugin::trigger_change('combined_script', $ret, $script);
-
-        return \Phyxo\Functions\URL::embellish_url($ret);
-    }
-
-    /**
-     * The "footer_script" block allows to add runtime script in the HTML page.
-     *
-     * @param array $params
-     *    - require (optional) comma separated list of script ids
-     * @param string $content
-     */
-    public function block_footer_script($params, $content)
-    {
-        trigger_error('footer_script is deprecated. Use Smarty block instead', E_USER_DEPRECATED);
-
-        $content = trim($content);
-        if (!empty($content)) { // second call
-            $this->scriptLoader->add_inline(
-                $content,
-                empty($params['require']) ? [] : explode(',', $params['require'])
-            );
-        }
-    }
-
-    /**
-     * The "combine_css" function allows inclusion of a css file in the current page.
-     * The engine will combine several css files into a single one.
-     *
-     * @param array $params
-     *    - id (optional) used to deal with multiple inclusions from plugins
-     *    - path (required)
-     *    - version (optional) used to force a browser refresh
-     *    - order (optional)
-     *    - template (optional) set to true to allow smarty syntax in the css file
-     * @deprecated since 1.9.0 and will be removed in 1.10 or 2.0
-     */
-    public function func_combine_css($params)
-    {
-        trigger_error('combine_css is deprecated. Use plain html instead.', E_USER_DEPRECATED);
-
-        if (empty($params['path'])) {
-            \Phyxo\Functions\HTTP::fatal_error('combine_css missing path');
-        }
-
-        if (!isset($params['id'])) {
-            $params['id'] = md5($params['path']);
-        }
-
-        $this->cssLoader->add(
-            $params['id'],
-            $params['path'],
-            isset($params['version']) ? $params['version'] : 0,
-            isset($params['order']) ? (int)$params['order'] : 0,
-            isset($params['template']) ? (bool)$params['template'] : false
-        );
-    }
-
-    /**
-     * The "get_combined_scripts" function returns a placeholder for delayed
-     * CSS files combination and minification.
-     *
-     * @param array $params (unused)
-     */
-    public function func_get_combined_css($params)
-    {
-        trigger_error('get_combine_css is deprecated. Merge css on your own', E_USER_DEPRECATED);
-
-        return self::COMBINED_CSS_TAG;
-    }
-
-    /**
-     * Declares a Smarty prefilter from a plugin, allowing it to modify template
-     * source before compilation and without changing core files.
-     * They will be processed by weight ascending.
-     * @see http://www.smarty.net/manual/en/advanced.features.prefilters.php
-     *
-     * @param string $handle
-     * @param Callable $callback
-     * @param int $weight
-     */
-    public function set_prefilter($handle, $callback, $weight = 50)
-    {
-        $this->external_filters[$handle][$weight][] = ['pre', $callback];
-        ksort($this->external_filters[$handle]);
-    }
-
-    /**
-     * Declares a Smarty postfilter.
-     * They will be processed by weight ascending.
-     * @see http://www.smarty.net/manual/en/advanced.features.postfilters.php
-     *
-     * @param string $handle
-     * @param Callable $callback
-     * @param int $weight
-     */
-    public function set_postfilter($handle, $callback, $weight = 50)
-    {
-        $this->external_filters[$handle][$weight][] = ['post', $callback];
-        ksort($this->external_filters[$handle]);
-    }
-
-    /**
-     * Declares a Smarty outputfilter.
-     * They will be processed by weight ascending.
-     * @see http://www.smarty.net/manual/en/advanced.features.outputfilters.php
-     *
-     * @param string $handle
-     * @param Callable $callback
-     * @param int $weight
-     */
-    public function set_outputfilter($handle, $callback, $weight = 50)
-    {
-        $this->external_filters[$handle][$weight][] = ['output', $callback];
-        ksort($this->external_filters[$handle]);
-    }
-
-    /**
-     * Register the filters for the tpl file.
-     *
-     * @param string $handle
-     */
-    public function load_external_filters($handle)
-    {
-        if (isset($this->external_filters[$handle])) {
-            $compile_id = '';
-            foreach ($this->external_filters[$handle] as $filters) {
-                foreach ($filters as $filter) {
-                    list($type, $callback) = $filter;
-                    $compile_id .= $type . (is_array($callback) ? implode('', $callback) : $callback);
-                    $this->smarty->registerFilter($type, $callback);
-                }
-            }
-            $this->smarty->compile_id .= '.' . base_convert(crc32($compile_id), 10, 36);
-        }
-    }
-
-    /**
-     * Unregister the filters for the tpl file.
-     *
-     * @param string $handle
-     */
-    public function unload_external_filters($handle)
-    {
-        if (isset($this->external_filters[$handle])) {
-            foreach ($this->external_filters[$handle] as $filters) {
-                foreach ($filters as $filter) {
-                    list($type, $callback) = $filter;
-                    $this->smarty->unregisterFilter($type, $callback);
-                }
-            }
-        }
-    }
-
-    /**
-     * @TODO : description of Template::prefilter_white_space
-     *
-     * @param string $source
-     * @param Smarty $smarty
-     * @param return string
-     */
-    public static function prefilter_white_space($source, $smarty)
-    {
-        $ld = $smarty->left_delimiter;
-        $rd = $smarty->right_delimiter;
-        $ldq = preg_quote($ld, '#');
-        $rdq = preg_quote($rd, '#');
-
-        $regex = [];
-        $tags = ['if', 'foreach', 'section', 'footer_script'];
-        foreach ($tags as $tag) {
-            $regex[] = "#^[ \t]+($ldq$tag" . "[^$ld$rd]*$rdq)\s*$#m";
-            $regex[] = "#^[ \t]+($ldq/$tag$rdq)\s*$#m";
-        }
-        $tags = ['include', 'else', 'combine_script', 'html_head'];
-        foreach ($tags as $tag) {
-            $regex[] = "#^[ \t]+($ldq$tag" . "[^$ld$rd]*$rdq)\s*$#m";
-        }
-        $source = preg_replace($regex, "$1", $source);
-
-        return $source;
-    }
-
-    /**
-     * Postfilter used when $conf['compiled_template_cache_language'] is true.
-     *
-     * @param string $source
-     * @param Smarty $smarty
-     * @param return string
-     */
-    public static function postfilter_language($source, $smarty)
-    {
-        // replaces echo PHP_STRING_LITERAL; with the string literal value
-        $source = preg_replace_callback(
-            '/\\<\\?php echo ((?:\'(?:(?:\\\\.)|[^\'])*\')|(?:"(?:(?:\\\\.)|[^"])*"));\\?\\>\\n/',
-            function ($matches) {
-                eval('$tmp=' . $matches[1] . ';');
-                return $tmp;
-            }, // @TODO: remove eval
-            $source
-        );
-
-        return $source;
-    }
-
-    /**
-     * Prefilter used to add theme local CSS files.
-     *
-     * @param string $source
-     * @param Smarty $smarty
-     * @param return string
-     */
-    public static function prefilter_local_css($source, $smarty)
-    {
-        $css = [];
-        foreach ($smarty->getTemplateVars('themes') as $theme) {
-            $f = PWG_LOCAL_DIR . 'css/' . $theme['id'] . '-rules.css';
-            if (file_exists(__DIR__ . '/../../../' . $f)) {
-                $css[] = "{combine_css path='$f' order=10}";
-            }
-        }
-        $f = PWG_LOCAL_DIR . 'css/rules.css';
-        if (file_exists(__DIR__ . '/../../../' . $f)) {
-            $css[] = "{combine_css path='$f' order=10}";
-        }
-
-        if (!empty($css)) {
-            $source = str_replace("{get_combined_css}", implode("\n", $css) . "{get_combined_css}", $source);
-        }
-
-        return $source;
     }
 
     public function func_path(array $parameters = [], $smarty)

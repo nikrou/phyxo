@@ -14,7 +14,6 @@
         "php": ">=7.1.0",
         "guzzlehttp/guzzle": "^6.3",
         "ircmaxell/password-compat": "^1.0",
-        "natxet/cssmin": "^3.0",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
         "pelago/emogrifier": "^2.0",

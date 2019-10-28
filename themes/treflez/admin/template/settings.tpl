@@ -1,5 +1,7 @@
-{combine_css path="themes/treflez/admin/css/admin.css"}
-{combine_script id='treflez-admin' load='footer' path='themes/treflez/admin/js/admin.js'}
+{block name="head_assets" append}
+    <link rel="stylesheet" href="{$ROOT}../themes/treflez/admin/css/admin.css">
+    <link rel="stylesheet" href="{$ROOT}../themes/treflez/admin/js/admin.js">
+{/block}
 
 <ul class="nav nav-tabs">
     <li class="nav-item"><a class="nav-link active" href="#appearance">{'Appearance'|translate}</a></li>

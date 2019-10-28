@@ -5,16 +5,50 @@
     <li class="breadcrumb-item">{'Center of interest'|translate}</li>
 {/block}
 
+{block name="head_assets" append}
+    <link rel="stylesheet" type="text/css" href="{$ROOT_URL}admin/theme/js/plugins/jquery.Jcrop.css" />
+{/block}
+
 {block name="footer_assets" prepend}
     <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.Jcrop.js"></script>
+    <script>
+     function from_coi(f, total) {
+	 return f*total;
+     }
+
+     function to_coi(v, total) {
+	 return v/total;
+     }
+
+     function jOnChange(sel) {
+	 var $img = $("#jcrop");
+	 $("#l").val( to_coi(sel.x, $img.width()) );
+	 $("#t").val( to_coi(sel.y, $img.height()) );
+	 $("#r").val( to_coi(sel.x2, $img.width()) );
+	 $("#b").val( to_coi(sel.y2, $img.height()) );
+     }
+
+     function jOnRelease() {
+	 $("#l,#t,#r,#b").val("");
+     }
+
+     $("#jcrop").Jcrop({
+	 boxWidth: 500, boxHeight: 400,
+	 onChange: jOnChange,
+	 onRelease: jOnRelease
+     }
+    {if isset($coi)}
+	,function() {
+	 var $img = $("#jcrop");
+	this.animateTo( [from_coi({$coi.l}, $img.width()), from_coi({$coi.t}, $img.height()), from_coi({$coi.r}, $img.width()), from_coi({$coi.b}, $img.height()) ] );
+	}
+    {/if}
+    );
+    </script>
 {/block}
 
 {block name="content"}
-    {html_head}
-    <link rel="stylesheet" type="text/css" href="./theme/js/plugins/jquery.Jcrop.css" />
-    {/html_head}
-    {combine_script id='jquery.jcrop' load='footer' require='jquery' path='admin/theme/js/plugins/jquery.Jcrop.js'}
-
     <form method="post">
 	<div class="fieldset">
 	    <h3>{'Photo sizes with crop'|translate}</h3>
@@ -43,40 +77,4 @@
 	    </p>
 	</div>
     </form>
-
-    {footer_script}
-    {literal}
-    function from_coi(f, total) {
-    return f*total;
-    }
-
-    function to_coi(v, total) {
-    return v/total;
-    }
-
-    function jOnChange(sel) {
-    var $img = jQuery("#jcrop");
-    jQuery("#l").val( to_coi(sel.x, $img.width()) );
-    jQuery("#t").val( to_coi(sel.y, $img.height()) );
-    jQuery("#r").val( to_coi(sel.x2, $img.width()) );
-    jQuery("#b").val( to_coi(sel.y2, $img.height()) );
-    }
-    function jOnRelease() {
-    jQuery("#l,#t,#r,#b").val("");
-    }
-
-    {/literal}
-    jQuery("#jcrop").Jcrop( {ldelim}
-    boxWidth: 500, boxHeight: 400,
-    onChange: jOnChange,
-    onRelease: jOnRelease
-    }
-    {if isset($coi)}
-	,function() {ldelim}
-	var $img = jQuery("#jcrop");
-	this.animateTo( [from_coi({$coi.l}, $img.width()), from_coi({$coi.t}, $img.height()), from_coi({$coi.r}, $img.width()), from_coi({$coi.b}, $img.height()) ] );
-	}
-    {/if}
-    );
-    {/footer_script}
 {/block}

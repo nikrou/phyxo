@@ -4,9 +4,15 @@
     <li class="breadcrumb-item">{'Menu Management'|translate}</li>
 {/block}
 
-{block name="content"}
-    {combine_script id="menubar" require="jquery.ui.sortable" load="footer" path="admin/theme/js/menubar.js"}
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.mouse.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.sortable.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/menubar.js"></script>
+{/block}
 
+{block name="content"}
     <form id="menuOrdering" action="{path name="admin_menubar_update"}" method="post">
 	<ul class="menuUl">
 	    {foreach $blocks as $block}

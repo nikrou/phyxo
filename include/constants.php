@@ -16,9 +16,6 @@ if (!defined('PHPWG_VERSION')) { // can be defined in tests
 if (!defined('PHPWG_DEFAULT_LANGUAGE')) {
     define('PHPWG_DEFAULT_LANGUAGE', 'en_GB');
 }
-if (!defined('PWG_COMBINED_DIR')) {
-    define('PWG_COMBINED_DIR', $conf['data_location'] . 'combined/');
-}
 if (!defined('PWG_DERIVATIVE_DIR')) {
     define('PWG_DERIVATIVE_DIR', $conf['data_location'] . 'i/');
 }

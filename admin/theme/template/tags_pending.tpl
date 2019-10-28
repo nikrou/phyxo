@@ -5,14 +5,16 @@
     <li class="breadcrumb-item">{'Pendings tags'|translate}</li>
 {/block}
 
-{block name="content"}
-    {combine_script id="pending-tags" load="footer" path="admin/theme/js/phyxo.js"}
-    {footer_script}
-    $(function() {
-    phyxo.checkboxesHelper('#pending-tags');
-    });
-    {/footer_script}
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/phyxo.js"></script>
+    <script>
+     $(function() {
+	 phyxo.checkboxesHelper('#pending-tags');
+     });
+    </script>
+{/block}
 
+{block name="content"}
     <form action="{$F_ACTION}" method="post" id="pending-tags">
 	<table class="table table-stripped table-hover checkboxes">
 	    <thead>

@@ -24,6 +24,7 @@
 {/block}
 
 {block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/scripts.js"></script>
     <script src="{$ROOT_URL}admin/theme/js/plugins/jquery.colorbox.js"></script>
     <script src="{$ROOT_URL}admin/theme/js/common.js"></script>
     <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
@@ -442,7 +443,6 @@
 			<input type="checkbox" name="filter_search_use" class="useFilterCheckbox"{if isset($filter.search)} checked="checked"{/if}>
 			{'Search'|translate}
 			<input name="q" size=40 value="{$filter.search.q|stripslashes|htmlspecialchars}">
-			{combine_script id='core.scripts' load='async' path='admin/theme/js/scripts.js'}
 			{if (isset($no_search_results))}
 			    <div>{'No results for'|translate} :
 				<em><strong>

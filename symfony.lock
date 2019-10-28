@@ -107,9 +107,6 @@
     "monolog/monolog": {
         "version": "1.23.0"
     },
-    "natxet/cssmin": {
-        "version": "v3.0.6"
-    },
     "openpsa/universalfeedcreator": {
         "version": "v1.8.3.1"
     },

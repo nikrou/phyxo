@@ -4,9 +4,29 @@
     <li class="breadcrumb-item">{'Synchronize'|translate}</li>
 {/block}
 
-{block name="content"}
-    {include file='include/resize.inc.tpl'}
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.mouse.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.resizable.js"></script>
+    <script>
+	$(function(){
+	    // Resize possible for list
+	    $(".categoryList").resizable({
+		handles: "all",
+		animate: true,
+		animateDuration: "slow",
+		animateEasing: "swing",
+		preventDefault: true,
+		preserveCursor: true,
+		autoHide: true,
+		ghost: true
+	    });
+	});
+    </script>
+{/block}
 
+{block name="content"}
     <h2>{'Database synchronization with files'|translate}: <a href="{$SITE_URL}">{$SITE_URL}</a></h2>
 
     {if isset($update_result)}

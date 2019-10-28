@@ -5,21 +5,24 @@
     <li class="breadcrumb-item">Phyxo</li>
 {/block}
 
-{block name="content"}
-    {footer_script}
-    jQuery(document).ready(function() {ldelim}
-    jQuery('input[name="submit"]').click(function() {ldelim}
-    if(!confirm('{'Are you sure?'|translate}'))
-    return false;
-    jQuery(this).hide();
-    jQuery('.autoupdate_bar').show();
-    });
-    jQuery('[name="understand"]').click(function() {ldelim}
-    jQuery('[name="submit"]').attr('disabled', !this.checked);
-    });
-    });
-    {/footer_script}
+{block name="footer_assets" prepend}
+    <script>
+     $(function() {
+	 $('input[name="submit"]').click(function() {
+	     if(!confirm('{'Are you sure?'|translate}')) {
+		 return false;
+	     }
+	     $(this).hide();
+	     $('.autoupdate_bar').show();
+	 });
+	 $('[name="understand"]').click(function() {
+	     $('[name="submit"]').attr('disabled', !this.checked);
+	 });
+     });
+    </script>
+{/block}
 
+{block name="content"}
     {if $STEP == 0}
 	{if $UPGRADE_ERROR}
 	    <p>{$UPGRADE_ERROR}</p>

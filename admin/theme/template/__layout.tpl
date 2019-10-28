@@ -6,10 +6,6 @@
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="stylesheet" href="{asset manifest='./build/manifest.json' prefix={$ROOT_URL} src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	{get_combined_css}
-	{get_combined_scripts load='header'}
-
 	{if !empty($head_elements)}
 	    {foreach $head_elements as $elt}
 		{$elt}
@@ -167,8 +163,6 @@
 		<a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>
 	    </div>
 	</footer>
-
-	{get_combined_scripts load='footer'}
 
 	{block name="footer_assets"}
 	    <script>

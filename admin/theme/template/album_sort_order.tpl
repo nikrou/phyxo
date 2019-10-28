@@ -11,9 +11,15 @@
     <li class="breadcrumb-item">{'Manage photo ranks'|translate}</li>
 {/block}
 
-{block name="content"}
-    {combine_script id="element_set_ranks" require="jquery.ui.sortable" load="footer" path="admin/theme/js/element_set_ranks.js"}
+{block name="footer_assets" prepend}
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.core.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.widget.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.mouse.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/ui/jquery.ui.sortable.js"></script>
+    <script src="{$ROOT_URL}admin/theme/js/element_set_ranks.js"></script>
+{/block}
 
+{block name="content"}
     <form action="{$F_ACTION}" method="post">
 	{if !empty($thumbnails)}
 	    <p><input class="btn btn-submit" type="submit" value="{'Submit'|translate}" name="submit"></p>

@@ -55,7 +55,6 @@
                     </li>
 		{/if}
 		{if isset($U_SEARCH_RULES)}
-		    {combine_script id='core.scripts' load='async' path='themes/default/js/scripts.js'}
                     <li class="nav-item">
                         <a class="nav-link" href="{$U_SEARCH_RULES}" onclick="bd_popup(this.href); return false;" title="{'Search rules'|translate}" rel="nofollow">
                             <i class="fa fa-search fa-fw" aria-hidden="true"></i><span class="d-lg-none ml-2">{'Search rules'|translate}</span>

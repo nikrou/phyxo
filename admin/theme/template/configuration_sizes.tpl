@@ -6,8 +6,6 @@
 {/block}
 
 {block name="content"}
-    {combine_script id='common' load='footer' path='admin/theme/js/common.js'}
-
     <form method="post" action="{$F_ACTION}" class="properties">
 	<div class="fieldset">
 	    <h3>{'Original Size'|translate}</h3>
@@ -131,7 +129,7 @@
 		{if isset($ferrors.resize_quality)}<span class="dErrorDesc" title="{$ferrors.resize_quality}">!</span>{/if}
 	    </p>
 	    <p>
-			<a class="btn btn-reset" href="{$F_ACTION}&amp;action=restore_settings" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'Reset to default values'|translate}</a>
+		<a class="btn btn-reset" href="{$F_ACTION}&amp;action=restore_settings" onclick="return confirm('{'Are you sure?'|translate|@escape:javascript}');">{'Reset to default values'|translate}</a>
 	    </p>
 	</div>
 
