@@ -9,23 +9,25 @@
  * file that was distributed with this source code.
  */
 
-namespace Phyxo\Functions;
+namespace App;
 
-use App\Repository\ImageRepository;
+use Phyxo\Conf;
 
 class Metadata
 {
+    private $root_dir, $conf;
+
+    public function __construct(Conf $conf, string $rootProjectDir)
+    {
+        $this->conf = $conf;
+        $this->root_dir = $rootProjectDir;
+    }
+
     /**
      * returns informations from IPTC metadata, mapping is done in this function.
-     *
-     * @param string $filename
-     * @param array $map
-     * @return array
      */
-    public static function get_iptc_data($filename, $map, $array_sep = ',')
+    public function getIptcData(string $filename, array $map, string $array_sep = ','): array
     {
-        global $conf;
-
         $result = [];
 
         $imginfo = [];
@@ -40,57 +42,53 @@ class Metadata
                 foreach (array_keys($rmap) as $iptc_key) {
                     if (isset($iptc[$iptc_key][0])) {
                         if ($iptc_key == '2#025') {
-                            $value = implode($array_sep, array_map('self::clean_iptc_value', $iptc[$iptc_key]));
+                            $value = implode($array_sep, array_map([$this, 'cleanIptcValue'], $iptc[$iptc_key]));
                         } else {
-                            $value = self::clean_iptc_value($iptc[$iptc_key][0]);
+                            $value = $this->cleanIptcValue($iptc[$iptc_key][0]);
                         }
 
-                        foreach (array_keys($map, $iptc_key) as $pwg_key) {
-                            $result[$pwg_key] = $value;
+                        foreach (array_keys($map, $iptc_key) as $_key) {
+                            $result[$_key] = $value;
 
-                            if (!$conf['allow_html_in_metadata']) {
-                            // in case the origin of the photo is unsecure (user upload), we
-                            // remove HTML tags to avoid XSS (malicious execution of
-                            // javascript)
-                                $result[$pwg_key] = strip_tags($result[$pwg_key]);
+                            if (!$this->conf['allow_html_in_metadata']) {
+                                // in case the origin of the photo is unsecure (user upload), we
+                                // remove HTML tags to avoid XSS (malicious execution of
+                                // javascript)
+                                $result[$_key] = htmlentities($result[$_key], ENT_QUOTES, 'utf-8');
                             }
                         }
                     }
                 }
             }
         }
+
         return $result;
     }
 
     /**
      * Returns IPTC metadata to sync from a file, depending on IPTC mapping.
      * @toto : clean code (factorize foreach)
-     *
-     * @param string $file
-     * @return array
      */
-    public static function get_sync_iptc_data($file)
+    public function getSyncIptcData(string $file): array
     {
-        global $conf;
+        $map = $this->conf['use_iptc_mapping'];
 
-        $map = $conf['use_iptc_mapping'];
+        $iptc = $this->getIptcData($file, $map);
 
-        $iptc = self::get_iptc_data($file, $map);
-
-        foreach ($iptc as $pwg_key => $value) {
-            if (in_array($pwg_key, ['date_creation', 'date_available'])) {
+        foreach ($iptc as $iptc_key => $value) {
+            if (in_array($iptc_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/(\d{4})(\d{2})(\d{2})/', $value, $matches)) {
                     $year = $matches[1];
                     $month = $matches[2];
                     $day = $matches[3];
 
                     if (!checkdate($month, $day, $year)) {
-                       // we suppose the year is correct
+                        // we suppose the year is correct
                         $month = 1;
                         $day = 1;
                     }
 
-                    $iptc[$pwg_key] = $year . '-' . $month . '-' . $day;
+                    $iptc[$iptc_key] = $year . '-' . $month . '-' . $day;
                 }
             }
         }
@@ -101,19 +99,11 @@ class Metadata
             $iptc['keywords'] = preg_replace('/,+/', ',', $iptc['keywords']);
             $iptc['keywords'] = preg_replace('/^,+|,+$/', '', $iptc['keywords']);
 
-            $iptc['keywords'] = implode(
-                ',',
-                array_unique(
-                    explode(
-                        ',',
-                        $iptc['keywords']
-                    )
-                )
-            );
+            $iptc['keywords'] = implode(',', array_unique(explode(',', $iptc['keywords'])));
         }
 
-        foreach ($iptc as $pwg_key => $value) {
-            $iptc[$pwg_key] = addslashes($iptc[$pwg_key]);
+        foreach ($iptc as $iptc_key => $value) {
+            $iptc[$iptc_key] = addslashes($iptc[$iptc_key]);
         }
 
         return $iptc;
@@ -121,25 +111,17 @@ class Metadata
 
     /**
      * returns informations from EXIF metadata, mapping is done in this function.
-     *
-     * @param string $filename
-     * @param array $map
-     * @return array
      */
-    public static function get_exif_data($filename, $map)
+    public function getExifData(string $filename, array $map): array
     {
-        global $conf;
-
         $result = [];
 
         if (!function_exists('exif_read_data')) {
-            die('Exif extension not available, admin should disable exif use');
+            throw new \Exception('Exif extension not available, admin should disable exif use');
         }
 
         // Read EXIF data
         if (is_readable($filename) && $exif = @exif_read_data($filename)) {
-            $exif = \Phyxo\Functions\Plugin::trigger_change('format_exif_data', $exif, $filename, $map);
-
             // configured fields
             foreach ($map as $key => $field) {
                 if (strpos($field, ';') === false) {
@@ -156,20 +138,20 @@ class Metadata
 
             // GPS data
             $gps_exif = array_intersect_key($exif, array_flip(['GPSLatitudeRef', 'GPSLatitude', 'GPSLongitudeRef', 'GPSLongitude']));
-            if (count($gps_exif) == 4) {
-                if (is_array($gps_exif['GPSLatitude']) and in_array($gps_exif['GPSLatitudeRef'], ['S', 'N'])
-                    && is_array($gps_exif['GPSLongitude']) and in_array($gps_exif['GPSLongitudeRef'], ['W', 'E'])) {
-                    $result['latitude'] = self::parse_exif_gps_data($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
-                    $result['longitude'] = self::parse_exif_gps_data($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
+            if (count($gps_exif) === 4) {
+                if (is_array($gps_exif['GPSLatitude']) && in_array($gps_exif['GPSLatitudeRef'], ['S', 'N'])
+                    && is_array($gps_exif['GPSLongitude']) && in_array($gps_exif['GPSLongitudeRef'], ['W', 'E'])) {
+                    $result['latitude'] = $this->parseExifGpsData($gps_exif['GPSLatitude'], $gps_exif['GPSLatitudeRef']);
+                    $result['longitude'] = $this->parseExifGpsData($gps_exif['GPSLongitude'], $gps_exif['GPSLongitudeRef']);
                 }
             }
         }
 
-        if (!$conf['allow_html_in_metadata']) {
+        if (!$this->conf['allow_html_in_metadata']) {
             foreach ($result as $key => $value) {
                 // in case the origin of the photo is unsecure (user upload), we remove
                 // HTML tags to avoid XSS (malicious execution of javascript)
-                $result[$key] = strip_tags($value);
+                $result[$key] = htmlentities($value, ENT_QUOTES, 'utf-8');
             }
         }
 
@@ -178,34 +160,30 @@ class Metadata
 
     /**
      * Returns EXIF metadata to sync from a file, depending on EXIF mapping.
-     *
-     * @param string $file
-     * @return array
      */
-    public static function get_sync_exif_data($file)
+    public function getSyncExifData(string $file): array
     {
-        global $conf;
+        $exif = $this->getExifData($file, $this->conf['use_exif_mapping']);
 
-        $exif = self::get_exif_data($file, $conf['use_exif_mapping']);
-
-        foreach ($exif as $pwg_key => $value) {
-            if (in_array($pwg_key, ['date_creation', 'date_available'])) {
+        foreach ($exif as $exif_key => $value) {
+            if (in_array($exif_key, ['date_creation', 'date_available'])) {
                 if (preg_match('/^(\d{4}).(\d{2}).(\d{2}) (\d{2}).(\d{2}).(\d{2})/', $value, $matches)) {
                     if ($matches[1] != '0000' && $matches[2] != '00' && $matches[3] != '00'
                         && $matches[4] != '00' && $matches[5] != '00' && $matches[6] != '00') {
-                        $exif[$pwg_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
+                        $exif[$exif_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3] . ' ' . $matches[4] . ':' . $matches[5] . ':' . $matches[6];
                     } else {
-                        unset($exif[$pwg_key]);
+                        unset($exif[$exif_key]);
                     }
                 } elseif (preg_match('/^(\d{4}).(\d{2}).(\d{2})/', $value, $matches)) {
-                    $exif[$pwg_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+                    $exif[$exif_key] = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
                 } else {
-                    unset($exif[$pwg_key]);
+                    unset($exif[$exif_key]);
                     continue;
                 }
             }
-            if (!empty($exif[$pwg_key])) {
-                $exif[$pwg_key] = addslashes($exif[$pwg_key]); // @TODO: why addslashes ???
+
+            if (!empty($exif[$exif_key])) {
+                $exif[$exif_key] = $exif[$exif_key];
             }
         }
 
@@ -222,7 +200,7 @@ class Metadata
      * @param string $ref 'S', 'N', 'E', 'W'. eg: 'N'
      * @return float eg: 41.905468
      */
-    public static function parse_exif_gps_data($raw, $ref)
+    public function parseExifGpsData(array $raw, string $ref): float
     {
         foreach ($raw as &$i) {
             $i = explode('/', $i);
@@ -242,14 +220,11 @@ class Metadata
 
     /**
      * return a cleaned IPTC value.
-     *
-     * @param string $value
-     * @return string
      */
-    public static function clean_iptc_value($value)
+    public function cleanIptcValue(string $value): string
     {
         // strip leading zeros (weird Kodak Scanner software)
-        while (isset($value[0]) and $value[0] == chr(0)) {
+        while (isset($value[0]) && $value[0] == chr(0)) {
             $value = substr($value, 1);
         }
         // remove binary nulls
@@ -258,13 +233,12 @@ class Metadata
         if (preg_match('/[\x80-\xff]/', $value)) {
             // apparently mac uses some MacRoman crap encoding. I don't know
             // how to detect it so a plugin should do the trick.
-            $value = \Phyxo\Functions\Plugin::trigger_change('clean_iptc_value', $value);
             if (($qual = \Phyxo\Functions\Language::qualify_utf8($value)) != 0) { // has non ascii chars
                 if ($qual > 0) {
                     $input_encoding = 'utf-8';
                 } else {
                     $input_encoding = 'iso-8859-1';
-                    if (function_exists('iconv') or function_exists('mb_convert_encoding')) {
+                    if (function_exists('iconv') || function_exists('mb_convert_encoding')) {
                         // using windows-1252 because it supports additional characters
                         // such as "oe" in a single character (ligature). About the
                         // difference between Windows-1252 and ISO-8859-1: the characters
@@ -277,34 +251,31 @@ class Metadata
                 $value = \Phyxo\Functions\Utils::convert_charset($value, $input_encoding, \Phyxo\Functions\Utils::get_charset());
             }
         }
+
         return $value;
     }
 
     /**
      * Get all potential file metadata fields, including IPTC and EXIF.
-     *
-     * @return string[]
      */
-    public static function get_sync_metadata_attributes()
+    public function getSyncMetadataAttributes(): array
     {
-        global $conf;
-
         $update_fields = ['filesize', 'width', 'height'];
 
-        if ($conf['use_exif']) {
+        if ($this->conf['use_exif']) {
             $update_fields =
                 array_merge(
                 $update_fields,
-                array_keys($conf['use_exif_mapping']),
+                array_keys($this->conf['use_exif_mapping']),
                 ['latitude', 'longitude']
             );
         }
 
-        if ($conf['use_iptc']) {
+        if ($this->conf['use_iptc']) {
             $update_fields =
                 array_merge(
                 $update_fields,
-                array_keys($conf['use_iptc_mapping'])
+                array_keys($this->conf['use_iptc_mapping'])
             );
         }
 
@@ -317,11 +288,9 @@ class Metadata
      * @param array $infos - (path[, representative_ext])
      * @return array - includes data provided in $infos
      */
-    public static function get_sync_metadata($infos)
+    public function getSyncMetadata(array $infos): array
     {
-        global $conf;
-
-        $file = __DIR__ . '/../../../' . $infos['path'];
+        $file = $this->root_dir . '/' . $infos['path'];
         $fs = @filesize($file);
 
         if ($fs === false) {
@@ -339,13 +308,13 @@ class Metadata
             $infos['height'] = $image_size[1];
         }
 
-        if ($conf['use_exif']) {
-            $exif = self::get_sync_exif_data($file);
+        if ($this->conf['use_exif']) {
+            $exif = $this->getSyncExifData($file);
             $infos = array_merge($infos, $exif);
         }
 
-        if ($conf['use_iptc']) {
-            $iptc = self::get_sync_iptc_data($file);
+        if ($this->conf['use_iptc']) {
+            $iptc = $this->getSyncIptcData($file);
             $infos = array_merge($infos, $iptc);
         }
 

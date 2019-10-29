@@ -11,13 +11,13 @@
 
 namespace App\DataMapper;
 
+use App\Metadata;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Functions\Plugin;
 use Phyxo\Conf;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\UserCacheRepository;
-use Phyxo\Functions\Metadata;
 use App\Repository\ImageRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Phyxo\EntityManager;
@@ -28,14 +28,15 @@ use Symfony\Component\Routing\RouterInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params, $router;
+    private $em, $conf, $image_std_params, $router, $metadata;
 
-    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router)
+    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
         $this->router = $router;
+        $this->metadata = $metadata;
     }
 
     /**
@@ -495,7 +496,8 @@ class TagMapper
         $tags_of = [];
         $result = $this->em->getRepository(ImageRepository::class)->findByIds($ids);
         while ($data = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $data = Metadata::get_sync_metadata($data);
+            $data = $this->metadata->getSyncMetadata($data);
+
             if ($data === false) {
                 continue;
             }
@@ -519,7 +521,7 @@ class TagMapper
         }
 
         if (count($datas) > 0) {
-            $update_fields = Metadata::get_sync_metadata_attributes();
+            $update_fields = $this->metadata->getSyncMetadataAttributes();
             $update_fields[] = 'date_metadata_update';
 
             $update_fields = array_diff(

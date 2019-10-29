@@ -73,11 +73,16 @@
 		<div id="Average" class="imageInfo">
                     <dt>{'Rating score'|translate}</dt>
                     <dd>
-			{if $rate_summary.count}
-                            <span id="ratingScore">{$rate_summary.score}</span> <span id="ratingCount">({$rate_summary.count|translate_dec:'%d rate':'%d rates'})</span>
-			{else}
-                            <span id="ratingScore">{'no rate'|translate}</span> <span id="ratingCount"></span>
-			{/if}
+			<span id="ratingScore">
+			    {if $rate_summary.count}
+				{$rate_summary.score}
+			    {else}
+				{'no rate'|translate}
+			    {/if}
+			</span>
+			<span id="ratingCount">
+			    {if $rate_summary.count}({$rate_summary.count|translate_dec:'%d rate':'%d rates'}){/if}
+			</span>
                     </dd>
 		</div>
 	    {/if}
@@ -88,13 +93,13 @@
                     <dd>
                         <form action="{$rating.F_ACTION}" method="post" id="rateForm" style="margin:0;">
                             <div>
-				{foreach $rating.marks as $mark}
-				    {if isset($rating.USER_RATE) && $mark==$rating.USER_RATE}
-					<span class="rateButtonStarFull" data-value="{$mark}"></span>
-				    {else}
-					<span class="rateButtonStarEmpty" data-value="{$mark}"></span>
-				    {/if}
-				{/foreach}
+				<form action="{$rating.F_ACTION}" method="post" id="rateForm">
+				    {foreach $rating.marks|array_reverse as $mark}
+					<input type="radio" id="rating-{$mark}" name="rating"
+					       value="{$mark}" {if isset($rating.USER_RATE) && $mark==$rating.USER_RATE}checked="checked"{/if}/>
+					<label for="rating-{$mark}" title="{$mark}"></label>
+				    {/foreach}
+				</form>
                             </div>
                         </form>
                     </dd>
@@ -117,19 +122,22 @@
                     </dd>
 		</div>
 	    {/if}
-	    {if isset($metadata)}
-		{foreach $metadata as $meta}
-		    <h4>{$meta.TITLE}</h4>
-		    <div>
-			<dl class="row mb-0">
-			    {foreach $meta.lines as $label => $value}
-				<dt>{$label}</dt>
-				<dd>{$value}</dd>
-			    {/foreach}
-			</dl>
-		    </div>
-		{/foreach}
-	    {/if}
+	    <button type="button" id="show_exif_data" class="btn btn-sm btn-primary"><i class="fa fa-info mr-1"></i> {'Show EXIF data'|translate}</button>
+	    <div id="full_exif_data" class="d-none flex-column mt-2">
+		{if isset($metadata)}
+		    {foreach $metadata as $meta}
+			<h4>{$meta.TITLE}</h4>
+			<div>
+			    <dl class="row mb-0">
+				{foreach $meta.lines as $label => $value}
+				    <dt class="col-sm-6">{$label}</dt>
+				    <dd class="col-sm-6">{$value}</dd>
+				{/foreach}
+			    </dl>
+			</div>
+		    {/foreach}
+		{/if}
+	    </div>
         </dl>
     </div>
     <div class="handle">

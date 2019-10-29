@@ -16,6 +16,7 @@ use App\DataMapper\ImageMapper;
 use App\DataMapper\SearchMapper;
 use App\DataMapper\TagMapper;
 use App\DataMapper\UserMapper;
+use App\Metadata;
 use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\FavoriteRepository;
@@ -63,7 +64,8 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function global(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                          CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper, UserMapper $userMapper)
+                          CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
+                          UserMapper $userMapper, Metadata $metadata)
     {
         $tpl_params = [];
 
@@ -259,7 +261,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
-        $site_reader = new LocalSiteReader('./', $conf); // @TODO : in conf or somewhere else but no direct path here
+        $site_reader = new LocalSiteReader('./', $conf, $metadata); // @TODO : in conf or somewhere else but no direct path here
         $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
         $tpl_params['used_metadata'] = $used_metadata;
 
@@ -882,7 +884,7 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function unit(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata)
     {
         $tpl_params = [];
 
@@ -993,7 +995,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
-        $site_reader = new LocalSiteReader('./', $conf); // @TODO : in conf or somewhere else but no direct path here
+        $site_reader = new LocalSiteReader('./', $conf, $metadata); // @TODO : in conf or somewhere else but no direct path here
         $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
         $tpl_params['used_metadata'] = $used_metadata;
 

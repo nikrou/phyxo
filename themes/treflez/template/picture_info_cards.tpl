@@ -128,7 +128,7 @@
 				    <div class="dropdown-menu" role="menu" aria-labelledby="dropdownPermissions">
 					{foreach $available_permission_levels as $level => $label}
 					    <button type="button" id="permission-{$level}" class="dropdown-item permission-li {if $current.level == $level} active{/if}"
-							  data-action="setPrivacyLevel" data-id="{$current.id}" data-level="{$level}" data-label="{$label}">{$label}</button>
+						    data-action="setPrivacyLevel" data-id="{$current.id}" data-level="{$level}" data-label="{$label}">{$label}</button>
 					{/foreach}
 				    </div>
 				</div>
@@ -237,6 +237,7 @@
 		    <div id="full_exif_data" class="d-none flex-column mt-2">
 			{if isset($metadata)}
 			    {foreach $metadata as $key => $meta}
+				<h4>{$meta.TITLE}</h4>
 				<div>
 				    <dl class="row mb-0">
 					{foreach $meta.lines as $label => $value}
