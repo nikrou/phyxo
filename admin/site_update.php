@@ -58,7 +58,7 @@ $infos = [];
 if ($site_is_remote) {
     \Phyxo\Functions\HTTP::fatal_error('remote sites not supported');
 } else {
-    $site_reader = new LocalSiteReader(__DIR__ . '/../' . $site_url);
+    $site_reader = new LocalSiteReader(__DIR__ . '/../' . $site_url, $conf, $metadata);
 }
 
 $general_failure = true;

@@ -13,17 +13,20 @@
 
 namespace Phyxo;
 
+use App\Metadata;
 use Phyxo\Functions\Utils;
 
 class LocalSiteReader
 {
-    var $site_url;
+    private $site_url, $conf, $metadata;
 
-    public function __construct($url)
+    public function __construct(string $url, Conf $conf, Metadata $metadata)
     {
         global $conf;
 
         $this->site_url = $url;
+        $this->conf = $conf;
+        $this->metadata = $metadata;
 
         if (!isset($conf['flip_file_ext'])) {
             $conf['flip_file_ext'] = array_flip($conf['file_ext']);
@@ -43,10 +46,10 @@ class LocalSiteReader
         global $errors;
 
         if (!is_dir($this->site_url)) {
-            $errors[] = array(
+            $errors[] = [
                 'path' => $this->site_url,
                 'type' => 'PWG-ERROR-NO-FS'
-            );
+            ];
 
             return false;
         }
@@ -71,8 +74,8 @@ class LocalSiteReader
     {
         global $conf;
 
-        $subdirs = array();
-        $fs = array();
+        $subdirs = [];
+        $fs = [];
         if (is_dir($path) && $contents = opendir($path)) {
             while (($node = readdir($contents)) !== false) {
                 if ($node == '.' or $node == '..') {
@@ -88,7 +91,7 @@ class LocalSiteReader
                         if (!isset($conf['flip_picture_ext'][$extension])) {
                             $representative_ext = $this->get_representative_ext($path, $filename_wo_ext);
                         }
-                        $fs[$path . '/' . $node] = array('representative_ext' => $representative_ext);
+                        $fs[$path . '/' . $node] = ['representative_ext' => $representative_ext];
                     }
                 } elseif (is_dir($path . '/' . $node) && $node != 'pwg_high' && $node != 'pwg_representative' && $node != 'thumbnail') {
                     $subdirs[] = $node;
@@ -109,13 +112,13 @@ class LocalSiteReader
     // files update/synchronization
     public function get_update_attributes()
     {
-        return array('representative_ext');
+        return ['representative_ext'];
     }
 
     public function get_element_update_attributes($file)
     {
         global $conf;
-        $data = array();
+        $data = [];
 
         $filename = basename($file);
         $extension = Utils::get_extension($filename);
@@ -135,13 +138,13 @@ class LocalSiteReader
     // metadata update/synchronization according to configuration
     public function get_metadata_attributes()
     {
-        return \Phyxo\Functions\Metadata::get_sync_metadata_attributes();
+        return $this->metadata->getSyncMetadataAttributes();
     }
 
     // returns a hash of attributes (metadata+filesize+width,...) for file
     public function get_element_metadata($infos)
     {
-        return \Phyxo\Functions\Metadata::get_sync_metadata($infos);
+        return $this->metadata->getSyncMetadata($infos);
     }
 
     //-------------------------------------------------- private functions --------

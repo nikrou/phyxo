@@ -28,11 +28,12 @@ use Phyxo\EntityManager;
 use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\Metadata;
 
 class AdminController extends Controller
 {
     protected $csrfTokenManager, $passwordEncoder, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $em, $router, $image_std_params;
-    protected $pemURL;
+    protected $pemURL, $metadata;
 
     public function upgrade(iDBLayer $conn)
     {
@@ -71,7 +72,7 @@ class AdminController extends Controller
 
     public function index(string $legacyBaseDir, Request $request, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
                         TagMapper $tagMapper, CommentMapper $commentMapper, UserMapper $userMapper, CategoryMapper $categoryMapper, RateMapper $rateMapper, EntityManager $em,
-                        RouterInterface $router, ImageStandardParams $image_std_params, SearchMapper $searchMapper, string $pemURL)
+                        RouterInterface $router, ImageStandardParams $image_std_params, SearchMapper $searchMapper, string $pemURL, Metadata $metadata)
     {
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
@@ -85,6 +86,7 @@ class AdminController extends Controller
         $this->router = $router;
         $this->image_std_params = $image_std_params;
         $this->pemURL = $pemURL;
+        $this->metadata = $metadata;
 
         $legacy_file = sprintf('%s/admin.php', $legacyBaseDir);
 
@@ -113,6 +115,7 @@ class AdminController extends Controller
         $searchMapper = $this->searchMapper;
 
         $pemURL = $this->pemURL;
+        $metadata = $this->metadata;
         $em = $this->em;
         $router = $this->router;
         $image_std_params = $this->image_std_params;

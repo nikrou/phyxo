@@ -363,7 +363,7 @@ $template->assign(
 );
 
 // metadata
-$site_reader = new LocalSiteReader('./'); // @TODO : in conf or somewhere else but no direct path here
+$site_reader = new LocalSiteReader('./', $conf, $metadata); // @TODO : in conf or somewhere else but no direct path here
 $used_metadata = implode(', ', $site_reader->get_metadata_attributes());
 
 $template->assign(['used_metadata' => $used_metadata]);

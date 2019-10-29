@@ -31,12 +31,12 @@ use App\Repository\CategoryRepository;
 use App\Repository\RateRepository;
 use Phyxo\Functions\Utils;
 use App\DataMapper\UserMapper;
-use Phyxo\Functions\Metadata;
 use App\Repository\CommentRepository;
 use App\DataMapper\CommentMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Image;
+use App\Metadata;
 use Phyxo\Functions\Plugin;
 
 class PictureController extends CommonController
@@ -45,7 +45,7 @@ class PictureController extends CommonController
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
                             MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper, CategoryMapper $categoryMapper,
-                            UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageMapper $imageMapper)
+                            UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageMapper $imageMapper, Metadata $metadata)
     {
         $tpl_params = [];
         $this->em = $em;
@@ -136,7 +136,7 @@ class PictureController extends CommonController
             $tpl_params['DISPLAY_NAV_BUTTONS'] = $conf['picture_navigation_icons'];
             $tpl_params['DISPLAY_NAV_THUMB'] = $conf['picture_navigation_thumb'];
         }
-        $deriv_type = isset($_SESSION['picture_deriv']) ? $_SESSION['picture_deriv'] : $conf['derivative_default_size']; //@TODO : use flash or session session
+        $deriv_type = $this->get('session')->has('picture_deriv') ? $this->get('session')->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
 
         $unique_derivatives = [];
@@ -274,8 +274,8 @@ class PictureController extends CommonController
             $tpl_params = array_merge($tpl_params, $this->addRateInfos($picture));
         }
 
-        if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype() && !empty($_SESSION['show_metadata'])) {
-            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($picture));
+        if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype()) {
+            $tpl_params = array_merge($tpl_params, $this->addMetadataInfos($picture, $metadata));
         }
 
         if ($conf['activate_comments']) {
@@ -324,9 +324,9 @@ class PictureController extends CommonController
             if ($tpl_params['COMMENT_COUNT'] > 0) {
                 // comments order (get, session, conf)
                 if ($request->get('comments_order') && in_array(strtoupper($request->get('comments_order')), ['ASC', 'DESC'])) {
-                    $_SESSION['comments_order'] = $request->get('comments_order');
+                    $this->get('session')->set('comments_order', $request->get('comments_order'));
                 }
-                $comments_order = isset($_SESSION['comments_order']) ? $_SESSION['comments_order'] : $conf['comments_order'];
+                $comments_order = $this->get('session')->has('comments_order') ? $this->get('session')->get('comments_order') : $conf['comments_order'];
 
                 $tpl_params['COMMENTS_ORDER_URL'] = $this->generateUrl(
                     'picture',
@@ -560,7 +560,7 @@ class PictureController extends CommonController
         return $tpl_params;
     }
 
-    protected function addMetadataInfos(array $picture = []): array
+    protected function addMetadataInfos(array $picture = [], Metadata $metadata): array
     {
         $tpl_params = [];
 
@@ -570,7 +570,7 @@ class PictureController extends CommonController
                 $exif_mapping[$field] = $field;
             }
 
-            $exif = Metadata::get_exif_data($picture['src_image']->get_path(), $exif_mapping);
+            $exif = $metadata->getExifData($picture['src_image']->get_path(), $exif_mapping);
 
             if (count($exif) > 0) {
                 $tpl_meta = [
@@ -598,12 +598,13 @@ class PictureController extends CommonController
                         }
                     }
                 }
+
                 $tpl_params['metadata'][] = $tpl_meta;
             }
         }
 
         if ($this->conf['show_iptc']) {
-            $iptc = Metadata::get_iptc_data($picture['current']['src_image']->get_path(), $this->conf['show_iptc_mapping'], ', ');
+            $iptc = $metadata->getIptcData($picture['src_image']->get_path(), $this->conf['show_iptc_mapping'], ', ');
 
             if (count($iptc) > 0) {
                 $tpl_meta = [
