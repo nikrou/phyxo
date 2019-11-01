@@ -293,10 +293,7 @@ class Themes extends Extensions
                 }
 
                 $admin_file = dirname($themeconf) . '/admin/admin.inc.php';
-                if (file_exists($admin_file)) {
-                    $theme['admin_uri'] = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=theme&theme=' . $theme_dir;
-                }
-
+                $theme['admin_uri'] = file_exists($admin_file);
                 $this->fs_themes[$theme_dir] = $theme;
             }
             $this->fs_themes_retrieved = true;

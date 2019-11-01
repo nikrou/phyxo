@@ -9,7 +9,6 @@ parameters:
   pem_url: 'https://ext.phyxo.net'
   update_url: https://download.phyxo.net/versions
 
-  legacy_base_dir: '%kernel.project_dir%/src/LegacyPages'
   local_dir: '%kernel.project_dir%/local'
   upload_dir: '%kernel.project_dir%/upload'
   database_config_file: '%local_dir%/config/database.inc.php'
@@ -49,7 +48,6 @@ services:
       # The best practice is to be explicit about your dependencies anyway.
 
     bind:
-      $legacyBaseDir: '%legacy_base_dir%'
       $localDir: '%local_dir%'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'

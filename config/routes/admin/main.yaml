@@ -6,12 +6,6 @@ install:
   requirements:
     step: language|check|database|user|success
 
-legacy_home:
-  path: /index.{extension}
-  controller: App\Controller\AdminController::index
-  defaults:
-    extension: php
-
 admin_upgrade:
   path: /upgrade
   controller: App\Controller\AdminController::upgrade

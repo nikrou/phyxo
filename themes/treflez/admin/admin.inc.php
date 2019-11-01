@@ -10,27 +10,21 @@
  */
 
 use Phyxo\Functions\Language;
-use Phyxo\Functions\URL;
 
 // Includes
 require_once(__DIR__ . '/../include/config.php');
 
 Language::load_language('theme.lang', __DIR__ . '/../', ['language' => $user['language']]);
 
-// Constants
-define('THEME_ID', basename(dirname(dirname(__FILE__))));
-define('ADMIN_PATH', URL::get_root_url() . 'admin.php?page=theme&theme=' . THEME_ID);
-
 $themeconfig = new \Treflez\Config($conf);
 // Save settings
-if (isset($_POST['_settings'])) {
+if (isset($_POST['_settings'])) {  // @TODO : need to find a better way to use POST paramters
     $themeconfig->fromPost($_POST);
     $themeconfig->save();
 }
 
-// Add our template to the global template
-$template->set_filename('theme_admin_content', dirname(__FILE__) . '/template/settings.tpl');
-
 // Assign the template contents to ADMIN_CONTENT
-$template->assign('theme_config', $themeconfig);
-$template->assign_var_from_handle('ADMIN_CONTENT', 'theme_admin_content');
+$tpl_params['theme_config'] = $themeconfig;
+
+// Add our template to the global template
+$template_filename = dirname(__FILE__) . '/template/settings.tpl';

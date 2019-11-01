@@ -65,7 +65,7 @@ class ThemesController extends AdminCommonController
                 'PARENT' => $fs_theme['parent'] ?? null,
                 'SCREENSHOT' => $fs_theme['screenshot'],
                 'IS_MOBILE' => $fs_theme['mobile'],
-                'ADMIN_URI' => $fs_theme['admin_uri'] ?? null,
+                'ADMIN_URI' => $fs_theme['admin_uri'] ? $this->generateUrl('admin_theme', ['theme' => $theme_id]) : ''
             ];
 
             if (in_array($theme_id, $db_theme_ids)) {
