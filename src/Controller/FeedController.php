@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use App\Notification;
+use Symfony\Component\HttpFoundation\Response;
 
 class FeedController extends CommonController
 {
@@ -47,6 +48,16 @@ class FeedController extends CommonController
         \Phyxo\Functions\Plugin::trigger_notify('init');
 
         return $this->render('notification.tpl', $tpl_params);
+    }
+
+    public function notificationSubscribe()
+    {
+        return new Response('Not yet');
+    }
+
+    public function notificationUnsubscribe()
+    {
+        return new Response('Not yet');
     }
 
     public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, string $cacheDir, Notification $notification)

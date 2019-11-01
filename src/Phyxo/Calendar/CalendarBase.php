@@ -167,10 +167,7 @@ abstract class CalendarBase
             $res .= $this->conf['level_separator'];
             if (isset($this->chronology_date[$i + 1])) {
                 $chronology_date = array_slice($this->chronology_date, 0, $i + 1);
-                $url = \Phyxo\Functions\URL::duplicate_index_url(
-                    ['chronology_date' => $chronology_date],
-                    ['start']
-                );
+                $url = $this->router->generate('calendar_categories_***', ['chronology_date' => $chronology_date]); // @FIX : get correct route name and params
                 $res .= '<a href="' . $url . '">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</a>';
             } else {
                 $res .= '<span class="calInHere">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</span>';
@@ -262,10 +259,7 @@ abstract class CalendarBase
         }
 
         if ($this->conf['calendar_show_any'] && $show_any && count($items) > 1 && count($date_components) < count($this->getCalendarLevels()) - 1) {
-            $url = \Phyxo\Functions\URL::duplicate_index_url(
-                ['chronology_date' => array_merge($date_components, ['any'])],
-                ['start']
-            );
+            $url = $this->router->generate('calendar_categories_***', ['chronology_date' => $date_components]); // @FIX : get correct route name and params
             $nav_bar_datas[] = [
                 'LABEL' => Language::l10n('All'),
                 'URL' => $url

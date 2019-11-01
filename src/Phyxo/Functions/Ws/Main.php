@@ -252,13 +252,7 @@ class Main
     public static function stdGetUrls(array $image_row, Server $service)
     {
         $ret = [];
-        $ret['page_url'] = \Phyxo\Functions\URL::make_picture_url(
-            [
-                'image_id' => $image_row['id'],
-                'image_file' => $image_row['file'],
-            ]
-        );
-
+        $ret['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image_row['id'], 'type' => 'file', 'element_id' => $image_row['file']]);
         $src_image = new \Phyxo\Image\SrcImage($image_row, $service->getConf()['picture_ext']);
 
         if ($src_image->is_original()) { // we have a photo

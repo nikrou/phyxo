@@ -20,7 +20,7 @@ picture:
   controller: App\Controller\PictureController::picture
   requirements:
     element_id: .+
-    type: category|list|tags|search|favorites|most_visited|best_rated|recent_pics|recent_cats
+    type: category|list|tags|search|favorites|most_visited|best_rated|recent_pics|recent_cats|file
 
 picture_by_type:
   path: /picture/{image_id}/{type}/{start_id}

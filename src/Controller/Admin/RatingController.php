@@ -245,7 +245,7 @@ class RatingController extends AdminCommonController
             while ($row = $em->getConnection()->db_fetch_assoc($result)) {
                 $image_urls[$row['id']] = [
                     'tn' => (new DerivativeImage(new SrcImage($row, $conf['picture_ext']), $d_params, $image_std_params))->getUrl(),
-                    'page' => \Phyxo\Functions\URL::make_picture_url(['image_id' => $row['id'], 'image_file' => $row['file']]),
+                    'page' => $this->generateUrl('picture', ['image_id' => $row['id'], 'type' => 'file', 'element_id' => $row['file']]),
                 ];
             }
         }

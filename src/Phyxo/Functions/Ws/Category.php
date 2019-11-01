@@ -21,7 +21,6 @@ use App\Repository\ImageRepository;
 use Phyxo\Ws\Server;
 use App\Repository\BaseRepository;
 use Phyxo\Image\SrcImage;
-use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 
@@ -101,14 +100,8 @@ class Category
 
                 $image_cats = [];
                 foreach (explode(',', $row['cat_ids']) as $cat_id) {
-                    $url = \Phyxo\Functions\URL::make_index_url(['category' => $cats[$cat_id]]);
-                    $page_url = \Phyxo\Functions\URL::make_picture_url(
-                        [
-                            'category' => $cats[$cat_id],
-                            'image_id' => $row['id'],
-                            'image_file' => $row['file'],
-                        ]
-                    );
+                    $url = $service->getRouter()->generate('album', ['category_id' => $cats[$cat_id]]);
+                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'category', 'element_id' => $cats[$cat_id]]);
                     $image_cats[] = [
                         'id' => (int)$cat_id,
                         'url' => $url,
@@ -197,11 +190,7 @@ class Category
 
         $cats = [];
         while ($row = $service->getConnection()->db_fetch_assoc($result)) {
-            $row['url'] = \Phyxo\Functions\URL::make_index_url(
-                [
-                    'category' => $row
-                ]
-            );
+            $row['url'] = $service->getRouter()->generate('album', ['category_id' => $row['id']]);
             foreach (['id', 'nb_images', 'total_nb_images', 'nb_categories'] as $key) {
                 $row[$key] = (int)$row[$key];
             }

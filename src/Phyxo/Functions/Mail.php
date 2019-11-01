@@ -14,9 +14,17 @@ namespace Phyxo\Functions;
 use Pelago\Emogrifier;
 use App\Repository\UserRepository;
 use Phyxo\Extension\Theme;
+use Symfony\Component\Routing\RouterInterface;
 
 class Mail
 {
+    private $router;
+
+    public function __construct(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
     /**
      * Returns the name of the mail sender
      *
@@ -475,8 +483,6 @@ class Mail
         $message->setCharSet('utf-8');
 
         // Compute root_path in order have complete path
-        \Phyxo\Functions\URL::set_make_full_url();
-
         if (empty($args['from'])) {
             $from = [
                 'email' => isset($args['email_webmaster']) ? $args['email_webmaster'] : self::get_mail_sender_email(),
@@ -569,7 +575,7 @@ class Mail
 
                 $template->assign(
                     [
-                        'GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
+                        'GALLERY_URL' => $this->router->generate('homepage'),
                         'GALLERY_TITLE' => isset($page['gallery_title']) ? $page['gallery_title'] : $conf['gallery_title'],
                         'VERSION' => $conf['show_version'] ? PHPWG_VERSION : '',
                         'PHPWG_URL' => defined('PHPWG_URL') ? PHPWG_URL : '',
@@ -646,9 +652,6 @@ class Mail
             // Footer
             $contents[$content_type] .= $template->parse('mail_footer', true);
         }
-
-        // Undo Compute root_path in order have complete path
-        \Phyxo\Functions\URL::unset_make_full_url();
 
         if (isset($contents['text/html'])) {
             $message->setBody(self::move_css_to_body($contents['text/html']), 'text/html');

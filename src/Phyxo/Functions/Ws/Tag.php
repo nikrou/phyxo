@@ -17,6 +17,7 @@ use Phyxo\Ws\NamedStruct;
 use App\Repository\TagRepository;
 use App\Repository\ImageTagRepository;
 use App\Repository\ImageRepository;
+use Phyxo\Functions\URL;
 use Phyxo\Ws\Server;
 
 class Tag
@@ -31,7 +32,7 @@ class Tag
      */
     public static function getFilteredList($params, Server $service)
     {
-        return self::tagsList($service->getTagMapper()->getAllTags($params['q']), $params);
+        return self::tagsList($service->getTagMapper()->getAllTags($params['q']), $params, $service);
     }
 
     /**
@@ -42,7 +43,7 @@ class Tag
      */
     public static function getList($params, Server $service)
     {
-        return self::tagsList($service->getTagMapper()->getAvailableTags($service->getUserMapper()->getUser()), $params);
+        return self::tagsList($service->getTagMapper()->getAvailableTags($service->getUserMapper()->getUser()), $params, $service);
     }
 
     /**
@@ -147,20 +148,8 @@ class Tag
                 $image_tag_ids = ($params['tag_mode_and']) ? $tag_ids : $image_tag_map[$image['id']];
                 $image_tags = [];
                 foreach ($image_tag_ids as $tag_id) {
-                    $url = \Phyxo\Functions\URL::make_index_url(
-                        [
-                            'section' => 'tags',
-                            'tags' => [$tags_by_id[$tag_id]]
-                        ]
-                    );
-                    $page_url = \Phyxo\Functions\URL::make_picture_url(
-                        [
-                            'section' => 'tags',
-                            'tags' => [$tags_by_id[$tag_id]],
-                            'image_id' => $row['id'],
-                            'image_file' => $row['file'],
-                        ]
-                    );
+                    $url = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags_by_id[$tag_id])]);
+                    $page_url = $service->getRouter()->generate('picture', ['image_id' => $row['id'], 'type' => 'tags', 'element_id' => URL::tagToUrl($tags_by_id[$tag_id])]);
                     $image_tags[] = [
                         'id' => (int)$tag_id,
                         'url' => $url,
@@ -219,7 +208,7 @@ class Tag
 
     // protected methods
 
-    public static function tagsList($tags, $params)
+    public static function tagsList($tags, $params, Server $service)
     {
         if (!empty($params['sort_by_counter'])) {
             usort(
@@ -237,12 +226,7 @@ class Tag
             if (!empty($params['sort_by_counter'])) {
                 $tags[$i]['counter'] = (int)$tags[$i]['counter'];
             }
-            $tags[$i]['url'] = \Phyxo\Functions\URL::make_index_url(
-                [
-                    'section' => 'tags',
-                    'tags' => [$tags[$i]]
-                ]
-            );
+            $tags[$i]['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]);
         }
 
         return [

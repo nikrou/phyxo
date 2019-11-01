@@ -17,16 +17,18 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
+use Symfony\Component\Routing\RouterInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper;
+    private $conn, $conf, $userMapper, $router;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
+        $this->router = $router;
     }
 
     public function getUser()
@@ -110,7 +112,6 @@ class CommentMapper
             $comm['author_id'] = $this->conf['guest_id'];
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {
-
                 if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {
                     $infos[] = \Phyxo\Functions\Language::l10n('This login is already used by another user');
                     $comment_action = 'reject';
@@ -202,7 +203,7 @@ class CommentMapper
 
             if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
-                $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comm['id'];
+                $comment_url = $this->router->generate('comment_edit', ['comment_id' => $comm['id']]);
 
                 $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($comm['author'])),
@@ -311,7 +312,7 @@ class CommentMapper
             $result = (new CommentRepository($this->conn))->updateComment($comment, $user_where_clause);
             // mail admin and ask to validate the comment
             if ($result && $this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action) {
-                $comment_url = \Phyxo\Functions\URL::get_absolute_root_url() . 'comments.php?comment_id=' . $comment['comment_id'];
+                $comment_url = $this->router->generate('comment_edit', ['comment_id' => $comment['comment_id']]);
 
                 $keyargs_content = [
                     \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($this->getUser()->getUsername())),

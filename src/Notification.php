@@ -25,19 +25,21 @@ use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
+use Symfony\Component\Routing\RouterInterface;
 
 class Notification
 {
-    private $em, $conn, $conf, $userMapper, $categoryMapper;
+    private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
     private $env, $must_repost;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper)
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
+        $this->router = $router;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -219,54 +221,19 @@ class Notification
         $news = [];
 
         if (!$exclude_img_cats) {
-            $this->add_news_line(
-                $news,
-                $this->nb_new_elements($start, $end),
-                '%d new photo',
-                '%d new photos',
-                \Phyxo\Functions\URL::make_index_url(['section' => 'recent_pics']),
-                $add_url
-            );
+            $this->add_news_line($news, $this->nb_new_elements($start, $end), '%d new photo', '%d new photos', $this->router->generate('recent_pics'), $add_url);
         }
 
         if (!$exclude_img_cats) {
-            $this->add_news_line(
-                $news,
-                $this->nb_updated_categories($start, $end),
-                '%d album updated',
-                '%d albums updated',
-                \Phyxo\Functions\URL::make_index_url(['section' => 'recent_cats']),
-                $add_url
-            );
+            $this->add_news_line($news, $this->nb_updated_categories($start, $end), '%d album updated', '%d albums updated', $this->router->generate('recent_cats'), $add_url);
         }
 
-        $this->add_news_line(
-            $news,
-            $this->nb_new_comments($start, $end),
-            '%d new comment',
-            '%d new comments',
-            \Phyxo\Functions\URL::get_root_url() . 'comments.php',
-            $add_url
-        );
+        $this->add_news_line($news, $this->nb_new_comments($start, $end), '%d new comment', '%d new comments', $this->router->generate('comments'), $add_url);
 
         if ($this->userMapper->isAdmin()) {
-            $this->add_news_line(
-                $news,
-                $this->nb_unvalidated_comments($start, $end),
-                '%d comment to validate',
-                '%d comments to validate',
-                \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=comments',
-                $add_url
-            );
+            $this->add_news_line($news, $this->nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate', $this->router->generate('admin_comments'), $add_url);
 
-            $this->add_news_line(
-                $news,
-                $this->nb_new_users($start, $end),
-                '%d new user',
-                '%d new users',
-                \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=user_list',
-                $add_url
-            );
+            $this->add_news_line($news, $this->nb_new_users($start, $end), '%d new user', '%d new users', $this->router->generate('admin_users'), $add_url);
         }
 
         return $news;
@@ -334,7 +301,7 @@ class Notification
             '<li>'
             . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
             . ' ('
-            . '<a href="' . \Phyxo\Functions\URL::make_index_url(['section' => 'recent_pics']) . '">'
+            . '<a href="' . $this->router->generate('recent_pics') . '">'
             . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>'
             . ')'
             . '</li><br>';
@@ -344,11 +311,7 @@ class Notification
 
         foreach ($date_detail['elements'] as $element) {
             $tn_src = (new DerivativeImage(new SrcImage($element, $picture_ext), $params, $image_std_params))->getUrl();
-            $description .= '<a href="' .
-                \Phyxo\Functions\URL::make_picture_url([
-                    'image_id' => $element['id'],
-                    'image_file' => $element['file'],
-                ]) . '"><img src="' . $tn_src . '"></a>';
+            $description .= '<a href="' . $this->router->generate('picture', ['image_id' => $element['id'], 'type' => 'file', 'element_id' => $element['file']]) . '"><img src="' . $tn_src . '"></a>';
         }
         $description .= '...<br>';
 
@@ -599,19 +562,15 @@ class Notification
 
     public function assign_vars_nbm_mail_content($nbm_user)
     {
-        \Phyxo\Functions\URL::set_make_full_url();
-
         $this->env['mail_template']->assign(
             [
                 'USERNAME' => stripslashes($nbm_user['username']),
                 'SEND_AS_NAME' => $this->env['send_as_name'],
-                'UNSUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', ['unsubscribe' => $nbm_user['check_key']]),
-                'SUBSCRIBE_LINK' => \Phyxo\Functions\URL::add_url_params(\Phyxo\Functions\URL::get_gallery_home_url() . '/nbm.php', ['subscribe' => $nbm_user['check_key']]),
+                'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe'),
+                'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe'),
                 'CONTACT_EMAIL' => $this->env['send_as_mail_address']
             ]
         );
-
-        \Phyxo\Functions\URL::unset_make_full_url();
     }
 
     /*
@@ -625,8 +584,6 @@ class Notification
     public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
     {
         global $page;
-
-        \Phyxo\Functions\URL::set_make_full_url();
 
         $check_key_treated = [];
         $updated_data_count = 0;
@@ -677,7 +634,7 @@ class Notification
                         [
                             $section_action_by => true,
                             'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
-                            'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
+                            'GOTO_GALLERY_URL' => $this->router->generate('homepage'),
                         ]
                     );
 
@@ -750,8 +707,6 @@ class Notification
                 $error_on_updated_data_count
             );
         }
-
-        \Phyxo\Functions\URL::unset_make_full_url();
 
         return $check_key_treated;
     }
@@ -858,7 +813,8 @@ class Notification
                 $check_key_list = array_diff($check_key_list, $check_key_treated);
                 if (count($check_key_list) > 0) {
                     (new UserMailNotificationRepository($this->conn))->deleteByCheckKeys($check_key_list);
-                    \Phyxo\Functions\Utils::redirect($base_url . \Phyxo\Functions\URL::get_query_string_diff([], false), \Phyxo\Functions\Language::l10n('Operation in progress') . "\n" . \Phyxo\Functions\Language::l10n('Please wait...'));
+
+                    // Redirect
                 }
             }
         }
@@ -939,7 +895,6 @@ class Notification
                         $this->set_user_on_env_nbm($nbm_user, $is_action_send);
 
                         if ($is_action_send) {
-                            \Phyxo\Functions\URL::set_make_full_url();
                             // Fill return list of "treated" check_key for 'send'
                             $return_list[] = $nbm_user['check_key'];
 
@@ -1002,7 +957,7 @@ class Notification
                                 $this->env['mail_template']->assign(
                                     [
                                         'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
-                                        'GOTO_GALLERY_URL' => \Phyxo\Functions\URL::get_gallery_home_url(),
+                                        'GOTO_GALLERY_URL' => $this->router->generate('homepage'),
                                         'SEND_AS_NAME' => $this->env['send_as_name'],
                                     ]
                                 );
@@ -1031,8 +986,6 @@ class Notification
                                 } else {
                                     $this->inc_mail_sent_failed($nbm_user);
                                 }
-
-                                \Phyxo\Functions\URL::unset_make_full_url();
                             }
                         } else {
                             if ($this->news_exists($nbm_user['last_send'], $dbnow)) {

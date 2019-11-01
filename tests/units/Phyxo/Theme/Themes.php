@@ -35,7 +35,8 @@ class Themes extends atoum
                 'author' => 'Nicolas',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'admin_uri' => false
             ],
             'theme2' => [
                 'id' => 'theme2',
@@ -46,7 +47,8 @@ class Themes extends atoum
                 'description' => 'Theme mobile without author uri',
                 'author' => 'Arthur',
                 'mobile' => true,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'admin_uri' => false
             ],
             'theme3' => [
                 'id' => 'theme3',
@@ -58,7 +60,8 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'admin_uri' => false
             ],
             'theme4' => [
                 'id' => 'theme4',
@@ -70,7 +73,8 @@ class Themes extends atoum
                 'author' => 'Jean',
                 'author uri' => 'http://www.phyxo.net',
                 'mobile' => false,
-                'screenshot' => 'admin/theme/images/missing_screenshot.png'
+                'screenshot' => 'admin/theme/images/missing_screenshot.png',
+                'admin_uri' => false
             ],
         ];
     }

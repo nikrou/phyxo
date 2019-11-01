@@ -14,21 +14,20 @@ namespace App\Controller\Admin;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Plugin\Plugins;
 use Phyxo\Template\Template;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class ExtensionController extends AdminCommonController
 {
+    protected $params, $conf;
+
     public function theme(Request $request, string $theme, EntityManager $em, UserMapper $userMapper, string $themesDir, Conf $conf, Template $template, ParameterBagInterface $params)
     {
         $tpl_params = [];
         $this->conf = $conf;
-        $this->template = $template;
         $this->params = $params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -77,7 +76,6 @@ class ExtensionController extends AdminCommonController
     {
         $tpl_params = [];
         $this->conf = $conf;
-        $this->template = $template;
         $this->params = $params;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();

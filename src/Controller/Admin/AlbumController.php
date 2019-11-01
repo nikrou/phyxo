@@ -22,7 +22,6 @@ use App\Repository\SiteRepository;
 use App\Repository\UserAccessRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
-use DateTimeInterface;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
@@ -567,11 +566,8 @@ class AlbumController extends AdminCommonController
                     $element = $em->getConnection()->db_fetch_assoc($result);
                     $src_image = new SrcImage($element, $conf['picture_ext']);
 
-                    $img_url = '<a href="' . \Phyxo\Functions\URL::make_picture_url([
-                        'image_id' => $element['id'],
-                        'image_file' => $element['file'],
-                        'category' => $category
-                    ]) . '" class="thumblnk"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '"></a>';
+                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $category]);
+                    $img_url .= '" class="thumblnk"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '"></a>';
                 }
             }
 
@@ -595,13 +591,7 @@ class AlbumController extends AdminCommonController
                     'assign' => [
                         'IMG_URL' => $img_url,
                         'CAT_NAME' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
-                        'LINK' => \Phyxo\Functions\URL::make_index_url([
-                            'category' => [
-                                'id' => $category['id'],
-                                'name' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
-                                'permalink' => $category['permalink']
-                            ]
-                        ]),
+                        'LINK' => $this->generateUrl('album', ['category_id' => $category['id']]),
                         'CPL_CONTENT' => !$request->request->get('mail_content') ? '' : htmlentities($request->request->get('mail_content'), ENT_QUOTES, 'utf-8'),
                     ]
                 ]

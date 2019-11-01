@@ -26,6 +26,7 @@ use App\Repository\ImageCategoryRepository;
 use App\Repository\BaseRepository;
 use Phyxo\Functions\Utils;
 use GuzzleHttp\Client;
+use Phyxo\Functions\URL;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
@@ -104,14 +105,8 @@ class Image
             $is_commentable = $service->getConnection()->get_boolean($row['commentable']);
             unset($row['commentable']);
 
-            $row['url'] = \Phyxo\Functions\URL::make_index_url(['category' => $row]);
-            $row['page_url'] = \Phyxo\Functions\URL::make_picture_url(
-                [
-                    'image_id' => $image_row['id'],
-                    'image_file' => $image_row['file'],
-                    'category' => $row
-                ]
-            );
+            $row['url'] = $service->getRouter()->generate('album', ['category_id' => $row['id']]);
+            $row['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image_row['id'], 'type' => 'category', 'element_id' => $row['id']]);
 
             $row['id'] = (int)$row['id'];
             $related_categories[] = $row;
@@ -125,14 +120,8 @@ class Image
         //-------------------------------------------------------------- related tags
         $related_tags = $service->getTagMapper()->getCommonTags($service->getUserMapper()->getUser(), [$image_row['id']], -1);
         foreach ($related_tags as $i => $tag) {
-            $tag['url'] = \Phyxo\Functions\URL::make_index_url(['tags' => [$tag]]);
-            $tag['page_url'] = \Phyxo\Functions\URL::make_picture_url(
-                [
-                    'image_id' => $image_row['id'],
-                    'image_file' => $image_row['file'],
-                    'tags' => [$tag],
-                ]
-            );
+            $tag['url'] = $service->getRouter()->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tag)]);
+            $tag['page_url'] = $service->getRouter()->generate('picture', ['image_id' => $image_row['id'], 'type' => 'tags', 'element_id' => URL::tagToUrl($image_row['file'])]);
 
             unset($tag['counter']);
             $tag['id'] = (int)$tag['id'];
@@ -585,8 +574,8 @@ class Image
 
                 $result = (new CategoryRepository($service->getConnection()))->findById($service->getUserMapper()->getUser(), [], $category_id);
                 $category = $service->getConnection()->db_fetch_assoc($result);
-                $url_params['section'] = 'categories';
-                $url_params['category'] = $category;
+                $url_params['type'] = 'category';
+                $url_params['element_id'] = $category['id'];
             }
         }
 
@@ -599,7 +588,7 @@ class Image
 
         return [
             'image_id' => $image_id,
-            'url' => \Phyxo\Functions\URL::make_picture_url($url_params),
+            'url' => $service->getRouter()->generate('picture', $url_params),
         ];
     }
 
@@ -677,13 +666,13 @@ class Image
         if (!empty($params['category'])) {
             $result = (new CategoryRepository($service->getConnection()))->findById($params['category'][0]);
             $category = $service->getConnection()->db_fetch_assoc($result);
-            $url_params['section'] = 'categories';
-            $url_params['category'] = $category;
+            $url_params['type'] = 'category';
+            $url_params['element_id'] = $category['id'];
         }
 
         return [
             'image_id' => $image_id,
-            'url' => \Phyxo\Functions\URL::make_picture_url($url_params),
+            'url' => $service->getRouter()->generate('picture', $url_params),
         ];
     }
 

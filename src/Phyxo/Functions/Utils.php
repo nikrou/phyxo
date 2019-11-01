@@ -385,24 +385,6 @@ class Utils
     }
 
     /**
-     * check token comming from form posted or get params to prevent csrf attacks.
-     * if pwg_token is empty action doesn't require token
-     * else pwg_token is compare to server token
-     *
-     * @return void access denied if token given is not equal to server token
-     */
-    public static function check_token()
-    {
-        if (!empty($_REQUEST['pwg_token'])) {
-            if (self::get_token() != $_REQUEST['pwg_token']) {
-                \Phyxo\Functions\HTTP::access_denied();
-            }
-        } else {
-            \Phyxo\Functions\HTTP::bad_request('missing token');
-        }
-    }
-
-    /**
      * get pwg_token used to prevent csrf attacks
      *
      * @return string
@@ -871,23 +853,6 @@ class Utils
     public static function id_compare($a, $b)
     {
         return ($a['id'] < $b['id']) ? -1 : 1;
-    }
-
-    /**
-     * Is the category accessible to the connected user ?
-     * If the user is not authorized to see this category, script exits
-     *
-     * @param int $category_id
-     */
-    public static function check_restrictions($category_id)
-    {
-        global $user;
-
-        // $filter['visible_categories'] and $filter['visible_images']
-        // are not used because it's not necessary (filter <> restriction)
-        if (in_array($category_id, explode(',', $user['forbidden_categories']))) {
-            \Phyxo\Functions\HTTP::access_denied();
-        }
     }
 
     /**

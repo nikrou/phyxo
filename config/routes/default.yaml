@@ -1,5 +1,5 @@
 homepage:
-  path:  /
+  path: /
   controller: App\Controller\DefaultController::home
 
 about:
@@ -19,6 +19,14 @@ feed_image_only:
 notification:
   path: /notification
   controller: App\Controller\FeedController::notification
+
+notification_subscribe:
+  path: /notification/subscribe
+  controller: App\Controller\FeedController::notificationSubscribe
+
+notification_unsubscribe:
+  path: /notification/unsubscribe
+  controller: App\Controller\FeedController::notificationUnsubscribe
 
 ws:
   path: /ws

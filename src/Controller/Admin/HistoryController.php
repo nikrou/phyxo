@@ -432,7 +432,7 @@ class HistoryController extends AdminCommonController
         $image_string = '';
 
         if (isset($line['image_id'])) {
-            $picture_url = URL::make_picture_url(['image_id' => $line['image_id']]);
+            $picture_url = $this->generateUrl('picture', ['image_id' => $line['image_id']]); // @FIX: missing other param
 
             if (isset($image_infos[$line['image_id']])) {
                 $element = [
