@@ -13,6 +13,7 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
 use App\DataMapper\UserMapper;
+use App\Events\GroupEvent;
 use App\Repository\CategoryRepository;
 use App\Repository\GroupAccessRepository;
 use App\Repository\GroupRepository;
@@ -31,6 +32,7 @@ use Phyxo\Image\SrcImage;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class AlbumController extends AdminCommonController
@@ -545,7 +547,7 @@ class AlbumController extends AdminCommonController
     }
 
     public function notification(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params)
+                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher)
     {
         $tpl_params = [];
 
@@ -566,7 +568,7 @@ class AlbumController extends AdminCommonController
                     $element = $em->getConnection()->db_fetch_assoc($result);
                     $src_image = new SrcImage($element, $conf['picture_ext']);
 
-                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $category]);
+                    $img_url = '<a href="' . $this->generateUrl('picture', ['image_id' => $element['id'], 'type' => 'category', 'element_id' => $category['id']]);
                     $img_url .= '" class="thumblnk"><img src="' . (new DerivativeImage($src_image, $image_std_params->getByType(ImageStandardParams::IMG_THUMB), $image_std_params))->getUrl() . '"></a>';
                 }
             }
@@ -575,27 +577,7 @@ class AlbumController extends AdminCommonController
                 $img_url = '';
             }
 
-            \Phyxo\Functions\Mail::mail_group(
-                $request->request->get('group'),
-                [
-                    'subject' => Language::l10n(
-                        '[%s] Visit album %s',
-                        $conf['gallery_title'],
-                        \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list')
-                    ),
-                    // @TODO : change this language variable to 'Visit album %s'
-                    // @TODO : 'language_selected' => ....
-                ],
-                [
-                    'filename' => 'cat_group_info',
-                    'assign' => [
-                        'IMG_URL' => $img_url,
-                        'CAT_NAME' => \Phyxo\Functions\Plugin::trigger_change('render_category_name', $category['name'], 'admin_cat_list'),
-                        'LINK' => $this->generateUrl('album', ['category_id' => $category['id']]),
-                        'CPL_CONTENT' => !$request->request->get('mail_content') ? '' : htmlentities($request->request->get('mail_content'), ENT_QUOTES, 'utf-8'),
-                    ]
-                ]
-            );
+            $eventDispatcher->dispatch(new GroupEvent((int) $request->request->get('group'), ['id' => $category['id'], 'name' => $category['name']], $img_url, $request->request->get('mail_content')));
 
             $result = $em->getRepository(GroupRepository::class)->findById($request->request->get('group'));
             $row = $em->getConnection()->db_fetch_assoc($result);

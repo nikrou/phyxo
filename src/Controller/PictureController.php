@@ -61,6 +61,12 @@ class PictureController extends CommonController
         // @TODO : improve by verify token and redirect after changes
         if ($request->get('action') === 'edit_comment') {
             $edit_comment = $request->get('comment_to_edit');
+        } elseif ($request->get('action') === 'delete_comment' && $request->get('comment_to_delete')) {
+            if ($commentMapper->deleteUserComment([(int) $request->get('comment_to_delete')])) {
+                $this->addFlash('info', 'Comment deleted');
+
+                return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
+            }
         }
 
         $category = ['id' => (int) $element_id];
@@ -275,8 +281,7 @@ class PictureController extends CommonController
         }
 
         if ($conf['activate_comments']) {
-            // the picture is commentable if it belongs at least to one category which
-            // is commentable
+            // the picture is commentable if it belongs at least to one category which is commentable
             $show_comments = false;
             $errors = [];
 
@@ -292,21 +297,28 @@ class PictureController extends CommonController
                         'image_id' => $image_id
                     ];
 
-                    $comment_action = $commentMapper->insertUserComment($comment, $request->request->get('key'), $errors);
+                    if ($request->get('action') === 'edit_comment' && $request->get('comment_to_edit')) {
+                        $comment['comment_id'] = $request->get('comment_to_edit');
+                        $comment_action = $commentMapper->updateUserComment($comment, $request->request->get('key'), $errors);
+                    } else {
+                        $comment_action = $commentMapper->insertUserComment($comment, $request->request->get('key'), $errors);
+                    }
                 }
 
                 switch ($comment_action) {
                     case 'moderate':
-                        $tpl_params['infos'][] = Language::l10n('An administrator must authorize your comment before it is visible.');
+                        $this->addFlash('info', Language::l10n('An administrator must authorize your comment before it is visible.'));
                     case 'validate':
-                        $tpl_params['infos'][] = Language::l10n('Your comment has been registered');
+                        $this->addFlash('info', Language::l10n('Your comment has been registered'));
                         break;
                     case 'reject':
-                        $tpl_params['errors'][] = Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
+                        $this->addFlash('error', Language::l10n('Your comment has NOT been registered because it did not pass the validation rules'));
                         break;
                     default:
-                        throw new \Exception('Invalid comment action ' . $comment_action);
+                        $this->addFlash('error', 'Invalid comment action ' . $comment_action);
                 }
+
+                return $this->redirectToRoute($request->get('_route'), ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]);
             }
 
             foreach ($related_categories as $_category) {
@@ -388,7 +400,7 @@ class PictureController extends CommonController
                             ]
                         );
 
-                        if (isset($edit_comment) && ($row['id'] == $edit_comment)) {
+                        if (isset($edit_comment) && ($row['id'] === $edit_comment)) {
                             $tpl_comment['IN_EDIT'] = true;
                             $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $image_id);
                             $tpl_comment['KEY'] = $key;
@@ -472,10 +484,18 @@ class PictureController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
+        if ($this->get('session')->getFlashBag()->has('info')) {
+            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
+        }
+
+        if ($this->get('session')->getFlashBag()->has('error')) {
+            $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
+        }
+
         return $this->render('picture.tpl', $tpl_params);
     }
 
-    public function picturesByTypes(Request $request, $image_id, $type)
+    public function picturesByTypes($image_id, $type)
     {
         return $this->forward(
             'App\Controller\PictureController::picture',
@@ -487,7 +507,7 @@ class PictureController extends CommonController
         );
     }
 
-    public function pictureBySearch(Request $request, $image_id, $search_id)
+    public function pictureBySearch($image_id, $search_id)
     {
         return $this->forward(
             'App\Controller\PictureController::picture',
@@ -499,7 +519,7 @@ class PictureController extends CommonController
         );
     }
 
-    public function pictureFromCalendar(Request $request, int $image_id)
+    public function pictureFromCalendar(int $image_id)
     {
         return $this->forward(
             'App\Controller\PictureController::picture',

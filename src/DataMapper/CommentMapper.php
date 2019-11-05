@@ -11,24 +11,28 @@
 
 namespace App\DataMapper;
 
+use App\Events\CommentEvent;
 use Phyxo\Functions\Plugin;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
+use Phyxo\Functions\Language;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $router;
+    private $conn, $conf, $userMapper, $router, $eventDispatcher;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router, EventDispatcherInterface $eventDispatcher)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->router = $router;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getUser()
@@ -68,7 +72,6 @@ class CommentMapper
         }
 
         if ($link_count > $this->conf['comment_spam_max_links']) {
-            $_POST['cr'][] = 'links';
             return $my_action;
         }
 
@@ -104,7 +107,7 @@ class CommentMapper
         if ($this->userMapper->isGuest()) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
-                    $infos[] = \Phyxo\Functions\Language::l10n('Username is mandatory');
+                    $infos[] = Language::l10n('Username is mandatory');
                     $comment_action = 'reject';
                 }
                 $comm['author'] = 'guest';
@@ -113,7 +116,7 @@ class CommentMapper
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {
                 if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {
-                    $infos[] = \Phyxo\Functions\Language::l10n('This login is already used by another user');
+                    $infos[] = Language::l10n('This login is already used by another user');
                     $comment_action = 'reject';
                 }
             }
@@ -128,21 +131,19 @@ class CommentMapper
 
         if (!\Phyxo\Functions\Utils::verify_ephemeral_key($key, $comm['image_id'])) {
             $comment_action = 'reject';
-            $_POST['cr'][] = 'key'; // @TODO: remove ? rvelices: I use this outside to see how spam robots work
         }
 
         // website
         if (!empty($comm['website_url'])) {
             if (!$this->conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
                 $comment_action = 'reject';
-                $_POST['cr'][] = 'website_url';
             } else {
                 $comm['website_url'] = strip_tags($comm['website_url']);
                 if (!preg_match('/^https?/i', $comm['website_url'])) {
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
                 if (!\Phyxo\Functions\Utils::url_check_format($comm['website_url'])) {
-                    $infos[] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
+                    $infos[] = Language::l10n('Your website URL is invalid');
                     $comment_action = 'reject';
                 }
             }
@@ -153,11 +154,11 @@ class CommentMapper
             if (!empty($this->getUser()->getMailAddress())) {
                 $comm['email'] = $this->getUser()->getMailAddress();
             } elseif ($this->conf['comments_email_mandatory']) {
-                $infos[] = \Phyxo\Functions\Language::l10n('Email address is missing. Please specify an email address.');
+                $infos[] = Language::l10n('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
         } elseif (!\Phyxo\Functions\Utils::email_check_format($comm['email'])) {
-            $infos[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+            $infos[] = Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
             $comment_action = 'reject';
         }
 
@@ -176,9 +177,8 @@ class CommentMapper
                 !$this->userMapper->isGuest() ? $anonymous_id : null
             );
             if ($counter > 0) {
-                $infos[] = \Phyxo\Functions\Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
+                $infos[] = Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
-                $_POST['cr'][] = 'flood_time';
             }
         }
 
@@ -193,7 +193,6 @@ class CommentMapper
                 'content' => $comm['content'],
                 'date' => 'now()',
                 'validated' => $comment_action === 'validate',
-                'validation_date' => ($comment_action == 'validate' ? 'now()' : ''),
                 'image_id' => $comm['image_id'],
                 'website_url' => (!empty($comm['website_url']) ? $comm['website_url'] : ''),
                 'email' => (!empty($comm['email']) ? $comm['email'] : '')
@@ -203,24 +202,7 @@ class CommentMapper
 
             if (($this->conf['email_admin_on_comment'] && 'validate' == $comment_action)
                 || ($this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action)) {
-                $comment_url = $this->router->generate('comment_edit', ['comment_id' => $comm['id']]);
-
-                $keyargs_content = [
-                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($comm['author'])),
-                    \Phyxo\Functions\Language::get_l10n_args('Email: %s', stripslashes($comm['email'])),
-                    \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comm['content'])),
-                    \Phyxo\Functions\Language::get_l10n_args(''),
-                    \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
-                ];
-
-                if ('moderate' == $comment_action) {
-                    $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation');
-                }
-
-                \Phyxo\Functions\Mail::mail_notification_admins(
-                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($comm['author'])),
-                    $keyargs_content
-                );
+                $this->eventDispatcher->dispatch(new CommentEvent($comm, $comment_action));
             }
         }
 
@@ -231,23 +213,13 @@ class CommentMapper
      * Tries to delete a (or more) user comment.
      *    only admin can delete all comments
      *    other users can delete their own comments
-     *
-     * @param int|int[] $comment_id
-     * @return bool false if nothing deleted
      */
-    public function deleteUserComment($comment_id)
+    public function deleteUserComment(array $comment_ids): bool
     {
-        if ((new CommentRepository($this->conn))->deleteByIds($comment_id, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null)) {
+        if ((new CommentRepository($this->conn))->deleteByIds($comment_ids, !$this->userMapper->isAdmin() ? $this->getUser()->getId() : null)) {
             $this->invalidateUserCacheNbComments();
 
-            $this->email_admin(
-                'delete',
-                [
-                    'author' => $this->getUser()->getUsername(),
-                    'comment_id' => $comment_id
-                ]
-            );
-            Plugin::trigger_notify('user_comment_deletion', $comment_id);
+            $this->eventDispatcher->dispatch(new CommentEvent(['ids' => $comment_ids, 'author' => $this->getUser()->getUsername()], 'delete'));
 
             return true;
         }
@@ -270,7 +242,7 @@ class CommentMapper
 
         if (!\Phyxo\Functions\Utils::verify_ephemeral_key($post_key, $comment['image_id'])) {
             $comment_action = 'reject';
-        } elseif (!$this->conf['comments_validation'] or $this->userMapper->isAdmin()) { // should the updated comment must be validated
+        } elseif (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) { // should the updated comment must be validated
             $comment_action = 'validate'; //one of validate, moderate, reject
         } else {
             $comment_action = 'moderate'; //one of validate, moderate, reject
@@ -294,12 +266,12 @@ class CommentMapper
                 $comment['website_url'] = 'http://' . $comment['website_url'];
             }
             if (!\Phyxo\Functions\Utils::url_check_format($comment['website_url'])) {
-                //$page['errors'][] = \Phyxo\Functions\Language::l10n('Your website URL is invalid');
+                //$page['errors'][] = Language::l10n('Your website URL is invalid');
                 $comment_action = 'reject';
             }
         }
 
-        if ($comment_action != 'reject') {
+        if ($comment_action !== 'reject') {
             $user_where_clause = '';
             if (!$this->userMapper->isAdmin()) {
                 $user_where_clause = ' AND author_id = \'' . $this->conn->db_real_escape_string($this->getUser()->getId()) . '\'';
@@ -307,28 +279,14 @@ class CommentMapper
 
             $comment['website_url'] = !empty($comment['website_url']) ? $comment['website_url'] : '';
             $comment['validated'] = $comment_action === 'validate';
-            $comment['validation_date'] = $comment_action === 'validate' ? 'now()' : '';
 
             $result = (new CommentRepository($this->conn))->updateComment($comment, $user_where_clause);
+
             // mail admin and ask to validate the comment
-            if ($result && $this->conf['email_admin_on_comment_validation'] && 'moderate' == $comment_action) {
-                $comment_url = $this->router->generate('comment_edit', ['comment_id' => $comment['comment_id']]);
-
-                $keyargs_content = [
-                    \Phyxo\Functions\Language::get_l10n_args('Author: %s', stripslashes($this->getUser()->getUsername())),
-                    \Phyxo\Functions\Language::get_l10n_args('Comment: %s', stripslashes($comment['content'])),
-                    \Phyxo\Functions\Language::get_l10n_args(''),
-                    \Phyxo\Functions\Language::get_l10n_args('Manage this user comment: %s', $comment_url),
-                    \Phyxo\Functions\Language::get_l10n_args('(!) This comment requires validation'),
-                ];
-
-                \Phyxo\Functions\Mail::mail_notification_admins(
-                    \Phyxo\Functions\Language::get_l10n_args('Comment by %s', stripslashes($this->getUser()->getUsername())),
-                    $keyargs_content
-                );
+            if ($result && $this->conf['email_admin_on_comment_validation'] && $comment_action === 'moderate') {
+                $this->eventDispatcher->dispatch(new CommentEvent($comment, $comment_action));
             } elseif ($result) {
-                // just mail admin
-                $this->email_admin('edit', ['author' => $this->getUser()->getUsername(), 'content' => stripslashes($comment['content'])]);
+                $this->eventDispatcher->dispatch(new CommentEvent(['author' => $this->getUser()->getUsername(), 'content' => $comment['content']], 'edit'));
             }
         }
 
@@ -354,37 +312,5 @@ class CommentMapper
     private function invalidateUserCacheNbComments()
     {
         (new UserCacheRepository($this->conn))->invalidateUserCache('nb_available_comments');
-    }
-
-    /**
-     * Notifies admins about updated or deleted comment.
-     * Only used when no validation is needed, otherwise \Phyxo\Functions\Mail::mail_notification_admins() is used.
-     *
-     * @param string $action edit, delete
-     * @param array $comment
-     *
-     * @TODO : move to services notification
-     */
-    private function email_admin($action, $comment)
-    {
-        if (!in_array($action, ['edit', 'delete'])
-            && (($action == 'edit') && !$this->conf['email_admin_on_comment_edition'])
-            && (($action == 'delete') && !$this->conf['email_admin_on_comment_deletion'])) {
-            return;
-        }
-
-        $keyargs_content = [\Phyxo\Functions\Language::get_l10n_args('Author: %s', $comment['author'])];
-
-        if ($action == 'delete') {
-            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author removed the comment with id %d', $comment['comment_id']);
-        } else {
-            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('This author modified following comment:');
-            $keyargs_content[] = \Phyxo\Functions\Language::get_l10n_args('Comment: %s', $comment['content']);
-        }
-
-        // \Phyxo\Functions\Mail::mail_notification_admins(
-        //     \Phyxo\Functions\Language::get_l10n_args('Comment by %s', $comment['author']),
-        //     $keyargs_content
-        // );
     }
 }

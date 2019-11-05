@@ -366,6 +366,8 @@ class Utils
     {
         global $conf;
 
+        return true;
+
         $time = microtime(true);
         $key = explode(':', @$key);
 

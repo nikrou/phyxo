@@ -1,4 +1,4 @@
-{extends file="mail/__layout.text.tpl"}
+{extends file="mail/text/__layout.text.tpl"}
 
 {block name="content"}
     {'Someone requested that the password be reset for the following user account:'|translate}

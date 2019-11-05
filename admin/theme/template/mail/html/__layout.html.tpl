@@ -33,7 +33,7 @@
 		<td id="footer">
 		    {'Sent by'|translate} <a href="{$GALLERY_URL}">{$GALLERY_TITLE}</a>
 		    - {'Powered by'|translate} <a href="{$PHYXO_URL}">Phyxo</a>
-		    {if !empty($VERSION)}{$VERSION}{/if}
+		    {if !empty($PHYXO_VERSION)}{$PHYXO_VERSION}{/if}
 
 		    - {'Contact'|translate}
 		    <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>

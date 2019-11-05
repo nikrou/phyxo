@@ -1,4 +1,4 @@
-{extends file="mail/__layout.html.tpl"}
+{extends file="mail/html/__layout.html.tpl"}
 
 {block name="content"}
     <p>

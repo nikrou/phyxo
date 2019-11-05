@@ -315,13 +315,14 @@ class UserMapper
     }
 
     /**
-     * Returns webmaster mail address depending on $conf['webmaster_id']
+     * Returns webmaster user depending on $conf['webmaster_id']
      */
-    public function getWebmasterMailAddress(): string
+    public function getWebmaster(): array
     {
         $result = $this->em->getRepository(UserRepository::class)->findById($this->conf['webmaster_id']);
         $row = $this->em->getConnection()->db_fetch_assoc($result);
-        return $row['mail_address'];
+
+        return $row;
     }
 
     /**

@@ -201,6 +201,16 @@ class UserRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function getUsersByGroup(int $group_id)
+    {
+        $query = 'SELECT u.username AS name, u.mail_address AS email, language FROM ' . self::USERS_TABLE . ' AS u';
+        $query .= ' LEFT JOIN ' . self::USER_GROUP_TABLE . ' AS ug ON id = ug.user_id';
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' AS ui ON ui.user_id = ug.user_id';
+        $query .= ' WHERE group_id = ' . $group_id . ' AND mail_address IS NOT NULL';
+
+        return $this->conn->db_query($query);
+    }
+
     public function getUsersByLanguage(int $group_id, string $languages)
     {
         $query = 'SELECT u.username AS name, u.mail_address AS email FROM ' . self::USERS_TABLE . ' AS u';

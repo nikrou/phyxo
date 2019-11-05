@@ -14,6 +14,8 @@ use Phyxo\Functions\Upgrade;
 use Symfony\Component\Filesystem\Filesystem;
 
 $release_from = '1.10.0';
+$first_id = 149;
+$last_id = 149;
 
 // rename language to languages
 $fs = new Filesystem();

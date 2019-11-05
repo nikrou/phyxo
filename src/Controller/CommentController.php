@@ -296,7 +296,7 @@ class CommentController extends CommonController
         if (!$csrfTokenManager->isTokenValid($token)) {
             throw new InvalidCsrfTokenException();
         }
-        $commentMapper->deleteUserComment($request->get('comment_id'));
+        $commentMapper->deleteUserComment([$request->get('comment_id')]);
 
         return $this->redirectToRoute(
             'comments',

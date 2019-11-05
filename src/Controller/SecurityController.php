@@ -41,7 +41,8 @@ class SecurityController extends AbstractController
     private $language_load = [];
     private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite) {
+    public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite)
+    {
         $this->template = $template;
         $this->router = $router;
         $this->conf = $conf;
@@ -311,6 +312,8 @@ class SecurityController extends AbstractController
     {
         $this->init($userProvider->loadUserByUsername('guest'));
 
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+
         $tpl_params = [];
 
         $errors = [];
@@ -395,8 +398,8 @@ class SecurityController extends AbstractController
 
         $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset')))
             ->addTo($params['user']['mail_address'])
-            ->setBody($template->render('mail/reset_password.txt.tpl', $params), 'text/plain')
-            ->addPart($template->render('mail/reset_password.html.tpl', $params), 'text/html');
+            ->setBody($template->render('mail/text/reset_password.text.tpl', $params), 'text/plain')
+            ->addPart($template->render('mail/html/reset_password.html.tpl', $params), 'text/html');
 
         $message->setFrom($webmaster_mail_address);
         $message->setReplyTo($webmaster_mail_address);

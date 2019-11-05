@@ -483,8 +483,8 @@ CREATE TABLE "phyxo_users"
 (
   "id" serial  NOT NULL,
   "username" VARCHAR(100) default '' NOT NULL,
-  "password" VARCHAR(255),
-  "mail_address" VARCHAR(255),
+  "password" VARCHAR(255) default NULL,
+  "mail_address" VARCHAR(255) default NULL,
   PRIMARY KEY ("id"),
   CONSTRAINT "users_ui1" UNIQUE ("username")
 );

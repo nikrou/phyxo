@@ -47,7 +47,7 @@
                 - <span class="commentDate">{$comment.DATE}</span>
 		{if isset($comment.IN_EDIT)}
 		    <a name="edit_comment"></a>
-		    <form method="post" action="{$comment.U_SAVE}">
+		    <form method="post" action="{$comment.U_EDIT}">
 			<div class="form-group">
 			    <label for="website_url">{'Website'|translate} :</label>
 			    <input class="form-control" type="text" name="website_url" id="website_url" value="{$comment.WEBSITE_URL}">

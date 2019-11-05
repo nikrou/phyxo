@@ -6,5 +6,5 @@
 
 ----
 {'Sent by'|translate} "{$GALLERY_TITLE}" {$GALLERY_URL}
-{'Powered by'|translate} "Phyxo{if !empty($VERSION)} {$VERSION}{/if}" {$PHYXO_URL}
+{'Powered by'|translate} "Phyxo{if !empty($PHYXO_VERSION)} {$PHYXO_VERSION}{/if}" {$PHYXO_URL}
 {'Contact'|translate}: {$CONTACT_MAIL}

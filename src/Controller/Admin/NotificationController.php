@@ -207,6 +207,6 @@ class NotificationController extends AdminCommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        return $this->render('notification_by_mail_params.tpl', $tpl_params);
+        return $this->render('notification_by_mail_send.tpl', $tpl_params);
     }
 }

@@ -19,20 +19,26 @@ use App\Repository\UserInfosRepository;
 use App\Repository\BaseRepository;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use App\Security\UserProvider;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\SrcImage;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Conf;
 use Phyxo\Functions\Language;
+use Phyxo\Template\AdminTemplate;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class Notification
 {
     private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
-    private $env, $must_repost;
+    private $env, $must_repost, $userProvider, $template, $phyxoVersion, $phyxoWebsite, $mailer;
 
-    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router)
+    private $infos = [], $errors = [];
+
+    public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router, UserProvider $userProvider,
+                                AdminTemplate $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
@@ -40,6 +46,11 @@ class Notification
         $this->userMapper = $userMapper;
         $this->categoryMapper = $categoryMapper;
         $this->router = $router;
+        $this->userProvider = $userProvider;
+        $this->template = $template;
+        $this->phyxoVersion = $phyxoVersion;
+        $this->phyxoWebsite = $phyxoWebsite;
+        $this->mailer = $mailer;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -194,7 +205,7 @@ class Notification
     public function add_news_line(&$news, $count, $singular_key, $plural_key, $url = '', $add_url = false)
     {
         if ($count > 0) {
-            $line = \Phyxo\Functions\Language::l10n_dec($singular_key, $plural_key, $count);
+            $line = Language::l10n_dec($singular_key, $plural_key, $count);
             if ($add_url and !empty($url)) {
                 $line = '<a href="' . $url . '">' . $line . '</a>';
             }
@@ -221,19 +232,48 @@ class Notification
         $news = [];
 
         if (!$exclude_img_cats) {
-            $this->add_news_line($news, $this->nb_new_elements($start, $end), '%d new photo', '%d new photos', $this->router->generate('recent_pics'), $add_url);
+            $this->add_news_line(
+                $news,
+                $this->nb_new_elements($start, $end),
+                '%d new photo', '%d new photos',
+                $this->router->generate('recent_pics', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $add_url
+            );
         }
 
         if (!$exclude_img_cats) {
-            $this->add_news_line($news, $this->nb_updated_categories($start, $end), '%d album updated', '%d albums updated', $this->router->generate('recent_cats'), $add_url);
+            $this->add_news_line(
+                $news,
+                $this->nb_updated_categories($start, $end),
+                '%d album updated', '%d albums updated',
+                $this->router->generate('recent_cats', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $add_url
+            );
         }
 
-        $this->add_news_line($news, $this->nb_new_comments($start, $end), '%d new comment', '%d new comments', $this->router->generate('comments'), $add_url);
+        $this->add_news_line(
+            $news,
+            $this->nb_new_comments($start, $end),
+            '%d new comment', '%d new comments',
+            $this->router->generate('comments', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            $add_url
+        );
 
         if ($this->userMapper->isAdmin()) {
-            $this->add_news_line($news, $this->nb_unvalidated_comments($start, $end), '%d comment to validate', '%d comments to validate', $this->router->generate('admin_comments'), $add_url);
+            $this->add_news_line(
+                $news,
+                $this->nb_unvalidated_comments($start, $end),
+                '%d comment to validate', '%d comments to validate',
+                $this->router->generate('admin_comments', [], UrlGeneratorInterface::ABSOLUTE_URL), $add_url
+            );
 
-            $this->add_news_line($news, $this->nb_new_users($start, $end), '%d new user', '%d new users', $this->router->generate('admin_users'), $add_url);
+            $this->add_news_line(
+                $news,
+                $this->nb_new_users($start, $end),
+                '%d new user', '%d new users',
+                $this->router->generate('admin_users', [], UrlGeneratorInterface::ABSOLUTE_URL),
+                $add_url
+            );
         }
 
         return $news;
@@ -245,9 +285,8 @@ class Notification
      * @param int $max_dates maximum number of recent dates
      * @param int $max_elements maximum number of elements per date
      * @param int $max_cats maximum number of categories per date
-     * @return array
      */
-    public function get_recent_post_dates($max_dates, $max_elements, $max_cats)
+    public function get_recent_post_dates(int $max_dates, int $max_elements, int $max_cats): array
     {
         $where_sql = (new BaseRepository($this->conn))->getStandardSQLWhereRestrictFilter($this->userMapper->getUser(), [], 'WHERE', 'i.id', true);
 
@@ -299,10 +338,10 @@ class Notification
 
         $description .=
             '<li>'
-            . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
+            . Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
             . ' ('
-            . '<a href="' . $this->router->generate('recent_pics') . '">'
-            . \Phyxo\Functions\Language::l10n('Recent photos') . '</a>'
+            . '<a href="' . $this->router->generate('recent_pics', [], UrlGeneratorInterface::ABSOLUTE_URL) . '">'
+            . Language::l10n('Recent photos') . '</a>'
             . ')'
             . '</li><br>';
 
@@ -311,13 +350,19 @@ class Notification
 
         foreach ($date_detail['elements'] as $element) {
             $tn_src = (new DerivativeImage(new SrcImage($element, $picture_ext), $params, $image_std_params))->getUrl();
-            $description .= '<a href="' . $this->router->generate('picture', ['image_id' => $element['id'], 'type' => 'file', 'element_id' => $element['file']]) . '"><img src="' . $tn_src . '"></a>';
+            $description .= '<a href="';
+            $description .= $this->router->generate(
+                'picture',
+                ['image_id' => $element['id'], 'type' => 'file', 'element_id' => $element['file']],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            $description .= '"><img src="' . $tn_src . '"></a>';
         }
         $description .= '...<br>';
 
         $description .=
             '<li>'
-            . \Phyxo\Functions\Language::l10n_dec('%d album updated', '%d albums updated', $date_detail['nb_cats'])
+            . Language::l10n_dec('%d album updated', '%d albums updated', $date_detail['nb_cats'])
             . '</li>';
 
         $description .= '<ul>';
@@ -325,7 +370,7 @@ class Notification
             $description .=
                 '<li>'
                 . $this->categoryMapper->getCatDisplayNameCache($cat['uppercats'])
-                . ' (' . \Phyxo\Functions\Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
+                . ' (' . Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
                 . '</li>';
         }
         $description .= '</ul>';
@@ -397,7 +442,7 @@ class Notification
             }
 
             $result = (new UserMailNotificationRepository($this->conn))->findInfosForUsers(
-                $no_mail_empty = ($action === 'send'),
+                ($action === 'send'),
                 $enabled_filter_value,
                 $check_key_list,
                 $order_by
@@ -420,82 +465,33 @@ class Notification
     {
         global $user;
 
-        // Save $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
+        // Save $user, $lang_info and $lang arrays
         $this->env['save_user'] = $user;
         // Save current language to stack, necessary because $user change during NBM
-        \Phyxo\Functions\Mail::switch_lang_to($user['language']);
+        //\Phyxo\Functions\Mail::switch_lang_to($user['language']);
 
         $this->env['is_to_send_mail'] = $is_to_send_mail;
 
         if ($is_to_send_mail) {
             // Init mail configuration
-            $this->env['email_format'] = \Phyxo\Functions\Mail::get_str_email_format($this->conf['nbm_send_html_mail']);
-            $this->env['send_as_name'] = !empty($this->conf['nbm_send_mail_as']) ? $this->conf['nbm_send_mail_as'] : \Phyxo\Functions\Mail::get_mail_sender_name();
+            if (!empty($this->conf['nbm_send_mail_as'])) {
+                $this->env['send_as_name'] = $this->conf['nbm_send_mail_as'];
+            } else {
+                if (!empty($this->conf['mail_sender_name'])) {
+                    $this->env['send_as_name'] = $this->conf['mail_sender_name'];
+                } else {
+                    $this->env['send_as_name'] = $this->conf['gallery_title'];
+                }
+            }
+
             $this->env['send_as_mail_address'] = $this->userMapper->getWebmasterEmail();
-            $this->env['send_as_mail_formated'] = \Phyxo\Functions\Mail::format_email($this->env['send_as_name'], $this->env['send_as_mail_address']);
             // Init mail counter
             $this->env['error_on_mail_count'] = 0;
             $this->env['sent_mail_count'] = 0;
             // Save sendmail message info and error in the original language
-            $this->env['msg_info'] = \Phyxo\Functions\Language::l10n('Mail sent to %s [%s].');
-            $this->env['msg_error'] = \Phyxo\Functions\Language::l10n('Error when sending email to %s [%s].');
+            $this->env['msg_info'] = Language::l10n('Mail sent to %s [%s].');
+            $this->env['msg_error'] = Language::l10n('Error when sending email to %s [%s].');
         }
-    }
-
-    /*
-     * End of use nbm environment
-     * Restore environment
-     *
-     * Return none
-     */
-    public function end_users_env_nbm()
-    {
-        global $user;
-
-        // Restore $user, $lang_info and $lang arrays (include/user.inc.php has been executed)
-        $user = $this->env['save_user'];
-        // Restore current language to stack, necessary because $user change during NBM
-        \Phyxo\Functions\Mail::switch_lang_back();
-
-        if ($this->env['is_to_send_mail']) {
-            unset($this->env['email_format'], $this->env['send_as_name'], $this->env['send_as_mail_address'], $this->env['send_as_mail_formated'], $this->env['msg_info'], $this->env['msg_error']);
-
-            // Don t unset counter
-            //unset($this->env['error_on_mail_count']);
-            //unset($this->env['sent_mail_count']);
-        }
-
-        unset($this->env['save_user'], $this->env['is_to_send_mail']);
-    }
-
-    /*
-     * Set user on nbm enviromnent
-     *
-     * Return none
-     */
-    public function set_user_on_env_nbm(&$nbm_user, $is_action_send)
-    {
-        global $user;
-
-        $user = $this->userMapper->buildUser($nbm_user['user_id'], true);
-
-        \Phyxo\Functions\Mail::switch_lang_to($user['language']);
-
-        if ($is_action_send) {
-            $this->env['mail_template'] = \Phyxo\Functions\Mail::get_mail_template($this->env['email_format']);
-            $this->env['mail_template']->set_filename('notification_by_mail', 'notification_by_mail.tpl');
-        }
-    }
-
-    /*
-     * Unset user on nbm enviromnent
-     *
-     * Return none
-     */
-    public function unset_user_on_env_nbm()
-    {
-        \Phyxo\Functions\Mail::switch_lang_back();
-        unset($this->env['mail_template']);
     }
 
     /*
@@ -505,10 +501,8 @@ class Notification
      */
     public function inc_mail_sent_success($nbm_user)
     {
-        global $page;
-
         $this->env['sent_mail_count'] += 1;
-        $page['infos'][] = sprintf($this->env['msg_info'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+        $this->infos[] = sprintf($this->env['msg_info'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
     }
 
     /*
@@ -518,10 +512,8 @@ class Notification
      */
     public function inc_mail_sent_failed($nbm_user)
     {
-        global $page;
-
         $this->env['error_on_mail_count'] += 1;
-        $page['errors'][] = sprintf($this->env['msg_error'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+        $this->errors[] = sprintf($this->env['msg_error'], stripslashes($nbm_user['username']), $nbm_user['mail_address']);
     }
 
     /*
@@ -531,17 +523,15 @@ class Notification
      */
     public function display_counter_info()
     {
-        global $page;
-
         if ($this->env['error_on_mail_count'] != 0) {
-            $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
+            $this->errors[] = Language::l10n_dec(
                 '%d mail was not sent.',
                 '%d mails were not sent.',
                 $this->env['error_on_mail_count']
             );
 
             if ($this->env['sent_mail_count'] != 0) {
-                $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+                $this->infos[] = Language::l10n_dec(
                     '%d mail was sent.',
                     '%d mails were sent.',
                     $this->env['sent_mail_count']
@@ -549,9 +539,9 @@ class Notification
             }
         } else {
             if ($this->env['sent_mail_count'] == 0) {
-                $page['infos'][] = \Phyxo\Functions\Language::l10n('No mail to send.');
+                $this->infos[] = Language::l10n('No mail to send.');
             } else {
-                $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+                $this->infos[] = Language::l10n_dec(
                     '%d mail was sent.',
                     '%d mails were sent.',
                     $this->env['sent_mail_count']
@@ -560,17 +550,15 @@ class Notification
         }
     }
 
-    public function assign_vars_nbm_mail_content($nbm_user)
+    public function assign_vars_nbm_mail_content($nbm_user): array
     {
-        $this->env['mail_template']->assign(
-            [
-                'USERNAME' => stripslashes($nbm_user['username']),
-                'SEND_AS_NAME' => $this->env['send_as_name'],
-                'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe'),
-                'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe'),
-                'CONTACT_EMAIL' => $this->env['send_as_mail_address']
-            ]
-        );
+        return [
+            'USERNAME' => $nbm_user['username'],
+            'SEND_AS_NAME' => $this->env['send_as_name'],
+            'UNSUBSCRIBE_LINK' => $this->router->generate('notification_unsubscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'SUBSCRIBE_LINK' => $this->router->generate('notification_subscribe', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'CONTACT_EMAIL' => $this->env['send_as_mail_address']
+        ];
     }
 
     /*
@@ -583,18 +571,16 @@ class Notification
      */
     public function do_subscribe_unsubscribe_notification_by_mail($is_admin_request, $is_subscribe = false, $check_key_list = [])
     {
-        global $page;
-
         $check_key_treated = [];
         $updated_data_count = 0;
         $error_on_updated_data_count = 0;
 
         if ($is_subscribe) {
-            $msg_info = \Phyxo\Functions\Language::l10n('User %s [%s] was added to the subscription list.');
-            $msg_error = \Phyxo\Functions\Language::l10n('User %s [%s] was not added to the subscription list.');
+            $msg_info = Language::l10n('User %s [%s] was added to the subscription list.');
+            $msg_error = Language::l10n('User %s [%s] was not added to the subscription list.');
         } else {
-            $msg_info = \Phyxo\Functions\Language::l10n('User %s [%s] was removed from the subscription list.');
-            $msg_error = \Phyxo\Functions\Language::l10n('User %s [%s] was not removed from the subscription list.');
+            $msg_info = Language::l10n('User %s [%s] was removed from the subscription list.');
+            $msg_error = Language::l10n('User %s [%s] was not removed from the subscription list.');
         }
 
         if (count($check_key_list) != 0) {
@@ -603,7 +589,7 @@ class Notification
             $data_users = $this->get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
             // Prepare message after change language
-            $msg_break_timeout = \Phyxo\Functions\Language::l10n('Time to send mail is limited. Others mails are skipped.');
+            $msg_break_timeout = Language::l10n('Time to send mail is limited. Others mails are skipped.');
 
             // Begin nbm users environment
             $this->begin_users_env_nbm(true);
@@ -611,7 +597,7 @@ class Notification
             foreach ($data_users as $nbm_user) {
                 if ($this->check_sendmail_timeout()) {
                     // Stop fill list on 'send', if the quota is override
-                    $page['errors'][] = $msg_break_timeout;
+                    $this->errors[] = $msg_break_timeout;
                     break;
                 }
 
@@ -620,38 +606,27 @@ class Notification
 
                 $do_update = true;
                 if ($nbm_user['mail_address'] != '') {
-                    // set env nbm user
-                    $this->set_user_on_env_nbm($nbm_user, true);
+                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? Language::l10n('Subscribe to notification by mail') : Language::l10n('Unsubscribe from notification by mail'));
 
-                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? \Phyxo\Functions\Language::l10n('Subscribe to notification by mail') : \Phyxo\Functions\Language::l10n('Unsubscribe from notification by mail'));
-
-                    // Assign current var for nbm mail
-                    $this->assign_vars_nbm_mail_content($nbm_user);
+                    $mail_params = [];
+                    $mail_params = $this->assign_vars_nbm_mail_content($nbm_user);
 
                     $section_action_by = ($is_subscribe ? 'subscribe_by_' : 'unsubscribe_by_');
                     $section_action_by .= ($is_admin_request ? 'admin' : 'himself');
-                    $this->env['mail_template']->assign(
-                        [
-                            $section_action_by => true,
-                            'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
-                            'GOTO_GALLERY_URL' => $this->router->generate('homepage'),
-                        ]
-                    );
 
-                    $ret = \Phyxo\Functions\Mail::mail(
+                    $mail_params[$section_action_by] = true;
+
+                    $ret = $this->sendMail(
                         [
-                            'name' => stripslashes($nbm_user['username']),
+                            'name' => $nbm_user['username'],
                             'email' => $nbm_user['mail_address'],
                         ],
                         [
-                            'from' => $this->env['send_as_mail_formated'],
-                            'subject' => $subject,
-                            'email_format' => $this->env['email_format'],
-                            'content' => $this->env['mail_template']->parse('notification_by_mail', true),
-                            'content_format' => $this->env['email_format'],
-                            'email_webmaster' => $this->userMapper->getWebmasterEmail(),
-                            'name_webmaster' => $this->userMapper->getWebmasterUsername(),
-                        ]
+                            'name' => $this->env['send_as_name'],
+                            'email' => $this->env['send_as_mail_address']
+                        ],
+                        $subject,
+                        $mail_params
                     );
 
                     if ($ret) {
@@ -660,9 +635,6 @@ class Notification
                         $this->inc_mail_sent_failed($nbm_user);
                         $do_update = false;
                     }
-
-                    // unset env nbm user
-                    $this->unset_user_on_env_nbm();
                 }
 
                 if ($do_update) {
@@ -671,15 +643,12 @@ class Notification
                         'enabled' => $enabled_value
                     ];
                     $updated_data_count += 1;
-                    $page['infos'][] = sprintf($msg_info, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+                    $this->infos[] = sprintf($msg_info, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
                 } else {
                     $error_on_updated_data_count += 1;
-                    $page['errors'][] = sprintf($msg_error, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
+                    $this->errors[] = sprintf($msg_error, stripslashes($nbm_user['username']), $nbm_user['mail_address']);
                 }
             }
-
-            // Restore nbm environment
-            $this->end_users_env_nbm();
 
             $this->display_counter_info();
 
@@ -693,7 +662,7 @@ class Notification
         }
 
         if ($updated_data_count > 0) {
-            $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
+            $this->infos[] = Language::l10n_dec(
                 '%d user was updated.',
                 '%d users were updated.',
                 $updated_data_count
@@ -701,7 +670,7 @@ class Notification
         }
 
         if ($error_on_updated_data_count != 0) {
-            $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
+            $this->errors[] = Language::l10n_dec(
                 '%d user was not updated.',
                 '%d users were not updated.',
                 $error_on_updated_data_count
@@ -744,8 +713,6 @@ class Notification
      */
     public function do_timeout_treatment($post_keyname, $check_key_treated = [])
     {
-        global $page;
-
         if ($this->env['is_sendmail_timeout']) {
             if (isset($_POST[$post_keyname])) {
                 $post_count = count($_POST[$post_keyname]);
@@ -758,7 +725,7 @@ class Notification
                 $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
 
                 $this->must_repost = true;
-                $page['errors'][] = \Phyxo\Functions\Language::l10n_dec(
+                $this->errors[] = Language::l10n_dec(
                     'Execution time is out, treatment must be continue [Estimated time: %d second].',
                     'Execution time is out, treatment must be continue [Estimated time: %d seconds].',
                     $time_refresh
@@ -770,8 +737,6 @@ class Notification
     // Inserting News users
     public function insert_new_data_user_mail_notification()
     {
-        global $page, $base_url;
-
         // null mail_address are not selected in the list
         $result = (new UserRepository($this->conn))->findUsersWithNoMailNotificationInfos();
         if ($this->conn->db_num_rows($result) > 0) {
@@ -792,7 +757,7 @@ class Notification
                     'enabled' => 'false' // By default if false, set to true with specific functions
                 ];
 
-                $page['infos'][] = \Phyxo\Functions\Language::l10n(
+                $this->infos[] = Language::l10n(
                     'User %s [%s] added.',
                     stripslashes($nbm_user['username']),
                     $nbm_user['mail_address']
@@ -843,8 +808,6 @@ class Notification
      */
     public function do_action_send_mail_notification($action = 'list_to_send', $check_key_list = [], $customize_mail_content = '')
     {
-        global $page;
-
         $return_list = [];
 
         if (in_array($action, ['list_to_send', 'send'])) {
@@ -871,9 +834,9 @@ class Notification
 
                     // Prepare message after change language
                     if ($is_action_send) {
-                        $msg_break_timeout = \Phyxo\Functions\Language::l10n('Time to send mail is limited. Others mails are skipped.');
+                        $msg_break_timeout = Language::l10n('Time to send mail is limited. Others mails are skipped.');
                     } else {
-                        $msg_break_timeout = \Phyxo\Functions\Language::l10n('Prepared time for list of users to send mail is limited. Others users are not listed.');
+                        $msg_break_timeout = Language::l10n('Prepared time for list of users to send mail is limited. Others users are not listed.');
                     }
 
                     // Begin nbm users environment
@@ -882,19 +845,18 @@ class Notification
                     foreach ($data_users as $nbm_user) {
                         if ((!$is_action_send) && $this->check_sendmail_timeout()) {
                             // Stop fill list on 'list_to_send', if the quota is override
-                            $page['infos'][] = $msg_break_timeout;
+                            $this->infos[] = $msg_break_timeout;
                             break;
                         }
                         if (($is_action_send) && $this->check_sendmail_timeout()) {
                             // Stop fill list on 'send', if the quota is override
-                            $page['errors'][] = $msg_break_timeout;
+                            $this->errors[] = $msg_break_timeout;
                             break;
                         }
 
-                        // set env nbm user
-                        $this->set_user_on_env_nbm($nbm_user, $is_action_send);
-
                         if ($is_action_send) {
+                            $tpl_params = [];
+
                             // Fill return list of "treated" check_key for 'send'
                             $return_list[] = $nbm_user['check_key'];
 
@@ -906,28 +868,22 @@ class Notification
                             }
 
                             if ($exist_data) {
-                                $subject = '[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('New photos added');
+                                $subject = '[' . $this->conf['gallery_title'] . '] ' . Language::l10n('New photos added');
 
                                 // Assign current var for nbm mail
-                                $this->assign_vars_nbm_mail_content($nbm_user);
+                                $tpl_params = $this->assign_vars_nbm_mail_content($nbm_user);
 
                                 if (!is_null($nbm_user['last_send'])) {
-                                    $this->env['mail_template']->assign(
-                                        'content_new_elements_between',
-                                        [
-                                            'DATE_BETWEEN_1' => $nbm_user['last_send'],
-                                            'DATE_BETWEEN_2' => $dbnow,
-                                        ]
-                                    );
+                                    $tpl_params['content_new_elements_between'] = [
+                                        'DATE_BETWEEN_1' => $nbm_user['last_send'],
+                                        'DATE_BETWEEN_2' => $dbnow,
+                                    ];
                                 } else {
-                                    $this->env['mail_template']->assign(
-                                        'content_new_elements_single',
-                                        ['DATE_SINGLE' => $dbnow]
-                                    );
+                                    $tpl_params['content_new_elements_single'] = ['DATE_SINGLE' => $dbnow];
                                 }
 
                                 if ($this->conf['nbm_send_detailed_content']) {
-                                    $this->env['mail_template']->assign('global_new_lines', $news);
+                                    $tpl_params['global_new_lines'] = $news;
                                 }
 
                                 $nbm_user_customize_mail_content = \Phyxo\Functions\Plugin::trigger_change(
@@ -936,7 +892,7 @@ class Notification
                                     $nbm_user
                                 );
                                 if (!empty($nbm_user_customize_mail_content)) {
-                                    $this->env['mail_template']->assign('custom_mail_content', $nbm_user_customize_mail_content);
+                                    $tpl_params['custom_mail_content'] = $nbm_user_customize_mail_content;
                                 }
 
                                 if ($this->conf['nbm_send_html_mail'] && $this->conf['nbm_send_recent_post_dates']) {
@@ -944,36 +900,26 @@ class Notification
                                         $this->conf['recent_post_dates']['NBM']
                                     );
                                     foreach ($recent_post_dates as $date_detail) {
-                                        $this->env['mail_template']->append(
-                                            'recent_posts',
-                                            [
-                                                'TITLE' => $this->get_title_recent_post_date($date_detail),
-                                                'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
-                                            ]
-                                        );
+                                        $tpl_params['recent_posts'][] = [
+                                            'TITLE' => $this->get_title_recent_post_date($date_detail),
+                                            'HTML_DATA' => $this->get_html_description_recent_post_date($date_detail, $this->conf['picture_ext'])
+                                        ];
                                     }
                                 }
 
-                                $this->env['mail_template']->assign(
-                                    [
-                                        'GOTO_GALLERY_TITLE' => $this->conf['gallery_title'],
-                                        'GOTO_GALLERY_URL' => $this->router->generate('homepage'),
-                                        'SEND_AS_NAME' => $this->env['send_as_name'],
-                                    ]
-                                );
+                                $tpl_params['SEND_AS_NAME'] = $this->env['send_as_name'];
 
-                                $ret = \Phyxo\Functions\Mail::mail(
+                                $ret = $this->sendMail(
                                     [
-                                        'name' => stripslashes($nbm_user['username']),
+                                        'name' => $nbm_user['username'],
                                         'email' => $nbm_user['mail_address'],
                                     ],
                                     [
-                                        'from' => $this->env['send_as_mail_formated'],
-                                        'subject' => $subject,
-                                        'email_format' => $this->env['email_format'],
-                                        'content' => $this->env['mail_template']->parse('notification_by_mail', true),
-                                        'content_format' => $this->env['email_format'],
-                                    ]
+                                        'name' => $this->env['send_as_name'],
+                                        'email' => $this->env['send_as_mail_address']
+                                    ],
+                                    $subject,
+                                    $tpl_params
                                 );
 
                                 if ($ret) {
@@ -993,13 +939,7 @@ class Notification
                                 $return_list[] = $nbm_user;
                             }
                         }
-
-                        // unset env nbm user
-                        $this->unset_user_on_env_nbm();
                     }
-
-                    // Restore nbm environment
-                    $this->end_users_env_nbm();
 
                     if ($is_action_send) {
                         (new UserMailNotificationRepository($this->conn))->massUpdates(
@@ -1014,7 +954,7 @@ class Notification
                     }
                 } else {
                     if ($is_action_send) {
-                        $page['errors'][] = \Phyxo\Functions\Language::l10n('No user to send notifications by mail.');
+                        $this->errors[] = Language::l10n('No user to send notifications by mail.');
                     }
                 }
             } else {
@@ -1027,5 +967,43 @@ class Notification
         // Return list of "selected" users for 'list_to_send'
         // Return list of "treated" check_key for 'send'
         return $return_list;
+    }
+
+    protected function sendMail(array $to, array $from, string $subject, array $params)
+    {
+        $user = $this->userProvider->loadUserByUsername('guest');
+
+        $language_load = Language::load_language(
+            'common.lang',
+            __DIR__ . '/../',
+            ['language' => $user->getLanguage(), 'return_vars' => true]
+        );
+
+        $this->template->setLang($language_load['lang']);
+        $this->template->setLangInfo($language_load['lang_info']);
+
+        $tpl_params = [
+            'MAIL_TITLE' => $subject,
+            'MAIL_THEME' => $this->conf['mail_theme'],
+            'GALLERY_TITLE' => $this->conf['gallery_title'],
+            'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            'lang_info' => $language_load['lang_info'],
+            'LEVEL_SEPARATOR' => $this->conf['level_separator'],
+            'CONTENT_ENCODING' => 'utf-8',
+            'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
+            'PHYXO_URL' => $this->phyxoWebsite,
+        ];
+
+        $tpl_params = array_merge($tpl_params, $params);
+
+        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . $subject))
+            ->addTo($to['email'], $to['name'])
+            ->setBody($this->template->render('mail/text/notification.text.tpl', $tpl_params), 'text/plain')
+            ->addPart($this->template->render('mail/html/notification.html.tpl', $tpl_params), 'text/html');
+
+        $message->setFrom($from['email'], $from['name']);
+        $message->setReplyTo($from['email'], $from['name']);
+
+        return $this->mailer->send($message);
     }
 }

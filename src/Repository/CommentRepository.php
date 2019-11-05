@@ -118,7 +118,7 @@ class CommentRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
-    public function countAuthorMessageNewerThan(int $author_id, string $reference_date, int $anonymous_id = null)
+    public function countAuthorMessageNewerThan(int $author_id, string $reference_date, string $anonymous_id = null)
     {
         $query = 'SELECT count(1) FROM ' . self::COMMENTS_TABLE;
         $query .= ' WHERE date > ' . $reference_date . ' AND author_id = ' . $this->conn->db_real_escape_string($author_id);
@@ -133,7 +133,10 @@ class CommentRepository extends BaseRepository
 
     public function addComment(array $values)
     {
-        $fields = ['author', 'author_id', 'anonymous_id', 'content', 'date', 'validated', 'validation_date', 'image_id', 'website_url', 'email'];
+        $fields = ['author', 'author_id', 'anonymous_id', 'content', 'date', 'validated', 'image_id', 'website_url', 'email'];
+        if (!empty($values['validated'])) {
+            $fields[] = 'validation_date';
+        }
 
         $query = 'INSERT INTO ' . self::COMMENTS_TABLE;
         $query .= ' (' . implode(',', $fields) . ')';
@@ -144,10 +147,12 @@ class CommentRepository extends BaseRepository
         $query .= "'" . $this->conn->db_real_escape_string($values['content']) . "',";
         $query .= $values['date'] . ",";
         $query .= "'" . $this->conn->boolean_to_db($values['validated']) . "',";
-        $query .= $values['validation_date'] . ",";
         $query .= $values['image_id'] . ",";
         $query .= "'" . $this->conn->db_real_escape_string($values['website_url']) . "',";
         $query .= "'" . $this->conn->db_real_escape_string($values['email']) . "'";
+        if (!empty($values['validated'])) {
+            $query .= ', now()';
+        }
         $query .= ')';
         $this->conn->db_query($query);
 
@@ -207,8 +212,10 @@ class CommentRepository extends BaseRepository
         $query = 'UPDATE ' . self::COMMENTS_TABLE;
         $query .= ' SET content = \'' . $this->conn->db_real_escape_string($comment['content']) . '\',';
         $query .= ' website_url = \'' . $this->conn->db_real_escape_string($comment['website_url']) . '\',';
-        $query .= ' validated = \'' . $this->conn->boolean_to_db($comment['validated']) . '\',';
-        $query .= ' validation_date = ' . $comment['validation_date'];
+        $query .= ' validated = \'' . $this->conn->boolean_to_db($comment['validated']) . '\'';
+        if (!empty($comment['validated'])) {
+            $query .= ', validation_date = now()';
+        }
         $query .= ' WHERE id = ' . $this->conn->db_real_escape_string($comment['comment_id']);
         $query .= $user_where_clause;
 
