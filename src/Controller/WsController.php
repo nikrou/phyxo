@@ -16,6 +16,7 @@ use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\ImageMapper;
 use Phyxo\Ws\Server;
 use Phyxo\Ws\Protocols\RestRequestHandler;
 use Phyxo\Ws\Protocols\JsonEncoder;
@@ -39,7 +40,8 @@ class WsController extends AbstractController
 
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
-                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel, string $pemURL, Security $security, ParameterBagInterface $params)
+                           string $phyxoVersion, ImageStandardParams $image_std_params, KernelInterface $kernel, string $pemURL, Security $security, ParameterBagInterface $params,
+                           ImageMapper $imageMapper)
     {
         $this->service = new Server($kernel->getUploadDir());
         $this->service->addUserMapper($userMapper);
@@ -48,6 +50,7 @@ class WsController extends AbstractController
         $this->service->addCategoryMapper($categoryMapper);
         $this->service->addRateMapper($rateMapper);
         $this->service->addSearchMapper($searchMapper);
+        $this->service->addImageMapper($imageMapper);
         $this->service->setHandler(new RestRequestHandler());
         $this->service->setEncoder(new JsonEncoder());
         $this->service->setCoreVersion($phyxoVersion);

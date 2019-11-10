@@ -1116,7 +1116,7 @@ class Image
             }
         }
 
-        $number_of_elements_deleted = \Phyxo\Functions\Utils::delete_elements($image_ids, true);
+        $number_of_elements_deleted = $service->getImageMapper()->deleteElements($image_ids, true);
         $service->getUserMapper()->invalidateUserCache();
 
         return $number_of_elements_deleted;
@@ -1355,7 +1355,7 @@ class Image
             }
 
             // delete all physical files related to the photo (thumbnail, web site, HD)
-            \Phyxo\Functions\Utils::delete_element_files([$image_id]);
+            $service->getImageMapper()->deleteElementFiles([$image_id]);
         } else {
             // this photo is new current date. @TODO: really need a query for that ?
             $now = (new BaseRepository($service->getConnection()))->getNow();

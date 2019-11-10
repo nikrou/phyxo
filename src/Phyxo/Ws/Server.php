@@ -16,6 +16,7 @@ use Phyxo\Ws\Error;
 use App\DataMapper\TagMapper;
 use App\DataMapper\CommentMapper;
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\DBLayer\iDBLayer;
@@ -31,7 +32,7 @@ use Symfony\Component\Security\Core\Security;
 
 class Server
 {
-    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $phyxoVersion, $conn,
+    private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
             $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params;
 
     private $_requestHandler;
@@ -116,6 +117,16 @@ class Server
     public function getUserMapper()
     {
         return $this->userMapper;
+    }
+
+    public function addImageMapper(ImageMapper $imageMapper)
+    {
+        $this->imageMapper = $imageMapper;
+    }
+
+    public function getImageMapper()
+    {
+        return $this->imageMapper;
     }
 
     public function addCategoryMapper(CategoryMapper $categoryMapper)

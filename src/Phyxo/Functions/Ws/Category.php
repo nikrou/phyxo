@@ -541,7 +541,34 @@ class Category
             return;
         }
 
-        $service->getCategoryMapper()->deleteCategories($category_ids, $params['photo_deletion_mode']);
+        $service->getCategoryMapper()->deleteCategories($category_ids);
+
+        // now, should we delete photos that are virtually linked to the category?
+        if ($params['photo_deletion_mode'] === 'delete_orphans' || $params['photo_deletion_mode'] === 'force_delete') {
+            $result = $service->getEntityManager()->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($category_ids);
+            $image_ids_linked = $service->getEntityManager()->getConnection()->result2array($result, null, 'image_id');
+
+            if (count($image_ids_linked) > 0) {
+                if ($params['photo_deletion_mode'] === 'delete_orphans') {
+                    $result = $$service->getEntityManager->getRepository(ImageCategoryRepository::class)->getImageIdsNotOrphans($image_ids_linked, $category_ids);
+
+                    $image_ids_not_orphans = $service->getEntityManager()->getConnection()->result2array($result, null, 'image_id');
+                    $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
+                }
+
+                if ($params['photo_deletion_mode'] === 'force_delete') {
+                    $image_ids_to_delete = $image_ids_linked;
+                }
+
+                $service->getImageMapper()->deleteElements($image_ids_to_delete, true);
+            }
+        }
+
+        // destruction of all photos physically linked to the category
+        $result = $service->getEntityManager()->getRepository(ImageRepository::class)->findByFields('storage_category_id', $category_ids);
+        $element_ids = $service->getEntityManager()->getConnection()->result2array($result, null, 'id');
+        $service->getImageMapper()->deleteElements($element_ids);
+
         $service->getCategoryMapper()->updateGlobalRank();
     }
 

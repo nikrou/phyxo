@@ -92,48 +92,6 @@ class Category
     }
 
     /**
-     * Verifies that the representative picture really exists in the db and
-     * picks up a random representative if possible and based on config.
-     *
-     * @param 'all'|int|int[] $ids
-     */
-    public static function update_category($ids = 'all')
-    {
-        global $conf, $conn;
-
-        trigger_error('update_category is deprecated. Use CategoryMapper::updateCategory instead', E_USER_DEPRECATED);
-
-        if ($ids == 'all') {
-            $where_cats = '1=1';
-        } elseif (!is_array($ids)) {
-            $where_cats = '%s=' . $ids;
-        } else {
-            if (count($ids) == 0) {
-                return false;
-            }
-            $where_cats = '%s ' . $conn->in($ids);
-        }
-
-        // find all categories where the setted representative is not possible : the picture does not exist
-        $wrong_representant = $conn->result2array((new CategoryRepository($conn))->findWrongRepresentant($where_cats), null, 'id');
-
-        if (count($wrong_representant) > 0) {
-            (new CategoryRepository($conn))->updateCategories(['representative_picture_id' => null], $wrong_representant);
-        }
-
-        if (!$conf['allow_random_representative']) {
-            // If the random representant is not allowed, we need to find
-            // categories with elements and with no representant. Those categories
-            // must be added to the list of categories to set to a random
-            // representant.
-            $to_rand = $conn->result2array((new CategoryRepository($conn))->findRandomRepresentant($where_cats), null, 'id');
-            if (count($to_rand) > 0) {
-                \Phyxo\Functions\Utils::set_random_representant($to_rand);
-            }
-        }
-    }
-
-    /**
      * Finds a matching category id from a potential list of permalinks
      *
      * @param string[] $permalinks

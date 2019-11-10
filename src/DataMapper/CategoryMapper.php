@@ -428,17 +428,11 @@ class CategoryMapper
     /**
      * Recursively deletes one or more categories.
      * It also deletes :
-     *    - all the elements physically linked to the category (with delete_elements)
+     *    - all the elements physically linked to the category (with ImageMapper::deleteElements)
      *    - all the links between elements and this category
      *    - all the restrictions linked to the category
-     *
-     * @param int[] $ids
-     * @param string $photo_deletion_mode
-     *    - no_delete : delete no photo, may create orphans
-     *    - delete_orphans : delete photos that are no longer linked to any category
-     *    - force_delete : delete photos even if they are linked to another category
      */
-    public function deleteCategories(array $ids, $photo_deletion_mode = 'no_delete')
+    public function deleteCategories(array $ids = [])
     {
         if (count($ids) == 0) {
             return;
@@ -447,32 +441,6 @@ class CategoryMapper
         // add sub-category ids to the given ids : if a category is deleted, all
         // sub-categories must be so
         $ids = array_merge($ids, $this->em->getRepository(CategoryRepository::class)->getSubcatIds($ids));
-
-        // destruction of all photos physically linked to the category
-        $result = $this->em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $ids);
-        $element_ids = $this->em->getConnection()->result2array($result, null, 'id');
-        \Phyxo\Functions\Utils::delete_elements($element_ids);
-
-        // now, should we delete photos that are virtually linked to the category?
-        if ($photo_deletion_mode === 'delete_orphans' || $photo_deletion_mode === 'force_delete') {
-            $result = $this->em->getRepository(ImageCategoryRepository::class)->getImageIdsLinked($ids);
-            $image_ids_linked = $this->em->getConnection()->result2array($result, null, 'image_id');
-
-            if (count($image_ids_linked) > 0) {
-                if ($photo_deletion_mode === 'delete_orphans') {
-                    $result = $this->em->getRepository(ImageCategoryRepository::class)->getImageIdsNotOrphans($image_ids_linked, $ids);
-
-                    $image_ids_not_orphans = $this->em->getConnection()->result2array($result, null, 'image_id');
-                    $image_ids_to_delete = array_diff($image_ids_linked, $image_ids_not_orphans);
-                }
-
-                if ($photo_deletion_mode === 'force_delete') {
-                    $image_ids_to_delete = $image_ids_linked;
-                }
-
-                \Phyxo\Functions\Utils::delete_elements($image_ids_to_delete, true);
-            }
-        }
 
         // destruction of the links between images and this category
         $this->em->getRepository(ImageCategoryRepository::class)->deleteByCategory($ids);
@@ -486,8 +454,6 @@ class CategoryMapper
 
         $this->em->getRepository(OldPermalinkRepository::class)->deleteByCatIds($ids);
         $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserCatIds($ids);
-
-        \Phyxo\Functions\Plugin::trigger_notify('CategoryMapper::deleteCategories', $ids);
     }
 
     /**

@@ -12,6 +12,7 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\ImageMapper;
 use App\DataMapper\UserMapper;
 use App\Events\GroupEvent;
 use App\Repository\CategoryRepository;
@@ -648,9 +649,14 @@ class AlbumController extends AdminCommonController
         return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, int $parent_id = null, CategoryMapper $categoryMapper, UserMapper $userMapper)
+    public function delete(int $album_id, int $parent_id = null, EntityManager $em, CategoryMapper $categoryMapper, ImageMapper $imageMapper, UserMapper $userMapper)
     {
         $categoryMapper->deleteCategories([$album_id]);
+
+        // destruction of all photos physically linked to the category
+        $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', [$album_id]);
+        $element_ids = $em->getConnection()->result2array($result, null, 'id');
+        $imageMapper->deleteElements($element_ids);
 
         $this->addFlash('info', Language::l10n('Virtual album deleted'));
         $categoryMapper->updateGlobalRank();

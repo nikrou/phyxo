@@ -111,37 +111,6 @@ class UserInfos implements \ArrayAccess
         return $this->infos['last_photo_date'] ?? null;
     }
 
-    /**
-     * return an array which will be sent to template to display recent icon
-     *
-     * @param string $date
-     * @param bool $is_child_date
-     * @return array
-     */
-    public function getIcon(\DateTime $date = null, $is_child_date = false)
-    {
-        if ($date === null) {
-            return [];
-        }
-
-        $icon = [
-            'TITLE' => \Phyxo\Functions\Language::l10n(
-                'photos posted during the last %d days',
-                $this->getRecentPeriod()
-            ),
-            'IS_CHILD_DATE' => $is_child_date,
-        ];
-
-        $now = new \DateTime('now');
-        $sql_recent_date = $now->sub(new \DateInterval(sprintf('P%dD', $this->getRecentPeriod())));
-
-        if ($date > $sql_recent_date) {
-            return $icon;
-        } else {
-            return [];
-        }
-    }
-
     public function getForbiddenCategories(): array
     {
         return $this->forbidden_categories;

@@ -12,7 +12,9 @@
 namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
+use App\DataMapper\ImageMapper;
 use App\Repository\CategoryRepository;
+use App\Repository\ImageRepository;
 use App\Repository\SiteRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
@@ -103,7 +105,7 @@ class SiteController extends AdminCommonController
         return $this->render('site_manager.tpl', $tpl_params);
     }
 
-    public function delete(Request $request, EntityManager $em, CategoryMapper $categoryMapper)
+    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper)
     {
         $site = $request->request->get('site');
 
@@ -115,6 +117,12 @@ class SiteController extends AdminCommonController
             $result = $em->getRepository(CategoryRepository::class)->findByField('site_id', $site);
             $category_ids = $em->getConnection()->result2array($result, null, 'id');
             $categoryMapper->deleteCategories($category_ids);
+
+            // destruction of all photos physically linked to the category
+            $result = $em->getRepository(ImageRepository::class)->findByFields('storage_category_id', $category_ids);
+            $element_ids = $em->getConnection()->result2array($result, null, 'id');
+            $imageMapper->deleteElements($element_ids);
+
             $em->getRepository(SiteRepository::class)->deleteSite($site);
             $this->addFlash('info', $galleries_url . ' ' . Language::l10n('deleted'));
         }

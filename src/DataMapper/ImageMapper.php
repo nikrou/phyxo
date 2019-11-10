@@ -240,8 +240,6 @@ class ImageMapper
             return 0;
         }
 
-        \Phyxo\Functions\Plugin::trigger_notify('begin_delete_elements', $ids);
-
         if ($physical_deletion) {
             $ids = $this->deleteElementFiles($ids);
             if (count($ids) == 0) {
