@@ -173,4 +173,23 @@ class BaseRepository
             $force_one_condition
         );
     }
+
+    public function getIcon(string $date, UserInterface $user, bool $is_child_date = false): array
+    {
+        if (empty($date)) {
+            return [];
+        }
+
+        if (empty($this->sql_recent_date)) {
+            $this->sql_recent_date = $this->em->getConnection()->db_get_recent_period($user->getRecentPeriod());
+        }
+
+        $icon = [
+            'TITLE' => Language::l10n('photos posted during the last %d days', $user->getRecentPeriod()),
+            'IS_CHILD_DATE' => $is_child_date,
+            'sql_recent_date' => $this->sql_recent_date
+        ];
+
+        return ($date > $icon['sql_recent_date']) ? $icon : [];
+    }
 }

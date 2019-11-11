@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Repository\BaseRepository;
 use App\Repository\CategoryRepository;
 use Phyxo\Functions\Category;
 use Phyxo\EntityManager;
@@ -107,9 +108,9 @@ class CategoryMapper
                     'IS_UPPERCAT' => isset($selected_category['id_uppercat']) && $selected_category['id_uppercat'] === $row['id'] ? true : false,
                 ]
             );
-            // if ($this->conf['index_new_icon']) {
-            //     $row['icon_ts'] = \Phyxo\Functions\Utils::get_icon($row['max_date_last'], $child_date_last);
-            // }
+            if ($this->conf['index_new_icon']) {
+                $row['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['max_date_last'], $user, $child_date_last);
+            }
             $cats[$row['id']] = $row;
         }
         uasort($cats, '\Phyxo\Functions\Utils::global_rank_compare');

@@ -1,6 +1,7 @@
 # Phyxo 2.0.0 - YYYY-MM-DD
 
-- nothing yet
+- move all administration URL under symfony routing. Fix #34.
+- remove deprecated functions/methods : delete_elements, delete_element_files, safe_version_compare, get_icon, get_moment, create_navigation_bar
 
 # Phyxo 1.10.3 - 2019-10-24
 

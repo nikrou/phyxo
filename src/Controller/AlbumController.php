@@ -204,7 +204,7 @@ class AlbumController extends CommonController
                 ]);
 
                 if ($conf['index_new_icon']) {
-                    $tpl_var['icon_ts'] = $imageMapper->getIcon($category['max_date_last'], $category['is_child_date_last']);
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
                 }
 
                 if ($conf['display_fromto']) {
@@ -592,7 +592,7 @@ class AlbumController extends CommonController
                 ]);
 
                 if ($conf['index_new_icon']) {
-                    $tpl_var['icon_ts'] = $imageMapper->getIcon($category['max_date_last'], $category['is_child_date_last']);
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
                 }
 
                 if ($conf['display_fromto']) {
@@ -824,7 +824,7 @@ class AlbumController extends CommonController
                 ]);
 
                 if ($conf['index_new_icon']) {
-                    $tpl_var['icon_ts'] = $imageMapper->getIcon($category['max_date_last'], $category['is_child_date_last']);
+                    $tpl_var['icon_ts'] = $em->getRepository(BaseRepository::class)->getIcon($category['max_date_last'], $this->getUser(), $category['is_child_date_last']);
                 }
 
                 if ($conf['display_fromto']) {

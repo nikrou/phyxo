@@ -11,6 +11,7 @@
 
 namespace App\DataMapper;
 
+use App\Repository\BaseRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
@@ -32,7 +33,6 @@ use Symfony\Component\Filesystem\Filesystem;
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper;
-    private $sql_recent_date;
 
     public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper)
     {
@@ -176,7 +176,7 @@ class ImageMapper
             ]);
 
             if ($this->conf['index_new_icon']) {
-                $tpl_var['icon_ts'] = $this->getIcon($row['date_available']);
+                $tpl_var['icon_ts'] = $this->em->getRepository(BaseRepository::class)->getIcon($row['date_available'], $this->userMapper->getUser());
             }
 
             if ($this->userMapper->getUser()->getShowNbHits()) {
@@ -201,25 +201,6 @@ class ImageMapper
         );
 
         return $tpl_params;
-    }
-
-    public function getIcon(string $date, bool $is_child_date = false): array
-    {
-        if (empty($date)) {
-            return [];
-        }
-
-        if (empty($this->sql_recent_date)) {
-            $this->sql_recent_date = $this->em->getConnection()->db_get_recent_period($this->userMapper->getUser()->getRecentPeriod());
-        }
-
-        $icon = [
-            'TITLE' => Language::l10n('photos posted during the last %d days', $this->userMapper->getUser()->getRecentPeriod()),
-            'IS_CHILD_DATE' => $is_child_date,
-            'sql_recent_date' => $this->sql_recent_date
-        ];
-
-        return ($date > $icon['sql_recent_date']) ? $icon : [];
     }
 
     /**

@@ -116,21 +116,6 @@ class Utils
     }
 
     /**
-     * returns a float value coresponding to the number of seconds since
-     * the unix epoch (1st January 1970) and the microseconds are precised
-     * e.g. 1052343429.89276600
-     *
-     * @deprecated since 1.9.0 and will be removed in 1.10 or 2.0
-     * @return float
-     */
-    public static function get_moment()
-    {
-        trigger_error('get_moment function is deprecated. Use microtime instead.', E_USER_DEPRECATED);
-
-        return microtime(true);
-    }
-
-    /**
      * returns the number of seconds (with 3 decimals precision)
      * between the start time and the end time given
      *
@@ -529,108 +514,6 @@ class Utils
         return $navbar;
     }
 
-    /**
-     * return an array which will be sent to template to display navigation bar
-     *
-     * @param string $url base url of all links
-     * @param int $nb_elements
-     * @param int $start
-     * @param int $nb_element_page
-     * @param bool $clean_url
-     * @param string $param_name
-     * @return array
-     */
-    public static function create_navigation_bar($url, $nb_element, $start, $nb_element_page, $clean_url = false, $param_name = 'start')
-    {
-        global $conf;
-
-        trigger_error('create_navigation_bar function is deprecated. Use createNavigationBar that used symfony router instead.', E_USER_DEPRECATED);
-
-        $navbar = [];
-        $pages_around = $conf['paginate_pages_around'];
-        $start_str = $clean_url ? '/' . $param_name . '-' : (strpos($url, '?') === false ? '?' : '&amp;') . $param_name . '=';
-
-        if (!isset($start) or !is_numeric($start) or (is_numeric($start) and $start < 0)) {
-            $start = 0;
-        }
-
-        // navigation bar useful only if more than one page to display !
-        if ($nb_element > $nb_element_page) {
-            $url_start = $url . $start_str;
-
-            $cur_page = $navbar['CURRENT_PAGE'] = $start / $nb_element_page + 1;
-            $maximum = ceil($nb_element / $nb_element_page);
-
-            $start = $nb_element_page * round($start / $nb_element_page);
-            $previous = $start - $nb_element_page;
-            $next = $start + $nb_element_page;
-            $last = ($maximum - 1) * $nb_element_page;
-
-            // link to first page and previous page?
-            if ($cur_page != 1) {
-                $navbar['URL_FIRST'] = $url;
-                $navbar['URL_PREV'] = $previous > 0 ? $url_start . $previous : $url;
-            }
-            // link on next page and last page?
-            if ($cur_page != $maximum) {
-                $navbar['URL_NEXT'] = $url_start . ($next < $last ? $next : $last);
-                $navbar['URL_LAST'] = $url_start . $last;
-            }
-
-            // pages to display
-            $navbar['pages'] = [];
-            $navbar['pages'][1] = $url;
-            for ($i = max(floor($cur_page) - $pages_around, 2), $stop = min(ceil($cur_page) + $pages_around + 1, $maximum); $i < $stop; $i++) {
-                $navbar['pages'][$i] = $url . $start_str . (($i - 1) * $nb_element_page);
-            }
-            $navbar['pages'][$maximum] = $url_start . $last;
-            $navbar['NB_PAGE'] = $maximum;
-        }
-
-        return $navbar;
-    }
-
-    /**
-     * return an array which will be sent to template to display recent icon
-     *
-     * @param string $date
-     * @param bool $is_child_date
-     * @return array
-     */
-    public static function get_icon($date, $is_child_date = false)
-    {
-        global $cache, $user, $conn;
-
-        if (empty($date)) {
-            return false;
-        }
-
-        if (!isset($cache['get_icon']['title'])) {
-            $cache['get_icon']['title'] = \Phyxo\Functions\Language::l10n(
-                'photos posted during the last %d days',
-                $user['recent_period']
-            );
-        }
-
-        $icon = [
-            'TITLE' => $cache['get_icon']['title'],
-            'IS_CHILD_DATE' => $is_child_date,
-        ];
-
-        if (isset($cache['get_icon'][$date])) {
-            return $cache['get_icon'][$date] ? $icon : [];
-        }
-
-        if (!isset($cache['get_icon']['sql_recent_date'])) {
-            // Use MySql date in order to standardize all recent "actions/queries" ???
-            $cache['get_icon']['sql_recent_date'] = $conn->db_get_recent_period($user['recent_period']);
-        }
-
-        $cache['get_icon'][$date] = $date > $cache['get_icon']['sql_recent_date'];
-
-        return $cache['get_icon'][$date] ? $icon : [];
-    }
-
     /*
      * breaks the script execution if the given value doesn't match the given
      * pattern. This should happen only during hacking attempts.
@@ -767,40 +650,6 @@ class Utils
     public static function email_check_format($mail_address)
     {
         return filter_var($mail_address, FILTER_VALIDATE_EMAIL) !== false;
-    }
-
-    /**
-     * Compare two versions with version_compare after having converted
-     * single chars to their decimal values.
-     * Needed because version_compare does not understand versions like '2.5.c'.
-     *
-     * @param string $a
-     * @param string $b
-     * @param string $op
-     *
-     * @deprecated since 1.9.0 and will be removed in 1.10 or 2.0
-     */
-    public static function safe_version_compare($a, $b, $op = null)
-    {
-        trigger_error('safe_version_compare function is deprecated. Use version_compare instead.', E_USER_DEPRECATED);
-
-        $replace_chars = function ($m) {
-            return ord(strtolower($m[1]));
-        };
-
-        // add dot before groups of letters (version_compare does the same thing)
-        $a = preg_replace('#([0-9]+)([a-z]+)#i', '$1.$2', $a);
-        $b = preg_replace('#([0-9]+)([a-z]+)#i', '$1.$2', $b);
-
-        // apply ord() to any single letter
-        $a = preg_replace_callback('#\b([a-z]{1})\b#i', $replace_chars, $a);
-        $b = preg_replace_callback('#\b([a-z]{1})\b#i', $replace_chars, $b);
-
-        if (empty($op)) {
-            return version_compare($a, $b);
-        } else {
-            return version_compare($a, $b, $op);
-        }
     }
 
     /**
