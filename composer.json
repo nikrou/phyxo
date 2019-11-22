@@ -13,7 +13,6 @@
     "require": {
         "php": ">=7.1.0",
         "guzzlehttp/guzzle": "^6.3",
-        "ircmaxell/password-compat": "^1.0",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
         "pelago/emogrifier": "^2.0",
@@ -68,6 +67,7 @@
         }
     },
     "scripts": {
+	"phpstan": "phpstan analyse src",
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"

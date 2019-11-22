@@ -92,9 +92,6 @@
     "instaclick/php-webdriver": {
         "version": "1.4.5"
     },
-    "ircmaxell/password-compat": {
-        "version": "v1.0.4"
-    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },

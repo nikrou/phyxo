@@ -12,6 +12,7 @@
 namespace App\Repository;
 
 use Phyxo\DBLayer\iDBLayer;
+use Phyxo\Functions\Language;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class BaseRepository
@@ -48,6 +49,7 @@ class BaseRepository
     const LANGUAGES_TABLE = 'phyxo_languages';
 
     protected $conn = null;
+    protected $sql_recent_date;
 
     public function __construct(iDBLayer $conn)
     {
@@ -181,7 +183,7 @@ class BaseRepository
         }
 
         if (empty($this->sql_recent_date)) {
-            $this->sql_recent_date = $this->em->getConnection()->db_get_recent_period($user->getRecentPeriod());
+            $this->sql_recent_date = $this->conn->db_get_recent_period($user->getRecentPeriod());
         }
 
         $icon = [

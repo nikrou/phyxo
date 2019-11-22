@@ -16,7 +16,7 @@ This project uses a database and support Mysql, PostgreSQL and SQLite engines.
 
 ### Manual
 
-[Download](https://download.phyxo.net/) the latest stable version and unarchive it.
+[Download](https://download.phyxo.net/?C=M;O=A) the latest stable version and unarchive it.
 Transfer the content to your web space with any FTP client.
 Open your website and install database and first user through web interface.
 
@@ -32,6 +32,7 @@ Download the [`composer.phar`](https://getcomposer.org/composer.phar) executable
 
 ```sh
 $ curl -sS https://getcomposer.org/installer | php
+$ mv composer.phar composer
 ```
 
 Update dependencies via composer :
