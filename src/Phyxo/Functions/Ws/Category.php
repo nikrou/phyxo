@@ -171,9 +171,8 @@ class Category
              * categories that are either locked or private and not permitted
              *
              * calculatePermissions does not consider empty categories as forbidden
-             * @TODO : modify calculatePermissions. It must return an array to apply DBLayer::in
              */
-            $forbidden_categories = $service->getUserMapper()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->isAdmin());
+            $forbidden_categories = $service->getUserProvider()->calculatePermissions($service->getUserMapper()->getUser()->getId(), $service->getUserMapper()->isAdmin());
             if (!empty($forbidden_categories)) {
                 $where[] = 'id NOT IN (' . $forbidden_categories . ')';
             }

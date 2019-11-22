@@ -19,6 +19,7 @@ use App\Repository\ImageRepository;
 use App\Repository\SearchRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
+use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
@@ -37,8 +38,10 @@ class HistoryController extends AdminCommonController
 {
     private $image_std_params, $types, $display_thumbnails;
 
-    public function __construct(ImageStandardParams $image_std_params)
+    public function __construct(ImageStandardParams $image_std_params, UserProvider $userProvider)
     {
+        parent::__construct($userProvider);
+
         $this->image_std_params = $image_std_params;
 
         $this->types = ['none', 'picture', 'high', 'other'];

@@ -30,6 +30,15 @@ class UserRepository extends BaseRepository
         return $this->conn->db_query($query);
     }
 
+    public function findByUsernameWithRoles(string $username)
+    {
+        $query = 'SELECT id, username, password, mail_address, status FROM ' . self::USERS_TABLE;
+        $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
+        $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
+
+        return $this->conn->db_query($query);
+    }
+
     public function findByEmail(string $mail_address)
     {
         $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
@@ -48,7 +57,7 @@ class UserRepository extends BaseRepository
 
     public function findByActivationKey(string $key)
     {
-        $query = 'SELECT id, username, password, mail_address FROM ' . self::USERS_TABLE;
+        $query = 'SELECT id, username, password, mail_address, status FROM ' . self::USERS_TABLE;
         $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
         $query .= ' WHERE activation_key = \'' . $this->conn->db_real_escape_string($key) . '\'';
         $query .= ' AND activation_key_expire >= now()';

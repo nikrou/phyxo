@@ -21,6 +21,7 @@ use App\Repository\ImageRepository;
 use App\Repository\RateRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
+use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
@@ -46,7 +47,7 @@ class PhotoController extends AdminCommonController
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider)
     {
         $tpl_params = [];
 
@@ -190,7 +191,7 @@ class PhotoController extends AdminCommonController
         $result = $em->getRepository(ImageCategoryRepository::class)->findByImageId($image_id);
         $authorizeds = array_diff(
             $em->getConnection()->result2array($result, null, 'category_id'),
-            explode(',', $userMapper->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus()))
+            $userProvider->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus())
         );
 
         $url_img = '';
@@ -227,7 +228,7 @@ class PhotoController extends AdminCommonController
         return $this->render('photo_properties.tpl', $tpl_params);
     }
 
-    public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper)
+    public function delete(int $image_id, int $category_id = null, EntityManager $em, UserMapper $userMapper, ImageMapper $imageMapper, UserProvider $userProvider)
     {
         $imageMapper->deleteElements([$image_id], true);
         $userMapper->invalidateUserCache();
@@ -244,7 +245,7 @@ class PhotoController extends AdminCommonController
         $result = $em->getRepository(ImageCategoryRepository::class)->findByImageId($image_id);
         $authorizeds = array_diff(
             $em->getConnection()->resulty2array($result, null, 'category_id'),
-            explode(',', $userMapper->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus()))
+            $userProvider->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus())
         );
 
         if (!empty($authorizeds)) {

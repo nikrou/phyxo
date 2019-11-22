@@ -25,6 +25,7 @@ use App\DataMapper\RateMapper;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\DataMapper\SearchMapper;
+use App\Security\UserProvider;
 use App\Utils\UserManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -33,7 +34,7 @@ use Symfony\Component\Security\Core\Security;
 class Server
 {
     private $upload_dir, $tagMapper, $commentMapper, $userMapper, $categoryMapper, $rateMapper, $searchMapper, $imageMapper, $phyxoVersion, $conn,
-            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params;
+            $em, $conf, $router, $image_std_params, $userManager, $passwordEncoder, $pem_url, $security, $params, $userProvider;
 
     private $_requestHandler;
     private $_requestFormat;
@@ -227,6 +228,16 @@ class Server
     public function getUserManager()
     {
         return $this->userManager;
+    }
+
+    public function setUserProvider(UserProvider $userProvider)
+    {
+        $this->userProvider = $userProvider;
+    }
+
+    public function getUserProvider()
+    {
+        return $this->userProvider;
     }
 
     public function setPasswordEncoder(UserPasswordEncoderInterface $passwordEncoder)

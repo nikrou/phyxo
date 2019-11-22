@@ -15,6 +15,7 @@ use App\DataMapper\UserMapper;
 use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
+use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Functions\Language;
@@ -32,8 +33,10 @@ class ConfigurationController extends AdminCommonController
 {
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
 
-    public function __construct()
+    public function __construct(UserProvider $userProvider)
     {
+        parent::__construct($userProvider);
+
         $this->main_checkboxes = [
             'allow_user_registration',
             'obligatory_user_mail_address',
@@ -386,7 +389,7 @@ class ConfigurationController extends AdminCommonController
 
         $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
         $themes = $em->getConnection()->result2array($em->getRepository(ThemeRepository::class)->findAll(), 'id', 'name');
-        $userdata = $userMapper->buildUser($conf['guest_id'], false);
+        $userdata = $this->userProvider->getUserData($conf['guest_id'], false);
 
         $tpl_params['radio_options'] = [
             'true' => Language::l10n('Yes'),
@@ -500,7 +503,7 @@ class ConfigurationController extends AdminCommonController
             } elseif ($section === 'default') {
                 $languages = $em->getConnection()->result2array($em->getRepository(LanguageRepository::class)->findAll(), 'id', 'name');
                 $themes = $em->getConnection()->result2array($em->getRepository(ThemeRepository::class)->findAll(), 'id', 'name');
-                $userdata = $userMapper->buildUser($conf['guest_id'], false);
+                $userdata = $this->userProvider->getUserData($conf['guest_id'], false);
                 $fields = ['nb_image_page', 'language', 'expand', 'show_nb_hits', 'recent_period', 'theme'];
 
                 if ($conf['activate_comments']) {

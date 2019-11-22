@@ -14,6 +14,7 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Repository\CaddieRepository;
 use App\Repository\CommentRepository;
+use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Extension\Theme;
@@ -25,7 +26,23 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AdminCommonController extends AbstractController
 {
-    protected $conf, $language_load = [];
+    protected $conf, $language_load = [], $userProvider;
+
+    public function __construct(UserProvider $userProvider)
+    {
+        $this->userProvider = $userProvider;
+    }
+
+    public function getUser()
+    {
+        if (null === $token = $this->container->get('security.token_storage')->getToken()) {
+            return;
+        }
+
+        $user = $this->userProvider->fromToken($token);
+
+        return $user;
+    }
 
     protected function loadLanguage(User $user)
     {

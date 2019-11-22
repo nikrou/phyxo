@@ -39,7 +39,7 @@ class SecurityController extends AbstractController
 {
     private $template, $router, $conf;
     private $language_load = [];
-    private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite;
+    private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite, $userProvider;
 
     public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite)
     {
@@ -51,6 +51,17 @@ class SecurityController extends AbstractController
         $this->defaultTheme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
+    }
+
+    public function getUser()
+    {
+        if (null === $token = $this->container->get('security.token_storage')->getToken()) {
+            return;
+        }
+
+        $user = $this->userProvider->fromToken($token);
+
+        return $user;
     }
 
     protected function init(User $user)
@@ -155,8 +166,9 @@ class SecurityController extends AbstractController
         return $this->render('register.tpl', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar)
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar, UserProvider $userProvider)
     {
+        $this->userProvider = $userProvider;
         $this->init($this->getUser());
 
         $errors = [];

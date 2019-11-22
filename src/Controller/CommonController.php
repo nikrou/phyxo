@@ -14,14 +14,30 @@ namespace App\Controller;
 use Phyxo\Conf;
 use Phyxo\Template\Template;
 use App\Entity\User;
+use App\Security\UserProvider;
 use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Phyxo\Functions\Language;
 
 abstract class CommonController extends AbstractController
 {
-    protected $language_load;
-    protected $image_std_params;
+    protected $language_load,  $image_std_params, $userProvider;
+
+    public function __construct(UserProvider $userProvider)
+    {
+        $this->userProvider = $userProvider;
+    }
+
+    public function getUser()
+    {
+        if (null === $token = $this->container->get('security.token_storage')->getToken()) {
+            return;
+        }
+
+        $user = $this->userProvider->fromToken($token);
+
+        return $user;
+    }
 
     public function loadLanguage(User $user)
     {

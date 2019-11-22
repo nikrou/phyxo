@@ -38,14 +38,15 @@ use App\Repository\UserFeedRepository;
 use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageTagRepository;
+use App\Security\UserProvider;
 
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper, $tagMapper;
-    private $passwordEncoder, $defaultLanguage, $themesPath;
+    private $passwordEncoder, $defaultLanguage, $themesPath, $userProvider;
 
     public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
-                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesPath)
+                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesPath, UserProvider $userProvider)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -56,18 +57,13 @@ class UserMapper
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
         $this->themesPath = $themesPath;
+        $this->userProvider = $userProvider;
     }
 
-    public function getUser()
+    public function getUser() //: ?User @TODO : modify tests or implementation
     {
-        if ($this->user instanceof User) {
-            return $this->user;
-        }
-
-        if ($this->security->getToken() instanceof AnonymousToken) {
-            $this->user = new GuestUser();
-        } else {
-            $this->user = $this->security->getUser();
+        if (!$this->user) {
+            $this->user = $this->userProvider->get();
         }
 
         return $this->user;
@@ -99,163 +95,6 @@ class UserMapper
         if (!empty($mail_address) && $this->em->getRepository(UserRepository::class)->isEmailExistsExceptUser($mail_address, $user_id)) {
             return \Phyxo\Functions\Language::l10n('this email address is already in use');
         }
-    }
-
-    /**
-     * Fetches user data from database.
-     * Same that getUserData() but with additional tests for guest.
-     *
-     * @param int $user_id
-     * @param boolean $user_cache
-     * @return array
-     */
-    public function buildUser($user_id, $use_cache = true)
-    {
-        $user['id'] = $user_id;
-        $user = array_merge($user, $this->getUserData($user_id, $use_cache));
-
-        if ($user['id'] == $this->conf['guest_id'] and $user['status'] != 'guest') {
-            $user['status'] = 'guest';
-            $user['internal_status']['guest_must_be_guest'] = true;
-        }
-
-        // Check user theme
-        if (!isset($user['theme_name'])) {
-            $user['theme'] = $this->getDefaultTheme();
-        }
-
-        return $user;
-    }
-
-    /**
-     * Finds informations related to the user identifier.
-     */
-    public function getUserData(int $user_id, bool $is_admin = false): array
-    {
-        $result = $this->em->getRepository(UserInfosRepository::class)->getCompleteUserInfos($user_id);
-        $userdata = $this->dataTransformer->map($this->em->getConnection()->db_fetch_assoc($result));
-
-        if (!isset($userdata['need_update']) || !is_bool($userdata['need_update']) || $userdata['need_update'] === true) {
-            $userdata['cache_update_time'] = time();
-
-            // Set need update are done
-            $userdata['need_update'] = false;
-            $userdata['forbidden_categories'] = $this->calculatePermissions($user_id, $is_admin);
-
-            /* now we build the list of forbidden images (this list does not contain
-             * images that are not in at least an authorized category)
-             */
-            $forbidden_categories = [];
-            if (!empty($userdata['forbidden_categories'])) {
-                $forbidden_categories = explode(',', $userdata['forbidden_categories']);
-            }
-            $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $userdata['level']);
-            $forbidden_ids = $this->em->getConnection()->result2array($result, null, 'id');
-
-            if (empty($forbidden_ids)) {
-                $forbidden_ids[] = 0;
-            }
-
-            $userdata['image_access_type'] = 'NOT IN';
-            $userdata['image_access_list'] = implode(',', $forbidden_ids);
-
-            $userdata['nb_total_images'] = $this->em->getRepository(ImageCategoryRepository::class)->countTotalImages(
-                $forbidden_categories,
-                $userdata['image_access_type'],
-                $forbidden_ids
-            );
-
-            // now we update user cache categories
-            $user_cache_cats = $this->categoryMapper->getComputedCategories($userdata, null);
-
-            if (!$is_admin) { // for non admins we forbid categories with no image (feature 1053)
-                $forbidden_ids = [];
-                foreach ($user_cache_cats as $cat_id => $cat) {
-                    if ($cat['count_images'] === 0) {
-                        $forbidden_ids[] = $cat_id;
-                        $this->categoryMapper->removeComputedCategory($user_cache_cats, $cat);
-                    }
-                }
-                if (!empty($forbidden_ids)) {
-                    if (empty($userdata['forbidden_categories'])) {
-                        $userdata['forbidden_categories'] = implode(',', $forbidden_ids);
-                    } else {
-                        $userdata['forbidden_categories'] .= ',' . implode(',', $forbidden_ids);
-                    }
-                }
-            }
-            foreach ($user_cache_cats as $cat_id => &$cat) {
-                $cat['user_id'] = $userdata['user_id'];
-            }
-
-            // delete user cache
-            $this->em->getConnection()->db_write_lock(\App\Repository\BaseRepository::USER_CACHE_CATEGORIES_TABLE);
-            $this->em->getRepository(UserCacheCategoriesRepository::class)->deleteByUserIds([$userdata['user_id']]);
-            $this->em->getRepository(UserCacheCategoriesRepository::class)->insertUserCacheCategories(
-                ['user_id', 'cat_id', 'date_last', 'max_date_last', 'nb_images', 'count_images', 'nb_categories', 'count_categories'],
-                $user_cache_cats
-            );
-            $this->em->getConnection()->db_unlock();
-
-            // update user cache
-            $this->em->getConnection()->db_start_transaction();
-            try {
-                $this->em->getRepository(UserCacheRepository::class)->deleteUserCache($userdata['user_id']);
-                $this->em->getRepository(UserCacheRepository::class)->insertUserCache(
-                    [
-                        'user_id' => $userdata['user_id'],
-                        'need_update' => $userdata['need_update'],
-                        'cache_update_time' => $userdata['cache_update_time'],
-                        'forbidden_categories' => $userdata['forbidden_categories'],
-                        'nb_total_images' => $userdata['nb_total_images'],
-                        'last_photo_date' => !empty($userdata['last_photo_date']) ? $userdata['last_photo_date'] : '',
-                        'image_access_type' => $userdata['image_access_type'],
-                        'image_access_list' => $userdata['image_access_list']
-                    ]
-                );
-
-                $this->em->getConnection()->db_commit();
-            } catch (\Exception $e) {
-                $this->em->getConnection()->db_rollback();
-            }
-        }
-
-        return $userdata;
-    }
-
-    /**
-     * Calculates the list of forbidden categories for a given user.
-     *
-     * Calculation is based on private categories minus categories authorized to
-     * the groups the user belongs to minus the categories directly authorized
-     * to the user.
-     */
-    public function calculatePermissions(int $user_id, bool $is_admin = false): string
-    {
-        $result = $this->em->getRepository(CategoryRepository::class)->findByField('status', 'private');
-        $private_array = $this->em->getConnection()->result2array($result, null, 'id');
-
-        // retrieve category ids directly authorized to the user
-        $result = $this->em->getRepository(UserAccessRepository::class)->findByUserId($user_id);
-        $authorized_array = $this->em->getConnection()->result2array($result, null, 'cat_id');
-
-        $result = $this->em->getRepository(UserGroupRepository::class)->findCategoryAuthorizedToTheGroupTheUserBelongs($user_id);
-        $authorized_array = array_merge($authorized_array, $this->em->getConnection()->result2array($result, null, 'cat_id'));
-
-        // uniquify ids : some private categories might be authorized for the groups and for the user
-        $authorized_array = array_unique($authorized_array);
-
-        // only unauthorized private categories are forbidden
-        $forbidden_array = array_diff($private_array, $authorized_array);
-
-        // if user is not an admin, locked categories are forbidden
-        if (!$is_admin) {
-            $result = $this->em->getRepository(CategoryRepository::class)->findByField('visible', false);
-            $forbidden_array = array_merge($forbidden_array, $this->em->getConnection()->result2array($result, null, 'id'));
-            $forbidden_array = array_unique($forbidden_array);
-        }
-
-        return implode(',', $forbidden_array);
     }
 
     /**
