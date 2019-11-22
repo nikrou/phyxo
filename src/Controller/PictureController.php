@@ -41,7 +41,7 @@ use Phyxo\Functions\Plugin;
 
 class PictureController extends CommonController
 {
-    private $em, $conf, $user, $userMapper;
+    private $em, $conf, $userMapper;
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
                             MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper, CategoryMapper $categoryMapper,
@@ -50,7 +50,6 @@ class PictureController extends CommonController
         $tpl_params = [];
         $this->em = $em;
         $this->conf = $conf;
-        $this->user = $this->getUser();
         $this->userMapper = $userMapper;
 
         $this->image_std_params = $image_std_params;
@@ -547,7 +546,7 @@ class PictureController extends CommonController
         $anonymous_id = null;
         if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
-                if (!$this->user->isClassicUser()) {
+                if (!$this->getUser()->isClassicUser()) {
                     $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
                     if (count($ip_components) > 3) {
                         array_pop($ip_components);
@@ -556,7 +555,7 @@ class PictureController extends CommonController
                 }
 
                 $result = $this->em->getRepository(RateRepository::class)->findByUserIdAndElementIdAndAnonymousId(
-                    $this->user->getId(),
+                    $this->getUser()->getId(),
                     $picture['id'],
                     $anonymous_id
                 );

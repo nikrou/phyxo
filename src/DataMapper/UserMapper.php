@@ -12,26 +12,17 @@
 namespace App\DataMapper;
 
 use Phyxo\Conf;
-use Phyxo\Functions\Plugin;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\UserCacheRepository;
-use App\Repository\CategoryRepository;
-use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
-use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use App\Repository\UserInfosRepository;
-use App\Repository\UserAccessRepository;
 use App\Repository\ThemeRepository;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use App\Repository\BaseRepository;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Phyxo\EntityManager;
-use App\Entity\GuestUser;
 use App\Utils\DataTransformer;
 use App\Repository\UserMailNotificationRepository;
 use App\Repository\UserFeedRepository;
@@ -42,15 +33,14 @@ use App\Security\UserProvider;
 
 class UserMapper
 {
-    private $em, $conf, $autorizationChecker, $security, $user, $dataTransformer, $categoryMapper, $tagMapper;
+    private $em, $conf, $autorizationChecker, $user, $dataTransformer, $categoryMapper, $tagMapper;
     private $passwordEncoder, $defaultLanguage, $themesPath, $userProvider;
 
-    public function __construct(EntityManager $em, Conf $conf, Security $security, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
+    public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
                                 CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesPath, UserProvider $userProvider)
     {
         $this->em = $em;
         $this->conf = $conf;
-        $this->security = $security;
         $this->autorizationChecker = $autorizationChecker;
         $this->dataTransformer = $dataTransformer;
         $this->categoryMapper = $categoryMapper;
@@ -107,24 +97,6 @@ class UserMapper
     {
         $result = $this->em->getRepository(UserRepository::class)->findByUsername($username);
         if ($this->em->getConnection()->db_num_rows($result) === 0) {
-            return false;
-        } else {
-            $user = $this->em->getConnection()->db_fetch_assoc($result);
-
-            return $user['id'];
-        }
-    }
-
-    /**
-     * Returns user identifier thanks to his email.
-     *
-     * @param string $email
-     * @param int|false
-     */
-    public function getUserIdByEmail($email)
-    {
-        $result = $this->em->getRepository(UserRepository::class)->findByEmail($email);
-        if ($this->em->getConnection()->db_num_rows($result) == 0) {
             return false;
         } else {
             $user = $this->em->getConnection()->db_fetch_assoc($result);

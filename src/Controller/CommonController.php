@@ -21,7 +21,7 @@ use Phyxo\Functions\Language;
 
 abstract class CommonController extends AbstractController
 {
-    protected $language_load,  $image_std_params, $userProvider;
+    protected $language_load,  $image_std_params, $userProvider, $user;
 
     public function __construct(UserProvider $userProvider)
     {
@@ -34,9 +34,11 @@ abstract class CommonController extends AbstractController
             return;
         }
 
-        $user = $this->userProvider->fromToken($token);
+        if (!$this->user) {
+            $this->user = $this->userProvider->fromToken($token);
+        }
 
-        return $user;
+        return $this->user;
     }
 
     public function loadLanguage(User $user)

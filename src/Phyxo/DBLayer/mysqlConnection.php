@@ -330,10 +330,14 @@ class mysqlConnection extends DBLayer implements iDBLayer
 
     public function db_get_recent_period($period, $date = 'CURRENT_DATE')
     {
-        $query = 'SELECT ' . $this->db_get_recent_period_expression($period);
-        list($d) = $this->db_fetch_row($this->db_query($query));
+        if (empty($this->cache[md5($period . $date)])) {
+            $query = 'SELECT ' . $this->db_get_recent_period_expression($period);
+            list($d) = $this->db_fetch_row($this->db_query($query));
 
-        return $d;
+            $this->cache[md5($period . $date)] = $d;
+        }
+
+        return $this->cache[md5($period . $date)];
     }
 
     public function db_get_flood_period_expression($seconds): string
