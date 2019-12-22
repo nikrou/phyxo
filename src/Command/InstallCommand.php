@@ -202,8 +202,8 @@ class InstallCommand extends Command
         );
 
         $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version($this->phyxoVersion);
-        $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
-        $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
+        $conf['gallery_title'] = 'Just another Phyxo gallery';
+        $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . 'Welcome to my photo gallery' . '</p>';
 
         $languages = new Languages($conn, null);
         $languages->setRootPath($this->getApplication()->getKernel()->getProjectDir() . '/language');

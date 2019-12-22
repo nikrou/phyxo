@@ -97,13 +97,7 @@ class CategoryMapper
                         $row['name'],
                         'get_categories_menu'
                     ),
-                    'TITLE' => Category::get_display_images_count(
-                        $row['nb_images'],
-                        $row['count_images'],
-                        $row['count_categories'],
-                        false,
-                        ' / '
-                    ),
+                    'TITLE' => $this->getDisplayImagesCount($row['nb_images'], $row['count_images'], $row['count_categories'], false, ' / '),
                     'URL' => $this->router->generate('album', ['category_id' => $row['id']]),
                     'LEVEL' => substr_count($row['global_rank'], '.') + 1,
                     'SELECTED' => isset($selected_category['id']) && $selected_category['id'] === $row['id'] ? true : false,
@@ -510,8 +504,6 @@ class CategoryMapper
         if ($parent_status === 'private') {
             $this->setCatStatus(array_keys($categories), 'private');
         }
-
-        // $page['infos'][] = $this->translator->trans('number_of_albums_moved', ['count' => count($categories)]);
     }
 
     /**
@@ -1221,5 +1213,42 @@ class CategoryMapper
             ],
             $datas
         );
+    }
+
+    /**
+     * Returns display text for images counter of category
+     *
+     * @param int $cat_nb_images nb images directly in category
+     * @param int $cat_count_images nb images in category (including subcats)
+     * @param int $cat_count_categories nb subcats
+     * @param bool $short_message if true append " in this album"
+     * @param string $separator
+     * @return string
+     */
+    public function getDisplayImagesCount($cat_nb_images, $cat_count_images, $cat_count_categories, $short_message = true, $separator = '\n')
+    {
+        $display_text = '';
+
+        if ($cat_count_images > 0) {
+            if ($cat_nb_images > 0 and $cat_nb_images < $cat_count_images) {
+                $display_text .= $this->getDisplayImagesCount($cat_nb_images, $cat_nb_images, 0, $short_message, $separator) . $separator;
+                $cat_count_images -= $cat_nb_images;
+                $cat_nb_images = 0;
+            }
+
+            //at least one image direct or indirect
+            $display_text .= $this->translator->trans('number_of_photos', ['count' => $cat_count_images]);
+
+            if ($cat_count_categories === 0 || $cat_nb_images === $cat_count_images) {
+                //no descendant categories or descendants do not contain images
+                if (!$short_message) {
+                    $display_text .= ' ' . $this->translator->trans('in this album');
+                }
+            } else {
+                $display_text .= ' ' . $this->translator->trans('number_of_photos_in_sub_albums', ['count' => $cat_count_categories]);
+            }
+        }
+
+        return $display_text;
     }
 }

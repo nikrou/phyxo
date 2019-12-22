@@ -72,6 +72,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
         if (!empty($this->db_link)) {
             return $this->db_link->server_info;
         }
+
+        return '';
     }
 
     public function db_check_version() : void
@@ -108,6 +110,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
         if (!empty($this->db_link)) {
             return $this->db_link->affected_rows;
         }
+
+        return 0;
     }
 
     public function db_num_rows($result) : int
@@ -152,6 +156,8 @@ class mysqlConnection extends DBLayer implements iDBLayer
         if (!empty($this->db_link)) {
             return $this->db_link->insert_id;
         }
+
+        return 0;
     }
 
     public function db_close()

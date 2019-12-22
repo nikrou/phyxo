@@ -63,35 +63,6 @@ class Category
     }
 
     /**
-     * Returns an array of image orders available for users/visitors.
-     * Each entry is an array containing
-     *  0: name
-     *  1: SQL ORDER command
-     *  2: visiblity (true or false)
-     *
-     * @return array[]
-     */
-    public static function get_category_preferred_image_orders(UserMapper $userMapper)
-    {
-        global $conf;
-
-        return \Phyxo\Functions\Plugin::trigger_change('get_category_preferred_image_orders', [
-            [\Phyxo\Functions\Language::l10n('Default'), '', true],
-            [\Phyxo\Functions\Language::l10n('Photo title, A &rarr; Z'), 'name ASC', true],
-            [\Phyxo\Functions\Language::l10n('Photo title, Z &rarr; A'), 'name DESC', true],
-            [\Phyxo\Functions\Language::l10n('Date created, new &rarr; old'), 'date_creation DESC', true],
-            [\Phyxo\Functions\Language::l10n('Date created, old &rarr; new'), 'date_creation ASC', true],
-            [\Phyxo\Functions\Language::l10n('Date posted, new &rarr; old'), 'date_available DESC', true],
-            [\Phyxo\Functions\Language::l10n('Date posted, old &rarr; new'), 'date_available ASC', true],
-            [\Phyxo\Functions\Language::l10n('Rating score, high &rarr; low'), 'rating_score DESC', $conf['rate']],
-            [\Phyxo\Functions\Language::l10n('Rating score, low &rarr; high'), 'rating_score ASC', $conf['rate']],
-            [\Phyxo\Functions\Language::l10n('Visits, high &rarr; low'), 'hit DESC', true],
-            [\Phyxo\Functions\Language::l10n('Visits, low &rarr; high'), 'hit ASC', true],
-            [\Phyxo\Functions\Language::l10n('Permissions'), 'level DESC', $userMapper->isAdmin()],
-        ]);
-    }
-
-    /**
      * Finds a matching category id from a potential list of permalinks
      *
      * @param string[] $permalinks
@@ -122,43 +93,6 @@ class Category
         }
 
         return null;
-    }
-
-    /**
-     * Returns display text for images counter of category
-     *
-     * @param int $cat_nb_images nb images directly in category
-     * @param int $cat_count_images nb images in category (including subcats)
-     * @param int $cat_count_categories nb subcats
-     * @param bool $short_message if true append " in this album"
-     * @param string $separator
-     * @return string
-     */
-    public static function get_display_images_count($cat_nb_images, $cat_count_images, $cat_count_categories, $short_message = true, $separator = '\n')
-    {
-        $display_text = '';
-
-        if ($cat_count_images > 0) {
-            if ($cat_nb_images > 0 and $cat_nb_images < $cat_count_images) {
-                $display_text .= self::get_display_images_count($cat_nb_images, $cat_nb_images, 0, $short_message, $separator) . $separator;
-                $cat_count_images -= $cat_nb_images;
-                $cat_nb_images = 0;
-            }
-
-            //at least one image direct or indirect
-            $display_text .= \Phyxo\Functions\Language::l10n_dec('%d photo', '%d photos', $cat_count_images);
-
-            if ($cat_count_categories == 0 or $cat_nb_images == $cat_count_images) {
-                //no descendant categories or descendants do not contain images
-                if (!$short_message) {
-                    $display_text .= ' ' . \Phyxo\Functions\Language::l10n('in this album');
-                }
-            } else {
-                $display_text .= ' ' . \Phyxo\Functions\Language::l10n_dec('in %d sub-album', 'in %d sub-albums', $cat_count_categories);
-            }
-        }
-
-        return $display_text;
     }
 
     /**

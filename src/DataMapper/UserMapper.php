@@ -35,7 +35,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $user, $dataTransformer, $categoryMapper, $tagMapper;
-    private $passwordEncoder, $defaultLanguage, $themesDir, $userProvider;
+    private $passwordEncoder, $defaultLanguage, $themesDir, $userProvider, $translator;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
                                 CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)

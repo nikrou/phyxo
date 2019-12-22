@@ -50,7 +50,7 @@ class InstallController extends Controller
     private $translator;
 
     public function __construct(Template $template, string $adminThemeDir, string $languagesDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
-                                string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
+                                string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator)
     {
         $this->languagesDir = $languagesDir;
         $this->default_language = $defaultLanguage;
@@ -67,10 +67,9 @@ class InstallController extends Controller
             'PAGE_TITLE' => $this->translator->trans('Installation', [], 'install'),
             'STEPS' => $this->Steps,
         ]);
-        $template->postConstruct();
     }
 
-    public function index(Request $request, Template $template, string $step = 'language', EventDispatcherInterface $eventDispatcher)
+    public function index(Request $request, string $step = 'language', EventDispatcherInterface $eventDispatcher)
     {
         $tpl_params = [];
 

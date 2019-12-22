@@ -187,7 +187,6 @@ class BaseRepository
         }
 
         $icon = [
-            'TITLE' => Language::l10n('photos posted during the last %d days', $user->getRecentPeriod()),
             'IS_CHILD_DATE' => $is_child_date,
             'sql_recent_date' => $this->sql_recent_date
         ];

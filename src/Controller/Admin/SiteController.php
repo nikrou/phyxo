@@ -106,7 +106,7 @@ class SiteController extends AdminCommonController
         return $this->render('site_manager.tpl', $tpl_params);
     }
 
-    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper)
+    public function delete(Request $request, EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $site = $request->request->get('site');
 

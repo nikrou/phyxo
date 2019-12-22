@@ -304,7 +304,6 @@ class RatingController extends AdminCommonController
                 'cdtop' => $consensus_dev_top_count ? $consensus_dev_top : '',
             ];
         }
-        unset($rating);
 
         // filter
         foreach ($by_user_ratings as $id => $rating) {

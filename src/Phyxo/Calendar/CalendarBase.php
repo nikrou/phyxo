@@ -25,6 +25,8 @@ use Phyxo\Functions\Language;
  */
 abstract class CalendarBase
 {
+    protected $calendar_type;
+
     const CAL_VIEW_LIST = 'list';
     const CAL_VIEW_CALENDAR = 'calendar';
 
@@ -409,4 +411,6 @@ abstract class CalendarBase
             return $this->conn->result2array($result, null, 'id');
         }
     }
+
+    abstract public function getNextPrevUrl(array $date_components = []): string;
 }

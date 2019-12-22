@@ -189,13 +189,7 @@ class AlbumController extends CommonController
                     'TN_ALT' => strip_tags($category['name']),
                     'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => Category::get_display_images_count(
-                        $category['nb_images'],
-                        $category['count_images'],
-                        $category['count_categories'],
-                        true,
-                        '<br>'
-                    ),
+                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
                         'render_category_literal_description',
                         \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
@@ -577,13 +571,7 @@ class AlbumController extends CommonController
                     'TN_ALT' => strip_tags($category['name']),
                     'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl($start > 0 ? 'album__start' : 'album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => Category::get_display_images_count(
-                        $category['nb_images'],
-                        $category['count_images'],
-                        $category['count_categories'],
-                        true,
-                        '<br>'
-                    ),
+                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
                         'render_category_literal_description',
                         \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
@@ -809,13 +797,7 @@ class AlbumController extends CommonController
                     'TN_ALT' => strip_tags($category['name']),
                     'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
-                    'CAPTION_NB_IMAGES' => Category::get_display_images_count(
-                        $category['nb_images'],
-                        $category['count_images'],
-                        $category['count_categories'],
-                        true,
-                        '<br>'
-                    ),
+                    'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
                         'render_category_literal_description',
                         \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')

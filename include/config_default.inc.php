@@ -359,10 +359,6 @@ $conf['show_queries'] = false;
 // show_gt : display generation time at the bottom of each page
 $conf['show_gt'] = true;
 
-// debug_l10n : display a warning message each time an unset language key is
-// accessed
-$conf['debug_l10n'] = false;
-
 // activate template debugging - a new window will appear
 $conf['debug_template'] = false;
 

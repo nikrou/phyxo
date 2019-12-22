@@ -32,7 +32,7 @@ class Upload
                 'max' => 20000,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
-                'error_message' => \Phyxo\Functions\Language::l10n('The original maximum width must be a number between %d and %d'),
+                'error_message' => 'The original maximum width must be a number between %d and %d',
             ],
 
             'original_resize_maxheight' => [
@@ -41,7 +41,7 @@ class Upload
                 'max' => 20000,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
-                'error_message' => \Phyxo\Functions\Language::l10n('The original maximum height must be a number between %d and %d'),
+                'error_message' => 'The original maximum height must be a number between %d and %d',
             ],
 
             'original_resize_quality' => [
@@ -50,7 +50,7 @@ class Upload
                 'max' => 98,
                 'pattern' => '/^\d+$/',
                 'can_be_null' => false,
-                'error_message' => \Phyxo\Functions\Language::l10n('The original image quality must be a number between %d and %d'),
+                'error_message' => 'The original image quality must be a number between %d and %d',
             ],
         ];
 

@@ -537,8 +537,8 @@
 						<a href="{$thumbnail.U_EDIT}"><i class="fa fa-pencil"></i><span class="visually-hidden">{'Edit'|translate}</span></a>
 					    </div>
 					    {if $thumbnail.level > 0}
-						<em class="levelIndicatorB">{'Level {$thumbnail.level}'|translate}</em>
-						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level {$thumbnail.level}'|translate}</em>
+						<em class="levelIndicatorB">{'Level '|cat:$thumbnail.level|translate}</em>
+						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level '|cat:$thumbnail.level|translate}</em>
 					    {/if}
 					    <img src="{$thumbnail.thumb->getUrl()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
 					</span>
