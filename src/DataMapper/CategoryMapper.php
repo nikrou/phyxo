@@ -25,16 +25,18 @@ use App\Repository\GroupAccessRepository;
 use App\Repository\OldPermalinkRepository;
 use App\Repository\UserCacheCategoriesRepository;
 use App\Repository\SiteRepository;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CategoryMapper
 {
-    private $em, $conf, $router;
+    private $em, $conf, $router, $translator;
 
-    public function __construct(Conf $conf, EntityManager $em, RouterInterface $router)
+    public function __construct(Conf $conf, EntityManager $em, RouterInterface $router, TranslatorInterface $translator)
     {
         $this->conf = $conf;
         $this->em = $em;
         $this->router = $router;
+        $this->translator = $translator;
     }
 
     /**
@@ -489,7 +491,7 @@ class CategoryMapper
                 // technically, you can't move a category with uppercats 12,125,13,14
                 // into a new parent category with uppercats 12,125,13,14,24
                 if (preg_match('/^' . $category['uppercats'] . '(,|$)/', $new_parent_uppercats)) {
-                    throw new \Exception(\Phyxo\Functions\Language::l10n('You cannot move an album in its own sub album'));
+                    throw new \Exception($this->translator->trans('You cannot move an album in its own sub album'));
                 }
             }
         }
@@ -509,12 +511,7 @@ class CategoryMapper
             $this->setCatStatus(array_keys($categories), 'private');
         }
 
-
-        // $page['infos'][] = \Phyxo\Functions\Language::l10n_dec(
-        //     '%d album moved',
-        //     '%d albums moved',
-        //     count($categories)
-        // );
+        // $page['infos'][] = $this->translator->trans('number_of_albums_moved', ['count' => count($categories)]);
     }
 
     /**
@@ -760,7 +757,7 @@ class CategoryMapper
     {
         // is the given category name only containing blank spaces ?
         if (preg_match('/^\s*$/', $category_name)) {
-            return ['error' => \Phyxo\Functions\Language::l10n('The name of an album must not be empty')];
+            return ['error' => $this->translator->trans('The name of an album must not be empty')];
         }
 
         $insert = [
@@ -845,7 +842,7 @@ class CategoryMapper
         }
 
         return [
-            'info' => \Phyxo\Functions\Language::l10n('Virtual album added'),
+            'info' => $this->translator->trans('Virtual album added'),
             'id' => $inserted_id,
         ];
     }

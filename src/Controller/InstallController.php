@@ -27,6 +27,7 @@ use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InstallController extends Controller
 {
@@ -46,6 +47,7 @@ class InstallController extends Controller
     private $default_theme;
     private $languagesDir;
     private $default_prefix = 'phyxo_';
+    private $translator;
 
     public function __construct(Template $template, string $adminThemeDir, string $languagesDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
                                 string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
@@ -55,13 +57,14 @@ class InstallController extends Controller
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->passwordEncoder = $passwordEncoder;
+        $this->translator = $translator;
 
         $template->setTheme(new Theme($adminThemeDir, '.'));
         $template->assign([
             'RELEASE' => $phyxoVersion,
             'PHPWG_URL' => $phyxoWebsite,
             'GALLERY_TITLE' => 'Phyxo',
-            'PAGE_TITLE' => \Phyxo\Functions\Language::l10n('Installation'),
+            'PAGE_TITLE' => $this->translator->trans('Installation', [], 'install'),
             'STEPS' => $this->Steps,
         ]);
         $template->postConstruct();
@@ -96,20 +99,6 @@ class InstallController extends Controller
         if (!isset($this->languages_options[$language])) {
             $language = $this->default_language;
         }
-
-        $translations_common = \Phyxo\Functions\Language::load_language(
-            'common.lang',
-            dirname($this->languagesDir),
-            ['language' => $language, 'return_vars' => true]
-        );
-        $translations_install = \Phyxo\Functions\Language::load_language(
-            'install.lang',
-            dirname($this->languagesDir),
-            ['language' => $language, 'return_vars' => true]
-        );
-
-        $template->setLang(array_merge($translations_common['lang'], $translations_install['lang']));
-        $template->setLangInfo(array_merge($translations_common['lang_info'], $translations_install['lang_info']));
 
         $stepMethod = $step . 'Step';
         $tpl_params = array_merge($tpl_params, $this->$stepMethod($request));
@@ -249,17 +238,17 @@ class InstallController extends Controller
             if ($request->request->get('db_user')) {
                 $db_params['db_user'] = $request->request->get('db_user');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
-                $errors[] = \Phyxo\Functions\Language::l10n('Database user is mandatory');
+                $errors[] = $this->translator->trans('Database user is mandatory', [], 'install');
             }
             if ($request->request->get('db_password')) {
                 $db_params['db_password'] = $request->request->get('db_password');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
-                $errors[] = \Phyxo\Functions\Language::l10n('Database password is mandatory');
+                $errors[] = $this->translator->trans('Database password is mandatory', [], 'install');
             }
             if ($request->request->get('db_name')) {
                 $db_params['db_name'] = $request->request->get('db_name');
             } elseif ($db_params['db_layer'] !== 'sqlite') {
-                $errors[] = \Phyxo\Functions\Language::l10n('Database name is mandatory');
+                $errors[] = $this->translator->trans('Database name is mandatory', [], 'install');
             }
             if ($request->request->get('db_prefix')) {
                 $db_params['db_prefix'] = $request->request->get('db_prefix');
@@ -295,25 +284,25 @@ class InstallController extends Controller
 
         if ($request->isMethod('POST')) {
             if (!$request->request->get('_username')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Username is missing. Please enter the username.');
+                $errors[] = $this->translator->trans('Username is missing. Please enter the username.', [], 'install');
             } else {
                 $db_params['username'] = $request->request->get('_username');
                 $tpl_params['_username'] = $request->request->get('_username');
             }
             if (!$request->request->get('_password')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Password is missing. Please enter the password.');
+                $errors[] = $this->translator->trans('Password is missing. Please enter the password.', [], 'install');
             } elseif (!$request->request->get('_password_confirm')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Password confirmation is missing. Please confirm the chosen password.');
+                $errors[] = $this->translator->trans('Password confirmation is missing. Please confirm the chosen password.', [], 'install');
             } elseif ($request->request->get('_password') !== $request->request->get('_password_confirm')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
+                $errors[] = $this->translator->trans('The passwords do not match', [], 'install');
             } else {
                 $db_params['password'] = $request->request->get('_password');
             }
             if (!$request->request->get('_mail_address')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+                $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
             } else {
                 if (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
-                    $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+                    $errors[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)', [], 'install');
                 } else {
                     $db_params['mail_address'] = $request->request->get('_mail_address');
                     $tpl_params['_mail_address'] = $request->request->get('_mail_address');
@@ -405,8 +394,8 @@ class InstallController extends Controller
         );
 
         $conf['phyxo_db_version'] = \Phyxo\Functions\Utils::get_branch_from_version($this->phyxoVersion);
-        $conf['gallery_title'] = \Phyxo\Functions\Language::l10n('Just another Phyxo gallery');
-        $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . \Phyxo\Functions\Language::l10n('Welcome to my photo gallery') . '</p>';
+        $conf['gallery_title'] = $this->translator->trans('Just another Phyxo gallery', [], 'install');
+        $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . $this->translator->trans('Welcome to my photo gallery', [], 'install') . '</p>';
 
         $languages = new Languages($conn, null);
         $languages->setRootPath($this->get('kernel')->getProjectDir() . '/language');
@@ -446,7 +435,7 @@ class InstallController extends Controller
 
         file_put_contents($this->get('kernel')->getDbConfigFile() . '.tmp', $file_content);
         if (!is_readable($this->get('kernel')->getDbConfigFile() . '.tmp')) {
-            throw new \Exception(\Phyxo\Functions\Language::l10n('All tables in database have been created'));
+            throw new \Exception($this->translator->trans('All tables in database have been created', [], 'install'));
         }
     }
 }

@@ -88,7 +88,7 @@
 			    <select data-selectize="categories" data-value="{$selected_category|json_encode|escape:html}" data-default="first" name="category"></select>
 			</div>
 			<div class="col">
-			    {'... or '|translate}
+			    ... {'or'|translate}
 			</div>
 			<div class="col">
 			    <button type="button" class="btn btn-sm btn-submit" data-add-album="category" title="{'Create a new album'|translate}">{'Create a new album'|translate}</button>
@@ -123,8 +123,8 @@
 		    </p>
 
 		    <p>
-			{'Maximum file size: %sB.'|translate:$upload_max_filesize_shorthand}
-			{'Allowed file types: %s.'|translate:$upload_file_types}
+			{'Maximum file size: {size}B.'|translate:['size' => $upload_max_filesize_shorthand]}
+			{'Allowed file types: {types}.'|translate:['types' => $upload_file_types]}
 			{if isset($max_upload_resolution)}
 			    {'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|translate:$max_upload_resolution:$max_upload_width:$max_upload_height}
 			{/if}

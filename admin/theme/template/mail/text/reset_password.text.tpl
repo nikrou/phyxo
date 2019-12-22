@@ -2,7 +2,7 @@
 
 {block name="content"}
     {'Someone requested that the password be reset for the following user account:'|translate}
-    {'Username "%s" on gallery %s'|translate:$user['username']:$gallery_url}
+    {'Username "{username}" on gallery {url}'|translate:['username' => $user['username'], 'url' => $gallery_url]}
 
     {'To reset your password, visit the following address:'|translate} {$url}
 

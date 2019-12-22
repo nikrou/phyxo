@@ -25,14 +25,14 @@ use GuzzleHttp\Client;
 use Phyxo\Conf;
 use Phyxo\DBLayer\DBLayer;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DashboardController extends AdminCommonController
 {
-    public function index(Request $request, bool $check_upgrade = false, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function index(Request $request, bool $check_upgrade = false, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -51,15 +51,15 @@ class DashboardController extends AdminCommonController
                 }
 
                 if ($tpl_params['DEV']) {
-                    $tpl_params['infos'][] = Language::l10n('You are running on development sources, no check possible.');
+                    $tpl_params['infos'][] = $translator->trans('You are running on development sources, no check possible.', [], 'admin');
                     $tpl_params['DEV'] = true;
                 } elseif (version_compare($params->get('core_version'), $latest_version) < 0) {
-                    $tpl_params['infos'][] = '<a href="' . $this->generateUrl('admin_update') . '">' . Language::l10n('A new version of Phyxo is available.') . '</a>';
+                    $tpl_params['infos'][] = '<a href="' . $this->generateUrl('admin_update') . '">' . $translator->trans('A new version of Phyxo is available.', [], 'admin') . '</a>';
                 } else {
-                    $tpl_params['infos'][] = Language::l10n('You are running the latest version of Phyxo.');
+                    $tpl_params['infos'][] = $translator->trans('You are running the latest version of Phyxo.', [], 'admin');
                 }
             } catch (\Exception $e) {
-                $tpl_params['errors'][] = Language::l10n('Unable to check for upgrade.');
+                $tpl_params['errors'][] = $translator->trans('Unable to check for upgrade.', [], 'admin');
             }
         }
 
@@ -82,18 +82,18 @@ class DashboardController extends AdminCommonController
                 'PHP_VERSION' => phpversion(),
                 'DB_ENGINE' => DBLayer::availableEngines()[$em->getConnection()->getLayer()],
                 'DB_VERSION' => $em->getConnection()->db_version(),
-                'DB_ELEMENTS' => Language::l10n_dec('%d photo', '%d photos', $nb_elements),
-                'DB_CATEGORIES' => Language::l10n_dec('%d album including', '%d albums including', $nb_categories),
-                'PHYSICAL_CATEGORIES' => Language::l10n_dec('%d physical', '%d physicals', $nb_physical),
-                'VIRTUAL_CATEGORIES' => Language::l10n_dec('%d virtual', '%d virtuals', $nb_virtual),
-                'DB_IMAGE_CATEGORY' => Language::l10n_dec('%d association', '%d associations', $nb_image_category),
-                'DB_TAGS' => Language::l10n_dec('%d tag', '%d tags', $nb_tags),
-                'DB_IMAGE_TAG' => Language::l10n_dec('%d association', '%d associations', $nb_image_tag),
+                'DB_ELEMENTS' => $translator->trans('number_of_photos', ['count' => $nb_elements], 'admin'),
+                'DB_CATEGORIES' => $translator->trans('number_of_albums_including', ['count' => $nb_categories], 'admin'),
+                'PHYSICAL_CATEGORIES' => $translator->trans('number_of_physicals', ['count' => $nb_physical], 'admin'),
+                'VIRTUAL_CATEGORIES' => $translator->trans('number_of_virtuals', ['count' => $nb_virtual], 'admin'),
+                'DB_IMAGE_CATEGORY' => $translator->trans('number_of_associations', ['count' => $nb_image_category], 'admin'),
+                'DB_TAGS' => $translator->trans('number_of_tags', ['count' => $nb_tags], 'admin'),
+                'DB_IMAGE_TAG' => $translator->trans('number_of_associations', ['count' => $nb_image_tag], 'admin'),
                 'NB_PENDING_TAGS' => $em->getRepository(TagRepository::class)->getPendingTags($count_only = true),
                 'U_PENDING_TAGS' => $this->generateUrl('admin_tags_pending'),
-                'DB_USERS' => Language::l10n_dec('%d user', '%d users', $nb_users),
-                'DB_GROUPS' => Language::l10n_dec('%d group', '%d groups', $nb_groups),
-                'DB_RATES' => ($nb_rates === 0) ? Language::l10n('no rate') : Language::l10n('%d rates', $nb_rates),
+                'DB_USERS' => $translator->trans('number_of_users', ['count' => $nb_users], 'admin'),
+                'DB_GROUPS' => $translator->trans('number_of_groups', ['count' => $nb_groups], 'admin'),
+                'DB_RATES' => $translator->trans('number_of_rates', ['count' => $nb_rates], 'admin'),
                 'U_CHECK_UPGRADE' => $this->generateUrl('admin_check_upgrade'),
                 'PHP_DATATIME' => date("Y-m-d H:i:s"),
                 'DB_DATATIME' => $em->getRepository(BaseRepository::class)->getNow()
@@ -103,18 +103,18 @@ class DashboardController extends AdminCommonController
         if ($conf['activate_comments']) {
             $nb_comments = $em->getRepository(CommentRepository::class)->count();
             $tpl_params['U_PENDING_COMMENTS'] = $this->generateUrl('admin_comments', ['section' => 'pending']);
-            $tpl_params['DB_COMMENTS'] = Language::l10n_dec('%d comment', '%d comments', $nb_comments);
+            $tpl_params['DB_COMMENTS'] = $translator->trans('number_of_comments', ['count' => $nb_comments], 'admin');
         }
 
         if ($nb_elements > 0) {
             $min_date_available = $em->getRepository(ImageRepository::class)->findMinDateAvailable();
-            $tpl_params['first_added'] = Language::l10n('first photo added on %s', (new \DateTime($min_date_available))->format('l d M Y'));
+            $tpl_params['first_added'] = $translator->trans('first photo added on {date}', ['date' => (new \DateTime($min_date_available))->format('l d M Y')], 'admin');
         }
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['U_UPDATE_EXTENSIONS'] = $this->generateUrl('admin_update_extensions');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_home');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Album');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

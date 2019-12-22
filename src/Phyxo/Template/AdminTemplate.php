@@ -11,21 +11,16 @@
 
 namespace Phyxo\Template;
 
+use Phyxo\Conf;
 use Phyxo\Extension\Theme;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminTemplate extends Template
 {
-    public function __construct(array $options = [])
+    public function __construct(Conf $conf, TranslatorInterface $translator, RouterInterface $router, string $compileDir, string $adminThemeDir)
     {
-        parent::__construct($options);
-    }
-
-    public static function initialize($compile_dir, string $theme)
-    {
-        $template = new self();
-        $template->setCompileDir($compile_dir);
-        $template->setTheme(new Theme($theme, '.'));
-
-        return $template;
+        parent::__construct($conf, $translator, $router, $compileDir);
+        $this->setTheme(new Theme($adminThemeDir, '.'));
     }
 }

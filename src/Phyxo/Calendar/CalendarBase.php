@@ -37,7 +37,7 @@ abstract class CalendarBase
     protected $items = [];
 
     protected $conn;
-    protected $parts;
+    protected $parts, $months, $days;
     protected $image_std_params;
     protected $lang = [];
     protected $conf, $template, $date_type, $view_type, $chronology_date = [], $router;
@@ -45,6 +45,9 @@ abstract class CalendarBase
     public function __construct(iDBLayer $conn, string $date_type = 'posted')
     {
         $this->conn = $conn;
+
+        $this->months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        $this->days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
         $this->date_type = $date_type;
         if ($date_type === 'posted') {
@@ -167,7 +170,7 @@ abstract class CalendarBase
             $res .= $this->conf['level_separator'];
             if (isset($this->chronology_date[$i + 1])) {
                 $chronology_date = array_slice($this->chronology_date, 0, $i + 1);
-                $url = $this->router->generate('calendar_categories_***', ['chronology_date' => $chronology_date]); // @FIX : get correct route name and params
+                $url = $this->router->generate('calendar_categories_' . $this->calendar_type, ['date_type' => $this->date_type, 'chronology_date' => $chronology_date]); // @FIX : get correct route name and params
                 $res .= '<a href="' . $url . '">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</a>';
             } else {
                 $res .= '<span class="calInHere">' . $this->getDateComponentLabel($i, $this->chronology_date[$i]) . '</span>';
@@ -259,7 +262,7 @@ abstract class CalendarBase
         }
 
         if ($this->conf['calendar_show_any'] && $show_any && count($items) > 1 && count($date_components) < count($this->getCalendarLevels()) - 1) {
-            $url = $this->router->generate('calendar_categories_***', ['chronology_date' => $date_components]); // @FIX : get correct route name and params
+            $url = $this->router->generate('calendar_categories_' . $this->calendar_type, ['date_type' => $this->date_type, 'view_type' => $this->view_type, 'chronology_date' => $date_components]); // @FIX : get correct route name and params
             $nav_bar_datas[] = [
                 'LABEL' => Language::l10n('All'),
                 'URL' => $url

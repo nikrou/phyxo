@@ -120,7 +120,7 @@ class CalendarMonthly extends CalendarBase
             ],
             [
                 'sql' => $this->conn->db_get_month($this->date_field),
-                'labels' => $this->lang['month']
+                'labels' => $this->months
             ],
             [
                 'sql' => $this->conn->db_get_dayofmonth($this->date_field),
@@ -317,7 +317,7 @@ class CalendarMonthly extends CalendarBase
                 $year_data['children'],
                 false,
                 false,
-                $this->lang['month']
+                $this->months
             );
 
             $tpl_var['calendar_bars'][] = [
@@ -398,7 +398,7 @@ class CalendarMonthly extends CalendarBase
             $tpl_var['calendar_bars'][] = [
                 'U_HEAD' => $url,
                 'NB_IMAGES' => $month_data['nb_images'],
-                'HEAD_LABEL' => $this->lang['month'][$month],
+                'HEAD_LABEL' => $this->months[$month],
                 'items' => $nav_bar,
             ];
         }
@@ -465,7 +465,7 @@ class CalendarMonthly extends CalendarBase
                 $first_day_dow += 7;
             }
             //first_day_dow = week day corresponding to the first day of this month
-            $wday_labels = $this->lang['day'];
+            $wday_labels = $this->days;
 
             if ($this->conf['week_starts_on'] === 'monday') {
                 if ($first_day_dow == 0) {

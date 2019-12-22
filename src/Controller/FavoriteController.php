@@ -17,19 +17,17 @@ use Phyxo\Template\Template;
 use Phyxo\MenuBar;
 use Phyxo\Conf;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
-use Phyxo\Image\SrcImage;
-use Phyxo\Functions\Plugin;
 use App\Repository\ImageRepository;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\ImageMapper;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FavoriteController extends CommonController
 {
     public function index(Request $request, int $start = 0, EntityManager $em, Template $template, MenuBar $menuBar, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite,
-                            ImageMapper $imageMapper, ImageStandardParams $image_std_params)
+                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -39,7 +37,7 @@ class FavoriteController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['TITLE'] = Language::l10n('Favorites');
+        $tpl_params['TITLE'] = $translator->trans('Favorites');
 
         // @TODO: retrieve current sort order: user, category or default
         $filter = [];
@@ -79,7 +77,7 @@ class FavoriteController extends CommonController
         return $this->render('thumbnails.tpl', $tpl_params);
     }
 
-    public function add(int $image_id, EntityManager $em, Request $request)
+    public function add(int $image_id, EntityManager $em, Request $request, TranslatorInterface $translator)
     {
         $em->getRepository(FavoriteRepository::class)->addFavorite($this->getUser()->getId(), $image_id);
 
@@ -88,7 +86,7 @@ class FavoriteController extends CommonController
                 [
                     'status' => 'ok',
                     'href' => $this->generateUrl('remove_from_favorites', ['image_id' => $image_id]),
-                    'title' => Language::l10n('delete this photo from your favorites'),
+                    'title' => $translator->trans('delete this photo from your favorites'),
                 ]
             );
         }
@@ -96,7 +94,7 @@ class FavoriteController extends CommonController
         return $this->redirectToRoute('favorites');
     }
 
-    public function remove(int $image_id, EntityManager $em, Request $request)
+    public function remove(int $image_id, EntityManager $em, Request $request, TranslatorInterface $translator)
     {
         $em->getRepository(FavoriteRepository::class)->deleteFavorite($this->getUser()->getId(), $image_id);
 
@@ -105,7 +103,7 @@ class FavoriteController extends CommonController
                 [
                     'status' => 'ok',
                     'href' => $this->generateUrl('add_to_favorites', ['image_id' => $image_id]),
-                    'title' => Language::l10n('add this photo to your favorites'),
+                    'title' => $translator->trans('add this photo to your favorites'),
                 ]
             );
         }

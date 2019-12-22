@@ -13,7 +13,6 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\ImageRepository;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use App\Repository\BaseRepository;
 use Phyxo\MenuBar;
 use Phyxo\EntityManager;
@@ -23,11 +22,12 @@ use App\DataMapper\ImageMapper;
 use Phyxo\Template\Template;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class IndexController extends CommonController
 {
     public function mostVisited(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
+                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -50,7 +50,7 @@ class IndexController extends CommonController
             'AND'
         );
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Most visited');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Most visited');
 
         $result = $em->getRepository(ImageRepository::class)->searchDistinctId('id', ['hit > 0 ' . $forbidden], true, $conf['order_by'], $conf['top_number']);
         $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
@@ -85,7 +85,7 @@ class IndexController extends CommonController
     }
 
     public function recentPics(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
+                                ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -93,7 +93,7 @@ class IndexController extends CommonController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->cookies->has('category_view')) {
-        $tpl_params['category_view'] = $request->cookies->get('category_view');
+            $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
         $filter = [];
@@ -108,7 +108,7 @@ class IndexController extends CommonController
             'AND'
         );
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Recent photos');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Recent photos');
         $result = $em->getRepository(ImageRepository::class)->searchDistinctId(
             'id',
             [$em->getRepository(BaseRepository::class)->getRecentPhotos($this->getUser(), 'date_available') . ' ' . $forbidden], true, $conf['order_by']
@@ -146,7 +146,7 @@ class IndexController extends CommonController
     }
 
     public function bestRated(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
+                            ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -169,7 +169,7 @@ class IndexController extends CommonController
         'AND'
         );
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Best rated');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Best rated');
 
         $super_order_by = true;
         $order_by = ' ORDER BY rating_score DESC, id DESC';
@@ -231,7 +231,7 @@ class IndexController extends CommonController
     }
 
     public function randomList(Request $request, EntityManager $em, string $list, Conf $conf, ImageMapper $imageMapper, MenuBar $menuBar, int $start = 0,
-                                Template $template, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params)
+                                Template $template, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -254,7 +254,7 @@ class IndexController extends CommonController
             'AND'
         );
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Random photos');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Random photos');
         $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $list), $forbidden, $conf['order_by']);
         $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
 

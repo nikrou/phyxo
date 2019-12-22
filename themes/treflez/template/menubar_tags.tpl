@@ -4,7 +4,7 @@
 	{foreach $block->data as $tag}
             <a class="dropdown-item tagLevel{$tag.level}" href=
 	       {if isset($tag.U_ADD)}
-               "{$tag.U_ADD}" title="{$tag.counter|translate_dec:'%d photo is also linked to current tags':'%d photos are also linked to current tags'}">+
+               "{$tag.U_ADD}" title="{'number_of_photos_linked_to_current_tags'|translate:['count' => $tag.counter]}">+
 	       {else}
 		"{$tag.URL}" title="{'display photos linked to this tag'|translate}">
 	       {/if}

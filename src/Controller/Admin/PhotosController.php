@@ -16,30 +16,34 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhotosController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'direct', bool $enable_synchronization = false)
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('direct', Language::l10n('Web Form'), $this->generateUrl('admin_photos_add', ['section' => 'direct']), 'fa-upload');
+        $tabsheet->add('direct', $this->translator->trans('Web Form', [], 'admin'), $this->generateUrl('admin_photos_add', ['section' => 'direct']), 'fa-upload');
         if ($enable_synchronization) {
-            $tabsheet->add('ftp', Language::l10n('FTP + Synchronization'), $this->generateUrl('admin_photos_add', ['section' => 'ftp']), 'fa-exchange');
+            $tabsheet->add('ftp', $this->translator->trans('FTP + Synchronization', [], 'admin'), $this->generateUrl('admin_photos_add', ['section' => 'ftp']), 'fa-exchange');
         }
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function direct(Request $request, int $album_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager)
+    public function direct(Request $request, int $album_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $tokenManager,
+                            TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -116,23 +120,25 @@ class PhotosController extends AdminCommonController
 
         // image level options
         $selected_level = $request->request->get('level') ? (int) $request->request->get('level') : 0;
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
+        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = [$selected_level];
 
         if (!function_exists('gd_info')) {
-            $tpl_params['errors'][] = Language::l10n('GD library is missing');
+            $tpl_params['errors'][] = $translator->trans('GD library is missing', [], 'admin');
         }
 
 
         if ($conf['use_exif'] && !function_exists('exif_read_data')) {
-            $tpl_params['warnings'][] = Language::l10n('Exif extension not available, admin should disable exif use');
+            $tpl_params['warnings'][] = $translator->trans('Exif extension not available, admin should disable exif use', [], 'admin');
         }
 
         if (\Phyxo\Functions\Utils::get_ini_size('upload_max_filesize') > \Phyxo\Functions\Utils::get_ini_size('post_max_size')) {
-            $tpl_params['warnings'][] = Language::l10n(
-              'In your php.ini file, the upload_max_filesize (%sB) is bigger than post_max_size (%sB), you should change this setting',
-              \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize', false),
-              \Phyxo\Functions\Utils::get_ini_size('post_max_size', false)
+            $tpl_params['warnings'][] = $translator->trans(
+              'In your php.ini file, the upload_max_filesize ({upload_max_filesize}B) is bigger than post_max_size ({post_max_size}B), you should change this setting',
+              ['upload_max_filesize' => \Phyxo\Functions\Utils::get_ini_size('upload_max_filesize', false),
+                  'post_max_size' => \Phyxo\Functions\Utils::get_ini_size('post_max_size', false)
+              ],
+              'admin'
             );
         }
         $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['categories'], $em);
@@ -145,7 +151,7 @@ class PhotosController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photos_add');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photos_add');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_photos_add');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Photo');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('direct', $conf['enable_synchronization']), $tpl_params);
 

@@ -57,7 +57,7 @@
 	<p id="manualOrder" class="collapse">
 	    <input type="hidden" name="pwg_token" value="{$csrf_token}">
 	    <input class="btn btn-submit3" name="submitManualOrder" type="submit" value="{'Save manual order'|translate}">
-	    {'... or '|translate} <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{'cancel manual order'|translate}</a>
+	    ... {'or'|translate} <a href="#manualOrder" class="btn btn-cancel" data-toggle="collapse">{'cancel manual order'|translate}</a>
 	</p>
 
 	{if count($categories)}
@@ -65,10 +65,10 @@
 		{foreach $categories as $category}
 		    {if $category.IS_PRIVATE}
 			{assign var="status_icon" value="fa-lock"}
-			{assign var="status_title" value="{'Private'|translate}"}
+			{assign var="status_title" value="{'Private album'|translate}"}
 		    {else}
 			{assign var="status_icon" value="fa-unlock"}
-			{assign var="status_title" value="{'Public'|translate}"}
+			{assign var="status_title" value="{'Public album'|translate}"}
 		    {/if}
 
 		    <div class="album{if $category.IS_VIRTUAL} virtual_cat{/if}" id="cat_{$category.ID}">
@@ -76,7 +76,13 @@
 			    <i class="fa infos {$status_icon}" title="{$status_title}"></i>
 			    <i class="drag_button move visibility-hidden" title="{'Drag to re-order'|translate}"></i>
 			    <strong><a href="{$category.U_CHILDREN}" title="{'manage sub-albums'|translate}">{$category.NAME}</a></strong>
-			    <span class="albumInfos"><span class="userSeparator">&middot;</span> {$category.NB_PHOTOS|translate_dec:'%d photo':'%d photos'} <span class="userSeparator">&middot;</span> {$category.NB_SUB_PHOTOS|translate_dec:'%d photo':'%d photos'} {$category.NB_SUB_ALBUMS|translate_dec:'in %d sub-album':'in %d sub-albums'}</span>
+			    <span class="albumInfos">
+				<span class="userSeparator">&middot;</span>
+				{'number_of_photos'|translate:['count' => $category.NB_PHOTOS]}
+				<span class="userSeparator">&middot;</span>
+				{'number_of_photos'|translate:['count' => $category.NB_SUB_PHOTOS]}
+				{'number_of_photos_in_sub_albums'|translate:['count' => $category.NB_SUB_ALBUMS]}
+			    </span>
 			</p>
 
 			<input type="hidden" name="catOrd[{$category.ID}]" value="{$category.RANK}">

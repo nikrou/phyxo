@@ -18,7 +18,9 @@
 	    {/if}
 	{/if}
 
-	<title>{if $PAGE_TITLE!=\Phyxo\Functions\Language::l10n('Home') && $PAGE_TITLE!=$GALLERY_TITLE}{$PAGE_TITLE} | {/if}{$GALLERY_TITLE}</title>
+	{block name="title"}
+	    <title>{$PAGE_TITLE}{if !empty($PAGE_TITLE)} | {/if}{$GALLERY_TITLE}</title>
+	{/block}
 	<link rel="start" title="{'Home'|translate}" href="{$U_HOME}" >
 	<link rel="search" title="{'Search'|translate}" href="{path name="search"}">
 	{if isset($first.U_IMG)}

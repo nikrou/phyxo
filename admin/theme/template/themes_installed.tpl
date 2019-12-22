@@ -38,7 +38,7 @@
 
 			<div class="extension theme card">
 			    <div class="card-header">
-				{$theme.NAME} {if $theme.IS_DEFAULT}<em>({'default'|translate})</em>{/if} {if $theme.IS_MOBILE}<em>({'Mobile'|translate})</em>{/if}
+				{$theme.NAME} {if $theme.IS_DEFAULT}<em>({'Default'|translate})</em>{/if} {if $theme.IS_MOBILE}<em>({'Mobile'|translate})</em>{/if}
 				{'Version'|translate} {$version}
 			    </div>
 			    <div class="card-body">

@@ -13,14 +13,14 @@ namespace App\Controller\Admin;
 
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SiteUpdateController extends AdminCommonController
 {
-    public function permalinks(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function permalinks(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -28,7 +28,7 @@ class SiteUpdateController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site_update');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_site_update');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Site update');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Site update', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         return $this->render('site_update.tpl', $tpl_params);

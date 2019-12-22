@@ -24,28 +24,32 @@ use App\Repository\UserInfosRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UsersController extends AdminCommonController
 {
+    private $translator;
+
     public function setTabsheet(string $section = 'list', int $user_id = 0): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('list', Language::l10n('User list'), $this->generateUrl('admin_users'), 'fa-users');
-        $tabsheet->add('perm', Language::l10n('Permissions'), $user_id !== 0 ? $this->generateUrl('admin_user_perm', ['user_id' => $user_id]) : null, 'fa-lock');
+        $tabsheet->add('list', $this->translator->trans('User list', [], 'admin'), $this->generateUrl('admin_users'), 'fa-users');
+        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $user_id !== 0 ? $this->generateUrl('admin_user_perm', ['user_id' => $user_id]) : null, 'fa-lock');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, Template $template, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
+    public function list(Request $request, EntityManager $em, Conf $conf, UserMapper $userMapper, Template $template, ParameterBagInterface $params,
+                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -101,7 +105,7 @@ class UsersController extends AdminCommonController
 
         // Status options
         foreach (User::ALL_STATUS as $status) {
-            $label_of_status[$status] = Language::l10n('user_status_' . $status);
+            $label_of_status[$status] = $translator->trans('user_status_' . $status, [], 'admin');
         }
 
         $pref_status_options = $label_of_status;
@@ -117,7 +121,7 @@ class UsersController extends AdminCommonController
 
         // user level options
         foreach ($conf['available_permission_levels'] as $level) {
-            $level_options[$level] = Language::l10n(sprintf('Level %d', $level));
+            $level_options[$level] = $translator->trans(sprintf('Level %d', $level), [], 'admin');
         }
         $tpl_params['level_options'] = $level_options;
         $tpl_params['level_selected'] = $default_user['level'];
@@ -127,16 +131,18 @@ class UsersController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_users');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Users');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
 
         return $this->render('users_list.tpl', $tpl_params);
     }
 
-    public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf, ParameterBagInterface $params)
+    public function perm(Request $request, int $user_id, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf,
+                        ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -150,9 +156,9 @@ class UsersController extends AdminCommonController
             }
         }
 
-        $tpl_params['TITLE'] = Language::l10n('Manage permissions for user "%s"', $userMapper->getUsernameFromId($user_id));
-        $tpl_params['L_CAT_OPTIONS_TRUE'] = Language::l10n('Authorized');
-        $tpl_params['L_CAT_OPTIONS_FALSE'] = Language::l10n('Forbidden');
+        $tpl_params['TITLE'] = $translator->trans('Manage permissions for user "{user}"', ['user' => $userMapper->getUsernameFromId($user_id)], 'admin');
+        $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
+        $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
 
         // retrieve category ids authorized to the groups the user belongs to
@@ -188,7 +194,7 @@ class UsersController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_user_perm', ['user_id' => $user_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_users');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Users');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Users', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $user_id), $tpl_params);
 

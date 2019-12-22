@@ -23,11 +23,11 @@ use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\Image\DerivativeImage;
+use Smarty_Internal_Template;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Template implements EngineInterface
 {
-    protected static $instance = null;
-
     private $stats = ['render_time' => null, 'files' => []];
     private $manifest_content = '';
     private $router;
@@ -41,43 +41,49 @@ class Template implements EngineInterface
 
     /** @var string[] - Hash of filenames for each template handle. */
     private $files = [];
-
-    /**
-     * @var string $root
-     * @var string $theme
-     * @var string $path
-     */
-    private $options = [];
-
+    private $conf, $translator, $domain = 'messages';
     private $theme = null;
 
-    public function __construct(array $options = [])
+    public function __construct(Conf $conf, TranslatorInterface $translator, RouterInterface $router, string $compileDir)
     {
-        $this->options = array_merge(
-            ['conf' => [], 'lang' => [], 'lang_info' => []],
-            $options
-        );
+        $this->conf = $conf;
+        $this->translator = $translator;
+        $this->router = $router;
 
         SmartyException::$escape = false;
 
         $this->smarty = new Smarty();
 
-        $this->smarty->registerPlugin('modifiercompiler', 'translate', [$this, 'modcompiler_translate']);
-        $this->smarty->registerPlugin('modifiercompiler', 'translate_dec', [$this, 'modcompiler_translate_dec']);
-        $this->smarty->registerPlugin('function', 'define_derivative', [$this, 'func_define_derivative']);
+        $this->smarty->registerPlugin('modifier', 'translate', [$this, 'translateModifier']);
+        $this->smarty->registerPlugin('block', 'translate', [$this, 'translateBlock']);
         $this->smarty->registerPlugin('function', 'asset', [$this, 'func_asset']);
-
         $this->smarty->registerPlugin('function', 'media', [$this, 'func_media']);
         $this->smarty->registerPlugin('function', 'path', [$this, 'func_path']);
+        $this->smarty->registerPlugin('function', 'define_derivative', [$this, 'func_define_derivative']);
         $this->smarty->registerPlugin('function', 'derivative_from_image', [$this, 'func_derivative_from_image']);
+
+        if (isset($this->conf['debug_template'])) {
+            $this->smarty->debugging = $this->conf['debug_template'];
+        }
+
+        if (!$this->smarty->debugging) {
+            $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
+        }
+
+        if (isset($this->conf['template_compile_check'])) {
+            $this->smarty->compile_check = $this->conf['template_compile_check'];
+        }
+
+        if (isset($this->conf['template_force_compile'])) {
+            $this->smarty->force_compile = $this->conf['template_force_compile'];
+        }
+
+        $this->smarty->setCompileDir($compileDir);
     }
 
-    public static function init($compile_dir)
+    public function setDomain(string $domain)
     {
-        self::$instance = new Template();
-        self::$instance->setCompileDir($compile_dir);
-
-        return self::$instance;
+        $this->domain = $domain;
     }
 
     public function setUser(User $user)
@@ -90,11 +96,6 @@ class Template implements EngineInterface
         return $this->user;
     }
 
-    public function setRouter(RouterInterface $router)
-    {
-        $this->router = $router;
-    }
-
     public function setImageStandardParams(ImageStandardParams $image_std_params)
     {
         $this->image_std_params = $image_std_params;
@@ -103,60 +104,6 @@ class Template implements EngineInterface
     public function getImageStandardParams()
     {
         return $this->image_std_params;
-    }
-
-    public function postConstruct()
-    {
-        if (isset($this->options['conf']['debug_template'])) {
-            $this->smarty->debugging = $this->options['conf']['debug_template'];
-        }
-
-        if (!$this->smarty->debugging) {
-            $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
-        }
-
-        if (isset($this->options['conf']['template_compile_check'])) {
-            $this->smarty->compile_check = $this->options['conf']['template_compile_check'];
-        }
-
-        if (isset($this->options['conf']['template_force_compile'])) {
-            $this->smarty->force_compile = $this->options['conf']['template_force_compile'];
-        }
-
-        // @TODO: to be removed ?
-        if (isset($this->options['lang_info']['code']) && !isset($this->options['lang_info']['jquery_code'])) {
-            $this->options['lang_info']['jquery_code'] = $this->options['lang_info']['code'];
-        }
-
-        if (isset($this->options['lang_info']['jquery_code']) && !isset($this->options['lang_info']['plupload_code'])) {
-            $this->options['lang_info']['plupload_code'] = str_replace('-', '_', $this->options['lang_info']['jquery_code']);
-        }
-
-        $this->smarty->assign('lang_info', $this->options['lang_info']);
-    }
-
-    public function setConf(Conf $conf)
-    {
-        $this->options['conf'] = $conf;
-    }
-
-    public function setLang(array $lang, bool $merge = true)
-    {
-        if ($merge) {
-            $this->options['lang'] = array_merge($this->options['lang'], $lang);
-        } else {
-            $this->options['lang'] = $lang;
-        }
-    }
-
-    public function setLangInfo(array $lang_info)
-    {
-        $this->options['lang_info'] = $lang_info;
-    }
-
-    public function setCompileDir($compile_dir)
-    {
-        $this->smarty->setCompileDir($compile_dir);
     }
 
     /*
@@ -192,8 +139,9 @@ class Template implements EngineInterface
 
         ob_start();
         // inject variables and objects in loaded theme
-        $conf = $this->options['conf'];
-        $template = self::$instance;
+        $conf = $this->conf;
+        $template = $this;
+        $translator = $this->translator;
         $image_std_params = $this->image_std_params;
         require $themeconf_filename;
         ob_end_clean();
@@ -394,11 +342,6 @@ class Template implements EngineInterface
         $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
 
         $save_compile_id = $this->smarty->compile_id;
-
-        if (isset($this->options['lang_info']['code'])) {
-            $this->smarty->compile_id .= '_' . $this->options['lang_info']['code'];
-        }
-
         $v = $this->smarty->fetch($this->files[$handle]);
 
         $this->smarty->compile_id = $save_compile_id;
@@ -426,8 +369,6 @@ class Template implements EngineInterface
      */
     public function flush($return = false)
     {
-        $content = [];
-
         if ($return) {
             return $this->output;
         }
@@ -437,83 +378,30 @@ class Template implements EngineInterface
     }
 
     /**
-     * Eval a temp string to retrieve the original PHP value.
+     * Modifier plugin for Translation
+     * @see TranslatorInterface::trans
      *
-     * @param string $str
-     * @return mixed
+     * Usage: {'message'|translate}
      */
-    public static function get_php_str_val($str)
+    public function translateModifier($message, array $params = [], $locale = null)
     {
-        if (is_string($str) && strlen($str) > 1) {
-            if (($str[0] == '\'' && $str[strlen($str) - 1] == '\'') || ($str[0] == '"' && $str[strlen($str) - 1] == '"')) {
-                eval('$tmp=' . $str . ';');
-                return $tmp;
-            }
-        }
-        return null;
+        $domain = isset($params['domain']) ? $params['domain'] : $this->domain;
+
+        return $this->translator->trans($message, $params, $domain, $locale);
     }
 
-    /**
-     * "translate" variable modifier.
-     * Usage :
-     *    - {'Comment'|translate}
-     *    - {'%d comments'|translate:$count}
-     * @see \Phyxo\Functions\Language::l10n()
-     *
-     * @param array $params
-     * @return string
-     */
-    public function modcompiler_translate($params)
+    public function translateBlock(array $params = [], $message = null, Smarty_Internal_Template $template, &$repeat)
     {
-        switch (count($params)) {
-            case 1:
-                if (!empty($this->options['conf']['compiled_template_cache_language'])
-                    && ($key = self::get_php_str_val($params[0])) !== null
-                    && isset($this->options['lang'][$key])) {
-                    return var_export($this->options['lang'][$key], true);
-                }
-                return '\Phyxo\Functions\Language::l10n(' . $params[0] . ')';
+        // only output on the closing tag
+        if (!$repeat && isset($message)) {
+            $params = array_merge([
+                'vars' => [],
+                'domain' => $this->domain,
+                'locale' => null,
+            ], $params);
 
-            default:
-                if (!empty($this->options['conf']['compiled_template_cache_language'])) {
-                    $ret = 'sprintf(';
-                    $ret .= self::modcompiler_translate([$params[0]]);
-                    $ret .= ',' . implode(',', array_slice($params, 1));
-                    $ret .= ')';
-                    return $ret;
-                }
-                return '\Phyxo\Functions\Language::l10n(' . $params[0] . ',' . implode(',', array_slice($params, 1)) . ')';
+            return $this->translator->trans($message, $params['vars'], $params['domain'], $params['locale']);
         }
-    }
-
-    /**
-     * "translate_dec" variable modifier.
-     * Usage :
-     *    - {$count|translate_dec:'%d comment':'%d comments'}
-     * @see \Phyxo\Functions\Language::l10n_dec()
-     *
-     * @param array $params
-     * @return string
-     */
-    public function modcompiler_translate_dec($params)
-    {
-        if (!empty($this->options['conf']['compiled_template_cache_language'])) {
-            $ret = 'sprintf(';
-            if ($this->options['lang_info']['zero_plural']) {
-                $ret .= '($tmp=(' . $params[0] . '))>1||$tmp==0';
-            } else {
-                $ret .= '($tmp=(' . $params[0] . '))>1';
-            }
-            $ret .= '?';
-            $ret .= $this->modcompiler_translate([$params[2]]);
-            $ret .= ':';
-            $ret .= $this->modcompiler_translate([$params[1]]);
-            $ret .= ',$tmp';
-            $ret .= ')';
-            return $ret;
-        }
-
-        return '\Phyxo\Functions\Language::l10n_dec(' . $params[1] . ',' . $params[2] . ',' . $params[0] . ')';
     }
 
     /**

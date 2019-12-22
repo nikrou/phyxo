@@ -13,29 +13,28 @@ namespace App\EventSubscriber;
 
 use App\DataMapper\UserMapper;
 use App\Events\CommentEvent;
-use App\Security\UserProvider;
 use Phyxo\Conf;
-use Phyxo\Functions\Language;
 use Phyxo\Template\AdminTemplate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentNotificationSubscriber implements EventSubscriberInterface
 {
-    private $router, $mailer, $conf, $template, $userProvider, $phyxoVersion, $phyxoWebsite, $userMapper;
+    private $router, $mailer, $conf, $template, $phyxoVersion, $phyxoWebsite, $userMapper, $translator;
 
-    public function __construct(\Swift_Mailer $mailer, Conf $conf, RouterInterface $router, AdminTemplate $template, UserProvider $userProvider, string $phyxoVersion,
-                                string $phyxoWebsite, UserMapper $userMapper)
+    public function __construct(\Swift_Mailer $mailer, Conf $conf, RouterInterface $router, AdminTemplate $template, string $phyxoVersion,
+                                string $phyxoWebsite, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->conf = $conf;
         $this->router = $router;
         $this->template = $template;
-        $this->userProvider = $userProvider;
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
         $this->userMapper = $userMapper;
+        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents(): array
@@ -47,20 +46,7 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
 
     public function onCommentAction(CommentEvent $event)
     {
-        $user = $this->userProvider->loadUserByUsername('guest');
-
-        // @TODO : mail need to be in user's language (@see switch_lang_to and switch_lang_back from Mail class)
-
-        $language_load = Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-        );
-
         $webmaster = $this->userMapper->getWebmaster();
-
-        $this->template->setLang($language_load['lang']);
-        $this->template->setLangInfo($language_load['lang_info']);
 
         $comment = $event->getComment();
         if (!empty($comment['id'])) {
@@ -68,12 +54,12 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
         }
 
         if ($event->getAction() === 'delete') {
-            $subject = Language::l10n_dec('One comment has been deleted', '%d comments have been deleted', count($comment['ids']));
+            $subject = $this->translator->trans('number_of_comments_deleted', ['count' => count($comment['ids'])]);
             $comment['IDS'] = implode(',', $comment['ids']);
         } elseif ($event->getAction() === 'edit') {
-            $subject = Language::l10n('A comment has been edited');
+            $subject = $this->translator->trans('A comment has been edited');
         } else {
-            $subject = Language::l10n_args(Language::get_l10n_args('Comment by %s', $comment['author']));
+            $subject = $this->translator->trabs('Comment by {by}', ['by' => $comment['author']]);
         }
 
         $params = [
@@ -84,21 +70,29 @@ class CommentNotificationSubscriber implements EventSubscriberInterface
             'comment' => $comment,
             'comment_action' => $event->getAction(),
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'lang_info' => $language_load['lang_info'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
             'PHYXO_URL' => $this->phyxoWebsite,
         ];
 
+        if (!empty($this->conf['mail_sender_email'])) {
+            $from[] = $this->conf['mail_sender_email'];
+            if (!empty($this->conf['mail_sender_name'])) {
+                $from[] = $this->conf['mail_sender_name'];
+            }
+        } else {
+            $from = [$webmaster['mail_address'], $webmaster['username']];
+        }
+
         $message = (new \Swift_Message())
             ->setSubject($subject)
-            ->addTo('nikrou77@gmail.com')
+            ->addTo(...$from)
             ->setBody($this->template->render('mail/text/new_comment.text.tpl', $params), 'text/plain')
             ->addPart($this->template->render('mail/html/new_comment.html.tpl', $params), 'text/html');
 
-        $message->setFrom('nikrou77@gmail.com');
-        $message->setReplyTo('nikrou77@gmail.com');
+        $message->setFrom(...$from);
+        $message->setReplyTo(...$from);
 
         $this->mailer->send($message);
     }

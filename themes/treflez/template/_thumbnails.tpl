@@ -38,12 +38,12 @@
 				<div class="card-text">
 				    {if isset($thumbnail.NB_COMMENTS)}
 					<p class="text-muted {if 0==$thumbnail.NB_COMMENTS}zero {/if}nb-comments">
-					    {$thumbnail.NB_COMMENTS|translate_dec:'%d comment':'%d comments'}
+					    {'number_of_comments'|translate:['count' => $thumbnail.NB_COMMENTS]}
 					</p>
 				    {/if}
 				    {if isset($thumbnail.NB_HITS)}
 					<p class="text-muted {if 0==$thumbnail.NB_HITS}zero {/if}nb-hits">
-					    {$thumbnail.NB_HITS|translate_dec:'%d hit':'%d hits'}
+					    {'number_of_hits'|translate:['count' => $thumbnail.NB_HITS]}
 					</p>
 				    {/if}
 				</div>

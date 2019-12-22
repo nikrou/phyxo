@@ -13,37 +13,38 @@ namespace App\Controller\Admin;
 
 use App\DataMapper\CategoryMapper;
 use App\Repository\CategoryRepository;
-use App\Repository\ImageCategoryRepository;
-use App\Repository\OldPermalinkRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumsOptionsController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'status', Conf $conf): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('status', Language::l10n('Public / Private'), $this->generateUrl('admin_albums_options'), 'fa-lock');
-        $tabsheet->add('lock', Language::l10n('Lock'), $this->generateUrl('admin_albums_options', ['section' => 'lock']), 'fa-ban');
+        $tabsheet->add('status', $this->translator->trans('Public / Private', [], 'admin'), $this->generateUrl('admin_albums_options'), 'fa-lock');
+        $tabsheet->add('lock', $this->translator->trans('Lock', [], 'admin'), $this->generateUrl('admin_albums_options', ['section' => 'lock']), 'fa-ban');
         if ($conf['activate_comments']) {
-            $tabsheet->add('comments', Language::l10n('Comments'), $this->generateUrl('admin_albums_options', ['section' => 'comments']), 'fa-comments');
+            $tabsheet->add('comments', $this->translator->trans('Comments', [], 'admin'), $this->generateUrl('admin_albums_options', ['section' => 'comments']), 'fa-comments');
         }
         if ($conf['allow_random_representative']) {
-            $tabsheet->add('representative', Language::l10n('Representative'), $this->generateUrl('admin_albums_options', ['section' => 'representative']));
+            $tabsheet->add('representative', $this->translator->trans('Representative', [], 'admin'), $this->generateUrl('admin_albums_options', ['section' => 'representative']));
         }
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper)
+    public function index(Request $request, string $section, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -84,7 +85,7 @@ class AlbumsOptionsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_options', ['section' => $section]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Public / Private');
+        $tpl_params['PAGE_TITLE'] = $this->translator->trans('Public / Private', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section, $conf), $tpl_params);
 
@@ -103,33 +104,33 @@ class AlbumsOptionsController extends AdminCommonController
             $cats_true = $em->getConnection()->result2array($result);
             $result = $em->getRepository(CategoryRepository::class)->findByField('commentable', false);
             $cats_false = $em->getConnection()->result2array($result);
-            $l_section = Language::l10n('Authorize users to add comments on selected albums');
-            $l_true = Language::l10n('Authorized');
-            $l_false = Language::l10n('Forbidden');
+            $l_section = $this->translator->trans('Authorize users to add comments on selected albums', [], 'admin');
+            $l_true = $this->translator->trans('Authorized', [], 'admin');
+            $l_false = $this->translator->trans('Forbidden', [], 'admin');
         } elseif ($section === 'lock') {
             $result = $em->getRepository(CategoryRepository::class)->findByField('visible', true);
             $cats_true = $em->getConnection()->result2array($result);
             $result = $em->getRepository(CategoryRepository::class)->findByField('visible', false);
             $cats_false = $em->getConnection()->result2array($result);
-            $l_section = Language::l10n('Lock albums');
-            $l_true = Language::l10n('Unlocked');
-            $l_false = Language::l10n('Locked');
+            $l_section = $this->translator->trans('Lock albums', [], 'admin');
+            $l_true = $this->translator->trans('Unlocked', [], 'admin');
+            $l_false = $this->translator->trans('Locked', [], 'admin');
         } elseif ($section === 'status') {
             $result = $em->getRepository(CategoryRepository::class)->findByField('status', 'public');
             $cats_true = $em->getConnection()->result2array($result);
             $result = $em->getRepository(CategoryRepository::class)->findByField('status', 'private');
             $cats_false = $em->getConnection()->result2array($result);
-            $l_section = Language::l10n('Manage authorizations for selected albums');
-            $l_true = Language::l10n('Public');
-            $l_false = Language::l10n('Private');
+            $l_section = $this->translator->trans('Manage authorizations for selected albums', [], 'admin');
+            $l_true = $this->translator->trans('Public', [], 'admin');
+            $l_false = $this->translator->trans('Private', [], 'admin');
         } elseif ($section === 'representative') {
             $result = $em->getRepository(CategoryRepository::class)->findWithRepresentant();
             $cats_true = $em->getConnection()->result2array($result);
             $result = $em->getRepository(CategoryRepository::class)->findWithNoRepresentant();
             $cats_false = $em->getConnection()->result2array($result);
-            $l_section = Language::l10n('Representative');
-            $l_true = Language::l10n('singly represented');
-            $l_false = Language::l10n('randomly represented');
+            $l_section = $this->translator->trans('Representative', [], 'admin');
+            $l_true = $this->translator->trans('singly represented', [], 'admin');
+            $l_false = $this->translator->trans('randomly represented', [], 'admin');
         }
 
         return ['cats_true' => $cats_true, 'cats_false' => $cats_false, 'L_SECTION' => $l_section, 'L_CAT_OPTIONS_TRUE' => $l_true, 'L_CAT_OPTIONS_FALSE' => $l_false];

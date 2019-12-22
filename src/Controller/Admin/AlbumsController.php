@@ -16,39 +16,43 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageCategoryRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumsController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'list'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('list', Language::l10n('List'), $this->generateUrl('admin_albums'), 'fa-bars');
-        $tabsheet->add('move', Language::l10n('Move'), $this->generateUrl('admin_albums_move'), 'fa-move');
-        $tabsheet->add('permalinks', Language::l10n('Permalinks'), $this->generateUrl('admin_albums_permalinks'), 'fa-link');
+        $tabsheet->add('list', $this->translator->trans('List', [], 'admin'), $this->generateUrl('admin_albums'), 'fa-bars');
+        $tabsheet->add('move', $this->translator->trans('Move', [], 'admin'), $this->generateUrl('admin_albums_move'), 'fa-move');
+        $tabsheet->add('permalinks', $this->translator->trans('Permalinks', [], 'admin'), $this->generateUrl('admin_albums_permalinks'), 'fa-link');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
+    public function list(Request $request, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+                        CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $sort_orders = [
-            'name ASC' => Language::l10n('Album name, A &rarr; Z'),
-            'name DESC' => Language::l10n('Album name, Z &rarr; A'),
-            'date_creation DESC' => Language::l10n('Date created, new &rarr; old'),
-            'date_creation ASC' => Language::l10n('Date created, old &rarr; new'),
-            'date_available DESC' => Language::l10n('Date posted, new &rarr; old'),
-            'date_available ASC' => Language::l10n('Date posted, old &rarr; new'),
+            'name ASC' => $translator->trans('Album name, A &rarr; Z', [], 'admin'),
+            'name DESC' => $translator->trans('Album name, Z &rarr; A', [], 'admin'),
+            'date_creation DESC' => $translator->trans('Date created, new &rarr; old', [], 'admin'),
+            'date_creation ASC' => $translator->trans('Date created, old &rarr; new', [], 'admin'),
+            'date_available DESC' => $translator->trans('Date posted, new &rarr; old', [], 'admin'),
+            'date_available ASC' => $translator->trans('Date posted, old &rarr; new', [], 'admin'),
         ];
 
         $categories = [];
@@ -135,14 +139,14 @@ class AlbumsController extends AdminCommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
 
         return $this->render('albums_list.tpl', $tpl_params);
     }
 
-    public function update(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, EntityManager $em)
+    public function update(Request $request, int $parent_id = null, CategoryMapper $categoryMapper, EntityManager $em, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             if ($request->request->get('submitManualOrder')) { // save manual category ordering
@@ -150,7 +154,7 @@ class AlbumsController extends AdminCommonController
                 asort($categoriesOrder, SORT_NUMERIC);
                 $categoryMapper->saveCategoriesOrder(array_keys($categoriesOrder));
 
-                $this->addFlash('info', Language::l10n('Album manual order was saved'));
+                $this->addFlash('info', $translator->trans('Album manual order was saved', [], 'admin'));
             } elseif ($request->request->get('submitAutoOrder')) {
                 $result = $em->getRepository(CategoryRepository::class)->findByField('id_uppercat', $parent_id);
                 $category_ids = $em->getConnection()->result2array($result, null, 'id');
@@ -188,16 +192,18 @@ class AlbumsController extends AdminCommonController
                 array_multisort($sort, SORT_REGULAR, 'ASC' == $order_by_asc ? SORT_ASC : SORT_DESC, $categories);
 
                 $categoryMapper->saveCategoriesOrder($categories);
-                $this->addFlash('info', Language::l10n('Albums automatically sorted'));
+                $this->addFlash('info', $translator->trans('Albums automatically sorted', [], 'admin'));
             }
         }
 
         return $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function move(Request $request, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper)
+    public function move(Request $request, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
+                        CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -205,7 +211,7 @@ class AlbumsController extends AdminCommonController
             if ($request->request->get('selection')) {
                 $categoryMapper->moveCategories($request->request->get('selection'), $request->request->get('parent'));
             } else {
-                $this->addFlash('error', Language::l10n('Select at least one album'));
+                $this->addFlash('error', $translator->trans('Select at least one album', [], 'admin'));
             }
 
             return $this->redirectToRoute('admin_albums_move', ['parent_id' => $parent_id]);
@@ -222,16 +228,17 @@ class AlbumsController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_albums_move', ['parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_move');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('move'), $tpl_params);
 
         return $this->render('albums_move.tpl', $tpl_params);
     }
 
-    public function permalinks(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CategoryMapper $categoryMapper)
+    public function permalinks(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -239,7 +246,7 @@ class AlbumsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums_permalinks');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permalinks'), $tpl_params);
 

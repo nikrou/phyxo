@@ -55,7 +55,7 @@
 		<li>
 		    <a href="{$U_COMMENTS}"><i class="fa fa-comments"></i>{'Comments'|translate}
 			{if !empty($NB_PENDING_COMMENTS)}
-			    <span class="counter" title="{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}">{$NB_PENDING_COMMENTS}</span>
+			    <span class="counter" title="{'waiting_for_validation'|translate:['count' => $NB_PENDING_COMMENTS]}">{$NB_PENDING_COMMENTS}</span>
 			{/if}
 		    </a>
 		</li>

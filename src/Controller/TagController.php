@@ -23,16 +23,17 @@ use App\DataMapper\ImageMapper;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagController extends CommonController
 {
-    public function list(Request $request, Template $template, TagMapper $tagMapper, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar)
+    public function list(Request $request, Template $template, TagMapper $tagMapper, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Tags');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Tags');
 
         $display_mode = $conf['tags_default_display_mode'];
         if ($request->get('display_mode')) {
@@ -141,7 +142,9 @@ class TagController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $requested_tag_ids = array_map(function($tag) { return substr($tag, 0, strpos($tag, '-'));}, explode('/', $tag_ids));
+        $requested_tag_ids = array_map(function($tag) {
+            return substr($tag, 0, strpos($tag, '-'));
+        }, explode('/', $tag_ids));
         $requested_tag_url_names = [];
 
         $result = $em->getRepository(TagRepository::class)->findTags($requested_tag_ids, $requested_tag_url_names);

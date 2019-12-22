@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\Functions\Language;
 use Phyxo\Calendar\CalendarMonthly;
 use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
@@ -23,17 +22,17 @@ use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Functions\Utils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CalendarController extends CommonController
 {
     public function categoriesMonthly(Request $request, string $date_type, string $view_type, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
-                                        EntityManager $em, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0)
+                                    EntityManager $em, MenuBar $menuBar, ImageMapper $imageMapper, ImageStandardParams $image_std_params, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $this->loadLanguage($this->getUser());
         $this->image_std_params = $image_std_params;
 
         $tpl_params['PAGE_TITLE'] = 'Calendar';
@@ -45,17 +44,17 @@ class CalendarController extends CommonController
         $tpl_params['chronology_views'] = [
             [
                 'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'list']),
-                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'CONTENT' => $translator->trans('chronology_monthly_list'),
                 'SELECTED' => $view_type === 'list',
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'calendar']),
-                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'CONTENT' => $translator->trans('chronology_monthly_calendar'),
                 'SELECTED' => $view_type === 'calendar',
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_categories_weekly', ['date_type' => $date_type]),
-                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'CONTENT' => $translator->trans('chronology_weekly_list'),
                 'SELECTED' => false,
             ],
         ];
@@ -80,7 +79,6 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setTemplate($template);
         $calendar->setViewType($view_type);
-        $calendar->setLang($this->language_load['lang']);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByCondition(
             $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
@@ -129,7 +127,7 @@ class CalendarController extends CommonController
         }
 
         // @TODO : better display in template
-        $tmp = '<a href="' . $this->generateUrl('homepage') . '">' . Language::l10n('Home') . '</a>';
+        $tmp = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
         foreach ($calendar->getBreadcrumb('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => $view_type]) as $part) {
             $tmp .= ' / ';
@@ -148,11 +146,10 @@ class CalendarController extends CommonController
     }
 
     public function categoriesWeekly(Request $request, string $date_type, int $week = 0, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                    ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0)
+                                    ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
-        $this->loadLanguage($this->getUser());
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -163,17 +160,17 @@ class CalendarController extends CommonController
         $tpl_params['chronology_views'] = [
             [
                 'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'list']),
-                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'CONTENT' => $translator->trans('chronology_monthly_list'),
                 'SELECTED' => false,
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_categories_monthly', ['date_type' => $date_type, 'view_type' => 'calendar']),
-                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'CONTENT' => $translator->trans('chronology_monthly_calendar'),
                 'SELECTED' => false,
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_categories_weekly', ['date_type' => $date_type]),
-                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'CONTENT' => $translator->trans('chronology_weekly_list'),
                 'SELECTED' => true,
             ],
         ];
@@ -201,7 +198,6 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setTemplate($template);
         $calendar->setViewType('list');
-        $calendar->setLang($this->language_load['lang']);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByCondition(
             $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
@@ -258,11 +254,10 @@ class CalendarController extends CommonController
     }
 
     public function categoryMonthly(Request $request, int $category_id, string $date_type, string $view_type, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
-                                    string $phyxoWebsite, MenuBar $menuBar, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0)
+                            string $phyxoWebsite, MenuBar $menuBar, ImageStandardParams $image_std_params, EntityManager $em, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
-        $this->loadLanguage($this->getUser());
         $this->image_std_params = $image_std_params;
 
         $tpl_params['PAGE_TITLE'] = 'Calendar';
@@ -272,17 +267,17 @@ class CalendarController extends CommonController
         $tpl_params['chronology_views'] = [
             [
                 'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'CONTENT' => $translator->trans('chronology_monthly_list'),
                 'SELECTED' => $view_type === 'list',
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'calendar', 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'CONTENT' => $translator->trans('chronology_monthly_calendar'),
                 'SELECTED' => $view_type === 'calendar',
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'CONTENT' => $translator->trans('chronology_weekly_list'),
                 'SELECTED' => false,
             ],
         ];
@@ -307,7 +302,6 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setTemplate($template);
         $calendar->setViewType($view_type);
-        $calendar->setLang($this->language_load['lang']);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByConditionAndCategory(
             $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),
@@ -359,10 +353,9 @@ class CalendarController extends CommonController
     }
 
     public function categoryWeekly(Request $request, int $category_id, string $date_type, int $week, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
-                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, EntityManager $em, int $start = 0)
+                                    MenuBar $menuBar, ImageStandardParams $image_std_params, ImageMapper $imageMapper, EntityManager $em, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
-        $this->loadLanguage($this->getUser());
         $this->image_std_params = $image_std_params;
 
         $tpl_params['PAGE_TITLE'] = 'Calendar';
@@ -393,17 +386,17 @@ class CalendarController extends CommonController
         $tpl_params['chronology_views'] = [
             [
                 'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'list', 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_monthly_list'),
+                'CONTENT' => $translator->trans('chronology_monthly_list'),
                 'SELECTED' => false,
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => 'calendar', 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_monthly_calendar'),
+                'CONTENT' => $translator->trans('chronology_monthly_calendar'),
                 'SELECTED' => false,
             ],
             [
                 'VALUE' => $this->generateUrl('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]),
-                'CONTENT' => Language::l10n('chronology_weekly_list'),
+                'CONTENT' => $translator->trans('chronology_weekly_list'),
                 'SELECTED' => true,
             ],
         ];
@@ -430,7 +423,6 @@ class CalendarController extends CommonController
         $calendar->setConf($conf);
         $calendar->setTemplate($template);
         $calendar->setViewType('list');
-        $calendar->setLang($this->language_load['lang']);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByConditionAndCategory(
             $em->getRepository(BaseRepository::class)->getSQLConditionFandF($this->getUser(), $filter, ['visible_images' => 'id'], 'AND', false),

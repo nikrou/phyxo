@@ -15,7 +15,6 @@ use App\DataMapper\CommentMapper;
 use App\Repository\CommentRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -24,22 +23,27 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentsController  extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'all')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('all', Language::l10n('All'), $this->generateUrl('admin_comments'));
-        $tabsheet->add('pending', Language::l10n('Pendings'), $this->generateUrl('admin_comments', ['section' => 'pending']));
+        $tabsheet->add('all', $this->translator->trans('All comments', [], 'admin'), $this->generateUrl('admin_comments'));
+        $tabsheet->add('pending', $this->translator->trans('Pending comments', [], 'admin'), $this->generateUrl('admin_comments', ['section' => 'pending']));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function index(Request $request, string $section = 'all', int $start = 0, ImageStandardParams $image_std_params, Template $template, Conf $conf, EntityManager $em,
+                        ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -81,7 +85,7 @@ class CommentsController  extends AdminCommonController
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_comments', ['section' => $section, 'start' => $start]);
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Comments');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Comments', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet($section), $tpl_params);
 
@@ -96,10 +100,10 @@ class CommentsController  extends AdminCommonController
 
         if ($section === 'all') {
             $tpl_params['NB_ELEMENTS'] = $nb_total;
-            $tpl_params['SECTION_TITLE'] = Language::l10n('All');
+            $tpl_params['SECTION_TITLE'] = $translator->trans('All', [], 'admin');
         } else {
             $tpl_params['NB_ELEMENTS'] = $nb_pending;
-            $tpl_params['SECTION_TITLE'] = Language::l10n('Pendings');
+            $tpl_params['SECTION_TITLE'] = $translator->trans('Pending comments', [], 'admin');
         }
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_comments');
@@ -116,11 +120,11 @@ class CommentsController  extends AdminCommonController
         return $this->render('comments.tpl', $tpl_params);
     }
 
-    public function update(Request $request, string $section = 'all', int $start = 0, CommentMapper $commentMapper)
+    public function update(Request $request, string $section = 'all', int $start = 0, CommentMapper $commentMapper, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             if (!$request->request->get('comments')) {
-                $this->addFlash('error', Language::l10n('Select at least one comment'));
+                $this->addFlash('error', $translator->trans('Select at least one comment', [], 'admin'));
                 $error = true;
             } else {
                 if ($request->request->get('validate')) {
@@ -128,7 +132,7 @@ class CommentsController  extends AdminCommonController
 
                     $this->addFlash(
                       'info',
-                      Language::l10n_dec('%d user comment validated', '%d user comments validated', count($request->request->get('comments')))
+                      $translator->trans('number_of_comments_validated', ['count' => count($request->request->get('comments'))], 'admin')
                     );
                 }
 
@@ -137,7 +141,7 @@ class CommentsController  extends AdminCommonController
 
                     $this->addFlash(
                       'info',
-                      Language::l10n_dec('%d user comment rejected', '%d user comments rejected', count($request->request->get('comments')))
+                      $translator->trans('number_of_comments_rejected', ['count' => count($request->request->get('comments'))], 'admin')
                     );
                 }
             }

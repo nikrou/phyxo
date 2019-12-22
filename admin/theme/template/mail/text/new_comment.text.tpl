@@ -1,14 +1,14 @@
 {extends file="mail/text/__layout.text.tpl"}
 
 {block name="content"}
-    {'Author: %s'|translate:$comment.author}
+    {'Author: {author}'|translate:['author' => $comment.author]}
     {if $comment_action === 'delete'}
-	{'This author removed the comment with ids %s'|translate:$comment.IDS}
+	{'This author removed the comment with ids {ids}'|translate:['ids' => $comment.IDS]}
     {elseif $comment_action === 'edit'}
 	{'This author modified following comment'|translate}
 	{$comment.content}
     {else}
-	{'Email: %s'|translate:$comment.email}
+	{'Email: {email}'|translate:['email' => $comment.email]}
 	{'Comment'|translate}
 	{$comment.content}
 	{if !empty($comment_url)}

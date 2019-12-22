@@ -18,16 +18,17 @@ use App\Repository\ImageRepository;
 use App\Repository\SiteRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SiteController extends AdminCommonController
 {
-    public function index(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager)
+    public function index(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, KernelInterface $kernel, CsrfTokenManagerInterface $csrfTokenManager,
+                        TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -36,7 +37,7 @@ class SiteController extends AdminCommonController
         if ($request->isMethod('POST') && $request->request->get('galleries_url')) {
             $is_remote = \Phyxo\Functions\URL::url_is_remote($request->request->get('galleries_url'));
             if ($is_remote) {
-                $this->addFlash('error', Language::l10n('remote sites not supported'));
+                $this->addFlash('error', $translator->trans('remote sites not supported', [], 'admin'));
             } else {
                 $url = preg_replace('/[\/]*$/', '', $request->request->get('galleries_url'));
                 $url .= '/';
@@ -47,14 +48,14 @@ class SiteController extends AdminCommonController
                 // site must not exists
 
                 if ($em->getRepository(SiteRepository::class)->isSiteExists($url)) {
-                    $this->addFlash('error', Language::l10n('This site already exists') . ' [' . $url . ']');
+                    $this->addFlash('error', $translator->trans('This site already exists', [], 'admin') . ' [' . $url . ']');
                 } else {
                     $gallery_url = $kernel->getProjectDir() . '/' . $url;
                     if (!file_exists($gallery_url)) {
-                        $this->addFlash('error', Language::l10n('Directory does not exist') . ' [' . $gallery_url . ']');
+                        $this->addFlash('error', $translator->trans('Directory does not exist', [], 'admin') . ' [' . $gallery_url . ']');
                     } else {
                         $em->getRepository(SiteRepository::class)->addSite(['galleries_url' => $url]);
-                        $this->addFlash('info', $url . ' ' . Language::l10n('created'));
+                        $this->addFlash('info', $url . ' ' . $translator->trans('created', [], 'admin'));
                     }
                 }
             }
@@ -72,7 +73,7 @@ class SiteController extends AdminCommonController
             $tpl_var = [
                 'ID' => $row['id'],
                 'NAME' => $row['galleries_url'],
-                'TYPE' => Language::l10n($is_remote ? 'Remote' : 'Local'),
+                'TYPE' => $translator->trans($is_remote ? 'Remote' : 'Local', [], 'admin'),
                 'CATEGORIES' => isset($sites_detail[$row['id']]['nb_categories']) ?? null,
                 'IMAGES' => isset($sites_detail[$row['id']]['nb_images']) ?? null,
                 'U_SYNCHRONIZE' => $this->generateUrl('admin_synchronize', ['site' => $row['id']]),
@@ -91,7 +92,7 @@ class SiteController extends AdminCommonController
         $tpl_params['F_ACTION_DELETE'] = $this->generateUrl('admin_site_delete');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_site');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Site manager');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {
@@ -124,13 +125,13 @@ class SiteController extends AdminCommonController
             $imageMapper->deleteElements($element_ids);
 
             $em->getRepository(SiteRepository::class)->deleteSite($site);
-            $this->addFlash('info', $galleries_url . ' ' . Language::l10n('deleted'));
+            $this->addFlash('info', $galleries_url . ' ' . $translator->trans('deleted', [], 'admin'));
         }
 
         return $this->redirectToRoute('admin_site');
     }
 
-    public function synchronize(Request $request, int $site, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function synchronize(Request $request, int $site, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -138,7 +139,7 @@ class SiteController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_site');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_synchronize', ['site' => 1]);
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Synchronize');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Synchronize', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

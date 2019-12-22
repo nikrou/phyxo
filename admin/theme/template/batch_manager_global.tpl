@@ -358,7 +358,7 @@
 
 			<span id="duplicates_options" class="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}visually-hidden{/if}">
 			    {'based on'|translate}
-			    <input type="checkbox" checked="checked" disabled="disabled"> {'file name'|translate}
+			    <input type="checkbox" checked="checked" disabled="disabled"> {'Filename'|translate}
 			    <label><input type="checkbox" name="filter_duplicates_date" {if isset($filter.duplicates_date) or (isset($filter.prefilter) and $filter.prefilter ne 'duplicates')}checked="checked"{/if}> {'date & time'|translate}</label>
 			    <label><input type="checkbox" name="filter_duplicates_dimensions" {if isset($filter.duplicates_dimensions)}checked="checked"{/if}> {'width & height'|translate}</label>
 			</span>
@@ -406,7 +406,10 @@
 
 			<blockquote>
 			    <div data-slider="widths">
-				{'Width'|translate} <span class="slider-info">{'between %d and %d pixels'|translate:$dimensions.selected.min_width:$dimensions.selected.max_width}</span>
+				{'Width'|translate}
+				<span class="slider-info">
+				    {'between {min} and {max} {unit}'|translate:['min' => $dimensions.selected.min_width, 'max' => $dimensions.selected.max_width, 'unit' => 'pixels']}
+				</span>
 				| <a class="slider-choice" data-min="{$dimensions.bounds.min_width}" data-max="{$dimensions.bounds.max_width}">{'Reset'|translate}</a>
 				<div class="slider-slider"></div>
 
@@ -415,7 +418,10 @@
 			    </div>
 
 			    <div data-slider="heights">
-				{'Height'|translate} <span class="slider-info">{'between %d and %d pixels'|translate:$dimensions.selected.min_height:$dimensions.selected.max_height}</span>
+				{'Height'|translate}
+				<span class="slider-info">
+				    {'between {min} and {max} {unit}'|translate:['min' => $dimensions.selected.min_height, 'max' => $dimensions.selected.max_height, 'unit' => 'pixels']}
+				</span>
 				| <a class="slider-choice" data-min="{$dimensions.bounds.min_height}" data-max="{$dimensions.bounds.max_height}">{'Reset'|translate}</a>
 				<div class="slider-slider"></div>
 
@@ -424,7 +430,10 @@
 			    </div>
 
 			    <div data-slider="ratios">
-				{'Ratio'|translate} ({'Width'|translate}/{'Height'|translate}) <span class="slider-info">{'between %.2f and %.2f'|translate:$dimensions.selected.min_ratio:$dimensions.selected.max_ratio}</span>
+				{'Ratio'|translate} ({'Width'|translate}/{'Height'|translate})
+				<span class="slider-info">
+				    {'between {min} and {max} {unit}'|translate:['min' => $dimensions.selected.min_ratio, 'max' => $dimensions.selected.max_ratio, 'unit' => '']}
+				</span>
 				{if isset($dimensions.ratio_portrait)}| <a class="slider-choice" data-min="{$dimensions.ratio_portrait.min}" data-max="{$dimensions.ratio_portrait.max}">{'Portrait'|translate}</a>{/if}
 				{if isset($dimensions.ratio_square)}| <a class="slider-choice" data-min="{$dimensions.ratio_square.min}" data-max="{$dimensions.ratio_square.max}">{'square'|translate}</a>{/if}
 				{if isset($dimensions.ratio_landscape)}| <a class="slider-choice" data-min="{$dimensions.ratio_landscape.min}" data-max="{$dimensions.ratio_landscape.max}">{'Landscape'|translate}</a>{/if}
@@ -462,7 +471,7 @@
 
 			<blockquote>
 			    <div data-slider="filesizes">
-				<span class="slider-info">{'between %s and %s MB'|translate:$filesize.selected.min:$filesize.selected.max}</span>
+				<span class="slider-info">{'between {min} and {max} {unit}'|translate:['min' => $filesize.selected.min, 'max' => $filesize.selected.max, 'unit' => 'MB']}</span>
 				| <a class="slider-choice" data-min="{$filesize.bounds.min}" data-max="{$filesize.bounds.max}">{'Reset'|translate}</a>
 				<div class="slider-slider"></div>
 
@@ -528,8 +537,8 @@
 						<a href="{$thumbnail.U_EDIT}"><i class="fa fa-pencil"></i><span class="visually-hidden">{'Edit'|translate}</span></a>
 					    </div>
 					    {if $thumbnail.level > 0}
-						<em class="levelIndicatorB">{'Level %d'|@sprintf:$thumbnail.level|translate}</em>
-						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level %d'|sprintf:$thumbnail.level|translate}</em>
+						<em class="levelIndicatorB">{'Level {$thumbnail.level}'|translate}</em>
+						<em class="levelIndicatorF" title="{'Who can see these photos?'|translate} : ">{'Level {$thumbnail.level}'|translate}</em>
 					    {/if}
 					    <img src="{$thumbnail.thumb->getUrl()}" alt="{$thumbnail.file}" title="{$thumbnail.TITLE|escape:'html'}" {$thumbnail.thumb->get_size_htm()}>
 					</span>
@@ -608,9 +617,9 @@
 			<p>
 			    <select data-selectize="categories" data-default="first" name="associate"></select>
 			</p>
-			<p>{'... or '|translate}</p>
+			<p>... {'or'|translate}</p>
 			<p>
-			    <a class="btn btn-submit" href="#" data-add-album="associate" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+			    <a class="btn btn-submit" href="#" data-add-album="associate" title="{'Create a new album'|translate}">{'Create a new album'|translate}</a>
 			</p>
 		    </div>
 
@@ -619,9 +628,9 @@
 			<p>
 			    <select data-selectize="categories" data-default="first" name="move"></select>
 			</p>
-			<p>{'... or '|translate}</p>
+			<p>... {'or'|translate}</p>
 			<p>
-			    <a class="btn btn-submit" href="#" data-add-album="move" title="{'create a new album'|translate}">{'create a new album'|translate}</a>
+			    <a class="btn btn-submit" href="#" data-add-album="move" title="{'Create a new album'|translate}">{'Create a new album'|translate}</a>
 			</p>
 		    </div>
 

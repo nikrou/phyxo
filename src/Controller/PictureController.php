@@ -21,7 +21,6 @@ use App\Repository\ImageRepository;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
 use Phyxo\Functions\DateTime;
-use Phyxo\Functions\Language;
 use App\Repository\FavoriteRepository;
 use App\DataMapper\TagMapper;
 use Phyxo\Functions\URL;
@@ -38,24 +37,25 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Image;
 use App\Metadata;
 use Phyxo\Functions\Plugin;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
 {
-    private $em, $conf, $userMapper;
+    private $em, $conf, $userMapper, $translator;
 
-    public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite,
-                            MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper, CategoryMapper $categoryMapper,
-                            UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, ImageMapper $imageMapper, Metadata $metadata)
+    public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
+                            string $phyxoWebsite, MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
+                            CategoryMapper $categoryMapper, UserMapper $userMapper, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager,
+                            ImageMapper $imageMapper, Metadata $metadata, TranslatorInterface $translator)
     {
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
+        $this->translator = $translator;
         $tpl_params = [];
         $this->em = $em;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
 
         $this->image_std_params = $image_std_params;
-        $this->loadLanguage($this->getUser());
-
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         // @TODO : improve by verify token and redirect after changes
         if ($request->get('action') === 'edit_comment') {
@@ -193,7 +193,7 @@ class PictureController extends CommonController
         $tpl_params['INFO_VISITS'] = $picture['hit'];
         $tpl_params['INFO_FILE'] = $picture['file'];
         if (!empty($picture['filesize'])) {
-            $tpl_params['INFO_FILESIZE'] = Language::l10n('%d Kb', $picture['filesize']);
+            $tpl_params['INFO_FILESIZE'] = $translator->trans('{size} Kb', ['size' => $picture['filesize']]);
         }
         if ($picture['src_image']->is_original() && isset($picture['width'])) {
             $tpl_params['INFO_DIMENSIONS'] = $picture['width'] . '*' . $picture['height'];
@@ -209,7 +209,7 @@ class PictureController extends CommonController
             $tpl_params['U_CADDIE'] = $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id, 'action' => 'add_to_caddie']);
             $tpl_params['U_PHOTO_ADMIN'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category['id']]);
 
-            $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
+            $tpl_params['available_permission_levels'] = Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator);
         }
 
         if (!$this->getUser()->isGuest() && $conf['picture_favorite_icon']) {
@@ -306,12 +306,12 @@ class PictureController extends CommonController
 
                 switch ($comment_action) {
                     case 'moderate':
-                        $this->addFlash('info', Language::l10n('An administrator must authorize your comment before it is visible.'));
+                        $this->addFlash('info', $translator->trans('An administrator must authorize your comment before it is visible.'));
                     case 'validate':
-                        $this->addFlash('info', Language::l10n('Your comment has been registered'));
+                        $this->addFlash('info', $translator->trans('Your comment has been registered'));
                         break;
                     case 'reject':
-                        $this->addFlash('error', Language::l10n('Your comment has NOT been registered because it did not pass the validation rules'));
+                        $this->addFlash('error', $translator->trans('Your comment has NOT been registered because it did not pass the validation rules'));
                         break;
                     default:
                         $this->addFlash('error', 'Invalid comment action ' . $comment_action);
@@ -344,7 +344,7 @@ class PictureController extends CommonController
                         'comments_order' => ($comments_order == 'ASC' ? 'DESC' : 'ASC')
                     ]
                 );
-                $tpl_params['COMMENTS_ORDER_TITLE'] = $comments_order == 'ASC' ? Language::l10n('Show latest comments first') : Language::l10n('Show oldest comments first');
+                $tpl_params['COMMENTS_ORDER_TITLE'] = $comments_order == 'ASC' ? $translator->trans('Show latest comments first') : $translator->trans('Show oldest comments first');
 
                 $result = $em->getRepository(CommentRepository::class)->getCommentsOnImage(
                     $image_id,
@@ -356,7 +356,7 @@ class PictureController extends CommonController
 
                 while ($row = $em->getConnection()->db_fetch_assoc($result)) {
                     if ($row['author'] == 'guest') {
-                        $row['author'] = Language::l10n('guest');
+                        $row['author'] = $translator->trans('guest');
                     }
 
                     $email = null;
@@ -478,7 +478,7 @@ class PictureController extends CommonController
                 'label' => $picture['name']
             ]
         ];
-        $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . Language::l10n('Home') . '</a>';
+        $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -589,7 +589,7 @@ class PictureController extends CommonController
 
             if (count($exif) > 0) {
                 $tpl_meta = [
-                    'TITLE' => Language::l10n('EXIF Metadata'),
+                    'TITLE' => $this->translator->trans('EXIF Metadata'),
                     'lines' => [],
                 ];
 
@@ -597,18 +597,16 @@ class PictureController extends CommonController
                     if (strpos($field, ';') === false) {
                         if (isset($exif[$field])) {
                             $key = $field;
-                            if (isset($this->language_load['lang']['exif_field_' . $field])) {
-                                $key = $this->language_load['lang']['exif_field_' . $field];
-                            }
+                            $key = $this->translator->trans('exif_field_' . $field);
+
                             $tpl_meta['lines'][$key] = $exif[$field];
                         }
                     } else {
                         $tokens = explode(';', $field);
                         if (isset($exif[$field])) {
                             $key = $tokens[1];
-                            if (isset($this->language_load['lang']['exif_field_' . $key])) {
-                                $key = $this->language_load['lang']['exif_field_' . $key];
-                            }
+                            $key = $this->translator->trans('exif_field_' . $key);
+
                             $tpl_meta['lines'][$key] = $exif[$field];
                         }
                     }
@@ -623,15 +621,14 @@ class PictureController extends CommonController
 
             if (count($iptc) > 0) {
                 $tpl_meta = [
-                    'TITLE' => Language::l10n('IPTC Metadata'),
+                    'TITLE' => $this->translator->trans('IPTC Metadata'),
                     'lines' => [],
                 ];
 
                 foreach ($iptc as $field => $value) {
                     $key = $field;
-                    if (isset($this->language_load['lang'][$field])) {
-                        $key = $this->language_load['lang'][$field];
-                    }
+                    $key = $this->translator->trans($field);
+
                     $tpl_meta['lines'][$key] = $value;
                 }
 

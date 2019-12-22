@@ -32,7 +32,7 @@ class UserRepository extends BaseRepository
 
     public function findByUsernameWithRoles(string $username)
     {
-        $query = 'SELECT id, username, password, mail_address, status FROM ' . self::USERS_TABLE;
+        $query = 'SELECT id, username, password, mail_address, status, theme, language FROM ' . self::USERS_TABLE;
         $query .= ' LEFT JOIN ' . self::USER_INFOS_TABLE . ' ON id = user_id';
         $query .= ' WHERE username = \'' . $this->conn->db_real_escape_string($username) . '\'';
 

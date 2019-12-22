@@ -15,30 +15,33 @@ use App\DataMapper\UserMapper;
 use App\Repository\UserInfosRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Language\Languages;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class LanguagesController extends AdminCommonController
 {
+    private $translator;
+
     public function setTabsheet(string $section = 'installed')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('installed', Language::l10n('Installed Languages'), $this->generateUrl('admin_languages_installed'), 'fa-language');
-        $tabsheet->add('update', Language::l10n('Check for updates'), $this->generateUrl('admin_languages_update'), 'fa-refresh');
-        $tabsheet->add('new', Language::l10n('Add New Language'), $this->generateUrl('admin_languages_new'), 'fa-plus-circle');
+        $tabsheet->add('installed', $this->translator->trans('Installed Languages', [], 'admin'), $this->generateUrl('admin_languages_installed'), 'fa-language');
+        $tabsheet->add('update', $this->translator->trans('Check for updates', [], 'admin'), $this->generateUrl('admin_languages_update'), 'fa-refresh');
+        $tabsheet->add('new', $this->translator->trans('Add New Language', [], 'admin'), $this->generateUrl('admin_languages_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function installed(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -56,12 +59,12 @@ class LanguagesController extends AdminCommonController
 
                 if (count($languages->getDbLanguages()) <= 1) {
                     $language['deactivable'] = false;
-                    $language['deactivate_tooltip'] = Language::l10n('Impossible to deactivate this language, you need at least one language.');
+                    $language['deactivate_tooltip'] = $translator->trans('Impossible to deactivate this language, you need at least one language.', [], 'admin');
                 }
 
                 if ($language_id === $default_language) {
                     $language['deactivable'] = false;
-                    $language['deactivate_tooltip'] = Language::l10n('Impossible to deactivate this language, first set another language as default.');
+                    $language['deactivate_tooltip'] = $translator->trans('Impossible to deactivate this language, first set another language as default.', [], 'admin');
                 }
             } else {
                 $language['state'] = 'inactive';
@@ -106,7 +109,7 @@ class LanguagesController extends AdminCommonController
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
@@ -129,9 +132,10 @@ class LanguagesController extends AdminCommonController
         return $this->redirectToRoute('admin_languages_installed');
     }
 
-    public function new(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function new(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -156,7 +160,7 @@ class LanguagesController extends AdminCommonController
         }
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
@@ -169,10 +173,10 @@ class LanguagesController extends AdminCommonController
         return $this->render('languages_new.tpl', $tpl_params);
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper)
+    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
     {
         if (!$userMapper->isWebmaster()) {
-            $this->addFlash('error', Language::l10n('Webmaster status is required.'));
+            $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');
         }
@@ -183,20 +187,24 @@ class LanguagesController extends AdminCommonController
 
         try {
             $languages->extractLanguageFiles('install', $revision);
-            $this->addFlash('info', Language::l10n('Language has been successfully installed'));
+            $this->addFlash('info', $translator->trans('Language has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_installed');
         } catch (\Exception $e) {
-            $this->addFlash('error', Language::l10n($e->getMessage()));
+            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');
         }
     }
 
-    public function update(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, ParameterBagInterface $params)
+    public function update(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+                            ParameterBagInterface $params, TranslatorInterface $translator)
     {
+        $tpl_params = [];
+        $this->translator = $translator;
+
         if (!$userMapper->isWebmaster()) {
-            $this->addFlash('error', Language::l10n('Webmaster status is required.'));
+            $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');
         }
@@ -254,7 +262,7 @@ class LanguagesController extends AdminCommonController
         $tpl_params['EXT_TYPE'] = 'languages';
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_languages_installed');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 

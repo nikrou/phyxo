@@ -9,7 +9,7 @@
     <form method="post" name="profile" action="{$F_ACTION}" id="profile" class="properties">
 	<div id="configContent">
 	    {if $GUEST_USERNAME !== 'guest'}
-		<h3>{'The settings for the guest are from the %s user'|translate:$GUEST_USERNAME}</h3>
+		<h3>{'The settings for the guest are from the {user} user'|translate:['user' => $GUEST_USERNAME]}</h3>
 	    {/if}
 
 	    <div class="fieldset">

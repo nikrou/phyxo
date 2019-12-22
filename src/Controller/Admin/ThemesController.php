@@ -14,30 +14,33 @@ namespace App\Controller\Admin;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Phyxo\Theme\Themes;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ThemesController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'installed')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('installed', Language::l10n('Installed Themes'), $this->generateUrl('admin_themes_installed'), 'fa-paint-brush');
-        $tabsheet->add('update', Language::l10n('Check for updates'), $this->generateUrl('admin_themes_update'), 'fa-refresh');
-        $tabsheet->add('new', Language::l10n('Add New Theme'), $this->generateUrl('admin_themes_new'), 'fa-plus-circle');
+        $tabsheet->add('installed', $this->translator->trans('Installed Themes', [], 'admin'), $this->generateUrl('admin_themes_installed'), 'fa-paint-brush');
+        $tabsheet->add('update', $this->translator->trans('Check for updates', [], 'admin'), $this->generateUrl('admin_themes_update'), 'fa-refresh');
+        $tabsheet->add('new', $this->translator->trans('Add New Theme', [], 'admin'), $this->generateUrl('admin_themes_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
+    public function installed(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -77,11 +80,11 @@ class ThemesController extends AdminCommonController
 
                 if (count($db_theme_ids) <= 1) {
                     $tpl_theme['DEACTIVABLE'] = false;
-                    $tpl_theme['DEACTIVATE_TOOLTIP'] = Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
+                    $tpl_theme['DEACTIVATE_TOOLTIP'] = $translator->trans('Impossible to deactivate this theme, you need at least one theme.', [], 'admin');
                 }
                 if ($tpl_theme['IS_DEFAULT']) {
                     $tpl_theme['DEACTIVABLE'] = false;
-                    $tpl_theme['DEACTIVATE_TOOLTIP'] = Language::l10n('Impossible to deactivate the default theme.');
+                    $tpl_theme['DEACTIVATE_TOOLTIP'] = $translator->trans('Impossible to deactivate the default theme.', [], 'admin');
                 }
             } else {
                 $tpl_theme['state'] = 'inactive';
@@ -89,7 +92,7 @@ class ThemesController extends AdminCommonController
                 // is the theme "activable" ?
                 if (isset($fs_theme['activable']) && !$fs_theme['activable']) {
                     $tpl_theme['ACTIVABLE'] = false;
-                    $tpl_theme['ACTIVABLE_TOOLTIP'] = Language::l10n('This theme was not designed to be directly activated');
+                    $tpl_theme['ACTIVABLE_TOOLTIP'] = $translator->trans('This theme was not designed to be directly activated', [], 'admin');
                 } else {
                     $tpl_theme['ACTIVABLE'] = true;
                     $tpl_theme['activate'] = $this->generateUrl('admin_themes_action', ['theme' => $theme_id, 'action' => 'activate']);
@@ -99,7 +102,7 @@ class ThemesController extends AdminCommonController
                 if (isset($missing_parent)) {
                     $tpl_theme['ACTIVABLE'] = false;
 
-                    $tpl_theme['ACTIVABLE_TOOLTIP'] = Language::l10n('Impossible to activate this theme, the parent theme is missing: %s', $missing_parent);
+                    $tpl_theme['ACTIVABLE_TOOLTIP'] = $translator->trans('Impossible to activate this theme, the parent theme is missing: {theme}', ['theme' => $missing_parent], 'admin');
                 }
 
                 // is the theme "deletable" ?
@@ -109,7 +112,7 @@ class ThemesController extends AdminCommonController
 
                 if (count($children) > 0) {
                     $tpl_theme['DELETABLE'] = false;
-                    $tpl_theme['DELETE_TOOLTIP'] = Language::l10n('Impossible to delete this theme. Other themes depends on it: %s', implode(', ', $children));
+                    $tpl_theme['DELETE_TOOLTIP'] = $translator->trans('Impossible to delete this theme. Other themes depends on it: {themes}', ['themes' => implode(', ', $children)], 'admin');
                 } else {
                     $tpl_theme['delete'] = $this->generateUrl('admin_themes_action', ['theme' => $theme_id, 'action' => 'delete']);
                 }
@@ -137,7 +140,7 @@ class ThemesController extends AdminCommonController
         $tpl_params['theme_states'] = ['active', 'inactive'];
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_installed');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
@@ -150,9 +153,11 @@ class ThemesController extends AdminCommonController
         return $this->render('themes_installed.tpl', $tpl_params);
     }
 
-    public function update(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, ParameterBagInterface $params)
+    public function update(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+                            ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -206,7 +211,7 @@ class ThemesController extends AdminCommonController
         $tpl_params['EXT_TYPE'] = 'themes';
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_update');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 
@@ -233,10 +238,10 @@ class ThemesController extends AdminCommonController
         return $this->redirectToRoute('admin_themes_installed');
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper)
+    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
     {
         if (!$userMapper->isWebmaster()) {
-            $this->addFlash('error', Language::l10n('Webmaster status is required.'));
+            $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_new');
         }
@@ -247,19 +252,20 @@ class ThemesController extends AdminCommonController
 
         try {
             $themes->extractThemeFiles('install', $revision);
-            $this->addFlash('info', Language::l10n('Theme has been successfully installed'));
+            $this->addFlash('info', $translator->trans('Theme has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_installed');
         } catch (\Exception $e) {
-            $this->addFlash('error', Language::l10n($e->getMessage()));
+            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_themes_new');
         }
     }
 
-    public function new(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
+    public function new(Request $request, Template $template, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -282,7 +288,7 @@ class ThemesController extends AdminCommonController
         $tpl_params['default_screenshot'] = 'admin/theme/images/missing_screenshot.png';
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_themes_new');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Languages');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Languages', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 

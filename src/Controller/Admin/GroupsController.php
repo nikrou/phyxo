@@ -19,40 +19,43 @@ use App\Repository\GroupRepository;
 use App\Repository\UserGroupRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupsController extends AdminCommonController
 {
+    private $translator;
+
     public function setTabsheet(string $section = 'list', int $group_id = 0): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('list', Language::l10n('Groups'), $this->generateUrl('admin_groups'), 'fa-group');
-        $tabsheet->add('perm', Language::l10n('Permissions'), $group_id !== 0 ? $this->generateUrl('admin_group_perm', ['group_id' => $group_id]) : null, 'fa-lock');
+        $tabsheet->add('list', $this->translator->trans('Groups', [], 'admin'), $this->generateUrl('admin_groups'), 'fa-group');
+        $tabsheet->add('perm', $this->translator->trans('Permissions', [], 'admin'), $group_id !== 0 ? $this->generateUrl('admin_group_perm', ['group_id' => $group_id]) : null, 'fa-lock');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function list(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST')) {
             if ($groupname = $request->request->get('groupname')) {
                 if ($em->getRepository(GroupRepository::class)->isGroupNameExists($groupname)) {
-                    $this->addFlash('error', Language::l10n('This name is already used by another group.'));
+                    $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
                 } else {
                     $em->getRepository(GroupRepository::class)->addGroup(['name' => $groupname]);
-                    $this->addFlash('info', Language::l10n('group "%s" added', $groupname));
+                    $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $groupname], 'admin'));
                 }
             } else {
-                $this->addFlash('error', Language::l10n('The name of a group must not be empty.'));
+                $this->addFlash('error', $translator->trans('The name of a group must not be empty.', [], 'admin'));
             }
             $this->redirectToRoute('admin_groups');
         }
@@ -69,7 +72,7 @@ class GroupsController extends AdminCommonController
                     'MEMBERS' => [],
                     'ID' => $row['id'],
                     'NAME' => $row['name'],
-                    'IS_DEFAULT' => ($em->getConnection()->get_boolean($row['is_default']) ? ' [' . Language::l10n('default') . ']' : ''),
+                    'IS_DEFAULT' => ($em->getConnection()->get_boolean($row['is_default']) ? ' [' . $translator->trans('default', [], 'admin') . ']' : ''),
                     'U_PERM' => $this->generateUrl('admin_group_perm', ['group_id' => $row['id']]),
                 ];
                 if (!empty($row['username'])) {
@@ -86,7 +89,7 @@ class GroupsController extends AdminCommonController
         $tpl_params['F_ACTION_DELETE'] = $this->generateUrl('admin_groups_action', ['action' => 'delete']);
         $tpl_params['F_ACTION_RENAME'] = $this->generateUrl('admin_groups_action', ['action' => 'rename']);
         $tpl_params['F_ACTION_TOGGLE_DEFAULT'] = $this->generateUrl('admin_groups_action', ['action' => 'toggle_default']);
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Groups');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('list'), $tpl_params);
 
@@ -104,9 +107,10 @@ class GroupsController extends AdminCommonController
     }
 
     public function perm(Request $request, int $group_id, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                        CategoryMapper $categoryMapper, UserMapper $userMapper)
+                        CategoryMapper $categoryMapper, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -155,9 +159,9 @@ class GroupsController extends AdminCommonController
             $groupname = '';
         }
 
-        $tpl_params['TITLE'] = Language::l10n('Manage permissions for group "%s"', $groupname);
-        $tpl_params['L_CAT_OPTIONS_TRUE'] = Language::l10n('Authorized');
-        $tpl_params['L_CAT_OPTIONS_FALSE'] = Language::l10n('Forbidden');
+        $tpl_params['TITLE'] = $translator->trans('Manage permissions for group "{group}"', ['group' => $groupname], 'admin');
+        $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Authorized', [], 'admin');
+        $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Forbidden', [], 'admin');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_group_perm', ['group_id' => $group_id]);
 
         // only private categories are listed
@@ -175,7 +179,7 @@ class GroupsController extends AdminCommonController
         $tpl_params = array_merge($tpl_params, $categoryMapper->displaySelectCategoriesWrapper($categories, [], 'category_option_false'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_groups');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Groups');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Groups', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('perm', $group_id), $tpl_params);
 
@@ -188,11 +192,11 @@ class GroupsController extends AdminCommonController
         return $this->render('groups_perm.tpl', $tpl_params);
     }
 
-    public function action(Request $request, string $action, EntityManager $em)
+    public function action(Request $request, string $action, EntityManager $em, TranslatorInterface $translator)
     {
         $groups = $request->request->get('group_selection');
         if (count($groups) === 0) {
-            $this->addFlash('error', Language::l10n('Select at least one group'));
+            $this->addFlash('error', $translator->trans('Select at least one group', [], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         }
@@ -203,7 +207,7 @@ class GroupsController extends AdminCommonController
             $group_names = $em->getConnection()->result2array($result, null, 'name');
             foreach ($groups as $group) {
                 if (in_array($request->request->get('rename_' . $group), $group_names)) {
-                    $this->addFlash('error', $request->request->get('rename_' . $group) . ' | ' . \Phyxo\Functions\Language::l10n('This name is already used by another group.'));
+                    $this->addFlash('error', $request->request->get('rename_' . $group) . ' | ' . $translator->trans('This name is already used by another group.', [], 'admin'));
                 } elseif ($rename_group = $request->request->get('rename_' . $group)) {
                     $em->getRepository(GroupRepository::class)->updateGroup(['name' => $rename_group], $group);
                 }
@@ -223,12 +227,12 @@ class GroupsController extends AdminCommonController
             // destruction of the group
             $em->getRepository(GroupRepository::class)->deleteByIds($groups);
 
-            $this->addFlash('info', Language::l10n('groups "%s" deleted', implode(', ', $groupnames)));
+            $this->addFlash('info', $translator->trans('groups "{groups}" deleted', ['groups' => implode(', ', $groupnames)], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'merge' && count($groups) > 1) {
             if ($em->getRepository(GroupRepository::class)->isGroupNameExists($request->request->get('merge'))) {
-                $this->addFlash('error', Language::l10n('This name is already used by another group.'));
+                $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
 
                 $this->redirectToRoute('admin_groups');
             } else {
@@ -263,7 +267,7 @@ class GroupsController extends AdminCommonController
 
             $em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $usr_grp);
             $em->getRepository(GroupAccessRepository::class)->massInserts(['group_id', 'cat_id'], $grp_access);
-            $this->addFlash('info', Language::l10n('group "%s" added', $request->request->get('merge')));
+            $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('merge')], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         } elseif ($action === 'duplicate') {
@@ -274,7 +278,7 @@ class GroupsController extends AdminCommonController
                 }
 
                 if ($em->getRepository(GroupRepository::class)->isGroupNameExists($request->request->get('duplicate_' . $group))) {
-                    $this->addFlash('error', Language::l10n('This name is already used by another group.'));
+                    $this->addFlash('error', $translator->trans('This name is already used by another group.', [], 'admin'));
                     break;
                 }
 
@@ -300,14 +304,14 @@ class GroupsController extends AdminCommonController
                 }
                 $em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $usr_grp);
 
-                $this->addFlash('info', Language::l10n('group "%s" added', $request->request->get('duplicate_' . $group)));
+                $this->addFlash('info', $translator->trans('group "{group}" added', ['group' => $request->request->get('duplicate_' . $group)], 'admin'));
 
                 return $this->redirectToRoute('admin_groups');
             }
         } elseif ($action === 'toggle_default') {
             $em->getRepository(GroupRepository::class)->toggleIsDefault($groups);
 
-            $this->addFlash('info', Language::l10n('groups "%s" updated', implode(', ', $groups)));
+            $this->addFlash('info', $translator->trans('groups "{groups}" updated', ['groups' => implode(', ', $groups)], 'admin'));
 
             return $this->redirectToRoute('admin_groups');
         }

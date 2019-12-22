@@ -23,16 +23,16 @@ use App\Repository\ImageRepository;
 use Phyxo\Image\SrcImage;
 use App\Repository\UserCacheCategoriesRepository;
 use App\DataMapper\CategoryMapper;
-use Phyxo\Functions\Language;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use Phyxo\Functions\Category;
 use Phyxo\Functions\Utils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
 {
     public function album(Request $request, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, ImageStandardParams $image_std_params, MenuBar $menuBar,
-                            EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0)
+                            EntityManager $em, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, int $category_id = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -46,7 +46,7 @@ class AlbumController extends CommonController
         $category = $categoryMapper->getCatInfo($category_id);
 
         $tpl_params['TITLE'] = $categoryMapper->getBreadcrumb($category['upper_names']);
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $order = 'rank';
         $filter = [];
@@ -301,7 +301,7 @@ class AlbumController extends CommonController
     }
 
     public function albumFlat(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $category_id, int $start = 0)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $category_id, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -349,7 +349,7 @@ class AlbumController extends CommonController
             );
         }
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -359,7 +359,7 @@ class AlbumController extends CommonController
     }
 
     public function albumsFlat(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0)
+        ImageStandardParams $image_std_params, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -370,7 +370,7 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $filter = [];
 
@@ -416,7 +416,7 @@ class AlbumController extends CommonController
     }
 
     public function albums(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                            ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0)
+                            ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, ImageMapper $imageMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -427,7 +427,7 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Albums');
 
         $order = 'rank';
         $filter = [];
@@ -648,7 +648,7 @@ class AlbumController extends CommonController
     }
 
     public function recentCats(Request $request, EntityManager $em, Template $template, Conf $conf, string $themesDir, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
-                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0)
+                                ImageStandardParams $image_std_params, ImageMapper $imageMapper, CategoryMapper $categoryMapper, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -659,7 +659,7 @@ class AlbumController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Recent albums');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Recent albums');
 
         $order = '';
         $filter = [];

@@ -33,7 +33,7 @@
 	{'Please wait...'|translate}
     </div>
 
-    <p id="up-to-date"{if (count($update_languages) - $SHOW_RESET)>0} class="collapse"{/if}>{'All %s are up to date.'|sprintf:$EXT_TYPE|translate}</p>
+    <p id="up-to-date"{if (count($update_languages) - $SHOW_RESET)>0} class="collapse"{/if}>{'All languages are up to date.'|translate}</p>
 
     {if !empty($update_languages)}
 	<div class="extensions">
@@ -57,7 +57,7 @@
 			<div class="extension description" id="desc_{$language.ID}">
 			    <em>{'Downloads'|translate}: {$language.DOWNLOADS}</em>
 			    <button type="button" class="btn btn-link show-description" data-target="#description-{$language.EXT_ID}" data-toggle="collapse"><i class="fa fa-plus-square-o"></i></button>
-			    {'New Version'|translate} : {$language.NEW_VERSION} | {'By %s'|translate:$language.AUTHOR}
+			    {'New Version'|translate} : {$language.NEW_VERSION} | {'By {by}'|translate:['by' => $language.AUTHOR]}
 			</div>
 			<div class="revision description collapse" id="description-{$language.EXT_ID}">
 			    <p>{$language.EXT_DESC|@htmlspecialchars|@nl2br}</p>

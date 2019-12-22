@@ -17,11 +17,10 @@ use App\Entity\User;
 use App\Security\UserProvider;
 use Phyxo\Extension\Theme;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Phyxo\Functions\Language;
 
 abstract class CommonController extends AbstractController
 {
-    protected $language_load,  $image_std_params, $userProvider, $user;
+    protected $image_std_params, $userProvider, $user;
 
     public function __construct(UserProvider $userProvider)
     {
@@ -41,46 +40,23 @@ abstract class CommonController extends AbstractController
         return $this->user;
     }
 
-    public function loadLanguage(User $user)
-    {
-        $this->language_load = array_merge(
-            Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-            ),
-            Language::load_language(
-                'admin.lang',
-                __DIR__ . '/../../',
-                ['language' => $user->getLanguage(), 'return_vars' => true]
-            )
-        );
-    }
-
     public function addThemeParams(Template $template, Conf $conf, User $user, string $themesDir, string $phyxoVersion, string $phyxoWebsite): array
     {
         $tpl_params = [];
 
-        $this->loadLanguage($user);
-
-        $template->setUser($this->getUser());
-        $template->setRouter($this->get('router'));
-        $template->setConf($conf);
-        $template->setLang($this->language_load['lang']);
-        $template->setLangInfo($this->language_load['lang_info']);
-        $template->postConstruct();
+        $template->setUser($user);
 
         // default theme
         if (isset($this->image_std_params)) {
             $template->setImageStandardParams($this->image_std_params);
         }
-        $template->setTheme(new Theme($themesDir, $this->getUser()->getTheme()));
+        $template->setTheme(new Theme($themesDir, $user->getTheme()));
 
         $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $phyxoVersion : '';
         $tpl_params['PHYXO_URL'] = $phyxoWebsite;
 
         $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
-        $tpl_params['PAGE_TITLE'] = $tpl_params['GALLERY_TITLE'];
+        $tpl_params['PAGE_TITLE'] = '';
         $tpl_params['CONTENT_ENCODING'] = 'utf-8';
         $tpl_params['U_HOME'] = $this->generateUrl('homepage');
         $tpl_params['LEVEL_SEPARATOR'] = $conf['level_separator'];

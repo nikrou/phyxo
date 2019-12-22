@@ -17,7 +17,6 @@ use App\Repository\RateRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
@@ -26,22 +25,27 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class RatingController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'photos'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('photos', Language::l10n('Photos'), $this->generateUrl('admin_rating'));
-        $tabsheet->add('users', Language::l10n('Users'), $this->generateUrl('admin_rating_users'));
+        $tabsheet->add('photos', $this->translator->trans('Photos', [], 'admin'), $this->generateUrl('admin_rating'));
+        $tabsheet->add('users', $this->translator->trans('Users', [], 'admin'), $this->generateUrl('admin_rating_users'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function photos(Request $request, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params)
+    public function photos(Request $request, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, ImageStandardParams $image_std_params,
+                            TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -81,14 +85,14 @@ class RatingController extends AdminCommonController
         $tpl_params['NB_ELEMENTS'] = $nb_images;
 
         $available_order_by = [
-            [Language::l10n('Rate date'), 'recently_rated DESC'],
-            [Language::l10n('Rating score'), 'score DESC'],
-            [Language::l10n('Average rate'), 'avg_rates DESC'],
-            [Language::l10n('Number of rates'), 'nb_rates DESC'],
-            [Language::l10n('Sum of rates'), 'sum_rates DESC'],
-            [Language::l10n('File name'), 'file DESC'],
-            [Language::l10n('Creation date'), 'date_creation DESC'],
-            [Language::l10n('Post date'), 'date_available DESC'],
+            [$translator->trans('Rate date', [], 'admin'), 'recently_rated DESC'],
+            [$translator->trans('Rating score', [], 'admin'), 'score DESC'],
+            [$translator->trans('Average rate', [], 'admin'), 'avg_rates DESC'],
+            [$translator->trans('Number of rates', [], 'admin'), 'nb_rates DESC'],
+            [$translator->trans('Sum of rates', [], 'admin'), 'sum_rates DESC'],
+            [$translator->trans('Filename', [], 'admin'), 'file DESC'],
+            [$translator->trans('Creation date', [], 'admin'), 'date_creation DESC'],
+            [$translator->trans('Post date', [], 'admin'), 'date_available DESC'],
         ];
 
         for ($i = 0; $i < count($available_order_by); $i++) {
@@ -97,9 +101,9 @@ class RatingController extends AdminCommonController
         $tpl_params['order_by_options_selected'] = [$order_by_index];
 
         $user_options = [
-            'all' => Language::l10n('all'),
-            'user' => Language::l10n('Users'),
-            'guest' => Language::l10n('Guests'),
+            'all' => $translator->trans('All', [], 'admin'),
+            'user' => $translator->trans('Users', [], 'admin'),
+            'guest' => $translator->trans('Guests', [], 'admin'),
         ];
 
         $tpl_params['user_options'] = $user_options;
@@ -166,16 +170,18 @@ class RatingController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Rating');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('photos'), $tpl_params);
 
         return $this->render('rating_photos.tpl', $tpl_params);
     }
 
-    public function users(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params)
+    public function users(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, UserMapper $userMapper, ImageStandardParams $image_std_params,
+                            TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -313,11 +319,11 @@ class RatingController extends AdminCommonController
         }
 
         $available_order_by = [
-            [Language::l10n('Average rate'), 'avg_compare'],
-            [Language::l10n('Number of rates'), 'count_compare'],
-            [Language::l10n('Variation'), 'cv_compare'],
-            [Language::l10n('Consensus deviation'), 'consensus_dev_compare'],
-            [Language::l10n('Last'), 'last_rate_compare'],
+            [$translator->trans('Average rate', [], 'admin'), 'avg_compare'],
+            [$translator->trans('Number of rates', [], 'admin'), 'count_compare'],
+            [$translator->trans('Variation', [], 'admin'), 'cv_compare'],
+            [$translator->trans('Consensus deviation', [], 'admin'), 'consensus_dev_compare'],
+            [$translator->trans('Last', [], 'admin'), 'last_rate_compare'],
         ];
 
         for ($i = 0; $i < count($available_order_by); $i++) {
@@ -345,7 +351,7 @@ class RatingController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_rating');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_rating');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Rating');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Rating', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('users'), $tpl_params);
 

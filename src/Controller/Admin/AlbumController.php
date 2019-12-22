@@ -26,7 +26,6 @@ use App\Repository\UserGroupRepository;
 use App\Repository\UserRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
@@ -35,25 +34,29 @@ use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'properties', int $album_id, int $parent_id = null): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('properties', Language::l10n('Properties'), $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-pencil');
-        $tabsheet->add('sort_order', Language::l10n('Manage photo ranks'), $this->generateUrl('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-random');
-        $tabsheet->add('permissions', Language::l10n('Permissions'), $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-lock');
-        $tabsheet->add('notification', Language::l10n('Notification'), $this->generateUrl('admin_album_notification', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-envelope');
+        $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-pencil');
+        $tabsheet->add('sort_order', $this->translator->trans('Manage photo ranks', [], 'admin'), $this->generateUrl('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-random');
+        $tabsheet->add('permissions', $this->translator->trans('Permissions', [], 'admin'), $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-lock');
+        $tabsheet->add('notification', $this->translator->trans('Notification', [], 'admin'), $this->generateUrl('admin_album_notification', ['album_id' => $album_id, 'parent_id' => $parent_id]), 'fa-envelope');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
     public function properties(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                ImageStandardParams $image_std_params, CategoryMapper $categoryMapper)
+                                ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -96,7 +99,7 @@ class AlbumController extends AdminCommonController
                     $categoryMapper->moveCategories([$album_id], $parent);
                 }
 
-                $this->addFlash('info', Language::l10n('Album updated successfully'));
+                $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));
             } elseif ($request->request->get('set_random_representant')) {
                 $categoryMapper->setRandomRepresentant([$album_id]);
             } elseif ($request->request->get('delete_representant')) {
@@ -137,21 +140,26 @@ class AlbumController extends AdminCommonController
             list($image_count, $min_date, $max_date) = $em->getConnection()->db_fetch_row($result);
 
             if ($min_date === $max_date) {
-                $tpl_params['INTRO'] = Language::l10n(
-                    'This album contains %d photos, added on %s.',
-                    $image_count,
-                    (new \DateTime($min_date))->format('l d M Y')
+                $tpl_params['INTRO'] = $translator->trans(
+                    'This album contains {count} photos, added on {date}.',
+                    [
+                        'count' => $image_count,
+                        'date' => (new \DateTime($min_date))->format('l d M Y')
+                    ]
                 );
             } else {
-                $tpl_params['INTRO'] = Language::l10n(
-                    'This album contains %d photos, added between %s and %s.',
-                    $image_count,
-                    (new \DateTime($min_date))->format('l d M Y'),
-                    (new \DateTime($max_date))->format('l d M Y')
+                $tpl_params['INTRO'] = $translator->trans(
+                    'This album contains {count} photos, added between {min_date} and {max_date}.',
+                    [
+                        'count' => $image_count,
+                        'min_date' => (new \DateTime($min_date))->format('l d M Y'),
+                        'max_date' => (new \DateTime($max_date))->format('l d M Y')
+                    ],
+                    'admin'
                     );
             }
         } else {
-            $tpl_params['INTRO'] = Language::l10n('This album contains no photo.');
+            $tpl_params['INTRO'] = $translator->trans('This album contains no photo.', [], 'admin');
         }
 
         if ($category['is_virtual']) {
@@ -215,7 +223,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Album');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('properties', $album_id, $parent_id), $tpl_params);
 
@@ -231,9 +239,10 @@ class AlbumController extends AdminCommonController
     }
 
     public function sort_order(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params)
+                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -263,7 +272,7 @@ class AlbumController extends AdminCommonController
 
                 $em->getRepository(ImageCategoryRepository::class)->massUpdates($fields, $datas);
 
-                $this->addFlash('info', Language::l10n('Images manual order was saved'));
+                $this->addFlash('info', $translator->trans('Images manual order was saved', [], 'admin'));
 
                 return $this->redirectToRoute('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]);
             }
@@ -293,7 +302,7 @@ class AlbumController extends AdminCommonController
                 $em->getRepository(CategoryRepository::class)->updateByUppercats(['image_order' => $image_order], $cat_info['uppercats']);
             }
 
-            $this->addFlash('info', Language::l10n('Your configuration settings are saved'));
+            $this->addFlash('info', $translator->trans('Your configuration settings are saved', [], 'admin'));
 
             return $this->redirectToRoute('admin_album_sort_order', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -335,21 +344,21 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['image_order_options'] = [
             '' => '',
-            'file ASC' => Language::l10n('File name, A &rarr; Z'),
-            'file DESC' => Language::l10n('File name, Z &rarr; A'),
-            'name ASC' => Language::l10n('Photo title, A &rarr; Z'),
-            'name DESC' => Language::l10n('Photo title, Z &rarr; A'),
-            'date_creation DESC' => Language::l10n('Date created, new &rarr; old'),
-            'date_creation ASC' => Language::l10n('Date created, old &rarr; new'),
-            'date_available DESC' => Language::l10n('Date posted, new &rarr; old'),
-            'date_available ASC' => Language::l10n('Date posted, old &rarr; new'),
-            'rating_score DESC' => Language::l10n('Rating score, high &rarr; low'),
-            'rating_score ASC' => Language::l10n('Rating score, low &rarr; high'),
-            'hit DESC' => Language::l10n('Visits, high &rarr; low'),
-            'hit ASC' => Language::l10n('Visits, low &rarr; high'),
-            'id ASC' => Language::l10n('Numeric identifier, 1 &rarr; 9'),
-            'id DESC' => Language::l10n('Numeric identifier, 9 &rarr; 1'),
-            'rank ASC' => Language::l10n('Manual sort order'),
+            'file ASC' => $translator->trans('File name, A &rarr; Z', [], 'admin'),
+            'file DESC' => $translator->trans('File name, Z &rarr; A', [], 'admin'),
+            'name ASC' => $translator->trans('Photo title, A &rarr; Z', [], 'admin'),
+            'name DESC' => $translator->trans('Photo title, Z &rarr; A', [], 'admin'),
+            'date_creation DESC' => $translator->trans('Date created, new &rarr; old', [], 'admin'),
+            'date_creation ASC' => $translator->trans('Date created, old &rarr; new', [], 'admin'),
+            'date_available DESC' => $translator->trans('Date posted, new &rarr; old', [], 'admin'),
+            'date_available ASC' => $translator->trans('Date posted, old &rarr; new', [], 'admin'),
+            'rating_score DESC' => $translator->trans('Rating score, high &rarr; low', [], 'admin'),
+            'rating_score ASC' => $translator->trans('Rating score, low &rarr; high', [], 'admin'),
+            'hit DESC' => $translator->trans('Visits, high &rarr; low', [], 'admin'),
+            'hit ASC' => $translator->trans('Visits, low &rarr; high', [], 'admin'),
+            'id ASC' => $translator->trans('Numeric identifier, 1 &rarr; 9', [], 'admin'),
+            'id DESC' => $translator->trans('Numeric identifier, 9 &rarr; 1', [], 'admin'),
+            'rank ASC' => $translator->trans('Manual sort order', [], 'admin'),
         ];
 
         $image_order = explode(',', $category['image_order']);
@@ -365,7 +374,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Album');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('sort_order', $album_id, $parent_id), $tpl_params);
 
@@ -381,9 +390,10 @@ class AlbumController extends AdminCommonController
     }
 
     public function permissions(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper)
+                                CategoryMapper $categoryMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -467,7 +477,7 @@ class AlbumController extends AdminCommonController
                 }
             }
 
-            $this->addFlash('info', Language::l10n('Album updated successfully'));
+            $this->addFlash('info', $translator->trans('Album updated successfully', [], 'admin'));
 
             return $this->redirectToRoute('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -532,7 +542,7 @@ class AlbumController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_album_permissions', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Album');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permissions', $album_id, $parent_id), $tpl_params);
 
@@ -548,9 +558,10 @@ class AlbumController extends AdminCommonController
     }
 
     public function notification(Request $request, int $album_id, int $parent_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
-                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher)
+                                CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -583,7 +594,7 @@ class AlbumController extends AdminCommonController
             $result = $em->getRepository(GroupRepository::class)->findById($request->request->get('group'));
             $row = $em->getConnection()->db_fetch_assoc($result);
 
-            $this->addFlash('info', Language::l10n('An information email was sent to group "%s"', $row['name']));
+            $this->addFlash('info', $translator->trans('An information email was sent to group "{group}"', ['group' => $row['name']], 'admin'));
 
             return $this->redirectToRoute('admin_album_notification', ['album_id' => $album_id, 'parent_id' => $parent_id]);
         }
@@ -616,7 +627,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_albums');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_albums_options');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Album');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Album', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('notification', $album_id, $parent_id), $tpl_params);
 
@@ -649,7 +660,7 @@ class AlbumController extends AdminCommonController
         return  $this->redirectToRoute('admin_albums', ['parent_id' => $parent_id]);
     }
 
-    public function delete(int $album_id, int $parent_id = null, EntityManager $em, CategoryMapper $categoryMapper, ImageMapper $imageMapper, UserMapper $userMapper)
+    public function delete(int $album_id, int $parent_id = null, EntityManager $em, CategoryMapper $categoryMapper, ImageMapper $imageMapper, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $categoryMapper->deleteCategories([$album_id]);
 
@@ -658,7 +669,7 @@ class AlbumController extends AdminCommonController
         $element_ids = $em->getConnection()->result2array($result, null, 'id');
         $imageMapper->deleteElements($element_ids);
 
-        $this->addFlash('info', Language::l10n('Virtual album deleted'));
+        $this->addFlash('info', $this->translator->trans('Virtual album deleted'));
         $categoryMapper->updateGlobalRank();
         $userMapper->invalidateUserCache();
 

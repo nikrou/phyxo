@@ -13,7 +13,7 @@
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="menubar_filter_icon" {if ($display.menubar_filter_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('display only recently posted photos'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Display only recently posted photos'|translate]}
 		</label>
 	    </p>
 	    <p>
@@ -27,35 +27,35 @@
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="index_sort_order_input" {if ($display.index_sort_order_input)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('Sort order'|translate)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Sort order'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="index_flat_icon" {if ($display.index_flat_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('display all photos in all sub-albums'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Display all photos in all sub-albums'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="index_posted_date_icon" {if ($display.index_posted_date_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('display a calendar by posted date'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Display a calendar by posted date'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="index_created_date_icon" {if ($display.index_created_date_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('display a calendar by creation date'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Display a calendar by creation date'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="index_slideshow_icon" {if ($display.index_slideshow_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('slideshow'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Slideshow'|translate]}
 		</label>
 	    </p>
 	    <p>
@@ -72,28 +72,28 @@
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="picture_slideshow_icon" {if ($display.picture_slideshow_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('slideshow'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Slideshow'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="picture_metadata_icon" {if ($display.picture_metadata_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('Show file metadata'|translate)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Show file metadata'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="picture_download_icon" {if ($display.picture_download_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('Download this file'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Download this file'|translate]}
 		</label>
 	    </p>
 	    <p>
 		<label class="font-checkbox">
 		    <i class="fa fa-check-square"></i>
 		    <input type="checkbox" name="picture_favorite_icon" {if ($display.picture_favorite_icon)}checked="checked"{/if}>
-		    {'Activate icon "%s"'|translate:('add this photo to your favorites'|translate|@ucfirst)}
+		    {'Activate icon "{icon}"'|translate:['icon' => 'Add this photo to your favorites'|translate]}
 		</label>
 	    </p>
 	    <p>

@@ -11,20 +11,23 @@
 
 namespace App\Security;
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 
 class SecurityUser implements UserInterface, EquatableInterface
 {
-    private $id, $username, $password, $mail_address, $salt, $roles = [];
+    private $id, $username, $password, $mail_address, $salt, $roles = [], $locale, $theme;
 
-    public function __construct(UserInterface $user)
+    public function __construct(User $user)
     {
         $this->id = $user->getId();
         $this->username = $user->getUsername();
         $this->password = $user->getPassword();
         $this->mail_address = $user->getMailAddress();
         $this->roles = $user->getRoles();
+        $this->locale = $user->getLanguage();
+        $this->theme = $user->getTheme();
     }
 
     public function getId()
@@ -56,6 +59,16 @@ class SecurityUser implements UserInterface, EquatableInterface
     public function getRoles(): array
     {
         return array_unique($this->roles);
+    }
+
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+    public function getTheme(): string
+    {
+        return $this->theme;
     }
 
     public function eraseCredentials()

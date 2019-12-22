@@ -33,7 +33,7 @@
 			<label>
 			    {'Element type'|translate}
 			    <select class="custom-select" name="types[]" multiple="multiple" size="4">
-				{html_options values=$type_option_values output=$type_option_values|translate selected=$type_option_selected}
+				{html_options options=$type_option_values selected=$type_option_selected}
 			    </select>
 			</label>
 		    </div>
@@ -47,7 +47,7 @@
 		    </div>
 		    <div>
 			<label>
-			    {'File name'|translate}
+			    {'Filename'|translate}
 			    <input class="form-control" name="filename" value="{$FILENAME}" type="text" size="12">
 			</label>
 		    </div>

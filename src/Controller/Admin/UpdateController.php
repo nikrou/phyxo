@@ -15,7 +15,6 @@ use App\DataMapper\UserMapper;
 use App\Repository\UpgradeRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Phyxo\Update\Updates;
@@ -23,22 +22,27 @@ use Phyxo\Upgrade;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UpdateController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'core'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('core', Language::l10n('Phyxo Update'), $this->generateUrl('admin_update'));
-        $tabsheet->add('extensions', Language::l10n('Extensions Update'), $this->generateUrl('admin_update_extensions'));
+        $tabsheet->add('core', $this->translator->trans('Phyxo Update', [], 'admin'), $this->generateUrl('admin_update'));
+        $tabsheet->add('extensions', $this->translator->trans('Extensions Update', [], 'admin'), $this->generateUrl('admin_update_extensions'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function core(Request $request, int $step = 0, string $version = null, Template $template, Conf $conf, EntityManager $em, UserMapper $userMapper, ParameterBagInterface $params)
+    public function core(Request $request, int $step = 0, string $version = null, Template $template, Conf $conf, EntityManager $em, UserMapper $userMapper,
+                        ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -128,7 +132,7 @@ class UpdateController extends AdminCommonController
                     $template->delete_compiled_templates();
                     $fs->remove($params->get('cache_dir') . '/update');
 
-                    $page['infos'][] = Language::l10n('Update Complete');
+                    $page['infos'][] = $translator->trans('Update Complete', [], 'admin');
                     $page['infos'][] = $upgrade_to;
                     $step = -1;
                 } catch (\Exception $e) {
@@ -218,7 +222,7 @@ class UpdateController extends AdminCommonController
         // +-----------------------------------------------------------------------+
 
         if (!$userMapper->isWebmaster()) {
-            $tpl_params['errors'][] = Language::l10n('Webmaster status is required.');
+            $tpl_params['errors'][] = $translator->trans('Webmaster status is required.', [], 'admin');
         }
 
         $tpl_params['STEP'] = $step;
@@ -228,7 +232,7 @@ class UpdateController extends AdminCommonController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Updates');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('core'), $tpl_params);
 
@@ -243,15 +247,16 @@ class UpdateController extends AdminCommonController
         return $this->render('updates_core.tpl', $tpl_params);
     }
 
-    public function extensions(Request $request, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params)
+    public function extensions(Request $request, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_update');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_update_extensions');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Updates');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Updates', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('extensions'), $tpl_params);
 

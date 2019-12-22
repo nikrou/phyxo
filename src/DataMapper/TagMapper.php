@@ -25,18 +25,20 @@ use Phyxo\DBLayer\DBLayer;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagMapper
 {
-    private $em, $conf, $image_std_params, $router, $metadata;
+    private $em, $conf, $image_std_params, $router, $metadata, $translator;
 
-    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata)
+    public function __construct(EntityManager $em, Conf $conf, ImageStandardParams $image_std_params, RouterInterface $router, Metadata $metadata, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
         $this->router = $router;
         $this->metadata = $metadata;
+        $this->translator = $translator;
     }
 
     /**
@@ -360,11 +362,11 @@ class TagMapper
             $inserted_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, Plugin::trigger_change('render_tag_url', $tag_name));
 
             return [
-                'info' => \Phyxo\Functions\Language::l10n('Tag "%s" was added', stripslashes($tag_name)), // @TODO: remove stripslashes
+                'info' => $this->translator->trans('Tag "{tag}" was added', ['tag' => $tag_name]),
                 'id' => $inserted_id,
             ];
         } else {
-            return ['error' => \Phyxo\Functions\Language::l10n('Tag "%s" already exists', stripslashes($tag_name))]; // @TODO: remove stripslashes
+            return ['error' => $this->translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name])];
         }
     }
 

@@ -19,7 +19,7 @@
 		    <img style="max-width:100px" id="seleted-watermark-file" src="{$ROOT_URL}/{$watermark.file}" alt=""/>
 		</div>
 		<div class="col-auto">
-		    {'... or '|translate}
+		    ... {'or'|translate}
 		</div>
 		<div class="col-auto">
 		    <button type="button" id="addWatermark" class="btn btn-submit">{'add a new watermark'|translate}</button>
@@ -34,7 +34,7 @@
 		    </div>
 		</div>
 		<div class="col-auto">
-		    {'... or '|translate}
+		    ... {'or'|translate}
 		</div>
 		<div class="col-auto">
 		    <button type="button" class="btn btn-submit" id="newWatermark">{'Select a file'|translate}</button>

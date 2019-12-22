@@ -30,6 +30,7 @@ use App\Repository\FavoriteRepository;
 use App\Repository\CaddieRepository;
 use App\Repository\ImageTagRepository;
 use App\Security\UserProvider;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserMapper
 {
@@ -37,7 +38,7 @@ class UserMapper
     private $passwordEncoder, $defaultLanguage, $themesDir, $userProvider;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
-                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider)
+                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -48,6 +49,7 @@ class UserMapper
         $this->defaultLanguage = $defaultLanguage;
         $this->themesDir = $themesDir;
         $this->userProvider = $userProvider;
+        $this->translator = $translator;
     }
 
     public function getUser() //: ?User @TODO : modify tests or implementation
@@ -79,11 +81,11 @@ class UserMapper
         }
 
         if (!\Phyxo\Functions\Utils::email_check_format($mail_address)) {
-            return \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+            return $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
         }
 
         if (!empty($mail_address) && $this->em->getRepository(UserRepository::class)->isEmailExistsExceptUser($mail_address, $user_id)) {
-            return \Phyxo\Functions\Language::l10n('this email address is already in use');
+            return $this->translator->trans('this email address is already in use');
         }
     }
 

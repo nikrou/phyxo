@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\MenuBar;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
-use Phyxo\Functions\Language;
 use Phyxo\EntityManager;
 use App\Repository\ImageRepository;
 use App\DataMapper\TagMapper;
@@ -30,6 +29,7 @@ use App\Repository\TagRepository;
 use Phyxo\Functions\DateTime;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SearchController extends CommonController
 {
@@ -58,8 +58,19 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar)
-    {
+    public function search(
+        Request $request,
+        EntityManager $em,
+        TagMapper $tagMapper,
+        CategoryMapper $categoryMapper,
+        Template $template,
+        Conf $conf,
+        $themesDir,
+        $phyxoVersion,
+        $phyxoWebsite,
+        MenuBar $menuBar,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -67,7 +78,7 @@ class SearchController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Search');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Search');
 
         $filter = [];
         $available_tags = $tagMapper->getAvailableTags($this->getUser(), $filter);
@@ -97,9 +108,11 @@ class SearchController extends CommonController
         }
 
         $tpl_params['AUTHORS'] = $authors;
-
-        $month_list = $this->language_load['lang']['month'];
-        $month_list[0] = '------------';
+        $month_list = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        foreach ($month_list as &$month) {
+            $month = $translator->trans($month);
+        }
+        $month_list[0] = ['------------'];
         ksort($month_list);
         $tpl_params['month_list'] = $month_list;
 
@@ -214,7 +227,7 @@ class SearchController extends CommonController
 
                 return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
             } else {
-                $tpl_params['errors'][] = Language::l10n('Empty query. No criteria has been entered.');
+                $tpl_params['errors'][] = $translator->trans('Empty query. No criteria has been entered.');
             }
 
             if ($request->request->get('start_day')) {
@@ -239,9 +252,22 @@ class SearchController extends CommonController
         return $this->render('search.tpl', $tpl_params);
     }
 
-    public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Template $template,
-                                    Conf $conf, ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, int $start = 0)
-    {
+    public function searchResults(
+        Request $request,
+        SearchMapper $searchMapper,
+        CategoryMapper $categoryMapper,
+        ImageMapper $imageMapper,
+        Template $template,
+        Conf $conf,
+        ImageStandardParams $image_std_params,
+        MenuBar $menuBar,
+        $themesDir,
+        $phyxoVersion,
+        $phyxoWebsite,
+        $search_id,
+        int $start = 0,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
 
@@ -250,7 +276,7 @@ class SearchController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Search results');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
 
         $filter = [];
@@ -322,13 +348,25 @@ class SearchController extends CommonController
         return $this->render('thumbnails.tpl', $tpl_params);
     }
 
-    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Template $template, Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, int $search_id, MenuBar $menuBar)
-    {
+    public function searchRules(
+        Request $request,
+        EntityManager $em,
+        CategoryMapper $categoryMapper,
+        SearchMapper $searchMapper,
+        Template $template,
+        Conf $conf,
+        string $themesDir,
+        string $phyxoVersion,
+        string $phyxoWebsite,
+        int $search_id,
+        MenuBar $menuBar,
+        TranslatorInterface $translator
+    ) {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Search rules');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Search rules');
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -337,11 +375,11 @@ class SearchController extends CommonController
         if (isset($search['q'])) {
             $tpl_params['search_words'] = $search['q'];
         } else {
-            $tpl_params['INTRODUCTION'] = $search['mode'] === 'OR'? Language::l10n('At least one listed rule must be satisfied.') : Language::l10n('Each listed rule must be satisfied.');
+            $tpl_params['INTRODUCTION'] = $search['mode'] === 'OR'? $translator->trans('At least one listed rule must be satisfied.') : $translator->trans('Each listed rule must be satisfied.');
         }
 
         if (isset($search['fields']['allwords'])) {
-            $tpl_params['search_words'] = Language::l10n('searched words : %s', join(', ', $search['fields']['allwords']['words']));
+            $tpl_params['search_words'] = $translator->trans('searched words : {words}', ['words' => join(', ', $search['fields']['allwords']['words'])]);
         }
 
         if (isset($search['fields']['tags'])) {
@@ -352,7 +390,7 @@ class SearchController extends CommonController
         }
 
         if (isset($search['fields']['author'])) {
-            $tpl_params['search_words'] = Language::l10n('author(s) : %s', join(', ', array_map('strip_tags', $search['fields']['author']['words'])));
+            $tpl_params['search_words'] = $translator->trans('author(s) : {authors}', ['authors' => join(', ', array_map('strip_tags', $search['fields']['author']['words']))]);
         }
 
         if (isset($search['fields']['cat'])) {
@@ -380,17 +418,17 @@ class SearchController extends CommonController
         foreach (['date_available', 'date_creation'] as $datefield) {
             if ($datefield === 'date_available') {
                 $lang_items = [
-                    'date' => Language::l10n('posted on %s'),
-                    'period' => Language::l10n('posted between %s (%s) and %s (%s)'),
-                    'after' => Language::l10n('posted after %s (%s)'),
-                    'before' => Language::l10n('posted before %s (%s)'),
+                    'date' => $translator->trans('posted on %s'),
+                    'period' => $translator->trans('posted between %s (%s) and %s (%s)'),
+                    'after' => $translator->trans('posted after %s (%s)'),
+                    'before' => $translator->trans('posted before %s (%s)'),
                 ];
             } elseif ($datefield === 'date_creation') {
                 $lang_items = [
-                    'date' => Language::l10n('created on %s'),
-                    'period' => Language::l10n('created between %s (%s) and %s (%s)'),
-                    'after' => Language::l10n('created after %s (%s)'),
-                    'before' => Language::l10n('created before %s (%s)'),
+                    'date' => $translator->trans('created on %s'),
+                    'period' => $translator->trans('created between %s (%s) and %s (%s)'),
+                    'after' => $translator->trans('created after %s (%s)'),
+                    'before' => $translator->trans('created before %s (%s)'),
                 ];
             }
 
@@ -406,21 +444,21 @@ class SearchController extends CommonController
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['period'],
                     DateTime::format_date($search['fields'][$keys['after']]['date']),
-                    $search['fields'][$keys['after']]['inc'] ? Language::l10n('included') : Language::l10n('excluded'),
+                    $search['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded'),
                     DateTime::format_date($search['fields'][$keys['before']]['date']),
-                    $search['fields'][$keys['before']]['inc'] ? Language::l10n('included') : Language::l10n('excluded')
+                    $search['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             } elseif (isset($search['fields'][$keys['before']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['before'],
                     DateTime::format_date($search['fields'][$keys['before']]['date']),
-                    $search['fields'][$keys['before']]['inc'] ? Language::l10n('included') : Language::l10n('excluded')
+                    $search['fields'][$keys['before']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             } elseif (isset($search['fields'][$keys['after']])) {
                 $tpl_params[strtoupper($datefield)] = sprintf(
                     $lang_items['after'],
                     DateTime::format_date($search['fields'][$keys['after']]['date']),
-                    $search['fields'][$keys['after']]['inc'] ? Language::l10n('included') : Language::l10n('excluded')
+                    $search['fields'][$keys['after']]['inc'] ? $translator->trans('included') : $translator->trans('excluded')
                 );
             }
         }

@@ -43,6 +43,8 @@ services:
       # The best practice is to be explicit about your dependencies anyway.
 
     bind:
+      $rememberMeCookie: '%remember_cookie%'
+      $compileDir: '%kernel.cache_dir%/smarty'
       $localDir: '%local_dir%'
       $uploadDir: '%upload_dir%'
       $themesDir: '%themes_dir%'
@@ -90,13 +92,9 @@ services:
     public: true
     alias: 'Phyxo\DBLayer\iDBLayer'
 
-  Phyxo\Template\AdminTemplate:
-    factory: 'Phyxo\Template\AdminTemplate::initialize'
-    arguments: ['%kernel.cache_dir%/smarty', '%kernel.project_dir%/admin/theme']
+  Phyxo\Template\AdminTemplate: ~
 
-  Phyxo\Template\Template:
-    factory: 'Phyxo\Template\Template::init'
-    arguments: ['%kernel.cache_dir%/smarty']
+  Phyxo\Template\Template: ~
 
   templating.engine.smarty:
     public: true
@@ -128,3 +126,11 @@ services:
     alias: 'Phyxo\Upgrade'
 
   App\Command\InstallCommand: ~
+
+  App\Utils\RuntimeTranslator:
+    decorates: 'translator'
+    decoration_priority: 5
+    arguments:
+      $translator: '@App\Utils\RuntimeTranslator.inner'
+      $cache: '@cache.app'
+      $formatter: '@translator.formatter.default'

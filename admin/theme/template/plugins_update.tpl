@@ -34,7 +34,7 @@
 	{'Please wait...'|translate}
     </div>
 
-    <p id="up-to-date"{if (count($update_plugins) - $SHOW_RESET)>0} class="collapse"{/if}>{'All %s are up to date.'|sprintf:$EXT_TYPE|translate}</p>
+    <p id="up-to-date"{if (count($update_plugins) - $SHOW_RESET)>0} class="collapse"{/if}>{'All plugins are up to date.'|translate}</p>
 
     {if (count($update_plugins) - $SHOW_RESET)>0}
 	<div class="extensions">
@@ -58,7 +58,7 @@
 			<div class="extension description" id="desc_{$plugin.EXT_ID}">
 			    <em>{'Downloads'|translate}: {$plugin.DOWNLOADS}</em>
 			    <button type="button" class="btn btn-link show-description" data-target="#description-{$plugin.EXT_ID}" data-toggle="collapse"><i class="fa fa-plus-square-o"></i></button>
-			    {'New Version'|translate} : {$plugin.NEW_VERSION} | {'By %s'|translate:$plugin.AUTHOR}
+			    {'New Version'|translate} : {$plugin.NEW_VERSION} | {'By {by}'|translate:['by' => $plugin.AUTHOR]}
 			</div>
 			<div class="revision description collapse" id="description-{$plugin.EXT_ID}">
 			    <p>{$plugin.REV_DESC|@htmlspecialchars|@nl2br}</p>

@@ -92,8 +92,8 @@
 
 	    {if isset($nb_users_granted_indirect) && $nb_users_granted_indirect>0}
 		<p>
-		    {'%u users have automatic permission because they belong to a granted group.'|translate:$nb_users_granted_indirect}
-		    <a class="btn btn-submit" href="#indirectPermissionsDetails" data-toggle="collapse">{'show/hide details'|translate}</a>
+		    {'{count} users have automatic permission because they belong to a granted group.'|translate:['count' => $nb_users_granted_indirect]}
+		    <a class="btn btn-submit" href="#indirectPermissionsDetails" data-toggle="collapse">{'Show/Hide details'|translate}</a>
 		</p>
 
 		<ul id="indirectPermissionsDetails" class="collapse">

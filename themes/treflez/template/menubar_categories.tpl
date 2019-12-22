@@ -14,6 +14,6 @@
             </a>
 	{/foreach}
         <div class="dropdown-divider"></div>
-        <div class="dropdown-header">{$block->data.NB_PICTURE|translate_dec:'%d photo':'%d photos'}</div>
+        <div class="dropdown-header">{'number_of_photos'|translate:['count' => $block->data.NB_PICTURE]}</div>
     </div>
 </li>

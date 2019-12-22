@@ -28,7 +28,7 @@
 		    <tr>
 			<td>
 		    	    <p>{$site.NAME}</p>
-			    <p>({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {$site.IMAGES|translate_dec:'%d photo':'%d photos'})</p>
+			    <p>({$site.TYPE}, {$site.CATEGORIES} {'Albums'|translate}, {'number_of_photos'|translate:['count' => $site.IMAGES]})</p>
 		 	</td>
 			<td>
 			    <a class="btn btn-sm btn-success" href="{$site.U_SYNCHRONIZE}" title="{'update the database from files'|translate}">{'Synchronize'|translate}</a>

@@ -45,7 +45,7 @@
 			</p>
 			<p>
 			    <label>
-				{'Image Quality'|translate}
+				{'Image quality'|translate}
 				<input type="text" name="original_resize_quality" value="{$sizes.original_resize_quality}" size="3" maxlength="3"{if isset($ferrors.original_resize_quality)} class="dError"{/if}> %
 				{if isset($ferrors.original_resize_quality)}<span class="dErrorDesc" title="{$ferrors.original_resize_quality}">!</span>{/if}
 			    </label>
@@ -124,7 +124,7 @@
 	    </table>
 
 	    <p>
-		{'Image Quality'|translate}
+		{'Image quality'|translate}
 		<input class="form-control" type="text" name="resize_quality" value="{$resize_quality}" size="3" maxlength="3"{if isset($ferrors.resize_quality)} class="dError"{/if}> %
 		{if isset($ferrors.resize_quality)}<span class="dErrorDesc" title="{$ferrors.resize_quality}">!</span>{/if}
 	    </p>

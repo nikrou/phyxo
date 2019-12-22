@@ -14,7 +14,6 @@ namespace App\Controller;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\Functions\Language;
 use Phyxo\EntityManager;
 use App\Repository\UserFeedRepository;
 use App\Repository\BaseRepository;
@@ -22,16 +21,19 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use App\DataMapper\UserMapper;
 use App\DataMapper\CategoryMapper;
 use App\Notification;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FeedController extends CommonController
 {
-    public function notification(Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
+    public function notification(Request $request, Template $template, Conf $conf, EntityManager $em, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Notification');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Notification');
 
         $feed_id = md5(uniqid(true));
         $em->getRepository(UserFeedRepository::class)->addUserFeed(['id' => $feed_id, 'user_id' => $this->getUser()->getId()]);
@@ -60,12 +62,12 @@ class FeedController extends CommonController
         return new Response('Not yet');
     }
 
-    public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, UserMapper $userMapper, CategoryMapper $categoryMapper, string $cacheDir, Notification $notification)
+    public function feed(string $feed_id, bool $image_only = false, Conf $conf, EntityManager $em, string $cacheDir, Notification $notification, TranslatorInterface $translator)
     {
         $result = $em->getRepository(UserFeedRepository::class)->findById($feed_id);
         $feed_row = $em->getConnection()->db_fetch_assoc($result);
         if (empty($feed_row)) {
-            throw $this->createNotFoundException(Language::l10n('Unknown feed identifier'));
+            throw $this->createNotFoundException($translator->trans('Unknown feed identifier'));
         }
 
         $dbnow = $em->getRepository(BaseRepository::class)->getNow();
@@ -81,7 +83,7 @@ class FeedController extends CommonController
             $news = $notification->news($feed_row['last_check'], $dbnow, true, true);
             if (count($news) > 0) {
                 $item = new \FeedItem();
-                $item->title = Language::l10n('New on %s', \Phyxo\Functions\DateTime::format_date($dbnow));
+                $item->title = $translator->trans('New on {date}', ['date' => \Phyxo\Functions\DateTime::format_date($dbnow)]);
                 $item->link = $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
                 // content creation

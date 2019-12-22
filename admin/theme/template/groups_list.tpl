@@ -71,7 +71,7 @@
 		    <option value="delete">{'Delete'|translate}</option>
 		    <option value="merge">{'Merge selected groups'|translate}</option>
 		    <option value="duplicate">{'Duplicate'|translate}</option>
-		    <option value="toggle_default">{'Toggle \'default group\' property'|translate}</option>
+		    <option value="toggle_default">{'Toggle "default group" property'|translate}</option>
 		    {if !empty($element_set_groupe_plugins_actions)}
 			{foreach from=$element_set_groupe_plugins_actions item=action}
 			    <option value="{$action.ID}">{$action.NAME}</option>

@@ -17,31 +17,35 @@ use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\URL;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TagsController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'all'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('all', Language::l10n('All tags'), $this->generateUrl('admin_tags'));
-        $tabsheet->add('permissions', Language::l10n('Permissions'), $this->generateUrl('admin_tags_permissions'), 'fa-lock');
-        $tabsheet->add('pending', Language::l10n('Pendings'), $this->generateUrl('admin_tags_pending'), 'fa-clock');
+        $tabsheet->add('all', $this->translator->trans('All tags', [], 'admin'), $this->generateUrl('admin_tags'));
+        $tabsheet->add('permissions', $this->translator->trans('Permissions', [], 'admin'), $this->generateUrl('admin_tags_permissions'), 'fa-lock');
+        $tabsheet->add('pending', $this->translator->trans('Pendings', [], 'admin'), $this->generateUrl('admin_tags_pending'), 'fa-clock');
 
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function list(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager)
+    public function list(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, CsrfTokenManagerInterface $csrfTokenManager,
+                        TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -55,7 +59,7 @@ class TagsController extends AdminCommonController
 
         if (count($orphan_tag_names) > 0) {
             $tpl_params['warnings'][] = sprintf(
-              Language::l10n('You have %d orphan tags: %s.') . ' <a href="%s">' . Language::l10n('Delete orphan tags') . '</a>',
+              $translator->trans('You have %d orphan tags: %s.', [], 'admin') . ' <a href="%s">' . $translator->trans('Delete orphan tags', [], 'admin') . '</a>',
               count($orphan_tag_names),
               implode(', ', $orphan_tag_names),
               $this->generateUrl('admin_tags_delete_orphans')
@@ -104,7 +108,7 @@ class TagsController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_tags_actions');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Tags');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('all'), $tpl_params);
 
@@ -119,7 +123,7 @@ class TagsController extends AdminCommonController
         return $this->render('tags_all.tpl', $tpl_params);
     }
 
-    public function actions(Request $request, EntityManager $em, TagMapper $tagMapper)
+    public function actions(Request $request, EntityManager $em, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         if ($request->request->get('action') === 'edit') {
             $result = $em->getRepository(TagRepository::class)->findAll();
@@ -138,7 +142,7 @@ class TagsController extends AdminCommonController
 
                 if ($tag_name !== $current_name_of[$tag_id]) {
                     if (in_array($tag_name, $existing_names)) {
-                        $this->addFlash('error', Language::l10n('Tag "%s" already exists', $tag_name));
+                        $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
                         $updates[] = [
                             'id' => $tag_id,
@@ -172,7 +176,7 @@ class TagsController extends AdminCommonController
 
                 if ($tag_name != $current_name_of[$tag_id]) {
                     if (in_array($tag_name, $existing_names)) {
-                        $this->addFlash('error', Language::l10n('Tag "%s" already exists', $tag_name));
+                        $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
                         $em->getRepository(TagRepository::class)->insertTag(
                             $tag_name,
@@ -201,7 +205,10 @@ class TagsController extends AdminCommonController
                             );
                         }
 
-                        $this->addFlash('info', Language::l10n('Tag "%s" is now a duplicate of "%s"', $tag_name, $current_name_of[$tag_id]));
+                        $this->addFlash(
+                            'info',
+                            $translator->trans('Tag "{tag}" is now a duplicate of "{duplicate_tag}"', ['tag' => $tag_name, 'duplicate_tag' => $current_name_of[$tag_id]], 'admin')
+                        );
                     }
                 }
             }
@@ -215,7 +222,7 @@ class TagsController extends AdminCommonController
             );
         } elseif ($request->request->get('action') === 'merge') {
             if (!$request->request->get('destination_tag')) {
-                $this->addFlash('error', Language::l10n('No destination tag selected'));
+                $this->addFlash('error', $translator->trans('No destination tag selected', [], 'admin'));
             } else {
                 $destination_tag_id = $request->request->get('destination_tag');
                 $tag_ids = $request->request->get('tags');
@@ -256,19 +263,25 @@ class TagsController extends AdminCommonController
                         $tags_deleted[] = $name_of_tag[$tag_id];
                     }
 
-                    $this->addFlash('info', Language::l10n('Tags <em>%s</em> merged into tag <em>%s</em>', implode(', ', $tags_deleted), $name_of_tag[$destination_tag_id]));
+                    $this->addFlash(
+                        'info',
+                        $translator->trans('Tags <em>{tags_deleted}</em> merged into tag <em>{destination_tags}</em>',
+                                            ['tags_deleted' => implode(', ', $tags_deleted), 'destination_tags' => $name_of_tag[$destination_tag_id]],
+                                            'admin'
+                        )
+                    );
                 }
             }
         } elseif ($request->request->get('action') === 'delete' && $request->request->get('tags')) {
             if (!$request->request->get('confirm_deletion')) {
-                $this->addFlash('error', Language::l10n('You need to confirm deletion'));
+                $this->addFlash('error', $translator->trans('You need to confirm deletion', [], 'admin'));
             } else {
                 $result = $em->getRepository(TagRepository::class)->findTags($request->request->get('tags'));
                 $tag_names = $em->getConnection()->result2array($result, null, 'name');
 
                 $tagMapper->deleteTags($_POST['tags']);
 
-                $this->addFlash('info', Language::l10n_dec('The following tag was deleted', 'The %d following tags were deleted', count($tag_names)) . ' : ' . implode(', ', $tag_names));
+                $this->addFlash('info', $translator->trans_dec('The following tag was deleted', 'The %d following tags were deleted', count($tag_names)) . ' : ' . implode(', ', $tag_names));
             }
         }
 
@@ -290,23 +303,24 @@ class TagsController extends AdminCommonController
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function deleteOrphans(Request $request, TagMapper $tagMapper)
+    public function deleteOrphans(TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tagMapper->deleteOrphanTags();
-        $this->addFlash('info', Language::l10n('Orphan tags deleted'));
+        $this->addFlash('info', $translator->trans('Orphan tags deleted', [], 'admin'));
 
         return $this->redirectToRoute('admin_tags');
     }
 
-    public function permissions(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper)
+    public function permissions(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $status_options[null] = '----------';
         foreach (User::ALL_STATUS as $status) {
-            $status_options[$status] = Language::l10n('user_status_' . $status);
+            $status_options[$status] = $translator->trans('user_status_' . $status, [], 'admin');
         }
 
         if ($request->isMethod('POST')) {
@@ -337,7 +351,7 @@ class TagsController extends AdminCommonController
 
             $tagMapper->invalidateUserCacheNbTags();
 
-            $this->addFlash('info', Language::l10n('Settings have been updated'));
+            $this->addFlash('info', $translator->trans('Settings have been updated', [], 'admin'));
 
             $this->redirectToRoute('admin_tags_permissions');
         }
@@ -357,7 +371,7 @@ class TagsController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Tags');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('permissions'), $tpl_params);
 
@@ -372,19 +386,20 @@ class TagsController extends AdminCommonController
         return $this->render('tags_permissions.tpl', $tpl_params);
     }
 
-    public function pending(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper)
+    public function pending(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         if ($request->isMethod('POST') && $request->request->get('tag_ids')) {
             if ($request->request->get('validate')) {
                 $tagMapper->validateTags($request->request->get('tag_ids'));
-                $this->addFlash('info', Language::l10n('Tags have been validated'));
+                $this->addFlash('info', $translator->trans('Tags have been validated', [], 'admin'));
             } elseif ($request->request->get('reject')) {
                 $tagMapper->rejectTags($request->request->get('tag_ids'));
-                $this->addFlash('info', Language::l10n('Tags have been rejected'));
+                $this->addFlash('info', $translator->trans('Tags have been rejected', [], 'admin'));
             }
 
             $this->redirectToRoute('admin_tags_pending');
@@ -394,7 +409,7 @@ class TagsController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_tags_permissions');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_tags');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Tags');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Tags', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('pending'), $tpl_params);
 

@@ -42,7 +42,6 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
-        $this->setInfos(new UserInfos(['status' => self::STATUS_NORMAL]));
     }
 
     public function setId($id)
@@ -73,7 +72,6 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     public function setInfos(UserInfos $user_infos)
     {
         $this->user_infos = $user_infos;
-
         $this->setRolesByStatus();
     }
 
@@ -109,6 +107,11 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
     public static function getRoleFromStatus(string $status)
     {
         return isset(self::STATUS_TO_ROLE[$status]) ? self::STATUS_TO_ROLE[$status] : 'ROLE_USER';
+    }
+
+    public function getLocale(): string
+    {
+        return $this->getLanguage();
     }
 
     public function offsetExists($offset)
@@ -156,7 +159,8 @@ class User implements UserInterface, EquatableInterface, \ArrayAccess
         return array_unique($this->roles);
     }
 
-    public function isGuest(): bool {
+    public function isGuest(): bool
+    {
         return $this->getRoles() === ['ROLE_USER'];
     }
 

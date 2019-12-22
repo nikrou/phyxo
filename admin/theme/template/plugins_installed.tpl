@@ -76,7 +76,7 @@
 					{else}
 					    {assign var='author' value='<u>'|cat:$plugin.AUTHOR|cat:'</u>'}
 					{/if}
-					{'By %s'|translate:$author}
+					{'By {by}'|translate:['by' => $author]}
 
 					{if !empty($plugin.VISIT_URL)}
 					    &nbsp;|&nbsp;<a class="externalLink" href="{$plugin.VISIT_URL}">{'Visit plugin site'|translate}</a>

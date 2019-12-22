@@ -18,21 +18,22 @@ use Phyxo\Conf;
 use App\Repository\CommentRepository;
 use App\Repository\UserCacheRepository;
 use App\Repository\UserRepository;
-use Phyxo\Functions\Language;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $router, $eventDispatcher;
+    private $conn, $conf, $userMapper, $router, $eventDispatcher, $translator;
 
-    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router, EventDispatcherInterface $eventDispatcher)
+    public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
         $this->conn = $conn;
         $this->conf = $conf;
         $this->userMapper = $userMapper;
         $this->router = $router;
         $this->eventDispatcher = $eventDispatcher;
+        $this->translator = $translator;
     }
 
     public function getUser()
@@ -107,7 +108,7 @@ class CommentMapper
         if ($this->userMapper->isGuest()) {
             if (empty($comm['author'])) {
                 if ($this->conf['comments_author_mandatory']) {
-                    $infos[] = Language::l10n('Username is mandatory');
+                    $infos[] = $this->translator->trans('Username is mandatory');
                     $comment_action = 'reject';
                 }
                 $comm['author'] = 'guest';
@@ -116,7 +117,7 @@ class CommentMapper
             // if a guest try to use the name of an already existing user, he must be rejected
             if ($comm['author'] !== 'guest') {
                 if ((new UserRepository($this->conn))->isUserExists($comm['author'])) {
-                    $infos[] = Language::l10n('This login is already used by another user');
+                    $infos[] = $this->translator->trans('This login is already used by another user');
                     $comment_action = 'reject';
                 }
             }
@@ -143,7 +144,7 @@ class CommentMapper
                     $comm['website_url'] = 'http://' . $comm['website_url'];
                 }
                 if (!\Phyxo\Functions\Utils::url_check_format($comm['website_url'])) {
-                    $infos[] = Language::l10n('Your website URL is invalid');
+                    $infos[] = $this->translator->trans('Your website URL is invalid');
                     $comment_action = 'reject';
                 }
             }
@@ -154,11 +155,11 @@ class CommentMapper
             if (!empty($this->getUser()->getMailAddress())) {
                 $comm['email'] = $this->getUser()->getMailAddress();
             } elseif ($this->conf['comments_email_mandatory']) {
-                $infos[] = Language::l10n('Email address is missing. Please specify an email address.');
+                $infos[] = $this->translator->trans('Email address is missing. Please specify an email address.');
                 $comment_action = 'reject';
             }
         } elseif (!\Phyxo\Functions\Utils::email_check_format($comm['email'])) {
-            $infos[] = Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+            $infos[] = $this->translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
             $comment_action = 'reject';
         }
 
@@ -177,7 +178,7 @@ class CommentMapper
                 !$this->userMapper->isGuest() ? $anonymous_id : null
             );
             if ($counter > 0) {
-                $infos[] = Language::l10n('Anti-flood system : please wait for a moment before trying to post another comment');
+                $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
                 $comment_action = 'reject';
             }
         }
@@ -266,7 +267,7 @@ class CommentMapper
                 $comment['website_url'] = 'http://' . $comment['website_url'];
             }
             if (!\Phyxo\Functions\Utils::url_check_format($comment['website_url'])) {
-                //$page['errors'][] = Language::l10n('Your website URL is invalid');
+                //$page['errors'][] = $this->translator->trans('Your website URL is invalid');
                 $comment_action = 'reject';
             }
         }

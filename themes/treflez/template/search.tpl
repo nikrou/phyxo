@@ -49,7 +49,7 @@
 			</div>
 			<div class="form-check checkbox">
                             <label class="form-check-label mr-2">
-				<input class="form-check-input" type="checkbox" name="fields[]" value="file" checked="checked"> {'File name'|translate}
+				<input class="form-check-input" type="checkbox" name="fields[]" value="file" checked="checked"> {'Filename'|translate}
                             </label>
 			</div>
 			{if isset($TAGS)}
@@ -71,7 +71,7 @@
 			<div class="form-group">
 			    <select class="form-control" id="authors" placeholder="{'Type in a search term'|translate}" name="authors[]" multiple>
 				{foreach $AUTHORS as $author}
-				    <option value="{$author.author|strip_tags:false|escape:html}">{$author.author|strip_tags:false} ({$author.counter|translate_dec:'%d photo':'%d photos'})</option>
+				    <option value="{$author.author|strip_tags:false|escape:html}">{$author.author|strip_tags:false} ({'number_of_photos'|translate:['count' => $author.counter]})</option>
 				{/foreach}
 			    </select>
 			</div>
@@ -87,7 +87,7 @@
 			<div class="form-group mb-3">
 			    <select class="form-control" id="tags" placeholder="{'Type in a search term'|translate}" name="tags[]" multiple>
 				{foreach $TAGS as $tag}
-				    <option value="{$tag.id}">{$tag.name} ({$tag.counter|translate_dec:'%d photo':'%d photos'})</option>
+				    <option value="{$tag.id}">{$tag.name} ({'number_of_photos'|translate:['count' => $tag.counter]})</option>
 				{/foreach}
 			    </select>
 			</div>

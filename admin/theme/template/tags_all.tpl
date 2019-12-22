@@ -43,7 +43,7 @@
 		<div class="row tag">
 		    <div class="col checktag">
 			<input type="checkbox" id="tag_id_{$tag.id}" data-name="{$tag.name|escape:'html'}" name="tags[]" value="{$tag.id}">
-			<label for="tag_id_{$tag.id}">{$tag.name}</label> ({$tag.counter|translate_dec:'%d photo':'%d photos'})
+			<label for="tag_id_{$tag.id}">{$tag.name}</label> ({'number_of_photos'|translate:['count' => $tag.counter]})
 		    </div>
 		    <div class="col">
 			{if $tag.U_MANAGE_PHOTOS}

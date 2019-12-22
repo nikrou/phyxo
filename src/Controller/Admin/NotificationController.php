@@ -15,28 +15,31 @@ use App\Notification;
 use App\Repository\ConfigRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class NotificationController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'params'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('params', Language::l10n('Parameters'), $this->generateUrl('admin_notification'));
-        $tabsheet->add('subscribe', Language::l10n('Subscribe'), $this->generateUrl('admin_notification_subscribe'));
-        $tabsheet->add('send', Language::l10n('Send'), $this->generateUrl('admin_notification_send'));
+        $tabsheet->add('params', $this->translator->trans('Parameters', [], 'admin'), $this->generateUrl('admin_notification'));
+        $tabsheet->add('subscribe', $this->translator->trans('Subscribe', [], 'admin'), $this->generateUrl('admin_notification_subscribe'));
+        $tabsheet->add('send', $this->translator->trans('Send', [], 'admin'), $this->generateUrl('admin_notification_send'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function params(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification)
+    public function params(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -52,7 +55,7 @@ class NotificationController extends AdminCommonController
                 }
             }
 
-            $this->addFlash('info', Language::l10n('Your configuration settings have been saved'));
+            $this->addFlash('info', $translator->trans('Your configuration settings have been saved', [], 'admin'));
 
             return $this->redirectToRoute('admin_notification');
         } else {
@@ -67,7 +70,7 @@ class NotificationController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_notification');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Notification');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('params'), $tpl_params);
 
@@ -84,9 +87,10 @@ class NotificationController extends AdminCommonController
         return $this->render('notification_by_mail_params.tpl', $tpl_params);
     }
 
-    public function subscribe(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification)
+    public function subscribe(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -118,8 +122,8 @@ class NotificationController extends AdminCommonController
             }
         }
 
-        $tpl_params['L_CAT_OPTIONS_TRUE'] = Language::l10n('Subscribed');
-        $tpl_params['L_CAT_OPTIONS_FALSE'] = Language::l10n('Unsubscribed');
+        $tpl_params['L_CAT_OPTIONS_TRUE'] = $translator->trans('Subscribed', [], 'admin');
+        $tpl_params['L_CAT_OPTIONS_FALSE'] = $translator->trans('Unsubscribed', [], 'admin');
 
         $tpl_params['category_option_true'] = $opt_true;
         $tpl_params['category_option_true_selected'] = $opt_true_selected;
@@ -128,7 +132,7 @@ class NotificationController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_notification_subscribe');
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Notification');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('subscribe'), $tpl_params);
 
@@ -145,9 +149,10 @@ class NotificationController extends AdminCommonController
         return $this->render('notification_by_mail_subscribe.tpl', $tpl_params);
     }
 
-    public function send(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification)
+    public function send(Request $request, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, Notification $notification, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
         $must_repost = false;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -193,7 +198,7 @@ class NotificationController extends AdminCommonController
         $tpl_params['send'] = $tpl_var;
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_notification');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Notification');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Notification', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('send'), $tpl_params);
 

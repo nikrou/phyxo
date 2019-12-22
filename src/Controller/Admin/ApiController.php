@@ -13,7 +13,6 @@ namespace App\Controller\Admin;
 
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,7 +30,7 @@ class ApiController extends AdminCommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('api');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('api');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Api');
+        $tpl_params['PAGE_TITLE'] = 'API';
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         if ($this->get('session')->getFlashBag()->has('info')) {

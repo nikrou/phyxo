@@ -36,6 +36,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Phyxo\Image\ImageStandardParams;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Utils
 {
@@ -559,18 +560,18 @@ class Utils
     /**
      * get localized privacy level values
      */
-    public static function getPrivacyLevelOptions(array $available_permission_levels = []): array
+    public static function getPrivacyLevelOptions(array $available_permission_levels = [], TranslatorInterface $translator, string $domain = 'messages'): array
     {
         $options = [];
         $label = '';
         foreach (array_reverse($available_permission_levels) as $level) {
             if (0 == $level) {
-                $label = \Phyxo\Functions\Language::l10n('Everybody');
+                $label = $translator->trans('Everybody', [], $domain);
             } else {
                 if (strlen($label)) {
                     $label .= ', ';
                 }
-                $label .= \Phyxo\Functions\Language::l10n(sprintf('Level %d', $level));
+                $label .= $translator->trans('Level ' . $level, [], $domain);
             }
             $options[$level] = $label;
         }

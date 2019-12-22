@@ -22,19 +22,22 @@ use App\Repository\SearchRepository;
 use App\Repository\UserFeedRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MaintenanceController extends AdminCommonController
 {
+    private $translator;
+
     public function index(Request $request, ?string $action, Template $template, Conf $conf, EntityManager $em, ParameterBagInterface $params, CategoryMapper $categoryMapper,
-                          UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params)
+                          UserMapper $userMapper, RateMapper $rateMapper, TagMapper $tagMapper, ImageStandardParams $image_std_params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -78,7 +81,7 @@ class MaintenanceController extends AdminCommonController
           case 'delete_orphan_tags':
               {
                   $tagMapper->deleteOrphanTags();
-                  $this->addFlash('info', Language::l10n('Orphan tags deleted'));
+                  $this->addFlash('info', $translator->trans('Orphan tags deleted', [], 'admin'));
 
                   return  $this->redirectToRoute('admin_maintenance');
               }
@@ -106,9 +109,9 @@ class MaintenanceController extends AdminCommonController
           case 'database':
               {
                   if ($em->getConnection()->do_maintenance_all_tables()) {
-                      $this->addFlash('info', Language::l10n('All optimizations have been successfully completed.'));
+                      $this->addFlash('info', $translator->trans('All optimizations have been successfully completed.', [], 'admin'));
                   } else {
-                      $this->addFlash('error', Language::l10n('Optimizations have been completed with some errors.'));
+                      $this->addFlash('error', $translator->trans('Optimizations have been completed with some errors.', [], 'admin'));
                   }
                   return  $this->redirectToRoute('admin_maintenance');
               }
@@ -125,7 +128,7 @@ class MaintenanceController extends AdminCommonController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_maintenance');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_maintenance');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Maintenance');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Maintenance', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
 
         $tpl_params = array_merge($tpl_params, [
@@ -141,11 +144,11 @@ class MaintenanceController extends AdminCommonController
             'U_MAINT_DERIVATIVES' => $this->generateUrl('admin_maintenance', ['action' => 'derivatives']),
         ]);
 
-        $purge_urls[Language::l10n('All')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);
+        $purge_urls[$translator->trans('All', [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => 'all']);
         foreach ($image_std_params->getDefinedTypeMap() as $std_params) {
-            $purge_urls[Language::l10n($std_params->type)] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type]);
+            $purge_urls[$translator->trans($std_params->type, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => $std_params->type]);
         }
-        $purge_urls[Language::l10n(ImageStandardParams::IMG_CUSTOM)] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageStandardParams::IMG_CUSTOM]);
+        $purge_urls[$translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin')] = $this->generateUrl('admin_maintenance_derivatives', ['type' => ImageStandardParams::IMG_CUSTOM]);
 
         $tpl_params['purge_derivatives'] = $purge_urls;
 

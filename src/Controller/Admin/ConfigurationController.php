@@ -18,7 +18,6 @@ use App\Repository\UserInfosRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Image\Image;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\WatermarkParams;
@@ -28,14 +27,17 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ConfigurationController extends AdminCommonController
 {
     private $main_checkboxes, $sizes_checkboxes, $comments_checkboxes, $display_checkboxes, $display_info_checkboxes, $sort_fields, $comments_order, $mail_themes;
+    private $translator;
 
-    public function __construct(UserProvider $userProvider)
+    public function __construct(UserProvider $userProvider, TranslatorInterface $translator)
     {
         parent::__construct($userProvider);
+        $this->translator = $translator;
 
         $this->main_checkboxes = [
             'allow_user_registration',
@@ -99,43 +101,43 @@ class ConfigurationController extends AdminCommonController
 
         $this->sort_fields = [
             '' => '',
-            'file ASC' => Language::l10n('File name, A &rarr; Z'),
-            'file DESC' => Language::l10n('File name, Z &rarr; A'),
-            'name ASC' => Language::l10n('Photo title, A &rarr; Z'),
-            'name DESC' => Language::l10n('Photo title, Z &rarr; A'),
-            'date_creation DESC' => Language::l10n('Date created, new &rarr; old'),
-            'date_creation ASC' => Language::l10n('Date created, old &rarr; new'),
-            'date_available DESC' => Language::l10n('Date posted, new &rarr; old'),
-            'rating_score DESC' => Language::l10n('Rating score, high &rarr; low'),
-            'date_available ASC' => Language::l10n('Date posted, old &rarr; new'),
-            'rating_score ASC' => Language::l10n('Rating score, low &rarr; high'),
-            'hit DESC' => Language::l10n('Visits, high &rarr; low'),
-            'hit ASC' => Language::l10n('Visits, low &rarr; high'),
-            'id ASC' => Language::l10n('Numeric identifier, 1 &rarr; 9'),
-            'id DESC' => Language::l10n('Numeric identifier, 9 &rarr; 1'),
-            'rank ASC' => Language::l10n('Manual sort order'),
+            'file ASC' => $this->translator->trans('File name, A &rarr; Z', [], 'admin'),
+            'file DESC' => $this->translator->trans('File name, Z &rarr; A', [], 'admin'),
+            'name ASC' => $this->translator->trans('Photo title, A &rarr; Z', [], 'admin'),
+            'name DESC' => $this->translator->trans('Photo title, Z &rarr; A', [], 'admin'),
+            'date_creation DESC' => $this->translator->trans('Date created, new &rarr; old', [], 'admin'),
+            'date_creation ASC' => $this->translator->trans('Date created, old &rarr; new', [], 'admin'),
+            'date_available DESC' => $this->translator->trans('Date posted, new &rarr; old', [], 'admin'),
+            'rating_score DESC' => $this->translator->trans('Rating score, high &rarr; low', [], 'admin'),
+            'date_available ASC' => $this->translator->trans('Date posted, old &rarr; new', [], 'admin'),
+            'rating_score ASC' => $this->translator->trans('Rating score, low &rarr; high', [], 'admin'),
+            'hit DESC' => $this->translator->trans('Visits, high &rarr; low', [], 'admin'),
+            'hit ASC' => $this->translator->trans('Visits, low &rarr; high', [], 'admin'),
+            'id ASC' => $this->translator->trans('Numeric identifier, 1 &rarr; 9', [], 'admin'),
+            'id DESC' => $this->translator->trans('Numeric identifier, 9 &rarr; 1', [], 'admin'),
+            'rank ASC' => $this->translator->trans('Manual sort order', [], 'admin'),
         ];
 
         $this->comments_order = [
-            'ASC' => Language::l10n('Show oldest comments first'),
-            'DESC' => Language::l10n('Show latest comments first'),
+            'ASC' => $this->translator->trans('Show oldest comments first', [], 'admin'),
+            'DESC' => $this->translator->trans('Show latest comments first', [], 'admin'),
         ];
 
         $this->mail_themes = [
-            'clear' => 'Clear',
-            'dark' => 'Dark'
+            'clear' => $this->translator->trans('Clear', [], 'admin'),
+            'dark' => $this->translator->trans('Dark', [], 'admin')
         ];
     }
 
     protected function setTabsheet(string $section = 'main')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('main', Language::l10n('General'), $this->generateUrl('admin_configuration'));
-        $tabsheet->add('sizes', Language::l10n('Photo sizes'), $this->generateUrl('admin_configuration', ['section' => 'sizes']));
-        $tabsheet->add('watermark', Language::l10n('Watermark'), $this->generateUrl('admin_configuration', ['section' => 'watermark']));
-        $tabsheet->add('display', Language::l10n('Display'), $this->generateUrl('admin_configuration', ['section' => 'display']));
-        $tabsheet->add('comments', Language::l10n('Comments'), $this->generateUrl('admin_configuration', ['section' => 'comments']));
-        $tabsheet->add('default', Language::l10n('Guest Settings'), $this->generateUrl('admin_configuration', ['section' => 'default']));
+        $tabsheet->add('main', $this->translator->trans('General', [], 'admin'), $this->generateUrl('admin_configuration'));
+        $tabsheet->add('sizes', $this->translator->trans('Photo sizes', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'sizes']));
+        $tabsheet->add('watermark', $this->translator->trans('Watermark', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'watermark']));
+        $tabsheet->add('display', $this->translator->trans('Display', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'display']));
+        $tabsheet->add('comments', $this->translator->trans('Comments', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'comments']));
+        $tabsheet->add('default', $this->translator->trans('Guest Settings', [], 'admin'), $this->generateUrl('admin_configuration', ['section' => 'default']));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -213,10 +215,7 @@ class ConfigurationController extends AdminCommonController
         $tpl_params['main'] = [
             'CONF_GALLERY_TITLE' => htmlspecialchars($conf['gallery_title']),
             'CONF_PAGE_BANNER' => htmlspecialchars($conf['page_banner']),
-            'week_starts_on_options' => [
-                'sunday' => $this->language_load['lang']['day'][0],
-                'monday' => $this->language_load['lang']['day'][1],
-            ],
+            'week_starts_on_options' => ['sunday' => $this->translator->trans('sunday', [], 'admin'), 'monday' => $this->translator->trans('monday', [], 'admin')],
             'week_starts_on_options_selected' => $conf['week_starts_on'],
             'mail_theme' => $conf['mail_theme'],
             'mail_theme_options' => $this->mail_themes,
@@ -312,7 +311,7 @@ class ConfigurationController extends AdminCommonController
         $tpl_vars = [];
         $now = time();
         foreach ($image_std_params->getCustoms() as $custom => $time) {
-            $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? Language::l10n('today') : \Phyxo\Functions\DateTime::time_since($time, 'day');
+            $tpl_vars[$custom] = ($now - $time <= 24 * 3600) ? $this->translator->trans('today', [], 'admin') : \Phyxo\Functions\DateTime::time_since($time, 'day');
         }
         $tpl_params['custom_derivatives'] = $tpl_vars;
 
@@ -392,8 +391,8 @@ class ConfigurationController extends AdminCommonController
         $userdata = $this->userProvider->getUserData($conf['guest_id'], false);
 
         $tpl_params['radio_options'] = [
-            'true' => Language::l10n('Yes'),
-            'false' => Language::l10n('No')
+            'true' => $this->translator->trans('Yes', [], 'admin'),
+            'false' => $this->translator->trans('No', [], 'admin')
         ];
 
         $tpl_params = array_merge($tpl_params, [
@@ -405,6 +404,7 @@ class ConfigurationController extends AdminCommonController
             'GUEST_NB_HITS' => $userdata['show_nb_hits'] ? 'true' : 'false',
         ]);
 
+        $tpl_params['GUEST_USERNAME'] = 'guest';
         $tpl_params['THEME'] = $userdata['theme'];
         $tpl_params['themes'] = $themes;
 
@@ -454,7 +454,7 @@ class ConfigurationController extends AdminCommonController
                             }
                         }
                         if (count($order_by) === 0) {
-                            $this->addFlash('error', Language::l10n('No order field selected'));
+                            $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
                         } else {
                             // limit to the number of available parameters
                             $order_by = $order_by_inside_category = array_slice($order_by, 0, ceil(count($this->sort_fields) / 2));
@@ -481,7 +481,7 @@ class ConfigurationController extends AdminCommonController
                             }
                         }
                     } else {
-                        $this->addFlash('error', Language::l10n('No order field selected'));
+                        $this->addFlash('error', $this->translator->trans('No order field selected', [], 'admin'));
                     }
                 }
 
@@ -520,7 +520,7 @@ class ConfigurationController extends AdminCommonController
                             $data[$field] = $value;
                             $conf_updated = true;
                         } else {
-                            $this->addFlash('error', Language::l10n('Incorrect language value'));
+                            $this->addFlash('error', $this->translator->trans('Incorrect language value', [], 'admin'));
                             $error = true;
                         }
                     } elseif ($field === 'theme') {
@@ -528,7 +528,7 @@ class ConfigurationController extends AdminCommonController
                             $data[$field] = $value;
                             $conf_updated = true;
                         } else {
-                            $this->addFlash('error', Language::l10n('Incorrect theme value'));
+                            $this->addFlash('error', $this->translator->trans('Incorrect theme value', [], 'admin'));
                             $error = true;
                         }
                     } else {
@@ -544,7 +544,7 @@ class ConfigurationController extends AdminCommonController
                 if ($request->request->get('nb_comment_page')) {
                     $nb_comments = (int) $request->request->get('nb_comment_page');
                     if ($nb_comments < 5 || $nb_comments > 50) {
-                        $this->addFlash('error', Language::l10n('The number of comments a page must be between 5 and 50 included.'));
+                        $this->addFlash('error', $this->translator->trans('The number of comments a page must be between 5 and 50 included.', [], 'admin'));
                         $error = true;
                     } elseif ($conf['nb_comment_page'] !== $nb_comments) {
                         $conf['nb_comment_page'] = $nb_comments;
@@ -572,7 +572,7 @@ class ConfigurationController extends AdminCommonController
                 if ($request->request->get('nb_categories_page')) {
                     $nb_categories_page = (int) $request->request->get('nb_categories_page');
                     if ($nb_categories_page < 4) {
-                        $this->addFlash('error', Language::l10n('The number of albums a page must be above 4.'));
+                        $this->addFlash('error', $this->translator->trans('The number of albums a page must be above 4.', [], 'admin'));
                         $error = true;
                     } else {
                         $conf['nb_categories_page'] = $nb_categories_page;
@@ -604,7 +604,7 @@ class ConfigurationController extends AdminCommonController
 
                     list(, , $type) = getimagesize($watermarkImage->getPathName());
                     if ($type !== IMAGETYPE_PNG) {
-                        $this->addFlash('error', sprintf(Language::l10n('Allowed file types: %s.'), 'PNG'));
+                        $this->addFlash('error', $this->translator->trans('Allowed file types: {type}.', ['type' => 'PNG'], 'admin'));
                         $error = true;
                     } else {
                         $upload_dir = $localDir . '/watermarks';
@@ -616,7 +616,7 @@ class ConfigurationController extends AdminCommonController
                             $watermarke['file'] = \Phyxo\Functions\Utils::get_filename_wo_extension($watermarkImage->getClientOriginalName()) . '.png';
                             $watermarkImage->move($upload_dir, $watermarke['file']);
                         } catch (\Exception $e) {
-                            $this->addFlash('error', sprintf(Language::l10n('Add write access to the "%s" directory'), $upload_dir));
+                            $this->addFlash('error', $this->translator->trans('Add write access to the "{directory}" directory', ['directory' => $upload_dir], 'admin'));
                             $error = true;
                         }
                     }
@@ -734,7 +734,7 @@ class ConfigurationController extends AdminCommonController
                         \Phyxo\Functions\Utils::clear_derivative_cache($changed_types, $image_std_params->getAllTypes());
                     }
 
-                    $this->addFlash('info', Language::l10n('Your configuration settings have been saved'));
+                    $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
                 }
             } elseif ($section === 'sizes') {
                 // original resize
@@ -922,7 +922,7 @@ class ConfigurationController extends AdminCommonController
             }
 
             if ($conf_updated && !$error) {
-                $this->addFlash('info', Language::l10n('Your configuration settings have been saved'));
+                $this->addFlash('info', $this->translator->trans('Your configuration settings have been saved', [], 'admin'));
             }
         }
 

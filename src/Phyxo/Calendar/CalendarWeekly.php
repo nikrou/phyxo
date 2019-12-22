@@ -56,7 +56,7 @@ class CalendarWeekly extends CalendarBase
             ],
             [
                 'sql' => $this->conn->db_get_dayofweek($this->date_field) . '-1',
-                'labels' => $this->lang['day']
+                'labels' => $this->days
             ],
         ];
 

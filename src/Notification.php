@@ -29,16 +29,17 @@ use Phyxo\Functions\Language;
 use Phyxo\Template\AdminTemplate;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class Notification
 {
     private $em, $conn, $conf, $userMapper, $categoryMapper, $router;
-    private $env, $must_repost, $userProvider, $template, $phyxoVersion, $phyxoWebsite, $mailer;
+    private $env, $must_repost, $userProvider, $template, $phyxoVersion, $phyxoWebsite, $mailer, $translator;
 
     private $infos = [], $errors = [];
 
     public function __construct(EntityManager $em, Conf $conf, UserMapper $userMapper, CategoryMapper $categoryMapper, RouterInterface $router, UserProvider $userProvider,
-                                AdminTemplate $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer)
+                                AdminTemplate $template, string $phyxoVersion, string $phyxoWebsite, \Swift_Mailer $mailer, TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->conn = $em->getConnection();
@@ -51,6 +52,7 @@ class Notification
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
         $this->mailer = $mailer;
+        $this->translator = $translator;
 
         $this->env = [
             'start_time' => microtime(true),
@@ -202,10 +204,10 @@ class Notification
      * @param string $url
      * @param bool $add_url
      */
-    public function add_news_line(&$news, $count, $singular_key, $plural_key, $url = '', $add_url = false)
+    public function add_news_line(&$news, $count, string $lang_key, string $url = '', bool $add_url = false)
     {
         if ($count > 0) {
-            $line = Language::l10n_dec($singular_key, $plural_key, $count);
+            $line = $this->translator->trans($lang_key, ['count' => $count]);
             if ($add_url and !empty($url)) {
                 $line = '<a href="' . $url . '">' . $line . '</a>';
             }
@@ -235,7 +237,7 @@ class Notification
             $this->add_news_line(
                 $news,
                 $this->nb_new_elements($start, $end),
-                '%d new photo', '%d new photos',
+                'number_of_new_photos',
                 $this->router->generate('recent_pics', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 $add_url
             );
@@ -245,7 +247,7 @@ class Notification
             $this->add_news_line(
                 $news,
                 $this->nb_updated_categories($start, $end),
-                '%d album updated', '%d albums updated',
+                'number_of_albums_updated',
                 $this->router->generate('recent_cats', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 $add_url
             );
@@ -254,7 +256,7 @@ class Notification
         $this->add_news_line(
             $news,
             $this->nb_new_comments($start, $end),
-            '%d new comment', '%d new comments',
+            'number_of_new_comments',
             $this->router->generate('comments', [], UrlGeneratorInterface::ABSOLUTE_URL),
             $add_url
         );
@@ -263,14 +265,14 @@ class Notification
             $this->add_news_line(
                 $news,
                 $this->nb_unvalidated_comments($start, $end),
-                '%d comment to validate', '%d comments to validate',
+                'number_of_new_comments_to_validate',
                 $this->router->generate('admin_comments', [], UrlGeneratorInterface::ABSOLUTE_URL), $add_url
             );
 
             $this->add_news_line(
                 $news,
                 $this->nb_new_users($start, $end),
-                '%d new user', '%d new users',
+                'number_of_new_users',
                 $this->router->generate('admin_users', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 $add_url
             );
@@ -338,10 +340,10 @@ class Notification
 
         $description .=
             '<li>'
-            . Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements'])
+            . $this->translator->trans('number_of_new_photos', ['count' => $date_detail['nb_elements']])
             . ' ('
             . '<a href="' . $this->router->generate('recent_pics', [], UrlGeneratorInterface::ABSOLUTE_URL) . '">'
-            . Language::l10n('Recent photos') . '</a>'
+            . $this->translator->trans('Recent photos') . '</a>'
             . ')'
             . '</li><br>';
 
@@ -362,7 +364,7 @@ class Notification
 
         $description .=
             '<li>'
-            . Language::l10n_dec('%d album updated', '%d albums updated', $date_detail['nb_cats'])
+            . $this->translator->trans('number_of_albums_updated', ['count' => $date_detail['nb_cats']])
             . '</li>';
 
         $description .= '<ul>';
@@ -370,7 +372,7 @@ class Notification
             $description .=
                 '<li>'
                 . $this->categoryMapper->getCatDisplayNameCache($cat['uppercats'])
-                . ' (' . Language::l10n_dec('%d new photo', '%d new photos', $cat['img_count']) . ')'
+                . ' (' . $this->translator->trans('number_of_new_photos', ['count' => $cat['img_count']]) . ')'
                 . '</li>';
         }
         $description .= '</ul>';
@@ -393,7 +395,7 @@ class Notification
         $date = $date_detail['date_available'];
         $exploded_date = strptime($date, '%Y-%m-%d %H:%M:%S');
 
-        $title = Language::l10n_dec('%d new photo', '%d new photos', $date_detail['nb_elements']);
+        $title = $this->translator->trans('number_of_new_photos', ['count' => $date_detail['nb_elements']]);
         $title .= ' (' . $lang['month'][1 + $exploded_date['tm_mon']] . ' ' . $exploded_date['tm_mday'] . ')';
 
         return $title;
@@ -489,8 +491,8 @@ class Notification
             $this->env['error_on_mail_count'] = 0;
             $this->env['sent_mail_count'] = 0;
             // Save sendmail message info and error in the original language
-            $this->env['msg_info'] = Language::l10n('Mail sent to %s [%s].');
-            $this->env['msg_error'] = Language::l10n('Error when sending email to %s [%s].');
+            $this->env['msg_info'] = $this->translator->trans('Mail sent to %s [%s].');
+            $this->env['msg_error'] = $this->translator->trans('Error when sending email to %s [%s].');
         }
     }
 
@@ -524,28 +526,16 @@ class Notification
     public function display_counter_info()
     {
         if ($this->env['error_on_mail_count'] != 0) {
-            $this->errors[] = Language::l10n_dec(
-                '%d mail was not sent.',
-                '%d mails were not sent.',
-                $this->env['error_on_mail_count']
-            );
+            $this->errors[] = $this->translator->trans('number_of_mails_not_sent', ['count' => $this->env['error_on_mail_count']]);
 
             if ($this->env['sent_mail_count'] != 0) {
-                $this->infos[] = Language::l10n_dec(
-                    '%d mail was sent.',
-                    '%d mails were sent.',
-                    $this->env['sent_mail_count']
-                );
+                $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
         } else {
             if ($this->env['sent_mail_count'] == 0) {
-                $this->infos[] = Language::l10n('No mail to send.');
+                $this->infos[] = $this->translator->trans('No mail to send.');
             } else {
-                $this->infos[] = Language::l10n_dec(
-                    '%d mail was sent.',
-                    '%d mails were sent.',
-                    $this->env['sent_mail_count']
-                );
+                $this->infos[] = $this->translator->trans('number_of_mails_sent', ['count' => $this->env['sent_mail_count']]);
             }
         }
     }
@@ -576,11 +566,11 @@ class Notification
         $error_on_updated_data_count = 0;
 
         if ($is_subscribe) {
-            $msg_info = Language::l10n('User %s [%s] was added to the subscription list.');
-            $msg_error = Language::l10n('User %s [%s] was not added to the subscription list.');
+            $msg_info = $this->translator->trans('User %s [%s] was added to the subscription list.');
+            $msg_error = $this->translator->trans('User %s [%s] was not added to the subscription list.');
         } else {
-            $msg_info = Language::l10n('User %s [%s] was removed from the subscription list.');
-            $msg_error = Language::l10n('User %s [%s] was not removed from the subscription list.');
+            $msg_info = $this->translator->trans('User %s [%s] was removed from the subscription list.');
+            $msg_error = $this->translator->trans('User %s [%s] was not removed from the subscription list.');
         }
 
         if (count($check_key_list) != 0) {
@@ -589,7 +579,7 @@ class Notification
             $data_users = $this->get_user_notifications('subscribe', $check_key_list, !$is_subscribe);
 
             // Prepare message after change language
-            $msg_break_timeout = Language::l10n('Time to send mail is limited. Others mails are skipped.');
+            $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
 
             // Begin nbm users environment
             $this->begin_users_env_nbm(true);
@@ -606,7 +596,7 @@ class Notification
 
                 $do_update = true;
                 if ($nbm_user['mail_address'] != '') {
-                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? Language::l10n('Subscribe to notification by mail') : Language::l10n('Unsubscribe from notification by mail'));
+                    $subject = '[' . $this->conf['gallery_title'] . '] ' . ($is_subscribe ? $this->translator->trans('Subscribe to notification by mail') : $this->translator->trans('Unsubscribe from notification by mail'));
 
                     $mail_params = [];
                     $mail_params = $this->assign_vars_nbm_mail_content($nbm_user);
@@ -662,19 +652,11 @@ class Notification
         }
 
         if ($updated_data_count > 0) {
-            $this->infos[] = Language::l10n_dec(
-                '%d user was updated.',
-                '%d users were updated.',
-                $updated_data_count
-            );
+            $this->infos[] = $this->translator->trans('number_of_users_updated', ['count' => $updated_data_count]);
         }
 
         if ($error_on_updated_data_count != 0) {
-            $this->errors[] = Language::l10n_dec(
-                '%d user was not updated.',
-                '%d users were not updated.',
-                $error_on_updated_data_count
-            );
+            $this->errors[] = $this->translator->trans('number_of_users_not_updated', ['count' => $error_on_updated_data_count]);
         }
 
         return $check_key_treated;
@@ -725,11 +707,7 @@ class Notification
                 $_POST[$post_keyname] = array_diff($_POST[$post_keyname], $check_key_treated);
 
                 $this->must_repost = true;
-                $this->errors[] = Language::l10n_dec(
-                    'Execution time is out, treatment must be continue [Estimated time: %d second].',
-                    'Execution time is out, treatment must be continue [Estimated time: %d seconds].',
-                    $time_refresh
-                );
+                $this->errors[] = $this->translator->trans('execution_timeout_in_seconds', ['count' => $time_refresh]);
             }
         }
     }
@@ -757,11 +735,7 @@ class Notification
                     'enabled' => 'false' // By default if false, set to true with specific functions
                 ];
 
-                $this->infos[] = Language::l10n(
-                    'User %s [%s] added.',
-                    stripslashes($nbm_user['username']),
-                    $nbm_user['mail_address']
-                );
+                $this->infos[] = $this->translator->trans('User {username} [{mail_address] added.', ['username' => $nbm_user['username'], 'mail_address' => $nbm_user['mail_address']]);
             }
 
             // Insert new nbm_users
@@ -834,9 +808,9 @@ class Notification
 
                     // Prepare message after change language
                     if ($is_action_send) {
-                        $msg_break_timeout = Language::l10n('Time to send mail is limited. Others mails are skipped.');
+                        $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
                     } else {
-                        $msg_break_timeout = Language::l10n('Prepared time for list of users to send mail is limited. Others users are not listed.');
+                        $msg_break_timeout = $this->translator->trans('Prepared time for list of users to send mail is limited. Others users are not listed.');
                     }
 
                     // Begin nbm users environment
@@ -868,7 +842,7 @@ class Notification
                             }
 
                             if ($exist_data) {
-                                $subject = '[' . $this->conf['gallery_title'] . '] ' . Language::l10n('New photos added');
+                                $subject = '[' . $this->conf['gallery_title'] . '] ' . $this->translator->trans('New photos added');
 
                                 // Assign current var for nbm mail
                                 $tpl_params = $this->assign_vars_nbm_mail_content($nbm_user);
@@ -954,7 +928,7 @@ class Notification
                     }
                 } else {
                     if ($is_action_send) {
-                        $this->errors[] = Language::l10n('No user to send notifications by mail.');
+                        $this->errors[] = $this->translator->trans('No user to send notifications by mail.');
                     }
                 }
             } else {
@@ -971,23 +945,11 @@ class Notification
 
     protected function sendMail(array $to, array $from, string $subject, array $params)
     {
-        $user = $this->userProvider->loadUserByUsername('guest');
-
-        $language_load = Language::load_language(
-            'common.lang',
-            __DIR__ . '/../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-        );
-
-        $this->template->setLang($language_load['lang']);
-        $this->template->setLangInfo($language_load['lang_info']);
-
         $tpl_params = [
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],
             'GALLERY_TITLE' => $this->conf['gallery_title'],
             'GALLERY_URL' => $this->router->generate('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'lang_info' => $language_load['lang_info'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',

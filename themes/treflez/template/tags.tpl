@@ -41,7 +41,7 @@
 	    {if $theme_config->tag_cloud_type == 'basic'}
 		<div id="tagCloud">
 		    {foreach $tags as $tag}
-			<span><a href="{$tag.URL}" class="tagLevel{$tag.level}" title="{$tag.counter|translate_dec:'%d photo':'%d photos'}">{$tag.name}</a></span>
+			<span><a href="{$tag.URL}" class="tagLevel{$tag.level}" title="{'number_of_photos'|translate:['count' => $tag.counter]}">{$tag.name}</a></span>
 		    {/foreach}
 		</div>
 	    {else}
@@ -63,7 +63,7 @@
 			<div class="list-group list-group-flush">
 			    {foreach $letter.tags as $tag}
 				<a href="{$tag.URL}" class="list-group-item list-group-item-action" title="{$tag.name}">
-				    {$tag.name}<span class="badge badge-secondary ml-2">{$tag.counter|translate_dec:'%d photo':'%d photos'}</span>
+				    {$tag.name}<span class="badge badge-secondary ml-2">{'number_of_photos'|translate:['count' => $tag.counter]}</span>
 				</a>
 			    {/foreach}
 			</div>

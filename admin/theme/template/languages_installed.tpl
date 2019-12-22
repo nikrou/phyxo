@@ -19,7 +19,7 @@
 		    {if $language.state === $language_state}
 			<div class="row extension{if $language.is_default} extension-default{/if}">
 			    <div class="col-2">
-				<div>{$language.name}{if $language.is_default} <em>({'default'|translate})</em>{/if}</div>
+				<div>{$language.name}{if $language.is_default} <em>({'Default'|translate})</em>{/if}</div>
 				{if $language_state === 'active'}
 				    <div>{'Version'|translate} {$language.CURRENT_VERSION}</div>
 				{/if}

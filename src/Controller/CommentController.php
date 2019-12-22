@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
-use Phyxo\Functions\Language;
 use Phyxo\EntityManager;
 use App\Repository\CommentRepository;
 use App\Repository\BaseRepository;
@@ -28,11 +27,13 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use App\DataMapper\CategoryMapper;
 use Phyxo\Image\ImageStandardParams;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentController extends CommonController
 {
-    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir,
-                        UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params)
+    public function index(int $start = 0, int $comment_id = 0, Request $request, EntityManager $em, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar,
+                        string $themesDir, UserMapper $userMapper, CsrfTokenManagerInterface $csrfTokenManager, CategoryMapper $categoryMapper, ImageStandardParams $image_std_params,
+                        TranslatorInterface $translator)
     {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -42,7 +43,7 @@ class CommentController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('User comments');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('User comments');
 
         $filter = [];
         $result = $em->getRepository(CategoryRepository::class)->findWithCondition(
@@ -61,22 +62,22 @@ class CommentController extends CommonController
 
         // form options
         $tpl_params['sort_order_options'] = [
-            'DESC' => Language::l10n('descending'),
-            'ASC' => Language::l10n('ascending')
+            'DESC' => $translator->trans('descending'),
+            'ASC' => $translator->trans('ascending')
         ];
 
         $tpl_params['sort_by_options'] = [
-            'date' => Language::l10n('comment date'),
-            'image_id' => Language::l10n('photo')
+            'date' => $translator->trans('comment date'),
+            'image_id' => $translator->trans('photo')
         ];
 
-        $tpl_params['items_number_options'] = [5 => 5, 10 => 10, 20 => 20, 50 => 50, '' => Language::l10n('All comments')];
+        $tpl_params['items_number_options'] = [5 => 5, 10 => 10, 20 => 20, 50 => 50, '' => $translator->trans('All comments')];
 
         $since_options = [
-            'today' => ['label' => Language::l10n('today'), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(1)],
-            'last7days' => ['label' => Language::l10n('last %d days', 7), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(7)],
-            'last30days' => ['label' => Language::l10n('last %d days', 30), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(30)],
-            'all' => ['label' => Language::l10n('the beginning'), 'clause' => '']
+            'today' => ['label' => $translator->trans('today'), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(1)],
+            'last7days' => ['label' => $translator->trans('last {count} days', ['count' => 7]), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(7)],
+            'last30days' => ['label' => $translator->trans('last {count} days', ['count' => 30]), 'clause' => 'date > ' . $em->getConnection()->db_get_recent_period_expression(30)],
+            'all' => ['label' => $translator->trans('the beginning'), 'clause' => '']
         ];
         $tpl_params['since_options'] = array_combine(array_keys($since_options), array_column($since_options, 'label'));
 
@@ -246,7 +247,7 @@ class CommentController extends CommonController
         return $this->render('comments.tpl', $tpl_params);
     }
 
-    public function edit(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager)
+    public function edit(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $token = new CsrfToken('authenticate', $request->request->get('_csrf_token'));
@@ -266,13 +267,13 @@ class CommentController extends CommonController
 
             switch ($comment_action) {
                 case 'moderate':
-                    $this->addFlash('infos', Language::l10n('An administrator must authorize your comment before it is visible.'));
+                    $this->addFlash('infos', $translator->trans('An administrator must authorize your comment before it is visible.'));
                     break;
                 case 'validate':
-                    $this->addFlash('infos', Language::l10n('Your comment has been registered'));
+                    $this->addFlash('infos', $translator->trans('Your comment has been registered'));
                     break;
                 case 'reject':
-                    $this->addFlash('errors', Language::l10n('Your comment has NOT been registered because it did not pass the validation rules'));
+                    $this->addFlash('errors', $translator->trans('Your comment has NOT been registered because it did not pass the validation rules'));
                     break;
             }
         }

@@ -5,7 +5,7 @@
 	<ul class="nav nav-pills p-2" role="tablist">
 	    {if $COMMENT_COUNT > 0}
 		<li class="nav-item">
-		    <a class="nav-link active" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">{$COMMENT_COUNT|translate_dec:'%d comment':'%d comments'}</a>
+		    <a class="nav-link active" href="#viewcomments" data-toggle="pill" aria-controls="viewcomments">{'number_of_comments'|translate:['count' => $COMMENT_COUNT]}</a>
 		</li>
 	    {/if}
 	    {if isset($comment_add)}

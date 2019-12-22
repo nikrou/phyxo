@@ -34,11 +34,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Phyxo\Extension\Theme;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends AbstractController
 {
     private $template, $router, $conf;
-    private $language_load = [];
+
     private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite, $userProvider;
 
     public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite)
@@ -66,18 +67,7 @@ class SecurityController extends AbstractController
 
     protected function init(User $user)
     {
-        $this->language_load = \Phyxo\Functions\Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-        );
-
         $this->template->setUser($user);
-        $this->template->setRouter($this->router);
-        $this->template->setConf($this->conf);
-        $this->template->setLang($this->language_load['lang']);
-        $this->template->setLangInfo($this->language_load['lang_info']);
-        $this->template->postConstruct();
 
         // default theme
         $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $user->getTheme()));
@@ -91,7 +81,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider)
+    public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->init($userProvider->loadUserByUsername('guest'));
 
@@ -108,14 +98,14 @@ class SecurityController extends AbstractController
             'password_route' => $this->generateUrl('forgot_password'),
             'last_username' => $last_username,
             'csrf_token' => $token,
-            'errors' => $error ? \Phyxo\Functions\Language::l10n('Invalid credentials') : '',
+            'errors' => $error ? $translator->trans('Invalid credentials') : '',
         ];
 
         return $this->render('identification.tpl', $tpl_params);
     }
 
     public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,
-                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, UserProvider $userProvider)
+                                CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->init($userProvider->loadUserByUsername('guest'));
 
@@ -132,17 +122,17 @@ class SecurityController extends AbstractController
 
         if ($request->isMethod('POST')) {
             if (!$request->request->get('_username')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Username is missing. Please enter the username.');
+                $errors[] = $translator->trans('Username is missing. Please enter the username.');
             } else {
                 $tpl_params['last_username'] = $request->request->get('_username');
             }
 
             if (!$request->request->get('_password')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Password is missing. Please enter the password.');
+                $errors[] = $translator->trans('Password is missing. Please enter the password.');
             } elseif (!$request->request->get('_password_confirm')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('Password confirmation is missing. Please confirm the chosen password.');
+                $errors[] = $translator->trans('Password confirmation is missing. Please confirm the chosen password.');
             } elseif ($request->request->get('_password') != $request->request->get('_password_confirm')) {
-                $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
+                $errors[] = $translator->trans('The passwords do not match');
             }
 
             if (count($errors) === 0) {
@@ -167,7 +157,7 @@ class SecurityController extends AbstractController
     }
 
     public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar,
-                            UserProvider $userProvider, string $languagesDir)
+                            UserProvider $userProvider, string $languagesDir, TranslatorInterface $translator)
     {
         $this->userProvider = $userProvider;
         $this->init($this->getUser());
@@ -175,12 +165,6 @@ class SecurityController extends AbstractController
         $errors = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        $this->language_load = \Phyxo\Functions\Language::load_language(
-            'common.lang',
-            $languagesDir,
-            ['language' => $this->getUser()->getLanguage(), 'return_vars' => true]
-        );
 
         $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
         $themes = $conn->result2array((new ThemeRepository($conn))->findAll(), 'id', 'name');
@@ -203,9 +187,9 @@ class SecurityController extends AbstractController
 
                 if ($request->request->get('_password') && $request->request->get('_new_password') && $request->request->get('_new_password_confirm')) {
                     if (!$passwordEncoder->isPasswordValid($this->getUser(), $request->request->get('_password'))) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('Current password is wrong');
+                        $errors[] = $translator->trans('Current password is wrong');
                     } elseif ($request->request->get('_new_password') !== $request->request->get('_new_password_confirm')) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
+                        $errors[] = $translator->trans('The passwords do not match');
                     }
 
                     if (empty($errors)) {
@@ -215,11 +199,11 @@ class SecurityController extends AbstractController
 
                 if (empty($errors) && $request->request->get('_mail_address')) {
                     if (filter_var($request->request->get('_mail_address'), FILTER_VALIDATE_EMAIL) === false) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
+                        $errors[] = $translator->trans('mail address must be like xxx@yyy.eee (example : jack@altern.org)');
                     }
 
                     if ((new UserRepository($conn))->isEmailExistsExceptUser($request->request->get('_mail_address'), $this->getUser()->getId())) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('this email address is already in use');
+                        $errors[] = $translator->trans('this email address is already in use');
                     }
 
                     if (empty($errors)) {
@@ -242,14 +226,14 @@ class SecurityController extends AbstractController
                 $data = [];
                 if ($request->request->get('nb_image_page')) {
                     if (($data['nb_image_page'] = (int) $request->request->get('nb_image_page')) === 0) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('The number of photos per page must be a not null scalar');
+                        $errors[] = $translator->trans('The number of photos per page must be a not null scalar');
                         unset($data['nb_image_page']);
                     }
                 }
 
                 if ($request->request->get('language')) {
                     if (!isset($languages[$request->request->get('language')])) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('Incorrect language value');
+                        $errors[] = $translator->trans('Incorrect language value');
                     } else {
                         $data['language'] = $request->request->get('language');
                     }
@@ -257,7 +241,7 @@ class SecurityController extends AbstractController
 
                 if ($request->request->get('theme')) {
                     if (!isset($themes[$request->request->get('theme')])) {
-                        $errors[] = \Phyxo\Functions\Language::l10n('Incorrect theme value');
+                        $errors[] = $translator->trans('Incorrect theme value');
                     } else {
                         $data['theme'] = $request->request->get('theme');
                     }
@@ -302,8 +286,8 @@ class SecurityController extends AbstractController
             'THEME' => $this->getUser()->getTheme(),
             'LANGUAGE' => $this->getUser()->getLanguage(),
             'radio_options' => [
-                'true' => \Phyxo\Functions\Language::l10n('Yes'),
-                'false' => \Phyxo\Functions\Language::l10n('No'),
+                'true' => $translator->trans('Yes'),
+                'false' => $translator->trans('No'),
             ],
             'errors' => $errors,
             'U_HOME' => $this->generateUrl('homepage'),
@@ -321,7 +305,7 @@ class SecurityController extends AbstractController
     }
 
     public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, \Swift_Mailer $mailer, CsrfTokenManagerInterface $csrfTokenManager,
-                                    AdminTemplate $admin_template, UserProvider $userProvider)
+                                    AdminTemplate $admin_template, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $this->init($userProvider->loadUserByUsername('guest'));
 
@@ -332,12 +316,12 @@ class SecurityController extends AbstractController
         $errors = [];
         $infos = [];
         $token = $csrfTokenManager->getToken('authenticate');
-        $title = \Phyxo\Functions\Language::l10n('Forgot your password?');
+        $title = $translator->trans('Forgot your password?');
 
         if ($request->request->get('_username_or_email')) {
             if ($user = $user_manager->findUserByUsernameOrEmail($request->request->get('_username_or_email'))) {
                 if (empty($user['mail_address'])) {
-                    $errors[] = \Phyxo\Functions\Language::l10n('User "%s" has no email address, password reset is not possible', $user['username']);
+                    $errors[] = $translator->trans('User "%s" has no email address, password reset is not possible', $user['username']);
                 } else {
                     $activation_key = $user_manager->generateActivationKey();
                     (new UserInfosRepository($conn))->updateUserInfos(
@@ -355,23 +339,23 @@ class SecurityController extends AbstractController
                     $mail_params = [
                         'user' => $user,
                         'url' => $this->generateUrl('reset_password', ['activation_key' => $activation_key], UrlGeneratorInterface::ABSOLUTE_URL),
-                        'MAIL_TITLE' => \Phyxo\Functions\Language::l10n('Password Reset'),
+                        'MAIL_TITLE' => $translator->trans('Password Reset'),
                         'MAIL_THEME' => $this->conf['mail_theme'],
                         'GALLERY_URL' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
                         'CONTACT_MAIL' => $webmaster_mail_address,
                         'GALLERY_TITLE' => $this->conf['gallery_title'],
                     ];
 
-                    if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address, $userProvider)) {
-                        $title = \Phyxo\Functions\Language::l10n('Password reset');
+                    if ($this->sendActivationKey($admin_template, $mail_params, $mailer, $webmaster_mail_address, $translator)) {
+                        $title = $translator->trans('Password reset');
 
-                        $infos[] = \Phyxo\Functions\Language::l10n('Check your email for the confirmation link');
+                        $infos[] = $translator->trans('Check your email for the confirmation link');
                     } else {
-                        $errors[] = \Phyxo\Functions\Language::l10n('Error sending email');
+                        $errors[] = $translator->trans('Error sending email');
                     }
                 }
             } else {
-                $errors[] = \Phyxo\Functions\Language::l10n('Invalid username or email');
+                $errors[] = $translator->trans('Invalid username or email');
             }
         }
 
@@ -387,29 +371,17 @@ class SecurityController extends AbstractController
         return $this->render('forgot_password.tpl', $tpl_params);
     }
 
-    protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address, UserProvider $userProvider)
+    protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address, TranslatorInterface $translator)
     {
-        $user = $userProvider->loadUserByUsername('guest');
-
-        $language_load = \Phyxo\Functions\Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-        );
-
-        $template->setLang($language_load['lang']);
-        $template->setLangInfo($language_load['lang_info']);
-
         $template->assign([
             'gallery_url' => $this->generateUrl('homepage', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'lang_info' => $language_load['lang_info'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
             'PHYXO_URL' => $this->phyxoWebsite,
         ]);
 
-        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . \Phyxo\Functions\Language::l10n('Password Reset')))
+        $message = (new \Swift_Message('[' . $this->conf['gallery_title'] . '] ' . $translator->trans('Password Reset')))
             ->addTo($params['user']['mail_address'])
             ->setBody($template->render('mail/text/reset_password.text.tpl', $params), 'text/plain')
             ->addPart($template->render('mail/html/reset_password.html.tpl', $params), 'text/html');
@@ -420,7 +392,8 @@ class SecurityController extends AbstractController
         return $mailer->send($message);
     }
 
-    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, UserProvider $userProvider)
+    public function resetPassword(Request $request, iDBLayer $conn, string $activation_key, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder,
+                                    UserProvider $userProvider, TranslatorInterface $translator)
     {
         $token = $csrfTokenManager->getToken('authenticate');
         $errors = [];
@@ -439,9 +412,9 @@ class SecurityController extends AbstractController
                     ['password' => $passwordEncoder->encodePassword(new User(), $request->request->get('_password'))], $user->getId()
                 );
                 (new UserInfosRepository($conn))->updateUserInfos(['activation_key' => null, 'activation_key_expire' => null], $user->getId());
-                $infos[] = \Phyxo\Functions\Language::l10n('Your password has been reset');
+                $infos[] = $translator->trans('Your password has been reset');
             } else {
-                $errors[] = \Phyxo\Functions\Language::l10n('The passwords do not match');
+                $errors[] = $translator->trans('The passwords do not match');
             }
         }
 

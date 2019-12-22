@@ -13,13 +13,14 @@ namespace App\Controller;
 
 use Phyxo\Template\Template;
 use Phyxo\Conf;
-use Phyxo\Extension\Theme;
 use Phyxo\MenuBar;
 use Phyxo\Functions\Language;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-class AboutController extends CommonController {
-    public function index(Request $request, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir)
+class AboutController extends CommonController
+{
+    public function index(Request $request, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -27,13 +28,17 @@ class AboutController extends CommonController {
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
 
-        $tpl_params['PAGE_TITLE'] = Language::l10n('About Phyxo');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('About Phyxo');
         $tpl_params['ABOUT_MESSAGE'] = Language::load_language('about.html', '', ['language' => $this->getUser()->getLanguage(), 'return' => true]);
         if ($theme_about = Language::load_language('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/', ['language' => $this->getUser()->getLanguage(), 'return' => true])) {
             $template->assign('THEME_ABOUT', $theme_about);
         }
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
+
+        if ($this->get('session')->getFlashBag()->has('info')) {
+            $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
+        }
 
         return $this->render('about.tpl', $tpl_params);
     }

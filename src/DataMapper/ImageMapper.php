@@ -27,14 +27,16 @@ use Phyxo\Functions\Plugin;
 use Phyxo\Functions\Utils;
 use Phyxo\Image\SrcImage;
 use Symfony\Component\Routing\RouterInterface;
-use Phyxo\Functions\Language;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImageMapper
 {
     private $em, $router, $conf, $userMapper, $image_std_params, $categoryMapper;
+    private $translator;
 
-    public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper)
+    public function __construct(EntityManager $em, RouterInterface $router, UserMapper $userMapper, Conf $conf, ImageStandardParams $image_std_params, CategoryMapper $categoryMapper,
+                                TranslatorInterface $translator)
     {
         $this->em = $em;
         $this->router = $router;
@@ -42,6 +44,7 @@ class ImageMapper
         $this->conf = $conf;
         $this->image_std_params = $image_std_params;
         $this->categoryMapper = $categoryMapper;
+        $this->translator = $translator;
     }
 
     public function getPicturesFromSelection(array $selection = [], $element_id, string $section = '', int $start_id = 0): array

@@ -77,6 +77,9 @@ class Kernel extends BaseKernel
         if (is_readable($this->getDbConfigFile())) {
             $loader->load($confDir . '/{services_extra}' . self::CONFIG_EXTS, 'glob');
         }
+
+        // $loader->load($this->getProjectDir() . '/{themes}/*/{services}' . self::CONFIG_EXTS, 'glob');
+        // $loader->load($this->getProjectDir() . '/{themes}/*/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
     }
 
     protected function configureRoutes(RouteCollectionBuilder $routes)

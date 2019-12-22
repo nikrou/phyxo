@@ -19,19 +19,21 @@ use App\DataMapper\UserMapper;
 use App\DataMapper\TagMapper;
 use Phyxo\Functions\Tag;
 use Phyxo\Functions\URL;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenuBar
 {
-    private $conf, $menu, $router, $categoryMapper, $userMapper, $tagMapper;
+    private $conf, $menu, $router, $categoryMapper, $userMapper, $tagMapper, $translator;
     private $route = null, $items = [], $tags = [];
 
-    public function __construct(Conf $conf, RouterInterface $router, CategoryMapper $categoryMapper, UserMapper $userMapper, TagMapper $tagMapper)
+    public function __construct(Conf $conf, RouterInterface $router, CategoryMapper $categoryMapper, UserMapper $userMapper, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $this->conf = $conf;
         $this->router = $router;
         $this->categoryMapper = $categoryMapper;
         $this->userMapper = $userMapper;
         $this->tagMapper = $tagMapper;
+        $this->translator = $translator;
     }
 
     public function setRoute(string $route)
@@ -175,41 +177,41 @@ class MenuBar
             if (!$this->userMapper->getUser()->isGuest()) {
                 $block->data['favorites'] = [
                     'URL' => $this->router->generate('favorites'),
-                    'TITLE' => \Phyxo\Functions\Language::l10n('display your favorites photos'),
-                    'NAME' => \Phyxo\Functions\Language::l10n('Your favorites')
+                    'TITLE' => $this->translator->trans('display your favorites photos'),
+                    'NAME' => $this->translator->trans('Your favorites')
                 ];
             }
 
             $block->data['most_visited'] = [
                 'URL' => $this->router->generate('most_visited'),
-                'TITLE' => \Phyxo\Functions\Language::l10n('display most visited photos'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Most visited')
+                'TITLE' => $this->translator->trans('display most visited photos'),
+                'NAME' => $this->translator->trans('Most visited')
             ];
 
             if ($this->conf['rate']) {
                 $block->data['best_rated'] = [
                     'URL' => $this->router->generate('best_rated'),
-                    'TITLE' => \Phyxo\Functions\Language::l10n('display best rated photos'),
-                    'NAME' => \Phyxo\Functions\Language::l10n('Best rated')
+                    'TITLE' => $this->translator->trans('display best rated photos'),
+                    'NAME' => $this->translator->trans('Best rated')
                 ];
             }
 
             $block->data['recent_pics'] = [
                 'URL' => $this->router->generate('recent_pics'),
-                'TITLE' => \Phyxo\Functions\Language::l10n('display most recent photos'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Recent photos'),
+                'TITLE' => $this->translator->trans('display most recent photos'),
+                'NAME' => $this->translator->trans('Recent photos'),
             ];
 
             $block->data['recent_cats'] = [
                 'URL' => $this->router->generate('recent_cats'),
-                'TITLE' => \Phyxo\Functions\Language::l10n('display recently updated albums'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Recent albums'),
+                'TITLE' => $this->translator->trans('display recently updated albums'),
+                'NAME' => $this->translator->trans('Recent albums'),
             ];
 
             $block->data['random'] = [
                 'URL' => $this->router->generate('random'),
-                'TITLE' => \Phyxo\Functions\Language::l10n('display a set of random photos'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Random photos'),
+                'TITLE' => $this->translator->trans('display a set of random photos'),
+                'NAME' => $this->translator->trans('Random photos'),
             ];
 
             $block->data['calendar'] = [
@@ -220,8 +222,8 @@ class MenuBar
                         'view_type' => 'calendar'
                     ]
                 ),
-                'TITLE' => \Phyxo\Functions\Language::l10n('display each day with photos, month per month'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Calendar'),
+                'TITLE' => $this->translator->trans('display each day with photos, month per month'),
+                'NAME' => $this->translator->trans('Calendar'),
             ];
             $block->template = 'menubar_specials.tpl';
         }
@@ -234,37 +236,37 @@ class MenuBar
             $block->data['qsearch'] = true;
 
             $block->data['tags'] = [
-                'TITLE' => \Phyxo\Functions\Language::l10n('display available tags'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Tags'),
+                'TITLE' => $this->translator->trans('display available tags'),
+                'NAME' => $this->translator->trans('Tags'),
                 'URL' => $this->router->generate('tags'),
                 'COUNTER' => $this->userMapper->getNumberAvailableTags($this->userMapper->getUser(), []),
             ];
 
             $block->data['search'] = [
-                'TITLE' => \Phyxo\Functions\Language::l10n('search'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Search'),
+                'TITLE' => $this->translator->trans('search'),
+                'NAME' => $this->translator->trans('Search'),
                 'URL' => $this->router->generate('search'),
                 'REL' => 'rel="search"'
             ];
 
             if ($this->conf['activate_comments']) {
                 $block->data['comments'] = [
-                    'TITLE' => \Phyxo\Functions\Language::l10n('display last user comments'),
-                    'NAME' => \Phyxo\Functions\Language::l10n('Comments'),
+                    'TITLE' => $this->translator->trans('display last user comments'),
+                    'NAME' => $this->translator->trans('Comments'),
                     'URL' => $this->router->generate('comments'),
                     'COUNTER' => $this->userMapper->getNumberAvailableComments(),
                 ];
             }
 
             $block->data['about'] = [
-                'TITLE' => \Phyxo\Functions\Language::l10n('About Phyxo'),
-                'NAME' => \Phyxo\Functions\Language::l10n('About'),
+                'TITLE' => $this->translator->trans('About Phyxo'),
+                'NAME' => $this->translator->trans('About'),
                 'URL' => $this->router->generate('about'),
             ];
 
             $block->data['rss'] = [
-                'TITLE' => \Phyxo\Functions\Language::l10n('RSS feed'),
-                'NAME' => \Phyxo\Functions\Language::l10n('Notification'),
+                'TITLE' => $this->translator->trans('RSS feed'),
+                'NAME' => $this->translator->trans('Notification'),
                 'URL' => $this->router->generate('notification'),
             ];
             $block->template = 'menubar_menu.tpl';

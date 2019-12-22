@@ -17,18 +17,18 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\AdminTemplate;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GroupNotificationSubscriber implements EventSubscriberInterface
 {
-    private $mailer, $em, $conf, $router, $template, $userProvider, $phyxoVersion, $phyxoWebsite, $userMapper;
+    private $mailer, $em, $conf, $router, $template, $userProvider, $phyxoVersion, $phyxoWebsite, $userMapper, $translator;
 
     public function __construct(\Swift_Mailer $mailer, EntityManager $em, Conf $conf, RouterInterface $router, AdminTemplate $template,
-                                UserProvider $userProvider, string $phyxoVersion, string $phyxoWebsite, UserMapper $userMapper)
+                                UserProvider $userProvider, string $phyxoVersion, string $phyxoWebsite, UserMapper $userMapper, TranslatorInterface $translator)
     {
         $this->mailer = $mailer;
         $this->em = $em;
@@ -39,6 +39,7 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
         $this->phyxoVersion = $phyxoVersion;
         $this->phyxoWebsite = $phyxoWebsite;
         $this->userMapper = $userMapper;
+        $this->translator = $translator;
     }
 
     public static function getSubscribedEvents():array
@@ -50,22 +51,8 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
 
     public function onGroupNotify(GroupEvent $event)
     {
-        $user = $this->userProvider->loadUserByUsername('guest');
-
-        // @TODO : mail need to be in user's language (@see switch_lang_to and switch_lang_back from Mail class)
-
-        $language_load = Language::load_language(
-          'common.lang',
-          __DIR__ . '/../../',
-          ['language' => $user->getLanguage(), 'return_vars' => true]
-        );
-
         $webmaster = $this->userMapper->getWebmaster();
-
-        $this->template->setLang($language_load['lang']);
-        $this->template->setLangInfo($language_load['lang_info']);
-
-        $subject = Language::l10n('[%s] Visit album %s', $this->conf['gallery_title'], $event->getCategory()['name']);
+        $subject = $this->translator->trans('[{title}] Visit album {album}s', ['title' => $this->conf['gallery_title'], 'album' => $event->getCategory()['name']]);
 
         $params = [
             'GALLERY_TITLE' => $this->conf['gallery_title'],
@@ -77,7 +64,6 @@ class GroupNotificationSubscriber implements EventSubscriberInterface
             'IMG_URL' => $event->getImageUrl(),
             'MAIL_TITLE' => $subject,
             'MAIL_THEME' => $this->conf['mail_theme'],
-            'lang_info' => $language_load['lang_info'],
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'CONTENT_ENCODING' => 'utf-8',
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',

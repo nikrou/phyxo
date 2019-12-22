@@ -15,10 +15,10 @@ use App\Repository\ConfigRepository;
 use Phyxo\Block\BlockManager;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class MenubarController extends AdminCommonController
 {
@@ -57,7 +57,7 @@ class MenubarController extends AdminCommonController
         return $this->render('menubar.tpl', $tpl_params);
     }
 
-    public function update(Request $request, EntityManager $em, Conf $conf)
+    public function update(Request $request, EntityManager $em, Conf $conf, TranslatorInterface $translator)
     {
         if ($request->isMethod('POST')) {
             $menu = new BlockManager('menubar');
@@ -77,7 +77,7 @@ class MenubarController extends AdminCommonController
             $mb_conf = $this->makeConsecutive($reg_blocks, $mb_conf);
             $em->getRepository(ConfigRepository::class)->addOrUpdateParam('blk_' . $menu->getId(), $mb_conf);
 
-            $this->addFlash('info', Language::l10n('Order of menubar items has been updated successfully.'));
+            $this->addFlash('info', $translator->trans('Order of menubar items has been updated successfully.', [], 'admin'));
         }
 
         return $this->redirectToRoute('admin_menubar');

@@ -11,7 +11,7 @@ security:
       cost: 12
 
     App\Entity\User:
-      algorithm: bcrypt
+      algorithm: auto
       cost: 12
 
     App\Security\SecurityUser:

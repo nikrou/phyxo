@@ -22,7 +22,6 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Functions\Plugin;
 use Phyxo\Functions\URL;
 use Phyxo\Functions\Utils;
@@ -33,30 +32,37 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class HistoryController extends AdminCommonController
 {
-    private $image_std_params, $types, $display_thumbnails;
+    private $image_std_params, $types, $display_thumbnails, $translator;
 
-    public function __construct(ImageStandardParams $image_std_params, UserProvider $userProvider)
+    public function __construct(ImageStandardParams $image_std_params, UserProvider $userProvider, TranslatorInterface $translator)
     {
         parent::__construct($userProvider);
 
         $this->image_std_params = $image_std_params;
+        $this->translator = $translator;
 
-        $this->types = ['none', 'picture', 'high', 'other'];
+        $this->types = [
+            'none' => $this->translator->trans('none', [], 'admin'),
+            'picture' => $this->translator->trans('picture', [], 'admin'),
+            'high' => $this->translator->trans('high', [], 'admin'),
+            'other' => $this->translator->trans('other', [], 'admin')
+        ];
         $this->display_thumbnails = [
-            'no_display_thumbnail' => Language::l10n('No display'),
-            'display_thumbnail_classic' => Language::l10n('Classic display'),
-            'display_thumbnail_hoverbox' => Language::l10n('Hoverbox display')
+            'no_display_thumbnail' => $this->translator->trans('No display', [], 'admin'),
+            'display_thumbnail_classic' => $this->translator->trans('Classic display', [], 'admin'),
+            'display_thumbnail_hoverbox' => $this->translator->trans('Hoverbox display', [], 'admin')
         ];
     }
 
     protected function setTabsheet(string $section = 'stats'): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('stats', Language::l10n('Statistics'), $this->generateUrl('admin_history'), 'fa-signal');
-        $tabsheet->add('search', Language::l10n('Search'), $this->generateUrl('admin_history_search'), 'fa-search');
+        $tabsheet->add('stats', $this->translator->trans('Statistics', [], 'admin'), $this->generateUrl('admin_history'), 'fa-signal');
+        $tabsheet->add('search', $this->translator->trans('Search', [], 'admin'), $this->generateUrl('admin_history_search'), 'fa-search');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -74,24 +80,24 @@ class HistoryController extends AdminCommonController
         $summary_lines = $em->getConnection()->result2array($result);
 
         $title_parts = [];
-        $title_parts[] = '<a href="' . $this->generateUrl('admin_history') . '">' . Language::l10n('Overall') . '</a>';
+        $title_parts[] = '<a href="' . $this->generateUrl('admin_history') . '">' . $this->translator->trans('Overall', [], 'admin') . '</a>';
 
-        $period_label = Language::l10n('Year');
+        $period_label = $this->translator->trans('Year', [], 'admin');
         if (!is_null($year)) {
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year', ['year' => $year]) . '">' . $year . '</a>';
-            $period_label = Language::l10n('Month');
+            $period_label = $this->translator->trans('Month', [], 'admin');
         }
 
         if (!is_null($month)) {
             $month_title = $this->dateFormat(mktime(12, null, null, $month, 1, $year), 'LLLL');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month', ['year' => $year, 'month' => sprintf('%02d', $month)]) . '">' . $month_title . '</a>';
-            $period_label = Language::l10n('Day');
+            $period_label = $this->translator->trans('Day', [], 'admin');
         }
 
         if (!is_null($day)) {
             $day_title = $this->dateFormat(mktime(12, null, null, $month, $day, $year), 'd (cccc)');
             $title_parts[] = '<a href="' . $this->generateUrl('admin_history_year_month_day', ['year' => $year, 'month' => sprintf('%02d', $month), 'day' => sprintf('%02d', $day)]) . '">' . $day_title . '</a>';
-            $period_label = Language::l10n('Hour');
+            $period_label = $this->translator->trans('Hour', [], 'admin');
         }
 
         $tpl_params['L_STAT_TITLE'] = implode($conf['level_separator'], $title_parts);
@@ -165,7 +171,7 @@ class HistoryController extends AdminCommonController
 
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('History');
+        $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('stats'), $tpl_params);
 
@@ -208,7 +214,7 @@ class HistoryController extends AdminCommonController
         }
 
         $tpl_params['display_thumbnail_selected'] = $request->request->get('display_thumbnail') ?? '';
-        $tpl_params['type_option_selected'] = $request->request->get('types') ?? [];
+        $tpl_params['type_option_selected'] = $request->request->get('types') ?? '';
 
         $result = $em->getRepository(UserRepository::class)->findAll('ORDER BY username ASC');
         $tpl_params['user_options'] = $em->getConnection()->result2array($result, 'id', 'username');
@@ -218,7 +224,7 @@ class HistoryController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_history_search_save');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_history');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_history_search');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('History');
+        $tpl_params['PAGE_TITLE'] = $this->translator->trans('History', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('search'), $tpl_params);
 
@@ -401,26 +407,11 @@ class HistoryController extends AdminCommonController
         }
 
         $search_summary = [
-            'NB_LINES' => Language::l10n_dec(
-                '%d line filtered',
-                '%d lines filtered',
-                $nb_lines
-            ),
+            'NB_LINES' => $this->translator->trans('number_of_lines_filtered', ['count' => $nb_lines], 'admin'),
             'FILESIZE' => $summary['total_filesize'] != 0 ? ceil($summary['total_filesize'] / 1024) . ' MB' : '',
-            'USERS' => \Phyxo\Functions\Language::l10n_dec(
-                '%d user',
-                '%d users',
-                $summary['nb_members'] + $summary['nb_guests']
-            ),
-            'MEMBERS' => sprintf(
-                Language::l10n_dec('%d member', '%d members', $summary['nb_members']) . ': %s',
-                implode(', ', $member_strings)
-            ),
-            'GUESTS' => Language::l10n_dec(
-                '%d guest',
-                '%d guests',
-                $summary['nb_guests']
-            ),
+            'USERS' => $this->translator->trans('number_of_users', ['count' => $summary['nb_members'] + $summary['nb_guests']], 'admin'),
+            'MEMBERS' => $this->translator->trans('number_of_members', ['count' => $summary['nb_members']], 'admin') . ': ' . implode(', ', $member_strings),
+            'GUESTS' => $this->translator->trans('number_of_guests', ['count' => $summary['nb_guests']], 'admin'),
         ];
 
         return [
@@ -544,7 +535,7 @@ class HistoryController extends AdminCommonController
 
                 return $this->redirectToRoute('admin_history_search', ['search_id' => $search_id]);
             } else {
-                $this->addFlash('error', Language::l10n('Empty query. No criteria has been entered.'));
+                $this->addFlash('error', $this->translator->trans('Empty query. No criteria has been entered.', [], 'admin'));
                 return $this->redirectToRoute('admin_history_search');
             }
         }

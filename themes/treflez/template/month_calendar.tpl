@@ -46,7 +46,7 @@
 				{if !isset($item.URL)}
 				    <span class="btn btn-secondary disabled">{$item.LABEL}</span>
 				{else}
-				    <a class="btn btn-secondary" {if isset($item.NB_IMAGES)}title="{$item.NB_IMAGES|translate_dec:'%d photo':'%d photos'}"{/if} href="{$item.URL}">{$item.LABEL}</a>
+				    <a class="btn btn-secondary" {if isset($item.NB_IMAGES)}title="{'number_of_photos'|translate:['count' => $item.NB_IMAGES]}"{/if} href="{$item.URL}">{$item.LABEL}</a>
 				{/if}
 			    {/foreach}
 			{else}
@@ -61,7 +61,7 @@
 					    <td>{$item.LABEL}</td>
 					{else}
 					    <td class="bg-light">
-						<a{if isset($item.NB_IMAGES)} title="{$item.NB_IMAGES|translate_dec:'%d photo':'%d photos'}"{/if} href="{$item.URL}">{$item.LABEL}</a>
+						<a{if isset($item.NB_IMAGES)} title="{'number_of_photos'|translate:['count' => $item.NB_IMAGES]}"{/if} href="{$item.URL}">{$item.LABEL}</a>
 					    </td>
 					{/if}
 					{if $i == 6}{assign var=i value=0}
@@ -127,7 +127,7 @@
 					<div class="calDate">{$day.DAY}</div>
 					<div class="calImg">
 					    <a href="{$day.U_IMG_LINK}">
-						<img class="img-fluid" src="{$day.IMAGE}" alt="{$day.IMAGE_ALT}" title="{$day.NB_ELEMENTS|translate_dec:'%d photo':'%d photos'}">
+						<img class="img-fluid" src="{$day.IMAGE}" alt="{$day.IMAGE_ALT}" title="{'number_of_photos'|translate:['count' => $day.NB_ELEMENTS]}">
 					    </a>
 					</div>
 				{else}

@@ -11,7 +11,7 @@
      var pwg_token = "{$csrf_token}";
      var phyxo_msg = phyxo_msg || {};
      phyxo_msg.n_plugins_selected = "{'%d plugins selected'|translate|escape:javascript}";
-     phyxo_msg.no_plugin_selected = "{'No plugin selected'|translate|escape:javascript}";
+     phyxo_msg.no_plugin_selected = "{'No plugins selected'|translate|escape:javascript}";
      phyxo_msg.one_plugin_selected = "{'One plugin selected'|translate|escape:javascript}";
 
      phyxo_msg.select_all = "{'All'|translate}";
@@ -96,7 +96,7 @@
 				{else}
 				    {assign var='author' value='<u>'|cat:$plugin.AUTHOR|cat:'</u>'}
 				{/if}
-				{'By %s'|translate:$author}
+				{'By {by}'|translate:['by' => $author]}
 
 				{if !empty($plugin.VISIT_URL)}
 				    &nbsp;|&nbsp;<a class="externalLink" href="{$plugin.VISIT_URL}">{'Visit plugin site'|translate}</a>

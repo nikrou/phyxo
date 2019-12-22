@@ -18,7 +18,6 @@ use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
 use Phyxo\Extension\Theme;
-use Phyxo\Functions\Language;
 use Phyxo\Template\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -26,7 +25,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AdminCommonController extends AbstractController
 {
-    protected $conf, $language_load = [], $userProvider;
+    protected $conf, $userProvider;
 
     public function __construct(UserProvider $userProvider)
     {
@@ -44,26 +43,8 @@ abstract class AdminCommonController extends AbstractController
         return $user;
     }
 
-    protected function loadLanguage(User $user)
-    {
-        $this->language_load = array_merge(
-            Language::load_language(
-            'common.lang',
-            __DIR__ . '/../../../',
-            ['language' => $user->getLanguage(), 'return_vars' => true]
-            ),
-            Language::load_language(
-                'admin.lang',
-                __DIR__ . '/../../../',
-                ['language' => $user->getLanguage(), 'return_vars' => true]
-            )
-        );
-    }
-
     protected function menu(RouterInterface $router, User $user, EntityManager $em, Conf $conf, string $core_version): array
     {
-        $link_start = \Phyxo\Functions\URL::get_root_url() . 'admin/index.php?page=';
-
         $tpl_params = [
             'USERNAME' => $user->getUsername(),
             'ENABLE_SYNCHRONIZATION' => $conf['enable_synchronization'],
@@ -121,16 +102,9 @@ abstract class AdminCommonController extends AbstractController
     {
         $tpl_params = [];
 
-        $this->loadLanguage($this->getUser());
-
         $template->setUser($this->getUser());
-        $template->setRouter($this->get('router'));
-        $template->setConf($conf);
-        $template->setLang($this->language_load['lang']);
-        $template->setLangInfo($this->language_load['lang_info']);
-        $template->postConstruct();
-
         $template->setTheme(new Theme($params->get('admin_theme_dir'), '.'));
+        $template->setDomain('admin');
 
         $tpl_params['PHYXO_VERSION'] = $params->get('core_version');
         $tpl_params['PHYXO_URL'] = $params->get('phyxo_website');

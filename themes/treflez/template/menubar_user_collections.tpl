@@ -5,7 +5,7 @@
         {if $block->data.NB_COL == 0}
             {'You have no collection'|translate}
         {else}
-            {$block->data.NB_COL|translate_dec:'You have %d collection':'You have %d collections'}
+            {'number_of_collections'|translate:['count' => $block->data.NB_COL]}
         {/if}
         {/strip}</a>
         <div class="divider"></div>

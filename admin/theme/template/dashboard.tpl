@@ -50,14 +50,17 @@
 		<li>
 		    {$DB_TAGS} ({$DB_IMAGE_TAG})
 		    {if !empty($NB_PENDING_TAGS)}
-			(<a href="{$U_PENDING_TAGS}">{'%d waiting for validation'|translate:$NB_PENDING_TAGS}</a>)
+			(<a href="{$U_PENDING_TAGS}">{'waiting_for_validation'|translate:['count' => $NB_PENDING_TAGS]}</a>)
 		    {/if}
 		</li>
 		<li>{$DB_USERS}</li>
 		<li>{$DB_GROUPS}</li>
 		{if isset($DB_COMMENTS)}
 		    <li>
-			{$DB_COMMENTS}{if !empty($NB_PENDING_COMMENTS)} (<a href="{$U_PENDING_COMMENTS}">{'%d waiting for validation'|translate:$NB_PENDING_COMMENTS}</a>){/if}
+			{$DB_COMMENTS}
+			{if !empty($NB_PENDING_COMMENTS)}
+			    (<a href="{$U_PENDING_COMMENTS}">{'waiting_for_validation'|translate:['count' => $NB_PENDING_COMMENTS]}</a>)
+			{/if}
 		    </li>
 		{/if}
 		<li>{$DB_RATES}</li>

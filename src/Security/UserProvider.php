@@ -144,7 +144,7 @@ class UserProvider implements UserProviderInterface
 
         $extra_infos = $this->getUserData($userData['id'], in_array($userInfosData['status'], ['admin', 'webmaster']));
         $user_infos = new UserInfos($userInfosData);
-        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:explode(',', $extra_infos['forbidden_categories']));
+        $user_infos->setForbiddenCategories(empty($extra_infos['forbidden_categories'])?[]:$extra_infos['forbidden_categories']);
         $user_infos->setImageAccessList(empty($extra_infos['image_access_list'])?[]:explode(',', $extra_infos['image_access_list']));
         $user_infos->setImageAccessType($extra_infos['image_access_type']);
         $user->setInfos($user_infos);
@@ -173,7 +173,7 @@ class UserProvider implements UserProviderInterface
              */
             $forbidden_categories = [];
             if (!empty($userdata['forbidden_categories'])) {
-                $forbidden_categories = explode(',', $userdata['forbidden_categories']);
+                $forbidden_categories = $userdata['forbidden_categories'];
             }
             $result = $this->em->getRepository(ImageRepository::class)->getForbiddenImages($forbidden_categories, $userdata['level']);
             $forbidden_ids = $this->em->getConnection()->result2array($result, null, 'id');

@@ -49,7 +49,7 @@
 						    {/if}
 						</span>
 						<span id="ratingCount">
-						    {if $rate_summary.count}({$rate_summary.count|translate_dec:'%d rate':'%d rates'}){/if}
+						    {if $rate_summary.count}({'number_of_rates'|translate:['count' => $rate_summary.count]}){/if}
 						</span>
 					    </div>
 					</td>

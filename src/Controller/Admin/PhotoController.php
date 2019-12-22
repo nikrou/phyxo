@@ -24,7 +24,6 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\DerivativeParams;
 use Phyxo\Image\ImageStandardParams;
@@ -33,23 +32,27 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PhotoController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'properties', array $params = []): array
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('properties', Language::l10n('Properties'), $this->generateUrl('admin_photo', $params));
-        $tabsheet->add('coi', Language::l10n('Center of interest'), $this->generateUrl('admin_photo_coi', $params), 'fa-crop');
+        $tabsheet->add('properties', $this->translator->trans('Properties', [], 'admin'), $this->generateUrl('admin_photo', $params));
+        $tabsheet->add('coi', $this->translator->trans('Center of interest', [], 'admin'), $this->generateUrl('admin_photo_coi', $params), 'fa-crop');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
     public function edit(Request $request, int $image_id, int $category_id = null, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, UserProvider $userProvider, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -96,7 +99,7 @@ class PhotoController extends AdminCommonController
             }
 
             $represented_albums = $request->request->get('represent') ?? [];
-            $this->addFlash('info', Language::l10n('Photo informations updated'));
+            $this->addFlash('info', $translator->trans('Photo informations updated', [], 'admin'));
 
             return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         }
@@ -137,32 +140,35 @@ class PhotoController extends AdminCommonController
         $added_by = 'N/A';
         $result = $em->getRepository(UserRepository::class)->findById($row['added_by']);
         while ($user_row = $em->getConnection()->db_fetch_assoc($result)) {
-            $row['added_by'] = $user_row['username'];
+            $added_by = $user_row['username'];
         }
 
         $intro_vars = [
-            'file' => Language::l10n('Original file : %s', $row['file']),
-            'add_date' => Language::l10n(
-                'Posted %s on %s',
-                \Phyxo\Functions\DateTime::time_since($row['date_available'], 'year'),
-                \Phyxo\Functions\DateTime::format_date($row['date_available'], ['day', 'month', 'year'])
+            'file' => $translator->trans('Original file : {file}', ['file' => $image_file], 'admin'),
+            'add_date' => $translator->trans(
+                'Posted {since} on {date}',
+                [
+                    'since' => \Phyxo\Functions\DateTime::time_since($row['date_available'], 'year'),
+                    'date' => \Phyxo\Functions\DateTime::format_date($row['date_available'], ['day', 'month', 'year'])
+                ],
+                'admin'
             ),
-            'added_by' => Language::l10n('Added by %s', $row['added_by']),
+            'added_by' => $translator->trans('Added by {by}', ['by' => $added_by], 'admin'),
             'size' => $row['width'] . '&times;' . $row['height'] . ' pixels, ' . sprintf('%.2f', $row['filesize'] / 1024) . 'MB',
-            'stats' => Language::l10n('Visited %d times', $row['hit']),
-            'id' => Language::l10n('Numeric identifier : %d', $row['id']),
+            'stats' => $translator->trans('Visited {hit} times', ['hit' => $row['hit']], 'admin'),
+            'id' => $translator->trans('Numeric identifier : {id}', ['id' => $row['id']], 'admin'),
         ];
 
         if ($conf['rate'] && !empty($row['rating_score'])) {
             $nb_rates = $em->getRepository(RateRepository::class)->count($image_id);
-            $intro_vars['stats'] .= ', ' . sprintf(Language::l10n('Rated %d times, score : %.2f'), $nb_rates, $row['rating_score']);
+            $intro_vars['stats'] .= ', ' . $translator->trans('Rated {count} times, score : {score}', ['count' => $nb_rates, 'score' => sprintf('%.2f', $row['rating_score'])], 'admin');
         }
 
         $tpl_params['INTRO'] = $intro_vars;
 
         // image level options
         $selected_level = $row['level'];
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
+        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = [$selected_level];
 
         // associate to albums
@@ -213,7 +219,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Photo');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('properties', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
 
@@ -255,17 +261,19 @@ class PhotoController extends AdminCommonController
         return $this->redirectToRoute('admin_home');
     }
 
-    public function syncMetadata(Request $request, int $image_id, int $category_id = null, TagMapper $tagMapper)
+    public function syncMetadata(int $image_id, int $category_id = null, TagMapper $tagMapper, TranslatorInterface $translator)
     {
         $tagMapper->sync_metadata([$image_id]);
-        $this->addFlash('info', Language::l10n('Metadata synchronized from file'));
+        $this->addFlash('info', $translator->trans('Metadata synchronized from file', [], 'admin'));
 
         return $this->redirectToRoute('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
     }
 
-    public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params)
+    public function coi(Request $request, int $image_id, int $category_id = null, ImageStandardParams $image_std_params, Template $template, EntityManager $em, Conf $conf,
+                        ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -324,7 +332,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo_coi', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Photo');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Photo', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('coi', ['image_id' => $image_id, 'category_id' => $category_id]), $tpl_params);
 

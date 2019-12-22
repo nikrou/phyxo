@@ -14,30 +14,34 @@ namespace App\Controller\Admin;
 use App\DataMapper\UserMapper;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Plugin\Plugins;
 use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PluginsController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'installed')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('installed', Language::l10n('Plugin list'), $this->generateUrl('admin_plugins_installed'), 'fa-sliders');
-        $tabsheet->add('update', Language::l10n('Check for updates'), $this->generateUrl('admin_plugins_update'), 'fa-refresh');
-        $tabsheet->add('new', Language::l10n('Other plugins'), $this->generateUrl('admin_plugins_new'), 'fa-plus-circle');
+        $tabsheet->add('installed', $this->translator->trans('Plugin list', [], 'admin'), $this->generateUrl('admin_plugins_installed'), 'fa-sliders');
+        $tabsheet->add('update', $this->translator->trans('Check for updates', [], 'admin'), $this->generateUrl('admin_plugins_update'), 'fa-refresh');
+        $tabsheet->add('new', $this->translator->trans('Other plugins', [], 'admin'), $this->generateUrl('admin_plugins_new'), 'fa-plus-circle');
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
     }
 
-    public function installed(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, ParameterBagInterface $params)
+    public function installed(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+                            ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -78,7 +82,7 @@ class PluginsController extends AdminCommonController
                 $tpl_plugin = [
                     'NAME' => $plugin_id,
                     'VERSION' => $plugins->getDbPlugins()[$plugin_id]['version'],
-                    'DESC' => Language::l10n('Error! This plugin is missing but it is installed! Uninstall it now.'),
+                    'DESC' => $translator->trans('Error! This plugin is missing but it is installed! Uninstall it now.', [], 'admin'),
                     'state' => 'missing',
                 ];
                 $tpl_plugins[] = $tpl_plugin;
@@ -104,7 +108,7 @@ class PluginsController extends AdminCommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['plugins'] = $tpl_plugins;
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_installed');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Plugins');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('installed'), $tpl_params);
 
@@ -113,10 +117,10 @@ class PluginsController extends AdminCommonController
         return $this->render('plugins_installed.tpl', $tpl_params);
     }
 
-    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper)
+    public function install(int $revision, EntityManager $em, ParameterBagInterface $params, UserMapper $userMapper, TranslatorInterface $translator)
     {
         if (!$userMapper->isWebmaster()) {
-            $this->addFlash('error', Language::l10n('Webmaster status is required.'));
+            $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_new');
         }
@@ -127,19 +131,20 @@ class PluginsController extends AdminCommonController
 
         try {
             $plugins->extractPluginFiles('install', $revision);
-            $this->addFlash('info', Language::l10n('Plugin has been successfully installed'));
+            $this->addFlash('info', $translator->trans('Plugin has been successfully installed', [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_installed');
         } catch (\Exception $e) {
-            $this->addFlash('error', Language::l10n($e->getMessage()));
+            $this->addFlash('error', $translator->trans($e->getMessage(), [], 'admin'));
 
             return $this->redirectToRoute('admin_plugins_new');
         }
     }
 
-    public function new(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, ParameterBagInterface $params)
+    public function new(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -168,7 +173,7 @@ class PluginsController extends AdminCommonController
 
         $tpl_params['ws'] = $this->generateUrl('ws');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_new');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Plugins');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('new'), $tpl_params);
 
@@ -177,10 +182,14 @@ class PluginsController extends AdminCommonController
         return $this->render('plugins_new.tpl', $tpl_params);
     }
 
-    public function update(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager, ParameterBagInterface $params)
+    public function update(Request $request, UserMapper $userMapper, Template $template, EntityManager $em, Conf $conf, CsrfTokenManagerInterface $csrfTokenManager,
+                        ParameterBagInterface $params, TranslatorInterface $translator)
     {
+        $tpl_params = [];
+        $this->translator = $translator;
+
         if (!$userMapper->isWebmaster()) {
-            $this->addFlash('error', Language::l10n('Webmaster status is required.'));
+            $this->addFlash('error', $translator->trans('Webmaster status is required.', [], 'admin'));
 
             return $this->redirectToRoute('admin_languages_new');
         }
@@ -241,7 +250,7 @@ class PluginsController extends AdminCommonController
         $tpl_params['EXT_TYPE'] = 'plugins';
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_plugins_update');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Plugins');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Plugins', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('update'), $tpl_params);
 

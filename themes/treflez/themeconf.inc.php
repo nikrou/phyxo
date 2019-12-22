@@ -29,5 +29,9 @@ $themeconf = [
 require_once(__DIR__ . '/include/themecontroller.php');
 require_once(__DIR__ . '/include/config.php');
 
-$controller = new \Treflez\ThemeController($conf, $template);
+if (is_readable(__DIR__ . '/translations/messages+intl-icu.fr_FR.php')) {
+    $translator->addResource('php', __DIR__ . '/translations/messages+intl-icu.fr_FR.php', 'fr_FR');
+}
+
+$controller = new \Treflez\ThemeController($conf, $template, $translator);
 $controller->init();

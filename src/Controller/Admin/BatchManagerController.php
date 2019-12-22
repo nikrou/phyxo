@@ -26,7 +26,6 @@ use App\Repository\ImageTagRepository;
 use App\Repository\TagRepository;
 use Phyxo\Conf;
 use Phyxo\EntityManager;
-use Phyxo\Functions\Language;
 use Phyxo\Image\DerivativeImage;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Image\SrcImage;
@@ -35,14 +34,17 @@ use Phyxo\TabSheet\TabSheet;
 use Phyxo\Template\Template;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BatchManagerController extends AdminCommonController
 {
+    private $translator;
+
     protected function setTabsheet(string $section = 'global')
     {
         $tabsheet = new TabSheet();
-        $tabsheet->add('global', Language::l10n('global mode'), $this->generateUrl('admin_batch_manager_global'));
-        $tabsheet->add('unit', Language::l10n('unit mode'), $this->generateUrl('admin_batch_manager_unit'));
+        $tabsheet->add('global', $this->translator->trans('global mode', [], 'admin'), $this->generateUrl('admin_batch_manager_global'));
+        $tabsheet->add('unit', $this->translator->trans('unit mode', [], 'admin'), $this->generateUrl('admin_batch_manager_unit'));
         $tabsheet->select($section);
 
         return ['tabsheet' => $tabsheet];
@@ -65,9 +67,10 @@ class BatchManagerController extends AdminCommonController
 
     public function global(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params,
                           CategoryMapper $categoryMapper, ImageStandardParams $image_std_params, SearchMapper $searchMapper, TagMapper $tagMapper, ImageMapper $imageMapper,
-                          UserMapper $userMapper, Metadata $metadata)
+                          UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
@@ -76,13 +79,13 @@ class BatchManagerController extends AdminCommonController
         $nb_thumbs_page = 0;
 
         $prefilters = [
-            ['id' => 'caddie', 'name' => Language::l10n('Caddie')],
-            ['id' => 'favorites', 'name' => Language::l10n('Your favorites')],
-            ['id' => 'last_import', 'name' => Language::l10n('Last import')],
-            ['id' => 'no_album', 'name' => Language::l10n('With no album')],
-            ['id' => 'no_tag', 'name' => Language::l10n('With no tag')],
-            ['id' => 'duplicates', 'name' => Language::l10n('Duplicates')],
-            ['id' => 'all_photos', 'name' => Language::l10n('All')]
+            ['id' => 'caddie', 'name' => $translator->trans('Caddie', [], 'admin')],
+            ['id' => 'favorites', 'name' => $translator->trans('Your favorites', [], 'admin')],
+            ['id' => 'last_import', 'name' => $translator->trans('Last import', [], 'admin')],
+            ['id' => 'no_album', 'name' => $translator->trans('With no album', [], 'admin')],
+            ['id' => 'no_tag', 'name' => $translator->trans('With no tag', [], 'admin')],
+            ['id' => 'duplicates', 'name' => $translator->trans('Duplicates', [], 'admin')],
+            ['id' => 'all_photos', 'name' => $translator->trans('All', [], 'admin')]
         ];
 
         if ($request->isMethod('POST')) {
@@ -215,10 +218,10 @@ class BatchManagerController extends AdminCommonController
 
         // privacy level
         foreach ($conf['available_permission_levels'] as $level) {
-            $level_options[$level] = Language::l10n(sprintf('Level %d', $level));
+            $level_options[$level] = $translator->trans('Level ' . $level, [], 'admin');
 
             if (0 == $level) {
-                $level_options[$level] = Language::l10n('Everybody');
+                $level_options[$level] = $translator->trans('Everybody', [], 'admin');
             }
         }
         $tpl_params['filter_level_options'] = $level_options;
@@ -257,7 +260,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
 
         // image level options
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
+        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
@@ -268,10 +271,10 @@ class BatchManagerController extends AdminCommonController
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
-            $del_deriv_map[$derivative_params->type] = Language::l10n($derivative_params->type);
+            $del_deriv_map[$derivative_params->type] = $translator->trans($derivative_params->type, [], 'admin');
         }
         $gen_deriv_map = $del_deriv_map;
-        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = Language::l10n(ImageStandardParams::IMG_CUSTOM);
+        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = $translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
         $tpl_params['generate_derivatives_types'] = $gen_deriv_map;
 
@@ -366,7 +369,7 @@ class BatchManagerController extends AdminCommonController
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Site manager');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('global'), $tpl_params);
 
@@ -381,19 +384,20 @@ class BatchManagerController extends AdminCommonController
         return $this->render('batch_manager_global.tpl', $tpl_params);
     }
 
-    public function emptyCaddie(Request $request, EntityManager $em)
+    public function emptyCaddie(Request $request, EntityManager $em, TranslatorInterface $translator)
     {
         $em->getRepository(CaddieRepository::class)->emptyCaddie($this->getUser()->getId());
-        $this->addFlash('info', Language::l10n('Caddie has been emptied'));
+        $this->addFlash('info', $translator->trans('Caddie has been emptied', [], 'admin'));
 
         return $this->redirectToRoute('admin_batch_manager_global', ['start' => $request->get('start')]);
     }
 
-    protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper, UserMapper $userMapper)
+    protected function actionOnCollection(Request $request, array $collection = [], EntityManager $em, TagMapper $tagMapper, ImageMapper $imageMapper, CategoryMapper $categoryMapper,
+                                        UserMapper $userMapper)
     {
         // if the user tries to apply an action, it means that there is at least 1 photo in the selection
         if (count($collection) === 0 && !$request->request->get('submitFilter')) {
-            $this->addFlash('error', Language::l10n('Select at least one photo'));
+            $this->addFlash('error', $this->translator->trans('Select at least one photo', [], 'admin'));
             return;
         }
 
@@ -405,7 +409,7 @@ class BatchManagerController extends AdminCommonController
             $redirect = true;
         } elseif ($action === 'add_tags') {
             if (!$request->request->get('add_tags')) {
-                $this->addFlash('error', Language::l10n('Select at least one tag'));
+                $this->addFlash('error', $this->translator->trans('Select at least one tag', [], 'admin'));
             } else {
                 $tag_ids = $tagMapper->getTagsIds($request->request->get('add_tags'));
                 $tagMapper->addTags($tag_ids, $collection);
@@ -422,14 +426,14 @@ class BatchManagerController extends AdminCommonController
                     $redirect = true;
                 }
             } else {
-                $this->addFlash('error', Language::l10n('Select at least one tag'));
+                $this->addFlash('error', $this->translator->trans('Select at least one tag', [], 'admin'));
             }
         }
 
         if ($action === 'associate') {
             $categoryMapper->associateImagesToCategories($collection, [$request->request->get('associate')]);
 
-            $this->addFlash('info', Language::l10n('Information data registered in database'));
+            $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
             // let's refresh the page because we the current set might be modified
             if ($this->getFilter()['prefilter'] === 'no_album') {
@@ -443,7 +447,7 @@ class BatchManagerController extends AdminCommonController
         } elseif ($action === 'move') {
             $categoryMapper->moveImagesToCategories($collection, [$request->request->get('move')]);
 
-            $this->addFlash('info', Language::l10n('Information data registered in database'));
+            $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
             // let's refresh the page because we the current set might be modified
             if ($this->getFilter()['prefilter'] === 'no_album') {
@@ -464,7 +468,7 @@ class BatchManagerController extends AdminCommonController
 
             if (!empty($dissociables)) {
                 $em->getRepository(ImageCategoryRepository::class)->deleteByCategory([$request->request->get('dissociate')], $dissociables);
-                $this->addFlash('info', Language::l10n('Information data registered in database'));
+                $this->addFlash('info', $this->translator->trans('Information data registered in database', [], 'admin'));
 
                 // let's refresh the page because the current set might be modified
                 $redirect = true;
@@ -539,17 +543,17 @@ class BatchManagerController extends AdminCommonController
             if ($request->request->get('confirm_deletion') == 1) {
                 $deleted_count = $imageMapper->deleteElements($collection, true);
                 if ($deleted_count > 0) {
-                    $this->addFlash('info', Language::l10n_dec('%d photo was deleted', '%d photos were deleted', $deleted_count));
+                    $this->addFlash('info', $this->translator->trans_dec('%d photo was deleted', '%d photos were deleted', $deleted_count));
                     $redirect = true;
                 } else {
-                    $this->addFlash('error', Language::l10n('No photo can be deleted'));
+                    $this->addFlash('error', $this->translator->trans('No photo can be deleted', [], 'admin'));
                 }
             } else {
-                $this->addFlash('error', Language::l10n('You need to confirm deletion'));
+                $this->addFlash('error', $this->translator->trans('You need to confirm deletion', [], 'admin'));
             }
         } elseif ($action === 'metadata') {
             $tagMapper->sync_metadata($collection);
-            $this->addFlash('info', Language::l10n('Metadata synchronized from file'));
+            $this->addFlash('info', $this->translator->trans('Metadata synchronized from file', [], 'admin'));
         } elseif ($action === 'delete_derivatives' && $request->request->get('del_derivatives_type')) {
             $result = $em->getRepository(ImageRepository::class)->findByIds($collection);
             while ($info = $em->getConnection()->db_fetch_assoc($result)) {
@@ -559,10 +563,10 @@ class BatchManagerController extends AdminCommonController
             }
         } elseif ($action === 'generate_derivatives') {
             if ($request->request->get('regenerateSuccess') != '0') {
-                $this->addFlash('info', Language::l10n('%s photos have been regenerated', $request->request->get('regenerateSuccess')));
+                $this->addFlash('info', $this->translator->trans('{count} photos have been regenerated', ['count' => $request->request->get('regenerateSuccess')], 'admin'));
             }
             if ($request->request->get('regenerateError') != '0') {
-                $this->addFlash('info', Language::l10n('%s photos can not be regenerated', $request->request->get('regenerateError')));
+                $this->addFlash('info', $this->translator->trans('{count} photos can not be regenerated', ['count' => $request->request->get('regenerateError')], 'admin'));
             }
         }
 
@@ -884,9 +888,10 @@ class BatchManagerController extends AdminCommonController
     }
 
     public function unit(Request $request, string $filter = null, int $start = 0, Template $template, EntityManager $em, Conf $conf, ParameterBagInterface $params, SearchMapper $searchMapper, TagMapper $tagMapper,
-                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata)
+                        ImageStandardParams $image_std_params, CategoryMapper $categoryMapper, UserMapper $userMapper, Metadata $metadata, TranslatorInterface $translator)
     {
         $tpl_params = [];
+        $this->translator = $translator;
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
@@ -928,7 +933,7 @@ class BatchManagerController extends AdminCommonController
                 $datas
             );
 
-            $this->addFlash('info', Language::l10n('Photo informations updated'));
+            $this->addFlash('info', $translator->trans('Photo informations updated', [], 'admin'));
             $userMapper->invalidateUserCache();
 
             return $this->redirectToRoute('admin_batch_manager_unit');
@@ -949,10 +954,10 @@ class BatchManagerController extends AdminCommonController
 
         // privacy level
         foreach ($conf['available_permission_levels'] as $level) {
-            $level_options[$level] = Language::l10n(sprintf('Level %d', $level));
+            $level_options[$level] = $translator->trans('Level ' . $level, [], 'admin');
 
             if (0 == $level) {
-                $level_options[$level] = Language::l10n('Everybody');
+                $level_options[$level] = $translator->trans('Everybody', [], 'admin');
             }
         }
         $tpl_params['filter_level_options'] = $level_options;
@@ -991,7 +996,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['DATE_CREATION'] = !$request->request->get('date_creation') ? date('Y-m-d') . ' 00:00:00' : $request->request->get('date_creation');
 
         // image level options
-        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels']);
+        $tpl_params['level_options'] = \Phyxo\Functions\Utils::getPrivacyLevelOptions($conf['available_permission_levels'], $translator, 'admin');
         $tpl_params['level_options_selected'] = 0;
 
         // metadata
@@ -1002,10 +1007,10 @@ class BatchManagerController extends AdminCommonController
         //derivatives
         $del_deriv_map = [];
         foreach ($image_std_params->getDefinedTypeMap() as $derivative_params) {
-            $del_deriv_map[$derivative_params->type] = Language::l10n($derivative_params->type);
+            $del_deriv_map[$derivative_params->type] = $translator->trans($derivative_params->type, [], 'admin');
         }
         $gen_deriv_map = $del_deriv_map;
-        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = Language::l10n(ImageStandardParams::IMG_CUSTOM);
+        $del_deriv_map[ImageStandardParams::IMG_CUSTOM] = $translator->trans(ImageStandardParams::IMG_CUSTOM, [], 'admin');
         $tpl_params['del_derivatives_types'] = $del_deriv_map;
         $tpl_params['generate_derivatives_types'] = $gen_deriv_map;
 
@@ -1087,7 +1092,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_unit');
         $tpl_params['ACTIVE_MENU'] = $this->generateUrl('admin_batch_manager_global');
-        $tpl_params['PAGE_TITLE'] = Language::l10n('Site manager');
+        $tpl_params['PAGE_TITLE'] = $translator->trans('Site manager', [], 'admin');
         $tpl_params = array_merge($this->addThemeParams($template, $em, $conf, $params), $tpl_params);
         $tpl_params = array_merge($this->setTabsheet('unit'), $tpl_params);
 
