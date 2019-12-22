@@ -133,7 +133,7 @@ class SrcImage
 
         if ($this->size == null) {
             if ($this->flags & self::DIM_NOT_GIVEN) {
-                \Phyxo\Functions\HTTP::fatal_error('SrcImage dimensions required but not provided');
+                throw new \Exception('SrcImage dimensions required but not provided');
             }
 
             // @TODO : move that query elsewhere

@@ -476,48 +476,6 @@ class Utils
         return $navbar;
     }
 
-    /*
-     * breaks the script execution if the given value doesn't match the given
-     * pattern. This should happen only during hacking attempts.
-     *
-     * @param string $param_name
-     * @param array $param_array
-     * @param boolean $is_array
-     * @param string $pattern
-     * @param boolean $mandatory
-     */
-    public static function check_input_parameter($param_name, $param_array, $is_array, $pattern, $mandatory = false)
-    {
-        $param_value = null;
-        if (isset($param_array[$param_name])) {
-            $param_value = $param_array[$param_name];
-        }
-
-        // it's ok if the input parameter is null
-        if (empty($param_value)) {
-            if ($mandatory) {
-                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
-            }
-            return true;
-        }
-
-        if ($is_array) {
-            if (!is_array($param_value)) {
-                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" should be an array');
-            }
-
-            foreach ($param_value as $item_to_check) {
-                if (!preg_match($pattern, $item_to_check)) {
-                    \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] an item is not valid in input parameter "' . $param_name . '"');
-                }
-            }
-        } else {
-            if (!preg_match($pattern, $param_value)) {
-                \Phyxo\Functions\HTTP::fatal_error('[Hacking attempt] the input parameter "' . $param_name . '" is not valid');
-            }
-        }
-    }
-
     /**
      * get localized privacy level values
      */

@@ -84,39 +84,6 @@ class Language
     }
 
     /**
-     * returns a string formated with l10n elements.
-     * it is usefull to "prepare" a text and translate it later
-     * @see get_l10n_args()
-     *
-     * @param array $key_args one l10n_args element or array of l10n_args elements
-     * @param string $sep used when translated elements are concatened
-     * @return string
-     */
-    public static function l10n_args($key_args, $sep = "\n")
-    {
-        if (is_array($key_args)) {
-            foreach ($key_args as $key => $element) {
-                if (isset($result)) {
-                    $result .= $sep;
-                } else {
-                    $result = '';
-                }
-
-                if ($key === 'key_args') {
-                    array_unshift($element, self::l10n(array_shift($element))); // translate the key
-                    $result .= call_user_func_array('sprintf', $element);
-                } else {
-                    $result .= self::l10n_args($element, $sep);
-                }
-            }
-        } else {
-            \Phyxo\Functions\HTTP::fatal_error('l10n_args: Invalid arguments');
-        }
-
-        return $result;
-    }
-
-    /**
      * returns the parent (fallback) language of a language.
      * if _$lang_id_ is null it applies to the current language
      *

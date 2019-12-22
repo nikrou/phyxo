@@ -336,7 +336,7 @@ class Template implements EngineInterface
     public function parse($handle, $return = false)
     {
         if (!isset($this->files[$handle])) {
-            \Phyxo\Functions\HTTP::fatal_error("Template->parse(): Couldn't load template file for handle $handle");
+            throw new \Exception("Template->parse(): Couldn't load template file for handle $handle");
         }
 
         $this->smarty->assign('ROOT_URL', \Phyxo\Functions\URL::get_root_url());
@@ -420,14 +420,22 @@ class Template implements EngineInterface
      */
     public function func_define_derivative($params, $smarty)
     {
-        !empty($params['name']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing name');
+        if (empty($params['name'])) {
+            throw new  \Exception('define_derivative missing name');
+        }
+
         if (isset($params['type'])) {
             $derivative = $this->image_std_params->getByType($params['type']);
             $smarty->assign($params['name'], $derivative);
             return;
         }
-        !empty($params['width']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing width');
-        !empty($params['height']) || \Phyxo\Functions\HTTP::fatal_error('define_derivative missing height');
+        if (empty($params['width'])) {
+            throw new \Exception('define_derivative missing width');
+        }
+
+        if (empty($params['height'])) {
+            throw new  \Exception('define_derivative missing height');
+        }
 
         $w = intval($params['width']);
         $h = intval($params['height']);
@@ -444,9 +452,15 @@ class Template implements EngineInterface
 
             if ($crop) {
                 $minw = empty($params['min_width']) ? $w : intval($params['min_width']);
-                $minw <= $w || \Phyxo\Functions\HTTP::fatal_error('define_derivative invalid min_width');
+                if ($minw > $w) {
+                    throw new \Exception('define_derivative invalid min_width');
+                }
+
                 $minh = empty($params['min_height']) ? $h : intval($params['min_height']);
-                $minh <= $h || \Phyxo\Functions\HTTP::fatal_error('define_derivative invalid min_height');
+
+                if ($minh > $h) {
+                    throw new \Exception('define_derivative invalid min_height');
+                }
             }
         }
 
