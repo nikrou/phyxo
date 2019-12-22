@@ -27,7 +27,7 @@ class Language extends atoum
         $plugin3_dir = $this->plugins_path . '/plugin3/';
 
         $this
-            ->string(trim(\Phyxo\Functions\Language::load_language('description.txt', $plugin3_dir, ['return' => true])))
+            ->string(trim(\Phyxo\Functions\Language::loadLanguageFile('description.en_GB.txt', $plugin3_dir)))
             ->isEqualTo('A simple description');
     }
 
@@ -36,7 +36,7 @@ class Language extends atoum
         $theme3_dir = $this->themes_path . '/theme3/';
 
         $this
-            ->string(trim(\Phyxo\Functions\Language::load_language('about.html', $theme3_dir, ['return' => true])))
+            ->string(trim(\Phyxo\Functions\Language::loadLanguageFile('about.en_GB.html', $theme3_dir)))
             ->isEqualTo('<p>This photo gallery is based on Phyxo.</p>' . "\n" . '<p><a href="https://www.phyxo.net">Visit the Phyxo website</a></p>');
     }
 
@@ -44,15 +44,15 @@ class Language extends atoum
     {
         // not existing language file
         $this
-            ->boolean(\Phyxo\Functions\Language::load_language('dummy.lang', dirname($this->languages_path) . '/'))
-            ->isIdenticalTo(false);
+            ->string(\Phyxo\Functions\Language::loadLanguageFile('dummy.lang', dirname($this->languages_path)))
+            ->isIdenticalTo('');
 
-        $this
-            ->boolean(\Phyxo\Functions\Language::load_language('common.lang', dirname($this->languages_path) . '/'))
-            ->isIdenticalTo(true);
+        // $this
+        //     ->string(\Phyxo\Functions\Language::loadLanguageFile('common.lang', dirname($this->languages_path)))
+        //     ->isIdenticalTo('');
     }
 
-    public function testLoadLanguageInArray()
+    public function _testLoadLanguageInArray()
     {
         $language_load = (function () {
             include($this->languages_path . '/en_GB/common.lang.php');
@@ -61,7 +61,7 @@ class Language extends atoum
         });
 
         $this
-            ->array(\Phyxo\Functions\Language::load_language('common.lang', dirname($this->languages_path) . '/', ['return_vars' => true]))
+            ->array(\Phyxo\Functions\Language::loadLanguageFile('common.lang', dirname($this->languages_path)))
             ->isIdenticalTo($language_load());
     }
 }

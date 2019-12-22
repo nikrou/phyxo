@@ -76,7 +76,10 @@ class Languages extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $languages = new \Phyxo\Language\Languages($conn->reveal(), $userMapper->reveal());

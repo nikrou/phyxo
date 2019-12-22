@@ -222,7 +222,7 @@ class Plugins extends Extensions
         if (preg_match("|Plugin URI:\\s*(https?:\\/\\/.+)|", $plugin_data, $val)) {
             $plugin['uri'] = trim($val[1]);
         }
-        if ($desc = \Phyxo\Functions\Language::load_language('description.txt', dirname($main_file) . '/', ['language' => $this->userMapper->getUser()->getLanguage(), 'return' => true])) {
+        if ($desc = \Phyxo\Functions\Language::loadLanguageFile('description.' . $this->userMapper->getUser()->getLanguage() . '.txt', dirname($main_file))) {
             $plugin['description'] = trim($desc);
         } elseif (preg_match("|Description:\\s*(.+)|", $plugin_data, $val)) {
             $plugin['description'] = trim($val[1]);

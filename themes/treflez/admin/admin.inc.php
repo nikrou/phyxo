@@ -9,12 +9,8 @@
  * file that was distributed with this source code.
  */
 
-use Phyxo\Functions\Language;
-
 // Includes
 require_once(__DIR__ . '/../include/config.php');
-
-Language::load_language('theme.lang', __DIR__ . '/../', ['language' => $user['language']]);
 
 $themeconfig = new \Treflez\Config($conf);
 // Save settings

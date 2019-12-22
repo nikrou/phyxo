@@ -141,89 +141,21 @@ class Language
     }
 
     /**
-     * includes a language file or returns the content of a language file
-     *
-     * tries to load in descending order:
-     *   param language, user language, default language
-     *
-     * @param string $filename
-     * @param string $dirname
-     * @param mixed options can contain
-     *     @option string language - language to load
-     *     @option bool return - if true the file content is returned
-     *     @option bool local - if true load file from local directory
-     * @return boolean|string|array
+     *  return language file content or emmty string if file does not exist
      */
-    public static function load_language($filename, $dirname = '', $options = [])
+    public static function loadLanguageFile(string $filename, string $dirname = ''): string
     {
-        global $lang, $lang_info;
+        $content = '';
 
-        $default_options = [
-            'language' => 'en_GB',
-            'return_vars' => false,
-            'return' => false,
-            'local' => false,
-        ];
-
-        $options = array_merge($default_options, $options);
-
-        if (!$options['return']) {
-            $filename .= '.php';
+        if (!empty($dirname)) {
+            $filename = $dirname . '/' . $filename;
         }
 
-        if (empty($dirname)) {
-            $dirname = __DIR__ . '/../../..' . '/';
+        if (is_readable($filename)) {
+            $content = file_get_contents($filename);
         }
 
-        $dirname .= '/languages/';
-        $language_file = $options['local'] ? $dirname . $options['language'] . '.' . $filename : $dirname . $options['language'] . '/' . $filename;
-
-        if (!is_readable($language_file)) {
-            return false;
-        }
-
-        if ($options['return']) {
-            return file_get_contents($language_file);
-        } else {
-            $loadLanguage = (function ($path) {
-                $lang = $lang_info = [];
-                include($path);
-
-                return ['lang' => $lang, 'lang_info' => $lang_info];
-            });
-
-            $load_language = $loadLanguage($language_file);
-            $load_lang = $load_language['lang'];
-            $load_lang_info = $load_language['lang_info'];
-
-            // access already existing values
-            if (!isset($lang)) {
-                $lang = [];
-            }
-
-            if (!isset($lang_info)) {
-                $lang_info = [];
-            }
-
-            // load parent language content directly in global
-            if (!empty($load_lang_info['parent'])) {
-                $parent_language = $load_lang_info['parent'];
-            } elseif (!empty($lang_info['parent'])) {
-                $parent_language = $lang_info['parent'];
-            } else {
-                $parent_language = null;
-            }
-
-            // merge contents
-            $lang = array_merge($lang, (array)$load_lang);
-            $lang_info = array_merge($lang_info, (array)$load_lang_info);
-
-            if ($options['return_vars']) {
-                return ['lang' => $lang, 'lang_info' => $lang_info];
-            }
-
-            return true;
-        }
+        return $content;
     }
 
     /**
