@@ -44,16 +44,19 @@ class InstallController extends Controller
     private $phyxoVersion;
     private $default_language;
     private $default_theme;
+    private $languagesDir;
     private $default_prefix = 'phyxo_';
 
-    public function __construct(Template $template, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(Template $template, string $adminThemeDir, string $languagesDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
+                                string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder)
     {
+        $this->languagesDir = $languagesDir;
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->passwordEncoder = $passwordEncoder;
 
-        $template->setTheme(new Theme(__DIR__ . '/../../admin/theme', '.'));
+        $template->setTheme(new Theme($adminThemeDir, '.'));
         $template->assign([
             'RELEASE' => $phyxoVersion,
             'PHPWG_URL' => $phyxoWebsite,
@@ -77,7 +80,7 @@ class InstallController extends Controller
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $languages = new Languages(null);
-        $languages->setRootPath(__DIR__ . '/../../language');
+        $languages->setRootPath($this->languagesDir);
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $this->languages_options[$language_code] = $fs_language['name'];
         }
@@ -96,12 +99,12 @@ class InstallController extends Controller
 
         $translations_common = \Phyxo\Functions\Language::load_language(
             'common.lang',
-            __DIR__ . '/../../',
+            dirname($this->languagesDir),
             ['language' => $language, 'return_vars' => true]
         );
         $translations_install = \Phyxo\Functions\Language::load_language(
             'install.lang',
-            __DIR__ . '/../../',
+            dirname($this->languagesDir),
             ['language' => $language, 'return_vars' => true]
         );
 
@@ -145,7 +148,7 @@ class InstallController extends Controller
             'languages' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => realpath(__DIR__ . '/../../language'),
+                'path' => $this->languagesDir,
             ],
             'plugins' => [
                 'readable' => false,

@@ -101,6 +101,9 @@
     "monolog/monolog": {
         "version": "1.23.0"
     },
+    "nikic/php-parser": {
+        "version": "v4.3.0"
+    },
     "openpsa/universalfeedcreator": {
         "version": "v1.8.3.1"
     },
@@ -112,6 +115,9 @@
     },
     "pelago/emogrifier": {
         "version": "v2.0.0"
+    },
+    "php": {
+        "version": "7.3"
     },
     "php-cs-fixer/diff": {
         "version": "v1.3.0"
@@ -127,6 +133,9 @@
     },
     "phpspec/prophecy": {
         "version": "1.8.1"
+    },
+    "phpstan/phpstan": {
+        "version": "0.12.3"
     },
     "psr/cache": {
         "version": "1.0.1"

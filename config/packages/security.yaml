@@ -9,6 +9,11 @@ security:
     Symfony\Component\Security\Core\User\User:
       algorithm: auto
       cost: 12
+
+    App\Entity\User:
+      algorithm: bcrypt
+      cost: 12
+
     App\Security\SecurityUser:
       algorithm: auto
       cost: 12
@@ -53,9 +58,6 @@ security:
   # Note: Only the *first* access control that matches will be used
   access_control:
     - { path: ^/admin, roles: [ROLE_WEBMASTER, ROLE_ADMIN] }
-    - {
-        path: ^/(identification|register|password|password/.+)$,
-        roles: IS_AUTHENTICATED_ANONYMOUSLY,
-      }
+    - { path: ^/(identification|register|password|password/.+)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/profile$, roles: ROLE_NORMAL }
     - { path: ^/, roles: IS_AUTHENTICATED_REMEMBERED }

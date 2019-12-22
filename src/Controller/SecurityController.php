@@ -166,7 +166,8 @@ class SecurityController extends AbstractController
         return $this->render('register.tpl', $tpl_params);
     }
 
-    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar, UserProvider $userProvider)
+    public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar,
+                            UserProvider $userProvider, string $languagesDir)
     {
         $this->userProvider = $userProvider;
         $this->init($this->getUser());
@@ -177,7 +178,7 @@ class SecurityController extends AbstractController
 
         $this->language_load = \Phyxo\Functions\Language::load_language(
             'common.lang',
-            __DIR__ . '/../../',
+            $languagesDir,
             ['language' => $this->getUser()->getLanguage(), 'return_vars' => true]
         );
 

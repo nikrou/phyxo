@@ -175,7 +175,7 @@ class Language
             $dirname = __DIR__ . '/../../..' . '/';
         }
 
-        $dirname .= 'languages/';
+        $dirname .= '/languages/';
         $language_file = $options['local'] ? $dirname . $options['language'] . '.' . $filename : $dirname . $options['language'] . '/' . $filename;
 
         if (!is_readable($language_file)) {
@@ -212,10 +212,6 @@ class Language
                 $parent_language = $lang_info['parent'];
             } else {
                 $parent_language = null;
-            }
-
-            if (!empty($parent_language) && $parent_language != $selected_language) {
-                include(str_replace($selected_language, $parent_language, $source_file));
             }
 
             // merge contents
@@ -271,17 +267,32 @@ class Language
     {
         $ret = 0;
         for ($i = 0; $i < strlen($Str); $i++) {
-            if (ord($Str[$i]) < 0x80) continue; // 0bbbbbbb
+            if (ord($Str[$i]) < 0x80) {
+                continue;
+            } // 0bbbbbbb
             $ret = 1;
-            if ((ord($Str[$i]) & 0xE0) == 0xC0) $n = 1; // 110bbbbb
-            elseif ((ord($Str[$i]) & 0xF0) == 0xE0) $n = 2; // 1110bbbb
-            elseif ((ord($Str[$i]) & 0xF8) == 0xF0) $n = 3; // 11110bbb
-            elseif ((ord($Str[$i]) & 0xFC) == 0xF8) $n = 4; // 111110bb
-            elseif ((ord($Str[$i]) & 0xFE) == 0xFC) $n = 5; // 1111110b
-            else return -1; // Does not match any model
+            if ((ord($Str[$i]) & 0xE0) == 0xC0) {
+                $n = 1;
+            } // 110bbbbb
+            elseif ((ord($Str[$i]) & 0xF0) == 0xE0) {
+                $n = 2;
+            } // 1110bbbb
+            elseif ((ord($Str[$i]) & 0xF8) == 0xF0) {
+                $n = 3;
+            } // 11110bbb
+            elseif ((ord($Str[$i]) & 0xFC) == 0xF8) {
+                $n = 4;
+            } // 111110bb
+            elseif ((ord($Str[$i]) & 0xFE) == 0xFC) {
+                $n = 5;
+            } // 1111110b
+            else {
+                return -1;
+            } // Does not match any model
             for ($j = 0; $j < $n; $j++) { // n bytes matching 10bbbbbb follow ?
-                if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80))
+                if ((++$i == strlen($Str)) || ((ord($Str[$i]) & 0xC0) != 0x80)) {
                     return -1;
+                }
             }
         }
         return $ret;
@@ -441,7 +452,6 @@ class Language
             return self::remove_accents(mb_strtolower($term, PWG_CHARSET));
         } else {
             return self::remove_accents(strtolower($term));
-
         }
     }
 

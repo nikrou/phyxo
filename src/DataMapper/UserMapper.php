@@ -34,10 +34,10 @@ use App\Security\UserProvider;
 class UserMapper
 {
     private $em, $conf, $autorizationChecker, $user, $dataTransformer, $categoryMapper, $tagMapper;
-    private $passwordEncoder, $defaultLanguage, $themesPath, $userProvider;
+    private $passwordEncoder, $defaultLanguage, $themesDir, $userProvider;
 
     public function __construct(EntityManager $em, Conf $conf, AuthorizationCheckerInterface $autorizationChecker, DataTransformer $dataTransformer,
-                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesPath, UserProvider $userProvider)
+                                CategoryMapper $categoryMapper, TagMapper $tagMapper, string $defaultLanguage, string $themesDir, UserProvider $userProvider)
     {
         $this->em = $em;
         $this->conf = $conf;
@@ -46,7 +46,7 @@ class UserMapper
         $this->categoryMapper = $categoryMapper;
         $this->tagMapper = $tagMapper;
         $this->defaultLanguage = $defaultLanguage;
-        $this->themesPath = $themesPath;
+        $this->themesDir = $themesDir;
         $this->userProvider = $userProvider;
     }
 
@@ -198,7 +198,7 @@ class UserMapper
     public function getDefaultTheme()
     {
         $theme = $this->getDefaultUserValue('theme', $this->defaultLanguage);
-        if (is_readable($this->themesPath . '/' . $theme . '/' . 'themeconf.inc.php')) {
+        if (is_readable($this->themesDir . '/' . $theme . '/' . 'themeconf.inc.php')) {
             return $theme;
         }
 
