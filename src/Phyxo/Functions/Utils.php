@@ -387,45 +387,6 @@ class Utils
     }
 
     /**
-     * creates directory if not exists and ensures that directory is writable
-     *
-     * @param string $dir
-     * @param int $flags combination of MKGETDIR_xxx
-     * @return bool
-     */
-    public static function mkgetdir($dir, $flags = self::MKGETDIR_NONE)
-    {
-        global $conf;
-
-        if (!is_dir($dir)) {
-            if (substr(PHP_OS, 0, 3) == 'WIN') {
-                $dir = str_replace('/', DIRECTORY_SEPARATOR, $dir);
-            }
-            $umask = umask(0);
-            $mkd = @mkdir($dir, $conf['chmod_value'], ($flags & self::MKGETDIR_RECURSIVE) ? true : false);
-            umask($umask);
-            if ($mkd == false) {
-                !($flags & self::MKGETDIR_DIE_ON_ERROR) || \Phyxo\Functions\HTTP::fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
-                return false;
-            }
-            if ($flags & self::MKGETDIR_PROTECT_HTACCESS) {
-                $file = $dir . '/.htaccess';
-                file_exists($file) or @file_put_contents($file, 'deny from all');
-            }
-            if ($flags & self::MKGETDIR_PROTECT_INDEX) {
-                $file = $dir . '/index.htm';
-                file_exists($file) or @file_put_contents($file, 'Not allowed!');
-            }
-        }
-        if (!is_writable($dir)) {
-            !($flags & self::MKGETDIR_DIE_ON_ERROR) || \Phyxo\Functions\HTTP::fatal_error("$dir " . \Phyxo\Functions\Language::l10n('no write access'));
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * log the visit into history table
      *
      * @param int $image_id
@@ -748,40 +709,6 @@ class Utils
     }
 
     /**
-     * Returns the breadcrumb to be displayed above thumbnails on tag page.
-     */
-    public static function getTagsContentTitle(RouterInterface $router, array $tags = []): string
-    {
-        $title = '<a href="' . $router->generate('tags') . '" title="' . Language::l10n('display available tags') . '">';
-        $title .= Language::l10n(count($tags) > 1 ? 'Tags' : 'Tag');
-        $title .= '</a>&nbsp;';
-
-        for ($i = 0; $i < count($tags); $i++) {
-            $title .= $i > 0 ? ' + ' : '';
-            $title .= '<a href="' . $router->generate('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]) . '"';
-            $title .= ' title="' . Language::l10n('display photos linked to this tag') . '">';
-            $title .= Plugin::trigger_change('render_tag_name', $tags[$i]['name'], $tags[$i]);
-            $title .= '</a>';
-
-            if (count($tags) > 2) {
-                $other_tags = $tags;
-                unset($other_tags[$i]);
-                $remove_url = $router->generate(
-                    'images_by_tags',
-                    ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', $other_tags))]
-                );
-
-                $title .= '<a href="' . $remove_url . '" title="';
-                $title .= Language::l10n('remove this tag from the list');
-                $title .= '"><i class="fa fa-remove"></i>';
-                $title .= '</a>';
-            }
-        }
-
-        return $title;
-    }
-
-    /**
      * Add known menubar blocks.
      * This method is called by a trigger_change()
      *
@@ -834,47 +761,6 @@ class Utils
     }
 
     /**
-     * Add info to the title of the thumbnail based on photo properties.
-     *
-     * @param array $info hit, rating_score, nb_comments
-     * @param string $title
-     * @param string $comment
-     * @return string
-     */
-    public static function get_thumbnail_title($info, $title, $comment = '')
-    {
-        global $conf;
-
-        $details = [];
-
-        if (!empty($info['hit'])) {
-            $details[] = $info['hit'] . ' ' . strtolower(\Phyxo\Functions\Language::l10n('Visits'));
-        }
-
-        if ($conf['rate'] and !empty($info['rating_score'])) {
-            $details[] = strtolower(\Phyxo\Functions\Language::l10n('Rating score')) . ' ' . $info['rating_score'];
-        }
-
-        if (isset($info['nb_comments']) and $info['nb_comments'] != 0) {
-            $details[] = \Phyxo\Functions\Language::l10n_dec('%d comment', '%d comments', $info['nb_comments']);
-        }
-
-        if (count($details) > 0) {
-            $title .= ' (' . implode(', ', $details) . ')';
-        }
-
-        if (!empty($comment)) {
-            $comment = strip_tags($comment);
-            $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
-        }
-
-        $title = htmlspecialchars(strip_tags($title));
-        $title = \Phyxo\Functions\Plugin::trigger_change('get_thumbnail_title', $title, $info);
-
-        return $title;
-    }
-
-    /**
      * Sends to the template all messages stored in $page and in the session.
      */
     public static function flush_page_messages()
@@ -893,37 +779,6 @@ class Utils
                 }
             }
         }
-    }
-
-    /**
-     * Returns an array associating element id (images.id) with its complete
-     * path in the filesystem
-     *
-     * @param int $category_id
-     * @param int $site_id
-     * @param boolean $recursive
-     * @param boolean $only_new
-     * @return array
-     */
-    public static function get_filelist(? int $category_id = null, $site_id = 1, $recursive = false, $only_new = false)
-    {
-        global $conn;
-
-        // filling $cat_ids : all categories required
-        $cat_ids = [];
-
-        $result = (new CategoryRepository($conn))->findPhysicalsBySiteAndIdOrUppercats($site_id, $category_id, $recursive);
-        while ($row = $conn->db_fetch_assoc($result)) {
-            $cat_ids[] = $row['id'];
-        }
-
-        if (count($cat_ids) == 0) {
-            return [];
-        }
-
-        $result = (new ImageRepository($conn))->findByStorageCategoryId($cat_ids, $only_new);
-
-        return $conn->result2array($result, 'id');
     }
 
     /**

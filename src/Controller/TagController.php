@@ -20,6 +20,7 @@ use App\DataMapper\TagMapper;
 use Phyxo\EntityManager;
 use App\Repository\TagRepository;
 use App\DataMapper\ImageMapper;
+use Phyxo\Functions\Plugin;
 use Phyxo\Image\ImageStandardParams;
 use Phyxo\Functions\Utils;
 use Phyxo\Functions\URL;
@@ -131,7 +132,7 @@ class TagController extends CommonController
     }
 
     public function imagesByTags(Request $request, EntityManager $em, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids, Template $template,
-                                    Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, int $start = 0)
+                                    Conf $conf, $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, int $start = 0, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
@@ -150,7 +151,7 @@ class TagController extends CommonController
         $result = $em->getRepository(TagRepository::class)->findTags($requested_tag_ids, $requested_tag_url_names);
         $tpl_params['tags'] = $em->getConnection()->result2array($result);
 
-        $tpl_params['TITLE'] = \Phyxo\Functions\Utils::getTagsContentTitle($this->get('router'), $tpl_params['tags']);
+        $tpl_params['TITLE'] = $this->getTagsContentTitle($tpl_params['tags'], $translator);
 
         $filter = [];
         $result = $em->getRepository(TagRepository::class)->getImageIdsForTags($this->getUser(), $filter, $requested_tag_ids);
@@ -191,5 +192,39 @@ class TagController extends CommonController
         }
 
         return $this->render('thumbnails.tpl', $tpl_params);
+    }
+
+    /**
+     * Returns the breadcrumb to be displayed above thumbnails on tag page.
+     */
+    protected function getTagsContentTitle(array $tags = [], TranslatorInterface $translator): string
+    {
+        $title = '<a href="' . $this->generateUrl('tags') . '" title="' . $translator->trans('display available tags') . '">';
+        $title .= $translator->trans('number_of_tags', ['count' => count($tags)]);
+        $title .= '</a>&nbsp;';
+
+        for ($i = 0; $i < count($tags); $i++) {
+            $title .= $i > 0 ? ' + ' : '';
+            $title .= '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]) . '"';
+            $title .= ' title="' . $translator->trans('display photos linked to this tag') . '">';
+            $title .= Plugin::trigger_change('render_tag_name', $tags[$i]['name'], $tags[$i]);
+            $title .= '</a>';
+
+            if (count($tags) > 2) {
+                $other_tags = $tags;
+                unset($other_tags[$i]);
+                $remove_url = $this->generateUrl(
+                    'images_by_tags',
+                    ['tag_ids' => implode('/', array_map('\Phyxo\Functions\URL::tagToUrl', $other_tags))]
+                );
+
+                $title .= '<a href="' . $remove_url . '" title="';
+                $title .= $translator->trans('remove this tag from the list');
+                $title .= '"><i class="fa fa-remove"></i>';
+                $title .= '</a>';
+            }
+        }
+
+        return $title;
     }
 }

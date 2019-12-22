@@ -112,7 +112,8 @@ class Updates
 
     public function download($zip_file)
     {
-        @\Phyxo\Functions\Utils::mkgetdir(dirname($zip_file)); // @TODO: remove arobase and use a fs library
+        $fs = new Filesystem();
+        $fs->mkdir(dirname($zip_file));
 
         try {
             $client = new Client(['headers' => ['User-Agent' => 'Phyxo']]);

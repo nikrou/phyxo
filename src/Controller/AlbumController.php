@@ -25,7 +25,6 @@ use App\Repository\UserCacheCategoriesRepository;
 use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
-use Phyxo\Functions\Category;
 use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -187,7 +186,7 @@ class AlbumController extends CommonController
                     'ID' => $category['id'] /*obsolete*/,
                     'representative' => $representative_infos,
                     'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
@@ -569,7 +568,7 @@ class AlbumController extends CommonController
                     'ID' => $category['id'] /*obsolete*/,
                     'representative' => $representative_infos,
                     'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl($start > 0 ? 'album__start' : 'album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
@@ -795,7 +794,7 @@ class AlbumController extends CommonController
                     'ID' => $category['id'] /*obsolete*/,
                     'representative' => $representative_infos,
                     'TN_ALT' => strip_tags($category['name']),
-                    'TN_TITLE' => Utils::get_thumbnail_title($category, $category['name'], $category['comment']),
+                    'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
                     'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(

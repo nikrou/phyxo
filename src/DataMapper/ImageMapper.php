@@ -172,7 +172,7 @@ class ImageMapper
 
             $tpl_var = array_merge($row, [
                 'TN_ALT' => htmlspecialchars(strip_tags($name)),
-                'TN_TITLE' => Utils::get_thumbnail_title($row, $name, $desc),
+                'TN_TITLE' => $this->getThumbnailTitle($row, $name, $desc),
                 'URL' => $url,
                 'DESCRIPTION' => $desc,
                 'src_image' => new SrcImage($row, $this->conf['picture_ext']),
@@ -309,5 +309,44 @@ class ImageMapper
         }
 
         return $new_ids;
+    }
+
+    /**
+     * Add info to the title of the thumbnail based on photo properties.
+     *
+     * @param array $info hit, rating_score, nb_comments
+     * @param string $title
+     * @param string $comment
+     * @return string
+     */
+    public function getThumbnailTitle($info, $title, $comment = ''): string
+    {
+        $details = [];
+
+        if (!empty($info['hit'])) {
+            $details[] = $info['hit'] . ' ' . strtolower($this->translator->trans('Visits'));
+        }
+
+        if ($this->conf['rate'] && !empty($info['rating_score'])) {
+            $details[] = strtolower($this->translator->trans('Rating score')) . ' ' . $info['rating_score'];
+        }
+
+        if (isset($info['nb_comments']) && $info['nb_comments'] != 0) {
+            $details[] = $this->translator->trans('number_of_comments', ['count' => $info['nb_comments']]);
+        }
+
+        if (count($details) > 0) {
+            $title .= ' (' . implode(', ', $details) . ')';
+        }
+
+        if (!empty($comment)) {
+            $comment = strip_tags($comment);
+            $title .= ' ' . substr($comment, 0, 100) . (strlen($comment) > 100 ? '...' : '');
+        }
+
+        $title = htmlspecialchars(strip_tags($title));
+        $title = \Phyxo\Functions\Plugin::trigger_change('getThumbnailTitle', $title, $info);
+
+        return $title;
     }
 }

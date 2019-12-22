@@ -7,6 +7,7 @@ language: php
 php:
   - "7.2"
   - "7.3"
+  - "7.4"
 
 services:
   - postgresql
@@ -22,7 +23,7 @@ before_install:
   # - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 
 before_script:
-  - composer install --prefer-lowest
+  - composer install
 
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'create database phyxo;';fi"
