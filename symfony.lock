@@ -1,4 +1,7 @@
 {
+    "pelago/emogrifier": {
+        "version": "v3.1.0"
+    },
     "php": {
         "version": "7.3"
     }

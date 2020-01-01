@@ -15,7 +15,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "openpsa/universalfeedcreator": "^1.8",
         "pclzip/pclzip": "^2.8",
-        "pelago/emogrifier": "^2.0",
+        "pelago/emogrifier": "^3.1",
         "smarty/smarty": "^3.1",
         "swiftmailer/swiftmailer": "^6.2",
         "symfony/console": "^4.1",

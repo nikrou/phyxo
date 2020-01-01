@@ -9,6 +9,7 @@ Simply share your images.
 This project use severals librairies that need at least PHP 7.1.0
 
 [![Build Status](https://travis-ci.org/nikrou/phyxo.svg?branch=master)](https://travis-ci.org/nikrou/phyxo)
+![PHPSTan level](https://img.shields.io/badge/PHPStan-level%200-brightgreen.svg?style=flat)
 
 This project uses a database and support Mysql, PostgreSQL and SQLite engines.
 
@@ -88,6 +89,16 @@ $ ./bin/atoum -ebpc -c .atoum.coverage.php
 
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
+
+## Static code analysis
+
+Analysis is made using [PHPStan](https://github.com/phpstan/phpstan) :
+
+```
+$ composer phpstan
+```
+
+The analysis is made with level 0 but the idea is to increase that level and fix more and more possible issues.
 
 ## Demo
 
