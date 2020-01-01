@@ -250,7 +250,7 @@ class PhotoController extends AdminCommonController
 
         $result = $em->getRepository(ImageCategoryRepository::class)->findByImageId($image_id);
         $authorizeds = array_diff(
-            $em->getConnection()->resulty2array($result, null, 'category_id'),
+            $em->getConnection()->result2array($result, null, 'category_id'),
             $userProvider->calculatePermissions($this->getUser()->getId(), $this->getUser()->getStatus())
         );
 

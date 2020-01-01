@@ -70,7 +70,7 @@ class SecurityController extends AbstractController
         $this->template->setUser($user);
 
         // default theme
-        $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $user->getTheme()));
+        $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $user->getTheme()), $this->conf);
 
         $this->template->assign([
             'CONTENT_ENCODING' => 'utf-8',

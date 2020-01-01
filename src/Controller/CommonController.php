@@ -50,7 +50,7 @@ abstract class CommonController extends AbstractController
         if (isset($this->image_std_params)) {
             $template->setImageStandardParams($this->image_std_params);
         }
-        $template->setTheme(new Theme($themesDir, $user->getTheme()));
+        $template->setTheme(new Theme($themesDir, $user->getTheme()), $conf);
 
         $tpl_params['PHYXO_VERSION'] = $conf['show_version'] ? $phyxoVersion : '';
         $tpl_params['PHYXO_URL'] = $phyxoWebsite;

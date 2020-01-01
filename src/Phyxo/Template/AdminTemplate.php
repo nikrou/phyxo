@@ -18,9 +18,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AdminTemplate extends Template
 {
-    public function __construct(Conf $conf, TranslatorInterface $translator, RouterInterface $router, string $compileDir, string $adminThemeDir)
+    public function __construct(TranslatorInterface $translator, RouterInterface $router, string $compileDir, string $adminThemeDir)
     {
-        parent::__construct($conf, $translator, $router, $compileDir);
-        $this->setTheme(new Theme($adminThemeDir, '.'));
+        parent::__construct($translator, $router, $compileDir);
+        $this->setTheme(new Theme($adminThemeDir, '.'), null);
     }
 }

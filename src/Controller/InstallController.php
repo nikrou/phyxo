@@ -22,11 +22,10 @@ use App\Repository\UpgradeRepository;
 use App\Utils\UserManager;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Phyxo\Extension\Theme;
 use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Phyxo\Extension\Theme;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class InstallController extends Controller
@@ -39,7 +38,6 @@ class InstallController extends Controller
         'success' => ['label' => 'Installation completed']
     ];
 
-    private $eventDispatcher;
     private $languages_options;
     private $passwordEncoder;
     private $phyxoVersion;
@@ -60,16 +58,18 @@ class InstallController extends Controller
         $this->translator = $translator;
 
         $template->setTheme(new Theme($adminThemeDir, '.'));
+        $template->setDomain('install');
         $template->assign([
             'RELEASE' => $phyxoVersion,
-            'PHPWG_URL' => $phyxoWebsite,
+            'PHYXO_VERSION' => $phyxoVersion,
+            'PHYXO_URL' => $phyxoWebsite,
             'GALLERY_TITLE' => 'Phyxo',
             'PAGE_TITLE' => $this->translator->trans('Installation', [], 'install'),
             'STEPS' => $this->Steps,
         ]);
     }
 
-    public function index(Request $request, string $step = 'language', EventDispatcherInterface $eventDispatcher)
+    public function index(Request $request, string $step = 'language')
     {
         $tpl_params = [];
 
@@ -77,15 +77,15 @@ class InstallController extends Controller
             return  $this->redirectToRoute('homepage', []);
         }
 
-        $this->eventDispatcher = $eventDispatcher;
-
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $languages = new Languages(null);
-        $languages->setRootPath($this->languagesDir);
-        foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
-            $this->languages_options[$language_code] = $fs_language['name'];
-        }
+        // $languages = new Languages(null);
+        // $languages->setRootPath($this->languagesDir);
+        // foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
+        //     $this->languages_options[$language_code] = $fs_language['name'];
+        // }
+
+        $this->languages_options = ['fr_FR' => 'Français', 'en_GB' => 'Anglais'];
 
         if ($request->get('language')) {
             $language = $request->get('language');
@@ -94,6 +94,7 @@ class InstallController extends Controller
         } else {
             $language = $this->default_language;
         }
+        $request->getSession()->set('_locale', $language);
 
         if (!isset($this->languages_options[$language])) {
             $language = $this->default_language;
@@ -105,6 +106,7 @@ class InstallController extends Controller
         if ($step !== $tpl_params['STEP']) {
             return  $this->redirectToRoute('install', ['step' => $tpl_params['STEP'], 'language' => $language]);
         }
+        $tpl_params['lang_info'] = ['code' => preg_replace('`_.*`', '', $language), 'direction' => 'ltr']; // @TODO: retrieve from common place
         $tpl_params['LANGUAGE'] = $language;
 
         return $this->render('install.tpl', $tpl_params);

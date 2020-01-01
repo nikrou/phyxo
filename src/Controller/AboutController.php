@@ -30,8 +30,8 @@ class AboutController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('About Phyxo');
-        $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.' . $this->getUser()->getLanguage() . '.html', $rootProjectDir . '/translations');
-        $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.' . $this->getUser()->getLanguage() . '.html', $themesDir . '/' . $this->getUser()->getTheme() . '/translations');
+        $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $this->getUser()->getLanguage());
+        $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/languages/' . $this->getUser()->getLanguage());
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 

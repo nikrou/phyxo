@@ -9,6 +9,7 @@ INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_order','ASC','c
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_author_mandatory','false','Comment author is mandatory');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_email_mandatory','false','Comment email is mandatory');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('comments_enable_website','true','Enable "website" field on add comment form');
+INSERT INTO phyxo_config (param,value,comment) VALUES ('derivatives','','Derivatives parameters');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('user_can_delete_comment','false','administrators can allow user delete their own comments');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('user_can_edit_comment','false','administrators can allow user edit their own comments');
 INSERT INTO phyxo_config (param,value,comment) VALUES ('email_admin_on_comment_edition','false','Send an email to the administrators when a comment is modified');

@@ -74,3 +74,8 @@ $lang['retry'] = "réessayer";
 $lang['Directory does not exist'] = "Le répertoire n'existe pas";
 $lang['Installation completed'] = "Installation terminée";
 $lang['Toggle menu'] = "Menu";
+$lang['Powered by'] = 'Propulsé par';
+$lang['Version'] = "Version";
+$lang['Password'] = 'Mot de passe';
+
+return $lang;

@@ -159,8 +159,10 @@
 		    {'Page generated in'|translate} {$debug.TIME} ({$debug.NB_QUERIES} {'SQL queries in'|translate} {$debug.SQL_TIME}) -
 		{/if}
 
-		{'Contact'|translate}
-		<a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>
+		{if isset($CONTACT_MAIL)}
+		    {'Contact'|translate}
+		    <a href="mailto:{$CONTACT_MAIL}?subject={'A comment on your site'|translate|escape:url}">{'Webmaster'|translate}</a>
+		{/if}
 	    </div>
 	</footer>
 

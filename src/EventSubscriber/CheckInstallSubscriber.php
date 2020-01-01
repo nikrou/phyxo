@@ -12,11 +12,11 @@
 namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use App\Exception\ConfigFileMissingException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class CheckInstallSubscriber implements EventSubscriberInterface
 {
@@ -27,7 +27,7 @@ class CheckInstallSubscriber implements EventSubscriberInterface
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function onKernelException(GetResponseForExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event)
     {
         if (!$event->isMasterRequest()) {
             return false;

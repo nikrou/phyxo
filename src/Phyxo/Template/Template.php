@@ -41,18 +41,21 @@ class Template implements EngineInterface
 
     /** @var string[] - Hash of filenames for each template handle. */
     private $files = [];
-    private $conf, $translator, $domain = 'messages';
+    private $translator, $domain = 'messages';
     private $theme = null;
 
-    public function __construct(Conf $conf, TranslatorInterface $translator, RouterInterface $router, string $compileDir)
+    public function __construct(TranslatorInterface $translator, RouterInterface $router, string $compileDir)
     {
-        $this->conf = $conf;
         $this->translator = $translator;
         $this->router = $router;
 
         SmartyException::$escape = false;
 
         $this->smarty = new Smarty();
+        $this->smarty->debugging = false;
+        $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
+        $this->smarty->compile_check = true;
+        $this->smarty->force_compile = true;
 
         $this->smarty->registerPlugin('modifier', 'translate', [$this, 'translateModifier']);
         $this->smarty->registerPlugin('block', 'translate', [$this, 'translateBlock']);
@@ -61,22 +64,6 @@ class Template implements EngineInterface
         $this->smarty->registerPlugin('function', 'path', [$this, 'func_path']);
         $this->smarty->registerPlugin('function', 'define_derivative', [$this, 'func_define_derivative']);
         $this->smarty->registerPlugin('function', 'derivative_from_image', [$this, 'func_derivative_from_image']);
-
-        if (isset($this->conf['debug_template'])) {
-            $this->smarty->debugging = $this->conf['debug_template'];
-        }
-
-        if (!$this->smarty->debugging) {
-            $this->smarty->error_reporting = error_reporting() & ~E_NOTICE;
-        }
-
-        if (isset($this->conf['template_compile_check'])) {
-            $this->smarty->compile_check = $this->conf['template_compile_check'];
-        }
-
-        if (isset($this->conf['template_force_compile'])) {
-            $this->smarty->force_compile = $this->conf['template_force_compile'];
-        }
 
         $this->smarty->setCompileDir($compileDir);
     }
@@ -111,15 +98,15 @@ class Template implements EngineInterface
      * Add load_css for theme
      * Load parent theme
      */
-    public function setTheme(Theme $theme)
+    public function setTheme(Theme $theme, Conf $conf = null)
     {
         $this->theme = $theme;
 
         $this->set_template_dir($theme->getRoot() . '/' . $theme->getId() . '/' . $theme->getTemplate());
-        $themeconf = $this->loadThemeConf($theme->getRoot() . '/' . $theme->getId());
+        $themeconf = $this->loadThemeConf($theme->getRoot() . '/' . $theme->getId(), $conf);
 
         if (isset($themeconf['parent']) && $themeconf['parent'] !== $theme->getId()) {
-            $this->setTheme(new Theme($theme->getRoot(), $themeconf['parent']));
+            $this->setTheme(new Theme($theme->getRoot(), $themeconf['parent']), $conf);
         }
 
         $tpl_var = ['id' => $theme->getId()];
@@ -128,7 +115,7 @@ class Template implements EngineInterface
         $this->smarty->append('themeconf', ['id' => $theme->getId()]);
     }
 
-    protected function loadThemeConf(string $dir)
+    protected function loadThemeConf(string $dir, Conf $core_conf = null)
     {
         $themeconf = null;
 
@@ -139,7 +126,7 @@ class Template implements EngineInterface
 
         ob_start();
         // inject variables and objects in loaded theme
-        $conf = $this->conf;
+        $conf = $core_conf;
         $template = $this;
         $translator = $this->translator;
         $image_std_params = $this->image_std_params;

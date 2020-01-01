@@ -127,7 +127,8 @@ class UserManager
         }
     }
 
-    public function generateActivationKey(int $size = 50) {
+    public function generateActivationKey(int $size = 50)
+    {
         return bin2hex(random_bytes($size));
     }
 }

@@ -221,6 +221,7 @@ $lang["Email address"] = "Email address";
 $lang["Reset to default values"] = "Reset to default values";
 $lang["Create a new account"] = "Create a new account";
 $lang["Register"] = "Register";
+$lang["Quick search"] = "Quick search";
 $lang["useful when password forgotten"] = "useful when password forgotten";
 $lang["Connection settings"] = "Connection settings";
 $lang["Send my connection settings by email"] = "Send my connection settings by email";

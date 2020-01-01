@@ -4,12 +4,6 @@
 imports:
   - { resource: parameters.yaml }
 
-framework:
-  csrf_protection: ~
-  session:
-    handler_id: Phyxo\DBLayer\SessionHandler
-    name: '%main_cookie%'
-
 services:
   # default configuration for services in *this* file
   _defaults:
@@ -44,6 +38,18 @@ services:
   App\:
     resource: '../src/*'
     exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}'
+
+  App\Security\LoginFormAuthenticator:
+    autowire: false
+    autoconfigure: false
+
+  App\Security\TagVoter:
+    autowire: false
+    autoconfigure: false
+
+  App\EventSubscriber\ExtensionTranslationSubscriber:
+    autowire: false
+    autoconfigure: false
 
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
@@ -93,20 +99,6 @@ services:
   phyxo.upgrade:
     public: true
     alias: 'Phyxo\Upgrade'
-
-  Phyxo\DBLayer\SessionHandler: ~
-
-  Phyxo\DataCollector\DBLayerCollector:
-    tags:
-      - name: data_collector
-        template: 'data_collector/queries.html.twig'
-        id: 'app.dblayer_collector'
-
-  Phyxo\DataCollector\SmartyCollector:
-    tags:
-      - name: data_collector
-        template: 'data_collector/smarty.html.twig'
-        id: 'app.smarty_collector'
 
   App\Command\InstallCommand: ~
 

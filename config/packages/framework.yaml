@@ -1,39 +1,32 @@
 framework:
-    secret: '%env(APP_SECRET)%'
-    default_locale: en_GB
+  secret: '%env(APP_SECRET)%'
+  default_locale: en_GB
+  csrf_protection: ~
+  #http_method_override: true
 
-    # csrf protection is enabled after installation in services_extra.yaml
-    # csrf_protection: ~
-    #http_method_override: true
+  # Enables session support. Note that the session will ONLY be started if you read or write from it.
+  # Remove or comment this section to explicitly disable session support.
+  session: ~
 
-    # Enables session support. Note that the session will ONLY be started if you read or write from it.
-    # Remove or comment this section to explicitly disable session support.
+  #esi: true
+  #fragments: true
+  php_errors:
+    log: true
 
-    # sessions are enabled after installation in services_extra.yaml
-    # session: ~
+  templating:
+    enabled: true
+    engines:
+      - twig
+      - smarty
 
-    #esi: true
-    #fragments: true
-    php_errors:
-        log: true
-
-    templating:
-      enabled: true
-      engines:
-        - twig
-        - smarty
-
-    cache:
-        # Put the unique name of your app here: the prefix seed
-        # is used to compute stable namespaces for cache keys.
-        #prefix_seed: your_vendor_name/app_name
-
-        # The app cache caches to the filesystem by default.
-        # Other options include:
-
-        # Redis
-        #app: cache.adapter.redis
-        #default_redis_provider: redis://localhost
-
-        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
-        #app: cache.adapter.apcu
+  cache:
+    # Put the unique name of your app here: the prefix seed
+    # is used to compute stable namespaces for cache keys.
+    #prefix_seed: your_vendor_name/app_name
+    # The app cache caches to the filesystem by default.
+    # Other options include:
+    # Redis
+    #app: cache.adapter.redis
+    #default_redis_provider: redis://localhost
+    # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
+    #app: cache.adapter.apcu

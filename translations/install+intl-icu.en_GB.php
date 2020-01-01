@@ -10,3 +10,5 @@
  */
 
 $lang['Congratulations, Phyxo installation is completed'] = 'Congratulations.  Phyxo installation is completed';
+
+return $lang;

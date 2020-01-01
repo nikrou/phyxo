@@ -1164,49 +1164,6 @@ class Utils
     }
 
     /**
-     * Recursively delete a directory.
-     *
-     * @param string $path
-     * @param string $trash_path, try to move the directory to this path if it cannot be delete
-     */
-    public static function deltree($path, $trash_path = null)
-    {
-        if (is_dir($path)) {
-            $fh = opendir($path);
-            while ($file = readdir($fh)) {
-                if ($file != '.' and $file != '..') {
-                    $pathfile = $path . '/' . $file;
-                    if (is_dir($pathfile)) {
-                        self::deltree($pathfile, $trash_path);
-                    } else {
-                        @unlink($pathfile);
-                    }
-                }
-            }
-            closedir($fh);
-
-            if (@rmdir($path)) {
-                return true;
-            } elseif (!empty($trash_path)) {
-                if (!is_dir($trash_path)) {
-                    @\Phyxo\Functions\Utils::mkgetdir(
-                        $trash_path,
-                        \Phyxo\Functions\Utils::MKGETDIR_RECURSIVE | \Phyxo\Functions\Utils::MKGETDIR_DIE_ON_ERROR | \Phyxo\Functions\Utils::MKGETDIR_PROTECT_HTACCESS
-                    );
-                }
-                while ($r = $trash_path . '/' . md5(uniqid(rand(), true))) {
-                    if (!is_dir($r)) {
-                        @rename($path, $r);
-                        break;
-                    }
-                }
-            } else {
-                return false;
-            }
-        }
-    }
-
-    /**
      * Returns keys to identify the state of main tables. A key consists of the
      * last modification timestamp and the total of items (separated by a _).
      * Additionally returns the hash of root path.
