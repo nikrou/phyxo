@@ -4,6 +4,11 @@
 	<meta charset="{$CONTENT_ENCODING}">
 	<meta name="generator" content="Phyxo, see https://www.phyxo.net/">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="{$ROOT_URL}imgs/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="{$ROOT_URL}imgs/favicon.png" type="image/png">
+	<link rel="icon" sizes="32x32" href="{$ROOT_URL}imgs/favicon-32.png" type="image/png">
+	<link rel="icon" sizes="64x64" href="{$ROOT_URL}imgs/favicon-64.png" type="image/png">
+	<link rel="icon" sizes="96x96" href="{$ROOT_URL}imgs/favicon-96.png" type="image/png">
 	{if $meta_ref_enabled}
 	    {if isset($INFO_AUTHOR)}
 		<meta name="author" content="{$INFO_AUTHOR|@strip_tags:false|@replace:'"':' '}">

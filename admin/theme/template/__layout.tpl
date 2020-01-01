@@ -6,6 +6,11 @@
 	<title>{$GALLERY_TITLE} :: {$PAGE_TITLE}</title>
 	<link rel="stylesheet" href="{asset manifest='./build/manifest.json' prefix={$ROOT_URL} src='app.css'}">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="shortcut icon" href="{$ROOT_URL}imgs/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="{$ROOT_URL}imgs/favicon.png" type="image/png">
+	<link rel="icon" sizes="32x32" href="{$ROOT_URL}imgs/favicon-32.png" type="image/png">
+	<link rel="icon" sizes="64x64" href="{$ROOT_URL}imgs/favicon-64.png" type="image/png">
+	<link rel="icon" sizes="96x96" href="{$ROOT_URL}imgs/favicon-96.png" type="image/png">
 	{if !empty($head_elements)}
 	    {foreach $head_elements as $elt}
 		{$elt}

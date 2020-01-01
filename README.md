@@ -1,8 +1,8 @@
-# Phyxo
+# ![logo](/imgs/favicon-96.png) Phyxo
 
 Simply share your images.
 
-![alt tag](https://www.phyxo.net/demo-home.png "Phyxo screenshot")
+![alt tag](https://www.phyxo.net/demo-home.png 'Phyxo screenshot')
 
 ## Requirements
 
@@ -36,6 +36,7 @@ $ mv composer.phar composer
 ```
 
 Update dependencies via composer :
+
 ```
 $ composer install
 ```
@@ -43,10 +44,13 @@ $ composer install
 Install Phyxo through web interface.
 
 For both methods you can make installation process from command line :
+
 ```sh
 $ ./bin/console phyxo:install
 ```
+
 And create first user :
+
 ```sh
 $ ./bin/console phyxo:user:create
 ```
@@ -54,7 +58,7 @@ $ ./bin/console phyxo:user:create
 ## Contributing
 
 If you'd like to contribute, please read the [CONTRIBUTING.md file](CONTRIBUTING.md). You can submit
- a pull request, or feel free to use any other way you'd prefer.
+a pull request, or feel free to use any other way you'd prefer.
 
 ## Running tests
 
@@ -69,6 +73,7 @@ $ ./bin/behat
 
 But there's also unit tests in phyxo runned with [Atoum](http://atoum.org).
 To run tests :
+
 ```
 $ ./bin/atoum
 ```
@@ -76,10 +81,10 @@ $ ./bin/atoum
 Tests are automatically runned by travis (see badge above)
 
 You can also get coverage report for tests by running :
+
 ```
 $ ./bin/atoum -ebpc -c .atoum.coverage.php
 ```
-
 
 And javascript is tested using [Jasmine](http://jasmine.github.io/).
 To run tests, go to [local, Jasmine test page](http://localhost/phyxo/tests/functional/)
@@ -94,5 +99,5 @@ Documentation is available on the [wiki](../../wiki). Work in progress...
 
 ## Todo
 
- * Add more tests
- * See [TODO file](TODO.md).
+- Add more tests
+- See [TODO file](TODO.md).
