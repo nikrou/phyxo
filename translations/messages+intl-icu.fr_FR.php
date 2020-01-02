@@ -9,6 +9,14 @@
  * file that was distributed with this source code.
  */
 
+/*
+Language Name: Français [FR]
+Version: 2.7.0
+Author: Nicolas Roudaire
+Author URI: https://www.phyxo.net
+Language URI: https://ext.phyxo.net/extension_view.php?eid=7
+ */
+
 $lang['number_of_photos'] = "{count, plural, =0 {aucune photo} one {une photo} other {# photos}}";
 $lang['number_of_physicals'] = "{count, plural, =0 {aucun physique} one {un physique} other {# physiques}}";
 $lang['number_of_virtuals'] = "{count, plural, =0 {aucun virtuel} one {un virtuel} other {# virtuels}}";
@@ -228,5 +236,7 @@ $lang['The RSS notification feed provides notification on news from this website
 $lang['Photos only RSS feed'] = 'Flux RSS des photos uniquement';
 $lang['Complete RSS feed (photos, comments)'] = 'Flux RSS complet (photos, commentaires)';
 $lang['photos posted during the last {count} days'] = 'photos ajoutées au cours des %d derniers jours';
+$lang['in this album'] = 'dans cet album';
+$lang['Quick search'] = 'Recherche rapide';
 
 return $lang;

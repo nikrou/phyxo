@@ -49,8 +49,9 @@ class LanguagesController extends AdminCommonController
 
         $tpl_languages = [];
 
-        $languages = new Languages($em->getConnection(), $userMapper);
-        $languages->setRootPath($params->get('languages_dir'));
+        $languages = new Languages($em, $userMapper);
+        $languages->setRootPath($params->get('translator.default_path'));
+
         foreach ($languages->getFsLanguages() as $language_id => $language) {
             if (in_array($language_id, array_keys($languages->getDbLanguages()))) {
                 $language['state'] = 'active';
@@ -120,8 +121,8 @@ class LanguagesController extends AdminCommonController
 
     public function action(string $language, string $action, EntityManager $em, UserMapper $userMapper, Conf $conf, ParameterBagInterface $params)
     {
-        $languages = new Languages($em->getConnection(), $userMapper);
-        $languages->setRootPath($params->get('languages_dir'));
+        $languages = new Languages($em, $userMapper);
+        $languages->setRootPath($params->get('translator.default_path'));
 
         $error = $languages->performAction($action, $language, [$conf['default_user_id'], $conf['guest_id']]);
 
@@ -139,8 +140,8 @@ class LanguagesController extends AdminCommonController
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        $languages = new Languages($em->getConnection(), $userMapper);
-        $languages->setRootPath($params->get('languages_dir'));
+        $languages = new Languages($em, $userMapper);
+        $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
         foreach ($languages->getServerLanguages($new = true, $conf['pem_languages_category'], $params->get('core_version')) as $language) {
@@ -181,8 +182,8 @@ class LanguagesController extends AdminCommonController
             return $this->redirectToRoute('admin_languages_new');
         }
 
-        $languages = new Languages($em->getConnection(), $userMapper);
-        $languages->setRootPath($params->get('languages_dir'));
+        $languages = new Languages($em, $userMapper);
+        $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
         try {
@@ -218,8 +219,8 @@ class LanguagesController extends AdminCommonController
             $updates_ignored = ['plugins' => [], 'themes' => [], 'languages' => []];
         }
 
-        $languages = new Languages($em->getConnection(), $userMapper);
-        $languages->setRootPath($params->get('languages_dir'));
+        $languages = new Languages($em, $userMapper);
+        $languages->setRootPath($params->get('translator.default_path'));
         $languages->setExtensionsURL($params->get('pem_url'));
 
         $server_languages = $languages->getServerLanguages($new = false, $conf['pem_languages_category'], $params->get('core_version'));

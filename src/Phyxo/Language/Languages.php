@@ -15,20 +15,21 @@ use App\DataMapper\UserMapper;
 use Phyxo\Extension\Extensions;
 use App\Repository\LanguageRepository;
 use App\Repository\UserInfosRepository;
-use Phyxo\DBLayer\iDBLayer;
+use PclZip;
+use Phyxo\EntityManager;
 use Symfony\Component\Filesystem\Filesystem;
 
 class Languages extends Extensions
 {
-    private $conn;
+    private $em;
     private $languages_root_path, $userMapper;
     private $fs_languages = [], $db_languages = [], $server_languages = [];
     private $fs_languages_retrieved = false, $db_languages_retrieved = false, $server_languages_retrieved = false;
 
-    public function __construct(iDBLayer $conn = null, UserMapper $userMapper = null)
+    public function __construct(EntityManager $em = null, UserMapper $userMapper = null)
     {
-        if (!is_null($conn)) {
-            $this->conn = $conn;
+        if (!is_null($em)) {
+            $this->em = $em;
         }
 
         $this->userMapper = $userMapper;
@@ -39,9 +40,9 @@ class Languages extends Extensions
         $this->languages_root_path = $languages_root_path;
     }
 
-    public function setConnection(\Phyxo\DBLayer\iDBLayer $conn)
+    public function setEnityManager(EntityManager $em)
     {
-        $this->conn = $conn;
+        $this->em = $em;
     }
 
     /**
@@ -73,15 +74,13 @@ class Languages extends Extensions
                     break;
                 }
 
-                (new LanguageRepository($this->conn))->addLanguage($language_id, $this->fs_languages[$language_id]['name'], $this->fs_languages[$language_id]['version']);
+                $this->em->getRepository(LanguageRepository::class)->addLanguage($language_id, $this->fs_languages[$language_id]['name'], $this->fs_languages[$language_id]['version']);
                 break;
 
             case 'update':
                 try {
                     $new_version = $this->getFsLanguages()[$language_id]['version'];
-                    if ($new_version !== 'auto') {
-                        (new LanguageRepository($this->conn))->updateLanguage(['version' => $new_version], ['id' => $language_id]);
-                    }
+                    $this->em->getRepository(LanguageRepository::class)->updateLanguage(['version' => $new_version], ['id' => $language_id]);
                 } catch (\Exception $e) {
                     $error = $e->getMessage();
                 }
@@ -98,7 +97,7 @@ class Languages extends Extensions
                     break;
                 }
 
-                (new LanguageRepository($this->conn))->deleteLanguage($language_id);
+                $this->em->getRepository(LanguageRepository::class)->deleteLanguage($language_id);
                 break;
 
             case 'delete':
@@ -112,13 +111,16 @@ class Languages extends Extensions
                 }
 
                 // Set default language to user who are using this language
-                (new LanguageRepository($this->conn))->deleteLanguage($language_id);
+                $this->em->getRepository(LanguageRepository::class)->deleteLanguage($language_id);
+
+                // find associated files
+                $translation_files = glob($this->languages_root_path . '/*+intl-icu.' . $language_id . '.php');
                 $fs = new Filesystem();
-                $fs->remove([$this->languages_root_path . '/' . $language_id, $this->languages_root_path . '/trash']);
+                $fs->remove($translation_files);
                 break;
 
             case 'set_default':
-                (new UserInfosRepository($this->conn))->updateFieldForUsers('language', $language_id, $user_ids);
+                $this->em->getRepository(UserInfosRepository::class)->updateFieldForUsers('language', $language_id, $user_ids);
                 break;
         }
 
@@ -134,32 +136,26 @@ class Languages extends Extensions
     /**
      *  Get languages defined in the language directory
      */
-    public function getFsLanguages($target_charset = null)
+    public function getFsLanguages(): array
     {
         if (!$this->fs_languages_retrieved) {
-            if (empty($target_charset)) {
-                $target_charset = \Phyxo\Functions\Utils::get_charset();
-            }
-            $target_charset = strtolower($target_charset);
-
-            foreach (glob($this->languages_root_path . '/*/common.lang.php') as $common_lang) {
-                $language_dir = basename(dirname($common_lang));
-
-                if (!preg_match('`^[a-zA-Z0-9-_]+$`', $language_dir)) {
+            foreach (glob($this->languages_root_path . '/messages+intl-icu.*.php') as $messages_file) {
+                if (!preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', $messages_file, $matches)) {
                     continue;
                 }
+                $language_code = $matches[1];
+
                 $language = [
-                    'name' => $language_dir,
-                    'code' => $language_dir,
+                    'name' => $language_code,
+                    'code' => $language_code,
                     'version' => '0',
                     'uri' => '',
                     'author' => ''
                 ];
-                $language_data = file_get_contents($common_lang, false, null, 0, 2048);
+                $language_data = file_get_contents($messages_file, false, null, 0, 2048);
 
                 if (preg_match("|Language Name:\\s*(.+)|", $language_data, $val)) {
                     $language['name'] = trim($val[1]);
-                    $language['name'] = \Phyxo\Functions\Utils::convert_charset($language['name'], 'utf-8', $target_charset);
                 }
                 if (preg_match("|Version:\\s*([\\w.-]+)|", $language_data, $val)) {
                     $language['version'] = trim($val[1]);
@@ -180,7 +176,7 @@ class Languages extends Extensions
                     }
                 }
 
-                $this->fs_languages[$language_dir] = $language;
+                $this->fs_languages[$language_code] = $language;
             }
             uasort($this->fs_languages, '\Phyxo\Functions\Utils::name_compare');
 
@@ -190,10 +186,11 @@ class Languages extends Extensions
         return $this->fs_languages;
     }
 
-    public function getDbLanguages()
+    public function getDbLanguages(): array
     {
         if (!$this->db_languages_retrieved) {
-            $this->db_languages = $this->conn->result2array((new LanguageRepository($this->conn))->findAll(), 'id');
+            $result = $this->em->getRepository(LanguageRepository::class)->findAll();
+            $this->db_languages = $this->em->getConnection()->result2array($result, 'id');
             $this->db_languages_retrieved = true;
         }
 
@@ -203,7 +200,7 @@ class Languages extends Extensions
     /**
      * Retrieve PEM server datas to $server_languages
      */
-    public function getServerLanguages($new = false, string $pem_category, string $phyxo_version = '')
+    public function getServerLanguages($new = false, string $pem_category, string $phyxo_version = ''): array
     {
         if (!$this->server_languages_retrieved) {
             $get_data = [
@@ -293,7 +290,7 @@ class Languages extends Extensions
             'origin' => 'phyxo_' . $action,
         ];
 
-        $this->directory_pattern = '/^[a-z]{2}_[A-Z]{2}$/';
+        $this->directory_pattern = '/^$/';
         try {
             $this->download($get_data, $archive);
         } catch (\Exception $e) {
@@ -301,7 +298,7 @@ class Languages extends Extensions
         }
 
         try {
-            $language_id = $this->extractZipFiles($archive, 'common.lang.php', $this->languages_root_path);
+            $language_id = $this->extractLanguageZipFiles($archive, $this->languages_root_path);
             $this->getFsLanguages();
             if ($action === 'install') {
                 $this->performAction('activate', $language_id);
@@ -312,6 +309,41 @@ class Languages extends Extensions
             throw new \Exception($e->getMessage());
         } finally {
             unlink($archive);
+        }
+    }
+
+    protected function extractLanguageZipFiles(string $zip_file, string $extract_path): string
+    {
+        // main file is messages+intl-icu.[LANGUAGE_CODE].php
+
+        $language_id = '';
+        $zip = new PclZip($zip_file);
+        if ($list = $zip->listContent()) {
+            // find main file
+            foreach ($list as $file) {
+                if (isset($file['filename']) && preg_match('`.*messages\+intl\-icu\.([a-zA-Z0-9-_]+)\.php`', basename($file['filename']), $matches)) {
+                    $main_filepath = $file['filename'];
+                    $language_id = $matches[1];
+                }
+            }
+
+            if (!empty($main_filepath)) {
+                // @TODO: use native zip library ; use arobase before
+                if ($results = @$zip->extract(PCLZIP_OPT_PATH, $extract_path, PCLZIP_OPT_REMOVE_PATH, $extract_path, PCLZIP_OPT_REPLACE_NEWER)) {
+                    $errors = array_filter($results, function($f) {
+                        return ($f['status'] !== 'ok' && $f['status'] !== 'filtered') && $f['status'] !== 'already_a_directory';
+                    });
+                    if (count($errors) > 0) {
+                        throw new \Exception("Error while extracting some files from archive");
+                    }
+                } else {
+                    throw new \Exception("Error while extracting archive");
+                }
+            }
+
+            return $language_id;
+        } else {
+            throw new \Exception("Can't read or extract archive.");
         }
     }
 

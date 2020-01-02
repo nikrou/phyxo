@@ -25,3 +25,5 @@ $lang_info['zero_plural'] = true;
 
 $lang['%d album updated'] = "%d album updated";
 $lang['%d albums updated'] = "%d albums updated";
+
+return $lang;

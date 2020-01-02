@@ -43,6 +43,9 @@ class ExtensionTranslationSubscriber implements EventSubscriberInterface
         $locale = $request->getSession()->get('_locale');
         $theme = $request->getSession()->get('_theme');
 
-        $this->runtimeTranslator->addRuntimeResource('php', sprintf('%s/%s/translations/messages+intl-icu.%s.php', $this->themesDir, $theme, $locale), $locale, 'messages');
+        $translation_theme_file = sprintf('%s/%s/translations/messages+intl-icu.%s.php', $this->themesDir, $theme, $locale);
+        if (is_readable($translation_theme_file)) {
+            $this->runtimeTranslator->addRuntimeResource('php', $translation_theme_file, $locale, 'messages');
+        }
     }
 }

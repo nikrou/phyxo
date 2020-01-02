@@ -9,6 +9,14 @@
  * file that was distributed with this source code.
  */
 
+ /*
+Language Name: English [GB]
+Version: 2.7.0
+Author: Nicolas Roudaie
+Author URI: https://www.phyxo.net
+Language URI: https://ext.phyxo.net/extension_view.php?eid=8
+  */
+
 $lang['number_of_photos'] = "{count, plural, =0 {no photos} one {one photo} other {# photos}}";
 $lang['number_of_physicals'] = "{count, plural, =0 {no physicals} one {one physical} other {# physicals}}";
 $lang['number_of_virtuals'] = "{count, plural, =0 {no virtuals} one {one virtual} other {# virtuals}}";

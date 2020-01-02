@@ -701,6 +701,12 @@ $lang['Public / Private'] = "Public / Privé";
 $lang['Lock albums'] = 'Verrouiller les albums';
 $lang['Locked'] = "Verrouillés";
 $lang['Authorize users to add comments on selected albums'] = 'Autoriser les utilisateurs à ajouter des commentaires dans les albums sélectionnés';
+$lang['Delete this language'] = 'Supprimer cette langue';
+$lang['New version'] = 'Nouvelle version';
+$lang['Downloads'] = "Téléchargements";
+$lang['There is no other language available.'] = 'Il n\'y a pas d\'autre langue disponible.';
+$lang['There is no other plugin available.'] = 'Il n\'y a pas d\'autre plugin disponible.';
+$lang['There is no other theme available.'] = 'Il n\'y a pas d\'autre thème disponible.';
 
 // mail
 $lang['Go to'] = "Rendez-vous sur";

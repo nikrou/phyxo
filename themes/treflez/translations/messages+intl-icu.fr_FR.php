@@ -9,6 +9,13 @@
  * file that was distributed with this source code.
  */
 
+ /*
+Language Name: Français [FR]
+Version: 2.7.0
+Author: Nicolas Roudaire
+Author URI: https://www.phyxo.net
+  */
+
 $lang['Enabled'] = 'Activé';
 $lang['Disabled'] = 'Désactivé';
 $lang['Color theme'] = 'Thème';

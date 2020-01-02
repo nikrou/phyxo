@@ -13,12 +13,12 @@ namespace tests\units\Phyxo\Language;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use atoum;
+use mageekguy\atoum;
 use Prophecy\Prophet;
 
 class Languages extends atoum
 {
-    private $languages_path = __DIR__ . '/../../fixtures/languages/';
+    private $languages_path = __DIR__ . '/../../fixtures/translations/';
 
     private function getLocalLanguages()
     {
@@ -72,7 +72,7 @@ class Languages extends atoum
     public function testFsLanguages()
     {
         $prophet = new Prophet();
-        $conn = $prophet->prophesize('\Phyxo\DBLayer\iDBLayer');
+        $em = $prophet->prophesize('\Phyxo\EntityManager');
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
@@ -82,7 +82,7 @@ class Languages extends atoum
             }
         });
 
-        $languages = new \Phyxo\Language\Languages($conn->reveal(), $userMapper->reveal());
+        $languages = new \Phyxo\Language\Languages($em->reveal(), $userMapper->reveal());
         $languages->setRootPath($this->languages_path);
 
         $this
