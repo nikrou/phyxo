@@ -63,7 +63,7 @@ class Image
 
         switch ($comment_action) {
             case 'reject':
-                $infos[] = \Phyxo\Functions\Language::l10n('Your comment has NOT been registered because it did not pass the validation rules');
+                $infos[] = 'Your comment has NOT been registered because it did not pass the validation rules';
                 return new Error(403, implode("; ", $infos));
 
             case 'validate':
@@ -902,7 +902,7 @@ class Image
 
         $image = new EntityImage($params['image_id']);
         if (!$service->getSecurity()->isGranted('add-tag', $image) || !$service->getSecurity()->isGranted('delete-tag', $image)) {
-            return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add nor delete tags'));
+            return new Error(403, 'You are not allowed to add nor delete tags');
         }
 
         $message = '';
@@ -921,12 +921,12 @@ class Image
 
         if (count($removed_tags) > 0) {
             if (!$service->getSecurity()->isGranted('delete-tag')) {
-                return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to delete tags'));
+                return new Error(403, 'You are not allowed to delete tags');
             }
         }
         if (count($new_tags) > 0) {
             if (!$service->getSecurity()->isGranted('add-tag')) {
-                return new Error(403, \Phyxo\Functions\Language::l10n('You are not allowed to add tags'));
+                return new Error(403, 'You are not allowed to add tags');
             }
         }
 

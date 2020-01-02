@@ -1246,20 +1246,14 @@ class Utils
 
         if (!is_dir($absolute_dir)) {
             if (!is_writable(dirname($absolute_dir))) {
-                return sprintf(
-                    \Phyxo\Functions\Language::l10n('Create the "%s" directory at the root of your Phyxo installation'),
-                    $relative_dir
-                );
+                return sprintf('Create the "%s" directory at the root of your Phyxo installation', $relative_dir);
             }
         } else {
             if (!is_writable($absolute_dir)) {
                 @chmod($absolute_dir, 0777);
 
                 if (!is_writable($absolute_dir)) {
-                    return sprintf(
-                        \Phyxo\Functions\Language::l10n('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation'),
-                        $relative_dir
-                    );
+                    return sprintf('Give write access (chmod 777) to "%s" directory at the root of your Phyxo installation', $relative_dir);
                 }
             }
         }

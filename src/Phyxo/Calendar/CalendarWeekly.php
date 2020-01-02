@@ -13,7 +13,6 @@ namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
 use Phyxo\DBLayer\iDBLayer;
-use Phyxo\Functions\Language;
 
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
@@ -42,7 +41,7 @@ class CalendarWeekly extends CalendarBase
     {
         $week_no_labels = [];
         for ($i = 1; $i <= 53; $i++) {
-            $week_no_labels[$i] = Language::l10n('Week %d', $i);
+            $week_no_labels[$i] = sprintf('Week %d', $i);
         }
 
         $calendar_levels = [

@@ -56,11 +56,11 @@ class DateTime
         $date = self::str2DateTime($original, $format);
 
         if (!$date) {
-            return \Phyxo\Functions\Language::l10n('N/A');
+            return 'N/A'; // @TODO: label is not translated
         }
 
         if ($show === null || $show === true) {
-            $show = array('day_name', 'day', 'month', 'year');
+            $show = ['day_name', 'day', 'month', 'year'];
         }
 
         // @TODO : use IntlDateFormatter for proper i18n
@@ -109,13 +109,13 @@ class DateTime
             if ($full || $from->format('Y') != $to->format('Y')) {
                 $from_str = self::format_date($from);
             } elseif ($from->format('m') != $to->format('m')) {
-                $from_str = self::format_date($from, array('day_name', 'day', 'month'));
+                $from_str = self::format_date($from, ['day_name', 'day', 'month']);
             } else {
-                $from_str = self::format_date($from, array('day_name', 'day'));
+                $from_str = self::format_date($from, ['day_name', 'day']);
             }
             $to_str = self::format_date($to);
 
-            return \Phyxo\Functions\Language::l10n('from %s to %s', $from_str, $to_str);
+            return sprintf('from %s to %s', $from_str, $to_str); // @TODO: label is not translated
         }
     }
 
@@ -134,13 +134,13 @@ class DateTime
         $date = self::str2DateTime($original, $format);
 
         if (!$date) {
-            return \Phyxo\Functions\Language::l10n('N/A');
+            return 'N/A'; // @TODO: label is not translated
         }
 
         $now = new \DateTime();
         $diff = $now->diff($date);
 
-        $chunks = array(
+        $chunks = [
             'year' => $diff->y,
             'month' => $diff->m,
             'week' => 0,
@@ -148,7 +148,7 @@ class DateTime
             'hour' => $diff->h,
             'minute' => $diff->i,
             'second' => $diff->s,
-        );
+        ];
 
         // DateInterval does not contain the number of weeks
         if ($with_week) {
@@ -162,7 +162,7 @@ class DateTime
         $i = 0;
         foreach ($chunks as $name => $value) {
             if ($value != 0) {
-                $print .= ' ' . \Phyxo\Functions\Language::l10n_dec('%d ' . $name, '%d ' . $name . 's', $value);
+                $print .= ' ' . $value === 1 ? 'one ' . $name : sprintf('%d ' . $name . 's', $value); // @TODO: label is not translated
             }
             if (!empty($print) && $i >= $j) {
                 break;
@@ -174,9 +174,9 @@ class DateTime
 
         if ($with_text) {
             if ($diff->invert) {
-                $print = \Phyxo\Functions\Language::l10n('%s ago', $print);
+                $print = sprintf('%s ago', $print); // @TODO: label is not translated
             } else {
-                $print = \Phyxo\Functions\Language::l10n('%s in the future', $print);
+                $print = sprintf('%s in the future', $print); // @TODO: label is not translated
             }
         }
 
@@ -202,5 +202,4 @@ class DateTime
         $date = self::str2DateTime($original, $format_in);
         return $date->format($format_out);
     }
-
 }

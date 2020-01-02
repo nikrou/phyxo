@@ -18,7 +18,6 @@ use Phyxo\Image\ImageStandardParams;
 use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
-use Phyxo\Functions\Language;
 
 /**
  * Base class for monthly and weekly calendar styles
@@ -142,7 +141,7 @@ abstract class CalendarBase
         $elements = [];
 
         $elements[] = [
-            'label' => $this->date_type === 'posted' ? Language::l10n('Post date') : Language::l10n('Creation date'),
+            'label' => $this->date_type === 'posted' ? 'Post date' : 'Creation date',
             'url' => $this->router->generate($route, $params)
         ];
 
@@ -191,7 +190,7 @@ abstract class CalendarBase
         if (isset($this->getCalendarLevels()[$level]['labels'][$date_component])) {
             $label = $this->getCalendarLevels()[$level]['labels'][$date_component];
         } elseif ('any' === $date_component) {
-            $label = Language::l10n('All');
+            $label = 'All'; // @TODO: label is not translated
         }
 
         return $label;
@@ -266,7 +265,7 @@ abstract class CalendarBase
         if ($this->conf['calendar_show_any'] && $show_any && count($items) > 1 && count($date_components) < count($this->getCalendarLevels()) - 1) {
             $url = $this->router->generate('calendar_categories_' . $this->calendar_type, ['date_type' => $this->date_type, 'view_type' => $this->view_type, 'chronology_date' => $date_components]); // @FIX : get correct route name and params
             $nav_bar_datas[] = [
-                'LABEL' => Language::l10n('All'),
+                'LABEL' => 'All', // @TODO: label is not translated
                 'URL' => $url
             ];
         }

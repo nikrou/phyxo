@@ -36,7 +36,7 @@ class Extension
     public static function update($params, Server $service)
     {
         if (!$service->getUserMapper()->isWebmaster()) {
-            return new Error(401, \Phyxo\Functions\Language::l10n('Webmaster status is required.'));
+            return new Error(401, 'Webmaster status is required.');
         }
 
         if (\Phyxo\Functions\Utils::get_token() != $params['pwg_token']) {
@@ -78,7 +78,7 @@ class Extension
                 $extension_name = $extension->getFsLanguages()[$extension_id]['name'];
             }
 
-            return \Phyxo\Functions\Language::l10n('%s has been successfully updated.', $extension_name);
+            return sprintf('%s has been successfully updated.', $extension_name);
         } catch (\Exception $e) {
             return $e->getMessage();
         }

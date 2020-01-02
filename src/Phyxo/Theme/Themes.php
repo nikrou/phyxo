@@ -88,10 +88,7 @@ class Themes extends Extensions
 
                 $missing_parent = $this->missingParentTheme($theme_id);
                 if (isset($missing_parent)) {
-                    $error = \Phyxo\Functions\Language::l10n(
-                        'Impossible to activate this theme, the parent theme is missing: %s',
-                        $missing_parent
-                    );
+                    $error = sprintf('Impossible to activate this theme, the parent theme is missing: %s', $missing_parent);
 
                     break;
                 }
@@ -111,7 +108,7 @@ class Themes extends Extensions
 
                 // you can't deactivate the last theme
                 if (count($this->db_themes) <= 1) {
-                    $error = \Phyxo\Functions\Language::l10n('Impossible to deactivate this theme, you need at least one theme.');
+                    $error = 'Impossible to deactivate this theme, you need at least one theme.';
                     break;
                 }
 
@@ -144,10 +141,7 @@ class Themes extends Extensions
 
                 $children = $this->getChildrenThemes($theme_id);
                 if (count($children) > 0) {
-                    $error = \Phyxo\Functions\Language::l10n(
-                        'Impossible to delete this theme. Other themes depends on it: %s',
-                        implode(', ', $children)
-                    );
+                    $error = sprintf('Impossible to delete this theme. Other themes depends on it: %s', implode(', ', $children));
                     break;
                 }
 

@@ -134,7 +134,7 @@ class CalendarController extends CommonController
             if (!empty($part['url'])) {
                 $tmp .= '<a href="' . $part['url'] . '">' . $part['label'] . '</a>';
             } else {
-                $tmp .= $part['label'];
+                $tmp .= $translator->trans($part['label']);
             }
         }
         $tpl_params['TITLE'] = $tmp;
@@ -245,7 +245,7 @@ class CalendarController extends CommonController
             }
         }
 
-        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_weekly', ['date_type' => $date_type]);
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_categories_weekly', ['date_type' => $date_type]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -344,7 +344,7 @@ class CalendarController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id]);
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_monthly', ['date_type' => $date_type, 'view_type' => $view_type, 'category_id' => $category_id]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
@@ -461,7 +461,7 @@ class CalendarController extends CommonController
             }
         }
 
-        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]);
+        $tpl_params['TITLE'] = $calendar->getBreadcrumb('calendar_category_weekly', ['date_type' => $date_type, 'category_id' => $category_id]); // @TODO: label is not translated
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());

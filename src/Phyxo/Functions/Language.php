@@ -12,101 +12,9 @@
 namespace Phyxo\Functions;
 
 use App\Repository\LanguageRepository;
-use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 class Language
 {
-    /**
-     * translation function.
-     * returns the corresponding value from _$lang_ if existing else the key is returned
-     * if more than one parameter is provided sprintf is applied
-     *
-     * @param string $key
-     * @param mixed $args,... optional arguments
-     * @return string
-     */
-    public static function l10n($key)
-    {
-        global $lang, $conf;
-
-        if (($val = @$lang[$key]) === null) {
-            if (!empty($conf['debug_l10n']) && !isset($lang[$key]) && !empty($key)) {
-                trigger_error('[l10n] language key "' . $key . '" not defined', E_USER_WARNING);
-            }
-            $val = $key;
-        }
-
-        if (func_num_args() > 1) {
-            $args = func_get_args();
-            $val = vsprintf($val, array_slice($args, 1));
-        }
-
-        return $val;
-    }
-
-    /**
-     * returns the printf value for strings including %d
-     * returned value is concorded with decimal value (singular, plural)
-     *
-     * @param string $singular_key
-     * @param string $plural_key
-     * @param int $decimal
-     * @return string
-     */
-    public static function l10n_dec($singular_key, $plural_key, $decimal)
-    {
-        global $lang_info;
-
-        return sprintf(
-            self::l10n(((($decimal > 1) or ($decimal == 0 and $lang_info['zero_plural']))
-                ? $plural_key
-                : $singular_key)),
-            $decimal
-        );
-    }
-
-    /**
-     * returns a single element to use with l10n_args
-     *
-     * @param string $key translation key
-     * @param mixed $args arguments to use on sprintf($key, args)
-     *   if args is a array, each values are used on sprintf
-     * @return string
-     */
-    public static function get_l10n_args($key, $args = '')
-    {
-        if (is_array($args)) {
-            $key_arg = array_merge([$key], $args);
-        } else {
-            $key_arg = [$key, $args];
-        }
-        return ['key_args' => $key_arg];
-    }
-
-    /**
-     * returns the parent (fallback) language of a language.
-     * if _$lang_id_ is null it applies to the current language
-     *
-     * @param string $lang_id
-     * @return string|null
-     */
-    public static function get_parent_language($lang_id = null)
-    {
-        global $lang_info;
-
-        if (empty($lang_id)) {
-            return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
-        } else {
-            $f = __DIR__ . '/../../../languages/' . $lang_id . '/common.lang.php';
-            if (file_exists($f)) {
-                include($f);
-                return !empty($lang_info['parent']) ? $lang_info['parent'] : null;
-            }
-        }
-
-        return null;
-    }
-
     /**
      *  return language file content or emmty string if file does not exist
      */
@@ -123,35 +31,6 @@ class Language
         }
 
         return $content;
-    }
-
-    /**
-     * Tries to find the browser language among available languages.
-     * @todo : try to match 'fr_CA' before 'fr'
-     *
-     * @param string &$lang
-     * @return bool
-     */
-    public static function get_browser_language(&$lang)
-    {
-        global $conn;
-
-        if (empty($_SERVER["HTTP_ACCEPT_LANGUAGE"])) {
-            return false;
-        }
-
-        $languages = $conn->result2array((new LanguageRepository($conn))->findAll(), 'id', 'name');
-        $browser_language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-
-        foreach ($languages as $language_code => $language_name) {
-            if (substr($language_code, 0, 2) == $browser_language) {
-                $lang = $language_code;
-
-                return true;
-            }
-        }
-
-        return false;
     }
 
     // charset methods

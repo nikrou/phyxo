@@ -207,7 +207,7 @@ class User
 
         if ($service->getConf()['double_password_type_in_admin']) {
             if ($params['password'] != $params['password_confirm']) {
-                return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('The passwords do not match'));
+                return new Error(Server::WS_ERR_INVALID_PARAM, 'The passwords do not match');
             }
         }
 
@@ -264,11 +264,7 @@ class User
             $counter++;
         }
 
-        return \Phyxo\Functions\Language::l10n_dec(
-            '%d user deleted',
-            '%d users deleted',
-            $counter
-        );
+        return $counter === 1 ? 'one user deleted' : sprintf('%d users deleted', $counter);
     }
 
     /**
@@ -307,10 +303,10 @@ class User
             if (!empty($params['username'])) {
                 $user_id = $service->getUserMapper()->getUserId($params['username']);
                 if ($user_id and $user_id != $params['user_id'][0]) {
-                    return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('this login is already used'));
+                    return new Error(Server::WS_ERR_INVALID_PARAM, 'this login is already used');
                 }
                 if ($params['username'] != strip_tags($params['username'])) {
-                    return new Error(Server::WS_ERR_INVALID_PARAM, \Phyxo\Functions\Language::l10n('html tags are not allowed in login'));
+                    return new Error(Server::WS_ERR_INVALID_PARAM, 'html tags are not allowed in login');
                 }
                 $updates['username'] = $params['username'];
             }
