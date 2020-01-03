@@ -205,7 +205,7 @@ class InstallCommand extends Command
         $conf['gallery_title'] = 'Just another Phyxo gallery';
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . 'Welcome to my photo gallery' . '</p>';
 
-        $languages = new Languages($conn, null);
+        $languages = new Languages($em, null);
         $languages->setRootPath($this->getApplication()->getKernel()->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
