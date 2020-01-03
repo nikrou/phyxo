@@ -305,12 +305,11 @@ class RatingController extends AdminCommonController
             ];
         }
 
-        // filter
-        foreach ($by_user_ratings as $id => $rating) {
-            if ($rating['count'] <= $filter_min_rates) {
-                unset($by_user_ratings[$id]);
+        $by_user_ratings = array_filter($by_user_ratings, function($rating) use ($filter_min_rates) {
+            if ($rating['count'] > $filter_min_rates) {
+                return $rating;
             }
-        }
+        });
 
         $order_by_index = 4;
         if ($request->get('order_by') && is_numeric($request->get('order_by'))) {

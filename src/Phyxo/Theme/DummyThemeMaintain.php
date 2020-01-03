@@ -1,44 +1,39 @@
 <?php
-// +-----------------------------------------------------------------------+
-// | Phyxo - Another web based photo gallery                               |
-// | Copyright(C) 2014-2015 Nicolas Roudaire         http://www.phyxo.net/ |
-// +-----------------------------------------------------------------------+
-// | This program is free software; you can redistribute it and/or modify  |
-// | it under the terms of the GNU General Public License version 2 as     |
-// | published by the Free Software Foundation                             |
-// |                                                                       |
-// | This program is distributed in the hope that it will be useful, but   |
-// | WITHOUT ANY WARRANTY; without even the implied warranty of            |
-// | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU      |
-// | General Public License for more details.                              |
-// |                                                                       |
-// | You should have received a copy of the GNU General Public License     |
-// | along with this program; if not, write to the Free Software           |
-// | Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,            |
-// | MA 02110-1301 USA.                                                    |
-// +-----------------------------------------------------------------------+
+/*
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Phyxo\Theme;
 
 use Phyxo\Theme\ThemeMaintain;
 
-class DummyThemeMaintain extends ThemeMaintain
+class DummyThemeMaintain implements ThemeMaintain
 {
-    public function activate($theme_version, &$errors=array()) {
-        if (is_callable('theme_activate')) {
-            return theme_activate($this->theme_id, $theme_version, $errors);
-        }
+    private $theme_id;
+
+    public function __construct(string $id)
+    {
+        $this->theme_id = $id;
     }
 
-    public function deactivate() {
-        if (is_callable('theme_deactivate')) {
-            return theme_deactivate($this->theme_id);
-        }
+    public function activate($theme_version): array
+    {
+        $errors = [];
+
+        return $errors;
     }
 
-    public function delete() {
-        if (is_callable('theme_delete')) {
-            return theme_delete($this->theme_id);
-        }
+    public function deactivate()
+    {
+    }
+
+    public function delete()
+    {
     }
 }

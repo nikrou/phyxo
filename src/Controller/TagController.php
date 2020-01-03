@@ -60,7 +60,7 @@ class TagController extends CommonController
             $current_column = 1;
             $current_tag_idx = 0;
 
-            $letter = ['tags' => []];
+            $letter = ['tags' => [], 'CHANGE_COLUMN' => false];
 
             foreach ($tags as $tag) {
                 $tag_letter = mb_strtoupper(mb_substr(Language::transliterate($tag['name']), 0, 1, 'utf-8'), 'utf-8');
