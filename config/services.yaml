@@ -44,7 +44,7 @@ services:
   # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: "../src/*"
-    exclude: "../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages,Command}"
+    exclude: "../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Phyxo,LegacyPages}"
 
   # controllers are imported separately to make sure services can be injected
   # as action arguments even if you don't extend any base controller class
@@ -108,8 +108,6 @@ services:
       - name: data_collector
         template: "data_collector/smarty.html.twig"
         id: "app.smarty_collector"
-
-  App\Command\InstallCommand: ~
 
   App\Utils\RuntimeTranslator:
     decorates: "translator"

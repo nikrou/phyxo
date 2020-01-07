@@ -28,12 +28,14 @@ use App\Repository\LanguageRepository;
 use App\Repository\ThemeRepository;
 use App\Repository\UserInfosRepository;
 use App\Entity\UserInfos;
+use App\Exception\MissingGuestUserException;
 use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Phyxo\Extension\Theme;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecurityController extends AbstractController
@@ -83,7 +85,11 @@ class SecurityController extends AbstractController
 
     public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider, TranslatorInterface $translator)
     {
-        $this->init($userProvider->loadUserByUsername('guest'));
+        try {
+            $this->init($userProvider->loadUserByUsername('guest'));
+        } catch (UsernameNotFoundException $e) {
+            throw new MissingGuestUserException("User guest not found in database.");
+        }
 
         $error = $authenticationUtils->getLastAuthenticationError();
         $last_username = $authenticationUtils->getLastUsername();
