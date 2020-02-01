@@ -13,11 +13,11 @@ namespace tests\units\Phyxo\Theme;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use atoum;
+use mageekguy\atoum;
 use Prophecy\Prophet;
 use Symfony\Component\Filesystem\Filesystem;
 
-class Themes extends atoum
+class Themes extends atoum\test
 {
     private $themes_path = __DIR__ . '/../../fixtures/themes';
     protected  $themes_dir = PHPWG_TMP_PATH . '/themes';

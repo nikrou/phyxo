@@ -13,9 +13,9 @@ namespace tests\units\Phyxo\DBLayer;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use atoum;
+use mageekguy\atoum;
 
-class DBLayer extends atoum
+class DBLayer extends atoum\test
 {
     public function testPublicMethods($dblayer, $dblayer_extra_methods)
     {
@@ -39,7 +39,7 @@ class DBLayer extends atoum
 
     public function testBoolean($dblayer, $field, $result)
     {
-        $controller = new \atoum\mock\controller();
+        $controller = new \mageekguy\atoum\mock\controller();
         $controller->__construct = function () {
         };
 
@@ -53,7 +53,7 @@ class DBLayer extends atoum
 
     public function testIn($dblayer)
     {
-        $controller = new \atoum\mock\controller();
+        $controller = new \mageekguy\atoum\mock\controller();
         $controller->__construct = function () {
         };
 
@@ -70,7 +70,7 @@ class DBLayer extends atoum
 
     public function testMassInsertQuery($dblayer, $query)
     {
-        $controller = new \atoum\mock\controller();
+        $controller = new \mageekguy\atoum\mock\controller();
         $controller->__construct = function () {
         };
 
@@ -99,7 +99,7 @@ class DBLayer extends atoum
 
     public function testSignleUpdate($dblayer, $query)
     {
-        $controller = new \atoum\mock\controller();
+        $controller = new \mageekguy\atoum\mock\controller();
         $controller->__construct = function () {
         };
 
@@ -124,7 +124,7 @@ class DBLayer extends atoum
 
     public function testMassUpdates($dblayer, $fields, $datas, $query)
     {
-        $controller = new \atoum\mock\controller();
+        $controller = new \mageekguy\atoum\mock\controller();
         $controller->__construct = function () {
         };
 

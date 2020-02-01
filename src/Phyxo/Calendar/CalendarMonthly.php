@@ -11,12 +11,10 @@
 
 namespace Phyxo\Calendar;
 
+use App\Repository\CalendarRepository;
 use Phyxo\Calendar\CalendarBase;
 use Phyxo\Image\SrcImage;
 use Phyxo\Image\DerivativeImage;
-use Phyxo\DBLayer\iDBLayer;
-use App\Repository\ImageRepository;
-use App\Repository\CategoryRepository;
 use Phyxo\Image\ImageStandardParams;
 
 /**
@@ -29,11 +27,6 @@ class CalendarMonthly extends CalendarBase
     protected $parts = [self::CYEAR => 'year', self::CMONTH => 'month', self::CDAY => 'day'];
 
     protected $calendar_type = 'monthly';
-
-    public function __construct(iDBLayer $conn, string $date_type = 'posted')
-    {
-        parent::__construct($conn, $date_type);
-    }
 
     protected function urlFromDateComponents($item, array $date_components = []): string
     {
@@ -131,54 +124,63 @@ class CalendarMonthly extends CalendarBase
 
     /**
      * Generate navigation bars for category page.
-     *
-     * @return boolean false indicates that thumbnails where not included
      */
-    public function generateCategoryContent(): bool
+    public function generateCategoryContent(): array
     {
+        $tpl_params = [];
+
         if ($this->view_type === self::CAL_VIEW_CALENDAR) {
             $tpl_var = [];
             if (count($this->chronology_date) === 0) { //case A: no year given - display all years+months
-                if ($this->buildGlobalCalendar($tpl_var)) {
-                    $this->template->assign('chronology_calendar', $tpl_var);
-                    return true;
+                if (!empty($chronology_calendar = $this->buildGlobalCalendar())) {
+                    $tpl_params['chronology_calendar'] = $chronology_calendar;
+                    unset($chronology_calendar);
+
+                    return $tpl_params;
                 }
             }
 
             if (count($this->chronology_date) === 1) { //case B: year given - display all days in given year
-                if ($this->buildYearCalendar($tpl_var)) {
-                    $this->template->assign('chronology_calendar', $tpl_var);
-                    $this->buildNavigationBar(self::CYEAR); // years
-                    return true;
+                if (!empty($chronology_calendar = $this->buildYearCalendar())) {
+                    $tpl_params['chronology_calendar'] = $chronology_calendar;
+                    unset($chronology_calendar);
+
+                    $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CYEAR); // years
+
+                    return $tpl_params;
                 }
             }
 
             if (count($this->chronology_date) === 2) { //case C: year+month given - display a nice month calendar
-                if ($this->buildMonthCalendar($tpl_var)) {
-                    $this->template->assign('chronology_calendar', $tpl_var);
+                if (!empty($chronology_calendar = $this->buildMonthCalendar())) {
+                    $tpl_params['chronology_calendar'] = $chronology_calendar;
+                    unset($chronology_calendar);
                 }
-                $this->buildNextPrev();
-                return true;
+                $tpl_params = array_merge($tpl_params, $this->buildNextPrev($tpl_params));
+
+                return $tpl_params;
             }
         }
 
         if ($this->view_type === self::CAL_VIEW_LIST || count($this->chronology_date) === 3) {
             if (count($this->chronology_date) === 0) {
-                $this->buildNavigationBar(self::CYEAR); // years
+                $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CYEAR); // years
             }
+
             if (count($this->chronology_date) === 1) {
-                $this->buildNavigationBar(self::CMONTH, $this->getCalendarLevels()[self::CMONTH]['labels']); // month
+                $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CMONTH, $this->getCalendarLevels()[self::CMONTH]['labels']); // month
             }
+
             if (count($this->chronology_date) === 2) {
                 $day_labels = range(1, $this->getAllDaysInMonth($this->chronology_date[self::CYEAR], $this->chronology_date[self::CMONTH]));
                 array_unshift($day_labels, 0);
                 unset($day_labels[0]);
-                $this->buildNavigationBar(self::CDAY, $day_labels); // days
+                $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CDAY, $day_labels); // days
             }
-            $this->buildNextPrev();
+            $tpl_params = array_merge($tpl_params, $this->buildNextPrev($tpl_params));
         }
 
-        return false;
+        return $tpl_params;
     }
 
     /**
@@ -256,26 +258,27 @@ class CalendarMonthly extends CalendarBase
     }
 
     /**
-     * Build global calendar and assign the result in _$tpl_var_
+     * Build global calendar and retur the result
      */
-    protected function buildGlobalCalendar(array &$tpl_var): bool
+    protected function buildGlobalCalendar(): array
     {
+        $tpl_params = [];
         if (count($this->chronology_date) !== 0) {
-            return false;
+            return [];
         }
 
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findYYYYMMPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $result = $this->calendar_repository->findYYYYMMPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findYYYYMMPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $result = $this->calendar_repository->findYYYYMMPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
         }
 
         $items = [];
@@ -293,7 +296,7 @@ class CalendarMonthly extends CalendarBase
             list($y) = array_keys($items);
             $this->chronology_date[self::CYEAR] = $y;
 
-            return false;
+            return [];
         }
 
         $params = [
@@ -320,7 +323,7 @@ class CalendarMonthly extends CalendarBase
                 $this->months
             );
 
-            $tpl_var['calendar_bars'][] = [
+            $tpl_params['calendar_bars'][] = [
                 'U_HEAD' => $url,
                 'NB_IMAGES' => $year_data['nb_images'],
                 'HEAD_LABEL' => $year,
@@ -329,30 +332,32 @@ class CalendarMonthly extends CalendarBase
         }
 
 
-        return true;
+        return $tpl_params;
     }
 
     /**
-     * Build year calendar and assign the result in _$tpl_var_
+     * Build year calendar and return the result
      */
-    protected function buildYearCalendar(array &$tpl_var): bool
+    protected function buildYearCalendar(): array
     {
+        $tpl_params = [];
+
         if (count($this->chronology_date) !== 1) {
-            return false;
+            return [];
         }
 
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findMMDDPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $result = $this->calendar_repository->findMMDDPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findMMDDPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $result = $this->calendar_repository->findMMDDPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
         }
 
         $items = [];
@@ -368,7 +373,8 @@ class CalendarMonthly extends CalendarBase
         if (count($items) == 1) { // only one month exists so bail out to month view
             list($m) = array_keys($items);
             $this->chronology_date[self::CMONTH] = $m;
-            return false;
+
+            return [];
         }
 
         $params = [
@@ -395,7 +401,7 @@ class CalendarMonthly extends CalendarBase
                 false
             );
 
-            $tpl_var['calendar_bars'][] = [
+            $tpl_params['calendar_bars'][] = [
                 'U_HEAD' => $url,
                 'NB_IMAGES' => $month_data['nb_images'],
                 'HEAD_LABEL' => $this->months[$month],
@@ -403,26 +409,27 @@ class CalendarMonthly extends CalendarBase
             ];
         }
 
-        return true;
+        return $tpl_params;
     }
 
     /**
-     * Build month calendar and assign the result in _$tpl_var_
+     * Build month calendar and return the result
      */
-    protected function buildMonthCalendar(array &$tpl_var): bool
+    protected function buildMonthCalendar(): array
     {
+        $tpl_params = [];
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findDayOfMonthPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
+            $result = $this->calendar_repository->findDayOfMonthPeriodAndImagesCountByIds($this->date_field, $this->getDateWhere(), $this->items);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findDayOfMonthPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+            $result = $this->calendar_repository->findDayOfMonthPeriodAndImagesCount($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
         }
 
         $items = [];
@@ -435,17 +442,17 @@ class CalendarMonthly extends CalendarBase
             $this->chronology_date[self::CDAY] = $day;
 
             if ($this->find_by_items) {
-                $result = (new ImageRepository($this->conn))->findOneRandomInWeekByIds($this->date_field, $this->getDateWhere(), $this->items);
+                $result = $this->calendar_repository->findOneRandomInWeekByIds($this->date_field, $this->getDateWhere(), $this->items);
             } else {
                 if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                     $sub_ids = array_diff(
-                        (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                        $this->calendar_repository->getSubcatIds([$this->category_id]),
                         $this->forbidden_categories
                     );
                 } else {
                     $sub_ids = [];
                 }
-                $result = (new ImageRepository($this->conn))->findOneRandomInWeek($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
+                $result = $this->calendar_repository->findOneRandomInWeek($this->date_field, $this->getDateWhere(), $this->condition, $sub_ids);
             }
 
             unset($this->chronology_date[self::CDAY]);
@@ -530,7 +537,7 @@ class CalendarMonthly extends CalendarBase
             }
             $tpl_weeks[] = $tpl_crt_week;
 
-            $tpl_var['month_view'] = [
+            $tpl_params['month_view'] = [
                 'CELL_WIDTH' => $cell_width,
                 'CELL_HEIGHT' => $cell_height,
                 'wday_labels' => $wday_labels,
@@ -538,6 +545,6 @@ class CalendarMonthly extends CalendarBase
             ];
         }
 
-        return true;
+        return $tpl_params;
     }
 }

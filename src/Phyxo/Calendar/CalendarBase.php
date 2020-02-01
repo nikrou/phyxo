@@ -11,11 +11,9 @@
 
 namespace Phyxo\Calendar;
 
-use App\Repository\ImageRepository;
-use App\Repository\CategoryRepository;
+use App\Repository\CalendarRepository;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Image\ImageStandardParams;
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -38,14 +36,16 @@ abstract class CalendarBase
     protected $items = [];
 
     protected $conn;
+    protected $calendar_repository;
     protected $parts, $months, $days;
     protected $image_std_params;
     protected $lang = [];
-    protected $conf, $template, $date_type, $view_type, $chronology_date = [], $router;
+    protected $conf, $date_type, $view_type, $chronology_date = [], $router;
 
-    public function __construct(iDBLayer $conn, string $date_type = 'posted')
+    public function __construct(iDBLayer $conn, CalendarRepository $calendar_repository, string $date_type = 'posted')
     {
         $this->conn = $conn;
+        $this->calendar_repository = $calendar_repository;
 
         $this->months = [1 => "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         $this->days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -66,11 +66,6 @@ abstract class CalendarBase
     public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
-    }
-
-    public function setTemplate(Template $template)
-    {
-        $this->template = $template;
     }
 
     public function setViewType(string $view_type = self::CAL_VIEW_LIST)
@@ -124,10 +119,8 @@ abstract class CalendarBase
 
     /**
      * Generate navigation bars for category page.
-     *
-     * @return boolean false indicates that thumbnails where not included
      */
-    public abstract function generateCategoryContent(): bool;
+    public abstract function generateCategoryContent(): array;
 
     /**
      * Returns a sql WHERE subquery for the date field.
@@ -278,20 +271,20 @@ abstract class CalendarBase
      *
      * @param int $level - 0-year, 1-month/week, 2-day
      */
-    protected function buildNavigationBar(int $level, $labels = [])
+    protected function buildNavigationBar(int $level, $labels = []): array
     {
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findImagesInPeriodsByIds($this->getCalendarLevels()[$level]['sql'], $this->items, $this->getDateWhere($level));
+            $result = $this->calendar_repository->findImagesInPeriodsByIds($this->getCalendarLevels()[$level]['sql'], $this->items, $this->getDateWhere($level));
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findImagesInPeriods($this->getCalendarLevels()[$level]['sql'], $this->getDateWhere($level), $this->condition, $sub_ids);
+            $result = $this->calendar_repository->findImagesInPeriods($this->getCalendarLevels()[$level]['sql'], $this->getDateWhere($level), $this->condition, $sub_ids);
         }
 
         $level_items = $this->conn->result2array($result, 'period', 'nb_images');
@@ -302,7 +295,7 @@ abstract class CalendarBase
                 $this->chronology_date[$level] = (int)$key;
 
                 if ($level < count($this->chronology_date) && $level != count($this->getCalendarLevels()) - 1) {
-                    return;
+                    return [];
                 }
             }
         }
@@ -320,32 +313,31 @@ abstract class CalendarBase
             $labels
         );
 
-        $this->template->append('chronology_navigation_bars', ['items' => $nav_bar]);
+        return  ['items' => $nav_bar];
     }
 
     /**
-     * Assigns the next/previous link to the template with regards to
-     * the currently choosen date.
+     * Returns the next/previous link with regards to the currently choosen date.
      */
-    protected function buildNextPrev()
+    protected function buildNextPrev(array $tpl_params = []): array
     {
         $prev = $next = null;
         if (empty($this->chronology_date)) {
-            return;
+            return [];
         }
 
         if ($this->find_by_items) {
-            $result = (new ImageRepository($this->conn))->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
+            $result = $this->calendar_repository->findNextPrevPeriodByIds($this->items, $this->chronology_date, $this->getCalendarLevels(), $this->date_field);
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
-            $result = (new ImageRepository($this->conn))->findNextPrevPeriod($this->chronology_date, $this->getCalendarLevels(), $this->date_field, $this->condition, $sub_ids);
+            $result = $this->calendar_repository->findNextPrevPeriod($this->chronology_date, $this->getCalendarLevels(), $this->date_field, $this->condition, $sub_ids);
         }
 
         $upper_items = $this->conn->result2array($result, null, 'period');
@@ -382,13 +374,10 @@ abstract class CalendarBase
         }
 
         if (!empty($tpl_var)) {
-            $existing = $this->template->getVariable('chronology_navigation_bars');
-            if (!($existing instanceof \Smarty_Undefined_Variable)) {
-                $existing->value[sizeof($existing->value) - 1] = array_merge($existing->value[sizeof($existing->value) - 1], $tpl_var);
-            } else {
-                $this->template->append('chronology_navigation_bars', $tpl_var);
-            }
+            $tpl_params['chronology_navigation_bars'][] = $tpl_var;
         }
+
+        return $tpl_params;
     }
 
     public function getItems(string $order_by)
@@ -398,14 +387,14 @@ abstract class CalendarBase
         } else {
             if (!is_null($this->category_id) && !empty($this->forbidden_categories)) {
                 $sub_ids = array_diff(
-                    (new CategoryRepository($this->conn))->getSubcatIds([$this->category_id]),
+                    $this->calendar_repository->getSubcatIds([$this->category_id]),
                     $this->forbidden_categories
                 );
             } else {
                 $sub_ids = [];
             }
 
-            $result = (new ImageRepository($this->conn))->findDistincIds($this->condition, $sub_ids, $order_by);
+            $result = $this->calendar_repository->findDistincIds($this->condition, $sub_ids, $order_by);
 
             return $this->conn->result2array($result, null, 'id');
         }

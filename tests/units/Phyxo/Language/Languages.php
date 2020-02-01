@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 use mageekguy\atoum;
 use Prophecy\Prophet;
 
-class Languages extends atoum
+class Languages extends atoum\test
 {
     private $languages_path = __DIR__ . '/../../fixtures/translations/';
 

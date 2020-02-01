@@ -12,7 +12,6 @@
 namespace Phyxo\Calendar;
 
 use Phyxo\Calendar\CalendarBase;
-use Phyxo\DBLayer\iDBLayer;
 
 /**
  * Weekly calendar style (composed of years/week in years and days in week)
@@ -26,11 +25,6 @@ class CalendarWeekly extends CalendarBase
     protected $week;
 
     protected $calendar_type = 'weekly';
-
-    public function __construct(iDBLayer $conn, string $date_type = 'posted')
-    {
-        parent::__construct($conn, $date_type);
-    }
 
     public function setWeek(int $week)
     {
@@ -153,23 +147,26 @@ class CalendarWeekly extends CalendarBase
 
     /**
      * Generate navigation bars for category page.
-     *
-     * @return boolean false indicates that thumbnails where not included
      */
-    public function generateCategoryContent(): bool
+    public function generateCategoryContent(): array
     {
-        if (count($this->chronology_date) === 0) {
-            $this->buildNavigationBar(self::CYEAR); // years
-        }
-        if (count($this->chronology_date) === 1) {
-            $this->buildNavigationBar(self::CWEEK); // week nav bar 1-53
-        }
-        if (count($this->chronology_date) === 2) {
-            $this->buildNavigationBar(self::CDAY, $this->getCalendarLevels()[self::CDAY]['labels']); // days nav bar Mon-Sun
-        }
-        $this->buildNextPrev();
+        $tpl_params = [];
 
-        return false;
+        if (count($this->chronology_date) === 0) {
+            $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CYEAR); // years
+        }
+
+        if (count($this->chronology_date) === 1) {
+            $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CWEEK); // week nav bar 1-53
+        }
+
+        if (count($this->chronology_date) === 2) {
+            $tpl_params['chronology_navigation_bars'][] = $this->buildNavigationBar(self::CDAY, $this->getCalendarLevels()[self::CDAY]['labels']); // days nav bar Mon-Sun
+        }
+
+        $tpl_params = array_merge($tpl_params, $this->buildNextPrev($tpl_params));
+
+        return $tpl_params;
     }
 
     /**

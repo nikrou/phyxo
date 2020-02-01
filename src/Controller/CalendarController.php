@@ -20,6 +20,7 @@ use Phyxo\EntityManager;
 use Phyxo\Image\ImageStandardParams;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
+use App\Repository\CalendarRepository;
 use Phyxo\Calendar\CalendarWeekly;
 use Phyxo\Functions\Utils;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -77,7 +78,6 @@ class CalendarController extends CommonController
 
         $calendar->setRouter($this->get('router'));
         $calendar->setConf($conf);
-        $calendar->setTemplate($template);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByCondition(
@@ -95,9 +95,13 @@ class CalendarController extends CommonController
             )
         );
 
-        if ($calendar->generateCategoryContent()) {
+        $category_content = $calendar->generateCategoryContent();
+        if (!empty($category_content)) {
             $tpl_params['items'] = [];
-        } else {
+            $tpl_params = array_merge($tpl_params, $category_content);
+        }
+
+        if (empty($category_content['chronology_calendar'])) {
             $order_by = $conf['order_by'];
             $tpl_params['items'] = $calendar->getItems($order_by);
 
@@ -176,7 +180,7 @@ class CalendarController extends CommonController
         ];
 
         $filter = [];
-        $calendar = new CalendarWeekly($em->getConnection(), $date_type);
+        $calendar = new CalendarWeekly($em->getConnection(), new CalendarRepository($em->getConnection()), $date_type);
         $chronology_date = [];
         if ($year = $request->get('year')) {
             $chronology_date[] = $year;
@@ -196,7 +200,6 @@ class CalendarController extends CommonController
 
         $calendar->setRouter($this->get('router'));
         $calendar->setConf($conf);
-        $calendar->setTemplate($template);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByCondition(
@@ -214,9 +217,13 @@ class CalendarController extends CommonController
             )
         );
 
-        if ($calendar->generateCategoryContent()) {
+        $category_content = $calendar->generateCategoryContent();
+        if (!empty($category_content)) {
             $tpl_params['items'] = [];
-        } else {
+            $tpl_params = array_merge($tpl_params, $category_content);
+        }
+
+        if (empty($category_content['chronology_calendar'])) {
             $order_by = $conf['order_by'];
             $tpl_params['items'] = $calendar->getItems($order_by);
 
@@ -300,7 +307,6 @@ class CalendarController extends CommonController
 
         $calendar->setRouter($this->get('router'));
         $calendar->setConf($conf);
-        $calendar->setTemplate($template);
         $calendar->setViewType($view_type);
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByConditionAndCategory(
@@ -309,8 +315,10 @@ class CalendarController extends CommonController
             $this->getUser()->getForbiddenCategories()
         );
 
-        if ($calendar->generateCategoryContent()) {
+
+        if (!empty($category_content = $calendar->generateCategoryContent())) {
             $tpl_params['items'] = [];
+            $tpl_params = array_merge($tpl_params, $category_content);
         } else {
             $order_by = $conf['order_by'];
             $tpl_params['items'] = $calendar->getItems($order_by);
@@ -421,7 +429,6 @@ class CalendarController extends CommonController
         }
         $calendar->setRouter($this->get('router'));
         $calendar->setConf($conf);
-        $calendar->setTemplate($template);
         $calendar->setViewType('list');
         $calendar->setImageStandardParams($image_std_params);
         $calendar->findByConditionAndCategory(

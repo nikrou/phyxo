@@ -13,11 +13,11 @@ namespace tests\units\Phyxo\Plugin;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
-use atoum;
+use mageekguy\atoum;
 use Prophecy\Prophet;
 use Symfony\Component\Filesystem\Filesystem;
 
-class Plugins extends atoum
+class Plugins extends atoum\test
 {
     private $plugins_path = __DIR__ . '/../../fixtures/plugins';
     protected  $plugins_dir = PHPWG_TMP_PATH . '/plugins';
@@ -32,7 +32,7 @@ class Plugins extends atoum
     {
         $fs = new Filesystem();
         $fs->remove($this->plugins_dir);
-     }
+    }
 
     private function mirrorToWorkspace(): string
     {
@@ -53,7 +53,10 @@ class Plugins extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
@@ -73,7 +76,10 @@ class Plugins extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
@@ -98,7 +104,10 @@ class Plugins extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
@@ -123,7 +132,10 @@ class Plugins extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
@@ -166,7 +178,10 @@ class Plugins extends atoum
         $userMapper = $prophet->prophesize('App\DataMapper\UserMapper');
 
         $userMapper->getUser()->willReturn(new class {
-            function getLanguage() { return 'en_GB';}
+            function getLanguage()
+            {
+                return 'en_GB';
+            }
         });
 
         $plugins = new \Phyxo\Plugin\Plugins($conn->reveal(), $userMapper->reveal());
