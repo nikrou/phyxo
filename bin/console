@@ -1,15 +1,16 @@
 #!/usr/bin/env php
 <?php
 /*
-* This file is part of Phyxo package
-*
-* Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
-* Licensed under the GPL version 2.0 license.
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * This file is part of Phyxo package
+ *
+ * Copyright(c) Nicolas Roudaire  https://www.phyxo.net/
+ * Licensed under the GPL version 2.0 license.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
+use App\InstallKernel;
 use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -17,7 +18,7 @@ use Symfony\Component\Debug\Debug;
 
 set_time_limit(0);
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 if (!class_exists(Application::class)) {
     throw new \RuntimeException('You need to add "symfony/framework-bundle" as a Composer dependency.');
@@ -25,16 +26,16 @@ if (!class_exists(Application::class)) {
 
 $input = new ArgvInput();
 if (null !== $_ENV['APP_ENV'] = $input->getParameterOption(['--env', '-e'], null, true)) {
-    putenv('APP_ENV='.$_ENV['APP_ENV']);
+    putenv('APP_ENV=' . $_ENV['APP_ENV']);
     // force loading .env files when --env is defined
     $_SERVER['APP_ENV'] = null;
 }
 
 if ($input->hasParameterOption('--no-debug', true)) {
-    putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
+    putenv('APP_DEBUG=' . $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
 }
 
-require dirname(__DIR__).'/config/bootstrap.php';
+require dirname(__DIR__) . '/config/bootstrap.php';
 
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
@@ -44,6 +45,11 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+if (is_readable(__DIR__ . '/local/config/database.inc.php')) {
+    $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+} else {
+    $kernel = new InstallKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+}
+
 $application = new Application($kernel);
 $application->run($input);
