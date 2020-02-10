@@ -118,4 +118,7 @@ unit-tests-coverage:
 	./bin/atoum -ebpc -c .atoum.coverage.php
 
 chrome:
-	google-chrome-unstable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+	google-chrome-stable --disable-gpu --headless --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+
+server:
+	APP_ENV=test php -S 127.0.0.1:1080 -t .

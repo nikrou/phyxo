@@ -34,6 +34,7 @@ use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
 use Phyxo\Extension\Theme;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -107,7 +108,14 @@ class SecurityController extends AbstractController
             'errors' => $error ? $translator->trans('Invalid credentials') : '',
         ];
 
-        return $this->render('identification.tpl', $tpl_params);
+        $status_code = 200;
+        if ($request->getSession()->has('_redirect')) {
+            $request->getSession()->remove('_redirect');
+            $status_code = 403;
+            $tpl_params['errors'] = $translator->trans('You are not authorized to access the requested page');
+        }
+
+        return $this->render('identification.tpl', $tpl_params, new Response('', $status_code));
     }
 
     public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,

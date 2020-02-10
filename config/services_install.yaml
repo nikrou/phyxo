@@ -22,6 +22,7 @@ services:
       $themesDir: '%themes_dir%'
       $pluginsDir: '%plugins_dir%'
       $languagesDir: '%languages_dir%'
+      $translationsDir: "%translator.default_path%"
       $cacheDir: '%cache_dir%'
       $mediaCacheDir: '%media_cache_dir%'
       $rootProjectDir: '%root_project_dir%'

@@ -1,0 +1,7 @@
+# parameters:
+#   database_config_file: '%local_dir%/config/database.inc.test.php'
+
+services:
+  Phyxo\DBLayer\iDBLayer:
+    factory: 'Phyxo\DBLayer\DBLayer::initFromDSN'
+    arguments: ["%env(DATABASE_URL)%"]

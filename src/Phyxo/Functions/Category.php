@@ -137,7 +137,7 @@ class Category
     {
         global $filter;
 
-        if ($filter['enabled']) {
+        if (!empty($filter['enabled'])) {
             $upd_fields = ['date_last', 'max_date_last', 'count_images', 'count_categories', 'nb_images'];
 
             foreach ($cats as $cat_id => $category) {

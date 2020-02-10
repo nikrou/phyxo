@@ -26,6 +26,7 @@ class sqliteConnection extends DBLayer implements iDBLayer
 
         try {
             $this->db_link = new \PDO($this->dsn, null, null, [\PDO::ATTR_PERSISTENT => true]);
+            $this->db_link->exec('PRAGMA journal_mode = wal;');
         } catch (\Exception $e) {
             throw new dbException('Failed to open database ' . $this->dsn . ':' . $e->getMessage());
         }

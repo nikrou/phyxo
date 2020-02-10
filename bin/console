@@ -45,7 +45,7 @@ if ($_SERVER['APP_DEBUG']) {
     }
 }
 
-if (is_readable(__DIR__ . '/local/config/database.inc.php')) {
+if (is_readable(__DIR__ . '/../local/config/database.inc.php')) {
     $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 } else {
     $kernel = new InstallKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);

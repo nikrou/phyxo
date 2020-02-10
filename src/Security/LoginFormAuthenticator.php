@@ -19,12 +19,14 @@ use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticato
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Http\Firewall\AccessListener;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
@@ -39,6 +41,17 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         $this->passwordEncoder = $passwordEncoder;
         $this->csrfTokenManager = $crsfTokenManager;
         $this->userProvider = $userProvider;
+    }
+
+    public function start(Request $request, AuthenticationException $authException = null)
+    {
+        $url = $this->getLoginUrl();
+
+        if ($authException !== null) {
+            $request->getSession()->set('_redirect', true);
+        }
+
+        return new RedirectResponse($url);
     }
 
     public function supports(Request $request): bool

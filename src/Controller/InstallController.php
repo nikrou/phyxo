@@ -42,15 +42,14 @@ class InstallController extends Controller
     private $passwordEncoder;
     private $phyxoVersion;
     private $default_language;
-    private $default_theme;
-    private $languagesDir;
+    private $translationsDir;
     private $default_prefix = 'phyxo_';
     private $translator;
 
-    public function __construct(Template $template, string $adminThemeDir, string $languagesDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
+    public function __construct(Template $template, string $adminThemeDir, string $translationsDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
                                 string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator)
     {
-        $this->languagesDir = $languagesDir;
+        $this->translationsDir = $translationsDir;
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
@@ -79,13 +78,11 @@ class InstallController extends Controller
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
-        // $languages = new Languages(null);
-        // $languages->setRootPath($this->languagesDir);
-        // foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
-        //     $this->languages_options[$language_code] = $fs_language['name'];
-        // }
-
-        $this->languages_options = ['fr_FR' => 'Français', 'en_GB' => 'Anglais'];
+        $languages = new Languages(null);
+        $languages->setRootPath($this->translationsDir);
+        foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
+            $this->languages_options[$language_code] = $fs_language['name'];
+        }
 
         if ($request->get('language')) {
             $language = $request->get('language');
@@ -138,7 +135,7 @@ class InstallController extends Controller
             'languages' => [
                 'readable' => false,
                 'writable' => false,
-                'path' => $this->languagesDir,
+                'path' => $this->translationsDir,
             ],
             'plugins' => [
                 'readable' => false,
@@ -370,6 +367,8 @@ class InstallController extends Controller
     {
         $conn = DBLayer::init($db_params['db_layer'], $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'], $db_params['db_prefix']);
 
+        $em = new EntityManager($conn);
+
         // load configuration
         $conf = new Conf($conn);
         $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/include/config_default.inc.php');
@@ -398,7 +397,7 @@ class InstallController extends Controller
         $conf['gallery_title'] = $this->translator->trans('Just another Phyxo gallery', [], 'install');
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . $this->translator->trans('Welcome to my photo gallery', [], 'install') . '</p>';
 
-        $languages = new Languages($conn, null);
+        $languages = new Languages($em, null);
         $languages->setRootPath($this->get('kernel')->getProjectDir() . '/language');
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);

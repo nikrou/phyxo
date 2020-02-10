@@ -3,19 +3,29 @@ default:
     locale: en
 
   extensions:
+    Behat\Symfony2Extension:
+      kernel:
+        env:   test
+        debug: true
+        bootstrap: config/bootstrap.php
+        class: App\Kernel
+
     DMore\ChromeExtension\Behat\ServiceContainer\ChromeExtension: ~
-    Behat\MinkExtension\ServiceContainer\MinkExtension:
-      goutte: ~
-      base_url: http://127.0.0.1/phyxo/behat
+
+    Behat\MinkExtension:
+      base_url: 'http://localhost:1080/'
       show_auto: false
-      show_cmd: "firefox %s"
+      show_cmd: 'google-chrome %s'
+      default_session: symfony
+      javascript_session: selenium2
 
       sessions:
-        default:
+        symfony:
+          symfony2: ~
+
+        selenium2:
           chrome:
             api_url: "http://localhost:9222"
-
-    Behatch\Extension: ~
 
   suites:
     web:
@@ -23,48 +33,13 @@ default:
         - '%paths.base%/features/web'
 
       contexts:
-        - behatch:context:browser
-        - behatch:context:debug
-        - behatch:context:system
-        - behatch:context:json
-        - behatch:context:table
-        - behatch:context:rest
-        - DbContext:
-            parameters:
-              sql_init_file: features/sql/db_init.sql
-              sql_cleanup_file: features/sql/db_cleanup.sql
-              config_file: sites/behat/local/config/database.inc.php
-              upload_dir: sites/behat/upload/
+        - App\Tests\Behat\FeatureContext: ~
 
-        - FeatureContext:
-            parameters:
-              base_url: http://127.0.0.1/phyxo/behat
-              pages:
-                identification: identification.php
-                protected_page: profile.php
-                album: "index.php?/category/%d"
-                picture: "picture.php?/%%d/category/%d"
+        - App\Tests\Behat\DBContext:
+              - '@security.password_encoder'
+              - '@App\Utils\UserManager'
+              - '@Phyxo\DBLayer\iDBLayer'
+              - features/sql/db_init.sql
+              - features/sql/db_cleanup.sql
 
-    api:
-      paths:
-        - "%paths.base%/features/api"
-      contexts:
-        - behatch:context:browser
-        - behatch:context:debug
-        - behatch:context:system
-        - behatch:context:json
-        - behatch:context:table
-        - behatch:context:rest
-        - DbContext:
-            parameters:
-              sql_init_file: features/sql/db_init.sql
-              sql_cleanup_file: features/sql/db_cleanup.sql
-              config_file: sites/behat/local/config/database.inc.php
-              upload_dir: sites/behat/upload/
-
-        - ApiContext:
-            parameters:
-              base_url: http://127.0.0.1/phyxo/behat
-              api_base_url: "%mink.base_url%/ws"
-
-              data_location: sites/behat/_data/
+        - Behat\MinkExtension\Context\MinkContext

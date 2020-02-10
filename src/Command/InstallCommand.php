@@ -172,6 +172,14 @@ class InstallCommand extends Command
     {
         if (!empty($db_params['dsn'])) {
             $conn = DBLayer::initFromDSN($db_params['dsn']);
+
+            $_params = parse_url($db_params['dsn']);
+            $db_params['db_layer'] = $_params['scheme'];
+            $db_params['host'] = $_params['host'];
+            $db_params['db_user'] = isset($_params['user']) ? $_params['user'] : '';
+            $db_params['db_password'] = isset($_params['pass']) ? $_params['pass'] : '';
+            $db_params['db_name'] = substr($_params['path'], 1);
+            unset($_params);
         } else {
             $conn = DBLayer::init($db_params['db_layer'], $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'], $db_params['db_prefix']);
         }
