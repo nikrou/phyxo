@@ -137,6 +137,8 @@ class DBContext implements Context
 
         $image['date_available'] = (new \DateTime())->format('Y-m-d H:i:s');
         $image_id = $this->getImageMapper()->addImage($image);
+        $this->storage->set('image_' . $image['name'], $image_id);
+
         $this->getCategoryMapper()->associateImagesToCategories([$image_id], [$album['id']]);
     }
 }

@@ -42,6 +42,7 @@ class InstallController extends Controller
     private $passwordEncoder;
     private $phyxoVersion;
     private $default_language;
+    private $default_theme;
     private $translationsDir;
     private $default_prefix = 'phyxo_';
     private $translator;
@@ -404,7 +405,7 @@ class InstallController extends Controller
         }
 
         // activate default theme
-        (new ThemeRepository($conn))->addTheme('treflez', '0.1.0', 'Treflez');
+        (new ThemeRepository($conn))->addTheme($this->default_theme, $this->phyxoVersion, $this->default_theme);
 
         $conf->loadFromDB();
 

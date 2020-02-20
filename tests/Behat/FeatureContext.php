@@ -78,6 +78,28 @@ class FeatureContext extends BaseContext
     }
 
     /**
+     * @Then I should see photo :photo_name
+     */
+    public function iShouldSeePhoto(string $photo_name)
+    {
+        $image_id = $this->storage->get('image_' . $photo_name);
+        if (!$this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]')) {
+            throw new \Exception(sprintf('Photo "%s" not found in the page', $photo_name));
+        }
+    }
+
+    /**
+     * @Then I should not see photo :photo_name
+     */
+    public function iShouldNotSeePhoto(string $photo_name)
+    {
+        $image_id = $this->storage->get('image_' . $photo_name);
+        if ($this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]')) {
+            throw new \Exception(sprintf('Photo "%s" was found in the page but should not', $photo_name));
+        }
+    }
+
+    /**
      * @When /^I restart my browser$/
      */
     public function iRestartMyBrowser()
