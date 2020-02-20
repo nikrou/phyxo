@@ -214,7 +214,7 @@ class PhotoController extends AdminCommonController
         $tpl_params['associated_albums'] = $associated_albums;
         $tpl_params['represented_albums'] = $represented_albums;
         $tpl_params['STORAGE_ALBUM'] = $storage_category_id;
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em);
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->generateUrl('homepage'));
 
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_photo', ['image_id' => $image_id, 'category_id' => $category_id]);

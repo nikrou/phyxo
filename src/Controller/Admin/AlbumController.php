@@ -535,7 +535,7 @@ class AlbumController extends AdminCommonController
 
         $tpl_params['CATEGORIES_NAV'] = $categoryMapper->getAlbumsDisplayName($category['uppercats'], 'admin_album', ['parent_id' => $parent_id]);
         $tpl_params['U_GROUPS'] = $this->generateUrl('admin_groups');
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['groups', 'users'], $em);
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['groups', 'users'], $em, $this->generateUrl('homepage'));
 
         $tpl_params['private'] = ($category['status'] === 'private');
         $tpl_params['INHERIT'] = $conf['inheritance_by_default'];

@@ -1170,7 +1170,7 @@ class Utils
      * Used to invalidate LocalStorage cache on admin pages.
      * @param string|string[] list of keys to retrieve (categories,groups,images,tags,users)
      */
-    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em): array
+    public static function getAdminClientCacheKeys(array $requested = [], EntityManager $em, string $base_url = ''): array
     {
         $tables = [
             'categories' => CategoryRepository::class,
@@ -1187,7 +1187,7 @@ class Utils
         }
 
         $keys = [
-            '_hash' => md5(\Phyxo\Functions\URL::get_absolute_root_url()),
+            '_hash' => md5($base_url),
         ];
 
         foreach ($requested as $repository) {

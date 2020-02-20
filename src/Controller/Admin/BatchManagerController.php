@@ -365,7 +365,7 @@ class BatchManagerController extends AdminCommonController
         $tpl_params['all_elements'] = $current_set;
         $tpl_params['nb_thumbs_page'] = $nb_thumbs_page;
         $tpl_params['nb_thumbs_set'] = count($current_set);
-        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em);
+        $tpl_params['CACHE_KEYS'] = \Phyxo\Functions\Utils::getAdminClientCacheKeys(['tags', 'categories'], $em, $this->generateUrl('homepage'));
 
         $tpl_params['U_PAGE'] = $this->generateUrl('admin_batch_manager_global');
         $tpl_params['F_ACTION'] = $this->generateUrl('admin_batch_manager_global');
