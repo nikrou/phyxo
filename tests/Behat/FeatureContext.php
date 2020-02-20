@@ -17,10 +17,14 @@ use mageekguy\atoum\asserter as Atoum;
 class FeatureContext extends BaseContext
 {
     use KernelDictionary;
+    use ContainerAccesser;
 
-    public function __construct()
+    private $storage;
+
+    public function __construct(Storage $storage)
     {
         $this->assert = new Atoum\generator();
+        $this->storage = $storage;
     }
 
     /**
@@ -51,7 +55,7 @@ class FeatureContext extends BaseContext
      */
     public function iShouldBeAllowedToGoToAProtectedPage()
     {
-        $this->visit('/profile');
+        $this->visit($this->getContainer()->get('router')->generate('profile'));
     }
 
     /**
@@ -59,8 +63,18 @@ class FeatureContext extends BaseContext
      */
     public function iShouldNotBeAllowedToGoToAProtectedPage()
     {
-        $this->visit('/profile');
+        $this->visit($this->getContainer()->get('router')->generate('profile'));
         $this->getMink()->assertSession()->statusCodeEquals(403);
+    }
+
+    /**
+     * @Then I should not be allowed to go to album :album_name
+     */
+    public function iShouldNotBeAllowedToGoToAlbum(string $album_name)
+    {
+        $this->visit($this->getContainer()->get('router')->generate('album', ['category_id' => $this->storage->get('album_' . $album_name)]));
+        $this->getMink()->assertSession()->statusCodeEquals(403);
+        $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }
 
     /**

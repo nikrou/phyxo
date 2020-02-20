@@ -176,6 +176,7 @@ class PictureController extends CommonController
             'label' => DateTime::format_date($picture['date_available']),
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'posted', 'view_type' => 'calendar'])
         ];
+
         $tpl_params['INFO_CREATION_DATE'] = [
             'label' => DateTime::format_date($picture['date_creation']),
             'url' => $this->generateUrl('calendar_categories_monthly', ['date_type' => 'created', 'view_type' => 'calendar'])
@@ -272,7 +273,7 @@ class PictureController extends CommonController
         }
 
         if ($conf['rate']) {
-            $tpl_params = array_merge($tpl_params, $this->addRateInfos($picture));
+            $tpl_params = array_merge($tpl_params, $this->addRateInfos($picture, $request));
         }
 
         if (($conf['show_exif'] || $conf['show_iptc']) && !$picture['src_image']->is_mimetype()) {
@@ -401,8 +402,6 @@ class PictureController extends CommonController
 
                         if (isset($edit_comment) && ($row['id'] === $edit_comment)) {
                             $tpl_comment['IN_EDIT'] = true;
-                            $key = \Phyxo\Functions\Utils::get_ephemeral_key($conf['key_comment_valid_time'], $image_id);
-                            $tpl_comment['KEY'] = $key;
                             $tpl_comment['CONTENT'] = $row['content'];
                             $tpl_comment['U_CANCEL'] = $this->generateUrl(
                                 'picture',
@@ -444,11 +443,8 @@ class PictureController extends CommonController
             }
 
             if ($show_add_comment_form) {
-                $key = Utils::get_ephemeral_key($conf['key_comment_valid_time'], $image_id);
-
                 $tpl_var = [
                     'F_ACTION' => $this->generateUrl('picture', ['image_id' => $image_id, 'type' => $type, 'element_id' => $element_id]),
-                    'KEY' => $key,
                     'CONTENT' => '',
                     'SHOW_AUTHOR' => !$userMapper->isClassicUser(),
                     'AUTHOR_MANDATORY' => $conf['comments_author_mandatory'],
@@ -530,7 +526,7 @@ class PictureController extends CommonController
         );
     }
 
-    protected function addRateInfos(array $picture): array
+    protected function addRateInfos(array $picture, Request $request): array
     {
         $tpl_params = [];
 
@@ -547,7 +543,7 @@ class PictureController extends CommonController
         if ($this->conf['rate_anonymous'] || $this->userMapper->isClassicUser()) {
             if ($rate_summary['count'] > 0) {
                 if (!$this->getUser()->isClassicUser()) {
-                    $ip_components = explode('.', $_SERVER['REMOTE_ADDR']);
+                    $ip_components = explode('.', $request->getClientIp());
                     if (count($ip_components) > 3) {
                         array_pop($ip_components);
                     }

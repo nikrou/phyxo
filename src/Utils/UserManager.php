@@ -29,7 +29,7 @@ class UserManager
         $this->conf = $conf;
     }
 
-    public function register(User $user)
+    public function register(User $user): int
     {
         $insert = [
             'username' => $user->getUsername(),
@@ -58,7 +58,7 @@ class UserManager
             $this->em->getRepository(UserGroupRepository::class)->massInserts(['user_id', 'group_id'], $inserts);
         }
 
-        $this->createUserInfos($user_id, $user->getStatus());
+        $this->createUserInfos($user_id, $user->getStatus() ?? User::STATUS_NORMAL);
 
         return $user_id;
     }

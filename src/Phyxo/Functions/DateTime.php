@@ -20,13 +20,13 @@ class DateTime
      * @param string $format input format respecting date() syntax
      * @return DateTime|false
      */
-    public static function str2DateTime($original, $format = null)
+    protected static function str2DateTime($original, $format = null)
     {
         if (empty($original)) {
             return false;
         }
 
-        if ($original instanceof DateTime) {
+        if ($original instanceof \DateTime) {
             return $original;
         }
 
@@ -51,13 +51,15 @@ class DateTime
      */
     public static function format_date($original, $show = null, $format = null)
     {
-        global $lang;
-
         $date = self::str2DateTime($original, $format);
 
         if (!$date) {
             return 'N/A'; // @TODO: label is not translated
         }
+
+        return \IntlDateFormatter::formatObject($date);
+
+        // @TODO : use format
 
         if ($show === null || $show === true) {
             $show = ['day_name', 'day', 'month', 'year'];
@@ -181,25 +183,5 @@ class DateTime
         }
 
         return $print;
-    }
-
-    /**
-     * transform a date string from a format to another (MySQL to d/M/Y for instance)
-     *
-     * @param string $original
-     * @param string $format_in respecting date() syntax
-     * @param string $format_out respecting date() syntax
-     * @param string $default if _$original_ is empty
-     * @return string
-     *
-     * @TODO: to remove ?
-     */
-    public static function transform_date($original, $format_in, $format_out, $default = null)
-    {
-        if (empty($original)) {
-            return $default;
-        }
-        $date = self::str2DateTime($original, $format_in);
-        return $date->format($format_out);
     }
 }

@@ -2,6 +2,31 @@
 #   database_config_file: '%local_dir%/config/database.inc.test.php'
 
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true # Only for tests
+
   Phyxo\DBLayer\iDBLayer:
     factory: 'Phyxo\DBLayer\DBLayer::initFromDSN'
     arguments: ["%env(DATABASE_URL)%"]
+
+  phyxo.user.manager:
+    alias: 'App\Utils\UserManager'
+
+  phyxo.user.mapper:
+    alias: 'App\DataMapper\UserMapper'
+
+  phyxo.tests.storage:
+    alias: 'App\Tests\Behat\Storage'
+
+  App\Tests\Behat\Storage: ~
+
+  phyxo.category.mapper:
+    alias: 'App\DataMapper\CategoryMapper'
+
+  phyxo.image.mapper:
+    alias: 'App\DataMapper\ImageMapper'
+
+  phyxo.entity.manager:
+    alias: 'Phyxo\EntityManager'

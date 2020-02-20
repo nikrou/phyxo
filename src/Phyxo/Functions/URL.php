@@ -40,7 +40,7 @@ class URL
      * returns the absolute url to the root of PWG
      * @param boolean with_scheme if false - does not add http://toto.com
      */
-    public static function get_absolute_root_url($with_scheme = true)
+    public static function get_absolute_root_url($with_scheme = false)
     {
         // @TODO - add HERE the possibility to call PWG functions from external scripts
         $url = '';

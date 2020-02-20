@@ -669,7 +669,7 @@ class AlbumController extends AdminCommonController
         $element_ids = $em->getConnection()->result2array($result, null, 'id');
         $imageMapper->deleteElements($element_ids);
 
-        $this->addFlash('info', $this->translator->trans('Virtual album deleted'));
+        $this->addFlash('info', $translator->trans('Virtual album deleted'));
         $categoryMapper->updateGlobalRank();
         $userMapper->invalidateUserCache();
 

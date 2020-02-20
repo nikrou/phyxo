@@ -349,4 +349,14 @@ class ImageMapper
 
         return $title;
     }
+
+    public function addImage(array $params = []): int
+    {
+        return $this->em->getRepository(ImageRepository::class)->addImage($params);
+    }
+
+    public function updateImage(array $params = []): int
+    {
+        return $this->em->getRepository(ImageRepository::class)->updateImage();
+    }
 }

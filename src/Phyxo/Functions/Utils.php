@@ -1228,13 +1228,25 @@ class Utils
         // TODO : the resize check should take the orientation into account. If a
         // rotation must be applied to the resized photo, then we should test
         // invert width and height.
-        list($width, $height) = getimagesize($image_filepath);
+        $file_infos = self::image_infos($image_filepath);
 
-        if ($width > $max_width or $height > $max_height) {
+        if ($file_infos['width'] > $max_width || $file_infos['height'] > $max_height) {
             return true;
         }
 
         return false;
+    }
+
+    public static function image_infos($path): array
+    {
+        list($width, $height) = getimagesize($path);
+        $filesize = floor(filesize($path) / 1024);
+
+        return [
+            'width' => $width,
+            'height' => $height,
+            'filesize' => $filesize,
+        ];
     }
 
     public static function ready_for_upload_message()

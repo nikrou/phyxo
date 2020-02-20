@@ -17,24 +17,25 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\TableNode;
 
 use App\Entity\User;
-use App\Utils\UserManager;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Repository\UserAccessRepository;
+use Behat\Behat\Tester\Exception\PendingException;
+use Behat\Symfony2Extension\Context\KernelDictionary;
 use Phyxo\DBLayer\DBLayer;
-use Phyxo\DBLayer\iDBLayer;
 
 class DBContext implements Context
 {
-    private $userManager, $passwordEncoder;
-    private $sqlInitFile, $sqlCleanupFile, $conn;
+    private $sqlInitFile, $sqlCleanupFile;
 
-    public function __construct(UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, iDBLayer $conn, string $sql_init_file, string $sql_cleanup_file)
+    use KernelDictionary;
+    use ContainerAccesser;
+
+    private $storage;
+
+    public function __construct(string $sql_init_file, string $sql_cleanup_file, Storage $storage)
     {
-        $this->userManager = $userManager;
-        $this->passwordEncoder = $passwordEncoder;
-
-        $this->conn = $conn;
         $this->sqlInitFile = $sql_init_file;
         $this->sqlCleanupFile = $sql_cleanup_file;
+        $this->storage = $storage;
     }
 
     /**
@@ -46,10 +47,68 @@ class DBContext implements Context
         foreach ($table->getHash() as $userRow) {
             $user = new User();
             $user->setUsername($userRow['username']);
-            $user->setPassword($this->passwordEncoder->encodePassword($user, $userRow['password']));
+            $user->setPassword($this->getPasswordEncoder()->encodePassword($user, $userRow['password']));
             $user->setStatus(User::STATUS_NORMAL);
-            $this->userManager->register($user);
+            $user_id = $this->getUserManager()->register($user);
+            $this->storage->set('user_' . $userRow['username'], $user_id);
         }
+    }
+
+    /**
+     * @Given an album:
+     * @Given some albums:
+     */
+    public function givenAlbums(TableNode $table): void
+    {
+        foreach ($table->getHash() as $albumRow) {
+            $album_id = $this->getCategoryMapper()->createAlbum($albumRow['name'], null, $albumRow);
+            $this->storage->set('album_' . $albumRow['name'], $album_id);
+        }
+    }
+
+    /**
+     * @Given an image:
+     * @Given some images:
+     */
+    public function givenImages(TableNode $table)
+    {
+        foreach ($table->getHash() as $image) {
+            $image_params = array_filter($image, function($k) {
+                return $k != 'album';
+            }, ARRAY_FILTER_USE_KEY);
+
+            $this->addImageToAlbum($image_params, $image['album']);
+        }
+    }
+
+    /**
+     * @Given user ":username" can access album ":album_name"
+     */
+    public function userCanAccessAlbum(string $username, string $album_name)
+    {
+        $user_id = $this->getUserMapper()->getUserId($username);
+        $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+
+        $this->getEntityManager()->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], [['user_id' => $user_id, 'cat_id' => $album['id']]]);
+    }
+
+    /**
+     * @Given user :username cannot access album ":album_name"
+     */
+    public function userCannotAccessAlbum(string $username, string $album_name)
+    {
+        $user_id = $this->getUserMapper()->getUserId($username);
+        $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+
+        $this->getEntityManager()->getRepository(UserAccessRepository::class)->deleteByUserIdsAndCatIds([$user_id], [$album['id']]);
+    }
+
+    /**
+     * @When config for :arg1 equals to :arg2 of type :arg3
+     */
+    public function configForEqualsToOfType($arg1, $arg2, $arg3)
+    {
+        throw new PendingException();
     }
 
     /**
@@ -57,7 +116,7 @@ class DBContext implements Context
      */
     public function prepareDB(BeforeScenarioScope $scope)
     {
-        $this->conn->executeSqlFile($this->sqlInitFile, DBLayer::DEFAULT_PREFIX, $this->conn->getPrefix());
+        $this->getConnection()->executeSqlFile($this->sqlInitFile, DBLayer::DEFAULT_PREFIX, $this->getConnection()->getPrefix());
     }
 
     /**
@@ -65,6 +124,19 @@ class DBContext implements Context
      */
     public function cleanDB(AfterScenarioScope $scope)
     {
-        $this->conn->executeSqlFile($this->sqlCleanupFile, DBLayer::DEFAULT_PREFIX, $this->conn->getPrefix());
+        $this->getConnection()->executeSqlFile($this->sqlCleanupFile, DBLayer::DEFAULT_PREFIX, $this->getConnection()->getPrefix());
+    }
+
+    protected function addImageToAlbum(array $image, string $album_name)
+    {
+        try {
+            $album = $this->getCategoryMapper()->findAlbumByName($album_name);
+        } catch (\Exception $e) {
+            throw new \Exception('Album with name ' . $album_name . ' does not exist');
+        }
+
+        $image['date_available'] = (new \DateTime())->format('Y-m-d H:i:s');
+        $image_id = $this->getImageMapper()->addImage($image);
+        $this->getCategoryMapper()->associateImagesToCategories([$image_id], [$album['id']]);
     }
 }

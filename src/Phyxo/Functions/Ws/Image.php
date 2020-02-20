@@ -456,7 +456,7 @@ class Image
         if ('file' == $params['type']) {
             $do_update = false;
 
-            $infos = self::image_infos($file_path);
+            $infos = Utils::image_infos($file_path);
 
             foreach (['width', 'height', 'filesize'] as $image_info) {
                 if ($infos[$image_info] > $image[$image_info]) {
@@ -1517,7 +1517,7 @@ class Image
         $rotation_angle = \Phyxo\Image\Image::get_rotation_angle($file_path);
         $rotation = \Phyxo\Image\Image::get_rotation_code_from_angle($rotation_angle);
 
-        $file_infos = self::image_infos($file_path);
+        $file_infos = Utils::image_infos($file_path);
 
         if (isset($image_id)) {
             $update = [
@@ -1587,17 +1587,5 @@ class Image
         $client->request('GET', $service->getRouter()->generate('media', $derivative_image->relativeThumbInfos(), RouterInterface::ABSOLUTE_URL));
 
         return $image_id;
-    }
-
-    protected static function image_infos($path)
-    {
-        list($width, $height) = getimagesize($path);
-        $filesize = floor(filesize($path) / 1024);
-
-        return [
-            'width' => $width,
-            'height' => $height,
-            'filesize' => $filesize,
-        ];
     }
 }

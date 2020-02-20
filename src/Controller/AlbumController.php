@@ -26,6 +26,7 @@ use App\DataMapper\CategoryMapper;
 use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use Phyxo\Functions\Utils;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AlbumController extends CommonController
@@ -40,6 +41,10 @@ class AlbumController extends CommonController
 
         if ($request->cookies->has('category_view')) {
             $tpl_params['category_view'] = $request->cookies->get('category_view');
+        }
+
+        if (in_array($category_id, $this->getUser()->getForbiddenCategories())) {
+            throw new AccessDeniedHttpException("Access denied to that album");
         }
 
         $category = $categoryMapper->getCatInfo($category_id);

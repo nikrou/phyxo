@@ -33,13 +33,16 @@ default:
         - '%paths.base%/features/web'
 
       contexts:
-        - App\Tests\Behat\FeatureContext: ~
+        - App\Tests\Behat\FeatureContext:
+            - '@storage'
 
         - App\Tests\Behat\DBContext:
-              - '@security.password_encoder'
-              - '@App\Utils\UserManager'
-              - '@Phyxo\DBLayer\iDBLayer'
               - features/sql/db_init.sql
               - features/sql/db_cleanup.sql
+              - '@storage'
 
-        - Behat\MinkExtension\Context\MinkContext
+        - Behat\MinkExtension\Context\MinkContext: ~
+
+      services:
+        storage:
+          class: 'App\Tests\Behat\Storage'

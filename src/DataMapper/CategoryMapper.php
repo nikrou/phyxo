@@ -732,26 +732,9 @@ class CategoryMapper
         $this->em->getRepository(UserAccessRepository::class)->insertUserAccess(['user_id', 'cat_id'], $inserts);
     }
 
-    /**
-     * Create a virtual category.
-     *
-     * @param string $category_name
-     * @param int $parent_id
-     * @param array $options
-     *    - boolean commentable
-     *    - boolean visible
-     *    - string status
-     *    - string comment
-     *    - boolean inherit
-     * @return array ('info', 'id') or ('error')
-     */
-    public function createVirtualCategory(string $category_name, int $parent_id = null, int $user_id, array $options = []): array
+    protected function option2Entity(string $category_name, int $parent_id = null, array $options = []): array
     {
-        // is the given category name only containing blank spaces ?
-        if (preg_match('/^\s*$/', $category_name)) {
-            return ['error' => $this->translator->trans('The name of an album must not be empty')];
-        }
-
+        $insert = [];
         $insert = [
             'name' => $category_name,
             'rank' => 0,
@@ -805,11 +788,20 @@ class CategoryMapper
             if ($parent['status'] === 'private') {
                 $insert['status'] = 'private';
             }
-
-            $uppercats_prefix = $parent['uppercats'] . ',';
+            $insert['uppercats_prefix'] = $parent['uppercats'] . ',';
         } else {
-            $uppercats_prefix = '';
+            $insert['uppercats_prefix'] = '';
         }
+
+        return $insert;
+    }
+
+    public function createAlbum(string $category_name, int $parent_id = null, array $options = []): int
+    {
+        $insert = $this->option2Entity($category_name, $parent_id, $options);
+
+        $uppercats_prefix = $insert['uppercats_prefix'];
+        unset($insert['uppercats_prefix']);
 
         // we have then to add the virtual category
         $inserted_id = $this->em->getRepository(CategoryRepository::class)->insertCategory($insert);
@@ -817,6 +809,33 @@ class CategoryMapper
 
         $this->updateGlobalRank();
 
+        return $inserted_id;
+    }
+
+    /**
+     * Create a virtual category.
+     *
+     * @param string $category_name
+     * @param int $parent_id
+     * @param array $options
+     *    - boolean commentable
+     *    - boolean visible
+     *    - string status
+     *    - string comment
+     *    - boolean inherit
+     * @return array ('info', 'id') or ('error')
+     */
+    public function createVirtualCategory(string $category_name, int $parent_id = null, int $user_id, array $options = []): array
+    {
+        // is the given category name only containing blank spaces ?
+        if (preg_match('/^\s*$/', $category_name)) {
+            return ['error' => $this->translator->trans('The name of an album must not be empty')];
+        }
+
+        $insert = $this->option2Entity($category_name, $parent_id, $options);
+        unset($insert['uppercats_prefix']);
+
+        $inserted_id = $this->createAlbum($category_name, $parent_id, $options);
         if ($insert['status'] === 'private' && !empty($insert['id_uppercat']) && ((isset($options['inherit']) && $options['inherit']) || $this->conf['inheritance_by_default'])) {
             $result = $this->em->getRepository(GroupAccessRepository::class)->findFieldByCatId($insert['id_uppercat'], 'group_id');
             $granted_grps = $this->em->getConnection()->result2array($result, null, 'group_id');
@@ -828,9 +847,9 @@ class CategoryMapper
 
             $result = $this->em->getRepository(UserAccessRepository::class)->findByCatId($insert['id_uppercat']);
             $granted_users = $this->em->getConnection()->result2array($result, null, 'user_id');
-            $this->addPermissionOnCategory($inserted_id, array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id], $granted_users)));
+            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id], $granted_users)));
         } elseif ($insert['status'] === 'private') {
-            $this->addPermissionOnCategory($inserted_id, array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id])));
+            $this->addPermissionOnCategory([$inserted_id], array_unique(array_merge(\Phyxo\Functions\Utils::get_admins(), [$user_id])));
         }
 
         return [
@@ -1250,5 +1269,17 @@ class CategoryMapper
         }
 
         return $display_text;
+    }
+
+    public function findAlbumByName(string $name): array
+    {
+        try {
+            $result = $this->em->getRepository(CategoryRepository::class)->findByField('name', $name);
+            $albums = $this->em->getConnection()->result2array($result);
+
+            return $albums[0];
+        } catch (\Exception $e) {
+            throw $e->getMessage();
+        }
     }
 }
