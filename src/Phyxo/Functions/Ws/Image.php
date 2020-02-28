@@ -24,6 +24,7 @@ use App\Repository\CategoryRepository;
 use App\Repository\ImageRepository;
 use App\Repository\ImageCategoryRepository;
 use App\Repository\BaseRepository;
+use App\Security\TagVoter;
 use Phyxo\Functions\Utils;
 use GuzzleHttp\Client;
 use Phyxo\Functions\URL;
@@ -901,7 +902,7 @@ class Image
         }
 
         $image = new EntityImage($params['image_id']);
-        if (!$service->getSecurity()->isGranted('add-tag', $image) || !$service->getSecurity()->isGranted('delete-tag', $image)) {
+        if (!$service->getSecurity()->isGranted(TagVoter::ADD, $image) || !$service->getSecurity()->isGranted(TagVoter::DELETE, $image)) {
             return new Error(403, 'You are not allowed to add nor delete tags');
         }
 
@@ -920,12 +921,12 @@ class Image
         $new_tags = array_diff($params['tags'], $current_tags);
 
         if (count($removed_tags) > 0) {
-            if (!$service->getSecurity()->isGranted('delete-tag')) {
+            if (!$service->getSecurity()->isGranted(TagVoter::DELETE, $image)) {
                 return new Error(403, 'You are not allowed to delete tags');
             }
         }
         if (count($new_tags) > 0) {
-            if (!$service->getSecurity()->isGranted('add-tag')) {
+            if (!$service->getSecurity()->isGranted(TagVoter::ADD, $image)) {
                 return new Error(403, 'You are not allowed to add tags');
             }
         }

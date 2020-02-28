@@ -36,6 +36,7 @@ use App\Repository\BaseRepository;
 use App\DataMapper\ImageMapper;
 use App\Entity\Image;
 use App\Metadata;
+use App\Security\TagVoter;
 use Phyxo\Functions\Plugin;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -237,8 +238,9 @@ class PictureController extends CommonController
         }
 
         $image = new Image($image_id);
-        $tpl_params['TAGS_PERMISSION_ADD'] = (int) $this->isGranted('add', $image);
-        $tpl_params['TAGS_PERMISSION_DELETE'] = (int) $this->isGranted('delete', $image);
+
+        $tpl_params['TAGS_PERMISSION_ADD'] = (int) $this->isGranted(TagVoter::ADD, $image);
+        $tpl_params['TAGS_PERMISSION_DELETE'] = (int) $this->isGranted(TagVoter::DELETE, $image);
         if (isset($conf['tags_existing_tags_only'])) {
             $tpl_params['TAGS_PERMISSION_ALLOW_CREATION'] = $conf['tags_existing_tags_only'] == 1 ? 0 : 1;
         } else {

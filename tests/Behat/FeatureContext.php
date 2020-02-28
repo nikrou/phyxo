@@ -77,13 +77,18 @@ class FeatureContext extends BaseContext
         $this->getMink()->assertSession()->pageTextContains('The server returned a "403 Forbidden".');
     }
 
+    protected function isPhotoInPage(int $image_id)
+    {
+        return $this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]');
+    }
+
     /**
      * @Then I should see photo :photo_name
      */
     public function iShouldSeePhoto(string $photo_name)
     {
         $image_id = $this->storage->get('image_' . $photo_name);
-        if (!$this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]')) {
+        if (!$this->isPhotoInPage($image_id)) {
             throw new \Exception(sprintf('Photo "%s" not found in the page', $photo_name));
         }
     }
@@ -94,8 +99,63 @@ class FeatureContext extends BaseContext
     public function iShouldNotSeePhoto(string $photo_name)
     {
         $image_id = $this->storage->get('image_' . $photo_name);
-        if ($this->getPage()->find('css', '[data-photo-id="' . $image_id . '"]')) {
+        if ($this->isPhotoInPage($image_id)) {
             throw new \Exception(sprintf('Photo "%s" was found in the page but should not', $photo_name));
+        }
+    }
+
+    protected function beAbleToEditTags()
+    {
+        return $this->getPage()->find('css', '.edit-tags');
+    }
+
+    /**
+     * @Then I should not be able to edit tags
+     */
+    public function iShouldNotBeAbleToEditTags()
+    {
+        if ($this->beAbleToEditTags()) {
+            throw new \Exception('User can edit tags but should not');
+        }
+    }
+
+    /**
+     * @Then I should be able to edit tags
+     */
+    public function iShouldBeAbleToEditTags()
+    {
+        if (!$this->beAbleToEditTags()) {
+            throw new \Exception('User cannot edit tags but should be able to');
+        }
+    }
+
+    /**
+     * @Then I should see tag :tag
+     */
+    public function iShouldSeeTag(string $tag_name)
+    {
+        $tags = $this->getPage()->find('css', '#Tags');
+        if ($tags === null) {
+            throw new \Exception('No tags found on the page');
+        }
+
+        $tag_link = $tags->find('xpath', '//*[contains(text(), "' . $tag_name . '")]');
+        if ($tag_link === null) {
+            throw new \Exception(sprintf('Tag "%s" not found on the page but should be', $tag_name));
+        }
+    }
+
+    /**
+     * @Then I should not see tag :tag
+     */
+    public function iShouldNotSeeTag(string $tag_name)
+    {
+        $tags = $this->getPage()->find('css', '#Tags');
+        if ($tags !== null) {
+            $tag_link = $tags->find('xpath', '//*[contains(text(), "' . $tag_name . '")]');
+            if ($tag_link !== null) {
+                throw new \Exception(sprintf('Tag "%s" found on the page but should not be', $tag_name));
+            }
         }
     }
 

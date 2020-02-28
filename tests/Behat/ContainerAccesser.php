@@ -13,6 +13,11 @@ namespace App\Tests\Behat;
 
 trait ContainerAccesser
 {
+    protected function getConf()
+    {
+        return $this->getContainer()->get('phyxo.conf');
+    }
+
     protected function getConnection()
     {
         return $this->getEntityManager()->getConnection();
@@ -38,11 +43,6 @@ trait ContainerAccesser
         return $this->getContainer()->get('phyxo.user.mapper');
     }
 
-    protected function getStorage()
-    {
-        return $this->getContainer()->get('phyxo.tests.storage');
-    }
-
     protected function getCategoryMapper()
     {
         return $this->getContainer()->get('phyxo.category.mapper');
@@ -51,5 +51,10 @@ trait ContainerAccesser
     protected function getImageMapper()
     {
         return $this->getContainer()->get('phyxo.image.mapper');
+    }
+
+    protected function getTagMapper()
+    {
+        return $this->getContainer()->get('phyxo.tag.mapper');
     }
 }

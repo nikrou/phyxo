@@ -7,6 +7,9 @@ services:
     autoconfigure: true
     public: true # Only for tests
 
+  phyxo.conf:
+    alias: 'Phyxo\Conf'
+
   Phyxo\DBLayer\iDBLayer:
     factory: 'Phyxo\DBLayer\DBLayer::initFromDSN'
     arguments: ["%env(DATABASE_URL)%"]
@@ -27,6 +30,9 @@ services:
 
   phyxo.image.mapper:
     alias: 'App\DataMapper\ImageMapper'
+
+  phyxo.tag.mapper:
+    alias: 'App\DataMapper\TagMapper'
 
   phyxo.entity.manager:
     alias: 'Phyxo\EntityManager'

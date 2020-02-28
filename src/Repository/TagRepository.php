@@ -247,7 +247,7 @@ class TagRepository extends BaseRepository
     public function deleteByImageAndTags(int $image_id, array $tags)
     {
         $query = 'DELETE FROM ' . self::IMAGE_TAG_TABLE;
-        $query .= ' WHERE image_id ' . $this->conn->db_real_escape_string($image_id);
+        $query .= ' WHERE image_id = ' . $this->conn->db_real_escape_string($image_id);
         $query .= ' AND tag_id ' . $this->conn->in($tags);
         $this->conn->db_query($query);
     }

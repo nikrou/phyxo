@@ -17,6 +17,7 @@ use Phyxo\Conf;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Voter to allow manage tags on image
@@ -51,7 +52,7 @@ class TagVoter extends Voter
     {
         $user = $token->getUser();
 
-        if (!$user instanceof User) {
+        if (!$user instanceof UserInterface) {
             return false;
         }
 
@@ -71,7 +72,7 @@ class TagVoter extends Voter
         throw new \LogicException('This code should not be reached!');
     }
 
-    private function canAddTag(Image $image, User $user)
+    private function canAddTag(Image $image, UserInterface $user)
     {
         if (empty($this->conf['tags_permission_add'])) {
             return false;
@@ -80,7 +81,7 @@ class TagVoter extends Voter
         return $this->security->isGranted(User::getRoleFromStatus($this->conf['tags_permission_add']));
     }
 
-    private function canDeleteTag(Image $image, User $user)
+    private function canDeleteTag(Image $image, UserInterface $user)
     {
         if (empty($this->conf['tags_permission_delete'])) {
             return false;

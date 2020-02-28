@@ -452,6 +452,7 @@ class TagMapper
      * @param array     $infos, keys are:
      *                      status[0|1] - 0 for deletion, 1 for addition
      *                      user_id -id user who add or delete tags
+     *                      validated : true|false, default false
      */
     public function toBeValidatedTags(array $tags_ids, int $image_id, array $infos)
     {
@@ -460,14 +461,14 @@ class TagMapper
             $rows[] = [
                 'tag_id' => $id,
                 'image_id' => $image_id,
-                'status' => $infos['status'],
-                'created_by' => $infos['user_id'],
-                'validated' => false
+                'status' => isset($infos['status']) ? $infos['status'] : 1,
+                'created_by' => $infos['user_id'] ?? null,
+                'validated' => isset($infos['validated']) ? $infos['validated'] : false
             ];
         }
 
         if (count($rows) > 0) {
-            if ($infos['status'] === 1) {
+            if (!isset($infos['status']) || $infos['status'] === 1) {
                 $this->em->getRepository(ImageTagRepository::class)->insertImageTags(
                     array_keys($rows[0]),
                     $rows

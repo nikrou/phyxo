@@ -50,9 +50,16 @@
 	    <p class="custom-control custom-checkbox">
 		<input class="custom-control-input" type="checkbox" value="1" id="show_pending_added_tags" name="show_pending_added_tags" {if ($PERMISSIONS.show_pending_added_tags)}checked="checked"{/if}>
 		<label class="custom-control-label" for="show_pending_added_tags">{'Show added pending tags to the user who add them'|translate}</label>
+		<span class="form-text text-muted">
+		    {'A css class is added to tag to show added pending tags differently to the user who add them'|translate}
+		</span>
 	    </p>
-	    <p class="form-text text-muted">
-		{'A css class is added to tag to show deleted pending tags differently to the user who delete them'|translate}
+	    <p class="custom-control custom-checkbox">
+		<input class="custom-control-input" type="checkbox" value="1" id="show_pending_deleted_tags" name="show_pending_delete_tags" {if ($PERMISSIONS.show_pending_deleted_tags)}checked="checked"{/if}>
+		<label class="custom-control-label" for="show_pending_deleted_tags">{'Show deleted pending tags to the user who delete them'|translate}</label>
+		<span class="form-text text-muted">
+		    {'A css class is added to tag to show deleted pending tags differently to the user who delete them'|translate}
+		</span>
 	    </p>
 	</div>
 	<p>

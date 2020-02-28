@@ -48,7 +48,7 @@ class DBContext implements Context
             $user = new User();
             $user->setUsername($userRow['username']);
             $user->setPassword($this->getPasswordEncoder()->encodePassword($user, $userRow['password']));
-            $user->setStatus(User::STATUS_NORMAL);
+            $user->setStatus(!empty($userRow['status']) ? $userRow['status'] : User::STATUS_NORMAL);
             $user_id = $this->getUserManager()->register($user);
             $this->storage->set('user_' . $userRow['username'], $user_id);
         }
@@ -74,10 +74,19 @@ class DBContext implements Context
     {
         foreach ($table->getHash() as $image) {
             $image_params = array_filter($image, function($k) {
-                return $k != 'album';
+                return !in_array($k, ['album', 'tags']);
             }, ARRAY_FILTER_USE_KEY);
 
             $this->addImageToAlbum($image_params, $image['album']);
+            if (!empty($image['tags'])) {
+                if (preg_match('`\[(.*)]`', $image['tags'], $matches)) {
+                    $tags = array_map('trim', explode(',', $matches[1]));
+                } else {
+                    $tags = [$image['tags']];
+                }
+
+                $this->addTagsToImage($tags, $this->storage->get('image_' . $image['name']));
+            }
         }
     }
 
@@ -104,11 +113,43 @@ class DBContext implements Context
     }
 
     /**
-     * @When config for :arg1 equals to :arg2 of type :arg3
+     * @When config for :param equals to :value
      */
-    public function configForEqualsToOfType($arg1, $arg2, $arg3)
+    public function configForParamEqualsTo(string $param, string $value)
     {
-        throw new PendingException();
+        $this->getConf()->addOrUpdateParam($param, $value);
+    }
+
+    /**
+     * @Given I add tag :tag_name on photo :photo_name by user :user not validated
+     */
+    public function addTagOnPhoto(string $tag_name, string $photo_name, string $username)
+    {
+        if (($image_id = $this->storage->get('image_' . $photo_name)) === null) {
+            throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
+        }
+
+        if (($user_id = $this->storage->get('user_' . $username)) === null) {
+            throw new \Exception(sprintf('User with name "%s" do not exist', $username));
+        }
+
+        $this->addTagsToImage([$tag_name], $image_id, $user_id, $validated = false);
+    }
+
+    /**
+     * @Given I remove tag :tag_name on photo :photo_name by user :user not validated
+     */
+    public function removeTagOnPhotoNotValidated(string $tag_name, string $photo_name, string $username)
+    {
+        if (($image_id = $this->storage->get('image_' . $photo_name)) === null) {
+            throw new \Exception(sprintf('Photo with name "%s" do not exist', $photo_name));
+        }
+
+        if (($user_id = $this->storage->get('user_' . $username)) === null) {
+            throw new \Exception(sprintf('User with name "%s" do not exist', $username));
+        }
+
+        $this->removeTagsFromImage([$tag_name], $image_id, $user_id, $validated = false);
     }
 
     /**
@@ -140,5 +181,46 @@ class DBContext implements Context
         $this->storage->set('image_' . $image['name'], $image_id);
 
         $this->getCategoryMapper()->associateImagesToCategories([$image_id], [$album['id']]);
+    }
+
+    protected function addTag(string $tag_name)
+    {
+        $tag = $this->getTagMapper()->createTag($tag_name);
+        if (empty($tag['id'])) {
+            throw new \Exception($tag['error']);
+        } else {
+            $this->storage->set('tag_' . $tag_name, $tag['id']);
+        }
+    }
+
+    protected function addTagsToImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
+    {
+        foreach ($tags as $tag) {
+            if (($tag_id = $this->storage->get('tag_' . $tag)) === null) {
+                $this->addTag($tag);
+                $tag_id = $this->storage->get('tag_' . $tag);
+            }
+            $tag_ids[] = $tag_id;
+        }
+
+        $this->getTagMapper()->toBeValidatedTags($tag_ids, $image_id, ['validated' => $validated, 'user_id' => $user_id]);
+    }
+
+    protected function removeTagsFromImage(array $tags, int $image_id, int $user_id = null, bool $validated = true)
+    {
+        foreach ($tags as $tag) {
+            if (($tag_id = $this->storage->get('tag_' . $tag)) === null) {
+                $this->addTag($tag);
+                $tag_id = $this->storage->get('tag_' . $tag);
+            }
+            $tag_ids[] = $tag_id;
+        }
+
+        // if publish_tags_immediately (or delete_tags_immediately) is not set we consider its value is 1
+        if (isset($this->getConf()['publish_tags_immediately']) && $this->getConf()['publish_tags_immediately'] == 0) {
+            $this->getTagMapper()->toBeValidatedTags($tag_ids, $image_id, ['status' => 0, 'validated' => $validated, 'user_id' => $user_id]);
+        } else {
+            $this->getTagMapper()->dissociateTags($tag_ids, $image_id);
+        }
     }
 }
