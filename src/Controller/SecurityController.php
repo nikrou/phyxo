@@ -13,11 +13,8 @@ namespace App\Controller;
 
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Phyxo\Template\Template;
 use Phyxo\Template\AdminTemplate;
-use Phyxo\Conf;
 use App\Entity\User;
 use App\Utils\UserManager;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
@@ -33,61 +30,28 @@ use App\Repository\UserRepository;
 use App\Security\UserProvider;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Phyxo\MenuBar;
-use Phyxo\Extension\Theme;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SecurityController extends AbstractController
+class SecurityController extends CommonController
 {
-    private $template, $router, $conf;
-
-    private $defaultLanguage, $defaultTheme, $phyxoVersion, $phyxoWebsite, $userProvider;
-
-    public function __construct(Template $template, RouterInterface $router, Conf $conf, string $defaultLanguage, string $defaultTheme, string $phyxoVersion, string $phyxoWebsite)
+    protected function init(): array
     {
-        $this->template = $template;
-        $this->router = $router;
-        $this->conf = $conf;
-
-        $this->defaultLanguage = $defaultLanguage;
-        $this->defaultTheme = $defaultTheme;
-        $this->phyxoVersion = $phyxoVersion;
-        $this->phyxoWebsite = $phyxoWebsite;
-    }
-
-    public function getUser()
-    {
-        if (null === $token = $this->container->get('security.token_storage')->getToken()) {
-            return;
-        }
-
-        $user = $this->userProvider->fromToken($token);
-
-        return $user;
-    }
-
-    protected function init(User $user)
-    {
-        $this->template->setUser($user);
-
-        // default theme
-        $this->template->setTheme(new Theme(__DIR__ . '/../../themes', $user->getTheme()), $this->conf);
-
-        $this->template->assign([
+        return [
             'CONTENT_ENCODING' => 'utf-8',
             'LEVEL_SEPARATOR' => $this->conf['level_separator'],
             'PHYXO_VERSION' => $this->conf['show_version'] ? $this->phyxoVersion : '',
             'PHYXO_URL' => $this->phyxoWebsite,
             'U_HOME' => $this->generateUrl('homepage'),
-        ]);
+        ];
     }
 
     public function login(AuthenticationUtils $authenticationUtils, CsrfTokenManagerInterface $csrfTokenManager, Request $request, UserProvider $userProvider, TranslatorInterface $translator)
     {
+        $tpl_params = [];
         try {
-            $this->init($userProvider->loadUserByUsername('guest'));
+            $tpl_params = $this->init();
         } catch (UsernameNotFoundException $e) {
             throw new MissingGuestUserException("User guest not found in database.");
         }
@@ -99,14 +63,17 @@ class SecurityController extends AbstractController
 
         $token = $csrfTokenManager->getToken('authenticate');
 
-        $tpl_params = [
-            'login_action' => $this->generateUrl('login'),
+        $tpl_params = array_merge($tpl_params, [
+            'AUTHORIZE_REMEMBERING' => $this->conf['authorize_remembering'],
+            'login_route' => $this->generateUrl('login'),
             'register_route' => $this->generateUrl('register'),
             'password_route' => $this->generateUrl('forgot_password'),
             'last_username' => $last_username,
             'csrf_token' => $token,
             'errors' => $error ? $translator->trans('Invalid credentials') : '',
-        ];
+        ]);
+
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
         $status_code = 200;
         if ($request->getSession()->has('_redirect')) {
@@ -115,13 +82,13 @@ class SecurityController extends AbstractController
             $tpl_params['errors'] = $translator->trans('You are not authorized to access the requested page');
         }
 
-        return $this->render('identification.tpl', $tpl_params, new Response('', $status_code));
+        return $this->render('identification.html.twig', $tpl_params, new Response('', $status_code));
     }
 
     public function register(Request $request, UserManager $user_manager, UserPasswordEncoderInterface $passwordEncoder, LoginFormAuthenticator $loginAuthenticator,
                                 CsrfTokenManagerInterface $csrfTokenManager, GuardAuthenticatorHandler $guardHandler, UserProvider $userProvider, TranslatorInterface $translator)
     {
-        $this->init($userProvider->loadUserByUsername('guest'));
+        $tpl_params = $this->init();
 
         $errors = [];
 
@@ -129,16 +96,20 @@ class SecurityController extends AbstractController
 
         $token = $csrfTokenManager->getToken('authenticate');
 
-        $tpl_params = [
-            'register_action' => $this->generateUrl('register'),
-            'csrf_token' => $token,
-        ];
+        $tpl_params['register_action'] = $this->generateUrl('register');
+        $tpl_params['last_username'] = '';
+        $tpl_params['mail_address'] = '';
+        $tpl_params['csrf_token'] = $token;
 
         if ($request->isMethod('POST')) {
             if (!$request->request->get('_username')) {
                 $errors[] = $translator->trans('Username is missing. Please enter the username.');
             } else {
                 $tpl_params['last_username'] = $request->request->get('_username');
+            }
+
+            if ($request->request->get('_mail_address')) {
+                $tpl_params['mail_address'] = $request->request->get('_mail_address');
             }
 
             if (!$request->request->get('_password')) {
@@ -166,15 +137,16 @@ class SecurityController extends AbstractController
                 $tpl_params['errors'] = $errors;
             }
         }
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
-        return $this->render('register.tpl', $tpl_params);
+        return $this->render('register.html.twig', $tpl_params);
     }
 
     public function profile(Request $request, iDBLayer $conn, UserPasswordEncoderInterface $passwordEncoder, UserManager $user_manager, MenuBar $menuBar,
-                            UserProvider $userProvider, string $languagesDir, TranslatorInterface $translator)
+                            UserProvider $userProvider, TranslatorInterface $translator, CsrfTokenManagerInterface $csrfTokenManager)
     {
         $this->userProvider = $userProvider;
-        $this->init($this->getUser());
+        $tpl_params = $this->init();
 
         $errors = [];
 
@@ -286,7 +258,7 @@ class SecurityController extends AbstractController
             }
         }
 
-        $tpl_params = [
+        $tpl_params = array_merge($tpl_params, [
             'ALLOW_USER_CUSTOMIZATION' => $this->conf['allow_user_customization'],
             'ACTIVATE_COMMENTS' => $this->conf['activate_comments'],
 
@@ -306,26 +278,26 @@ class SecurityController extends AbstractController
             'errors' => $errors,
             'U_HOME' => $this->generateUrl('homepage'),
             'GALLERY_TITLE' => $this->conf['gallery_title']
-        ];
+        ]);
 
         $tpl_params['themes'] = $themes;
         $tpl_params['languages'] = $languages;
+        $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         \Phyxo\Functions\Plugin::trigger_notify('init');
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
-        return $this->render('profile.tpl', $tpl_params);
+        return $this->render('profile.html.twig', $tpl_params);
     }
 
     public function forgotPassword(Request $request, iDBLayer $conn, UserManager $user_manager, \Swift_Mailer $mailer, CsrfTokenManagerInterface $csrfTokenManager,
-                                    AdminTemplate $admin_template, UserProvider $userProvider, TranslatorInterface $translator)
+                                    AdminTemplate $admin_template, TranslatorInterface $translator)
     {
-        $this->init($userProvider->loadUserByUsername('guest'));
+        $tpl_params = $this->init();
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        $tpl_params = [];
 
         $errors = [];
         $infos = [];
@@ -373,16 +345,17 @@ class SecurityController extends AbstractController
             }
         }
 
-        $tpl_params = [
-            'U_HOME' => $this->generateUrl('homepage'),
+        $tpl_params = array_merge($tpl_params, [
             'forgot_password_action' => $this->generateUrl('forgot_password'),
             'title' => $title,
             'csrf_token' => $token,
             'errors' => $errors,
             'infos' => $infos,
-        ];
+        ]);
 
-        return $this->render('forgot_password.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
+
+        return $this->render('forgot_password.html.twig', $tpl_params);
     }
 
     protected function sendActivationKey(AdminTemplate $template, array $params, \Swift_Mailer $mailer, string $webmaster_mail_address, TranslatorInterface $translator)
@@ -416,7 +389,7 @@ class SecurityController extends AbstractController
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
 
         $user = $userProvider->loadByActivationKey($activation_key);
-        $this->init($user);
+        $tpl_params = $this->init();
 
         // @TODO: use symfony forms
         if ($request->isMethod('POST')) {
@@ -432,14 +405,17 @@ class SecurityController extends AbstractController
             }
         }
 
-        $tpl_params = [
+        $tpl_params = array_merge($tpl_params, [
             'reset_password_action' => $this->generateUrl('reset_password', ['activation_key' => $activation_key]),
             'csrf_token' => $token,
             'infos' => $infos,
             'errors' => $errors,
-        ];
+        ]);
 
-        return $this->render('reset_password.tpl', $tpl_params);
+        $tpl_params['title'] = $translator->trans('Password reset');
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
+
+        return $this->render('reset_password.html.twig', $tpl_params);
     }
 
     public function logout()

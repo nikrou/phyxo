@@ -58,19 +58,9 @@ class SearchController extends CommonController
         return $this->redirectToRoute('search_results', ['search_id' => $search_id]);
     }
 
-    public function search(
-        Request $request,
-        EntityManager $em,
-        TagMapper $tagMapper,
-        CategoryMapper $categoryMapper,
-        Template $template,
-        Conf $conf,
-        $themesDir,
-        $phyxoVersion,
-        $phyxoWebsite,
-        MenuBar $menuBar,
-        TranslatorInterface $translator
-    ) {
+    public function search(Request $request, EntityManager $em, TagMapper $tagMapper, CategoryMapper $categoryMapper, Template $template, Conf $conf,
+        $themesDir, $phyxoVersion, $phyxoWebsite, MenuBar $menuBar, TranslatorInterface $translator)
+    {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -112,7 +102,7 @@ class SearchController extends CommonController
         foreach ($month_list as &$month) {
             $month = $translator->trans($month);
         }
-        $month_list[0] = ['------------'];
+        $month_list[0] = '------------';
         ksort($month_list);
         $tpl_params['month_list'] = $month_list;
 
@@ -247,26 +237,15 @@ class SearchController extends CommonController
             }
         }
 
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
         $tpl_params['F_SEARCH_ACTION'] = $this->generateUrl('search');
 
-        return $this->render('search.tpl', $tpl_params);
+        return $this->render('search.html.twig', $tpl_params);
     }
 
-    public function searchResults(
-        Request $request,
-        SearchMapper $searchMapper,
-        CategoryMapper $categoryMapper,
-        ImageMapper $imageMapper,
-        Template $template,
-        Conf $conf,
-        ImageStandardParams $image_std_params,
-        MenuBar $menuBar,
-        $themesDir,
-        $phyxoVersion,
-        $phyxoWebsite,
-        $search_id,
-        int $start = 0,
-        TranslatorInterface $translator
+    public function searchResults(Request $request, SearchMapper $searchMapper, CategoryMapper $categoryMapper, ImageMapper $imageMapper, Template $template, Conf $conf,
+        ImageStandardParams $image_std_params, MenuBar $menuBar, $themesDir, $phyxoVersion, $phyxoWebsite, $search_id, int $start = 0, TranslatorInterface $translator
     ) {
         $tpl_params = [];
         $this->image_std_params = $image_std_params;
@@ -277,6 +256,7 @@ class SearchController extends CommonController
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         $tpl_params['PAGE_TITLE'] = $translator->trans('Search results');
+        $tpl_params['TITLE'] = $translator->trans('Search results');
         $tpl_params['U_SEARCH_RULES'] = $this->generateUrl('search_rules', ['search_id' => $search_id]);
 
         $filter = [];
@@ -345,23 +325,15 @@ class SearchController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        return $this->render('thumbnails.tpl', $tpl_params);
+        $tpl_params['START_ID'] = $start;
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
-    public function searchRules(
-        Request $request,
-        EntityManager $em,
-        CategoryMapper $categoryMapper,
-        SearchMapper $searchMapper,
-        Template $template,
-        Conf $conf,
-        string $themesDir,
-        string $phyxoVersion,
-        string $phyxoWebsite,
-        int $search_id,
-        MenuBar $menuBar,
-        TranslatorInterface $translator
-    ) {
+    public function searchRules(Request $request, EntityManager $em, CategoryMapper $categoryMapper, SearchMapper $searchMapper, Template $template, Conf $conf,
+        string $themesDir, string $phyxoVersion, string $phyxoWebsite, int $search_id, MenuBar $menuBar, TranslatorInterface $translator)
+    {
         $tpl_params = [];
 
         $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
@@ -463,6 +435,8 @@ class SearchController extends CommonController
             }
         }
 
-        return $this->render('search_rules.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('search_rules.html.twig', $tpl_params);
     }
 }

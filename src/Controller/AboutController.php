@@ -11,7 +11,6 @@
 
 namespace App\Controller;
 
-use Phyxo\Template\Template;
 use Phyxo\Conf;
 use Phyxo\MenuBar;
 use Phyxo\Functions\Language;
@@ -20,15 +19,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AboutController extends CommonController
 {
-    public function index(Request $request, Template $template, Conf $conf, string $phyxoVersion, string $phyxoWebsite, MenuBar $menuBar, string $themesDir, string $rootProjectDir,
-                        TranslatorInterface $translator)
+    public function index(Request $request, Conf $conf, MenuBar $menuBar, string $themesDir, string $rootProjectDir, TranslatorInterface $translator)
     {
         $tpl_params = [];
 
-        $_SERVER['PUBLIC_BASE_PATH'] = $request->getBasePath();
-
-        $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
-
+        $tpl_params['GALLERY_TITLE'] = $conf['gallery_title'];
         $tpl_params['PAGE_TITLE'] = $translator->trans('About Phyxo');
         $tpl_params['ABOUT_MESSAGE'] = Language::loadLanguageFile('about.html', $rootProjectDir . '/languages/' . $this->getUser()->getLanguage());
         $tpl_params['THEME_ABOUT'] = Language::loadLanguageFile('about.html', $themesDir . '/' . $this->getUser()->getTheme() . '/languages/' . $this->getUser()->getLanguage());
@@ -39,6 +34,8 @@ class AboutController extends CommonController
             $tpl_params['infos'] = $this->get('session')->getFlashBag()->get('info');
         }
 
-        return $this->render('about.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('about.html.twig', $tpl_params);
     }
 }

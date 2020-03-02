@@ -155,6 +155,11 @@ class Config
         $this->populateConfig();
     }
 
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
     public function __set($key, $value)
     {
         if (array_key_exists($key, $this->defaults)) {

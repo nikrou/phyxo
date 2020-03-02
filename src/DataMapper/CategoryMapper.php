@@ -275,7 +275,7 @@ class CategoryMapper
                 $output .= $this->conf['level_separator'];
             }
 
-            if (!isset($url)) {
+            if (empty($url)) {
                 $output .= $cat['name'];
             } elseif ($url == '') {
                 $output .= '<a href="' . $this->router->generate('album', ['category_id' => $cat['id']]) . '">';

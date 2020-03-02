@@ -1,0 +1,69 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+  <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
+	  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+      <div class="navbar-brand mr-auto">
+		    <a href="{{U_HOME}}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
+		    {{'Identification'|trans}}
+	    </div>
+      <ul class="navbar-nav justify-content-end">
+		    {% if PLUGIN_INDEX_ACTIONS is defined %}{{PLUGIN_INDEX_ACTIONS}}{% endif %}
+      </ul>
+	  </div>
+  </nav>
+
+  {{include('_infos_errors.html.twig')}}
+
+  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	  <form action="{{login_route}}" method="post" name="login_form" class="form-horizontal">
+      <div class="card col-lg-6">
+		    <h4 class="card-header">
+          {{'Connection settings'|trans}}
+		    </h4>
+		    <div class="card-body">
+          <div class="form-group">
+			      <label for="username" class="control-label">{{'Username'|trans}}</label>
+            <input tabindex="1" class="form-control" type="text" name="_username" id="username" placeholder="{{'Username'|trans}}" value="{{last_username}}">
+          </div>
+          <div class="form-group">
+			      <label for="password" class="control-label">{{'Password'|trans}}</label>
+            <input tabindex="2" class="form-control" type="password" name="_password" id="password" placeholder="{{'Password'|trans}}">
+          </div>
+		      {% if AUTHORIZE_REMEMBERING is defined %}
+			      <div class="form-group">
+			        <div class="col-sm-offset-2 col-sm-10">
+				        <div class="checkbox">
+				          <label>
+					          <input tabindex="3" type="checkbox" name="_remember_me" id="remember_me" value="1"> {{'Auto login'|trans}}
+				          </label>
+				        </div>
+			        </div>
+			      </div>
+		      {% endif %}
+          <div class="form-group">
+			      <div class="col-sm-offset-2 col-sm-10">
+			        <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
+              <input tabindex="4" type="submit" name="login" value="{{'Submit'|trans}}" class="btn btn-primary btn-raised">
+			      </div>
+          </div>
+          <div class="form-group">
+			      <div class="col-sm-offset-2 col-sm-10">
+              {% if register_route is defined %}
+				        <a href="{{register_route}}" title="{{'Register'|trans}}" class="btn btn-warning">
+				          <i class="fa fa-user"></i> {{'Register'|trans}}
+				        </a>
+              {% endif %}
+
+              {% if password_route is defined %}
+				        <a href="{{password_route}}" title="{{'Forgot your password?'|trans}}">
+				          <i class="fa fa-lock"></i> {{'Forgot your password?'|trans}}
+				        </a>
+              {% endif %}
+			      </div>
+          </div>
+		    </div>
+      </div>
+	  </form>
+  </div>
+{% endblock %}

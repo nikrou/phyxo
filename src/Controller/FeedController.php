@@ -48,8 +48,9 @@ class FeedController extends CommonController
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
         \Phyxo\Functions\Plugin::trigger_notify('init');
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
 
-        return $this->render('notification.tpl', $tpl_params);
+        return $this->render('notification.html.twig', $tpl_params);
     }
 
     public function notificationSubscribe()

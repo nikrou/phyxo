@@ -1,0 +1,17 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+  <div class="container{% if theme_config.fluid_width is defined %}-fluid{% endif %}">
+	  <div class="card">
+	    <h4 class="card-header">{{'About'|trans}}</h4>
+	    <div class="card-body">
+		    {% if ABOUT_MESSAGE is defined %}
+		      {{ABOUT_MESSAGE|raw}}
+		    {% endif %}
+		    {% if THEME_ABOUT is defined %}
+		      {{THEME_ABOUT|raw}}
+		    {% endif %}
+	    </div>
+	  </div>
+  </div>
+{% endblock %}

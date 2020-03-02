@@ -69,7 +69,7 @@ class PhotoController extends AdminCommonController
             if ($conf['allow_html_descriptions']) {
                 $data['comment'] = $request->request->get('description');
             } else {
-                $data['comment'] = htmlentities($request->request->ge('description'), ENT_QUOTES, 'utf-8');
+                $data['comment'] = htmlentities($request->request->get('description'), ENT_QUOTES, 'utf-8');
             }
             $data['date_creation'] = $request->request->get('date_creation') ?? null;
 

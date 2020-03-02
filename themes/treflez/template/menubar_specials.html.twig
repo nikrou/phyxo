@@ -1,0 +1,3 @@
+{% for link in blocks.mbSpecials.data %}
+    <a class="dropdown-item" href="{{link.URL}}" title="{{link.TITLE}}"{% if link.REL is defined %} {{link.REL}}{% endif %}>{{link.NAME}}</a>
+{% endfor %}

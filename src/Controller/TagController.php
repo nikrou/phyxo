@@ -128,7 +128,9 @@ class TagController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        return $this->render('tags.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('tags.html.twig', $tpl_params);
     }
 
     public function imagesByTags(Request $request, EntityManager $em, ImageMapper $imageMapper, ImageStandardParams $image_std_params, string $tag_ids, Template $template,
@@ -191,7 +193,10 @@ class TagController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        return $this->render('thumbnails.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+        $tpl_params['START_ID'] = $start;
+
+        return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
     /**
@@ -199,7 +204,8 @@ class TagController extends CommonController
      */
     protected function getTagsContentTitle(array $tags = [], TranslatorInterface $translator): string
     {
-        $title = '<a href="' . $this->generateUrl('tags') . '" title="' . $translator->trans('display available tags') . '">';
+        $title = '<li class="breadcrumb-item">';
+        $title .= '<a href="' . $this->generateUrl('tags') . '" title="' . $translator->trans('display available tags') . '">';
         $title .= $translator->trans('number_of_tags', ['count' => count($tags)]);
         $title .= '</a>&nbsp;';
 
@@ -224,6 +230,7 @@ class TagController extends CommonController
                 $title .= '</a>';
             }
         }
+        $title .= '</li>';
 
         return $title;
     }

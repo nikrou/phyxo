@@ -1,0 +1,8 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+  <h1>{{'You are not authorized to access the requested page'|trans}}</h1>
+
+  <p><a href="{{ROOT_URL}}identification">{{'Identification'|trans}}</a></p>
+  <p><a href="{{ROOT_URL}}">{{'Home'|trans}}</a></p>
+{% endblock %}

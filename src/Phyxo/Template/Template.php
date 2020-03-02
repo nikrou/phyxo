@@ -124,14 +124,14 @@ class Template implements EngineInterface
             return;
         }
 
+        $extra_params = [];
         ob_start();
         // inject variables and objects in loaded theme
         $conf = $core_conf;
-        $template = $this;
-        $translator = $this->translator;
-        $image_std_params = $this->image_std_params;
-        require $themeconf_filename;
+        $extra_params = require $themeconf_filename;
         ob_end_clean();
+
+        $this->assign($extra_params);
 
         return $themeconf;
     }

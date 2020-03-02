@@ -491,5 +491,8 @@
     },
     "webmozart/assert": {
         "version": "1.6.0"
+    },
+    "symfony/asset": {
+        "version": "v4.3.9"
     }
 }

@@ -1,8 +1,12 @@
 framework:
-  secret: '%env(APP_SECRET)%'
+  secret: "%env(APP_SECRET)%"
   default_locale: en_GB
   csrf_protection: ~
   #http_method_override: true
+
+  assets:
+    # @TODO: dynamic path for manifest
+    json_manifest_path: "%kernel.project_dir%/themes/treflez/build/manifest.json"
 
   # Enables session support. Note that the session will ONLY be started if you read or write from it.
   # Remove or comment this section to explicitly disable session support.

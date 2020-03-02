@@ -1,0 +1,53 @@
+<script>
+var slick_params = {
+	 infinite: {% if theme_config.slick_infinite %}true{% else %}false{% endif %},
+	 lazyLoad: '{% if theme_config.slick_lazyload == "progressive" %}progressive{% else %}ondemand{% endif %}',
+	 {% if theme_config.slick_centered %}
+	 centerMode: true,
+	 swipeToSlide: true,
+	 slidesToShow: {% if thumbnails|length <= 7 %}{% if thumbnails|length > 2 and thumbnails|length is divisible by (2) == 0 %}{{thumbnails|length -1}}{% else %}{{thumbnails|length}}{% endif %}{% else %}7{% endif %},
+	 slidesToScroll: 1,
+	 responsive: [
+	     {
+		 breakpoint: 1200,
+		 settings: {
+		     slidesToShow: {% if thumbnails|length <= 5 %}{% if thumbnails|length > 2 and (thumbnails|length is divisible by (2) == 0) %}{{thumbnails|length -1}}{% else %}{{thumbnails|length}}{% endif %}{% else %}5{% endif %},
+		 }
+	     },
+	 {% else %}
+	     centerMode: false,
+	     slidesToShow: {% if thumbnails|length <= 7 %}{{thumbnails|length}}{% else %}7{% endif %},
+	     slidesToScroll: {% if thumbnails|length <= 7 %}{{thumbnails|length - 1}}{% else %}6{% endif %},
+	     responsive: [
+		 {
+		     breakpoint: 1200,
+		     settings: {
+			 slidesToShow: {% if thumbnails|length <= 5 %}{{thumbnails|length}}{% else %}5{% endif %},
+			 slidesToScroll: {% if thumbnails|length <= 5 %}{{thumbnails|length - 1}}{% else %}4{% endif %}
+		     }
+		 },
+		 {
+		     breakpoint: 1024,
+		     settings: {
+			 slidesToShow: {% if thumbnails|length <= 4 %}{{thumbnails|length}}{% else %}4{% endif %},
+			 slidesToScroll: {% if thumbnails|length <= 4 %}{{thumbnails|length - 1}}{% else %}3{% endif %}
+		     }
+		 },
+	 {% endif %}
+		 {
+		     breakpoint: 768,
+		     settings: {
+			 slidesToShow: 3,
+			 slidesToScroll: 3
+		     }
+		 },
+		 {
+		     breakpoint: 420,
+		     settings: {
+			 centerMode: false,
+			 slidesToShow: 2,
+			 slidesToScroll: 2
+		     }
+		 }]
+     };
+</script>

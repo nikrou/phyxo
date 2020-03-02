@@ -1,0 +1,11 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+    {# this might sound ridiculous, but we want to fit the thumbnails to 90% of col-xs-12 without them being too blurry #}
+    {% set width = 520 %}
+    {% set height = 360 %}
+    {% set derivative_params = define_derivative({width: width, height: height, crop: true}) %}
+    {% set derivative_params_square = define_derivative_square() %}
+
+    {{ include('_albums.html.twig') }}
+{% endblock %}

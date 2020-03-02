@@ -1,0 +1,15 @@
+<li class="nav-item dropdown">
+    <button type="button" class="btn btn-link nav-link dropdown-toggle" data-toggle="dropdown">{{'Related tags'|trans}}</button>
+    <div class="dropdown-menu dropdown-menu-right" role="menu">
+	{% for tag in block.data %}
+            <a class="dropdown-item tagLevel"
+	       {% if tag.U_ADD is defined %}
+               href="{{tag.U_ADD}}" title="{{'number_of_photos_linked_to_current_tags'|trans({'count': tag.counter})}}">+
+	       {% else %}
+		href="{{tag.URL}}" title="{{'display photos linked to this tag'|trans}}">
+	       {% endif %}
+               {{tag.name}}
+            </a>
+	{% endfor %}
+    </div>
+</li>

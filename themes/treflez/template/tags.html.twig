@@ -1,0 +1,74 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+    <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
+	<div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+            <div class="navbar-brand mr-auto">
+		<a href="{{U_HOME}}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
+		{{'Tags'|trans}}
+	    </div>
+            <ul class="navbar-nav justify-content-end">
+		{% if display_mode != 'cloud' %}
+		    <li class="nav-item">
+			<a class="nav-link" href="{{U_CLOUD}}" title="{{'show tag cloud'|trans}}">
+			    <i class="fa fa-cloud" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{{'show tag cloud'|trans}}</span>
+			</a>
+		    </li>
+		{% endif %}
+		{% if display_mode != 'letters' %}
+		    <li class="nav-item">
+			<a class="nav-link" href="{{U_LETTERS}}" title="{{'group by letters'|trans}}" rel="nofollow">
+			    <i class="fa fa-sort-alpha-desc" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{{'group by letters'|trans}}</span>
+			</a>
+		    </li>
+		{% endif %}
+		{% if loloaded_plugins is defined and loaded_plugins.tag_groups and display_mode != 'groups' %}
+		    <li class="nav-item">
+			<a class="nav-link" href="{{U_TAG_GROUPS}}" title="{{'show tag groups'|trans}}" rel="nofollow">
+			    <i class="fa fa-tags" aria-hidden="true"></i><span class="d-none d-md-inline-block">&nbsp;{{'show tag groups'|trans}}</span>
+			</a>
+		    </li>
+		{% endif %}
+            </ul>
+	</div>
+    </nav>
+
+    {{include('_infos_errors.html.twig')}}
+
+    <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	{% if display_mode == 'cloud' and tags %}
+	    {% if theme_config.tag_cloud_type == 'basic' %}
+		<div id="tagCloud">
+		    {% for tag in tags %}
+			<span><a href="{{tag.URL}}" class="tagLevel{{tag.level}}" title="{{'number_of_photos'|trans({'count': tag.counter})}}">{{tag.name}}</a></span>
+		    {% endfor %}
+		</div>
+	    {% else %}
+		<div id="tagCloudCanvas">
+		    {% for tag in tags %}
+			<span data-weight="{{tag.counter}}"><a href="{{tag.URL}}">{{tag.name}}</a></span>
+		    {% endfor %}
+		</div>
+		<div id="tagCloudGradientStart"></div>
+		<div id="tagCloudGradientEnd"></div>
+	    {% endif %}
+	{% endif %}
+
+	{% if display_mode == 'letters' and letters %}
+	    <div id="tagLetters">
+		{% for letter in letters %}
+		    <div class="card w-100 mb-3">
+			<div class="card-header">{{letter.TITLE}}</div>
+			<div class="list-group list-group-flush">
+			    {% for tag in letter.tags %}
+				<a href="{{tag.URL}}" class="list-group-item list-group-item-action" title="{{tag.name}}">
+				    {{tag.name}}<span class="badge badge-secondary ml-2">{{'number_of_photos'|trans({'count': tag.counter})}}</span>
+				</a>
+			    {% endfor %}
+			</div>
+		    </div>
+		{% endfor %}
+	    </div>
+	{% endif %}
+    </div> <!-- content -->
+{% endblock %}

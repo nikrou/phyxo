@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="generator" content="Phyxo, see https://www.phyxo.net/">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link rel="shortcut icon" href="{{asset('imgs/favicon.ico')}}" type="image/x-icon">
+		<link rel="icon" href="{{asset('imgs/favicon.png')}}" type="image/png">
+		<link rel="icon" sizes="32x32" href="{{asset('imgs/favicon-32.png')}}" type="image/png">
+		<link rel="icon" sizes="64x64" href="{{asset('imgs/favicon-64.png')}}" type="image/png">
+		<link rel="icon" sizes="96x96" href="{{asset('imgs/favicon-96.png')}}" type="image/png">
+
+		<title>
+			{% block title %}
+				Phyxo
+			{% endblock %}
+		</title>
+		{% block stylesheets %}{% endblock %}
+	</head>
+	<body>
+		{% block content %}{% endblock %}
+		{% block javascripts %}{% endblock %}
+	</body>
+</html>

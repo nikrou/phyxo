@@ -74,7 +74,10 @@ class FavoriteController extends CommonController
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
 
-        return $this->render('thumbnails.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+        $tpl_params['START_ID'] = $start;
+
+        return $this->render('thumbnails.html.twig', $tpl_params);
     }
 
     public function add(int $image_id, EntityManager $em, Request $request, TranslatorInterface $translator)

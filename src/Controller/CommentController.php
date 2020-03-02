@@ -244,7 +244,9 @@ class CommentController extends CommonController
         // @TODO: retrieve flash messages
         // $tpl_params['infos'][] = 'validated';
 
-        return $this->render('comments.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('comments.html.twig', $tpl_params);
     }
 
     public function edit(Request $request, CommentMapper $commentMapper, CsrfTokenManagerInterface $csrfTokenManager, TranslatorInterface $translator)

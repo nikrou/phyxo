@@ -20,11 +20,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 abstract class CommonController extends AbstractController
 {
-    protected $image_std_params, $userProvider, $user;
+    protected $image_std_params, $userProvider, $user, $defaultTheme, $themesDir, $conf, $phyxoVersion, $phyxoWebsite;
 
-    public function __construct(UserProvider $userProvider)
+    public function __construct(UserProvider $userProvider, string $defaultTheme, string $themesDir, Conf $conf, string $phyxoVersion, string $phyxoWebsite)
     {
         $this->userProvider = $userProvider;
+        $this->defaultTheme = $defaultTheme;
+        $this->themesDir = $themesDir;
+        $this->conf = $conf;
+        $this->phyxoVersion = $phyxoVersion;
+        $this->phyxoWebsite = $phyxoWebsite;
     }
 
     public function getUser()
@@ -38,6 +43,27 @@ abstract class CommonController extends AbstractController
         }
 
         return $this->user;
+    }
+
+    protected function loadThemeConf(string $theme = null, Conf $core_conf = null): array
+    {
+        if (empty($theme)) {
+            $theme = $this->defaultTheme;
+        }
+
+        $themeconf_filename = sprintf('%s/%s/themeconf.inc.php', $this->themesDir, $theme);
+        if (!is_readable($themeconf_filename)) {
+            return [];
+        }
+
+        $extra_params = [];
+        ob_start();
+        // inject variables and objects in loaded theme
+        $conf = $core_conf;
+        $extra_params = require $themeconf_filename;
+        ob_end_clean();
+
+        return $extra_params;
     }
 
     public function addThemeParams(Template $template, Conf $conf, User $user, string $themesDir, string $phyxoVersion, string $phyxoWebsite): array

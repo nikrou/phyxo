@@ -101,7 +101,7 @@ class MenuBar
             }
 
             if (!empty($block->data)) {
-                $block->template = 'menubar_links.tpl';
+                $block->template = 'menubar_links';
             }
         }
     }
@@ -114,7 +114,7 @@ class MenuBar
                 'MENU_CATEGORIES' => $this->categoryMapper->getRecursiveCategoriesMenu($this->userMapper->getUser(), []),
                 'U_CATEGORIES' => $this->router->generate('albums_flat'),
             ];
-            $block->template = 'menubar_categories.tpl';
+            $block->template = 'menubar_categories';
         }
     }
 
@@ -166,7 +166,7 @@ class MenuBar
             }
 
             if (!empty($block->data)) {
-                $block->template = 'menubar_tags.tpl';
+                $block->template = 'menubar_tags';
             }
         }
     }
@@ -225,7 +225,7 @@ class MenuBar
                 'TITLE' => $this->translator->trans('display each day with photos, month per month'),
                 'NAME' => $this->translator->trans('Calendar'),
             ];
-            $block->template = 'menubar_specials.tpl';
+            $block->template = 'menubar_specials';
         }
     }
 
@@ -269,7 +269,7 @@ class MenuBar
                 'NAME' => $this->translator->trans('Notification'),
                 'URL' => $this->router->generate('notification'),
             ];
-            $block->template = 'menubar_menu.tpl';
+            $block->template = 'menubar_menu';
         }
     }
 
@@ -296,7 +296,7 @@ class MenuBar
         }
 
         if (($block = $this->menu->getBlock('mbIdentification')) != null) {
-            $block->template = 'menubar_identification.tpl';
+            $block->template = 'menubar_identification';
         }
 
         return $tpl_params;

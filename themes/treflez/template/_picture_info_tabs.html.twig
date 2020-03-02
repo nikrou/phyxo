@@ -1,0 +1,188 @@
+<div id="infopanel" class="col-lg-8 col-md-10 col-12 mx-auto">
+    <ul class="nav nav-tabs nav-justified flex-column flex-sm-row" role="tablist">
+	{% if theme_config.picture_info == 'tabs' or theme_config.picture_info != 'disabled' %}
+            <li class="nav-item"><a class="flex-sm-fill text-sm-center nav-link active" href="#tab_info" aria-controls="tab_info" role="tab" data-toggle="tab">{{'Information'|trans}}</a></li>
+	    {% if metadata is defined %}
+		<li class="nav-item"><a class="flex-sm-fill text-sm-center nav-link" href="#tab_metadata" aria-controls="tab_metadata" role="tab" data-toggle="tab">{{'EXIF Metadata'|trans}}</a></li>
+	    {% endif %}
+	{% endif %}
+	{% if comment_add is defined or COMMENT_COUNT > 0 %}
+            <li class="nav-item{% if theme_config.picture_info == 'disabled' or (theme_config.picture_info != 'tabs') %} active{% endif %}"><a class="flex-sm-fill text-sm-center nav-link" href="#tab_comments" aria-controls="tab_comments" role="tab" data-toggle="tab">{{'Comments'|trans}} <span class="badge badge-secondary">{{COMMENT_COUNT}}</span></a></li>
+	{% endif %}
+    </ul>
+
+    <div class="tab-content d-flex justify-content-center">
+	{% if theme_config.picture_info == 'tabs' or (theme_config.picture_info != 'disabled') %}
+            <div role="tabpanel" class="tab-pane active" id="tab_info">
+		<div id="info-content" class="info">
+		    <div class="table-responsive">
+			<table class="table table-sm">
+			    <colgroup>
+				<col class="w-50">
+				<col class="w-50">
+			    </colgroup>
+			    <tbody>
+				{% if display_info.author and INFO_AUTHOR is defined %}
+				    <tr>
+					<th scope="row">{{'Author'|trans}}</th>
+					<td><div id="Author" class="imageInfo">{{INFO_AUTHOR}}</div></td>
+				    </tr>
+				{% endif %}
+				{% if CR_INFO_NAME is defined and not CR_INFO_NAME is empty %}
+				    <tr>
+					<th scope="row">{{'Copyright'|trans}}</th>
+					<td><div id="Copyright" class="imageInfo">{% if CR_INFO_URL is defined %}<a href="{{CR_INFO_URL}}">{{CR_INFO_NAME}}</a>{% else %}{{CR_INFO_NAME}}{% endif %}</div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.rating_score and rate_summary is defined %}
+				    <tr>
+					<th scope="row">{{'Rating score'|trans}}</th>
+					<td>
+					    <div id="Average" class="imageInfo">
+						<span id="ratingScore">
+						    {% if rate_summary.count %}
+							{{rate_summary.score}}
+						    {% else %}
+							{{'no rate'|trans}}
+						    {% endif %}
+						</span>
+						<span id="ratingCount">
+						    {% if rate_summary.count %}({{'number_of_rates'|trans({'count': rate_summary.count})}}{% endif %}
+						</span>
+					    </div>
+					</td>
+				    </tr>
+				{% endif %}
+				{% if rating is defined %}
+				    <tr>
+					<th scope="row" id="updateRate">{% if rating.USER_RATE is defined %}{{'Update your rating'|trans}}{% else %}{{'Rate this photo'|trans}}{% endif %}</th>
+					<td>
+					    <div id="rating" class="imageInfo">
+						<form action="{{rating.F_ACTION}}" method="post" id="rateForm">
+						    {% for mark in rating.marks|reverse %}
+							<input type="radio" id="rating-{{mark}}" name="rating"
+							       value="{{mark}}" {% if rating.USER_RATE is defined and mark==rating.USER_RATE %}checked="checked"{% endif %}/>
+							<label for="rating-{{mark}}" title="{{mark}}"></label>
+						    {% endfor %}
+						</form>
+					    </div>
+					</td>
+				    </tr>
+				{% endif %}
+				{% if display_info.created_on and INFO_CREATION_DATE is defined %}
+				    <tr>
+					<th scope="row">{{'Created on'|trans}}</th>
+					<td><div id="datecreate" class="imageInfo"><a href="{{INFO_CREATION_DATE.url}}">{{INFO_CREATION_DATE.label}}</a></div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.posted_on %}
+				    <tr>
+					<th scope="row">{{'Posted on'|trans}}</th>
+					<td><div id="datepost" class="imageInfo"><a href="{{INFO_POSTED_DATE.url}}">{{INFO_POSTED_DATE.label}}</a></div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.visits %}
+				    <tr>
+					<th scope="row">{{'Visits'|trans}}</th>
+					<td><div id="visits" class="imageInfo">{{INFO_VISITS}}</div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.dimensions and INFO_DIMENSIONS is defined %}
+				    <tr>
+					<th scope="row">{{'Dimensions'|trans}}</th>
+					<td><div id="Dimensions" class="imageInfo">{{INFO_DIMENSIONS}}</div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.file %}
+				    <tr>
+					<th scope="row">{{'File'|trans}}</th>
+					<td><div id="File" class="imageInfo">{{INFO_FILE}}</div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.filesize and INFO_FILESIZE is defined %}
+				    <tr>
+					<th scope="row">{{'Filesize'|trans}}</th>
+					<td><div id="Filesize" class="imageInfo">{{INFO_FILESIZE}}</div></td>
+				    </tr>
+				{% endif %}
+				{% if display_info.tags %}
+				    <tr>
+					<th scope="row">
+					    {% if TAGS_PERMISSION_ADD %}<i class="fa fa-edit edit-tags"></i>{% endif %}{{'Tags'|trans}}
+					</th>
+					<td>
+					    {{include('_picture_tags.html.twig')}}
+					</td>
+				    </tr>
+				{% endif %}
+				{% if display_info.categories and related_categories is defined %}
+				    <tr>
+					<th scope="row">{{'Albums'|trans}}</th>
+					<td>
+					    <div id="Categories" class="imageInfo">
+						{% for cat in related_categories %}
+						    {% if not loop.first %}, {% endif %}{{cat}}
+						{% endfor %}
+					    </div>
+					</td>
+				    </tr>
+				{% endif %}
+				{% if display_info.privacy_level and available_permission_levels is defined %}
+				    <tr>
+					<th scope="row">{{'Who can see this photo?'|trans}}</dt>
+					    <td>
+						<div id="Privacy" class="imageInfo">
+						    <div class="dropdown">
+							<button class="btn btn-secondary btn-raised dropdown-toggle ellipsis" type="button" id="dropdownPermissions" data-toggle="dropdown" aria-expanded="true">
+							    {{available_permission_levels[current.level]}}
+							</button>
+							<div class="dropdown-menu" role="menu" aria-labelledby="dropdownPermissions">
+							    {% for level, label in available_permission_levels %}
+								<button id="permission-{{level}}" type="button" class="dropdown-item permission-li {% if current.level == level %} active{% endif %}"
+									    data-action="setPrivacyLevel" data-id="{{current.id}}" data-level="{{level}}" data-label="{{label}}">{{label}}</button>
+							    {% endfor %}
+							</div>
+						    </div>
+						</div>
+					    </td>
+				    </tr>
+				{% endif %}
+			    </tbody>
+			</table>
+		    </div>
+		</div>
+            </div>
+
+	    {% if metadata is defined %}
+		<div role="tabpanel" class="tab-pane" id="tab_metadata">
+		    <div id="metadata" class="info">
+			<div class="table-responsive">
+			    <table class="table table-sm">
+				<colgroup>
+				    <col class="w-50">
+				    <col class="w-50">
+				</colgroup>
+				<tbody>
+				    {% for meta in metadata %}
+					{% for label, value in meta.lines %}
+					    <tr>
+						<th scope="row">{{label}}</th>
+						<td>{{value}}</td>
+					    </tr>
+					{% endfor %}
+				    {% endfor %}
+				</tbody>
+			    </table>
+			</div>
+		    </div>
+		</div>
+	    {% endif %}
+	{% endif %}
+
+	{% if comment_add is defined or COMMENT_COUNT > 0 %}
+            <div role="tabpanel" class="tab-pane" id="tab_comments">
+		{{include('_picture_info_comments.html.twig')}}
+            </div>
+	{% endif %}
+    </div>
+</div>

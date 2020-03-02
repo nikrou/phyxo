@@ -1,0 +1,149 @@
+<div id="sidebar">
+    <div id="info-content" class="info">
+        <dl id="standard" class="imageInfoTable">
+            <h4>{{'Information'|trans}}</h4>
+	    {% if display_info.author and INFO_AUTHOR is defined %}
+		<div id="Author" class="imageInfo">
+                    <dt>{{'Author'|trans}}</dt>
+                    <dd>{{INFO_AUTHOR}}</dd>
+		</div>
+	    {% endif %}
+	    {% if CR_INFO_NAME is defined and not CR_INFO_NAME is empty %}
+		<div id="Copyright" class="imageInfo">
+                    <dt>{{'Copyright'|trans}}</dt>
+                    <dd>{% if CR_INFO_URL is defined %}<a href="{{CR_INFO_URL}}">{{CR_INFO_NAME}}</a>{% else %}{{CR_INFO_NAME}}{% endif %}</dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.created_on and INFO_CREATION_DATE is defined %}
+		<div id="datecreate" class="imageInfo">
+                    <dt>{{'Created on'|trans}}</dt>
+                    <dd><a href="{{INFO_CREATION_DATE.url}}">{{INFO_CREATION_DATE.label}}</a></dd>
+
+		</div>
+	    {% endif %}
+	    {% if display_info.posted_on %}
+		<div id="datepost" class="imageInfo">
+                    <dt>{{'Posted on'|trans}}</dt>
+                    <dd><a href="{{INFO_POSTED_DATE.url}}">{{INFO_POSTED_DATE.label}}</a></dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.visits %}
+		<div id="visits" class="imageInfo">
+                    <dt>{{'Visits'|trans}}</dt>
+                    <dd>{{INFO_VISITS}}</dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.dimensions and INFO_DIMENSIONS is defined %}
+		<div id="Dimensions" class="imageInfo">
+                    <dt>{{'Dimensions'|trans}}</dt>
+                    <dd>{{INFO_DIMENSIONS}}</dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.file %}
+		<div id="File" class="imageInfo">
+                    <dt>{{'File'|trans}}</dt>
+                    <dd>{{INFO_FILE}}</dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.filesize and INFO_FILESIZE is defined %}
+		<div id="Filesize" class="imageInfo">
+                    <dt>{{'Filesize'|trans}}</dt>
+                    <dd>{{INFO_FILESIZE}}</dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.tags and related_tags is defined %}
+		<div id="Tags" class="imageInfo">
+                    <dt>{{'Tags'|trans}}</dt>
+                    <dd>
+			{% autoescape false %}
+			    {{related_tags|map(tag => "<a href='#{tag.URL}'>#{tag.name}</a>")|join(', ')}}
+			{% endautoescape %}
+                    </dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.categories and related_categories is defined %}
+		<div id="Categories" class="imageInfo">
+		    <dt>{{'Albums'|trans}}</dt>
+                    <dd>
+			{{related_categories|map(cat => cat)|join('<br />')}}
+                    </dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.rating_score and rate_summary is defined %}
+		<div id="Average" class="imageInfo">
+                    <dt>{{'Rating score'|trans}}</dt>
+                    <dd>
+			<span id="ratingScore">
+			    {% if rate_summary.count %}
+				{{rate_summary.score}}
+			    {% else %}
+				{{'no rate'|trans}}
+			    {% endif %}
+			</span>
+			<span id="ratingCount">
+			    {% if rate_summary.count %}({{'number_of_rates'|trans({'count': rate_summary.count})}}){% endif %}
+			</span>
+                    </dd>
+		</div>
+	    {% endif %}
+
+	    {% if rating is defined %}
+		<div id="rating" class="imageInfo">
+                    <dt id="updateRate">{% if rating.USER_RATE is defined %}{{'Update your rating'|trans}}{% else %}{{'Rate this photo'|trans}}{% endif %}</dt>
+                    <dd>
+                        <form action="{{rating.F_ACTION}}" method="post" id="rateForm">
+                            <div>
+				<form action="{{rating.F_ACTION}}" method="post" id="rateForm">
+				    {% for mark in rating.marks|reverse %}
+					<input type="radio" id="rating-{{mark}}" name="rating"
+					       value="{{mark}}" {% if rating.USER_RATE is defined and mark==rating.USER_RATE %}checked="checked"{% endif %}/>
+					<label for="rating-{{mark}}" title="{{mark}}"></label>
+				    {% endfor %}
+				</form>
+                            </div>
+                        </form>
+                    </dd>
+		</div>
+	    {% endif %}
+	    {% if display_info.privacy_level and available_permission_levels is defined %}
+		<div id="Privacy" class="imageInfo">
+                    <dt>{{'Who can see this photo?'|trans}}</dt>
+                    <dd>
+			<div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle ellipsis" type="button" id="dropdownPermissions" data-toggle="dropdown" aria-expanded="true">
+				{{available_permission_levels[current.level]}}
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownPermissions">
+				{% for level, label in available_permission_levels %}
+				    <button type="button" id="permission-{{level}}" class="dropdown-item permission-li {% if current.level == level %} active{% endif %}"
+					    data-action="setPrivacyLevel" data-id="{{current.id}}" data-level="{{level}}" data-label="{{label}}">{{label}}</button>
+				{% endfor %}
+                            </div>
+			</div>
+                    </dd>
+		</div>
+	    {% endif %}
+	    <button type="button" id="show_exif_data" class="btn btn-sm btn-primary"><i class="fa fa-info mr-1"></i> {{'Show EXIF data'|trans}}</button>
+	    <div id="full_exif_data" class="d-none flex-column mt-2">
+		{% if metadata is defined %}
+		    {% for meta in metadata %}
+			<h4>{{meta.TITLE}}</h4>
+			<div>
+			    <dl class="row mb-0">
+				{% for label, value in meta.lines %}
+				    <dt class="col-sm-6">{{label}}</dt>
+				    <dd class="col-sm-6">{{value}}</dd>
+				{% endfor %}
+			    </dl>
+			</div>
+		    {% endfor %}
+		{% endif %}
+	    </div>
+        </dl>
+    </div>
+    <div class="handle">
+        <button type="button" id="info-link" class="btn">
+            <i class="fa fa-info" aria-hidden="true"></i>
+	</button>
+    </div>
+</div>

@@ -1,0 +1,153 @@
+{% extends "__layout.html.twig" %}
+
+{% block stylesheets %}
+    {{parent()}}
+    {% if chronology_calendar.month_view is defined %}
+	<style>
+	 #calMonth .calImg {
+	     width:{chronology_calendar.month_view.CELL_WIDTH}px;height:{chronology_calendar.month_view.CELL_HEIGHT}px;
+	 }
+	 #calMonth td {
+	     width:{chronology_calendar.month_view.CELL_WIDTH}px;height:{chronology_calendar.month_view.CELL_HEIGHT + 29}px;
+	 }
+	</style>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {{ include('_category_nav.html.twig') }}
+
+    <div id="calendar-select" class="btn-group">
+        <button id="calendar-view" type="button" class="btn btn-primary btn-raised dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% for view in chronology_views %}
+		{% if view.SELECTED %}{{view.CONTENT}}{% endif %}
+	    {% endfor %}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="calendar-view">
+            {% for view in chronology_views %}
+		<a class="dropdown-item{% if view.SELECTED %} active{% endif %}" href="{{view.VALUE}}">{{view.CONTENT}}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if chronology_navigation_bars is defined %}
+	{% for bar in chronology_navigation_bars %}
+	    <div id="calendar-nav">
+		{% if bar.previous is defined %}
+		    <a id="calendar-prev" class="btn btn-secondary pull-left" href="{{bar.previous.URL}}">
+			<span class="fa fa-arrow-left"></span>
+			{{bar.previous.LABEL}}
+		    </a>
+		{% endif %}
+		{% if bar.items is defined %}
+		    <div id="calendar-nav-buttons" class="btn-group" role=group">
+			{% if not bar.previous is defined and not bar.next is defined %} {# gettype(reset(item_type)) === 'string' || #}
+			    {% for item in bar.items %}
+				{% if not item.URL is defined %}
+				    <span class="btn btn-secondary disabled">{{item.LABEL}}</span>
+				{% else %}
+				    <a class="btn btn-secondary" {% if item.NB_IMAGES is defined %}title="{{'number_of_photos'|trans({'count': item.NB_IMAGES})}}"{% endif %} href="{{item.URL}}">{{item.LABEL}}</a>
+				{% endif %}
+			    {% endfor %}
+			{% else %}
+			    <table class="table table-sm table-bordered">
+				<tbody>
+				    {% set i = 0 %}
+				    {% for item in bar.items %}
+					{% if i == 0 %}
+					    <tr>
+					{% endif %}
+					{% if not item.URL is defined %}
+					    <td>{{item.LABEL}}</td>
+					{% else %}
+					    <td class="bg-light">
+						<a{% if item.NB_IMAGES %} title="{{'number_of_photos'|trans({'count': item.NB_IMAGES})}}"{% endif %} href="{{item.URL}}">{{item.LABEL}}</a>
+					    </td>
+					{% endif %}
+					{%  if i == 6 %}
+					    {% set i = 0 %}
+					    </tr>
+					{% else %}
+					    {% set i = i+1 %}
+					{% endif %}
+				    {% endfor %}
+				</tbody>
+			    </table>
+			{% endif %}
+		    </div>
+		{% endif %}
+		{% if bar.next is defined %}
+		    <a id="calendar-next" class="btn btn-secondary pull-right" href="{{bar.next.URL}}">
+			{{bar.next.LABEL}}
+			<i class="fa fa-arrow-right"></i>
+		    </a>
+		{% endif %}
+	    </div>
+	{% endfor %}
+    {% endif %}
+
+    {% if chronology_calendar.calendar_bars is defined %}
+	{% for bar in chronology_calendar.calendar_bars %}
+	    <div class="card">
+		<div class="card-header">
+		    <a href="{{bar.U_HEAD}}">{{bar.HEAD_LABEL}}</a>
+		    <span class="badge badge-secondary">{{bar.NB_IMAGES}}</span>
+		</div>
+		<div class="card-body">
+		    <ul class="calendar-month-list">
+			{% for item in bar.items %}
+  			    <li>
+				<a href="{% if item.URL is defined %}{{item.URL}}{% else %}#{% endif %}">
+				    {{item.LABEL}}{% if item.NB_IMAGES %}
+				    <span class="badge badge-secondary">{{item.NB_IMAGES}}</span>{% endif %}
+				</a>
+			    </li>
+			{% endfor %}
+		    </ul>
+		</div>
+	    </div>
+	{% endfor %}
+    {% endif %}
+
+    {% if chronology_calendar.month_view is defined %}
+	<div id="calendar-table" class="table-responsive">
+	    <table id="calMonth" class="table table-sm table-bordered">
+		<thead>
+		    <tr>
+			{% for wday in chronology_calendar.month_view.wday_labels %}
+			    <th>{{wday}}</th>
+			{% endfor %}
+		    </tr>
+		</thead>
+		{% for week in chronology_calendar.month_view.weeks %}
+		    <tr>
+			{% for day in week %}
+			    {% if day %}
+				{% if day.IMAGE is defined %}
+				    <td class="calDayCellFull">
+					<div class="calDate">{{day.DAY}}</div>
+					<div class="calImg">
+					    <a href="{{day.U_IMG_LINK}}">
+						<img class="img-fluid" src="{{day.IMAGE}}" alt="{{day.IMAGE_ALT}}" title="{{'number_of_photos'|trans({'count': day.NB_ELEMENTS})}}">
+					    </a>
+					</div>
+				{% else %}
+					<td class="calDayCellEmpty">{{day.DAY}}
+				{% endif %}
+			    {% else %}{#  blank cell first or last row only #}
+				<td>
+			    {% endif %}
+				</td>
+			{% endfor %}{# day in week #}
+		    </tr>
+		{% endfor %}{# week in month #}
+	    </table>
+	</div>
+    {% endif %}
+
+    {% if thumbnails is defined %}
+	<div id="content" class="{% if category_view == 'list' %}content-list{% else %}content-grid{% endif %}">
+	    {{ include('_thumbnails.html.twig') }}
+	</div>
+    {% endif %}
+{% endblock %}

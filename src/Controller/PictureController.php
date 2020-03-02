@@ -42,7 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
 {
-    private $em, $conf, $userMapper, $translator;
+    private $em, $userMapper, $translator;
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
                             string $phyxoWebsite, MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
@@ -138,12 +138,12 @@ class PictureController extends CommonController
                     'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index + 1], 'type' => $type, 'element_id' => $element_id]),
                 ];
             }
-            $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => $category['id']]);
 
             $tpl_params['U_UP_SIZE_CSS'] = $tpl_params['current']['derivatives']['square']->get_size_css();
             $tpl_params['DISPLAY_NAV_BUTTONS'] = $conf['picture_navigation_icons'];
             $tpl_params['DISPLAY_NAV_THUMB'] = $conf['picture_navigation_thumb'];
         }
+        $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => $category['id']]);
         $deriv_type = $this->get('session')->has('picture_deriv') ? $this->get('session')->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
 
@@ -256,7 +256,7 @@ class PictureController extends CommonController
         // related categories
         if (count($related_categories) === 1 && !empty($category['id']) && $related_categories[0]['id'] === $category['id']) {
             // no need to go to db, we have all the info
-            $tpl_params['related_categories'] = $categoryMapper->getCatDisplayName($category['upper_names']);
+            $tpl_params['related_categories'] = $categoryMapper->getCatDisplayName($category);
         } else { // use only 1 sql query to get names for all related categories
             $ids = [];
             foreach ($related_categories as $_category) { // add all uppercats to $ids
@@ -489,7 +489,9 @@ class PictureController extends CommonController
             $tpl_params['errors'] = $this->get('session')->getFlashBag()->get('error');
         }
 
-        return $this->render('picture.tpl', $tpl_params);
+        $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $conf));
+
+        return $this->render('picture.html.twig', $tpl_params);
     }
 
     public function picturesByTypes($image_id, $type)

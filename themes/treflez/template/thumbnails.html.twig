@@ -1,0 +1,15 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+  {{ include('_category_nav.html.twig') }}
+
+  <div id="content" class="{% if category_view == 'list' %}content-list{% else %}content-grid{% endif %}">
+	  {% if category_thumbnails is defined %} {# display sub-albums #}
+	    {{ include('_albums.html.twig') }}
+	  {% endif %}
+
+	  {% if thumbnails is defined  %}
+	    {{ include('_thumbnails.html.twig') }}
+	  {% endif %}
+  </div>
+{% endblock %}

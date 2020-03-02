@@ -11,7 +11,6 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Phyxo\Template\Template;
 use Phyxo\Language\Languages;
@@ -26,9 +25,10 @@ use App\Repository\ThemeRepository;
 use Phyxo\Upgrade;
 use Phyxo\EntityManager;
 use Phyxo\Extension\Theme;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class InstallController extends Controller
+class InstallController extends AbstractController
 {
     private $Steps = [
         'language' => ['label' => 'Choose language'],
@@ -46,16 +46,20 @@ class InstallController extends Controller
     private $translationsDir;
     private $default_prefix = 'phyxo_';
     private $translator;
+    private $rootProjectDir;
+    private $databaseConfigFile;
 
-    public function __construct(Template $template, string $adminThemeDir, string $translationsDir, string $defaultLanguage, string $defaultTheme, string $phyxoVersion,
-                                string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator)
+    public function __construct(Template $template, string $translationsDir, string $adminThemeDir, string $defaultLanguage, string $defaultTheme,
+          string $phyxoVersion, string $databaseConfigFile, string $phyxoWebsite, UserPasswordEncoderInterface $passwordEncoder, TranslatorInterface $translator, string $rootProjectDir)
     {
         $this->translationsDir = $translationsDir;
+        $this->databaseConfigFile = $databaseConfigFile;
         $this->default_language = $defaultLanguage;
         $this->default_theme = $defaultTheme;
         $this->phyxoVersion = $phyxoVersion;
         $this->passwordEncoder = $passwordEncoder;
         $this->translator = $translator;
+        $this->rootProjectDir = $rootProjectDir;
 
         $template->setTheme(new Theme($adminThemeDir, '.'));
         $template->setDomain('install');
@@ -73,7 +77,7 @@ class InstallController extends Controller
     {
         $tpl_params = [];
 
-        if (is_readable($this->get('kernel')->getDbConfigFile()) && ($step !== 'success')) {
+        if (is_readable($this->databaseConfigFile) && ($step !== 'success')) {
             return  $this->redirectToRoute('homepage', []);
         }
 
@@ -202,7 +206,7 @@ class InstallController extends Controller
             $tpl_params['STEP'] = 'database';
         } else {
             $tpl_params['STEP'] = 'check';
-            $tpl_params['ROOT'] = $this->get('kernel')->getProjectDir();
+            $tpl_params['ROOT'] = $this->rootProjectDir;
             $tpl_params['READ_DIRECTORIES'] = $read_directories;
             $tpl_params['WRITE_DIRECTORIES'] = $write_directories;
         }
@@ -309,12 +313,12 @@ class InstallController extends Controller
             }
 
             if (empty($errors)) {
-                $conn = DBLayer::initFromConfigFile($this->get('kernel')->getDbConfigFile() . '.tmp');
+                $conn = DBLayer::initFromConfigFile($this->databaseConfigFile . '.tmp');
                 $em = new EntityManager($conn);
 
                 $conf = new Conf($conn);
-                $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/include/config_default.inc.php');
-                $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/local/config/config.inc.php');
+                $conf->loadFromFile($this->rootProjectDir . '/include/config_default.inc.php');
+                $conf->loadFromFile($this->rootProjectDir . '/local/config/config.inc.php');
 
                 $webmaster = new User();
                 $webmaster->setId($conf['webmaster_id']);
@@ -333,11 +337,11 @@ class InstallController extends Controller
                     $user_manager->register($webmaster);
                     $user_manager->register($guest);
 
-                    rename($this->get('kernel')->getDbConfigFile() . '.tmp', $this->get('kernel')->getDbConfigFile());
+                    rename($this->databaseConfigFile . '.tmp', $this->databaseConfigFile);
 
                     $env_file_content = 'APP_ENV=prod' . "\n";
                     $env_file_content .= 'APP_SECRET=' . hash('sha256', openssl_random_pseudo_bytes(50)) . "\n";
-                    file_put_contents($this->get('kernel')->getProjectDir() . '/.env', $env_file_content);
+                    file_put_contents($this->rootProjectDir . '/.env', $env_file_content);
                 } catch (\Exception $e) {
                     $errors[] = $e->getMessage();
                 }
@@ -367,23 +371,24 @@ class InstallController extends Controller
     protected function installDatabase(array $db_params = [])
     {
         $conn = DBLayer::init($db_params['db_layer'], $db_params['db_host'], $db_params['db_user'], $db_params['db_password'], $db_params['db_name'], $db_params['db_prefix']);
+        $em = new EntityManager($conn);
 
         $em = new EntityManager($conn);
 
         // load configuration
         $conf = new Conf($conn);
-        $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/include/config_default.inc.php');
-        $conf->loadFromFile($this->get('kernel')->getProjectDir() . '/local/config/config.inc.php');
+        $conf->loadFromFile($this->rootProjectDir . '/include/config_default.inc.php');
+        $conf->loadFromFile($this->rootProjectDir . '/local/config/config.inc.php');
 
         // tables creation, based on phyxo_structure.sql
         $conn->executeSqlFile(
-            $this->get('kernel')->getProjectDir() . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
+            $this->rootProjectDir . '/install/phyxo_structure-' . $db_params['db_layer'] . '.sql',
             $this->default_prefix,
             $db_params['db_prefix']
         );
         // We fill the tables with basic informations
         $conn->executeSqlFile(
-            $this->get('kernel')->getProjectDir() . '/install/config.sql',
+            $this->rootProjectDir . '/install/config.sql',
             $this->default_prefix,
             $db_params['db_prefix']
         );
@@ -399,7 +404,7 @@ class InstallController extends Controller
         $conf['page_banner'] = '<h1>%gallery_title%</h1><p>' . $this->translator->trans('Welcome to my photo gallery', [], 'install') . '</p>';
 
         $languages = new Languages($em, null);
-        $languages->setRootPath($this->get('kernel')->getProjectDir() . '/language');
+        $languages->setRootPath($this->translationsDir);
         foreach ($languages->getFsLanguages() as $language_code => $fs_language) {
             $languages->performAction('activate', $language_code);
         }
@@ -415,7 +420,7 @@ class InstallController extends Controller
         $datas = [];
 
         $upgrade = new Upgrade(new EntityManager($conn), $conf);
-        foreach ($upgrade->getAvailableUpgradeIds($this->get('kernel')->getProjectDir()) as $upgrade_id) {
+        foreach ($upgrade->getAvailableUpgradeIds($this->rootProjectDir) as $upgrade_id) {
             $datas[] = [
                 'id' => $upgrade_id,
                 'applied' => $dbnow,
@@ -434,8 +439,8 @@ class InstallController extends Controller
         }
         $file_content .= '$conf[\'db_prefix\'] = \'' . $db_params['db_prefix'] . "';\n\n";
 
-        file_put_contents($this->get('kernel')->getDbConfigFile() . '.tmp', $file_content);
-        if (!is_readable($this->get('kernel')->getDbConfigFile() . '.tmp')) {
+        file_put_contents($this->databaseConfigFile . '.tmp', $file_content);
+        if (!is_readable($this->databaseConfigFile . '.tmp')) {
             throw new \Exception($this->translator->trans('All tables in database have been created', [], 'install'));
         }
     }

@@ -1,0 +1,64 @@
+{% extends "__layout.html.twig" %}
+
+{% block content %}
+  <nav class="navbar navbar-contextual navbar-expand-lg {{theme_config.navbar_contextual_style}} {{theme_config.navbar_contextual_bg}} sticky-top mb-5">
+	  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+      <div class="navbar-brand mr-auto">
+		    <a href="{{U_HOME}}">{{'Home'|trans}}</a>{{LEVEL_SEPARATOR}}
+		    {{'Registration'|trans}}
+	    </div>
+      <ul class="navbar-nav justify-content-end">
+		    {% if PLUGIN_INDEX_ACTIONS is defined %}{{PLUGIN_INDEX_ACTIONS}}{% endif %}
+      </ul>
+	  </div>
+  </nav>
+
+  {{include('_infos_errors.html.twig')}}
+
+  <div class="container{% if theme_config.fluid_width %}-fluid{% endif %}">
+	  <form method="post" action="{{register_action}}" class="form-horizontal" name="register_form">
+	    <div class="card col-lg-6">
+		    <h4 class="card-header">
+          {{'Connection settings'|trans}}
+		    </h4>
+		    <div class="card-body">
+          <div class="form-group">
+			      <label for="username" class="control-label">{{'Username'|trans}} *</label>
+			      <input type="text" tabindex="1" name="_username" id="username" value="{{last_username}}" class="form-control" placeholder="{{'Username'|trans}}" required="required"/>
+		      </div>
+		      <div class="form-group">
+			      <label for="password" class="control-label">{{'Password'|trans}} *</label>
+			      <input type="password" tabindex="2" name="_password" id="password" class="form-control" placeholder="{{'Password'|trans}}" required="required"/>
+		      </div>
+		      <div class="form-group">
+			      <label for="password_conf" class="control-label">{{'Confirm Password'|trans}} *</label>
+			      <input type="password" tabindex="3" name="_password_confirm" id="password_conf" class="form-control" placeholder="{{'Confirm Password'|trans}}" required="required"/>
+		      </div>
+		      <div class="form-group">
+			      <label for="mail_address" class="control-label">{{'Email address'|trans}}{% if user_mail_address_mandatory is defined and user_mail_address_mandatory %} *{% endif %}</label>
+			        <input type="email" tabindex="4" name="_mail_address" id="mail_address" value="{{mail_address}}" class="form-control" placeholder="{{'Email address'|trans}}"{% if user_mail_address_mandatory is defined and user_mail_address_mandatory %} required="required"{% endif %}>
+			        {% if not user_mail_address_mandatory is defined or not user_mail_address_mandatory %}
+			          <p class="form-text text-muted">({{'useful when password forgotten'|trans}})</p>
+			        {% endif %}
+		      </div>
+		      <div class="form-group">
+			      <div class="col-sm-offset-2 col-sm-10">
+			        <div class="custom-control custom-checkbox">
+				        <input type="checkbox" tabindex="5" class="custom-control-input" name="_send_password_by_mail" id="send_password_by_mail" value="1">
+				        <label class="custom-control-label" for="send_password_by_mail">{{'Send my connection settings by email'|trans}}</label>
+			        </div>
+			      </div>
+		      </div>
+
+          <div class="form-group">
+			      <div class="col-sm-offset-2 col-sm-10">
+			        <input type="hidden" name="_csrf_token" value="{{csrf_token}}">
+              <input type="submit" name="submit" value="{{'Register'|trans}}" class="btn btn-primary btn-raised">
+              <input type="reset" value="{{'Reset'|trans}}" class="btn btn-secondary btn-raised">
+			      </div>
+          </div>
+		    </div>
+      </div>
+	  </form>
+  </div>
+{% endblock %}

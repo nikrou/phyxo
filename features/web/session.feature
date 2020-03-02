@@ -17,7 +17,7 @@ Feature: User sessions
     Given I am logged in as "user1" with password "pass1"
     Then I should be allowed to go to a protected page
     When I follow "Logout"
-    Then I should see "You are not authorized to access the requested page"
+    Then I should not be allowed to go to a protected page
 
   Scenario: Checking remember me
     Given I am logged in as "user1" with password "pass1" and auto login

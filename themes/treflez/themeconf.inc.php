@@ -19,6 +19,8 @@ Author URI: https://www.phyxo.net
 The theme is based on the original one for piwigo.
  */
 
+namespace Treflez;
+
 $themeconf = [
     'name' => 'treflez',
     'load_parent_css' => false,
@@ -26,8 +28,23 @@ $themeconf = [
     'url' => 'https://www.phyxo.net/'
 ];
 
-require_once(__DIR__ . '/include/themecontroller.php');
 require_once(__DIR__ . '/include/config.php');
 
-$controller = new \Treflez\ThemeController($conf, $template, $translator);
-$controller->init();
+$config = new Config($conf);
+if (!empty($config->bootstrap_darkroom_navbar_main_style)) {
+    $config->navbar_main_style = $config->bootstrap_darkroom_navbar_main_style;
+}
+
+if (!empty($config->bootstrap_darkroom_navbar_main_bg)) {
+    $config->navbar_main_bg = $config->bootstrap_darkroom_navbar_main_bg;
+}
+
+if (!empty($config->bootstrap_darkroom_navbar_contextual_style)) {
+    $config->navbar_contextual_style = $config->bootstrap_darkroom_navbar_contextual_style;
+}
+
+if (!empty($config->bootstrap_darkroom_navbar_contextual_bg)) {
+    $config->navbar_contextual_bg = $config->bootstrap_darkroom_navbar_contextual_bg;
+}
+
+return ['theme_config' => $config->getConfig()];

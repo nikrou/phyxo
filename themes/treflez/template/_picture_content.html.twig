@@ -1,0 +1,33 @@
+{% if current.path == 'mp4' %}
+    {% if current.height < current.width %}
+	<div id="video-modal" class="col-lg-8 col-md-10 col-sm-12 mx-auto">
+	    {% if current.height / current.width * 100 < 60 %}
+		<div class="embed-responsive embed-responsive-16by9">
+	    {% else %}
+		    <div class="embed-responsive embed-responsive-custom" style="padding-bottom:{{current.height / current.width * 100}}%">
+	    {% endif %}
+    {% else %}
+	    <div id="video-modal" class="col-lg-3 col-md-5 col-sm-6 col-xs-8 mx-auto">
+		<div class="embed-responsive embed-responsive-9by16">
+    {% endif %}
+    <video id="video" class="embed-responsive-item" width="100%" height="auto" controls preload="auto" poster="{{current.selected_derivative.getUrl()}}">
+	<source src="{{ROOT_URL}}{{current.path}}" type="video/mp4"></source>
+    </video>
+		</div>
+	    </div>
+{% else %}
+	    <img {% if current.selected_derivative.is_cached() %}src="{{current.selected_derivative.getUrl()}}" {{current.selected_derivative.get_size_htm()}}{% else %}src="{{ROOT_URL}}themes/treflez/img/transparent.png" data-src="{{current.selected_derivative.getUrl()}}"{% endif %} alt="{% if ALT_IMG is defined %}ALT_IMG{% endif %}" id="theMainImage" usemap="#map{{current.selected_derivative.get_type()}}" title="{% if COMMENT_IMG is defined %}{{COMMENT_IMG|striptags}}{% else %}{% if current.TITLE_ESC is defined %}{{current.TITLE_ESC}}{% endif %}{% if ALT_IMG is defined %} - {{ALT_IMG}}{% endif %}{% endif %}">
+
+	    {% for derivative in current.unique_derivatives %}
+		<map name="map{{derivative.get_type()}}">
+		    {% set size = derivative.get_size() %}
+		    {% if previous is defined %}
+			<area shape=rect coords="0,0,{{(size[0]/4)}},{{size[1]}}" href="{{previous.U_IMG}}" title="{{'Previous'|trans}}{% if previous.TITLE_ESC is defined %} : {{previous.TITLE_ESC}}{% endif %}" alt="{% if previous.TITLE_ESC is defined %}{{previous.TITLE_ESC}}{% endif %}">
+		    {% endif %}
+		    <area shape=rect coords="{{(size[0]/4)}},0,{{(size[0]/1.34)}},{{(size[1]/4)}}" href="{{U_UP}}" title="{{'Thumbnails'|trans}}" alt="{{'Thumbnails'|trans}}">
+		    {% if next is defined %}
+			<area shape=rect coords="{{(size[0]/1.33)}},0,{{size[0]}},{{size[1]}}" href="{{next.U_IMG}}" title="{{'Next'|trans}}{% if next.TITLE_ESC is defined %} : {{next.TITLE_ESC}}{% endif %}" alt="{% if next.TITLE_ESC is defined %}{{next.TITLE_ESC}}{% endif %}">
+		    {% endif %}
+		</map>
+	    {% endfor %}
+{% endif %}

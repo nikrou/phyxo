@@ -1,0 +1,18 @@
+<nav aria-label="nav-breadcrumb d-inline-flex">
+    <ol class="breadcrumb">
+	<li class="breadcrumb-item"><a href="{{U_HOME}}" title="{{'Home'|trans}}"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+	{% if elements is iterable %}
+	    {% for element in elements %}
+		{%  if element.url is defined %}
+		    <li class="breadcrumb-item"><a href="{{element.url}}">{{element.label}}</a></li>
+		{%  elseif element.label %}
+		    <li class="breadcrumb-item active">{{element.label}}</li>
+		{% else %}
+		    <li class="breadcrumb-item active">{{element}}</li>
+		{% endif %}
+	    {% endfor %}
+	{% else %}
+	    {{elements|raw}}
+	{% endif %}
+    </ol>
+</nav>

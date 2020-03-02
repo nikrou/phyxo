@@ -1,0 +1,85 @@
+{#
+Content container widths, taken from bootstrap.css. Must be updated to match for accurate grid calcuations if image
+size menu is enabled in child theme
+#}
+
+{% macro col_class(width, height, theme_config) %}
+    {% set width_xxl = 1410 %}
+    {% set width_xl = 1170 %}
+    {% set width_lg = 970 %}
+    {% set width_md = 750 %}
+    {% set width_sm = 540 %}
+    {% set col_padding = col_padding|default(5) %}
+
+    {% set col_class = '' %}
+    {% if theme_config.fluid_width and theme_config.fluid_width_col_xxl %}
+	{% if width > (width_xxl - (4 * col_padding)) / 2 %}
+	    {% set col_class = col_class ~ 'col-xxl-12' %}
+	{% elseif width > (width_xxl - (6 * col_padding)) / 3 %}
+	    {% set col_class = col_class ~ "col-xxl-4" %}
+	{% elseif width > (width_xxl - (8 * col_padding)) / 4 %}
+	    {% set col_class = col_class ~ 'col-xxl-3' %}
+	{% elseif width <= (width_xxl - (8 * col_padding)) / 4 and width > (width_xxl - (12 * col_padding)) / 6 %}
+	    {% set col_class = col_class ~ 'col-xxl-2' %}
+	{% else %}
+	    {% set col_class = col_class ~ 'col-xxl-1' %}
+	{% endif %}
+    {% endif %}
+
+    {# Calulate grid for xlarge desktops #}
+    {% if width > (width_xl - (4 * col_padding)) / 2 %}
+	{% set col_class = col_class ~ ' col-xl-12' %}
+    {% elseif width > (width_xl - (6 * col_padding)) / 3 %}
+	{% set col_class = col_class ~ ' col-xl-6' %}
+    {% elseif width > (width_xl - (8 * col_padding)) / 4 %}
+	{% set col_class = col_class ~ ' col-xl-4' %}
+    {% elseif width <= (width_xl - (8 * col_padding)) / 4 and width > (width_xl - (12 * col_padding)) / 6 %}
+	{% set col_class = col_class ~ ' col-xl-3' %}
+    {% else %}
+	{% set col_class = col_class ~ ' col-xl-2' %}
+    {% endif %}
+
+    {# Calulate grid for large desktops #}
+    {% if width > (width_lg - (4 * col_padding)) / 2 %}
+	{% set col_class = col_class ~ ' col-lg-12' %}
+    {% elseif width > (width_lg - (6 * col_padding)) / 3 %}
+	{% set col_class = col_class ~ ' col-lg-6' %}
+    {% elseif width > (width_lg - (8 * col_padding)) / 4 %}
+	{% set col_class = col_class ~ ' col-lg-4' %}
+    {% elseif width <= (width_lg - (8 * col_padding)) / 4 and width > (width_lg - (12 * col_padding)) / 6 %}
+	{% set col_class = col_class ~ ' col-lg-3' %}
+    {% else %}
+	{% set col_class = col_class ~ ' col-lg-2' %}
+    {% endif %}
+
+    {# Calulate grid for md desktops #}
+    {% if width > (width_md - (4 * col_padding)) / 2 %}
+	{% set col_class = col_class ~ " col-md-12" %}
+    {% elseif width > (width_md - (6 * col_padding)) / 3 %}
+	{% set col_class = col_class ~ " col-md-6" %}
+    {% elseif width > (width_md - (8 * col_padding)) / 4 %}
+	{% set col_class = col_class ~ " col-md-4" %}
+    {% elseif width <= (width_md - (8 * col_padding)) / 4 and width > (width_md - (12 * col_padding)) / 6 %}
+	{% set col_class = col_class ~ " col-md-3" %}
+    {% else %}
+	{% set col_class = col_class ~ " col-md-2" %}
+    {% endif %}
+
+    {# Calulate grid for tablets #}
+    {% if width > (width_sm - (4 * col_padding)) / 2 %}
+	{% set col_class = col_class ~ " col-sm-12" %}
+    {% elseif width > (width_sm - (6 * col_padding)) / 3 %}
+	{% set col_class = col_class ~ " col-sm-6" %}
+    {% elseif width > (width_sm - (8 * col_padding)) / 4 %}
+	{% set col_class = col_class ~ " col-sm-4" %}
+    {% elseif width <= (width_sm - (8 * col_padding)) / 4 and width > (width_sm - (12 * col_padding)) / 6 %}
+	{% set col_class = col_class ~ " col-sm-3" %}
+    {% else %}
+	{% set col_class = col_class ~ " col-sm-2" %}
+    {% endif %}
+
+    {# For phones just use 1 column #}
+    {% set col_class = col_class ~ " col-12" %}
+
+    {{col_class}}
+{% endmacro %}
