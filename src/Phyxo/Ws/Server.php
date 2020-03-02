@@ -306,7 +306,6 @@ class Server
             ['methodName']
         );
 
-        Plugin::trigger_notify('ws_add_methods', [&$this]);
         uksort($this->_methods, 'strnatcmp');
 
         return $this->_requestHandler->handleRequest($this);
@@ -318,7 +317,6 @@ class Server
     public function sendResponse($response)
     {
         $encodedResponse = $this->_responseEncoder->encodeResponse($response);
-        Plugin::trigger_notify('sendResponse', $encodedResponse);
 
         return $encodedResponse;
     }
@@ -556,10 +554,6 @@ class Server
         if ($result = $this->isInvokeAllowed($methodName, $params)) {
             $result = call_user_func_array($method['callback'], [$params, &$this]);
         }
-
-        // $result = Plugin::trigger_change('ws_invoke_allowed', true, $methodName, $params);
-        // if ((is_bool($result) && $result === true) || get_class($result) != 'Phyxo\Ws\Error') {
-        // }
 
         return $result;
     }

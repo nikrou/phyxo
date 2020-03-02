@@ -85,10 +85,6 @@ class RateMapper
      */
     public function updateRatingScore($element_id = false)
     {
-        if (($alt_result = \Phyxo\Functions\Plugin::trigger_change('RatingMapper::updateRatingScore', false, $element_id)) !== false) {
-            return $alt_result;
-        }
-
         $all_rates_count = 0;
         $all_rates_avg = 0;
         $item_ratecount_avg = 0;

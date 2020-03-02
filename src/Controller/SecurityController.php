@@ -285,8 +285,6 @@ class SecurityController extends CommonController
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
 
         $tpl_params = array_merge($tpl_params, $menuBar->getBlocks());
-
-        \Phyxo\Functions\Plugin::trigger_notify('init');
         $tpl_params = array_merge($tpl_params, $this->loadThemeConf($request->getSession()->get('_theme'), $this->conf));
 
         return $this->render('profile.html.twig', $tpl_params);

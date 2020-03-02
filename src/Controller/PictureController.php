@@ -93,10 +93,10 @@ class PictureController extends CommonController
                 $imageMapper->getPicturesFromSelection($tpl_params['items'], $element_id, 'category')
             );
 
-            $tpl_params['derivative_params_square'] = Plugin::trigger_change('get_index_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_SQUARE));
-            $tpl_params['derivative_params_medium'] = Plugin::trigger_change('get_index_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_MEDIUM));
-            $tpl_params['derivative_params_large'] = Plugin::trigger_change('get_index_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_LARGE));
-            $tpl_params['derivative_params_xxlarge'] = Plugin::trigger_change('get_index_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE));
+            $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
+            $tpl_params['derivative_params_medium'] = $image_std_params->getByType(ImageStandardParams::IMG_MEDIUM);
+            $tpl_params['derivative_params_large'] = $image_std_params->getByType(ImageStandardParams::IMG_LARGE);
+            $tpl_params['derivative_params_xxlarge'] = $image_std_params->getByType(ImageStandardParams::IMG_XXLARGE);
         }
 
         $result = $em->getRepository(ImageRepository::class)->findById($this->getUser(), $filter, $image_id);
@@ -372,9 +372,9 @@ class PictureController extends CommonController
                     $tpl_comment =
                         [
                             'ID' => $row['id'],
-                            'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $row['author']),
+                            'AUTHOR' => $row['author'],
                             'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                            'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
+                            'CONTENT' => $row['content'],
                             'WEBSITE_URL' => $row['website_url'],
                         ];
 

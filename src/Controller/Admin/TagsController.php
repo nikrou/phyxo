@@ -54,7 +54,7 @@ class TagsController extends AdminCommonController
 
         $orphan_tag_names = [];
         foreach ($orphan_tags as $tag) {
-            $orphan_tag_names[] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
+            $orphan_tag_names[] = $tag['name'];
         }
 
         if (count($orphan_tag_names) > 0) {
@@ -79,7 +79,7 @@ class TagsController extends AdminCommonController
         $all_tags = [];
         while ($tag = $em->getConnection()->db_fetch_assoc($result)) {
             $raw_name = $tag['name'];
-            $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $raw_name, $tag);
+            $tag['name'] = $raw_name;
             if (empty($tag_counters[$tag['id']])) {
                 $tag['counter'] = 0;
             } else {
@@ -90,7 +90,7 @@ class TagsController extends AdminCommonController
                 $tag['U_MANAGE_PHOTOS'] = $this->generateUrl('admin_batch_manager_global', ['filter' => 'tag', 'value' => $tag['id']]);
             }
 
-            $alt_names = \Phyxo\Functions\Plugin::trigger_change('get_tag_alt_names', [], $raw_name);
+            $alt_names = [];
             $alt_names = array_diff(array_unique($alt_names), [$tag['name']]);
             if (count($alt_names)) {
                 $tag['alt_names'] = implode(', ', $alt_names);
@@ -147,7 +147,7 @@ class TagsController extends AdminCommonController
                         $updates[] = [
                             'id' => $tag_id,
                             'name' => $tag_name,
-                            'url_name' => \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name),
+                            'url_name' => $tag_name,
                         ];
                     }
                 }
@@ -178,10 +178,7 @@ class TagsController extends AdminCommonController
                     if (in_array($tag_name, $existing_names)) {
                         $this->addFlash('error', $translator->trans('Tag "{tag}" already exists', ['tag' => $tag_name], 'admin'));
                     } elseif (!empty($tag_name)) {
-                        $em->getRepository(TagRepository::class)->insertTag(
-                            $tag_name,
-                            \Phyxo\Functions\Plugin::trigger_change('render_tag_url', $tag_name)
-                        );
+                        $em->getRepository(TagRepository::class)->insertTag($tag_name, $tag_name);
 
                         $result = $em->getRepository(TagRepository::class)->findBy('name', $tag_name);
                         $destination_tag = $em->getConnection()->result2array($result, null, 'id');
@@ -231,7 +228,7 @@ class TagsController extends AdminCommonController
                     $name_of_tag = [];
                     $result = $em->getRepository(TagRepository::class)->findTags($tag_ids);
                     while ($row = $em->getConnection()->db_fetch_assoc($result)) {
-                        $name_of_tag[$row['id']] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $row['name'], $row);
+                        $name_of_tag[$row['id']] = $row['name'];
                     }
 
                     $tag_ids_to_delete = array_diff($tag_ids, [$destination_tag_id]);

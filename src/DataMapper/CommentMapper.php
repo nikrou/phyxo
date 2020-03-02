@@ -43,7 +43,6 @@ class CommentMapper
 
     /**
      * Does basic check on comment and returns action to perform.
-     * This method is called by a trigger_change()
      *
      * @param string $action before check
      * @param array $comment
@@ -183,9 +182,6 @@ class CommentMapper
             }
         }
 
-        // perform more spam check
-        $comment_action = Plugin::trigger_change('user_comment_check', $comment_action, $comm);
-
         if ($comment_action != 'reject') {
             $comm['id'] = (new CommentRepository($this->conn))->addComment([
                 'author' => $comm['author'],
@@ -249,17 +245,6 @@ class CommentMapper
             $comment_action = 'moderate'; //one of validate, moderate, reject
         }
 
-        // perform more spam check
-        $comment_action =
-            Plugin::trigger_change(
-            'user_comment_check',
-            $comment_action,
-            array_merge(
-                $comment,
-                ['author' => $this->getUser()->getUsername()]
-            )
-        );
-
         // website
         if (!empty($comment['website_url'])) {
             $comment['website_url'] = strip_tags($comment['website_url']);
@@ -304,7 +289,6 @@ class CommentMapper
         (new CommentRepository($this->conn))->validateUserComment($comment_id);
 
         $this->invalidateUserCacheNbComments();
-        Plugin::trigger_notify('user_comment_validation', $comment_id);
     }
 
     /**

@@ -25,8 +25,6 @@ class Image
     {
         $this->source_filepath = $source_filepath;
 
-        \Phyxo\Functions\Plugin::trigger_notify('load_image_library', [&$this]);
-
         if (is_object($this->image)) {
             return; // A plugin may have load its own library
         }

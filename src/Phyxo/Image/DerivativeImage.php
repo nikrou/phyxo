@@ -99,15 +99,7 @@ class DerivativeImage
 
         $this->build($this->src_image, $this->params, $rel_path, $rel_url);
 
-        return \Phyxo\Functions\URL::embellish_url(
-            Plugin::trigger_change(
-                'get_derivative_url',
-                \Phyxo\Functions\URL::get_absolute_root_url() . $rel_url,
-                $this->params,
-                $this->src_image,
-                $rel_url
-            )
-        );
+        return \Phyxo\Functions\URL::embellish_url(\Phyxo\Functions\URL::get_absolute_root_url() . $rel_url);
     }
 
     /**
@@ -167,7 +159,6 @@ class DerivativeImage
                 } else {
                     $url_style = 1;
                 }
-
             } else {
                 $is_cached = false;
                 $url_style = 2;

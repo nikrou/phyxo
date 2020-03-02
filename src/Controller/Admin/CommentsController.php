@@ -76,9 +76,9 @@ class CommentsController  extends AdminCommonController
                 'U_PICTURE' => $this->generateUrl('admin_photo', ['image_id' => $row['image_id']]),
                 'ID' => $row['id'],
                 'TN_SRC' => $thumb,
-                'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $author_name),
+                'AUTHOR' => $author_name,
                 'DATE' => \Phyxo\Functions\DateTime::format_date($row['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $row['content']),
+                'CONTENT' => $row['content'],
                 'IS_PENDING' => $em->getConnection()->get_boolean($row['validated']) === false,
                 'IP' => $row['anonymous_id'],
             ];

@@ -320,7 +320,6 @@ class UserMapper
         } else {
             $this->em->getRepository(UserCacheRepository::class)->updateUserCache(['need_update' => true]);
         }
-        \Phyxo\Functions\Plugin::trigger_notify('UserMapper::invalidateUserCache', $full);
     }
 
     /**
@@ -353,7 +352,5 @@ class UserMapper
 
         // destruction of the user
         $this->em->getRepository(UserRepository::class)->deleteById($user_id);
-
-        \Phyxo\Functions\Plugin::trigger_notify('UserMapper::deleteUser', $user_id);
     }
 }

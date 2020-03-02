@@ -324,8 +324,6 @@ class SearchMapper
                     break;
 
                 default:
-                    // allow plugins to have their own scope with columns added in db by themselves
-                    $clauses = \Phyxo\Functions\Plugin::trigger_change('qsearch_get_images_sql_scopes', $clauses, $token, $expr);
                     break;
             }
             if (!empty($clauses)) {
@@ -400,9 +398,6 @@ class SearchMapper
 
         $all_tags = array_intersect_key($all_tags, array_flip(array_diff($positive_ids, $not_ids)));
         usort($all_tags, '\Phyxo\Functions\Utils::tag_alpha_compare');
-        foreach ($all_tags as &$tag) {
-            $tag['name'] = \Phyxo\Functions\Plugin::trigger_change('render_tag_name', $tag['name'], $tag);
-        }
         $qsr->all_tags = $all_tags;
         $qsr->tag_ids = $token_tag_ids;
     }
@@ -480,8 +475,6 @@ class SearchMapper
             'qs' => ['q' => $q]
         ];
 
-        $q = \Phyxo\Functions\Plugin::trigger_change('qsearch_pre', $q);
-
         $scopes = [];
         $scopes[] = new QSearchScope('tag', ['tags']);
         $scopes[] = new QSearchScope('photo', ['photos']);
@@ -505,8 +498,6 @@ class SearchMapper
         $scopes[] = new QDateRangeScope('created', $createdDateAliases, true);
         $scopes[] = new QDateRangeScope('posted', $postedDateAliases);
 
-        // allow plugins to add their own scopes
-        $scopes = \Phyxo\Functions\Plugin::trigger_change('qsearch_get_scopes', $scopes);
         $expression = new QExpression($q, $scopes);
 
         // get inflections for terms
@@ -527,17 +518,12 @@ class SearchMapper
             }
         }
 
-        \Phyxo\Functions\Plugin::trigger_notify('qsearch_expression_parsed', $expression);
-
         if (count($expression->stokens) == 0) {
             return $search_results;
         }
         $qsr = new QResults();
         $this->qsearchGetTags($expression, $qsr);
         $this->qsearchGetImages($expression, $qsr);
-
-        // allow plugins to evaluate their own scopes
-        \Phyxo\Functions\Plugin::trigger_notify('qsearch_before_eval', $expression, $qsr);
 
         $ids = $this->qsearchEval($expression, $qsr, $tmp, $search_results['qs']['unmatched_terms']);
 
@@ -551,7 +537,6 @@ class SearchMapper
         $debug[] = 'before perms ' . count($ids);
 
         $search_results['qs']['matching_tags'] = $qsr->all_tags;
-        $search_results = \Phyxo\Functions\Plugin::trigger_change('qsearch_results', $search_results, $expression, $qsr);
 
         if (empty($ids)) {
             $debug[] = '-->';

@@ -169,19 +169,11 @@ class AlbumController extends CommonController
             // Update filtered data
             \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
 
-            \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_category_thumbnails', $categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {
                     continue;
                 }
-
-                $category['name'] = \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_name',
-                    $category['name'],
-                    'subcatify_category_name'
-                );
 
                 $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
 
@@ -194,10 +186,7 @@ class AlbumController extends CommonController
                     'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_literal_description',
-                        \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
-                    ),
+                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
                     'NAME' => $name,
                 ]);
 
@@ -225,8 +214,7 @@ class AlbumController extends CommonController
             // @TODO : a category can contain more than $conf['nb_categories_page']
             $tpl_thumbnails_var_selection = array_slice($tpl_thumbnails_var, 0, $conf['nb_categories_page']);
 
-            $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
-            $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
@@ -557,19 +545,11 @@ class AlbumController extends CommonController
             // Update filtered data
             \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
 
-            \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_category_thumbnails', $categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {
                     continue;
                 }
-
-                $category['name'] = \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_name',
-                    $category['name'],
-                    'subcatify_category_name'
-                );
 
                 $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
 
@@ -582,10 +562,7 @@ class AlbumController extends CommonController
                     'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl($start > 0 ? 'album__start' : 'album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_literal_description',
-                        \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
-                    ),
+                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
                     'NAME' => $name,
                 ]);
 
@@ -616,8 +593,7 @@ class AlbumController extends CommonController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
-            $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;
@@ -785,19 +761,11 @@ class AlbumController extends CommonController
             // Update filtered data
             \Phyxo\Functions\Category::update_cats_with_filtered_data($categories);
 
-            \Phyxo\Functions\Plugin::trigger_notify('loc_begin_index_category_thumbnails', $categories);
-
             $tpl_thumbnails_var = [];
             foreach ($categories as $category) {
                 if ($category['count_images'] === 0) {
                     continue;
                 }
-
-                $category['name'] = \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_name',
-                    $category['name'],
-                    'subcatify_category_name'
-                );
 
                 $name = $categoryMapper->getCatDisplayNameCache($category['uppercats']);
 
@@ -810,10 +778,7 @@ class AlbumController extends CommonController
                     'TN_TITLE' => $imageMapper->getThumbnailTitle($category, $category['name'], $category['comment']),
                     'URL' => $this->generateUrl('album', ['category_id' => $category['id'], 'start' => $start]),
                     'CAPTION_NB_IMAGES' => $categoryMapper->getDisplayImagesCount($category['nb_images'], $category['count_images'], $category['count_categories'], true, '<br>'),
-                    'DESCRIPTION' => \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_literal_description',
-                        \Phyxo\Functions\Plugin::trigger_change('render_category_description', @$category['comment'], 'subcatify_category_description')
-                    ),
+                    'DESCRIPTION' => isset($category['comment']) ? $category['comment'] : '',
                     'NAME' => $name,
                 ]);
 
@@ -844,8 +809,7 @@ class AlbumController extends CommonController
                 $conf['nb_categories_page']
             );
 
-            $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_index_album_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
-            $tpl_thumbnails_var_selection = \Phyxo\Functions\Plugin::trigger_change('loc_end_index_category_thumbnails', $tpl_thumbnails_var_selection);
+            $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
 
             $tpl_params['maxRequests'] = $conf['max_requests'];
             $tpl_params['category_thumbnails'] = $tpl_thumbnails_var_selection;

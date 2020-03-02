@@ -197,22 +197,10 @@ class Category
             if ($params['fullname']) {
                 $row['name'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
             } else {
-                $row['name'] = strip_tags(
-                    \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_name',
-                        $row['name'],
-                        '\Phyxo\Functions\WS\Categories::getList'
-                    )
-                );
+                $row['name'] = strip_tags($row['name']);
             }
 
-            $row['comment'] = strip_tags(
-                \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_description',
-                    $row['comment'],
-                    '\Phyxo\Functions\Ws\Categories::getList'
-                )
-            );
+            $row['comment'] = strip_tags($row['comment']);
 
             /* management of the album thumbnail -- starts here
              *
@@ -371,21 +359,9 @@ class Category
             $id = $row['id'];
             $row['nb_images'] = isset($nb_images_of[$id]) ? $nb_images_of[$id] : 0;
 
-            $row['name'] = strip_tags(
-                \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_name',
-                    $row['name'],
-                    '\Phyxo\Functions\Ws\Categories::getAdminList'
-                )
-            );
+            $row['name'] = strip_tags($row['name']);
             $row['fullname'] = strip_tags($service->getCategoryMapper()->getCatDisplayNameCache($row['uppercats']));
-            $row['comment'] = strip_tags(
-                \Phyxo\Functions\Plugin::trigger_change(
-                    'render_category_description',
-                    $row['comment'],
-                    '\Phyxo\Functions\Ws\Categories::getAdminList'
-                )
-            );
+            $row['comment'] = strip_tags($row['comment']);
 
             $cats[] = $row;
         }
@@ -615,13 +591,7 @@ class Category
 
             // we break on error at first physical category detected
             if (!empty($row['dir'])) {
-                $row['name'] = strip_tags(
-                    \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_name',
-                        $row['name'],
-                        '\Phyxo\Functions\Ws\Categories::move'
-                    )
-                );
+                $row['name'] = strip_tags($row['name']);
 
                 return new Error(
                     403,

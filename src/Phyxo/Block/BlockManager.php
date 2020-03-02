@@ -50,7 +50,6 @@ class BlockManager
      */
     public function loadRegisteredBlocks(): void
     {
-        Plugin::trigger_notify('blockmanager_register_blocks', [$this]);
     }
 
     public function getId(): string
@@ -90,8 +89,6 @@ class BlockManager
             $idx++;
         }
         $this->sortBlocks();
-        Plugin::trigger_notify('blockmanager_prepare_display', [$this]);
-        $this->sortBlocks();
     }
 
     public function isHidden($block_id): bool
@@ -122,7 +119,7 @@ class BlockManager
 
     protected function sortBlocks()
     {
-        uasort($this->display_blocks, [__class__, 'cmp_by_position']);
+        uasort($this->display_blocks, [$this, 'cmp_by_position']);
     }
 
     /**
@@ -135,8 +132,6 @@ class BlockManager
 
     public function getDisplayBlocks(): array
     {
-        Plugin::trigger_notify('blockmanager_apply', [$this]);
-
         foreach ($this->display_blocks as $id => $block) {
             if (empty($block->raw_content) && empty($block->template)) {
                 $this->hideBlock($id);
@@ -155,8 +150,6 @@ class BlockManager
      */
     public function apply($template, $var_menubar, $var_blocks)
     {
-        Plugin::trigger_notify('blockmanager_apply', [$this]);
-
         foreach ($this->display_blocks as $id => $block) {
             if (empty($block->raw_content) && empty($block->template)) {
                 $this->hideBlock($id);

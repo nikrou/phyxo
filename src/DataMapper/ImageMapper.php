@@ -121,8 +121,6 @@ class ImageMapper
             }
         }
 
-        Plugin::trigger_notify('loc_begin_index_thumbnails', $pictures);
-
         foreach ($pictures as $row) {
             if (in_array($section, ['category', 'list', 'tags', 'search'])) {
                 $url = $this->router->generate(
@@ -198,10 +196,8 @@ class ImageMapper
             $tpl_params['thumbnails'][] = $tpl_var;
         }
 
-        $tpl_params['derivative_params'] = Plugin::trigger_change(
-            'get_index_derivative_params',
-            $this->image_std_params->getByType(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : ImageStandardParams::IMG_THUMB) // @TODO: retrieve index_deriv in another_way
-        );
+        // @TODO: retrieve index_deriv in another_way
+        $tpl_params['derivative_params'] = $this->image_std_params->getByType(isset($_SESSION['index_deriv']) ? $_SESSION['index_deriv'] : ImageStandardParams::IMG_THUMB);
 
         return $tpl_params;
     }
@@ -345,7 +341,6 @@ class ImageMapper
         }
 
         $title = htmlspecialchars(strip_tags($title));
-        $title = \Phyxo\Functions\Plugin::trigger_change('getThumbnailTitle', $title, $info);
 
         return $title;
     }

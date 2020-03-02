@@ -81,7 +81,6 @@ class SiteController extends AdminCommonController
 
             $plugin_links = [];
             //$plugin_links is array of array composed of U_HREF, U_HINT & U_CAPTION
-            $plugin_links = \Phyxo\Functions\Plugin::trigger_change('get_admins_site_links', $plugin_links, $row['id'], $is_remote);
             $tpl_var['plugin_links'] = $plugin_links;
 
             $tpl_params['sites'][] = $tpl_var;

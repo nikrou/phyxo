@@ -228,7 +228,6 @@ class Utils
         $result = (new UserRepository($conn))->findById($conf['webmaster_id']);
         $row = $conn->db_fetch_assoc($result);
         $email = $row['mail_address'];
-        $email = \Phyxo\Functions\Plugin::trigger_change('get_webmaster_mail_address', $email);
 
         return $email;
     }
@@ -408,7 +407,6 @@ class Utils
         //     $do_log = $conf['history_guest'];
         // }
 
-        // $do_log = \Phyxo\Functions\Plugin::trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
 
         // if (!$do_log) {
         //     return false;
@@ -668,7 +666,6 @@ class Utils
 
     /**
      * Add known menubar blocks.
-     * This method is called by a trigger_change()
      *
      * @param \Phyxo\Block\BlockManager[] $menu_ref_arr
      */
@@ -696,7 +693,7 @@ class Utils
     public static function render_element_name($info)
     {
         if (!empty($info['name'])) {
-            return \Phyxo\Functions\Plugin::trigger_change('render_element_name', $info['name']);
+            return $info['name'];
         }
 
         return \Phyxo\Functions\Utils::get_name_from_file($info['file']);
@@ -712,7 +709,7 @@ class Utils
     public static function render_element_description($info, $param = '')
     {
         if (!empty($info['comment'])) {
-            return \Phyxo\Functions\Plugin::trigger_change('render_element_description', $info['comment'], $param);
+            return $info['comment'];
         }
 
         return '';

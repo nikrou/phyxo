@@ -177,8 +177,6 @@ class User
             }
         }
 
-        $users = \Phyxo\Functions\Plugin::trigger_change('ws_users_getList', $users);
-
         return [
             'paging' => new NamedStruct(
                 [

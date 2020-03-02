@@ -88,8 +88,6 @@ abstract class CommonController extends AbstractController
         $tpl_params['LEVEL_SEPARATOR'] = $conf['level_separator'];
         $tpl_params['category_view'] = 'grid';
 
-        \Phyxo\Functions\Plugin::trigger_notify('init');
-
         return $tpl_params;
     }
 }

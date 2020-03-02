@@ -317,7 +317,7 @@ class HistoryController extends AdminCommonController
             $result = $em->getRepository(TagRepository::class)->findAll();
             while ($row = $em->getConnection()->db_fetch_assoc($result)) {
                 $name_of_tag[$row['id']] = [
-                    'name' => Plugin::trigger_change("render_tag_name", $row['name'], $row),
+                    'name' => $row['name'],
                     'url' => '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($row)]) . '">' . $row['name'] . '</a>',
                 ];
             }
@@ -443,7 +443,7 @@ class HistoryController extends AdminCommonController
             $image_title = '(' . $line['image_id'] . ')';
 
             if (isset($image_infos[$line['image_id']]['label'])) {
-                $image_title .= ' ' . Plugin::trigger_change('render_element_description', $image_infos[$line['image_id']]['label']);
+                $image_title .= ' ' . $image_infos[$line['image_id']]['label'];
             } else {
                 $image_title .= ' unknown filename';
             }

@@ -51,7 +51,7 @@ class SrcImage
             $this->rel_path = \Phyxo\Functions\Utils::original_to_representative($infos['path'], $infos['representative_ext']);
         } else {
             $ext = strtolower($ext);
-            $this->rel_path = Plugin::trigger_change('get_mimetype_location', 'themes/treflez/icon' . $ext . '.png', $ext);
+            $this->rel_path = 'themes/treflez/icon' . $ext . '.png';
             $this->flags |= self::IS_MIMETYPE;
             if (($size = @getimagesize(__DIR__ . '/../../../' . $this->rel_path)) === false) {
                 $this->rel_path = 'themes/treflez/icon/mimetypes/unknown.png';
@@ -110,9 +110,7 @@ class SrcImage
     public function getUrl()
     {
         $url = \Phyxo\Functions\URL::get_root_url() . $this->rel_path;
-        if (!($this->flags & self::IS_MIMETYPE)) {
-            $url = Plugin::trigger_change('get_src_image_url', $url, $this);
-        }
+
         return \Phyxo\Functions\URL::embellish_url($url);
     }
 

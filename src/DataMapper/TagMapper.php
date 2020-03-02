@@ -53,7 +53,6 @@ class TagMapper
         $result = $this->em->getRepository(TagRepository::class)->findAll($q);
         $tags = [];
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
 
@@ -70,7 +69,6 @@ class TagMapper
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             $row['thumb_src'] = (new DerivativeImage(new SrcImage($row, $this->conf['picture_ext']), $params, $this->image_std_params))->getUrl();
             $row['picture_url'] = $this->router->generate('admin_photo', ['image_id' => $row['image_id']]);
-            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $tags[] = $row;
         }
 
@@ -110,7 +108,6 @@ class TagMapper
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
             if (!empty($tag_counters[$row['id']])) {
                 $row['counter'] = (int)$tag_counters[$row['id']]['counter'];
-                $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
                 $row['status'] = $tag_counters[$row['id']]['status'];
                 $row['created_by'] = $tag_counters[$row['id']]['created_by'];
                 $row['validated'] = $this->em->getConnection()->get_boolean($tag_counters[$row['id']]['validated']);
@@ -130,7 +127,6 @@ class TagMapper
         $result = $this->em->getRepository(TagRepository::class)->getCommonTags($user->getId(), $items, $max_tags, $this->conf['show_pending_added_tags'] ?? false, $excluded_tag_ids);
         $tags = [];
         while ($row = $this->em->getConnection()->db_fetch_assoc($result)) {
-            $row['name'] = Plugin::trigger_change('render_tag_name', $row['name'], $row);
             $row['validated'] = $this->em->getConnection()->get_boolean($row['validated']);
             $tags[] = $row;
         }
@@ -152,7 +148,7 @@ class TagMapper
         $altlist = [];
         foreach ($tags as $tag) {
             $raw_name = $tag['name'];
-            $name = Plugin::trigger_change('render_tag_name', $raw_name, $tag);
+            $name = $raw_name;
 
             $taglist[] = [
                 'name' => $name,
@@ -160,7 +156,7 @@ class TagMapper
             ];
 
             if (!$only_user_language) {
-                $alt_names = Plugin::trigger_change('get_tag_alt_names', [], $raw_name);
+                $alt_names = [];
 
                 foreach (array_diff(array_unique($alt_names), [$name]) as $alt) {
                     $altlist[] = [
@@ -225,7 +221,7 @@ class TagMapper
         $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
 
         if (count($existing_tags) === 0) {
-            $url_name = Plugin::trigger_change('render_tag_url', $tag_name);
+            $url_name = $tag_name;
             // search existing by url name
             $result = $this->em->getRepository(TagRepository::class)->findBy('url_name', $url_name);
             $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
@@ -359,7 +355,7 @@ class TagMapper
         $existing_tags = $this->em->getConnection()->result2array($result, null, 'id');
 
         if (count($existing_tags) === 0) {
-            $inserted_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, Plugin::trigger_change('render_tag_url', $tag_name));
+            $inserted_id = $this->em->getRepository(TagRepository::class)->insertTag($tag_name, $tag_name);
 
             return [
                 'info' => $this->translator->trans('Tag "{tag}" was added', ['tag' => $tag_name]),

@@ -666,11 +666,6 @@ class BatchManagerController extends AdminCommonController
                     break;
 
                 default:
-                    $filter_sets = \Phyxo\Functions\Plugin::trigger_change(
-                        'perform_batch_manager_prefilters',
-                        $filter_sets,
-                        $bulk_manager_filter['prefilter']
-                    );
                     break;
             }
         }

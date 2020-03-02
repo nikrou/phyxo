@@ -213,7 +213,7 @@ class TagController extends CommonController
             $title .= $i > 0 ? ' + ' : '';
             $title .= '<a href="' . $this->generateUrl('images_by_tags', ['tag_ids' => URL::tagToUrl($tags[$i])]) . '"';
             $title .= ' title="' . $translator->trans('display photos linked to this tag') . '">';
-            $title .= Plugin::trigger_change('render_tag_name', $tags[$i]['name'], $tags[$i]);
+            $title .= $tags[$i]['name'];
             $title .= '</a>';
 
             if (count($tags) > 2) {

@@ -92,11 +92,7 @@ class CategoryMapper
             $row = array_merge(
                 $row,
                 [
-                    'NAME' => \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_name',
-                        $row['name'],
-                        'get_categories_menu'
-                    ),
+                    'NAME' => $row['name'],
                     'TITLE' => $this->getDisplayImagesCount($row['nb_images'], $row['count_images'], $row['count_categories'], false, ' / '),
                     'URL' => $this->router->generate('album', ['category_id' => $row['id']]),
                     'LEVEL' => substr_count($row['global_rank'], '.') + 1,
@@ -263,12 +259,6 @@ class CategoryMapper
         $is_first = true;
 
         foreach ($cat_informations as $cat) {
-            $cat['name'] = \Phyxo\Functions\Plugin::trigger_change(
-                'render_category_name',
-                $cat['name'],
-                'CategoryMapper::getCatDisplayName'
-            );
-
             if ($is_first) {
                 $is_first = false;
             } else {
@@ -349,12 +339,6 @@ class CategoryMapper
         foreach (explode(',', $uppercats) as $category_id) {
             $cat = $cache['cat_names'][$category_id];
 
-            $cat['name'] = \Phyxo\Functions\Plugin::trigger_change(
-                'render_category_name',
-                $cat['name'],
-                'getCatDisplayNameCache'
-            );
-
             if ($is_first) {
                 $is_first = false;
             } else {
@@ -394,13 +378,7 @@ class CategoryMapper
             } else {
                 $option = str_repeat('&nbsp;', (3 * substr_count($category['global_rank'], '.')));
                 $option .= '- ';
-                $option .= strip_tags(
-                    \Phyxo\Functions\Plugin::trigger_change(
-                        'render_category_name',
-                        $category['name'],
-                        'displaySelectCategories'
-                    )
-                );
+                $option .= strip_tags($category['name']);
             }
             $tpl_cats[$category['id']] = $option;
         }

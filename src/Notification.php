@@ -804,8 +804,6 @@ class Notification
                         $customize_mail_content = $this->conf['nbm_complementary_mail_content'];
                     }
 
-                    $customize_mail_content = \Phyxo\Functions\Plugin::trigger_change('nbm_render_global_customize_mail_content', $customize_mail_content);
-
                     // Prepare message after change language
                     if ($is_action_send) {
                         $msg_break_timeout = $this->translator->trans('Time to send mail is limited. Others mails are skipped.');
@@ -860,11 +858,8 @@ class Notification
                                     $tpl_params['global_new_lines'] = $news;
                                 }
 
-                                $nbm_user_customize_mail_content = \Phyxo\Functions\Plugin::trigger_change(
-                                    'nbm_render_user_customize_mail_content',
-                                    $customize_mail_content,
-                                    $nbm_user
-                                );
+                                $nbm_user_customize_mail_content = $customize_mail_content;
+
                                 if (!empty($nbm_user_customize_mail_content)) {
                                     $tpl_params['custom_mail_content'] = $nbm_user_customize_mail_content;
                                 }

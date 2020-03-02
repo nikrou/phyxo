@@ -63,6 +63,5 @@ class HTTP
         }
 
         header("$protocol $code $text", true, $code);
-        \Phyxo\Functions\Plugin::trigger_notify('set_status_header', $code, $text);
     }
 }

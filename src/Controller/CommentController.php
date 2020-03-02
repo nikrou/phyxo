@@ -199,10 +199,10 @@ class CommentController extends CommonController
                     'U_PICTURE' => $picture_url,
                     'src_image' => $src_image,
                     'ALT' => $name,
-                    'AUTHOR' => \Phyxo\Functions\Plugin::trigger_change('render_comment_author', $comment['author']),
+                    'AUTHOR' => $comment['author'],
                     'WEBSITE_URL' => $comment['website_url'],
                     'DATE' => \Phyxo\Functions\DateTime::format_date($comment['date'], ['day_name', 'day', 'month', 'year', 'time']),
-                    'CONTENT' => \Phyxo\Functions\Plugin::trigger_change('render_comment_content', $comment['content']),
+                    'CONTENT' => $comment['content'],
                 ];
 
                 if ($userMapper->isAdmin()) {
@@ -236,7 +236,7 @@ class CommentController extends CommonController
             }
         }
 
-        $derivative_params = \Phyxo\Functions\Plugin::trigger_change('get_comments_derivative_params', $image_std_params->getByType(ImageStandardParams::IMG_THUMB));
+        $derivative_params = $image_std_params->getByType(ImageStandardParams::IMG_THUMB);
         $tpl_params['derivative_params'] = $derivative_params;
         $tpl_params['csrf_token'] = $csrfTokenManager->getToken('authenticate');
         $tpl_params['F_ACTION'] = $this->generateUrl('comments', array_merge($query_params, ['start' => $start]));
