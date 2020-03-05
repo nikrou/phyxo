@@ -83,7 +83,9 @@ $lang['xlarge'] = 'XL - très grand';
 $lang['xxlarge'] = 'XXL - énorme';
 $lang['Original'] = "Original";
 $lang['Download this file'] = 'Télécharger ce fichier';
-$lang['add this photo to your favorites'] = 'ajouter cette photo à vos favoris';
+$lang['Add this photo to your favorites'] = 'Ajouter cette photo à vos favoris';
+$lang['Delete all photos from your favorites'] = 'Supprimer toutes les photos de vos favoris';
+$lang['Delete this photo from your favorites'] = 'Supprimer cette photo de vos favoris';
 $lang['set as album representative'] = 'Choisir comme représentante de cet album';
 $lang['Add to caddie'] = 'Ajouter au panier';
 $lang['Informations'] = "Informations";
@@ -238,5 +240,13 @@ $lang['Complete RSS feed (photos, comments)'] = 'Flux RSS complet (photos, comme
 $lang['photos posted during the last {count} days'] = 'photos ajoutées au cours des %d derniers jours';
 $lang['in this album'] = 'dans cet album';
 $lang['Quick search'] = 'Recherche rapide';
+$lang['Update tags'] = "Mettre à jour les tags";
+$lang['Tags updated'] = "Les tags ont été mis à jour";
+$lang['IPTC Metadata'] = 'Données IPTC';
+$lang['EXIF Metadata'] = 'Données EXIF';
+
+$lang['Your comment has been registered'] = 'Votre commentaire a été enregistré';
+$lang['Your comment has NOT been registered because it did not pass the validation rules'] = 'Votre commentaire n\'a pas été enregistré parce qu\'il ne satisfait aux règles de validation';
+$lang['Related tags'] = 'Tags liés';
 
 return $lang;

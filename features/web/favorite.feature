@@ -21,7 +21,7 @@ Feature: My favorites pictures
     When I am on homepage
     When I follow "album 1"
     And I follow "photo 1"
-    And I follow "add this photo to your favorites"
+    And I follow "Add this photo to your favorites"
     Then I go to the homepage
     When I follow "Your favorites"
     Then I should see photo "photo 1"
@@ -31,16 +31,16 @@ Feature: My favorites pictures
     When I am on homepage
     When I follow "album 1"
     And I follow "photo 1"
-    And I follow "add this photo to your favorites"
+    And I follow "Add this photo to your favorites"
     Then I follow "album 1"
     And I follow "photo 2"
-    And I follow "add this photo to your favorites"
+    And I follow "Add this photo to your favorites"
     When I follow "Your favorites"
     Then I should see photo "photo 1"
     Then I should see photo "photo 2"
 
     And I follow "photo 2"
-    And I follow "delete this photo from your favorites"
+    And I follow "Delete this photo from your favorites"
     When I follow "Your favorites"
     Then I should not see photo "photo 2"
 
@@ -49,10 +49,10 @@ Feature: My favorites pictures
     When I am on homepage
     When I follow "album 1"
     And I follow "photo 1"
-    And I follow "add this photo to your favorites"
+    And I follow "Add this photo to your favorites"
     Then I follow "album 1"
     And I follow "photo 2"
-    And I follow "add this photo to your favorites"
+    And I follow "Add this photo to your favorites"
     When I follow "Your favorites"
     And I follow "Delete all photos from your favorites"
     Then I should not see photo "photo 1"

@@ -26,4 +26,13 @@ $lang['Appearance'] = 'Appearance';
 $lang['Components'] = 'Components';
 $lang['Filter and display comments'] = "Filter and display comments";
 
+$lang['exif_field_Make'] = 'Make';
+$lang['exif_field_Model'] = 'Model';
+$lang['exif_field_Orientation'] = 'Orientation';
+$lang['exif_field_DateTimeOriginal'] = 'Datetime original';
+$lang['exif_field_ApertureFNumber'] = 'Aperture number';
+$lang['iptc_caption'] = 'Caption';
+$lang['iptc_keywords'] = 'Keywords';
+$lang['iptc_caption'] = 'Caption';
+
 return $lang;

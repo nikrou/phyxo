@@ -3887,16 +3887,16 @@
     "packages-dev": [
         {
             "name": "atoum/atoum",
-            "version": "3.4.1",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/atoum/atoum.git",
-                "reference": "35714b3044ccbfea6d9d78a7a7107347ee1b5ce9"
+                "reference": "e90606b89e62c5c18c5d02596078edf55f35b3c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/atoum/atoum/zipball/35714b3044ccbfea6d9d78a7a7107347ee1b5ce9",
-                "reference": "35714b3044ccbfea6d9d78a7a7107347ee1b5ce9",
+                "url": "https://api.github.com/repos/atoum/atoum/zipball/e90606b89e62c5c18c5d02596078edf55f35b3c3",
+                "reference": "e90606b89e62c5c18c5d02596078edf55f35b3c3",
                 "shasum": ""
             },
             "require": {
@@ -3966,7 +3966,7 @@
                 "test",
                 "unit testing"
             ],
-            "time": "2020-01-22T14:16:11+00:00"
+            "time": "2020-03-04T10:29:09+00:00"
         },
         {
             "name": "atoum/reports-extension",
@@ -5727,16 +5727,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.13",
+            "version": "0.12.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d74fb5ce1ab9f24a7128db90e99dec82440975c3"
+                "reference": "37bdd26a80235d0f9045b49f4151102b7831cbe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d74fb5ce1ab9f24a7128db90e99dec82440975c3",
-                "reference": "d74fb5ce1ab9f24a7128db90e99dec82440975c3",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/37bdd26a80235d0f9045b49f4151102b7831cbe2",
+                "reference": "37bdd26a80235d0f9045b49f4151102b7831cbe2",
                 "shasum": ""
             },
             "require": {
@@ -5762,7 +5762,7 @@
                 "MIT"
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
-            "time": "2020-03-02T13:08:55+00:00"
+            "time": "2020-03-02T22:29:43+00:00"
         },
         {
             "name": "sebastian/comparator",

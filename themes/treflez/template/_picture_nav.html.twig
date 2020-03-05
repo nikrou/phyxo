@@ -57,7 +57,7 @@
 		{% endif %}
 		{% if favorite is defined %}
                     <li class="nav-item">
-			<a class="nav-link" href="{{favorite.U_FAVORITE}}" data-action="addOrRemoveFavorite" title="{% if favorite.IS_FAVORITE %}{{'delete this photo from your favorites'|trans}}{% else %}{{'add this photo to your favorites'|trans}}{% endif %}" rel="nofollow">
+			<a class="nav-link" href="{{favorite.U_FAVORITE}}" data-action="addOrRemoveFavorite" title="{% if favorite.IS_FAVORITE %}{{'Delete this photo from your favorites'|trans}}{% else %}{{'Add this photo to your favorites'|trans}}{% endif %}" rel="nofollow">
                             <i class="fa {% if not favorite.IS_FAVORITE is empty %}fa-heart-o{% else %}fa-heart{% endif %}"></i>
 			</a>
                     </li>

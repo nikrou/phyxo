@@ -151,27 +151,15 @@
 {% if metadata is defined or comment_add is defined or COMMENT_COUNT > 0 %}
     <div id="infopanel-right" class="col-lg-6 col-12">
 	{% if metadata is defined %}
-	    {% if loaded_plugins['exif_view'] is defined %}
-		{% set exif_make = 'exif_field_Make'|trans %}
-		{% set exif_model = 'exif_field_Model'|trans %}
-		{% set exif_lens = 'exif_field_UndefinedTag:0xA434'|trans %}
-		{% set exif_fnumber = 'exif_field_FNumber'|trans %}
-		{% set exif_iso = 'exif_field_ISOSpeedRatings'|trans %}
-		{% set exif_focal_length = 'exif_field_FocalLength'|trans %}
-		{% set exif_flash = 'exif_field_Flash'|trans %}
-		{% set exif_exposure_time = 'exif_field_ExposureTime'|trans %}
-		{% set exif_exposure_bias = 'exif_field_ExposureBiasValue'|trans %}
-	    {% else %}
-		{% set exif_make = 'Make' %}
-		{% set exif_model = 'Model' %}
-		{% set exif_lens = 'UndefinedTag:0xA434' %}
-		{% set exif_fnumber = 'FNumber' %}
-		{% set exif_iso = 'ISOSpeedRatings' %}
-		{% set exif_focal_length = 'FocalLength' %}
-		{% set exif_flash = 'Flash' %}
-		{% set exif_exposure_time = 'ExposureTime' %}
-		{% set exif_exposure_bias = 'ExposureBiasValue' %}
-	    {% endif %}
+	    {% set exif_make = 'Make' %}
+	    {% set exif_model = 'Model' %}
+	    {% set exif_lens = 'UndefinedTag:0xA434' %}
+	    {% set exif_fnumber = 'FNumber' %}
+	    {% set exif_iso = 'ISOSpeedRatings' %}
+	    {% set exif_focal_length = 'FocalLength' %}
+	    {% set exif_flash = 'Flash' %}
+	    {% set exif_exposure_time = 'ExposureTime' %}
+	    {% set exif_exposure_bias = 'ExposureBiasValue' %}
 
 	    <div id="card-metadata" class="card mb-2">
 		<div class="card-body">

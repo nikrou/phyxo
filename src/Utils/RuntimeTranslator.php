@@ -58,6 +58,10 @@ class RuntimeTranslator implements TranslatorInterface, TranslatorBagInterface, 
             $locale = $this->getLocale();
         }
 
+        if ($domain === null) {
+            $domain = 'messages';
+        }
+
         $runtimeCatalogue = $this->getRuntimeCatalogue($locale);
         if ($runtimeCatalogue->defines($id, $domain) === false) {
             return $this->innerTranslator->trans(...func_get_args());

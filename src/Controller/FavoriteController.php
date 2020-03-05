@@ -37,7 +37,7 @@ class FavoriteController extends CommonController
             $tpl_params['category_view'] = $request->cookies->get('category_view');
         }
 
-        $tpl_params['TITLE'] = $translator->trans('Favorites');
+        $tpl_params['TITLE'] = $translator->trans('Your favorites');
 
         // @TODO: retrieve current sort order: user, category or default
         $filter = [];

@@ -28,4 +28,13 @@ $lang['Components'] = 'Composants';
 $lang['Appearance'] = 'Aspect';
 $lang['Filter and display comments'] = "Filtrer les commentaires";
 
+$lang['exif_field_Make'] = 'Marque';
+$lang['exif_field_Model'] = 'Modèle';
+$lang['exif_field_Orientation'] = 'Orientation';
+$lang['exif_field_DateTimeOriginal'] = 'Date';
+$lang['exif_field_ApertureFNumber'] = 'Ouverture / focale';
+$lang['iptc_caption'] = 'Légende';
+$lang['iptc_keywords'] = 'Mots-clés';
+$lang['iptc_caption'] = 'Légende';
+
 return $lang;
