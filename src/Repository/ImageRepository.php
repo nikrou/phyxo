@@ -232,7 +232,7 @@ class ImageRepository extends BaseRepository
     {
         $query = 'SELECT DISTINCT(id),' . $this->addOrderByFields($order_by) . ' FROM ' . self::IMAGES_TABLE;
         $query .= ' LEFT JOIN ' . self::IMAGE_CATEGORY_TABLE . ' AS ic ON id = ic.image_id';
-        $query .= ' WHERE image_id ' . $this->conn->in($ids);
+        $query .= ' WHERE id ' . $this->conn->in($ids);
         $query .= ' ' . $forbidden;
         $query .= ' ' . $order_by;
 

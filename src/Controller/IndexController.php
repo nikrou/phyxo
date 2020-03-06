@@ -260,7 +260,7 @@ class IndexController extends CommonController
             'AND'
         );
 
-        $tpl_params['PAGE_TITLE'] = $translator->trans('Random photos');
+        $tpl_params['TITLE'] = $translator->trans('Random photos');
         $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $list), $forbidden, $conf['order_by']);
         $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
 

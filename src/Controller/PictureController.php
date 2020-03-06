@@ -37,7 +37,6 @@ use App\DataMapper\ImageMapper;
 use App\Entity\Image;
 use App\Metadata;
 use App\Security\TagVoter;
-use Phyxo\Functions\Plugin;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PictureController extends CommonController
@@ -69,7 +68,6 @@ class PictureController extends CommonController
             }
         }
 
-        $category = ['id' => (int) $element_id];
         $filter = [];
 
         $forbidden = $em->getRepository(BaseRepository::class)->getSQLConditionFandF(
@@ -83,14 +81,22 @@ class PictureController extends CommonController
             'AND'
         );
 
-        $where_sql = 'category_id = ' . $category['id'];
-        $result = $em->getRepository(ImageRepository::class)->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
-        $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
+        $category = null;
+        if ($type === 'list') {
+            $tpl_params['TITLE'] = $translator->trans('Random photos');
+            $result = $em->getRepository(ImageRepository::class)->findList(explode(',', $element_id), $forbidden, $conf['order_by']);
+            $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'id');
+        } else {
+            $category = ['id' => (int) $element_id];
+            $where_sql = 'category_id = ' . $category['id'];
+            $result = $em->getRepository(ImageRepository::class)->searchDistinctId('image_id', [$where_sql . ' ' . $forbidden], true, $conf['order_by']);
+            $tpl_params['items'] = $em->getConnection()->result2array($result, null, 'image_id');
+        }
 
         if (count($tpl_params['items']) > 0) {
             $tpl_params = array_merge(
                 $tpl_params,
-                $imageMapper->getPicturesFromSelection($tpl_params['items'], $element_id, 'category')
+                $imageMapper->getPicturesFromSelection($tpl_params['items'], $element_id, $type)
             );
 
             $tpl_params['derivative_params_square'] = $image_std_params->getByType(ImageStandardParams::IMG_SQUARE);
@@ -126,8 +132,6 @@ class PictureController extends CommonController
                 ];
                 $tpl_params['previous'] = [
                     'U_IMG' => $this->generateUrl('picture', ['image_id' => $tpl_params['items'][$current_index - 1], 'type' => $type, 'element_id' => $element_id]),
-                    // 'TITLE_ESC' => str_replace('"', '&quot;', $tpl_params['items'][$current_index]['TITLE'])
-
                 ];
             }
             if ($current_index < (count($tpl_params['items']) - 1)) {
@@ -143,7 +147,12 @@ class PictureController extends CommonController
             $tpl_params['DISPLAY_NAV_BUTTONS'] = $conf['picture_navigation_icons'];
             $tpl_params['DISPLAY_NAV_THUMB'] = $conf['picture_navigation_thumb'];
         }
-        $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => $category['id']]);
+
+        if ($type === 'list') {
+            $tpl_params['U_UP'] = $this->generateUrl('random_list', ['list' => $element_id]);
+        } else {
+            $tpl_params['U_UP'] = $this->generateUrl('album', ['category_id' => $category['id']]);
+        }
         $deriv_type = $this->get('session')->has('picture_deriv') ? $this->get('session')->get('picture_deriv') : $conf['derivative_default_size'];
         $tpl_params['current']['selected_derivative'] = $tpl_params['current']['derivatives'][$deriv_type];
 
@@ -253,24 +262,26 @@ class PictureController extends CommonController
         $related_categories = $em->getConnection()->result2array($result);
         usort($related_categories, '\Phyxo\Functions\Utils::global_rank_compare');
 
-        // related categories
-        if (count($related_categories) === 1 && !empty($category['id']) && $related_categories[0]['id'] === $category['id']) {
-            // no need to go to db, we have all the info
-            $tpl_params['related_categories'] = $categoryMapper->getCatDisplayName($category);
-        } else { // use only 1 sql query to get names for all related categories
-            $ids = [];
-            foreach ($related_categories as $_category) { // add all uppercats to $ids
-                $ids = array_merge($ids, explode(',', $_category['uppercats']));
-            }
-            $ids = array_unique($ids);
-            $result = $em->getRepository(CategoryRepository::class)->findByIds($ids);
-            $cat_map = $em->getConnection()->result2array($result, 'id');
-            foreach ($related_categories as $_category) {
-                $cats = [];
-                foreach (explode(',', $_category['uppercats']) as $id) {
-                    $cats[] = $cat_map[$id];
+        if (!empty($related_categories)) {
+            // related categories
+            if (count($related_categories) === 1 && !empty($category['id']) && $related_categories[0]['id'] === $category['id']) {
+                // no need to go to db, we have all the info
+                $tpl_params['related_categories'] = $categoryMapper->getCatDisplayName($category);
+            } else { // use only 1 sql query to get names for all related categories
+                $ids = [];
+                foreach ($related_categories as $_category) { // add all uppercats to $ids
+                    $ids = array_merge($ids, explode(',', $_category['uppercats']));
                 }
-                $tpl_params['related_categories'][] = $categoryMapper->getCatDisplayName($cats);
+                $ids = array_unique($ids);
+                $result = $em->getRepository(CategoryRepository::class)->findByIds($ids);
+                $cat_map = $em->getConnection()->result2array($result, 'id');
+                foreach ($related_categories as $_category) {
+                    $cats = [];
+                    foreach (explode(',', $_category['uppercats']) as $id) {
+                        $cats[] = $cat_map[$id];
+                    }
+                    $tpl_params['related_categories'][] = $categoryMapper->getCatDisplayName($cats);
+                }
             }
         }
 
@@ -467,15 +478,19 @@ class PictureController extends CommonController
             }
         }
 
-        $tpl_params['TITLE'] = [
-            [
+        if ($type === 'list') {
+            $tpl_params['TITLE'] = [[
+                'url' => $this->generateUrl('random_list', ['list' => $element_id]),
+                'label' => $translator->trans('Random photos'),
+            ]];
+        } else {
+            $tpl_params['TITLE'][] = [
                 'url' => $this->generateUrl('album', ['category_id' => $category['id']]),
                 'label' => $tpl_params['related_categories'][0],
-            ],
-            [
-                'label' => $picture['name']
-            ]
-        ];
+            ];
+        }
+        $tpl_params['TITLE'][] = ['label' => $picture['name']];
+
         $tpl_params['SECTION_TITLE'] = '<a href="' . $this->generateUrl('homepage') . '">' . $translator->trans('Home') . '</a>';
 
         $tpl_params = array_merge($this->addThemeParams($template, $conf, $this->getUser(), $themesDir, $phyxoVersion, $phyxoWebsite), $tpl_params);
