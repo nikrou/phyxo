@@ -34,5 +34,8 @@ services:
   phyxo.tag.mapper:
     alias: 'App\DataMapper\TagMapper'
 
+  phyxo.comment.mapper:
+    alias: 'App\DataMapper\CommentMapper'
+
   phyxo.entity.manager:
     alias: 'Phyxo\EntityManager'

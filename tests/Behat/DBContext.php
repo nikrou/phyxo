@@ -153,6 +153,15 @@ class DBContext implements Context
     }
 
     /**
+     * @Given a comment :comment on :photo_name by :username
+     */
+    public function givenCommentOnPhotoByUser(string $comment, string $photo_name, string $username)
+    {
+        $comment_id = $this->getCommentMapper()->createComment($comment, $this->storage->get('image_' . $photo_name), $username, $this->storage->get('user_' . $username));
+        $this->storage->set('comment_' . md5($comment), $comment_id);
+    }
+
+    /**
      * @BeforeScenario
      */
     public function prepareDB(BeforeScenarioScope $scope)

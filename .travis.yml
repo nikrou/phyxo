@@ -23,6 +23,7 @@ before_install:
 
 before_script:
   - phpenv config-rm xdebug.ini || return 0
+  - sh ./tools/prepare.sh
   - composer install
 
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'drop database if exists phyxo;';fi"

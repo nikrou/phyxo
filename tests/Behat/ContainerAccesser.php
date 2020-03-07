@@ -57,4 +57,9 @@ trait ContainerAccesser
     {
         return $this->getContainer()->get('phyxo.tag.mapper');
     }
+
+    protected function getCommentMapper()
+    {
+        return $this->getContainer()->get('phyxo.comment.mapper');
+    }
 }

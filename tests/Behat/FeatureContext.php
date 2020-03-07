@@ -11,6 +11,7 @@
 
 namespace App\Tests\Behat;
 
+use Behat\Gherkin\Node\PyStringNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
 use mageekguy\atoum\asserter as Atoum;
 
@@ -157,6 +158,15 @@ class FeatureContext extends BaseContext
                 throw new \Exception(sprintf('Tag "%s" found on the page but should not be', $tag_name));
             }
         }
+    }
+
+    /**
+     * @When I add a comment :
+     */
+    public function iAddAComment(PyStringNode $comment)
+    {
+        $this->fillField('Comment', $comment);
+        $this->pressButton('Submit');
     }
 
     /**

@@ -30,6 +30,7 @@ use App\DataMapper\SearchMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Utils\UserManager;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -40,9 +41,10 @@ class WsController extends AbstractController
     public function index(UserMapper $userMapper, TagMapper $tagMapper, CommentMapper $commentMapper, CategoryMapper $categoryMapper, Conf $conf, iDBLayer $conn, EntityManager $em,
                            UserManager $userManager, UserPasswordEncoderInterface $passwordEncoder, RateMapper $rateMapper, SearchMapper $searchMapper, RouterInterface $router,
                            string $phyxoVersion, ImageStandardParams $image_std_params, string $pemURL, Security $security, ParameterBagInterface $params,
-                           ImageMapper $imageMapper)
+                           ImageMapper $imageMapper, Request $request)
     {
         $this->service = new Server($params->get('upload_dir'));
+        $this->service->setRequest($request);
         $this->service->addUserMapper($userMapper);
         $this->service->addTagMapper($tagMapper);
         $this->service->addCommentMapper($commentMapper);

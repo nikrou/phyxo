@@ -12,7 +12,6 @@
 namespace App\DataMapper;
 
 use App\Events\CommentEvent;
-use Phyxo\Functions\Plugin;
 use Phyxo\DBLayer\iDBLayer;
 use Phyxo\Conf;
 use App\Repository\CommentRepository;
@@ -24,7 +23,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CommentMapper
 {
-    private $conn, $conf, $userMapper, $router, $eventDispatcher, $translator;
+    private $conn, $conf, $userMapper, $eventDispatcher, $translator;
 
     public function __construct(iDBLayer $conn, Conf $conf, UserMapper $userMapper, RouterInterface $router, EventDispatcherInterface $eventDispatcher, TranslatorInterface $translator)
     {
@@ -67,7 +66,7 @@ class CommentMapper
 
         $link_count = preg_match_all('/https?:\/\//', $comment['content'], $matches);
 
-        if (strpos($comment['author'], 'http://') !== false) {
+        if ((strpos($comment['author'], 'http://') !== false) || (strpos($comment['author'], 'https://') !== false)) {
             $link_count++;
         }
 
@@ -78,24 +77,32 @@ class CommentMapper
         return $action;
     }
 
+    public function createComment(string $comment, int $image_id, string $author, int $author_id, array $params = [])
+    {
+        $comment_params = [
+            'author' => $author,
+            'author_id' => $author_id,
+            'content' => $comment,
+            'date' => isset($params['date']) ? $params['date'] : 'now()',
+            'anonymous_id' => isset($params['anonymous_id']) ? md5($params['anonymous_id']) : md5('::1'),
+            'validated' => isset($params['validated']) ? $params['validated'] : true,
+            'website_url' => isset($params['website_url']) ? $params['website_url'] : '',
+            'email' => isset($params['email']) ? $params['email'] : '',
+            'image_id' => $image_id
+        ];
+
+        return (new CommentRepository($this->conn))->addComment($comment_params);
+    }
+
     /**
      * Tries to insert a user comment and returns action to perform.
      *
      * @param array &$comm
-     * @param string $key secret key sent back to the browser
      * @param array &$infos output array of error messages
      * @return string validate, moderate, reject
      */
-    public function insertUserComment(&$comm, $key, &$infos)
+    public function insertUserComment(&$comm, &$infos)
     {
-        $comm = array_merge(
-            $comm,
-            [
-                'ip' => $_SERVER['REMOTE_ADDR'],
-                'agent' => $_SERVER['HTTP_USER_AGENT']
-            ]
-        );
-
         $infos = [];
         if (!$this->conf['comments_validation'] || $this->userMapper->isAdmin()) {
             $comment_action = 'validate'; //one of validate, moderate, reject
@@ -129,10 +136,6 @@ class CommentMapper
             $comment_action = 'reject';
         }
 
-        if (!\Phyxo\Functions\Utils::verify_ephemeral_key($key, $comm['image_id'])) {
-            $comment_action = 'reject';
-        }
-
         // website
         if (!empty($comm['website_url'])) {
             if (!$this->conf['comments_enable_website']) { // honeypot: if the field is disabled, it should be empty !
@@ -162,19 +165,14 @@ class CommentMapper
             $comment_action = 'reject';
         }
 
-        // anonymous id = ip address
-        $ip_components = explode('.', $comm['ip']);
-        if (count($ip_components) > 3) {
-            array_pop($ip_components);
-        }
-        $anonymous_id = implode('.', $ip_components);
+        $anonymous_id = $comm['ip'];
 
         if ($comment_action != 'reject' && $this->conf['anti-flood_time'] > 0 && !$this->userMapper->isAdmin()) { // anti-flood system
             $reference_date = $this->conn->db_get_flood_period_expression($this->conf['anti-flood_time']);
             $counter = (new CommentRepository($this->conn))->countAuthorMessageNewerThan(
                 $comm['author_id'],
                 $reference_date,
-                !$this->userMapper->isGuest() ? $anonymous_id : null
+                !$this->userMapper->isGuest() ? $anonymous_id : md5('::1')
             );
             if ($counter > 0) {
                 $infos[] = $this->translator->trans('Anti-flood system : please wait for a moment before trying to post another comment');
@@ -183,17 +181,11 @@ class CommentMapper
         }
 
         if ($comment_action != 'reject') {
-            $comm['id'] = (new CommentRepository($this->conn))->addComment([
-                'author' => $comm['author'],
-                'author_id' => $comm['author_id'],
-                'anonymous_id' => $comm['ip'],
-                'content' => $comm['content'],
+            $comm['id'] = $this->createComment($comm['content'], $comm['image_id'], $comm['author'], $comm['author_id'], array_merge($comm, [
                 'date' => 'now()',
                 'validated' => $comment_action === 'validate',
-                'image_id' => $comm['image_id'],
-                'website_url' => (!empty($comm['website_url']) ? $comm['website_url'] : ''),
-                'email' => (!empty($comm['email']) ? $comm['email'] : '')
-            ]);
+
+            ]));
 
             $this->invalidateUserCacheNbComments();
 

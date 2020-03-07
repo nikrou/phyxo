@@ -42,6 +42,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PictureController extends CommonController
 {
     private $em, $userMapper, $translator;
+    private const VALID_COMMENT = 'valid_comment';
 
     public function picture(Request $request, int $image_id, string $type, string $element_id, Template $template, Conf $conf, string $themesDir, string $phyxoVersion,
                             string $phyxoWebsite, MenuBar $menuBar, EntityManager $em, ImageStandardParams $image_std_params, TagMapper $tagMapper,
@@ -299,7 +300,9 @@ class PictureController extends CommonController
             $errors = [];
 
             if ($request->isMethod('POST')) {
-                if (!$request->request->get('key')) {
+                $token = $request->request->get('_csrf_comment');
+
+                if (!$this->isCsrfTokenValid(self::VALID_COMMENT, $token)) {
                     $comment_action = 'reject';
                 } else {
                     $comment = [
@@ -307,14 +310,15 @@ class PictureController extends CommonController
                         'content' => $request->request->get('content'),
                         'website_url' => $request->request->get('webiste_url'),
                         'email' => $request->request->get('email'),
-                        'image_id' => $image_id
+                        'image_id' => $image_id,
+                        'ip' => $request->getClientIp(),
                     ];
 
                     if ($request->get('action') === 'edit_comment' && $request->get('comment_to_edit')) {
                         $comment['comment_id'] = $request->get('comment_to_edit');
                         $comment_action = $commentMapper->updateUserComment($comment, $request->request->get('key'), $errors);
                     } else {
-                        $comment_action = $commentMapper->insertUserComment($comment, $request->request->get('key'), $errors);
+                        $comment_action = $commentMapper->insertUserComment($comment, $errors);
                     }
                 }
 
@@ -467,6 +471,7 @@ class PictureController extends CommonController
                     'EMAIL_MANDATORY' => $conf['comments_email_mandatory'],
                     'EMAIL' => '',
                     'SHOW_WEBSITE' => $conf['comments_enable_website'],
+                    'KEY' => $csrfTokenManager->getToken(self::VALID_COMMENT),
                 ];
 
                 if (!empty($comment_action) && $comment_action == 'reject') {

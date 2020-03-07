@@ -57,10 +57,11 @@ class Image
             'author' => trim($params['author']),
             'content' => trim($params['content']),
             'image_id' => $params['image_id'],
+            'ip' => $service->getRequest()->getClientIp()
         ];
 
         $infos = [];
-        $comment_action = $service->getCommentMapper()->insertUserComment($comm, $params['key'], $infos);
+        $comment_action = $service->getCommentMapper()->insertUserComment($comm, $infos);
 
         switch ($comment_action) {
             case 'reject':

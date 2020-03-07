@@ -48,6 +48,7 @@
 			    <label for="contentid">{{'Comment'|trans}} ({{'mandatory'|trans}}) :</label>
 			    <textarea class="form-control" name="content" id="contentid" rows="5" cols="50">{{comment_add.CONTENT}}</textarea>
 			</div>
+			<input type="hidden" name="_csrf_comment" value="{{comment_add.KEY}}"/>
 			<button type="submit" class="btn btn-primary btn-raised">{{'Submit'|trans}}</button>
 		    </form>
 		</div>
